@@ -284,7 +284,7 @@ struct ComputerDig {
     long distance; /**< used by dig to position - the distance between a given position and the destination */
     unsigned char hug_side; /**< used by dig to position - the rule to follow when hugging the wall (left-hand rule/side or right-hand rule/side) */
     SmallAroundIndex direction_around; /**< used by dig to position - the forwards direction of the path */
-    unsigned long subfield_2C; /**< this is always set to 1... but it's value is used to create a bool test: did action fail */
+    unsigned long action_success_flag; /**< this is always set to 1... but it's value is used to create a bool test: did action fail */
     long number_of_failed_actions; /**< used by dig to position (incremented when gold is found but digflags is 0, or a mark for digging action failed) */
     MapSubtlCoord last_backwards_step_stl_x; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the X coordinate of the slab we stepped back in to */
     MapSubtlCoord last_backwards_step_stl_y; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the Y coordinate of the slab we stepped back in to */
@@ -315,7 +315,7 @@ struct ComputerTask {
     long lastrun_turn;
     long delay;
     struct Coord3d new_room_pos;
-    struct Coord3d pos_6A;
+    struct Coord3d starting_position;
     union {
     struct {
         /** Amount of items to be sold; task is removed when it reaches zero. */
@@ -409,7 +409,7 @@ struct ComputerTask {
 };
 
 struct OpponentRelation { // sizeof = 394
-    GameTurn field_0;
+    GameTurn last_interaction_turn;
     short next_idx;
     long hate_amount;
     struct Coord3d pos_A[COMPUTER_SPARK_POSITIONS_COUNT];
@@ -419,7 +419,7 @@ struct Computer2 { // sizeof = 5322
   long task_state;
   unsigned long gameturn_delay;
   unsigned long gameturn_wait;
-  unsigned long field_C;
+  unsigned long action_status_flag;
   unsigned long tasks_did;
   unsigned long processes_time;
   unsigned long click_rate;
@@ -491,9 +491,8 @@ struct ComputerProcess *get_computer_process(struct Computer2 *comp, int cproc_i
 /******************************************************************************/
 TbBool computer_player_in_emergency_state(const struct Computer2 *comp);
 TbBool is_there_an_attack_task(const struct Computer2 *comp);
-struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long a5);
-struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind,
-    long width_slabs, long height_slabs, long a6, long a7);
+struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long look_randstart);
+struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long max_slabs_dist, long perfect);
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);

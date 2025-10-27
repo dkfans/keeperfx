@@ -298,14 +298,14 @@ struct ShotConfigStats {
     short fixed_damage;
     short light_radius;
     unsigned char light_intensity;
-    unsigned char lightf_53;
+    unsigned char light_flags;
     unsigned char unshaded;
     unsigned char soft_landing;
     EffectOrEffElModel effect_id;
     EffectOrEffElModel effect_bleeding;
     EffectOrEffElModel effect_frozen;
     unsigned char fire_logic; // see enum ShotFireLogics
-    unsigned char update_logic; // see enum ShotUpdateLogics
+    short update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
     unsigned short periodical;

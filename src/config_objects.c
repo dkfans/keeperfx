@@ -56,11 +56,12 @@ const struct NamedCommand objects_properties_commands[] = {
   {"BEATING",                 OMF_Beating             },
   {"HEART",                   OMF_Heart               },
   {"HOLD_IN_HAND",            OMF_HoldInHand          },
+  {"IGNORED_BY_IMPS",         OMF_IgnoredByImps       },
   {NULL,                      0},
   };
 
 const struct NamedCommand objects_genres_desc[] = {
-  {"NONE",            OCtg_Unknown},
+  {"NONE",            OCtg_None},
   {"DECORATION",      OCtg_Decoration},
   {"FURNITURE",       OCtg_Furniture},
   {"VALUABLE",        OCtg_Valuable},

@@ -6,9 +6,9 @@ local binser = require 'external.binser'
 local base64 = require 'external.base64'
 
 -- Get C metatables
-local PlayerMeta = getmetatable(debug.getregistry()["Player"])
-local ThingMeta = getmetatable(debug.getregistry()["Thing"])
-local SlabMeta = getmetatable(debug.getregistry()["Slab"])
+local PlayerMeta = debug.getregistry()["Player"]
+local ThingMeta = debug.getregistry()["Thing"]
+local SlabMeta = debug.getregistry()["Slab"]
 
 -- Recursively walk table and patch functions + metaclass types
 local function preprocess(value)

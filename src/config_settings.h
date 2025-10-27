@@ -37,7 +37,7 @@ struct GameKey { // sizeof = 2
 };
 
 struct GameSettings { // KFX settings
-    unsigned char field_0;
+    unsigned char video_detail_level;
     unsigned char video_shadows;
     unsigned char view_distance;
     unsigned char video_rotate_mode;
@@ -57,6 +57,7 @@ struct GameSettings { // KFX settings
     unsigned long frontview_zoom_level;
     long mentor_volume;
     int isometric_tilt;
+    TbBool highlight_mode;
     };
 #pragma pack()
 /******************************************************************************/

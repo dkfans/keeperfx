@@ -83,13 +83,6 @@ bool MouseStateHandler::Release(void)
     return true;
 }
 
-struct TbPoint *MouseStateHandler::GetPosition(void)
-{
-    if (!this->installed)
-      return NULL;
-    return &mspos;
-}
-
 bool MouseStateHandler::SetMousePosition(long x, long y)
 {
     long mx;
@@ -169,23 +162,6 @@ bool MouseStateHandler::SetMouseWindow(long x, long y,long width, long height)
     adjust_point(&lbDisplay.MMouseX, &lbDisplay.MMouseY);
     adjust_point(&lbDisplay.MouseX, &lbDisplay.MouseY);
     return true;
-}
-
-bool MouseStateHandler::GetMouseWindow(struct TbRect *windowRect)
-{
-    std::lock_guard<std::mutex> guard(lock);
-    windowRect->left = lbDisplay.MouseWindowX;
-    windowRect->top = lbDisplay.MouseWindowY;
-    windowRect->right = lbDisplay.MouseWindowX+lbDisplay.MouseWindowWidth;
-    windowRect->bottom = lbDisplay.MouseWindowY+lbDisplay.MouseWindowHeight;
-    return true;
-}
-
-const struct TbSprite *MouseStateHandler::GetPointer(void)
-{
-    if (!this->installed)
-      return NULL;
-    return mssprite;
 }
 
 bool MouseStateHandler::SetPointer(const struct TbSprite *spr, struct TbPoint *point)

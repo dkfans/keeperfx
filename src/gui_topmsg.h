@@ -39,6 +39,7 @@ enum ErrorStatisticEntries {
     ESE_BadPathHeap,
     ESE_BadRouteTree,
     ESE_CantReadPackets,
+    ESE_NoFreeUnsyncedThings,
 };
 
 struct ErrorStatistics {

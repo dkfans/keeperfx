@@ -208,8 +208,8 @@ struct Dungeon {
     unsigned long max_gameplay_score;
     short times_breached_dungeon;
     short highest_task_number;
-    int total_money_owned;
-    int offmap_money_owned;
+    GoldAmount total_money_owned;
+    GoldAmount offmap_money_owned;
     struct MapTask task_list[MAPTASKS_COUNT];
     int task_count;
     unsigned char owner;

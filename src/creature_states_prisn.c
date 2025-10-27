@@ -89,7 +89,7 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 short cleanup_prison(struct Thing *thing)
 {
   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-  cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_MoveX | CCFlg_MoveY);
+  cctrl->creature_control_flags &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_RepositionedInWall | CCFlg_AvoidCreatureCollision | CCFlg_IsInRoomList | CCFlg_MoveX | CCFlg_MoveY);
   state_cleanup_in_room(thing);
   return 1;
 }
@@ -109,14 +109,14 @@ short creature_arrived_at_prison(struct Thing *creatng)
     if (!add_creature_to_work_room(creatng, room, Job_CAPTIVITY))
     {
         output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
-        cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+        cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 0;
     }
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->imprison.start_gameturn = game.play_gameturn;
     cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
-    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    cctrl->creature_control_flags |= CCFlg_NoCompControl;
     internal_set_thing_state(creatng, get_continue_state_for_job(Job_CAPTIVITY));
     if (creature_under_spell_effect(creatng, CSAfF_Speed))
     {
@@ -158,7 +158,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
     make_creature_conscious(dragtng);
     initialise_thing_state(dragtng, CrSt_CreatureArrivedAtPrison);
     struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
-    dragctrl->flgfield_1 |= CCFlg_NoCompControl;
+    dragctrl->creature_control_flags |= CCFlg_NoCompControl;
     set_start_state(thing);
     return 1;
 
@@ -366,7 +366,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
         return false;
     }
     // TODO CONFIG: (?) Allow 'skelification' only if spent specific amount of turns in prison (set it to low value). (?)
-    if (CREATURE_RANDOM(thing, 101) > game.conf.rules.rooms.prison_skeleton_chance) {
+    if (THING_RANDOM(thing, 101) > game.conf.rules[room->owner].rooms.prison_skeleton_chance) {
         return false;
     }
     if (prison_convert_creature_to_skeleton(room, thing))
@@ -390,8 +390,8 @@ void food_set_wait_to_be_eaten(struct Thing *thing)
     }
     else
     {
-        thing->food.byte_15 = -1;
-        thing->food.byte_16 = 127;
+        thing->food.freshness_state = -1;
+        thing->food.possession_startup_timer = 127;
     }
 }
 
@@ -436,7 +436,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
     if ( is_thing_directly_controlled(foodtng) )
         return false;
 
-    thing_play_sample(creatng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 112 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( creatng->active_state != CrSt_CreatureInPrison )
         internal_set_thing_state(creatng, CrSt_CreatureInPrison);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
@@ -474,11 +474,11 @@ CrCheckRet process_prison_function(struct Thing *creatng)
     if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room))
         return CrCkRet_Continue;
     // Breaking from jail is only possible once per some amount of turns, and only if creature sits in jail for long enough.
-    if (((game.play_gameturn % game.conf.rules.rooms.time_between_prison_break) == 0) &&
-        (game.play_gameturn > cctrl->imprison.start_gameturn + game.conf.rules.rooms.time_in_prison_without_break))
+    if (((game.play_gameturn % game.conf.rules[room->owner].rooms.time_between_prison_break) == 0) &&
+        (game.play_gameturn > cctrl->imprison.start_gameturn + game.conf.rules[room->owner].rooms.time_in_prison_without_break))
     {
         // Check the base jail break condition - whether prison touches enemy land.
-        if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < game.conf.rules.rooms.prison_break_chance))
+        if (jailbreak_possible(room, creatng->owner) && (THING_RANDOM(creatng, 100) < game.conf.rules[room->owner].rooms.prison_break_chance))
         {
             if (is_my_player_number(room->owner)) {
                 output_message(SMsg_PrisonersEscaping, 40);

@@ -46,6 +46,7 @@ struct ErrorStatistics erstat[] = {
     {0, 0, "Path heap failure"},
     {0, 0, "Route tree failure"},
     {0, 0, "Cannot read packet from file"},
+    {0, 0, "Cannot create unsynced thing, no free slots - likely too many particles being created"},
 };
 int last_checked_stat_num = 0;
 /******************************************************************************/
@@ -61,9 +62,12 @@ void erstats_clear(void)
 
 long erstat_inc(int stat_num)
 {
-    if ((stat_num >= 0) && (stat_num < sizeof(erstat)/sizeof(erstat[0])))
-        erstat[stat_num].n++;
-    return (erstat[stat_num].n-erstat[stat_num].nprv);
+    const int num_stats = sizeof(erstat) / sizeof(erstat[0]);
+    if ((stat_num < 0) || (stat_num >= num_stats)) {
+        return 1;
+    }
+    erstat[stat_num].n++;
+    return (erstat[stat_num].n - erstat[stat_num].nprv);
 }
 
 TbBool is_onscreen_msg_visible(void)
@@ -89,7 +93,7 @@ TbBool erstat_check(void)
         return false;
 
     if (last_checked_stat_num >= sizeof(erstat) / sizeof(erstat[0]))
-    { 
+    {
         ERRORLOG("Invalid last checked stat number %d, resetting to 0", last_checked_stat_num);
         last_checked_stat_num = 0;
     }
@@ -127,6 +131,7 @@ TbBool draw_onscreen_direct_messages(void)
         tx_units_per_px = scale_ui_value_lofi(16);
     }
     // Display in-game message for debug purposes
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     if ((render_onscreen_msg_time > 0.0) || erstat_check())
     {
         if (LbScreenIsLocked())

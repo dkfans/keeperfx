@@ -148,8 +148,8 @@ enum TbNetworkService {
 
 struct ClientDataEntry {
   unsigned long plyrid;
-  unsigned long isactive;
-  unsigned long field_8;
+  TbBool isactive;
+  TbBool has_exchanged_data;
   char name[32];
 };
 
@@ -166,7 +166,7 @@ long active;
 struct TbNetworkCallbackData {
   char svc_name[12];
   char plyr_name[20];
-  char field_20[32];
+  char session_data[32];
 };
 
 struct TbNetworkPlayerName {
@@ -177,10 +177,10 @@ struct TbNetworkPlayerNameEntry {
   unsigned char id;
   unsigned long islocal;
   unsigned long ishost;
-  unsigned long field_9;
+  unsigned long is_active;
   char name[19];
-  unsigned char field_20[20];
-  unsigned char field_34[4];
+  unsigned char player_extra_data[20];
+  unsigned char reserved_padding[4];
 };
 
 //TODO: find out what this struct really is, and how long is it
@@ -190,30 +190,30 @@ struct SystemUserMsg {
 };
 
 struct UnidirectionalDataMessage {
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned char field_14[492];
-  unsigned char field_200[12];
+  unsigned long message_header;
+  unsigned long message_type;
+  unsigned long data_length;
+  unsigned long sequence_number;
+  unsigned long timestamp;
+  unsigned char payload_data[492];
+  unsigned char message_footer[12];
 };
 
 struct UnidirectionalRTSMessage {
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
+  unsigned long message_header;
+  unsigned long message_type;
+  unsigned long data_length;
+  unsigned long sequence_number;
+  unsigned long timestamp;
 };
 
 /** Structure for storing network service configuration. Used to pass information about configuration into LbNetwork_Init().
  */
 struct ServiceInitData {
-long field_0;
-    long numfield_4;
-    long field_8;
-    long field_C;
+long service_flags;
+    long max_connections;
+    long buffer_size;
+    long timeout_value;
 };
 
 /******************************************************************************/
@@ -229,12 +229,12 @@ TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
 TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
 TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
 TbBool  LbNetwork_Resync(void * buf, size_t len);
-void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
-TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
-TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
+TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_data);
+TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
+unsigned long get_host_player_id(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

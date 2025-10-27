@@ -135,7 +135,7 @@ struct Thing *get_other_creature_manufacturing_on_subtile(PlayerNumber plyr_idx,
         if (thing_is_creature(thing) && (thing->active_state == CrSt_Manufacturing) && (thing->index != othertng->index))
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if ((cctrl->workshop.job_stage > 1) && (thing->owner == plyr_idx)) {
+            if ((cctrl->workshop.job_stage > JobStage_SearchingForWork) && (thing->owner == plyr_idx)) {
                 return thing;
             }
         }
@@ -188,12 +188,12 @@ SubtlCodedCoords find_unused_adjacent_position_in_workshop(const struct Coord3d 
     return 0;
 }
 
-TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *room, unsigned long a3)
+TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *room, unsigned long set_work_timer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ( a3 )
-        cctrl->workshop.byte_9E = 50;
-    cctrl->workshop.job_stage = 1;
+    if ( set_work_timer )
+        cctrl->workshop.work_timer = 50;
+    cctrl->workshop.job_stage = JobStage_SearchingForWork;
     SubtlCodedCoords stl_num = find_position_around_in_room(&thing->mappos, thing->owner, room->kind, thing);
     if (stl_num <= 0)
     {
@@ -234,7 +234,7 @@ void setup_workshop_search_for_post(struct Thing *creatng)
     struct Thing* postng = INVALID_THING;
     struct Room* room = get_room_thing_is_on(creatng);
     // Find a random slab in the room to be used as our starting point
-    long i = CREATURE_RANDOM(creatng, room->slabs_count);
+    long i = THING_RANDOM(creatng, room->slabs_count);
     unsigned long n = room->slabs_list;
     while (i > 0)
     {
@@ -291,11 +291,11 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
     switch (cctrl->workshop.job_stage)
     {
     case 1:
-        cctrl->workshop.byte_9E--;
-        if (cctrl->workshop.byte_9E <= 0)
+        cctrl->workshop.work_timer--;
+        if (cctrl->workshop.work_timer <= 0)
         {
             setup_workshop_search_for_post(creatng);
-            cctrl->workshop.byte_9E = 100;
+            cctrl->workshop.work_timer = 100;
             break;
         }
         mvret = creature_move_to(creatng, &cctrl->moveto_pos, get_creature_speed(creatng), 0, 0);
@@ -314,8 +314,8 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         if (!thing_is_invalid(objtng))
         {
             SYNCDBG(19,"Got %s post, the %s goes from %d to 2",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->workshop.job_stage);
-            cctrl->workshop.job_stage = 2;
-            cctrl->workshop.byte_9E = 100;
+            cctrl->workshop.job_stage = JobStage_PreparingToWork;
+            cctrl->workshop.work_timer = 100;
             break;
         }
         SYNCDBG(19,"No %s post at current pos, the %s goes from %d to search position",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->workshop.job_stage);
@@ -331,7 +331,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
             cctrl->workshop.stl_x = slab_subtile_center(slb_x);
             cctrl->workshop.stl_y = slab_subtile_center(slb_y);
             setup_workshop_move(creatng, stl_num);
-            cctrl->workshop.job_stage = 3;
+            cctrl->workshop.job_stage = JobStage_MovingToPosition;
             break;
         }
         setup_move_to_new_workshop_position(creatng, room, 1);
@@ -352,7 +352,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         struct Thing *mnfc_creatng;
         mnfc_creatng = get_other_creature_manufacturing_on_subtile(creatng->owner, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng);
         if (thing_is_invalid(mnfc_creatng)) {
-            cctrl->workshop.job_stage = 4;
+            cctrl->workshop.job_stage = JobStage_TurningToFace;
             break;
         }
         // Position used by another manufacturer
@@ -365,9 +365,9 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(cctrl->workshop.stl_x);
         pos.y.val = subtile_coord_center(cctrl->workshop.stl_y);
-        if (creature_turn_to_face(creatng, &pos) < LbFPMath_PI/18)
+        if (creature_turn_to_face(creatng, &pos) < DEGREES_10)
         {
-            cctrl->workshop.job_stage = 5;
+            cctrl->workshop.job_stage = JobStage_Manufacturing;
             cctrl->workshop.swing_weapon_counter = 75;
         }
         break;

@@ -170,8 +170,8 @@ void remove_body_from_graveyard(struct Thing *thing)
     dungeon->lvstats.graveyard_bodys++;
     if (creature_count_below_map_limit(0))
     {
-        if (dungeon->bodies_rotten_for_vampire >= game.conf.rules.rooms.bodies_for_vampire) {
-            dungeon->bodies_rotten_for_vampire -= game.conf.rules.rooms.bodies_for_vampire;
+        if (dungeon->bodies_rotten_for_vampire >= game.conf.rules[dungeon->owner].rooms.bodies_for_vampire) {
+            dungeon->bodies_rotten_for_vampire -= game.conf.rules[dungeon->owner].rooms.bodies_for_vampire;
             create_vampire_in_room(room);
         }
     }
@@ -210,7 +210,7 @@ long move_dead_creature(struct Thing *thing)
         move_thing_in_map(thing, &pos);
     } else
     {
-        // Even if no velocity, update field_60
+        // Even if no velocity, update floor_height
         thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
     return TUFRet_Modified;
@@ -254,7 +254,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 }
             } else
             {
-                if (game.play_gameturn - thing->creation_turn > game.conf.rules.creature.body_remains_for) {
+                if (game.play_gameturn - thing->creation_turn > game.conf.rules[thing->owner].creature.body_remains_for) {
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
@@ -263,7 +263,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         {
             corpse_age = game.play_gameturn - thing->creation_turn;
             #define VANISH_EFFECT_DELAY 60
-            if (((corpse_age > game.conf.rules.creature.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
+            if (((corpse_age > game.conf.rules[thing->owner].creature.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
                 && !(is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing)))
             {
                 delete_corpse(thing);
@@ -424,13 +424,13 @@ TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
 
 struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, CrtrExpLevel exp_level)
 {
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(TCls_DeadCreature))
     {
         ERRORDBG(3,"Cannot create dead creature model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(TCls_DeadCreature);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate dead creature %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -453,7 +453,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->inertia_floor = 204;
     thing->inertia_air = 51;
     thing->bounce_angle = 0;
-    thing->movement_flags |= TMvF_Unknown08;
+    thing->movement_flags |= TMvF_ZeroVerticalVelocity;
     thing->creation_turn = game.play_gameturn;
     struct CreatureModelConfig* crconf = creature_stats_get(model);
     if (crconf->transparency_flags != 0)

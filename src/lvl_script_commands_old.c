@@ -41,17 +41,17 @@ extern "C" {
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
-void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
+void command_add_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3)
 {
     ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
-    value->longs[0] = val2;
-    value->longs[1] = val3;
-    value->longs[2] = val4;
+    value->longs[0] = param1;
+    value->longs[1] = param2;
+    value->longs[2] = param3;
 
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
-        script_process_value(var_index, plr_range_id, val2, val3, val4, value);
+        script_process_value(var_index, plr_range_id, param1, param2, param3, value);
         return;
     }
 }
@@ -100,14 +100,21 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
         script_process_new_party(party, plr_id, location, ncopies);
     } else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_CREATE_PARTY;
-        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
-        pr_trig->plyr_idx = plr_id;
-        pr_trig->creatr_id = prty_id;
-        pr_trig->location = location;
-        pr_trig->ncopies = ncopies;
-        pr_trig->condit_idx = get_script_current_condition();
+        if (game.script.party_triggers_num < PARTY_TRIGGERS_COUNT)
+        {
+            struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num];
+            pr_trig->flags = TrgF_CREATE_PARTY;
+            pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
+            pr_trig->plyr_idx = plr_id;
+            pr_trig->creatr_id = prty_id;
+            pr_trig->location = location;
+            pr_trig->ncopies = ncopies;
+            pr_trig->condit_idx = get_script_current_condition();
+        }
+        else
+        {
+            SCRPTERRLOG("Max party triggers reached, failed to add party %s", prtname);
+        }
         game.script.party_triggers_num++;
     }
 }
@@ -125,9 +132,9 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         SCRPTERRLOG("Invalid number of creatures to add");
         return;
     }
-    if (ncopies > game.conf.rules.game.creatures_count)
+    if (ncopies > game.conf.rules[0].game.creatures_count)
     {
-        SCRPTWRNLOG("Trying to add %ld creatures which is over map limit %u", ncopies, game.conf.rules.game.creatures_count);
+        SCRPTWRNLOG("Trying to add %ld creatures which is over map limit %u", ncopies, game.conf.rules[0].game.creatures_count);
     }
     if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
@@ -168,18 +175,25 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, exp_level-1, spawn_type_id);
     } else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_CREATE_CREATURE;
-        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
+        if (game.script.party_triggers_num < PARTY_TRIGGERS_COUNT)
+        {
+            struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num];
+            pr_trig->flags = TrgF_CREATE_CREATURE;
+            pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
 
-        pr_trig->plyr_idx = plr_id;
-        pr_trig->creatr_id = crtr_id;
-        pr_trig->exp_level = exp_level-1;
-        pr_trig->carried_gold = carried_gold;
-        pr_trig->location = location;
-        pr_trig->ncopies = ncopies;
-        pr_trig->spawn_type = spawn_type_id;
-        pr_trig->condit_idx = get_script_current_condition();
+            pr_trig->plyr_idx = plr_id;
+            pr_trig->creatr_id = crtr_id;
+            pr_trig->exp_level = exp_level - 1;
+            pr_trig->carried_gold = carried_gold;
+            pr_trig->location = location;
+            pr_trig->ncopies = ncopies;
+            pr_trig->spawn_type = spawn_type_id;
+            pr_trig->condit_idx = get_script_current_condition();
+        }
+        else
+        {
+            SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        }
         game.script.party_triggers_num++;
     }
 }

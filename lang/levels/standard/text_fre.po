@@ -464,14 +464,14 @@ msgstr "C'était facile, Victoire ! "
 #. Frozen Legion (lv455)
 #: guitext:72
 msgctxt "In-game message"
-msgid "You have a fighting chance. Don't let the Heroes whittle you down. "
-msgstr "Vous avez une chance de vaincre. Ne laissez pas les héros vous abattre. "
+msgid "To have a fighting chance, get a bigger army. Don't let the heroes whittle you down."
+msgstr "Pour avoir une chance de vous battre, formez une armée plus grande. Ne laissez pas les héros vous affaiblir."
 
 #. Frozen Legion (lv455)
 #: guitext:73
 msgctxt "In-game message"
-msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. "
-msgstr "Votre générateur de magie se nourrira de vos vampires pour vous donner un bon nombre de larbins. Cependant, gardez suffisamment de larbins en vie et vous aurez une armée de morts-vivants avec laquelle tuer les héros. "
+msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, when you keep enough imps alive, that allows you to get an army big enough to kill the heroes. You need a big army."
+msgstr "Votre générateur de magie se nourrira de vos Vampires pour vous donner un bon nombre de larbins. Cependant, si vous gardez suffisamment de larbins en vie, cela vous permettra de constituer une armée assez grande pour vaincre les héros. Vous avez besoin d'une grande armée."
 
 #. Shores of Battle (lv456)
 #: guitext:74

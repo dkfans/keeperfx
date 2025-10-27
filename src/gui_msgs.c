@@ -203,7 +203,7 @@ void message_update(void)
     while (i >= 0)
     {
         struct GuiMessage* gmsg = &game.messages[i];
-        if (gmsg->creation_turn < game.play_gameturn)
+        if (game.play_gameturn > gmsg->expiration_turn)
         {
             game.active_messages_count--;
             game.messages[game.active_messages_count].text[0] = 0;
@@ -258,7 +258,7 @@ void message_add(char type, PlayerNumber plyr_idx, const char *text)
     }
     snprintf(game.messages[0].text, sizeof(game.messages[0].text), "%s", text);
     game.messages[0].plyr_idx = plyr_idx;
-    game.messages[0].creation_turn = game.play_gameturn + GUI_MESSAGES_DELAY;
+    game.messages[0].expiration_turn = game.play_gameturn + GUI_MESSAGES_DELAY;
     game.messages[0].target_idx = -1;
     game.messages[0].type = type;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
@@ -289,7 +289,7 @@ void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_
     }
     snprintf(game.messages[0].text, sizeof(game.messages[0].text), "%s", full_msg_text);
     game.messages[0].plyr_idx = plyr_idx;
-    game.messages[0].creation_turn = game.play_gameturn + timeout;
+    game.messages[0].expiration_turn = game.play_gameturn + timeout;
     game.messages[0].target_idx = target_idx;
     game.messages[0].type = type;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {

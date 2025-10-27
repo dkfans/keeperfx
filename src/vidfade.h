@@ -60,7 +60,6 @@ void compute_shifted_palette_table(TbPixel *ocol, const unsigned char *spal,
 
 long PaletteFadePlayer(struct PlayerInfo *player);
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);
-void PaletteClearPainFromPlayer(struct PlayerInfo *player);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -1039,7 +1039,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       shotst->sound_priority = 0;
       shotst->light_radius = 0;
       shotst->light_intensity = 0;
-      shotst->lightf_53 = 0;
+      shotst->light_flags = 0;
       shotst->inertia_air = 0;
       shotst->inertia_floor = 0;
       shotst->target_hitstop_turns = 0;
@@ -1850,7 +1850,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->lightf_53 = k;
+              shotst->light_flags = k;
               n++;
           }
           if (n < 3)
@@ -1934,6 +1934,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
+              if (k <= 0)
+              {
+                  //lua function
+                  k = get_function_idx(word_buf, NULL);
+              }
               shotst->update_logic = k;
               n++;
           }

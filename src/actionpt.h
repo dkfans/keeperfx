@@ -62,7 +62,6 @@ struct ActionPoint *action_point_get(ActionPointId apt_idx);
 struct ActionPoint *action_point_get_by_number(long apt_num);
 TbBool action_point_exists(const struct ActionPoint *apt);
 TbBool action_point_exists_idx(ActionPointId apt_idx);
-TbBool action_point_exists_number(long apt_num);
 ActionPointId action_point_number_to_index(long apt_num);
 TbBool action_point_is_invalid(const struct ActionPoint *apt);
 
