@@ -4921,7 +4921,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
             return false;
         }
     }
-    if (curr_state == CrSt_Timebomb)
+    if ((curr_state == CrSt_Timebomb) || (curr_state == CrSt_CreatureObjectSnipe) || (curr_state == CrSt_GoodArrivedAtSabotageRoom)) //todo this should come from configs
     {
         if (next_stati->state_type == CrStTyp_FightDoor)
         {
