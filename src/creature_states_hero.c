@@ -214,7 +214,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
         }
     }
 
-    struct Thing* gatetng = find_close_and_friendly_hero_gate_to_navigate_to(creatng);
+    struct Thing* gatetng = find_best_hero_gate_to_navigate_to(creatng);
     if (thing_is_invalid(gatetng))
     {
         SYNCLOG("Can't find any exit gate for hero %s index %d",thing_model_name(creatng),(int)creatng->index);

@@ -297,7 +297,7 @@ struct ClosestGate
  * @param herotng The hero to be able to make it to gate.
  * @return The gate thing, or invalid thing.
  */
-struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *herotng)
+struct Thing *find_best_hero_gate_to_navigate_to(struct Thing *herotng)
 {
     struct ClosestGate friendly_gates[GATES_TO_CHECK];
     struct ClosestGate unfriendly_gates[GATES_TO_CHECK];
