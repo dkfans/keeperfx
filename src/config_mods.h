@@ -41,7 +41,10 @@ extern "C" {
 #define MODS_AFTER_CAMPAIGN_BLOCK_NAME "after_campaign"
 #define MODS_AFTER_MAP_BLOCK_NAME "after_map"
 
+// base, campaign, map
+#define MOD_ITEM_TYPE_CNT  3
 #define MOD_ITEM_MAX  50
+
 
 
 struct ModExistState{
