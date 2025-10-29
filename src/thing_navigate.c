@@ -299,11 +299,14 @@ struct ClosestGate
  */
 struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *herotng)
 {
-    struct ClosestGate closest[GATES_TO_CHECK];
+    struct ClosestGate friendly_gates[GATES_TO_CHECK];
+    struct ClosestGate unfriendly_gates[GATES_TO_CHECK];
     for (int g = 0; g < GATES_TO_CHECK; g++)
     {
-        closest[g].index = 0;
-        closest[g].distance = LONG_MAX;
+        friendly_gates[g].index = 0;
+        friendly_gates[g].distance = LONG_MAX;
+        unfriendly_gates[g].index = 0;
+        unfriendly_gates[g].distance = LONG_MAX;
     }
 
     //Go through all objects to find gates and record distance
@@ -329,34 +332,35 @@ struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *her
         //Find 10 gates closest how the mole flies.
         distance = get_chessboard_distance(&thing->mappos, &herotng->mappos);
         friendly = (players_are_enemies(herotng->owner, get_slab_owner_thing_is_on(thing)) == false);
-        if (distance < closest[GATES_TO_CHECK - 1].distance || friendly)
+        if (friendly)
         {
-            // insert in order: primary sort = friendly, secondary sort = distance
-            int prio = GATES_TO_CHECK - 1;
-            while (prio > 0)
+            if (distance < friendly_gates[GATES_TO_CHECK - 1].distance)
             {
-                TbBool prev_friendly = closest[prio - 1].friendly;
-
-                // If previous is not friendly and new is friendly then shift up
-                if (!prev_friendly && friendly)
+                // insert it in order 
+                int prio = GATES_TO_CHECK - 1;
+                while (prio > 0 && distance < friendly_gates[prio - 1].distance)
                 {
-                    closest[prio] = closest[prio - 1];
+                    friendly_gates[prio] = friendly_gates[prio - 1];
                     prio--;
                 }
-                // If both have same friendliness, sort by distance
-                else if (prev_friendly == friendly && distance < closest[prio - 1].distance)
-                {
-                    closest[prio] = closest[prio - 1];
-                    prio--;
-                }
-                else
-                {
-                    break;
-                }
+                friendly_gates[prio].index = thing->index;
+                friendly_gates[prio].distance = distance;
             }
-            closest[prio].index = thing->index;
-            closest[prio].distance = distance;
-            closest[prio].friendly = friendly;
+        }
+        else
+        {
+            if (distance < unfriendly_gates[GATES_TO_CHECK - 1].distance)
+            {
+                // insert it in order 
+                int prio = GATES_TO_CHECK - 1;
+                while (prio > 0 && distance < unfriendly_gates[prio - 1].distance)
+                {
+                    unfriendly_gates[prio] = unfriendly_gates[prio - 1];
+                    prio--;
+                }
+                unfriendly_gates[prio].index = thing->index;
+                unfriendly_gates[prio].distance = distance;
+            }
         }
 
         // Per thing code ends
@@ -372,7 +376,22 @@ struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *her
     struct Thing* gatetng = INVALID_THING;
     for (int g = 0; g < GATES_TO_CHECK; g++)
     {
-        gatetng = thing_get(closest[g].index);
+        if (friendly_gates[g].index == 0)
+            continue;
+        gatetng = thing_get(friendly_gates[g].index);
+        if (!thing_is_invalid(gatetng))
+        {
+            if (creature_can_navigate_to_with_storage(herotng, &gatetng->mappos, NavRtF_Default))
+            {
+                return gatetng;
+            }
+        }
+    }
+    for (int g = 0; g < GATES_TO_CHECK; g++)
+    {
+        if (unfriendly_gates[g].index == 0)
+            continue;
+        gatetng = thing_get(unfriendly_gates[g].index);
         if (!thing_is_invalid(gatetng))
         {
             if (creature_can_navigate_to_with_storage(herotng, &gatetng->mappos, NavRtF_Default))
@@ -382,7 +401,7 @@ struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *her
         }
     }
 
-    //No luck for closest 10, fall back to legacy behavior
+    //No luck for closest 10 on either friendly or unfriendly ground, fall back to legacy behavior
     return find_hero_door_hero_can_navigate_to(herotng);
 }
 
