@@ -304,16 +304,16 @@ struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *her
     for (int g = 0; g < GATES_TO_CHECK; g++)
     {
         friendly_gates[g].index = 0;
-        friendly_gates[g].distance = LONG_MAX;
+        friendly_gates[g].distance = INT32_MAX;
         unfriendly_gates[g].index = 0;
-        unfriendly_gates[g].distance = LONG_MAX;
+        unfriendly_gates[g].distance = INT32_MAX;
     }
 
     //Go through all objects to find gates and record distance
     int i = game.thing_lists[TngList_Objects].index;
     MapCoordDelta distance;
     TbBool friendly;
-    unsigned long k = 0;
+    int32_t k = 0;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
