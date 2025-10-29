@@ -248,9 +248,7 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Co
 }
 
 /**
- * Returns a hero gate object to which given hero can navigate.
- * @todo CREATURE_AI It returns first hero door found, not the best one.
- *     Maybe it should find the one he will reach faster, or at least a random one?
+ * Returns first hero gate object from list to which given hero can navigate.
  * @param herotng The hero to be able to make it to gate.
  * @return The gate thing, or invalid thing.
  */
@@ -290,9 +288,15 @@ struct Thing* find_hero_door_hero_can_navigate_to(struct Thing* herotng)
 struct ClosestGate 
 {
     ThingIndex index;
+    TbBool friendly;
     MapCoordDelta distance;
 };
-
+/**
+ * Returns Hero gate object from list to which given hero can navigate.
+ * Avoids gates on enemy land if possible. Only checks 10 close ones if can be navigated to, otherwise uses fallback.
+ * @param herotng The hero to be able to make it to gate.
+ * @return The gate thing, or invalid thing.
+ */
 struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *herotng)
 {
     struct ClosestGate closest[GATES_TO_CHECK];
@@ -305,6 +309,7 @@ struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *her
     //Go through all objects to find gates and record distance
     int i = game.thing_lists[TngList_Objects].index;
     MapCoordDelta distance;
+    TbBool friendly;
     unsigned long k = 0;
     while (i != 0)
     {
@@ -323,17 +328,35 @@ struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *her
 
         //Find 10 gates closest how the mole flies.
         distance = get_chessboard_distance(&thing->mappos, &herotng->mappos);
-        if (distance < closest[GATES_TO_CHECK - 1].distance)
+        friendly = (players_are_enemies(herotng->owner, get_slab_owner_thing_is_on(thing)) == false);
+        if (distance < closest[GATES_TO_CHECK - 1].distance || friendly)
         {
-            // insert it in order 
-            int pos = GATES_TO_CHECK - 1;
-            while (pos > 0 && distance < closest[pos - 1].distance)
+            // insert in order: primary sort = friendly, secondary sort = distance
+            int prio = GATES_TO_CHECK - 1;
+            while (prio > 0)
             {
-                closest[pos] = closest[pos - 1];
-                pos--;
+                TbBool prev_friendly = closest[prio - 1].friendly;
+
+                // If previous is not friendly and new is friendly then shift up
+                if (!prev_friendly && friendly)
+                {
+                    closest[prio] = closest[prio - 1];
+                    prio--;
+                }
+                // If both have same friendliness, sort by distance
+                else if (prev_friendly == friendly && distance < closest[prio - 1].distance)
+                {
+                    closest[prio] = closest[prio - 1];
+                    prio--;
+                }
+                else
+                {
+                    break;
+                }
             }
-            closest[pos].index = thing->index;
-            closest[pos].distance = distance;
+            closest[prio].index = thing->index;
+            closest[prio].distance = distance;
+            closest[prio].friendly = friendly;
         }
 
         // Per thing code ends
