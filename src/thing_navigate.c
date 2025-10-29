@@ -257,13 +257,15 @@ int sortgates(const void* a, const void* b)
 {
     const struct ClosestGate* ga = (const struct ClosestGate*)a;
     const struct ClosestGate* gb = (const struct ClosestGate*)b;
-    if (ga->friendly) {
-        if (gb->friendly) {
-            return gb->distance - ga->distance;
-        }
-        return 1;
-    }
-    return (gb->friendly) ? -1 : (gb->distance - ga->distance);
+    // Primary: friendly first (friendly == 1)
+    if (ga->friendly != gb->friendly)
+        return (gb->friendly - ga->friendly); // friendly ones first
+
+    // Secondary: smaller distance first
+    if (ga->distance < gb->distance) return -1;
+    if (ga->distance > gb->distance) return 1;
+
+    return 0;
 }
 
 /**
