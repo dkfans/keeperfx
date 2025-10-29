@@ -254,7 +254,7 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Co
  * @param herotng The hero to be able to make it to gate.
  * @return The gate thing, or invalid thing.
  */
-struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
+struct Thing* find_hero_door_hero_can_navigate_to(struct Thing* herotng)
 {
     unsigned long k = 0;
     int i = game.thing_lists[TngList_Objects].index;
@@ -282,7 +282,85 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
             break;
         }
     }
-    return NULL;
+    return INVALID_THING;
+}
+
+
+#define GATES_TO_CHECK 10
+struct ClosestGate 
+{
+    ThingIndex index;
+    MapCoordDelta distance;
+};
+
+struct Thing *find_close_and_friendly_hero_gate_to_navigate_to(struct Thing *herotng)
+{
+    struct ClosestGate closest[GATES_TO_CHECK];
+    for (int g = 0; g < GATES_TO_CHECK; g++)
+    {
+        closest[g].index = 0;
+        closest[g].distance = LONG_MAX;
+    }
+
+    //Go through all objects to find gates and record distance
+    int i = game.thing_lists[TngList_Objects].index;
+    MapCoordDelta distance;
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per thing code
+        if (!object_is_hero_gate(thing) || thing_is_picked_up(thing))
+        {
+            continue;
+        }
+
+        //Find 10 gates closest how the mole flies.
+        distance = get_chessboard_distance(&thing->mappos, &herotng->mappos);
+        if (distance < closest[GATES_TO_CHECK - 1].distance)
+        {
+            // insert it in order 
+            int pos = GATES_TO_CHECK - 1;
+            while (pos > 0 && distance < closest[pos - 1].distance)
+            {
+                closest[pos] = closest[pos - 1];
+                pos--;
+            }
+            closest[pos].index = thing->index;
+            closest[pos].distance = distance;
+        }
+
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+
+    // Return the closest one the hero can navigate to.
+    struct Thing* gatetng = INVALID_THING;
+    for (int g = 0; g < GATES_TO_CHECK; g++)
+    {
+        gatetng = thing_get(closest[g].index);
+        if (!thing_is_invalid(gatetng))
+        {
+            if (creature_can_navigate_to_with_storage(herotng, &gatetng->mappos, NavRtF_Default))
+            {
+                return gatetng;
+            }
+        }
+    }
+
+    //No luck for closest 10, fall back to legacy behavior
+    return find_hero_door_hero_can_navigate_to(herotng);
 }
 
 void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const char *func_name)
