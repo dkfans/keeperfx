@@ -11,6 +11,9 @@
  *     If more types of data can be loaded later(eg. effects), the functionality will become very powerful.
  *     More information can be referred to https://github.com/dkfans/keeperfx/issues/3027
  *
+ *     hzzdev - 18 Sep 2025, Add sprite loading for mods.
+ *     hzzdev - 30 Oct 2025, Add multi-lang string loading for mods.
+ *
  */
 /******************************************************************************/
 

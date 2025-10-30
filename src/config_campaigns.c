@@ -745,17 +745,30 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
         if ((cmd_num != 0) && (cmd_num != -1))
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of '%s' file.", cmd_num, block_name, config_textname);
       } else {
-        if ((cmd_num == Lang_English) || (n == 0))
+
+        if ((cmd_num == Lang_English) || (cmd_num == install_info.lang_id) || (n == 0))
         {
-          get_conf_parameter_whole(buf, &pos, len, campgn->strings_fname_eng, LINEMSG_SIZE);
-        }
-        if ((cmd_num == install_info.lang_id) || (n == 0))
-        {
-          int i = get_conf_parameter_whole(buf, &pos, len, campgn->strings_fname, LINEMSG_SIZE);
-          if (i <= 0)
+          char strings_fname[DISKPATH_SIZE] = {0};
+          int i = get_conf_parameter_whole(buf, &pos, len, strings_fname, DISKPATH_SIZE);
+
+          if ((cmd_num == Lang_English) || (n == 0))
+          {
+            if (i > 0)
+            {
+              strcpy(campgn->strings_fname_eng, strings_fname);
+            }
+          }
+
+          if ((cmd_num == install_info.lang_id) || (n == 0))
+          {
+            if (i <= 0)
               CONFWRNLOG("Couldn't read file name in [%s] block parameter of %s file.", block_name, config_textname);
-          else
-            n++;
+            else
+            {
+              strcpy(campgn->strings_fname, strings_fname);
+              n++;
+            }
+          }
         }
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -794,7 +807,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
       } else
       if ((cmd_num == install_info.lang_id) || (n == 0))
       {
-          int i = get_conf_parameter_whole(buf, &pos, len, campgn->speech_location, LINEMSG_SIZE);
+          int i = get_conf_parameter_whole(buf, &pos, len, campgn->speech_location, DISKPATH_SIZE);
           if (i <= 0)
           {
               CONFWRNLOG("Couldn't read folder name in [%s] block parameter of %s file.",

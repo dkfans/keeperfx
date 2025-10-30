@@ -263,7 +263,7 @@ static void load_campaign_strings_data_for_mod_one(struct GameCampaign *campgn, 
   char *fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname);
   if (!load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn))
   {
-    // if the current language of mod is not translated, then try eng for mod.
+    // if the current language of mod is not translated, then try eng.
     if (campgn->strings_fname_eng[0] != 0 && strcmp(campgn->strings_fname_eng, campgn->strings_fname) != 0)
     {
       fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname_eng);
@@ -296,7 +296,15 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
 
   char* fname = prepare_file_path(FGrp_Main, campgn->strings_fname);
   if (!load_campaign_strings_data_from_file(fname, 0, campgn))
-    return false;
+  {
+    // if the current language of campaign is not translated, then try eng.
+    if (campgn->strings_fname_eng[0] == 0 || strcmp(campgn->strings_fname_eng, campgn->strings_fname) == 0)
+      return false;
+
+    fname = prepare_file_path(FGrp_Main, campgn->strings_fname_eng);
+    if (!load_campaign_strings_data_from_file(fname, 0, campgn))
+      return false;
+  }
 
   // Default only one dat file as base and must exist.
   // So for mods, ignore mod section stage, keep only the mod order.
