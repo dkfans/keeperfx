@@ -2131,7 +2131,7 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
 
 long get_free_hero_gate_number(void)
 {
-    for (long n = 1; n < 256; n++)
+    for (long n = 1; n < HERO_GATES_COUNT; n++)
     {
         struct Thing* thing = find_hero_gate_of_number(n);
         if (thing_is_invalid(thing))
