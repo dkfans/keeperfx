@@ -1098,7 +1098,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Fear);
             setup_combat_flee_position(thing);
-            if (is_thing_some_way_controlled(thing))
+            if (is_thing_directly_controlled(thing))
             {
                 struct PlayerInfo* player = get_player(thing->owner);
                 if (player->controlled_thing_idx == thing->index)
