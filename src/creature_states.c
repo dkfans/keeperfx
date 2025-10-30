@@ -4633,7 +4633,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
 
     int distance = 0;
     if (!path.waypoints_num)
-        return LONG_MAX;
+        return INT32_MAX;
 
     if (path.waypoints_num <= 0)
         return distance;

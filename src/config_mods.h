@@ -71,13 +71,13 @@ struct ModConfigItem {
 };
 
 struct ModsConfig {
-    long after_base_cnt;
+    int32_t after_base_cnt;
     struct ModConfigItem after_base_item[MOD_ITEM_MAX];
 
-    long after_campaign_cnt;
+    int32_t after_campaign_cnt;
     struct ModConfigItem after_campaign_item[MOD_ITEM_MAX];
 
-    long after_map_cnt;
+    int32_t after_map_cnt;
     struct ModConfigItem after_map_item[MOD_ITEM_MAX];
 };
 

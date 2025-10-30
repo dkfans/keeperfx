@@ -88,7 +88,7 @@ const short pixels_needed[] = {
     AROUND_6x6_PIXEL,
 };
 
-long activity_list[24];
+int32_t activity_list[24];
 char gui_room_type_highlighted;
 char gui_door_type_highlighted;
 char gui_trap_type_highlighted;
@@ -1723,7 +1723,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     SYNCDBG(12,"Finished");
 }
 
-long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *creatng, long *out_angr_typ, long *out_angr_prct)
+long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *creatng, int32_t *out_angr_typ, int32_t *out_angr_prct)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
@@ -1767,8 +1767,8 @@ void gui_area_smiley_anger_button(struct GuiButton *gbtn)
     TRACE_THING(ctrltng);
     if (thing_is_creature(ctrltng))
     {
-        long angr_typ;
-        long angr_prct;
+        int32_t angr_typ;
+        int32_t angr_prct;
         anger_get_creature_highest_anger_type_and_byte_percentage(ctrltng, &angr_typ, &angr_prct);
         int angr_pos = 5 * angr_prct / 256;
         if (angr_pos < 0) {
@@ -2114,7 +2114,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     EventIndex evidx;
     unsigned long evbtn_idx = gbtn->content.lval;
-    long keycode;
+    int32_t keycode;
     if (evbtn_idx <= EVENT_BUTTONS_COUNT)
     {
         evidx = dungeon->event_button_index[evbtn_idx];

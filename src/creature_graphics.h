@@ -70,7 +70,7 @@ enum FrameFlags {
 };
 
 struct KeeperSprite { // sizeof = 16
-  unsigned long DataOffset;
+  uint32_t DataOffset;
 
   unsigned short SWidth;
   unsigned short SHeight;
@@ -89,7 +89,7 @@ struct KeeperSprite { // sizeof = 16
 };
 
 struct KeeperSpriteDisk {
-    unsigned long DataOffset;
+    uint32_t DataOffset;
     unsigned char SWidth;
     unsigned char SHeight;
     unsigned char FrameWidth;

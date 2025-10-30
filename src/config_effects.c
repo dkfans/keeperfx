@@ -48,21 +48,21 @@ const struct ConfigFileData keeper_effects_file_data = {
 
 
 const struct NamedField effects_effectgenerator_named_fields[] = {
-    {"NAME",                   0, field(game.conf.effects_conf.effectgen_cfgstats[0].code_name),            0,    LONG_MIN, ULONG_MAX, effectgen_desc,  value_name,      assign_null},
-    {"GENERATIONDELAYMIN",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_min), 0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"GENERATIONDELAYMAX",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_max), 0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"GENERATIONAMOUNT",       0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_amount),    0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"EFFECTMODEL",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].effect_model),         0,    LONG_MIN, ULONG_MAX, NULL,            value_effOrEffEl,assign_default},
-    {"IGNORETERRAIN",          0, field(game.conf.effects_conf.effectgen_cfgstats[0].ignore_terrain),       0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"SPAWNHEIGHT",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].spawn_height),         1,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMIN",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_min),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMIN",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_min),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMIN",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_min),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMAX",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_max),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMAX",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_max),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMAX",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_max),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"SOUND",                  0, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_idx),     0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"SOUND",                  1, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_rng),     0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"NAME",                   0, field(game.conf.effects_conf.effectgen_cfgstats[0].code_name),            0,    LONG_MIN, UINT32_MAX, effectgen_desc,  value_name,      assign_null},
+    {"GENERATIONDELAYMIN",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_min), 0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"GENERATIONDELAYMAX",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_max), 0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"GENERATIONAMOUNT",       0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_amount),    0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"EFFECTMODEL",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].effect_model),         0,    LONG_MIN, UINT32_MAX, NULL,            value_effOrEffEl,assign_default},
+    {"IGNORETERRAIN",          0, field(game.conf.effects_conf.effectgen_cfgstats[0].ignore_terrain),       0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SPAWNHEIGHT",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].spawn_height),         1,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_min),            0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_min),            0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_min),            0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_max),            0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_max),            0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_max),            0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SOUND",                  0, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_idx),     0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SOUND",                  1, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_rng),     0,    LONG_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
     {NULL},
 };
 
@@ -78,12 +78,12 @@ const struct NamedFieldSet effects_effectgenerator_named_fields_set = {
 };
 
 long const imp_spangle_effects[] = {
-    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite, 
+    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite,
     TngEff_None, TngEff_ImpSpanglePurple, TngEff_ImpSpangleBlack, TngEff_ImpSpangleOrange
 };
 
 long const ball_puff_effects[] = {
-    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, 
+    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite,
     TngEff_BallPuffWhite, TngEff_BallPuffPurple, TngEff_BallPuffBlack, TngEff_BallPuffOrange
 };
 
@@ -232,7 +232,7 @@ static TbBool load_effects_config_file(const char *fname, unsigned short flags)
     load_effectelements(&file_root,flags);
 
     value_fini(&file_root);
-    
+
     return true;
 }
 

@@ -26,22 +26,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <limits.h>
 #include <time.h>
-#include <share.h>
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
 
-#if defined(_WIN32)||defined(DOS)||defined(GO32)
-#include <dos.h>
-#include <direct.h>
-#endif
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -69,7 +61,13 @@ int create_directory_for_file(const char * fname)
   while (separator != NULL) {
     memcpy(tmp, fname, separator - fname);
     tmp[separator - fname] = 0;
+#if defined _WIN32
     if (mkdir(tmp) != 0) {
+#elif defined (__linux__)
+    if (mkdir(tmp, 0755) != 0) {
+#else
+#error Unsupported platform
+#endif
       if (errno != EEXIST) {
         free(tmp);
         return 0;
@@ -241,69 +239,6 @@ long LbFileLength(const char *fname)
     fclose(handle);
   }
   return result;
-}
-
-struct TbFileFind {
-  HANDLE handle;
-  char * namebuf;
-  int namebuflen;
-};
-
-struct TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry)
-{
-  struct TbFileFind * ffind = malloc(sizeof(struct TbFileFind));
-  if (ffind == NULL) {
-    return NULL;
-  }
-  WIN32_FIND_DATA fd;
-  ffind->handle = FindFirstFile(filespec, &fd);
-  if (ffind->handle == INVALID_HANDLE_VALUE) {
-    free(ffind);
-    return NULL;
-  }
-  const int namelen = strlen(fd.cFileName);
-  ffind->namebuf = malloc(namelen + 1);
-  if (ffind->namebuf == NULL) {
-    FindClose(ffind->handle);
-    free(ffind);
-    return NULL;
-  }
-  memcpy(ffind->namebuf, fd.cFileName, namelen + 1);
-  ffind->namebuflen = namelen;
-  fentry->Filename = ffind->namebuf;
-  return ffind;
-}
-
-int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry)
-{
-  if (ffind == NULL) {
-    return -1;
-  }
-  WIN32_FIND_DATA fd;
-  if (!FindNextFile(ffind->handle, &fd)) {
-    return -1;
-  }
-  const int namelen = strlen(fd.cFileName);
-  if (namelen > ffind->namebuflen) {
-    char * buf = realloc(ffind->namebuf, namelen + 1);
-    if (buf == NULL) {
-      return -1;
-    }
-    ffind->namebuf = buf;
-    ffind->namebuflen = namelen;
-  }
-  memcpy(ffind->namebuf, fd.cFileName, namelen + 1);
-  fentry->Filename = ffind->namebuf;
-  return 1;
-}
-
-void LbFileFindEnd(struct TbFileFind * ffind)
-{
-  if (ffind) {
-    FindClose(ffind->handle);
-    free(ffind->namebuf);
-    free(ffind);
-  }
 }
 
 //Removes a disk file

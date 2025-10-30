@@ -97,8 +97,8 @@ enum TbPixelsColours
  * Background behind the map area.
  */
 static unsigned char *MapBackground = NULL;
-static long *MapShapeStart = NULL;
-static long *MapShapeEnd = NULL;
+static int32_t *MapShapeStart = NULL;
+static int32_t *MapShapeEnd = NULL;
 
 static long PanelMapY;
 static long PanelMapX;
@@ -844,7 +844,7 @@ void panel_map_update(long x, long y, long w, long h)
     }
 }
 
-static void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long *stl_y, long zoom)
+static void do_map_rotate_stuff(long relpos_x, long relpos_y, int32_t *stl_x, int32_t *stl_y, long zoom)
 {
     const struct PlayerInfo *player = get_my_player();
     const struct Camera *cam;
@@ -861,7 +861,7 @@ static void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long 
     *stl_y = zoom * (*stl_y) / 256 + cam->mappos.y.stl.num;
 }
 
-short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)
+short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
 {
   SYNCDBG(17,"Starting");
   struct PlayerInfo *player;
@@ -893,7 +893,7 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
   return 1;
 }
 
-short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)
+short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
 {
   SYNCDBG(17,"Starting");
   struct PlayerInfo *player;
@@ -926,8 +926,8 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
 
 short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom)
 {
-    long x;
-    long y;
+    int32_t x;
+    int32_t y;
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -963,9 +963,9 @@ void setup_background(long units_per_px)
         free(MapBackground);
         MapBackground = calloc(MapDiagonalLength*MapDiagonalLength, sizeof(TbPixel));
         free(MapShapeStart);
-        MapShapeStart = (long *)calloc(MapDiagonalLength, sizeof(long));
+        MapShapeStart = (int32_t *)calloc(MapDiagonalLength, sizeof(int32_t));
         free(MapShapeEnd);
-        MapShapeEnd = (long *)calloc(MapDiagonalLength, sizeof(long));
+        MapShapeEnd = (int32_t *)calloc(MapDiagonalLength, sizeof(int32_t));
     }
     if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL)) {
         MapDiagonalLength = 0;

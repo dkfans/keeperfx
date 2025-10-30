@@ -159,9 +159,9 @@ struct RoomConfigStats {
 };
 
 struct SlabsConfig {
-    long slab_types_count;
+    int32_t slab_types_count;
     struct SlabConfigStats slab_cfgstats[TERRAIN_ITEMS_MAX];
-    long room_types_count;
+    int32_t room_types_count;
     struct RoomConfigStats room_cfgstats[TERRAIN_ITEMS_MAX];
 };
 /******************************************************************************/

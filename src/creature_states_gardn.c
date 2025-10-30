@@ -110,7 +110,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
 
 void person_search_for_food_again(struct Thing *creatng, struct Room *room)
 {
-    long near_food_dist = LONG_MAX;
+    long near_food_dist = INT32_MAX;
     struct Thing* near_food_tng = INVALID_THING;
     unsigned long k = 0;
     unsigned long i = room->slabs_list;

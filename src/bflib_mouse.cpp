@@ -193,7 +193,7 @@ TbResult LbMouseChangeSprite(const struct TbSprite *pointerSprite)
   return Lb_SUCCESS;
 }
 
-void GetPointerHotspot(long *hot_x, long *hot_y)
+void GetPointerHotspot(int32_t *hot_x, int32_t *hot_y)
 {
   struct TbPoint *hotspot;
   hotspot = pointerHandler.GetPointerOffset();

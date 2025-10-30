@@ -77,8 +77,8 @@ extern "C" {
 void redraw_isometric_view(void);
 void redraw_frontview(void);
 /******************************************************************************/
-long xtab[640][2];
-long ytab[480][2];
+int32_t xtab[640][2];
+int32_t ytab[480][2];
 
 unsigned char smooth_on;
 static unsigned char * map_fade_ghost_table;
@@ -260,7 +260,7 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
     long iy;
     long x1base = 4 * a6;
     long x0base = 4 * (32 - a6);
-    long* xt = xtab[0];
+    int32_t * xt = xtab[0];
     int vx0 = 0;
     int vx1 = 0;
     for (ix = xmax; ix > 0; ix--)
@@ -290,7 +290,7 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
 
     long y1base = 8 * ymax / xmax * x1base / 8;
     long y0base = 8 * ymax / xmax * x0base / 8;
-    long* yt = ytab[0];
+    int32_t * yt = ytab[0];
     int vy1 = 0;
     int vy0 = 0;
     for (iy = ymax; iy > 0; iy--)

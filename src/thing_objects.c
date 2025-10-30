@@ -2146,7 +2146,7 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
         return false;
     }
     if (thing->valuable.gold_stored < 0)
-        thing->valuable.gold_stored = LONG_MAX;
+        thing->valuable.gold_stored = INT32_MAX;
     if (thing->valuable.gold_stored < typical_value)
         scaled_val = 196 * thing->valuable.gold_stored / typical_value + 128;
     else

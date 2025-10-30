@@ -20,7 +20,6 @@
 #ifndef BFLIB_BASICS_H
 #define BFLIB_BASICS_H
 
-#include <io.h>
 #include <time.h>
 #include <stdio.h>
 

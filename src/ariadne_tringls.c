@@ -329,7 +329,7 @@ long edge_rotateAC(long tri1_id, long cor1_id)
     edgelen_set(tri2_id);
     return true;
 }
-long reduce_point(long *pt_tri, long *pt_cor)
+long reduce_point(int32_t *pt_tri, int32_t *pt_cor)
 {
     long k = 0;
     long ntri = *pt_tri;

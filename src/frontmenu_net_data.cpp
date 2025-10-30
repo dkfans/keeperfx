@@ -244,7 +244,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
     } else {
         snprintf(text, sizeof(text), "%s", net_player_name);
     }
-    unsigned long plyr_num;
+    uint32_t plyr_num;
     if (LbNetwork_Create(text, net_player_name, &plyr_num, nullptr))
     {
         process_network_error(-801);
