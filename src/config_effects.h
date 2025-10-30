@@ -96,7 +96,7 @@ struct EffectElementConfigStats {
     TbBool movable;
     unsigned char through_walls;
     unsigned char size_change; /**< See enum ThingSizeChange. */
-    unsigned char fall_acceleration;
+    char fall_acceleration;
     short inertia_floor;
     short inertia_air;
     unsigned short subeffect_model;

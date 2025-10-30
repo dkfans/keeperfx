@@ -2066,8 +2066,8 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
     }
     // Friendly fire usually causes less damage and at smaller distance
     if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-        max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_percent / 100;
-        max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_percent / 100;
+        max_dist = max_dist * game.conf.rules[tngsrc->owner].magic.friendly_fight_area_range_percent / 100;
+        max_damage = max_damage * game.conf.rules[tngsrc->owner].magic.friendly_fight_area_damage_percent / 100;
     }
     MapCoordDelta distance = get_chessboard_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
@@ -3583,7 +3583,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         // Per thing processing block
         if ((thing->class_id == TCls_Object) && (object_is_gold_laying_on_ground(thing)))
         {
-            if (thing->valuable.gold_stored >= game.conf.rules.game.gold_pile_maximum)
+            if (thing->valuable.gold_stored >= game.conf.rules[thing->owner].game.gold_pile_maximum)
             {
                 return true;
             }
@@ -4010,7 +4010,7 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
             force_any_creature_dragging_thing_to_drop_it(thing);
             // Drop creature if it's in hand
             if (thing_is_picked_up(thing)) {
-                if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+                if ((game.conf.rules[thing->owner].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                     SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                     return false;
                 }
@@ -4034,7 +4034,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
         force_any_creature_dragging_thing_to_drop_it(thing);
         // Drop creature if it's in hand
         if (thing_is_picked_up(thing)) {
-            if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+            if ((game.conf.rules[thing->owner].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                 SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                 return false;
             }
