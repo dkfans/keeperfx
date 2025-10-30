@@ -235,7 +235,7 @@ static void init_level(void)
     clear_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
-    game.pay_day_progress = 0;
+    memset(game.pay_day_progress, 0, sizeof(game.pay_day_progress));
     game.chosen_room_kind = 0;
     game.chosen_room_spridx = 0;
     game.chosen_room_tooltip = 0;

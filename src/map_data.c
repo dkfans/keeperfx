@@ -322,7 +322,7 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
         return false;
-    if (game.conf.rules.game.allies_share_vision)
+    if (game.conf.rules[plyr_idx].game.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
@@ -589,7 +589,7 @@ void clear_mapmap(void)
  * @param slb_y Slab Y coord.
  * @param plyr_idx Player index whose dig tag shall be cleared.
  */
-void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
+void clear_slab_dig(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
 {
     const struct SlabMap *slb = get_slabmap_block(slb_x,slb_y);
     if ( get_slab_stats(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
@@ -606,7 +606,7 @@ void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
     }
     else if ( !subtile_revealed(slab_subtile(slb_x, 0) , slab_subtile(slb_y, 0), plyr_idx) )          //    if (map_block_revealed(mapblk, plyr_idx))
     {
-        if (game.conf.rules.game.allies_share_vision)
+        if (game.conf.rules[plyr_idx].game.allies_share_vision)
         {
             for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
             {

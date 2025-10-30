@@ -19,7 +19,7 @@
 ---@field CAMPAIGN_FLAG6 integer
 ---@field CAMPAIGN_FLAG7 integer
 
----@class Player: creaturefields,roomfields,flagfields
+---@class Player: creaturefields,roomfields,flagfields,trapfields,doorfields
 ---@field private name string
 ---
 ---@field CONTROLS creaturefields
@@ -34,6 +34,7 @@
 ---@field TOTAL_AREA integer
 ---@field TOTAL_CREATURES_LEFT integer
 ---@field CREATURES_ANNOYED integer
+---@field ACTIVE_BATTLES integer
 ---@field BATTLES_LOST integer
 ---@field BATTLES_WON integer
 ---@field ROOMS_DESTROYED integer
@@ -79,7 +80,6 @@
 ---@field SCORE integer Sum of all the creatures the player has, based on stats and experience. Unrelated to the level score
 ---@field PLAYER_SCORE integer The highest level score reached, only set when the level is won. Before that it is 0
 ---@field MANAGE_SCORE integer Part of level score, based on quality of the dungeon
----
 ---@field heart Thing The player's primary dungeon heart
 if not Player then Player = {} end
 

@@ -15,7 +15,16 @@
 #ifndef GIT_BFLIB_ENET_H
 #define GIT_BFLIB_ENET_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct NetSP;
 struct NetSP* InitEnetSP();
+unsigned long LbEnet_GetPing(int id);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //GIT_BFLIB_ENET_H

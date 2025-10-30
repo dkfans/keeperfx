@@ -544,7 +544,7 @@ void init_dungeons(void)
         dungeon->creatr_list_start = 0;
         dungeon->digger_list_start = 0;
         dungeon->owner = i;
-        dungeon->max_creatures_attracted = game.conf.rules.rooms.default_max_crtrs_gen_entrance;
+        dungeon->max_creatures_attracted = game.conf.rules[i].rooms.default_max_crtrs_gen_entrance;
         dungeon->dead_creatures_count = 0;
         dungeon->dead_creature_idx = 0;
         /** Player modifier default value is set to 100. */

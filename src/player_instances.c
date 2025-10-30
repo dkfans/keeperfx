@@ -243,7 +243,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           thing->move_angle_xy = player->acamera->rotation_angle_x;
           if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
           {
-              thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
+              thing->health -= game.conf.rules[thing->owner].game.boulder_reduce_health_slap;
           }
       }
       else

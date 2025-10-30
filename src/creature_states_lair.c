@@ -530,9 +530,9 @@ short creature_sleep(struct Thing *thing)
     thing->movement_flags &= ~0x0020;
     struct CreatureModelConfig *crconf = creature_stats_get_from_thing(thing);
     // Recovery is disabled if frequency is set to 0 on rules.cfg.
-    if (game.conf.rules.creature.recovery_frequency > 0)
+    if (game.conf.rules[thing->owner].creature.recovery_frequency > 0)
     {
-        if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+        if (((game.play_gameturn + thing->index) % game.conf.rules[thing->owner].creature.recovery_frequency) == 0)
         {
             HitPoints recover = compute_creature_max_health(crconf->sleep_recovery, cctrl->exp_level);
             apply_health_to_thing_and_display_health(thing, recover);

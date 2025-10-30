@@ -331,6 +331,8 @@ void generate_lua_types_file()
 
     GENERATE_FIELDS("roomfields", room_desc);
     GENERATE_FIELDS("creaturefields", creature_desc);
+    GENERATE_FIELDS("trapfields", trap_desc);
+    GENERATE_FIELDS("doorfields", door_desc);
 
     // Cleanup
     #undef GENERATE_ALIAS
