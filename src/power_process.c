@@ -108,9 +108,10 @@ void process_armageddon(void)
     struct PlayerInfo *player;
     long i;
     SYNCDBG(6,"Starting");
+    GameTurnDelta countdown = game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down;
     if (game.armageddon_cast_turn == 0)
         return;
-    if (game.armageddon.count_down+game.armageddon_cast_turn > game.play_gameturn)
+    if ((game.armageddon_cast_turn + countdown) > game.play_gameturn)
     {
         if (player_cannot_win(game.armageddon_caster_idx))
         {
@@ -118,7 +119,7 @@ void process_armageddon(void)
             game.armageddon_cast_turn = 0;
         }
     } else
-    if (game.armageddon.count_down+game.armageddon_cast_turn == game.play_gameturn)
+    if ((game.armageddon_cast_turn + countdown) == game.play_gameturn)
     {
         for (i=0; i < PLAYERS_COUNT; i++)
         {
@@ -130,7 +131,7 @@ void process_armageddon(void)
             }
         }
     } else
-    if (game.armageddon.count_down+game.armageddon_cast_turn < game.play_gameturn)
+    if ((game.armageddon_cast_turn + countdown) < game.play_gameturn)
     {
         for (i=0; i < PLAYERS_COUNT; i++)
         {
@@ -159,7 +160,7 @@ void teleport_armageddon_influenced_creature(struct Thing* creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->armageddon_teleport_turn = 0;
     create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
-    move_thing_in_map(creatng, &game.armageddon.mappos);
+    move_thing_in_map(creatng, &game.armageddon_mappos);
     cleanup_current_thing_state(creatng);
     reset_interpolation_of_thing(creatng);
 }

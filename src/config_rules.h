@@ -122,8 +122,10 @@ struct CreatureRulesConfig {
 
 struct MagicRulesConfig {
     GameTurnDelta hold_audience_time;
-    unsigned long armageddon_teleport_your_time_gap;
-    unsigned long armageddon_teleport_enemy_time_gap;
+    GameTurnDelta armageddon_teleport_your_time_gap;
+    GameTurnDelta armageddon_teleport_enemy_time_gap;
+    GameTurnDelta armageddon_count_down;
+    GameTurnDelta armageddon_duration;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;

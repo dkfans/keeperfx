@@ -266,9 +266,6 @@ struct Game {
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress[PLAYERS_COUNT];
-    GameTurn armageddon_cast_turn;
-    GameTurn armageddon_over_turn;
-    PlayerNumber armageddon_caster_idx;
     struct SoundSettings sound_settings;
     struct CreatureBattle battles[BATTLES_COUNT];
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
@@ -278,7 +275,10 @@ struct Game {
     char loaded_swipe_idx;
     unsigned char active_messages_count;
     long bonus_time;
-    struct Armageddon armageddon;
+    struct Coord3d armageddon_mappos;
+    GameTurn armageddon_cast_turn;
+    GameTurn armageddon_over_turn;
+    PlayerNumber armageddon_caster_idx;
     char active_panel_mnu_idx; /**< The MenuID of currently active panel menu, or 0 if none. */
     char comp_player_aggressive;
     char comp_player_defensive;
