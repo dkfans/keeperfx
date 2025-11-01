@@ -3052,22 +3052,23 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 4: // EYEEFFECT
         {
             crconf->eye_effect = value;
-            struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
+            struct PlayerInfo* player = get_my_player();
+            struct Thing* thing = thing_get(player->influenced_thing_idx);
             if(!thing_is_invalid(thing))
             {
                 if (thing->model == creatid)
                 {
                     struct LensConfig* lenscfg = get_lens_config(value);
-                    initialise_eye_lenses();
+                    initialise_eye_lenses(player);
                     if (flag_is_set(lenscfg->flags, LCF_HasPalette))
                     {
-                        PaletteSetPlayerPalette(get_my_player(), lenscfg->palette);
+                        PaletteSetPlayerPalette(player, lenscfg->palette);
                     }
                     else
                     {
-                        PaletteSetPlayerPalette(get_my_player(), engine_palette);
+                        PaletteSetPlayerPalette(player, engine_palette);
                     }
-                    setup_eye_lens(value);
+                    setup_eye_lens(player, value);
                 }
             }
             break;

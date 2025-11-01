@@ -179,7 +179,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
         if (thing->class_id == TCls_Creature)
         {
             struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-            setup_eye_lens(crconf->eye_effect);
+            setup_eye_lens(player, crconf->eye_effect);
         }
     }
     return thing;
@@ -324,9 +324,9 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
     }
 }
 
-void reset_creature_eye_lens(struct Thing *thing)
+void reset_creature_eye_lens(struct PlayerInfo *player)
 {
-    setup_eye_lens(0);
+    setup_eye_lens(player, 0);
 }
 
 TbBool creature_can_gain_experience(const struct Thing *thing)
