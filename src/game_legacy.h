@@ -140,6 +140,7 @@ struct LogThingDesyncInfo {
     HitPoints health;             // Thing's health
     unsigned short current_frame; // Current animation frame
     unsigned short max_frames;    // Maximum frames in animation
+    unsigned long spell_flags;
     TbBigChecksum checksum;       // Thing's computed checksum
 };
 
