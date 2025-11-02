@@ -3634,6 +3634,58 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
     SYNCDBG(19, "Finished");
 }
 
+static void use_spell_on_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    long crtr_id = parse_creature_name(scline->tp[1]);
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    long select_id = parse_criteria(scline->tp[2]);
+    if (select_id == -1) {
+        SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
+        return;
+    }
+    const char* mag_name = scline->tp[3];
+    short mag_id = get_rid(spell_desc, mag_name);
+    CrtrExpLevel spell_level = scline->np[4];
+    if (mag_id == -1)
+    {
+        SCRPTERRLOG("Invalid spell: %s", mag_name);
+        return;
+    }
+    struct SpellConfig* spconf = get_spell_config(mag_id);
+    if (spconf->linked_power) // Only check for spells linked to a keeper power.
+    {
+        if (spell_level < 1)
+        {
+            SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, spell_level);
+            spell_level = 1;
+        }
+        if (spell_level > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
+        {
+            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, spell_level, (MAGIC_OVERCHARGE_LEVELS + 1));
+            spell_level = MAGIC_OVERCHARGE_LEVELS;
+        }
+    }
+    spell_level--;
+    value->shorts[1] = crtr_id;
+    value->shorts[2] = select_id;
+    value->shorts[3] = mag_id;
+    value->shorts[4] = spell_level;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+static void use_spell_on_creature_process(struct ScriptContext* context)
+{
+    ThingModel crmodel = context->value->shorts[1];
+    short select_id = context->value->shorts[2];
+    SpellKind spell_idx = context->value->shorts[3];
+    CrtrExpLevel overchrg = context->value->shorts[4];
+    script_use_spell_on_creature_with_criteria(context->player_idx, crmodel, select_id, spell_idx, overchrg);
+}
+
 static void use_spell_on_players_creatures_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -6270,7 +6322,6 @@ const struct CommandDesc command_desc[] = {
   {"USE_POWER_ON_CREATURE",             "PC!APANA", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
   {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANB!", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process},
   {"USE_POWER_AT_POS",                  "PNNANA  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
-  {"USE_POWER_AT_SUBTILE",              "PNNANA  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
   {"USE_POWER_AT_LOCATION",             "PLANA   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
   {"USE_POWER",                         "PAA     ", Cmd_USE_POWER, NULL, NULL},
   {"USE_SPECIAL_INCREASE_LEVEL",        "PN      ", Cmd_USE_SPECIAL_INCREASE_LEVEL, NULL, NULL},
@@ -6310,7 +6361,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, &quick_message_check, &quick_message_process},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
-  {"USE_SPELL_ON_CREATURE",             "PC!AAn  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
+  {"USE_SPELL_ON_CREATURE",             "PC!AAn  ", Cmd_USE_SPELL_ON_CREATURE, &use_spell_on_creature_check, &use_spell_on_creature_process},
   {"USE_SPELL_ON_PLAYERS_CREATURES",    "PC!An   ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_players_creatures_check, &use_spell_on_players_creatures_process},
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
   {"ADD_HEART_HEALTH",                  "PNb     ", Cmd_ADD_HEART_HEALTH, &add_heart_health_check, &add_heart_health_process},
