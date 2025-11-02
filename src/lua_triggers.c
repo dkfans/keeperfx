@@ -162,7 +162,6 @@ void lua_on_creature_rebirth(struct Thing* crtng)
     if (lua_isfunction(Lvl_script, -1))
     {
         lua_pushThing(Lvl_script, crtng);
-
         CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnCreatureRebirth");
     }
     else

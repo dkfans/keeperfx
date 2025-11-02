@@ -91,8 +91,8 @@ function OnLevelUp(creature)
     ProcessEvent("LevelUp",eventData)
 end
 
---- Called when a unit resurrects
---- @param unit Creature The unit that resurrects
+--- Called when a unit resurrects from his rebirth ability (like a vampire)
+--- @param unit Creature The unit that rises from the death with 1xp level less
 function OnCreatureRebirth(unit)
     local eventData = {}
     eventData.unit = unit
