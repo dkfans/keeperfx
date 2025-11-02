@@ -2,7 +2,7 @@
 -- Entry points for engine-triggered events (e.g. OnPowerCast, OnGameTick).
 -- These functions are called by the C engine and dispatch event data to the Lua trigger system.
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"Rebirth"
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -89,4 +89,12 @@ function OnLevelUp(creature)
     local eventData = {}
     eventData.creature = creature
     ProcessEvent("LevelUp",eventData)
+end
+
+--- Called when a unit resurrects
+--- @param unit Creature The unit that resurrects
+function OnCreatureRebirth(unit)
+    local eventData = {}
+    eventData.unit = unit
+    ProcessEvent("Rebirth",eventData)
 end
