@@ -24,6 +24,7 @@
 #include "bflib_guibtns.h"
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
+#include "bflib_enet.h"
 #include "custom_sprites.h"
 #include "player_data.h"
 #include "config_players.h"
@@ -861,5 +862,38 @@ void draw_frametime()
     }
 
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+}
+
+void draw_network_stats() {
+    char text[128];
+    LbTextSetFont(winfont);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
+    if (tx_units_per_px < 16)
+        tx_units_per_px = 16;
+
+    unsigned long ping = GetPing(my_player_number);
+    unsigned long half_ping = ping / 2;
+    unsigned long variance = GetPingVariance(my_player_number);
+    unsigned long ping_calc = GetAdjustedPing(my_player_number);
+    unsigned int packet_loss = GetPacketLoss(my_player_number);
+    unsigned int transit = GetClientDataInTransit();
+    unsigned int queue_size = GetIncomingPacketQueueSize();
+    unsigned int packets_lost = GetClientPacketsLost();
+    unsigned int outgoing_total_bytes = GetClientOutgoingDataTotal();
+    unsigned int incoming_total_bytes = GetClientIncomingDataTotal();
+    unsigned int outgoing_total_kb = outgoing_total_bytes / 1024;
+    unsigned int incoming_total_kb = incoming_total_bytes / 1024;
+    unsigned int reliable_commands = GetClientReliableCommandsInFlight();
+    int input_lag = game.input_lag_turns;
+    snprintf(text, sizeof(text), "Full ping: %lums | Half ping: %lums | Jitter: %lums | Ping calculation: %lums", ping, half_ping, variance, ping_calc);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    int input_lag_ms = input_lag * 50;
+    snprintf(text, sizeof(text), "Queue: %u | Reliable: %u | Input Lag: %d turns (%dms)", queue_size, reliable_commands, input_lag, input_lag_ms);
+    LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Transit: %u bytes | In: %u KB | Out: %u KB | Lost: %u | Loss: %u%%", transit, incoming_total_kb, outgoing_total_kb, packets_lost, packet_loss);
+    LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Current gameturn: %lu", game.play_gameturn);
+    LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
 }
 /******************************************************************************/

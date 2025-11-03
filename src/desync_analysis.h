@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file net_sync.h
- *     Header file for net_sync.c.
+/** @file desync_analysis.h
+ *     Header file for desync_analysis.c.
  * @par Purpose:
- *     Network game synchronization for Dungeon Keeper.
+ *     Desync analysis history tracking for network game debugging.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     11 Mar 2010 - 09 Oct 2010
+ * @date     03 Nov 2025
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,12 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_NETSYNC_H
-#define DK_NETSYNC_H
+#ifndef DK_DESYNC_ANALYSIS_H
+#define DK_DESYNC_ANALYSIS_H
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,17 +29,13 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct Thing;
-
 #pragma pack()
 /******************************************************************************/
-void resync_game(void);
-CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
-void compute_multiplayer_checksum(void);
-void set_local_packet_turn(void);
-TbBigChecksum compute_players_checksum(void);
-short checksums_different(void);
-TbBigChecksum get_thing_checksum(const struct Thing *thing);
+void initialize_desync_analysis(void);
+void clear_desync_analysis(void);
+void store_turn_checksums(void);
+void pack_desync_history_for_resync(void);
+void compare_desync_history_from_host(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

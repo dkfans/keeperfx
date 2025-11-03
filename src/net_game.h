@@ -59,7 +59,7 @@ long network_session_join(void);
 
 TbBool network_player_active(int plyr_idx);
 const char *network_player_name(int plyr_idx);
-void init_network_seed();
+void sync_various_data();
 /******************************************************************************/
 #ifdef __cplusplus
 }

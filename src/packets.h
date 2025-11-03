@@ -259,8 +259,8 @@ extern unsigned long initial_replay_seed;
  * Stores data exchanged between players each turn and used to re-create their input.
  */
 struct Packet {
-    int unusedparam;
-    TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
+    GameTurn turn;
+    TbBigChecksum checksum; //! Checksum of the entire game state of the previous turn, used solely for desync detection
     unsigned char action; //! Action kind performed by the player which owns this packet
     long actn_par1; //! Players action parameter #1
     long actn_par2; //! Players action parameter #2
@@ -304,6 +304,7 @@ struct PacketEx
 struct Packet *get_packet_direct(long pckt_idx);
 struct Packet *get_packet(long plyr_idx);
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4);
+TbBool is_packet_empty(const struct Packet *pckt);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long flag);
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);

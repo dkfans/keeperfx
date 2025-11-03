@@ -55,6 +55,7 @@ void draw_timer(void);
 void draw_frametime(void);
 void draw_gameturn_timer(void);
 void draw_consolelog(void);
+void draw_network_stats(void);
 TbBool timer_enabled(void);
 TbBool frametime_enabled(void);
 TbBool consolelog_enabled(void);
