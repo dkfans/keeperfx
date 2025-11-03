@@ -5424,7 +5424,6 @@ static void clear_message_process(struct ScriptContext* context)
     unsigned char count = min(context->value->chars[1], game.active_messages_count);
     for (int k = game.active_messages_count-1; k >= (game.active_messages_count-count); k--)
     {
-        JUSTLOG("clear %d", k);
         game.messages[k].expiration_turn = game.play_gameturn;
     }
 }
@@ -6385,7 +6384,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, &quick_message_check, &quick_message_process},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
-  {"CLEAR_MESSAGE",                     "N       ", Cmd_CLEAR_MESSAGE, &clear_message_check, &clear_message_process},
+  {"CLEAR_MESSAGE",                     "n       ", Cmd_CLEAR_MESSAGE, &clear_message_check, &clear_message_process},
   {"USE_SPELL_ON_CREATURE",             "PC!AAn  ", Cmd_USE_SPELL_ON_CREATURE, &use_spell_on_creature_check, &use_spell_on_creature_process},
   {"USE_SPELL_ON_PLAYERS_CREATURES",    "PC!An   ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_players_creatures_check, &use_spell_on_players_creatures_process},
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
