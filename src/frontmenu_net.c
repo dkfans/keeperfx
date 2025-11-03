@@ -112,7 +112,9 @@ void frontnet_messages_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_start_game_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players > 1)) & LbBtnF_Enabled;
+    TbBool enabled;
+    enabled = (net_number_of_enum_players > 1) && !frontnet_is_waiting_for_ping_stabilization();
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * enabled) & LbBtnF_Enabled;
 }
 
 TbBool frontnet_start_input(void)
@@ -377,7 +379,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         char player_text[128];
         unsigned long ping = 0;
         if (netplyr_idx != my_player_number) {
-            ping = LbEnet_GetPing(netplyr_idx);
+            ping = GetTotalPing(netplyr_idx);
         }
         if (ping > 0) {
             snprintf(player_text, sizeof(player_text), "%s - %lums", text, ping);

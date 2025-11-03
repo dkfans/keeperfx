@@ -267,6 +267,14 @@ TbTimeSec LbTimeSec(void)
   return dtime;
 }
 
+extern "C" unsigned long long LbSystemClockMilliseconds(void)
+{
+  auto now = std::chrono::system_clock::now();
+  auto duration = now.time_since_epoch();
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+  return static_cast<unsigned long long>(millis);
+}
+
 //Fills structure with current date
 TbResult LbDate(struct TbDate *curr_date)
 {

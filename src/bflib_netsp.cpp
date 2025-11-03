@@ -453,7 +453,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           CheckForDeletedHost(msgBuffer);
-          memcpy(&id, msgBuffer, id);
+          memcpy(&id, msgBuffer, sizeof(id));
           DeletePlayer(id);
           memcpy(&tmpInt1, msgBuffer, sizeof(tmpInt1));
           if (recvCallbacks->deleteMsg) {

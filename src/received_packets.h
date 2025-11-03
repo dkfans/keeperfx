@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file net_sync.h
- *     Header file for net_sync.c.
+/** @file received_packets.h
+ *     Header file for received_packets.c.
  * @par Purpose:
- *     Network game synchronization for Dungeon Keeper.
+ *     Received packets list tracking for network game synchronization.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     11 Mar 2010 - 09 Oct 2010
+ * @date     24 Oct 2025
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,12 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_NETSYNC_H
-#define DK_NETSYNC_H
+#ifndef DK_RECEIVED_PACKETS_H
+#define DK_RECEIVED_PACKETS_H
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,17 +29,15 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct Thing;
+struct Packet;
 
 #pragma pack()
 /******************************************************************************/
-void resync_game(void);
-CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
-void compute_multiplayer_checksum(void);
-void set_local_packet_turn(void);
-TbBigChecksum compute_players_checksum(void);
-short checksums_different(void);
-TbBigChecksum get_thing_checksum(const struct Thing *thing);
+void initialize_packet_tracking(void);
+void clear_packet_tracking(void);
+void store_received_packets(void);
+const struct Packet* get_received_packets_for_turn(GameTurn turn);
+const struct Packet* get_received_packet_for_player(GameTurn turn, PlayerNumber player);
 
 /******************************************************************************/
 #ifdef __cplusplus

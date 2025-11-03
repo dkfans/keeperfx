@@ -1138,6 +1138,7 @@ void redraw_display(void)
     {
         draw_frametime();
     }
+    draw_network_stats();
     if (consolelog_enabled())
     {
         draw_consolelog();

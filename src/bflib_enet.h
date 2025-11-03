@@ -21,7 +21,17 @@ extern "C" {
 
 struct NetSP;
 struct NetSP* InitEnetSP();
-unsigned long LbEnet_GetPing(int id);
+unsigned long GetPing(int id);
+unsigned long GetPingVariance(int id);
+unsigned long GetTotalPing(int id);
+unsigned long GetAdjustedPing(int id);
+unsigned int GetPacketLoss(int id);
+unsigned int GetClientDataInTransit();
+unsigned int GetIncomingPacketQueueSize();
+unsigned int GetClientPacketsLost();
+unsigned int GetClientOutgoingDataTotal();
+unsigned int GetClientIncomingDataTotal();
+unsigned int GetClientReliableCommandsInFlight();
 
 #ifdef __cplusplus
 }

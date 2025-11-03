@@ -35,6 +35,7 @@
 #include "bflib_mouse.h"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
+#include "bflib_network_resync.h"
 #include "bflib_planar.h"
 
 #include "api.h"
@@ -125,6 +126,7 @@
 #include "room_list.h"
 #include "steam_api.hpp"
 #include "game_loop.h"
+#include "input_lag.h"
 #include "moonphase.h"
 #include "frontmenu_ingame_map.h"
 
@@ -209,7 +211,7 @@ extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, Mo
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 extern void startup_network_game(CoroutineLoop *context, TbBool local);
 void first_gameturn_actions(void);
-void compute_multiplayer_checksum_sync(void);
+void compute_multiplayer_checksum(void);
 /******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
@@ -1783,6 +1785,8 @@ void clear_game(void)
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
     clear_slabsets();
+    game.skip_initial_input_turns = 0;
+    clear_input_lag_queue();
 }
 
 void clear_game_for_save(void)
@@ -2737,7 +2741,6 @@ void update(void)
         PaletteFadePlayer(player);
         process_armageddon();
         update_global_lighting();
-        compute_multiplayer_checksum_sync();
 #if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
@@ -2753,11 +2756,38 @@ void update(void)
     SYNCDBG(6,"Finished");
 }
 
+void intentional_desync() {
+    if (game.play_gameturn == 30 && my_player_number == 0) {
+        int k = 0;
+        int i = game.thing_lists[TngList_Creatures].index;
+        while (i != 0) {
+            struct Thing* thing = thing_get(i);
+            if (thing_is_invalid(thing)) {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            i = thing->next_of_class;
+
+            struct Coord3d new_pos;
+            new_pos.x.val = thing->mappos.x.val - 256;
+            new_pos.y.val = thing->mappos.y.val;
+            new_pos.z.val = thing->mappos.z.val;
+            move_thing_in_map(thing, &new_pos);
+
+            k++;
+            if (k > THINGS_COUNT) {
+                break;
+            }
+        }
+    }
+}
+
 void first_gameturn_actions() {
     if (game.play_gameturn == 1) {
         apply_default_flee_and_imprison_setting();
         send_sprite_zip_count_to_other_players();
     }
+    //intentional_desync(); //Move all creatures left by 1 subtile after turn 30
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
@@ -3480,8 +3510,8 @@ void gameplay_loop_timestep()
             exit_keeper = 1;
         }
     }
-
-
+    
+    LbNetwork_Service();
     frametime_end_measurement(Frametime_Sleep);
 }
 
@@ -3500,6 +3530,7 @@ void keeper_gameplay_loop(void)
 
     initial_time_point();
     LbSleepExtInit();
+    LbNetwork_TimesyncBarrier();
 
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
