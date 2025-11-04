@@ -630,7 +630,7 @@ static int lua_Quick_message(lua_State *L)
 
 static int lua_Clear_message(lua_State* L)
 {
-    char count = luaL_checkinteger(L, 1);
+    char count = luaL_optCheckinteger(L, 1);
     if ((count <= 0) || (count > GUI_MESSAGES_COUNT))
     {
         count = GUI_MESSAGES_COUNT;
