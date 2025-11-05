@@ -35,6 +35,7 @@ struct Thing;
 #pragma pack()
 /******************************************************************************/
 void resync_game(void);
+void decrement_consecutive_resync_count(void);
 CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
 void compute_multiplayer_checksum(void);
 void set_local_packet_turn(void);
