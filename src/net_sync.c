@@ -75,35 +75,39 @@ struct Boing {
 /** Structure used for storing 'localised parameters' when resyncing net game. */
 struct Boing boing;
 
-#define RESYNC_RECALC_WINDOW_MS 300000
+#define CONSECUTIVE_RESYNC_DECAY_SECONDS 30
+#define CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE 5
 
 /******************************************************************************/
-static TbClockMSec last_resync_time_ms = 0;
+static GameTurn last_resync_turn = 0;
+static int consecutive_resync_count = 0;
 
-static void resync_potentially_recalculates_input_lag(void)
+void decrement_consecutive_resync_count(void)
 {
-    TbClockMSec now = LbTimerClock();
-    TbBool should_recalc = false;
-    if (last_resync_time_ms != 0) {
-        if (now - last_resync_time_ms < RESYNC_RECALC_WINDOW_MS) {
-            should_recalc = true;
-        }
+    if (consecutive_resync_count == 0) {
+        return;
     }
-    last_resync_time_ms = now;
+    if (last_resync_turn == 0) {
+        return;
+    }
+    GameTurn decay_window = CONSECUTIVE_RESYNC_DECAY_SECONDS * game_num_fps;
+    GameTurn turns_since_last = game.play_gameturn - last_resync_turn;
+    if (turns_since_last >= decay_window) {
+        consecutive_resync_count--;
+        MULTIPLAYER_LOG("Consecutive resync count decayed to %d", consecutive_resync_count);
+    }
+}
 
-    if (should_recalc) {
-        int recommended = LbNetwork_CalculateOptimalInputLag();
-        MULTIPLAYER_LOG("Recommended input lag after resync: %d (current %d)", recommended, game.input_lag_turns);
-        if (recommended > game.input_lag_turns) {
-            int maximum_adjustment_allowed = game.input_lag_turns + 1;
-            if (recommended > maximum_adjustment_allowed) {
-                recommended = maximum_adjustment_allowed;
-            }
-            if (recommended != game.input_lag_turns) {
-                MULTIPLAYER_LOG("Input lag increased due to resyncs: %d -> %d", game.input_lag_turns, recommended);
-                game.input_lag_turns = recommended;
-            }
-        }
+static void resync_potentially_increases_input_lag(void)
+{
+    consecutive_resync_count += 1;
+    last_resync_turn = game.play_gameturn;
+    MULTIPLAYER_LOG("Consecutive resync count: %d", consecutive_resync_count);
+
+    if (consecutive_resync_count >= CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE) {
+        consecutive_resync_count = 0;
+        game.input_lag_turns += 1;
+        MULTIPLAYER_LOG("Input lag increased: %d -> %d", game.input_lag_turns - 1, game.input_lag_turns);
     }
 }
 
@@ -113,7 +117,7 @@ TbBool send_resync_game(void)
 {
   pack_desync_history_for_resync();
 
-  resync_potentially_recalculates_input_lag();
+  resync_potentially_increases_input_lag();
   clear_flag(game.operation_flags, GOF_Paused);
   NETLOG("Initiating re-synchronization of network game");
   TbBool result = LbNetwork_Resync(&game, sizeof(game));

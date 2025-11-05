@@ -1670,6 +1670,7 @@ void process_packets(void)
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)game.play_gameturn);
     compute_multiplayer_checksum();
+    decrement_consecutive_resync_count();
     store_turn_checksums();
     set_local_packet_turn();
     store_local_packet_in_input_lag_queue(player->packet_num);

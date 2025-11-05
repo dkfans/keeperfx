@@ -471,8 +471,7 @@ unsigned long GetTotalPing(NetUserId id) {
 
 unsigned long GetAdjustedPing(NetUserId id) {
     unsigned long ping = GetPing(id);
-    unsigned long variance = GetPingVariance(id);
-    return CEILING(ping / 2.0) + CEILING(variance * 1.5);
+    return CEILING(ping / 2.0);
 }
 
 unsigned int GetPacketLoss(NetUserId id) {
