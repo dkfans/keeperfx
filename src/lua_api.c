@@ -1746,9 +1746,7 @@ static int lua_Use_spell_on_creature(lua_State *L)
     long spell_id = luaL_checkNamedCommand(L,2,spell_desc);
     int spell_level = luaL_checkinteger(L, 3);
 
-    unsigned long fmcl_bytes = (spell_id << 8) | spell_level;
-
-    script_use_spell_on_creature(thing->owner, thing, fmcl_bytes);
+    script_use_spell_on_creature(thing->owner, thing, spell_id, spell_level);
     return 0;
 }
 

@@ -946,8 +946,8 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
     SYNCDBG(6,"Starting");
     unsigned long your_time_gap;
     unsigned long enemy_time_gap;
-    your_time_gap = game.armageddon.count_down + game.play_gameturn;
-    enemy_time_gap = game.armageddon.count_down + game.play_gameturn;
+    your_time_gap = game.conf.rules[plyr_idx].magic.armageddon_count_down + game.play_gameturn;
+    enemy_time_gap = game.conf.rules[plyr_idx].magic.armageddon_count_down + game.play_gameturn;
     if (game.armageddon_cast_turn != 0) {
         return Lb_OK;
     }
@@ -964,9 +964,9 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
     game.armageddon_caster_idx = plyr_idx;
     struct Thing *heartng;
     heartng = get_player_soul_container(plyr_idx);
-    game.armageddon.mappos.x.val = heartng->mappos.x.val;
-    game.armageddon.mappos.y.val = heartng->mappos.y.val;
-    game.armageddon.mappos.z.val = heartng->mappos.z.val;
+    game.armageddon_mappos.x.val = heartng->mappos.x.val;
+    game.armageddon_mappos.y.val = heartng->mappos.y.val;
+    game.armageddon_mappos.z.val = heartng->mappos.z.val;
 
     int i;
     int k;
@@ -1013,7 +1013,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
     }
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
-    game.armageddon_over_turn = game.armageddon.duration + enemy_time_gap;
+    game.armageddon_over_turn = game.conf.rules[plyr_idx].magic.armageddon_duration + enemy_time_gap;
     if (plyr_idx == my_player_number)
     {
         struct PowerConfigStats *powerst = get_power_model_stats(power_kind);

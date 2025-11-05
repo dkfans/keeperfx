@@ -143,7 +143,11 @@ TbBool free_campaign(struct GameCampaign *campgn)
 {
   free(campgn->lvinfos);
   free(campgn->hiscore_table);
-  free(campgn->strings_data);
+  for (int i=0; i<campgn->strings_data_count; i++)
+  {
+    free(campgn->strings_data_list[i]);
+  }
+  campgn->strings_data_count = 0;
   free(campgn->credits_data);
   return true;
 }
@@ -221,7 +225,8 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   memset(campgn->movie_intro_fname,0,DISKPATH_SIZE);
   memset(campgn->movie_outro_fname,0,DISKPATH_SIZE);
   memset(campgn->strings_fname,0,DISKPATH_SIZE);
-  campgn->strings_data = NULL;
+  memset(campgn->strings_data_list, 0, sizeof(campgn->strings_data_list));
+  campgn->strings_data_count = 0;
   reset_strings(campgn->strings, STRINGS_MAX);
   memset(campgn->hiscore_fname,0,DISKPATH_SIZE);
   campgn->hiscore_table = NULL;
@@ -742,14 +747,32 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
       {
         if ((cmd_num != 0) && (cmd_num != -1))
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of '%s' file.", cmd_num, block_name, config_textname);
-      } else
-      if ((cmd_num == install_info.lang_id) || (n == 0))
-      {
-          int i = get_conf_parameter_whole(buf, &pos, len, campgn->strings_fname, LINEMSG_SIZE);
-          if (i <= 0)
+      } else {
+
+        if ((cmd_num == Lang_English) || (cmd_num == install_info.lang_id) || (n == 0))
+        {
+          char strings_fname[DISKPATH_SIZE] = {0};
+          int i = get_conf_parameter_whole(buf, &pos, len, strings_fname, DISKPATH_SIZE);
+
+          if ((cmd_num == Lang_English) || (n == 0))
+          {
+            if (i > 0)
+            {
+              strcpy(campgn->strings_fname_eng, strings_fname);
+            }
+          }
+
+          if ((cmd_num == install_info.lang_id) || (n == 0))
+          {
+            if (i <= 0)
               CONFWRNLOG("Couldn't read file name in [%s] block parameter of %s file.", block_name, config_textname);
-          else
-            n++;
+            else
+            {
+              strcpy(campgn->strings_fname, strings_fname);
+              n++;
+            }
+          }
+        }
       }
       skip_conf_to_next_line(buf,&pos,len);
   }
@@ -787,7 +810,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
       } else
       if ((cmd_num == install_info.lang_id) || (n == 0))
       {
-          int i = get_conf_parameter_whole(buf, &pos, len, campgn->speech_location, LINEMSG_SIZE);
+          int i = get_conf_parameter_whole(buf, &pos, len, campgn->speech_location, DISKPATH_SIZE);
           if (i <= 0)
           {
               CONFWRNLOG("Couldn't read folder name in [%s] block parameter of %s file.",

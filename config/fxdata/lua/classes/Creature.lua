@@ -11,6 +11,7 @@
 ---@field state string
 ---@field continue_state string
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
+---@field flee_pos Pos3d The position the creature will flee too. For keeper creatures this is their lair
 ---@field max_speed integer the movement speed of the creature after spell modifications
 ---@field gold_held integer gold carried by the creature
 ---@field opponents_count integer number of creatures it is in battle with, combined ranged and melee

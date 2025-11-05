@@ -673,9 +673,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_use_power_on_creature_matching_criterion(i, param1, param2, param3);
       }
       break;
-    case Cmd_USE_SPELL_ON_CREATURE:
-      script_use_spell_on_creature_with_criteria(plr_range_id, param1, param2, param3);
-      break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         for (i = plr_start; i < plr_end; i++)
         {

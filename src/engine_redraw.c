@@ -1205,35 +1205,34 @@ void redraw_display(void)
     }
     if (game.armageddon_cast_turn != 0)
     {
-        int i;
-        if (game.armageddon.count_down + game.armageddon_cast_turn <= game.play_gameturn)
+        int i = 0;
+        if (game.armageddon_cast_turn + game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down <= game.play_gameturn)
         {
-            i = 0;
-            if (game.armageddon_over_turn - game.armageddon.duration <= game.play_gameturn)
+            if (game.armageddon_over_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_duration <= game.play_gameturn)
                 i = game.armageddon_over_turn - game.play_gameturn;
-      } else
-      {
-        i = game.play_gameturn - game.armageddon_cast_turn - game.armageddon.count_down;
-      }
-      LbTextSetFont(winfont);
-      char text[64];
-      snprintf(text, sizeof(text), " %s %03d", get_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
-      i = LbTextCharWidth(' ')*units_per_pixel/16;
-      long w = LbTextStringWidth(text) * units_per_pixel / 16 + 6 * i;
-      i = LbTextLineHeight()*units_per_pixel/16;
-      lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-      long h = pixel_size * i + pixel_size * i / 2;
-      if (MyScreenHeight < 400)
-      {
-          w *= 2;
-          h *= 2;
-      }
-      long pos_x = MyScreenWidth - w - 16 * units_per_pixel / 16;
-      long pos_y = 16 * units_per_pixel / 16;
-      LbTextSetWindow(pos_x, pos_y, w, h);
-      draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
-      LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);
-      LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+        } else
+        {
+            i = game.play_gameturn - game.armageddon_cast_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down;
+        }
+        LbTextSetFont(winfont);
+        char text[64];
+        snprintf(text, sizeof(text), " %s %03d", get_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
+        i = LbTextCharWidth(' ')*units_per_pixel/16;
+        long w = LbTextStringWidth(text) * units_per_pixel / 16 + 6 * i;
+        i = LbTextLineHeight()*units_per_pixel/16;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+        long h = pixel_size * i + pixel_size * i / 2;
+        if (MyScreenHeight < 400)
+        {
+            w *= 2;
+            h *= 2;
+        }
+        long pos_x = MyScreenWidth - w - 16 * units_per_pixel / 16;
+        long pos_y = 16 * units_per_pixel / 16;
+        LbTextSetWindow(pos_x, pos_y, w, h);
+        draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
+        LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);
+        LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
     draw_eastegg();
   //show_onscreen_msg(8, "Physical(%d,%d) Graphics(%d,%d) Lens(%d,%d)", (int)lbDisplay.PhysicalScreenWidth, (int)lbDisplay.PhysicalScreenHeight, (int)lbDisplay.GraphicsScreenWidth, (int)lbDisplay.GraphicsScreenHeight, (int)eye_lens_width, (int)eye_lens_height);
