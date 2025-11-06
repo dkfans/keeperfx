@@ -28,6 +28,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+#define WAIT_FOR_STABLE_PLAYER 500
+#define LOWEST_PING_UPDATE_RATE 500
+#define FRONTNET_PING_STABILIZATION_DELAY_MS 3000
+
 #pragma pack(1)
 
 /******************************************************************************/

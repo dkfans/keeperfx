@@ -28,6 +28,7 @@
 #include "frontend.h"
 #include "net_game.h"
 #include "front_landview.h"
+#include "front_network.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -431,20 +432,53 @@ unsigned long get_host_player_id(void) {
   return hostId;
 }
 
-int LbNetwork_CalculateOptimalInputLag(void) {
+void LogInputLagChange(int delay_frames, int min_ping, int rounded_latency_ms, int frame_time_ms) {
     static int last_delay_frames = -1;
-    static int last_max_rtt = -1;
-    if ((game.system_flags & GSF_NetworkActive) == 0 || my_player_number != get_host_player_id()) {
-        return 1;
+    static int last_min_ping = -1;
+    if (min_ping > 0 && (delay_frames != last_delay_frames || min_ping != last_min_ping)) {
+        MULTIPLAYER_LOG("Calculated input lag: %d frames (min ping: %ums rounded to %ums, frame_time: %ums)",
+               delay_frames, min_ping, rounded_latency_ms, frame_time_ms);
+        last_delay_frames = delay_frames;
+        last_min_ping = min_ping;
     }
-    int frame_time_ms = 1000 / game_num_fps;
-    if (!netstate.sp) {
-        NETLOG("LbNetwork_CalculateOptimalInputLag: No SP available; defaulting to 1 frame");
-        return 1;
-    }
+}
+
+void LbNetwork_UpdateInputLagIfHost(void) {
+    static TbClockMSec last_update_ms = 0;
+    static TbClockMSec second_player_login_time = 0;
+    static int min_ping = 1000000;
+    static int last_player_count = 0;
+    if ((game.system_flags & GSF_NetworkActive) == 0) { return; }
+    if (frontend_menu_state == FeSt_START_MPLEVEL) { return; }
+    if (my_player_number != get_host_player_id()) { return; }
+    if (!netstate.sp) { return; }
+    TbClockMSec now = LbTimerClock();
     netstate.sp->update(OnNewUser);
-    int max_rtt_latency = 0;
+    int active_player_count = 0;
     NetUserId id;
+    for (id = 0; id < netstate.max_players; id += 1) {
+        if (id == netstate.my_id) { continue; }
+        if (IsUserActive(id)) {
+            active_player_count += 1;
+        }
+    }
+    if (active_player_count == 0) {
+        second_player_login_time = 0;
+        return;
+    }
+    if (second_player_login_time == 0) {
+        second_player_login_time = now;
+    }
+    if (now - second_player_login_time < WAIT_FOR_STABLE_PLAYER) {
+        return;
+    }
+    if (last_update_ms != 0 && now - last_update_ms < LOWEST_PING_UPDATE_RATE) { return; }
+    last_update_ms = now;
+    if (active_player_count != last_player_count) {
+        min_ping = 1000000;
+        last_player_count = active_player_count;
+    }
+    int max_rtt_latency = 0;
     for (id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id) { continue; }
         if (!IsUserActive(id)) { continue; }
@@ -454,47 +488,24 @@ int LbNetwork_CalculateOptimalInputLag(void) {
             continue;
         }
         int variance_ms = GetPingVariance(id);
-        int adjusted_ms = GetAdjustedPing(id);
-        NETLOG("Player %d (%s) Ping: %ums, Variance: %ums, Adjusted: %ums",
-               id, netstate.users[id].name, ping_ms, variance_ms, adjusted_ms);
-        if (adjusted_ms > max_rtt_latency) {
-            max_rtt_latency = adjusted_ms;
+        int calculated_ms = GetCalculatedPing(id);
+        NETLOG("Player %d (%s) Ping: %ums, Variance: %ums, Calculated: %ums",
+               id, netstate.users[id].name, ping_ms, variance_ms, calculated_ms);
+        if (calculated_ms > max_rtt_latency) {
+            max_rtt_latency = calculated_ms;
         }
     }
-    int rounded_latency_ms = ((max_rtt_latency + 49) / 50) * 50;
+    if (max_rtt_latency > 0 && max_rtt_latency < min_ping) {
+        min_ping = max_rtt_latency;
+    }
+    int frame_time_ms = 1000 / game_num_fps;
+    int rounded_latency_ms = ((min_ping + 49) / 50) * 50;
     int delay_frames = (rounded_latency_ms + frame_time_ms - 1) / frame_time_ms;
     if (delay_frames < 1) {
         delay_frames = 1;
     }
-    if (max_rtt_latency > 0 && (delay_frames != last_delay_frames || max_rtt_latency != last_max_rtt)) {
-        MULTIPLAYER_LOG("Calculated input lag: %d frames (max RTT: %ums rounded to %ums, frame_time: %ums)",
-               delay_frames, max_rtt_latency, rounded_latency_ms, frame_time_ms);
-        last_delay_frames = delay_frames;
-        last_max_rtt = max_rtt_latency;
-    }
-    return delay_frames;
-}
-
-void LbNetwork_Service(void) {
-    if ((game.system_flags & GSF_NetworkActive) == 0) { return; }
-    if (!netstate.sp) { return; }
-    netstate.sp->update(OnNewUser);
-}
-
-void LbNetwork_UpdateInputLagIfHost(void) {
-    static TbClockMSec last_update_ms = 0;
-    if ((game.system_flags & GSF_NetworkActive) == 0) { return; }
-    if (frontend_menu_state == FeSt_START_MPLEVEL) { return; }
-    if (my_player_number != get_host_player_id()) { return; }
-    NetUserId id;
-    for (id = 0; id < netstate.max_players; id += 1) {
-        if (netstate.users[id].progress == USER_LOGGEDIN) { break; }
-    }
-    if (id == netstate.max_players) { return; }
-    TbClockMSec now = LbTimerClock();
-    if (last_update_ms != 0 && now - last_update_ms < 500) { return; }
-    last_update_ms = now;
-    game.input_lag_turns = LbNetwork_CalculateOptimalInputLag();
+    LogInputLagChange(delay_frames, min_ping, rounded_latency_ms, frame_time_ms);
+    game.input_lag_turns = delay_frames;
 }
 
 /******************************************************************************/

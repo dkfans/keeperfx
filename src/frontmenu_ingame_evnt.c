@@ -875,7 +875,7 @@ void draw_network_stats() {
     unsigned long ping = GetPing(my_player_number);
     unsigned long half_ping = ping / 2;
     unsigned long variance = GetPingVariance(my_player_number);
-    unsigned long ping_calc = GetAdjustedPing(my_player_number);
+    unsigned long ping_calc = GetCalculatedPing(my_player_number);
     unsigned int packet_loss = GetPacketLoss(my_player_number);
     unsigned int transit = GetClientDataInTransit();
     unsigned int queue_size = GetIncomingPacketQueueSize();

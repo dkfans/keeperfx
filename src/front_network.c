@@ -110,7 +110,6 @@ int fe_network_active;
 int net_service_index_selected;
 char tmp_net_player_name[24];
 static TbClockMSec frontnet_ping_stabilization_end_time = 0;
-static const int frontnet_ping_stabilization_delay_ms = 2500;
 static int previous_player_count_for_ping_wait = -1;
 /******************************************************************************/
 #ifdef __cplusplus
@@ -381,7 +380,7 @@ TbBool frontnet_is_waiting_for_ping_stabilization(void)
 {
     TbClockMSec now;
     if (net_number_of_enum_players != previous_player_count_for_ping_wait) {
-        frontnet_ping_stabilization_end_time = LbTimerClock() + frontnet_ping_stabilization_delay_ms;
+        frontnet_ping_stabilization_end_time = LbTimerClock() + FRONTNET_PING_STABILIZATION_DELAY_MS;
         previous_player_count_for_ping_wait = net_number_of_enum_players;
     }
     if (net_number_of_enum_players < 2) {
