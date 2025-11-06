@@ -32,6 +32,11 @@
 #include "post_inc.h"
 
 #ifdef __cplusplus
+void gameplay_loop_draw();
+extern "C" void network_yield_draw();
+#endif
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
@@ -367,7 +372,7 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
 static void ProcessMessagesUntil(NetUserId id, void *serv_buf, size_t frame_size, enum NetMessageType target_msg, TbBool block_on_first_message, TbClockMSec total_timeout_ms) {
     TbClockMSec start = LbTimerClock();
     for (int i = 0; i < 1000; i += 1) {
-        unsigned wait_ms = 0;
+        unsigned wait_ms = (1000 / game_num_fps);
         if (total_timeout_ms > 0) {
             TbClockMSec elapsed = LbTimerClock() - start;
             if (elapsed >= total_timeout_ms) { break; }
@@ -379,6 +384,8 @@ static void ProcessMessagesUntil(NetUserId id, void *serv_buf, size_t frame_size
         if (!netstate.sp->msgready(id, wait_ms)) { break; }
         if (ProcessMessage(id, serv_buf, frame_size) == Lb_FAIL) { break; }
         if (netstate.msg_buffer[0] == target_msg) { break; }
+        
+        network_yield_draw();
     }
 }
 

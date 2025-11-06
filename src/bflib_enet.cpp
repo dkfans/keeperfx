@@ -16,6 +16,7 @@
 #include "bflib_enet.h"
 #include "bflib_network.h"
 #include "bflib_math.h"
+#include "game_legacy.h"
 #include "player_data.h"
 
 #define WIN32_LEAN_AND_MEAN
@@ -465,7 +466,9 @@ unsigned long GetPingVariance(NetUserId id) {
 
 unsigned long GetCalculatedPing(NetUserId id) {
     unsigned long ping = GetPing(id);
-    return CEILING(ping / 2.0);
+    int ms_turn_time = (1000 / game_num_fps);
+    int ms_half_ping = CEILING(ping / 2.0);
+    return max(0, ms_half_ping-ms_turn_time);
 }
 
 unsigned int GetPacketLoss(NetUserId id) {
