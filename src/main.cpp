@@ -3511,7 +3511,6 @@ void gameplay_loop_timestep()
         }
     }
     
-    LbNetwork_Service();
     frametime_end_measurement(Frametime_Sleep);
 }
 

@@ -233,8 +233,6 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
 unsigned long get_host_player_id(void);
-int     LbNetwork_CalculateOptimalInputLag(void);
-void    LbNetwork_Service(void);
 void    LbNetwork_UpdateInputLagIfHost(void);
 /******************************************************************************/
 #ifdef __cplusplus
