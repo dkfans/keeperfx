@@ -468,7 +468,7 @@ unsigned long GetCalculatedPing(NetUserId id) {
     unsigned long ping = GetPing(id);
     int ms_turn_time = (1000 / game_num_fps);
     int ms_half_ping = CEILING(ping / 2.0);
-    return max(0, ms_half_ping-ms_turn_time);
+    return max(0, ms_half_ping - ms_turn_time);
 }
 
 unsigned int GetPacketLoss(NetUserId id) {

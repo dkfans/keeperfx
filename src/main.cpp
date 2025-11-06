@@ -3483,8 +3483,12 @@ void gameplay_loop_draw()
     frametime_end_measurement(Frametime_Draw);
 }
 
+void gameplay_loop_timestep();
+ 
 extern "C" void network_yield_draw()
 {
+    game.delta_time = get_delta_time();
+    game.process_turn_time += game.delta_time;
     gameplay_loop_draw();
 }
 

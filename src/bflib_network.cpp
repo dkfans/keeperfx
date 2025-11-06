@@ -384,7 +384,6 @@ static void ProcessMessagesUntil(NetUserId id, void *serv_buf, size_t frame_size
         if (!netstate.sp->msgready(id, wait_ms)) { break; }
         if (ProcessMessage(id, serv_buf, frame_size) == Lb_FAIL) { break; }
         if (netstate.msg_buffer[0] == target_msg) { break; }
-        
         network_yield_draw();
     }
 }
