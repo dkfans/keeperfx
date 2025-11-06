@@ -463,12 +463,6 @@ unsigned long GetPingVariance(NetUserId id) {
     return 0;
 }
 
-unsigned long GetTotalPing(NetUserId id) {
-    unsigned long ping = GetPing(id);
-    unsigned long variance = GetPingVariance(id);
-    return ping + variance;
-}
-
 unsigned long GetCalculatedPing(NetUserId id) {
     unsigned long ping = GetPing(id);
     return CEILING(ping / 2.0);

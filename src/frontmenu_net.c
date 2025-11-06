@@ -379,7 +379,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         char player_text[128];
         unsigned long ping = 0;
         if (netplyr_idx != my_player_number) {
-            ping = GetTotalPing(netplyr_idx);
+            ping = GetPing(netplyr_idx);
         }
         if (ping > 0) {
             snprintf(player_text, sizeof(player_text), "%s - %lums", text, ping);
