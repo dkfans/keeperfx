@@ -394,7 +394,6 @@ TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t client_frame
         ProcessMessagesUntil(id, server_buf, client_frame_size, NETMSG_FRAME, block_on_first_message, 0);
     }
     netstate.seq_nbr += 1;
-    netstate.sp->update(OnNewUser);
     return Lb_OK;
 }
 
