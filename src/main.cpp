@@ -3483,6 +3483,11 @@ void gameplay_loop_draw()
     frametime_end_measurement(Frametime_Draw);
 }
 
+extern "C" void network_yield_draw()
+{
+    gameplay_loop_draw();
+}
+
 void gameplay_loop_timestep()
 {
     frametime_start_measurement(Frametime_Sleep);
