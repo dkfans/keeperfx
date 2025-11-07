@@ -209,8 +209,10 @@ const struct NamedCommand creatmodel_experience_commands[] = {
   {"LEVELSTRAINVALUES",    3},
   {"GROWUP",               4},
   {"SLEEPEXPERIENCE",      5},
-  {"EXPERIENCEFORHITTING", 6},
-  {"REBIRTH",              7},
+  {"SLEEPEXPERIENCE2",     6},
+  {"SLEEPEXPERIENCE3",     7},
+  {"EXPERIENCEFORHITTING", 8},
+  {"REBIRTH",              9},
   {NULL,                   0},
   };
 
@@ -1874,22 +1876,26 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             }
             break;
         case 5: // SLEEPEXPERIENCE
+        case 6: // SLEEPEXPERIENCE2
+        case 7: // SLEEPEXPERIENCE3
+        {
+            unsigned int index = cmd_num - 5;
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(slab_desc, word_buf);
               if (k >= 0)
               {
-                crconf->sleep_exp_slab = k;
+                crconf->sleep_exp_slab[index] = k;
                 n++;
               } else
               {
-                crconf->sleep_exp_slab = 0;
+                crconf->sleep_exp_slab[index] = 0;
               }
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crconf->sleep_experience = k;
+              crconf->sleep_experience[index] = k;
               n++;
             }
             if (n < 2)
@@ -1898,7 +1904,8 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
-        case 6: // EXPERIENCEFORHITTING
+        }
+        case 8: // EXPERIENCEFORHITTING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -1911,7 +1918,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
-        case 7: // REBIRTH
+        case 9: // REBIRTH
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);

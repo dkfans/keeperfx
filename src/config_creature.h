@@ -39,6 +39,8 @@ extern "C" {
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
+
+#define SLEEP_XP_COUNT 3
 /******************************************************************************/
 enum CreatureModelFlags {
     CMF_IsSpecDigger      = 0x000001, // is a dedicated digger that doesn't do things normal units do (like imp)
@@ -270,8 +272,8 @@ struct CreatureModelConfig {
     unsigned short annoy_level;
     unsigned char lair_size;
     unsigned char hurt_by_lava;
-    unsigned char sleep_exp_slab;
-    short sleep_experience;
+    unsigned char sleep_exp_slab[SLEEP_XP_COUNT];
+    short sleep_experience[SLEEP_XP_COUNT];
     short exp_for_hitting;
     short gold_hold;
     short training_cost;
