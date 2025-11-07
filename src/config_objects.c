@@ -55,11 +55,13 @@ const struct NamedCommand objects_properties_commands[] = {
   {"BUOYANT",                 OMF_Buoyant             },
   {"BEATING",                 OMF_Beating             },
   {"HEART",                   OMF_Heart               },
+  {"HOLD_IN_HAND",            OMF_HoldInHand          },
+  {"IGNORED_BY_IMPS",         OMF_IgnoredByImps       },
   {NULL,                      0},
   };
 
 const struct NamedCommand objects_genres_desc[] = {
-  {"NONE",            OCtg_Unknown},
+  {"NONE",            OCtg_None},
   {"DECORATION",      OCtg_Decoration},
   {"FURNITURE",       OCtg_Furniture},
   {"VALUABLE",        OCtg_Valuable},
@@ -82,6 +84,7 @@ static const struct NamedField objects_named_fields[] = {
     {"RELATEDCREATURE",          0, field(game.conf.object_conf.object_cfgstats[0].related_creatr_model),          0, LONG_MIN,ULONG_MAX, creature_desc,               value_default,   assign_default},
     {"PROPERTIES",              -1, field(game.conf.object_conf.object_cfgstats[0].model_flags),                   0, LONG_MIN,ULONG_MAX, objects_properties_commands, value_flagsfield,assign_default},
     {"ANIMATIONID",              0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx),               0, LONG_MIN,ULONG_MAX, NULL,                        value_animid,    assign_animid},
+    {"HANDANIMATIONID",          0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx_in_hand),       0, LONG_MIN,ULONG_MAX, NULL,                        value_animid,    assign_animid},
     {"ANIMATIONSPEED",           0, field(game.conf.object_conf.object_cfgstats[0].anim_speed),                    0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"SIZE_XY",                  0, field(game.conf.object_conf.object_cfgstats[0].size_xy),                       0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"SIZE_YZ",                  0, field(game.conf.object_conf.object_cfgstats[0].size_z),                        0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
@@ -96,10 +99,13 @@ static const struct NamedField objects_named_fields[] = {
     {"LIGHTRADIUS",              0, field(game.conf.object_conf.object_cfgstats[0].ilght.radius),                  0, LONG_MIN,ULONG_MAX, NULL,                        value_stltocoord,assign_default},
     {"LIGHTISDYNAMIC",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.is_dynamic),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"MAPICON",                  0, field(game.conf.object_conf.object_cfgstats[0].map_icon),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_icon,      assign_icon},
-    {"TOOLTIPTEXTID",            0, field(game.conf.object_conf.object_cfgstats[0].tooltip_stridx),               -1, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"HANDICON",                 0, field(game.conf.object_conf.object_cfgstats[0].hand_icon),                     0, LONG_MIN,ULONG_MAX, NULL,                        value_icon,      assign_icon},
+    {"PICKUPOFFSET",             0, field(game.conf.object_conf.object_cfgstats[0].object_picked_up_offset.delta_x), 0,SHRT_MIN,SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"PICKUPOFFSET",             1, field(game.conf.object_conf.object_cfgstats[0].object_picked_up_offset.delta_y), 0,SHRT_MIN,SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"TOOLTIPTEXTID",            0, field(game.conf.object_conf.object_cfgstats[0].tooltip_stridx),     GUIStr_Empty, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
     {"TOOLTIPTEXTID",            1, field(game.conf.object_conf.object_cfgstats[0].tooltip_optional),              0,        0,        1, NULL,                        value_default,   assign_default},
     {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0,        0,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"UPDATEFUNCTION",           0, field(game.conf.object_conf.object_cfgstats[0].updatefn_idx),                  0, LONG_MIN,ULONG_MAX, object_update_functions_desc,value_default,   assign_default},
+    {"UPDATEFUNCTION",           0, field(game.conf.object_conf.object_cfgstats[0].updatefn_idx),                  0, LONG_MIN,ULONG_MAX, object_update_functions_desc,value_function,  assign_default},
     {"DRAWCLASS",                0, field(game.conf.object_conf.object_cfgstats[0].draw_class),          ODC_Default, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"PERSISTENCE",              0, field(game.conf.object_conf.object_cfgstats[0].persistence),                   0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"IMMOBILE",                 0, field(game.conf.object_conf.object_cfgstats[0].immobile),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
@@ -235,7 +241,7 @@ void update_all_objects_of_model(ThingModel model)
             }
         }
 
-        
+
         if (thing->light_id != 0)
         {
             light_delete_light(thing->light_id);
@@ -293,16 +299,16 @@ ThingModel object_model_id(const char * code_name)
  */
 int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmodel, ThingModel relmodel)
 {
-    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
     struct ObjectConfigStats *objst;
     switch (room_role)
     {
     case RoRoF_LairStorage:
-        crstat = creature_stats_get(relmodel);
-        return crstat->lair_size;
+        crconf = creature_stats_get(relmodel);
+        return crconf->lair_size;
     case RoRoF_DeadStorage:
-        crstat = creature_stats_get(relmodel);
-        if (!creature_stats_invalid(crstat))
+        crconf = creature_stats_get(relmodel);
+        if (!creature_stats_invalid(crconf))
             return 1;
         break;
     case RoRoF_KeeperStorage:

@@ -1,0 +1,432 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file lqizgood/text_por.po
+#      KeeperFX Campaign Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Lquiz' Good Campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgstr "Sucesso! A terra é sua. Pressione Espaço para prosseguir para o próximo reino."
+
+#: guitext:1
+msgctxt "In-game message"
+msgid ""
+"Welcome to the Good Guys campaign. It is your job to utterly destroy the "
+"Evil keepers."
+msgstr "Bem-vindo à campanha dos Mocinhos. É seu trabalho destruir completamente os Guardiões Malignos."
+
+#: guitext:2
+msgctxt "In-game message"
+msgid ""
+"Gather up some gold, and forces, as rumour has it an evil keeper is "
+"gathering forces in the south! Nip him in the bud!"
+msgstr "Reúna um pouco de ouro e forças, pois corre o boato de que um guardião maligno está reunindo forças no sul! Corte o mal pela raiz!"
+
+#: guitext:3
+msgctxt "In-game message"
+msgid ""
+"You have found a holy monk, ready to attack the enemy, but you got there "
+"first! Take him to the next level, he will be very useful."
+msgstr "Você encontrou um monge sagrado, pronto para atacar o inimigo, mas você chegou primeiro! Leve-o para o próximo nível, ele será muito útil."
+
+#: guitext:4
+msgctxt "In-game message"
+msgid ""
+"Ah, a Dwarf has joined you, they are weak alone, but in a pack, can cause "
+"serious damage."
+msgstr "Ah, um Anão se juntou a você, eles são fracos sozinhos, mas em um grupo, podem causar sérios danos."
+
+#: guitext:5
+msgctxt "In-game message"
+msgid ""
+"You have recruited a Tunneller! They are like imps, but stronger. They are, "
+"however less efficient because they need food, sleep and gold."
+msgstr "Você recrutou um Escavador! Eles são como diabretes, mas mais fortes. Eles são, no entanto, menos eficientes porque precisam de comida, sono e ouro."
+
+#: guitext:6 guitext:7 guitext:8 guitext:9
+msgctxt "In-game message"
+msgid "Moo2"
+msgstr "Muu2"
+
+#: guitext:10
+msgctxt "In-game message"
+msgid "The Spawners have come, be ready for their offspring."
+msgstr "Os Geradores chegaram, esteja pronto para sua prole."
+
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"Welcome to this realm, noble hero. It is your holy quest to vanquish the "
+"spawners from here forever. They spawn in a pit of lava, heavily guarded. If "
+"only you could cover it up....."
+msgstr "Bem-vindo a este reino, nobre herói. É sua sagrada missão banir os geradores daqui para sempre. Eles surgem em um poço de lava, fortemente guardado. Se ao menos você pudesse cobri-lo..."
+
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"There is new technology available to you, oh noble one. Build a library to "
+"research them. Wizards are attracted to libraries, but they do not see the "
+"spawners as much of a threat, and so will not come. Make do without them!"
+msgstr "Há nova tecnologia disponível para você, ó nobre. Construa uma biblioteca para pesquisá-la. Magos são atraídos por bibliotecas, mas eles não veem os geradores como uma grande ameaça, e por isso não virão. Arranje-se sem eles!"
+
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"A Thief has joined you! They are weak at low levels, but later they can "
+"become very sneaky. One day, they will learn the error of their ways (level "
+"11) :P"
+msgstr "Um Ladrão se juntou a você! Eles são fracos em níveis baixos, mas depois podem se tornar muito sorrateiros. Um dia, eles aprenderão o erro de seus caminhos (nível 11) :P"
+
+#: guitext:14
+msgctxt "In-game message"
+msgid ""
+"A Barbarian has joined you! These are mean, strong heroes, with attitude!"
+msgstr "Um Bárbaro se juntou a você! Estes são heróis malvados, fortes e com atitude!"
+
+#: guitext:15
+msgctxt "In-game message"
+msgid "A Fairy, how lovely! They are good researchers, and very destructive."
+msgstr "Uma Fada, que adorável! Elas são boas pesquisadoras e muito destrutivas."
+
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"Very clever! But it looks like a Horned Reaper has come for revenge... and "
+"he looks angry!"
+msgstr "Muito inteligente! Mas parece que um Ceifador de Chifres veio para se vingar... e ele parece furioso!"
+
+#: guitext:17
+msgctxt "In-game message"
+msgid "Well done! That's another bit of evil destroyed! Congratulations!"
+msgstr "Muito bem! Mais um pouco de mal destruído! Parabéns!"
+
+#: guitext:18 guitext:19
+msgctxt "In-game message"
+msgid "Moo4"
+msgstr "Muu4"
+
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"Welcome noble one. I have terrible news for you. Snow white and the 7 "
+"dwarves have been captured along with Jack, the beanstalk AND the giant!! "
+"The wizards have realised how important this is and joined you!"
+msgstr "Bem-vindo, nobre. Tenho notícias terríveis para você. Branca de Neve e os 7 anões foram capturados junto com João, o pé de feijão E o gigante!! Os magos perceberam o quão importante isso é e se juntaram a você!"
+
+#: guitext:21
+msgctxt "In-game message"
+msgid ""
+"A Wizard has come. They are truly the masters of research, and the best "
+"spellcaster in the game!"
+msgstr "Um Mago chegou. Eles são verdadeiramente os mestres da pesquisa e o melhor conjurador do jogo!"
+
+#: guitext:22
+msgctxt "In-game message"
+msgid "A giant! This brutal killing machine is no tank! Use him wisely!"
+msgstr "Um gigante! Esta máquina de matar brutal não é um tanque! Use-o com sabedoria!"
+
+#: guitext:23
+msgctxt "In-game message"
+msgid "A noble knight has come. They are powerful, and will never surrender!"
+msgstr "Um nobre cavaleiro chegou. Eles são poderosos e nunca se renderão!"
+
+#: guitext:24
+msgctxt "In-game message"
+msgid ""
+"Oh thank god! Jack and the Giant are safe! Who knows what these monsters did "
+"to the beanstalk!"
+msgstr "Oh, graças a deus! João e o Gigante estão a salvo! Quem sabe o que esses monstros fizeram com o pé de feijão!"
+
+#: guitext:25
+msgctxt "In-game message"
+msgid "Snow white and the 7 dwarves are safe! Rejoice!"
+msgstr "Branca de Neve e os 7 anões estão a salvo! Alegrem-se!"
+
+#: guitext:26
+msgctxt "In-game message"
+msgid "A Time Mage, I don't remember those. Perhaps this has not happened before."
+msgstr "Um Mago do Tempo, não me lembro desses. Talvez isso não tenha acontecido antes."
+
+#: guitext:27 guitext:28 guitext:29
+msgctxt "In-game message"
+msgid "Moo14"
+msgstr "Muu14"
+
+#: guitext:30
+msgctxt "In-game message"
+msgid ""
+"All you have is one thief. You must use brains, courage and skill to pass "
+"the initial test, and then you must vanquish the evil Warlocks that keep you "
+"enslaved, and destroy the evil keeper once and for all!"
+msgstr "Tudo o que você tem é um ladrão. Você deve usar cérebro, coragem e habilidade para passar no teste inicial, e então deve derrotar os Bruxos malignos que o mantêm escravizado, e destruir o guardião maligno de uma vez por todas!"
+
+#: guitext:31
+msgctxt "In-game message"
+msgid ""
+"The first warlock is dead! Use the limitless gold to build up enough force "
+"to take the rest of the dungeon!"
+msgstr "O primeiro bruxo está morto! Use o ouro ilimitado para reunir força suficiente para tomar o resto da masmorra!"
+
+#: guitext:32
+msgctxt "In-game message"
+msgid "You have killed the second warlock! Only 1 stands in your way!"
+msgstr "Você matou o segundo bruxo! Apenas 1 está em seu caminho!"
+
+#: guitext:33
+msgctxt "In-game message"
+msgid "You have killed all the warlocks! Destroy the dungeon heart!"
+msgstr "Você matou todos os bruxos! Destrua o coração da masmorra!"
+
+#: guitext:34 guitext:35 guitext:36 guitext:37 guitext:38 guitext:39
+msgctxt "In-game message"
+msgid "Moo17"
+msgstr "Muu17"
+
+#: guitext:40
+msgctxt "In-game message"
+msgid ""
+"We have stumbled across a land with no accessible portals. You also have "
+"the torture chamber and prison available, you know what to do! Persuade some "
+"people to join you, and torture the rest!"
+msgstr "Nós nos deparamos com uma terra sem portais acessíveis. Você também tem a câmara de tortura e a prisão disponíveis, você sabe o que fazer! Convença algumas pessoas a se juntarem a você e torture o resto!"
+
+#: guitext:41
+msgctxt "In-game message"
+msgid ""
+"There is a band of heroes that have joined the enemy under the lead of Ug the "
+"Barbarian! Convert them all!"
+msgstr "Há um bando de heróis que se juntou ao inimigo sob a liderança de Ug, o Bárbaro! Converta todos eles!"
+
+#: guitext:42 guitext:43 guitext:44 guitext:45 guitext:46 guitext:47
+#: guitext:48 guitext:49
+msgctxt "In-game message"
+msgid "Moo18"
+msgstr "Muu18"
+
+#: guitext:50
+msgctxt "In-game message"
+msgid ""
+"Oh noble one, you have stumbled across 2 rival keepers battling it out. You "
+"must destroy both. The good news is that they are very preoccupied. If I "
+"were you, I would concentrate on blue first, and rumour has it there is a "
+"weakness at the back of blue's fortress."
+msgstr "Ó nobre, você se deparou com 2 guardiões rivais lutando. Você deve destruir ambos. A boa notícia é que eles estão muito preocupados. Se eu fosse você, me concentraria no azul primeiro, e corre o boato de que há uma fraqueza na parte de trás da fortaleza do azul."
+
+#: guitext:51
+msgctxt "In-game message"
+msgid ""
+"Graveyards and temples are available, which make monks also available, use "
+"them well."
+msgstr "Cemitérios e templos estão disponíveis, o que torna os monges também disponíveis, use-os bem."
+
+#: guitext:52
+msgctxt "In-game message"
+msgid ""
+"A holy monk has come! They are very good at healing and preventing damage, "
+"making them a very good tank."
+msgstr "Um monge sagrado chegou! Eles são muito bons em curar e prevenir danos, tornando-os um tanque muito bom."
+
+#: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58
+#: guitext:59
+msgctxt "In-game message"
+msgid "Moo19"
+msgstr "Muu19"
+
+#: guitext:60
+msgctxt "In-game message"
+msgid ""
+"It looks like these keepers saw what happened last time. They have decided "
+"to ally against you. There is not much gold, so you must capture the centre "
+"gems and starve your enemies out! Traps are a good idea on this level, to "
+"prevent corridor rushing!"
+msgstr "Parece que esses guardiões viram o que aconteceu da última vez. Eles decidiram se aliar contra você. Não há muito ouro, então você deve capturar as gemas do centro e matar seus inimigos de fome! Armadilhas são uma boa ideia neste nível, para evitar ataques em corredores!"
+
+#: guitext:61
+msgctxt "In-game message"
+msgid ""
+"Well that was easy, wasn't it! I hear the evil keepers in the next realm are "
+"not such a push over."
+msgstr "Bem, isso foi fácil, não foi! Ouvi dizer que os guardiões malignos no próximo reino não são tão fáceis."
+
+#: guitext:62
+msgctxt "In-game message"
+msgid "You have a witch! They are full of powerful spells!"
+msgstr "Você tem uma feiticeira! Elas estão cheias de feitiços poderosos!"
+
+#: guitext:63
+msgctxt "In-game message"
+msgid ""
+"The scavenger room has been discovered. When combined with the torture "
+"chamber, you can first convert 1 enemy, and then take them all!"
+msgstr "A sala do recrutador foi descoberta. Quando combinada com a câmara de tortura, você pode primeiro converter 1 inimigo e depois pegar todos eles!"
+
+#: guitext:64 guitext:65 guitext:66 guitext:67 guitext:68 guitext:69
+msgctxt "In-game message"
+msgid "Moo20"
+msgstr "Muu20"
+
+#: guitext:70
+msgctxt "In-game message"
+msgid ""
+"This time there are 3 keepers after your blood, noble one. Starvation wont "
+"work this time, as they all have gem veins. Take one early to get a "
+"foothold, and the others will soon fall."
+msgstr "Desta vez, há 3 guardiões atrás do seu sangue, nobre. A fome não funcionará desta vez, pois todos eles têm filões de gemas. Derrube um cedo para conseguir uma base, e os outros logo cairão."
+
+#: guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76
+#: guitext:77 guitext:78 guitext:79
+msgctxt "In-game message"
+msgid "Moo21"
+msgstr "Muu21"
+
+#: guitext:80
+msgctxt "In-game message"
+msgid ""
+"You have come into the dungeon of a previous hero who attempted to destroy "
+"the evil fortress. He failed, but you shall succeed! YOu have all the time, "
+"and resources in the world to build up an army and crush the evil forever!"
+msgstr "Você entrou na masmorra de um herói anterior que tentou destruir a fortaleza do mal. Ele falhou, mas você terá sucesso! Você tem todo o tempo e recursos do mundo para construir um exército e esmagar o mal para sempre!"
+
+#: guitext:81
+msgctxt "In-game message"
+msgid ""
+"You have reached the heart of the vampires! Drive a steak through every "
+"heart in this room!"
+msgstr "Você alcançou o coração dos vampiros! Crave uma estaca em cada coração nesta sala!"
+
+#: guitext:82 guitext:83 guitext:84 guitext:85 guitext:86 guitext:87
+#: guitext:88 guitext:89
+msgctxt "In-game message"
+msgid "Moo22"
+msgstr "Muu22"
+
+#: guitext:90
+msgctxt "In-game message"
+msgid ""
+"The evil keepers, father and son, have imprisoned our savior, the Avatar. Go "
+"and rescue him!"
+msgstr "Os guardiões malignos, pai e filho, aprisionaram nosso salvador, o Avatar. Vá e resgate-o!"
+
+#: guitext:91
+msgctxt "In-game message"
+msgid ""
+"Thank God! The Avatar is safe! Now we must destroy Evil once and for all!"
+msgstr "Graças a Deus! O Avatar está a salvo! Agora devemos destruir o Mal de uma vez por todas!"
+
+#: guitext:92 guitext:93 guitext:94 guitext:95 guitext:96 guitext:97
+#: guitext:98 guitext:99
+msgctxt "In-game message"
+msgid "Moo23"
+msgstr "Muu23"
+
+#: guitext:100
+msgctxt "In-game message"
+msgid ""
+"This is it, do or die. Use the Avatar to kill the evil at it's source. "
+"Killing this will wipe out all evil! YOU CAN DO IT!"
+msgstr "É agora, vencer ou morrer. Use o Avatar para matar o mal em sua fonte. Matar isso acabará com todo o mal! VOCÊ CONSEGUE!"
+
+#: guitext:101
+msgctxt "In-game message"
+msgid ""
+"You have defeated evil forever and your name will live on for centuries!"
+msgstr "Você derrotou o mal para sempre e seu nome viverá por séculos!"
+
+#: guitext:102 guitext:103 guitext:104 guitext:105 guitext:106 guitext:107
+#: guitext:108 guitext:109 guitext:110 guitext:111 guitext:112 guitext:113
+#: guitext:114 guitext:115 guitext:116 guitext:117 guitext:118 guitext:119
+#: guitext:120 guitext:121 guitext:122 guitext:123 guitext:124 guitext:125
+#: guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131
+#: guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137
+#: guitext:138 guitext:139 guitext:140 guitext:141 guitext:142 guitext:143
+#: guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 guitext:149
+#: guitext:150 guitext:151 guitext:152 guitext:153 guitext:154 guitext:155
+#: guitext:156 guitext:157 guitext:158 guitext:159 guitext:160 guitext:161
+#: guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167
+#: guitext:168 guitext:169 guitext:170 guitext:171 guitext:172 guitext:173
+#: guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179
+#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
+#: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
+#: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
+#: guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr "Muu"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "First step"
+msgstr "Primeiro Passo"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Offspring"
+msgstr "Prole"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Snow white and dwarves"
+msgstr "Branca de Neve e os Anões"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Warlocks slave"
+msgstr "Escravo do Bruxo"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Ug the Barbarian"
+msgstr "Ug, o Bárbaro"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Power of Faith"
+msgstr "Poder da Fé"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Indoctrination"
+msgstr "Doutrinação"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Three on One"
+msgstr "Três Contra Um"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Impure Blood"
+msgstr "Sangue Impuro"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Save the Savior"
+msgstr "Salve o Salvador"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Do or die"
+msgstr "Vencer ou Morrer"

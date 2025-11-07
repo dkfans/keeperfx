@@ -100,6 +100,7 @@ struct GameRulesConfig {
     unsigned long easter_egg_speech_chance;
     unsigned long easter_egg_speech_interval;
     long global_ambient_light;
+    long thing_minimum_illumination;
     TbBool light_enabled;
     unsigned short creatures_count;
 };
@@ -110,11 +111,7 @@ struct ComputerRulesConfig {
 
 struct CreatureRulesConfig {
     unsigned char recovery_frequency;
-    short fight_max_hate;
-    short fight_borderline;
-    short fight_max_love;
     unsigned short body_remains_for;
-    short fight_hate_kill_value;
     unsigned long flee_zone_radius;
     GameTurnDelta game_turns_in_flee;
     unsigned short game_turns_unconscious;
@@ -125,8 +122,10 @@ struct CreatureRulesConfig {
 
 struct MagicRulesConfig {
     GameTurnDelta hold_audience_time;
-    unsigned long armageddon_teleport_your_time_gap;
-    unsigned long armageddon_teleport_enemy_time_gap;
+    GameTurnDelta armageddon_teleport_your_time_gap;
+    GameTurnDelta armageddon_teleport_enemy_time_gap;
+    GameTurnDelta armageddon_count_down;
+    GameTurnDelta armageddon_duration;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
@@ -137,6 +136,7 @@ struct MagicRulesConfig {
     long friendly_fight_area_range_percent;
     TbBool armageddon_teleport_neutrals;
     short weight_calculate_push;
+    TbBool allow_instant_charge_up;
 };
 
 struct RoomRulesConfig {
@@ -159,6 +159,10 @@ struct RoomRulesConfig {
     unsigned char torture_death_chance;
     unsigned char torture_convert_chance;
     unsigned long time_in_prison_without_break;
+    unsigned short train_efficiency;
+    unsigned short work_efficiency;
+    unsigned short scavenge_efficiency;
+    unsigned short research_efficiency;
 };
 struct WorkersRulesConfig {
     unsigned char hits_per_slab;
@@ -200,6 +204,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
 struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void);
 
 const char *player_code_name(PlayerNumber plyr_idx);
+int sac_compare_fn(const void* ptr_a, const void* ptr_b);
 
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];

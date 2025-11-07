@@ -72,77 +72,77 @@ enum RenderingVectorMode {
 
 struct TrigLocals {
     unsigned long zero0;// dummy, to make no offset 0
-    unsigned char var_24;// 4+
-    unsigned char var_25; // 5+
+    unsigned char unused_24;// 4+
+    unsigned char unused_25; // 5+
     union {
-        unsigned short flag_26; // 6+
+        unsigned short combined_flags; // 6+
     struct {
-        unsigned char byte_26a;
-        unsigned char byte_26b;
+        unsigned char flags_low_byte;
+        unsigned char flags_high_byte;
     };
     };
-    unsigned long var_28; // 8+
-    unsigned long var_2C; // unused
+    unsigned long x_step_ac; // 8+
+    unsigned long unusedparam; // unused
     // These are DWORDs
-    unsigned long var_30; // 0x10+
-    unsigned long var_34; // 0x14
-    long var_38; // -0x18
-    unsigned long var_3C; // 0x1C
-    unsigned long var_40; // 0x20
-    unsigned long var_44; // 0x24
-    unsigned long var_48; // 0x28
+    unsigned long x_step_bc; // 0x10+
+    unsigned long delta_f; // 0x14
+    long y_start; // -0x18
+    unsigned long delta_g; // 0x1C
+    unsigned long x_start_b; // 0x20
+    unsigned long render_height; // 0x24
+    unsigned long u_step; // 0x28
     unsigned long delta_e; // 0x2C
     union {
-    unsigned long var_50; // 0x30
+    unsigned long texture_v_step_bc; // 0x30
     struct {
-        unsigned short word_50a;
-        unsigned short word_50b;
+        unsigned short value_low_word;
+        unsigned short value_high_word;
     };
     };
-    unsigned long var_54; // 0x34
+    unsigned long v_step; // 0x34
     unsigned long delta_d; // 0x38
-    unsigned long var_5C; // 0x3C
-    unsigned long var_60; // 0x40
+    unsigned long texture_u_step_bc; // 0x3C
+    unsigned long shade_step; // 0x40
     unsigned long delta_c; // 0x44
-    unsigned long var_68; // 0x48
-    unsigned long var_6C; // 0x4C
-    unsigned long var_70; // 0x50
-    unsigned long var_74; // 0x54
-    unsigned long var_78; // 0x58
-    unsigned long var_7C; // 0x5C
-    unsigned long var_80; // 0x60
+    unsigned long shade_step_bc; // 0x48
+    unsigned long clip_offset; // 0x4C
+    unsigned long delta_h; // 0x50
+    unsigned long delta_i; // 0x54
+    unsigned long y_top; // 0x58
+    unsigned long delta_j; // 0x5C
+    unsigned long delta_k; // 0x60
     unsigned long delta_b; // 0x64
     unsigned long delta_a; // 0x68
-    unsigned char *var_8C; // 0x6C
+    unsigned char *clipping_below_viewport; // 0x6C
 };
 
 struct TrigLocalPrep {
-    long var_28;
-    long var_2C;
-    long var_30;
+    long x_step_ac;
+    long x_step_ab;
+    long x_step_bc;
     long trig_height_top; // counter to loop over first part of polyscans array
-    long var_38;
+    long y_start;
     long trig_height_bottom; // counter to loop over second part of polyscans array
-    long var_40;
-    long var_4C;
-    long var_50;
-    long var_58;
-    long var_5C;
-    long var_64;
-    long var_68;
-    long var_6C;
-    long var_78;
-    unsigned char var_8A;
+    long x_start_b;
+    long u_step_ac;
+    long texture_v_step_bc;
+    long v_step_ac;
+    long texture_u_step_bc;
+    long shade_step_ac;
+    long shade_step_bc;
+    long clip_offset;
+    long y_top;
+    unsigned char clipping_above_viewport;
     TbBool hide_bottom_part; // ?Should we show low part of a triangle
-    unsigned char var_8C;
+    unsigned char clipping_below_viewport;
 };
 
 struct TrigLocalRend {
-    unsigned char *var_24;
-    long var_44;
-    long var_48;
-    long var_54;
-    long var_60;
+    unsigned char *screen_buffer_ptr;
+    long render_height;
+    long u_step;
+    long v_step;
+    long shade_step;
 };
 
 #pragma pack()
@@ -269,95 +269,95 @@ unsigned char trig_reorder_input_points(struct PolyPoint **opt_a,
 static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pYa, pYb;
-    struct PolyPoint *pp;
+    long point_x, point_y_a, point_y_b;
+    struct PolyPoint *polygon_point;
 
-    pX = opt_a->X << 16;
-    pYa = opt_a->X << 16;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y_a = opt_a->X << 16;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        // whether the addition (tlr->var_44 + tlp->var_78) would overflow
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        // whether the addition (tlr->render_height + tlp->y_top) would overflow
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->var_38 >= 0)
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        if (tlp->clip_offset - tlp->y_start >= 0)
         {
-            tlp->trig_height_bottom -= tlp->var_6C - tlp->var_38;
-            tlp->var_6C -= tlp->var_38;
-            pX += tlp->var_28 * tlp->var_6C + tlp->var_38 * tlp->var_28;
-            pYb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            if (tlp->var_8C)
+            tlp->trig_height_bottom -= tlp->clip_offset - tlp->y_start;
+            tlp->clip_offset -= tlp->y_start;
+            point_x += tlp->x_step_ac * tlp->clip_offset + tlp->y_start * tlp->x_step_ac;
+            point_y_b = tlp->x_step_bc * tlp->clip_offset + tlp->x_start_b;
+            if (tlp->clipping_below_viewport)
             {
                 tlp->trig_height_bottom = vec_window_height;
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
             }
-            tlp->var_38 = 0;
+            tlp->y_start = 0;
         }
         else
         {
-            tlp->var_38 -= tlp->var_6C;
-            pX += tlp->var_28 * tlp->var_6C;
-            pYa += tlp->var_6C * tlp->var_2C;
-            if (tlp->var_8C)
+            tlp->y_start -= tlp->clip_offset;
+            point_x += tlp->x_step_ac * tlp->clip_offset;
+            point_y_a += tlp->clip_offset * tlp->x_step_ab;
+            if (tlp->clipping_below_viewport)
             {
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
                 if (tlp->hide_bottom_part) {
-                    tlp->var_38 = vec_window_height;
+                    tlp->y_start = vec_window_height;
                 } else {
-                    tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
-                    tlp->trig_height_bottom = vec_window_height - tlp->var_38;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->y_start;
+                    tlp->trig_height_bottom = vec_window_height - tlp->y_start;
                 }
             }
-            pYb = tlp->var_40;
+            point_y_b = tlp->x_start_b;
         }
     }
     else
     {
-        if (tlp->var_8C)
+        if (tlp->clipping_below_viewport)
         {
-            long dH, eH;
-            TbBool eH_overflow;
+            long delta_height, extent_height;
+            TbBool extent_height_overflow;
 
-            dH = vec_window_height - tlp->var_78;
-            tlr->var_44 = dH;
+            delta_height = vec_window_height - tlp->y_top;
+            tlr->render_height = delta_height;
             if (tlp->hide_bottom_part) {
-                tlp->var_38 = dH;
+                tlp->y_start = delta_height;
             } else {
-                // whether the subtraction (dH - tlp->var_38) would overflow
-                eH_overflow = __OFSUBL__(dH, tlp->var_38);
-                eH = dH - tlp->var_38;
-                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->trig_height_bottom = eH;
+                // whether the subtraction (delta_height - tlp->y_start) would overflow
+                extent_height_overflow = __OFSUBL__(delta_height, tlp->y_start);
+                extent_height = delta_height - tlp->y_start;
+                tlp->hide_bottom_part = ((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0);
+                tlp->trig_height_bottom = extent_height;
             }
         }
-        pYb = tlp->var_40;
+        point_y_b = tlp->x_start_b;
     }
-    pp = polyscans;
-    for (; tlp->var_38; tlp->var_38--)
+    polygon_point = polyscans;
+    for (; tlp->y_start; tlp->y_start--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pYa;
-        pYa += tlp->var_2C;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y_a;
+        point_y_a += tlp->x_step_ab;
+        ++polygon_point;
     }
     if (!tlp->hide_bottom_part)
     {
         for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
-            pp->X = pX;
-            pX += tlp->var_28;
-            pp->Y = pYb;
-            pYb += tlp->var_30;
-            ++pp;
+            polygon_point->X = point_x;
+            point_x += tlp->x_step_ac;
+            polygon_point->Y = point_y_b;
+            point_y_b += tlp->x_step_bc;
+            ++polygon_point;
         }
     }
     return 1;
@@ -366,126 +366,126 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    struct PolyPoint *pp;
-    long pX, pYa, pYb;
-    long pS;
-    long ratio_var_34;
+    struct PolyPoint *polygon_point;
+    long point_x, point_y_a, point_y_b;
+    long shade_value;
+    long triangle_height_ratio;
 
-    ratio_var_34 = (tlp->var_38 << 16) / tlp->trig_height_top;
+    triangle_height_ratio = (tlp->y_start << 16) / tlp->trig_height_top;
     {
-        long dX, wX;
-        long eX;
+        long delta_x, weighted_x;
+        long extent_x;
         TbBool eX_overflow;
 
-        dX = opt_a->X - opt_c->X;
-        wX = (ratio_var_34 * dX) >> 16;
-        dX = opt_b->X - opt_a->X;
-        // whether the addition (wX + dX) would overflow
-        eX_overflow = __OFSUBL__(wX, -dX);
-        eX = wX + dX;
-        if ((eX < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wX, (long)dX);
+        delta_x = opt_a->X - opt_c->X;
+        weighted_x = (triangle_height_ratio * delta_x) >> 16;
+        delta_x = opt_b->X - opt_a->X;
+        // whether the addition (weighted_x + delta_x) would overflow
+        eX_overflow = __OFSUBL__(weighted_x, -delta_x);
+        extent_x = weighted_x + delta_x;
+        if ((extent_x < 0) ^ eX_overflow) {
+            NOLOG("skip due to sum %ld %ld", (long)weighted_x, (long)delta_x);
             return 0;
         }
-        if (eX != 0) {
-            long long dS, wS;
-            dS = opt_a->S - opt_c->S;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_60 = (opt_b->S + wS - opt_a->S) / (eX + 1);
+        if (extent_x != 0) {
+            long long delta_shade, weighted_shade;
+            delta_shade = opt_a->S - opt_c->S;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->shade_step = (opt_b->S + weighted_shade - opt_a->S) / (extent_x + 1);
         }
     }
-    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->trig_height_top;
-    pX = opt_a->X << 16;
-    pYa = opt_a->X << 16;
-    pS = opt_a->S;
-    if (tlp->var_8A)
+    tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlp->trig_height_top;
+    point_x = opt_a->X << 16;
+    point_y_a = opt_a->X << 16;
+    shade_value = opt_a->S;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->var_38 >= 0)
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        if (tlp->clip_offset - tlp->y_start >= 0)
         {
-            tlp->trig_height_bottom -= tlp->var_6C - tlp->var_38;
-            tlp->var_6C -= tlp->var_38;
-            pX += tlp->var_28 * tlp->var_6C + tlp->var_38 * tlp->var_28;
-            pYb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pS += tlp->var_6C * tlp->var_64 + tlp->var_38 * tlp->var_64;
-            if (tlp->var_8C)
+            tlp->trig_height_bottom -= tlp->clip_offset - tlp->y_start;
+            tlp->clip_offset -= tlp->y_start;
+            point_x += tlp->x_step_ac * tlp->clip_offset + tlp->y_start * tlp->x_step_ac;
+            point_y_b = tlp->x_step_bc * tlp->clip_offset + tlp->x_start_b;
+            shade_value += tlp->clip_offset * tlp->shade_step_ac + tlp->y_start * tlp->shade_step_ac;
+            if (tlp->clipping_below_viewport)
             {
               tlp->trig_height_bottom = vec_window_height;
-              tlr->var_44 = vec_window_height;
+              tlr->render_height = vec_window_height;
             }
-            tlp->var_38 = 0;
+            tlp->y_start = 0;
         }
         else
         {
-            tlp->var_38 -= tlp->var_6C;
-            pX += tlp->var_28 * tlp->var_6C;
-            pYa += tlp->var_6C * tlp->var_2C;
-            pS += tlp->var_6C * tlp->var_64;
-            if (tlp->var_8C)
+            tlp->y_start -= tlp->clip_offset;
+            point_x += tlp->x_step_ac * tlp->clip_offset;
+            point_y_a += tlp->clip_offset * tlp->x_step_ab;
+            shade_value += tlp->clip_offset * tlp->shade_step_ac;
+            if (tlp->clipping_below_viewport)
             {
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
                 if (tlp->hide_bottom_part) {
-                    tlp->var_38 = vec_window_height;
+                    tlp->y_start = vec_window_height;
                 } else {
-                    tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
-                    tlp->trig_height_bottom = vec_window_height - tlp->var_38;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->y_start;
+                    tlp->trig_height_bottom = vec_window_height - tlp->y_start;
                 }
             }
-            pYb = tlp->var_40;
+            point_y_b = tlp->x_start_b;
         }
     }
     else
     {
-        if (tlp->var_8C)
+        if (tlp->clipping_below_viewport)
         {
-            long dH, eH;
-            TbBool eH_overflow;
+            long delta_height, extent_height;
+            TbBool extent_height_overflow;
 
-            dH = vec_window_height - tlp->var_78;
-            tlr->var_44 = dH;
+            delta_height = vec_window_height - tlp->y_top;
+            tlr->render_height = delta_height;
             if (tlp->hide_bottom_part) {
-                tlp->var_38 = dH;
+                tlp->y_start = delta_height;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->var_38);
-                eH = dH - tlp->var_38;
-                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->trig_height_bottom = eH;
+                extent_height_overflow = __OFSUBL__(delta_height, tlp->y_start);
+                extent_height = delta_height - tlp->y_start;
+                tlp->hide_bottom_part = ((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0);
+                tlp->trig_height_bottom = extent_height;
             }
         }
-        pYb = tlp->var_40;
+        point_y_b = tlp->x_start_b;
     }
-    pp = polyscans;
-    for (; tlp->var_38; tlp->var_38--)
+    polygon_point = polyscans;
+    for (; tlp->y_start; tlp->y_start--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pYa;
-        pYa += tlp->var_2C;
-        pp->S = pS;
-        pS += tlp->var_64;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y_a;
+        point_y_a += tlp->x_step_ab;
+        polygon_point->S = shade_value;
+        shade_value += tlp->shade_step_ac;
+        ++polygon_point;
     }
     if (!tlp->hide_bottom_part)
     {
       for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
       {
-          pp->X = pX;
-          pX += tlp->var_28;
-          pp->Y = pYb;
-          pYb += tlp->var_30;
-          pp->S = pS;
-          pS += tlp->var_64;
-          ++pp;
+          polygon_point->X = point_x;
+          point_x += tlp->x_step_ac;
+          polygon_point->Y = point_y_b;
+          point_y_b += tlp->x_step_bc;
+          polygon_point->S = shade_value;
+          shade_value += tlp->shade_step_ac;
+          ++polygon_point;
       }
     }
     return 1;
@@ -494,136 +494,136 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pYa, pYb;
-    long pU, pV;
-    struct PolyPoint *pp;
-    long ratio_var_34;
+    long point_x, point_y_a, point_y_b;
+    long texture_u, texture_v;
+    struct PolyPoint *polygon_point;
+    long triangle_height_ratio;
 
-    ratio_var_34 = (tlp->var_38 << 16) / tlp->trig_height_top;
+    triangle_height_ratio = (tlp->y_start << 16) / tlp->trig_height_top;
     {
-        long dX, wX;
-        long eX;
+        long delta_x, weighted_x;
+        long extent_x;
         TbBool eX_overflow;
 
-        dX = opt_a->X - opt_c->X;
-        wX = ratio_var_34 * dX >> 16;
-        dX = opt_b->X - opt_a->X;
-        eX_overflow = __OFSUBL__(wX, -dX);
-        eX = wX + dX;
-        if ((eX < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wX, (long)dX);
+        delta_x = opt_a->X - opt_c->X;
+        weighted_x = triangle_height_ratio * delta_x >> 16;
+        delta_x = opt_b->X - opt_a->X;
+        eX_overflow = __OFSUBL__(weighted_x, -delta_x);
+        extent_x = weighted_x + delta_x;
+        if ((extent_x < 0) ^ eX_overflow) {
+            NOLOG("skip due to sum %ld %ld", (long)weighted_x, (long)delta_x);
             return 0;
         }
-        if (eX != 0) {
-            long long dS, wS;
-            dS = opt_a->U - opt_c->U;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_48 = (opt_b->U + wS - opt_a->U) / (eX + 1);
-            dS = opt_a->V - opt_c->V;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_54 = (opt_b->V + wS - opt_a->V) / (eX + 1);
+        if (extent_x != 0) {
+            long long delta_shade, weighted_shade;
+            delta_shade = opt_a->U - opt_c->U;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->u_step = (opt_b->U + weighted_shade - opt_a->U) / (extent_x + 1);
+            delta_shade = opt_a->V - opt_c->V;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->v_step = (opt_b->V + weighted_shade - opt_a->V) / (extent_x + 1);
         }
     }
-    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->trig_height_top;
-    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->trig_height_top;
-    pX = opt_a->X << 16;
-    pYa = opt_a->X << 16;
-    pU = opt_a->U;
-    pV = opt_a->V;
-    if (tlp->var_8A)
+    tlp->u_step_ac = (opt_c->U - opt_a->U) / tlp->trig_height_top;
+    tlp->v_step_ac = (opt_c->V - opt_a->V) / tlp->trig_height_top;
+    point_x = opt_a->X << 16;
+    point_y_a = opt_a->X << 16;
+    texture_u = opt_a->U;
+    texture_v = opt_a->V;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->var_38 >= 0 )
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        if (tlp->clip_offset - tlp->y_start >= 0 )
         {
-            tlp->trig_height_bottom -= tlp->var_6C - tlp->var_38;
-            tlp->var_6C -= tlp->var_38;
-            pX += tlp->var_28 * tlp->var_6C + tlp->var_38 * tlp->var_28;
-            pYb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pU += tlp->var_6C * tlp->var_4C + tlp->var_38 * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_58 + tlp->var_38 * tlp->var_58;
-            if ( tlp->var_8C )
+            tlp->trig_height_bottom -= tlp->clip_offset - tlp->y_start;
+            tlp->clip_offset -= tlp->y_start;
+            point_x += tlp->x_step_ac * tlp->clip_offset + tlp->y_start * tlp->x_step_ac;
+            point_y_b = tlp->x_step_bc * tlp->clip_offset + tlp->x_start_b;
+            texture_u += tlp->clip_offset * tlp->u_step_ac + tlp->y_start * tlp->u_step_ac;
+            texture_v += tlp->clip_offset * tlp->v_step_ac + tlp->y_start * tlp->v_step_ac;
+            if ( tlp->clipping_below_viewport )
             {
                 tlp->trig_height_bottom = vec_window_height;
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
             }
-            tlp->var_38 = 0;
+            tlp->y_start = 0;
         }
         else
         {
-            tlp->var_38 -= tlp->var_6C;
-            pX += tlp->var_28 * tlp->var_6C;
-            pYa += tlp->var_6C * tlp->var_2C;
-            pU += tlp->var_6C * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_58;
-            if ( tlp->var_8C )
+            tlp->y_start -= tlp->clip_offset;
+            point_x += tlp->x_step_ac * tlp->clip_offset;
+            point_y_a += tlp->clip_offset * tlp->x_step_ab;
+            texture_u += tlp->clip_offset * tlp->u_step_ac;
+            texture_v += tlp->clip_offset * tlp->v_step_ac;
+            if ( tlp->clipping_below_viewport )
             {
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
                 if (tlp->hide_bottom_part) {
-                  tlp->var_38 = vec_window_height;
+                  tlp->y_start = vec_window_height;
                 } else {
-                  tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
-                  tlp->trig_height_bottom = vec_window_height - tlp->var_38;
+                  tlp->hide_bottom_part = vec_window_height <= tlp->y_start;
+                  tlp->trig_height_bottom = vec_window_height - tlp->y_start;
                 }
             }
-            pYb = tlp->var_40;
+            point_y_b = tlp->x_start_b;
         }
     }
     else
     {
-        if (tlp->var_8C)
+        if (tlp->clipping_below_viewport)
         {
-            long dH, eH;
-            TbBool eH_overflow;
+            long delta_height, extent_height;
+            TbBool extent_height_overflow;
 
-            dH = vec_window_height - tlp->var_78;
-            tlr->var_44 = dH;
+            delta_height = vec_window_height - tlp->y_top;
+            tlr->render_height = delta_height;
             if (tlp->hide_bottom_part) {
-                tlp->var_38 = dH;
+                tlp->y_start = delta_height;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->var_38);
-                eH = dH - tlp->var_38;
-                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->trig_height_bottom = eH;
+                extent_height_overflow = __OFSUBL__(delta_height, tlp->y_start);
+                extent_height = delta_height - tlp->y_start;
+                tlp->hide_bottom_part = ((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0);
+                tlp->trig_height_bottom = extent_height;
             }
         }
-        pYb = tlp->var_40;
+        point_y_b = tlp->x_start_b;
     }
-    pp = polyscans;
-    for (; tlp->var_38; tlp->var_38--)
+    polygon_point = polyscans;
+    for (; tlp->y_start; tlp->y_start--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pYa;
-        pYa += tlp->var_2C;
-        pp->U = pU;
-        pU += tlp->var_4C;
-        pp->V = pV;
-        pV += tlp->var_58;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y_a;
+        point_y_a += tlp->x_step_ab;
+        polygon_point->U = texture_u;
+        texture_u += tlp->u_step_ac;
+        polygon_point->V = texture_v;
+        texture_v += tlp->v_step_ac;
+        ++polygon_point;
     }
     if (!tlp->hide_bottom_part)
     {
         for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
-            pp->X = pX;
-            pX += tlp->var_28;
-            pp->Y = pYb;
-            pYb += tlp->var_30;
-            pp->U = pU;
-            pU += tlp->var_4C;
-            pp->V = pV;
-            pV += tlp->var_58;
-            ++pp;
+            polygon_point->X = point_x;
+            point_x += tlp->x_step_ac;
+            polygon_point->Y = point_y_b;
+            point_y_b += tlp->x_step_bc;
+            polygon_point->U = texture_u;
+            texture_u += tlp->u_step_ac;
+            polygon_point->V = texture_v;
+            texture_v += tlp->v_step_ac;
+            ++polygon_point;
         }
     }
     return 1;
@@ -632,148 +632,148 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pYa, pYb;
-    long pU, pV, pS;
-    struct PolyPoint *pp;
-    long ratio_var_34;
+    long point_x, point_y_a, point_y_b;
+    long texture_u, texture_v, shade_value;
+    struct PolyPoint *polygon_point;
+    long triangle_height_ratio;
 
-    ratio_var_34 = (tlp->var_38 << 16) / tlp->trig_height_top;
+    triangle_height_ratio = (tlp->y_start << 16) / tlp->trig_height_top;
     {
-        long dX, wX;
-        long eX;
+        long delta_x, weighted_x;
+        long extent_x;
         TbBool eX_overflow;
 
-        dX = opt_a->X - opt_c->X;
-        wX = ratio_var_34 * dX >> 16;
-        dX = opt_b->X - opt_a->X;
-        eX_overflow = __OFSUBL__(wX, -dX);
-        eX = wX + dX;
-        if ((eX < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wX, (long)dX);
+        delta_x = opt_a->X - opt_c->X;
+        weighted_x = triangle_height_ratio * delta_x >> 16;
+        delta_x = opt_b->X - opt_a->X;
+        eX_overflow = __OFSUBL__(weighted_x, -delta_x);
+        extent_x = weighted_x + delta_x;
+        if ((extent_x < 0) ^ eX_overflow) {
+            NOLOG("skip due to sum %ld %ld", (long)weighted_x, (long)delta_x);
             return 0;
         }
-        if (eX != 0)
+        if (extent_x != 0)
         {
-            long long dS, wS;
-            dS = opt_a->U - opt_c->U;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_48 = (opt_b->U + wS - opt_a->U) / (eX + 1);
-            dS = opt_a->V - opt_c->V;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_54 = (opt_b->V + wS - opt_a->V) / (eX + 1);
-            dS = opt_a->S - opt_c->S;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_60 = (opt_b->S + wS - opt_a->S) / (eX + 1);
+            long long delta_shade, weighted_shade;
+            delta_shade = opt_a->U - opt_c->U;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->u_step = (opt_b->U + weighted_shade - opt_a->U) / (extent_x + 1);
+            delta_shade = opt_a->V - opt_c->V;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->v_step = (opt_b->V + weighted_shade - opt_a->V) / (extent_x + 1);
+            delta_shade = opt_a->S - opt_c->S;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->shade_step = (opt_b->S + weighted_shade - opt_a->S) / (extent_x + 1);
         }
     }
-    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->trig_height_top;
-    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->trig_height_top;
-    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->trig_height_top;
+    tlp->u_step_ac = (opt_c->U - opt_a->U) / tlp->trig_height_top;
+    tlp->v_step_ac = (opt_c->V - opt_a->V) / tlp->trig_height_top;
+    tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlp->trig_height_top;
 
-    pX = opt_a->X << 16;
-    pYa = opt_a->X << 16;
-    pU = opt_a->U;
-    pV = opt_a->V;
-    pS = opt_a->S;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y_a = opt_a->X << 16;
+    texture_u = opt_a->U;
+    texture_v = opt_a->V;
+    shade_value = opt_a->S;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->var_38 >= 0)
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        if (tlp->clip_offset - tlp->y_start >= 0)
         {
-            tlp->trig_height_bottom -= tlp->var_6C - tlp->var_38;
-            tlp->var_6C -= tlp->var_38;
-            pX += tlp->var_28 * tlp->var_6C + tlp->var_38 * tlp->var_28;
-            pYb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pU += tlp->var_6C * tlp->var_4C + tlp->var_38 * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_58 + tlp->var_38 * tlp->var_58;
-            pS += tlp->var_6C * tlp->var_64 + tlp->var_38 * tlp->var_64;
-            if (tlp->var_8C) {
+            tlp->trig_height_bottom -= tlp->clip_offset - tlp->y_start;
+            tlp->clip_offset -= tlp->y_start;
+            point_x += tlp->x_step_ac * tlp->clip_offset + tlp->y_start * tlp->x_step_ac;
+            point_y_b = tlp->x_step_bc * tlp->clip_offset + tlp->x_start_b;
+            texture_u += tlp->clip_offset * tlp->u_step_ac + tlp->y_start * tlp->u_step_ac;
+            texture_v += tlp->clip_offset * tlp->v_step_ac + tlp->y_start * tlp->v_step_ac;
+            shade_value += tlp->clip_offset * tlp->shade_step_ac + tlp->y_start * tlp->shade_step_ac;
+            if (tlp->clipping_below_viewport) {
               tlp->trig_height_bottom = vec_window_height;
-              tlr->var_44 = vec_window_height;
+              tlr->render_height = vec_window_height;
             }
-            tlp->var_38 = 0;
+            tlp->y_start = 0;
         }
         else
         {
-            tlp->var_38 -= tlp->var_6C;
-            pX += tlp->var_28 * tlp->var_6C;
-            pYa += tlp->var_6C * tlp->var_2C;
-            pU += tlp->var_6C * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_58;
-            pS += tlp->var_6C * tlp->var_64;
-            if (tlp->var_8C)
+            tlp->y_start -= tlp->clip_offset;
+            point_x += tlp->x_step_ac * tlp->clip_offset;
+            point_y_a += tlp->clip_offset * tlp->x_step_ab;
+            texture_u += tlp->clip_offset * tlp->u_step_ac;
+            texture_v += tlp->clip_offset * tlp->v_step_ac;
+            shade_value += tlp->clip_offset * tlp->shade_step_ac;
+            if (tlp->clipping_below_viewport)
             {
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
                 if (tlp->hide_bottom_part) {
-                    tlp->var_38 = vec_window_height;
+                    tlp->y_start = vec_window_height;
                 } else {
-                    tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
-                    tlp->trig_height_bottom = vec_window_height - tlp->var_38;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->y_start;
+                    tlp->trig_height_bottom = vec_window_height - tlp->y_start;
                 }
             }
-            pYb = tlp->var_40;
+            point_y_b = tlp->x_start_b;
         }
     }
     else
     {
-        if (tlp->var_8C)
+        if (tlp->clipping_below_viewport)
         {
-            long dH, eH;
-            TbBool eH_overflow;
+            long delta_height, extent_height;
+            TbBool extent_height_overflow;
 
-            dH = vec_window_height - tlp->var_78;
-            tlr->var_44 = vec_window_height - tlp->var_78;
+            delta_height = vec_window_height - tlp->y_top;
+            tlr->render_height = vec_window_height - tlp->y_top;
             if (tlp->hide_bottom_part) {
-                tlp->var_38 = vec_window_height - tlp->var_78;
+                tlp->y_start = vec_window_height - tlp->y_top;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->var_38);
-                eH = dH - tlp->var_38;
-                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->trig_height_bottom = eH;
+                extent_height_overflow = __OFSUBL__(delta_height, tlp->y_start);
+                extent_height = delta_height - tlp->y_start;
+                tlp->hide_bottom_part = ((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0);
+                tlp->trig_height_bottom = extent_height;
             }
         }
-        pYb = tlp->var_40;
+        point_y_b = tlp->x_start_b;
     }
-    pp = polyscans;
-    for (; tlp->var_38; tlp->var_38--)
+    polygon_point = polyscans;
+    for (; tlp->y_start; tlp->y_start--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pYa;
-        pYa += tlp->var_2C;
-        pp->U = pU;
-        pU += tlp->var_4C;
-        pp->V = pV;
-        pV += tlp->var_58;
-        pp->S = pS;
-        pS += tlp->var_64;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y_a;
+        point_y_a += tlp->x_step_ab;
+        polygon_point->U = texture_u;
+        texture_u += tlp->u_step_ac;
+        polygon_point->V = texture_v;
+        texture_v += tlp->v_step_ac;
+        polygon_point->S = shade_value;
+        shade_value += tlp->shade_step_ac;
+        ++polygon_point;
     }
     if ( !tlp->hide_bottom_part )
     {
         for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
-          pp->X = pX;
-          pX += tlp->var_28;
-          pp->Y = pYb;
-          pYb += tlp->var_30;
-          pp->U = pU;
-          pU += tlp->var_4C;
-          pp->V = pV;
-          pV += tlp->var_58;
-          pp->S = pS;
-          pS += tlp->var_64;
-          ++pp;
+          polygon_point->X = point_x;
+          point_x += tlp->x_step_ac;
+          polygon_point->Y = point_y_b;
+          point_y_b += tlp->x_step_bc;
+          polygon_point->U = texture_u;
+          texture_u += tlp->u_step_ac;
+          polygon_point->V = texture_v;
+          texture_v += tlp->v_step_ac;
+          polygon_point->S = shade_value;
+          shade_value += tlp->shade_step_ac;
+          ++polygon_point;
         }
     }
     return 1;
@@ -783,42 +783,42 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
-    long dX, dY;
+    long delta_x, delta_y;
 
-    tlp->var_78 = opt_a->Y;
+    tlp->y_top = opt_a->Y;
     if (opt_a->Y < 0) {
-      tlr->var_24 = poly_screen;
-      tlp->var_8A = 1;
+      tlr->screen_buffer_ptr = poly_screen;
+      tlp->clipping_above_viewport = 1;
     } else if (opt_a->Y < vec_window_height) {
-      tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
-      tlp->var_8A = 0;
+      tlr->screen_buffer_ptr = poly_screen + vec_screen_width * opt_a->Y;
+      tlp->clipping_above_viewport = 0;
     } else {
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
 
-    tlp->var_8C = opt_c->Y > vec_window_height;
-    dY = opt_c->Y - opt_a->Y;
-    tlp->trig_height_top = dY;
-    tlr->var_44 = dY;
+    tlp->clipping_below_viewport = opt_c->Y > vec_window_height;
+    delta_y = opt_c->Y - opt_a->Y;
+    tlp->trig_height_top = delta_y;
+    tlr->render_height = delta_y;
 
     tlp->hide_bottom_part = opt_b->Y > vec_window_height;
-    dY = opt_b->Y - opt_a->Y;
-    tlp->var_38 = dY;
-    dX = opt_c->X - opt_a->X;
-    tlp->var_28 = (dX << 16) / tlp->trig_height_top;
-    dX = opt_b->X - opt_a->X;
-    if ((dX << 16) / dY <= tlp->var_28) {
-        NOLOG("value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
+    delta_y = opt_b->Y - opt_a->Y;
+    tlp->y_start = delta_y;
+    delta_x = opt_c->X - opt_a->X;
+    tlp->x_step_ac = (delta_x << 16) / tlp->trig_height_top;
+    delta_x = opt_b->X - opt_a->X;
+    if ((delta_x << 16) / delta_y <= tlp->x_step_ac) {
+        NOLOG("value (%ld << 16) / %ld below min %ld", (long)delta_x, (long)delta_y, (long)tlp->x_step_ac);
         return 0;
     }
-    tlp->var_2C = (dX << 16) / dY;
+    tlp->x_step_ab = (delta_x << 16) / delta_y;
 
-    dY = opt_c->Y - opt_b->Y;
-    dX = opt_c->X - opt_b->X;
-    tlp->var_30 = (dX << 16) / dY;
-    tlp->trig_height_bottom = dY;
-    tlp->var_40 = opt_b->X << 16;
+    delta_y = opt_c->Y - opt_b->Y;
+    delta_x = opt_c->X - opt_b->X;
+    tlp->x_step_bc = (delta_x << 16) / delta_y;
+    tlp->trig_height_bottom = delta_y;
+    tlp->x_start_b = opt_b->X << 16;
 
     ret = 0;
     switch (vec_mode) /* swars-final @ 0x120F07 */
@@ -869,44 +869,44 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    ulong pXa, pXb, pY;
-    struct PolyPoint *pp;
+    ulong point_x_a, point_x_b, point_y;
+    struct PolyPoint *polygon_point;
 
-    pXa = opt_a->X << 16;
-    pY = opt_a->X << 16;
-    if (tlp->var_8A)
+    point_x_a = opt_a->X << 16;
+    point_y = opt_a->X << 16;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->trig_height_top >= 0)
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        if (tlp->clip_offset - tlp->trig_height_top >= 0)
         {
-            tlp->var_6C -= tlp->trig_height_top;
-            tlp->trig_height_bottom -= tlp->var_6C;
-            pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
-            if (tlp->var_8C) {
+            tlp->clip_offset -= tlp->trig_height_top;
+            tlp->trig_height_bottom -= tlp->clip_offset;
+            point_x_b = tlp->x_step_bc * tlp->clip_offset + tlp->x_start_b;
+            point_y += tlp->clip_offset * tlp->x_step_ab + tlp->trig_height_top * tlp->x_step_ab;
+            if (tlp->clipping_below_viewport) {
               tlp->trig_height_bottom = vec_window_height;
-              tlr->var_44 = vec_window_height;
+              tlr->render_height = vec_window_height;
             }
             tlp->trig_height_top = 0;
         }
         else
         {
-            tlp->trig_height_top -= tlp->var_6C;
-            pXa += tlp->var_28 * tlp->var_6C;
-            pY += tlp->var_6C * tlp->var_2C;
-            if (tlp->var_8C)
+            tlp->trig_height_top -= tlp->clip_offset;
+            point_x_a += tlp->x_step_ac * tlp->clip_offset;
+            point_y += tlp->clip_offset * tlp->x_step_ab;
+            if (tlp->clipping_below_viewport)
             {
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
                 if (tlp->hide_bottom_part) {
                     tlp->trig_height_top = vec_window_height;
                 } else {
@@ -914,47 +914,47 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
                     tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
             }
-            pXb = tlp->var_40;
+            point_x_b = tlp->x_start_b;
         }
     }
     else
     {
-        if (tlp->var_8C)
+        if (tlp->clipping_below_viewport)
         {
-            long dH, eH;
-            TbBool eH_overflow;
+            long delta_height, extent_height;
+            TbBool extent_height_overflow;
 
-            dH = vec_window_height - tlp->var_78;
-            tlr->var_44 = dH;
+            delta_height = vec_window_height - tlp->y_top;
+            tlr->render_height = delta_height;
             if (tlp->hide_bottom_part) {
-                tlp->trig_height_top = dH;
+                tlp->trig_height_top = delta_height;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
-                eH = dH - tlp->trig_height_top;
-                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->trig_height_bottom = eH;
+                extent_height_overflow = __OFSUBL__(delta_height, tlp->trig_height_top);
+                extent_height = delta_height - tlp->trig_height_top;
+                tlp->hide_bottom_part = ((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0);
+                tlp->trig_height_bottom = extent_height;
             }
         }
-        pXb = tlp->var_40;
+        point_x_b = tlp->x_start_b;
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pXa;
-        pXa += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        ++pp;
+        polygon_point->X = point_x_a;
+        point_x_a += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        ++polygon_point;
     }
     if (!tlp->hide_bottom_part)
     {
         for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
-            pp->X = pXb;
-            pXb += tlp->var_30;
-            pp->Y = pY;
-            pY += tlp->var_2C;
-            ++pp;
+            polygon_point->X = point_x_b;
+            point_x_b += tlp->x_step_bc;
+            polygon_point->Y = point_y;
+            point_y += tlp->x_step_ab;
+            ++polygon_point;
         }
     }
     return 1;
@@ -963,72 +963,72 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pXa, pXb, pY;
-    long pS;
-    struct PolyPoint *pp;
-    long ratio_var_34;
+    long point_x_a, point_x_b, point_y;
+    long shade_value;
+    struct PolyPoint *polygon_point;
+    long triangle_height_ratio;
 
-    ratio_var_34 = (tlp->trig_height_top << 16) / tlp->var_38;
+    triangle_height_ratio = (tlp->trig_height_top << 16) / tlp->y_start;
     {
         long dXa, wXb;
-        long eX;
+        long extent_x;
         TbBool eX_overflow;
 
-        wXb = ratio_var_34 * (opt_b->X - opt_a->X) >> 16;
+        wXb = triangle_height_ratio * (opt_b->X - opt_a->X) >> 16;
         dXa = opt_a->X - opt_c->X;
         eX_overflow = __OFSUBL__(wXb, -dXa);
-        eX = wXb + dXa;
-        if ((eX < 0) ^ eX_overflow) {
+        extent_x = wXb + dXa;
+        if ((extent_x < 0) ^ eX_overflow) {
             NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
             return 0;
         }
-        if (eX != 0) {
-            long long dS, wS;
-            dS = opt_b->S - opt_a->S;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_60 = (opt_a->S + wS - opt_c->S) / (eX + 1);
+        if (extent_x != 0) {
+            long long delta_shade, weighted_shade;
+            delta_shade = opt_b->S - opt_a->S;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->shade_step = (opt_a->S + weighted_shade - opt_c->S) / (extent_x + 1);
         }
     }
-    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->trig_height_top;
-    tlp->var_68 = (opt_b->S - opt_c->S) / tlp->trig_height_bottom;
-    pXa = opt_a->X << 16;
-    pY = opt_a->X << 16;
-    pS = opt_a->S;
-    if (tlp->var_8A)
+    tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlp->trig_height_top;
+    tlp->shade_step_bc = (opt_b->S - opt_c->S) / tlp->trig_height_bottom;
+    point_x_a = opt_a->X << 16;
+    point_y = opt_a->X << 16;
+    shade_value = opt_a->S;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->trig_height_top >= 0)
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        if (tlp->clip_offset - tlp->trig_height_top >= 0)
         {
-            tlp->var_6C -= tlp->trig_height_top;
-            tlp->trig_height_bottom -= tlp->var_6C;
-            pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
-            pS += tlp->var_6C * tlp->var_68 + tlp->trig_height_top * tlp->var_64;
-            if (tlp->var_8C) {
+            tlp->clip_offset -= tlp->trig_height_top;
+            tlp->trig_height_bottom -= tlp->clip_offset;
+            point_x_b = tlp->x_step_bc * tlp->clip_offset + tlp->x_start_b;
+            point_y += tlp->clip_offset * tlp->x_step_ab + tlp->trig_height_top * tlp->x_step_ab;
+            shade_value += tlp->clip_offset * tlp->shade_step_bc + tlp->trig_height_top * tlp->shade_step_ac;
+            if (tlp->clipping_below_viewport) {
                 tlp->trig_height_bottom = vec_window_height;
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
             }
             tlp->trig_height_top = 0;
         }
         else
         {
-            tlp->trig_height_top -= tlp->var_6C;
-            pXa += tlp->var_28 * tlp->var_6C;
-            pY += tlp->var_6C * tlp->var_2C;
-            pS += tlp->var_6C * tlp->var_64;
-            if ( tlp->var_8C )
+            tlp->trig_height_top -= tlp->clip_offset;
+            point_x_a += tlp->x_step_ac * tlp->clip_offset;
+            point_y += tlp->clip_offset * tlp->x_step_ab;
+            shade_value += tlp->clip_offset * tlp->shade_step_ac;
+            if ( tlp->clipping_below_viewport )
             {
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
                 if ( tlp->hide_bottom_part )
                 {
                   tlp->trig_height_top = vec_window_height;
@@ -1039,51 +1039,51 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
                   tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
             }
-            pXb = tlp->var_40;
+            point_x_b = tlp->x_start_b;
         }
     }
     else
     {
-        if (tlp->var_8C)
+        if (tlp->clipping_below_viewport)
         {
-            long dH, eH;
-            TbBool eH_overflow;
+            long delta_height, extent_height;
+            TbBool extent_height_overflow;
 
-            dH = vec_window_height - tlp->var_78;
-            tlr->var_44 = vec_window_height - tlp->var_78;
+            delta_height = vec_window_height - tlp->y_top;
+            tlr->render_height = vec_window_height - tlp->y_top;
             if (tlp->hide_bottom_part) {
-                tlp->trig_height_top = vec_window_height - tlp->var_78;
+                tlp->trig_height_top = vec_window_height - tlp->y_top;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
-                eH = dH - tlp->trig_height_top;
-                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->trig_height_bottom = eH;
+                extent_height_overflow = __OFSUBL__(delta_height, tlp->trig_height_top);
+                extent_height = delta_height - tlp->trig_height_top;
+                tlp->hide_bottom_part = ((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0);
+                tlp->trig_height_bottom = extent_height;
             }
         }
-        pXb = tlp->var_40;
+        point_x_b = tlp->x_start_b;
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pXa;
-        pXa += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        pp->S = pS;
-        pS += tlp->var_64;
-        ++pp;
+        polygon_point->X = point_x_a;
+        point_x_a += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        polygon_point->S = shade_value;
+        shade_value += tlp->shade_step_ac;
+        ++polygon_point;
     }
     if (!tlp->hide_bottom_part)
     {
         for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
-            pp->X = pXb;
-            pXb += tlp->var_30;
-            pp->Y = pY;
-            pY += tlp->var_2C;
-            pp->S = pS;
-            pS += tlp->var_68;
-            ++pp;
+            polygon_point->X = point_x_b;
+            point_x_b += tlp->x_step_bc;
+            polygon_point->Y = point_y;
+            point_y += tlp->x_step_ab;
+            polygon_point->S = shade_value;
+            shade_value += tlp->shade_step_bc;
+            ++polygon_point;
         }
     }
     return 1;
@@ -1092,81 +1092,81 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pXa, pXb, pY;
-    long pU, pV;
-    struct PolyPoint *pp;
-    long ratio_var_34;
+    long point_x_a, point_x_b, point_y;
+    long texture_u, texture_v;
+    struct PolyPoint *polygon_point;
+    long triangle_height_ratio;
 
-    ratio_var_34 = (tlp->trig_height_top << 16) / tlp->var_38; // Fixed point math
+    triangle_height_ratio = (tlp->trig_height_top << 16) / tlp->y_start; // Fixed point math
     {
         long dXa, wXb;
-        long eX;
+        long extent_x;
         TbBool eX_overflow;
 
-        wXb = ratio_var_34 * (opt_b->X - opt_a->X) >> 16;
+        wXb = triangle_height_ratio * (opt_b->X - opt_a->X) >> 16;
         dXa = opt_a->X - opt_c->X;
         eX_overflow = __OFSUBL__(wXb, -dXa);
-        eX = wXb + dXa;
-        if ((eX < 0) ^ eX_overflow) {
+        extent_x = wXb + dXa;
+        if ((extent_x < 0) ^ eX_overflow) {
             NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
             return 0;
         }
-        if (eX != 0) {
-            long long dS, wS;
+        if (extent_x != 0) {
+            long long delta_shade, weighted_shade;
 
-            dS = opt_b->U - opt_a->U;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_48 = (opt_a->U + wS - opt_c->U) / (eX + 1);
-            dS = opt_b->V - opt_a->V;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_54 = (opt_a->V + wS - opt_c->V) / (eX + 1);
+            delta_shade = opt_b->U - opt_a->U;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->u_step = (opt_a->U + weighted_shade - opt_c->U) / (extent_x + 1);
+            delta_shade = opt_b->V - opt_a->V;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->v_step = (opt_a->V + weighted_shade - opt_c->V) / (extent_x + 1);
         }
     }
-    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->trig_height_top;
-    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->trig_height_top;
-    tlp->var_50 = (opt_b->U - opt_c->U) / tlp->trig_height_bottom;
-    tlp->var_5C = (opt_b->V - opt_c->V) / tlp->trig_height_bottom;
-    pXa = opt_a->X << 16;
-    pY = opt_a->X << 16;
-    pU = opt_a->U;
-    pV = opt_a->V;
-    if (tlp->var_8A)
+    tlp->u_step_ac = (opt_c->U - opt_a->U) / tlp->trig_height_top;
+    tlp->v_step_ac = (opt_c->V - opt_a->V) / tlp->trig_height_top;
+    tlp->texture_v_step_bc = (opt_b->U - opt_c->U) / tlp->trig_height_bottom;
+    tlp->texture_u_step_bc = (opt_b->V - opt_c->V) / tlp->trig_height_bottom;
+    point_x_a = opt_a->X << 16;
+    point_y = opt_a->X << 16;
+    texture_u = opt_a->U;
+    texture_v = opt_a->V;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->trig_height_top >= 0)
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        if (tlp->clip_offset - tlp->trig_height_top >= 0)
         {
-            tlp->var_6C -= tlp->trig_height_top;
-            tlp->trig_height_bottom -= tlp->var_6C;
-            pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
-            pU += tlp->var_6C * tlp->var_50 + tlp->trig_height_top * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_5C + tlp->trig_height_top * tlp->var_58;
-            if (tlp->var_8C) {
+            tlp->clip_offset -= tlp->trig_height_top;
+            tlp->trig_height_bottom -= tlp->clip_offset;
+            point_x_b = tlp->x_step_bc * tlp->clip_offset + tlp->x_start_b;
+            point_y += tlp->clip_offset * tlp->x_step_ab + tlp->trig_height_top * tlp->x_step_ab;
+            texture_u += tlp->clip_offset * tlp->texture_v_step_bc + tlp->trig_height_top * tlp->u_step_ac;
+            texture_v += tlp->clip_offset * tlp->texture_u_step_bc + tlp->trig_height_top * tlp->v_step_ac;
+            if (tlp->clipping_below_viewport) {
                 tlp->trig_height_bottom = vec_window_height;
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
             }
             tlp->trig_height_top = 0;
         }
         else
         {
-            tlp->trig_height_top -= tlp->var_6C;
-            pXa += tlp->var_28 * tlp->var_6C;
-            pY += tlp->var_6C * tlp->var_2C;
-            pU += tlp->var_6C * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_58;
-            if ( tlp->var_8C )
+            tlp->trig_height_top -= tlp->clip_offset;
+            point_x_a += tlp->x_step_ac * tlp->clip_offset;
+            point_y += tlp->clip_offset * tlp->x_step_ab;
+            texture_u += tlp->clip_offset * tlp->u_step_ac;
+            texture_v += tlp->clip_offset * tlp->v_step_ac;
+            if ( tlp->clipping_below_viewport )
             {
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
                 if (tlp->hide_bottom_part) {
                     tlp->trig_height_top = vec_window_height;
                 } else {
@@ -1174,56 +1174,56 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
                     tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
             }
-            pXb = tlp->var_40;
+            point_x_b = tlp->x_start_b;
         }
     }
     else
     {
-        if (tlp->var_8C)
+        if (tlp->clipping_below_viewport)
         {
-            long dH, eH;
-            TbBool eH_overflow;
+            long delta_height, extent_height;
+            TbBool extent_height_overflow;
 
-            dH = vec_window_height - tlp->var_78;
-            tlr->var_44 = dH;
+            delta_height = vec_window_height - tlp->y_top;
+            tlr->render_height = delta_height;
             if (tlp->hide_bottom_part) {
-                tlp->trig_height_top = dH;
+                tlp->trig_height_top = delta_height;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
-                eH = dH - tlp->trig_height_top;
-                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->trig_height_bottom = eH;
+                extent_height_overflow = __OFSUBL__(delta_height, tlp->trig_height_top);
+                extent_height = delta_height - tlp->trig_height_top;
+                tlp->hide_bottom_part = ((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0);
+                tlp->trig_height_bottom = extent_height;
             }
         }
-        pXb = tlp->var_40;
+        point_x_b = tlp->x_start_b;
     }
-    pp = polyscans;
+    polygon_point = polyscans;
 
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pXa;
-        pXa += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        pp->U = pU;
-        pU += tlp->var_4C;
-        pp->V = pV;
-        pV += tlp->var_58;
-        ++pp;
+        polygon_point->X = point_x_a;
+        point_x_a += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        polygon_point->U = texture_u;
+        texture_u += tlp->u_step_ac;
+        polygon_point->V = texture_v;
+        texture_v += tlp->v_step_ac;
+        ++polygon_point;
     }
     if (!tlp->hide_bottom_part)
     {
         for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
-            pp->X = pXb;
-            pXb += tlp->var_30;
-            pp->Y = pY;
-            pY += tlp->var_2C;
-            pp->U = pU;
-            pU += tlp->var_50;
-            pp->V = pV;
-            pV += tlp->var_5C;
-            ++pp;
+            polygon_point->X = point_x_b;
+            point_x_b += tlp->x_step_bc;
+            polygon_point->Y = point_y;
+            point_y += tlp->x_step_ab;
+            polygon_point->U = texture_u;
+            texture_u += tlp->texture_v_step_bc;
+            polygon_point->V = texture_v;
+            texture_v += tlp->texture_u_step_bc;
+            ++polygon_point;
         }
     }
     return 1;
@@ -1232,89 +1232,89 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pXa, pXb, pY;
-    long pU, pV, pS;
-    struct PolyPoint *pp;
-    long ratio_var_34;
+    long point_x_a, point_x_b, point_y;
+    long texture_u, texture_v, shade_value;
+    struct PolyPoint *polygon_point;
+    long triangle_height_ratio;
 
-    ratio_var_34 = (tlp->trig_height_top << 16) / tlp->var_38;
+    triangle_height_ratio = (tlp->trig_height_top << 16) / tlp->y_start;
     {
         long dXa, wXb;
-        long eX;
+        long extent_x;
         TbBool eX_overflow;
 
-        wXb = ratio_var_34 * (opt_b->X - opt_a->X) >> 16;
+        wXb = triangle_height_ratio * (opt_b->X - opt_a->X) >> 16;
         dXa = opt_a->X - opt_c->X;
         eX_overflow = __OFSUBL__(wXb, -dXa);
-        eX = wXb + dXa;
-        if ((eX < 0) ^ eX_overflow) {
+        extent_x = wXb + dXa;
+        if ((extent_x < 0) ^ eX_overflow) {
             NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
             return 0;
         }
-        tlr->var_60 = wXb;
-        if (eX != 0) {
-            long long dS, wS;
+        tlr->shade_step = wXb;
+        if (extent_x != 0) {
+            long long delta_shade, weighted_shade;
 
-            dS = opt_b->U - opt_a->U;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_48 = (opt_a->U + wS - opt_c->U) / (eX + 1);
-            dS = opt_b->V - opt_a->V;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_54 = (opt_a->V + wS - opt_c->V) / (eX + 1);
-            dS = opt_b->S - opt_a->S;
-            wS = (ratio_var_34 * dS) >> 16;
-            tlr->var_60 = (opt_a->S + wS - opt_c->S) / (eX + 1);
+            delta_shade = opt_b->U - opt_a->U;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->u_step = (opt_a->U + weighted_shade - opt_c->U) / (extent_x + 1);
+            delta_shade = opt_b->V - opt_a->V;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->v_step = (opt_a->V + weighted_shade - opt_c->V) / (extent_x + 1);
+            delta_shade = opt_b->S - opt_a->S;
+            weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
+            tlr->shade_step = (opt_a->S + weighted_shade - opt_c->S) / (extent_x + 1);
         }
     }
-    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->trig_height_top;
-    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->trig_height_top;
-    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->trig_height_top;
-    tlp->var_50 = (opt_b->U - opt_c->U) / tlp->trig_height_bottom;
-    tlp->var_5C = (opt_b->V - opt_c->V) / tlp->trig_height_bottom;
-    tlp->var_68 = (opt_b->S - opt_c->S) / tlp->trig_height_bottom;
-    pXa = opt_a->X << 16;
-    pY = opt_a->X << 16;
-    pU = opt_a->U;
-    pV = opt_a->V;
-    pS = opt_a->S;
-    if (tlp->var_8A)
+    tlp->u_step_ac = (opt_c->U - opt_a->U) / tlp->trig_height_top;
+    tlp->v_step_ac = (opt_c->V - opt_a->V) / tlp->trig_height_top;
+    tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlp->trig_height_top;
+    tlp->texture_v_step_bc = (opt_b->U - opt_c->U) / tlp->trig_height_bottom;
+    tlp->texture_u_step_bc = (opt_b->V - opt_c->V) / tlp->trig_height_bottom;
+    tlp->shade_step_bc = (opt_b->S - opt_c->S) / tlp->trig_height_bottom;
+    point_x_a = opt_a->X << 16;
+    point_y = opt_a->X << 16;
+    texture_u = opt_a->U;
+    texture_v = opt_a->V;
+    shade_value = opt_a->S;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->trig_height_top >= 0)
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        if (tlp->clip_offset - tlp->trig_height_top >= 0)
         {
-            tlp->var_6C -= tlp->trig_height_top;
-            tlp->trig_height_bottom -= tlp->var_6C;
-            pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
-            pU += tlp->var_6C * tlp->var_50 + tlp->trig_height_top * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_5C + tlp->trig_height_top * tlp->var_58;
-            pS += tlp->var_6C * tlp->var_68 + tlp->trig_height_top * tlp->var_64;
-            if (tlp->var_8C) {
+            tlp->clip_offset -= tlp->trig_height_top;
+            tlp->trig_height_bottom -= tlp->clip_offset;
+            point_x_b = tlp->x_step_bc * tlp->clip_offset + tlp->x_start_b;
+            point_y += tlp->clip_offset * tlp->x_step_ab + tlp->trig_height_top * tlp->x_step_ab;
+            texture_u += tlp->clip_offset * tlp->texture_v_step_bc + tlp->trig_height_top * tlp->u_step_ac;
+            texture_v += tlp->clip_offset * tlp->texture_u_step_bc + tlp->trig_height_top * tlp->v_step_ac;
+            shade_value += tlp->clip_offset * tlp->shade_step_bc + tlp->trig_height_top * tlp->shade_step_ac;
+            if (tlp->clipping_below_viewport) {
                 tlp->trig_height_bottom = vec_window_height;
-                tlr->var_44 = vec_window_height;
+                tlr->render_height = vec_window_height;
             }
             tlp->trig_height_top = 0;
         }
         else
         {
-            tlp->trig_height_top -= tlp->var_6C;
-            pXa += tlp->var_28 * tlp->var_6C;
-            pY += tlp->var_6C * tlp->var_2C;
-            pU += tlp->var_6C * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_58;
-            pS += tlp->var_6C * tlp->var_64;
-            if (tlp->var_8C) {
-                tlr->var_44 = vec_window_height;
+            tlp->trig_height_top -= tlp->clip_offset;
+            point_x_a += tlp->x_step_ac * tlp->clip_offset;
+            point_y += tlp->clip_offset * tlp->x_step_ab;
+            texture_u += tlp->clip_offset * tlp->u_step_ac;
+            texture_v += tlp->clip_offset * tlp->v_step_ac;
+            shade_value += tlp->clip_offset * tlp->shade_step_ac;
+            if (tlp->clipping_below_viewport) {
+                tlr->render_height = vec_window_height;
                 if (tlp->hide_bottom_part) {
                     tlp->trig_height_top = vec_window_height;
                 } else {
@@ -1322,59 +1322,59 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
                     tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
             }
-            pXb = tlp->var_40;
+            point_x_b = tlp->x_start_b;
         }
     }
     else
     {
-        if (tlp->var_8C)
+        if (tlp->clipping_below_viewport)
         {
-            long dH, eH;
-            TbBool eH_overflow;
+            long delta_height, extent_height;
+            TbBool extent_height_overflow;
 
-            dH = vec_window_height - tlp->var_78;
-            tlr->var_44 = dH;
+            delta_height = vec_window_height - tlp->y_top;
+            tlr->render_height = delta_height;
             if (tlp->hide_bottom_part) {
-                tlp->trig_height_top = dH;
+                tlp->trig_height_top = delta_height;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
-                eH = dH - tlp->trig_height_top;
-                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->trig_height_bottom = eH;
+                extent_height_overflow = __OFSUBL__(delta_height, tlp->trig_height_top);
+                extent_height = delta_height - tlp->trig_height_top;
+                tlp->hide_bottom_part = ((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0);
+                tlp->trig_height_bottom = extent_height;
             }
         }
-        pXb = tlp->var_40;
+        point_x_b = tlp->x_start_b;
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pXa;
-        pXa += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        pp->U = pU;
-        pU += tlp->var_4C;
-        pp->V = pV;
-        pV += tlp->var_58;
-        pp->S = pS;
-        pS += tlp->var_64;
-        ++pp;
+        polygon_point->X = point_x_a;
+        point_x_a += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        polygon_point->U = texture_u;
+        texture_u += tlp->u_step_ac;
+        polygon_point->V = texture_v;
+        texture_v += tlp->v_step_ac;
+        polygon_point->S = shade_value;
+        shade_value += tlp->shade_step_ac;
+        ++polygon_point;
     }
     if (!tlp->hide_bottom_part)
     {
         for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
-          pp->X = pXb;
-          pXb += tlp->var_30;
-          pp->Y = pY;
-          pY += tlp->var_2C;
-          pp->U = pU;
-          pU += tlp->var_50;
-          pp->V = pV;
-          pV += tlp->var_5C;
-          pp->S = pS;
-          pS += tlp->var_68;
-          ++pp;
+          polygon_point->X = point_x_b;
+          point_x_b += tlp->x_step_bc;
+          polygon_point->Y = point_y;
+          point_y += tlp->x_step_ab;
+          polygon_point->U = texture_u;
+          texture_u += tlp->texture_v_step_bc;
+          polygon_point->V = texture_v;
+          texture_v += tlp->texture_u_step_bc;
+          polygon_point->S = shade_value;
+          shade_value += tlp->shade_step_bc;
+          ++polygon_point;
         }
     }
     return 1;
@@ -1384,42 +1384,42 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
-    long dX, dY;
+    long delta_x, delta_y;
 
-    tlp->var_78 = opt_a->Y;
+    tlp->y_top = opt_a->Y;
     if (opt_a->Y < 0) {
-      tlr->var_24 = poly_screen;
-      tlp->var_8A = 1;
+      tlr->screen_buffer_ptr = poly_screen;
+      tlp->clipping_above_viewport = 1;
     } else if (opt_a->Y < vec_window_height) {
-      tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
-      tlp->var_8A = 0;
+      tlr->screen_buffer_ptr = poly_screen + vec_screen_width * opt_a->Y;
+      tlp->clipping_above_viewport = 0;
     } else  {
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
 
     tlp->hide_bottom_part = opt_c->Y > vec_window_height;
-    dY = opt_c->Y - opt_a->Y;
-    tlp->trig_height_top = dY;
+    delta_y = opt_c->Y - opt_a->Y;
+    tlp->trig_height_top = delta_y;
 
-    tlp->var_8C = opt_b->Y > vec_window_height;
-    dY = opt_b->Y - opt_a->Y;
-    tlp->var_38 = dY;
-    tlr->var_44 = dY;
-    dX = opt_c->X - opt_a->X;
-    tlp->var_28 = (dX << 16) / tlp->trig_height_top;
-    dX = opt_b->X - opt_a->X;
-    if ((dX << 16) / dY <= tlp->var_28) {
-        NOLOG("value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
+    tlp->clipping_below_viewport = opt_b->Y > vec_window_height;
+    delta_y = opt_b->Y - opt_a->Y;
+    tlp->y_start = delta_y;
+    tlr->render_height = delta_y;
+    delta_x = opt_c->X - opt_a->X;
+    tlp->x_step_ac = (delta_x << 16) / tlp->trig_height_top;
+    delta_x = opt_b->X - opt_a->X;
+    if ((delta_x << 16) / delta_y <= tlp->x_step_ac) {
+        NOLOG("value (%ld << 16) / %ld below min %ld", (long)delta_x, (long)delta_y, (long)tlp->x_step_ac);
         return 0;
     }
-    tlp->var_2C = (dX << 16) / dY;
+    tlp->x_step_ab = (delta_x << 16) / delta_y;
 
-    dY = opt_b->Y - opt_c->Y;
-    dX = opt_b->X - opt_c->X;
-    tlp->var_30 = (dX << 16) / dY;
-    tlp->trig_height_bottom = dY;
-    tlp->var_40 = opt_c->X << 16;
+    delta_y = opt_b->Y - opt_c->Y;
+    delta_x = opt_b->X - opt_c->X;
+    tlp->x_step_bc = (delta_x << 16) / delta_y;
+    tlp->trig_height_bottom = delta_y;
+    tlp->x_start_b = opt_c->X << 16;
 
     ret = 0;
     switch (vec_mode) /* swars-final @ 0x121814 */
@@ -1467,47 +1467,47 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pY;
-    struct PolyPoint *pp;
+    long point_x, point_y;
+    struct PolyPoint *polygon_point;
 
-    pX = opt_a->X << 16;
-    pY = opt_a->X << 16;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y = opt_a->X << 16;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        tlp->trig_height_top += tlp->var_78;
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        tlp->trig_height_top += tlp->y_top;
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        pX += tlp->var_28 * (-tlp->var_78);
-        pY += (-tlp->var_78) * tlp->var_2C;
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        point_x += tlp->x_step_ac * (-tlp->y_top);
+        point_y += (-tlp->y_top) * tlp->x_step_ab;
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height;
+            tlr->render_height = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->trig_height_top = vec_window_height - tlp->var_78;
+            tlr->render_height = vec_window_height - tlp->y_top;
+            tlp->trig_height_top = vec_window_height - tlp->y_top;
         }
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        ++polygon_point;
     }
     return 1;
 }
@@ -1515,58 +1515,58 @@ static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    int pX, pY;
-    int pS;
-    struct PolyPoint *pp;
+    int point_x, point_y;
+    int shade_value;
+    struct PolyPoint *polygon_point;
 
     {
-        long dX;
-        dX = opt_b->X - opt_c->X;
-        tlr->var_60 = (opt_b->S - opt_c->S) / dX;
-        tlp->var_64 = (opt_c->S - opt_a->S) / tlr->var_44;
+        long delta_x;
+        delta_x = opt_b->X - opt_c->X;
+        tlr->shade_step = (opt_b->S - opt_c->S) / delta_x;
+        tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlr->render_height;
     }
-    pX = opt_a->X << 16;
-    pY = opt_a->X << 16;
-    pS = opt_a->S;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y = opt_a->X << 16;
+    shade_value = opt_a->S;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        tlp->trig_height_top += tlp->var_78;
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        tlp->trig_height_top += tlp->y_top;
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        pX += tlp->var_28 * (-tlp->var_78);
-        pY += (-tlp->var_78) * tlp->var_2C;
-        pS += (-tlp->var_78) * tlp->var_64;
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        point_x += tlp->x_step_ac * (-tlp->y_top);
+        point_y += (-tlp->y_top) * tlp->x_step_ab;
+        shade_value += (-tlp->y_top) * tlp->shade_step_ac;
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height;
+            tlr->render_height = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->trig_height_top = vec_window_height - tlp->var_78;
+            tlr->render_height = vec_window_height - tlp->y_top;
+            tlp->trig_height_top = vec_window_height - tlp->y_top;
         }
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        pp->S = pS;
-        pS += tlp->var_64;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        polygon_point->S = shade_value;
+        shade_value += tlp->shade_step_ac;
+        ++polygon_point;
     }
     return 1;
 }
@@ -1574,64 +1574,64 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pY;
-    long pU, pV;
-    struct PolyPoint *pp;
+    long point_x, point_y;
+    long texture_u, texture_v;
+    struct PolyPoint *polygon_point;
 
     {
-        long dX;
-        dX = opt_b->X - opt_c->X;
-        tlr->var_48 = (opt_b->U - opt_c->U) / dX;
-        tlr->var_54 = (opt_b->V - opt_c->V) / dX;
-        tlp->var_4C = (opt_c->U - opt_a->U) / tlr->var_44;
-        tlp->var_58 = (opt_c->V - opt_a->V) / tlr->var_44;
+        long delta_x;
+        delta_x = opt_b->X - opt_c->X;
+        tlr->u_step = (opt_b->U - opt_c->U) / delta_x;
+        tlr->v_step = (opt_b->V - opt_c->V) / delta_x;
+        tlp->u_step_ac = (opt_c->U - opt_a->U) / tlr->render_height;
+        tlp->v_step_ac = (opt_c->V - opt_a->V) / tlr->render_height;
     }
-    pX = opt_a->X << 16;
-    pY = opt_a->X << 16;
-    pU = opt_a->U;
-    pV = opt_a->V;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y = opt_a->X << 16;
+    texture_u = opt_a->U;
+    texture_v = opt_a->V;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        tlp->trig_height_top += tlp->var_78;
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        tlp->trig_height_top += tlp->y_top;
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        pX += tlp->var_28 * (-tlp->var_78);
-        pY += (-tlp->var_78) * tlp->var_2C;
-        pU += (-tlp->var_78) * tlp->var_4C;
-        pV += (-tlp->var_78) * tlp->var_58;
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        point_x += tlp->x_step_ac * (-tlp->y_top);
+        point_y += (-tlp->y_top) * tlp->x_step_ab;
+        texture_u += (-tlp->y_top) * tlp->u_step_ac;
+        texture_v += (-tlp->y_top) * tlp->v_step_ac;
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height;
+            tlr->render_height = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->trig_height_top = vec_window_height - tlp->var_78;
+            tlr->render_height = vec_window_height - tlp->y_top;
+            tlp->trig_height_top = vec_window_height - tlp->y_top;
         }
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        pp->U = pU;
-        pU += tlp->var_4C;
-        pp->V = pV;
-        pV += tlp->var_58;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        polygon_point->U = texture_u;
+        texture_u += tlp->u_step_ac;
+        polygon_point->V = texture_v;
+        texture_v += tlp->v_step_ac;
+        ++polygon_point;
     }
     return 1;
 }
@@ -1639,70 +1639,70 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pY;
-    long pU, pV, pS;
-    struct PolyPoint *pp;
+    long point_x, point_y;
+    long texture_u, texture_v, shade_value;
+    struct PolyPoint *polygon_point;
 
     {
-        long dX;
-        dX = opt_b->X - opt_c->X;
-        tlr->var_48 = (opt_b->U - opt_c->U) / dX;
-        tlr->var_54 = (opt_b->V - opt_c->V) / dX;
-        tlr->var_60 = (opt_b->S - opt_c->S) / dX;
-        tlp->var_4C = (opt_c->U - opt_a->U) / tlr->var_44;
-        tlp->var_58 = (opt_c->V - opt_a->V) / tlr->var_44;
-        tlp->var_64 = (opt_c->S - opt_a->S) / tlr->var_44;
+        long delta_x;
+        delta_x = opt_b->X - opt_c->X;
+        tlr->u_step = (opt_b->U - opt_c->U) / delta_x;
+        tlr->v_step = (opt_b->V - opt_c->V) / delta_x;
+        tlr->shade_step = (opt_b->S - opt_c->S) / delta_x;
+        tlp->u_step_ac = (opt_c->U - opt_a->U) / tlr->render_height;
+        tlp->v_step_ac = (opt_c->V - opt_a->V) / tlr->render_height;
+        tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlr->render_height;
     }
-    pX = opt_a->X << 16;
-    pY = opt_a->X << 16;
-    pU = opt_a->U;
-    pV = opt_a->V;
-    pS = opt_a->S;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y = opt_a->X << 16;
+    texture_u = opt_a->U;
+    texture_v = opt_a->V;
+    shade_value = opt_a->S;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        tlp->trig_height_top += tlp->var_78;
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        tlp->trig_height_top += tlp->y_top;
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        pX += tlp->var_28 * (-tlp->var_78);
-        pY += (-tlp->var_78) * tlp->var_2C;
-        pU += (-tlp->var_78) * tlp->var_4C;
-        pV += (-tlp->var_78) * tlp->var_58;
-        pS += (-tlp->var_78) * tlp->var_64;
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        point_x += tlp->x_step_ac * (-tlp->y_top);
+        point_y += (-tlp->y_top) * tlp->x_step_ab;
+        texture_u += (-tlp->y_top) * tlp->u_step_ac;
+        texture_v += (-tlp->y_top) * tlp->v_step_ac;
+        shade_value += (-tlp->y_top) * tlp->shade_step_ac;
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height;
+            tlr->render_height = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->trig_height_top = vec_window_height - tlp->var_78;
+            tlr->render_height = vec_window_height - tlp->y_top;
+            tlp->trig_height_top = vec_window_height - tlp->y_top;
         }
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        pp->U = pU;
-        pU += tlp->var_4C;
-        pp->V = pV;
-        pV += tlp->var_58;
-        pp->S = pS;
-        pS += tlp->var_64;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        polygon_point->U = texture_u;
+        texture_u += tlp->u_step_ac;
+        polygon_point->V = texture_v;
+        texture_v += tlp->v_step_ac;
+        polygon_point->S = shade_value;
+        shade_value += tlp->shade_step_ac;
+        ++polygon_point;
     }
     return 1;
 }
@@ -1711,27 +1711,27 @@ int trig_fb_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
-    long dX, dY;
+    long delta_x, delta_y;
 
-    tlp->var_78 = opt_a->Y;
+    tlp->y_top = opt_a->Y;
     if (opt_a->Y < 0) {
-        tlr->var_24 = poly_screen;
-        tlp->var_8A = 1;
+        tlr->screen_buffer_ptr = poly_screen;
+        tlp->clipping_above_viewport = 1;
     } else if (opt_a->Y < vec_window_height) {
-        tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
-        tlp->var_8A = 0;
+        tlr->screen_buffer_ptr = poly_screen + vec_screen_width * opt_a->Y;
+        tlp->clipping_above_viewport = 0;
     } else {
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
     tlp->hide_bottom_part = opt_c->Y > vec_window_height;
-    dY = opt_c->Y - opt_a->Y;
-    tlp->trig_height_top = dY;
-    tlr->var_44 = dY;
-    dX = opt_c->X - opt_a->X;
-    tlp->var_28 = (dX << 16) / dY;
-    dX = opt_b->X - opt_a->X;
-    tlp->var_2C = (dX << 16) / dY;
+    delta_y = opt_c->Y - opt_a->Y;
+    tlp->trig_height_top = delta_y;
+    tlr->render_height = delta_y;
+    delta_x = opt_c->X - opt_a->X;
+    tlp->x_step_ac = (delta_x << 16) / delta_y;
+    delta_x = opt_b->X - opt_a->X;
+    tlp->x_step_ab = (delta_x << 16) / delta_y;
 
     ret = 0;
     switch (vec_mode) /* swars-final @ 0x122142, genewars-beta @ 0xEFE72 */
@@ -1779,47 +1779,47 @@ int trig_fb_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pY;
-    struct PolyPoint *pp;
+    long point_x, point_y;
+    struct PolyPoint *polygon_point;
 
-    pX = opt_a->X << 16;
-    pY = opt_b->X << 16;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y = opt_b->X << 16;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        tlp->trig_height_top += tlp->var_78;
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        tlp->trig_height_top += tlp->y_top;
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        pX += tlp->var_28 * (-tlp->var_78);
-        pY += (-tlp->var_78) * tlp->var_2C;
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        point_x += tlp->x_step_ac * (-tlp->y_top);
+        point_y += (-tlp->y_top) * tlp->x_step_ab;
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height;
+            tlr->render_height = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->trig_height_top = vec_window_height - tlp->var_78;
+            tlr->render_height = vec_window_height - tlp->y_top;
+            tlp->trig_height_top = vec_window_height - tlp->y_top;
         }
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        ++polygon_point;
     }
     return 1;
 }
@@ -1827,58 +1827,58 @@ static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pY;
-    long pS;
-    struct PolyPoint *pp;
+    long point_x, point_y;
+    long shade_value;
+    struct PolyPoint *polygon_point;
 
     {
-        long dX;
-        dX = opt_b->X - opt_a->X;
-        tlr->var_60 = (opt_b->S - opt_a->S) / dX;
-        tlp->var_64 = (opt_c->S - opt_a->S) / tlr->var_44;
+        long delta_x;
+        delta_x = opt_b->X - opt_a->X;
+        tlr->shade_step = (opt_b->S - opt_a->S) / delta_x;
+        tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlr->render_height;
     }
-    pX = opt_a->X << 16;
-    pY = opt_b->X << 16;
-    pS = opt_a->S;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y = opt_b->X << 16;
+    shade_value = opt_a->S;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        tlp->trig_height_top += tlp->var_78;
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        tlp->trig_height_top += tlp->y_top;
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        pX += tlp->var_28 * (-tlp->var_78);
-        pY += (-tlp->var_78) * tlp->var_2C;
-        pS += (-tlp->var_78) * tlp->var_64;
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        point_x += tlp->x_step_ac * (-tlp->y_top);
+        point_y += (-tlp->y_top) * tlp->x_step_ab;
+        shade_value += (-tlp->y_top) * tlp->shade_step_ac;
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height;
+            tlr->render_height = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->trig_height_top = vec_window_height - tlp->var_78;
+            tlr->render_height = vec_window_height - tlp->y_top;
+            tlp->trig_height_top = vec_window_height - tlp->y_top;
         }
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        pp->S = pS;
-        pS += tlp->var_64;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        polygon_point->S = shade_value;
+        shade_value += tlp->shade_step_ac;
+        ++polygon_point;
     }
     return 1;
 }
@@ -1886,63 +1886,63 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pY;
-    long pU, pV;
-    struct PolyPoint *pp;
+    long point_x, point_y;
+    long texture_u, texture_v;
+    struct PolyPoint *polygon_point;
     {
-        long dX;
-        dX = opt_b->X - opt_a->X;
-        tlr->var_48 = (opt_b->U - opt_a->U) / dX;
-        tlr->var_54 = (opt_b->V - opt_a->V) / dX;
-        tlp->var_4C = (opt_c->U - opt_a->U) / tlr->var_44;
-        tlp->var_58 = (opt_c->V - opt_a->V) / tlr->var_44;
+        long delta_x;
+        delta_x = opt_b->X - opt_a->X;
+        tlr->u_step = (opt_b->U - opt_a->U) / delta_x;
+        tlr->v_step = (opt_b->V - opt_a->V) / delta_x;
+        tlp->u_step_ac = (opt_c->U - opt_a->U) / tlr->render_height;
+        tlp->v_step_ac = (opt_c->V - opt_a->V) / tlr->render_height;
     }
-    pX = opt_a->X << 16;
-    pY = opt_b->X << 16;
-    pU = opt_a->U;
-    pV = opt_a->V;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y = opt_b->X << 16;
+    texture_u = opt_a->U;
+    texture_v = opt_a->V;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        tlp->trig_height_top += tlp->var_78;
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        tlp->trig_height_top += tlp->y_top;
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        pX += tlp->var_28 * (-tlp->var_78);
-        pY += (-tlp->var_78) * tlp->var_2C;
-        pU += (-tlp->var_78) * tlp->var_4C;
-        pV += (-tlp->var_78) * tlp->var_58;
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        point_x += tlp->x_step_ac * (-tlp->y_top);
+        point_y += (-tlp->y_top) * tlp->x_step_ab;
+        texture_u += (-tlp->y_top) * tlp->u_step_ac;
+        texture_v += (-tlp->y_top) * tlp->v_step_ac;
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height;
+            tlr->render_height = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->trig_height_top = vec_window_height - tlp->var_78;
+            tlr->render_height = vec_window_height - tlp->y_top;
+            tlp->trig_height_top = vec_window_height - tlp->y_top;
         }
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        pp->U = pU;
-        pU += tlp->var_4C;
-        pp->V = pV;
-        pV += tlp->var_58;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        polygon_point->U = texture_u;
+        texture_u += tlp->u_step_ac;
+        polygon_point->V = texture_v;
+        texture_v += tlp->v_step_ac;
+        ++polygon_point;
     }
     return 1;
 }
@@ -1950,70 +1950,70 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long pX, pY;
-    long pU, pV, pS;
-    struct PolyPoint *pp;
+    long point_x, point_y;
+    long texture_u, texture_v, shade_value;
+    struct PolyPoint *polygon_point;
 
     {
-        long dX;
-        dX = opt_b->X - opt_a->X;
-        tlr->var_48 = (opt_b->U - opt_a->U) / dX;
-        tlr->var_54 = (opt_b->V - opt_a->V) / dX;
-        tlr->var_60 = (opt_b->S - opt_a->S) / dX;
-        tlp->var_4C = (opt_c->U - opt_a->U) / tlr->var_44;
-        tlp->var_58 = (opt_c->V - opt_a->V) / tlr->var_44;
-        tlp->var_64 = (opt_c->S - opt_a->S) / tlr->var_44;
+        long delta_x;
+        delta_x = opt_b->X - opt_a->X;
+        tlr->u_step = (opt_b->U - opt_a->U) / delta_x;
+        tlr->v_step = (opt_b->V - opt_a->V) / delta_x;
+        tlr->shade_step = (opt_b->S - opt_a->S) / delta_x;
+        tlp->u_step_ac = (opt_c->U - opt_a->U) / tlr->render_height;
+        tlp->v_step_ac = (opt_c->V - opt_a->V) / tlr->render_height;
+        tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlr->render_height;
     }
-    pX = opt_a->X << 16;
-    pY = opt_b->X << 16;
-    pU = opt_a->U;
-    pV = opt_a->V;
-    pS = opt_a->S;
-    if (tlp->var_8A)
+    point_x = opt_a->X << 16;
+    point_y = opt_b->X << 16;
+    texture_u = opt_a->U;
+    texture_v = opt_a->V;
+    shade_value = opt_a->S;
+    if (tlp->clipping_above_viewport)
     {
-        long eH;
-        TbBool eH_overflow;
+        long extent_height;
+        TbBool extent_height_overflow;
 
-        tlp->trig_height_top += tlp->var_78;
-        eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
-        eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+        tlp->trig_height_top += tlp->y_top;
+        extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
+        extent_height = tlr->render_height + tlp->y_top;
+        if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
+            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
             return 0;
         }
-        tlr->var_44 = eH;
-        tlp->var_6C = -tlp->var_78;
-        pX += tlp->var_28 * (-tlp->var_78);
-        pY += (-tlp->var_78) * tlp->var_2C;
-        pU += (-tlp->var_78) * tlp->var_4C;
-        pV += (-tlp->var_78) * tlp->var_58;
-        pS += (-tlp->var_78) * tlp->var_64;
+        tlr->render_height = extent_height;
+        tlp->clip_offset = -tlp->y_top;
+        point_x += tlp->x_step_ac * (-tlp->y_top);
+        point_y += (-tlp->y_top) * tlp->x_step_ab;
+        texture_u += (-tlp->y_top) * tlp->u_step_ac;
+        texture_v += (-tlp->y_top) * tlp->v_step_ac;
+        shade_value += (-tlp->y_top) * tlp->shade_step_ac;
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height;
+            tlr->render_height = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
         if (tlp->hide_bottom_part) {
-            tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->trig_height_top = vec_window_height - tlp->var_78;
+            tlr->render_height = vec_window_height - tlp->y_top;
+            tlp->trig_height_top = vec_window_height - tlp->y_top;
         }
     }
-    pp = polyscans;
+    polygon_point = polyscans;
     for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
-        pp->X = pX;
-        pX += tlp->var_28;
-        pp->Y = pY;
-        pY += tlp->var_2C;
-        pp->U = pU;
-        pU += tlp->var_4C;
-        pp->V = pV;
-        pV += tlp->var_58;
-        pp->S = pS;
-        pS += tlp->var_64;
-        ++pp;
+        polygon_point->X = point_x;
+        point_x += tlp->x_step_ac;
+        polygon_point->Y = point_y;
+        point_y += tlp->x_step_ab;
+        polygon_point->U = texture_u;
+        texture_u += tlp->u_step_ac;
+        polygon_point->V = texture_v;
+        texture_v += tlp->v_step_ac;
+        polygon_point->S = shade_value;
+        shade_value += tlp->shade_step_ac;
+        ++polygon_point;
     }
     return 1;
 }
@@ -2022,27 +2022,27 @@ int trig_ft_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
-    long dX, dY;
+    long delta_x, delta_y;
 
-    tlp->var_78 = opt_a->Y;
+    tlp->y_top = opt_a->Y;
     if (opt_a->Y < 0) {
-      tlr->var_24 = poly_screen;
-      tlp->var_8A = 1;
+      tlr->screen_buffer_ptr = poly_screen;
+      tlp->clipping_above_viewport = 1;
     } else if (opt_a->Y < vec_window_height) {
-      tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
-      tlp->var_8A = 0;
+      tlr->screen_buffer_ptr = poly_screen + vec_screen_width * opt_a->Y;
+      tlp->clipping_above_viewport = 0;
     } else {
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
     tlp->hide_bottom_part = opt_c->Y > vec_window_height;
-    dY = opt_c->Y - opt_a->Y;
-    tlp->trig_height_top = dY;
-    tlr->var_44 = dY;
-    dX = opt_c->X - opt_a->X;
-    tlp->var_28 = (dX << 16) / dY;
-    dX = opt_c->X - opt_b->X;
-    tlp->var_2C = (dX << 16) / dY;
+    delta_y = opt_c->Y - opt_a->Y;
+    tlp->trig_height_top = delta_y;
+    tlr->render_height = delta_y;
+    delta_x = opt_c->X - opt_a->X;
+    tlp->x_step_ac = (delta_x << 16) / delta_y;
+    delta_x = opt_c->X - opt_b->X;
+    tlp->x_step_ab = (delta_x << 16) / delta_y;
 
     ret = 0;
     switch (vec_mode) /* swars-final @ 0x1225c1, genewars-beta @ 0xF02F1 */
@@ -2134,85 +2134,85 @@ static inline ulong __ROL4__(ulong value, int count)
 
 void trig_render_md00(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *o_ln;
     unsigned char col;
 
-    pp = polyscans;
-    if (pp == NULL) {
-        ERRORLOG("global array not set: 0x%p", pp);
+    polygon_point = polyscans;
+    if (polygon_point == NULL) {
+        ERRORLOG("global array not set: 0x%p", polygon_point);
         return;
     }
-    o_ln = tlr->var_24;
+    o_ln = tlr->screen_buffer_ptr;
     col = vec_colour;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        long pX, pY;
+        long point_x, point_y;
         unsigned char *o;
 
-        pX = pp->X >> 16;
-        pY = pp->Y >> 16;
+        point_x = polygon_point->X >> 16;
+        point_y = polygon_point->Y >> 16;
         o_ln += vec_screen_width;
-        if (pX < 0)
+        if (point_x < 0)
         {
-            if (pY <= 0)
+            if (point_y <= 0)
                 continue;
-            if (pY > vec_window_width)
-                pY = vec_window_width;
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
             o = &o_ln[0];
         }
         else
         {
             TbBool pY_overflow;
-            if (pY > vec_window_width)
-                pY = vec_window_width;
-            pY_overflow = __OFSUBL__(pY, pX);
-            pY = pY - pX;
-            if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
+            pY_overflow = __OFSUBL__(point_y, point_x);
+            point_y = point_y - point_x;
+            if (((point_y < 0) ^ pY_overflow) | (point_y == 0))
                 continue;
-            o = &o_ln[pX];
+            o = &o_ln[point_x];
         }
-        memset(o, col, pY);
+        memset(o, col, point_y);
     }
 }
 
 void trig_render_md01(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
-    TbBool pS_carry;
-    pp = polyscans;
-    if (pp == NULL) {
-        ERRORLOG("global array not set: 0x%p", pp);
+    struct PolyPoint *polygon_point;
+    TbBool shade_value_carry;
+    polygon_point = polyscans;
+    if (polygon_point == NULL) {
+        ERRORLOG("global array not set: 0x%p", polygon_point);
         return;
     }
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pX, pY;
-        short pS;
+        short point_x, point_y;
+        short shade_value;
         ushort colS;
         unsigned char *o;
 
-        pX = pp->X >> 16;
-        pY = pp->Y >> 16;
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
+        point_x = polygon_point->X >> 16;
+        point_y = polygon_point->Y >> 16;
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
 
-        if (pX  < 0)
+        if (point_x  < 0)
         {
-            long mX;
+            long multiplier_x;
             short colH;
 
-            if (pY <= 0)
+            if (point_y <= 0)
                 continue;
-            mX = tlr->var_60 * (ushort)(-pX);
-            pS_carry = __CFADDS__(pp->S, mX);
-            pS = pp->S + mX;
+            multiplier_x = tlr->shade_step * (ushort)(-point_x);
+            shade_value_carry = __CFADDS__(polygon_point->S, multiplier_x);
+            shade_value = polygon_point->S + multiplier_x;
             // Delcate code - if we add before shifting, the result is different
-            colH = (mX >> 16) + (pp->S >> 16) + pS_carry;
-            if (pY > vec_window_width)
-                pY = vec_window_width;
+            colH = (multiplier_x >> 16) + (polygon_point->S >> 16) + shade_value_carry;
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
 
             colS = ((colH & 0xFF) << 8) + vec_colour;
         }
@@ -2221,28 +2221,28 @@ void trig_render_md01(struct TrigLocalRend *tlr)
             TbBool pY_overflow;
             short colH;
 
-            if (pY > vec_window_width)
-              pY = vec_window_width;
-            pY_overflow = __OFSUBS__(pY, pX);
-            pY = pY - pX;
-            if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            if (point_y > vec_window_width)
+              point_y = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y, point_x);
+            point_y = point_y - point_x;
+            if (((point_y < 0) ^ pY_overflow) | (point_y == 0))
                 continue;
-            o += pX;
-            colH = pp->S >> 16;
-            pS = pp->S;
+            o += point_x;
+            colH = polygon_point->S >> 16;
+            shade_value = polygon_point->S;
 
             colS = ((colH & 0xFF) << 8) + vec_colour;
         }
 
-        for (;pY > 0; pY--, o++)
+        for (;point_y > 0; point_y--, o++)
         {
             short colH, colL;
             *o = colS >> 8;
 
             colL = colS;
-            pS_carry = __CFADDS__(tlr->var_60, pS);
-            pS = tlr->var_60 + pS;
-            colH = (tlr->var_60 >> 16) + pS_carry + (colS >> 8);
+            shade_value_carry = __CFADDS__(tlr->shade_step, shade_value);
+            shade_value = tlr->shade_step + shade_value;
+            colH = (tlr->shade_step >> 16) + shade_value_carry + (colS >> 8);
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2251,47 +2251,47 @@ void trig_render_md01(struct TrigLocalRend *tlr)
 
 void trig_render_md02(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
-    pp = polyscans;
-    if ((m == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p", m, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p", m, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->var_54 << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pX, pY;
-        long pU;
+        short point_x, point_y;
+        long texture_u;
         ushort colS;
         unsigned char *o;
 
-        pX = pp->X >> 16;
-        pY = pp->Y >> 16;
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
+        point_x = polygon_point->X >> 16;
+        point_y = polygon_point->Y >> 16;
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
 
-        if (pX < 0)
+        if (point_x < 0)
         {
             ushort colL, colH;
             ulong factorA;
-            long mX;
+            long multiplier_x;
 
-            if (pY <= 0)
+            if (point_y <= 0)
                 continue;
-            mX = tlr->var_54 * (-pX);
-            factorA = __ROL4__(pp->V + mX, 16);
+            multiplier_x = tlr->v_step * (-point_x);
+            factorA = __ROL4__(polygon_point->V + multiplier_x, 16);
             colH = factorA;
-            mX = tlr->var_48 * (-pX);
-            pU = (factorA & 0xFFFF0000) | ((pp->U + mX) & 0xFFFF);
-            colL = (pp->U + mX) >> 16;
-            if (pY > vec_window_width)
-                pY = vec_window_width;
-            pX = (pp->U + mX) >> 8;
+            multiplier_x = tlr->u_step * (-point_x);
+            texture_u = (factorA & 0xFFFF0000) | ((polygon_point->U + multiplier_x) & 0xFFFF);
+            colL = (polygon_point->U + multiplier_x) >> 16;
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
+            point_x = (polygon_point->U + multiplier_x) >> 8;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2300,35 +2300,35 @@ void trig_render_md02(struct TrigLocalRend *tlr)
             short colL, colH;
             TbBool pY_overflow;
 
-            if (pY > vec_window_width)
-                pY = vec_window_width;
-            pY_overflow = __OFSUBS__(pY, pX);
-            pY = pY - pX;
-            if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y, point_x);
+            point_y = point_y - point_x;
+            if (((point_y < 0) ^ pY_overflow) | (point_y == 0))
                 continue;
-            o += pX;
-            pU = __ROL4__(pp->V, 16);
-            colH = pU;
-            pU = (pU & 0xFFFF0000) | (pp->U & 0xFFFF);
-            colL = pp->U >> 16;
+            o += point_x;
+            texture_u = __ROL4__(polygon_point->V, 16);
+            colH = texture_u;
+            texture_u = (texture_u & 0xFFFF0000) | (polygon_point->U & 0xFFFF);
+            colL = polygon_point->U >> 16;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pY > 0; pY--, o++)
+        for (; point_y > 0; point_y--, o++)
         {
             short colL, colH;
-            TbBool pU_carry;
+            TbBool texture_u_carry;
 
             *o = m[colS];
 
-            pU_carry = __CFADDS__(tlr->var_48, pU);
-            pU = (pU & 0xFFFF0000) | ((tlr->var_48 + pU) & 0xFFFF);
-            colL = (tlr->var_48 >> 16) + pU_carry + colS;
+            texture_u_carry = __CFADDS__(tlr->u_step, texture_u);
+            texture_u = (texture_u & 0xFFFF0000) | ((tlr->u_step + texture_u) & 0xFFFF);
+            colL = (tlr->u_step >> 16) + texture_u_carry + colS;
 
-            pU_carry = __CFADDL__(lsh_var_54, pU);
-            pU = lsh_var_54 + pU;
-            colH = (tlr->var_54 >> 16) + pU_carry + (colS >> 8);
+            texture_u_carry = __CFADDL__(texture_v_step_fixed, texture_u);
+            texture_u = texture_v_step_fixed + texture_u;
+            colH = (tlr->v_step >> 16) + texture_u_carry + (colS >> 8);
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2337,46 +2337,46 @@ void trig_render_md02(struct TrigLocalRend *tlr)
 
 void trig_render_md03(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
-    pp = polyscans;
-    if ((m == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p", m, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p", m, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->var_54 << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pX, pY;
-        long pU;
+        short point_x, point_y;
+        long texture_u;
         ulong factorA;
         ushort colS;
         unsigned char *o;
 
-        pX = pp->X >> 16;
-        pY = pp->Y >> 16;
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
+        point_x = polygon_point->X >> 16;
+        point_y = polygon_point->Y >> 16;
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
 
-        if (pX < 0)
+        if (point_x < 0)
         {
             short colL, colH;
-            long mX;
+            long multiplier_x;
 
-            if (pY <= 0)
+            if (point_y <= 0)
                 continue;
-            mX = tlr->var_54 * (-pX);
-            factorA = __ROL4__(pp->V + mX, 16);
+            multiplier_x = tlr->v_step * (-point_x);
+            factorA = __ROL4__(polygon_point->V + multiplier_x, 16);
             colH = factorA;
-            mX = tlr->var_48 * (-pX);
-            pU = (factorA & 0xFFFF0000) | ((pp->U + mX) & 0xFFFF);
-            colL = (pp->U + mX) >> 16;
-            if (pY > vec_window_width)
-                pY = vec_window_width;
+            multiplier_x = tlr->u_step * (-point_x);
+            texture_u = (factorA & 0xFFFF0000) | ((polygon_point->U + multiplier_x) & 0xFFFF);
+            colL = (polygon_point->U + multiplier_x) >> 16;
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2385,35 +2385,35 @@ void trig_render_md03(struct TrigLocalRend *tlr)
             short colL, colH;
             TbBool pY_overflow;
 
-            if (pY > vec_window_width)
-                pY = vec_window_width;
-            pY_overflow = __OFSUBS__(pY, pX);
-            pY = pY - pX;
-            if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y, point_x);
+            point_y = point_y - point_x;
+            if (((point_y < 0) ^ pY_overflow) | (point_y == 0))
                 continue;
-            o += pX;
-            pU = __ROL4__(pp->V, 16);
-            colH = pU;
-            pU = (pU & 0xFFFF0000) | ((pp->U) & 0xFFFF);
-            colL = (pp->U) >> 16;
+            o += point_x;
+            texture_u = __ROL4__(polygon_point->V, 16);
+            colH = texture_u;
+            texture_u = (texture_u & 0xFFFF0000) | ((polygon_point->U) & 0xFFFF);
+            colL = (polygon_point->U) >> 16;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pY > 0; pY--, o++)
+        for (; point_y > 0; point_y--, o++)
         {
             short colL, colH;
-            TbBool pU_carry;
+            TbBool texture_u_carry;
 
             if (m[colS] != 0)
                 *o = m[colS];
 
-            pU_carry = __CFADDS__(tlr->var_48, pU);
-            pU = (pU & 0xFFFF0000) | ((tlr->var_48 + pU) & 0xFFFF);
-            colL = (tlr->var_48 >> 16) + pU_carry + colS;
-            pU_carry = __CFADDL__(lsh_var_54, pU);
-            pU = lsh_var_54 + pU;
-            colH = (tlr->var_54 >> 16) + pU_carry + (colS >> 8);
+            texture_u_carry = __CFADDS__(tlr->u_step, texture_u);
+            texture_u = (texture_u & 0xFFFF0000) | ((tlr->u_step + texture_u) & 0xFFFF);
+            colL = (tlr->u_step >> 16) + texture_u_carry + colS;
+            texture_u_carry = __CFADDL__(texture_v_step_fixed, texture_u);
+            texture_u = texture_v_step_fixed + texture_u;
+            colH = (tlr->v_step >> 16) + texture_u_carry + (colS >> 8);
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2428,41 +2428,41 @@ void trig_render_md03(struct TrigLocalRend *tlr)
  */
 void trig_render_md04(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *f;
 
     f = pixmap.fade_tables;
-    pp = polyscans;
-    if ((f == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p", f, pp);
+    polygon_point = polyscans;
+    if ((f == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p", f, polygon_point);
         return;
     }
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pX, pY;
-        short pU;
+        short point_x, point_y;
+        short texture_u;
         ushort colS;
         unsigned char *o;
 
-        pX = pp->X >> 16;
-        pY = pp->Y >> 16;
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pX < 0)
+        point_x = polygon_point->X >> 16;
+        point_y = polygon_point->Y >> 16;
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x < 0)
         {
             ushort colL, colH;
-            TbBool pU_carry;
-            long mX;
+            TbBool texture_u_carry;
+            long multiplier_x;
 
-            if (pY <= 0)
+            if (point_y <= 0)
                 continue;
-            mX = tlr->var_60 * (-pX);
-            pU_carry = __CFADDS__(pp->S, mX);
-            pU = pp->S + mX;
-            colH = (pp->S >> 16) + pU_carry + (mX >> 16);
-            if (pY > vec_window_width)
-                pY = vec_window_width;
+            multiplier_x = tlr->shade_step * (-point_x);
+            texture_u_carry = __CFADDS__(polygon_point->S, multiplier_x);
+            texture_u = polygon_point->S + multiplier_x;
+            colH = (polygon_point->S >> 16) + texture_u_carry + (multiplier_x >> 16);
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
             colL = vec_colour;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2472,29 +2472,29 @@ void trig_render_md04(struct TrigLocalRend *tlr)
             ushort colL, colH;
             TbBool pY_overflow;
 
-            if (pY > vec_window_width)
-                pY = vec_window_width;
-            pY_overflow = __OFSUBS__(pY, pX);
-            pY = pY - pX;
-            if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y, point_x);
+            point_y = point_y - point_x;
+            if (((point_y < 0) ^ pY_overflow) | (point_y == 0))
                 continue;
-            o += pX;
+            o += point_x;
             colL = vec_colour;
-            pU = pp->S;
-            colH = pp->S >> 16;
+            texture_u = polygon_point->S;
+            colH = polygon_point->S >> 16;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (;pY > 0; pY--, o++)
+        for (;point_y > 0; point_y--, o++)
         {
             ushort colL, colH;
-            TbBool pU_carry;
+            TbBool texture_u_carry;
 
-            pU_carry = __CFADDS__(tlr->var_60, pU);
-            pU = tlr->var_60 + pU;
+            texture_u_carry = __CFADDS__(tlr->shade_step, texture_u);
+            texture_u = tlr->shade_step + texture_u;
             colL = colS;
-            colH = (tlr->var_60 >> 16) + pU_carry + (colS >> 8);
+            colH = (tlr->shade_step >> 16) + texture_u_carry + (colS >> 8);
             *o = f[colS];
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2504,66 +2504,66 @@ void trig_render_md04(struct TrigLocalRend *tlr)
 
 void trig_render_md05(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
-    long lvr_var_54;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
+    long texture_v_lower_byte;
 
     m = vec_map;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (f == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
 
     {
         ulong factorA, factorB, factorC;
-        factorC = tlr->var_48;
+        factorC = tlr->u_step;
         // original code used unsigned compare here, making the condition always false
-        //if (tlr->var_60 < 0) factorC--;
+        //if (tlr->shade_step < 0) factorC--;
         factorC = __ROL4__(factorC, 16);
-        factorA = __ROL4__(tlr->var_54, 16);
-        factorB = ((ulong)tlr->var_60) >> 8;
-        lsh_var_54 = (factorC & 0xFFFF0000) | (factorB & 0xFFFF);
-        lsh_var_60 = (factorA & 0xFFFFFF00) | (factorC & 0xFF);
-        lvr_var_54 = (factorA & 0xFF);
+        factorA = __ROL4__(tlr->v_step, 16);
+        factorB = ((ulong)tlr->shade_step) >> 8;
+        texture_v_step_fixed = (factorC & 0xFFFF0000) | (factorB & 0xFFFF);
+        shade_step_fixed = (factorA & 0xFFFFFF00) | (factorC & 0xFF);
+        texture_v_lower_byte = (factorA & 0xFF);
     }
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        long pX, pY;
+        long point_x, point_y;
         long rfactA, rfactB;
         ushort colM;
         unsigned char *o;
         unsigned char *o_ln;
 
-        pX = pp->X >> 16;
-        pY = pp->Y >> 16;
-        o_ln = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
+        point_x = polygon_point->X >> 16;
+        point_y = polygon_point->Y >> 16;
+        o_ln = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
 
-        if (pX < 0)
+        if (point_x < 0)
         {
             ulong factorA, factorB;
             ushort colL, colH;
-            long mX;
+            long multiplier_x;
 
-            if (pY <= 0)
+            if (point_y <= 0)
                 continue;
-            mX = tlr->var_48 * (-pX);
-            factorA = __ROL4__(pp->U + mX, 16);
-            mX = tlr->var_54 * (-pX);
-            factorB = __ROL4__(pp->V + mX, 16);
-            mX = tlr->var_60 * (-pX);
-            colL = (pp->S + mX) >> 8;
+            multiplier_x = tlr->u_step * (-point_x);
+            factorA = __ROL4__(polygon_point->U + multiplier_x, 16);
+            multiplier_x = tlr->v_step * (-point_x);
+            factorB = __ROL4__(polygon_point->V + multiplier_x, 16);
+            multiplier_x = tlr->shade_step * (-point_x);
+            colL = (polygon_point->S + multiplier_x) >> 8;
             colH = factorB;
             rfactB = (factorB & 0xFFFF0000) | (factorA & 0xFF);
             rfactA = (factorA & 0xFFFF0000) | (colL & 0xFFFF);
-            if (pY > vec_window_width)
-                pY = vec_window_width;
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2573,16 +2573,16 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             ushort colL, colH;
             TbBool pY_overflow;
 
-            if (pY > vec_window_width)
-                pY = vec_window_width;
-            pY_overflow = __OFSUBS__(pY, pX);
-            pY = pY - pX;
-            if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y, point_x);
+            point_y = point_y - point_x;
+            if (((point_y < 0) ^ pY_overflow) | (point_y == 0))
                 continue;
-            o_ln += pX;
-            factorA = __ROL4__(pp->U, 16);
-            factorB = __ROL4__(pp->V, 16);
-            colL = pp->S >> 8;
+            o_ln += point_x;
+            factorA = __ROL4__(polygon_point->U, 16);
+            factorB = __ROL4__(polygon_point->V, 16);
+            colL = polygon_point->S >> 8;
             colH = factorB;
             // Should the high part really be preserved?
             rfactB = (factorB & 0xFFFF0000) | (factorA & 0xFF);
@@ -2593,7 +2593,7 @@ void trig_render_md05(struct TrigLocalRend *tlr)
 
         o = o_ln;
 
-        for (; pY > 0; pY--, o++)
+        for (; point_y > 0; point_y--, o++)
         {
             ushort colL, colH;
             ushort colS;
@@ -2603,13 +2603,13 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             colM = (colM & 0xFF00) + (rfactB & 0xFF);
             colS = (((rfactA >> 8) & 0xFF) << 8) + m[colM];
 
-            rfactA_carry = __CFADDL__(rfactA, lsh_var_54);
-            rfactA = rfactA + lsh_var_54;
+            rfactA_carry = __CFADDL__(rfactA, texture_v_step_fixed);
+            rfactA = rfactA + texture_v_step_fixed;
 
-            rfactB_carry = __CFADDL__(rfactB + rfactA_carry, lsh_var_60);
-            rfactB = rfactB + lsh_var_60 + rfactA_carry;
+            rfactB_carry = __CFADDL__(rfactB + rfactA_carry, shade_step_fixed);
+            rfactB = rfactB + shade_step_fixed + rfactA_carry;
 
-            colH = lvr_var_54 + rfactB_carry + (colM >> 8);
+            colH = texture_v_lower_byte + rfactB_carry + (colM >> 8);
             colL = colM;
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
 
@@ -2625,63 +2625,63 @@ void trig_render_md05(struct TrigLocalRend *tlr)
  */
 void trig_render_md06(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (f == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->var_54 << 16;
-    lsh_var_60 = tlr->var_60 << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         unsigned char *o;
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         long factorA;
-        long pY;
+        long point_y;
         ulong factorB;
         ushort colM;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
 
-        if (pXa < 0)
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             ushort pXMa;
             long pXMb;
-            ulong mX;
+            ulong multiplier_x;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXMa = (ushort)-pXa;
+            pXMa = (ushort)-point_x_a;
             pXMb = pXMa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXMa, 16);
             colH = factorA;
-            mX = pp->U + tlr->var_48 * pXMa;
-            factorA = (factorA & 0xFFFF0000) | (mX & 0xFFFF);
-            pXa = mX >> 8;
-            colL = (pXa >> 8);
+            multiplier_x = polygon_point->U + tlr->u_step * pXMa;
+            factorA = (factorA & 0xFFFF0000) | (multiplier_x & 0xFFFF);
+            point_x_a = multiplier_x >> 8;
+            colL = (point_x_a >> 8);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
 
-            factorB = __ROL4__(pp->S + tlr->var_60 * pXMb, 16);
-            pXa = (pXa & 0xFFFF00FF) | ((factorB & 0xFF) << 8);
-            factorB = (factorB & 0xFFFF0000) | (pYa & 0xFFFF);
-            pXa = (pXa & 0xFFFF);
-            pY = factorB & 0xFFFF;
-            if (pY > vec_window_width)
-                pY = vec_window_width;
+            factorB = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
+            point_x_a = (point_x_a & 0xFFFF00FF) | ((factorB & 0xFF) << 8);
+            factorB = (factorB & 0xFFFF0000) | (point_y_a & 0xFFFF);
+            point_x_a = (point_x_a & 0xFFFF);
+            point_y = factorB & 0xFFFF;
+            if (point_y > vec_window_width)
+                point_y = vec_window_width;
         }
         else
         {
@@ -2689,98 +2689,98 @@ void trig_render_md06(struct TrigLocalRend *tlr)
             unsigned char pLa_overflow;
             short pLa;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pLa_overflow = __OFSUBS__(pYa, pXa);
-            pLa = pYa - pXa;
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pLa_overflow = __OFSUBS__(point_y_a, point_x_a);
+            pLa = point_y_a - point_x_a;
             if (((pLa < 0) ^ pLa_overflow) | (pLa == 0))
                 continue;
 
-            o += pXa;
-            colL = (pp->U >> 16);
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            colL = (polygon_point->U >> 16);
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorB = __ROL4__(pp->S, 16);
-            factorA = (factorA & 0xFFFF0000) | (pp->U & 0xFFFF);
-            pXa = (pXa & 0xFFFF00FF) | ((factorB & 0xFF) << 8);
+            factorB = __ROL4__(polygon_point->S, 16);
+            factorA = (factorA & 0xFFFF0000) | (polygon_point->U & 0xFFFF);
+            point_x_a = (point_x_a & 0xFFFF00FF) | ((factorB & 0xFF) << 8);
             factorB = (factorB & 0xFFFF0000) | (pLa & 0xFFFF);
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
-            pY = factorB & 0xFFFF;
+            point_y = factorB & 0xFFFF;
         }
 
-        for (; (pY & 0xFFFF) > 0; pY--, o++)
+        for (; (point_y & 0xFFFF) > 0; point_y--, o++)
         {
             ushort colL, colH;
             unsigned char fct_carry;
 
-            pXa = (pXa & 0xFF00) | (m[colM] & 0xFF);
-            if (pXa & 0xFF)
-                *o = f[pXa];
+            point_x_a = (point_x_a & 0xFF00) | (m[colM] & 0xFF);
+            if (point_x_a & 0xFF)
+                *o = f[point_x_a];
 
-            fct_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) | ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = (tlr->var_48 >> 16) + fct_carry + colM;
-            fct_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
-            colH = (tlr->var_54 >> 16) + fct_carry + (colM >> 8);
+            fct_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) | ((tlr->u_step + factorA) & 0xFFFF);
+            colL = (tlr->u_step >> 16) + fct_carry + colM;
+            fct_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
+            colH = (tlr->v_step >> 16) + fct_carry + (colM >> 8);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
 
-            factorB = (factorB & 0xFFFF0000) | (pY & 0xFFFF);
-            fct_carry = __CFADDL__(lsh_var_60, factorB);
-            factorB += lsh_var_60;
-            pXa = (((pXa >> 8) + (tlr->var_60 >> 16) + fct_carry) << 8) | (pXa & 0xFF);
-            pY += lsh_var_60; // Very alarming. Bug, maybe?
+            factorB = (factorB & 0xFFFF0000) | (point_y & 0xFFFF);
+            fct_carry = __CFADDL__(shade_step_fixed, factorB);
+            factorB += shade_step_fixed;
+            point_x_a = (((point_x_a >> 8) + (tlr->shade_step >> 16) + fct_carry) << 8) | (point_x_a & 0xFF);
+            point_y += shade_step_fixed; // Very alarming. Bug, maybe?
         }
     }
 }
 
 void trig_render_md07(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (f == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->var_54 << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa;
-        long pYa;
+        short point_x_a;
+        long point_y_a;
         long pXm;
         long factorA;
         ushort colM;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if ( (pXa & 0x8000u) != 0 )
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if ( (point_x_a & 0x8000u) != 0 )
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if ( (short)pYa <= 0 )
+            if ( (short)point_y_a <= 0 )
                 continue;
-            pXm = (ushort)-(short)pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-(short)point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorC = pp->U + tlr->var_48 * pXm;
+            factorC = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) | (factorC & 0xFFFF);
             factorB = factorC >> 8;
             colL = ((factorB >> 8) & 0xFF);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXa = (ushort)factorB;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            point_x_a = (ushort)factorB;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2789,35 +2789,35 @@ void trig_render_md07(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( (unsigned char)(((point_y_a & 0x8000u) != 0) ^ pY_overflow) | ((ushort)point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) | (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
+            factorA = (factorA & 0xFFFF0000) | (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
             colS = (vec_colour << 8) + m[colM];
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) | ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) | ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = f[colS];
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2826,50 +2826,50 @@ void trig_render_md07(struct TrigLocalRend *tlr)
 
 void trig_render_md08(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (f == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->var_54 << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa;
-        long pYa;
+        short point_x_a;
+        long point_y_a;
         ushort colM;
         unsigned char *o;
         long factorA;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if ( (pXa & 0x8000u) != 0 )
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if ( (point_x_a & 0x8000u) != 0 )
         {
             ushort colL, colH;
             ulong factorB, factorC;
             long pXm;
 
-            if ( (short)pYa <= 0 )
+            if ( (short)point_y_a <= 0 )
                 continue;
-            pXm = (ushort)-(short)pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-(short)point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXm;
+            factorB = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXa = (ushort)factorC;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            point_x_a = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2878,36 +2878,36 @@ void trig_render_md08(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( (unsigned char)(((point_y_a & 0x8000u) != 0) ^ pY_overflow) | ((ushort)point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
             colS = (vec_colour << 8) + m[colM];
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
             if (colS & 0xFF)
                 *o = f[colS];
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2916,49 +2916,49 @@ void trig_render_md08(struct TrigLocalRend *tlr)
 
 void trig_render_md09(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (f == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->var_54 << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         long pXm;
         long factorA;
         ushort colM;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXm = (ushort)-pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXm;
+            factorB = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXa = (ushort)factorC;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            point_x_a = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2967,38 +2967,38 @@ void trig_render_md09(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if (((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0))
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
             colS = m[colM] << 8;
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
             if ((colS >> 8) & 0xFF) {
                 colS = (colS & 0xFF00) | (*o);
                 *o = f[colS];
             }
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3007,51 +3007,51 @@ void trig_render_md09(struct TrigLocalRend *tlr)
 
 void trig_render_md10(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (f == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->var_54 << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa;
-        short pYa;
+        short point_x_a;
+        short point_y_a;
         ulong factorB;
         long factorA;
         ulong factorC;
         ushort colM;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             long pXm;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXm = (ushort)-(short)pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-(short)point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXm;
+            factorB = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXa = (ushort)factorC;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            point_x_a = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3060,22 +3060,22 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( (unsigned char)(((point_y_a & 0x8000u) != 0) ^ pY_overflow) | ((ushort)point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
@@ -3085,12 +3085,12 @@ void trig_render_md10(struct TrigLocalRend *tlr)
                 colS = (vec_colour << 8) | (*o);
                 *o = f[colS];
             }
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3099,50 +3099,50 @@ void trig_render_md10(struct TrigLocalRend *tlr)
 
 void trig_render_md12(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
-    pp = polyscans;
-    if ((m == NULL) || (g == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, g, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (g == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, g, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->var_54 << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        long pXa;
-        short pYa;
+        long point_x_a;
+        short point_y_a;
         long pXm;
         long factorA;
         ushort colM;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if ( (pXa & 0x8000u) != 0 )
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if ( (point_x_a & 0x8000u) != 0 )
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if ( (short)pYa <= 0 )
+            if ( (short)point_y_a <= 0 )
                 continue;
-            pXm = (ushort)-(short)pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-(short)point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorC = pp->U + tlr->var_48 * pXm;
+            factorC = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorC & 0xFFFF);
             factorB = factorC >> 8;
             colL = ((factorB >> 8) & 0xFF);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXa = (ushort)factorB;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            point_x_a = (ushort)factorB;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3151,35 +3151,35 @@ void trig_render_md12(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( (unsigned char)(((point_y_a & 0x8000u) != 0) ^ pY_overflow) | ((ushort)point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
             colS = (m[colM] << 8) | vec_colour;
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = g[colS];
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3188,49 +3188,49 @@ void trig_render_md12(struct TrigLocalRend *tlr)
 
 void trig_render_md13(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
-    pp = polyscans;
-    if ((m == NULL) || (g == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, g, pp);
+    polygon_point = polyscans;
+    if ((m == NULL) || (g == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, g, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->var_54 << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         long pXm;
         long factorA;
         ushort colM;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if ( (short)pYa <= 0 )
+            if ( (short)point_y_a <= 0 )
                 continue;
-            pXm = (ushort)-(short)pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-(short)point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXm;
+            factorB = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXa = (ushort)factorC;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            point_x_a = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3239,35 +3239,35 @@ void trig_render_md13(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( (unsigned char)(((point_y_a & 0x8000u) != 0) ^ pY_overflow) | ((ushort)point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
             colS = m[colM] | (vec_colour << 8);
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = g[colS];
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3276,51 +3276,51 @@ void trig_render_md13(struct TrigLocalRend *tlr)
 
 void trig_render_md14(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *g;
     ushort colM;
     unsigned char *o_ln;
 
     g = pixmap.ghost;
-    pp = polyscans;
-    if ((g == NULL) || (pp == NULL)) {
-        ERRORLOG("global arrays not set: 0x%p 0x%p", g, pp);
+    polygon_point = polyscans;
+    if ((g == NULL) || (polygon_point == NULL)) {
+        ERRORLOG("global arrays not set: 0x%p 0x%p", g, polygon_point);
         return;
     }
-    o_ln = tlr->var_24;
+    o_ln = tlr->screen_buffer_ptr;
     colM = (vec_colour << 8);
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
         o_ln += vec_screen_width;
 
-        if (pXa < 0)
+        if (point_x_a < 0)
         {
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
             o = o_ln;
         }
         else
         {
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( ((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o = &o_ln[pXa];
+            o = &o_ln[point_x_a];
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
               colM = (colM & 0xFF00) | *o;
               *o = g[colM];
@@ -3330,46 +3330,46 @@ void trig_render_md14(struct TrigLocalRend *tlr)
 
 void trig_render_md15(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *g;
     ushort colM;
     unsigned char *o_ln;
 
     g = pixmap.ghost;
-    pp = polyscans;
-    o_ln = tlr->var_24;
+    polygon_point = polyscans;
+    o_ln = tlr->screen_buffer_ptr;
     colM = vec_colour;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
         o_ln += vec_screen_width;
-        if (pXa < 0)
+        if (point_x_a < 0)
         {
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
             o = o_ln;
         }
         else
         {
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( ((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o = &o_ln[pXa];
+            o = &o_ln[point_x_a];
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
               colM = (*o << 8) | (colM & 0xFF);
               *o = g[colM];
@@ -3379,43 +3379,43 @@ void trig_render_md15(struct TrigLocalRend *tlr)
 
 void trig_render_md16(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *g;
     unsigned char *f;
 
     g = pixmap.ghost;
     f = pixmap.fade_tables;
-    pp = polyscans;
+    polygon_point = polyscans;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         short factorA;
         ushort colM;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
 
-        if (pXa < 0)
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             unsigned char factorA_carry;
             ulong pXMa;
             short pXMb;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXMa = tlr->var_60 * (ushort)-pXa;
+            pXMa = tlr->shade_step * (ushort)-point_x_a;
             pXMb = pXMa;
-            pXa = pXMa >> 8;
-            factorA_carry = __CFADDS__(pp->S, pXMb);
-            factorA = (pp->S) + pXMb;
-            colH = (pXa >> 8) + (pp->S >> 16) + factorA_carry;
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            point_x_a = pXMa >> 8;
+            factorA_carry = __CFADDS__(polygon_point->S, pXMb);
+            factorA = (polygon_point->S) + pXMb;
+            colH = (point_x_a >> 8) + (polygon_point->S >> 16) + factorA_carry;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
             colL = vec_colour;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3425,21 +3425,21 @@ void trig_render_md16(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( ((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o += pXa;
+            o += point_x_a;
             colL = vec_colour;
-            factorA = pp->S;
-            colH = (pp->S >> 16);
+            factorA = polygon_point->S;
+            colH = (polygon_point->S >> 16);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
@@ -3447,9 +3447,9 @@ void trig_render_md16(struct TrigLocalRend *tlr)
 
             colS = (f[colM] << 8) | *o;
             *o = g[colS];
-            factorA_carry = __CFADDS__(tlr->var_60, factorA);
-            factorA += (tlr->var_60 & 0xFFFF);
-            colH = (colM >> 8) + (tlr->var_60 >> 16) + factorA_carry;
+            factorA_carry = __CFADDS__(tlr->shade_step, factorA);
+            factorA += (tlr->shade_step & 0xFFFF);
+            colH = (colM >> 8) + (tlr->shade_step >> 16) + factorA_carry;
             colL = colM;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3459,43 +3459,43 @@ void trig_render_md16(struct TrigLocalRend *tlr)
 
 void trig_render_md17(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *g;
     unsigned char *f;
 
     g = pixmap.ghost;
     f = pixmap.fade_tables;
-    pp = polyscans;
+    polygon_point = polyscans;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         unsigned char factorA_carry;
         short factorA;
         ushort colS;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
 
-        if (pXa < 0)
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             ulong pXMa;
             short pXMb;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXMa = tlr->var_60 * (ushort)-pXa;
+            pXMa = tlr->shade_step * (ushort)-point_x_a;
             pXMb = pXMa;
-            pXa = pXMa >> 8;
-            factorA_carry = __CFADDS__(pp->S, pXMb);
-            factorA = pp->S + pXMb;
-            colH = (pXa >> 8) + (pp->S >> 16) + factorA_carry;
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            point_x_a = pXMa >> 8;
+            factorA_carry = __CFADDS__(polygon_point->S, pXMb);
+            factorA = polygon_point->S + pXMb;
+            colH = (point_x_a >> 8) + (polygon_point->S >> 16) + factorA_carry;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
             colL = vec_colour;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3505,22 +3505,22 @@ void trig_render_md17(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if (((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0))
                 continue;
 
-            o += pXa;
+            o += point_x_a;
             colL = vec_colour;
-            factorA = pp->S;
-            colH = (pp->S >> 16);
+            factorA = polygon_point->S;
+            colH = (polygon_point->S >> 16);
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colM;
@@ -3528,9 +3528,9 @@ void trig_render_md17(struct TrigLocalRend *tlr)
             colM = ((*o) << 8) + f[colS];
             *o = g[colM];
 
-            factorA_carry = __CFADDS__(tlr->var_60, factorA);
-            factorA += (tlr->var_60 & 0xFFFF);
-            colH = (colS >> 8) + ((tlr->var_60 >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDS__(tlr->shade_step, factorA);
+            factorA += (tlr->shade_step & 0xFFFF);
+            colH = (colS >> 8) + ((tlr->shade_step >> 16) & 0xFF) + factorA_carry;
             colL = colS;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3540,45 +3540,45 @@ void trig_render_md17(struct TrigLocalRend *tlr)
 
 void trig_render_md18(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
-    pp = polyscans;
-    lsh_var_54 = tlr->var_54 << 16;
+    polygon_point = polyscans;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         long pXm;
         long factorA;
         ushort colM;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXm = (ushort)-pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXm;
+            factorB = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
             factorC = factorB >> 8;
             colL = (factorC >> 8);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXa = (ushort)factorC;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            point_x_a = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3587,37 +3587,37 @@ void trig_render_md18(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_carry;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_carry = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_carry) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_carry = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( ((point_y_a < 0) ^ pY_carry) | (point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = (pp->U >> 16);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = (polygon_point->U >> 16);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
             colH = m[colM];
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) | ((tlr->var_48 + factorA) & 0xFFFF);
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) | ((tlr->u_step + factorA) & 0xFFFF);
             colL = *o;
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = g[colS];
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3626,44 +3626,44 @@ void trig_render_md18(struct TrigLocalRend *tlr)
 
 void trig_render_md19(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
-    pp = polyscans;
-    lsh_var_54 = tlr->var_54 << 16;
+    polygon_point = polyscans;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         long factorA;
         ushort colM;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             long pXm;
             ulong factorB, factorC;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXm = (ushort)-pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXm;
+            factorB = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3672,35 +3672,35 @@ void trig_render_md19(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( ((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colS = ((*o) << 8) + m[colM];
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = g[colS];
-            colH = (colM >> 8) + (tlr->var_54 >> 16) + factorA_carry;
+            colH = (colM >> 8) + (tlr->v_step >> 16) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3709,23 +3709,23 @@ void trig_render_md19(struct TrigLocalRend *tlr)
 
 void trig_render_md20(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    lsh_var_54 = tlr->var_54 << 16;
-    lsh_var_60 = tlr->var_60 << 16;
+    polygon_point = polyscans;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         long pXMa;
         long pXMb;
         long factorA;
@@ -3733,28 +3733,28 @@ void trig_render_md20(struct TrigLocalRend *tlr)
         ushort colM;
         unsigned char *o;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             ulong factorB;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pXMa = (ushort)-pXa;
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pXMa = (ushort)-point_x_a;
             pXMb = pXMa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXMa, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXMa;
+            factorB = polygon_point->U + tlr->u_step * pXMa;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
-            pXa = factorB >> 8;
-            colL = ((pXa >> 8) & 0xFF);
-            factorC = __ROL4__(pp->S + tlr->var_60 * pXMb, 16);
+            point_x_a = factorB >> 8;
+            colL = ((point_x_a >> 8) & 0xFF);
+            factorC = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3763,40 +3763,40 @@ void trig_render_md20(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( ((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
-            factorC = __ROL4__(pp->S, 16);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
+            factorC = __ROL4__(polygon_point->S, 16);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colS = ((factorC & 0xFF) << 8) + m[colM];
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colS = ((f[colS] & 0xFF) << 8) + *o;
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
-            factorA_carry = __CFADDL__(lsh_var_60, factorC);
-            factorC += lsh_var_60;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDL__(shade_step_fixed, factorC);
+            factorC += shade_step_fixed;
             *o = g[colS];
-            factorC = (factorC & 0xFFFFFF00) | (((tlr->var_60 >> 16) + factorA_carry + factorC) & 0xFF);
+            factorC = (factorC & 0xFFFFFF00) | (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3805,52 +3805,52 @@ void trig_render_md20(struct TrigLocalRend *tlr)
 
 void trig_render_md21(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    lsh_var_54 = tlr->var_54 << 16;
-    lsh_var_60 = tlr->var_60 << 16;
+    polygon_point = polyscans;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa, pYa;
+        short point_x_a, point_y_a;
         ushort colM;
         unsigned char *o;
         long factorA, factorC;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             long pXMa;
             long pXMb;
             ulong factorB;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXMa = (ushort)-pXa;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            pXMa = (ushort)-point_x_a;
             pXMb = pXMa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXMa, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXMa;
+            factorB = polygon_point->U + tlr->u_step * pXMa;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
-            pXa = factorB >> 8;
-            colL = ((pXa >> 8) & 0xFF);
-            factorC = __ROL4__(pp->S + tlr->var_60 * pXMb, 16);
-            pXa = (pXa & 0xFFFF);
+            point_x_a = factorB >> 8;
+            colL = ((point_x_a >> 8) & 0xFF);
+            factorC = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
+            point_x_a = (point_x_a & 0xFFFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3859,40 +3859,40 @@ void trig_render_md21(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( ((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
-            factorC = __ROL4__(pp->S, 16);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
+            factorC = __ROL4__(polygon_point->S, 16);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
             colS = ((factorC & 0xFF) << 8) + (m[colM] & 0xFF);
             colS = (((*o) & 0xFF) << 8) + (f[colS] & 0xFF);
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
-            factorA_carry = __CFADDL__(lsh_var_60, factorC);
-            factorC += lsh_var_60;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDL__(shade_step_fixed, factorC);
+            factorC += shade_step_fixed;
             *o = g[colS];
-            factorC = (factorC & 0xFFFFFF00) | (((tlr->var_60 >> 16) + factorA_carry + factorC) & 0xFF);
+            factorC = (factorC & 0xFFFFFF00) | (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3901,46 +3901,46 @@ void trig_render_md21(struct TrigLocalRend *tlr)
 
 void trig_render_md22(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
-    pp = polyscans;
-    lsh_var_54 = tlr->var_54 << 16;
+    polygon_point = polyscans;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa;
+        short point_x_a;
         ushort colM;
-        short pYa;
+        short point_y_a;
         unsigned char *o;
         long pXm;
         long factorA;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXm = (ushort)-pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXm;
+            factorB = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXa = factorC & 0xFFFF;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            point_x_a = factorC & 0xFFFF;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3949,22 +3949,22 @@ void trig_render_md22(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if ( ((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
@@ -3974,12 +3974,12 @@ void trig_render_md22(struct TrigLocalRend *tlr)
                 colS = ((m[colM] & 0xFF) << 8) + *o;
                 *o = g[colS];
             }
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3988,47 +3988,47 @@ void trig_render_md22(struct TrigLocalRend *tlr)
 
 void trig_render_md23(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
-    pp = polyscans;
-    lsh_var_54 = tlr->var_54 << 16;
+    polygon_point = polyscans;
+    texture_v_step_fixed = tlr->v_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa;
+        short point_x_a;
         ushort colM;
-        short pYa;
+        short point_y_a;
         unsigned char *o;
         long pXm;
         long factorA;
         unsigned char factorA_carry;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if ( (pXa & 0x8000u) != 0 )
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if ( (point_x_a & 0x8000u) != 0 )
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXm = (ushort)-pXa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
+            pXm = (ushort)-point_x_a;
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXm;
+            factorB = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
-            if (pYa > vec_window_width)
-              pYa = vec_window_width;
-            pXa = (ushort)factorC;
+            if (point_y_a > vec_window_width)
+              point_y_a = vec_window_width;
+            point_x_a = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -4037,22 +4037,22 @@ void trig_render_md23(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if (((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if (((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
@@ -4061,12 +4061,12 @@ void trig_render_md23(struct TrigLocalRend *tlr)
                 colS = (((*o) & 0xFF) << 8) + m[colM];
                 *o = g[colS];
             }
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -4075,54 +4075,54 @@ void trig_render_md23(struct TrigLocalRend *tlr)
 
 void trig_render_md24(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    lsh_var_54 = tlr->var_54 << 16;
-    lsh_var_60 = tlr->var_60 << 16;
+    polygon_point = polyscans;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa;
+        short point_x_a;
         ushort colM;
-        short pYa;
+        short point_y_a;
         unsigned char *o;
         long pXMa;
         long pXMb;
         long factorA;
         long factorC;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             ulong factorB;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pXMa = (ushort)-pXa;
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pXMa = (ushort)-point_x_a;
             pXMb = pXMa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXMa, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXMa;
+            factorB = polygon_point->U + tlr->u_step * pXMa;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
-            pXa = factorB >> 8;
-            colL = ((pXa >> 8) & 0xFF);
-            factorC = __ROL4__(pp->S + tlr->var_60 * pXMb, 16);
-            pXa = (ushort)pXa;
+            point_x_a = factorB >> 8;
+            colL = ((point_x_a >> 8) & 0xFF);
+            factorC = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
+            point_x_a = (ushort)point_x_a;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -4131,23 +4131,23 @@ void trig_render_md24(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if (((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if (((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
-            factorC = __ROL4__(pp->S, 16);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
+            factorC = __ROL4__(polygon_point->S, 16);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             unsigned char factorA_carry;
@@ -4159,15 +4159,15 @@ void trig_render_md24(struct TrigLocalRend *tlr)
                 colS = (f[colS] << 8) + *o;
                 *o = g[colS];
             }
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
-            factorA_carry = __CFADDL__(lsh_var_60, factorC);
-            factorC += lsh_var_60;
-            factorC = (factorC & 0xFFFFFF00) + (((tlr->var_60 >> 16) + factorA_carry + factorC) & 0xFF);
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDL__(shade_step_fixed, factorC);
+            factorC += shade_step_fixed;
+            factorC = (factorC & 0xFFFFFF00) + (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -4176,54 +4176,54 @@ void trig_render_md24(struct TrigLocalRend *tlr)
 
 void trig_render_md25(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     f = pixmap.fade_tables;
-    pp = polyscans;
-    lsh_var_54 = tlr->var_54 << 16;
-    lsh_var_60 = tlr->var_60 << 16;
+    polygon_point = polyscans;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        short pXa;
+        short point_x_a;
         ushort colM;
-        short pYa;
+        short point_y_a;
         unsigned char *o;
         long pXMa;
         long pXMb;
         long factorA;
         long factorC;
 
-        pXa = (pp->X >> 16);
-        pYa = (pp->Y >> 16);
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
-        if (pXa < 0)
+        point_x_a = (polygon_point->X >> 16);
+        point_y_a = (polygon_point->Y >> 16);
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
+        if (point_x_a < 0)
         {
             ushort colL, colH;
             ulong factorB;
 
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pXMa = (ushort)-pXa;
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pXMa = (ushort)-point_x_a;
             pXMb = pXMa;
-            factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
+            factorA = __ROL4__(polygon_point->V + tlr->v_step * pXMa, 16);
             colH = factorA;
-            factorB = pp->U + tlr->var_48 * pXMa;
+            factorB = polygon_point->U + tlr->u_step * pXMa;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
-            pXa = factorB >> 8;
-            colL = ((pXa >> 8) & 0xFF);
-            factorC = __ROL4__(pp->S + tlr->var_60 * pXMb, 16);
-            pXa = (ushort)pXa;
+            point_x_a = factorB >> 8;
+            colL = ((point_x_a >> 8) & 0xFF);
+            factorC = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
+            point_x_a = (ushort)point_x_a;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -4232,23 +4232,23 @@ void trig_render_md25(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char pY_overflow;
 
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa = pYa - pXa;
-            if (((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a = point_y_a - point_x_a;
+            if (((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0) )
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->V, 16);
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
-            factorA = (factorA & 0xFFFF0000) + (pp->U & 0xFFFF);
-            colL = ((pp->U >> 16) & 0xFF);
-            factorC = __ROL4__(pp->S, 16);
+            factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);
+            factorC = __ROL4__(polygon_point->S, 16);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             unsigned char factorA_carry;
@@ -4260,15 +4260,15 @@ void trig_render_md25(struct TrigLocalRend *tlr)
                 colS = (((*o) & 0xFF) << 8) + f[colS];
                 *o = g[colS];
             }
-            factorA_carry = __CFADDS__(tlr->var_48, factorA);
-            factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
-            colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
-            colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
-            factorA_carry = __CFADDL__(lsh_var_60, factorC);
-            factorC += lsh_var_60;
-            factorC = (factorC & 0xFFFFFF00) | (((tlr->var_60 >> 16) + factorA_carry + factorC) & 0xFF);
+            factorA_carry = __CFADDS__(tlr->u_step, factorA);
+            factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
+            colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
+            factorA_carry = __CFADDL__(shade_step_fixed, factorC);
+            factorC += shade_step_fixed;
+            factorC = (factorC & 0xFFFFFF00) | (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -4277,38 +4277,38 @@ void trig_render_md25(struct TrigLocalRend *tlr)
 
 void trig_render_md26(struct TrigLocalRend *tlr)
 {
-    struct PolyPoint *pp;
+    struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
-    long lvr_var_54;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
+    long texture_v_lower_byte;
 
     m = vec_map;
     g = pixmap.ghost;
     f = pixmap.fade_tables;
-    pp = polyscans;
+    polygon_point = polyscans;
 
     {
-        ulong v1;
-        ulong v2;
-        unsigned char v3;
+        ulong texture_u_rotated;
+        ulong texture_v_rotated;
+        unsigned char local_texture_v_lower_byte;
 
-        v1 = __ROL4__(tlr->var_48, 16);
-        v2 = __ROL4__(tlr->var_54, 16);
-        v3 = v2;
-        v2 = (v2 & 0xFFFFFF00) + (v1 & 0xFF);
-        v1 = (v1 & 0xFFFF0000) + (((ulong)tlr->var_60 >> 8) & 0xFFFF);
-        v2 = (v2 & 0xFFFF0000) + (v2 & 0xFF);
-        lsh_var_54 = v1;
-        lsh_var_60 = v2;
-        lvr_var_54 = v3;
+        texture_u_rotated = __ROL4__(tlr->u_step, 16);
+        texture_v_rotated = __ROL4__(tlr->v_step, 16);
+        local_texture_v_lower_byte = texture_v_rotated;
+        texture_v_rotated = (texture_v_rotated & 0xFFFFFF00) + (texture_u_rotated & 0xFF);
+        texture_u_rotated = (texture_u_rotated & 0xFFFF0000) + (((ulong)tlr->shade_step >> 8) & 0xFFFF);
+        texture_v_rotated = (texture_v_rotated & 0xFFFF0000) + (texture_v_rotated & 0xFF);
+        texture_v_step_fixed = texture_u_rotated;
+        shade_step_fixed = texture_v_rotated;
+        texture_v_lower_byte = local_texture_v_lower_byte;
     }
-    for (; tlr->var_44; tlr->var_44--, pp++)
+    for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        long pXa;
-        long pYa;
+        long point_x_a;
+        long point_y_a;
         unsigned char *o;
         ulong factorB, factorD;
         long factorA;
@@ -4316,60 +4316,60 @@ void trig_render_md26(struct TrigLocalRend *tlr)
         unsigned char pY_overflow;
         ushort colM;
 
-        pXa = pp->X >> 16;
-        pYa = pp->Y >> 16;
-        o = &tlr->var_24[vec_screen_width];
-        tlr->var_24 += vec_screen_width;
+        point_x_a = polygon_point->X >> 16;
+        point_y_a = polygon_point->Y >> 16;
+        o = &tlr->screen_buffer_ptr[vec_screen_width];
+        tlr->screen_buffer_ptr += vec_screen_width;
 
-        if (pXa < 0)
+        if (point_x_a < 0)
         {
-            if (pYa <= 0)
+            if (point_y_a <= 0)
                 continue;
-            pXa = -pXa;
-            factorA = __ROL4__(pp->U + pXa * tlr->var_48, 16);
-            factorB = __ROL4__(pp->V + pXa * tlr->var_54, 16);
-            factorC = (ulong)(pp->S + pXa * tlr->var_60) >> 8;
+            point_x_a = -point_x_a;
+            factorA = __ROL4__(polygon_point->U + point_x_a * tlr->u_step, 16);
+            factorB = __ROL4__(polygon_point->V + point_x_a * tlr->v_step, 16);
+            factorC = (ulong)(polygon_point->S + point_x_a * tlr->shade_step) >> 8;
             factorB = (factorB & 0xFFFFFF00) | (factorA & 0xFF);
             factorA = (factorA & 0xFFFF0000) | (factorC & 0xFFFF);
-            factorD = __ROL4__(pp->V + pXa * tlr->var_54, 16);
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
+            factorD = __ROL4__(polygon_point->V + point_x_a * tlr->v_step, 16);
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
 
             colM = (factorC & 0xFF) + ((factorD & 0xFF) << 8);
         }
         else
         {
-            if (pYa > vec_window_width)
-                pYa = vec_window_width;
-            pY_overflow = __OFSUBS__(pYa, pXa);
-            pYa -= pXa;
-            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            if (point_y_a > vec_window_width)
+                point_y_a = vec_window_width;
+            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
+            point_y_a -= point_x_a;
+            if (((point_y_a < 0) ^ pY_overflow) | (point_y_a == 0))
                 continue;
-            o += pXa;
-            factorA = __ROL4__(pp->U, 16);
-            factorB = __ROL4__(pp->V, 16);
-            factorC = (ulong)pp->S >> 8;
+            o += point_x_a;
+            factorA = __ROL4__(polygon_point->U, 16);
+            factorB = __ROL4__(polygon_point->V, 16);
+            factorC = (ulong)polygon_point->S >> 8;
             factorB = (factorB & 0xFFFFFF00) | (factorA & 0xFF);
             factorA = (factorA & 0xFFFF0000) | (factorC & 0xFFFF);
-            factorD = __ROL4__(pp->V, 16);
+            factorD = __ROL4__(polygon_point->V, 16);
 
             colM = (factorC & 0xFF) + ((factorD & 0xFF) << 8);
         }
 
         factorB = (factorB & 0xFFFF00FF);
 
-        for (; pYa > 0; pYa--, o++)
+        for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colS;
             unsigned char factorA_carry, factorB_carry;
 
             colM = (colM & 0xFF00) | (factorB & 0xFF);
             colS = (factorA & 0xFF00) | m[colM];
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA = lsh_var_54 + factorA;
-            factorB_carry = __CFADDL__(lsh_var_60, factorB + factorA_carry);
-            factorB = lsh_var_60 + factorB + factorA_carry;
-            colM = (colM & 0xFF) + ((((colM >> 8) + lvr_var_54 + factorB_carry) & 0xFF) << 8);
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA = texture_v_step_fixed + factorA;
+            factorB_carry = __CFADDL__(shade_step_fixed, factorB + factorA_carry);
+            factorB = shade_step_fixed + factorB + factorA_carry;
+            colM = (colM & 0xFF) + ((((colM >> 8) + texture_v_lower_byte + factorB_carry) & 0xFF) << 8);
 
             if ((colS & 0xFF) <= 0xCu) {
                 colS = ((*o) << 8) | f[colS];

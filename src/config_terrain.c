@@ -25,12 +25,13 @@
 #include "bflib_dernc.h"
 
 #include "config.h"
-#include "thing_doors.h"
-#include "config_strings.h"
 #include "config_creature.h"
-#include "game_legacy.h"
 #include "custom_sprites.h"
+#include "config_strings.h"
 #include "frontmenu_ingame_tabs.h"
+#include "game_legacy.h"
+#include "thing_doors.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -100,7 +101,7 @@ const struct NamedCommand terrain_room_total_capacity_func_type[] = {
     {"none",                 8},
     {NULL,                   0},
   };
-  
+
 static const struct NamedField terrain_slab_named_fields[] = {
     //name                //field                                                        //default      //min     //max    //NamedCommand
     {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, slab_desc,     value_name,       assign_null},
@@ -176,7 +177,7 @@ static void assign_update_room_tab(const struct NamedField* named_field, int64_t
     if (value == old_value)
     {
         return;
-    }    
+    }
 
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
@@ -191,7 +192,7 @@ static void assign_icon_update_room_tab(const struct NamedField* named_field, in
     if (value == old_value)
     {
         return;
-    }    
+    }
 
     assign_icon(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
@@ -206,7 +207,7 @@ static void assign_reinitialise_rooms(const struct NamedField* named_field, int6
     if (value == old_value)
     {
         return;
-    }    
+    }
 
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
@@ -221,7 +222,7 @@ static void assign_recalculate_effeciency(const struct NamedField* named_field, 
     if (value == old_value)
     {
         return;
-    }    
+    }
 
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
@@ -409,14 +410,13 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
     int cmd_num = 0;
     char word_buf[COMMAND_WORD_LEN];
     // Block health - will be later integrated with slab blocks
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf,"block_health");
+    const char * block_name = "block_health";
       pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
+      k = find_conf_block(buf, &pos, len, block_name);
       if (k < 0)
       {
           if ((flags & CnfLd_AcceptPartial) == 0)
-              WARNMSG("aaBlock [%s] not found in %s file.",block_buf,config_textname);
+              WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
           return false;
       } else
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_health_commands,cmd_num)
@@ -448,7 +448,7 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case ccr_comment:
@@ -457,7 +457,7 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);

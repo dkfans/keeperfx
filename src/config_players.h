@@ -84,6 +84,7 @@ enum PlayerStates {
     PSt_DestroyThing,
     PSt_CreatrInfoAll, // 40
     PSt_CreateDigger,
+    PST_CastGenericLevelPower,
     PSt_ListEnd
 };
 

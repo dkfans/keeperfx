@@ -50,13 +50,13 @@
 /******************************************************************************/
 struct Thing *create_cave_in(struct Coord3d *pos, ThingModel cimodel, unsigned short owner)
 {
-    if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
+    if ( !i_can_allocate_free_thing_structure(TCls_CaveIn) )
     {
         ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)cimodel,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(TCls_CaveIn);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate cave in %d for player %d, but failed.",(int)cimodel,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -150,9 +150,9 @@ TbBool thing_create_thing(struct InitThing *itng)
             else if (thing_is_custom_special_box(thing))
             {
                 thing->custom_box.box_kind = itng->params[1];
-                if (itng->params[1] > gameadd.max_custom_box_kind)
+                if (itng->params[1] > game.max_custom_box_kind)
                 {
-                    gameadd.max_custom_box_kind = itng->params[1];
+                    game.max_custom_box_kind = itng->params[1];
                 }
             }
             check_and_asimilate_thing_by_room(thing);
@@ -197,8 +197,8 @@ TbBool thing_create_thing(struct InitThing *itng)
             return false;
         }
         break;
-    case TCls_Unkn10:
-    case TCls_Unkn11:
+    case TCls_unusedparam10:
+    case TCls_unusedparam11:
         thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
         if (thing_is_invalid(thing))
         {
@@ -264,9 +264,9 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                     if (box_kind == -1)
                         box_kind = 0;
                     thing->custom_box.box_kind = box_kind;
-                    if (box_kind > gameadd.max_custom_box_kind)
+                    if (box_kind > game.max_custom_box_kind)
                     {
-                        gameadd.max_custom_box_kind = box_kind;
+                        game.max_custom_box_kind = box_kind;
                     }
                 }
                 else if (object_is_gold_pile(thing))
@@ -387,8 +387,8 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 return false;
             }
             break;
-        case TCls_Unkn10:
-        case TCls_Unkn11:
+        case TCls_unusedparam10:
+        case TCls_unusedparam11:
             thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
             if (thing_is_invalid(thing))
             {

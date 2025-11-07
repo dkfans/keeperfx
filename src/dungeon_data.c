@@ -163,20 +163,20 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
     {
         if (room_role_matches(rkind, rrole))
         {
-            if (dungeon->room_kind[rkind] > 0)
+            if (dungeon->room_list_start[rkind] > 0)
                 return true;
         }
     }
     return false;
 }
 
-/** counts all slabs of any room with the given role.
+/** counts all discrete rooms with the given role.
  *
  * @param plyr_idx Player index being checked.
  * @param rrole Room role being checked.
  * @return
  */
-long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
+long count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
     if (plyr_idx == game.neutral_player_num)
         return 0;
@@ -186,7 +186,7 @@ long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole
     {
         if (room_role_matches(rkind, rrole))
         {
-            count += dungeon->room_slabs_count[rkind];
+            count += dungeon->room_discrete_count[rkind];
         }
     }
     return count;
@@ -249,7 +249,7 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
     if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
         return false;
     }
-    return (dungeon->room_kind[rkind] > 0);
+    return (dungeon->room_list_start[rkind] > 0);
 }
 
 /** Returns if given dungeon contains a room of given kind.
@@ -271,15 +271,15 @@ TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole)
             if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
                 return false;
             }
-            if (dungeon->room_kind[rkind] > 0)
+            if (dungeon->room_list_start[rkind] > 0)
             {
                 return true;
             }
         }
     }
-    
+
     return false;
-        
+
 }
 
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
@@ -309,6 +309,10 @@ TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend
         return true;
     case CrTend_Flee:
         dungeon->creature_tendencies ^= 0x02;
+        return true;
+    case CrTend_Imprison | CrTend_Flee:
+        // Toggle both tendencies when combined value is passed
+        dungeon->creature_tendencies ^= 0x03; // 0x01 | 0x02
         return true;
     default:
         ERRORLOG("Can't toggle tendency; bad tendency type %d",(int)tend_type);
@@ -491,16 +495,16 @@ TbBool mark_creature_joined_dungeon(struct Thing *creatng)
 
 void init_dungeon_essential_position(struct Dungeon *dungeon)
 {
-    struct Room* room = room_get(dungeon->room_kind[RoK_DUNGHEART]);
+    struct Room* room = room_get(dungeon->room_list_start[RoK_DUNGHEART]);
     for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (!room_is_invalid(room))
             break;
-        room = room_get(dungeon->room_kind[rkind]);
+        room = room_get(dungeon->room_list_start[rkind]);
     }
     if (room_is_invalid(room)) {
-        dungeon->essential_pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        dungeon->essential_pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        dungeon->essential_pos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+        dungeon->essential_pos.y.val = subtile_coord_center(game.map_subtiles_y/2);
         dungeon->essential_pos.z.val = subtile_coord(0,1);
         return;
     }
@@ -534,25 +538,15 @@ void init_dungeons(void)
 {
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        struct Dungeon* dungeon = get_dungeon(PLAYER_GOOD);
-        dungeon->hates_player[i] = game.conf.rules.creature.fight_max_hate;
-        dungeon = get_dungeon(i);
-        dungeon->hates_player[PLAYER_GOOD] = game.conf.rules.creature.fight_max_hate;
+        struct Dungeon* dungeon = get_dungeon(i);
         dungeon->num_active_diggers = 0;
         dungeon->num_active_creatrs = 0;
         dungeon->creatr_list_start = 0;
         dungeon->digger_list_start = 0;
         dungeon->owner = i;
-        dungeon->max_creatures_attracted = game.conf.rules.rooms.default_max_crtrs_gen_entrance;
+        dungeon->max_creatures_attracted = game.conf.rules[i].rooms.default_max_crtrs_gen_entrance;
         dungeon->dead_creatures_count = 0;
         dungeon->dead_creature_idx = 0;
-        for (int k = 0; k < DUNGEONS_COUNT; k++)
-        {
-          if (k == i)
-            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_love;
-          else
-            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_hate;
-        }
         /** Player modifier default value is set to 100. */
         dungeon->modifier.health = 100;
         dungeon->modifier.strength = 100;

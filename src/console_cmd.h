@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size);
 TbBool cmd_exec(PlayerNumber plyr_idx, char *msg);
 
 #ifdef __cplusplus

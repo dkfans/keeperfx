@@ -111,7 +111,7 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
             i = gldtng->next_on_mapblk;
             if (!thing_is_invalid(gldtng) && object_is_gold_pile(gldtng))
             {
-                gold_gathered += gldtng->valuable.gold_stored; 
+                gold_gathered += gldtng->valuable.gold_stored;
                 delete_thing_structure(gldtng, 0);
             }
             j++;
@@ -153,7 +153,7 @@ void count_gold_hoardes_in_room(struct Room *room)
 {
     GoldAmount all_gold_amount = 0;
     int all_wealth_size = 0;
-    long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // First, set the values to something big; this will prevent logging warnings on add/remove_gold_from_hoarde()
     room->used_capacity = room->total_capacity;
@@ -192,7 +192,7 @@ void count_gold_hoardes_in_room(struct Room *room)
 
         i = get_next_slab_number_in_room(i);
         k++;
-        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
+        if (k > game.map_tiles_x * game.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
