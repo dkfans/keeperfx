@@ -2429,6 +2429,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     long value  = context->value->longs[2];
     long config_value_secondary = context->value->longs[3];
     long config_value_tertiary = context->value->longs[4];
+    long config_value_quaternary = context->value->longs[5];
+    long config_value_quinary = context->value->longs[6];
+    long config_value_senary = context->value->longs[7];
 
     if (block == CrtConf_ATTRIBUTES)
     {
@@ -2946,6 +2949,10 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
             crconf->sleep_exp_slab[0] = value;
             crconf->sleep_experience[0] = config_value_secondary;
+            crconf->sleep_exp_slab[1] = config_value_tertiary;
+            crconf->sleep_experience[1] = config_value_quaternary;
+            crconf->sleep_exp_slab[2] = config_value_quinary;
+            crconf->sleep_experience[2] = config_value_senary;
             break;
         }
         case 6: // EXPERIENCEFORHITTING
