@@ -1879,24 +1879,61 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
         case 6: // SLEEPEXPERIENCE2
         case 7: // SLEEPEXPERIENCE3
         {
-            unsigned int index = cmd_num - 5;
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(slab_desc, word_buf);
               if (k >= 0)
               {
-                crconf->sleep_exp_slab[index] = k;
+                crconf->sleep_exp_slab[0] = k;
                 n++;
               } else
               {
-                crconf->sleep_exp_slab[index] = 0;
+                crconf->sleep_exp_slab[0] = 0;
               }
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crconf->sleep_experience[index] = k;
+              crconf->sleep_experience[0] = k;
               n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(slab_desc, word_buf);
+                if (k >= 0)
+                {
+                    crconf->sleep_exp_slab[1] = k;
+                    n++;
+                }
+                else
+                {
+                    crconf->sleep_exp_slab[1] = 0;
+                }
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crconf->sleep_experience[1] = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(slab_desc, word_buf);
+                if (k >= 0)
+                {
+                    crconf->sleep_exp_slab[2] = k;
+                    n++;
+                }
+                else
+                {
+                    crconf->sleep_exp_slab[2] = 0;
+                }
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crconf->sleep_experience[2] = k;
+                n++;
             }
             if (n < 2)
             {
