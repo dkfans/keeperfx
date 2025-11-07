@@ -209,10 +209,8 @@ const struct NamedCommand creatmodel_experience_commands[] = {
   {"LEVELSTRAINVALUES",    3},
   {"GROWUP",               4},
   {"SLEEPEXPERIENCE",      5},
-  {"SLEEPEXPERIENCE2",     6},
-  {"SLEEPEXPERIENCE3",     7},
-  {"EXPERIENCEFORHITTING", 8},
-  {"REBIRTH",              9},
+  {"EXPERIENCEFORHITTING", 6},
+  {"REBIRTH",              7},
   {NULL,                   0},
   };
 
@@ -1876,64 +1874,40 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             }
             break;
         case 5: // SLEEPEXPERIENCE
-        case 6: // SLEEPEXPERIENCE2
-        case 7: // SLEEPEXPERIENCE3
         {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
             {
-              k = get_id(slab_desc, word_buf);
-              if (k >= 0)
-              {
-                crconf->sleep_exp_slab[0] = k;
-                n++;
-              } else
-              {
-                crconf->sleep_exp_slab[0] = 0;
-              }
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->sleep_experience[0] = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = get_id(slab_desc, word_buf);
-                if (k >= 0)
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
-                    crconf->sleep_exp_slab[1] = k;
+                  k = get_id(slab_desc, word_buf);
+                  if (k >= 0)
+                  {
+                    crconf->sleep_exp_slab[i] = k;
                     n++;
+                  } else
+                  {
+                    crconf->sleep_exp_slab[i] = 0;
+                  }
                 }
                 else
                 {
-                    crconf->sleep_exp_slab[1] = 0;
+                    for (unsigned int j = i; j < SLEEP_XP_COUNT; j++)
+                    {
+                        crconf->sleep_exp_slab[j] = 0;
+                        crconf->sleep_experience[j] = 0;
+                    }
+                    break;
                 }
-            }
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                crconf->sleep_experience[1] = k;
-                n++;
-            }
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = get_id(slab_desc, word_buf);
-                if (k >= 0)
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
-                    crconf->sleep_exp_slab[2] = k;
-                    n++;
+                  k = atoi(word_buf);
+                  crconf->sleep_experience[i] = k;
+                  n++;
                 }
                 else
                 {
-                    crconf->sleep_exp_slab[2] = 0;
+                    crconf->sleep_experience[i] = 0;
                 }
-            }
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                crconf->sleep_experience[2] = k;
-                n++;
             }
             if (n < 2)
             {
@@ -1942,7 +1916,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             }
             break;
         }
-        case 8: // EXPERIENCEFORHITTING
+        case 6: // EXPERIENCEFORHITTING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -1955,7 +1929,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
-        case 9: // REBIRTH
+        case 7: // REBIRTH
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
