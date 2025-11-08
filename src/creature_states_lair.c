@@ -552,15 +552,23 @@ short creature_sleep(struct Thing *thing)
             dungeon->lvstats.backs_stabbed++;
         }
     }
+    long XP = 0;
     for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
     {
-        if (crconf->sleep_experience[i] != 0)
+        if (room_has_slab_adjacent(room, crconf->sleep_exp_slab[i]))
         {
-            if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crconf->sleep_exp_slab[i]))
+            if (crconf->sleep_experience[i] > XP)
             {
-                cctrl->exp_points += crconf->sleep_experience[i];
-                check_experience_upgrade(thing);
+                XP = crconf->sleep_experience[i];
             }
+        }
+    }
+    if (XP != 0)
+    {
+        if (creature_can_gain_experience(thing))
+        {
+            cctrl->exp_points += XP;
+            check_experience_upgrade(thing);
         }
     }
     {
