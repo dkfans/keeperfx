@@ -370,21 +370,43 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
 }
 
 static void ProcessMessagesUntil(NetUserId id, void *serv_buf, size_t frame_size, enum NetMessageType target_msg, TbBool block_on_first_message, TbClockMSec total_timeout_ms) {
-    TbClockMSec start = LbTimerClock();
-    for (int i = 0; i < 1000; i += 1) {
-        unsigned wait_ms = (1000 / game_num_fps);
-        if (total_timeout_ms > 0) {
+    if (block_on_first_message) {
+        if (netstate.sp->msgready(id, 10000)) {
+            ProcessMessage(id, serv_buf, frame_size);
+        }
+        return;
+    }
+    if (total_timeout_ms > 0) {
+        TbClockMSec start = LbTimerClock();
+        while (true) {
             TbClockMSec elapsed = LbTimerClock() - start;
             if (elapsed >= total_timeout_ms) { break; }
-            wait_ms = (unsigned)(total_timeout_ms - elapsed);
+            unsigned wait_ms = (unsigned)(total_timeout_ms - elapsed);
+            if (!netstate.sp->msgready(id, wait_ms)) { break; }
+            if (ProcessMessage(id, serv_buf, frame_size) == Lb_FAIL) { break; }
+            if (netstate.msg_buffer[0] == target_msg) { break; }
+            network_yield_draw();
         }
-        if (total_timeout_ms == 0 && i == 0 && block_on_first_message) {
-            wait_ms = 10000;
+    } else {
+        const int draw_interval = 16; // 60 times per second. If you decrease this to draw faster then that means less time spent checking for new packets.
+        const int timeout_max = (1000 / game_num_fps);
+        TbClockMSec start = LbTimerClock();
+        TbClockMSec last_draw = start;
+        while (true) {
+            int elapsed = LbTimerClock() - start;
+            if (elapsed >= timeout_max) {
+                break;
+            }
+            int wait = min(timeout_max - elapsed, draw_interval);
+            if (netstate.sp->msgready(id, wait)) {
+                ProcessMessage(id, serv_buf, frame_size);
+                break;
+            }
+            if (LbTimerClock() - last_draw >= draw_interval) {
+                network_yield_draw();
+                last_draw = LbTimerClock();
+            }
         }
-        if (!netstate.sp->msgready(id, wait_ms)) { break; }
-        if (ProcessMessage(id, serv_buf, frame_size) == Lb_FAIL) { break; }
-        if (netstate.msg_buffer[0] == target_msg) { break; }
-        network_yield_draw();
     }
 }
 
@@ -451,8 +473,10 @@ void LogInputLagChange(int delay_frames, int min_ping, int rounded_latency_ms, i
 void LbNetwork_UpdateInputLagIfHost(void) {
     static TbClockMSec last_update_ms = 0;
     static TbClockMSec second_player_login_time = 0;
-    static int min_ping = 1000000;
     static int last_player_count = 0;
+    static int average_ping = 0;
+    static int average_variance = 0;
+    static int sample_count = 0;
     if ((game.system_flags & GSF_NetworkActive) == 0) { return; }
     if (frontend_menu_state == FeSt_START_MPLEVEL) { return; }
     if (my_player_number != get_host_player_id()) { return; }
@@ -477,13 +501,17 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     if (now - second_player_login_time < WAIT_FOR_STABLE_PLAYER) {
         return;
     }
-    if (last_update_ms != 0 && now - last_update_ms < LOWEST_PING_UPDATE_RATE) { return; }
+    if (last_update_ms != 0 && now - last_update_ms < AVERAGE_PING_UPDATE_RATE) { return; }
     last_update_ms = now;
     if (active_player_count != last_player_count) {
-        min_ping = 1000000;
+        average_ping = 0;
+        average_variance = 0;
+        sample_count = 0;
         last_player_count = active_player_count;
     }
-    int max_rtt_latency = 0;
+    int total_latency = 0;
+    int total_variance = 0;
+    int valid_player_count = 0;
     for (id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id) { continue; }
         if (!IsUserActive(id)) { continue; }
@@ -494,22 +522,31 @@ void LbNetwork_UpdateInputLagIfHost(void) {
         }
         int variance_ms = GetPingVariance(id);
         int calculated_ms = GetCalculatedPing(id);
-        NETLOG("Player %d (%s) Ping: %ums, Variance: %ums, Calculated: %ums",
-               id, netstate.users[id].name, ping_ms, variance_ms, calculated_ms);
-        if (calculated_ms > max_rtt_latency) {
-            max_rtt_latency = calculated_ms;
-        }
+        int calculated_variance = GetCalculatedVariance(id);
+        NETLOG("Player %d (%s) Ping: %ums, Variance: %ums, Calculated Ping: %ums, Calculated Variance: %ums",
+               id, netstate.users[id].name, ping_ms, variance_ms, calculated_ms, calculated_variance);
+        total_latency += calculated_ms;
+        total_variance += calculated_variance;
+        valid_player_count += 1;
     }
-    if (max_rtt_latency > 0 && max_rtt_latency < min_ping) {
-        min_ping = max_rtt_latency;
+    if (valid_player_count == 0) {
+        return;
     }
+    int current_average_ping = total_latency / valid_player_count;
+    int current_average_variance = total_variance / valid_player_count;
+    sample_count += 1;
+    average_ping = average_ping + (current_average_ping - average_ping) / sample_count;
+    average_variance = average_variance + (current_average_variance - average_variance) / sample_count;
+    NETLOG("Average Ping: %ums, Average Variance: %ums (samples: %d)",
+           average_ping, average_variance, sample_count);
+    int combined_latency = average_ping + average_variance;
     int frame_time_ms = 1000 / game_num_fps;
-    int rounded_latency_ms = ((min_ping + 49) / 50) * 50;
+    int rounded_latency_ms = ((combined_latency + 49) / 50) * 50;
     int delay_frames = (rounded_latency_ms + frame_time_ms - 1) / frame_time_ms;
     if (delay_frames < 1) {
         delay_frames = 1;
     }
-    LogInputLagChange(delay_frames, min_ping, rounded_latency_ms, frame_time_ms);
+    LogInputLagChange(delay_frames, average_ping, rounded_latency_ms, frame_time_ms);
     game.input_lag_turns = delay_frames;
 }
 

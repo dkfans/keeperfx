@@ -893,7 +893,11 @@ void draw_network_stats() {
     LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Transit: %u bytes | In: %u KB | Out: %u KB | Lost: %u | Loss: %u%%", transit, incoming_total_kb, outgoing_total_kb, packets_lost, packet_loss);
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Current gameturn: %lu", game.play_gameturn);
+    snprintf(text, sizeof(text), "Slowdown: %d%% | Slowdown average: %d%% | Max slowdown: %d%%", slowdown_current, slowdown_average, slowdown_max);
     LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Frametime: %dms | Frametime average: %dms | Max frametime: %dms", frametime_current, frametime_average, frametime_max);
+    LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Current gameturn: %lu", game.play_gameturn);
+    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
 }
 /******************************************************************************/

@@ -24,6 +24,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 #include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
@@ -1748,6 +1749,8 @@ void process_packets(void)
     SYNCDBG(0,"Resyncing");
     resync_game();
   }
+  get_current_slowdown_percentage();
+  get_current_frametime_ms();
   MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)game.play_gameturn);
   SYNCDBG(7,"Finished");
 }
