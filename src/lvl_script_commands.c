@@ -2356,7 +2356,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 config_value_primary = slabtype;
             }
             config_value_secondary = atoi(scline->tp[3]);
-            slabtype = get_id(slab_desc, scline->tp[4]);
+            slabtype = (scline->tp[4][0] != '\0') ? get_id(slab_desc, scline->tp[4]) : 0;
             if (slabtype < 0)
             {
                 if (scline->tp[4][0] != '\0')
@@ -2371,7 +2371,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 config_value_tertiary = slabtype;
             }
             config_value_quaternary = atoi(scline->tp[5]);
-            slabtype = get_id(slab_desc, scline->tp[6]);
+            slabtype = (scline->tp[6][0] != '\0') ? get_id(slab_desc, scline->tp[6]) : 0;
             if (slabtype < 0)
             {
                 if (scline->tp[6][0] != '\0')
