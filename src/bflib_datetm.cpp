@@ -41,6 +41,12 @@ long double sleep_precision_ns = 20000000; // 20ms
 struct TbTime global_time;
 struct TbDate global_date;
 TbClockMSec (* LbTimerClock)(void);
+int slowdown_current = 0;
+int slowdown_average = 0;
+int slowdown_max = 0;
+int frametime_current = 0;
+int frametime_average = 0;
+int frametime_max = 0;
 /******************************************************************************/
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
@@ -427,6 +433,65 @@ TbResult LbTimerInit(void)
     break;
   }
   return Lb_SUCCESS;
+}
+
+int get_current_frametime_ms() {
+    static TbClockMSec last_frame_timestamp = 0;
+    static int frametime_history[50] = {0};
+    static int history_index = 0;
+    TbClockMSec current_timestamp = LbTimerClock();
+    int frame_time_ms = 0;
+    if (last_frame_timestamp != 0) {
+        frame_time_ms = current_timestamp - last_frame_timestamp;
+    }
+    last_frame_timestamp = current_timestamp;
+    frametime_current = frame_time_ms;
+    frametime_history[history_index] = frame_time_ms;
+    history_index = (history_index + 1) % 50;
+    int sum = 0;
+    int max = 0;
+    int i;
+    for (i = 0; i < 50; i++) {
+        sum += frametime_history[i];
+        if (frametime_history[i] > max) {
+            max = frametime_history[i];
+        }
+    }
+    frametime_average = sum / 50;
+    frametime_max = max;
+    return frame_time_ms;
+}
+
+int get_current_slowdown_percentage() {
+    static TbClockMSec last_frame_timestamp = 0;
+    static int slowdown_history[50] = {0};
+    static int history_index = 0;
+    TbClockMSec current_timestamp = LbTimerClock();
+    TbClockMSec frame_time_ms = 0;
+    int slowdown_pct = 0;
+    if (last_frame_timestamp != 0) {
+        frame_time_ms = current_timestamp - last_frame_timestamp;
+        int expected_frame_time = 1000 / game_num_fps;
+        if (frame_time_ms > expected_frame_time) {
+            slowdown_pct = ((frame_time_ms - expected_frame_time) * 100) / expected_frame_time;
+        }
+    }
+    last_frame_timestamp = current_timestamp;
+    slowdown_current = slowdown_pct;
+    slowdown_history[history_index] = slowdown_pct;
+    history_index = (history_index + 1) % 50;
+    int sum = 0;
+    int max = 0;
+    int i;
+    for (i = 0; i < 50; i++) {
+        sum += slowdown_history[i];
+        if (slowdown_history[i] > max) {
+            max = slowdown_history[i];
+        }
+    }
+    slowdown_average = sum / 50;
+    slowdown_max = max;
+    return slowdown_pct;
 }
 
 /******************************************************************************/

@@ -330,7 +330,7 @@ namespace
      */
     size_t bf_enet_msgready(NetUserId source, unsigned timeout)
     {
-        if ((!oldest_packet) && timeout > 0)
+        if (!oldest_packet)
         {
             bf_enet_read_event(not_expected_user, timeout);
         }
@@ -467,8 +467,14 @@ unsigned long GetPingVariance(NetUserId id) {
 unsigned long GetCalculatedPing(NetUserId id) {
     unsigned long ping = GetPing(id);
     int ms_turn_time = (1000 / game_num_fps);
-    int ms_half_ping = CEILING(ping / 2.0);
-    return max(0, ms_half_ping - ms_turn_time);
+    int calc = CEILING((ping / 2.0) - (ms_turn_time / 2.0));
+    return max(1, calc);
+}
+
+unsigned long GetCalculatedVariance(NetUserId id) {
+    unsigned long variance = GetPingVariance(id);
+    int calc = CEILING(variance / 2.0);
+    return max(0, calc);
 }
 
 unsigned int GetPacketLoss(NetUserId id) {

@@ -76,7 +76,7 @@ struct Boing {
 struct Boing boing;
 
 #define CONSECUTIVE_RESYNC_DECAY_SECONDS 30
-#define CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE 5
+#define CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE 3
 
 /******************************************************************************/
 static GameTurn last_resync_turn = 0;
