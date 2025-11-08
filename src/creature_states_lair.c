@@ -557,9 +557,22 @@ short creature_sleep(struct Thing *thing)
     {
         if (room_has_slab_adjacent(room, crconf->sleep_exp_slab[i]))
         {
-            if (crconf->sleep_experience[i] > XP)
+            if (XP == 0)
             {
-                XP = crconf->sleep_experience[i];
+                if (crconf->sleep_experience[i] != 0)
+                {
+                    XP = crconf->sleep_experience[i];
+                }
+            }
+            else
+            {
+                if (crconf->sleep_experience[i] != 0)
+                {
+                    if (crconf->sleep_experience[i] > XP)
+                    {
+                        XP = crconf->sleep_experience[i];
+                    }
+                }
             }
         }
     }
@@ -568,7 +581,13 @@ short creature_sleep(struct Thing *thing)
         if (creature_can_gain_experience(thing))
         {
             cctrl->exp_points += XP;
-            check_experience_upgrade(thing);
+            if (!check_experience_upgrade(thing))
+            {
+                if (cctrl->exp_points < 0)
+                {
+                    cctrl->exp_points = 0;
+                }
+            }
         }
     }
     {
