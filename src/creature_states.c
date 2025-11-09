@@ -4808,6 +4808,7 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 
 TbBool check_experience_upgrade(struct Thing *thing)
 {
+    struct Dungeon *dungeon = get_dungeon(thing->owner);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct CreatureModelConfig *crconf = creature_stats_get_from_thing(thing);
     long i = crconf->to_level[cctrl->exp_level] << 8;
@@ -4816,7 +4817,6 @@ TbBool check_experience_upgrade(struct Thing *thing)
         return false;
     }
     cctrl->exp_points -= i;
-    struct Dungeon *dungeon = get_dungeon(thing->owner);
     if (cctrl->exp_level < dungeon->creature_max_level[thing->model])
     {
         if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crconf->grow_up != 0))
