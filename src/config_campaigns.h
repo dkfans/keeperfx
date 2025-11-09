@@ -72,6 +72,7 @@ struct GameCampaign {
   char name[LINEMSG_SIZE];
   char display_name[LINEMSG_SIZE];
   char fname[DISKPATH_SIZE];
+  char lobby_name[LINEMSG_SIZE];
   char levels_location[DISKPATH_SIZE];
   char speech_location[DISKPATH_SIZE];
   char land_location[DISKPATH_SIZE];

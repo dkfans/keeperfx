@@ -66,6 +66,7 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"NAME_TEXT_ID",       20},
   {"ASSIGN_CPU_KEEPERS", 21},
   {"SOUNDTRACK",         22},
+  {"LOBBY_NAME",         23},
   {NULL,                  0},
   };
 
@@ -437,6 +438,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           else
           {
               snprintf(campgn->display_name, LINEMSG_SIZE, "%s", campgn->name);
+              snprintf(campgn->lobby_name, LINEMSG_SIZE, "%s", campgn->name);
           }
           break;
       case 2: // SINGLE_LEVELS
@@ -699,6 +701,14 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           {
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file.",
                 COMMAND_TEXT(cmd_num), campgn->name, config_textname);
+          }
+          break;
+      case 23: // LOBBY_NAME
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->lobby_name,LINEMSG_SIZE);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file.",
+                COMMAND_TEXT(cmd_num), campgn->lobby_name, config_textname);
           }
           break;
       case ccr_comment:
