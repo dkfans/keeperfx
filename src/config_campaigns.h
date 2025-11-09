@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "config_strings.h"
+#include "config_mods.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -107,7 +108,9 @@ struct GameCampaign {
   struct CreditsItem credits[CAMPAIGN_CREDITS_COUNT];
   // Campaign strings
   char strings_fname[DISKPATH_SIZE];
-  char *strings_data;
+  char strings_fname_eng[DISKPATH_SIZE];
+  char *strings_data_list[MOD_ITEM_MAX*MOD_ITEM_TYPE_CNT+1];
+  int strings_data_count;
   char *strings[STRINGS_MAX+1];
   // High scores
   char hiscore_fname[DISKPATH_SIZE];

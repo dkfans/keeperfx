@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 #define ACTN_POINTS_COUNT     256
-#define ACTN_POINTS_COUNT_OLD 32
+#define HERO_GATES_COUNT      256
 
 /******************************************************************************/
 #pragma pack(1)

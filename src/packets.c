@@ -1650,17 +1650,20 @@ void process_packets(void)
 
 static TbBool try_starting_level_from_chat(char* message, long player_id)
 {
-    char *colon_pos = strchr(message, ':');
-    if (!colon_pos || colon_pos == message) {
+    char *separator_pos = strchr(message, ':');
+    if (!separator_pos) {
+        separator_pos = strchr(message, ' ');
+    }
+    if (!separator_pos || separator_pos == message) {
         return false;
     }
-    
-    int campaign_len = colon_pos - message;
+
+    int campaign_len = separator_pos - message;
     if (campaign_len <= 0 || campaign_len >= 64) {
         return false;
     }
-    
-    char *level_str = colon_pos + 1;
+
+    char *level_str = separator_pos + 1;
     if (!isdigit(level_str[0])) {
         return false;
     }

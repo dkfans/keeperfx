@@ -139,8 +139,8 @@ static const struct NamedField rules_magic_named_fields[] = {
   {"ARMAGEDDONTELEPORTYOURTIMEGAP",  0, field(game.conf.rules[0].magic.armageddon_teleport_your_time_gap ),  10, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
   {"ARMAGEDDONTELEPORTENEMYTIMEGAP", 0, field(game.conf.rules[0].magic.armageddon_teleport_enemy_time_gap),  10,        0, LONG_MAX,NULL,value_default, assign_default},
   {"ARMAGEDDONTELEPORTNEUTRALS",     0, field(game.conf.rules[0].magic.armageddon_teleport_neutrals      ),   0,        0,        1,NULL,value_default, assign_default},
-  {"ARMAGEDDONCOUNTDOWN",            0, field(game.armageddon.count_down                              ), 500, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
-  {"ARMAGEDDONDURATION",             0, field(game.armageddon.duration                                ),4000, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
+  {"ARMAGEDDONCOUNTDOWN",            0, field(game.conf.rules[0].magic.armageddon_count_down             ), 500, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
+  {"ARMAGEDDONDURATION",             0, field(game.conf.rules[0].magic.armageddon_duration               ),4000, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
   {"DISEASETRANSFERPERCENTAGE",      0, field(game.conf.rules[0].magic.disease_transfer_percentage       ),  15,        0, CHAR_MAX,NULL,value_default, assign_default},
   {"DISEASELOSEPERCENTAGEHEALTH",    0, field(game.conf.rules[0].magic.disease_lose_percentage_health    ),   8, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
   {"DISEASELOSEHEALTHTIME",          0, field(game.conf.rules[0].magic.disease_lose_health_time          ), 200, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
@@ -177,8 +177,8 @@ static const struct NamedField rules_rooms_named_fields[] = {
   {"TRAININGROOMMAXLEVEL",                0, field(game.conf.rules[0].rooms.training_room_max_level         ),   0,        0,CREATURE_MAX_LEVEL+1,NULL,value_default, assign_default},
   {"TRAINEFFICIENCY",                     0, field(game.conf.rules[0].rooms.train_efficiency                ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
   {"WORKEFFICIENCY",                      0, field(game.conf.rules[0].rooms.work_efficiency                 ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
-  {"SCAVENGEEFFECIENCY",                  0, field(game.conf.rules[0].rooms.scavenge_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
-  {"RESEARCHEFFECIENCY",                  0, field(game.conf.rules[0].rooms.research_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"RESEARCHEFFICIENCY",                  0, field(game.conf.rules[0].rooms.research_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"SCAVENGEEFFICIENCY",                  0, field(game.conf.rules[0].rooms.scavenge_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
   {NULL},
 };
 
@@ -333,12 +333,15 @@ int sac_compare_fn(const void* ptr_a, const void* ptr_b)
 
 static void set_rules_defaults()
 {
-    for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++) {
-      const struct NamedField* field = ruleblocks[i];
-      while (field->name != NULL) {
-        assign_default(field, field->default_value, &rules_named_fields_set, 0,"rules",ccf_SplitExecution|ccf_DuringLevel);
-        field++;
-      }
+    for (size_t i = 0; i < sizeof(ruleblocks) / sizeof(ruleblocks[0]); i++) {
+        const struct NamedField* field = ruleblocks[i];
+        while (field->name != NULL) {
+            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+            {
+                assign_default(field, field->default_value, &rules_named_fields_set, plyr_idx, "rules", ccf_SplitExecution | ccf_DuringLevel);
+            }
+            field++;
+        }
     }
 }
 

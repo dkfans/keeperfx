@@ -113,6 +113,13 @@ long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * 
 
 }
 
+long luaL_optCheckinteger(lua_State* L, int index)
+{
+    if (lua_isnone(L, index))
+        return -1;
+    return luaL_checkinteger(L, index);
+}
+
 long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
 {
     if (lua_isnone(L,index))

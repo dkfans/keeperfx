@@ -492,7 +492,7 @@ void init_seeds()
         game.sound_random_seed = calender_time * 7919 + 7927;
 
         // If doing -packetload then use the replay's stored seed
-        if (game.packet_save_head.action_seed != 0) {
+        if ((game.packet_save_head.action_seed != 0) && (game.packet_load_enable == true)) {
             game.action_random_seed = game.packet_save_head.action_seed;
         } else {
             game.action_random_seed = calender_time * 9311 + 9319;

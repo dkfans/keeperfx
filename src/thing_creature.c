@@ -1098,7 +1098,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Fear);
             setup_combat_flee_position(thing);
-            if (is_thing_some_way_controlled(thing))
+            if (is_thing_directly_controlled(thing))
             {
                 struct PlayerInfo* player = get_player(thing->owner);
                 if (player->controlled_thing_idx == thing->index)
@@ -1315,19 +1315,16 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_Fear)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
-        if (is_thing_some_way_controlled(thing))
+        if (is_thing_passenger_controlled_by_player(thing,thing->owner))
         {
             struct PlayerInfo* player = get_player(thing->owner);
-            if (player->controlled_thing_idx == thing->index)
+            char active_menu = game.active_panel_mnu_idx;
+            leave_creature_as_passenger(player, thing);
+            control_creature_as_controller(player, thing);
+            if (is_my_player(player))
             {
-                char active_menu = game.active_panel_mnu_idx;
-                leave_creature_as_passenger(player, thing);
-                control_creature_as_controller(player, thing);
-                if (is_my_player(player))
-                {
-                    turn_off_all_panel_menus();
-                    turn_on_menu(active_menu);
-                }
+                turn_off_all_panel_menus();
+                turn_on_menu(active_menu);
             }
         }
         cleared = true;
@@ -2867,6 +2864,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
     create_effect(&thing->mappos, TngEff_HarmlessGas2, thing->owner);
     move_thing_in_map(thing, &lairtng->mappos);
     reset_interpolation_of_thing(thing);
+    lua_on_creature_rebirth(thing);
     create_effect(&lairtng->mappos, TngEff_HarmlessGas2, thing->owner);
 }
 
@@ -6221,6 +6219,7 @@ long update_creature_levels(struct Thing *thing)
     {
         remove_creature_score_from_owner(thing); // the opposite is in set_creature_level()
         set_creature_level(thing, cctrl->exp_level+1);
+        check_experience_upgrade(thing);
         return 1;
     }
     // If it is highest level, check if the creature can grow up.
@@ -7364,7 +7363,7 @@ static long filter_criteria_loc(long desc_type)
     return desc_type >> 4;
 }
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria)
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, short criteria)
 {
     switch (filter_criteria_type(criteria))
     {
@@ -7661,9 +7660,8 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     return true;
 }
 
-TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long fmcl_bytes)
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, SpellKind spkind, CrtrExpLevel spell_level)
 {
-    SpellKind spkind = (fmcl_bytes >> 8) & 255;
     struct SpellConfig *spconf = get_spell_config(spkind);
     if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
@@ -7672,7 +7670,6 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing
             SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
-        CrtrExpLevel spell_level = fmcl_bytes & 255;
         if (spconf->caster_affect_sound)
         {
             thing_play_sample(thing, spconf->caster_affect_sound + SOUND_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
@@ -7700,7 +7697,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing
  * @param fmcl_bytes encoded bytes: f=cast for free flag,m=spell kind,c=caster player index,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
+TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, short criteria, SpellKind spell_idx, CrtrExpLevel charge)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing))
@@ -7708,7 +7705,7 @@ TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, Thing
         SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
-    return script_use_spell_on_creature(plyr_idx, thing, fmcl_bytes);
+    return script_use_spell_on_creature(plyr_idx, thing, spell_idx, charge);
 }
 
 void script_move_creature(struct Thing* thing, TbMapLocation location, ThingModel effect_id)

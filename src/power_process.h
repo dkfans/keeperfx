@@ -32,12 +32,6 @@ extern "C" {
 struct Thing;
 struct PlayerInfo;
 
-struct Armageddon { // sizeof = 14
-  unsigned long count_down;
-  unsigned long duration;
-  struct Coord3d mappos;
-};
-
 #pragma pack()
 /******************************************************************************/
 void set_chosen_power(PowerKind pwkind, TextStringId sptooltip);

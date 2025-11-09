@@ -161,8 +161,8 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
 void clean_spell_effect_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define clean_spell_effect(thing, spell_flags) clean_spell_effect_f(thing, spell_flags, __func__)
 
-TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long fmcl_bytes);
-TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes);
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, SpellKind spkind, CrtrExpLevel spell_level);
+TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, short criteria, SpellKind spkind, CrtrExpLevel spell_level);
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx);
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx);
 void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx, int slot_idx);
@@ -237,7 +237,7 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, char spawn_type);
 void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long copies_num, long carried_gold, CrtrExpLevel exp_level, char spawn_type);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria);
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, short criteria);
 void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long select_id, TbMapLocation location, ThingModel effect_id, long count);
 void script_move_creature(struct Thing* thing, TbMapLocation location, ThingModel effect_id);
 TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmodel, long operation, long anger);
