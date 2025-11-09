@@ -36,6 +36,7 @@
 #include "frontend.h"
 #include "thing_effects.h"
 #include "thing_data.h"
+#include "creature_control.h"
 #include "room_data.h"
 #include "room_list.h"
 #include "post_inc.h"
@@ -642,6 +643,13 @@ void store_checksums_for_desync_analysis(void)
             info->health = thing->health;
             info->current_frame = thing->current_frame;
             info->max_frames = thing->max_frames;
+            info->spell_flags = 0;
+            if (thing->class_id == TCls_Creature) {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                if (!creature_control_invalid(cctrl)) {
+                    info->spell_flags = cctrl->spell_flags;
+                }
+            }
             info->checksum = get_thing_checksum(thing);
         }
     }
@@ -726,45 +734,45 @@ static void log_analyze_individual_thing_differences(void)
         if (host_checksum != 0 && client_checksum != 0) {
             if (client_checksum != host_checksum) {
                 ERRORLOG("    Thing INDEX %d MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
-                ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d pos_val:(%ld,%ld,%ld) pos_stl:(%d,%d,%d) health:%ld seed:%08lx creation_turn:%ld frames:%u/%u",
+                ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d pos_val:(%ld,%ld,%ld) pos_stl:(%d,%d,%d) health:%ld seed:%08lx creation_turn:%ld frames:%u/%u spell_flags:%08lx",
                          client_info->index, thing_class_code_name(client_info->class_id),
                          thing_class_and_model_name(client_info->class_id, client_info->model),
                          client_info->owner,
                          client_info->pos_x, client_info->pos_y, client_info->pos_z,
                          (int)(client_info->pos_x >> 8), (int)(client_info->pos_y >> 8), (int)(client_info->pos_z >> 8),
                          client_info->health, client_info->random_seed, client_info->creation_turn,
-                         client_info->current_frame, client_info->max_frames);
-                ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d pos_val:(%ld,%ld,%ld) pos_stl:(%d,%d,%d) health:%ld seed:%08lx creation_turn:%ld frames:%u/%u",
+                         client_info->current_frame, client_info->max_frames, client_info->spell_flags);
+                ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d pos_val:(%ld,%ld,%ld) pos_stl:(%d,%d,%d) health:%ld seed:%08lx creation_turn:%ld frames:%u/%u spell_flags:%08lx",
                          host_info->index, thing_class_code_name(host_info->class_id),
                          thing_class_and_model_name(host_info->class_id, host_info->model),
                          host_info->owner,
                          host_info->pos_x, host_info->pos_y, host_info->pos_z,
                          (int)(host_info->pos_x >> 8), (int)(host_info->pos_y >> 8), (int)(host_info->pos_z >> 8),
                          host_info->health, host_info->random_seed, host_info->creation_turn,
-                         host_info->current_frame, host_info->max_frames);
+                         host_info->current_frame, host_info->max_frames, host_info->spell_flags);
                 mismatched_count++;
             }
         } else if (host_checksum != 0 && client_checksum == 0) {
             ERRORLOG("    Thing INDEX %d MISSING on client - Host had checksum: %08lx", i, host_checksum);
-            ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d pos_val:(%ld,%ld,%ld) pos_stl:(%d,%d,%d) health:%ld seed:%08lx creation_turn:%ld frames:%u/%u",
+            ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d pos_val:(%ld,%ld,%ld) pos_stl:(%d,%d,%d) health:%ld seed:%08lx creation_turn:%ld frames:%u/%u spell_flags:%08lx",
                      host_info->index, thing_class_code_name(host_info->class_id),
                      thing_class_and_model_name(host_info->class_id, host_info->model),
                      host_info->owner,
                      host_info->pos_x, host_info->pos_y, host_info->pos_z,
                      (int)(host_info->pos_x >> 8), (int)(host_info->pos_y >> 8), (int)(host_info->pos_z >> 8),
                      host_info->health, host_info->random_seed, host_info->creation_turn,
-                     host_info->current_frame, host_info->max_frames);
+                     host_info->current_frame, host_info->max_frames, host_info->spell_flags);
             mismatched_count++;
         } else if (host_checksum == 0 && client_checksum != 0) {
             ERRORLOG("    Thing INDEX %d EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
-            ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d pos_val:(%ld,%ld,%ld) pos_stl:(%d,%d,%d) health:%ld seed:%08lx creation_turn:%ld frames:%u/%u",
+            ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d pos_val:(%ld,%ld,%ld) pos_stl:(%d,%d,%d) health:%ld seed:%08lx creation_turn:%ld frames:%u/%u spell_flags:%08lx",
                      client_info->index, thing_class_code_name(client_info->class_id),
                      thing_class_and_model_name(client_info->class_id, client_info->model),
                      client_info->owner,
                      client_info->pos_x, client_info->pos_y, client_info->pos_z,
                      (int)(client_info->pos_x >> 8), (int)(client_info->pos_y >> 8), (int)(client_info->pos_z >> 8),
                      client_info->health, client_info->random_seed, client_info->creation_turn,
-                     client_info->current_frame, client_info->max_frames);
+                     client_info->current_frame, client_info->max_frames, client_info->spell_flags);
             mismatched_count++;
         }
     }

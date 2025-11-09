@@ -225,6 +225,9 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "moveto_pos") == 0)
         {
             luaL_checkCoord3d(L, 3, &cctrl->moveto_pos);
+        } else if (strcmp(key, "flee_pos") == 0)
+        {
+            luaL_checkCoord3d(L, 3, &cctrl->flee_pos);
         }
         else if (strcmp(key, "max_speed") == 0)
         {
@@ -391,6 +394,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushRoom(L, room_get(cctrl->work_room_id));
         } else if (strcmp(key, "moveto_pos") == 0) {
             lua_pushPos(L, &cctrl->moveto_pos);
+        } else if (strcmp(key, "flee_pos") == 0) {
+            lua_pushPos(L, &cctrl->flee_pos);
         } else if (strcmp(key, "patrol_pos") == 0) {
             lua_pushPos(L, &cctrl->patrol.pos);
         } else if (strcmp(key, "patrol_countdown") == 0) {

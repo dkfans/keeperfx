@@ -100,6 +100,20 @@ function RegisterCreatureDeathEvent(action, unit)
     return trigger
 end
 
+---Triggers when a unit resurrects
+---@param action function|string the function to call when the event happens
+---@param unit? Creature the unit that triggers the event
+---@return table
+function RegisterCreatureRebirthEvent(action, unit)
+    local trigData = {unit = unit}
+
+    local trigger = CreateTrigger("Rebirth",action,trigData)
+    if unit then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.unit == triggerData.unit end)
+    end
+    return trigger
+end
+
 ---Triggers when a thing takes damage
 ---@param action function|string the function to call when the event happens
 ---@param thing? Thing the unit that triggers the event
