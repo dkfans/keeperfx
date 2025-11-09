@@ -1822,7 +1822,7 @@ void process_frontend_packets(void)
   nspckt->networkstatus_flags ^= ((nspckt->networkstatus_flags ^ (fe_computer_players << 1)) & 0x06);
   nspckt->stored_data1 = VersionRelease;
   nspckt->stored_data2 = VersionBuild;
-  if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket), true))
+  if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket), false))
   {
       ERRORLOG("LbNetwork_Exchange failed");
       net_service_index_selected = -1; // going to quit
