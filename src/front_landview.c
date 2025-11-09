@@ -1714,7 +1714,7 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     if (fe_network_active)
     {
-      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket), true) )
+      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket), false) )
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;
