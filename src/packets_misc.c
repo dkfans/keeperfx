@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "packets.h"
 #include "received_packets.h"
+#include "redundant_packets.h"
 
 #include "bflib_fileio.h"
 #include "front_landview.h"
@@ -165,6 +166,7 @@ void post_init_packets(void)
 {
     SYNCDBG(6,"Starting");
     initialize_packet_tracking();
+    initialize_redundant_packets();
     if ((game.packet_load_enable) && (game.packet_load_initialized))
     {
         struct CatalogueEntry centry;

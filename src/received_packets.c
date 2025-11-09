@@ -66,7 +66,7 @@ void initialize_packet_tracking(void) {
     clear_packet_tracking();
 }
 
-static void store_received_packet(GameTurn turn, PlayerNumber player, const struct Packet* packet) {
+void store_received_packet(GameTurn turn, PlayerNumber player, const struct Packet* packet) {
     if (is_packet_empty(packet)) {
         MULTIPLAYER_LOG("store_received_packet: Skipping empty packet for player %d turn %lu", player, (unsigned long)turn);
         return;

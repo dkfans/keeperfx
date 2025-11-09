@@ -118,6 +118,7 @@ obj/bflib_mspointer.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/bflib_network.o \
+obj/bflib_network_exchange.o \
 obj/bflib_network_resync.o \
 obj/bflib_planar.o \
 obj/bflib_render.o \
@@ -275,6 +276,7 @@ obj/net_game.o \
 obj/net_sync.o \
 obj/input_lag.o \
 obj/received_packets.o \
+obj/redundant_packets.o \
 obj/desync_analysis.o \
 obj/packets.o \
 obj/packets_cheats.o \

@@ -100,6 +100,10 @@ namespace
         if (port > 0)
             addr.port = port;
         host = enet_host_create(&addr, 4, NUM_CHANNELS, 0, 0);
+        if (!host) {
+            return Lb_FAIL;
+        }
+        enet_host_compress_with_range_coder(host);
         return Lb_OK;
     }
 
@@ -139,6 +143,7 @@ namespace
         {
             return Lb_FAIL;
         }
+        enet_host_compress_with_range_coder(host);
         P = strchr(session,':');
         if (P)
         {
@@ -254,6 +259,34 @@ namespace
     void bf_enet_sendmsg_single(NetUserId destination, const char *buffer, size_t size)
     {
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
+        if (client_peer) // Just send to server
+        {
+            enet_peer_send(client_peer, 0, packet);
+        }
+        else
+        {
+            for (ENetPeer *currentPeer = host->peers; currentPeer < &host->peers[host -> peerCount]; ++currentPeer)
+            {
+                if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
+                    continue;
+                if (NetUserId(reinterpret_cast<ptrdiff_t>(currentPeer->data)) == destination)
+                {
+                    enet_peer_send(currentPeer, 0, packet);
+                }
+            }
+        }
+        enet_host_flush(host);
+    }
+
+    /**
+     * Sends a message buffer to a certain user using unsequenced delivery.
+     * @param destination Destination user.
+     * @param buffer
+     * @param size Must be > 0
+     */
+    void bf_enet_sendmsg_single_unsequenced(NetUserId destination, const char *buffer, size_t size)
+    {
+        ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_UNSEQUENCED);
         if (client_peer) // Just send to server
         {
             enet_peer_send(client_peer, 0, packet);
@@ -464,19 +497,6 @@ unsigned long GetPingVariance(NetUserId id) {
     return 0;
 }
 
-unsigned long GetCalculatedPing(NetUserId id) {
-    unsigned long ping = GetPing(id);
-    int ms_turn_time = (1000 / game_num_fps);
-    int calc = CEILING((ping / 2.0) - (ms_turn_time / 2.0));
-    return max(1, calc);
-}
-
-unsigned long GetCalculatedVariance(NetUserId id) {
-    unsigned long variance = GetPingVariance(id);
-    int calc = CEILING(variance / 2.0);
-    return max(0, calc);
-}
-
 unsigned int GetPacketLoss(NetUserId id) {
     const bool requesting_local_peer = IsLocalPeer(id);
 
@@ -649,6 +669,7 @@ struct NetSP *InitEnetSP()
             .join = &bf_enet_join,
             .update = &bf_enet_update,
             .sendmsg_single = &bf_enet_sendmsg_single,
+            .sendmsg_single_unsequenced = &bf_enet_sendmsg_single_unsequenced,
             .sendmsg_all = &bf_enet_sendmsg_all,
             .msgready = &bf_enet_msgready,
             .readmsg = &bf_enet_readmsg,

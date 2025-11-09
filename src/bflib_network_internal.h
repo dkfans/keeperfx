@@ -47,18 +47,8 @@ struct NetFrame {
     size_t size;
 };
 
-enum NetMessageType {
-    NETMSG_LOGIN,
-    NETMSG_USERUPDATE,
-    NETMSG_FRAME,
-    NETMSG_RESYNC_DATA,
-    NETMSG_RESYNC_RESUME,
-    NETMSG_TIMESYNC_REQUEST,
-    NETMSG_TIMESYNC_REPLY,
-    NETMSG_TIMESYNC_COMPLETE,
-};
-
 #define NET_MSG_BUFFER_SIZE 5000
+#define INVALID_USER_ID 23456
 
 struct NetState {
     const struct NetSP *sp;
@@ -77,6 +67,11 @@ extern struct NetState netstate;
 
 TbBool OnNewUser(NetUserId *assigned_id);
 void OnDroppedUser(NetUserId id, enum NetDropReason reason);
+TbBool IsUserActive(NetUserId id);
+void UpdateLocalPlayerInfo(NetUserId id);
+char* InitMessageBuffer(enum NetMessageType msg_type);
+void SendMessage(NetUserId dest, const char* end_ptr);
+void SendUserUpdate(NetUserId dest, NetUserId updated_user);
 
 #ifdef __cplusplus
 }

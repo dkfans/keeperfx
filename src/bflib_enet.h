@@ -23,8 +23,6 @@ struct NetSP;
 struct NetSP* InitEnetSP();
 unsigned long GetPing(int id);
 unsigned long GetPingVariance(int id);
-unsigned long GetCalculatedPing(int id);
-unsigned long GetCalculatedVariance(int id);
 unsigned int GetPacketLoss(int id);
 unsigned int GetClientDataInTransit();
 unsigned int GetIncomingPacketQueueSize();

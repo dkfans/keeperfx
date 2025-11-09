@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file received_packets.h
- *     Header file for received_packets.c.
+/** @file redundant_packets.h
+ *     Header file for redundant_packets.c.
  * @par Purpose:
- *     Received packets list tracking for network game synchronization.
+ *     Redundant packet bundling for network game packet loss prevention.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     24 Oct 2025
+ * @date     11 Nov 2025
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,11 +16,12 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_RECEIVED_PACKETS_H
-#define DK_RECEIVED_PACKETS_H
+#ifndef DK_REDUNDANT_PACKETS_H
+#define DK_REDUNDANT_PACKETS_H
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "packets.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,16 +30,20 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct Packet;
+#define REDUNDANT_PACKET_COUNT 3
+
+struct BundledPacket {
+    unsigned char valid_count;
+    struct Packet packets[REDUNDANT_PACKET_COUNT];
+};
 
 #pragma pack()
 /******************************************************************************/
-void initialize_packet_tracking(void);
-void clear_packet_tracking(void);
-void store_received_packets(void);
-void store_received_packet(GameTurn turn, PlayerNumber player, const struct Packet* packet);
-const struct Packet* get_received_packets_for_turn(GameTurn turn);
-const struct Packet* get_received_packet_for_player(GameTurn turn, PlayerNumber player);
+void initialize_redundant_packets(void);
+void clear_redundant_packets(void);
+void store_sent_packet(PlayerNumber player, const struct Packet* packet);
+size_t bundle_packets(PlayerNumber player, const struct Packet* current_packet, char* out_buffer);
+void unbundle_packets(const char* bundled_buffer, PlayerNumber source_player);
 
 /******************************************************************************/
 #ifdef __cplusplus

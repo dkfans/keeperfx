@@ -1660,6 +1660,50 @@ static void load_old_packets(PlayerNumber my_packet_num)
     }
 }
 
+// If a packet was missed, this feature assumes that your inputs will be the same as the previous turn. This guess will be correct 80% of the time.
+void fill_missing_packets_from_previous_turn(void)
+{
+    struct PlayerInfo* my_player = get_my_player();
+    if (!player_exists(my_player)) {
+        return;
+    }
+    struct Packet* my_pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+    if (my_pckt == NULL) {
+        MULTIPLAYER_LOG("fill_missing_packets: Could not get local checksum from input lag queue");
+        return;
+    }
+    TbBigChecksum local_checksum = my_pckt->checksum;
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (i == my_player->packet_num) {
+            continue;
+        }
+        if (!network_player_active(i)) {
+            continue;
+        }
+        struct Packet* pckt = get_packet_direct(i);
+        if (is_packet_empty(pckt)) {
+            const struct Packet* prev_pckt = get_received_packet_for_player(game.play_gameturn - 1, i);
+            if (prev_pckt != NULL && !is_packet_empty(prev_pckt)) {
+                MULTIPLAYER_LOG("fill_missing_packets: Reusing packet[%d] from turn %lu for turn %lu",
+                        i, (unsigned long)(game.play_gameturn - 1), (unsigned long)game.play_gameturn);
+                pckt->action = prev_pckt->action;
+                pckt->actn_par1 = prev_pckt->actn_par1;
+                pckt->actn_par2 = prev_pckt->actn_par2;
+                pckt->actn_par3 = prev_pckt->actn_par3;
+                pckt->actn_par4 = prev_pckt->actn_par4;
+                pckt->pos_x = prev_pckt->pos_x;
+                pckt->pos_y = prev_pckt->pos_y;
+                pckt->control_flags = prev_pckt->control_flags;
+                pckt->additional_packet_values = prev_pckt->additional_packet_values;
+                pckt->turn = game.play_gameturn;
+                pckt->checksum = local_checksum;
+            } else {
+                MULTIPLAYER_LOG("fill_missing_packets: No previous packet found for player[%d], skipping", i);
+            }
+        }
+    }
+}
+
 /**
  * Exchange packets if MP game, then process all packets influencing local game state.
  */
@@ -1689,17 +1733,11 @@ void process_packets(void)
         if (!game.packet_load_enable || game.packet_load_initialized)
         {
             struct Packet* my_pckt = get_packet_direct(player->packet_num);
-            MULTIPLAYER_LOG("send_and_receive_packets: SENDING packet[%d] turn=%lu checksum=%08lx",
+            MULTIPLAYER_LOG("process_packets: SENDING packet[%d] turn=%lu checksum=%08lx",
                     player->packet_num, (unsigned long)my_pckt->turn,
                     (unsigned long)my_pckt->checksum);
-            TbError exchange_result = LbNetwork_Exchange(my_pckt, game.packets, sizeof(struct Packet), false);
-            if (exchange_result == Lb_OK)
-            {
-                store_received_packets();
-            }
-            else
-            {
-                MULTIPLAYER_LOG("send_and_receive_packets: LbNetwork_Exchange FAILED with error %d", exchange_result);
+            TbError exchange_result = LbNetwork_Exchange(NETMSG_GAMEPLAY, my_pckt, game.packets, sizeof(struct Packet));
+            if (exchange_result != Lb_OK) {
                 ERRORLOG("LbNetwork_Exchange failed");
             }
         }
@@ -1708,51 +1746,50 @@ void process_packets(void)
 
     MULTIPLAYER_LOG("process_packets: Loading packets from input lag queue");
     load_old_packets(player->packet_num);
+    
+    fill_missing_packets_from_previous_turn();
 
-    if (input_lag_should_skip_processing())
+    if (input_lag_skips_initial_processing())
     {
         clear_packets();
         return;
     }
 
-  // Setting checksum problem flags
-  if (checksums_different()) //Should be called directly after LbNetwork_Exchange, to see if there's anything wrong with the received packet
-  {
-      set_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-      //store_checksums_for_desync_analysis(); //This should be called right after checksums_different()
-  }
-  else
-  {
-      clear_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-  }
-  // Write packets into file, if requested
-  if ((game.packet_save_enable) && (game.packet_fopened))
-    save_packets();
-//Debug code, to find packet errors
-#if DEBUG_NETWORK_PACKETS
-  write_debug_packets();
-#endif
-  // Process the packets
-  for (i=0; i<PACKETS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-      process_players_packet(i);
-  }
-  // Clear all packets
-  clear_packets();
-  if (((game.system_flags & GSF_NetGameNoSync) != 0)
-   || ((game.system_flags & GSF_NetSeedNoSync) != 0))
-  {
-    SYNCDBG(0,"Resyncing");
-    resync_game();
-  }
-  get_current_slowdown_percentage();
-  get_current_frametime_ms();
-  MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)game.play_gameturn);
-  SYNCDBG(7,"Finished");
+    if (checksums_different()) { //Should be called directly after LbNetwork_Exchange, to see if there's anything wrong with the received packet
+        // Setting checksum problem flags
+        set_flag(game.system_flags, GSF_NetGameNoSync);
+        clear_flag(game.system_flags, GSF_NetSeedNoSync);
+    } else {
+        clear_flag(game.system_flags, GSF_NetGameNoSync);
+        clear_flag(game.system_flags, GSF_NetSeedNoSync);
+    }
+
+    // Write packets into file, if requested
+    if ((game.packet_save_enable) && (game.packet_fopened))
+        save_packets();
+    //Debug code, to find packet errors
+    #if DEBUG_NETWORK_PACKETS
+    write_debug_packets();
+    #endif
+    // Process the packets
+    for (i=0; i<PACKETS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        process_players_packet(i);
+    }
+    // Clear all packets
+    clear_packets();
+    if (((game.system_flags & GSF_NetGameNoSync) != 0)
+    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+    {
+        SYNCDBG(0,"Resyncing");
+        resync_game();
+    }
+    get_current_slowdown_percentage();
+    get_current_frametime_ms();
+    MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)game.play_gameturn);
+    SYNCDBG(7,"Finished");
 }
 
 static TbBool try_starting_level_from_chat(char* message, long player_id)
@@ -1822,10 +1859,10 @@ void process_frontend_packets(void)
   nspckt->networkstatus_flags ^= ((nspckt->networkstatus_flags ^ (fe_computer_players << 1)) & 0x06);
   nspckt->stored_data1 = VersionRelease;
   nspckt->stored_data2 = VersionBuild;
-  if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket), false))
+  if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
   {
       ERRORLOG("LbNetwork_Exchange failed");
-      net_service_index_selected = -1; // going to quit
+      net_service_index_selected = -1;
   }
   if (frontend_should_all_players_quit())
   {
