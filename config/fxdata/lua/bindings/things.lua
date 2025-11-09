@@ -44,7 +44,7 @@ function ChangeCreaturesAnnoyance(player,creature,operation,annoyance) end
 ---@param shot_type shot_type The shot name from fxdata\magic.cfg
 ---@param location location
 ---@param player playersingle When used it sets the owner of the object.
----@param target? Thing When used the shot will target the thing
 ---@param hit_type hittypes What the shot can hit
+---@param target? Thing When used the shot will target the thing
 ---@return Thing shot
-function AddShotToLevel(shot_type,location,player, target, hit_type) local shot return shot end
+function AddShotToLevel(shot_type,location,player, hit_type,target) local shot return shot end
