@@ -2359,6 +2359,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             if (config_value_secondary < 0)
             {
                 SCRPTERRLOG("Slab sleep experience value (%s %ld) must be 0 or greater.", scline->tp[2], config_value_secondary);
+                config_value_primary = 0;
                 config_value_secondary = 0;
             }
             slabtype = (scline->tp[4][0] != '\0') ? get_id(slab_desc, scline->tp[4]) : 0;
@@ -2379,6 +2380,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             if (config_value_quaternary < 0)
             {
                 SCRPTERRLOG("Slab sleep experience value (%s %ld) must be 0 or greater.", scline->tp[5], config_value_quaternary);
+                config_value_tertiary = 0;
                 config_value_quaternary = 0;
             }
             slabtype = (scline->tp[6][0] != '\0') ? get_id(slab_desc, scline->tp[6]) : 0;
@@ -2399,6 +2401,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             if (config_value_senary < 0)
             {
                 SCRPTERRLOG("Slab sleep experience value (%s %ld) must be 0 or greater.", scline->tp[7], config_value_senary);
+                config_value_quinary = 0;
                 config_value_senary = 0;
             }
         }
