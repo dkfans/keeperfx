@@ -36,6 +36,7 @@
 #include "game_legacy.h"
 #include "input_lag.h"
 #include "received_packets.h"
+#include "redundant_packets.h"
 #include "desync_analysis.h"
 #include "keeperfx.hpp"
 #include "frontend.h"
@@ -211,8 +212,9 @@ void resync_game(void)
     recall_localised_game_structure();
     reinit_level_after_load();
 
-    game.skip_initial_input_turns = game.input_lag_turns;
+    game.skip_initial_input_turns = calculate_skip_input();
     clear_packet_tracking();
+    clear_redundant_packets();
     clear_input_lag_queue();
     clear_desync_analysis();
     MULTIPLAYER_LOG("Input lag after resync: %d turns", game.input_lag_turns);
@@ -240,7 +242,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     struct Packet* pckt = get_packet(my_player_number);
     set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
     pckt->checksum = checksum_mem + game.action_random_seed;
-    if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet), true))
+    if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet)))
     {
         ERRORLOG("Network exchange failed on level checksum verification");
         result = false;

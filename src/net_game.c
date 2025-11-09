@@ -34,6 +34,7 @@
 #include "bflib_network_resync.h"
 #include "config_settings.h"
 #include "game_legacy.h"
+#include "input_lag.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -78,7 +79,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet_direct(my_player_number);
   set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
-  if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet), true))
+  if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet)))
       ERRORLOG("Network Exchange failed");
   int k = 0;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++)
@@ -210,7 +211,7 @@ void sync_various_data()
    }
    game.action_random_seed = initial_sync_data.action_random_seed;
    game.input_lag_turns = initial_sync_data.input_lag_turns;
-   game.skip_initial_input_turns = game.input_lag_turns;
+   game.skip_initial_input_turns = calculate_skip_input();
    MULTIPLAYER_LOG("Initial network state synced: action_seed=%lu, input_lag=%d", game.action_random_seed, game.input_lag_turns);
 }
 /******************************************************************************/

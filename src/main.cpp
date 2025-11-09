@@ -215,6 +215,7 @@ void compute_multiplayer_checksum(void);
 /******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
+long double last_draw_completed_time = 0;
 struct TimerTime Timer;
 TbBool TimerGame = false;
 TbBool TimerNoReset = false;
@@ -3481,6 +3482,7 @@ void gameplay_loop_draw()
         keeper_screen_swap();
     }
     frametime_end_measurement(Frametime_Draw);
+    last_draw_completed_time = get_time_tick_ns();
 }
 
 void gameplay_loop_timestep();
@@ -3919,9 +3921,7 @@ void game_loop(void)
           clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {
-          if (!game.packet_load_enable) {
-              toggle_status_menu(1); // Required when skipping PI_HeartZoom
-          }
+          set_player_instance(player, PI_HeartZoom, 0);
       }
 
       unsigned long starttime;
