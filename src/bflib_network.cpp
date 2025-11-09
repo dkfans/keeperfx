@@ -388,7 +388,7 @@ static void ProcessMessagesUntil(NetUserId id, void *serv_buf, size_t frame_size
             network_yield_draw();
         }
     } else {
-        const int draw_interval = 16; // 60 times per second. If you decrease this to draw faster then that means less time spent checking for new packets.
+        const int draw_interval = 16; // 60 times per second. If you decrease this to draw faster then that means less time spent checking for new packets. Keep the amount of draws the same between both Host and Client, don't change it dynamically.
         const int timeout_max = (1000 / game_num_fps);
         TbClockMSec start = LbTimerClock();
         TbClockMSec last_draw = start;
