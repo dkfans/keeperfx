@@ -1901,6 +1901,11 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                 if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
                   k = atoi(word_buf);
+                  if (k < 0)
+                  {
+                      ERRORLOG("Slab sleep experience value (%s %d) must be 0 or greater.", slab_code_name(crconf->sleep_exp_slab[i]), k);
+                      k = 0;
+                  }
                   crconf->sleep_experience[i] = k;
                   n++;
                 }
