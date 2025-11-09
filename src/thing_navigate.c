@@ -247,17 +247,46 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Co
     return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, flags);
 }
 
+struct ClosestGate
+{
+    ThingIndex index;
+    TbBool friendly;
+    MapCoordDelta distance;
+};
+int sortgates(const void* a, const void* b) 
+{
+    const struct ClosestGate* ga = (const struct ClosestGate*)a;
+    const struct ClosestGate* gb = (const struct ClosestGate*)b;
+    // Primary: friendly first (friendly == 1)
+    if (ga->friendly != gb->friendly)
+        return (gb->friendly - ga->friendly); // friendly ones first
+
+    // Secondary: smaller distance first
+    if (ga->distance < gb->distance) return -1;
+    if (ga->distance > gb->distance) return 1;
+
+    return 0;
+}
+
 /**
- * Returns a hero gate object to which given hero can navigate.
- * @todo CREATURE_AI It returns first hero door found, not the best one.
- *     Maybe it should find the one he will reach faster, or at least a random one?
+ * Returns Hero gate object from list to which given hero can navigate.
+ * Avoids gates on enemy land if possible. Only checks 10 close ones if can be navigated to, otherwise uses fallback.
  * @param herotng The hero to be able to make it to gate.
  * @return The gate thing, or invalid thing.
  */
-struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
+struct Thing *find_best_hero_gate_to_navigate_to(struct Thing *herotng)
 {
-    unsigned long k = 0;
+    struct ClosestGate hero_gates[HERO_GATES_COUNT];
+    for (int g = 0; g < HERO_GATES_COUNT; g++)
+    {
+        hero_gates[g].index = 0;
+        hero_gates[g].distance = INT32_MAX;
+    }
+
+    //Go through all objects to find gates and record distance
     int i = game.thing_lists[TngList_Objects].index;
+    int32_t k = 0;
+    short found_gates = 0;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -268,12 +297,18 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         }
         i = thing->next_of_class;
         // Per thing code
-        if (object_is_hero_gate(thing) && !thing_is_picked_up(thing))
+        if (!object_is_hero_gate(thing) || thing_is_picked_up(thing))
         {
-            if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, NavRtF_Default)) {
-                return thing;
-            }
+            continue;
         }
+
+        hero_gates[found_gates].index = thing->index;
+        hero_gates[found_gates].distance = get_chessboard_distance(&thing->mappos, &herotng->mappos);;
+        hero_gates[found_gates].friendly = (players_are_enemies(herotng->owner, get_slab_owner_thing_is_on(thing)) == false);
+        found_gates++;
+        if (found_gates > HERO_GATES_COUNT)
+            break;
+
         // Per thing code ends
         k++;
         if (k > THINGS_COUNT)
@@ -282,7 +317,26 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
             break;
         }
     }
-    return NULL;
+
+    //sort them by friendly first, distance second
+    qsort(hero_gates, found_gates, sizeof(hero_gates[0]),&sortgates);
+
+    // Return the closest one the hero can navigate to.
+    struct Thing* gatetng = INVALID_THING;
+    for (int g = 0; g < HERO_GATES_COUNT; g++)
+    {
+        if (hero_gates[g].index == 0)
+            continue;
+        gatetng = thing_get(hero_gates[g].index);
+        if (!thing_is_invalid(gatetng))
+        {
+            if (creature_can_navigate_to_with_storage(herotng, &gatetng->mappos, NavRtF_Default))
+            {
+                return gatetng;
+            }
+        }
+    }
+    return INVALID_THING;
 }
 
 void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const char *func_name)
