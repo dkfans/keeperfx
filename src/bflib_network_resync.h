@@ -28,12 +28,7 @@ extern "C" {
 
 TbBool LbNetwork_Resync(void *data_buffer, size_t buffer_length);
 void LbNetwork_TimesyncBarrier(void);
-
-void LbNetwork_ClientSendReadyMessage(void);
-void LbNetwork_WaitUntilResumeTime(TbClockMSec resume_time);
-TbBool LbNetwork_HostWaitForAllClientsReady(void);
-TbClockMSec LbNetwork_HostSendResumeToAllClients(void);
-TbBool LbNetwork_ClientWaitForResumeMessage(TbClockMSec *resume_time);
+void animate_resync_progress_bar(int current_phase, int total_phases);
 
 #ifdef __cplusplus
 }

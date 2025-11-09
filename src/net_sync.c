@@ -119,40 +119,32 @@ TbBool send_resync_game(void)
 
   resync_potentially_increases_input_lag();
   clear_flag(game.operation_flags, GOF_Paused);
+  animate_resync_progress_bar(0, 6);
   NETLOG("Initiating re-synchronization of network game");
   TbBool result = LbNetwork_Resync(&game, sizeof(game));
   if (!result) {
     return false;
   }
-  if (!LbNetwork_HostWaitForAllClientsReady()) {
-    NETLOG("Resync synchronization FAILED");
-    return false;
-  }
-  TbClockMSec resume_time = LbNetwork_HostSendResumeToAllClients();
-  LbNetwork_WaitUntilResumeTime(resume_time);
-  MULTIPLAYER_LOG("Host: Resync complete");
+  animate_resync_progress_bar(2, 6);
   LbNetwork_TimesyncBarrier();
+  animate_resync_progress_bar(6, 6);
+  MULTIPLAYER_LOG("Host: Resync complete");
   return true;
 }
 
 TbBool receive_resync_game(void)
 {
     clear_flag(game.operation_flags, GOF_Paused);
+    animate_resync_progress_bar(0, 6);
     NETLOG("Initiating re-synchronization of network game");
     TbBool result = LbNetwork_Resync(&game, sizeof(game));
     if (!result) {
         return false;
     }
-    LbNetwork_ClientSendReadyMessage();
-    TbClockMSec resume_time = 0;
-    if (!LbNetwork_ClientWaitForResumeMessage(&resume_time)) {
-        NETLOG("Resync synchronization FAILED");
-        return false;
-    }
-    LbNetwork_WaitUntilResumeTime(resume_time);
-    MULTIPLAYER_LOG("Client: Resync complete");
+    animate_resync_progress_bar(2, 6);
     LbNetwork_TimesyncBarrier();
-
+    animate_resync_progress_bar(6, 6);
+    MULTIPLAYER_LOG("Client: Resync complete");
     if (game.desync_diagnostics.has_desync_diagnostics) {
         compare_desync_history_from_host();
     }
