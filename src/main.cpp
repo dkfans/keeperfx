@@ -3636,6 +3636,7 @@ static TbBool wait_at_frontend(void)
     {
       WARNMSG("No valid multiplayer mappack files found");
     }
+    set_default_mp_mappack();
     //Set level number and campaign (for single level mode: GOF_SingleLevel)
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)
     {

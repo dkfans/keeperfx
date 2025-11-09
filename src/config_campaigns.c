@@ -1375,6 +1375,16 @@ TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char
     return (clist->items_num > 0);
 }
 
+void set_default_mp_mappack(void)
+{
+    if (mp_mappacks_list.items_count < 1)
+    {
+        ERRORLOG("No MP Map Packs available to set as default.");
+        return;
+    }
+
+    change_campaign(mp_mappacks_list.items[0].fname);
+}
 
 TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
 {

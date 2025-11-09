@@ -186,6 +186,7 @@ TbBool change_campaign(const char *cmpgn_fname);
 TbBool is_campaign_loaded(void);
 TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist);
 TbBool is_map_pack(void);
+void set_default_mp_mappack(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
