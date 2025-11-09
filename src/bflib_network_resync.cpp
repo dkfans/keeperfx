@@ -40,6 +40,7 @@ extern void draw_out_of_sync_box(long a1, long a2, long box_width);
 #define RESYNC_RECEIVE_TIMEOUT_MS 30000
 #define RESYNC_TIMESYNC_TIMEOUT_MS 15000
 static long g_timesync_offset_ms = 0;
+static TbClockMSec g_client_rtt_ms = 0;
 
 struct ResyncHeader {
     unsigned char message_type;
@@ -51,6 +52,11 @@ struct ResyncHeader {
 struct ResumeMessage {
     unsigned char message_type;
     TbClockMSec resume_time;
+};
+
+struct TimeSyncComplete {
+    unsigned char message_type;
+    TbClockMSec client_rtt;
 };
 
 struct TimeSyncRequest {
@@ -65,238 +71,19 @@ struct TimeSyncResponse {
     TbClockMSec host_send_time;
 };
 
-static void animate_resync_progress_bar(void) {
+void animate_resync_progress_bar(int current_phase, int total_phases) {
     if (game.play_gameturn == 0) {
         return;
     }
     const long max_progress = (long)(32 * units_per_pixel / 16);
-    const long progress_pixels = (long)((double)max_progress * (LbTimerClock() % 1000) / 1000);
+    const long progress_pixels = (long)((double)max_progress * current_phase / total_phases);
     draw_out_of_sync_box(progress_pixels, max_progress, status_panel_width);
 }
 
-static void host_handle_timesync_request(NetUserId src_id, const char *buf, size_t sz);
-static TbBool client_timesync_with_host(void);
-static void host_process_pending_timesync_requests(TbClockMSec duration_ms);
-
-void LbNetwork_ClientSendReadyMessage(void) {
-    char message = NETMSG_RESYNC_READY;
-    netstate.sp->sendmsg_single(SERVER_ID, &message, 1);
-    MULTIPLAYER_LOG("Client: Sent READY to host");
-}
-
-static void wait_for_delay(TbClockMSec delay_ms) {
-    TbClockMSec start_time = LbTimerClock();
-    TbClockMSec end_time = start_time + delay_ms;
-    MULTIPLAYER_LOG("Waiting %lu ms (from %lu to %lu)", (unsigned long)delay_ms, (unsigned long)start_time, (unsigned long)end_time);
-    while (true) {
-        if (LbTimerClock() >= end_time) {
-            break;
-        }
-    }
-    MULTIPLAYER_LOG("Wait complete at %lu", (unsigned long)LbTimerClock());
-}
-
-void LbNetwork_WaitUntilResumeTime(TbClockMSec resume_time) {
-    TbClockMSec now = LbTimerClock();
-    if (resume_time > now) {
-        TbClockMSec delay = resume_time - now;
-        MULTIPLAYER_LOG("Current time %lu, waiting until %lu (delay %lu ms)", (unsigned long)now, (unsigned long)resume_time, (unsigned long)delay);
-        wait_for_delay(delay);
-    } else {
-        MULTIPLAYER_LOG("Resume time %lu already passed (current %lu), resuming immediately", (unsigned long)resume_time, (unsigned long)now);
-    }
-}
-
-TbBool LbNetwork_HostWaitForAllClientsReady(void) {
-    MULTIPLAYER_LOG("Host: Waiting for all clients to send READY");
-    TbBool ready_flags[MAX_N_USERS];
-    for (NetUserId i = 0; i < MAX_N_USERS; ++i) {
-        if (netstate.users[i].progress == USER_LOGGEDIN) {
-            ready_flags[i] = 0;
-        } else {
-            ready_flags[i] = 1;
-        }
-    }
-
-    TbClockMSec start_time = LbTimerClock();
-    while (LbTimerClock() - start_time < 10000) {
-        animate_resync_progress_bar();
-        netstate.sp->update(OnNewUser);
-        for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
-            if (id == netstate.my_id) continue;
-            if (netstate.users[id].progress != USER_LOGGEDIN) continue;
-            while (netstate.sp->msgready(id, 0)) {
-                size_t sz = netstate.sp->readmsg(id, netstate.msg_buffer, sizeof(netstate.msg_buffer));
-                if (sz > 0 && netstate.msg_buffer[0] == NETMSG_RESYNC_READY) {
-                    MULTIPLAYER_LOG("Host: Received READY from client index %d", id);
-                    ready_flags[id] = 1;
-                }
-            }
-        }
-        TbBool all_ready = true;
-        for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
-            if (!ready_flags[id]) {
-                all_ready = false;
-                break;
-            }
-        }
-        if (all_ready) {
-            MULTIPLAYER_LOG("Host: All clients ready");
-            return true;
-        }
-    }
-    ERRORLOG("Host: Timeout waiting for clients to be READY");
-    return false;
-}
-
-static void host_process_pending_timesync_requests(TbClockMSec duration_ms) {
-    MULTIPLAYER_LOG("Host: Handling any pending timesync requests");
-    TbBool timesynced[MAX_N_USERS];
-    for (NetUserId i = 0; i < MAX_N_USERS; ++i) {
-        if (i == netstate.my_id) {
-            timesynced[i] = 1;
-        } else if (netstate.users[i].progress == USER_LOGGEDIN) {
-            timesynced[i] = 0;
-        } else {
-            timesynced[i] = 1;
-        }
-    }
-    TbClockMSec wait_start = LbTimerClock();
-    while (LbTimerClock() - wait_start < duration_ms) {
-        animate_resync_progress_bar();
-        netstate.sp->update(OnNewUser);
-        for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
-            if (id == netstate.my_id) continue;
-            if (netstate.users[id].progress != USER_LOGGEDIN) continue;
-            while (netstate.sp->msgready(id, 0)) {
-                size_t sz = netstate.sp->readmsg(id, netstate.msg_buffer, sizeof(netstate.msg_buffer));
-                if (sz > 0 && netstate.msg_buffer[0] == NETMSG_TIMESYNC_REQUEST) {
-                    host_handle_timesync_request(id, netstate.msg_buffer, sz);
-                    timesynced[id] = 1;
-                }
-            }
-        }
-        TbBool all_done = 1;
-        for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
-            if (!timesynced[id]) {
-                all_done = 0;
-                break;
-            }
-        }
-        if (all_done) {
-            break;
-        }
-    }
-    LbSleepFor(100);
-    for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
-        if (id == netstate.my_id) continue;
-        if (netstate.users[id].progress != USER_LOGGEDIN) continue;
-        if (!timesynced[id]) {
-            MULTIPLAYER_LOG("Host: Timesync timeout for client index %d, dropping", id);
-            netstate.sp->drop_user(id);
-        }
-    }
-}
-
-TbClockMSec LbNetwork_HostSendResumeToAllClients(void) {
-    TbClockMSec current_time = LbTimerClock();
-    TbClockMSec host_resume_time = current_time + 500;
-    TbClockMSec client_resume_time = host_resume_time;
-    ResumeMessage message;
-    message.message_type = NETMSG_RESYNC_RESUME;
-    message.resume_time = client_resume_time;
-    MULTIPLAYER_LOG("Host: Broadcasting RESUME to all clients (current=%lu, resume=%lu)", (unsigned long)current_time, (unsigned long)host_resume_time);
-    for (NetUserId user_index = 0; user_index < MAX_N_USERS; ++user_index) {
-        if (netstate.users[user_index].progress != USER_LOGGEDIN) {
-            continue;
-        }
-        netstate.sp->sendmsg_single(netstate.users[user_index].id, (char*)&message, sizeof(ResumeMessage));
-    }
-    return host_resume_time;
-}
-
-TbBool LbNetwork_ClientWaitForResumeMessage(TbClockMSec *resume_time) {
-    MULTIPLAYER_LOG("Client: Waiting for RESUME message from host");
-    TbClockMSec start_time = LbTimerClock();
-    while (LbTimerClock() - start_time < 10000) {
-        animate_resync_progress_bar();
-        netstate.sp->update(OnNewUser);
-        while (netstate.sp->msgready(SERVER_ID, 0)) {
-            size_t sz = netstate.sp->readmsg(SERVER_ID, netstate.msg_buffer, sizeof(netstate.msg_buffer));
-            if (sz >= sizeof(ResumeMessage)) {
-                ResumeMessage msg;
-                memcpy(&msg, netstate.msg_buffer, sizeof(ResumeMessage));
-                if (msg.message_type == NETMSG_RESYNC_RESUME) {
-                    long long host_time = (long long)msg.resume_time;
-                    long long offset = (long long)g_timesync_offset_ms;
-                    long long local_time = host_time - offset;
-                    if (local_time < 0) {
-                        local_time = 0;
-                    }
-                    *resume_time = (TbClockMSec)local_time;
-                    MULTIPLAYER_LOG("Client: Received RESUME from host, host_time=%lld offset=%lld local_time=%lld", host_time, offset, local_time);
-                    return true;
-                }
-            }
-        }
-    }
-    ERRORLOG("Client: Timeout waiting for RESUME from host");
-    return false;
-}
-
-static void host_handle_timesync_request(NetUserId src_id, const char *buf, size_t sz) {
-    if (sz < sizeof(TimeSyncRequest)) {
-        return;
-    }
-    TimeSyncRequest req;
-    memcpy(&req, buf, sizeof(TimeSyncRequest));
-    if (req.message_type != NETMSG_TIMESYNC_REQUEST) {
-        return;
-    }
-    TbClockMSec receive_time = LbTimerClock();
-    TimeSyncResponse rsp;
-    rsp.message_type = NETMSG_TIMESYNC_REPLY;
-    rsp.client_send_time = req.client_send_time;
-    rsp.host_receive_time = receive_time;
-    rsp.host_send_time = LbTimerClock();
-    netstate.sp->sendmsg_single(netstate.users[src_id].id, (const char *)&rsp, sizeof(rsp));
-}
-
-static TbBool client_timesync_with_host(void) {
-    TbClockMSec t1 = LbTimerClock();
-    TimeSyncRequest req;
-    req.message_type = NETMSG_TIMESYNC_REQUEST;
-    req.client_send_time = t1;
-    netstate.sp->sendmsg_single(SERVER_ID, (const char *)&req, sizeof(req));
-    MULTIPLAYER_LOG("Client: Sent TIMESYNC request at t1=%lu", (unsigned long)t1);
-    TbClockMSec start = LbTimerClock();
-    while (LbTimerClock() - start < RESYNC_TIMESYNC_TIMEOUT_MS) {
-        netstate.sp->update(OnNewUser);
-        while (netstate.sp->msgready(SERVER_ID, 0)) {
-            size_t got = netstate.sp->readmsg(SERVER_ID, netstate.msg_buffer, sizeof(netstate.msg_buffer));
-            TbClockMSec t4 = LbTimerClock();
-            if (got >= sizeof(TimeSyncResponse)) {
-                TimeSyncResponse rsp;
-                memcpy(&rsp, netstate.msg_buffer, sizeof(TimeSyncResponse));
-                if (rsp.message_type == NETMSG_TIMESYNC_REPLY) {
-                    TbClockMSec rtt = t4 - rsp.client_send_time;
-                    long long offset = ((long long)rsp.host_receive_time - (long long)rsp.client_send_time + (long long)rsp.host_send_time - (long long)t4) / 2;
-                    g_timesync_offset_ms = (long)offset;
-                    MULTIPLAYER_LOG("Client: TIMESYNC complete: t1=%lld t2=%lld t3=%lld t4=%lld rtt=%lu offset=%ld ms (host ahead)",
-                        (long long)rsp.client_send_time, (long long)rsp.host_receive_time, (long long)rsp.host_send_time, (long long)t4, (unsigned long)rtt, g_timesync_offset_ms);
-                    return true;
-                }
-            }
-        }
-        animate_resync_progress_bar();
-    }
-    ERRORLOG("Client: TIMESYNC timeout");
-    return false;
-}
 
 static TbBool send_resync_data(const void * buffer, size_t total_length) {
     NETLOG("Starting to send resync data: %lu bytes uncompressed", (unsigned long)total_length);
-
+    
     uLong data_crc = crc32(0L, Z_NULL, 0);
     data_crc = crc32(data_crc, (const Bytef*)buffer, total_length);
 
@@ -354,7 +141,6 @@ static TbBool receive_resync_data(void * destination_buffer, size_t expected_tot
 
     TbClockMSec start_time = LbTimerClock();
     while (LbTimerClock() - start_time < RESYNC_RECEIVE_TIMEOUT_MS) {
-        animate_resync_progress_bar();
         netstate.sp->update(OnNewUser);
         size_t ready = netstate.sp->msgready(SERVER_ID, 0);
         if (ready == 0) {
@@ -457,21 +243,202 @@ void LbNetwork_TimesyncBarrier(void)
     }
     const TbBool is_server = (netstate.users[netstate.my_id].progress == USER_SERVER);
     if (is_server) {
-        host_process_pending_timesync_requests(RESYNC_TIMESYNC_TIMEOUT_MS);
-        TbClockMSec resume_time = LbNetwork_HostSendResumeToAllClients();
-        LbNetwork_WaitUntilResumeTime(resume_time);
+        MULTIPLAYER_LOG("Host: Handling any pending timesync requests");
+        TbBool timesynced[MAX_N_USERS];
+        for (NetUserId i = 0; i < MAX_N_USERS; ++i) {
+            if (i == netstate.my_id) {
+                timesynced[i] = 1;
+            } else if (netstate.users[i].progress == USER_LOGGEDIN) {
+                timesynced[i] = 0;
+            } else {
+                timesynced[i] = 1;
+            }
+        }
+        g_client_rtt_ms = 0;
+        TbClockMSec wait_start = LbTimerClock();
+        TbClockMSec last_anim_time = wait_start;
+        while (LbTimerClock() - wait_start < RESYNC_TIMESYNC_TIMEOUT_MS) {
+            netstate.sp->update(OnNewUser);
+            for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
+                if (id == netstate.my_id) continue;
+                if (netstate.users[id].progress != USER_LOGGEDIN) continue;
+                while (netstate.sp->msgready(id, 0)) {
+                    size_t sz = netstate.sp->readmsg(id, netstate.msg_buffer, sizeof(netstate.msg_buffer));
+                    if (sz >= sizeof(TimeSyncRequest) && netstate.msg_buffer[0] == NETMSG_TIMESYNC_REQUEST) {
+                        TimeSyncRequest req;
+                        memcpy(&req, netstate.msg_buffer, sizeof(TimeSyncRequest));
+                        TbClockMSec receive_time = LbTimerClock();
+                        TimeSyncResponse rsp;
+                        rsp.message_type = NETMSG_TIMESYNC_REPLY;
+                        rsp.client_send_time = req.client_send_time;
+                        rsp.host_receive_time = receive_time;
+                        rsp.host_send_time = LbTimerClock();
+                        netstate.sp->sendmsg_single(netstate.users[id].id, (const char *)&rsp, sizeof(rsp));
+                    } else if (sz >= sizeof(TimeSyncComplete) && netstate.msg_buffer[0] == NETMSG_TIMESYNC_COMPLETE) {
+                        TimeSyncComplete complete;
+                        memcpy(&complete, netstate.msg_buffer, sizeof(TimeSyncComplete));
+                        g_client_rtt_ms = complete.client_rtt;
+                        MULTIPLAYER_LOG("Host: Received RTT from client %d: %lu ms", id, (unsigned long)g_client_rtt_ms);
+                        timesynced[id] = 1;
+                    }
+                }
+            }
+            TbBool all_done = 1;
+            for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
+                if (!timesynced[id]) {
+                    all_done = 0;
+                    break;
+                }
+            }
+            if (all_done) {
+                break;
+            }
+            TbClockMSec now = LbTimerClock();
+            if (now - last_anim_time >= 100) {
+                animate_resync_progress_bar(3, 6);
+                last_anim_time = now;
+            }
+        }
+        LbSleepFor(100);
+        for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
+            if (id == netstate.my_id) continue;
+            if (netstate.users[id].progress != USER_LOGGEDIN) continue;
+            if (!timesynced[id]) {
+                MULTIPLAYER_LOG("Host: Timesync timeout for client index %d, dropping", id);
+                netstate.sp->drop_user(id);
+            }
+        }
+        TbClockMSec current_time = LbTimerClock();
+        TbClockMSec delay = 500;
+        if (g_client_rtt_ms > 0) {
+            delay = g_client_rtt_ms * 3;
+            if (delay < 100) {
+                delay = 100;
+            }
+            if (delay > 1000) {
+                delay = 1000;
+            }
+        }
+        TbClockMSec resume_time = current_time + delay;
+        ResumeMessage message;
+        message.message_type = NETMSG_RESYNC_RESUME;
+        message.resume_time = resume_time;
+        MULTIPLAYER_LOG("Host: Broadcasting RESUME to all clients (current=%lu, resume=%lu, delay=%lu, client_rtt=%lu)", (unsigned long)current_time, (unsigned long)resume_time, (unsigned long)delay, (unsigned long)g_client_rtt_ms);
+        for (NetUserId user_index = 0; user_index < MAX_N_USERS; ++user_index) {
+            if (netstate.users[user_index].progress != USER_LOGGEDIN) {
+                continue;
+            }
+            netstate.sp->sendmsg_single(netstate.users[user_index].id, (char*)&message, sizeof(ResumeMessage));
+        }
+        TbClockMSec now = LbTimerClock();
+        if (resume_time > now) {
+            TbClockMSec wait_delay = resume_time - now;
+            MULTIPLAYER_LOG("Current time %lu, waiting until %lu (delay %lu ms)", (unsigned long)now, (unsigned long)resume_time, (unsigned long)wait_delay);
+            TbClockMSec end_time = now + wait_delay;
+            if (wait_delay > 10) {
+                TbClockMSec sleep_until = end_time - 5;
+                while (LbTimerClock() < sleep_until) {
+                    LbSleepFor(1);
+                }
+            }
+            while (LbTimerClock() < end_time) {
+            }
+        }
         MULTIPLAYER_LOG("Host: Timesync barrier complete");
     } else {
-        if (!client_timesync_with_host()) {
-            MULTIPLAYER_LOG("Client: Timesync failed, disconnecting");
-            LbNetwork_Stop();
-            return;
+        TbClockMSec t1 = LbTimerClock();
+        TimeSyncRequest req;
+        req.message_type = NETMSG_TIMESYNC_REQUEST;
+        req.client_send_time = t1;
+        netstate.sp->sendmsg_single(SERVER_ID, (const char *)&req, sizeof(req));
+        MULTIPLAYER_LOG("Client: Sent TIMESYNC request at t1=%lu", (unsigned long)t1);
+        TbClockMSec start = LbTimerClock();
+        TbClockMSec last_anim_time = start;
+        while (LbTimerClock() - start < RESYNC_TIMESYNC_TIMEOUT_MS) {
+            netstate.sp->update(OnNewUser);
+            while (netstate.sp->msgready(SERVER_ID, 0)) {
+                size_t got = netstate.sp->readmsg(SERVER_ID, netstate.msg_buffer, sizeof(netstate.msg_buffer));
+                TbClockMSec t4 = LbTimerClock();
+                if (got >= sizeof(TimeSyncResponse)) {
+                    TimeSyncResponse rsp;
+                    memcpy(&rsp, netstate.msg_buffer, sizeof(TimeSyncResponse));
+                    if (rsp.message_type == NETMSG_TIMESYNC_REPLY) {
+                        TbClockMSec rtt = t4 - rsp.client_send_time;
+                        long long offset = ((long long)rsp.host_receive_time - (long long)rsp.client_send_time + (long long)rsp.host_send_time - (long long)t4) / 2;
+                        g_timesync_offset_ms = (long)offset;
+                        MULTIPLAYER_LOG("Client: TIMESYNC complete: t1=%lld t2=%lld t3=%lld t4=%lld rtt=%lu offset=%ld ms (host ahead)",
+                            (long long)rsp.client_send_time, (long long)rsp.host_receive_time, (long long)rsp.host_send_time, (long long)t4, (unsigned long)rtt, g_timesync_offset_ms);
+                        TimeSyncComplete complete;
+                        complete.message_type = NETMSG_TIMESYNC_COMPLETE;
+                        complete.client_rtt = rtt;
+                        netstate.sp->sendmsg_single(SERVER_ID, (const char *)&complete, sizeof(complete));
+                        goto timesync_done;
+                    }
+                }
+            }
+            TbClockMSec now = LbTimerClock();
+            if (now - last_anim_time >= 100) {
+                animate_resync_progress_bar(3, 6);
+                last_anim_time = now;
+            }
         }
+        ERRORLOG("Client: TIMESYNC timeout");
+        LbNetwork_Stop();
+        return;
+timesync_done:
+        MULTIPLAYER_LOG("Client: Waiting for RESUME message from host");
+        TbClockMSec start_time = LbTimerClock();
+        last_anim_time = start_time;
         TbClockMSec resume_time = 0;
-        if (!LbNetwork_ClientWaitForResumeMessage(&resume_time)) {
+        TbBool received = false;
+        while (LbTimerClock() - start_time < 10000) {
+            netstate.sp->update(OnNewUser);
+            while (netstate.sp->msgready(SERVER_ID, 0)) {
+                size_t sz = netstate.sp->readmsg(SERVER_ID, netstate.msg_buffer, sizeof(netstate.msg_buffer));
+                if (sz >= sizeof(ResumeMessage)) {
+                    ResumeMessage msg;
+                    memcpy(&msg, netstate.msg_buffer, sizeof(ResumeMessage));
+                    if (msg.message_type == NETMSG_RESYNC_RESUME) {
+                        long long host_time = (long long)msg.resume_time;
+                        long long offset = (long long)g_timesync_offset_ms;
+                        long long local_time = host_time - offset;
+                        if (local_time < 0) {
+                            local_time = 0;
+                        }
+                        resume_time = (TbClockMSec)local_time;
+                        MULTIPLAYER_LOG("Client: Received RESUME from host, host_time=%lld offset=%lld local_time=%lld", host_time, offset, local_time);
+                        received = true;
+                        break;
+                    }
+                }
+            }
+            if (received) {
+                break;
+            }
+            TbClockMSec now = LbTimerClock();
+            if (now - last_anim_time >= 100) {
+                animate_resync_progress_bar(4, 6);
+                last_anim_time = now;
+            }
+        }
+        if (!received) {
+            ERRORLOG("Client: Timeout waiting for RESUME from host");
             return;
         }
-        LbNetwork_WaitUntilResumeTime(resume_time);
+        TbClockMSec now = LbTimerClock();
+        if (resume_time > now) {
+            TbClockMSec wait_delay = resume_time - now;
+            MULTIPLAYER_LOG("Current time %lu, waiting until %lu (delay %lu ms)", (unsigned long)now, (unsigned long)resume_time, (unsigned long)wait_delay);
+            TbClockMSec end_time = now + wait_delay;
+            if (wait_delay > 10) {
+                TbClockMSec sleep_until = end_time - 5;
+                while (LbTimerClock() < sleep_until) {
+                    LbSleepFor(1);
+                }
+            }
+            while (LbTimerClock() < end_time) {
+            }
+        }
         MULTIPLAYER_LOG("Client: Timesync barrier complete");
     }
 }
