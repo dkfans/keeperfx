@@ -982,8 +982,11 @@ short load_configuration(void)
   const char* sname; // Filename
   const char* fname; // Filepath
 
-  load_mods_order_config_file();
-  recheck_all_mod_exist();
+  if (!flag_is_set(start_params.flags_font,FFlg_IgnoreMods))
+  {
+      load_mods_order_config_file();
+      recheck_all_mod_exist();
+  }
 
   // Check if custom config file is set '-config <file>'
   if (start_params.overrides[Clo_ConfigFile])

@@ -1609,7 +1609,6 @@ TbBool set_default_startup_parameters(void)
     memset(&start_params, 0, sizeof(struct StartupParameters));
     start_params.startup_flags = (SFlg_Legal|SFlg_FX|SFlg_Intro);
     start_params.packet_checksum_verify = 1;
-    clear_flag(start_params.flags_font, FFlg_Unusedparam01);
     // Set levels to 0, as we may not have the campaign loaded yet
     start_params.selected_level_number = 0;
     start_params.num_fps = 20;
@@ -4125,6 +4124,9 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "sessions") == 0) {
           narg++;
           LbNetwork_InitSessionsFromCmdLine(pr2str);
+      } else
+      if (strcasecmp(parstr, "NoMods") == 0) {
+          set_flag(start_params.flags_font, FFlg_IgnoreMods);
       } else
       if (strcasecmp(parstr,"alex") == 0)
       {

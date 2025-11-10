@@ -88,7 +88,7 @@ enum ModeFlags {
 };
 
 enum FFlags {
-    FFlg_Unusedparam01      =  0x01,
+    FFlg_IgnoreMods         =  0x01,
     FFlg_ShowLevelIntroText =  0x02,
     FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
     FFlg_HalfSizeRender     =  0x08,
