@@ -555,9 +555,9 @@ short creature_sleep(struct Thing *thing)
     long XP = 0;
     for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
     {
-        if (room_has_slab_adjacent(room, crconf->sleep_exp_slab[i]))
+        if (crconf->sleep_experience[i] > XP)
         {
-            if (crconf->sleep_experience[i] > XP)
+            if (room_has_slab_adjacent(room, crconf->sleep_exp_slab[i]))
             {
                 XP = crconf->sleep_experience[i];
             }
