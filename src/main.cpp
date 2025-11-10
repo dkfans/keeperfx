@@ -4125,7 +4125,7 @@ short process_command_line(unsigned short argc, char *argv[])
           narg++;
           LbNetwork_InitSessionsFromCmdLine(pr2str);
       } else
-      if (strcasecmp(parstr, "NoMods") == 0) {
+      if (strcasecmp(parstr, "nomods") == 0) {
           set_flag(start_params.flags_font, FFlg_IgnoreMods);
       } else
       if (strcasecmp(parstr,"alex") == 0)
