@@ -987,6 +987,10 @@ short load_configuration(void)
       load_mods_order_config_file();
       recheck_all_mod_exist();
   }
+  else
+  {
+      SYNCMSG("Mod loading skipped");
+  }
 
   // Check if custom config file is set '-config <file>'
   if (start_params.overrides[Clo_ConfigFile])
