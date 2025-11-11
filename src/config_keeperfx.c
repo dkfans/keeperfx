@@ -982,7 +982,7 @@ short load_configuration(void)
   const char* sname; // Filename
   const char* fname; // Filepath
 
-  if (!flag_is_set(start_params.flags_font,FFlg_IgnoreMods))
+  if (start_params.ignore_mods == false)
   {
       load_mods_order_config_file();
       recheck_all_mod_exist();

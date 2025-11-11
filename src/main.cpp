@@ -1571,7 +1571,7 @@ void reinit_level_after_load(void)
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
-    game.flags_font |= start_params.flags_font;
+    game.easter_eggs_enabled = start_params.easter_egg;
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
@@ -4126,11 +4126,11 @@ short process_command_line(unsigned short argc, char *argv[])
           LbNetwork_InitSessionsFromCmdLine(pr2str);
       } else
       if (strcasecmp(parstr, "nomods") == 0) {
-          set_flag(start_params.flags_font, FFlg_IgnoreMods);
+          start_params.ignore_mods = true;
       } else
       if (strcasecmp(parstr,"alex") == 0)
       {
-         set_flag(start_params.flags_font, FFlg_AlexCheat);
+         start_params.easter_egg = true;
       }
       else if (strcasecmp(parstr,"connect") == 0)
       {
