@@ -186,6 +186,10 @@ TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, 
         {
             continue;
         }
+        if (creature_is_being_unconscious(thing) || thing_is_dragged_or_pulled(thing) || creature_is_being_dropped(thing))
+        {
+            continue;
+        }
         // Thing list loop body
         // Range of 0 means activate when on the same subtile
         if (apt->range <= 0)
