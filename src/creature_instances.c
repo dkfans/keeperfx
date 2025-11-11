@@ -709,8 +709,8 @@ long instf_destroy(struct Thing *creatng, long *param)
         clear_dig_on_room_slabs(room, creatng->owner);
         if (room->owner == game.neutral_player_num)
         {
-            claim_room(room, creatng);
             remove_room_from_players_list(room, game.neutral_player_num);
+            claim_room(room, creatng);
         } else
         {
             MapCoord ccor_x = subtile_coord_center(room->central_stl_x);
