@@ -68,6 +68,7 @@ extern "C" {
 #define ZOOM_KEY_ROOMS_COUNT   15
 
 #define CMDLINE_OVERRIDES      4
+
 /** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
     Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
@@ -85,17 +86,6 @@ enum ModeFlags {
     MFlg_Unusedparam20      =  0x20,
     MFlg_DemoMode           =  0x40,
     MFlg_NoHeroHealthFlower =  0x80,
-};
-
-enum FFlags {
-    FFlg_Unusedparam01      =  0x01,
-    FFlg_ShowLevelIntroText =  0x02,
-    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
-    FFlg_HalfSizeRender     =  0x08,
-    FFlg_NetworkTimeout     =  0x10,
-    FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40, // now unused
-    FFlg_MainMenuReturn     =  0x80,
 };
 
 enum DebugFlags {
@@ -133,6 +123,8 @@ struct StartupParameters {
     LevelNumber selected_level_number;
     TbBool no_intro;
     TbBool one_player;
+    TbBool easter_egg;
+    TbBool ignore_mods;
     unsigned char operation_flags;
     unsigned char flags_font;
     unsigned char mode_flags;

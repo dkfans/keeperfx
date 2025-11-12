@@ -152,7 +152,7 @@ void input_eastegg(void)
       play_non_3d_sample(60);
     }
     // Maintain the JLW cheat
-    if ((game.flags_font & FFlg_AlexCheat) != 0)
+    if (game.easter_eggs_enabled == true)
     {
       allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
       state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
@@ -161,7 +161,7 @@ void input_eastegg(void)
       }
     }
     // Maintain the BBKING cheat
-    if ((game.flags_font & FFlg_AlexCheat) != 0)
+    if (game.easter_eggs_enabled == true)
     {
       allow = lbKeyOn[KC_RSHIFT];
       static unsigned char length = 0;
@@ -265,7 +265,7 @@ void draw_eastegg(void)
     }
     play_non_3d_sample_no_overlap(90);
   }
-  if ((game.flags_font & FFlg_AlexCheat) == 0)
+  if (game.easter_eggs_enabled == false)
     return;
 
   if (game.eastegg02_cntr >= eastegg_jlw_codes.length)

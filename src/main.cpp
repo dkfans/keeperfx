@@ -1571,7 +1571,7 @@ void reinit_level_after_load(void)
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
-    game.flags_font |= start_params.flags_font;
+    game.easter_eggs_enabled = start_params.easter_egg;
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
@@ -1609,7 +1609,6 @@ TbBool set_default_startup_parameters(void)
     memset(&start_params, 0, sizeof(struct StartupParameters));
     start_params.startup_flags = (SFlg_Legal|SFlg_FX|SFlg_Intro);
     start_params.packet_checksum_verify = 1;
-    clear_flag(start_params.flags_font, FFlg_Unusedparam01);
     // Set levels to 0, as we may not have the campaign loaded yet
     start_params.selected_level_number = 0;
     start_params.num_fps = 20;
@@ -4126,9 +4125,12 @@ short process_command_line(unsigned short argc, char *argv[])
           narg++;
           LbNetwork_InitSessionsFromCmdLine(pr2str);
       } else
+      if (strcasecmp(parstr, "nomods") == 0) {
+          start_params.ignore_mods = true;
+      } else
       if (strcasecmp(parstr,"alex") == 0)
       {
-         set_flag(start_params.flags_font, FFlg_AlexCheat);
+         start_params.easter_egg = true;
       }
       else if (strcasecmp(parstr,"connect") == 0)
       {

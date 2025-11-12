@@ -236,7 +236,7 @@ static void str_replace(char *str, int from, int to)
 
 static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -503,7 +503,7 @@ TbBool cmd_volume_music(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_compuchat(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -534,7 +534,7 @@ TbBool cmd_compuchat(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -567,7 +567,7 @@ TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_comp_events(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -591,7 +591,7 @@ TbBool cmd_comp_events(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_comp_checks(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -615,7 +615,7 @@ TbBool cmd_comp_checks(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -646,7 +646,7 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -670,7 +670,7 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_comp_kill(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -691,7 +691,7 @@ TbBool cmd_comp_kill(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_player_score(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -709,7 +709,7 @@ TbBool cmd_player_score(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_player_flag(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -738,7 +738,7 @@ TbBool cmd_player_flag(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_comp_me(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -757,7 +757,7 @@ TbBool cmd_comp_me(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_give_trap(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -777,7 +777,7 @@ TbBool cmd_give_trap(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_give_door(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -797,7 +797,7 @@ TbBool cmd_give_door(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_map_pool(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -818,7 +818,7 @@ TbBool cmd_map_pool(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_create_gold(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -856,7 +856,7 @@ TbBool cmd_create_gold(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_look(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -900,7 +900,7 @@ TbBool cmd_look(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_create_object(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -944,7 +944,7 @@ TbBool cmd_create_object(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1023,7 +1023,7 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_create_thing(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1104,7 +1104,7 @@ TbBool cmd_create_thing(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_place_slab(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1164,7 +1164,7 @@ TbBool cmd_place_slab(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_room_available(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1203,7 +1203,7 @@ TbBool cmd_room_available(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_give_power(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1238,7 +1238,7 @@ TbBool cmd_give_power(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_player_heart_health(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1269,7 +1269,7 @@ TbBool cmd_player_heart_health(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_creature_available(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1289,7 +1289,7 @@ TbBool cmd_creature_available(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_creature_add_health(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1313,7 +1313,7 @@ TbBool cmd_creature_add_health(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_creature_sub_health(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1337,7 +1337,7 @@ TbBool cmd_creature_sub_health(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_send_digger_to(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1374,7 +1374,7 @@ TbBool cmd_send_digger_to(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_set_creature_instance(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1396,7 +1396,7 @@ TbBool cmd_set_creature_instance(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_set_creature_state(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1422,7 +1422,7 @@ TbBool cmd_set_creature_state(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_set_creature_job(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1448,7 +1448,7 @@ TbBool cmd_set_creature_job(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1487,7 +1487,7 @@ TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_thing_info(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1510,7 +1510,7 @@ TbBool cmd_thing_info(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_creature_attack_heart(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1538,7 +1538,7 @@ TbBool cmd_creature_attack_heart(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_player_gold_add(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1560,7 +1560,7 @@ TbBool cmd_player_gold_add(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_cursor_pos(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1577,7 +1577,7 @@ TbBool cmd_cursor_pos(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1600,7 +1600,7 @@ TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_thing_show_id(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1611,7 +1611,7 @@ TbBool cmd_thing_show_id(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_thing_health(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1632,7 +1632,7 @@ TbBool cmd_thing_health(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1670,7 +1670,7 @@ TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_destroy_thing(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1686,7 +1686,7 @@ TbBool cmd_destroy_thing(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1707,7 +1707,7 @@ TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_room_health(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1727,7 +1727,7 @@ TbBool cmd_room_health(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_slab_health(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1750,7 +1750,7 @@ TbBool cmd_slab_health(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_creature_pool_add(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1774,7 +1774,7 @@ TbBool cmd_creature_pool_add(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_creature_pool_sub(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1798,7 +1798,7 @@ TbBool cmd_creature_pool_sub(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_creature_level(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1819,7 +1819,7 @@ TbBool cmd_creature_level(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1837,7 +1837,7 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1855,7 +1855,7 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_set_music(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1874,7 +1874,7 @@ TbBool cmd_set_music(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_zoom_to(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1903,7 +1903,7 @@ TbBool cmd_zoom_to(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_toggle_classic_bug(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1924,7 +1924,7 @@ TbBool cmd_toggle_classic_bug(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_get_action_point_pos(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1946,7 +1946,7 @@ TbBool cmd_get_action_point_pos(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_zoom_to_action_point(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1971,7 +1971,7 @@ TbBool cmd_zoom_to_action_point(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_reset_action_point(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -1993,7 +1993,7 @@ TbBool cmd_reset_action_point(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_zoom_to_hero_gate(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -2020,7 +2020,7 @@ TbBool cmd_zoom_to_hero_gate(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_sound_test(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -2035,7 +2035,7 @@ TbBool cmd_sound_test(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -2112,7 +2112,7 @@ TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_lua(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -2122,7 +2122,7 @@ TbBool cmd_lua(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -2132,7 +2132,7 @@ TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+    if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
@@ -2375,9 +2375,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");
     if (command == NULL) {
-        if ((game.flags_font & FFlg_AlexCheat) != 0) {
+        if (game.easter_eggs_enabled == true) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "command is empty");
-	}
+	    }
         return false;
     }
     // NOTE: execution can be optimized by pre-sorting commands by name and performing binary search
@@ -2386,7 +2386,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
             return console_commands[i].function(plyr_idx, args);
         }
     }
-    if ((game.flags_font & FFlg_AlexCheat) != 0) {
+    if (game.easter_eggs_enabled == true) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unsupported command");
     }
     return false;

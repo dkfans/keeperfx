@@ -32,18 +32,14 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-enum ActionPointFlags {
-    AptF_Exists            = 0x01,
-};
-
-struct InitActionPoint { // sizeof = 8
+struct InitActionPoint {
     struct Coord2d mappos;
     unsigned short range;
     unsigned short num;
 };
 
-struct ActionPoint { // sizeof = 0xA
-    unsigned char flags;
+struct ActionPoint {
+    TbBool exists;
     struct Coord2d mappos;
     unsigned short range;
     unsigned short num;
