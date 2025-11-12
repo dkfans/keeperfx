@@ -52,7 +52,6 @@ char net_player_name[20];
 short setup_network_service(int srvidx)
 {
   struct ServiceInitData *init_data = NULL;
-  clear_flag(game.flags_font, FFlg_NetworkTimeout);
   SYNCMSG("Initializing 4-players type %d network",srvidx);
   memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
   if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )

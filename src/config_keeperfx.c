@@ -982,8 +982,15 @@ short load_configuration(void)
   const char* sname; // Filename
   const char* fname; // Filepath
 
-  load_mods_order_config_file();
-  recheck_all_mod_exist();
+  if (start_params.ignore_mods == false)
+  {
+      load_mods_order_config_file();
+      recheck_all_mod_exist();
+  }
+  else
+  {
+      SYNCMSG("Mod loading skipped");
+  }
 
   // Check if custom config file is set '-config <file>'
   if (start_params.overrides[Clo_ConfigFile])

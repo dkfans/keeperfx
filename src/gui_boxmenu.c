@@ -472,7 +472,7 @@ short toggle_main_cheat_menu(void)
   long mouse_y = GetMouseY();
   if ((gui_cheat_box_1==NULL) || (gui_box_is_not_valid(gui_cheat_box_1)))
   {
-    if ((game.flags_font & FFlg_AlexCheat) == 0)
+    if (game.easter_eggs_enabled == false)
       return false;
     gui_cheat_box_1 = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
     gui_move_box(gui_cheat_box_1, mouse_x, mouse_y, Fnt_CenterLeftPos);
@@ -507,7 +507,7 @@ short toggle_instance_cheat_menu(void)
     long mouse_y = GetMouseY();
     if (gui_box_is_not_valid(gui_cheat_box_3))
     {
-        if ((game.flags_font & FFlg_AlexCheat) == 0)
+        if (game.easter_eggs_enabled == false)
             return false;
        gui_cheat_box_3 = gui_create_box(200,20,gui_instance_option_list);
        if (gui_cheat_box_3 == NULL)
@@ -542,7 +542,7 @@ TbBool open_creature_cheat_menu(void)
 {
   long mouse_x = GetMouseX();
   long mouse_y = GetMouseY();
-  if ((game.flags_font & FFlg_AlexCheat) == 0)
+  if (game.easter_eggs_enabled == false)
     return false;
   if (!gui_box_is_not_valid(gui_cheat_box_2))
     return false;

@@ -163,10 +163,10 @@ struct Game {
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
     unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
-    unsigned char flags_font;
     unsigned char flags_gui;
-    unsigned char eastegg01_cntr;
     unsigned char mode_flags;
+    TbBool easter_eggs_enabled;
+    unsigned char eastegg01_cntr;
     unsigned char eastegg02_cntr;
     char music_track; // cdrom / default music track to resume after load
     char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
