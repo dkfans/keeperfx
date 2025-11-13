@@ -225,7 +225,7 @@ void resync_game(void)
     SYNCDBG(2,"Starting");
     struct PlayerInfo* player = get_my_player();
     draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
-    reset_eye_lenses();
+    reset_eye_lenses(player); // won't this mean the client will lose eye lenses if there's a resync during possession?
     store_localised_game_structure();
     int i = get_resync_sender();
     if (is_my_player_number(i))

@@ -477,7 +477,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
   }
   player->allocflags |= PlaF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
-  reset_creature_eye_lens(thing);
+  reset_creature_eye_lens(player);
   if (is_my_player(player))
   {
       PaletteSetPlayerPalette(player, engine_palette);
@@ -518,7 +518,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
   }
   player->allocflags |= PlaF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
-  reset_creature_eye_lens(thing);
+  reset_creature_eye_lens(player);
   if (is_my_player(player))
   {
     PaletteSetPlayerPalette(player, engine_palette);
