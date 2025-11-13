@@ -4447,6 +4447,13 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
         if (thing_is_invalid(creatng))
           break;
 
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        if (flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature))
+        {
+            i = creatng->next_of_class;
+            k++;
+            continue;
+        }
         if(creatng->owner == plr_idx)
         {
             if(creature_is_for_dungeon_diggers_list(creatng))
@@ -4461,7 +4468,6 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
                     struct CreatureControl* prevcctrl = creature_control_get_from_thing(thing_get(previous_digger));
                     prevcctrl->players_next_creature_idx = i;
                 }
-                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                 cctrl->players_next_creature_idx = 0;
                 cctrl->players_prev_creature_idx = previous_digger;
                 if (!flag_is_set(cctrl->creature_state_flags,TF2_Spectator) && !(flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature)))
@@ -4482,7 +4488,6 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
                     struct CreatureControl* prevcctrl = creature_control_get_from_thing(thing_get(previous_creature));
                     prevcctrl->players_next_creature_idx = i;
                 }
-                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                 cctrl->players_next_creature_idx = 0;
                 cctrl->players_prev_creature_idx = previous_creature;
                 if (!flag_is_set(cctrl->creature_state_flags,TF2_Spectator) && !(flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature)))
