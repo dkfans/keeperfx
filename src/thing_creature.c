@@ -5353,7 +5353,14 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
     struct Thing* thing = INVALID_THING;
     if ((!is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
     {
-        thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+        if (!player_is_neutral(plyr_idx))
+        {
+            thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+        }
+        else
+        {
+            thing = get_player_list_creature_with_filter(game.nodungeon_creatr_list_start, filter, &param);
+        }
     }
     if (((is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) && thing_is_invalid(thing))
     {
