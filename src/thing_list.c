@@ -2517,7 +2517,7 @@ GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
-            ERRORLOG("Jump to invalid creature detected");
+            ERRORLOG("Jump to invalid creature (%d) detected for %s.",i, player_code_name(dungeon->owner));
             break;
         }
         i = cctrl->players_next_creature_idx;
