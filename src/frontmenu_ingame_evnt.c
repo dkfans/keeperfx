@@ -49,6 +49,7 @@
 
 unsigned long TimerTurns = 0;
 unsigned short battle_creature_over;
+int debug_display_network_stats = 0;
 
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
@@ -578,6 +579,11 @@ TbBool consolelog_enabled(void)
     return (debug_display_consolelog != 0);
 }
 
+TbBool network_stats_enabled(void)
+{
+    return (debug_display_network_stats != 0);
+}
+
 TbBool script_timer_enabled(void)
 {
   return ((game.flags_gui & GGUI_ScriptTimer) != 0);
@@ -894,9 +900,7 @@ void draw_network_stats() {
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Slowdown: %d%% | Slowdown average: %d%% | Max slowdown: %d%%", slowdown_current, slowdown_average, slowdown_max);
     LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Frametime: %dms | Frametime average: %dms | Max frametime: %dms", frametime_current, frametime_average, frametime_max);
-    LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Current gameturn: %lu", game.play_gameturn);
-    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
 }
 /******************************************************************************/

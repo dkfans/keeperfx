@@ -105,14 +105,10 @@ extern float get_delta_time();
 extern struct FrametimeMeasurements frametime_measurements;
 
 int get_current_slowdown_percentage(void);
-int get_current_frametime_ms(void);
 
 extern int slowdown_current;
 extern int slowdown_average;
 extern int slowdown_max;
-extern int frametime_current;
-extern int frametime_average;
-extern int frametime_max;
 /******************************************************************************/
 #ifdef __cplusplus
 }
