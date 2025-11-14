@@ -1135,13 +1135,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
                 }
                 break;
             }
-            case 2:
-            {
-                player->user_defined_roomspace_width = pckt->actn_par2;
-                player->roomspace_width = pckt->actn_par2;
-                player->roomspace_height = pckt->actn_par2;
-                break;
-            }
         }
         player->roomspace_no_default = true;
         return false;
