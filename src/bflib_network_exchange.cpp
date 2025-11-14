@@ -91,7 +91,7 @@ void SendFrameToPeers(NetUserId source_id, const void * send_buf, size_t buf_siz
 
 TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
     if (netstate.sp->readmsg(source, netstate.msg_buffer, sizeof(netstate.msg_buffer)) <= 0) {
-        NETLOG("Problem reading message from %u", source);
+        ERRORLOG("Problem reading message from %u", source);
         return Lb_FAIL;
     }
     char *ptr = netstate.msg_buffer;
@@ -159,14 +159,14 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         }
         NetUserId id = (NetUserId)*ptr;
         if (id < 0 || id >= netstate.max_players) {
-            NETLOG("Critical error: Out of range user ID %i received from server, could be used for buffer overflow attack", id);
+            ERRORLOG("Critical error: Out of range user ID %i received from server, could be used for buffer overflow attack", id);
             abort();
         }
         ptr += 1;
         netstate.users[id].progress = (enum NetUserProgress)*ptr;
         ptr += 1;
         if (strnlen(ptr, sizeof(netstate.msg_buffer) - (ptr - netstate.msg_buffer)) >= sizeof(netstate.msg_buffer) - (ptr - netstate.msg_buffer)) {
-            NETLOG("Critical error: Unterminated name in USERUPDATE");
+            ERRORLOG("Critical error: Unterminated name in USERUPDATE");
             abort();
         }
         snprintf(netstate.users[id].name, sizeof(netstate.users[id].name), "%s", ptr);
@@ -176,7 +176,7 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
     if (type == NETMSG_FRONTEND || type == NETMSG_SMALLDATA || type == NETMSG_GAMEPLAY) {
         NetUserId peer_id = (NetUserId)*ptr;
         if (peer_id < 0 || peer_id >= netstate.max_players) {
-            NETLOG("Critical error: Out of range peer ID %i received, could be used for buffer overflow attack", peer_id);
+            ERRORLOG("Critical error: Out of range peer ID %i received, could be used for buffer overflow attack", peer_id);
             abort();
         }
         char* peer_buf = ((char*)server_buf) + peer_id * frame_size;
@@ -198,7 +198,7 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
 TbError LbNetwork_ExchangeLogin(char *plyr_name) {
     NETMSG("Logging in as %s", plyr_name);
     if (1 + strlen(netstate.password) + 1 + strlen(plyr_name) + 1 >= sizeof(netstate.msg_buffer)) {
-        NETLOG("Login credentials too long");
+        ERRORLOG("Login credentials too long");
         return Lb_FAIL;
     }
     char * ptr = InitMessageBuffer(NETMSG_LOGIN);
@@ -239,7 +239,7 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name) {
 TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t client_frame_size) {
     netstate.sp->update(OnNewUser);
     if (netstate.my_id < 0 || netstate.my_id >= netstate.max_players) {
-        NETLOG("Critical error: Invalid my_id %i in LbNetwork_Exchange", netstate.my_id);
+        ERRORLOG("Critical error: Invalid my_id %i in LbNetwork_Exchange", netstate.my_id);
         abort();
     }
     memcpy(((char*)server_buf) + netstate.my_id * client_frame_size, send_buf, client_frame_size);

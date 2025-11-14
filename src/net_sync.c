@@ -76,6 +76,8 @@ struct Boing {
 /** Structure used for storing 'localised parameters' when resyncing net game. */
 struct Boing boing;
 
+TbBool detailed_multiplayer_logging = false;
+
 #define CONSECUTIVE_RESYNC_DECAY_SECONDS 30
 #define CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE 3
 
@@ -108,7 +110,7 @@ static void resync_potentially_increases_input_lag(void)
     if (consecutive_resync_count >= CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE) {
         consecutive_resync_count = 0;
         game.input_lag_turns += 1;
-        MULTIPLAYER_LOG("Input lag increased: %d -> %d", game.input_lag_turns - 1, game.input_lag_turns);
+        NETLOG("Input lag increased: %d -> %d", game.input_lag_turns - 1, game.input_lag_turns);
     }
 }
 
@@ -129,7 +131,7 @@ TbBool send_resync_game(void)
   animate_resync_progress_bar(2, 6);
   LbNetwork_TimesyncBarrier();
   animate_resync_progress_bar(6, 6);
-  MULTIPLAYER_LOG("Host: Resync complete");
+  NETLOG("Host: Resync complete");
   return true;
 }
 
@@ -145,7 +147,7 @@ TbBool receive_resync_game(void)
     animate_resync_progress_bar(2, 6);
     LbNetwork_TimesyncBarrier();
     animate_resync_progress_bar(6, 6);
-    MULTIPLAYER_LOG("Client: Resync complete");
+    NETLOG("Client: Resync complete");
     if (game.desync_diagnostics.has_desync_diagnostics) {
         compare_desync_history_from_host();
     }
@@ -217,7 +219,7 @@ void resync_game(void)
     clear_redundant_packets();
     clear_input_lag_queue();
     clear_desync_analysis();
-    MULTIPLAYER_LOG("Input lag after resync: %d turns", game.input_lag_turns);
+    NETLOG("Input lag after resync: %d turns", game.input_lag_turns);
 
     clear_flag(game.system_flags, GSF_NetGameNoSync);
     clear_flag(game.system_flags, GSF_NetSeedNoSync);
