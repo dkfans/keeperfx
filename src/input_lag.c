@@ -107,10 +107,10 @@ void LbNetwork_UpdateInputLagIfHost(void) {
         if (!(netstate.users[id].progress == USER_LOGGEDIN || netstate.users[id].progress == USER_SERVER)) { continue; }
         unsigned long ping = GetPing(id);
         if (ping <= 0) {
-            NETLOG("Player %d (%s) has no RTT data yet", id, netstate.users[id].name);
+            MULTIPLAYER_LOG("Player %d (%s) has no RTT data yet", id, netstate.users[id].name);
             continue;
         }
-        NETLOG("Player %d (%s) Ping: %lums", id, netstate.users[id].name, ping);
+        MULTIPLAYER_LOG("Player %d (%s) Ping: %lums", id, netstate.users[id].name, ping);
         if ((int)ping > max_ping) {
             max_ping = (int)ping;
         }
@@ -135,7 +135,7 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     // 260ms ping : 3.25 turns : input lag 3
     // 370ms ping : 4.63 turns : input lag 4
 
-    NETLOG("Average Ping: %ums (samples: %d), Setting Input Lag: %d", average_ping, sample_count, input_lag);
+    MULTIPLAYER_LOG("Average Ping: %ums (samples: %d), Setting Input Lag: %d", average_ping, sample_count, input_lag);
     game.input_lag_turns = input_lag;
 }
 /*

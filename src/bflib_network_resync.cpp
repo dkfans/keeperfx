@@ -82,7 +82,7 @@ void animate_resync_progress_bar(int current_phase, int total_phases) {
 
 
 static TbBool send_resync_data(const void * buffer, size_t total_length) {
-    NETLOG("Starting to send resync data: %lu bytes uncompressed", (unsigned long)total_length);
+    MULTIPLAYER_LOG("Starting to send resync data: %lu bytes uncompressed", (unsigned long)total_length);
     
     uLong data_crc = crc32(0L, Z_NULL, 0);
     data_crc = crc32(data_crc, (const Bytef*)buffer, total_length);
@@ -90,13 +90,13 @@ static TbBool send_resync_data(const void * buffer, size_t total_length) {
     uLongf compressed_size = compressBound(total_length);
     char * compressed_buffer = (char *) malloc(compressed_size);
     if (!compressed_buffer) {
-        NETLOG("Failed to allocate buffer for compression (bound: %lu bytes)", (unsigned long)compressed_size);
+        ERRORLOG("Failed to allocate buffer for compression (bound: %lu bytes)", (unsigned long)compressed_size);
         return false;
     }
 
     int compress_result = compress((Bytef*)compressed_buffer, &compressed_size, (const Bytef*)buffer, total_length);
     if (compress_result != Z_OK) {
-        NETLOG("Compression failed: zlib error %d", compress_result);
+        ERRORLOG("Compression failed: zlib error %d", compress_result);
         free(compressed_buffer);
         return false;
     }
@@ -115,7 +115,7 @@ static TbBool send_resync_data(const void * buffer, size_t total_length) {
     size_t message_size = sizeof(ResyncHeader) + compressed_size;
     char * message_buffer = (char *) malloc(message_size);
     if (!message_buffer) {
-        NETLOG("Failed to allocate message buffer");
+        ERRORLOG("Failed to allocate message buffer");
         free(compressed_buffer);
         return false;
     }
@@ -123,7 +123,7 @@ static TbBool send_resync_data(const void * buffer, size_t total_length) {
     memcpy(message_buffer, &header, sizeof(ResyncHeader));
     memcpy(message_buffer + sizeof(ResyncHeader), compressed_buffer, compressed_size);
 
-    MULTIPLAYER_LOG("Host: Sending resync data to all clients");
+    NETLOG("Host: Sending resync data to all clients");
     for (NetUserId user_index = 0; user_index < MAX_N_USERS; ++user_index) {
         if (netstate.users[user_index].progress != USER_LOGGEDIN) {
             continue;
@@ -150,13 +150,13 @@ static TbBool receive_resync_data(void * destination_buffer, size_t expected_tot
         size_t max_message_size = sizeof(ResyncHeader) + compressBound(expected_total_length);
         char * message_buffer = (char *) malloc(max_message_size);
         if (!message_buffer) {
-            NETLOG("Failed to allocate message buffer");
+            ERRORLOG("Failed to allocate message buffer");
             return false;
         }
 
         size_t received_size = netstate.sp->readmsg(SERVER_ID, message_buffer, max_message_size);
         if (received_size < sizeof(ResyncHeader)) {
-            NETLOG("Received message too small: %lu bytes", (unsigned long)received_size);
+            ERRORLOG("Received message too small: %lu bytes", (unsigned long)received_size);
             free(message_buffer);
             continue;
         }
@@ -165,19 +165,19 @@ static TbBool receive_resync_data(void * destination_buffer, size_t expected_tot
         memcpy(&header, message_buffer, sizeof(ResyncHeader));
 
         if (header.message_type != NETMSG_RESYNC_DATA) {
-            NETLOG("Received wrong message type: %d", header.message_type);
+            MULTIPLAYER_LOG("Received wrong message type: %d", header.message_type);
             free(message_buffer);
             continue;
         }
 
         if (header.original_length != expected_total_length) {
-            NETLOG("Received data with wrong size: %lu != %lu", (unsigned long)header.original_length, (unsigned long)expected_total_length);
+            ERRORLOG("Received data with wrong size: %lu != %lu", (unsigned long)header.original_length, (unsigned long)expected_total_length);
             free(message_buffer);
             continue;
         }
 
         if (received_size != sizeof(ResyncHeader) + header.compressed_length) {
-            NETLOG("Received message size mismatch: %lu != %lu + %lu",
+            ERRORLOG("Received message size mismatch: %lu != %lu + %lu",
                    (unsigned long)received_size, (unsigned long)sizeof(ResyncHeader), (unsigned long)header.compressed_length);
             free(message_buffer);
             continue;
@@ -191,7 +191,7 @@ static TbBool receive_resync_data(void * destination_buffer, size_t expected_tot
                                            header.compressed_length);
 
         if (uncompress_result != Z_OK || dest_len != expected_total_length) {
-            NETLOG("Decompression failed: zlib error %d, expected %lu bytes, got %lu bytes",
+            ERRORLOG("Decompression failed: zlib error %d, expected %lu bytes, got %lu bytes",
                    uncompress_result, (unsigned long)expected_total_length, (unsigned long)dest_len);
             free(message_buffer);
             return false;
@@ -200,13 +200,13 @@ static TbBool receive_resync_data(void * destination_buffer, size_t expected_tot
         uLong verify_crc = crc32(0L, Z_NULL, 0);
         verify_crc = crc32(verify_crc, (const Bytef*)destination_buffer, expected_total_length);
         if ((unsigned long)verify_crc != header.data_checksum) {
-            NETLOG("Resync data checksum mismatch");
+            ERRORLOG("Resync data checksum mismatch");
             free(message_buffer);
             return false;
         }
 
         free(message_buffer);
-        MULTIPLAYER_LOG("Client: Resync data received successfully");
+        NETLOG("Client: Resync data received successfully");
         return true;
     }
 
@@ -215,24 +215,24 @@ static TbBool receive_resync_data(void * destination_buffer, size_t expected_tot
 }
 
 TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length) {
-    NETLOG("Starting resync, my_id=%d, buffer_length=%lu", netstate.my_id, (unsigned long)buffer_length);
+    MULTIPLAYER_LOG("Starting resync, my_id=%d, buffer_length=%lu", netstate.my_id, (unsigned long)buffer_length);
     const TbBool is_server = (netstate.users[netstate.my_id].progress == USER_SERVER);
 
     TbBool result;
     if (is_server) {
-        NETLOG("Resync: I am the server");
+        MULTIPLAYER_LOG("Resync: I am the server");
         result = send_resync_data(data_buffer, buffer_length);
     } else {
-        NETLOG("Resync: I am a client, receiving");
+        MULTIPLAYER_LOG("Resync: I am a client, receiving");
         result = receive_resync_data(data_buffer, buffer_length);
     }
 
     if (!result) {
-        NETLOG("Resync FAILED");
+        ERRORLOG("Resync FAILED");
         return false;
     }
 
-    NETLOG("Resync data transfer completed successfully");
+    MULTIPLAYER_LOG("Resync data transfer completed successfully");
     return true;
 }
 
@@ -304,7 +304,7 @@ void LbNetwork_TimesyncBarrier(void)
             if (id == netstate.my_id) continue;
             if (netstate.users[id].progress != USER_LOGGEDIN) continue;
             if (!timesynced[id]) {
-                MULTIPLAYER_LOG("Host: Timesync timeout for client index %d, dropping", id);
+                ERRORLOG("Host: Timesync timeout for client index %d, dropping", id);
                 netstate.sp->drop_user(id);
             }
         }

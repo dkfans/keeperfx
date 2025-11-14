@@ -1669,7 +1669,7 @@ void fill_missing_packets_from_previous_turn(void)
     }
     struct Packet* my_pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
     if (my_pckt == NULL) {
-        MULTIPLAYER_LOG("fill_missing_packets: Could not get local checksum from input lag queue");
+        ERRORLOG("fill_missing_packets: Could not get local checksum from input lag queue");
         return;
     }
     TbBigChecksum local_checksum = my_pckt->checksum;

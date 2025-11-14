@@ -212,7 +212,7 @@ void sync_various_data()
    game.action_random_seed = initial_sync_data.action_random_seed;
    game.input_lag_turns = initial_sync_data.input_lag_turns;
    game.skip_initial_input_turns = calculate_skip_input();
-   MULTIPLAYER_LOG("Initial network state synced: action_seed=%lu, input_lag=%d", game.action_random_seed, game.input_lag_turns);
+   NETLOG("Initial network state synced: action_seed=%lu, input_lag=%d", game.action_random_seed, game.input_lag_turns);
 }
 /******************************************************************************/
 #ifdef __cplusplus
