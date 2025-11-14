@@ -2735,6 +2735,35 @@ TbBool subtile_is_diggable_at_diagonal_angle(struct Thing *thing, unsigned short
     }
     return false;
 }
+
+TbBool subtile_is_cluedo_wall(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+    if (flag_is_set(mapblk->flags, SlbAtFlg_IsRoom))
+    {
+        return false;
+    }
+    else if (flag_is_set(mapblk->flags, SlbAtFlg_IsDoor))
+    {
+        MapSlabCoord slb_x = subtile_slab(stl_x);
+        MapSlabCoord slb_y = subtile_slab(stl_y);
+        struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if (!thing_is_invalid(doortng))
+        {
+            struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+            if (flag_is_set(doorst->model_flags, DoMF_Secret))
+            {
+                goto end;
+            }
+        }
+        return false;
+    }
+    end:
+    {
+        struct Column *col = get_map_column(mapblk);
+        return (!flag_is_set(col->bitfields, 0xE));
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
