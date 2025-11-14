@@ -1642,7 +1642,7 @@ void clear_things_and_persons_data(void)
         if (i > 0) {
             if (i < SYNCED_THINGS_COUNT) {
                 game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
-            } else {
+            } else if (i < THINGS_COUNT) {
                 game.unsynced_free_things[THINGS_COUNT-i] = i;
             }
         }
@@ -1729,7 +1729,7 @@ void delete_all_thing_structures(void)
       }
         if (i < SYNCED_THINGS_COUNT) {
             game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
-        } else {
+        } else if (i < THINGS_COUNT) {
             game.unsynced_free_things[THINGS_COUNT-i] = i;
         }
     }
@@ -2148,7 +2148,7 @@ void check_players_won(void)
             set_player_as_won_level(curPlayer);
             return;
         }
-    }  
+    }
 }
 
 void check_players_lost(void)
@@ -4283,11 +4283,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
-    
+
     // Determine correct log file based on command line flags
     const char* selected_log_file_name = determine_log_filename(argc, argv);
     LbErrorLogSetup("/", selected_log_file_name, 5);
-    
+
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
