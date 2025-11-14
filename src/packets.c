@@ -1780,7 +1780,6 @@ void process_packets(void)
         resync_game();
     }
     get_current_slowdown_percentage();
-    get_current_frametime_ms();
     MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)game.play_gameturn);
     SYNCDBG(7,"Finished");
 }
