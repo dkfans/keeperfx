@@ -1524,6 +1524,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
                 par2--;
             }
         }
+        set_player_roomspace_size(player, par2);
         set_players_packet_action(player, PckA_SetRoomspaceHighlight, 2, par2, 0, 0);
         reset_roomspace = true;
         return;
@@ -1547,6 +1548,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
         par2 = numpad_to_value(false);
         if (par2 > 1)
         {
+            set_player_roomspace_size(player, par2);
             set_players_packet_action(player, PckA_SetRoomspaceHighlight, 2, par2, 0, 0);
             reset_roomspace = true;
             return;

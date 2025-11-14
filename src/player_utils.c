@@ -1334,4 +1334,10 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
     }
 }
 
+void set_player_roomspace_size(struct PlayerInfo *player, long size) {
+    player->user_defined_roomspace_width = size;
+    player->roomspace_width = size;
+    player->roomspace_height = size;
+}
+
 /******************************************************************************/
