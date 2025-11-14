@@ -2624,6 +2624,7 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     if (mods_conf.after_map_cnt > 0)
     {
         result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_map_item, mods_conf.after_map_cnt);
+        // last one does not need to set (CnfLd_AcceptPartial | CnfLd_IgnoreErrors)
     }
 
     if (!result)
