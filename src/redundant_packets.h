@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file net_sync.h
- *     Header file for net_sync.c.
+/** @file redundant_packets.h
+ *     Header file for redundant_packets.c.
  * @par Purpose:
- *     Network game synchronization for Dungeon Keeper.
+ *     Redundant packet bundling for network game packet loss prevention.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     11 Mar 2010 - 09 Oct 2010
+ * @date     11 Nov 2025
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,12 +16,12 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_NETSYNC_H
-#define DK_NETSYNC_H
+#ifndef DK_REDUNDANT_PACKETS_H
+#define DK_REDUNDANT_PACKETS_H
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_coroutine.h"
+#include "packets.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,18 +30,20 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct Thing;
+#define REDUNDANT_PACKET_COUNT 3
+
+struct BundledPacket {
+    unsigned char valid_count;
+    struct Packet packets[REDUNDANT_PACKET_COUNT];
+};
 
 #pragma pack()
 /******************************************************************************/
-void resync_game(void);
-void decrement_consecutive_resync_count(void);
-CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
-void compute_multiplayer_checksum(void);
-void set_local_packet_turn(void);
-TbBigChecksum compute_players_checksum(void);
-short checksums_different(void);
-TbBigChecksum get_thing_checksum(const struct Thing *thing);
+void initialize_redundant_packets(void);
+void clear_redundant_packets(void);
+void store_sent_packet(PlayerNumber player, const struct Packet* packet);
+size_t bundle_packets(PlayerNumber player, const struct Packet* current_packet, char* out_buffer);
+void unbundle_packets(const char* bundled_buffer, PlayerNumber source_player);
 
 /******************************************************************************/
 #ifdef __cplusplus

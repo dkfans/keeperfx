@@ -97,6 +97,8 @@ extern "C" {
 //    these are defined in errno.h
 #define ERR_BASE_RNC      -90
 
+unsigned long long LbSystemClockMilliseconds(void);
+
 // Debug fuction-like macros - for free messages
 #define ERRORMSG(format, ...) LbErrorLog(format "\n", ##__VA_ARGS__)
 #define WARNMSG(format, ...) LbWarnLog(format "\n", ##__VA_ARGS__)
@@ -111,6 +113,8 @@ extern "C" {
 #define WARNLOG(format, ...) LbWarnLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define SYNCLOG(format, ...) LbSyncLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define JUSTLOG(format, ...) LbJustLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+extern TbBool detailed_multiplayer_logging;
+#define MULTIPLAYER_LOG(format, ...) do { if (detailed_multiplayer_logging) { LbJustLog("[%lu][%llu ms] %s: " format "\n", get_gameturn(), LbSystemClockMilliseconds(), __func__ , ##__VA_ARGS__); } } while(0)
 #define SCRPTLOG(format, ...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
 #define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
