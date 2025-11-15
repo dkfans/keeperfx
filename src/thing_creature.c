@@ -3504,7 +3504,7 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    return compute_creature_attack_spell_damage(shotst->damage, crconf->luck, cctrl->exp_level, creatng);
+    return compute_creature_attack_spell_damage(shotst->damage, crconf->luck, cctrl->exp_level, creatng->owner);
 }
 
 static void shot_init_lizard(const struct Thing *target, short angle_xy, unsigned char dexterity, struct Thing *shotng)

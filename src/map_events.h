@@ -82,9 +82,9 @@ struct Thing;
 struct Dungeon;
 struct PlayerInfo;
 
-struct Event { // sizeof=0x15
+struct Event {
     unsigned char flags;
-    unsigned char index;
+    EventIndex index;
     long mappos_x;
     long mappos_y;
     unsigned char owner;
@@ -118,7 +118,7 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
 struct Event *event_allocate_free_event_structure(void);
 void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon);
-void event_update_on_battle_removal(void);
+void event_update_on_battle_removal(BattleIndex battle_idx);
 void event_delete_event(long plridx, EventIndex evidx);
 void event_update_last_use(struct Event *event);
 void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx);
