@@ -284,16 +284,17 @@ void event_delete_event(long plyr_idx, EventIndex evidx)
     event_delete_event_structure(evidx);
 }
 
-void event_update_on_battle_removal(void)
+void event_update_on_battle_removal(BattleIndex battle_idx)
 {
-    for (long i = 0; i < EVENTS_COUNT; i++)
+    for (EventIndex i = 0; i < EVENTS_COUNT; i++)
     {
         struct Event* event = &game.event[i];
         if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         {
-            // Clear coords - new ones will be set during update_battle_events() call
-            event->mappos_x = 0;
-            event->mappos_y = 0;
+            if (event->target == battle_idx)
+            {
+                event->lifespan_turns = 0;
+            }
         }
     }
 }

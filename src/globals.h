@@ -232,8 +232,8 @@ typedef unsigned char EventKind;
 /** Type which stores dungeon special kind. */
 typedef unsigned short SpecialKind;
 /** Type which stores index of the new event, or negative index of updated event, in map events array. */
-typedef short EventIndex;
-typedef short BattleIndex;
+typedef unsigned char EventIndex;
+typedef unsigned char BattleIndex;
 typedef long HitPoints;
 /** Type which stores TUFRet_* values. */
 typedef short TngUpdateRet;
