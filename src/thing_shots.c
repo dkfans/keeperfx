@@ -92,15 +92,11 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
-    struct Thing* castng = INVALID_THING;
+    struct Thing* castng = get_parent_thing(shotng);
+    TRACE_THING(castng);
     struct PlayerInfo* myplyr = get_my_player();
     KeepPwrLevel power_level;
     long damage;
-    // Identify the creator of the shot
-    if (shotng->index != shotng->parent_idx) {
-        castng = thing_get(shotng->parent_idx);
-        TRACE_THING(castng);
-    }
     // If the shot has area_range, then make area damage
     if (shotst->area_range != 0) {
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(castng);
@@ -200,9 +196,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     unsigned short k;
-    struct Thing* diggertng = INVALID_THING;
-    if (thing->index != thing->parent_idx)
-      diggertng = thing_get(thing->parent_idx);
+    struct Thing* diggertng = get_parent_thing(thing);
     if (!thing_exists(diggertng))
     {
         ERRORLOG("Digging shot hit wall, but there's no digger creature index %d.",thing->parent_idx);
@@ -853,10 +847,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     if (target->health < 0) {
         return false;
     }
-    struct Thing* shootertng = INVALID_THING;
-    if (shotng->parent_idx != shotng->index) {
-        shootertng = thing_get(shotng->parent_idx);
-    }
+    struct Thing* shootertng = get_parent_thing(shotng);
     if (thing_is_dungeon_heart(target))
     {
         if (shotst->hit_heart.effect_model != 0)

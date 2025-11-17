@@ -1359,7 +1359,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
 /**
  * Affects things on an area with explosion effect, if only they should be affected with given hit type.
  *
- * @param tngsrc The thing which caused the effect, usually spell caster.
+ * @param tngsrc The thing which caused the effect, the spell caster or exploding shot.
  * @param pos Position of the effect epicenter.
  * @param max_dist Range of the effect.
  * @param max_damage Damage at epicenter of the effect.
@@ -1571,12 +1571,10 @@ TngUpdateRet update_effect(struct Thing *efftng)
 {
     SYNCDBG(18,"Starting for %s",thing_model_name(efftng));
     TRACE_THING(efftng);
-    struct Thing* subtng = NULL;
     const struct EffectConfigStats* effcst = get_effect_model_stats(efftng->model);
-    if (efftng->parent_idx > 0) {
-        subtng = thing_get(efftng->parent_idx);
-        TRACE_THING(subtng);
-    }
+    struct Thing* subtng = get_parent_thing(efftng);
+    TRACE_THING(subtng);
+
     if (efftng->health <= 0) {
         destroy_effect_thing(efftng);
         return TUFRet_Deleted;
