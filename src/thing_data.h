@@ -346,6 +346,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
 struct Thing *thing_get_f(long tng_idx, const char *func_name);
 TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
+struct Thing* get_parent_thing(const struct Thing* thing);
 
 TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
