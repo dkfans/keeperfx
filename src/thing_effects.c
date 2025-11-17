@@ -933,7 +933,7 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
     if (parent_idx > 0 && !thing_is_invalid(efftng))
     {
         efftng->parent_idx = parent_idx;
-        struct Thing* parent = thing_get(parent_idx);
+        struct Thing* parent = get_parent_thing(efftng);
         efftng->shot_effect.parent_class_id = parent->class_id;
         efftng->shot_effect.parent_model = parent->model;
     }
@@ -1006,16 +1006,16 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
         {
             if (tngdst->class_id == TCls_Creature)
             {
-                struct Thing* origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
+                struct Thing* origtng = get_parent_thing(tngsrc);
                 if (max_damage > 0)
                 {
                     HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
                     SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
                     if (flag_is_set(shotst->model_flags,ShMF_LifeDrain))
+                    apply_damage_to_thing_and_display_health(tngdst, damage, owner);
                     {
                         give_shooter_drained_health(origtng, damage / 2);
                     }
-                    apply_damage_to_thing_and_display_health(tngdst, damage, owner);
                     if (flag_is_set(shotst->model_flags,ShMF_GroupUp))
                     {
                         if (thing_is_creature(origtng))
