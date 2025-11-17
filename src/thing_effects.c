@@ -1340,9 +1340,17 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
-                num_affected++;
+            if (thing_is_shot(tngsrc))
+            {
+                struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
+                if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
+                    num_affected++;
+            }
+            else
+            {
+                ERRORLOG("Exploding thing %s is not a shot", thing_model_name(tngsrc));
+                break;
+            }
         }
         // Per thing processing block ends
         k++;
