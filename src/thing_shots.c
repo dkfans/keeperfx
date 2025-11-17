@@ -1678,7 +1678,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                   if (is_my_player_number(thing->owner))
                   {
                       player = get_player(thing->owner);
-                      if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
+                      if ((thing->parent_idx > 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
                       {
                           PaletteSetPlayerPalette(player, lightning_palette);
                           myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
