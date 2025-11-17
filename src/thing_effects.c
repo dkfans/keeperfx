@@ -1154,11 +1154,10 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, struct ShotConfigStats* shotst)
 {
-    PlayerNumber owner;
-    if (!thing_is_invalid(tngsrc))
-        owner = tngsrc->owner;
-    else
-        owner = -1;
+    if (!thing_exists(tngsrc)) //Shooter may already be dead
+    {
+        tngsrc = efftng;
+    }
     long num_affected = 0;
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
@@ -1175,7 +1174,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         // Per thing processing block
         if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != THit_CrtrsOnlyNotOwn)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
-            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, owner))
+            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, tngsrc->owner))
             {
                 num_affected++;
             }
