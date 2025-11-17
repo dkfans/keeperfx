@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file desync_analysis.h
- *     Header file for desync_analysis.c.
+/** @file net_checksums.h
+ *     Header file for net_checksums.c.
  * @par Purpose:
- *     Desync analysis history tracking for network game debugging.
+ *     Network checksum computation and desync analysis for multiplayer games.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
@@ -16,11 +16,12 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_DESYNC_ANALYSIS_H
-#define DK_DESYNC_ANALYSIS_H
+#ifndef DK_NET_CHECKSUMS_H
+#define DK_NET_CHECKSUMS_H
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,11 +32,18 @@ extern "C" {
 
 #pragma pack()
 /******************************************************************************/
+struct PlayerInfo;
+struct Thing;
+
 void initialize_desync_analysis(void);
 void clear_desync_analysis(void);
-void store_turn_checksums(void);
+void update_turn_checksums(void);
 void pack_desync_history_for_resync(void);
 void compare_desync_history_from_host(void);
+TbBigChecksum compute_player_checksum(struct PlayerInfo *player);
+TbBigChecksum get_thing_checksum(const struct Thing *thing);
+short checksums_different(void);
+CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
 
 /******************************************************************************/
 #ifdef __cplusplus

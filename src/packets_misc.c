@@ -18,8 +18,8 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
-#include "received_packets.h"
-#include "redundant_packets.h"
+#include "net_received_packets.h"
+#include "net_redundant_packets.h"
 
 #include "bflib_fileio.h"
 #include "front_landview.h"

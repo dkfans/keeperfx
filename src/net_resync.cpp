@@ -1,11 +1,10 @@
 /******************************************************************************/
-// Bullfrog Engine Emulation Library - for use to remake classic games like
-// Syndicate Wars, Magic Carpet or Dungeon Keeper.
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file bflib_network_resync.cpp
- *     Network resynchronization support.
+/** @file net_resync.cpp
+ *     Network resynchronization for Dungeon Keeper multiplayer.
  * @par Purpose:
- *     Network resynchronization routines.
+ *     Network resynchronization routines for multiplayer games.
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
@@ -18,17 +17,22 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "bflib_network_resync.h"
+#include "net_resync.h"
 #include "bflib_network_internal.h"
 #include "bflib_network.h"
 #include "bflib_datetm.h"
+#include "bflib_network_exchange.h"
 #include <zlib.h>
 #include "globals.h"
 #include "frontend.h"
 #include "player_data.h"
+#include "net_game.h"
 #include "game_legacy.h"
-#include "input_lag.h"
-#include "received_packets.h"
+#include "lens_api.h"
+#include "net_input_lag.h"
+#include "net_received_packets.h"
+#include "net_redundant_packets.h"
+#include "net_checksums.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -36,6 +40,67 @@ extern "C" {
 #endif
 
 extern void draw_out_of_sync_box(long a1, long a2, long box_width);
+
+struct Boing {
+  unsigned char active_panel_menu_index;
+  unsigned char comp_player_aggressive;
+  unsigned char comp_player_defensive;
+  unsigned char comp_player_construct;
+  unsigned char comp_player_creatrsonly;
+  unsigned char creatures_tend_imprison;
+  unsigned char creatures_tend_flee;
+  unsigned short hand_over_subtile_x;
+  unsigned short hand_over_subtile_y;
+  unsigned long chosen_room_kind;
+  unsigned long chosen_room_spridx;
+  unsigned long chosen_room_tooltip;
+  unsigned long chosen_spell_type;
+  unsigned long chosen_spell_spridx;
+  unsigned long chosen_spell_tooltip;
+  unsigned long manufactr_element;
+  unsigned long manufactr_spridx;
+  unsigned long manufactr_tooltip;
+};
+
+static struct Boing boing;
+
+TbBool detailed_multiplayer_logging = true;
+
+#define CONSECUTIVE_RESYNC_DECAY_SECONDS 30
+#define CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE 3
+
+static GameTurn last_resync_turn = 0;
+static int consecutive_resync_count = 0;
+
+void decrement_consecutive_resync_count(void) {
+    if (game.game_kind == GKind_LocalGame) {
+        return;
+    }
+    if (consecutive_resync_count == 0) {
+        return;
+    }
+    if (last_resync_turn == 0) {
+        return;
+    }
+    GameTurn decay_window = CONSECUTIVE_RESYNC_DECAY_SECONDS * game_num_fps;
+    GameTurn turns_since_last = game.play_gameturn - last_resync_turn;
+    if (turns_since_last >= decay_window) {
+        consecutive_resync_count--;
+        MULTIPLAYER_LOG("Consecutive resync count decayed to %d", consecutive_resync_count);
+    }
+}
+
+static void resync_potentially_increases_input_lag(void) {
+    consecutive_resync_count += 1;
+    last_resync_turn = game.play_gameturn;
+    MULTIPLAYER_LOG("Consecutive resync count: %d", consecutive_resync_count);
+
+    if (consecutive_resync_count >= CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE) {
+        consecutive_resync_count = 0;
+        game.input_lag_turns += 1;
+        NETLOG("Input lag increased: %d -> %d", game.input_lag_turns - 1, game.input_lag_turns);
+    }
+}
 
 #define RESYNC_RECEIVE_TIMEOUT_MS 30000
 #define RESYNC_TIMESYNC_TIMEOUT_MS 15000
@@ -80,6 +145,47 @@ void animate_resync_progress_bar(int current_phase, int total_phases) {
     draw_out_of_sync_box(progress_pixels, max_progress, status_panel_width);
 }
 
+void store_localised_game_structure(void) {
+    boing.active_panel_menu_index = game.active_panel_mnu_idx;
+    boing.comp_player_aggressive = game.comp_player_aggressive;
+    boing.comp_player_defensive = game.comp_player_defensive;
+    boing.comp_player_construct = game.comp_player_construct;
+    boing.comp_player_creatrsonly = game.comp_player_creatrsonly;
+    boing.creatures_tend_imprison = game.creatures_tend_imprison;
+    boing.creatures_tend_flee = game.creatures_tend_flee;
+    boing.hand_over_subtile_x = game.hand_over_subtile_x;
+    boing.hand_over_subtile_y = game.hand_over_subtile_y;
+    boing.chosen_room_kind = game.chosen_room_kind;
+    boing.chosen_room_spridx = game.chosen_room_spridx;
+    boing.chosen_room_tooltip = game.chosen_room_tooltip;
+    boing.chosen_spell_type = game.chosen_spell_type;
+    boing.chosen_spell_spridx = game.chosen_spell_spridx;
+    boing.chosen_spell_tooltip = game.chosen_spell_tooltip;
+    boing.manufactr_element = game.manufactr_element;
+    boing.manufactr_spridx = game.manufactr_spridx;
+    boing.manufactr_tooltip = game.manufactr_tooltip;
+}
+
+void recall_localised_game_structure(void) {
+    game.active_panel_mnu_idx = boing.active_panel_menu_index;
+    game.comp_player_aggressive = boing.comp_player_aggressive;
+    game.comp_player_defensive = boing.comp_player_defensive;
+    game.comp_player_construct = boing.comp_player_construct;
+    game.comp_player_creatrsonly = boing.comp_player_creatrsonly;
+    game.creatures_tend_imprison = boing.creatures_tend_imprison;
+    game.creatures_tend_flee = boing.creatures_tend_flee;
+    game.hand_over_subtile_x = boing.hand_over_subtile_x;
+    game.hand_over_subtile_y = boing.hand_over_subtile_y;
+    game.chosen_room_kind = boing.chosen_room_kind;
+    game.chosen_room_spridx = boing.chosen_room_spridx;
+    game.chosen_room_tooltip = boing.chosen_room_tooltip;
+    game.chosen_spell_type = boing.chosen_spell_type;
+    game.chosen_spell_spridx = boing.chosen_spell_spridx;
+    game.chosen_spell_tooltip = boing.chosen_spell_tooltip;
+    game.manufactr_element = boing.manufactr_element;
+    game.manufactr_spridx = boing.manufactr_spridx;
+    game.manufactr_tooltip = boing.manufactr_tooltip;
+}
 
 static TbBool send_resync_data(const void * buffer, size_t total_length) {
     MULTIPLAYER_LOG("Starting to send resync data: %lu bytes uncompressed", (unsigned long)total_length);
@@ -216,10 +322,10 @@ static TbBool receive_resync_data(void * destination_buffer, size_t expected_tot
 
 TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length) {
     MULTIPLAYER_LOG("Starting resync, my_id=%d, buffer_length=%lu", netstate.my_id, (unsigned long)buffer_length);
-    const TbBool is_server = (netstate.users[netstate.my_id].progress == USER_SERVER);
+    const TbBool is_host = (my_player_number == get_host_player_id());
 
     TbBool result;
-    if (is_server) {
+    if (is_host) {
         MULTIPLAYER_LOG("Resync: I am the server");
         result = send_resync_data(data_buffer, buffer_length);
     } else {
@@ -236,13 +342,74 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length) {
     return true;
 }
 
-void LbNetwork_TimesyncBarrier(void)
-{
+TbBool send_resync_game(void) {
+  pack_desync_history_for_resync();
+
+  resync_potentially_increases_input_lag();
+  clear_flag(game.operation_flags, GOF_Paused);
+  animate_resync_progress_bar(0, 6);
+  NETLOG("Initiating re-synchronization of network game");
+  TbBool result = LbNetwork_Resync(&game, sizeof(game));
+  if (!result) {
+    return false;
+  }
+  animate_resync_progress_bar(2, 6);
+  LbNetwork_TimesyncBarrier();
+  animate_resync_progress_bar(6, 6);
+  NETLOG("Host: Resync complete");
+  return true;
+}
+
+TbBool receive_resync_game(void) {
+    clear_flag(game.operation_flags, GOF_Paused);
+    animate_resync_progress_bar(0, 6);
+    NETLOG("Initiating re-synchronization of network game");
+    TbBool result = LbNetwork_Resync(&game, sizeof(game));
+    if (!result) {
+        return false;
+    }
+    animate_resync_progress_bar(2, 6);
+    LbNetwork_TimesyncBarrier();
+    animate_resync_progress_bar(6, 6);
+    NETLOG("Client: Resync complete");
+    if (game.desync_diagnostics.has_desync_diagnostics) {
+        compare_desync_history_from_host();
+    }
+
+    return true;
+}
+
+void resync_game(void) {
+    SYNCDBG(2,"Starting");
+    struct PlayerInfo* player = get_my_player();
+    draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
+    reset_eye_lenses();
+    store_localised_game_structure();
+    if (my_player_number == get_host_player_id()) {
+        send_resync_game();
+    } else {
+        receive_resync_game();
+    }
+    recall_localised_game_structure();
+    reinit_level_after_load();
+
+    game.skip_initial_input_turns = calculate_skip_input();
+    clear_packet_tracking();
+    clear_redundant_packets();
+    clear_input_lag_queue();
+    clear_desync_analysis();
+    NETLOG("Input lag after resync: %d turns", game.input_lag_turns);
+
+    clear_flag(game.system_flags, GSF_NetGameNoSync);
+    clear_flag(game.system_flags, GSF_NetSeedNoSync);
+}
+
+void LbNetwork_TimesyncBarrier(void) {
     if (game.game_kind != GKind_MultiGame) {
         return;
     }
-    const TbBool is_server = (netstate.users[netstate.my_id].progress == USER_SERVER);
-    if (is_server) {
+    const TbBool is_host = (my_player_number == get_host_player_id());
+    if (is_host) {
         MULTIPLAYER_LOG("Host: Handling any pending timesync requests");
         TbBool timesynced[MAX_N_USERS];
         for (NetUserId i = 0; i < MAX_N_USERS; ++i) {
@@ -366,8 +533,7 @@ void LbNetwork_TimesyncBarrier(void)
                         TbClockMSec rtt = t4 - rsp.client_send_time;
                         long long offset = ((long long)rsp.host_receive_time - (long long)rsp.client_send_time + (long long)rsp.host_send_time - (long long)t4) / 2;
                         g_timesync_offset_ms = (long)offset;
-                        MULTIPLAYER_LOG("Client: TIMESYNC complete: t1=%lld t2=%lld t3=%lld t4=%lld rtt=%lu offset=%ld ms (host ahead)",
-                            (long long)rsp.client_send_time, (long long)rsp.host_receive_time, (long long)rsp.host_send_time, (long long)t4, (unsigned long)rtt, g_timesync_offset_ms);
+                        MULTIPLAYER_LOG("Client: TIMESYNC complete: t1=%lld t2=%lld t3=%lld t4=%lld rtt=%lu offset=%ld ms (host ahead)", (long long)rsp.client_send_time, (long long)rsp.host_receive_time, (long long)rsp.host_send_time, (long long)t4, (unsigned long)rtt, g_timesync_offset_ms);
                         TimeSyncComplete complete;
                         complete.message_type = NETMSG_TIMESYNC_COMPLETE;
                         complete.client_rtt = rtt;

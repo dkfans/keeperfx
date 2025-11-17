@@ -21,6 +21,7 @@
 #include "pre_inc.h"
 #include "front_torture.h"
 #include "bflib_network.h"
+#include "bflib_network_exchange.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "config_settings.h"

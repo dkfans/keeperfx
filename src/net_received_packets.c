@@ -17,7 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "received_packets.h"
+#include "net_received_packets.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -92,9 +92,7 @@ void store_received_packets(void) {
             if (is_packet_empty(&game.packets[i])) {
                 MULTIPLAYER_LOG("store_received_packets: RECEIVED packet[%d] is EMPTY", i);
             } else {
-                MULTIPLAYER_LOG("store_received_packets: RECEIVED packet[%d] turn=%lu checksum=%08lx",
-                        i, (unsigned long)game.packets[i].turn,
-                        (unsigned long)game.packets[i].checksum);
+                MULTIPLAYER_LOG("store_received_packets: RECEIVED packet[%d] turn=%lu checksum=%08lx", i, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
                 store_received_packet(game.packets[i].turn, (PlayerNumber)i, &game.packets[i]);
             }
         }

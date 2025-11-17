@@ -22,6 +22,7 @@
 #include "bflib_network_internal.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
+#include "bflib_network_exchange.h"
 #include "bflib_netsession.h"
 #include "bflib_sound.h"
 #include "globals.h"
@@ -29,7 +30,7 @@
 #include "net_game.h"
 #include "front_landview.h"
 #include "front_network.h"
-#include "received_packets.h"
+#include "net_received_packets.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -47,14 +48,13 @@ extern "C" {
 /******************************************************************************/
 
 struct TbNetworkPlayerInfo *localPlayerInfoPtr;
-unsigned long hostId;
 static int ServerPort = 0;
 #define SESSION_COUNT 32
 struct NetState netstate;
 static struct TbNetworkSessionNameEntry sessions[SESSION_COUNT];
 
 TbBool IsUserActive(NetUserId id) {
-    return (netstate.users[id].progress == USER_LOGGEDIN || netstate.users[id].progress == USER_SERVER);
+    return (netstate.users[id].progress == USER_LOGGEDIN);
 }
 
 void UpdateLocalPlayerInfo(NetUserId id) {
@@ -147,7 +147,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     }
     netstate.my_id = SERVER_ID;
     snprintf(netstate.users[netstate.my_id].name, sizeof(netstate.users[netstate.my_id].name), "%s", plyr_name);
-    netstate.users[netstate.my_id].progress = USER_SERVER;
+    netstate.users[netstate.my_id].progress = USER_LOGGEDIN;
     *plyr_num = netstate.my_id;
     UpdateLocalPlayerInfo(netstate.my_id);
     LbNetwork_EnableNewPlayers(true);
@@ -268,10 +268,6 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr) {
         callback((TbNetworkCallbackData *) &sessions[i], ptr);
     }
     return Lb_OK;
-}
-
-unsigned long get_host_player_id(void) {
-  return hostId;
 }
 
 /******************************************************************************/

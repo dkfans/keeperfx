@@ -23,6 +23,8 @@
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
 #include "bflib_network.h"
+#include "bflib_network_exchange.h"
+#include "net_resync.h"
 
 #include "player_data.h"
 #include "front_landview.h"
@@ -30,11 +32,10 @@
 #include "packets.h"
 #include "frontend.h"
 #include "front_network.h"
-#include "net_sync.h"
-#include "bflib_network_resync.h"
 #include "config_settings.h"
 #include "game_legacy.h"
-#include "input_lag.h"
+#include "net_input_lag.h"
+#include "net_checksums.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -65,6 +66,10 @@ short setup_network_service(int srvidx)
   net_service_index_selected = srvidx;
   frontend_set_state(FeSt_NET_SESSION);
   return 1;
+}
+
+unsigned long get_host_player_id(void) {
+    return 0;
 }
 
 int setup_old_network_service(void)

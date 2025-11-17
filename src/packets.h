@@ -325,6 +325,7 @@ void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
+void set_local_packet_turn(void);
 void clear_packets(void);
 TbBigChecksum compute_replay_integrity(void);
 void post_init_packets(void);

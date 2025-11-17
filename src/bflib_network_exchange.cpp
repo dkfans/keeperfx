@@ -1,11 +1,10 @@
 /******************************************************************************/
-// Bullfrog Engine Emulation Library - for use to remake classic games like
-// Syndicate Wars, Magic Carpet or Dungeon Keeper.
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file bflib_network_exchange.cpp
- *     Network data exchange routines.
+ *     Network data exchange for Dungeon Keeper multiplayer.
  * @par Purpose:
- *     Network data exchange support routines.
+ *     Network data exchange routines for multiplayer games.
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
@@ -18,17 +17,17 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "bflib_network_exchange.h"
 #include "bflib_network.h"
 #include "bflib_network_internal.h"
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
 #include "globals.h"
-#include "frontend.h"
+#include "player_data.h"
 #include "net_game.h"
 #include "front_landview.h"
-#include "front_network.h"
-#include "received_packets.h"
-#include "redundant_packets.h"
+#include "net_received_packets.h"
+#include "net_redundant_packets.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -248,7 +247,7 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     for (id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id) { continue; }
         if (netstate.users[id].progress == USER_UNUSED) { continue; }
-        if (netstate.users[netstate.my_id].progress != USER_SERVER && id != SERVER_ID) { continue; }
+        if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
         if (msg_type == NETMSG_GAMEPLAY) {
             const long double draw_interval_nanoseconds = 1000000000.0 / NETWORK_FPS;
             const int timeout_max = (1000 / game_num_fps);

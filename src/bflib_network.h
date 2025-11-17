@@ -246,15 +246,11 @@ void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
-TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t buf_size);
-TbError LbNetwork_ExchangeLogin(char *plyr_name);
-TbBool  LbNetwork_Resync(void * buf, size_t len);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
-unsigned long get_host_player_id(void);
 void    LbNetwork_UpdateInputLagIfHost(void);
 /******************************************************************************/
 #ifdef __cplusplus

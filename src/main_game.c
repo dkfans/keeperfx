@@ -38,7 +38,7 @@
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
-#include "net_sync.h"
+#include "net_resync.h"
 #include "room_library.h"
 #include "room_list.h"
 #include "power_specials.h"
@@ -51,7 +51,7 @@
 #include "gui_boxmenu.h"
 #include "sounds.h"
 #include "api.h"
-#include "bflib_network_resync.h"
+#include "net_resync.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"

@@ -35,7 +35,7 @@
 #include "bflib_mouse.h"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
-#include "bflib_network_resync.h"
+#include "net_resync.h"
 #include "bflib_planar.h"
 
 #include "api.h"
@@ -126,7 +126,7 @@
 #include "room_list.h"
 #include "steam_api.hpp"
 #include "game_loop.h"
-#include "input_lag.h"
+#include "net_input_lag.h"
 #include "moonphase.h"
 #include "frontmenu_ingame_map.h"
 
@@ -211,7 +211,6 @@ extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, Mo
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 extern void startup_network_game(CoroutineLoop *context, TbBool local);
 void first_gameturn_actions(void);
-void compute_multiplayer_checksum(void);
 /******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
@@ -3902,14 +3901,17 @@ void game_loop(void)
       }
       if ( exit_keeper )
         break;
-      struct PlayerInfo *player;
-      player = get_my_player();
       if (game.game_kind == GKind_LocalGame)
       {
         if (game.save_game_slot == -1)
         {
             if (is_feature_on(Ft_SkipHeartZoom) == false) {
-                set_player_instance(player, PI_HeartZoom, 0);
+                for (int i = 0; i < PLAYERS_COUNT; i++) {
+                    struct PlayerInfo *player = get_player(i);
+                    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
+                        set_player_instance(player, PI_HeartZoom, 0);
+                    }
+                }
             } else {
                 if (!game.packet_load_enable) {
                     toggle_status_menu(1); // Required when skipping PI_HeartZoom
@@ -3921,7 +3923,12 @@ void game_loop(void)
           clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {
-          set_player_instance(player, PI_HeartZoom, 0);
+          for (int i = 0; i < PLAYERS_COUNT; i++) {
+              struct PlayerInfo *player = get_player(i);
+              if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
+                  set_player_instance(player, PI_HeartZoom, 0);
+              }
+          }
       }
 
       unsigned long starttime;

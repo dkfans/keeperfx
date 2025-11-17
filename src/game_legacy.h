@@ -160,12 +160,14 @@ struct LogRoomDesyncInfo {
 struct DesyncHistoryEntry {
     GameTurn turn;
     TbBool valid;
+    TbBigChecksum turn_checksum;
     TbBigChecksum things_sum;
     TbBigChecksum rooms_sum;
     TbBigChecksum action_random_seed;
     TbBigChecksum ai_random_seed;
     TbBigChecksum player_random_seed;
     TbBigChecksum player_checksums[PLAYERS_COUNT];
+    TbBigChecksum players_sum;
     TbBigChecksum creatures_sum;
     TbBigChecksum traps_sum;
     TbBigChecksum shots_sum;
@@ -372,6 +374,7 @@ struct Game {
         struct DesyncHistoryEntry host_history[40];
 
         TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
+        GameTurn desync_detected_turn;           // Turn number where desync was detected
     } desync_diagnostics;
 };
 

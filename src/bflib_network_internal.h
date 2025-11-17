@@ -29,8 +29,7 @@ extern "C" {
 enum NetUserProgress {
     USER_UNUSED = 0,
     USER_CONNECTED,
-    USER_LOGGEDIN,
-    USER_SERVER
+    USER_LOGGEDIN
 };
 
 struct NetUser {

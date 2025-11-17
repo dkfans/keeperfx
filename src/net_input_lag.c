@@ -1,9 +1,10 @@
 #include "pre_inc.h"
-#include "input_lag.h"
+#include "net_input_lag.h"
 
 #include "globals.h"
 #include "packets.h"
 #include "player_data.h"
+#include "net_game.h"
 #include "game_legacy.h"
 #include "bflib_network.h"
 #include "bflib_network_internal.h"
@@ -26,9 +27,9 @@ void store_local_packet_in_input_lag_queue(PlayerNumber my_packet_num) {
     }
     int slot = game.play_gameturn % (game.input_lag_turns + 1);
     local_input_lag_packets[slot] = game.packets[my_packet_num];
-    MULTIPLAYER_LOG("store_local_packet_in_input_lag_queue: STORING local packet[%d] turn=%lu checksum=%08lx into queue slot %d",
-            my_packet_num, (unsigned long)game.packets[my_packet_num].turn,
-            (unsigned long)game.packets[my_packet_num].checksum, slot);
+    const char* player_name;
+    if (my_packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
+    MULTIPLAYER_LOG("store_local_packet_in_input_lag_queue: STORING local packet[%s] turn=%lu checksum=%08lx into queue slot %d", player_name, (unsigned long)game.packets[my_packet_num].turn, (unsigned long)game.packets[my_packet_num].checksum, slot);
 }
 
 struct Packet* get_local_input_lag_packet_for_turn(GameTurn target_turn) {
@@ -79,7 +80,7 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     NetUserId id;
     for (id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id) { continue; }
-        if (netstate.users[id].progress == USER_LOGGEDIN || netstate.users[id].progress == USER_SERVER) {
+        if (netstate.users[id].progress == USER_LOGGEDIN) {
             active_player_count += 1;
         }
     }
@@ -104,7 +105,7 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     int max_ping = 0;
     for (id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id) { continue; }
-        if (!(netstate.users[id].progress == USER_LOGGEDIN || netstate.users[id].progress == USER_SERVER)) { continue; }
+        if (!(netstate.users[id].progress == USER_LOGGEDIN)) { continue; }
         unsigned long ping = GetPing(id);
         if (ping <= 0) {
             MULTIPLAYER_LOG("Player %d (%s) has no RTT data yet", id, netstate.users[id].name);
