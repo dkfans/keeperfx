@@ -445,6 +445,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
             }
         }
         shotng->move_angle_z = 0;
+        shotng->parent_idx = traptng->index;
         struct ShotConfigStats* shotst = get_shot_model_stats(trapst->created_itm_model);
         struct ComponentVector cvect;
         angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
