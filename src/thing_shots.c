@@ -1048,9 +1048,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     int adjusted_throw_strength;
     if (trgtng->health < 0)
         return 0;
-    struct Thing* shooter = INVALID_THING;
-    if (shotng->parent_idx != shotng->index)
-        shooter = thing_get(shotng->parent_idx);
+    struct Thing* shooter = get_parent_thing(shotng);
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
     long damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
     if (damage > 0)
@@ -1170,10 +1168,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     int adjusted_push_strength;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long push_strength = shotst->push_on_hit;
-    struct Thing* shooter = INVALID_THING;
-    if (shotng->parent_idx != shotng->index) {
-        shooter = thing_get(shotng->parent_idx);
-    }
+    struct Thing* shooter = get_parent_thing(shotng);
     // Two fighting creatures gives experience
     if (thing_is_creature(shooter) && thing_is_creature(trgtng))
     {
@@ -1188,10 +1183,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (creature_under_spell_effect(trgtng, CSAfF_Rebound) && !flag_is_set(shotst->model_flags, ShMF_ReboundImmune))
     {
-        struct Thing* killertng = INVALID_THING;
-        if (shotng->index != shotng->parent_idx) {
-            killertng = thing_get(shotng->parent_idx);
-        }
+        struct Thing* killertng = get_parent_thing(shotng);
         if (!thing_is_invalid(killertng))
         {
             if (shot_model_is_navigable(shotng->model))
@@ -1443,10 +1435,7 @@ HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, cons
 
 struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags param1, long param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Thing* parntng = INVALID_THING;
-    if (shotng->parent_idx > 0) {
-        parntng = thing_get(shotng->parent_idx);
-    }
+    struct Thing* parntng = get_parent_thing(shotng);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
