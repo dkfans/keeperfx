@@ -1428,6 +1428,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
     if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door)
         && (thing_is_destructible_trap(enmtng) <= 0) && !((thing_is_destructible_trap(enmtng) >= 0) && creature_has_disarming_weapon(thing))) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
     {
+        //TODO: Surpress error when thing_is_destructible_trap returns -2 because of no more shots
         ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enmtng->class_id,
             (int)enmtng->model, (long)game.play_gameturn, (int)thing->creation_turn);
         return false;
