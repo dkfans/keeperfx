@@ -99,12 +99,19 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     long damage;
     // If the shot has area_range, then make area damage
     if (shotst->area_range != 0) {
-        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(castng);
-        //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
-        // Caster may have leveled up, or even may be already dead
-        // But currently shot do not store its level, so we don't really have a choice
-        struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
-        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crconf->luck, cctrl->exp_level);
+        unsigned char luck = 0;
+        CrtrExpLevel exp_level = 0;
+        if (thing_is_creature(castng))
+        {
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(castng);
+            //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
+            // Caster may have leveled up, or even may be already dead
+            // But currently shot do not store its level, so we don't really have a choice
+            struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
+            luck = crconf->luck;
+            exp_level = cctrl->exp_level;
+        }
+        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, exp_level);
         if (flag_is_set(shotst->model_flags, ShMF_StrengthBased))
         {
             if (shotst->area_damage == 0)
@@ -118,7 +125,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         else
         {
-            damage = compute_creature_attack_spell_damage(shotst->area_damage, crconf->luck, cctrl->exp_level, castng);
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, exp_level, shotng->owner);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets);
