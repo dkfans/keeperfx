@@ -593,7 +593,10 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
     }
-    thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if (trapst->trigger_sound_idx > 0)
+    {
+        thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    }
     switch (trapst->activation_type)
     {
     case TrpAcT_HeadforTarget90:
@@ -657,7 +660,10 @@ void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
             {
                 event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
             }
-            thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            if (trapst->trigger_sound_idx > 0)
+            {
+                thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            }
 
             switch (trapst->activation_type)
             {
@@ -957,6 +963,13 @@ TngUpdateRet update_trap(struct Thing *traptng)
                 traptng->anim_speed = trapst->anim_speed;
             }
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+            //Optionally play a recharge sound while recharging, without overlap.
+            if (trapst->recharge_sound_idx > 0)
+            {
+                if (!S3DEmitterIsPlayingSample(traptng->snd_emitter_id, trapst->recharge_sound_idx, 0)) {
+                    thing_play_sample(traptng, trapst->recharge_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                }
+            }
         }
     }
     if (trapst->activation_type == TrpAcT_CreatureShot)
