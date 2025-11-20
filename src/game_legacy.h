@@ -172,8 +172,6 @@ struct Game {
     char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
     char save_game_slot;
     LevelNumber selected_level_number;
-    char active_lens_type;
-    unsigned char applied_lens_type;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
     struct Things things;

@@ -357,7 +357,8 @@ TbBool load_game(long slot_num)
 //  unsigned char buf[14];
 //  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
     SYNCDBG(6,"Starting");
-    reset_eye_lenses();
+    struct PlayerInfo* player = get_my_player();
+    reset_eye_lenses(player);
     {
         // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
@@ -411,14 +412,13 @@ TbBool load_game(long slot_num)
     panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
-    struct PlayerInfo* player = get_my_player();
     clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
     clear_flag(player->additional_flags, PlaAF_FreezePaletteIsActive);
     player->palette_fade_step_pain = 0;
     player->palette_fade_step_possession = 0;
     player->lens_palette = 0;
     PaletteSetPlayerPalette(player, engine_palette);
-    reinitialise_eye_lens(game.applied_lens_type);
+    reinitialise_eye_lens(player, player->applied_lens_type);
     // Update the lights system state
     light_import_system_state(&game.lightst);
     // Victory state
