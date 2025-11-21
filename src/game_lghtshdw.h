@@ -30,7 +30,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define SHADOW_LIMITS_COUNT  2048
-#define SHADOW_CACHE_COUNT    160
+#define SHADOW_CACHE_COUNT    512
 
 /******************************************************************************/
 #pragma pack(1)
