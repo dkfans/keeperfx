@@ -357,7 +357,7 @@ static int thing_get_field(lua_State *L) {
         } else if (strcmp(key, "party") == 0) {
             lua_pushPartyTable(L, get_group_leader(thing));
         } else if (strcmp(key, "level") == 0) {
-            lua_pushinteger(L, cctrl->exp_level);
+            lua_pushinteger(L, cctrl->exp_level + 1);
         } else if (strcmp(key, "max_speed") == 0) {
             lua_pushinteger(L, cctrl->max_speed);
         } else if (strcmp(key, "exp_points") == 0) {
