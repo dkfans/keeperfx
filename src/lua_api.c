@@ -391,7 +391,7 @@ static int lua_Add_creature_to_level(lua_State *L)
     PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 1);
     long crtr_id           = luaL_checkNamedCommand(L,2,creature_desc);
     TbMapLocation location = luaL_checkLocation(L,  3);
-    long crtr_level        = luaL_checkinteger(L, 4);
+    long crtr_level        = luaL_checkCrtLevel(L, 4);
     long carried_gold      = luaL_checkinteger(L, 5);
     long spawn_type;
     if(!lua_isnoneornil(L, 6))
@@ -423,10 +423,10 @@ static int lua_Add_tunneller_to_level(lua_State *L)
     PlayerNumber plr_id          = luaL_checkPlayerSingle(L,1);
     TbMapLocation spawn_location = luaL_checkLocation(L,2);
     TbMapLocation head_for       = luaL_checkHeadingLocation(L,3); // checks 2 params
-    long level                   = luaL_checkinteger(L,5);
+    long level                   = luaL_checkCrtLevel(L,5);
     long gold_held               = luaL_checkinteger(L,6);
 
-    struct Thing* thing = script_process_new_tunneler(plr_id, spawn_location, head_for, level-1, gold_held);
+    struct Thing* thing = script_process_new_tunneler(plr_id, spawn_location, head_for, level, gold_held);
 
     lua_pushThing(L, thing);
     return 1;
@@ -442,17 +442,10 @@ static int lua_Add_to_party(lua_State *L)
 {
     long party_id          = luaL_checkParty(L,  1);
     long crtr_id           = luaL_checkNamedCommand(L,2,creature_desc);
-    long experience        = luaL_checklong(L, 3);
+    long experience        = luaL_checkCrtLevel(L, 3);
     long gold              = luaL_checklong(L, 4);
     long objective_id      = luaL_checkNamedCommand(L, 5,hero_objective_desc);
     long countdown         = luaL_checklong (L, 6);
-
-
-    if ((experience < 1) || (experience > CREATURE_MAX_LEVEL))
-    {
-      SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",experience,1,CREATURE_MAX_LEVEL);
-      return 0;
-    }
 
     add_member_to_party(party_id, crtr_id, experience, gold, objective_id, countdown);
     return 0;
@@ -462,7 +455,7 @@ static int lua_Delete_from_party(lua_State *L)
 {
     long party_id          = luaL_checkParty(L,  1);
     const char* creature   = lua_tostring(L,  2);
-    long experience  = lua_tointeger(L, 3);
+    long experience  = luaL_checkCrtLevel(L, 3);
 
     long creature_id = get_rid(creature_desc, creature);
     if (creature_id == -1)
@@ -1189,14 +1182,14 @@ static int lua_Set_creature_tendencies(lua_State *L)
 static int lua_Creature_entrance_level(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    unsigned char level = luaL_checkinteger(L, 4);
+    unsigned char level = luaL_checkCrtLevel(L, 4);
 
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Dungeon* dungeon = get_dungeon(i);
         if (dungeon_invalid(dungeon))
             continue;
-        dungeon->creature_entrance_level = level - 1;
+        dungeon->creature_entrance_level = level;
     }
     return 0;
 }
