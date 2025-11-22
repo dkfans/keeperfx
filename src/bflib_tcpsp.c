@@ -65,6 +65,7 @@ static TbError  tcpSP_host(const char * session, void * options);
 static TbError  tcpSP_join(const char * session, void * options);
 static void     tcpSP_update(NetNewUserCallback new_user);
 static void     tcpSP_sendmsg_single(NetUserId destination, const char * buffer, size_t size);
+static void     tcpSP_sendmsg_single_unsequenced(NetUserId destination, const char * buffer, size_t size);
 static void     tcpSP_sendmsg_all(const char * buffer, size_t size);
 static size_t   tcpSP_msgready(NetUserId source, unsigned timeout);
 static size_t   tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size);
@@ -78,6 +79,7 @@ const struct NetSP tcpSP =
     tcpSP_join,
     tcpSP_update,
     tcpSP_sendmsg_single,
+    tcpSP_sendmsg_single_unsequenced,
     tcpSP_sendmsg_all,
     tcpSP_msgready,
     tcpSP_readmsg,
@@ -446,6 +448,11 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
             spstate.drop_callback(destination, NETDROP_ERROR);
         }
     }
+}
+
+static void tcpSP_sendmsg_single_unsequenced(NetUserId destination, const char * buffer, size_t size)
+{
+    tcpSP_sendmsg_single(destination, buffer, size);
 }
 
 static void tcpSP_sendmsg_all(const char * buffer, size_t size)

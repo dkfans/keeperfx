@@ -1,9 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/**
+/** @file net_resync.h
+ *     Header file for net_resync.cpp.
+ * @par Purpose:
+ *     Network resynchronization for Dungeon Keeper multiplayer.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     18 Oct 2022
+ * @date     31 Oct 2025
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -11,28 +16,24 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#ifndef DK_NET_RESYNC_H
+#define DK_NET_RESYNC_H
 
-#ifndef GIT_BFLIB_ENET_H
-#define GIT_BFLIB_ENET_H
+#include "bflib_basics.h"
+#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct NetSP;
-struct NetSP* InitEnetSP();
-unsigned long GetPing(int id);
-unsigned long GetPingVariance(int id);
-unsigned int GetPacketLoss(int id);
-unsigned int GetClientDataInTransit();
-unsigned int GetIncomingPacketQueueSize();
-unsigned int GetClientPacketsLost();
-unsigned int GetClientOutgoingDataTotal();
-unsigned int GetClientIncomingDataTotal();
-unsigned int GetClientReliableCommandsInFlight();
+TbBool LbNetwork_Resync(void *data_buffer, size_t buffer_length);
+void LbNetwork_TimesyncBarrier(void);
+void animate_resync_progress_bar(int current_phase, int total_phases);
+void resync_game(void);
+void decrement_consecutive_resync_count(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //GIT_BFLIB_ENET_H
+#endif

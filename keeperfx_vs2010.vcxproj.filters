@@ -408,9 +408,6 @@
     <ClCompile Include="src\net_game.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\net_sync.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\packets.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1200,9 +1197,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\net_game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\net_sync.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\packets.h">

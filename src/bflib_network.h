@@ -47,6 +47,19 @@ enum NetDropReason
     NETDROP_ERROR // connection error
 };
 
+enum NetMessageType {
+    NETMSG_LOGIN,
+    NETMSG_USERUPDATE,
+    NETMSG_FRONTEND,
+    NETMSG_SMALLDATA,
+    NETMSG_GAMEPLAY,
+    NETMSG_RESYNC_DATA,
+    NETMSG_RESYNC_RESUME,
+    NETMSG_TIMESYNC_REQUEST,
+    NETMSG_TIMESYNC_REPLY,
+    NETMSG_TIMESYNC_COMPLETE,
+};
+
 typedef TbBool  (*NetNewUserCallback)(NetUserId * assigned_id);
 typedef void    (*NetDropCallback)(NetUserId id, enum NetDropReason reason);
 
@@ -94,6 +107,14 @@ struct NetSP // new version
      * @param size Must be > 0
      */
     void    (*sendmsg_single)(NetUserId destination, const char * buffer, size_t size);
+
+    /**
+     * Sends a message buffer to a certain user using unsequenced delivery.
+     * @param destination Destination user.
+     * @param buffer
+     * @param size Must be > 0
+     */
+    void    (*sendmsg_single_unsequenced)(NetUserId destination, const char * buffer, size_t size);
 
     /**
      * Sends a message buffer to all remote users.
@@ -225,16 +246,12 @@ void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
-TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
-TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
-TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
-TbBool  LbNetwork_Resync(void * buf, size_t len);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
-unsigned long get_host_player_id(void);
+void    LbNetwork_UpdateInputLagIfHost(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

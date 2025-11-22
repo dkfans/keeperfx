@@ -38,7 +38,7 @@
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
-#include "net_sync.h"
+#include "net_resync.h"
 #include "room_library.h"
 #include "room_list.h"
 #include "power_specials.h"
@@ -51,6 +51,7 @@
 #include "gui_boxmenu.h"
 #include "sounds.h"
 #include "api.h"
+#include "net_resync.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -192,8 +193,10 @@ static void init_level(void)
     init_map_size(get_selected_level_number());
     clear_messages();
     init_seeds();
+    
+    sync_various_data();
+    
     // Load the actual level files
-
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {
@@ -498,12 +501,6 @@ void init_seeds()
             game.action_random_seed = calender_time * 9311 + 9319;
         }
 
-        // Network seed must be synchronized for multiplayer before setting derived seeds
-        if ((game.system_flags & GSF_NetworkActive) != 0) {
-            init_network_seed();
-        }
-
-        // AI and Player systems get their own derived seeds
         game.ai_random_seed = game.action_random_seed * 9377 + 9391;
         game.player_random_seed = game.action_random_seed * 9473 + 9479;
         
