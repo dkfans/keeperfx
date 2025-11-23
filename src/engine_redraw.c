@@ -721,16 +721,7 @@ void redraw_isometric_view(void)
     // Camera position modifications
     make_camera_deviations(player,dungeon);
     update_explored_flags_for_power_sight(player);
-    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
-    {
-        store_engine_window(&ewnd,1);
-        setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
-    }
     engine(player,&player->cameras[CamIV_Isometric]);
-    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
-    {
-        load_engine_window(&ewnd);
-    }
     if (smooth_on)
     {
         store_engine_window(&ewnd,pixel_size);
@@ -756,29 +747,15 @@ void redraw_isometric_view(void)
 void redraw_frontview(void)
 {
     SYNCDBG(6,"Starting");
-    long w;
-    long h;
     struct PlayerInfo* player = get_my_player();
     update_explored_flags_for_power_sight(player);
-    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
-    {
-      w = player->engine_window_width;
-      h = player->engine_window_height;
-      setup_engine_window(player->engine_window_x, player->engine_window_y, w, h >> 1);
-    } else
-    {
-      w = 0;
-      h = 0;
-    }
     draw_frontview_engine(&player->cameras[CamIV_FrontView]);
-    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
-      setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
-    remove_explored_flags_for_power_sight(player);
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
+     remove_explored_flags_for_power_sight(player);
+    if (flag_is_set(game.operation_flags,GOF_ShowGui)) {
         draw_whole_status_panel();
     }
     draw_gui();
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
+    if (flag_is_set(game.operation_flags,GOF_ShowGui)) {
         draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();

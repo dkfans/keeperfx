@@ -456,7 +456,6 @@ void clear_complete_game(void)
     game.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
-    game.flags_font = start_params.flags_font;
     game.packet_load_initialized = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
     set_continue_level_number(first_singleplayer_level());
@@ -467,6 +466,7 @@ void clear_complete_game(void)
     game_num_fps = start_params.num_fps;
     game_num_fps_draw = start_params.num_fps_draw;
     game.mode_flags = start_params.mode_flags;
+    game.easter_eggs_enabled = start_params.easter_egg;
     set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
     game.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
@@ -492,7 +492,7 @@ void init_seeds()
         game.sound_random_seed = calender_time * 7919 + 7927;
 
         // If doing -packetload then use the replay's stored seed
-        if (game.packet_save_head.action_seed != 0) {
+        if ((game.packet_save_head.action_seed != 0) && (game.packet_load_enable == true)) {
             game.action_random_seed = game.packet_save_head.action_seed;
         } else {
             game.action_random_seed = calender_time * 9311 + 9319;

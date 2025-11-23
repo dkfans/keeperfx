@@ -1572,7 +1572,7 @@ void reinit_level_after_load(void)
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
-    game.flags_font |= start_params.flags_font;
+    game.easter_eggs_enabled = start_params.easter_egg;
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
@@ -1610,7 +1610,6 @@ TbBool set_default_startup_parameters(void)
     memset(&start_params, 0, sizeof(struct StartupParameters));
     start_params.startup_flags = (SFlg_Legal|SFlg_FX|SFlg_Intro);
     start_params.packet_checksum_verify = 1;
-    clear_flag(start_params.flags_font, FFlg_Unusedparam01);
     // Set levels to 0, as we may not have the campaign loaded yet
     start_params.selected_level_number = 0;
     start_params.num_fps = 20;
@@ -1643,9 +1642,9 @@ void clear_things_and_persons_data(void)
         // Create the list of free indices (skip index 0 since that's INVALID_THING
         if (i > 0) {
             if (i < SYNCED_THINGS_COUNT) {
-                game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
-            } else {
-                game.unsynced_free_things[THINGS_COUNT-i] = i;
+                game.synced_free_things[SYNCED_THINGS_COUNT-1-i] = i;
+            } else if (i < THINGS_COUNT) {
+                game.unsynced_free_things[THINGS_COUNT-1-i] = i;
             }
         }
     }
@@ -1730,9 +1729,9 @@ void delete_all_thing_structures(void)
           delete_thing_structure(thing, 1);
       }
         if (i < SYNCED_THINGS_COUNT) {
-            game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
-        } else {
-            game.unsynced_free_things[THINGS_COUNT-i] = i;
+            game.synced_free_things[SYNCED_THINGS_COUNT-1-i] = i;
+        } else if (i < THINGS_COUNT) {
+            game.unsynced_free_things[THINGS_COUNT-1-i] = i;
         }
     }
     game.synced_free_things_count = SYNCED_THINGS_COUNT-1;
@@ -2150,7 +2149,7 @@ void check_players_won(void)
             set_player_as_won_level(curPlayer);
             return;
         }
-    }  
+    }
 }
 
 void check_players_lost(void)
@@ -4132,9 +4131,12 @@ short process_command_line(unsigned short argc, char *argv[])
           narg++;
           LbNetwork_InitSessionsFromCmdLine(pr2str);
       } else
+      if (strcasecmp(parstr, "nomods") == 0) {
+          start_params.ignore_mods = true;
+      } else
       if (strcasecmp(parstr,"alex") == 0)
       {
-         set_flag(start_params.flags_font, FFlg_AlexCheat);
+         start_params.easter_egg = true;
       }
       else if (strcasecmp(parstr,"connect") == 0)
       {
@@ -4287,11 +4289,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
-    
+
     // Determine correct log file based on command line flags
     const char* selected_log_file_name = determine_log_filename(argc, argv);
     LbErrorLogSetup("/", selected_log_file_name, 5);
-    
+
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {

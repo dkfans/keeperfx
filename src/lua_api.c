@@ -628,6 +628,20 @@ static int lua_Quick_message(lua_State *L)
     return 0;
 }
 
+static int lua_Clear_message(lua_State* L)
+{
+    char count = luaL_optCheckinteger(L, 1);
+    if ((count <= 0) || (count > GUI_MESSAGES_COUNT))
+    {
+        count = GUI_MESSAGES_COUNT;
+    }
+    for (int k = game.active_messages_count - 1; k >= (game.active_messages_count - count); k--)
+    {
+        game.messages[k].expiration_turn = game.play_gameturn;
+    }
+    return 0;
+}
+
 static int lua_Heart_lost_objective(lua_State *L)
 {
     long message_id = luaL_checkinteger(L, 1);
@@ -2102,6 +2116,7 @@ static const luaL_Reg global_methods[] = {
    {"QuickInformationWithPos"               ,lua_Quick_information_with_pos      },
    {"DisplayMessage"                        ,lua_Display_message                 },
    {"QuickMessage"                          ,lua_Quick_message                   },
+   {"ClearMessage"                          ,lua_Clear_message                   },
    {"HeartLostObjective"                    ,lua_Heart_lost_objective            },
    {"HeartLostQuickObjective"               ,lua_Heart_lost_quick_objective      },
    {"PlayMessage"                           ,lua_Play_message                    },

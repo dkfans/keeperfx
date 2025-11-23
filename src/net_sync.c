@@ -347,7 +347,7 @@ static TbBigChecksum compute_things_list_checksum(struct StructureList *list)
         k++;
         if (k > THINGS_COUNT)
         {
-            ERRORLOG("Infinite loop detected in thing list");
+            ERRORLOG("Infinite loop detected in thing list on class %s",thing_class_code_name(thing->class_id));
             break;
         }
     }

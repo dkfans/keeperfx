@@ -22,31 +22,32 @@
 
 #include <limits.h>
 
-#include "globals.h"
+#include "ariadne_wallhug.h"
 #include "bflib_basics.h"
-#include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_fileio.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-
 #include "config.h"
 #include "config_compp.h"
-#include "config_terrain.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "creature_states.h"
-#include "ariadne_wallhug.h"
-#include "spdigger_stack.h"
-#include "magic_powers.h"
-#include "map_utils.h"
-#include "thing_traps.h"
-#include "thing_navigate.h"
-#include "player_complookup.h"
-#include "power_hand.h"
-#include "room_data.h"
 #include "game_legacy.h"
 #include "game_merge.h"
-#include "keeperfx.hpp"
+#include "globals.h"
 #include "gui_msgs.h"
+#include "keeperfx.hpp"
+#include "magic_powers.h"
+#include "map_utils.h"
+#include "player_complookup.h"
+#include "player_utils.h"
+#include "power_hand.h"
+#include "room_data.h"
+#include "spdigger_stack.h"
+#include "thing_navigate.h"
+#include "thing_traps.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1334,6 +1335,8 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyr_idx, lon
         player->allocflags &= ~PlaF_Allocated;
         return false;
     }
+    init_keeper_map_exploration_by_terrain(player);
+    init_keeper_map_exploration_by_creatures(player);
     return true;
 }
 

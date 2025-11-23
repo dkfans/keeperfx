@@ -593,7 +593,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
     }
     LbTextUseByteCoding(false);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = (24 * units_per_pixel_ui) / LbTextLineHeight();
     draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
 
     long amount = count_player_rooms_of_type(player->id_number, rkind);
@@ -743,7 +743,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
     }
     LbTextUseByteCoding(false);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = (24 * units_per_pixel_ui) / LbTextLineHeight();
     draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, text);
     LbTextUseByteCoding(true);
     lbDisplay.DrawFlags = flg_mem;
@@ -1105,7 +1105,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         } else {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
         }
-        int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        int tx_units_per_px = (24 * units_per_pixel_ui) / LbTextLineHeight();
         draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
         lbDisplay.DrawFlags = flg_mem;
     } else

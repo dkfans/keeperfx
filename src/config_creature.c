@@ -352,11 +352,6 @@ void check_and_auto_fix_stats(void)
             ERRORLOG("Creature model %d (%s) HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model, creature_code_name(model));
             crconf->hunger_fill = 1;
         }
-        if ( (crconf->sleep_exp_slab != 0) && (crconf->sleep_experience == 0) )
-        {
-            ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
-            crconf->sleep_exp_slab = 0;
-        }
         if ((crconf->grow_up >= game.conf.crtr_conf.model_count) && !(crconf->grow_up == CREATURE_NOT_A_DIGGER))
         {
             ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
@@ -517,8 +512,11 @@ void init_creature_model_stats(void)
         }
         crconf->grow_up = 0;
         crconf->grow_up_level = 0;
-        crconf->sleep_exp_slab = 0;
-        crconf->sleep_experience = 0;
+        for (n = 0; n < SLEEP_XP_COUNT; n++)
+        {
+            crconf->sleep_exp_slab[n] = 0;
+            crconf->sleep_experience[n] = 0;
+        }
         crconf->exp_for_hitting = 0;
         crconf->rebirth = 0;
         // Jobs block.

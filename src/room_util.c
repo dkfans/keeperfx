@@ -503,7 +503,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         thing->owner = room->owner;
         return true;
     }
-    return true;
+    return false;
 }
 
 EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomRole rrole)

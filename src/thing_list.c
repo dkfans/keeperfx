@@ -2220,7 +2220,7 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     param.primary_number = -1;
     param.secondary_number = -1;
     param.tertiary_number = -1;
-    if (dungeon_invalid(dungeon)) {
+    if (dungeon_invalid(dungeon) || player_is_neutral(plyr_idx)) {
         // Invalid dungeon - use list of creatures not associated to any dungeon
         return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
     }
@@ -2263,7 +2263,7 @@ long count_player_creatures_of_model_in_action_point(PlayerNumber plyr_idx, int 
     param.primary_number = apt->mappos.x.val;
     param.secondary_number = apt->mappos.y.val;
     param.tertiary_number = apt->range;
-    if (dungeon_invalid(dungeon)) {
+    if (dungeon_invalid(dungeon) || player_is_neutral(plyr_idx)) {
         // Invalid dungeon - use list of creatures not associated to any dungeon
         return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
     }
@@ -2517,7 +2517,7 @@ GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
-            ERRORLOG("Jump to invalid creature detected");
+            ERRORLOG("Jump to invalid creature (%d) detected for %s.",i, player_code_name(dungeon->owner));
             break;
         }
         i = cctrl->players_next_creature_idx;
@@ -2654,7 +2654,7 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
     param.primary_number = -1;
     param.secondary_number = -1;
     param.tertiary_pointer = (void *)matcher_cb;
-    if (dungeon_invalid(dungeon)) {
+    if (dungeon_invalid(dungeon) || player_is_neutral(plyr_idx)) {
         // Invalid dungeon - use list of creatures not associated to any dungeon
         return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
     }
