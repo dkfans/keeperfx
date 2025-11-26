@@ -285,7 +285,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (thing->class_id == TCls_Creature)
     {
         crconf = creature_stats_get_from_thing(thing);
-        setup_eye_lens(crconf->eye_effect);
+        setup_eye_lens(player, crconf->eye_effect);
     }
     return true;
 }
@@ -3218,7 +3218,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
     if (player->id_number == thing->owner)
-        setup_eye_lens(0);
+        setup_eye_lens(player, 0);
     set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
     if (player->id_number == thing->owner)
     {
@@ -4245,7 +4245,7 @@ void draw_creature_view(struct Thing *thing)
 {
   // If no eye lens required - just draw on the screen, directly
   struct PlayerInfo* player = get_my_player();
-  if (((game.mode_flags & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.applied_lens_type == 0))
+  if ((player->eye_lens_ready == false) || (eye_lens_memory == NULL) || (player->applied_lens_type == 0))
   {
       engine(player,&player->cameras[CamIV_FirstPerson]);
       return;
@@ -4272,7 +4272,7 @@ void draw_creature_view(struct Thing *thing)
   // Draw the buffer on real screen
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   draw_lens_effect(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem, eye_lens_width,
-      MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.applied_lens_type);
+      MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, player->applied_lens_type);
 }
 
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)

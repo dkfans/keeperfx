@@ -261,6 +261,9 @@ struct PlayerInfo {
     ThingModel special_digger;
     int isometric_tilt;
     unsigned short generate_speed;
+    char active_lens_type;
+    unsigned char applied_lens_type;
+    TbBool eye_lens_ready;
     };
 
 /******************************************************************************/

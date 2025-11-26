@@ -3492,7 +3492,7 @@ void keeper_gameplay_loop(void)
     player = get_my_player();
     PaletteSetPlayerPalette(player, engine_palette);
     if ((game.operation_flags & GOF_SingleLevel) != 0) {
-        initialise_eye_lenses();
+        initialise_eye_lenses(player);
     }
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
     KeeperSpeechClearEvents();
@@ -3917,7 +3917,7 @@ void game_loop(void)
       playtime += endtime-starttime;
       SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
       total_play_turns += game.play_gameturn;
-      reset_eye_lenses();
+      reset_eye_lenses(player);
       close_packet_file();
       game.packet_load_enable = false;
       game.packet_save_enable = false;

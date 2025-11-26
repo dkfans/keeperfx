@@ -79,7 +79,7 @@ enum CmdLineOverrides {
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
-    MFlg_EyeLensReady       =  0x02,
+    MFlg_Unusedparam02      =  0x02,
     MFlg_Unusedparam04      =  0x04,
     MFlg_DeadBackToPool     =  0x08,
     MFlg_NoCdMusic          =  0x10, // unused
