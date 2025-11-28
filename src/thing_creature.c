@@ -2250,7 +2250,11 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
     {
         thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
     }
-    create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner, castng->index);
+    struct Thing *effect = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner, castng->index);
+    if (!thing_is_invalid(effect))
+    {
+        effect->parent_idx = castng->index;
+    }
 }
 
 void update_creature_count(struct Thing *creatng)

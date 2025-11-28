@@ -2191,10 +2191,7 @@ HitTargetFlags collide_filter_thing_is_in_my_fight(const struct Thing *firstng, 
 struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(struct Thing *shotng, struct Coord3d *pos,
     long square_size, Thing_Collide_Func filter, ThingHitType filter_par1, long filter_par2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Thing* creatng = INVALID_THING;
-    if (shotng->parent_idx > 0) {
-        creatng = thing_get(shotng->parent_idx);
-    }
+    struct Thing* creatng = get_parent_thing(shotng);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
