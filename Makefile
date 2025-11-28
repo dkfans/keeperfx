@@ -118,6 +118,8 @@ obj/bflib_mspointer.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/bflib_network.o \
+obj/bflib_network_exchange.o \
+obj/net_resync.o \
 obj/bflib_planar.o \
 obj/bflib_render.o \
 obj/bflib_render_gpoly.o \
@@ -271,7 +273,10 @@ obj/map_locations.o \
 obj/map_utils.o \
 obj/moonphase.o \
 obj/net_game.o \
-obj/net_sync.o \
+obj/net_input_lag.o \
+obj/net_received_packets.o \
+obj/net_redundant_packets.o \
+obj/net_checksums.o \
 obj/packets.o \
 obj/packets_cheats.o \
 obj/packets_input.o \
@@ -639,7 +644,7 @@ deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
 src/bflib_sndlib.cpp: deps/openal/include/AL/al.h
-src/bflib_network.cpp: deps/zlib/include/zlib.h
+src/net_resync.cpp: deps/zlib/include/zlib.h
 src/console_cmd.c: deps/luajit/include/lua.h
 
 deps/enet-mingw32.tar.gz:

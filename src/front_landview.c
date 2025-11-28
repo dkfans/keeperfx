@@ -35,7 +35,7 @@
 #include "bflib_sound.h"
 #include "bflib_vidraw.h"
 #include "bflib_network.h"
-
+#include "bflib_network_exchange.h"
 
 #include "config_strings.h"
 #include "config_campaigns.h"
@@ -1714,7 +1714,7 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     if (fe_network_active)
     {
-      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket)) )
+      if (LbNetwork_Exchange(NETMSG_FRONTEND, nspck, &net_screen_packet, sizeof(struct ScreenPacket)))
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;

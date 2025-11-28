@@ -338,6 +338,16 @@ TbBool cmd_frametime_max(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_network_stats(PlayerNumber plyr_idx, char * args)
+{
+    if (debug_display_network_stats == 1) {
+        debug_display_network_stats = 0;
+    } else {
+        debug_display_network_stats = 1;
+    }
+    return true;
+}
+
 TbBool cmd_quit(PlayerNumber plyr_idx, char * args)
 {
     quit_game = 1;
@@ -2189,6 +2199,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "ft", cmd_frametime },
     { "frametime.max", cmd_frametime_max },
     { "ft.max", cmd_frametime_max },
+    { "netstats", cmd_network_stats },
     { "quit", cmd_quit },
     { "time", cmd_time },
     { "timer.toggle", cmd_timer_toggle },

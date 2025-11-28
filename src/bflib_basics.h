@@ -86,7 +86,6 @@ struct TbDate {
 typedef long TbClockMSec;
 typedef time_t TbTimeSec;
 
-typedef unsigned char TbChecksum;
 typedef unsigned long TbBigChecksum;
 typedef long Offset;
 typedef FILE * TbFileHandle;

@@ -18,6 +18,8 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
+#include "net_received_packets.h"
+#include "net_redundant_packets.h"
 
 #include "bflib_fileio.h"
 #include "front_landview.h"
@@ -163,6 +165,8 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 void post_init_packets(void)
 {
     SYNCDBG(6,"Starting");
+    initialize_packet_tracking();
+    initialize_redundant_packets();
     if ((game.packet_load_enable) && (game.packet_load_initialized))
     {
         struct CatalogueEntry centry;
@@ -329,7 +333,7 @@ void load_packets_for_turn(GameTurn nturn)
     const int turn_data_size = PACKET_TURN_SIZE;
     unsigned char pckt_buf[PACKET_TURN_SIZE+4];
     struct Packet* pckt = get_packet(my_player_number);
-    TbChecksum pckt_chksum = pckt->chksum;
+    TbBigChecksum pckt_chksum = pckt->checksum;
     if (nturn >= game.turns_stored)
     {
         ERRORDBG(18,"Out of turns to load from Packet File");
@@ -358,7 +362,7 @@ void load_packets_for_turn(GameTurn nturn)
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         } else
-        if (pckt->chksum != pckt_chksum)
+        if (pckt->checksum != pckt_chksum)
         {
             ERRORLOG("Oops we are really Out Of Sync (GameTurn %lu)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
@@ -374,6 +378,12 @@ void set_packet_pause_toggle()
         return;
     if (player->packet_num >= PACKETS_COUNT)
         return;
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
+    long desired_pause;
+    if ((game.operation_flags & GOF_Paused) == 0) {
+        desired_pause = 1;
+    } else {
+        desired_pause = 0;
+    }
+    process_pause_packet(desired_pause, 0);
+    set_players_packet_action(player, PckA_UpdatePause, desired_pause, 0, 0, 0);
 }

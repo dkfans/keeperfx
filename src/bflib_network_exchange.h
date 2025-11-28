@@ -1,9 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/**
+/** @file bflib_network_exchange.h
+ *     Header file for bflib_network_exchange.cpp.
+ * @par Purpose:
+ *     Network data exchange for Dungeon Keeper multiplayer.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     18 Oct 2022
+ * @date     11 Apr 2009 - 13 May 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -11,28 +16,21 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#ifndef DK_NET_EXCHANGE_H
+#define DK_NET_EXCHANGE_H
 
-#ifndef GIT_BFLIB_ENET_H
-#define GIT_BFLIB_ENET_H
+#include "bflib_basics.h"
+#include "bflib_network.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct NetSP;
-struct NetSP* InitEnetSP();
-unsigned long GetPing(int id);
-unsigned long GetPingVariance(int id);
-unsigned int GetPacketLoss(int id);
-unsigned int GetClientDataInTransit();
-unsigned int GetIncomingPacketQueueSize();
-unsigned int GetClientPacketsLost();
-unsigned int GetClientOutgoingDataTotal();
-unsigned int GetClientIncomingDataTotal();
-unsigned int GetClientReliableCommandsInFlight();
+TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t buf_size);
+TbError LbNetwork_ExchangeLogin(char *plyr_name);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //GIT_BFLIB_ENET_H
+#endif
