@@ -572,11 +572,11 @@ long count_creatures_really_in_combat(BattleIndex battle_id)
     return count;
 }
 
-void cleanup_battle(BattleIndex battle_id)
+TbBool cleanup_battle(BattleIndex battle_id)
 {
     struct CreatureBattle* battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle))
-        return;
+        return true;
     long count = count_creatures_really_in_combat(battle_id);
     if (count == 0)
     {
@@ -595,8 +595,10 @@ void cleanup_battle(BattleIndex battle_id)
             }
         }
         SYNCDBG(7,"Removed %d wanderers from battle %d",(int)k,(int)battle_id);
+        return true;
     } else
     {
+        return false;
         SYNCDBG(7,"There are still %d participants in battle %d",(int)count,(int)battle_id);
     }
 }
@@ -646,9 +648,9 @@ void update_battle_events(BattleIndex battle_id)
             dungeon->last_combat_location.y.val = map_y;
             dungeon->last_combat_location.z.val = map_z;
             if (owner_flags == to_flag(i)) { // if the current player (i) is the only player in the fight
-                event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, 0);
+                event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, battle_id);
             } else {
-                event_create_event_or_update_old_event(map_x, map_y, EvKind_EnemyFight, i, 0);
+                event_create_event_or_update_old_event(map_x, map_y, EvKind_EnemyFight, i, battle_id);
             }
         }
     }
@@ -811,21 +813,23 @@ TbBool battle_remove(struct Thing *fightng)
 {
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(fightng),(int)fightng->index);
     TRACE_THING(fightng);
-    {
-        struct CreatureControl* figctrl = creature_control_get_from_thing(fightng);
-        long battle_id = figctrl->battle_id;
-        if (battle_id > 0) {
-            remove_thing_from_battle_list(fightng);
-            cleanup_battle(battle_id);
-        } else {
-            ERRORLOG("Attempt to remove %s index %d from battle when he isn't in one",thing_model_name(fightng),(int)fightng->index);
-        }
-        if (figctrl->battle_id > 0) {
-            ERRORLOG("Removing %s index %d from battle doesn't seem to have effect",thing_model_name(fightng),(int)fightng->index);
-            return false;
-        }
+    struct CreatureControl* figctrl = creature_control_get_from_thing(fightng);
+    BattleIndex battle_id = figctrl->battle_id;
+    TbBool fight_over = false;
+    if (battle_id > 0) {
+        remove_thing_from_battle_list(fightng);
+        fight_over = cleanup_battle(battle_id);
+    } else {
+        ERRORLOG("Attempt to remove %s index %d from battle when he isn't in one",thing_model_name(fightng),(int)fightng->index);
     }
-    event_update_on_battle_removal();
+    if (figctrl->battle_id > 0) {
+        ERRORLOG("Removing %s index %d from battle doesn't seem to have effect",thing_model_name(fightng),(int)fightng->index);
+        return false;
+    }
+    if (fight_over)
+    {
+        event_update_on_battle_removal(battle_id);
+    }
     return true;
 }
 

@@ -125,7 +125,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         else
         {
-            damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, exp_level, shotng);
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, exp_level, shotng->owner);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets);
