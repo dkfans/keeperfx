@@ -679,8 +679,9 @@ long get_creature_gui_job(const struct Thing *thing)
 
 TbBool creature_is_dying(const struct Thing *thing)
 {
-    return (thing->health < 0);
+    return ((thing->active_state == DCrSt_Dying) || (thing->active_state == DCrSt_Dead));
 }
+
 TbBool creature_is_being_dropped(const struct Thing *thing)
 {
     CrtrStateId i = thing->active_state;
