@@ -3221,6 +3221,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     struct PlayerInfo* player = get_player(thing->owner);
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
+    player->influenced_thing_creation = 0;
     if (player->id_number == thing->owner)
         setup_eye_lens(0);
     set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
@@ -7485,10 +7486,11 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, T
         initialise_tab_tags_and_menu(menu);
         turn_on_menu(menu);
     }
+    struct Thing* creatng = thing_get(index);
     player->influenced_thing_idx = index;
+    player->influenced_thing_creation = creatng->creation_turn;
     if (zoom)
     {
-        struct Thing *creatng = thing_get(index);
         player->zoom_to_pos_x = creatng->mappos.x.val;
         player->zoom_to_pos_y = creatng->mappos.y.val;
         set_player_instance(player, PI_ZoomToPos, 0);

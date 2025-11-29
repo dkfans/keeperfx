@@ -1238,6 +1238,7 @@ void process_players_creature_passenger_packet_action(long plyr_idx)
     if (pckt->action == PckA_PasngrCtrlExit)
     {
         player->influenced_thing_idx = pckt->actn_par1;
+        player->influenced_thing_creation = pckt->actn_par2;
         set_player_instance(player, PI_PsngrCtLeave, 0);
     }
     SYNCDBG(8,"Finished");
@@ -1492,6 +1493,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   {
   case PckA_DirectCtrlExit:
       player->influenced_thing_idx = pckt->actn_par1;
+      player->influenced_thing_idx = pckt->actn_par2;
       thing = thing_get(player->controlled_thing_idx);
       cctrl = creature_control_get_from_thing(thing);
       struct Thing* dragtng = thing_get(cctrl->dragtng_idx);

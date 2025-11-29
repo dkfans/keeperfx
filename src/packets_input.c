@@ -435,6 +435,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                             turn_on_menu(GMnu_CREATURE_QUERY1);
                         }
                         player->influenced_thing_idx = player->thing_under_hand;
+                        player->influenced_thing_creation = thing->creation_turn;
                         set_player_state(player, PSt_CreatrQuery, 0);
                         set_player_instance(player, PI_QueryCrtr, 0);
                     }
@@ -777,6 +778,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 if (player->thing_under_hand > 0)
                 {
                     player->influenced_thing_idx = player->thing_under_hand;
+                    player->influenced_thing_creation = thing->creation_turn;
                     set_player_instance(player, PI_PsngrCtrl, 0);
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
