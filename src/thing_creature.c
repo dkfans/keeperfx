@@ -2250,7 +2250,11 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
     {
         thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
     }
-    create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner, castng->index);
+    struct Thing *effect = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner, castng->index);
+    if (!thing_is_invalid(effect))
+    {
+        effect->parent_idx = castng->index;
+    }
 }
 
 void update_creature_count(struct Thing *creatng)
@@ -3504,7 +3508,7 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    return compute_creature_attack_spell_damage(shotst->damage, crconf->luck, cctrl->exp_level, creatng);
+    return compute_creature_attack_spell_damage(shotst->damage, crconf->luck, cctrl->exp_level, creatng->owner);
 }
 
 static void shot_init_lizard(const struct Thing *target, short angle_xy, unsigned char dexterity, struct Thing *shotng)

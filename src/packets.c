@@ -18,9 +18,13 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
+#include "net_received_packets.h"
+#include "net_input_lag.h"
+#include "net_checksums.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 #include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
@@ -29,6 +33,7 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_network.h"
+#include "bflib_network_exchange.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
@@ -83,7 +88,7 @@
 #include "gui_parchment.h"
 #include "gui_msgs.h"
 #include "net_game.h"
-#include "net_sync.h"
+#include "net_resync.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
@@ -115,6 +120,23 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, lo
     pckt->actn_par3 = par3;
     pckt->actn_par4 = par4;
     pckt->action = pcktype;
+}
+
+TbBool is_packet_empty(const struct Packet *pckt) {
+    if (pckt->turn != 0 ||
+        pckt->checksum != 0 ||
+        pckt->action != 0 ||
+        pckt->actn_par1 != 0 ||
+        pckt->actn_par2 != 0 ||
+        pckt->pos_x != 0 ||
+        pckt->pos_y != 0 ||
+        pckt->control_flags != 0 ||
+        pckt->additional_packet_values != 0 ||
+        pckt->actn_par3 != 0 ||
+        pckt->actn_par4 != 0) {
+        return false;
+    }
+    return true;
 }
 
 void update_double_click_detection(long plyr_idx)
@@ -760,7 +782,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 1;
   case PckA_TogglePause:
-      process_pause_packet((game.operation_flags & GOF_Paused) == 0, pckt->actn_par1);
+      process_pause_packet(pckt->actn_par1, 0);
       return 1;
   case PckA_SetCluedo:
       player->video_cluedo_mode = pckt->actn_par1;
@@ -1114,13 +1136,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
                 }
                 break;
             }
-            case 2:
-            {
-                player->user_defined_roomspace_width = pckt->actn_par2;
-                player->roomspace_width = pckt->actn_par2;
-                player->roomspace_height = pckt->actn_par2;
-                break;
-            }
         }
         player->roomspace_no_default = true;
         return false;
@@ -1173,6 +1188,11 @@ void process_players_packet(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
+    if (is_packet_empty(pckt))
+    {
+        MULTIPLAYER_LOG("process_players_packet: Skipping empty packet for player %ld", plyr_idx);
+        return;
+    }
     SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
@@ -1571,81 +1591,190 @@ static void replace_with_ai(int old_active_players)
     }
 }
 
+static void load_old_packets(PlayerNumber my_packet_num) {
+    GameTurn historical_turn = game.play_gameturn - game.input_lag_turns;
+    const struct Packet* received_packets = get_received_packets_for_turn(historical_turn);
+    const char* received_packets_status;
+    if (received_packets != NULL) {
+        received_packets_status = "found";
+    } else {
+        received_packets_status = "NULL";
+    }
+    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%lu historical_turn=%lu received_packets=%s", (unsigned long)game.play_gameturn, (unsigned long)historical_turn, received_packets_status);
+
+    for (int i = 0; i < PACKETS_COUNT; i++) {
+        const char* player_name;
+        if (i == 0) {player_name = "Host";} else {player_name = "Client";}
+
+        if (i == my_packet_num) {
+            struct Packet* local_packet = get_local_input_lag_packet_for_turn(historical_turn);
+            if (local_packet != NULL) {
+                game.packets[i] = *local_packet;
+            } else {
+                MULTIPLAYER_LOG("load_input_lag_packets: NOT FOUND - no local packet for historical_turn=%lu", (unsigned long)historical_turn);
+            }
+            if (i <= 1) {
+                if (is_packet_empty(&game.packets[i])) {
+                    MULTIPLAYER_LOG("load_input_lag_packets: loaded local packet[%s] is EMPTY", player_name);
+                } else {
+                    MULTIPLAYER_LOG("load_input_lag_packets: loaded local packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
+                }
+            }
+        } else {
+            if (received_packets != NULL) {
+                game.packets[i] = received_packets[i];
+                if (i <= 1) {
+                    if (is_packet_empty(&game.packets[i])) {
+                        MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] is EMPTY", player_name);
+                    } else {
+                        MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
+                    }
+                }
+            } else {
+                memset(&game.packets[i], 0, sizeof(struct Packet));
+                if (i <= 1) {
+                    MULTIPLAYER_LOG("load_input_lag_packets: cleared packet[%s] (no received packets)", player_name);
+                }
+            }
+        }
+    }
+}
+
+// If a packet was missed, this feature assumes that your inputs will be the same as the previous turn. This guess will be correct 80% of the time.
+void fill_missing_packets_from_previous_turn(void)
+{
+    struct PlayerInfo* my_player = get_my_player();
+    if (!player_exists(my_player)) {
+        return;
+    }
+    struct Packet* my_pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+    if (my_pckt == NULL) {
+        ERRORLOG("fill_missing_packets: Could not get local checksum from input lag queue");
+        return;
+    }
+    TbBigChecksum local_checksum = my_pckt->checksum;
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (i == my_player->packet_num) {
+            continue;
+        }
+        if (!network_player_active(i)) {
+            continue;
+        }
+        const char* player_name;
+        if (i == 0) {player_name = "Host";} else {player_name = "Client";}
+        struct Packet* pckt = get_packet_direct(i);
+        if (is_packet_empty(pckt)) {
+            const struct Packet* prev_pckt = get_received_packet_for_player(game.play_gameturn - 1, i);
+            if (prev_pckt != NULL && !is_packet_empty(prev_pckt)) {
+                MULTIPLAYER_LOG("fill_missing_packets: Reusing packet[%s] from turn %lu for turn %lu", player_name, (unsigned long)(game.play_gameturn - 1), (unsigned long)game.play_gameturn);
+                pckt->action = prev_pckt->action;
+                pckt->actn_par1 = prev_pckt->actn_par1;
+                pckt->actn_par2 = prev_pckt->actn_par2;
+                pckt->actn_par3 = prev_pckt->actn_par3;
+                pckt->actn_par4 = prev_pckt->actn_par4;
+                pckt->pos_x = prev_pckt->pos_x;
+                pckt->pos_y = prev_pckt->pos_y;
+                pckt->control_flags = prev_pckt->control_flags;
+                pckt->additional_packet_values = prev_pckt->additional_packet_values;
+                pckt->turn = game.play_gameturn;
+                pckt->checksum = local_checksum;
+            } else {
+                MULTIPLAYER_LOG("fill_missing_packets: No previous packet found for player[%s], skipping", player_name);
+            }
+        }
+    }
+}
+
+void set_local_packet_turn(void) {
+    struct Packet* pckt = get_packet(my_player_number);
+    pckt->turn = game.play_gameturn;
+    MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)game.play_gameturn, (unsigned long)pckt->checksum);
+}
+
 /**
  * Exchange packets if MP game, then process all packets influencing local game state.
  */
 void process_packets(void)
 {
     int i;
-    struct PlayerInfo* player;
+    struct PlayerInfo* player = get_my_player();
     SYNCDBG(5, "Starting");
-    // Do the network data exchange
-    lbDisplay.DrawColour = colours[15][15][15];
-    // Exchange packets with the network
+
+    MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)game.play_gameturn);
+    set_local_packet_turn();
+    update_turn_checksums();
+    store_local_packet_in_input_lag_queue(player->packet_num);
+
     if (game.game_kind != GKind_LocalGame)
     {
-        player = get_my_player();
         int old_active_players = 0;
         for (i = 0; i < NET_PLAYERS_COUNT; i++)
         {
             if (network_player_active(i))
                 old_active_players++;
         }
+        MULTIPLAYER_LOG("process_packets: About to send/receive packets, active_players=%d", old_active_players);
+
         if (!game.packet_load_enable || game.packet_load_initialized)
         {
-            struct Packet* pckt = get_packet_direct(player->packet_num);
-            if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)) != 0)
-            {
+            struct Packet* my_pckt = get_packet_direct(player->packet_num);
+            const char* player_name;
+            if (player->packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
+            MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_pckt->turn, (unsigned long)my_pckt->checksum);
+            TbError exchange_result = LbNetwork_Exchange(NETMSG_GAMEPLAY, my_pckt, game.packets, sizeof(struct Packet));
+            if (exchange_result != Lb_OK) {
                 ERRORLOG("LbNetwork_Exchange failed");
             }
         }
         replace_with_ai(old_active_players);
     }
-  // Setting checksum problem flags
-  switch (checksums_different())
-  {
-  case 1:
-      set_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  case 2:
-      clear_flag(game.system_flags, GSF_NetGameNoSync);
-      set_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  case 3:
-      set_flag(game.system_flags, GSF_NetGameNoSync);
-      set_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  default:
-      clear_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  }
-  // Write packets into file, if requested
-  if ((game.packet_save_enable) && (game.packet_fopened))
-    save_packets();
-//Debug code, to find packet errors
-#if DEBUG_NETWORK_PACKETS
-  write_debug_packets();
-#endif
-  // Process the packets
-  for (i=0; i<PACKETS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-      process_players_packet(i);
-  }
-  // Clear all packets
-  clear_packets();
-  if (((game.system_flags & GSF_NetGameNoSync) != 0)
-   || ((game.system_flags & GSF_NetSeedNoSync) != 0))
-  {
-    // Store current checksums before resync for later analysis
-    store_checksums_for_desync_analysis();
-    SYNCDBG(0,"Resyncing");
-    resync_game();
-  }
-  SYNCDBG(7,"Finished");
+
+    MULTIPLAYER_LOG("process_packets: Loading packets from input lag queue");
+    load_old_packets(player->packet_num);
+    
+    fill_missing_packets_from_previous_turn();
+
+    if (input_lag_skips_initial_processing())
+    {
+        clear_packets();
+        return;
+    }
+
+    if (checksums_different()) { //Should be called directly after LbNetwork_Exchange, to see if there's anything wrong with the received packet
+        // Setting checksum problem flags
+        set_flag(game.system_flags, GSF_NetGameNoSync);
+        clear_flag(game.system_flags, GSF_NetSeedNoSync);
+    } else {
+        clear_flag(game.system_flags, GSF_NetGameNoSync);
+        clear_flag(game.system_flags, GSF_NetSeedNoSync);
+    }
+
+    // Write packets into file, if requested
+    if ((game.packet_save_enable) && (game.packet_fopened))
+        save_packets();
+    //Debug code, to find packet errors
+    #if DEBUG_NETWORK_PACKETS
+    write_debug_packets();
+    #endif
+    // Process the packets
+    for (i=0; i<PACKETS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        process_players_packet(i);
+    }
+    // Clear all packets
+    clear_packets();
+    decrement_consecutive_resync_count();
+    if (((game.system_flags & GSF_NetGameNoSync) != 0)
+    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+    {
+        SYNCDBG(0,"Resyncing");
+        resync_game();
+    }
+    get_current_slowdown_percentage();
+    MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)game.play_gameturn);
+    SYNCDBG(7,"Finished");
 }
 
 static TbBool try_starting_level_from_chat(char* message, long player_id)
@@ -1726,10 +1855,10 @@ void process_frontend_packets(void)
   nspckt->networkstatus_flags ^= ((nspckt->networkstatus_flags ^ (fe_computer_players << 1)) & 0x06);
   nspckt->stored_data1 = VersionRelease;
   nspckt->stored_data2 = VersionBuild;
-  if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
+  if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
   {
       ERRORLOG("LbNetwork_Exchange failed");
-      net_service_index_selected = -1; // going to quit
+      net_service_index_selected = -1;
   }
   if (frontend_should_all_players_quit())
   {

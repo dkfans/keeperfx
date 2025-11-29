@@ -86,7 +86,7 @@ GoldAmount compute_creature_max_training_cost(GoldAmount base_training_cost, Crt
 GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_scavenging_cost, CrtrExpLevel exp_level);
 long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck, CrtrExpLevel exp_level, const struct Thing* thing);
 long compute_creature_attack_melee_damage(long base_param, long luck, CrtrExpLevel exp_level, struct Thing* thing);
-long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, struct Thing* thing);
+long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, PlayerNumber plyr_idx);
 long compute_creature_attack_range(long base_param, long luck, CrtrExpLevel exp_level);
 HitPoints compute_creature_spell_damage_over_time(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner);
 long compute_creature_work_value(long base_param, long efficiency, CrtrExpLevel exp_level);

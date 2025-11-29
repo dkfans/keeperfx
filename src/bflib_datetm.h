@@ -41,6 +41,7 @@ TbBool LbSleepUntilExt(long double tick_ns_end);
 TbBool LbSleepDelayExt(long double tick_ns_delay);
 TbResult LbTime(struct TbTime *curr_time);
 TbTimeSec LbTimeSec(void);
+unsigned long long LbSystemClockMilliseconds(void);
 TbResult LbDate(struct TbDate *curr_date);
 TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
 TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
@@ -102,6 +103,12 @@ extern void framerate_measurement_capture(int framerate_kind);
 extern float get_delta_time();
 
 extern struct FrametimeMeasurements frametime_measurements;
+
+int get_current_slowdown_percentage(void);
+
+extern int slowdown_current;
+extern int slowdown_average;
+extern int slowdown_max;
 /******************************************************************************/
 #ifdef __cplusplus
 }
