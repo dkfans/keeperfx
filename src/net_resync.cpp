@@ -64,7 +64,7 @@ struct Boing {
 
 static struct Boing boing;
 
-TbBool detailed_multiplayer_logging = true;
+TbBool detailed_multiplayer_logging = false;
 
 #define CONSECUTIVE_RESYNC_DECAY_SECONDS 30
 #define CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE 3
