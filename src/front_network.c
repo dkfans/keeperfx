@@ -449,13 +449,13 @@ void handle_autostart_multiplayer_messaging(void)
             message_char_index = 0;
           }
         }
-    }
+      }
 
-    if (net_number_of_enum_players < 2) {
-      if (message_char_index < 0) {
+      if (net_number_of_enum_players < 2) {
+        if (message_char_index < 0) {
           message_char_index = -1;
         }
-    }
+      }
 
     if (message_char_index == -2 && !frontnet_is_waiting_for_ping_stabilization()) {
       message_char_index = 0;
