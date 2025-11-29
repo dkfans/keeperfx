@@ -866,7 +866,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     set_player_instance(player, PI_UnqueryCrtr, 0);
                     unset_packet_control(pckt, PCtr_RBtnRelease);
                 } else
-                if (creature_is_dying(thing))
+                if (creature_is_dying(thing) || (thing->creation_turn != player->influenced_thing_creation))
                 {
                     set_player_instance(player, PI_UnqueryCrtr, 0);
                     if (is_my_player(player))
