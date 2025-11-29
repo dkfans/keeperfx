@@ -68,8 +68,8 @@ TbBool creature_can_do_healing_sleep(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return ((crstat->heal_requirement > 0) && (crstat->lair_size > 0));
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    return ((crconf->heal_requirement > 0) && (crconf->lair_size > 0));
 }
 
 TbBool creature_is_sleeping(const struct Thing *thing)
@@ -101,8 +101,8 @@ TbBool creature_is_doing_lair_activity(const struct Thing *thing)
 TbBool creature_requires_healing(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    HitPoints minhealth = crstat->heal_requirement * cctrl->max_health / 256;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    HitPoints minhealth = crconf->heal_requirement * cctrl->max_health / 256;
     if ((long)thing->health <= minhealth)
         return true;
     return false;
@@ -186,7 +186,7 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
     {
         initialise_thing_state(dragtng, CrSt_CreatureAtNewLair);
     }
-    set_flag(dragctrl->flgfield_1,CCFlg_NoCompControl);
+    set_flag(dragctrl->creature_control_flags,CCFlg_NoCompControl);
     set_start_state(thing);
     return 1;
 
@@ -205,9 +205,9 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     {
         return 0;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     // End if the creature has no lair enemy
-    if (crstat->lair_enemy[0] == 0)
+    if (crconf->lair_enemy[0] == 0)
     {
         return 0;
     }
@@ -217,7 +217,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     struct Thing* enemytng;
-    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crstat->lair_enemy, &enemytng);
+    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crconf->lair_enemy, &enemytng);
     if (combat_factor < 1)
         return 0;
     if (!set_creature_in_combat_to_the_death(thing, enemytng, combat_factor))
@@ -247,8 +247,8 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
-    struct CreatureStats* crstat = creature_stats_get(creatng->model);
-    lairtng = create_object(&pos, crstat->lair_object, creatng->owner, -1);
+    struct CreatureModelConfig* crconf = creature_stats_get(creatng->model);
+    lairtng = create_object(&pos, crconf->lair_object, creatng->owner, -1);
     if (thing_is_invalid(lairtng))
     {
         ERRORLOG("Could not create lair totem");
@@ -256,15 +256,15 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
         place_thing_in_mapwho(creatng);
         return CrStRet_Modified; // Return that so we won't try to redo the action over and over
     }
-    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2048);
+    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
     // Associate creature with the lair
     cctrl->lairtng_idx = lairtng->index;
     lairtng->lair.belongs_to = creatng->index;
     lairtng->lair.cssize = 1;
     // Lair size depends on creature level
-    lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
-    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2*LbFPMath_PI);
+    lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
+    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
     struct ObjectConfigStats* objst = get_object_model_stats(lairtng->model);
     unsigned long i = convert_td_iso(objst->sprite_anim_idx);
     set_thing_draw(lairtng, i, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);
@@ -330,7 +330,7 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
 TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct Room *room)
 {
     unsigned long k;
-    long n = CREATURE_RANDOM(creatng, room->slabs_count);
+    long n = THING_RANDOM(creatng, room->slabs_count);
     SlabCodedCoords start_slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -489,7 +489,7 @@ long room_has_slab_adjacent(const struct Room *room, long slbkind)
         // Per room tile code
         for (long n = 0; n < AROUND_SLAB_LENGTH; n++)
         {
-            long slab_num = i + gameadd.around_slab[n];
+            long slab_num = i + game.around_slab[n];
             struct SlabMap* slb = get_slabmap_direct(slab_num);
             if (!slabmap_block_invalid(slb))
             {
@@ -512,50 +512,67 @@ long room_has_slab_adjacent(const struct Room *room, long slbkind)
 
 short creature_sleep(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (creature_affected_by_slap(thing) || !creature_will_sleep(thing)) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (creature_affected_by_slap(thing) || !creature_will_sleep(thing))
+    {
         set_start_state(thing);
         return 0;
     }
-    struct Room* room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP)))
-        || (cctrl->lair_room_id != room->index) || (room->owner != thing->owner)) {
+    struct Room *room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room)
+    || (!room_role_matches(room->kind, get_room_role_for_job(Job_TAKE_SLEEP)))
+    || (cctrl->lair_room_id != room->index)
+    || (room->owner != thing->owner))
+    {
         set_start_state(thing);
         return 0;
     }
     thing->movement_flags &= ~0x0020;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig *crconf = creature_stats_get_from_thing(thing);
     // Recovery is disabled if frequency is set to 0 on rules.cfg.
-    if (game.conf.rules.creature.recovery_frequency > 0)
+    if (game.conf.rules[thing->owner].creature.recovery_frequency > 0)
     {
-        if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+        if (((game.play_gameturn + thing->index) % game.conf.rules[thing->owner].creature.recovery_frequency) == 0)
         {
-            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+            HitPoints recover = compute_creature_max_health(crconf->sleep_recovery, cctrl->exp_level);
             apply_health_to_thing_and_display_health(thing, recover);
         }
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
-    anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);
-    if (cctrl->turns_at_job > 0) {
+    anger_apply_anger_to_creature(thing, crconf->annoy_sleeping, AngR_Other, 1);
+    if (cctrl->turns_at_job > 0)
+    {
         cctrl->turns_at_job--;
     }
     if (((game.play_gameturn + thing->index) & 0x3F) == 0)
     {
-        if (CREATURE_RANDOM(thing, 100) < 5) {
-            struct Dungeon* dungeon = get_dungeon(thing->owner);
+        if (THING_RANDOM(thing, 100) < 5)
+        {
+            struct Dungeon *dungeon = get_dungeon(thing->owner);
             dungeon->lvstats.backs_stabbed++;
         }
     }
-    if (crstat->sleep_exp_slab != SlbT_ROCK)
+    long XP = 0;
+    for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
     {
-        if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crstat->sleep_exp_slab))
+        if (crconf->sleep_experience[i] > XP)
         {
-            cctrl->exp_points += crstat->sleep_experience;
+            if (room_has_slab_adjacent(room, crconf->sleep_exp_slab[i]))
+            {
+                XP = crconf->sleep_experience[i];
+            }
+        }
+    }
+    if (XP != 0)
+    {
+        if (creature_can_gain_experience(thing))
+        {
+            cctrl->exp_points += XP;
             check_experience_upgrade(thing);
         }
     }
     {
-        if ((thing->health >= crstat->heal_threshold * cctrl->max_health / 256) && (!cctrl->turns_at_job))
+        if ((thing->health >= crconf->heal_threshold * cctrl->max_health / 256) && (!cctrl->turns_at_job))
         {
             set_start_state(thing);
             return 1;

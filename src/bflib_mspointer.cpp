@@ -41,11 +41,6 @@ volatile TbBool lbPointerAdvancedDraw;
 long cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
 long cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
-// function used for actual drawing
-extern "C" {
-TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite);
-}
-/******************************************************************************/
 
 void LbCursorSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
 {
@@ -114,7 +109,13 @@ static long PointerDraw(long x, long y, const struct TbSprite *spr, TbPixel *out
         ystep = &cursor_ysteps_array[0];
     }
     outbuf = &outbuf[xstep[0] + scanline * ystep[0]];
-    return LbSpriteDrawUsingScalingUpDataSolidLR(outbuf, scanline, lbDisplay.MouseWindowHeight, xstep, ystep, spr);
+    const struct TbSourceBuffer buffer = {
+        spr->Data,
+        spr->SWidth,
+        spr->SHeight,
+        spr->SWidth,
+    };
+    return LbSpriteDrawUsingScalingUpDataSolidLR(outbuf, scanline, lbDisplay.MouseWindowHeight, xstep, ystep, &buffer);
 }
 
 // Methods
@@ -123,8 +124,8 @@ LbI_PointerHandler::LbI_PointerHandler(void)
 {
     LbScreenSurfaceInit(&surf1);
     LbScreenSurfaceInit(&surf2);
-    this->field_1050 = false;
-    this->field_1054 = false;
+    this->is_active = false;
+    this->needs_redraw = false;
     this->sprite = NULL;
     this->position = NULL;
     this->spr_offset = NULL;
@@ -142,7 +143,7 @@ void LbI_PointerHandler::SetHotspot(long x, long y)
     long prev_x;
     long prev_y;
     std::lock_guard<std::mutex> guard(lock);
-    if (this->field_1050)
+    if (this->is_active)
     {
         // Set new coords, and backup previous ones
         prev_x = spr_offset->x;
@@ -163,7 +164,7 @@ void LbI_PointerHandler::SetHotspot(long x, long y)
 
 void LbI_PointerHandler::ClipHotspot(void)
 {
-    if (!this->field_1050)
+    if (!this->is_active)
         return;
     if ((sprite != NULL) && (spr_offset != NULL))
     {
@@ -219,9 +220,9 @@ void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *
     this->position = npos;
     this->spr_offset = noffset;
     ClipHotspot();
-    this->field_1050 = true;
+    this->is_active = true;
     NewMousePos();
-    this->field_1054 = false;
+    this->needs_redraw = false;
     LbScreenSurfaceBlit(&surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, 0x10|0x02);
 }
 
@@ -240,7 +241,7 @@ void LbI_PointerHandler::Backup(bool a1)
     flags = 0x10;
     if ( a1 )
       flags |= 0x02;
-    this->field_1054 = false;
+    this->needs_redraw = false;
     LbScreenSurfaceBlit(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
 }
 
@@ -256,12 +257,12 @@ void LbI_PointerHandler::Undraw(bool a1)
 void LbI_PointerHandler::Release(void)
 {
     std::lock_guard<std::mutex> guard(lock);
-    if ( this->field_1050 )
+    if ( this->is_active )
     {
         if ( lbInteruptMouse )
             Undraw(true);
-        this->field_1050 = false;
-        this->field_1054 = false;
+        this->is_active = false;
+        this->needs_redraw = false;
         position = NULL;
         sprite = NULL;
         spr_offset = NULL;
@@ -315,20 +316,6 @@ bool LbI_PointerHandler::OnMove(void)
     return true;
 }
 
-void LbI_PointerHandler::OnBeginPartialUpdate(void)
-{
-    std::lock_guard<std::mutex> guard(lock);
-    Backup(false);
-    Draw(false);
-}
-
-void LbI_PointerHandler::OnEndPartialUpdate(void)
-{
-    std::lock_guard<std::mutex> guard(lock);
-    Undraw(false);
-    this->field_1054 = true;
-}
-
 void LbI_PointerHandler::OnBeginSwap(void)
 {
     std::lock_guard<std::mutex> guard(lock);
@@ -351,19 +338,8 @@ void LbI_PointerHandler::OnEndSwap(void)
     if ( lbPointerAdvancedDraw )
     {
         Undraw(false);
-        this->field_1054 = true;
+        this->needs_redraw = true;
     }
-}
-
-void LbI_PointerHandler::OnBeginFlip(void)
-{
-    std::lock_guard<std::mutex> guard(lock);
-    Backup(false);
-    Draw(false);
-}
-
-void LbI_PointerHandler::OnEndFlip(void)
-{
 }
 
 /******************************************************************************/

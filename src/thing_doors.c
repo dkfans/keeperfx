@@ -24,6 +24,7 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
+#include "cursor_tag.h"
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -39,6 +40,7 @@
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -98,13 +100,13 @@ char determine_door_angle(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked)
 {
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(TCls_Door))
     {
         ERRORDBG(3,"Cannot create door model %d (%s) for player %d. There are too many things allocated.",(int)tngmodel, door_code_name(tngmodel), (int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* doortng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* doortng = allocate_free_thing_structure(TCls_Door);
     if (doortng->index == 0) {
         ERRORDBG(3,"Should be able to allocate door %d (%s) for player %d, but failed.",(int)tngmodel, door_code_name(tngmodel), (int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
@@ -131,15 +133,16 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     {
         doortng->clipbox_size_xy = 3*COORD_PER_STL;
     }
-
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
     check_if_enemy_can_see_placement_of_hidden_door(doortng);
     place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
-    //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
-    if ( game.neutral_player_num != plyr_idx )
-        ++game.dungeon[plyr_idx].total_doors;
+    if (nav_map_initialised) // Can't update triangulation before map start
+    {
+        update_navigation_triangulation(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
+    }
+    ++game.dungeon[plyr_idx].total_doors;
     return doortng; 
 }
 
@@ -265,7 +268,7 @@ long destroy_door(struct Thing *doortng)
     }
     struct Thing* efftng = create_effect(&pos, TngEff_Dummy, plyr_idx);
     if (!thing_is_invalid(efftng)) {
-        thing_play_sample(efftng, 72 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+        thing_play_sample(efftng, 72 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
     if (plyr_idx != game.neutral_player_num)
     {
@@ -384,8 +387,8 @@ TbBool door_can_stand(struct Thing *thing)
         long slb_x = subtile_slab(thing->mappos.x.stl.num) + (int)small_around[i].delta_x;
         long slb_y = subtile_slab(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-        struct SlabAttr* slbattr = get_slab_attrs(slb);
-        if ((slbattr->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK) || (slbattr->category == SlbAtCtg_FriableDirt) || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
+        if ((slabst->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK) || (slabst->category == SlbAtCtg_FriableDirt) || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD) || (slb->kind == SlbT_GEMS))
             wall_flags |= 0x01;
     }
     // The array needs to have 2^4 = 16 values
@@ -450,7 +453,7 @@ static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortn
 TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
 {
     struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    if((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret))
+    if((plyr_idx != doortng->owner) && flag_is_set(doorst->model_flags,DoMF_Secret))
     {
         return !flag_is_set(doortng->door.revealed,to_flag(plyr_idx));
     }
@@ -558,6 +561,16 @@ TngUpdateRet process_door(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
+
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+
+    if (doorst->updatefn_idx < 0)
+    {
+        if (luafunc_thing_update_func(doorst->updatefn_idx, thing) <= 0) {
+            return TUFRet_Deleted;
+        }
+    }
+
     if ( !door_can_stand(thing) || (thing->health <= 0) )
     {
         thing->health = -1;
@@ -781,6 +794,38 @@ void update_all_door_stats()
         TRACE_THING(thing);
         struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
         thing->health = doorst->health;
+    }
+}
+
+void script_place_door(PlayerNumber plyridx, ThingModel doorkind, MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool locked, TbBool free)
+{
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    TbBool success;
+
+    if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
+    {
+        if (!free)
+        {
+            if (!is_door_placeable(plyridx, doorkind))
+            {
+                return;
+            }
+        }
+        success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
+        if (success)
+        {
+            delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+            remove_dead_creatures_from_slab(slb_x, slb_y);
+            if (locked)
+            {
+                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+                if (!thing_is_invalid(doortng))
+                {
+                    lock_door(doortng);
+                }
+            }
+        }
     }
 }
 /******************************************************************************/

@@ -35,177 +35,134 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const struct NamedCommand creatstate_common_commands[] = {
-  {"STATESCOUNT",      1},
-  {NULL,               0},
-  };
-
-const struct NamedCommand creatstate_state_commands[] = {
-  {"NAME",             1},
-  {NULL,               0},
-  };
-
-const char creature_states_file[]="crstates.cfg";
-/******************************************************************************/
 struct NamedCommand creatrstate_desc[CREATURE_STATES_MAX];
 /******************************************************************************/
-TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+const struct NamedCommand creature_state_types_commands[] = {
+    {"Idle",        CrStTyp_Idle},
+    {"Work",        CrStTyp_Work},
+    {"OwnNeeds",    CrStTyp_OwnNeeds},
+    {"Sleep",       CrStTyp_Sleep},
+    {"Feed",        CrStTyp_Feed},
+    {"FightCrtr",   CrStTyp_FightCrtr},
+    {"Move",        CrStTyp_Move},
+    {"GetsSalary",  CrStTyp_GetsSalary},
+    {"Escape",      CrStTyp_Escape},
+    {"Unconscious", CrStTyp_Unconscious},
+    {"AngerJob",    CrStTyp_AngerJob},
+    {"FightDoor",   CrStTyp_FightDoor},
+    {"FightObj",    CrStTyp_FightObj},
+    {"Called2Arms", CrStTyp_Called2Arms},
+    {"Follow",      CrStTyp_Follow},
+    {NULL,0}
+};
+
+const struct NamedCommand follow_behavior_commands[] = {
+    {"none",                FlwB_None},
+    {"FollowLeader",        FlwB_FollowLeader},
+    {"MatchWorkRoom",       FlwB_MatchWorkRoom},
+    {"JoinCombatOrFollow",  FlwB_JoinCombatOrFollow},
+    {NULL,0}
+};
+
+int64_t value_overrides(const struct NamedField* named_field, const char* value_text,
+    const struct NamedFieldSet* named_fields_set, int idx,
+    const char* src_str, unsigned char flags)
 {
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        //TODO CONFIG We will need to make some cleaning here
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatstate_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, creatstate_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        int n = 0;
-        switch (cmd_num)
-        {
-        case 1: // STATESCOUNT
-        {
-            char word_buf[COMMAND_WORD_LEN];
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= CREATURE_STATES_MAX))
-              {
-                game.conf.crtr_conf.states_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
+    struct CreatureStateConfig* state = &game.conf.crtr_conf.states[idx];
+
+    state->override_feed          = 0;
+    state->override_own_needs     = 0;
+    state->override_sleep         = 0;
+    state->override_fight_crtr    = 0;
+    state->override_gets_salary   = 0;
+    state->override_captive       = 0;
+    state->override_transition    = 0;
+    state->override_escape        = 0;
+    state->override_unconscious   = 0;
+    state->override_anger_job     = 0;
+    state->override_fight_object  = 0;
+    state->override_fight_door    = 0;
+    state->override_call2arms     = 0;
+    state->override_follow        = 0;
+
+    char buffer[256];
+    strncpy(buffer, value_text, sizeof(buffer) - 1);
+    buffer[sizeof(buffer) - 1] = '\0';
+
+    char* token = strtok(buffer, " ");
+    while (token) {
+        if (strcasecmp(token, "FEED") == 0) state->override_feed = 1;
+        else if (strcasecmp(token, "OWN_NEEDS") == 0) state->override_own_needs = 1;
+        else if (strcasecmp(token, "SLEEP") == 0) state->override_sleep = 1;
+        else if (strcasecmp(token, "FIGHT_CRTR") == 0) state->override_fight_crtr = 1;
+        else if (strcasecmp(token, "GETS_SALARY") == 0) state->override_gets_salary = 1;
+        else if (strcasecmp(token, "CAPTIVE") == 0) state->override_captive = 1;
+        else if (strcasecmp(token, "TRANSITION") == 0) state->override_transition = 1;
+        else if (strcasecmp(token, "ESCAPE") == 0) state->override_escape = 1;
+        else if (strcasecmp(token, "UNCONSCIOUS") == 0) state->override_unconscious = 1;
+        else if (strcasecmp(token, "ANGER_JOB") == 0) state->override_anger_job = 1;
+        else if (strcasecmp(token, "FIGHT_OBJECT") == 0) state->override_fight_object = 1;
+        else if (strcasecmp(token, "FIGHT_DOOR") == 0) state->override_fight_door = 1;
+        else if (strcasecmp(token, "CALL2ARMS") == 0) state->override_call2arms = 1;
+        else if (strcasecmp(token, "FOLLOW") == 0) state->override_follow = 1;
+        else {
+            WARNLOG("Unknown override name: '%s' in '%s'", token, src_str);
         }
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
+
+        token = strtok(NULL, " ");
     }
-#undef COMMAND_TEXT
-    if (game.conf.crtr_conf.states_count < 1)
-    {
-        WARNLOG("No creature states defined in [%s] block of %s file.",
-            block_buf,config_textname);
-    }
-    return true;
+
+    return 0;
 }
 
-TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    int i;
-    // Block name and parameter word store variables
-    // Initialize the array
-    int arr_size;
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        arr_size = sizeof(game.conf.crtr_conf.states)/sizeof(game.conf.crtr_conf.states[0]);
-        for (i=0; i < arr_size; i++)
-        {
-            memset(game.conf.crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
-            if (i < game.conf.crtr_conf.states_count)
-            {
-                creatrstate_desc[i].name = game.conf.crtr_conf.states[i].name;
-                creatrstate_desc[i].num = i;
-            } else
-            {
-                creatrstate_desc[i].name = NULL;
-                creatrstate_desc[i].num = 0;
-            }
-        }
-    }
-    // Load the file blocks
-    arr_size = game.conf.crtr_conf.states_count;
-    for (i=0; i < arr_size; i++)
-    {
-        char block_buf[COMMAND_WORD_LEN];
-        sprintf(block_buf, "state%d", i);
-        long pos = 0;
-        int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            if ((flags & CnfLd_AcceptPartial) == 0)
-            {
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-                return false;
-            }
-            continue;
-      }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatstate_state_commands,cmd_num)
-      while (pos<len)
-      {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, creatstate_state_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
-            // In "List only" mode, accept only name command
-            if (cmd_num > 1) {
-                cmd_num = 0;
-            }
-        }
-        int n = 0;
-        switch (cmd_num)
-        {
-        case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.states[i].name,COMMAND_WORD_LEN) <= 0)
-            {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-                break;
-            }
-            n++;
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-      }
-#undef COMMAND_TEXT
-    }
-    return true;
-}
+const struct NamedField crstates_states_named_fields[] = {
+    {"NAME",                   0, field(game.conf.crtr_conf.states[0].name),                        0,        0,      0,              creatrstate_desc,  value_name,      assign_null},
+    {"PROCESSFUNCTION",        0, field(game.conf.crtr_conf.states[0].process_state),               0,        0,      0,         process_func_commands,  value_function,  assign_default},
+    {"CLEANUPFUNCTION",        0, field(game.conf.crtr_conf.states[0].cleanup_state),               0,        0,      0,         cleanup_func_commands,  value_function,  assign_default},
+    {"MOVEFROMSLABFUNCTION",   0, field(game.conf.crtr_conf.states[0].move_from_slab),              0,        0,      0,  move_from_slab_func_commands,  value_function,  assign_default},
+    {"MOVECHECKFUNCTION",      0, field(game.conf.crtr_conf.states[0].move_check),                  0,        0,      0,      move_check_func_commands,  value_function,  assign_default},
+    {"OVERRIDES",             -1, NULL,0,                                                           0,        0,      0,                          NULL,  value_overrides, assign_null},
+    {"STATETYPE",              0, field(game.conf.crtr_conf.states[0].state_type),                  0,        0,      0, creature_state_types_commands,  value_default,   assign_default},
+    {"CAPTIVE",                0, field(game.conf.crtr_conf.states[0].captive),                     0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"TRANSITION",             0, field(game.conf.crtr_conf.states[0].transition),                  0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"FOLLOWBEHAVIOR",         0, field(game.conf.crtr_conf.states[0].follow_behavior),             0,        0,      0,      follow_behavior_commands,  value_default,   assign_default},
+    {"BLOCKSALLSTATECHANGES",  0, field(game.conf.crtr_conf.states[0].blocks_all_state_changes),    0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"SPRITEIDX",              0, field(game.conf.crtr_conf.states[0].sprite_idx),                  0,        0,      0,                          NULL,  value_icon,      assign_icon},
+    {"DISPLAYTHOUGHTBUBBLE",   0, field(game.conf.crtr_conf.states[0].display_thought_bubble),      0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"SNEAKY",                 0, field(game.conf.crtr_conf.states[0].sneaky),                      0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"REACTTOCTA",             0, field(game.conf.crtr_conf.states[0].react_to_cta),                0,        0,      1,                          NULL,  value_default,   assign_default},
+    {NULL},
+};
 
-TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags)
+const struct NamedFieldSet crstates_states_named_fields_set = {
+    &game.conf.crtr_conf.states_count,
+    "state",
+    crstates_states_named_fields,
+    creatrstate_desc,
+    CREATURE_STATES_MAX,
+    sizeof(game.conf.crtr_conf.states[0]),
+    game.conf.crtr_conf.states,
+};
+
+static TbBool load_creaturestates_config_file(const char *fname, unsigned short flags);
+
+const struct ConfigFileData creature_states_file_data = {
+    .filename = "crstates.cfg",
+    .load_func = load_creaturestates_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
+
+/******************************************************************************/
+
+static TbBool load_creaturestates_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -215,45 +172,10 @@ TbBool load_creaturestates_config_file(const char *textname, const char *fname, 
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_creaturestates_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_creaturestates_state_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-          WARNMSG("Parsing %s file \"%s\" state blocks failed.",textname,fname);
-    }
+    parse_named_field_blocks(buf, len, fname, flags, &crstates_states_named_fields_set);
+
     //Freeing and exiting
     free(buf);
-    return result;
-}
-
-TbBool load_creaturestates_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global creature states config";
-    static const char config_campgn_textname[] = "campaign creature states config";
-    static const char config_level_textname[] = "level creature states config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_creaturestates_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_creaturestates_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_creaturestates_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
     return result;
 }
 

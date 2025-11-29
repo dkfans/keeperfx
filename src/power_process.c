@@ -103,19 +103,15 @@ unsigned char call_to_arms_expand_check(void)
     return (myplyr->cast_expand_level != 0) && (!player_uses_power_call_to_arms(myplyr->id_number));
 }
 
-TbBool player_uses_power_armageddon(PlayerNumber plyr_idx)
-{
-    return (game.armageddon_cast_turn != 0) && (game.armageddon_caster_idx == plyr_idx);
-}
-
 void process_armageddon(void)
 {
     struct PlayerInfo *player;
     long i;
     SYNCDBG(6,"Starting");
+    GameTurnDelta countdown = game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down;
     if (game.armageddon_cast_turn == 0)
         return;
-    if (game.armageddon.count_down+game.armageddon_cast_turn > game.play_gameturn)
+    if ((game.armageddon_cast_turn + countdown) > game.play_gameturn)
     {
         if (player_cannot_win(game.armageddon_caster_idx))
         {
@@ -123,7 +119,7 @@ void process_armageddon(void)
             game.armageddon_cast_turn = 0;
         }
     } else
-    if (game.armageddon.count_down+game.armageddon_cast_turn == game.play_gameturn)
+    if ((game.armageddon_cast_turn + countdown) == game.play_gameturn)
     {
         for (i=0; i < PLAYERS_COUNT; i++)
         {
@@ -135,7 +131,7 @@ void process_armageddon(void)
             }
         }
     } else
-    if (game.armageddon.count_down+game.armageddon_cast_turn < game.play_gameturn)
+    if ((game.armageddon_cast_turn + countdown) < game.play_gameturn)
     {
         for (i=0; i < PLAYERS_COUNT; i++)
         {
@@ -164,7 +160,7 @@ void teleport_armageddon_influenced_creature(struct Thing* creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->armageddon_teleport_turn = 0;
     create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
-    move_thing_in_map(creatng, &game.armageddon.mappos);
+    move_thing_in_map(creatng, &game.armageddon_mappos);
     cleanup_current_thing_state(creatng);
     reset_interpolation_of_thing(creatng);
 }
@@ -191,12 +187,12 @@ void process_disease(struct Thing *creatng)
     {
         return;
     }
-    if (CREATURE_RANDOM(creatng, 100) < game.conf.rules.magic.disease_transfer_percentage)
+    if (THING_RANDOM(creatng, 100) < game.conf.rules[creatng->owner].magic.disease_transfer_percentage)
     {
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
         {
-            struct Map *mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[n]);
+            struct Map *mapblk = get_map_block_at_pos(stl_num + game.around_map[n]);
             unsigned long k = 0;
             long i = get_mapwho_thing_index(mapblk);
             while (i != 0)
@@ -211,13 +207,13 @@ void process_disease(struct Thing *creatng)
                 // Per thing code.
                 tngcctrl = creature_control_get_from_thing(thing);
                 if (thing_is_creature(thing)
-                && !thing_is_creature_special_digger(thing)
+                && !creature_is_for_dungeon_diggers_list(thing)
                 && (thing->owner != cctrl->disease_caster_plyridx)
                 && !creature_under_spell_effect(thing, CSAfF_Disease)
                 && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
                 && (cctrl->disease_caster_plyridx != game.neutral_player_num))
                 { // Apply the spell kind stored in 'active_disease_spell'.
-                    apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->explevel, creatng->owner);
+                    apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->exp_level, creatng->owner);
                     tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
                 }
                 // Per thing code ends.
@@ -231,9 +227,9 @@ void process_disease(struct Thing *creatng)
             }
         }
     }
-    if (((game.play_gameturn - cctrl->disease_start_turn) % game.conf.rules.magic.disease_lose_health_time) == 0)
+    if (((game.play_gameturn - cctrl->disease_start_turn) % game.conf.rules[creatng->owner].magic.disease_lose_health_time) == 0)
     {
-        apply_damage_to_thing_and_display_health(creatng, game.conf.rules.magic.disease_lose_percentage_health * cctrl->max_health / 100, cctrl->disease_caster_plyridx);
+        apply_damage_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].magic.disease_lose_percentage_health * cctrl->max_health / 100, cctrl->disease_caster_plyridx);
     }
 }
 
@@ -325,6 +321,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
     long best_dist = LONG_MAX;
     struct Thing* best_thing = INVALID_THING;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     unsigned long k = 0;
     int i = slist->index;
     while (i != 0)
@@ -344,11 +341,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
             long dist = get_2d_distance(&shotng->mappos, &thing->mappos);
             if (dist < best_dist)
             {
-                const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-                int spell_lev = shotng->shot.spell_level;
-                if (spell_lev > POWER_MAX_LEVEL)
-                    spell_lev = POWER_MAX_LEVEL;
-                if (subtile_coord(pwrdynst->strength[spell_lev],0) > dist)
+                if (shotst->max_range > dist)
                 {
                     if (line_of_sight_2d(&shotng->mappos, &thing->mappos)) {
                         best_dist = dist;
@@ -382,11 +375,11 @@ void draw_god_lightning(struct Thing *shotng)
     if (cam == NULL) {
         return;
     }
-    for (int i = LbFPMath_PI / 4; i < 2 * LbFPMath_PI; i += LbFPMath_PI / 2)
+    for (int i = DEGREES_45; i < DEGREES_360; i += DEGREES_90)
     {
         struct Coord3d locpos;
-        locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
-        locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->rotation_angle_x) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->rotation_angle_x) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
         struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model); //default ShM_GodLightning
         draw_lightning(&locpos, &shotng->mappos, shotst->effect_spacing, shotst->effect_id);
@@ -469,7 +462,7 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
     MapSubtlCoord stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
     for (long soe_y = 0; soe_y < 2 * MAX_SOE_RADIUS; soe_y++, stl_y++)
     {
-        if ( (stl_y >= 0) && (stl_y <= gameadd.map_subtiles_y) )
+        if ( (stl_y >= 0) && (stl_y <= game.map_subtiles_y) )
         {
             MapSubtlCoord stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
             for (long soe_x = 0; soe_x <= MAX_SOE_RADIUS; soe_x++, stl_x++)
@@ -490,17 +483,17 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                     {
                         stl_x = 0;
                     } else
-                    if (stl_x > gameadd.map_subtiles_x-1)
+                    if (stl_x > game.map_subtiles_x-1)
                     {
-                        stl_x = gameadd.map_subtiles_x-1;
+                        stl_x = game.map_subtiles_x-1;
                     }
                     if (boundstl_x < 0)
                     {
                         boundstl_x = 0;
                     } else
-                    if (boundstl_x > gameadd.map_subtiles_x-1)
+                    if (boundstl_x > game.map_subtiles_x-1)
                     {
-                        boundstl_x = gameadd.map_subtiles_x-1;
+                        boundstl_x = game.map_subtiles_x-1;
                     }
                     if (boundstl_x >= stl_x)
                     {
@@ -512,8 +505,8 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                             reveal_map_block(mapblk, player->id_number);
                             long slb_x = subtile_slab(stl_x + i);
                             struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-                            struct SlabAttr* slbattr = get_slab_attrs(slb);
-                            if ( !slbattr->is_diggable )
+                            struct SlabConfigStats* slabst = get_slab_stats(slb);
+                            if ( !slabst->is_diggable )
                                 mapblk->flags &= ~(SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored);
                             mapblk++;
                         }
@@ -582,17 +575,17 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
                     {
                         boundstl_y = 0;
                     } else
-                    if (boundstl_y > gameadd.map_subtiles_y-1)
+                    if (boundstl_y > game.map_subtiles_y-1)
                     {
-                        boundstl_y = gameadd.map_subtiles_y-1;
+                        boundstl_y = game.map_subtiles_y-1;
                     }
                     if (stl_y < 0)
                     {
                         stl_y = 0;
                     } else
-                    if (stl_y > gameadd.map_subtiles_y-1)
+                    if (stl_y > game.map_subtiles_y-1)
                     {
-                        stl_y = gameadd.map_subtiles_y-1;
+                        stl_y = game.map_subtiles_y-1;
                     }
                     if (stl_y <= boundstl_y)
                     {
@@ -604,8 +597,8 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
                           struct Map* mapblk = get_map_block_at(stl_x, stl_y + i);
                           reveal_map_block(mapblk, player->id_number);
                           struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-                          struct SlabAttr* slbattr = get_slab_attrs(slb);
-                          if ( !slbattr->is_diggable )
+                          struct SlabConfigStats* slabst = get_slab_stats(slb);
+                          if ( !slabst->is_diggable )
                               mapblk->flags &= ~(SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored);
                       }
                       stl_y += delta;
@@ -748,9 +741,9 @@ void timebomb_explode(struct Thing *creatng)
     long weight = compute_creature_weight(creatng);
     if (shotst->area_range != 0)
     {
-        struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
-        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight) / WEIGHT_DIVISOR;
-        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight) / WEIGHT_DIVISOR;
+        struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
+        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crconf->luck, cctrl->exp_level) * weight) / WEIGHT_DIVISOR;
+        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crconf->luck, cctrl->exp_level, creatng->owner) * weight) / WEIGHT_DIVISOR;
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / WEIGHT_DIVISOR, hit_targets);
     }

@@ -65,7 +65,7 @@ long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
         return 0;
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -145,7 +145,7 @@ struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind 
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long nearest_dist = LONG_MAX;
     struct Room* nearest_room = INVALID_ROOM;
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -250,7 +250,7 @@ struct Room* find_nearest_navigable_room_of_kind_for_thing_with_capacity_and_clo
     struct Dungeon* dungeon = get_dungeon(owner);
     struct Room* nearoom = INVALID_ROOM;
     long distance = *neardistance;
-    int i = dungeon->room_kind[rkind];
+    int i = dungeon->room_list_start[rkind];
     while (i != 0)
     {
         struct Room* room = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, i, nav_flags, used, &distance);
@@ -275,7 +275,7 @@ struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_tha
     {
         if(room_role_matches(rkind,rrole))
         {
-            int i = dungeon->room_kind[rkind];
+            int i = dungeon->room_list_start[rkind];
             while (i != 0)
             {
                 struct Room* room = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, i, nav_flags, used, &distance);
@@ -328,7 +328,7 @@ struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, 
     {
         if(room_role_matches(rkind,rrole))
         {
-            nearoom = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, dungeon->room_kind[rkind], nav_flags, 0, &neardistance);
+            nearoom = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, dungeon->room_list_start[rkind], nav_flags, 0, &neardistance);
             if(nearoom != INVALID_ROOM)
             {
                 return nearoom;
@@ -370,16 +370,16 @@ struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber ow
     struct Room* nearoom = INVALID_ROOM;
     for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-		if (room_cannot_vandalise(rkind)) {
-			continue;
-		}
+        if (room_cannot_vandalise(rkind)) {
+            continue;
+        }
         long distance = neardistance;
         struct Room* room = find_nearest_navigable_room_of_kind_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
         if (neardistance > distance)
-		{
-			neardistance = distance;
-			nearoom = room;
-		}
-	}
-	return nearoom;
+        {
+            neardistance = distance;
+            nearoom = room;
+        }
+    }
+    return nearoom;
 }

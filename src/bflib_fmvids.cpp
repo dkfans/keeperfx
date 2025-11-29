@@ -5,6 +5,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_vidsurface.h"
 #include "bflib_fileio.h"
+#include "kjm_input.h"
 
 // See: https://trac.ffmpeg.org/ticket/3626
 extern "C" {
@@ -35,16 +36,16 @@ void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 	auto * dst = reinterpret_cast<unsigned long *>(dstbuf);
 	do {
 		const auto c = *src++;
-		const auto i1 = c & 0xFF;
-		const auto k1 = (c >> 8) & 0xFF;
-		const auto n1 = (k1 << 24) + (k1 << 16) + (i1 << 8) + i1;
-		dst[0] = n1;
-		dst[s] = n1;
-		const auto i2 = (c >> 16) & 0xFF;
-		const auto k2 = (c >> 24) & 0xFF;
-		const auto n2 = (k2 << 24) + (k2 << 16) + (i2 << 8) + i2;
-		dst[1] = n2;
-		dst[s+1] = n2;
+		const auto first_pixel_low_byte = c & 0xFF;
+		const auto first_pixel_high_byte = (c >> 8) & 0xFF;
+		const auto first_doubled_pixel = (first_pixel_high_byte << 24) + (first_pixel_high_byte << 16) + (first_pixel_low_byte << 8) + first_pixel_low_byte;
+		dst[0] = first_doubled_pixel;
+		dst[s] = first_doubled_pixel;
+		const auto second_pixel_low_byte = (c >> 16) & 0xFF;
+		const auto second_pixel_high_byte = (c >> 24) & 0xFF;
+		const auto second_doubled_pixel = (second_pixel_high_byte << 24) + (second_pixel_high_byte << 16) + (second_pixel_low_byte << 8) + second_pixel_low_byte;
+		dst[1] = second_doubled_pixel;
+		dst[s+1] = second_doubled_pixel;
 		dst += 2;
 		w--;
 	}
@@ -74,12 +75,12 @@ void copy_to_screen_pxdblw(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 	auto dst = (unsigned long *)dstbuf;
 	do {
 		const auto c = *src++;
-		const auto i1 = c & 0xFF;
-		const auto k1 = (c >> 8) & 0xFF;
-		dst[0] = (k1 << 24) + (k1 << 16) + (i1 << 8) + i1;
-		const auto i2 = (c >> 16) & 0xFF;
-		const auto k2 = (c >> 24) & 0xFF;
-		dst[1] = (k2 << 24) + (k2 << 16) + (i2 << 8) + i2;
+		const auto first_pixel_low_byte = c & 0xFF;
+		const auto first_pixel_high_byte = (c >> 8) & 0xFF;
+		dst[0] = (first_pixel_high_byte << 24) + (first_pixel_high_byte << 16) + (first_pixel_low_byte << 8) + first_pixel_low_byte;
+		const auto second_pixel_low_byte = (c >> 16) & 0xFF;
+		const auto second_pixel_high_byte = (c >> 24) & 0xFF;
+		dst[1] = (second_pixel_high_byte << 24) + (second_pixel_high_byte << 16) + (second_pixel_low_byte << 8) + second_pixel_low_byte;
 		dst += 2;
 		w--;
 	}
@@ -90,17 +91,17 @@ void copy_to_screen(const AVFrame & frame, const int flags)
 {
 	const auto src_pitch = frame.linesize[0];
 	auto srcbuf = frame.data[0];
-	long buf_center;
+	long screen_buffer_center_offset;
 	if (flags & (SMK_PixelDoubleLine | SMK_InterlaceLine)) {
-		buf_center = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * frame.height) >> 1);
+		screen_buffer_center_offset = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * frame.height) >> 1);
 	} else {
-		buf_center = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - frame.height) >> 1);
+		screen_buffer_center_offset = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - frame.height) >> 1);
 	}
 	auto w = frame.width;
 	if (flags & SMK_PixelDoubleWidth) {
 		w = 2 * frame.width;
 	}
-	auto dstbuf = &lbDisplay.WScreen[buf_center + ((LbScreenWidth() - w) >> 1)];
+	auto dstbuf = &lbDisplay.WScreen[screen_buffer_center_offset + ((LbScreenWidth() - w) >> 1)];
 	if (flags & SMK_PixelDoubleLine) {
 		if (flags & SMK_PixelDoubleWidth) {
 			for (int h = frame.height; h > 0; h--) {
@@ -296,7 +297,9 @@ struct movie_t {
 		setup_video();
 		make_packet();
 		make_frame();
-		make_resampler();
+		if (m_audio_context) {
+			make_resampler();
+		}
 		m_time_base = m_format_context->streams[m_video_index]->time_base;
 	}
 
@@ -356,24 +359,27 @@ struct movie_t {
 	}
 
 	void open_audio_device() {
-		SDL_AudioSpec desired, obtained;
-		desired.freq = 44100;
-		desired.format = AUDIO_F32SYS;
-		desired.channels = 2;
-		desired.silence = 0;
-		desired.samples = 0;
-		desired.padding = 0;
-		desired.size = 0;
-		desired.callback = nullptr;
-		desired.userdata = nullptr;
-		m_audio_device = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, SDL_AUDIO_ALLOW_ANY_CHANGE);
-		if (m_audio_device <= 0) {
-			throw std::runtime_error("Cannot open audio device");
-		}
-		m_output_audio_channels = obtained.channels;
-		m_output_audio_frequency = obtained.freq;
-		m_output_audio_format = sdl_to_ffmpeg_format(obtained.format);
-		m_output_audio_layout = channels_to_ffmpeg_layout(obtained.channels);
+        if (!flag_is_set(m_flags, SMK_NoSound))
+        {
+            SDL_AudioSpec desired, obtained;
+            desired.freq = 44100;
+            desired.format = AUDIO_F32SYS;
+            desired.channels = 2;
+            desired.silence = 0;
+            desired.samples = 0;
+            desired.padding = 0;
+            desired.size = 0;
+            desired.callback = nullptr;
+            desired.userdata = nullptr;
+            m_audio_device = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, SDL_AUDIO_ALLOW_ANY_CHANGE);
+            if (m_audio_device <= 0) {
+                throw std::runtime_error("Cannot open audio device");
+            }
+            m_output_audio_channels = obtained.channels;
+            m_output_audio_frequency = obtained.freq;
+            m_output_audio_format = sdl_to_ffmpeg_format(obtained.format);
+            m_output_audio_layout = channels_to_ffmpeg_layout(obtained.channels);
+        }
 	}
 
 	void find_stream_info() {
@@ -411,16 +417,19 @@ struct movie_t {
 	}
 
 	void setup_audio() {
-		m_audio_index = find_best_stream(AVMEDIA_TYPE_AUDIO);
-		if (m_audio_index >= 0) {
-			m_audio_stream = m_format_context->streams[m_audio_index];
-			m_audio_codec = find_codec(m_audio_stream);
-			if (m_audio_codec) {
-				m_audio_context = make_context(m_audio_codec);
-				copy_parameters(m_audio_context, m_audio_stream);
-				open_codec(m_audio_context, m_audio_codec);
-			}
-		}
+        if (!flag_is_set(m_flags, SMK_NoSound))
+        {
+            m_audio_index = find_best_stream(AVMEDIA_TYPE_AUDIO);
+            if (m_audio_index >= 0) {
+                m_audio_stream = m_format_context->streams[m_audio_index];
+                m_audio_codec = find_codec(m_audio_stream);
+                if (m_audio_codec) {
+                    m_audio_context = make_context(m_audio_codec);
+                    copy_parameters(m_audio_context, m_audio_stream);
+                    open_codec(m_audio_context, m_audio_codec);
+                }
+            }
+        }
 	}
 
 	void setup_video() {
@@ -495,7 +504,12 @@ struct movie_t {
 			m_resampler,
 			&buffer,
 			buffer_samples,
+#if LIBSWRESAMPLE_VERSION_INT >= AV_VERSION_INT(4, 4, 100)
+			// since 4.4.100, swr_convert expects a const pointer
+			const_cast<const uint8_t **>(m_frame->data),
+#else
 			m_frame->data,
+#endif
 			m_frame->nb_samples
 		);
 		SDL_QueueAudio(m_audio_device, buffer, num_samples * sample_size);
@@ -504,18 +518,17 @@ struct movie_t {
 	}
 
 	void output_video_frame() {
-		if (m_frame->palette_has_changed) {
-			JUSTLOG("palette changed");
-			SDL_Color palette[PALETTE_COLORS];
-			for (size_t i = 0; i < PALETTE_COLORS; ++i) {
-				palette[i].b = m_frame->data[1][(i * 4) + 0]; // blue
-				palette[i].g = m_frame->data[1][(i * 4) + 1]; // green
-				palette[i].r = m_frame->data[1][(i * 4) + 2]; // red
-			}
-			LbScreenWaitVbi(); // this is a no-op today
-			// LbPaletteSet expects values in range 0-63 for reasons, nuking 75% of the color range
-			SDL_SetPaletteColors(lbDrawSurface->format->palette, palette, 0, PALETTE_COLORS);
+		// FFMpeg used to provide m_frame->palette_has_changed but it has been deprecated
+		// Assume the palette has changed every frame as there is no way for us to know anymore
+		SDL_Color palette[PALETTE_COLORS];
+		for (size_t i = 0; i < PALETTE_COLORS; ++i) {
+			palette[i].b = m_frame->data[1][(i * 4) + 0]; // blue
+			palette[i].g = m_frame->data[1][(i * 4) + 1]; // green
+			palette[i].r = m_frame->data[1][(i * 4) + 2]; // red
 		}
+		LbScreenWaitVbi(); // this is a no-op today
+		// LbPaletteSet expects values in range 0-63 for reasons, nuking 75% of the color range
+		SDL_SetPaletteColors(lbDrawSurface->format->palette, palette, 0, PALETTE_COLORS);
 		if (LbScreenLock() != Lb_SUCCESS) {
 			return;
 		} else if (m_flags & (SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop)) { // new scaling mode
@@ -567,6 +580,7 @@ struct movie_t {
 			} else if (m_flags & SMK_NoStopOnUserInput) {
 				return true;
 			} else if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) {
+				clear_key_pressed(lbInkey);
 				return false;
 			}
 		}
@@ -600,7 +614,7 @@ struct movie_t {
 
 	void play() {
 		while (read_frame()) {
-			if (m_packet->stream_index == m_audio_index) {
+			if (m_packet->stream_index == m_audio_index && m_audio_context) {
 				if (!decode_audio()) {
 					break;
 				}
@@ -610,7 +624,9 @@ struct movie_t {
 				}
 			}
 		}
-		flush_audio();
+		if (m_audio_context) {
+			flush_audio();
+		}
 		flush_video();
 	}
 };
@@ -684,23 +700,23 @@ struct AnimFLIPrefix { //sizeof=0x6
 #pragma pack()
 
 struct Animation {
-	long field_0;
+	long state_flags;
 	unsigned char *videobuf;
 	unsigned char *chunkdata;
-	unsigned char *field_C;
+	unsigned char *buffer_write_pointer;
 	TbFileHandle inpfhndl;
 	TbFileHandle outfhndl;
-	short field_18;
-	short field_1A;
+	short compression_level;
+	short unusedparam;
 	unsigned char palette[768];
-	long field_31C;
-	long field_320;
-	long field_324;
+	long frame_count;
+	long buffer_size;
+	long unusedfield324;
 	AnimFLIHeader header;
 	AnimFLIChunk chunk;
 	AnimFLIPrefix prefix;
 	AnimFLIChunk subchunk;
-	char field_3C4[12];
+	char unusedfield3C4[12];
 };
 
 Animation animation;
@@ -720,8 +736,8 @@ short anim_write_data(void *buf, long size)
  */
 short anim_store_data(void *buf, long size)
 {
-	memcpy(animation.field_C, buf, size);
-	animation.field_C += size;
+	memcpy(animation.buffer_write_pointer, buf, size);
+	animation.buffer_write_pointer += size;
 	return true;
 }
 
@@ -743,8 +759,8 @@ short anim_read_data(void *buf, long size)
 long anim_make_FLI_COPY(unsigned char *screenbuf)
 {
 	int scrpoints = animation.header.height * animation.header.width;
-	memcpy(animation.field_C, screenbuf, scrpoints);
-	animation.field_C += scrpoints;
+	memcpy(animation.buffer_write_pointer, screenbuf, scrpoints);
+	animation.buffer_write_pointer += scrpoints;
 	return scrpoints;
 }
 
@@ -760,9 +776,9 @@ long anim_make_FLI_COLOUR256(unsigned char *palette)
 	short kept_chunk_len;
 	change_chunk_len = 0;
 	kept_chunk_len = 0;
-	change_count = (unsigned short *)animation.field_C;
+	change_count = (unsigned short *)animation.buffer_write_pointer;
 	kept_count = NULL;
-	animation.field_C += 2;
+	animation.buffer_write_pointer += 2;
 	for (colridx = 0; colridx < 256; colridx++) {
 		unsigned char *anipal;
 		unsigned char *srcpal;
@@ -773,19 +789,19 @@ long anim_make_FLI_COLOUR256(unsigned char *palette)
 			kept_chunk_len++;
 		} else {
 			if (!change_chunk_len) {
-				*animation.field_C = kept_chunk_len;
+				*animation.buffer_write_pointer = kept_chunk_len;
 				kept_chunk_len = 0;
-				animation.field_C++;
-				kept_count = (unsigned char *)animation.field_C;
-				animation.field_C++;
+				animation.buffer_write_pointer++;
+				kept_count = (unsigned char *)animation.buffer_write_pointer;
+				animation.buffer_write_pointer++;
 			}
 			++change_chunk_len;
-			*animation.field_C = 4 * srcpal[0];
-			animation.field_C++;
-			*animation.field_C = 4 * srcpal[1];
-			animation.field_C++;
-			*animation.field_C = 4 * srcpal[2];
-			animation.field_C++;
+			*animation.buffer_write_pointer = 4 * srcpal[0];
+			animation.buffer_write_pointer++;
+			*animation.buffer_write_pointer = 4 * srcpal[1];
+			animation.buffer_write_pointer++;
+			*animation.buffer_write_pointer = 4 * srcpal[2];
+			animation.buffer_write_pointer++;
 			++(*kept_count);
 		}
 		if (change_chunk_len == 1) {
@@ -800,14 +816,14 @@ long anim_make_FLI_COLOUR256(unsigned char *palette)
  * @return Returns unpacked size of the block which was compressed.
  */
 long anim_make_FLI_BRUN(unsigned char *screenbuf) {
-	unsigned char *blk_begin = animation.field_C;
+	unsigned char *blk_begin = animation.buffer_write_pointer;
 	short w;
 	short h;
 	short k;
 	short count;
 	unsigned char *sbuf = screenbuf;
 	for ( h = animation.header.height; h>0; h-- ) {
-		animation.field_C++;
+		animation.buffer_write_pointer++;
 		for (w=animation.header.width; w>0; ) {
 			count = 0;
 			// Counting size of RLE block
@@ -823,10 +839,10 @@ long anim_make_FLI_BRUN(unsigned char *screenbuf) {
 					count++;
 					w--;
 				}
-				*animation.field_C = (char)count;
-				animation.field_C++;
-				*animation.field_C = sbuf[0];
-				animation.field_C++;
+				*animation.buffer_write_pointer = (char)count;
+				animation.buffer_write_pointer++;
+				*animation.buffer_write_pointer = sbuf[0];
+				animation.buffer_write_pointer++;
 				sbuf += count;
 			} else {
 				if ( w > 1 ) {
@@ -843,21 +859,21 @@ long anim_make_FLI_BRUN(unsigned char *screenbuf) {
 					w--;
 				}
 				if ( count!=0 ) {
-					*animation.field_C = (char)count;
-					animation.field_C++;
-					memcpy(animation.field_C, sbuf, -count);
+					*animation.buffer_write_pointer = (char)count;
+					animation.buffer_write_pointer++;
+					memcpy(animation.buffer_write_pointer, sbuf, -count);
 					sbuf -= count;
-					animation.field_C -= count;
+					animation.buffer_write_pointer -= count;
 				}
 			}
 		}
 	}
 	// Make the block size even
-	if ((int)animation.field_C & 1) {
-		*animation.field_C='\0';
-		animation.field_C++;
+	if ((size_t)animation.buffer_write_pointer & 1) {
+		*animation.buffer_write_pointer='\0';
+		animation.buffer_write_pointer++;
 	}
-	return (animation.field_C - blk_begin);
+	return (animation.buffer_write_pointer - blk_begin);
 }
 
 /**
@@ -867,7 +883,7 @@ long anim_make_FLI_BRUN(unsigned char *screenbuf) {
 long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 {
 	unsigned char *blk_begin;
-	blk_begin=animation.field_C;
+	blk_begin=animation.buffer_write_pointer;
 	unsigned char *cbuf;
 	unsigned char *pbuf;
 	unsigned char *cbf;
@@ -883,17 +899,17 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 	pbuf = prvdat;
 	unsigned short *lines_count;
 	unsigned short *pckt_count;
-	lines_count = (unsigned short *)animation.field_C;
-	animation.field_C += 2;
-	pckt_count = (unsigned short *)animation.field_C;
+	lines_count = (unsigned short *)animation.buffer_write_pointer;
+	animation.buffer_write_pointer += 2;
+	pckt_count = (unsigned short *)animation.buffer_write_pointer;
 
 	wend = 0;
 	for (h=animation.header.height; h>0; h--) {
 		cbf = cbuf;
 		pbf = pbuf;
 		if (wend == 0) {
-			pckt_count = (unsigned short *)animation.field_C;
-			animation.field_C += 2;
+			pckt_count = (unsigned short *)animation.buffer_write_pointer;
+			animation.buffer_write_pointer += 2;
 			(*lines_count)++;
 		}
 		for (w=animation.header.width;w>0;) {
@@ -910,16 +926,16 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 			if ( w > 0 ) {
 				if (wend != 0) {
 					(*pckt_count) = wend;
-					pckt_count = (unsigned short *)animation.field_C;
-					animation.field_C += 2;
+					pckt_count = (unsigned short *)animation.buffer_write_pointer;
+					animation.buffer_write_pointer += 2;
 				}
 				wendt = 2*k;
 				wend = wendt;
 				while (wend > 255) {
-					*(unsigned char *)animation.field_C = 255;
-					animation.field_C++;
-					*(unsigned char *)animation.field_C = 0;
-					animation.field_C++;
+					*(unsigned char *)animation.buffer_write_pointer = 255;
+					animation.buffer_write_pointer++;
+					*(unsigned char *)animation.buffer_write_pointer = 0;
+					animation.buffer_write_pointer++;
 					wend -= 255;
 					(*pckt_count)++;
 				}
@@ -939,12 +955,12 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 						nsame++;
 						w -= 2;
 					}
-					*(unsigned char *)animation.field_C = wend;
-					animation.field_C++;
-					*(unsigned char *)animation.field_C = -nsame;
-					animation.field_C++;
-					*(unsigned short *)animation.field_C = *(unsigned short *)cbf;
-					animation.field_C+=2;
+					*(unsigned char *)animation.buffer_write_pointer = wend;
+					animation.buffer_write_pointer++;
+					*(unsigned char *)animation.buffer_write_pointer = -nsame;
+					animation.buffer_write_pointer++;
+					*(unsigned short *)animation.buffer_write_pointer = *(unsigned short *)cbf;
+					animation.buffer_write_pointer+=2;
 					pbf += 2*nsame;
 					cbf += 2*nsame;
 					wend = 0;
@@ -965,12 +981,12 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 						}
 					}
 					if (ndiff>0) {
-						*(unsigned char *)animation.field_C = wend;
-						animation.field_C++;
-						*(unsigned char *)animation.field_C = ndiff;
-						animation.field_C++;
-						memcpy(animation.field_C, cbf, 2*(long)ndiff);
-						animation.field_C += 2*(long)ndiff;
+						*(unsigned char *)animation.buffer_write_pointer = wend;
+						animation.buffer_write_pointer++;
+						*(unsigned char *)animation.buffer_write_pointer = ndiff;
+						animation.buffer_write_pointer++;
+						memcpy(animation.buffer_write_pointer, cbf, 2*(long)ndiff);
+						animation.buffer_write_pointer += 2*(long)ndiff;
 						pbf += 2*(long)ndiff;
 						cbf += 2*(long)ndiff;
 						wend = 0;
@@ -986,17 +1002,17 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 	if (animation.header.height+wend == 0) {
 		(*lines_count) = 1;
 		(*pckt_count) = 1;
-		*(unsigned char *)animation.field_C = 0;
-		animation.field_C++;
-		*(unsigned char *)animation.field_C = 0;
-		animation.field_C++;
+		*(unsigned char *)animation.buffer_write_pointer = 0;
+		animation.buffer_write_pointer++;
+		*(unsigned char *)animation.buffer_write_pointer = 0;
+		animation.buffer_write_pointer++;
 	} else if (wend != 0) {
-		animation.field_C -= 2;
+		animation.buffer_write_pointer -= 2;
 		(*lines_count)--;
 	}
 	// Make the data size even
-	animation.field_C = (unsigned char *)(((unsigned int)animation.field_C + 1) & 0xFFFFFFFE);
-	return animation.field_C - blk_begin;
+	animation.buffer_write_pointer = (unsigned char *)(((size_t)animation.buffer_write_pointer + 1) & 0xFFFFFFFE);
+	return animation.buffer_write_pointer - blk_begin;
 }
 
 /**
@@ -1006,7 +1022,7 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 {
 	unsigned char *blk_begin;
-	blk_begin=animation.field_C;
+	blk_begin=animation.buffer_write_pointer;
 	unsigned char *cbuf;
 	unsigned char *pbuf;
 	unsigned char *cbf;
@@ -1054,15 +1070,15 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 		blksize = animation.header.width * (long)hend;
 		cbuf = curdat+blksize;
 		pbuf = prvdat+blksize;
-		*(unsigned short *)animation.field_C = hend;
-		animation.field_C += 2;
-		*(unsigned short *)animation.field_C = hdim;
-		animation.field_C += 2;
+		*(unsigned short *)animation.buffer_write_pointer = hend;
+		animation.buffer_write_pointer += 2;
+		*(unsigned short *)animation.buffer_write_pointer = hdim;
+		animation.buffer_write_pointer += 2;
 
 		for (h = hdim; h>0; h--) {
 			cbf = cbuf;
 			pbf = pbuf;
-			outptr = animation.field_C++;
+			outptr = animation.buffer_write_pointer++;
 			for (w=animation.header.width; w>0; ) {
 				for ( wend=0; w>0; wend++) {
 					if ( cbf[wend] != pbf[wend]) break;
@@ -1072,10 +1088,10 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 				if (animation.header.width == wend) continue;
 				if ( w <= 0 ) break;
 				while ( wend > 255 ) {
-					*(unsigned char *)animation.field_C = 255;
-					animation.field_C++;
-					*(unsigned char *)animation.field_C = 0;
-					animation.field_C++;
+					*(unsigned char *)animation.buffer_write_pointer = 255;
+					animation.buffer_write_pointer++;
+					*(unsigned char *)animation.buffer_write_pointer = 0;
+					animation.buffer_write_pointer++;
 					wend -= 255;
 					(*(unsigned char *)outptr)++;
 				}
@@ -1096,14 +1112,14 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 						nsame--;
 						w--;
 					}
-					*(unsigned char *)animation.field_C = wend;
-					animation.field_C++;
-					*(unsigned char *)animation.field_C = nsame;
-					animation.field_C++;
-					*(unsigned char *)animation.field_C = cbf[0];
+					*(unsigned char *)animation.buffer_write_pointer = wend;
+					animation.buffer_write_pointer++;
+					*(unsigned char *)animation.buffer_write_pointer = nsame;
+					animation.buffer_write_pointer++;
+					*(unsigned char *)animation.buffer_write_pointer = cbf[0];
 					cbf -= nsame;
 					pbf -= nsame;
-					animation.field_C++;
+					animation.buffer_write_pointer++;
 					(*(unsigned char *)outptr)++;
 				} else {
 					if ( w == 1 ) {
@@ -1124,12 +1140,12 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 						}
 					}
 					if (ndiff != 0) {
-						*(unsigned char *)animation.field_C = wend;
-						animation.field_C++;
-						*(unsigned char *)animation.field_C = ndiff;
-						animation.field_C++;
-						memcpy(animation.field_C, cbf, ndiff);
-						animation.field_C += ndiff;
+						*(unsigned char *)animation.buffer_write_pointer = wend;
+						animation.buffer_write_pointer++;
+						*(unsigned char *)animation.buffer_write_pointer = ndiff;
+						animation.buffer_write_pointer++;
+						memcpy(animation.buffer_write_pointer, cbf, ndiff);
+						animation.buffer_write_pointer += ndiff;
 						cbf += ndiff;
 						pbf += ndiff;
 						(*(unsigned char *)outptr)++;
@@ -1140,16 +1156,16 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 			pbuf += LbGraphicsScreenWidth();
 		}
 	} else {
-		*(short *)animation.field_C = 0;
-		animation.field_C += 2;
-		*(short *)animation.field_C = 1;
-		animation.field_C += 2;
-		*(char *)animation.field_C = 0;
-		animation.field_C++;
+		*(short *)animation.buffer_write_pointer = 0;
+		animation.buffer_write_pointer += 2;
+		*(short *)animation.buffer_write_pointer = 1;
+		animation.buffer_write_pointer += 2;
+		*(char *)animation.buffer_write_pointer = 0;
+		animation.buffer_write_pointer++;
 	}
 	// Make the data size even
-	animation.field_C = (unsigned char *)(((unsigned int)animation.field_C + 1) & 0xFFFFFFFE);
-	return animation.field_C - blk_begin;
+	animation.buffer_write_pointer = (unsigned char *)(((size_t)animation.buffer_write_pointer + 1) & 0xFFFFFFFE);
+	return animation.buffer_write_pointer - blk_begin;
 }
 
 /*
@@ -1183,14 +1199,14 @@ short anim_format_matches(int width,int height,int bpp)
 
 short anim_open(char *fname, int arg1, short arg2, int width, int height, int bpp, unsigned int flags)
 {
-	if ( flags & animation.field_0 ) {
+	if ( flags & animation.state_flags ) {
 		ERRORLOG("Cannot record movie");
 		return false;
 	}
 	if (flags & 0x01) {
 		SYNCLOG("Starting to record new movie, \"%s\".",fname);
 		memset(&animation, 0, sizeof(Animation));
-		animation.field_0 |= flags;
+		animation.state_flags |= flags;
 		animation.videobuf = static_cast<unsigned char *>(calloc(2 * height*width, 1));
 		if (animation.videobuf==NULL) {
 			ERRORLOG("Cannot allocate video buffer.");
@@ -1226,19 +1242,19 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 		animation.header.oframe1 = 0;
 		animation.header.oframe2 = 0;
 		memset(animation.header.reserved4, 0, sizeof(animation.header.reserved4));
-		animation.field_18 = arg2;
+		animation.compression_level = arg2;
 		if ( !anim_write_data(&animation.header, sizeof(AnimFLIHeader)) ) {
 			ERRORLOG("Movie write error.");
 			LbFileClose(animation.outfhndl);
 			return false;
 		}
-		animation.field_31C = 0;
-		animation.field_320 = height*width + 1024;
+		animation.frame_count = 0;
+		animation.buffer_size = height*width + 1024;
 		memset(animation.palette, -1, sizeof(animation.palette));
 	}
 	if (flags & 0x02)  {
 		SYNCLOG("Resuming movie recording, \"%s\".",fname);
-		animation.field_0 |= flags;
+		animation.state_flags |= flags;
 		animation.inpfhndl = LbFileOpen(fname, 2);
 		if (!animation.inpfhndl) {
 			return false;
@@ -1269,7 +1285,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 		} else {
 			LbFileSeek(animation.inpfhndl, -sizeof(AnimFLIChunk), Lb_FILE_SEEK_CURRENT);
 		}
-		animation.field_31C = 0;
+		animation.frame_count = 0;
 	}
 	return true;
 }
@@ -1284,35 +1300,35 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 	long ss2_size;
 	int width = animation.header.width;
 	int height = animation.header.height;
-	animation.field_C = animation.chunkdata;
+	animation.buffer_write_pointer = animation.chunkdata;
 	max_chunk_size = anim_buffer_size(width,height,animation.header.depth);
 	memset(animation.chunkdata, 0, max_chunk_size);
 	animation.prefix.ctype = 0xF1FAu;
 	animation.prefix.nchunks = 0;
 	animation.prefix.csize = 0;
 	memset(animation.prefix.reserved, 0, sizeof(animation.prefix.reserved));
-	AnimFLIPrefix *prefx = (AnimFLIPrefix *)animation.field_C;
+	AnimFLIPrefix *prefx = (AnimFLIPrefix *)animation.buffer_write_pointer;
 	anim_store_data(&animation.prefix, sizeof(AnimFLIPrefix));
 	animation.subchunk.ctype = 0;
 	animation.subchunk.csize = 0;
-	AnimFLIChunk *subchnk = (AnimFLIChunk *)animation.field_C;
+	AnimFLIChunk *subchnk = (AnimFLIChunk *)animation.buffer_write_pointer;
 	anim_store_data(&animation.subchunk, sizeof(AnimFLIChunk));
-	if ( animation.field_31C == 0 ) {
+	if ( animation.frame_count == 0 ) {
 		animation.header.oframe1 = animation.header.dsize;
-	} else if ( animation.field_31C == 1 ) {
+	} else if ( animation.frame_count == 1 ) {
 		animation.header.oframe2 = animation.header.dsize;
 	}
 	if ( anim_make_FLI_COLOUR256(palette) ) {
 		prefx->nchunks++;
 		subchnk->ctype = 4;
-		subchnk->csize = animation.field_C-(unsigned char *)subchnk;
+		subchnk->csize = animation.buffer_write_pointer-(unsigned char *)subchnk;
 		animation.subchunk.ctype = 0;
 		animation.subchunk.csize = 0;
-		subchnk = (AnimFLIChunk *)animation.field_C;
+		subchnk = (AnimFLIChunk *)animation.buffer_write_pointer;
 		anim_store_data(&animation.subchunk, sizeof(AnimFLIChunk));
 	}
 	int scrpoints = animation.header.height * (long)animation.header.width;
-	if (animation.field_31C == 0) {
+	if (animation.frame_count == 0) {
 		if ( anim_make_FLI_BRUN(screenbuf) ) {
 			prefx->nchunks++;
 			subchnk->ctype = FLI_BRUN;
@@ -1323,13 +1339,13 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 		}
 	} else {
 		// Determining the best compression method
-		dataptr = animation.field_C;
+		dataptr = animation.buffer_write_pointer;
 		brun_size = anim_make_FLI_BRUN(screenbuf);
 		memset(dataptr, 0, brun_size);
-		animation.field_C = dataptr;
+		animation.buffer_write_pointer = dataptr;
 		ss2_size = anim_make_FLI_SS2(screenbuf, animation.videobuf);
 		memset(dataptr, 0, ss2_size);
-		animation.field_C = dataptr;
+		animation.buffer_write_pointer = dataptr;
 		lc_size = anim_make_FLI_LC(screenbuf, animation.videobuf);
 		if ((lc_size < ss2_size) && (lc_size < brun_size)) {
 			// Store the LC compressed data
@@ -1338,7 +1354,7 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 		} else if (ss2_size < brun_size) {
 			// Clear the LC compressed data
 			memset(dataptr, 0, lc_size);
-			animation.field_C = dataptr;
+			animation.buffer_write_pointer = dataptr;
 			// Compress with SS2 method
 			anim_make_FLI_SS2(screenbuf, animation.videobuf);
 			prefx->nchunks++;
@@ -1346,7 +1362,7 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 		} else if ( brun_size < scrpoints+16 ) {
 			// Clear the LC compressed data
 			memset(dataptr, 0, lc_size);
-			animation.field_C = dataptr;
+			animation.buffer_write_pointer = dataptr;
 			// Compress with BRUN method
 			anim_make_FLI_BRUN(screenbuf);
 			prefx->nchunks++;
@@ -1354,24 +1370,24 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 		} else {
 			// Clear the LC compressed data
 			memset(dataptr, 0, lc_size);
-			animation.field_C = dataptr;
+			animation.buffer_write_pointer = dataptr;
 			// Store uncompressed frame data
 			anim_make_FLI_COPY(screenbuf);
 			prefx->nchunks++;
 			subchnk->ctype = FLI_COPY;
 		}
 	}
-	subchnk->csize = animation.field_C-(unsigned char *)subchnk;
-	prefx->csize = animation.field_C - animation.chunkdata;
-	if ( !anim_write_data(animation.chunkdata, animation.field_C-animation.chunkdata) ) {
+	subchnk->csize = animation.buffer_write_pointer-(unsigned char *)subchnk;
+	prefx->csize = animation.buffer_write_pointer - animation.chunkdata;
+	if ( !anim_write_data(animation.chunkdata, animation.buffer_write_pointer-animation.chunkdata) ) {
 		//LbSyncLog("Finished frame w/error.\n");
 		return false;
 	}
 	memcpy(animation.videobuf, screenbuf, height*width);
 	memcpy(animation.palette, palette, sizeof(animation.palette));
 	animation.header.frames++;
-	animation.field_31C++;
-	animation.header.dsize += animation.field_C-animation.chunkdata;
+	animation.frame_count++;
+	animation.header.dsize += animation.buffer_write_pointer-animation.chunkdata;
 	//LbSyncLog("Finished frame ok.\n");
 	return true;
 }
@@ -1381,7 +1397,7 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 extern "C" short anim_stop()
 {
 	SYNCLOG("Finishing movie recording.");
-	if ( ((animation.field_0 & 0x01)==0) || (!animation.outfhndl)) {
+	if ( ((animation.state_flags & 0x01)==0) || (!animation.outfhndl)) {
 	  ERRORLOG("Can't stop recording movie");
 	  return false;
 	}
@@ -1395,13 +1411,13 @@ extern "C" short anim_stop()
 	animation.outfhndl = nullptr;
 	free(animation.chunkdata);
 	animation.chunkdata=NULL;
-	animation.field_0 = 0;
+	animation.state_flags = 0;
 	return true;
 }
 
 extern "C" TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
 {
-	if ((animation.field_0 & 0x01)==0) {
+	if ((animation.state_flags & 0x01)==0) {
 		return false;
 	} else if (!anim_format_matches(MyScreenWidth/pixel_size,MyScreenHeight/pixel_size,LbGraphicsScreenBPP())) {
 		return false;
@@ -1412,14 +1428,14 @@ extern "C" TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *pal
 extern "C" short anim_record()
 {
 	SYNCDBG(7,"Starting");
-	static char finalname[255];
+	char finalname[255] = "";
 	if (LbGraphicsScreenBPP() != 8) {
 		ERRORLOG("Cannot record movie in non-8bit screen mode");
 		return 0;
 	}
 	int idx;
 	for (idx=0; idx < 10000; idx++) {
-		sprintf(finalname, "%s/game%04d.flc","scrshots",idx);
+		snprintf(finalname, sizeof(finalname), "%s/game%04d.flc","scrshots",idx);
 		if (LbFileExists(finalname)) {
 			continue;
 		}

@@ -87,6 +87,8 @@ static int num_added_sprite = 0;
 static int num_added_icons = 0;
 unsigned char base_pal[PALETTE_SIZE];
 
+int total_sprite_zip_count = 0;
+
 static unsigned char big_scratch_data[1024*1024*16] = {0};
 unsigned char *big_scratch = big_scratch_data;
 
@@ -200,54 +202,145 @@ static int cmp_named_command(const void *a, const void *b)
     return strcasecmp(val_a->name, val_b->name);
 }
 
-static void load_system_sprites(short fgroup)
+
+static int load_file_sprites(const char *path, const char *file_desc)
 {
     SYNCDBG(8, "Starting");
-    char * fname = prepare_file_path(fgroup, "*.zip");
-    int cnt = 0, cnt_ok = 0, cnt_icons = 0;
-    const char * path;
-    if (0 == *fname) // No campaign
-        return;
-    struct TbFileEntry fe;
-    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
-    if (ff) {
-        do {
-            path = prepare_file_path(fgroup, fe.Filename);
-#ifdef OUTER
-            fprintf(stderr, "F:%s\n", path);
-            fprintf(stderr, "A:%d\n", SDL_GetTicks());
-#endif
-            if (add_custom_sprite(path))
-            {
-                cnt_ok++;
-            }
-#ifdef OUTER
-            fprintf(stderr, "B:%d\n", SDL_GetTicks());
-#endif
-            if (add_custom_json(path, "icons.json", &process_icon))
-            {
-                cnt_icons++;
-            }
-            cnt++;
-        } while (LbFileFindNext(ff, &fe) >= 0);
-        LbFileFindEnd(ff);
+    int add_flag = 0;
+    if (add_custom_sprite(path))
+    {
+        add_flag |= 0x1;
     }
-    LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt, cnt_ok, cnt_icons, next_free_sprite, KEEPERSPRITE_ADD_NUM);
+
+    if (add_custom_json(path, "icons.json", &process_icon))
+    {
+        add_flag |= 0x2;
+    }
+
+    if (file_desc != NULL)
+    {
+        if (add_flag & 0x1)
+        {
+            JUSTLOG("Loaded per-map sprites from %s", file_desc);
+        }
+        else
+        {
+            SYNCDBG(0, "Unable to load per-map sprites from %s", file_desc);
+        }
+
+        if (add_flag & 0x2)
+        {
+            JUSTLOG("Loaded per-map icons from %s", file_desc);
+        }
+        else
+        {
+            SYNCDBG(0, "Unable to load per-map icons from %s", file_desc);
+        }
+        total_sprite_zip_count++;
+    }
+
+    return add_flag;
 }
 
+static void load_dir_sprites(const char *dir_path, const char *dir_desc)
+{
+    SYNCDBG(8, "Starting");
+    if (dir_path == NULL || dir_path[0] == 0)
+        return;
+    char full_path[1024] = {0};
+    sprintf(full_path, "%s/%s", dir_path, "*.zip");
+    struct TbFileEntry fe;
+    struct TbFileFind * ff = LbFileFindFirst(full_path, &fe);
+    int cnt_zip = 0, cnt_sprite = 0, cnt_icon = 0;
+    if (ff) {
+        do {
+            sprintf(full_path, "%s/%s", dir_path, fe.Filename);
+            int add_flag = load_file_sprites(full_path, NULL);
+            if (add_flag & 0x1)
+                cnt_sprite++;
+            if (add_flag & 0x2)
+                cnt_icon++;
+            cnt_zip++;
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
+
+        if (dir_desc != NULL)
+            LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
+        total_sprite_zip_count += cnt_zip;
+    }
+}
+
+/* @comment
+ *     The loading items of init_custom_sprites and load_sprites_for_mod_one need to be consistent.
+ */
+static void load_sprites_for_mod_one(LevelNumber lvnum, const struct ModConfigItem *mod_item)
+{
+
+    const struct ModExistState *mod_state = &mod_item->state;
+    char* fname = NULL, *dname = NULL;
+    char mod_dir[256] = {0}, desc[256] = {0};;
+    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
+
+    if (mod_state->fx_data)
+    {
+        dname = prepare_file_path_mod(mod_dir, FGrp_FxData, NULL);
+        if (strlen(dname) > 0)
+        {
+            sprintf(desc, "Mod[%s] FxData dir", mod_item->name);
+            load_dir_sprites(dname, desc);
+        }
+    }
+
+    if (mod_state->cmpg_config)
+    {
+        dname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig, NULL);
+        if (strlen(dname) > 0)
+        {
+            sprintf(desc, "Mod[%s] CmpgConfig dir", mod_item->name);
+            load_dir_sprites(dname, desc);
+        }
+    }
+
+    if (mod_state->cmpg_lvls)
+    {
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.zip", lvnum);
+        if (strlen(fname) > 0 && LbFileExists(fname))
+        {
+            sprintf(desc, "Mod[%s] CmpgLvls file", mod_item->name);
+            load_file_sprites(fname, desc);
+        }
+    }
+}
+
+static void load_sprites_for_mod_list(LevelNumber lvnum, const struct ModConfigItem *mod_items, long mod_cnt)
+{
+    for (long i=0; i<mod_cnt; i++)
+    {
+        const struct ModConfigItem *mod_item = mod_items + i;
+        if (mod_item->state.mod_dir == 0)
+            continue;
+
+        load_sprites_for_mod_one(lvnum, mod_item);
+    }
+}
+
+/* @comment
+ *     The loading items of init_custom_sprites and load_sprites_for_mod_one need to be consistent.
+ */
 void init_custom_sprites(LevelNumber lvnum)
 {
     SYNCDBG(8, "Starting");
     free_spritesheet(&custom_sprites);
     custom_sprites = create_spritesheet();
+    total_sprite_zip_count = 0;
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
-        lvnum = gameadd.last_level;
+        lvnum = game.last_level;
     }
     else if (lvnum > 0)
     {
-        gameadd.last_level = lvnum;
+        game.last_level = lvnum;
     }
     else
     {
@@ -295,26 +388,32 @@ void init_custom_sprites(LevelNumber lvnum)
         free(anim_names);
     }
 
-    load_system_sprites(FGrp_FxData);
-    load_system_sprites(FGrp_CmpgConfig);
 
-    char *lvl = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
-    if (add_custom_sprite(lvl))
+    char *dname = prepare_file_path(FGrp_FxData, NULL);
+    load_dir_sprites(dname, "Main FxData dir");
+
+    if (mods_conf.after_base_cnt > 0)
     {
-        JUSTLOG("Loaded per-map sprite file");
+        load_sprites_for_mod_list(lvnum, mods_conf.after_base_item, mods_conf.after_base_cnt);
     }
-    else
+
+    dname = prepare_file_path(FGrp_CmpgConfig, NULL);
+    load_dir_sprites(dname, "Main CmpgConfig dir");
+
+    if (mods_conf.after_campaign_cnt > 0)
     {
-        SYNCDBG(0, "Unable to load per-map sprite file");
+        load_sprites_for_mod_list(lvnum, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
     }
-    if (add_custom_json(lvl, "icons.json", &process_icon))
+
+    char *fname = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
+    if (LbFileExists(fname))
+        load_file_sprites(fname, "Main CmpgLvls file");
+
+    if (mods_conf.after_map_cnt > 0)
     {
-        JUSTLOG("Loaded per-map icons file");
+        load_sprites_for_mod_list(lvnum, mods_conf.after_map_item, mods_conf.after_map_cnt);
     }
-    else
-    {
-        SYNCDBG(0, "Unable to load per-map icons file");
-    }
+
 }
 
 /**
@@ -1380,7 +1479,7 @@ short get_icon_id(const char *name)
     if (0 == strcmp(name, "0"))
         return 0;
 
-    return -2; // -1 is used by SPELLBOOK_POSS etc
+    return bad_icon_id; // -1 is used by SPELLBOOK_POSS etc
 }
 
 short get_anim_id(const char *name, struct ObjectConfigStats *objst)

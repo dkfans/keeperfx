@@ -33,7 +33,7 @@
 #include "config_effects.h"
 #include "map_utils.h"
 #include "map_blocks.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "keeperfx.hpp"
 #include "gui_frontmenu.h"
 #include "frontend.h"
@@ -69,7 +69,7 @@ TbBool packets_process_cheats(
     struct SlabMap *slb;
     struct PlayerInfo* player = get_player(plyr_idx);
     TbBool allowed;
-    char str[255] = {'\0'};
+    char str[255] = "";
     switch (player->work_state)
     {
         case PSt_MkDigger:
@@ -99,12 +99,12 @@ TbBool packets_process_cheats(
         clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         if (player->cheatselection.chosen_hero_kind == 0)
         {
-            sprintf(str, "?");
+            snprintf(str, sizeof(str), "?");
         }
         else
         {
             struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_hero_kind];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
+            snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -209,6 +209,7 @@ TbBool packets_process_cheats(
             if (player->controlled_thing_idx != player->thing_under_hand)
             {
                 player->influenced_thing_idx = player->thing_under_hand;
+                player->influenced_thing_creation = thing->creation_turn;
             }
           }
           if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
@@ -255,12 +256,12 @@ TbBool packets_process_cheats(
         clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         if (player->cheatselection.chosen_creature_kind == 0)
         {
-            sprintf(str, "?");
+            snprintf(str, sizeof(str), "?");
         }
         else
         {
             struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_creature_kind];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
+            snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -324,8 +325,8 @@ TbBool packets_process_cheats(
             player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                unsigned short splevel = get_power_overcharge_level(player);
-                magic_use_power_direct(plyr_idx,pwkind,splevel,stl_x,stl_y,thing,PwMod_CastForFree);
+                KeepPwrLevel power_level = get_power_overcharge_level(player);
+                magic_use_power_direct(plyr_idx,pwkind,power_level,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
@@ -505,7 +506,7 @@ TbBool packets_process_cheats(
                             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                             if (!creature_control_invalid(cctrl))
                             {
-                                set_creature_level(thing, cctrl->explevel-1);
+                                set_creature_level(thing, cctrl->exp_level-1);
                             }
                             break;
                         }
@@ -646,14 +647,14 @@ TbBool packets_process_cheats(
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-            struct SlabAttr *slbattr = get_slab_kind_attrs(player->cheatselection.chosen_terrain_kind);
+            struct SlabConfigStats *slabst = get_slab_kind_stats(player->cheatselection.chosen_terrain_kind);
             if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
             {
                 player->cheatselection.chosen_player = game.neutral_player_num;
             }
-            if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
+            if (slabst->tooltip_stridx <= GUI_STRINGS_COUNT)
             {
-                const char* msg = get_string(slbattr->tooltip_stridx);
+                const char* msg = get_string(slabst->tooltip_stridx);
                 strcpy(str, msg);
                 char* dis_msg = strtok(str, ":");
                 if (dis_msg == NULL)

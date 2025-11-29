@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <json.h>
+#include <ctype.h>
 
 typedef const char *toml_raw_t;
 

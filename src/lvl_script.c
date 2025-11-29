@@ -40,6 +40,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+extern TbBool luascript_loaded;
 unsigned char next_command_reusable;
 /******************************************************************************/
 
@@ -187,162 +188,6 @@ static struct CommandDesc const *find_command_desc(const struct CommandToken *to
     }
     return cmnd_desc;
 }
-const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc)
-{
-    char chr;
-    SCRIPTDBG(12,"Starting");
-    const struct CommandDesc* cmnd_desc = NULL;
-    // Find start of an item to read
-    unsigned int pos = 0;
-    param[pos] = '\0';
-    while (1)
-    {
-        chr = **line;
-        // letter or number
-        if ((isalnum(chr)) || (chr == '-'))
-            break;
-        // operator
-        if ((chr == '\"') || (chr == '=') || (chr == '!') || (chr == '<') || (chr == '>') || (chr == '~'))
-            break;
-        // end of line
-        if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
-        {
-            (*para_level) = -1;
-            return NULL;
-        }
-        // paraenesis open
-        if (chr == '(') {
-            (*para_level)++;
-        } else
-        // paraenesis close
-        if (chr == ')') {
-            (*para_level)--;
-        }
-        (*line)++;
-    }
-
-    chr = **line;
-    // Text string
-    if (isalpha(chr))
-    {
-        // Read the parameter
-        while (isalnum(chr) || (chr == '_') || (chr == '[') || (chr == ']') || (chr == ':'))
-        {
-            param[pos] = chr;
-            pos++;
-            (*line)++;
-            chr = **line;
-            if (pos+1 >= MAX_TEXT_LENGTH) break;
-        }
-        param[pos] = '\0';
-        make_uppercase(param);
-        // Check if it's a command
-        int i = 0;
-        cmnd_desc = NULL;
-        while (cmdlist_desc[i].textptr != NULL)
-        {
-            if (strcmp(param, cmdlist_desc[i].textptr) == 0)
-            {
-                cmnd_desc = &cmdlist_desc[i];
-                break;
-            }
-            i++;
-        }
-    } else
-    // Number string
-    if (isdigit(chr) || (chr == '-'))
-    {
-        if (chr == '-')
-        {
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-        }
-        chr = **line;
-        if (!isdigit(chr))
-        {
-          SCRPTERRLOG("Unexpected '-' not followed by a number");
-          return NULL;
-        }
-        while ( isdigit(chr) )
-        {
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-          chr = **line;
-          if (pos+1 >= MAX_TEXT_LENGTH) break;
-        }
-    } else
-    // Multiword string taken into quotes
-    if (chr == '\"')
-    {
-        (*line)++;
-        chr = **line;
-        while ((chr != '\0') && (chr != '\n') && (chr != '\r'))
-        {
-          if (chr == '\"')
-          {
-            (*line)++;
-            break;
-          }
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-          chr = **line;
-          if (pos+1 >= MAX_TEXT_LENGTH) break;
-      }
-    } else
-    // Other cases - only operators are left
-    {
-        param[pos] = chr;
-        pos++;
-        (*line)++;
-        switch (chr)
-        {
-        case '!':
-            chr = **line;
-            if (chr != '=')
-            {
-                SCRPTERRLOG("Expected '=' after '!'");
-                return NULL;
-            }
-            param[pos] = chr;
-            pos++;
-            (*line)++;
-            break;
-        case '>':
-        case '<':
-            chr = **line;
-            if (chr == '=')
-            {
-              param[pos] = chr;
-              pos++;
-              (*line)++;
-            }
-            break;
-        case '=':
-            chr = **line;
-            if (chr != '=')
-            {
-              SCRPTERRLOG("Expected '=' after '='");
-              return 0;
-            }
-            param[pos] = chr;
-            pos++;
-            (*line)++;
-            break;
-        default:
-            break;
-        }
-    }
-    chr = **line;
-    if ((chr == '\0') || (chr == '\r')  || (chr == '\n'))
-        *para_level = -1;
-    param[pos] = '\0';
-    return cmnd_desc;
-}
-
-
 
 /**
  * Returns if the command is 'preloaded'. Preloaded commands are initialized
@@ -366,6 +211,8 @@ TbBool script_is_preloaded_command(long cmnd_index)
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
 long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const char *func_name, long ln_num)
 {
+    *plr_start = 0;
+    *plr_end = 0;
     if (plr_range_id < 0)
     {
         return -1;
@@ -383,65 +230,6 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
         return plr_range_id;
     }
     return -2;
-}
-
-static void process_fx_line(struct ScriptFxLine *fx_line)
-{
-    fx_line->partial_steps += fx_line->steps_per_turn;
-    for (;fx_line->partial_steps >= FX_LINE_TIME_PARTS; fx_line->partial_steps -= FX_LINE_TIME_PARTS)
-    {
-        fx_line->here.z.val = get_floor_height_at(&fx_line->here);
-        if (fx_line->here.z.val < FILLED_COLUMN_HEIGHT)
-        {
-            if (fx_line->effect != 0)
-            {
-                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL, 0);
-            }
-        }
-
-        fx_line->step++;
-        if (fx_line->step >= fx_line->total_steps)
-        {
-          fx_line->used = false;
-          break;
-        }
-
-        int64_t remain_t = fx_line->total_steps - fx_line->step;
-
-        int64_t bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
-        int64_t by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
-        int64_t dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
-        int64_t dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
-
-        fx_line->here.x.val = (bx * remain_t + dx * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
-        fx_line->here.y.val = (by * remain_t + dy * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
-    }
-}
-
-#define get_players_range_from_str(plrname, plr_start, plr_end) get_players_range_from_str_f(plrname, plr_start, plr_end, __func__, text_line_number)
-long get_players_range_from_str_f(const char *plrname, int *plr_start, int *plr_end, const char *func_name, long ln_num)
-{
-    long plr_range_id = get_rid(player_desc, plrname);
-    if (plr_range_id == -1)
-    {
-        plr_range_id = get_rid(cmpgn_human_player_options, plrname);
-    }
-    switch (get_players_range_f(plr_range_id, plr_start, plr_end, func_name, ln_num))
-    {
-    case -1:
-        ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
-        *plr_start = 0;
-        *plr_end = 0;
-        return -1;
-    case -2:
-        ERRORMSG("%s(line %lu): Player '%s' out of range",func_name,ln_num, plrname);
-        *plr_start = 0;
-        *plr_end = 0;
-        return -2;
-    default:
-        break;
-    }
-    return plr_range_id;
 }
 
 static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, int idx, TbBool extended)
@@ -534,6 +322,26 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             scline->np[idx] = opertr_id;
             break;
         }
+        case 'B': //Boolean
+        {
+            char boolean = get_rid(script_boolean_desc, scline->tp[idx]);
+            if (boolean == -1)
+            {
+                //Extended number allows for a custom sprite string
+                if (!extended)
+                {
+                    SCRPTERRLOG("Unknown boolean value, \"%s\"", scline->tp[idx]);
+                    return false;
+                }
+                else
+                {
+                    scline->np[idx] = -1;
+                    break;
+                }
+            }
+            scline->np[idx] = (boolean == true);
+            break;
+        }
         case 'A': //String
             break;
         case '!': // extended sign
@@ -556,7 +364,7 @@ static TbBool is_condition_met(unsigned short cond_idx)
       else
           return false;
     }
-    unsigned long i = gameadd.script.conditions[cond_idx].status;
+    unsigned long i = game.script.conditions[cond_idx].status;
     return ((i & 0x01) != 0);
 }
 
@@ -927,6 +735,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     line = get_next_token(line, &token);
     if (token.type == TkEnd)
     {
+        free(scline);
         return false;
     }
     if (token.type != TkCommand)
@@ -978,7 +787,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
         if (args_count < 0)
         {
             SCRPTERRLOG("Syntax error at \"%s\"", line_start);
-            SCRPTERRLOG("   near - -      %*c", line - line_start, '^');
+            SCRPTERRLOG("   near - -      %*c", (int) (line - line_start), '^');
             free(scline);
             return false;
         }
@@ -986,7 +795,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     else
     {
         SCRPTERRLOG("Syntax error: ( expected at \"%s\"", line_start);
-        SCRPTERRLOG("   near - - - - - - -        %*c", line - line_start, '^');
+        SCRPTERRLOG("   near - - - - - - -        %*c", (int) (line - line_start), '^');
         free(scline);
         return false;
     }
@@ -1007,8 +816,6 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     if (token.type != TkEnd)
     {
         SCRPTERRLOG("Syntax error: Unexpected end of line");
-        free(scline);
-        return false;
     }
     script_add_command(cmd_desc, scline, file_version);
     free(scline);
@@ -1018,8 +825,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 
 short clear_script(void)
 {
-    memset(&gameadd.script, 0, sizeof(struct LevelScript));
-    gameadd.script.next_string = gameadd.script.strings;
+    memset(&game.script, 0, sizeof(struct LevelScript));
     set_script_current_condition(CONDITION_ALWAYS);
     text_line_number = 1;
     return true;
@@ -1028,13 +834,13 @@ short clear_script(void)
 short clear_quick_messages(void)
 {
     for (long i = 0; i < QUICK_MESSAGES_COUNT; i++)
-        memset(gameadd.quick_messages[i], 0, MESSAGE_TEXT_LEN);
+        memset(game.quick_messages[i], 0, MESSAGE_TEXT_LEN);
     return true;
 }
 
-static char* process_multiline_comment(char *buf, char *buf_end)
+static char* process_multiline_comment(char *buf, char *buffer_end_pointer)
 {
-    for (char *p = buf; p < buf_end - 1; p++)
+    for (char *p = buf; p < buffer_end_pointer - 1; p++)
     {
         if ((*p == ' ') || (*p == 9)) // Tabs or spaces
             continue;
@@ -1043,7 +849,7 @@ static char* process_multiline_comment(char *buf, char *buf_end)
             if (p[1] != '*') // /*
                 break;
             p += 2;
-            for (; p < buf_end - 1; p++)
+            for (; p < buffer_end_pointer - 1; p++)
             {
                 if ((p[0] == '*') && (p[1] == '/'))
                 {
@@ -1063,14 +869,14 @@ static void parse_txt_data(char *script_data, long script_len)
 {// Process the file lines
     text_line_number = 1;
     char* buf = script_data;
-    char* buf_end = script_data + script_len;
-    while (buf < buf_end)
+    char* buffer_end_pointer = script_data + script_len;
+    while (buf < buffer_end_pointer)
     {
         // Check for long comment
-        buf = process_multiline_comment(buf, buf_end);
+        buf = process_multiline_comment(buf, buffer_end_pointer);
       // Find end of the line
       int lnlen = 0;
-      while (&buf[lnlen] < buf_end)
+      while (&buf[lnlen] < buffer_end_pointer)
       {
         if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
           break;
@@ -1079,7 +885,7 @@ static void parse_txt_data(char *script_data, long script_len)
       // Get rid of the next line characters
       buf[lnlen] = 0;
       lnlen++;
-      if (&buf[lnlen] < buf_end)
+      if (&buf[lnlen] < buffer_end_pointer)
       {
         if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
           lnlen++;
@@ -1126,7 +932,7 @@ short load_script(long lvnum)
     text_line_number = 1;
     game.bonus_time = 0;
     game.flags_gui &= ~GGUI_CountdownTimer;
-    game.flags_cd |= MFlg_DeadBackToPool;
+    game.mode_flags |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
     reset_hand_rules();
@@ -1137,13 +943,13 @@ short load_script(long lvnum)
       return false;
     // Process the file lines
     char* buf = script_data;
-    char* buf_end = script_data + script_len;
-    while (buf < buf_end)
+    char* buffer_end_pointer = script_data + script_len;
+    while (buf < buffer_end_pointer)
     {
-        buf = process_multiline_comment(buf, buf_end);
+        buf = process_multiline_comment(buf, buffer_end_pointer);
       // Find end of the line
       char* p = buf;
-      for (;p < buf_end; p++)
+      for (;p < buffer_end_pointer; p++)
       {
         if (*p == '\n')
           break;
@@ -1163,48 +969,23 @@ short load_script(long lvnum)
       buf = p;
     }
     free(script_data);
-    if (gameadd.script.win_conditions_num == 0)
+    if (game.script.win_conditions_num == 0 && luascript_loaded == false)
       WARNMSG("No WIN GAME conditions in script file.");
     if (get_script_current_condition() != CONDITION_ALWAYS)
       WARNMSG("Missing ENDIF's in script file.");
     JUSTLOG("Used script resources: %d/%d tunneller triggers, %d/%d party triggers, %d/%d script values, %d/%d IF conditions, %d/%d party definitions",
-        (int)gameadd.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
-        (int)gameadd.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
-        (int)gameadd.script.values_num,SCRIPT_VALUES_COUNT,
-        (int)gameadd.script.conditions_num,CONDITIONS_COUNT,
-        (int)gameadd.script.creature_partys_num,CREATURE_PARTYS_COUNT);
+        (int)game.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
+        (int)game.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
+        (int)game.script.values_num,SCRIPT_VALUES_COUNT,
+        (int)game.script.conditions_num,CONDITIONS_COUNT,
+        (int)game.script.creature_partys_num,CREATURE_PARTYS_COUNT);
     return true;
-}
-
-/**
- * Returns if the action point condition was activated.
- * Action point index and player to be activated should be stored inside condition.
- */
-TbBool process_activation_status(struct Condition *condt)
-{
-    TbBool new_status;
-    int plr_start;
-    int plr_end;
-    if (get_players_range(condt->plyr_range, &plr_start, &plr_end) < 0)
-    {
-        WARNLOG("Invalid player range %d in CONDITION command %d.",(int)condt->plyr_range,(int)condt->variabl_type);
-        return false;
-    }
-    {
-        new_status = false;
-        for (long i = plr_start; i < plr_end; i++)
-        {
-            new_status = action_point_activated_by_player(condt->variabl_idx,i);
-            if (new_status) break;
-        }
-    }
-    return new_status;
 }
 
 static void add_to_party_process(struct ScriptContext *context)
 {
     struct PartyTrigger* pr_trig = context->pr_trig;
-    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
+    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
 }
 
 static void process_party(struct PartyTrigger* pr_trig)
@@ -1220,30 +1001,31 @@ static void process_party(struct PartyTrigger* pr_trig)
         add_to_party_process(&context);
         break;
     case TrgF_DELETE_FROM_PARTY:
-        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level);
+        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level);
         break;
     case TrgF_CREATE_EFFECT_GENERATOR:
-        SYNCDBG(6, "Adding effect generator %u at location %d", pr_trig->crtr_level, (int)pr_trig->location);
-        script_process_new_effectgen(pr_trig->crtr_level, pr_trig->location, pr_trig->carried_gold);
+        SYNCDBG(6, "Adding effect generator %u at location %d", pr_trig->exp_level, (int)pr_trig->location);
+        script_process_new_effectgen(pr_trig->exp_level, pr_trig->location, pr_trig->carried_gold);
         break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
-        script_process_new_party(&gameadd.script.creature_partys[n],
+        script_process_new_party(&game.script.creature_partys[n],
             pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
         break;
     case TrgF_CREATE_CREATURE:
         SCRIPTDBG(6, "Adding creature %ld", n);
-        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location, pr_trig->ncopies, pr_trig->carried_gold, pr_trig->exp_level, pr_trig->spawn_type);
         break;
     }
 }
 
-void process_check_new_creature_partys(void)
+void process_check_new_creature_parties(void)
 {
-    for (long i = 0; i < gameadd.script.party_triggers_num; i++)
+    for (long i = 0; i < game.script.party_triggers_num; i++)
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[i];
+        if (i >= PARTY_TRIGGERS_COUNT)
+            break;
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[i];
         if ((pr_trig->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(pr_trig->condit_idx))
@@ -1256,11 +1038,11 @@ void process_check_new_creature_partys(void)
     }
 }
 
-void process_check_new_tunneller_partys(void)
+void process_check_new_tunneller_parties(void)
 {
-    for (long i = 0; i < gameadd.script.tunneller_triggers_num; i++)
+    for (long i = 0; i < game.script.tunneller_triggers_num; i++)
     {
-        struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[i];
+        struct TunnellerTrigger* tn_trig = &game.script.tunneller_triggers[i];
         if ((tn_trig->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(tn_trig->condit_idx))
@@ -1271,10 +1053,10 @@ void process_check_new_tunneller_partys(void)
                     long n = tn_trig->plyr_idx;
                     SCRIPTDBG(6, "Adding tunneler party %ld", k);
                     struct Thing* thing = script_process_new_tunneler(n, tn_trig->location, tn_trig->heading,
-                        tn_trig->crtr_level, tn_trig->carried_gold);
+                        tn_trig->exp_level, tn_trig->carried_gold);
                     if (!thing_is_invalid(thing))
                     {
-                        struct Thing* grptng = script_process_new_party(&gameadd.script.creature_partys[k - 1], n, tn_trig->location, 1);
+                        struct Thing* grptng = script_process_new_party(&game.script.creature_partys[k - 1], n, tn_trig->location, 1);
                         if (!thing_is_invalid(grptng))
                         {
                             add_creature_to_group_as_leader(thing, grptng);
@@ -1289,7 +1071,7 @@ void process_check_new_tunneller_partys(void)
                 {
                     SCRIPTDBG(6, "Adding tunneler, heading %lu", tn_trig->heading);
                     script_process_new_tunneler(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
-                        tn_trig->crtr_level, tn_trig->carried_gold);
+                        tn_trig->exp_level, tn_trig->carried_gold);
                 }
                 if ((tn_trig->flags & TrgF_REUSABLE) == 0)
                     tn_trig->flags |= TrgF_DISABLED;
@@ -1303,17 +1085,17 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     long i;
     long k;
     struct PlayerInfo* player = get_player(plyr_idx);
-    for (i=0; i < gameadd.script.win_conditions_num; i++)
+    for (i=0; i < game.script.win_conditions_num; i++)
     {
-        k = gameadd.script.win_conditions[i];
+        k = game.script.win_conditions[i];
         if (is_condition_met(k)) {
             SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
             set_player_as_won_level(player);
         }
     }
-    for (i=0; i < gameadd.script.lose_conditions_num; i++)
+    for (i=0; i < game.script.lose_conditions_num; i++)
     {
-        k = gameadd.script.lose_conditions[i];
+        k = game.script.lose_conditions[i];
         if (is_condition_met(k))
         {
             SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
@@ -1326,9 +1108,9 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
 
 void process_values(void)
 {
-    for (long i = 0; i < gameadd.script.values_num; i++)
+    for (long i = 0; i < game.script.values_num; i++)
     {
-        struct ScriptValue* value = &gameadd.script.values[i];
+        struct ScriptValue* value = &game.script.values[i];
         if ((value->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(value->condit_idx))
@@ -1338,22 +1120,6 @@ void process_values(void)
                   set_flag(value->flags, TrgF_DISABLED);
             }
         }
-    }
-
-    for (int i = 0; i < gameadd.active_fx_lines; i++)
-    {
-        if (gameadd.fx_lines[i].used)
-        {
-            process_fx_line(&gameadd.fx_lines[i]);
-        }
-    }
-    for (int i = gameadd.active_fx_lines; i > 0; i--)
-    {
-        if (gameadd.fx_lines[i-1].used)
-        {
-            break;
-        }
-        gameadd.active_fx_lines--;
     }
 }
 
@@ -1367,9 +1133,9 @@ void process_level_script(void)
   if ((player->victory_state == VicS_Undecided) || (game.system_flags & GSF_RunAfterVictory))
   {
       process_conditions();
-      process_check_new_creature_partys();
+      process_check_new_creature_parties();
     //script_process_messages(); is not here, but it is in beta - check why
-      process_check_new_tunneller_partys();
+      process_check_new_tunneller_parties();
       process_values();
       process_win_and_lose_conditions(my_player_number); //player->id_number may be uninitialized yet
     //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],

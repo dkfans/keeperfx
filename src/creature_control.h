@@ -75,11 +75,12 @@ enum CreatureControlFlags {
     CCFlg_Exists        = 0x01,
     CCFlg_NoCompControl = 0x02,
     CCFlg_PreventDamage = 0x04,
-    CCFlg_Unknown08     = 0x08,
-    CCFlg_Unknown10     = 0x10,
+    CCFlg_RepositionedInWall = 0x08,
+    CCFlg_AvoidCreatureCollision = 0x10,
     CCFlg_IsInRoomList  = 0x20,
-    CCFlg_Unknown40     = 0x40,
-    CCFlg_Unknown80     = 0x80,
+    CCFlg_MoveX         = 0x40,
+    CCFlg_MoveY         = 0x80,
+    CCFlg_MoveZ         = 0x100,
 };
 
 /* The creature will not move if any of these flags are set. */
@@ -101,9 +102,6 @@ enum CreatureCombatFlags {
     CmbtF_Waiting       = 0x04,
     CmbtF_ObjctFight    = 0x08,
     CmbtF_DoorFight     = 0x10,
-    CmbtF_Unknown20     = 0x20,
-    CmbtF_Unknown40     = 0x40,
-    CmbtF_Unknown80     = 0x80,
 };
 
 enum CreatureAngerReasons {
@@ -139,10 +137,9 @@ struct CastedSpellData {
 
 struct CreatureControl {
     CctrlIndex index;
-    unsigned char flgfield_1;
-    unsigned char flgfield_2;
+    unsigned short creature_control_flags;
+    unsigned char creature_state_flags;
     unsigned char combat_flags;
-    unsigned char party_objective;
     unsigned long wait_to_turn;
     short distance_to_destination;
     ThingIndex opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
@@ -152,7 +149,7 @@ struct CreatureControl {
     ThingIndex players_prev_creature_idx;
     ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
-    unsigned char explevel;
+    CrtrExpLevel exp_level;
     long exp_points;
     long prev_exp_points;
     struct Coord3d moveto_pos;
@@ -162,17 +159,20 @@ struct CreatureControl {
     unsigned char hunger_loss;
     long thought_bubble_last_turn_drawn;
     unsigned char thought_bubble_display_timer;
+    TbBool force_health_flower_displayed;
+    TbBool force_health_flower_hidden;
     unsigned char paydays_owed;
     char paydays_advanced;
     long annoy_untrained_turn;
     unsigned long last_roar_turn;
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
-    * When the highest value is above CreatureStats->annoy_level, the creature becomes angry/livid,
+    * When the highest value is above CreatureModelConfig->annoy_level, the creature becomes angry/livid,
     * depending on how high the highest value is.
     */
     long annoyance_level[5];
     unsigned char mood_flags;
-unsigned char sound_flag;
+    unsigned char footstep_variant;
+    unsigned char footstep_counter;
     /** Lair room index, that is the room which holds creature's lair object. */
     unsigned short lair_room_id;
     /** Lair object thing index. */
@@ -194,131 +194,125 @@ unsigned char sound_flag;
     long turns_at_job;
     short blocking_door_id;
     unsigned char move_flags;
-// Hard to tell where exactly, but somewhere here a kind-specific, job-specific or owner-specific data starts
-  union {
+
+  union // Union on diggers, heroes and normal creatures
+  {
+      struct {
+        long stack_update_turn;
+        SubtlCodedCoords working_stl;
+        SubtlCodedCoords task_stl;
+        unsigned short task_idx;
+        unsigned char consecutive_reinforcements;
+        unsigned char last_did_job;
+        unsigned char task_stack_pos;
+        unsigned short task_repeats;
+      } digger;
+      struct {
+        char hero_state;
+        unsigned char hero_gate_creation_turn;
+        TbBool hero_state_reset_flag;
+        TbBool ready_for_attack_flag;
+        long look_for_enemy_dungeon_turn;
+        long wait_time;
+      } hero;
+      struct {
+        char unusedparam;
+        unsigned char unused;
+        TbBool navigation_map_changed;
+        TbBool unusedparam2;
+      } regular_creature;
+  };
   struct {
-    char target_plyr_idx;
-    PlayerBitFlags player_broken_into_flags;
-    long long_8B;
-    unsigned char byte_8F;
-    SubtlCodedCoords member_pos_stl[5];
+      unsigned char objective;
+      unsigned char original_objective;
+      char target_plyr_idx;
+      PlayerBitFlags player_broken_into_flags;
+      long tunnel_steps_counter;
+      unsigned char tunnel_dig_direction;
+      SubtlCodedCoords member_pos_stl[5];
   } party;
   struct {
-    long stack_update_turn;
-    SubtlCodedCoords working_stl;
-    SubtlCodedCoords task_stl;
-    unsigned short task_idx;
-    unsigned char consecutive_reinforcements;
-    unsigned char last_did_job;
-    unsigned char task_stack_pos;
-    unsigned short task_repeats;
-  } digger;
-  struct {
-    short countdown;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
+      short countdown;
+      struct Coord3d pos;
   } patrol;
-  struct {
-    char sbyte_89;
-    unsigned char hero_gate_creation_turn;
-    TbBool byte_8B;
-    TbBool byte_8C;
-    long look_for_enemy_dungeon_turn;
-    long wait_time;
-  } hero;
-  struct {
-    char sbyte_89_unused;
-    unsigned char unused;
-    TbBool byte_8B;
-    TbBool byte_8C;
-  } unknown;
+
+  union // Jobs union
+  {
+      struct {
+        GameTurn start_gameturn;
+        GameTurn state_start_turn;
+        GameTurn torturer_start_turn;
+        ThingIndex assigned_torturer;
+        unsigned char vis_state;
+      } tortured;
+      struct {
+        GameTurn start_gameturn;
+      } idle;
+      struct {
+        unsigned char job_stage;
+        unsigned char effect_id;
+        PlayerNumber previous_owner;
+        MapSubtlCoord stl_9D_x;
+        MapSubtlCoord stl_9D_y;
+      } scavenge;
+      struct {
+        unsigned char mode;// offset 9A
+        unsigned char train_timeout;
+        MapSubtlCoord pole_stl_x;
+        MapSubtlCoord pole_stl_y;
+        unsigned char search_timeout;
+        short partner_idx;
+        long partner_creation;
+      } training;
+      struct {
+        GameTurn seen_enemy_turn;
+        long battle_enemy_crtn;
+        ThingIndex battle_enemy_idx;
+        ThingIndex seen_enemy_idx;
+        unsigned char state_id;
+        unsigned char attack_type;
+        unsigned char seen_enemy_los;
+      } combat;
+      struct {
+        GameTurn start_gameturn;
+        GameTurn last_mood_sound_turn;
+      } imprison;
+      struct {
+        unsigned char job_stage;
+        unsigned char swing_weapon_counter;
+        MapSubtlCoord stl_x;
+        MapSubtlCoord stl_y;
+        unsigned char work_timer;
+      } workshop;
+      struct {
+        ThingIndex foodtng_idx;
+      } eating;
+      struct {
+        unsigned char job_stage;
+        long random_thinking_angle;
+      } research;
+      struct {
+        short enemy_idx;
+        GameTurn enemy_creation_turn;
+        GameTurn turn_looked_for_enemy;
+      } seek_enemy;
+      struct {
+        GameTurn last_mood_sound_turn;
+      }mood;
+      struct {
+        unsigned char persuade_count;
+      }persuade;
+      struct {
+        RoomIndex room_idx;
+      }evacuate;
+      struct {
+        short animation_counter;
+        short animation_duration;
+      }sacrifice;
   };
 
-  union {
-  struct {
-    GameTurn start_gameturn;
-    GameTurn gameturn_9Ex;
-    GameTurn gameturn_A2x;
-    ThingIndex assigned_torturer;
-    unsigned char vis_state;
-  } tortured;
-  struct {
-    GameTurn start_gameturn;
-  } idle;
-  struct {
-    unsigned char job_stage;
-    unsigned char effect_id;
-    PlayerNumber previous_owner;
-    MapSubtlCoord stl_9D_x;
-    MapSubtlCoord stl_9D_y;
-  } scavenge;
-  struct {
-    unsigned char mode;// offset 9A
-    unsigned char train_timeout;
-    MapSubtlCoord pole_stl_x;
-    MapSubtlCoord pole_stl_y;
-    unsigned char search_timeout;
-    short partner_idx;
-    long partner_creation;
-  } training;
-  struct {
-    GameTurn seen_enemy_turn;
-    long battle_enemy_crtn;
-    ThingIndex battle_enemy_idx;
-    ThingIndex seen_enemy_idx;
-    unsigned char state_id;
-    unsigned char attack_type;
-    unsigned char seen_enemy_los;
-  } combat;
-  struct {
-    GameTurn start_gameturn;
-    GameTurn last_mood_sound_turn;
-  } imprison;
-  struct {
-    unsigned char byte_9A;
-    unsigned char swing_weapon_counter;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    unsigned char byte_9E;
-  } workshop;
-  struct {
-    ThingIndex foodtng_idx;
-  } eating;
-  struct {
-    unsigned char job_stage;
-    long random_thinking_angle;
-  } research;
-  struct {
-    short enemy_idx;
-    GameTurn enemy_creation_turn;
-    GameTurn turn_looked_for_enemy;
-  } seek_enemy;
-  struct {
-    GameTurn last_mood_sound_turn;
-  }mood;
-  struct {
-    unsigned char persuade_count;
-  }persuade;
-  struct {
-    RoomIndex room_idx;
-  }evacuate;
-  struct {
-    short word_9A;
-    short word_9C;
-  }sacrifice;
-  struct {
-    unsigned char byte_9A;
-  }mad_psycho;
-
-  struct {
-    unsigned char byte_9A;
-  }unknown_state;
-
-
-
-  };
     unsigned char fight_til_death;
-    TbBool field_AA;
+    TbBool fighting_at_same_position;
     TbBool called_to_arms;
     TbBool exp_level_up;
     unsigned char stateblock_flags;
@@ -333,6 +327,8 @@ unsigned char sound_flag;
     struct CoordDelta3d moveaccel;
     unsigned char bloody_footsteps_turns;
     short kills_num;
+    short kills_num_allied;
+    short kills_num_enemy;
     short max_speed;
     HitPoints max_health;
     short move_speed;
@@ -379,11 +375,11 @@ unsigned char sound_flag;
     EffectOrEffElModel spell_aura;
     GameTurnDelta spell_aura_duration;
     unsigned short job_assigned;
-    unsigned short spell_tngidx_armour[3];
-    unsigned short spell_tngidx_disease[3];
-    unsigned short shot_shift_x;
-    unsigned short shot_shift_y;
-    unsigned short shot_shift_z;
+    unsigned short spell_thing_index_armour[3];
+    unsigned short spell_thing_index_disease[3];
+    short shot_shift_x;
+    short shot_shift_y;
+    short shot_shift_z;
     unsigned long tasks_check_turn;
     unsigned long wander_around_check_turn;
     unsigned long job_primary_check_turn;
@@ -397,7 +393,7 @@ unsigned char sound_flag;
     unsigned long armageddon_teleport_turn;
     short battle_prev_creatr;
     short battle_next_creatr;
-    unsigned char battle_id;
+    BattleIndex battle_id;
     MapSubtlCoord alarm_stl_x;
     MapSubtlCoord alarm_stl_y;
     unsigned long alarm_over_turn;
@@ -417,126 +413,8 @@ unsigned char sound_flag;
     SpellKind active_disease_spell;
     SpellKind active_teleport_spell;
     SpellKind active_timebomb_spell;
-};
-
-struct CreatureStats { // These stats are not compatible with original DK - they have more fields
-    unsigned short job_primary;
-    unsigned short job_secondary;
-    unsigned short jobs_not_do;
-    unsigned char eye_effect;
-    HitPoints health;
-    unsigned char heal_requirement;
-    unsigned char heal_threshold;
-    unsigned char strength;
-    unsigned char armour;
-    unsigned char dexterity;
-    unsigned char fear_wounded;
-    unsigned char defense;
-    unsigned char luck;
-    unsigned char sleep_recovery;
-    unsigned short hunger_rate;
-    unsigned char hunger_fill;
-    unsigned short annoy_level;
-    unsigned char lair_size;
-    unsigned char hurt_by_lava;
-    unsigned char sleep_exp_slab;
-    short sleep_experience;
-    short exp_for_hitting;
-    short gold_hold;
-    short training_cost;
-    short scavenger_cost;
-    short scavenge_require;
-    unsigned char scavenge_value;
-    unsigned long to_level[CREATURE_MAX_LEVEL];
-    unsigned char base_speed;
-    ThingModel grow_up;
-    unsigned char grow_up_level;
-    TbBool entrance_force;
-    short max_turning_speed;
-    short base_eye_height;
-    unsigned short size_xy;
-    unsigned short size_z;
-    unsigned short thing_size_xy;
-    unsigned short thing_size_z;
-    short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
-    short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
-    short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
-    unsigned short walking_anim_speed;
-    TbBool flying;
-    TbBool fixed_anim_speed;
-    unsigned char attack_preference;
-    short field_of_view;
-    /** Instance identifiers of the instances creature can learn. */
-    CrInstance learned_instance_id[LEARNED_INSTANCES_COUNT];
-    /** Required level to use the instances creature can learn. Scaled 1..CREATURE_MAX_LEVEL. */
-    unsigned char learned_instance_level[LEARNED_INSTANCES_COUNT];
-    unsigned char research_value;
-    TbBool humanoid_creature;
-    TbBool piss_on_dead;
-    unsigned char training_value;
-    short pay;
-    unsigned char manufacture_value;
-    unsigned char hearing;
-    unsigned char entrance_rooms[ENTRANCE_ROOMS_COUNT];
-    unsigned char entrance_slabs_req[ENTRANCE_ROOMS_COUNT];
-    unsigned char visual_range;
-    unsigned char partner_training;
-    /** Minimal game turns a creature must be tortured before it gets a chance to be broken */
-    short torture_break_time;
-    short annoy_no_lair;
-    short annoy_no_hatchery;
-    short annoy_woken_up;
-    short annoy_on_dead_friend;
-    short annoy_sulking;
-    short annoy_no_salary;
-    short annoy_slapped;
-    short annoy_on_dead_enemy;
-    short annoy_in_temple;
-    short annoy_sleeping;
-    short annoy_got_wage;
-    short annoy_in_torture;
-    short annoy_win_battle;
-    short annoy_untrained_time;
-    short annoy_untrained;
-    short annoy_queue;
-    /* Annoyance caused by tries to assign creature to a job it won't do */
-    short annoy_will_not_do_job;
-    /* Job kinds which cause stress for the creature */
-    unsigned short job_stress;
-    /* Amount of annoyance given to creature under stressful job */
-    short annoy_job_stress;
-    /* Job kinds which the creature will start when it is angry */
-    unsigned short jobs_anger;
-    short annoy_others_leaving;
-    unsigned char slaps_to_kill;
-    short lair_enemy[LAIR_ENEMY_MAX];
-    unsigned char rebirth;
-    TbBool can_see_invisible;
-    TbBool can_go_locked_doors;
-    TbBool bleeds;
-    short annoy_eat_food;
-    short annoy_in_hand;
-    short damage_to_boulder;
-    // New fields go there; don't change earlier fields.
-    unsigned short fear_stronger;
-    unsigned short fearsome_factor;
-    short entrance_score;
-    short annoy_going_postal;
-    short toking_recovery;
-    TbBool illuminated;
-    unsigned char transparency_flags;
-    char corpse_vanish_effect;
-    short footstep_pitch;
-    short lair_object;
-    short status_offset;
-    unsigned short evil_start_state;
-    unsigned short good_start_state;
-    unsigned char natural_death_kind;
-    unsigned char swipe_idx;
-    ThingModel prison_kind;
-    ThingModel torture_kind;
-    unsigned long immunity_flags;
-    struct CreaturePickedUpOffset creature_picked_up_offset;
+    short vertical_speed;
+    GameTurnDelta hand_blocked_turns;
 };
 
 struct Persons {
@@ -572,7 +450,6 @@ struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);
 TbBool creature_control_invalid(const struct CreatureControl *cctrl);
 TbBool creature_control_exists(const struct CreatureControl *cctrl);
-TbBool creature_control_exists_in_thing(const struct Thing *thing);
 void clear_creature_instance(struct Thing *thing);
 long i_can_allocate_free_control_structure(void);
 struct CreatureControl *allocate_free_control_structure(void);

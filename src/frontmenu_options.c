@@ -31,7 +31,6 @@
 #include "gui_draw.h"
 #include "config_strings.h"
 #include "gui_frontbtns.h"
-#include "music_player.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "kjm_input.h"
@@ -95,6 +94,8 @@ const long definable_key_string[] = {
     GUIStr_CtrlTiltUp,
     GUIStr_CtrlTiltDown,
     GUIStr_CtrlTiltReset,
+    GUIStr_CtrlAscend,
+    GUIStr_CtrlDescend,
 };
 
 char video_cluedo_mode;
@@ -109,19 +110,19 @@ char video_view_distance_level;
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset != 0)) & LbBtnF_Enabled;
-		if ((wheel_scrolled_up || is_key_pressed(KC_UP,KMod_NONE)) & (define_key_scroll_offset != 0))
-	{
-		define_key_scroll_offset--;
-	}
+        if ((wheel_scrolled_up || is_key_pressed(KC_UP,KMod_NONE)) & (define_key_scroll_offset != 0))
+    {
+        define_key_scroll_offset--;
+    }
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Enabled;
-	if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)))
-	{
-		define_key_scroll_offset++;
-	}
+    if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)))
+    {
+        define_key_scroll_offset++;
+    }
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
@@ -178,9 +179,9 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     // This text is a bit condensed - button size is smaller than text height
-    int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
+    int tx_units_per_px = ((MyScreenHeight < 400) && (dbc_language > 0)) ? scale_value_menu(32) : scale_value_menu(16);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    int height = LbTextLineHeight() * tx_units_per_px / 16;
+    int height = LbTextLineHeight() * tx_units_per_px / 14;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(definable_key_string[key_id]));
     unsigned char mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
@@ -189,18 +190,15 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     text[0] = '\0';
     if (mods & KMod_CONTROL)
     {
-        strcat(text, get_string(GUIStr_KeyControl));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyControl));
     }
     if (mods & KMod_ALT)
     {
-        strcat(text, get_string(GUIStr_KeyAlt));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyAlt));
     }
     if (mods & KMod_SHIFT)
     {
-        strcat(text, get_string(GUIStr_KeyShift));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyShift));
     }
 
     unsigned char code = settings.kbkeys[key_id].code;
@@ -235,9 +233,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
         snprintf(mouse_button_number_string, sizeof(mouse_button_number_string), "%d", mouse_button_number);
-        strcat(mouse_button_label, mouse_gui_string);
-        strcat(mouse_button_label, " ");
-        strcat(mouse_button_label, mouse_button_number_string);
+        str_appendf(mouse_button_label, sizeof(mouse_button_label), "%s %s", mouse_gui_string, mouse_button_number_string);
         keytext = mouse_button_label;
         break;
       }
@@ -255,8 +251,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         break;
       }
     }
-    strcat(text, keytext);
-    height = LbTextLineHeight() * tx_units_per_px / 16;
+    str_append(text, sizeof(text), keytext);
+    height = LbTextLineHeight() * tx_units_per_px / 14;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, text);
 }
 
@@ -317,21 +313,13 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     settings.sound_volume = new_val;
     save_settings();
     SetSoundMasterVolume(new_val);
-    SetMusicMasterVolume(new_val);
-    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
-    {
-        if (Ext_Sounds[i] != NULL)
-        {
-            Mix_VolumeChunk(Ext_Sounds[i], new_val);
-        }
-    }
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)
 {
-    settings.redbook_volume = make_audio_slider_nonlinear(gbtn->content.lval);
+    settings.music_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
-    SetMusicPlayerVolume(settings.redbook_volume);
+    set_music_volume(settings.music_volume);
 }
 
 void gui_set_mentor_volume(struct GuiButton *gbtn)
@@ -412,7 +400,7 @@ void init_video_menu(struct GuiMenu *gmnu)
  */
 void init_audio_menu(struct GuiMenu *gmnu)
 {
-    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.redbook_volume);
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.music_volume);
     get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
     get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
 }

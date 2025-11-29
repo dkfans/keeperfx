@@ -33,7 +33,7 @@
 #include "config_terrain.h"
 #include "creature_states.h"
 #include "creature_states_rsrch.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -113,23 +113,23 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         {
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
-                output_message(SMsg_SpellbookStolen, 0, true);
-            } 
+                output_message(SMsg_SpellbookStolen, 0);
+            }
             else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
             {
                 player = get_my_player();
                 if (picktng->owner == game.neutral_player_num)
                 {
                    if (creatng->index != player->influenced_thing_idx)
-                   {                       
-                        output_message(SMsg_DiscoveredSpell, 0, true);
-                   }                   
+                   {
+                        output_message(SMsg_DiscoveredSpell, 0);
+                   }
                 }
                 else
                 {
                    if (creatng->index != player->influenced_thing_idx)
-                   {       
-                        output_message(SMsg_SpellbookTaken, 0, true);
+                   {
+                        output_message(SMsg_SpellbookTaken, 0);
                    }
                 }
             }
@@ -147,8 +147,8 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
           {
               player = get_my_player();
               if (creatng->index != player->influenced_thing_idx)
-              {    
-                output_message(SMsg_DiscoveredSpecial, 0, true);
+              {
+                output_message(SMsg_DiscoveredSpecial, 0);
               }
           }
         }
@@ -273,8 +273,8 @@ TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rki
         if ((resrch->rtyp == rtyp) && (resrch->rkind == rkind))
         {
             resrch->req_amount = amount;
+            n++;
         }
-        n++;
     }
     if (n > 0)
         return true;
@@ -372,7 +372,7 @@ void process_player_research(PlayerNumber plyr_idx)
             }
             if (is_my_player_number(plyr_idx))
             {
-                output_message(SMsg_ResearchedSpell, 0, true);
+                output_message(SMsg_ResearchedSpell, 0);
             }
         }
         break;
@@ -385,7 +385,7 @@ void process_player_research(PlayerNumber plyr_idx)
             event_create_event(0, 0, EvKind_NewRoomResrch, plyr_idx, rkind);
             dungeon->room_buildable[rkind] |= 3; // Player may build room and may research it again
             if (is_my_player_number(plyr_idx))
-                output_message(SMsg_ResearchedRoom, 0, true);
+                output_message(SMsg_ResearchedRoom, 0);
             room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
             if (!room_is_invalid(room))
             {

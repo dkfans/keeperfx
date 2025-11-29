@@ -103,7 +103,6 @@ TngUpdateRet update_shot(struct Thing *thing);
 TbBool thing_is_shot(const struct Thing *thing);
 
 long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, TbBool NeverBlock);
-long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target);
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
 int weight_calculated_push_strenght(int weight, int push_strength);
 

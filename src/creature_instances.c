@@ -196,10 +196,10 @@ TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inst
 TbBool creature_choose_first_available_instance(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
-        long k = crstat->learned_instance_id[i];
+        long k = crconf->learned_instance_id[i];
         if (k > 0)
         {
             if (cctrl->instance_available[k]) {
@@ -214,72 +214,22 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
 
 void creature_increase_available_instances(struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
-        int k = crstat->learned_instance_id[i];
+        int k = crconf->learned_instance_id[i];
         if (k > 0)
         {
-            if (crstat->learned_instance_level[i] <= cctrl->explevel+1) {
+            if (crconf->learned_instance_level[i] <= cctrl->exp_level+1) {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crstat->learned_instance_level[i] > cctrl->explevel+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ( (crconf->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules[thing->owner].game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
             {
                 cctrl->instance_available[k] = false;
             }
         }
     }
-}
-
-/**
- * Given instance ID, returns its position in compacted list of instances.
- * Compacted list of instances is a list of available creature instances without holes.
- * @param thing
- * @param req_inst_id
- * @return
- */
-int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    int avail_pos = 0;
-    for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
-    {
-        CrInstance inst_id = crstat->learned_instance_id[avail_num];
-        if (creature_instance_is_available(thing, inst_id))
-        {
-            if (inst_id == req_inst_id) {
-                return avail_pos;
-            }
-            avail_pos++;
-        }
-    }
-    return -1;
-}
-
-/**
- * For position in compacted list of instances, gives instance position in availability list.
- * Compacted list of instances is a list of available creature instances without holes.
- * @param thing
- * @param req_avail_pos
- * @return
- */
-int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    int avail_pos = 0;
-    for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
-    {
-        CrInstance inst_id = crstat->learned_instance_id[avail_num];
-        if (creature_instance_is_available(thing, inst_id))
-        {
-            if (avail_pos == req_avail_pos) {
-                return avail_num;
-            }
-            avail_pos++;
-        }
-    }
-    return -1;
 }
 
 /**
@@ -291,11 +241,11 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
  */
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
-        CrInstance inst_id = crstat->learned_instance_id[avail_num];
+        CrInstance inst_id = crconf->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
             if (avail_pos == req_avail_pos) {
@@ -497,7 +447,9 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     if (cctrl->targtng_idx == 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+        {
             hittype = THit_CrtrsOnlyNotOwn;
+        }
         else
             hittype = THit_CrtrsNObjcts;
     }
@@ -523,7 +475,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         else if (target->class_id == TCls_Trap)
             hittype = THit_TrapsAll;
         else if (target->owner == creatng->owner)
-            hittype = THit_CrtrsOnly;
+            hittype = THit_CrtrsOnlyOwn;
         else
             hittype = THit_CrtrsOnlyNotOwn;
     }
@@ -564,11 +516,11 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 
     if (target != NULL)
     {
-        creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->explevel);
+        creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->exp_level);
     }
     else
     {
-        creature_cast_spell(creatng, spl_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
+        creature_cast_spell(creatng, spl_idx, cctrl->exp_level, cctrl->targtstl_x, cctrl->targtstl_y);
     }
 
     // Start cooldown after spell effect activates
@@ -682,7 +634,7 @@ long instf_dig(struct Thing *creatng, long *param)
         if (!slab_kind_is_indestructible(slb->kind))
             slb->health -= dig_damage;
         struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
-        thing_play_sample(creatng, shotst->dig.sndsample_idx + UNSYNC_RANDOM(shotst->dig.sndsample_range), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, shotst->dig.sndsample_idx + SOUND_RANDOM(shotst->dig.sndsample_range), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         create_effect(&creatng->mappos, shotst->dig.effect_model, creatng->owner);
         if (taskkind == SDDigTask_MineGold)
         {
@@ -708,7 +660,7 @@ long instf_dig(struct Thing *creatng, long *param)
                 subtile_coord_center(stl_x), subtile_coord_center(stl_y),
                 EvKind_AreaDiscovered, creatng->owner, 0);
             if ((evidx > 0) && is_my_player_number(creatng->owner))
-                output_message(SMsg_DugIntoNewArea, 0, true);
+                output_message(SMsg_DugIntoNewArea, 0);
         }
     } else
     if (taskkind == SDDigTask_DigEarth)
@@ -721,11 +673,11 @@ long instf_dig(struct Thing *creatng, long *param)
                 subtile_coord_center(stl_x), subtile_coord_center(stl_y),
                 EvKind_AreaDiscovered, creatng->owner, 0);
             if ((evidx > 0) && is_my_player_number(creatng->owner))
-                output_message(SMsg_DugIntoNewArea, 0, true);
+                output_message(SMsg_DugIntoNewArea, 0);
         }
     }
     check_map_explored(creatng, stl_x, stl_y);
-    thing_play_sample(creatng, 72 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(creatng, 72 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     return 1;
 }
 
@@ -751,12 +703,13 @@ long instf_destroy(struct Thing *creatng, long *param)
             {
                 volume = FULL_LOUDNESS;
             }
-            thing_play_sample(creatng, 5 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, volume);
+            thing_play_sample(creatng, 5 + SOUND_RANDOM(2), 200, 0, 3, 0, 2, volume);
             return 0;
         }
         clear_dig_on_room_slabs(room, creatng->owner);
         if (room->owner == game.neutral_player_num)
         {
+            remove_room_from_players_list(room, game.neutral_player_num);
             claim_room(room, creatng);
         } else
         {
@@ -776,7 +729,7 @@ long instf_destroy(struct Thing *creatng, long *param)
         {
             volume = FULL_LOUDNESS;
         }
-        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
+        thing_play_sample(creatng, 128 + SOUND_RANDOM(3), 200, 0, 3, 0, 2, volume);
         return 0;
     }
     if (prev_owner != game.neutral_player_num) {
@@ -787,7 +740,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     {
         volume = FULL_LOUDNESS;
     }
-    thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
+    thing_play_sample(creatng, 128 + SOUND_RANDOM(3), 200, 0, 3, 0, 2, volume);
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
@@ -816,7 +769,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     {
         //TODO CONFIG damage made to room slabs is constant - doesn't look good
         slb->health -= 2;
-        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, 128 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         return 1;
     }
     if (room->owner != game.neutral_player_num)
@@ -872,7 +825,7 @@ long instf_damage_wall(struct Thing *creatng, long *param)
         create_dirt_rubble_for_dug_slab(slb_x, slb_y);
         thing_play_sample(creatng, 73, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 63+SOUND_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
@@ -882,7 +835,7 @@ long instf_eat(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+    apply_health_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].health.food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
 }
@@ -962,9 +915,9 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     {
         if (!player->first_person_dig_claim_mode)
         {
-            struct SlabAttr* slbattr = get_slab_attrs(slb);
+            struct SlabConfigStats* slabst = get_slab_stats(slb);
             instf_destroy(creatng, NULL);
-            if (slbattr->block_flags & SlbAtFlg_IsRoom)
+            if (slabst->block_flags & SlbAtFlg_IsRoom)
             {
                 room = room_get(slb->room_index);
                 if (!room_is_invalid(room))
@@ -977,7 +930,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                             EvKind_RoomUnderAttack, room->owner, 0);
                         if (is_my_player_number(room->owner))
                         {
-                            output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                            output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
                         }
                         if (game.active_messages_count > 0)
                         {
@@ -1096,7 +1049,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
             {
                 volume = FULL_LOUDNESS;
             }
-            thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, volume);
+            thing_play_sample(creatng, 1005 + SOUND_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, volume);
         }
         return 0;
     }
@@ -1135,7 +1088,7 @@ long instf_tunnel(struct Thing *creatng, long *param)
     if (slabmap_block_invalid(slb)) {
         return 0;
     }
-    thing_play_sample(creatng, 69+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 69+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (slb->health > 1) {
         slb->health--;
         } else {
@@ -1475,7 +1428,7 @@ TbBool validate_target_benefits_from_defensive
         ERRORLOG("Invalid creature control");
         return false;
     }
-    // When the target is fighting creatures, return true because it needs defensive buffs. 
+    // When the target is fighting creatures, return true because it needs defensive buffs.
     // Doors and Hearts do not fight back, and keepers only defend by dropping units.
     if (any_flag_is_set(cctrl->combat_flags, (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)))
     {
@@ -1585,7 +1538,7 @@ TbBool validate_target_benefits_from_wind
     {
         return true;
     }
-    struct CreatureStats* stats = creature_stats_get_from_thing(target);
+    struct CreatureModelConfig* stats = creature_stats_get_from_thing(target);
     if (stats->attack_preference == AttckT_Ranged && cctrl->opponents_melee_count >= 2)
     {
         // Surrounded by 2+ enemies. This could be definitely smarter but not now.
@@ -1827,6 +1780,50 @@ TbBool search_target_ranged_heal
     }
 
     return ok;
+}
+
+void script_set_creature_instance(ThingModel crmodel, short slot, int instance, short level)
+{
+    struct CreatureModelConfig *crconf = creature_stats_get(crmodel);
+
+    if (!creature_stats_invalid(crconf))
+    {
+        CrInstance old_instance = crconf->learned_instance_id[slot - 1];
+        crconf->learned_instance_id[slot - 1] = instance;
+        crconf->learned_instance_level[slot - 1] = level;
+        const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+        unsigned long k = 0;
+        int i = slist->index;
+        while (i != 0)
+        {
+            struct Thing* thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            i = thing->next_of_class;
+            // Per-thing code
+            if (thing->model == crmodel)
+            {
+                if (old_instance != CrInst_NULL)
+                {
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                    cctrl->instance_available[old_instance] = false;
+                }
+                creature_increase_available_instances(thing);
+            }
+            // Per-thing code ends
+            k++;
+            if (k > slist->count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
+            }
+        }
+
+
+    }
 }
 
 /******************************************************************************/

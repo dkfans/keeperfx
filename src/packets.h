@@ -29,119 +29,119 @@ extern "C" {
 
 enum TbPacketAction {
         PckA_None = 0,
-        PckA_Unknown001, // Quit
-        PckA_Unknown002,
-        PckA_Unknown003,
-        PckA_Unknown004,
+        PckA_QuitToMainMenu, // Quit
+        PckA_ForceApplicationClose,
+        PckA_SaveGameAndQuit,
+        PckA_NoOperation,
         PckA_FinishGame, // 5
         PckA_Login,      // From `enum NetMessageType`
         PckA_UserUpdate,
         PckA_Frame,
         PckA_Resync,
         PckA_InitPlayerNum,//10
-        PckA_Unknown011,
+        PckA_UnusedSlot011,
         PckA_LevelExactCheck,
         PckA_PlyrMsgBegin,
         PckA_PlyrMsgEnd,
-        PckA_Unknown015,//15
-        PckA_Unknown016,
-        PckA_Unknown017,
-        PckA_Unknown018,
-        PckA_Unknown019,
+        PckA_UnusedSlot015,//15
+        PckA_UnusedSlot016,
+        PckA_UnusedSlot017,
+        PckA_UnusedSlot018,
+        PckA_UnusedSlot019,
         PckA_ToggleLights,//20
         PckA_SwitchScrnRes,
         PckA_TogglePause,
-        PckA_Unknown023,
+        PckA_UnusedSlot023,
         PckA_SetCluedo,
-        PckA_Unknown025,//25
+        PckA_ChangeWindowSize,//25
         PckA_BookmarkLoad,
         PckA_SetGammaLevel,
         PckA_SetMinimapConf,
         PckA_SetMapRotation,
-        PckA_Unknown030,//30
-        PckA_Unknown031,
+        PckA_UnusedSlot030,//30
+        PckA_UnusedSlot031,
         PckA_PasngrCtrlExit,
         PckA_DirectCtrlExit,
-        PckA_Unknown034,
-        PckA_Unknown035,//35
+        PckA_UnusedSlot034,
+        PckA_UnusedSlot035,//35
         PckA_SetPlyrState,
         PckA_SwitchView,
-        PckA_Unknown038,
+        PckA_UnusedSlot038,
         PckA_CtrlCrtrSetInstnc,
-        PckA_Unknown040,//40
+        PckA_GenericLevelPower,//40
         PckA_HoldAudience,
-        PckA_Unknown042,
-        PckA_Unknown043,
-        PckA_Unknown044,
-        PckA_Unknown045,//45
-        PckA_Unknown046,
-        PckA_Unknown047,
-        PckA_Unknown048,
-        PckA_Unknown049,
-        PckA_Unknown050,//50
-        PckA_Unknown051,
-        PckA_Unknown052,
-        PckA_Unknown053,
-        PckA_Unknown054,
+        PckA_UnusedSlot042,
+        PckA_UnusedSlot043,
+        PckA_UnusedSlot044,
+        PckA_UnusedSlot045,//45
+        PckA_UnusedSlot046,
+        PckA_UnusedSlot047,
+        PckA_UnusedSlot048,
+        PckA_UnusedSlot049,
+        PckA_UnusedSlot050,//50
+        PckA_UnusedSlot051,
+        PckA_UnusedSlot052,
+        PckA_UnusedSlot053,
+        PckA_UnusedSlot054,
         PckA_ToggleTendency,//55
-        PckA_Unknown056,
-        PckA_Unknown057,
-        PckA_Unknown058,
-        PckA_Unknown059,
+        PckA_UnusedSlot056,
+        PckA_UnusedSlot057,
+        PckA_UnusedSlot058,
+        PckA_UnusedSlot059,
         PckA_CheatEnter,//60
         PckA_CheatAllFree,
         PckA_CheatCrtSpells,
         PckA_CheatRevealMap,
         PckA_CheatCrAllSpls,
-        PckA_Unknown065,//65
+        PckA_CheatUnusedPlaceholder065,//65
         PckA_CheatAllMagic,
         PckA_CheatAllRooms,
-        PckA_Unknown068,
-        PckA_Unknown069,
+        PckA_CheatUnusedPlaceholder068,
+        PckA_CheatUnusedPlaceholder069,
         PckA_CheatAllResrchbl,//70
-        PckA_Unknown071,
-        PckA_Unknown072,
-        PckA_Unknown073,
-        PckA_Unknown074,
-        PckA_Unknown075,//75
-        PckA_Unknown076,
-        PckA_Unknown077,
-        PckA_Unknown078,
-        PckA_Unknown079,
+        PckA_UnusedSlot071,
+        PckA_UnusedSlot072,
+        PckA_UnusedSlot073,
+        PckA_UnusedSlot074,
+        PckA_UnusedSlot075,//75
+        PckA_UnusedSlot076,
+        PckA_UnusedSlot077,
+        PckA_UnusedSlot078,
+        PckA_UnusedSlot079,
         PckA_SetViewType,//80
         PckA_ZoomFromMap,
         PckA_UpdatePause,
-        PckA_Unknown083,
+        PckA_ZoomToEvent,
         PckA_ZoomToRoom,
         PckA_ZoomToTrap,//85
         PckA_ZoomToDoor,
         PckA_ZoomToPosition,
-        PckA_Unknown088,
+        PckA_ToggleComputerProcessing,
         PckA_PwrCTADis,
         PckA_UsePwrHandPick,//90
         PckA_UsePwrHandDrop,
-        PckA_Unknown092,
+        PckA_EventBoxTurnOff,
         PckA_UseSpecialBox,
-        PckA_Unknown094,
+        PckA_UnusedSlot094,
         PckA_ResurrectCrtr,//95
         PckA_TransferCreatr,
         PckA_UsePwrObey,
         PckA_UsePwrArmageddon,
-        PckA_Unknown099,
-        PckA_Unknown100,//100
-        PckA_Unknown101,
-        PckA_Unknown102,
-        PckA_Unknown103,
+        PckA_TurnOffQuery,
+        PckA_UnusedSlot100,//100
+        PckA_UnusedSlot101,
+        PckA_UnusedSlot102,
+        PckA_UnusedSlot103,
         PckA_ZoomToBattle,
-        PckA_Unknown105,//105
+        PckA_UnusedSlot105,//105
         PckA_ZoomToSpell,
         PckA_ToggleComputer,
         PckA_PlyrFastMsg,
         PckA_SetComputerKind,
         PckA_GoSpectator,//110
         PckA_DumpHeldThingToOldPos,
-        PckA_Unknown112,
-        PckA_Unknown113,
+        PckA_UnusedSlot112,
+        PckA_UnusedSlot113,
         PckA_PwrSOEDis,
         PckA_EventBoxActivate,//115
         PckA_EventBoxClose,
@@ -151,6 +151,8 @@ enum TbPacketAction {
         PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
         PckA_PlyrMsgClear,
+        PckA_PlyrMsgLast,
+        PckA_PlyrMsgCmdAutoCompletion,
         PckA_DirectCtrlDragDrop,
         PckA_CheatPlaceTerrain,
         PckA_CheatMakeCreature,
@@ -182,6 +184,8 @@ enum TbPacketAction {
         PckA_SetRoomspaceDragPaint,
         PckA_PlyrQueryCreature,
         PckA_CheatGiveDoorTrap,
+        PckA_RoomspaceHighlightToggle,
+        PckA_SpriteZipCountSync,
 };
 
 /** Packet flags for non-action player operation. */
@@ -206,6 +210,8 @@ enum TbPacketControl {
         PCtr_ViewTiltUp     = 0x10000,
         PCtr_ViewTiltDown   = 0x20000,
         PCtr_ViewTiltReset  = 0x40000,
+        PCtr_Ascend         = 0x80000,
+        PCtr_Descend        = 0x100000,
 };
 
 /**
@@ -247,14 +253,14 @@ enum ChecksumKind {
 struct PlayerInfo;
 struct CatalogueEntry;
 
-extern unsigned long start_seed;
+extern unsigned long initial_replay_seed;
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
  */
 struct Packet {
-    int field_0;
-    TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
+    GameTurn turn;
+    TbBigChecksum checksum; //! Checksum of the entire game state of the previous turn, used solely for desync detection
     unsigned char action; //! Action kind performed by the player which owns this packet
     long actn_par1; //! Players action parameter #1
     long actn_par2; //! Players action parameter #2
@@ -280,6 +286,10 @@ struct PacketSaveHead {
     unsigned char video_rotate_mode;
     TbBool chksum_available; // if needed, this can be replaced with flags
     unsigned long action_seed;
+    TbBool default_imprison_tendency;
+    TbBool default_flee_tendency;
+    TbBool skip_heart_zoom;
+    TbBool highlight_mode;
 };
 
 struct PacketEx
@@ -294,6 +304,7 @@ struct PacketEx
 struct Packet *get_packet_direct(long pckt_idx);
 struct Packet *get_packet(long plyr_idx);
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4);
+TbBool is_packet_empty(const struct Packet *pckt);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long flag);
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
@@ -302,6 +313,8 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag);
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
 void set_packet_pause_toggle(void);
+void force_application_close(void);
+void apply_default_flee_and_imprison_setting(void);
 TbBool process_dungeon_control_packet_clicks(long idx);
 TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
@@ -312,10 +325,9 @@ void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
+void set_local_packet_turn(void);
 void clear_packets(void);
-TbBigChecksum compute_players_checksum(void);
-void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const char *area_name);
-short checksums_different(void);
+TbBigChecksum compute_replay_integrity(void);
 void post_init_packets(void);
 
 TbBool open_new_packet_file_for_save(void);
@@ -326,7 +338,11 @@ void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
 struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
-void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void set_tag_untag_mode(PlayerNumber plyr_idx);
+TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
+    struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
+void send_sprite_zip_count_to_other_players(void);
+void process_sprite_zip_count_sync(long plyr_idx, long zip_count);
 /******************************************************************************/
 #ifdef __cplusplus
 }

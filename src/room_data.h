@@ -29,7 +29,6 @@
 extern "C" {
 #endif
 
-#define ROOM_TYPES_COUNT_OLD  17
 #define SLAB_AROUND_COUNT      4
 #define ROOMS_COUNT          511
 /******************************************************************************/
@@ -77,12 +76,6 @@ struct Dungeon;
 
 typedef void (*Room_Update_Func)(struct Room *);
 
-struct RoomInfo { // sizeof = 6
-  unsigned short field_0;
-  unsigned short field_2;
-  unsigned short ambient_snd_smp_id;
-};
-
 struct Room {
     unsigned char alloc_flags;
     RoomIndex index; // index in the rooms array
@@ -103,7 +96,7 @@ struct Room {
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
       unsigned long capacity_used_for_storage;
-      ThingIndex hatchfield_1B;
+      ThingIndex cached_nearby_creature_index;
     };
     /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
      *  Rooms which have such list are entrances (only?). */
@@ -129,6 +122,7 @@ struct Room {
     SlabCodedCoords flame_slb;
     unsigned char flames_around_idx;
     unsigned char flame_stl;
+    GameTurn creation_turn;
 };
 
 
@@ -141,7 +135,7 @@ struct Room {
 struct RoomReposition {
     int used;
     ThingModel models[ROOM_REPOSITION_COUNT];
-    CrtrExpLevel explevels[ROOM_REPOSITION_COUNT];
+    CrtrExpLevel exp_level[ROOM_REPOSITION_COUNT];
 };
 
 #define INVALID_ROOM (&game.rooms[0])
@@ -152,16 +146,13 @@ struct RoomReposition {
 /******************************************************************************/
 extern unsigned short const room_effect_elements[];
 extern struct AroundLByte const room_spark_offset[];
-extern RoomKind look_through_rooms[ROOM_TYPES_COUNT_OLD + 1];
 /******************************************************************************/
 struct Room *room_get(RoomIndex room_idx);
 struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Room *slab_room_get(MapSlabCoord slb_x, MapSlabCoord slb_y);
-struct Room *slab_number_room_get(SlabCodedCoords slab_num);
 TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);
 
-long get_room_look_through(RoomKind rkind);
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency);
 void set_room_efficiency(struct Room *room);
 void do_room_recalculation(struct Room* room);
@@ -201,7 +192,7 @@ struct Room *allocate_free_room_structure(void);
 unsigned short i_can_allocate_free_room_structure(void);
 void add_slab_to_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num);
+TbBool add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num);
 void delete_all_room_structures(void);
 void delete_room_structure(struct Room *room);
 void delete_room_slabbed_objects(SlabCodedCoords slb_num);
@@ -231,6 +222,7 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);
 long claim_room(struct Room *room,struct Thing *claimtng);
 long take_over_room(struct Room* room, PlayerNumber newowner);
+TbBool remove_room_from_players_list(struct Room* room, PlayerNumber plyr_idx);
 void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubble);
 TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long effrange, PlayerNumber effowner);
 TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx);
@@ -253,7 +245,7 @@ void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel);
 void init_reposition_struct(struct RoomReposition * rrepos);
-TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel explevel);
+TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel exp_level);
 /******************************************************************************/
 #ifdef __cplusplus
 }

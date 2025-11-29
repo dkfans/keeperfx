@@ -697,10 +697,8 @@ msgstr "¿Fue fácil? ¡Victoria!"
 #. Frozen Legion (lv455)
 #: guitext:72
 msgctxt "In-game message"
-msgid "You have a fighting chance. Don't let the Heroes whittle you down. "
-msgstr ""
-"Tienes una oportunidad para combatirlos. No dejes que los Héroes te "
-"debiliten."
+msgid "To have a fighting chance, get a bigger army. Don't let the heroes whittle you down."
+msgstr "Para tener una oportunidad de luchar, reúne un ejército más grande. No dejes que los Héroes te debiliten."
 
 #. Frozen Legion (lv455)
 #: guitext:73
@@ -708,12 +706,12 @@ msgctxt "In-game message"
 msgid ""
 "Your magic generator will feed off your Vampires to give you a healthy "
 "number of imps. However, keep enough imps alive and you'll have an undead "
-"army to kill the heroes with. "
+"army to kill the heroes with. You need a big army. "
 msgstr ""
 "Tu generador de magia se alimentará de tus vampiros para darte una buena "
 "cantidad de Duendecillos. Sin embargo, mantén suficientes Duendecillos con "
 "vida y tendrás un ejército de muertos vivientes para matar a todos los "
-"héroes."
+"Héroes. Necesitas un ejército grande."
 
 #. Shores of Battle (lv456)
 #: guitext:74
@@ -1183,22 +1181,135 @@ msgstr ""
 "Perdiste a tu única criatura. Lo necesitabas para reclamar las baldosas "
 "alrededor de tu Corazón. Desesperanzado."
 
-#: guitext:123 guitext:124 guitext:125 guitext:126 guitext:127 guitext:128
-#: guitext:129 guitext:130 guitext:131 guitext:132 guitext:133 guitext:134
-#: guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140
-#: guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146
-#: guitext:147 guitext:148 guitext:149 guitext:150 guitext:151 guitext:152
-#: guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158
-#: guitext:159 guitext:160 guitext:161 guitext:162 guitext:163 guitext:164
-#: guitext:165 guitext:166 guitext:167 guitext:168 guitext:169 guitext:170
-#: guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176
-#: guitext:177 guitext:178 guitext:179 guitext:180 guitext:181 guitext:182
-#: guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188
-#: guitext:189 guitext:190 guitext:191 guitext:192 guitext:193 guitext:194
-#: guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
+#: guitext:123
 msgctxt "In-game message"
-msgid "Moo"
-msgstr "Muu"
+msgid "You have entered the sacred chamber of the heroes which holds an artifact of great power. The good gods have sent a mighty force to stop you from stealing it."
+msgstr ""
+
+#: guitext:124
+msgctxt "In-game message"
+msgid "A volcanic eruption has completely devastated this realm and destroyed your dungeon. Most of your creatures got buried alive by debris and the remaining ones got captured by the heroes and hidden in their secret caves. Fortunately, you still have one creature left. The enemy keepers are still weak, but are quickly getting stronger. Hurry up and free your captured creatures to dominate this realm again."
+msgstr ""
+
+#: guitext:125
+msgctxt "In-game message"
+msgid "Keep this ghost alive at all costs. His abilities are the key to free your creatures and rebuild your dungeon."
+msgstr ""
+
+#: guitext:126
+msgctxt "In-game message"
+msgid "Well done, Keeper! With these Imps you can rebuild your dungeon. Perhaps now is a good time to attack the heroes' dungeon heart. There are rumors that it is still very weak due to the volcanic eruption. Maybe even your little ghost is strong enough to destroy it. It is located to the east of your dungeon."
+msgstr ""
+
+#: guitext:127
+msgctxt "In-game message"
+msgid "Mjollnir: Hammer of Thor."
+msgstr ""
+
+#: guitext:128
+msgctxt "In-game message"
+msgid "You can feel the power of the thunder god Thor coursing through your veins. You are now able to cast Lightning Strike!"
+msgstr ""
+
+#: guitext:129
+msgctxt "In-game message"
+msgid "Destroying the heroes' dungeon heart has given you the ability to build bridges again. There are probably more of your creatures hidden somewhere in this realm. Try to free them or maybe claim an entrance from one of the enemy keepers to build an army."
+msgstr ""
+
+#: guitext:130
+msgctxt "In-game message"
+msgid "This realm is waterlogged and infested with heroes ready to take advantage of any gaps in your dungeon. Dig carefully and trust your senses."
+msgstr ""
+
+#: guitext:131
+msgctxt "In-game message"
+msgid "There is another Keeper to the north, along with the Heroes' main force. Build yourself up carefully and grow your forces before moving towards the enemy."
+msgstr ""
+
+#: guitext:132
+msgctxt "In-game message"
+msgid "There are many secrets hidden within the earth if you look carefully, but such secrets will not go unguarded."
+msgstr ""
+
+#: guitext:133
+msgctxt "In-game message"
+msgid "You have found a Hellhound. These faithful pooches can smell the stench of your enemies through walls and alert you to their presence, a trait which will be most useful here."
+msgstr ""
+
+#: guitext:134
+msgctxt "In-game message"
+msgid "You've found yourself at the outskirts of the hero fortress. The door leading there is sealed; it may be best to keep it that way until you're ready."
+msgstr ""
+
+#: guitext:135
+msgctxt "In-game message"
+msgid "The main hero stronghold now knows you're here and will be sending reinforcements. It may be best to strike before they can assemble too many."
+msgstr ""
+
+#: guitext:136
+msgctxt "In-game message"
+msgid "The Heroes can no longer send reinforcements to handle you now you're knocking on their door, and will have to face you with their remaining forces."
+msgstr ""
+
+#: guitext:137
+msgctxt "In-game message"
+msgid "Even with the Lord gone, the heroes make their last, desperate attempt to defend their Heart and keep their grip on this land. Pathetic, really."
+msgstr ""
+
+#: guitext:138
+msgctxt "In-game message"
+msgid "The Lord of the Land has heard of the collapse of the rival Keeper and is coming to strike while you are licking your wounds."
+msgstr ""
+
+#: guitext:139
+msgctxt "In-game message"
+msgid "Now the Lord has been dealt with, destroy the Heroes' Dungeon Heart to expel them for good."
+msgstr ""
+
+#: guitext:140
+msgctxt "In-game message"
+msgid "The Keeper to the north has heard of the collapse of the hero fort and is coming to strike while your back is turned."
+msgstr ""
+
+#: guitext:141
+msgctxt "In-game message"
+msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
+msgstr ""
+
+#: guitext:142
+msgctxt "In-game message"
+msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
+msgstr ""
+
+#: guitext:143
+msgctxt "In-game message"
+msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
+msgstr ""
+
+#: guitext:144
+msgctxt "In-game message"
+msgid "You have found the rival Keeper. He is currently minding his own business, unaware of your presence. Keep him oblivious until you have an army at his door."
+msgstr ""
+
+#: guitext:145
+msgctxt "In-game message"
+msgid "It seems that destroying the heroes' heart at least rendered the bridge usable again."
+msgstr ""
+
+#: guitext:146
+msgctxt "In-game message"
+msgid "It seems you've taken an interest in this volcano, Keeper. The other keeper here has no idea you've arrived, nor do those pesky heroes. You'll have to make due without much space in order to obliterate your opponents."
+msgstr ""
+
+#: guitext:147
+msgctxt "In-game message"
+msgid "Those pretentious heroes have found a way to block all dark research. Destroy them."
+msgstr ""
+
+#: guitext:148
+msgctxt "In-game message"
+msgid "You found a secret temple inhabited by a Horned Reaper. It has decided to join your evil cause."
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -1264,3 +1375,18 @@ msgstr "El Reloj de la Muerte"
 msgctxt "Level name"
 msgid "Tymnath Herez"
 msgstr "Tymnath Herez"
+
+#: guitext:215
+msgctxt "Level name"
+msgid "Eruption"
+msgstr ""
+
+#: guitext:216
+msgctxt "Level name"
+msgid "Happyglade"
+msgstr ""
+
+#: guitext:217
+msgctxt "Level name"
+msgid "Vulkaan"
+msgstr ""

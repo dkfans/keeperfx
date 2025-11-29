@@ -50,6 +50,7 @@ struct DoorConfigStats {
     GoldAmount selling_value;
     TbBool unsellable;
     short place_sound_idx;
+    FuncIdx updatefn_idx;
 };
 
 /* Contains properties of a door model, to be stored in DoorConfigStats. */
@@ -76,6 +77,7 @@ struct TrapConfigStats {
     unsigned char trigger_type;
     unsigned char activation_type;
     unsigned short created_itm_model; // Shot model, effect model, slab kind.
+    unsigned char activation_level;
     unsigned char hit_type;
     TbBool hidden;
     unsigned char slappable;
@@ -96,6 +98,8 @@ struct TrapConfigStats {
     unsigned long recharge_sprite_anim_idx;
     unsigned long sprite_size_max;
     unsigned long anim_speed;
+    unsigned long attack_anim_speed;
+    unsigned long recharge_anim_speed;
     unsigned char unanimated;
     unsigned char unshaded;
     unsigned char random_start_frame;
@@ -113,6 +117,7 @@ struct TrapConfigStats {
     TbBool unsellable;
     short place_sound_idx;
     short trigger_sound_idx;
+    FuncIdx updatefn_idx;
 };
 
 /* Manufacture types data. Originally was named TrapData, but stores both traps and doors, now no longer matches original. */
@@ -138,13 +143,12 @@ struct TrapDoorConfig {
     struct ManufactureData manufacture_data[2*TRAPDOOR_TYPES_MAX];
 };
 /******************************************************************************/
-extern const char keeper_trapdoor_file[];
+extern const struct ConfigFileData keeper_trapdoor_file_data;
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
-extern const struct NamedCommand trapdoor_door_commands[];
+extern const struct NamedFieldSet trapdoor_door_named_fields_set;
+extern const struct NamedFieldSet trapdoor_trap_named_fields_set;
 /******************************************************************************/
-TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
-
 struct TrapConfigStats* get_trap_model_stats(int tngmodel);
 struct DoorConfigStats *get_door_model_stats(int tngmodel);
 struct ManufactureData *get_manufacture_data(int manufctr_idx);

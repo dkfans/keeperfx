@@ -579,38 +579,22 @@ const struct Proportion proportions[] = {
 /******************************************************************************/
 /**
  * Gives sinus of given angle.
- * @param x Angle as integer with reference to LbFPMath_PI.
+ * @param x Angle as integer with reference to DEGREES_180.
  * @return Value ranged -65536 to 65536.
  */
 long LbSinL(long x)
 {
-    return lbSinTable[(unsigned long)x & LbFPMath_AngleMask];
+    return lbSinTable[(unsigned long)x & ANGLE_MASK];
 }
 
 /**
  * Gives cosinus of given angle.
- * @param x Angle as integer with reference to LbFPMath_PI.
+ * @param x Angle as integer with reference to DEGREES_180.
  * @return Value ranged -65536 to 65536.
  */
 long LbCosL(long x)
 {
-    return lbCosTable[(unsigned long)x & LbFPMath_AngleMask];
-}
-
-long LbArcTanL(long arg)
-{
-    const int num_factors = sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]);
-    if (arg < 0)
-    {
-        if (-arg >= num_factors)
-            arg = -(num_factors - 1);
-        return -(long)lbArcTanFactors[-arg];
-    } else
-    {
-        if (arg >= num_factors)
-            arg = num_factors - 1;
-        return (long)lbArcTanFactors[arg];
-    }
+    return lbCosTable[(unsigned long)x & ANGLE_MASK];
 }
 
 /** Computes angle between negative Y axis and the line that crosses (0,0) and given (x,y).
@@ -641,10 +625,10 @@ long LbArcTanAngle(long x,long y)
             // This way we won't exceed factors array bounds (which is 256 elements).
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return 2*LbFPMath_PI   - (long)lbArcTanFactors[index];
+                return DEGREES_360   - (long)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return 3*LbFPMath_PI/2 + (long)lbArcTanFactors[index];
+                return ANGLE_WEST + (long)lbArcTanFactors[index];
             }
         } else
         {
@@ -652,10 +636,10 @@ long LbArcTanAngle(long x,long y)
             // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return   LbFPMath_PI   + (long)lbArcTanFactors[index];
+                return   DEGREES_180   + (long)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return 3*LbFPMath_PI/2 - (long)lbArcTanFactors[index];
+                return ANGLE_WEST - (long)lbArcTanFactors[index];
             }
         }
     } else
@@ -670,7 +654,7 @@ long LbArcTanAngle(long x,long y)
                 return                 (long)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return LbFPMath_PI/2 - (long)lbArcTanFactors[index];
+                return ANGLE_EAST - (long)lbArcTanFactors[index];
             }
         } else
         {
@@ -678,10 +662,10 @@ long LbArcTanAngle(long x,long y)
             // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return LbFPMath_PI   - (long)lbArcTanFactors[index];
+                return DEGREES_180   - (long)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return LbFPMath_PI/2 + (long)lbArcTanFactors[index];
+                return ANGLE_EAST + (long)lbArcTanFactors[index];
             }
         }
     }
@@ -725,46 +709,46 @@ long LbSqrL(long x)
   return y;
 }
 
-long LbMathOperation(unsigned char opkind, long val1, long val2)
+long LbMathOperation(unsigned char opkind, long first_operand, long second_operand)
 {
   switch (opkind)
   {
     case MOp_EQUAL:
-      return val1 == val2;
+      return first_operand == second_operand;
     case MOp_NOT_EQUAL:
-      return val1 != val2;
+      return first_operand != second_operand;
     case MOp_SMALLER:
-      return val1 < val2;
+      return first_operand < second_operand;
     case MOp_GREATER:
-      return val1 > val2;
+      return first_operand > second_operand;
     case MOp_SMALLER_EQ:
-      return val1 <= val2;
+      return first_operand <= second_operand;
     case MOp_GREATER_EQ:
-      return val1 >= val2;
+      return first_operand >= second_operand;
     case MOp_LOGIC_AND:
-      return val1 && val2;
+      return first_operand && second_operand;
     case MOp_LOGIC_OR:
-      return val1 || val2;
+      return first_operand || second_operand;
     case MOp_LOGIC_XOR:
-      return (val1!=0) ^ (val2!=0);
+      return (first_operand!=0) ^ (second_operand!=0);
     case MOp_BITWS_AND:
-      return val1 & val2;
+      return first_operand & second_operand;
     case MOp_BITWS_OR:
-      return val1 | val2;
+      return first_operand | second_operand;
     case MOp_BITWS_XOR:
-      return val1 ^ val2;
+      return first_operand ^ second_operand;
     case MOp_SUM:
-      return val1 + val2;
+      return first_operand + second_operand;
     case MOp_SUBTRACT:
-      return val1 - val2;
+      return first_operand - second_operand;
     case MOp_MULTIPLY:
-      return val1 * val2;
+      return first_operand * second_operand;
     case MOp_DIVIDE:
-      return val1 / val2;
+      return first_operand / second_operand;
     case MOp_MODULO:
-      return val1 % val2;
+      return first_operand % second_operand;
     default:
-      return val1;
+      return first_operand;
   }
 }
 
@@ -818,10 +802,12 @@ long LbDiagonalLength(long a, long b)
     int propidx;
     long long tmpval;
     if (a > b) {
+        if (a == 0) {
+            return 0; // don't divide by zero
+        }
         propidx = (b << 8)/a;
         tmpval = a;
-    } else
-    {
+    } else {
         if (b == 0) {
             return 0; // Just to avoid dividing by 0
         }
@@ -832,13 +818,27 @@ long LbDiagonalLength(long a, long b)
     return (tmpval >> 13);
 }
 
-float LbLerp(float a, float b, float f)
+float LbLerp(float low, float high, float interval)
 {
-    return (a * (1.0 - f)) + (b * f);
+    return (low * (1.0 - interval)) + (high * interval);
 }
 
-long lerp_angle(long from, long to, float weight) {
-    return (from + (long)((((to - from + (LbFPMath_TAU >> 1)) & (LbFPMath_TAU - 1)) - (LbFPMath_TAU >> 1)) * weight)) & (LbFPMath_TAU - 1);
+float fmodf(float x, float y)
+{
+    float result = x - ((int)(x / y)) * y;
+    if (result < 0) {
+        result += y;
+    }
+    return result;
+}
+
+float lerp_angle(float from, float to, float weight) {
+    float angle_difference = to - from;
+    float wrapped_difference = fmodf(angle_difference + DEGREES_180, DEGREES_360);
+    float shortest_distance = wrapped_difference - DEGREES_180;
+    float step = shortest_distance * weight;
+    float result = fmodf(from + step, DEGREES_360);
+    return result;
 }
 
 double fastPow(double a, double b)

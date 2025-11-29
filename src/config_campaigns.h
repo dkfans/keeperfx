@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "config_strings.h"
+#include "config_mods.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -107,7 +108,9 @@ struct GameCampaign {
   struct CreditsItem credits[CAMPAIGN_CREDITS_COUNT];
   // Campaign strings
   char strings_fname[DISKPATH_SIZE];
-  char *strings_data;
+  char strings_fname_eng[DISKPATH_SIZE];
+  char *strings_data_list[MOD_ITEM_MAX*MOD_ITEM_TYPE_CNT+1];
+  int strings_data_count;
   char *strings[STRINGS_MAX+1];
   // High scores
   char hiscore_fname[DISKPATH_SIZE];
@@ -118,7 +121,6 @@ struct GameCampaign {
   TbBool assignCpuKeepers;
   unsigned char default_language;
   char soundtrack_fname[DISKPATH_SIZE];
-  unsigned char music_track;
 };
 
 struct HighScore {
@@ -140,7 +142,8 @@ struct LevelInformation {
   long ensign_y;
   long ensign_zoom_x;
   long ensign_zoom_y;
-  unsigned long options;
+  unsigned long level_type;
+  unsigned short ensign;
   unsigned short state;
   unsigned short location;
   int mapsize_x;
@@ -158,7 +161,7 @@ extern struct GameCampaign campaign;
 extern struct CampaignsList campaigns_list;
 extern struct CampaignsList mappacks_list;
 extern const struct NamedCommand cmpgn_map_commands[];
-extern const struct NamedCommand cmpgn_map_cmnds_options[];
+extern const struct NamedCommand cmpgn_map_ensign_flag_options[];
 extern const struct NamedCommand cmpgn_map_cmnds_kind[];
 extern const struct NamedCommand cmpgn_human_player_options[];
 /******************************************************************************/
@@ -173,12 +176,10 @@ long add_freeplay_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnu
 struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, LevelNumber lvnum);
 TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries);
 TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries);
-TbBool free_level_info_entries(struct GameCampaign *campgn);
 struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, LevelNumber lvnum);
 // Support for lists of campaigns
 TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries);
 TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries);
-TbBool free_campaigns_list_entries(struct CampaignsList *clist);
 TbBool load_campaigns_list(void);
 TbBool load_mappacks_list(void);
 TbBool change_campaign(const char *cmpgn_fname);

@@ -77,7 +77,7 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
         }
         i = get_next_slab_number_in_room(i);
         k++;
-        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
+        if (k > game.map_tiles_x * game.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -89,7 +89,7 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 short cleanup_prison(struct Thing *thing)
 {
   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-  cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_Unknown40 | CCFlg_Unknown80);
+  cctrl->creature_control_flags &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_RepositionedInWall | CCFlg_AvoidCreatureCollision | CCFlg_IsInRoomList | CCFlg_MoveX | CCFlg_MoveY);
   state_cleanup_in_room(thing);
   return 1;
 }
@@ -108,15 +108,15 @@ short creature_arrived_at_prison(struct Thing *creatng)
     }
     if (!add_creature_to_work_room(creatng, room, Job_CAPTIVITY))
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
-        cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
+        cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 0;
     }
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->imprison.start_gameturn = game.play_gameturn;
     cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
-    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    cctrl->creature_control_flags |= CCFlg_NoCompControl;
     internal_set_thing_state(creatng, get_continue_state_for_job(Job_CAPTIVITY));
     if (creature_under_spell_effect(creatng, CSAfF_Speed))
     {
@@ -161,7 +161,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
     make_creature_conscious(dragtng);
     initialise_thing_state(dragtng, CrSt_CreatureArrivedAtPrison);
     struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
-    dragctrl->flgfield_1 |= CCFlg_NoCompControl;
+    dragctrl->creature_control_flags |= CCFlg_NoCompControl;
     set_start_state(thing);
     return 1;
 
@@ -309,7 +309,7 @@ CrStateRet creature_in_prison(struct Thing *thing)
     }
     if (room->used_capacity > room->total_capacity)
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
         set_start_state(thing);
         return CrStRet_ResetOk;
     }
@@ -327,10 +327,10 @@ CrStateRet creature_in_prison(struct Thing *thing)
 
 TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* crthing = INVALID_THING;
-    ThingModel crmodel = crstat->prison_kind;
+    ThingModel crmodel = crconf->prison_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {
         // If not assigned or is unknown, default to the room creature creation.
@@ -344,7 +344,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
             ERRORLOG("Couldn't create creature %s in prison", creature_code_name(crmodel));
             return false;
         }
-        init_creature_level(crthing, cctrl->explevel);
+        init_creature_level(crthing, cctrl->exp_level);
         set_start_state(crthing);
         struct Dungeon* dungeon = get_dungeon(room->owner);
         if (!dungeon_invalid(dungeon)) {
@@ -364,22 +364,22 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
 
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ((thing->health >= 0) || ((!crstat->humanoid_creature) && ((crstat->prison_kind > game.conf.crtr_conf.model_count) || (crstat->prison_kind <= 0)))) {
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    if ((thing->health >= 0) || ((!crconf->humanoid_creature) && ((crconf->prison_kind > game.conf.crtr_conf.model_count) || (crconf->prison_kind <= 0)))) {
         return false;
     }
     // TODO CONFIG: (?) Allow 'skelification' only if spent specific amount of turns in prison (set it to low value). (?)
-    if (CREATURE_RANDOM(thing, 101) > game.conf.rules.rooms.prison_skeleton_chance) {
+    if (THING_RANDOM(thing, 101) > game.conf.rules[room->owner].rooms.prison_skeleton_chance) {
         return false;
     }
     if (prison_convert_creature_to_skeleton(room, thing))
     {
         if (is_my_player_number(room->owner))
         {
-            output_message(SMsg_PrisonMadeSkeleton, 0, true);
+            output_message(SMsg_PrisonMadeSkeleton, 0);
         }
     }
-    return true; // Return true even if no skeleton could be created due to creature limit. Otherwise there's a confusing sound message. 
+    return true; // Return true even if no skeleton could be created due to creature limit. Otherwise there's a confusing sound message.
 }
 
 void food_set_wait_to_be_eaten(struct Thing *thing)
@@ -393,8 +393,8 @@ void food_set_wait_to_be_eaten(struct Thing *thing)
     }
     else
     {
-        thing->food.byte_15 = -1;
-        thing->food.byte_16 = 127;
+        thing->food.freshness_state = -1;
+        thing->food.possession_startup_timer = 127;
     }
 }
 
@@ -402,9 +402,9 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 {
     struct Thing *foodtng;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get(creatng->model);
+    struct CreatureModelConfig* crconf = creature_stats_get(creatng->model);
 
-    if ( crstat->hunger_rate == 0 )
+    if ( crconf->hunger_rate == 0 )
         return false;
     foodtng = get_food_at_subtile_available_to_eat_and_owned_by(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num, -1);
 
@@ -439,12 +439,12 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
     if ( is_thing_directly_controlled(foodtng) )
         return false;
 
-    thing_play_sample(creatng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 112 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( creatng->active_state != CrSt_CreatureInPrison )
         internal_set_thing_state(creatng, CrSt_CreatureInPrison);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
     delete_thing_structure(foodtng, 0);
-    
+
     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
     dungeon->lvstats.chickens_eaten++;
     return true;
@@ -461,33 +461,33 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     process_creature_hunger(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     if (process_prisoner_skelification(creatng, room))
     {
         return CrCkRet_Deleted;
     }
-    else if ((creatng->health < 0) && ((!crstat->humanoid_creature) && ((crstat->prison_kind > game.conf.crtr_conf.model_count) || (crstat->prison_kind <= 0))))
+    else if ((creatng->health < 0) && ((!crconf->humanoid_creature) && ((crconf->prison_kind > game.conf.crtr_conf.model_count) || (crconf->prison_kind <= 0))))
     {
         if (is_my_player_number(room->owner))
         {
-            output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
+            output_message(SMsg_PrisonersStarving, MESSAGE_DURATION_STARVING);
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room))
         return CrCkRet_Continue;
     // Breaking from jail is only possible once per some amount of turns, and only if creature sits in jail for long enough.
-    if (((game.play_gameturn % game.conf.rules.rooms.time_between_prison_break) == 0) &&
-        (game.play_gameturn > cctrl->imprison.start_gameturn + game.conf.rules.rooms.time_in_prison_without_break))
+    if (((game.play_gameturn % game.conf.rules[room->owner].rooms.time_between_prison_break) == 0) &&
+        (game.play_gameturn > cctrl->imprison.start_gameturn + game.conf.rules[room->owner].rooms.time_in_prison_without_break))
     {
         // Check the base jail break condition - whether prison touches enemy land.
-        if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < game.conf.rules.rooms.prison_break_chance))
+        if (jailbreak_possible(room, creatng->owner) && (THING_RANDOM(creatng, 100) < game.conf.rules[room->owner].rooms.prison_break_chance))
         {
             if (is_my_player_number(room->owner)) {
-                output_message(SMsg_PrisonersEscaping, 40, true);
+                output_message(SMsg_PrisonersEscaping, 40);
             }
             else if (is_my_player_number(room->owner)) {
-                output_message(SMsg_CreatrFreedPrison, 40, true);
+                output_message(SMsg_CreatrFreedPrison, 40);
             }
             set_start_state(creatng);
             return CrCkRet_Continue;

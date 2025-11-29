@@ -15,11 +15,15 @@
 #include "pre_inc.h"
 #include "bflib_enet.h"
 #include "bflib_network.h"
+#include "bflib_math.h"
+#include "game_legacy.h"
+#include "player_data.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <enet/enet.h>
 #include <cstddef>
+#include <climits>
 
 #include "post_inc.h"
 
@@ -96,6 +100,10 @@ namespace
         if (port > 0)
             addr.port = port;
         host = enet_host_create(&addr, 4, NUM_CHANNELS, 0, 0);
+        if (!host) {
+            return Lb_FAIL;
+        }
+        enet_host_compress_with_range_coder(host);
         return Lb_OK;
     }
 
@@ -135,6 +143,7 @@ namespace
         {
             return Lb_FAIL;
         }
+        enet_host_compress_with_range_coder(host);
         P = strchr(session,':');
         if (P)
         {
@@ -233,9 +242,11 @@ namespace
      */
     void bf_enet_update(NetNewUserCallback new_user)
     {
-        while (bf_enet_read_event(new_user, 0))
+        int packets_read = 0;
+        const int MAX_PACKETS_PER_UPDATE = 100;
+        while (packets_read < MAX_PACKETS_PER_UPDATE && bf_enet_read_event(new_user, 0))
         {
-            // Loop
+            packets_read++;
         }
     }
 
@@ -247,7 +258,6 @@ namespace
      */
     void bf_enet_sendmsg_single(NetUserId destination, const char *buffer, size_t size)
     {
-        // TODO: allocations could become a performance problem
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
         if (client_peer) // Just send to server
         {
@@ -265,6 +275,35 @@ namespace
                 }
             }
         }
+        enet_host_flush(host);
+    }
+
+    /**
+     * Sends a message buffer to a certain user using unsequenced delivery.
+     * @param destination Destination user.
+     * @param buffer
+     * @param size Must be > 0
+     */
+    void bf_enet_sendmsg_single_unsequenced(NetUserId destination, const char *buffer, size_t size)
+    {
+        ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_UNSEQUENCED);
+        if (client_peer) // Just send to server
+        {
+            enet_peer_send(client_peer, 0, packet);
+        }
+        else
+        {
+            for (ENetPeer *currentPeer = host->peers; currentPeer < &host->peers[host -> peerCount]; ++currentPeer)
+            {
+                if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
+                    continue;
+                if (NetUserId(reinterpret_cast<ptrdiff_t>(currentPeer->data)) == destination)
+                {
+                    enet_peer_send(currentPeer, 0, packet);
+                }
+            }
+        }
+        enet_host_flush(host);
     }
 
     /**
@@ -274,9 +313,9 @@ namespace
      */
     void bf_enet_sendmsg_all(const char *buffer, size_t size)
     {
-        // TODO: allocations could become a performance problem
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
         enet_host_broadcast(host, 0, packet);
+        enet_host_flush(host);
     }
 
     TbBool not_expected_user(NetUserId *user_id)
@@ -324,7 +363,7 @@ namespace
      */
     size_t bf_enet_msgready(NetUserId source, unsigned timeout)
     {
-        if ((!oldest_packet) && timeout > 0)
+        if (!oldest_packet)
         {
             bf_enet_read_event(not_expected_user, timeout);
         }
@@ -340,6 +379,284 @@ namespace
         fprintf(stderr, "enet_drop_user not implemented\n");
         ERRORLOG("enet_drop_user not implemented");
     }
+
+}
+
+static bool IsPeerConnected(const ENetPeer *peer) {
+    return peer && peer->state == ENET_PEER_STATE_CONNECTED;
+}
+
+static bool IsLocalPeer(NetUserId id) {
+    return id == SERVER_ID || id == my_player_number;
+}
+
+static unsigned int ClampSizeToUInt(size_t value) {
+    if (value > UINT_MAX) {
+        return UINT_MAX;
+    }
+    return static_cast<unsigned int>(value);
+}
+
+unsigned long GetPing(NetUserId id) {
+    const bool requesting_local_peer = IsLocalPeer(id);
+
+    if (IsPeerConnected(client_peer)) {
+        if (!requesting_local_peer) {
+            return 0;
+        }
+        enet_uint32 value = client_peer->roundTripTime;
+        if (value == 0) {
+            value = client_peer->lastRoundTripTime;
+        }
+        return static_cast<unsigned long>(value);
+    }
+
+    if (!host) {
+        return 0;
+    }
+
+    unsigned long best_value = 0;
+
+    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
+        ENetPeer *peer = &host->peers[peer_index];
+        if (!IsPeerConnected(peer)) {
+            continue;
+        }
+
+        enet_uint32 peer_round_trip = peer->roundTripTime;
+        if (peer_round_trip == 0) {
+            peer_round_trip = peer->lastRoundTripTime;
+        }
+        unsigned long value = static_cast<unsigned long>(peer_round_trip);
+        if (!requesting_local_peer) {
+            NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
+            if (peer_id == id) {
+                return value;
+            }
+            continue;
+        }
+        if (value > best_value) {
+            best_value = value;
+        }
+    }
+
+    if (requesting_local_peer) {
+        return best_value;
+    }
+
+    return 0;
+}
+
+unsigned long GetPingVariance(NetUserId id) {
+    const bool requesting_local_peer = IsLocalPeer(id);
+
+    if (IsPeerConnected(client_peer)) {
+        if (!requesting_local_peer) {
+            return 0;
+        }
+        enet_uint32 value = client_peer->roundTripTimeVariance;
+        if (value == 0) {
+            value = client_peer->lastRoundTripTimeVariance;
+        }
+        return static_cast<unsigned long>(value);
+    }
+
+    if (!host) {
+        return 0;
+    }
+
+    unsigned long best_value = 0;
+
+    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
+        ENetPeer *peer = &host->peers[peer_index];
+        if (!IsPeerConnected(peer)) {
+            continue;
+        }
+
+        enet_uint32 peer_round_trip_variance = peer->roundTripTimeVariance;
+        if (peer_round_trip_variance == 0) {
+            peer_round_trip_variance = peer->lastRoundTripTimeVariance;
+        }
+        unsigned long value = static_cast<unsigned long>(peer_round_trip_variance);
+        if (!requesting_local_peer) {
+            NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
+            if (peer_id == id) {
+                return value;
+            }
+            continue;
+        }
+        if (value > best_value) {
+            best_value = value;
+        }
+    }
+
+    if (requesting_local_peer) {
+        return best_value;
+    }
+
+    return 0;
+}
+
+unsigned int GetPacketLoss(NetUserId id) {
+    const bool requesting_local_peer = IsLocalPeer(id);
+
+    if (IsPeerConnected(client_peer)) {
+        if (!requesting_local_peer) {
+            return 0;
+        }
+        enet_uint32 value = client_peer->packetLoss;
+        unsigned int percent = static_cast<unsigned int>((static_cast<unsigned long long>(value) * 100ULL) / ENET_PEER_PACKET_LOSS_SCALE);
+        return percent;
+    }
+
+    if (!host) {
+        return 0;
+    }
+
+    unsigned int best_value = 0;
+
+    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
+        ENetPeer *peer = &host->peers[peer_index];
+        if (!IsPeerConnected(peer)) {
+            continue;
+        }
+
+        enet_uint32 peer_packet_loss = peer->packetLoss;
+        unsigned int value = static_cast<unsigned int>((static_cast<unsigned long long>(peer_packet_loss) * 100ULL) / ENET_PEER_PACKET_LOSS_SCALE);
+        if (!requesting_local_peer) {
+            NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
+            if (peer_id == id) {
+                return value;
+            }
+            continue;
+        }
+        if (value > best_value) {
+            best_value = value;
+        }
+    }
+
+    if (requesting_local_peer) {
+        return best_value;
+    }
+
+    return 0;
+}
+
+unsigned int GetClientDataInTransit() {
+    if (IsPeerConnected(client_peer)) {
+        return client_peer->reliableDataInTransit;
+    }
+
+    if (!host) {
+        return 0;
+    }
+
+    unsigned int result = 0;
+    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
+        ENetPeer *peer = &host->peers[peer_index];
+        if (!IsPeerConnected(peer)) {
+            continue;
+        }
+        if (peer->reliableDataInTransit > result) {
+            result = peer->reliableDataInTransit;
+        }
+    }
+    return result;
+}
+
+unsigned int GetIncomingPacketQueueSize() {
+    if (incoming_queue_size <= 0) {
+        return 0;
+    }
+    return static_cast<unsigned int>(incoming_queue_size);
+}
+
+unsigned int GetClientPacketsLost() {
+    if (IsPeerConnected(client_peer)) {
+        return static_cast<unsigned int>(client_peer->packetsLost);
+    }
+    if (!host) {
+        return 0;
+    }
+    unsigned long long total = 0;
+    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
+        ENetPeer *peer = &host->peers[peer_index];
+        if (!IsPeerConnected(peer)) {
+            continue;
+        }
+        total += static_cast<unsigned long long>(peer->packetsLost);
+        if (total > UINT_MAX) {
+            return UINT_MAX;
+        }
+    }
+    return static_cast<unsigned int>(total);
+}
+
+unsigned int GetClientOutgoingDataTotal() {
+    if (IsPeerConnected(client_peer)) {
+        return static_cast<unsigned int>(client_peer->outgoingDataTotal);
+    }
+    if (!host) {
+        return 0;
+    }
+    unsigned long long total = 0;
+    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
+        ENetPeer *peer = &host->peers[peer_index];
+        if (!IsPeerConnected(peer)) {
+            continue;
+        }
+        total += static_cast<unsigned long long>(peer->outgoingDataTotal);
+        if (total > UINT_MAX) {
+            return UINT_MAX;
+        }
+    }
+    return static_cast<unsigned int>(total);
+}
+
+unsigned int GetClientIncomingDataTotal() {
+    if (IsPeerConnected(client_peer)) {
+        return static_cast<unsigned int>(client_peer->incomingDataTotal);
+    }
+    if (!host) {
+        return 0;
+    }
+    unsigned long long total = 0;
+    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
+        ENetPeer *peer = &host->peers[peer_index];
+        if (!IsPeerConnected(peer)) {
+            continue;
+        }
+        total += static_cast<unsigned long long>(peer->incomingDataTotal);
+        if (total > UINT_MAX) {
+            return UINT_MAX;
+        }
+    }
+    return static_cast<unsigned int>(total);
+}
+
+unsigned int GetClientReliableCommandsInFlight() {
+    if (IsPeerConnected(client_peer)) {
+        size_t value = enet_list_size(&client_peer->sentReliableCommands);
+        return ClampSizeToUInt(value);
+    }
+    if (!host) {
+        return 0;
+    }
+    size_t best_value = 0;
+    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
+        ENetPeer *peer = &host->peers[peer_index];
+        if (!IsPeerConnected(peer)) {
+            continue;
+        }
+        size_t current = enet_list_size(&peer->sentReliableCommands);
+        if (current > best_value) {
+            best_value = current;
+            if (best_value > UINT_MAX) {
+                return UINT_MAX;
+            }
+        }
+    }
+    return ClampSizeToUInt(best_value);
 }
 
 struct NetSP *InitEnetSP()
@@ -352,6 +669,7 @@ struct NetSP *InitEnetSP()
             .join = &bf_enet_join,
             .update = &bf_enet_update,
             .sendmsg_single = &bf_enet_sendmsg_single,
+            .sendmsg_single_unsequenced = &bf_enet_sendmsg_single_unsequenced,
             .sendmsg_all = &bf_enet_sendmsg_all,
             .msgready = &bf_enet_msgready,
             .readmsg = &bf_enet_readmsg,

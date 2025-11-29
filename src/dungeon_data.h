@@ -36,6 +36,8 @@
 #include "thing_traps.h"
 #include "roomspace.h"
 #include "config_creature.h"
+#include "creature_states.h"
+
 #include "power_hand.h"
 
 #ifdef __cplusplus
@@ -123,11 +125,6 @@ struct BoxInfo
     uint16_t              activated[CUSTOM_BOX_COUNT];
 };
 
-struct ComputerInfo
-{
-    struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
-    struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
-};
 
 /** Used to set player modifier with script command. */
 struct Modifiers
@@ -154,18 +151,18 @@ struct Dungeon {
     unsigned short num_summon;
     ThingIndex things_in_hand[MAX_THINGS_IN_HAND];
     unsigned char num_things_in_hand;
-    unsigned short field_64[CREATURE_TYPES_MAX][15];
+    unsigned short crmodel_state_type_count[CREATURE_TYPES_MAX][STATE_TYPES_COUNT];
     unsigned short guijob_all_creatrs_count[CREATURE_TYPES_MAX][3];
     unsigned short guijob_angry_creatrs_count[CREATURE_TYPES_MAX][3];
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
-    unsigned char sight_casted_splevel;
+    KeepPwrLevel sight_casted_power_level;
     MapSubtlCoord sight_casted_stl_x;
     MapSubtlCoord sight_casted_stl_y;
     unsigned char soe_explored_flags[2*MAX_SOE_RADIUS][2*MAX_SOE_RADIUS];
     MapSubtlCoord cta_stl_x;
     MapSubtlCoord cta_stl_y;
-    unsigned char cta_splevel;
+    KeepPwrLevel cta_power_level;
     unsigned long cta_start_turn;
     TbBool cta_free;
     unsigned long must_obey_turn;
@@ -194,7 +191,7 @@ struct Dungeon {
     short creatures_scavenge_lost;
     long scavenge_turn_points[CREATURE_TYPES_MAX];
     short scavenge_targets[CREATURE_TYPES_MAX];
-    int creature_max_level[CREATURE_TYPES_MAX];
+    CrtrExpLevel creature_max_level[CREATURE_TYPES_MAX];
     unsigned short creatures_annoyed;
     unsigned short battles_lost;
     unsigned short battles_won;
@@ -211,9 +208,8 @@ struct Dungeon {
     unsigned long max_gameplay_score;
     short times_breached_dungeon;
     short highest_task_number;
-    int total_money_owned;
-    int offmap_money_owned;
-    short hates_player[DUNGEONS_COUNT];
+    GoldAmount total_money_owned;
+    GoldAmount offmap_money_owned;
     struct MapTask task_list[MAPTASKS_COUNT];
     int task_count;
     unsigned char owner;
@@ -289,7 +285,7 @@ struct Dungeon {
     struct Coord3d        last_eventful_death_location;
     struct Coord3d        last_trap_event_location;
     int                   creature_awarded[CREATURE_TYPES_MAX];
-    unsigned char         creature_entrance_level;
+    CrtrExpLevel          creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;
     unsigned long         creatures_transferred;
@@ -298,13 +294,12 @@ struct Dungeon {
     unsigned long         manufacture_gold;
     long                  creatures_total_backpay;
     long                  cheaper_diggers;
-    struct ComputerInfo   computer_info;
     long                  event_last_run_turn[EVENT_KIND_COUNT];
     long                  script_flags[SCRIPT_FLAGS_COUNT];
-    unsigned short        room_kind[TERRAIN_ITEMS_MAX];
+    unsigned short        room_list_start[TERRAIN_ITEMS_MAX];
     unsigned char         room_buildable[TERRAIN_ITEMS_MAX];
     unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
-    unsigned char         room_slabs_count[TERRAIN_ITEMS_MAX+1];
+    unsigned char         room_discrete_count[TERRAIN_ITEMS_MAX+1];
     unsigned short        backup_heart_idx;
     unsigned short        free_soul_idx;
     struct HandRule       hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
@@ -341,7 +336,7 @@ struct Thing *get_player_soul_container(PlayerNumber plyr_idx);
 TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
 TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole);
-long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole);
+long count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole);
 
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
@@ -355,6 +350,8 @@ TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon);
 TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id);
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value);
 void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long value);
+
+void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on_damage);
 
 /******************************************************************************/
 #ifdef __cplusplus

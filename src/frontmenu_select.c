@@ -35,6 +35,7 @@
 #include "game_legacy.h"
 #include "kjm_input.h"
 #include "keeperfx.hpp"
+#include "highscores.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -142,7 +143,6 @@ void frontend_level_select(struct GuiButton *gbtn)
     if (lvnum <= 0)
         return;
     game.selected_level_number = lvnum;
-    game.flags_font |= FFlg_unk80;
     frontend_set_state(FeSt_START_KPRLEVEL);
 }
 

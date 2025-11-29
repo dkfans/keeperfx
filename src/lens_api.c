@@ -30,6 +30,7 @@
 #include "lens_flyeye.h"
 #include "vidmode.h"
 #include "game_legacy.h"
+#include "config_keeperfx.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -149,7 +150,7 @@ TbBool clear_lens_palette(void)
     SYNCDBG(7,"Staring");
     struct PlayerInfo* player = get_my_player();
     // Get lens config and check if it has palette entry
-    struct LensConfig* lenscfg = get_lens_config(game.numfield_1B);
+    struct LensConfig* lenscfg = get_lens_config(game.applied_lens_type);
     if ((lenscfg->flags & LCF_HasPalette) != 0)
     {
         // If there is a palette entry, then clear it
@@ -183,9 +184,9 @@ void reset_eye_lenses(void)
         free(eye_lens_spare_screen_memory);
         eye_lens_spare_screen_memory = NULL;
     }
-    clear_flag(game.flags_cd, MFlg_EyeLensReady);
-    game.numfield_1A = 0;
-    game.numfield_1B = 0;
+    clear_flag(game.mode_flags, MFlg_EyeLensReady);
+    game.active_lens_type = 0;
+    game.applied_lens_type = 0;
     SYNCDBG(9,"Done");
 }
 
@@ -199,7 +200,7 @@ void initialise_eye_lenses(void)
   }
   if ((features_enabled & Ft_EyeLens) == 0)
   {
-    clear_flag(game.flags_cd, MFlg_EyeLensReady);
+    clear_flag(game.mode_flags, MFlg_EyeLensReady);
     return;
   }
 
@@ -216,29 +217,29 @@ void initialise_eye_lenses(void)
     return;
   }
   SYNCDBG(9,"Buffer dimensions (%d,%d)",eye_lens_width,eye_lens_height);
-  set_flag(game.flags_cd, MFlg_EyeLensReady);
+  set_flag(game.mode_flags, MFlg_EyeLensReady);
 }
 
 void setup_eye_lens(long nlens)
 {
-    if ((game.flags_cd & MFlg_EyeLensReady) == 0)
+    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
     {
         WARNLOG("Can't setup lens - not initialized");
         return;
     }
     SYNCDBG(7,"Starting for lens %ld",nlens);
     if (clear_lens_palette()) {
-        game.numfield_1A = 0;
+        game.active_lens_type = 0;
     }
     if (nlens == 0)
     {
-        game.numfield_1A = 0;
-        game.numfield_1B = 0;
+        game.active_lens_type = 0;
+        game.applied_lens_type = 0;
         return;
     }
-    if (game.numfield_1A == nlens)
+    if (game.active_lens_type == nlens)
     {
-        game.numfield_1B = nlens;
+        game.applied_lens_type = nlens;
         return;
     }
     struct LensConfig* lenscfg = get_lens_config(nlens);
@@ -274,16 +275,16 @@ void setup_eye_lens(long nlens)
         SYNCDBG(9,"Palette config entered");
         set_lens_palette(lenscfg->palette);
     }
-    game.numfield_1B = nlens;
-    game.numfield_1A = nlens;
+    game.applied_lens_type = nlens;
+    game.active_lens_type = nlens;
 }
 
 void reinitialise_eye_lens(long nlens)
 {
   initialise_eye_lenses();
-  if ((game.flags_cd & MFlg_EyeLensReady) && (nlens>0))
+  if ((game.mode_flags & MFlg_EyeLensReady) && (nlens>0))
   {
-      game.numfield_1B = 0;
+      game.applied_lens_type = 0;
       setup_eye_lens(nlens);
   }
   SYNCDBG(18,"Finished");

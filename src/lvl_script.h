@@ -42,8 +42,6 @@ extern "C" {
 
 #define SENSIBLE_GOLD 99999999
 
-#define EXTERNAL_SOUNDS_COUNT 32
-
 enum ScriptOperator {
     SOpr_SET = 1,
     SOpr_INCREASE,
@@ -65,8 +63,6 @@ struct PartyTrigger;
 
 struct ScriptContext
 {
-    int plr_start;
-    int plr_end;
     int player_idx;
 
     union {
@@ -82,7 +78,7 @@ struct TunnellerTrigger {
   unsigned long location;
   unsigned long heading; // originally was 'target'
   long carried_gold;
-  unsigned char crtr_level;
+  CrtrExpLevel exp_level;
   char party_id;
 };
 
@@ -97,10 +93,11 @@ struct PartyTrigger {
   };
   union
   {
-      unsigned long location;
+      TbMapLocation location;
       unsigned long countdown;
   };
-  unsigned char crtr_level;
+  char spawn_type;
+  CrtrExpLevel exp_level;
   unsigned short carried_gold;
   union
   {
@@ -125,10 +122,11 @@ struct ScriptValue {
     unsigned char bytes[32];
     char chars[32];
     short shorts[16];
+    unsigned short ushorts[16];
     long longs[8];
+    long long longlongs[4];
     unsigned long ulongs[8];
-    unsigned char* ustrs[8];
-    char* strs[8];
+    unsigned long long ulonglongs[4];
   };
 };
 
@@ -184,7 +182,7 @@ struct LevelScript {
 
     // Store strings used at level here
     char strings[2048];
-    char *next_string;
+    long next_string_offset;
 };
 
 /******************************************************************************/

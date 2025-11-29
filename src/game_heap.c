@@ -38,8 +38,6 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-static const char *sound_fname = "sound.dat";
-static const char *speech_fname = "speech.dat";
 static unsigned char *heap;
 static long heap_size;
 /******************************************************************************/
@@ -216,26 +214,6 @@ TbBool setup_heaps(void)
         }
         heap = calloc(heap_size, 1);
     }
-    if (!SoundDisabled)
-    {
-      // Prepare sound sample bank file names
-      char snd_fname[2048];
-      prepare_file_path_buf(snd_fname, FGrp_LrgSound, sound_fname);
-      // language-specific speech file
-      char* spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
-      // default speech file
-      if (!LbFileExists(spc_fname))
-        spc_fname = prepare_file_path(FGrp_LrgSound,speech_fname);
-      // speech file for english
-      if (!LbFileExists(spc_fname))
-        spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_language_lwrstr(1));
-      // Initialize sample banks
-      if (!init_sound_banks(snd_fname, spc_fname, 1622))
-      {
-        SoundDisabled = true;
-        ERRORLOG("Unable to initialize sound heap. Sound disabled.");
-      }
-    }
     return true;
 }
 
@@ -243,11 +221,5 @@ void *he_alloc(size_t size)
 {
     // We could need some wrapper
     return malloc(size);
-}
-
-void he_free(void *data)
-{
-    if (data)
-        free(data);
 }
 /******************************************************************************/

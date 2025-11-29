@@ -16,15 +16,18 @@
 #      (at your option) any later version.
 #
 # ******************************************************************************
-"Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues\n"
-"Language-Team: KeeperFX Team <github.com/dkfans>\n"
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.8\n"
 
 #. Generic victory message
 #: guitext:0
@@ -44,7 +47,7 @@ msgstr "Dit is een bericht. Klik rechts om het te wissen."
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-"mined out of the rock by his imps. To create a Treasure Room, select the "
+"mined out of the rock by his Imps. To create a Treasure Room, select the "
 "Treasure Room icon from the Rooms Panel and fill the empty area to the west "
 "with Treasure Room tiles."
 msgstr ""
@@ -105,7 +108,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"Lair. Lairs are where creatures rest and recover. The area your Imps just "
 "mined out would be an ideal spot for some creatures to lurk. Select the Lair "
 "icon from the Rooms Panel."
 msgstr ""
@@ -120,7 +123,7 @@ msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
 "map as flashing squares, until they are claimed. Creatures only use Portals "
-"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"claimed by a Keeper. Your Imps claim a Portal as soon as it connects to your "
 "dungeon."
 msgstr ""
 "Graaf een tunnel naar het Portaal in het noorden. Portalen worden op de "
@@ -167,7 +170,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
 "other creatures will serve you unpaid."
 msgstr ""
 "Je hebt nog geen Schatkamer gebouwd. Zolang je dat niet gedaan hebt, kun je "
@@ -205,7 +208,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
-"create more imps, go to the Research Panel, select the Imp icon and left "
+"create more Imps, go to the Research Panel, select the Imp icon and left "
 "click anywhere in your dungeon. Each Imp you create costs more than the "
 "previous one."
 msgstr ""
@@ -253,7 +256,7 @@ msgstr ""
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
-"The Lord of the Land has arrived. I can smell his fear. Defeat him and the "
+"The Lord of the Land has arrived. I can smell his fear. Defeat him, and the "
 "realm is yours."
 msgstr ""
 "De Landheer is aangekomen. Ik kan zijn angst ruiken. Versla hem en het rijk "
@@ -333,7 +336,7 @@ msgstr ""
 #: guitext:26
 msgctxt "In-game message"
 msgid ""
-"Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the "
+"Your plan proceeds smoothly, Keeper. Allow your Imps time to fortify the "
 "walls of your dungeon. This increases the efficiency of rooms and repels "
 "would-be invaders."
 msgstr ""
@@ -345,7 +348,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The Training Room attracts ever more ferocious creatures, such as Demon "
-"Spawn. Build it and they will come."
+"Spawn. Build it, and they will come."
 msgstr ""
 "Een Trainingsruimte trekt nog meer wrede wezens aan, zoals Demonenjongen. "
 "Bouw het en ze komen."
@@ -388,7 +391,7 @@ msgstr ""
 #: guitext:31
 msgctxt "In-game message"
 msgid ""
-"Harder the heroes may have been but they were obviously no match for your "
+"Harder the heroes may have been, but they were obviously no match for your "
 "forces."
 msgstr ""
 "De Helden waren dan wel sterker, maar ze waren geen partij voor jouw "
@@ -453,13 +456,13 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "That's a fine collection of parchments and tomes you've assembled. Most "
-"creatures can engage in research but Warlocks make the best and keenest "
+"creatures can engage in research, but Warlocks make the best and keenest "
 "researchers. Stupid Trolls have trouble holding books the right way up and "
 "sometimes even chew the pages."
 msgstr ""
 "Je hebt al aardig wat oorkonden en boeken verzameld. De meeste wezens kunnen "
 "onderzoek doen, maar Tovenaars zijn verreweg de beste. Die stomzinnige "
-"Kwelgeesten hebben zelfs moeite de boeken niet ondersteboven te houden. Soms "
+"Trollen hebben zelfs moeite de boeken niet ondersteboven te houden. Soms "
 "eten ze zelfs de pagina's op."
 
 #. Level Waterdream Warm objective after attracting warlock
@@ -479,7 +482,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The first wave of attackers lie hacked to pieces on the floor and give your "
-"domain that lived in feeling but it surely won't be long before their kin "
+"domain that lived in feeling, but it surely won't be long before their kin "
 "launch another assault."
 msgstr ""
 "De eerste aanvalsgolf ligt in stukken gehakt op de grond en maakt je kerker "
@@ -540,7 +543,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Build up your dungeon with the rooms available to you and claim the Portal "
-"nearby but do not yet venture north. Powerful adversaries lurk there. It "
+"nearby, but do not yet venture north. Powerful adversaries lurk there. It "
 "would be wiser not to disturb them until you are prepared."
 msgstr ""
 "Bouw met de beschikbare ruimten je kerker op en neem de nabij gelegen "
@@ -606,7 +609,7 @@ msgstr "Je moet een manier bedenken om de lavarivier over te steken."
 msgctxt "In-game message"
 msgid ""
 "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
-"and administer the coup de grace."
+"and administer the coup de grâce."
 msgstr ""
 "Het Hart van de vijandelijke kerker klopt vlak voor je. Verzamel je slaafjes "
 "in de buurt en geef het de genadeslag."
@@ -615,14 +618,13 @@ msgstr ""
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
-"A Troll has joined you. Skilled in the craft of manufacturing, trolls are "
+"A Troll has joined you. Skilled in the craft of manufacturing, Trolls are "
 "best employed doing dark deeds in your Workshop. They don't complain about "
 "the hours, because their labours keep them away from combat."
 msgstr ""
-"Een Kwelgeest sluit zich bij jou aan. Kwelgeesten zijn goede ambachtslieden "
-"die je het beste in de Werkplaats hun duistere werk kunt laten doen. Ze "
-"klagen niet over werktijden. Ze besteden hun tijd niet aan knokken maar aan "
-"werken."
+"Een Trol sluit zich bij jou aan. Trollen zijn goede ambachtslieden die je "
+"het beste in de Werkplaats hun duistere werk kunt laten doen. Ze klagen niet "
+"over werktijden. Ze besteden hun tijd niet aan knokken maar aan werken."
 
 #. Level Flowerhat objective
 #: guitext:53
@@ -663,7 +665,7 @@ msgctxt "In-game message"
 msgid ""
 "You have researched the Call to Arms spell. The first time you cast it, your "
 "creatures gather around a banner created by the spell. Cast it again in a "
-"target area. Call to Arms only costs gold when it's targetted beyond your "
+"target area. Call to Arms only costs gold when it's targeted beyond your "
 "territory."
 msgstr ""
 "De spreuk 'ALARMEREN' is ontdekt. Zodra je het de eerste keer uitspreekt, "
@@ -710,7 +712,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
-"unexplored area and it will be revealed to you for a moment."
+"unexplored area, and it will be revealed to you for a moment."
 msgstr ""
 "Je trouwe onderzoekers hebben de spreuk 'DUIVELSOOG' verbeterd. Spreek het "
 "uit in een onbekend gebied en het zal tijdelijk alles onthullen."
@@ -720,7 +722,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
-"your creatures subdue their foe, at which point your imps drag the bodies "
+"your creatures subdue their foe, at which point your Imps drag the bodies "
 "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
 "warriors for you to command."
 msgstr ""
@@ -756,7 +758,7 @@ msgstr ""
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
-"It's time to mete out the ultimate punishment to a keeper who dares to "
+"It's time to mete out the ultimate punishment to a Keeper who dares to "
 "challenge you for this corner of your subterranean empire. The price of "
 "failure shall be oblivion."
 msgstr ""
@@ -853,7 +855,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "An Orc warlord joins you and brings with him the plans for building a "
-"Barracks. In this room you can form creatures into teams."
+"Barracks. In this room, you can form creatures into teams."
 msgstr ""
 "Een Gedrocht sluit zich bij je aan en neemt het ontwerp voor de bouw van "
 "Barakken mee. In deze ruimten kun je je slaafjes in groepjes verdelen."
@@ -955,9 +957,9 @@ msgid ""
 "everything under control, because their feeble magical power impresses the "
 "locals. But you're not from these parts..."
 msgstr ""
-"Vier Magiërs heersen over dit rijk en denken alles onder controle te "
-"hebben, omdat ze de bevolking met hun magische krachten snel wisten te "
-"beïnvloeden. Tja, jij komt niet uit deze streek..."
+"Vier Magiërs heersen over dit rijk en denken alles onder controle te hebben, "
+"omdat ze de bevolking met hun magische krachten snel wisten te beïnvloeden. "
+"Tja, jij komt niet uit deze streek..."
 
 #. Level Moonbrush Wood objective
 #: guitext:82
@@ -974,7 +976,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll "
-"fail, because everything makes a Horned Reaper angry but at least try to "
+"fail, because everything makes a Horned Reaper angry, but at least try to "
 "make sure that everything near it is an enemy creature when it finally goes "
 "ballistic."
 msgstr ""
@@ -1011,7 +1013,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have researched the Graveyard. Your Imps will drag corpses here to "
-"rot... And possibly to rise again as Vampires, ready to do your bidding. "
+"rot... and possibly to rise again as Vampires, ready to do your bidding. "
 "That's style."
 msgstr ""
 "Het MAUSOLEUM is onderzocht. Dondersteentjes slepen de lijken hier naar toe "
@@ -1032,8 +1034,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Powerful creatures inhabit a cave south of here. There's a party of heroes "
-"between you and them but, if you reach them and convert them to your side "
-"before they join the other keepers, you will be unstoppable, unless you do "
+"between you and them, but, if you reach them and convert them to your side "
+"before they join the other Keepers, you will be unstoppable, unless you do "
 "something stupid."
 msgstr ""
 "Krachtige wezens bewonen een grot in het zuiden. Een groep Helden staat "
@@ -1210,7 +1212,7 @@ msgstr ""
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
-"If lands had legs this one would be on its knees. Its desperate inhabitants "
+"If lands had legs, this one would be on its knees. Its desperate inhabitants "
 "are preparing a full scale attack on your dungeon. It will be an ideal "
 "opportunity to practise unspeakable evil on a massive scale. Go for it, "
 "master."
@@ -1321,7 +1323,7 @@ msgstr ""
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
-"I spy a keeper with hardly any creatures left under his control. I spy a "
+"I spy a Keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
 msgstr ""
 "Ik zie een Keeper die vrijwel geen slaafjes meer heeft. Ik zie een Keeper "
@@ -1439,7 +1441,7 @@ msgstr ""
 #. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
-msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
+msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr "Dit oude land is rijk aan magische voorwerpen. Gaat heen en plunder."
 
 #. Level Blaise End objective
@@ -1458,7 +1460,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "If you should encounter hero patrols, ensure that none of their number "
-"escape. Otherwise your presence will be revealed and then you will be in "
+"escape. Otherwise, your presence will be revealed, and then you will be in "
 "trouble."
 msgstr ""
 "Mocht je een heldenpatrouille tegenkomen, zorg er dan voor dat niemand "
@@ -1532,7 +1534,7 @@ msgstr ""
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
-"You have destroyed the Avatar's castle but your rival has already taken the "
+"You have destroyed the Avatar's castle, but your rival has already taken the "
 "Avatar prisoner. Be that as it may, only the Keeper with the blackest heart "
 "can destroy this legendary hero, so ransack your rival's dungeon and take "
 "the prize."
@@ -1572,7 +1574,7 @@ msgstr ""
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
-"Possess this Dragon to help you negotiate the fiery pits but be prepared to "
+"Possess this Dragon to help you negotiate the fiery pits, but be prepared to "
 "transfer your soul to a more appropriate creature when the situation demands "
 "it."
 msgstr ""
@@ -1622,10 +1624,9 @@ msgstr ""
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with "
-"panache which certain females find very attractive. A Dark Mistress has "
-"devoted herself to helping you achieve your next goal. You may proceed to "
-"your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 "Je ziel is inderdaad misvormd, Keeper. Je hebt de Dondersteentjes met zoveel "
 "lef uitgeroeid dat er niet een, maar twee toegewijde Meesteressen je willen "
@@ -1706,20 +1707,20 @@ msgstr ""
 #: guitext:152
 msgctxt "In-game message"
 msgid ""
-"Well done. You have excelled in your use of large balls of stone for which "
+"Well done. You have excelled in your use of large balls of stone, for which "
 "the dark gods will repay you, by allowing you to use the warrior you found "
 "when you reach the next realm."
 msgstr ""
 "Goed gedaan. Je hebt je onderscheiden in het gebruik van grote stenen "
-"ballen. De duistere goden belonen je door je de krijger die je gevonden "
-"hebt mee te geven naar het volgende rijk."
+"ballen. De duistere goden belonen je door je de krijger die je gevonden hebt "
+"mee te geven naar het volgende rijk."
 
 #. Level Bonus 4 objective
 #: guitext:153
 msgctxt "In-game message"
 msgid ""
 "This region of the underworld will test your ability to traverse the network "
-"of caverns. Indeed, time is your enemy here. Defeat it and you will find "
+"of caverns. Indeed, time is your enemy here. Defeat it, and you will find "
 "where a legendary warrior is imprisoned. That warrior will serve you well in "
 "the future."
 msgstr ""
@@ -1755,8 +1756,8 @@ msgstr ""
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
-"Your evil has corrupted a Samurai Warrior, he has forsaken honour to join "
-"your cause. Should your minions suffer heavy casualties, this Warrior will "
+"Your evil has corrupted a Samurai warrior; he has forsaken honour to join "
+"your cause. Should your minions suffer heavy casualties, this warrior will "
 "even call upon his brothers in arms to offer assistance. How kind. How "
 "stupid!"
 msgstr ""
@@ -1843,7 +1844,7 @@ msgstr ""
 #: guitext:165
 msgctxt "In-game message"
 msgid ""
-"Take more care of your Bile Demons or you will never make it beyond this "
+"Take more care of your Bile Demons, or you will never make it beyond this "
 "realm."
 msgstr ""
 "Pas wat beter op je Galdemonen of je haalt het volgende rijk niet meer."
@@ -1920,14 +1921,14 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
-"to reduces your enemies into ashes!"
+"to reduce your enemies into ashes!"
 msgstr ""
 
 #. Level Bonus 6 objective
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
-"Well done! Your immense wealth has drew the attention of a Thief. He will "
+"Well done! Your immense wealth has drawn the attention of a Thief. He will "
 "serve you well in the next realm!"
 msgstr ""
 
@@ -1935,9 +1936,9 @@ msgstr ""
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
-"Your researchers have discovered the Heal Creature spell that allows to "
-"replenish the health of your creatures and keep them from dying for a while "
-"longer."
+"Your researchers have discovered the Heal Creature spell, which allows you "
+"to replenish the health of your creatures and keep them from dying for a "
+"while longer."
 msgstr ""
 
 #. Level Tulipscent information
@@ -1954,8 +1955,8 @@ msgstr ""
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
-"A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
-"in water and their spine can even pierce the most solid armors and paralyze "
+"A Tentacle has joined your dungeon. These rare little creatures enjoy being "
+"in water and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
 msgstr ""
 
@@ -2145,14 +2146,14 @@ msgstr "Terugkaatsen: Stuurt projectielen terug naar de aanvaller."
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
 msgstr "Angst: Niet gebruikt"
 
 #: guitext:232
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
 msgstr "Duivelsoog: Laat het wezen onzichtbare vijanden zien."
 
@@ -2176,8 +2177,8 @@ msgstr "Granaat: [26.9]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: This homes in on the nearest hero or enemy creature and "
-"explodes with devastating force."
+"Navigating Missile: A spell that sends a screaming magic reptile homing in "
+"on the nearest hero or enemy creature for double damage. Nice."
 msgstr "Geleide Projectiel: [26.16]"
 
 #: guitext:236
@@ -2193,8 +2194,9 @@ msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr "Gifwolk: Zorgt voor een schadelijke gaswolk die zowel jouw"
-"als vijandelijke wezens schaden. Maar alleen als ze ademen."
+msgstr ""
+"Gifwolk: Zorgt voor een schadelijke gaswolk die zowel jouwals vijandelijke "
+"wezens schaden. Maar alleen als ze ademen."
 
 #: guitext:238
 msgctxt "Creature spell"
@@ -2203,58 +2205,65 @@ msgstr "Groep: Niet gebruikt"
 
 #: guitext:239
 msgctxt "Creature spell"
-msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr "Onzichtbaar: Zorgt ervoor dat het wezen niet meer door vijanden gezien wordt, tenzij ze bovennatuurlijk zicht hebben."
+msgid ""
+"Invisibility: Makes the creature invisible to all enemies. Unless they "
+"possess a subnatural sight."
+msgstr ""
+"Onzichtbaar: Zorgt ervoor dat het wezen niet meer door vijanden gezien "
+"wordt, tenzij ze bovennatuurlijk zicht hebben."
 
 #: guitext:240
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
-"you are Possessing a creature, then it teleports to its Lair or to the "
+"you are possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
 msgstr "Teleport: [26.21]"
 
 #: guitext:241
 #, fuzzy
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
+msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr "Vuurspuwer: [26.6]"
 
 #: guitext:242
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Illumination: Brings light onto darkness, allowing the creature to see but "
-"also be seen by others."
+"Illumination: Brings light onto darkness, allowing the creature to see, but "
+"also to be seen by others."
 msgstr "Verlichting"
 
 #: guitext:243
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
-msgstr "Vliegen: Zorgt dat het wezen van de grond komt en vanuit de lucht kan aanvallen."
+"from the air or cross lava unharmed."
+msgstr ""
+"Vliegen: Zorgt dat het wezen van de grond komt en vanuit de lucht kan "
+"aanvallen."
 
 #: guitext:244
 #, fuzzy
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "Hagelstorm: [26.10]"
 
 #: guitext:245
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making its attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement "
+"delayed."
 msgstr "Vertragen: [26.19]"
 
 #: guitext:246
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a fair part of its health and "
-"magical abilities."
+"Drain: This spell drains the target creature a part of its health and gives "
+"it to the caster."
 msgstr "Draineren: [26.4]"
 
 #: guitext:247
@@ -2263,7 +2272,7 @@ msgctxt "Creature spell"
 msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's "
 "body and inflicts massive damage on the vicinity. Very effective against "
-"crowded hordes of enemies, also pushes them back."
+"crowded hordes of enemies. Also pushes them back."
 msgstr "Krachtterm: [26.23]"
 
 #: guitext:248
@@ -2275,15 +2284,15 @@ msgstr "Genezing: Deze spreuk geneest je wezen voor een aanzienlijk deel."
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
+"away from you. And nasty smells of course."
 msgstr "Storm: [26.22]"
 
 #: guitext:250
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"Meteor: More powerful than the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
 msgstr "Meteoor: [26.14]"
 
@@ -2292,28 +2301,27 @@ msgstr "Meteoor: [26.14]"
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
-"inflicts minor damage to a Dungeon's walls and doors."
+"inflicts minor damage to a dungeon's walls and doors."
 msgstr "Vuurbal: [26.5]"
 
 #: guitext:252
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Hand to Hand: The basic battle ability that allows to attack the enemy with "
-"either bare hands or a sword."
+"Hand to Hand: The basic battle ability that allows the creature to attack "
+"the enemy with either bare hands or a sword."
 msgstr "Man tegen Man: [25.3]"
 
 #: guitext:253
 msgctxt "Creature spell"
-msgid ""
-"Fart: A close range gas attack that only damages enemy creatures."
+msgid "Fart: A close range gas attack that only damages enemy creatures."
 msgstr "Een gasaanval die vijandelijke wezens op korte afstand beschadigt."
 
 #: guitext:254
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"Dig: This is the basic ability of the Imp, and allows it to tunnel through "
 "earth."
 msgstr "Graven: [25.2]"
 
@@ -2321,7 +2329,7 @@ msgstr "Graven: [25.2]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"Disease: Fired at a foe, gives them a disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
 msgstr "Ziekte: [26.3]"
@@ -2331,7 +2339,7 @@ msgstr "Ziekte: [26.3]"
 msgctxt "Creature spell"
 msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
-"attack but has the same strength and thus won't be as easy to kill as a "
+"attack, but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
 msgstr "Kuiken: [26.2]"
 
@@ -2358,7 +2366,7 @@ msgstr "Tor"
 #: guitext:261
 msgctxt "Creature name"
 msgid "Troll"
-msgstr "Kwelgeest"
+msgstr "Trol"
 
 #: guitext:262
 msgctxt "Creature name"
@@ -2532,14 +2540,14 @@ msgstr "Dodental: Het aantal vijanden dat door het wezen is gedood. [23.7]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"Strength: The amount of damage the creature inflicts upon its enemies with "
 "each hit."
 msgstr ""
 "Kracht: De hoeveelheid schade die het wezen zijn vijanden toebrengt. [23.12]"
 
 #: guitext:294
 msgctxt "In-game interface description"
-msgid "Wage: The creature's salary in gold which it takes on each payday."
+msgid "Wage: The creature's salary in gold, which it takes on each payday."
 msgstr "Salaris: De hoeveelheid goud die het wezen elke betaalddag opeist."
 
 #: guitext:295
@@ -2559,7 +2567,7 @@ msgstr "Verdediging: De kans dat een wezen een klap ontwijkt. [23.9]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Skill: The creature's ability to perform tasks. The higher the Skill level, "
+"Skill: The creature's ability to perform tasks. The higher the skill level, "
 "the better the creature's performance."
 msgstr "Vaardigheid: Taken die het wezen kan uitvoeren. [23.14]"
 
@@ -2629,7 +2637,8 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Fight: Your creatures always attack and not avoid any combat. LMB select."
+"Fight: Your creatures always attack and will not avoid any combat. LMB "
+"select."
 msgstr "Vecht: Je wezens vallen altijd aan. LMK: selecteren. [5.1]"
 
 #: guitext:306
@@ -2687,13 +2696,14 @@ msgstr ""
 #: guitext:314
 msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between perspective views. Default view has warped walls "
-"and can be rotated. Disable the warp effect for clean lines. Forced perspective "
+"View Type: Swap between perspective views. Default view has warped walls and "
+"can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
-"Gezichtsveld: Wisselt tussen gezichtsvelden. Standaard zijn muren vervormd en "
-"is de camera te draaien. Zet de vervorming uit voor rechte lijnen. Bij Ortografisch "
-"Perspectief kan alleen 90 graded gedraaid worden en is de kijkhoek anders. LMK: bladeren."
+"Gezichtsveld: Wisselt tussen gezichtsvelden. Standaard zijn muren vervormd "
+"en is de camera te draaien. Zet de vervorming uit voor rechte lijnen. Bij "
+"Ortografisch Perspectief kan alleen 90 graded gedraaid worden en is de "
+"kijkhoek anders. LMK: bladeren."
 
 #: guitext:315
 #, fuzzy
@@ -2727,7 +2737,7 @@ msgstr " van"
 
 #: guitext:319
 msgctxt "Slab description"
-msgid "Empty Lair: Would suit itinerant creature."
+msgid "Empty Lair: Would suit itinerant creatures."
 msgstr "Hol verlaten: Komt een rondtrekkend wezen goed van pas."
 
 #: guitext:320
@@ -2755,17 +2765,16 @@ msgstr "Uitzoomen: Uitzoomen van de Dynamische Kaart. LMK: selecteren. [4.1]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Full Screen Map: Takes you to the Map Screen which displays your entire "
-"Dungeon and the surrounding area. LMB select."
+"Full Screen Map: Takes you to the Map Screen, which displays your entire "
+"dungeon and the surrounding area. LMB select."
 msgstr "Kaartscherm: Roept het Kaartscherm op. LMK: selecteren. [4.1.1.]"
 
 #: guitext:324
 msgctxt "Slab description"
 msgid ""
-"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"Impenetrable Rock: Your Imps cannot dig through this; the only solution is "
 "to go round. It is visible even if far from your territory."
-msgstr ""
-"Harde rots: Je Dondersteentjes kunnen hier niet doorheen graven."
+msgstr "Harde rots: Je Dondersteentjes kunnen hier niet doorheen graven."
 
 #: guitext:325
 #, fuzzy
@@ -2790,8 +2799,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Slab description"
 msgid ""
-"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
-"or building a Bridge."
+"Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr "Lava: Verbrandt elk wezen dat er op stapt. [14.2]"
 
 #: guitext:328
@@ -3264,19 +3272,19 @@ msgid "Ok"
 msgstr "OK"
 
 #: guitext:420
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "Kaart onthullen: Onthult het complete ondergrondse rijk."
 
 #: guitext:421
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr ""
 "Herrijs wezen: Je mag één van je gedode slaafjes terughalen uit de dood."
 
 #: guitext:422
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
@@ -3284,30 +3292,30 @@ msgstr ""
 "Wezen meenemen: Selecteer een wezen om mee te nemen naar het volgende rijk."
 
 #: guitext:423
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "Held stelen: Een Held voor jouw zaak winnen."
 
 #: guitext:424
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "Wezens verdubbelen: Verdubbelt het aantal wezens."
 
 #: guitext:425
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "Niveau verhogen: Verbetert de vaardigheden van al je slaafjes."
 
 #: guitext:426
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Verstevigen: Verstevigt je complete kerker."
 
 #: guitext:427
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
-"Locate Hidden World: You will be transported to a secret realm after you "
-"have conquered this one."
+"Locate Hidden World: You will get access to a secret realm after you have "
+"conquered this one."
 msgstr ""
 "Geheime Wereld vinden: Je wordt naar een geheim rijk gebracht zodra je dit "
 "rijk hebt veroverd."
@@ -3419,8 +3427,8 @@ msgstr "Infopaneel: Allerlei informatie opvragen. [5.0]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Room Panel: The rooms available for you to build. Here you can center map on "
-"rooms or build new ones."
+"Room Panel: The rooms available for you to build. Here you can centre the "
+"map on rooms or build new ones."
 msgstr "Ruimtenpaneel: Beschikbare ruimten bouwen. [6.0]"
 
 #: guitext:449
@@ -3435,8 +3443,8 @@ msgstr "Onderzoekpaneel: Beschikbare spreuken toepassen. [7.0]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Workshop Panel: The traps and doors available to you. You can center the map "
-"on them, place new ones or sell existing."
+"Workshop Panel: The traps and doors available to you. You can centre the map "
+"on them, place new ones, or sell existing ones."
 msgstr "Werkplaatspaneel: Beschikbare vallen en deuren maken. [8.0]"
 
 #: guitext:451
@@ -3468,8 +3476,9 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Time: The time until the next Creature Payday. This bar increases over time "
-"and, when it reaches its peak, all of your creatures receive their wages."
+"Payday Time: The time until the next Creature Payday. This bar increases "
+"over time and, when it reaches its peak, all of your creatures will want "
+"their wages."
 msgstr "Tijd Betaaldag: De tijd tot de volgende Betaaldag. [5.4]"
 
 #: guitext:455
@@ -3566,223 +3575,223 @@ msgstr "Druk op een toets"
 
 #: guitext:471
 msgctxt "Game controls"
-msgid "UP"
-msgstr "OMHOOG"
+msgid "Up"
+msgstr "Omhoog"
 
 #: guitext:472
 msgctxt "Game controls"
-msgid "DOWN"
-msgstr "OMLAAG"
+msgid "Down"
+msgstr "Omlaag"
 
 #: guitext:473
 msgctxt "Game controls"
-msgid "LEFT"
-msgstr "LINKS"
+msgid "Left"
+msgstr "Links"
 
 #: guitext:474
 msgctxt "Game controls"
-msgid "RIGHT"
-msgstr "RECHTS"
+msgid "Right"
+msgstr "Rechts"
 
 #: guitext:475
 msgctxt "Game controls"
-msgid "ROTATE"
-msgstr "DRAAIEN"
+msgid "Rotate"
+msgstr "Draaien"
 
 #: guitext:476
 msgctxt "Game controls"
-msgid "SPEED"
-msgstr "VERSNELLEN"
+msgid "Speed"
+msgstr "Versnellen"
 
 #: guitext:477
 msgctxt "Game controls"
-msgid "ROTATE LEFT"
-msgstr "LINKSOM DRAAIEN"
+msgid "Rotate Left"
+msgstr "Linksom Draaien"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
-msgstr "RECHTSOM DRAAIEN"
+msgid "Rotate Right"
+msgstr "Rechtsom Draaien"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
-msgstr "VERGROTEN"
+msgid "Zoom In"
+msgstr "Vergroten"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
-msgstr "VERKLEINEN"
+msgid "Zoom Out"
+msgstr "Verkleinen"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
-msgstr "LINKER CTRL"
+msgid "Left Control"
+msgstr "Linker Ctrl"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
-msgstr "RECHTER CTRL"
+msgid "Right Control"
+msgstr "Rechter Ctrl"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
-msgstr "LINKER SHIFT"
+msgid "Left Shift"
+msgstr "Linker Shift"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
-msgstr "RECHTER SHIFT"
+msgid "Right Shift"
+msgstr "Rechter Shift"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
-msgstr "LINKER ALT"
+msgid "Left Alt"
+msgstr "Linker Alt"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
-msgstr "RECHTER ALT"
+msgid "Right Alt"
+msgstr "Rechter Alt"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
-msgstr "SPATIEBALK"
+msgid "Space"
+msgstr "Spaitebalk"
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
-msgstr "ENTER"
+msgid "Return"
+msgstr "Enter"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
-msgstr "TAB"
+msgid "Tab"
+msgstr "Tab"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
-msgstr "CAPS LOCK"
+msgid "Caps Lock"
+msgstr "Caps Lock"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
-msgstr "BACKSPACE"
+msgid "Backspace"
+msgstr "Backspace"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
-msgstr "INSERT"
+msgid "Insert"
+msgstr "Insert"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
-msgstr "DELETE"
+msgid "Delete"
+msgstr "Delete"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
-msgstr "HOME"
+msgid "Home"
+msgstr "Home"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
-msgstr "END"
+msgid "End"
+msgstr "End"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
-msgstr "PAGE UP"
+msgid "Page Up"
+msgstr "Page Up"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
-msgstr "PAGE DOWN"
+msgid "Page Down"
+msgstr "Page Down"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
-msgstr "NUM LOCK"
+msgid "Num Lock"
+msgstr "Num Lock"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
-msgstr "NUM /"
+msgid "Num /"
+msgstr "Num /"
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
-msgstr "NUM *"
+msgid "Num *"
+msgstr "Num *"
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
-msgstr "NUM -"
+msgid "Num -"
+msgstr "Num -"
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
-msgstr "NUM +"
+msgid "Num +"
+msgstr "Num +"
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
-msgstr "NUM ENTER"
+msgid "Num Enter"
+msgstr "Num Enter"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
-msgstr "NUM DEL"
+msgid "Num Delete"
+msgstr "Num Del"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
-msgstr "NUM 1"
+msgid "Num 1"
+msgstr "Num 1"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
-msgstr "NUM 2"
+msgid "Num 2"
+msgstr "Num 2"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
-msgstr "NUM 3"
+msgid "Num 3"
+msgstr "Num 3"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
-msgstr "NUM 4"
+msgid "Num 4"
+msgstr "Num 4"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
-msgstr "NUM 5"
+msgid "Num 5"
+msgstr "Num 5"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
-msgstr "NUM 6"
+msgid "Num 6"
+msgstr "Num 6"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
-msgstr "NUM 7"
+msgid "Num 7"
+msgstr "Num 7"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
-msgstr "NUM 8"
+msgid "Num 8"
+msgstr "Num 8"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
-msgstr "NUM 9"
+msgid "Num 9"
+msgstr "Num 9"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
-msgstr "NUM 0"
+msgid "Num 0"
+msgstr "Num 0"
 
 #: guitext:515
 msgctxt "Keyboard"
@@ -3846,23 +3855,23 @@ msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
-msgstr "OMHOOG"
+msgid "Up"
+msgstr "Omhoog"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
-msgstr "OMLAAG"
+msgid "Down"
+msgstr "Omlaag"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
-msgstr "LINKS"
+msgid "Left"
+msgstr "Links"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
-msgstr "RECHTS"
+msgid "Right"
+msgstr "Rechts"
 
 #: guitext:531
 msgctxt "Network game message"
@@ -3933,7 +3942,7 @@ msgstr "Kan Niet Meedoen"
 msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
-"takes longer to mine than Gold."
+"takes longer to mine than gold."
 msgstr ""
 "Edelstenen: Oneindige rijkdom voor je Dondersteentjes om te delven. Kan niet "
 "vernietigd worden, maar het duurt langer om te delven dan goud."
@@ -4139,8 +4148,8 @@ msgstr "Lava-val"
 msgctxt "Trap description"
 msgid ""
 "Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
-"when enemy creature is close and within line of sight, or when slapped by a "
-"Keeper. LMB select. RMB zoom."
+"when an enemy creature is close and within line of sight, or when slapped by "
+"a Keeper. LMB select. RMB zoom."
 msgstr ""
 "Rolsteenval: Een rollende steen die alles op zijn weg verplettert. LMK: "
 "selecteren. RMK: inzoomen. [20.1]"
@@ -4156,11 +4165,10 @@ msgstr ""
 "[20.2]"
 
 #: guitext:586
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
-"hurt owner creatures if they inhale it. LMB select. RMB zoom."
+"hurt the owner's creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
 "Gifgasval: Je vijanden activeren een wolk van ongezonde geuren. LMK: "
 "selecteren. RMK: inzoomen. [20.3]"
@@ -4170,7 +4178,7 @@ msgstr ""
 msgctxt "Trap description"
 msgid ""
 "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
-"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
+"tripped. Does no harm to the owner's creatures. LMB select. RMB zoom."
 msgstr ""
 "Bliksemval: Treft vijandelijke wezens met bliksemstralen. LMK: selecteren. "
 "RMK: inzoomen. [20.4]"
@@ -4186,12 +4194,11 @@ msgstr ""
 "alle wezens in de buurt verwonden. LMK: selecteren. RMK: inzoomen. [20.5]"
 
 #: guitext:589
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
-"are irreversible, so Bridge is needed to be able to step on affected area "
-"again. LMB select. RMB zoom."
+"are irreversible, so a Bridge is needed to be able to step on the affected "
+"area again. LMB select. RMB zoom."
 msgstr ""
 "Lava-val: De tegel valt uiteen in een poel van gesmolten lava. LMK: "
 "selecteren. RMK: inzoomen. [20.6]"
@@ -4426,7 +4433,7 @@ msgstr ""
 #: guitext:625
 msgctxt "Room description"
 msgid ""
-"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
 "zoom. [17.2]"
 msgstr ""
 "Hol: Hier slapen je wezens en rusten ze uit. LMK: selecteren. RMK: inzoomen. "
@@ -4561,8 +4568,7 @@ msgstr "Wezenbeheersing: Bestuur direct het wezen. LMK: selecteren. [18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid ""
-"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Dondersteentjes Creëren: Creëer een Dondersteen in je kerker. LMK: "
 "selecteren."
@@ -4577,10 +4583,17 @@ msgstr ""
 "RMK: inzoomen. [18.3]"
 
 #: guitext:650
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid ""
+#| "Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
+#| "select, LMB again to reselect, LMB a third time to cancel. RMB zoom. "
+#| "[18.6]"
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
+"in range of creatures to gather, cast again for destination. RMB zoom. LMB "
+"Cancel. [18.6]"
 msgstr ""
 "Alarmeren: Roept al je wezens naar een gebied in je kerker. LMK: selecteren, "
 "LMK nogmaals: weer selecteren, LMK derde keer: annuleren. RMK: inzoomen. "
@@ -4611,22 +4624,17 @@ msgstr ""
 #: guitext:654
 msgctxt "Keeper spell description"
 msgid "Speed Monster: Increases the speed of your monsters."
-msgstr ""
-"Monsterversneller: Verhoogt de snelheid van je slaafjes."
+msgstr "Monsterversneller: Verhoogt de snelheid van je slaafjes."
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid ""
-"Protect Monster: Shields your creatures from attack."
-msgstr ""
-"Monsterbescherming: Beschermt je wezens tegen aanvallen."
+msgid "Protect Monster: Shields your creatures from attack. LMB select."
+msgstr "Monsterbescherming: Beschermt je wezens tegen aanvallen."
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy."
-msgstr ""
-"Onzichtbaar: Maakt je wezens onzichtbaar voor de vijand."
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
+msgstr "Onzichtbaar: Maakt je wezens onzichtbaar voor de vijand."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -4654,16 +4662,19 @@ msgstr ""
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
 msgstr ""
 "Murenbedwinger: Breekt verstevigde muren van de vijand af. LMK: selecteren. "
 "[18.16]"
 
 #: guitext:661
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid ""
+#| "Heal: Cast on an area of the dungeon to improve the health of your "
+#| "creatures. LMB select. [18.9]"
 msgctxt "Keeper spell description"
-msgid ""
-"Heal: Cast on an area of the dungeon to improve the health of your "
-"creatures. LMB select. [18.9]"
+msgid "Heal: Cast on a creature to improve its health. LMB select. [18.9]"
 msgstr ""
 "Genezing: Verbetert de gezondheid van je wezens in een gebied van de kerker. "
 "LMK: selecteren. [18.9]"
@@ -4810,7 +4821,7 @@ msgstr "Kist met deuren gevonden"
 #: guitext:689
 msgctxt "Game event name"
 msgid "Dungeon Special found"
-msgstr "Speciale Dungeon gevonden"
+msgstr "Mysterieuze doos gevonden"
 
 #: guitext:690
 msgctxt "Game event description"
@@ -4939,8 +4950,8 @@ msgstr "Kist met deuren gevonden: LMK: bladeren. RMK: wissen."
 
 #: guitext:715
 msgctxt "Game event description"
-msgid "Dungeon special found: LMB toggle. RMB delete."
-msgstr "Speciale kerker gevonden: LMK: bladeren. RMK: wissen."
+msgid "Dungeon Special found: LMB toggle. RMB delete."
+msgstr "Mysterieuze doos gevonden: LMK: bladeren. RMK: wissen."
 
 #: guitext:716
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
@@ -5010,7 +5021,7 @@ msgstr "Computerhulp Menu: Computerhulp instellen. [3.2.4]"
 #: guitext:729
 msgctxt "In-game interface description"
 msgid ""
-"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"Aggressive Computer Assistant: Constructs your dungeon and always tries to "
 "attack the enemy. LMB select. [3.2.4]"
 msgstr ""
 "Agressieve Computerhulp: Bouwt je kerker en probeert de vijand altijd aan te "
@@ -5044,9 +5055,11 @@ msgstr ""
 "selecteren. [3.2.4]"
 
 #: guitext:733
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
+"Zoom. [22.2.1]"
 msgstr ""
 "De meest ervaren wezens oppakken: LMK: oppikken. RMK: inzoomen. [22.2.1]"
 
@@ -5068,7 +5081,7 @@ msgstr "Vechtende wezens verplaatsen: LMK: oppakken. RMK: inzoomen. [22.2.1]"
 #: guitext:737
 msgctxt "In-game interface description"
 msgid ""
-"Invert Mouse: Inverts the vertical mouse movements while Possessing a "
+"Invert Mouse: Inverts the vertical mouse movements while possessing a "
 "creature. LMB toggle."
 msgstr ""
 "Muis omkeren: Tijdens Wezenbeheersing worden vertikale muisbewegingen "
@@ -5407,7 +5420,7 @@ msgstr "Vampiers gecreëerd"
 msgctxt "Easter egg"
 msgid ""
 "When night does not give way to day, And children are too scared to play, "
-"Abandon hope, embrace despair, You're destined for my Dragon's lair"
+"Abandon hope, embrace despair, You're destined for my Dragon's lair."
 msgstr ""
 "Wanneer de nacht de dag steelt, Het bange kind niet langer speelt, Maakt "
 "hoop plaats voor wanhoopsvlagen, In het Drakenhol slijt gij je dagen."
@@ -5809,17 +5822,17 @@ msgid "4 Players"
 msgstr "4 Spelers"
 
 #: guitext:874
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "Serieel"
 
 #: guitext:875
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "Modem"
 
 #: guitext:876
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "IPX"
 
@@ -5885,18 +5898,20 @@ msgstr "Nieuwe Levels"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "Plaats de Data Disk CD-ROM in het station"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr ""
+"Produceerbaar: Wezens kunnen dit voorwerp in de werkplaats vervaardigen."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Plaats de Dungeon Keeper CD-ROM in het station"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr ""
+"Werkplaats te klein: Breid de werkplaats uit om dit voorwerp te vervaardigen."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Plaats The Deeper Dungeons CD-ROM in het station"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Niet produceerbaar: Dit voorwerp kan niet worden vervaardigd."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -5914,7 +5929,7 @@ msgstr ""
 #: guitext:893
 msgctxt "In-game message"
 msgid ""
-"Another Keeper has already claimed this realm. He is unfit to rule so "
+"Another Keeper has already claimed this realm. He is unfit to rule, so "
 "destroy him and take what is rightfully yours. Great riches lie in the "
 "caverns around the land; explore to gain more power."
 msgstr ""
@@ -5926,7 +5941,7 @@ msgstr ""
 #: guitext:894
 msgctxt "In-game message"
 msgid ""
-"This land is highly coveted amongst the evil and there are three enemy "
+"This land is highly coveted amongst the evil, and there are three enemy "
 "Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for "
 "any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr ""
@@ -5950,7 +5965,7 @@ msgstr ""
 #: guitext:896
 msgctxt "In-game message"
 msgid ""
-"You and a rival Dungeon Keeper are vying for control of this realm but the "
+"You and a rival Dungeon Keeper are vying for control of this realm, but the "
 "Lord of the Land has constructed his own dungeon between you to halt your "
 "conquest. Destroy him and the enemy Keeper to reign supreme."
 msgstr ""
@@ -5962,8 +5977,8 @@ msgstr ""
 #: guitext:897
 msgctxt "In-game message"
 msgid ""
-"You have done well to come this far but further hardships await. Search the "
-"map carefully and you may find many secrets to aid your conquest."
+"You have done well to come this far, but further hardships await. Search the "
+"map carefully, and you may find many secrets to aid your conquest."
 msgstr ""
 "Je hebt al veel bereikt, maar nieuwe ontberingen liggen in het verschiet. "
 "Onderzoek nauwgezet de kaart en ontdek geheimen die bij je verovering van "
@@ -5973,8 +5988,8 @@ msgstr ""
 #: guitext:898
 msgctxt "In-game message"
 msgid ""
-"You have come to this realm with little to assist you so you must explore to "
-"gain more power. Keep an eye out for any loathsome heroes who may try to "
+"You have come to this realm with little to assist you, so you must explore "
+"to gain more power. Keep an eye out for any loathsome heroes who may try to "
 "thwart your progress."
 msgstr ""
 "Je bent met weinig middelen naar dit rijk gekomen. Ga daarom op "
@@ -5995,7 +6010,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your opponent for this realm has foolishly challenged your superior skill. "
-"Such disrespect should be punished so make an example of his insolence."
+"Such disrespect should be punished, so make an example of his insolence."
 msgstr ""
 "Je tegenstander in dit rijk is zo dom jouw superieure vaardigheden uit te "
 "dagen. Dit gebrek aan respect moet bestraft worden! Stel hem als voorbeeld "
@@ -6037,7 +6052,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
-"down it's walls and let your creatures feast on the heroes within."
+"down its walls and let your creatures feast on the heroes within."
 msgstr ""
 "Het eens zo sterke fort van dit rijk is vervallen en verzwakt. Maak de muren "
 "met de grond gelijk en laat je wezens zich uitleven op de Helden."
@@ -6057,7 +6072,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Congratulations Keeper. This vial has given your researchers a much needed "
-"boost. You can now construct Bridges that enable you to traverse water and "
+"boost. You can now construct Bridges, which enable you to traverse water and "
 "fire."
 msgstr ""
 "Gefeliciteerd Keeper. Dit flesje geeft je onderzoekers een aardig duwtje in "
@@ -6141,7 +6156,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Congratulations Keeper, you have a powerful army indeed. Do not grow "
-"complacent though, you still have another challenger to the north ..."
+"complacent, though; you still have another challenger to the north ..."
 msgstr ""
 "Gefeliciteerd Keeper, je hebt inderdaad een machtig leger. Wordt niet "
 "overmoedig. Je hebt nog altijd een tegenstander in het noorden..."
@@ -6151,7 +6166,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Congratulations Keeper, you have a powerful army indeed. Do not grow "
-"complacent though, you still have another challenger to the south ..."
+"complacent, though; you still have another challenger to the south ..."
 msgstr ""
 "Gefeliciteerd Keeper, je hebt inderdaad een machtig leger. Wordt niet "
 "overmoedig. Je hebt nog altijd een tegenstander in het zuiden..."
@@ -6173,7 +6188,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Make haste Keeper. The heroes of this realm are many and strong. Prepare "
-"your forces well or face a humiliating defeat ..."
+"your forces well, or face a humiliating defeat ..."
 msgstr ""
 "Schiet op Keeper. De Helden in dit rijk zijn sterk en talrijk. Bereid je "
 "strijdkrachten goed voor of onderga een vernederende nederlaag..."
@@ -6308,7 +6323,7 @@ msgstr ""
 #: guitext:931
 msgctxt "In-game message"
 msgid ""
-"Before you lies the Wizard's domain. Defeat him and you will regain your "
+"Before you lies the Wizard's domain. Defeat him, and you will regain your "
 "powers."
 msgstr ""
 "Voor je ligt het rijk van de MagiÙr. Versla hem en je krijgt je krachten "
@@ -6340,13 +6355,13 @@ msgstr ""
 #: guitext:934
 msgctxt "In-game message"
 msgid ""
-"Your achievements are legendary Keeper. Tales of your evil and cunning will "
+"Your achievements are legendary, Keeper. Tales of your evil and cunning will "
 "become the horror stories of generations."
 msgstr ""
 "Je prestaties zijn legendarisch, Keeper. Jouw terreur en sluwheid zullen "
 "generaties lang als griezelverhalen voortleven."
 
-#: guitext:935 
+#: guitext:935
 msgctxt "Door name"
 msgid "Secret Door"
 msgstr "Geheime deur"
@@ -6354,10 +6369,11 @@ msgstr "Geheime deur"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
-"opening. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it "
+"closely or see it opening. RMB zoom."
 msgstr ""
-"Geheime deur: Deze deur blijft verborgen voor vijanden tenzij ze hem goed observeren of zien openen. RKM: inzoomen"
+"Geheime deur: Deze deur blijft verborgen voor vijanden tenzij ze hem goed "
+"observeren of zien openen. RKM: inzoomen"
 
 #: guitext:937
 msgctxt "Game event description"
@@ -6438,26 +6454,34 @@ msgstr ""
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
-"the better the creature's performance."
-msgstr "Onderzoek vaardigheid: Hoe snel het wezen werkt in de bibliotheek. Hoger is beter."
+msgid ""
+"Research Skill: How fast the creature works in Library. The higher the skill "
+"level, the better the creature's performance."
+msgstr ""
+"Onderzoek vaardigheid: Hoe snel het wezen werkt in de bibliotheek. Hoger is "
+"beter."
 
 #: guitext:953
 msgctxt "In-game interface description"
-msgid "Manufacture Skill: How fast the creature works in Workshop. The higher the Skill level, "
-"the better the creature's performance."
-msgstr "Werkplaats vaardigheid: Hoe snel het wezen werkt in de werkplaats. Hoger is beter."
+msgid ""
+"Manufacture Skill: How fast the creature works in Workshop. The higher the "
+"skill level, the better the creature's performance."
+msgstr ""
+"Werkplaats vaardigheid: Hoe snel het wezen werkt in de werkplaats. Hoger is "
+"beter."
 
 #: guitext:954
 msgctxt "In-game interface description"
-msgid "Training Skill: How fast the creature works on training. The higher the Skill level, "
-"the better the creature's performance."
+msgid ""
+"Training Skill: How fast the creature works on training. The higher the "
+"skill level, the better the creature's performance."
 msgstr "Training vaardigheid: Hoe snel het wezen sterker wordt door trainen."
 
 #: guitext:955
 msgctxt "In-game interface description"
-msgid "Scavenge Skill: How fast the creature works on scavenging. The higher the Skill level, "
-"the better the creature's performance."
+msgid ""
+"Scavenge Skill: How fast the creature works on scavenging. The higher the "
+"skill level, the better the creature's performance."
 msgstr "Aaskamer vaardigheid: Hoe snel het wezen werkt in de aaskamer."
 
 #: guitext:956
@@ -6473,35 +6497,42 @@ msgstr ""
 #: guitext:958
 msgctxt "In-game interface description"
 msgid ""
-"Best Damage: How much harm can be made by the strongest attack the creature "
+"Best Damage: How much harm can be done by the strongest attack the creature "
 "has."
 msgstr ""
 
 #: guitext:959
 msgctxt "In-game interface description"
 msgid ""
-"Weight: Mass of the creature. Some people say overweight can lead to heart "
-"attack."
+"Weight: Mass of the creature. Some people say that being overweight can lead "
+"to heart attacks."
 msgstr ""
 
 #: guitext:960
-msgctxt "Keeper spell name"
-msgid "Hand Of Evil"
+msgctxt "In-game interface description"
+msgid ""
+"Score: Estimate of an overall creature value. Added to player score when "
+"finishing the level."
 msgstr ""
 
 #: guitext:961
 msgctxt "Keeper spell name"
+msgid "Hand Of Evil"
+msgstr ""
+
+#: guitext:962
+msgctxt "Keeper spell name"
 msgid "Slap"
 msgstr "Slaan"
 
-#: guitext:962
+#: guitext:963
 msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
-"Just don't hold them forever or they may get irritated."
+"Just don't hold them forever, or they may get irritated."
 msgstr ""
 
-#: guitext:963
+#: guitext:964
 msgctxt "Keeper spell description"
 msgid ""
 "Slap: Makes your creatures work harder, for some time. Your creatures take "
@@ -6510,23 +6541,15 @@ msgstr ""
 "Sla je wezens als ze harder moeten werken. Plaats daartoe de Duivelshand op "
 "het wezen en klik rechts. Je verwondt je wezens met elke slag."
 
-#: guitext:964
-msgctxt "Keeper spell description"
-msgid "Slap: Makes your creatures work harder, for some time. "
-"Your creatures take some damage from each slap they receive."
-msgstr ""
-
 #: guitext:965
 msgctxt "In-game interface description"
-msgid ""
-"Health: How much health points the creature has left to lose."
+msgid "Health: How many health points the creature has left to lose."
 msgstr "Health: Hoeveel leven dit wezen nog te verliezen heeft."
 
 #: guitext:966
 msgctxt "In-game interface description"
-msgid ""
-"Health: The maximum amount of health points for this creature."
-msgstr ""
+msgid "Health: The maximum number of health points for this creature."
+msgstr "Health: Hoeveel leven dit wezen nog te verliezen heeft."
 
 #: guitext:967
 msgctxt "Menu interface item"
@@ -6699,7 +6722,7 @@ msgid "Snap Camera"
 msgstr "Klap Camera"
 
 #: guitext:1005
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Mysterieuze Doos: Er valt niet te achterhalen wat dit zal doen."
 
@@ -6710,8 +6733,12 @@ msgstr "Spelers hebben verschillende versies van het level."
 
 #: guitext:1007
 msgctxt "In-game interface description"
-msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr "Scherm Resolutie: Schakel om naar volgende geconfigureerde resolutie. LMK volgende. RMK: toon huidige resolutie."
+msgid ""
+"Display Resolution: Switch to the next configured display resolution. LMB "
+"toggle. RMB display current resolution."
+msgstr ""
+"Scherm Resolutie: Schakel om naar volgende geconfigureerde resolutie. LMK "
+"volgende. RMK: toon huidige resolutie."
 
 #: guitext:1008
 msgctxt "In-game interface item"
@@ -6740,12 +6767,12 @@ msgstr ""
 
 #: guitext:1013
 msgctxt "Menu interface item"
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr ""
 
 #: guitext:1014
 msgctxt "Menu interface item"
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr ""
 
 #: guitext:1015
@@ -6760,7 +6787,7 @@ msgstr "The Legende van de Ninja"
 
 #: guitext:1017
 msgctxt "Menu interface item"
-msgid "DzjeeAr's  6-level campaign"
+msgid "DzjeeAr's 6-level campaign"
 msgstr "DzjeeAr's campagne met  6 levels"
 
 #: guitext:1018
@@ -6775,7 +6802,7 @@ msgstr "DzjeeAr's campagne met 25 levels"
 
 #: guitext:1020
 msgctxt "Menu interface item"
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr ""
 
 #: guitext:1021
@@ -6800,12 +6827,12 @@ msgstr "Helden Campagne"
 
 #: guitext:1025
 msgctxt "Menu interface item"
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr ""
 
 #: guitext:1026
 msgctxt "Menu interface item"
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr "Nikolais Kasteel"
 
 #: guitext:1027
@@ -6815,17 +6842,17 @@ msgstr ""
 
 #: guitext:1028
 msgctxt "Menu interface item"
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr ""
 
 #: guitext:1029
 msgctxt "Menu interface item"
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr ""
 
 #: guitext:1030
 msgctxt "Menu interface item"
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr ""
 
 #: guitext:1031
@@ -6835,12 +6862,12 @@ msgstr ""
 
 #: guitext:1032
 msgctxt "Menu interface item"
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr ""
 
 #: guitext:1033
 msgctxt "Menu interface item"
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr ""
 
 #: guitext:1034 guitext:1035
@@ -6851,24 +6878,27 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr ""
+msgstr "Sloop-val"
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid ""
-"Demolition Trap: An explosive with unrivaled destructive power."
+msgid "Demolition Trap: An explosive with unrivalled destructive power."
 msgstr "Sloop-val: Een explosief met ongeëvenaarde vernietigende kracht."
 
 #: guitext:1038
 msgctxt "Trap description"
-msgid ""
-"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Schildwacht-val: Houdt de wacht en schiet op vijanden in zicht."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr ""
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Ballistavallen"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Ballista-val: Houdt de wacht en schiet op vijanden in zicht."
 
 #: guitext:1041
 msgctxt "Creature name"
@@ -6885,7 +6915,32 @@ msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Tijdmagiër"
 
-#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+#: guitext:1044
+msgctxt "Creature name"
+msgid "Bird"
+msgstr "Vogel"
+
+#: guitext:1045
+msgctxt "Creature name"
+msgid "Maiden"
+msgstr "Spinnenvrouw"
+
+#: guitext:1046
+msgctxt "Creature name"
+msgid "Spiderling"
+msgstr "Spinnetje"
+
+#: guitext:1047
+msgctxt "Creature name"
+msgid "Goblin"
+msgstr "Kobolt"
+
+#: guitext:1048
+msgctxt "Creature name"
+msgid "Fallen Angel"
+msgstr "Gevallen Engel"
+
+#: guitext:1049
 msgctxt "Unused"
 msgid "Moo7"
 msgstr ""
@@ -6898,12 +6953,15 @@ msgstr "Rotsformatie."
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr "Grondgesteente: Ongeclaimde rotsvloer. Je kunt het niet opeisen of erop bouwen."
+msgstr ""
+"Grondgesteente: Ongeclaimde rotsvloer. Je kunt het niet opeisen of erop "
+"bouwen."
 
 #: guitext:1052
 msgctxt "Slab description"
-msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
-msgstr "Dichte Goudader: Bevat veel rijkdom voor je Dondersteentjes om te delven."
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
+msgstr ""
+"Dichte Goudader: Bevat veel rijkdom voor je Dondersteentjes om te delven."
 
 #: guitext:1053
 msgctxt "Keeper spell name"
@@ -6978,26 +7036,40 @@ msgstr "Genees Monster: Geneest het doelwit voor een aanzienlijk deel."
 #: guitext:1067
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr "Zuiveren: Geneest alle negatieve effecten die op het wezen zijn toegebracht."
+msgstr ""
+"Zuiveren: Geneest alle negatieve effecten die op het wezen zijn toegebracht."
 
 #: guitext:1068
 msgctxt "Creature spell"
-msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
-msgstr "Zuiver Monster: Geneest alle negatieve effecten die op het doelwit zijn toegebracht."
+msgid ""
+"Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr ""
+"Zuiver Monster: Geneest alle negatieve effecten die op het doelwit zijn "
+"toegebracht."
 
 #: guitext:1069
 msgctxt "Keeper spell description"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
-msgstr "Terugkaats-schild: Stuurt projectielen afgevuurd op het doelwit terug naar de aanvaller."
+msgid ""
+"Magic Shield: Causes spells fired at the target to bounce back at the "
+"attacker."
+msgstr ""
+"Terugkaats-schild: Stuurt projectielen afgevuurd op het doelwit terug naar "
+"de aanvaller."
 
 #: guitext:1070
 msgctxt "Keeper spell description"
-msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
-msgstr "Opstijgen: Zorgt dat het doelwit van de grond komt en vanuit de lucht kan aanvallen."
+msgid ""
+"Levitate: Causes the target creature to take off from the ground and attack "
+"creatures from the air or cross lava unharmed."
+msgstr ""
+"Opstijgen: Zorgt dat het doelwit van de grond komt en vanuit de lucht kan "
+"aanvallen."
 
 #: guitext:1071
 msgctxt "Keeper spell description"
-msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgid ""
+"Sight: Allows the target creature to temporarily increase its awareness and "
+"notice the invisible."
 msgstr "Helderziendheid: Laat het wezen onzichtbare vijanden zien."
 
 #: guitext:1072
@@ -7008,7 +7080,7 @@ msgstr "Mol Creëren"
 #: guitext:1073
 msgctxt "Keeper spell description"
 msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
-"Mol Creëren: Creëer een Mol in je kerker. LMK: selecteren."
+msgstr "Mol Creëren: Creëer een Mol in je kerker. LMK: selecteren."
 
 #: guitext:1074 guitext:1075
 msgctxt "Unused"
@@ -7022,5 +7094,30 @@ msgstr "Deur van Midas"
 
 #: guitext:1077
 msgctxt "Door description"
-msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr "Deur van Midas: Vreet goud van de eigenaar om onverwoestbaar te blijven. RMK: inzoomen."
+msgid ""
+"Midas Door: This door consumes gold from the owner to stay completely "
+"indestructible. RMB zoom."
+msgstr ""
+"Deur van Midas: Vreet goud van de eigenaar om onverwoestbaar te blijven. "
+"RMK: inzoomen."
+
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr "Gezel: Roept een metgezel op om het wezen te beschermen en te helpen."
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr ""
+"Oproepen: Roept tijdelijke bewakers op om het wezen in gevecht te helpen."

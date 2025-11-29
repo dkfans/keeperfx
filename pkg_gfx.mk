@@ -122,6 +122,7 @@ pkg/data/swipe03.dat \
 pkg/data/swipe04.dat \
 pkg/data/swipe05.dat \
 pkg/data/swipe06.dat \
+pkg/data/swipe07.dat \
 pkg/data/gmap64.raw \
 pkg/data/gmap32.raw \
 pkg/data/gmapbug.dat
@@ -137,6 +138,8 @@ pkg-landviews: $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
 pkg-enginegfx: $(ENGINEGFX)
+
+pkg-landviewtabs: $(LANDVIEWDATTABS)
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
@@ -297,6 +300,7 @@ pkg/data/swipe03.dat: gfx/enginefx/swipes-32/filelist_scythlr.txt pkg/data/palet
 pkg/data/swipe04.dat: gfx/enginefx/swipes-32/filelist_sticklr.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/swipe05.dat: gfx/enginefx/swipes-32/filelist_stickrl.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/swipe06.dat: gfx/enginefx/swipes-32/filelist_clawsrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe07.dat: gfx/enginefx/swipes-32/filelist_teeth.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/frac%.raw:
 	-$(ECHO) 'Building RAW texture: $@'
@@ -310,25 +314,49 @@ pkg/data/tmap%.dat:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/ldata/%.raw pkg/data/%.raw:
+define BUILD_RAW_IMAGE_CMD
 	-$(ECHO) 'Building RAW image: $@'
 	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -f raw -l 100 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
+endef
 
-pkg/ldata/%.dat pkg/data/%.dat:
+pkg/ldata/%.raw:
+	$(BUILD_RAW_IMAGE_CMD)
+
+pkg/data/%.raw:
+	$(BUILD_RAW_IMAGE_CMD)
+
+
+define BUILD_TABULATED_SPRITES_CMD
 	-$(ECHO) 'Building tabulated sprites: $@'
 	$(MKDIR) "$(@D)"
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
+endef
 
-pkg/creatrs/%.jty pkg/data/%.jty:
+pkg/ldata/%.dat:
+	$(BUILD_TABULATED_SPRITES_CMD)
+
+pkg/data/%.dat:
+	$(BUILD_TABULATED_SPRITES_CMD)
+
+
+define BUILD_JONTY_SPRITES_CMD
 	-$(ECHO) 'Building jonty sprites: $@'
 	@$(MKDIR) "$(@D)"
 	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
+endef
+
+pkg/creatrs/%.jty:
+	$(BUILD_JONTY_SPRITES_CMD)
+
+pkg/data/%.jty:
+	$(BUILD_JONTY_SPRITES_CMD)
+
 
 gfx/%:: | gfx/LICENSE ;
 

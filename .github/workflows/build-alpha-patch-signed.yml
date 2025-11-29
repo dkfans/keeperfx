@@ -1,0 +1,41 @@
+name: Alpha Patches (Signed)
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  call-alpha-patch-build:
+
+    name: Trigger Alpha Patch Build (Unsigned)
+    if: github.repository == 'dkfans/keeperfx'
+    uses: ./.github/workflows/build-alpha-patch-unsigned.yml
+
+  sign-alpha-patch-artifact:
+
+    name: "Sign Alpha Patch"
+    if: github.repository == 'dkfans/keeperfx'
+    runs-on: ubuntu-24.04
+    needs: call-alpha-patch-build
+
+    steps:
+
+    - name: Sign artifact
+      uses: signpath/github-action-submit-signing-request@v1.1
+      with:
+        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+        organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
+        project-slug: '${{ vars.SIGNPATH_PROJECT_SLUG }}'
+        signing-policy-slug: '${{ vars.SIGNPATH_ALPHA_SIGNING_POLICY_SLUG }}'
+        artifact-configuration-slug: 'standard'
+        github-artifact-id: '${{ needs.call-alpha-patch-build.outputs.artifact-id }}'
+        wait-for-completion: true
+        output-artifact-directory: 'pkg/'
+
+    - name: Upload signed artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ needs.call-alpha-patch-build.outputs.zip-name }}-signed
+        path: pkg/**

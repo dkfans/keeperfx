@@ -42,6 +42,7 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -61,12 +62,57 @@ unsigned short dungeon_special_selected;
 /******************************************************************************/
 
 /**
+ * Increases creatures' levels for player.
+ * @param plyr_idx target player
+ * @param count how many times should the level be increased
+ */
+void script_use_special_increase_level(PlayerNumber plyr_idx, int count)
+{
+    increase_level(get_player(plyr_idx), count);
+}
+
+/**
+ * Multiplies every creature for player.
+ * @param plyr_idx target player
+ */
+void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
+{
+    multiply_creatures(get_player(plyr_idx));
+}
+
+/**
+ * Fortifies player's dungeon.
+ * @param plyr_idx target player
+ */
+void script_make_safe(PlayerNumber plyr_idx)
+{
+    make_safe(get_player(plyr_idx));
+}
+
+/**
+ * Fortifies player's dungeon.
+ * @param plyr_idx target player
+ */
+void script_make_unsafe(PlayerNumber plyr_idx)
+{
+    make_unsafe(plyr_idx);
+}
+
+/**
+ * Enables bonus level for current player.
+ */
+TbBool script_locate_hidden_world()
+{
+    return activate_bonus_level(get_player(my_player_number));
+}
+
+
+/**
  * Makes a bonus level for current SP level visible on the land map screen.
  */
 TbBool activate_bonus_level(struct PlayerInfo *player)
 {
   SYNCDBG(5,"Starting");
-  set_flag(game.flags_font, FFlg_unk02);
   LevelNumber sp_lvnum = get_loaded_level_number();
   TbBool result = set_bonus_level_visibility_for_singleplayer_level(player, sp_lvnum, true);
   if (!result)
@@ -103,7 +149,7 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
             continue;
         }
         struct CreatureControl* newcctrl = creature_control_get_from_thing(tncopy);
-        set_creature_level(tncopy, cctrl->explevel);
+        set_creature_level(tncopy, cctrl->exp_level);
         tncopy->health = thing->health;
         newcctrl->exp_points = cctrl->exp_points;
         newcctrl->blood_type = cctrl->blood_type;
@@ -290,14 +336,14 @@ void make_safe(struct PlayerInfo *player)
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     // Prepare the array to remember which slabs were already taken care of
-    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
-            struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
+            struct SlabConfigStats* slabst = get_slab_stats(slb);
+            if ((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                 areamap[slb_num] = 0x01;
             else
                 areamap[slb_num] = 0x00;
@@ -312,7 +358,7 @@ void make_safe(struct PlayerInfo *player)
     }
 
     PlayerNumber plyr_idx = player->id_number;
-    SlabCodedCoords* slblist = (SlabCodedCoords*)(big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y);
+    SlabCodedCoords* slblist = (SlabCodedCoords*)(big_scratch + game.map_tiles_x * game.map_tiles_y);
     unsigned int list_len = 0;
     unsigned int list_cur = 0;
     while (list_cur <= list_len)
@@ -326,11 +372,11 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabAttr* slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x-1, slb_y))
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
+                if ((slabst->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x-1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x - 1, slb_y);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x-1,0), slab_subtile(slb_y,0), plyr_idx, 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x-1,0), slab_subtile(slb_y,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x-1, slb_y);
                     fill_in_reinforced_corners(plyr_idx, slb_x-1, slb_y);
                 }
@@ -342,18 +388,18 @@ void make_safe(struct PlayerInfo *player)
                 list_len++;
             }
         }
-        if (slb_x < gameadd.map_tiles_x-1)
+        if (slb_x < game.map_tiles_x-1)
         {
             slb_num = get_slab_number(slb_x+1, slb_y);
             if ((areamap[slb_num] & 0x01) != 0)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabAttr* slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FriableDirt) &&  slab_by_players_land(plyr_idx, slb_x+1, slb_y))
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
+                if ((slabst->category == SlbAtCtg_FriableDirt) &&  slab_by_players_land(plyr_idx, slb_x+1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x + 1, slb_y);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x+1,0), slab_subtile(slb_y,0), plyr_idx, 1u);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x+1,0), slab_subtile(slb_y,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x+1, slb_y);
                     fill_in_reinforced_corners(plyr_idx, slb_x+1, slb_y);
                 }
@@ -372,11 +418,11 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabAttr* slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
+                if ((slabst->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y - 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y-1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y-1);
                 }
@@ -388,18 +434,18 @@ void make_safe(struct PlayerInfo *player)
                 list_len++;
             }
         }
-        if (slb_y < gameadd.map_tiles_y-1)
+        if (slb_y < game.map_tiles_y-1)
         {
             slb_num = get_slab_number(slb_x, slb_y+1);
             if ((areamap[slb_num] & 0x01) != 0)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabAttr* slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
+                if ((slabst->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y + 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y+1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y+1);
                 }
@@ -416,7 +462,7 @@ void make_safe(struct PlayerInfo *player)
         slb_y = slb_num_decode_y(slblist[list_cur]);
         list_cur++;
     }
-    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
 }
 
 void make_unsafe(PlayerNumber plyr_idx)
@@ -425,20 +471,20 @@ void make_unsafe(PlayerNumber plyr_idx)
     MapSlabCoord slb_y;
     SlabCodedCoords slb_num;
     struct SlabMap* slb;
-    struct SlabAttr* slbattr;
+    struct SlabConfigStats* slabst;
     struct PowerConfigStats* powerst;
     struct Dungeon* dungeon;
     struct Coord3d pos;
-    for (slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (slb_y = 0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x = 0; slb_x < game.map_tiles_x; slb_x++)
         {
             slb_num = get_slab_number(slb_x, slb_y);
             slb = get_slabmap_direct(slb_num);
             if (slabmap_owner(slb) == plyr_idx)
             {
-                slbattr = get_slab_attrs(slb);
-                if (slbattr->category == SlbAtCtg_FortifiedWall)
+                slabst = get_slab_stats(slb);
+                if (slabst->category == SlbAtCtg_FortifiedWall)
                 {
                     SlabKind newslab = choose_rock_type(plyr_idx, slb_x, slb_y);
                     dungeon = get_dungeon(plyr_idx);
@@ -454,13 +500,15 @@ void make_unsafe(PlayerNumber plyr_idx)
             }
         }
     }
-    panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+    panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
 }
 
 void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
     struct Coord3d pos;
+
+    lua_on_special_box_activate(player->id_number,cratetng);
 
     // Gathering data which we'll need if the special is used and disposed.
     struct Dungeon* dungeon = get_dungeon(player->id_number);
@@ -557,15 +605,15 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
         default:
             if (thing_is_custom_special_box(cratetng))
             {
-                if (gameadd.current_player_turn == game.play_gameturn)
+                if (game.current_player_turn == game.play_gameturn)
                 {
-                    WARNLOG("box activation rejected turn:%lu", gameadd.current_player_turn);
+                    WARNLOG("box activation rejected turn:%lu", game.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }
-                gameadd.current_player_turn = game.play_gameturn;
-                gameadd.script_current_player = player->id_number;
-                memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
+                game.current_player_turn = game.play_gameturn;
+                game.script_current_player = player->id_number;
+                memcpy(&game.triggered_object_location, &pos, sizeof(struct Coord3d));
                 dungeon->box_info.activated[cratetng->custom_box.box_kind]++;
                 no_speech = true;
                 remove_events_thing_is_attached_to(cratetng);
@@ -583,14 +631,14 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
         {
             if (is_my_player(player) && !no_speech)
             {
-                output_message(specst->speech, 0, true);
+                output_message(specst->speech, 0);
             }
             create_used_effect_or_element(&pos, specst->effect_id, player->id_number, cratetng->index);
         }
     }
 }
 
-void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crmodel, unsigned char crlevel)
+void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crmodel, CrtrExpLevel exp_level)
 {
     if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_Resurrect) ) {
         ERRORMSG("Invalid resurrect box object!");
@@ -604,16 +652,16 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
     struct Thing* creatng = create_creature(&boxtng->mappos, crmodel, owner);
     if (!thing_is_invalid(creatng))
     {
-        init_creature_level(creatng, crlevel);
+        init_creature_level(creatng, exp_level);
         if (is_my_player_number(owner))
-          output_message(SMsg_CommonAcknowledge, 0, true);
+          output_message(SMsg_CommonAcknowledge, 0);
     }
     struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
     create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner, boxtng->index);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
-    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
-        remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, crlevel);
+    if ((game.conf.rules[owner].game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
+        remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, exp_level);
     }
     delete_thing_structure(boxtng, 0);
 }
@@ -642,7 +690,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(transftng);
-    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel,cctrl->creature_name))
+    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->exp_level,cctrl->creature_name))
     {
         dungeon->creatures_transferred++;
     }
@@ -657,7 +705,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
         delete_thing_structure(boxtng, 0);
     }
     if (is_my_player_number(plyr_idx))
-      output_message(SMsg_CommonAcknowledge, 0, true);
+      output_message(SMsg_CommonAcknowledge, 0);
 }
 
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
@@ -669,7 +717,7 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
         {
             dungeon_special_selected = thing->index;
             transfer_creature_scroll_offset = 0;
-            output_message(SMsg_SpecTransfer, MESSAGE_DELAY_SPECIAL, true);
+            output_message(SMsg_SpecTransfer, MESSAGE_DURATION_SPECIAL);
             turn_off_menu(GMnu_DUNGEON_SPECIAL);
             turn_on_menu(GMnu_TRANSFER_CREATURE);
         }
@@ -685,7 +733,7 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
         {
           dungeon_special_selected = thing->index;
           resurrect_creature_scroll_offset = 0;
-          output_message(SMsg_SpecResurrect, MESSAGE_DELAY_SPECIAL, true);
+          output_message(SMsg_SpecResurrect, MESSAGE_DURATION_SPECIAL);
           turn_off_menu(GMnu_DUNGEON_SPECIAL);
           turn_on_menu(GMnu_RESURRECT_CREATURE);
         }
@@ -732,7 +780,7 @@ long create_transferred_creatures_on_level(void)
                 {
                     continue;
                 }
-                init_creature_level(creatng, intralvl.transferred_creatures[p][i].explevel);
+                init_creature_level(creatng, intralvl.transferred_creatures[p][i].exp_level);
                 cctrl = creature_control_get_from_thing(creatng);
                 strcpy(cctrl->creature_name, intralvl.transferred_creatures[p][i].creature_name);
                 creature_created++;

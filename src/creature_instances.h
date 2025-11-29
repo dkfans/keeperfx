@@ -116,6 +116,7 @@ struct InstanceInfo {
     long range_max;
     long symbol_spridx;
     short tooltip_stridx;
+    TbBool no_animation_loop;
     // Refer to creature_instances_validate_func_list
     uint8_t validate_source_func;
     int32_t validate_source_func_params[2];
@@ -155,14 +156,14 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 TbBool creature_has_weapon_for_postal(const struct Thing *creatng);
 TbBool creature_has_melee_attack(const struct Thing *creatng);
 
-int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
-int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
 TbBool instance_draws_possession_swipe(CrInstance inum);
 
 void delay_teleport(struct Thing *creatng);
 void delay_heal_sleep(struct Thing *creatng);
+
+void script_set_creature_instance(ThingModel crmodel, short slot, int instance, short level);
 /******************************************************************************/
 TbBool validate_source_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);

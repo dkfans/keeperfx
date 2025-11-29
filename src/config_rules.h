@@ -64,13 +64,12 @@ enum SacrificeReturn {
 };
 
 struct SacrificeRecipe {
-    long victims[MAX_SACRIFICE_VICTIMS];
+    ThingModel victims[MAX_SACRIFICE_VICTIMS];
     long action;
     long param;
 };
 
 struct GameRulesConfig {
-    GoldAmount gold_per_gold_block;
     GoldAmount pot_of_gold_holds;
     GoldAmount chest_gold_hold;
     GoldAmount gold_pile_value;
@@ -86,7 +85,6 @@ struct GameRulesConfig {
     HitPoints dungeon_heart_heal_health;
     unsigned long hero_door_wait_time;
     unsigned long classic_bugs_flags;
-    unsigned long gem_effectiveness;
     long door_sale_percent;
     long room_sale_percent;
     long trap_sale_percent;
@@ -102,6 +100,7 @@ struct GameRulesConfig {
     unsigned long easter_egg_speech_chance;
     unsigned long easter_egg_speech_interval;
     long global_ambient_light;
+    long thing_minimum_illumination;
     TbBool light_enabled;
     unsigned short creatures_count;
 };
@@ -112,23 +111,21 @@ struct ComputerRulesConfig {
 
 struct CreatureRulesConfig {
     unsigned char recovery_frequency;
-    short fight_max_hate;
-    short fight_borderline;
-    short fight_max_love;
     unsigned short body_remains_for;
-    short fight_hate_kill_value;
     unsigned long flee_zone_radius;
     GameTurnDelta game_turns_in_flee;
     unsigned short game_turns_unconscious;
-    long critical_health_permil;
+    HitPoints critical_health_permil;
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
 };
 
 struct MagicRulesConfig {
     GameTurnDelta hold_audience_time;
-    unsigned long armageddon_teleport_your_time_gap;
-    unsigned long armageddon_teleport_enemy_time_gap;
+    GameTurnDelta armageddon_teleport_your_time_gap;
+    GameTurnDelta armageddon_teleport_enemy_time_gap;
+    GameTurnDelta armageddon_count_down;
+    GameTurnDelta armageddon_duration;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
@@ -139,6 +136,7 @@ struct MagicRulesConfig {
     long friendly_fight_area_range_percent;
     TbBool armageddon_teleport_neutrals;
     short weight_calculate_push;
+    TbBool allow_instant_charge_up;
 };
 
 struct RoomRulesConfig {
@@ -153,7 +151,7 @@ struct RoomRulesConfig {
     unsigned char bodies_for_vampire;
     unsigned short graveyard_convert_time;
     short barrack_max_party_size;
-    unsigned short training_room_max_level;
+    CrtrExpLevel training_room_max_level;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
     unsigned long time_between_prison_break;
@@ -161,6 +159,10 @@ struct RoomRulesConfig {
     unsigned char torture_death_chance;
     unsigned char torture_convert_chance;
     unsigned long time_in_prison_without_break;
+    unsigned short train_efficiency;
+    unsigned short work_efficiency;
+    unsigned short scavenge_efficiency;
+    unsigned short research_efficiency;
 };
 struct WorkersRulesConfig {
     unsigned char hits_per_slab;
@@ -194,26 +196,22 @@ struct RulesConfig {
     struct SacrificesRulesConfig sacrifices;
 };
 /******************************************************************************/
-extern const char keeper_rules_file[];
+extern const struct ConfigFileData keeper_rules_file_data;
 extern const struct NamedCommand research_desc[];
 extern const struct NamedCommand rules_game_classicbugs_commands[];
 /******************************************************************************/
 long get_research_id(long item_type, const char *trg_name, const char *func_name);
-TbBool load_rules_config(const char *conf_fname, unsigned short flags);
 struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void);
 
 const char *player_code_name(PlayerNumber plyr_idx);
+int sac_compare_fn(const void* ptr_a, const void* ptr_b);
 
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
 
-extern const struct NamedField rules_magic_named_fields[];
-extern const struct NamedField rules_rooms_named_fields[];
-extern const struct NamedField rules_game_named_fields[];
-extern const struct NamedField rules_creatures_named_fields[];
-extern const struct NamedField rules_computer_named_fields[];
-extern const struct NamedField rules_workers_named_fields[];
-extern const struct NamedField rules_health_named_fields[];
+extern const struct NamedField* ruleblocks[8];
+
+extern const struct NamedFieldSet rules_named_fields_set;
 
 /******************************************************************************/
 #ifdef __cplusplus

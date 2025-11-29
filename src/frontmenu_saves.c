@@ -97,7 +97,7 @@ void draw_load_button(struct GuiButton *gbtn)
     {
         width += 32;
     }
-    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+    if ((gbtn->button_state_left_pressed) || (gbtn->button_state_right_pressed))
     {
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
         int lit_width = gbtn->width + 6*units_per_pixel/16;
@@ -126,7 +126,7 @@ void gui_save_game(struct GuiButton *gbtn)
         fill_game_catalogue_slot(slot_num, gbtn->content.str);
         if (save_game(slot_num))
         {
-            output_message(SMsg_GameSaved, 0, true);
+            output_message(SMsg_GameSaved, 0);
         } else
       {
           ERRORLOG("Error in save!");
@@ -156,7 +156,7 @@ void frontend_load_game(struct GuiButton *gbtn)
     int i = frontend_load_game_button_to_index(gbtn);
     if (i < 0)
         return;
-    game.numfield_15 = i;
+    game.save_game_slot = i;
     if (is_save_game_loadable(i))
     {
         frontend_set_state(FeSt_LOAD_GAME);
@@ -219,7 +219,7 @@ void frontend_load_game_down_maintain(struct GuiButton *gbtn)
         {
             load_game_scroll_offset++;
         }
-	}
+    }
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)

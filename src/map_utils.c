@@ -108,7 +108,7 @@ void init_spiral_steps(void)
     struct MapOffset* sstep = &spiral_step[0];
     sstep->h = y;
     sstep->v = x;
-    sstep->both = (short)y + ((short)x * gameadd.map_subtiles_y);
+    sstep->both = (short)y + ((short)x * game.map_subtiles_y);
     y = -1;
     x = -1;
     for (long i = 1; i < SPIRAL_STEPS_COUNT; i++)
@@ -116,7 +116,7 @@ void init_spiral_steps(void)
       sstep = &spiral_step[i];
       sstep->h = y;
       sstep->v = x;
-      sstep->both = (short)y + ((short)x * gameadd.map_subtiles_y);
+      sstep->both = (short)y + ((short)x * game.map_subtiles_y);
       if ((y < 0) && (x-y == 1))
       {
           y--;
@@ -194,8 +194,8 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
 
 void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param)
 {
-    long max_slb_dim_x = (gameadd.map_subtiles_x / STL_PER_SLB);
-    long max_slb_dim_y = (gameadd.map_subtiles_y / STL_PER_SLB);
+    long max_slb_dim_x = (game.map_subtiles_x / STL_PER_SLB);
+    long max_slb_dim_y = (game.map_subtiles_y / STL_PER_SLB);
     MapSlabCoord* stack_x = malloc(max_slb_dim_x * max_slb_dim_y);
     MapSlabCoord* stack_y = malloc(max_slb_dim_x * max_slb_dim_y);
     char* visited = malloc(max_slb_dim_x * max_slb_dim_y);
@@ -263,14 +263,14 @@ SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y
     if ((i & 0xFF) != 0)
     {
         // Just compute the index
-        n = (i + LbFPMath_PI/4) >> 9;
+        n = (i + DEGREES_45) / DEGREES_90;
     } else
     {
         //Special case - the angle is exact multiplication of pi/4
         // Add some variant factor to make it little off this value.
         // this should give better results because tangens values are rounded up or down.
         //TODO: maybe it would be even better to get previous around_index as parameter - this way we could avoid taking same path without random factors.
-        n = (i + LbFPMath_PI/4 + 2*(((dest_x+dest_y)>>1)%2) - 1) >> 9;
+        n = (i + DEGREES_45 + 2*(((dest_x+dest_y)>>1)%2) - 1) / DEGREES_90;
     }
     SYNCDBG(18,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
     return n & 3;
@@ -286,8 +286,8 @@ SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y
  */
 SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
 {
-    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
-    return (i >> 9) & 3;
+    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & ANGLE_MASK) + DEGREES_45);
+    return (i / DEGREES_90) & 3;
 }
 
 /**
@@ -370,12 +370,12 @@ long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbki
     for (long dy = -rad; dy <= rad; dy++)
     {
         long y = ty + dy;
-        if ((y < 0) || (y >= gameadd.map_tiles_y))
+        if ((y < 0) || (y >= game.map_tiles_y))
             continue;
         for (long dx = -rad; dx <= rad; dx++)
         {
             long x = tx + dx;
-            if ((x < 0) || (x >= gameadd.map_tiles_x))
+            if ((x < 0) || (x >= game.map_tiles_x))
                 continue;
             struct SlabMap* slb = get_slabmap_block(x, y);
             if (slb->kind == slbkind)
@@ -435,11 +435,11 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
     MapSubtlCoord stl_y = mvpos->y.stl.num;
     int i;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
-        if (((slbattr->block_flags & SlbAtFlg_IsRoom) == 0) || (slabmap_owner(slb) != plyr_idx)) {
+        if (((slabst->block_flags & SlbAtFlg_IsRoom) == 0) || (slabmap_owner(slb) != plyr_idx)) {
             break;
         }
         stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
@@ -449,7 +449,7 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
             return -1;
         }
         slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slbattr = get_slab_attrs(slb);
+        slabst = get_slab_stats(slb);
     }
     // Update original position with first slab behind room
     mvpos->x.val = subtile_coord_center(stl_x);
@@ -467,24 +467,24 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
 TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     // Lava is easy
     if (map_pos_is_lava(stl_x, stl_y)) {
         return true;
     }
     // Blocking wall is more complex
-    if ((slbattr->block_flags & SlbAtFlg_Blocking) != 0)
+    if ((slabst->block_flags & SlbAtFlg_Blocking) != 0)
     {
         // Door is not blocking if its not ours (we may destroy it) or not locked (we may pass it)
         // Mapmakers often surrounds heart with doors; treating only locked doors as blocking allows to support such situations
-        if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
+        if ((slabst->block_flags & SlbAtFlg_IsDoor) != 0)
         {
             if ((slabmap_owner(slb) == plyr_idx) && subtile_has_locked_door(stl_x, stl_y)) {
                 return true;
             }
         } else
         // For others, as long as it's not room, blocking means blocking
-        if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0)
+        if ((slabst->block_flags & SlbAtFlg_IsRoom) == 0)
         {
             return true;
         }
@@ -522,12 +522,12 @@ long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, uns
     MapSubtlCoord stl_y = mvpos->y.stl.num;
     int i;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-        if ((!slbattr->is_diggable) || (slb->kind == SlbT_GEMS) || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx)) || (slb->kind == SlbT_WATER))
+        if ((!slabst->is_diggable) || (slb->kind == SlbT_GEMS) || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx)) || (slb->kind == SlbT_WATER))
         {
             if (((slb->kind != SlbT_CLAIMED) || (slabmap_owner(slb) != plyr_idx)) && (slb->kind != SlbT_PATH)) {
                 break;
@@ -540,7 +540,7 @@ long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, uns
             return -1;
         }
         slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slbattr = get_slab_attrs(slb);
+        slabst = get_slab_stats(slb);
     }
     // Update original position with first slab behind room
     mvpos->x.val = subtile_coord_center(stl_x);

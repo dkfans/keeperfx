@@ -4,10 +4,10 @@
 /** @file roomspace.c
  *     Functions to facilitate the use of a "room space" (an area of many slabs)
  *     instead of a single slab when placing and selling rooms.
- 
+
  * @par Purpose:
  *     Establishes a "room space" as a 2D array of booleans, where a value of 1
- *     represents the slabs that are in the "room space", and a value of 0 
+ *     represents the slabs that are in the "room space", and a value of 0
  *     represents the slabs that are not in the "room space".
  * @par Comment:
  *     None.
@@ -37,6 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+TbBool reset_roomspace = false;
 /******************************************************************************/
 TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_count)
 {
@@ -62,7 +63,7 @@ int can_build_roomspace_of_dimensions_loose(PlayerNumber plyr_idx, RoomKind rkin
     int rightExtent = slb_x + calc_distance_from_roomspace_centre(width,(width % 2 == 0));
     int topExtent = slb_y - calc_distance_from_roomspace_centre(height,0);
     int bottomExtent = slb_y + calc_distance_from_roomspace_centre(height,(height % 2 == 0));
-    
+
     for (buildy = topExtent; buildy <= bottomExtent; buildy++)
     {
         for (buildx = leftExtent; buildx <= rightExtent; buildx++)
@@ -151,7 +152,7 @@ int can_build_roomspace_of_dimensions(PlayerNumber plyr_idx, RoomKind rkind,
     int rightExtent = slb_x + calc_distance_from_roomspace_centre(width,(width % 2 == 0));
     int topExtent = slb_y - calc_distance_from_roomspace_centre(height,0);
     int bottomExtent = slb_y + calc_distance_from_roomspace_centre(height,(height % 2 == 0));
-    
+
     for (buildy = topExtent; buildy <= bottomExtent; buildy++)
     {
         for (buildx = leftExtent; buildx <= rightExtent; buildx++)
@@ -226,7 +227,7 @@ struct RoomSpace check_roomspace_for_diggable_slabs(struct RoomSpace roomspace, 
         {
             int current_x = roomspace.left + x;
             if ( (subtile_is_diggable_for_player(plyr_idx, slab_subtile(current_x, 0), slab_subtile(current_y, 0), false))
-                && ( ((find_from_task_list(plyr_idx, get_subtile_number(stl_slab_center_subtile(slab_subtile(current_x, 0)),stl_slab_center_subtile(slab_subtile(current_y, 0)))) != -1) && roomspace.untag_mode) 
+                && ( ((find_from_task_list(plyr_idx, get_subtile_number(stl_slab_center_subtile(slab_subtile(current_x, 0)),stl_slab_center_subtile(slab_subtile(current_y, 0)))) != -1) && roomspace.untag_mode)
                   || ((find_from_task_list(plyr_idx, get_subtile_number(stl_slab_center_subtile(slab_subtile(current_x, 0)),stl_slab_center_subtile(slab_subtile(current_y, 0)))) == -1) && !roomspace.untag_mode) ) )
             {
                 roomspace.slab_grid[x][y] = true;
@@ -364,7 +365,7 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx, Ma
     struct SlabMap *slb = get_slabmap_block(cursor_x, cursor_y);
     // Set default "room" - i.e. 1x1 slabs, centred on the cursor
     struct RoomSpace default_room = { {{false}}, 0, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, 0, 0, current_plyr_idx, RoK_SELL, false, 0, 0, false, true, false, false, false, false, 0, 0, 0, 0, false, top_left_to_bottom_right };
-    
+
     if (slabmap_owner(slb) == current_plyr_idx)
     {
         if (subtile_is_sellable_room(current_plyr_idx,slab_subtile(cursor_x,0), slab_subtile(cursor_y,0)))
@@ -373,7 +374,7 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx, Ma
             struct RoomSpace current_room = default_room;
             int room_index = slb->room_index;
             create_roomspace_from_current_room(&current_room, MAX_USER_ROOMSPACE_WIDTH, room_index);
-            
+
             if (current_room.slab_count > 0)
             {
                 return current_room;
@@ -516,7 +517,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
     }
     if (player->roomspace_highlight_mode == 1)
     {
-        if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
+        if (((pckt->control_flags & PCtr_LBtnHeld) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
             player->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
             untag_mode = player->render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
@@ -537,6 +538,28 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
         }
         highlight_mode = true;
         current_roomspace = create_box_roomspace_from_drag(player->render_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
+        if (roomspace->drag_start_y > roomspace->drag_end_y)
+        {
+            if (roomspace->drag_start_x > roomspace->drag_end_x)
+            {
+                current_roomspace.drag_direction = bottom_right_to_top_left;
+            }
+            else
+            {
+                current_roomspace.drag_direction = bottom_left_to_top_right;
+            }
+        }
+        else
+        {
+            if (roomspace->drag_start_x > roomspace->drag_end_x)
+            {
+                current_roomspace.drag_direction = top_right_to_bottom_left;
+            }
+            else
+            {
+                current_roomspace.drag_direction = top_left_to_bottom_right;
+            }
+        }
     }
     else if (player->roomspace_highlight_mode == 2) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
@@ -551,7 +574,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
     }
     else
     {
-        current_roomspace = create_box_roomspace(player->render_roomspace, player->roomspace_width, player->roomspace_height, slb_x, slb_y);
+        current_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
     }
     current_roomspace.highlight_mode = highlight_mode;
     current_roomspace.untag_mode = untag_mode;
@@ -591,7 +614,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
     if (player->swap_to_untag_mode == 2) // if swap_to_untag_mode == yes
     {
         // change to untag mode, as requested, and disable swap_to_untag_mode
-        set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+        set_tag_untag_mode(plyr_idx);
         player->swap_to_untag_mode = -1; // disable
     }
     *roomspace = current_roomspace;
@@ -769,10 +792,10 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             drag_start_x = slb_x;
             drag_start_y = slb_y;
         }
-        TbBool can_drag; 
+        TbBool can_drag;
         if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
         {
-            can_drag = ((can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) || 
+            can_drag = ((can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) ||
                         (room_role_matches(rkind,RoRoF_PassWater) && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_WATER))) ||
                         (room_role_matches(rkind,RoRoF_PassLava)  && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_LAVA))) );
             player->one_click_mode_exclusive = false;
@@ -931,41 +954,51 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
     }
 }
 
-void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction)
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     TbBool tag_for_digging = ((player->allocflags & PlaF_ChosenSlabHasActiveTask) == 0);
-    int task_allowance = MAPTASKS_COUNT - task_allowance_reduction;
-    for (int y = 0; y < roomspace->height; y++)
+    int blocks_tagged = 0;
+    int current_x, current_y;
+    MapSubtlCoord stl_cx, stl_cy;
+    if (player->roomspace_highlight_mode == 0)
     {
-        int current_y = roomspace->top + y;
-        for (int x = 0; x < roomspace->width; x++)
+        for (int y = 0; y < roomspace->height; y++)
         {
-            int current_x = roomspace->left + x;
-            
-            // Tag a line of slabs inbetween previous mouse slab position and current mouse slab position
-            int draw_path_x = player->previous_cursor_subtile_x / STL_PER_SLB;
-            int draw_path_y = player->previous_cursor_subtile_y / STL_PER_SLB;
-            while (true)
+            current_y = roomspace->top + y;
+            for (int x = 0; x < roomspace->width; x++)
             {
-                MapSubtlCoord stl_cx = stl_slab_center_subtile(draw_path_x * STL_PER_SLB);
-                MapSubtlCoord stl_cy = stl_slab_center_subtile(draw_path_y * STL_PER_SLB);
-                if (!tag_for_digging) // if the chosen slab is tagged for digging...
+                current_x = roomspace->left + x;
+                // Tag a line of slabs inbetween previous mouse slab position and current mouse slab position
+                int draw_path_x = player->previous_cursor_subtile_x / STL_PER_SLB;
+                int draw_path_y = player->previous_cursor_subtile_y / STL_PER_SLB;
+                while (true)
                 {
-                    untag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // untag the slab for digging
-                }
-                else if (dungeon->task_count < task_allowance)
-                {
-                    tag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
-                }
-                else if (is_my_player(player))
-                {
-                    output_message(SMsg_WorkerJobsLimit, 500, true); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
-                    return;
-                }
-                
-                if (draw_path_x != current_x || draw_path_y != current_y) {
+                    stl_cx = stl_slab_center_subtile(draw_path_x * STL_PER_SLB);
+                    stl_cy = stl_slab_center_subtile(draw_path_y * STL_PER_SLB);
+                    if (!tag_for_digging) // if the chosen slab is tagged for digging...
+                    {
+                        // untag the slab for digging
+                        blocks_tagged += untag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
+                    }
+                    else if (dungeon->task_count < MAPTASKS_COUNT)
+                    {
+                        // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
+                        blocks_tagged += tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
+                    }
+                    else if (is_my_player(player))
+                    {
+                        if (subtile_is_diggable_for_player(plyr_idx, stl_cx, stl_cy, false))
+                        {
+                            output_message(SMsg_WorkerJobsLimit, 500); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
+                        }
+                        if (blocks_tagged > 0) {
+                            play_non_3d_sample(118);
+                        }
+                        return;
+                    }
+                    if (draw_path_x != current_x || draw_path_y != current_y) {
                     // Choose the axis that has more ground to cover.
                     if (abs(draw_path_x-current_x) > abs(draw_path_y-current_y)) {
                         if (draw_path_x < current_x) {
@@ -984,7 +1017,138 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                     // Exit the While loop because the path has been drawn to the current_x & current_y
                     break;
                 }
+                }
             }
+        }
+    }
+    else
+    {
+        switch (roomspace->drag_direction)
+        {
+            case 0: // top-left to bottom-right
+            {
+                current_y = roomspace->top;
+                current_x = roomspace->left;
+                break;
+            }
+            case 1: // bottom-right to top-left
+            {
+                current_y = roomspace->bottom;
+                current_x = roomspace->right;
+                break;
+            }
+            case 2: // top-right to bottom-left
+            {
+                current_y = roomspace->top;
+                current_x = roomspace->right;
+                break;
+            }
+            case 3: // bottom-left to top-right
+            {
+                current_y = roomspace->bottom;
+                current_x = roomspace->left;
+                break;
+            }
+            default:
+            {
+                return;
+            }
+        }
+        TbBool finished = false;
+        while (!finished)
+        {
+            stl_cx = stl_slab_center_subtile(current_x * STL_PER_SLB);
+            stl_cy = stl_slab_center_subtile(current_y * STL_PER_SLB);
+            if (!tag_for_digging) // if the chosen slab is tagged for digging...
+            {
+                // untag the slab for digging
+                blocks_tagged += untag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
+            }
+            else if (dungeon->task_count < MAPTASKS_COUNT)
+            {
+                // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
+                blocks_tagged += tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
+            }
+            else if (is_my_player(player))
+            {
+                if (subtile_is_diggable_for_player(plyr_idx, stl_cx, stl_cy, false))
+                {
+                    output_message(SMsg_WorkerJobsLimit, 500); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
+                }
+                if (blocks_tagged > 0) {
+                    play_non_3d_sample(118);
+                }
+                return;
+            }
+            switch (roomspace->drag_direction)
+            {
+                case 0: // top-left to bottom-right
+                {
+                    current_x++;
+                    if (current_x > roomspace->right)
+                    {
+                        current_x = roomspace->left;
+                        current_y++;
+                    }
+                    if (current_y > roomspace->bottom)
+                    {
+                        finished = true;
+                    }
+                    break;
+                }
+                case 1: // bottom-right to top-left
+                {
+                    current_x--;
+                    if (current_x < roomspace->left)
+                    {
+                        current_x = roomspace->right;
+                        current_y--;
+                    }
+                    if (current_y < roomspace->top)
+                    {
+                        finished = true;
+                    }
+                    break;
+                }
+                case 2: // top-right to bottom-left
+                {
+                    current_x--;
+                    if (current_x < roomspace->left)
+                    {
+                        current_x = roomspace->right;
+                        current_y++;
+                    }
+                    if (current_y > roomspace->bottom)
+                    {
+                        finished = true;
+                    }
+                    break;
+                }
+                case 3: // bottom-left to top-right
+                {
+                    current_x++;
+                    if (current_x > roomspace->right)
+                    {
+                        current_x = roomspace->left;
+                        current_y--;
+                    }
+                    if (current_y < roomspace->top)
+                    {
+                        finished = true;
+                    }
+                    break;
+                }
+                default:
+                {
+                    return;
+                }
+            }    
+        }
+    }
+    if (is_my_player(player))
+    {
+        if (blocks_tagged > 0) {
+            play_non_3d_sample(118);
         }
     }
 }
@@ -1335,24 +1499,16 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
     long keycode = 0;
-    unsigned short par1, par2;
+    unsigned long par2;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
-    {
-        par2 = 1;
-    }
-    else
-    {
-        par2 = 0;
-    }
     if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) ) // Use "modern" click and drag method
     {
-        par1 = 1;
-        par2 = 0;
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode ^ 1, settings.highlight_mode, 0, 0);
+        reset_roomspace = true;
+        return;
     }
     else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  ) // Use "modern" click and drag method
     {
-        par1 = 2;
         par2 = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
@@ -1368,6 +1524,10 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
                 par2--;
             }
         }
+        set_player_roomspace_size(player, par2);
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, 2, par2, 0, 0);
+        reset_roomspace = true;
+        return;
     }
     else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true) )
     {
@@ -1378,16 +1538,27 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
             {
                 struct Packet* pckt = get_packet(my_player_number);
                 set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+                reset_roomspace = true;
             }
         }
         return;
     }
     else
     {
-        par1 = 0;
         par2 = numpad_to_value(false);
+        if (par2 > 1)
+        {
+            set_player_roomspace_size(player, par2);
+            set_players_packet_action(player, PckA_SetRoomspaceHighlight, 2, par2, 0, 0);
+            reset_roomspace = true;
+            return;
+        }
     }
-    set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
+    if (reset_roomspace)
+    {
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+        reset_roomspace = false; // don't constantly send packets we don't need to
+    }
 }
 
 void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool sell)
@@ -1612,7 +1783,7 @@ void detect_bridge_shape(PlayerNumber plyr_idx)
         if (player->render_roomspace.drag_start_y == player->render_roomspace.drag_end_y)
         {
             player->roomspace_horizontal_first = true;
-        } 
+        }
     }
     else if (player->render_roomspace.drag_end_y != player->render_roomspace.drag_start_y)
     {

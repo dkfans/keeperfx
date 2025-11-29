@@ -32,8 +32,6 @@ extern "C" {
 /******************************************************************************/
 #define FRONTMAP_ZOOM_LENGTH 240
 #define FRONTMAP_ZOOM_STEP 4
-
-#define DESCRIPTION_CHANNEL 0
 /******************************************************************************/
 #pragma pack(1)
 
@@ -65,11 +63,10 @@ struct MapLevelInfo { // sizeof = 56
 };
 
 struct ScreenPacket {
-  unsigned char field_0[4];
-  unsigned char field_4;
+  unsigned char networkstatus_flags;
   char frontend_alliances;
-  short field_6;
-  short field_8;
+  short stored_data1; // Can contain: VersionRelease (networking) or hand_position_x (landview)
+  short stored_data2; // Can contain: VersionBuild (networking) or hand_position_y (landview)
   short param1;
   unsigned char param2;
 };

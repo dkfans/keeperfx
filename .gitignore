@@ -32,4 +32,7 @@ res/keeperfx_icon.ico
 /deps/astronomy
 /deps/centijson
 /deps/ffmpeg
+/deps/openal
+/deps/luajit
 /deps/*.tar.gz
+/cppcheck.cache
