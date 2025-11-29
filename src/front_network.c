@@ -457,9 +457,9 @@ void handle_autostart_multiplayer_messaging(void)
         }
       }
 
-    if (message_char_index == -2 && !frontnet_is_waiting_for_ping_stabilization()) {
-      message_char_index = 0;
-    }
+      if (message_char_index == -2 && !frontnet_is_waiting_for_ping_stabilization()) {
+        message_char_index = 0;
+      }
 
     previous_player_count = net_number_of_enum_players;
 }
