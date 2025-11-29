@@ -4155,6 +4155,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           set_flag(start_params.debug_flags, DFlg_ShowGameTurns);
       } else
+      if (strcasecmp(parstr, "mplog") == 0)
+      {
+          detailed_multiplayer_logging = true;
+      } else
       if (strcasecmp(parstr, "compuchat") == 0)
       {
           if (strcasecmp(pr2str,"scarce") == 0) {
