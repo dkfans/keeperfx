@@ -1605,6 +1605,7 @@ TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
                             thing->index,
                             thing_class_and_model_name(thing->class_id, thing->model));
     player->influenced_thing_idx = thing->index;
+    player->influenced_thing_creation = thing->creation_turn;
     return true;
 }
 
@@ -1712,6 +1713,7 @@ TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
     }
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got room ID %d", room->index);
     player->influenced_thing_idx = room->index;
+    player->influenced_thing_creation = room->creation_turn;
     return true;
 }
 

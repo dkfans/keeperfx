@@ -170,6 +170,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
     player->influenced_thing_idx = dungeon->things_in_hand[0];
+    player->influenced_thing_creation = thing->creation_turn;
     if (!thing_is_invalid(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Pickup);
@@ -185,6 +186,7 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
         set_power_hand_graphic(player->id_number, HndA_Hover);
     }
     player->influenced_thing_idx = 0;
+    player->influenced_thing_creation = 0;
     return 0;
 }
 
@@ -353,6 +355,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         if (is_my_player(player))
             PaletteSetPlayerPalette(player, engine_palette);
         player->influenced_thing_idx = 0;
+        player->influenced_thing_creation = 0;
         player->allocflags &= ~PlaF_KeyboardInputDisabled;
         player->allocflags &= ~PlaF_MouseInputDisabled;
         set_player_instance(player, PI_Unset, true);
@@ -412,13 +415,13 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
 long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing) && (thing->creation_turn == player->influenced_thing_creation))
     {
         if (!control_creature_as_controller(player, thing)) {
             thing = INVALID_THING;
         }
     }
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
     {
         set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
         if (is_my_player(player)) {
@@ -492,6 +495,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
   leave_creature_as_controller(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
+  player->influenced_thing_creation = 0;
   light_turn_light_on(player->cursor_light_idx);
   play_non_3d_sample(177);
   return 0;
@@ -532,6 +536,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
   leave_creature_as_passenger(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
+  player->influenced_thing_creation = 0;
   light_turn_light_on(player->cursor_light_idx);
   play_non_3d_sample(177);
   return 0;
