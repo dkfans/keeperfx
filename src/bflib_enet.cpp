@@ -263,7 +263,7 @@ namespace
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
         if (client_peer) // Just send to server
         {
-            enet_peer_send(client_peer, 0, packet);
+            enet_peer_send(client_peer, ENET_CHANNEL_RELIABLE, packet);
         }
         else
         {
@@ -273,7 +273,7 @@ namespace
                     continue;
                 if (NetUserId(reinterpret_cast<ptrdiff_t>(currentPeer->data)) == destination)
                 {
-                    enet_peer_send(currentPeer, 0, packet);
+                    enet_peer_send(currentPeer, ENET_CHANNEL_RELIABLE, packet);
                 }
             }
         }
@@ -291,7 +291,7 @@ namespace
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_UNSEQUENCED);
         if (client_peer) // Just send to server
         {
-            enet_peer_send(client_peer, 0, packet);
+            enet_peer_send(client_peer, ENET_CHANNEL_UNSEQUENCED, packet);
         }
         else
         {
@@ -301,7 +301,7 @@ namespace
                     continue;
                 if (NetUserId(reinterpret_cast<ptrdiff_t>(currentPeer->data)) == destination)
                 {
-                    enet_peer_send(currentPeer, 0, packet);
+                    enet_peer_send(currentPeer, ENET_CHANNEL_UNSEQUENCED, packet);
                 }
             }
         }
@@ -316,7 +316,7 @@ namespace
     void bf_enet_sendmsg_all(const char *buffer, size_t size)
     {
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
-        enet_host_broadcast(host, 0, packet);
+        enet_host_broadcast(host, ENET_CHANNEL_RELIABLE, packet);
         enet_host_flush(host);
     }
 

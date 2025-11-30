@@ -45,6 +45,7 @@ extern "C" {
 /******************************************************************************/
 
 #define NETWORK_FPS 60
+#define NETWORK_WAIT_TIMEOUT 5000
 
 char* InitMessageBuffer(enum NetMessageType msg_type) {
     char* ptr = netstate.msg_buffer;
@@ -74,11 +75,8 @@ void SendFrameToPeers(NetUserId source_id, const void * send_buf, size_t buf_siz
         if (id == source_id) { continue; }
         if (!IsUserActive(id)) { continue; }
         if (msg_type == NETMSG_GAMEPLAY) {
-            if (game.input_lag_turns == 1 || game.input_lag_turns == 2) {
-                netstate.sp->sendmsg_single(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
-            } else {
-                netstate.sp->sendmsg_single_unsequenced(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
-            }
+            netstate.sp->sendmsg_single_unsequenced(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
+            netstate.sp->sendmsg_single(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
         } else {
             SendMessage(id, ptr);
         }
@@ -233,6 +231,47 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name) {
         return Lb_FAIL;
     }
     return Lb_OK;
+}
+
+void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size) {
+    if (game.skip_initial_input_turns > 0) {
+        return;
+    }
+    GameTurn historical_turn = game.play_gameturn - game.input_lag_turns;
+    const struct Packet* received_packets = get_received_packets_for_turn(historical_turn);
+    if (received_packets == NULL) {
+        MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Missing packets for turn=%lu, waiting...", (unsigned long)historical_turn);
+        TbClockMSec start = LbTimerClock();
+        while (true) {
+            int elapsed = LbTimerClock() - start;
+            if (elapsed >= NETWORK_WAIT_TIMEOUT) {
+                MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Timeout waiting for turn=%lu packets", (unsigned long)historical_turn);
+                break;
+            }
+
+            NetUserId id;
+            for (id = 0; id < netstate.max_players; id += 1) {
+                if (id == netstate.my_id) { continue; }
+                if (netstate.users[id].progress == USER_UNUSED) { continue; }
+                if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
+
+                int wait_time = NETWORK_WAIT_TIMEOUT - elapsed;
+                if (netstate.sp->msgready(id, wait_time)) {
+                    while (netstate.sp->msgready(id, 0)) {
+                        ProcessMessage(id, server_buf, client_frame_size);
+                    }
+                }
+            }
+
+            received_packets = get_received_packets_for_turn(historical_turn);
+            if (received_packets != NULL) {
+                MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Successfully received packets for turn=%lu after %dms", (unsigned long)historical_turn, elapsed);
+                break;
+            }
+
+            network_yield_draw();
+        }
+    }
 }
 
 TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t client_frame_size) {

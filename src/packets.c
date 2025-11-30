@@ -1682,6 +1682,7 @@ void process_packets(void)
             if (exchange_result != Lb_OK) {
                 ERRORLOG("LbNetwork_Exchange failed");
             }
+            LbNetwork_WaitForMissingPackets(game.packets, sizeof(struct Packet));
         }
         replace_with_ai(old_active_players);
     }
