@@ -1826,4 +1826,37 @@ void script_set_creature_instance(ThingModel crmodel, short slot, int instance, 
     }
 }
 
+TbBool validate_target_requires_cleansing
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target) ||
+        !creature_requires_cleansing(target))
+    {
+        return false;
+    }
+
+    if (source->index == target->index)
+    {
+        // Special case. The creature is always allowed to cleanse itself even if
+        // it's being tortured or imprisoned.
+        return true;
+    }
+    else
+    {
+        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 /******************************************************************************/
