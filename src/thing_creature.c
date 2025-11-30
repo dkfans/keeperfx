@@ -7865,6 +7865,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
 
 void cleanse_creature(struct Thing* creatng) 
 {
+    process_cleanse_effect(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct SpellConfig* spconf = get_spell_config(32);
     clean_spell_effect(creatng, spconf->cleanse_flags);
