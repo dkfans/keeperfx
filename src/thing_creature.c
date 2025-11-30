@@ -718,7 +718,8 @@ TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned 
     }
     if (creature_under_spell_effect(thing, CSAfF_SpellBlocks))
     {
-        struct SpellConfig* spconf = get_spell_config(32);
+        struct InstanceInfo* inst_inf = creature_instance_info_get(CrInst_CLEANSE);
+        struct SpellConfig* spconf = get_spell_config(inst_inf->func_params[0]);
         if (flag_is_set(spconf->cleanse_flags, spell_flags))
         {
             return true;
