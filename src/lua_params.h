@@ -36,6 +36,7 @@ TbBool luaL_isThing(lua_State *L, int index);
 TbBool luaL_isPlayer(lua_State *L, int index);
 
 /****   Inputs  *******/
+long luaL_optCheckinteger(lua_State* L, int index);
 long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
 long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
 TbMapLocation luaL_checkLocation(lua_State *L, int index);

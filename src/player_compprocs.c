@@ -1282,7 +1282,7 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *cproc)
 struct ComputerProcess * find_best_process(struct Computer2 *comp)
 {
     struct ComputerProcess* best_cproc = INVALID_COMPUTER_PROCESS;
-    long best_prior = LONG_MIN;
+    long best_prior = INT32_MIN;
     // Computer players without heart can't start any process
     if (dungeon_invalid(comp->dungeon) || !player_has_heart(comp->dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)comp->dungeon->owner);

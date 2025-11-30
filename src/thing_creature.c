@@ -1098,7 +1098,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Fear);
             setup_combat_flee_position(thing);
-            if (is_thing_some_way_controlled(thing))
+            if (is_thing_directly_controlled(thing))
             {
                 struct PlayerInfo* player = get_player(thing->owner);
                 if (player->controlled_thing_idx == thing->index)
@@ -1315,19 +1315,16 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_Fear)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
-        if (is_thing_some_way_controlled(thing))
+        if (is_thing_passenger_controlled_by_player(thing,thing->owner))
         {
             struct PlayerInfo* player = get_player(thing->owner);
-            if (player->controlled_thing_idx == thing->index)
+            char active_menu = game.active_panel_mnu_idx;
+            leave_creature_as_passenger(player, thing);
+            control_creature_as_controller(player, thing);
+            if (is_my_player(player))
             {
-                char active_menu = game.active_panel_mnu_idx;
-                leave_creature_as_passenger(player, thing);
-                control_creature_as_controller(player, thing);
-                if (is_my_player(player))
-                {
-                    turn_off_all_panel_menus();
-                    turn_on_menu(active_menu);
-                }
+                turn_off_all_panel_menus();
+                turn_on_menu(active_menu);
             }
         }
         cleared = true;
@@ -2253,7 +2250,11 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
     {
         thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
     }
-    create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner, castng->index);
+    struct Thing *effect = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner, castng->index);
+    if (!thing_is_invalid(effect))
+    {
+        effect->parent_idx = castng->index;
+    }
 }
 
 void update_creature_count(struct Thing *creatng)
@@ -2867,6 +2868,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
     create_effect(&thing->mappos, TngEff_HarmlessGas2, thing->owner);
     move_thing_in_map(thing, &lairtng->mappos);
     reset_interpolation_of_thing(thing);
+    lua_on_creature_rebirth(thing);
     create_effect(&lairtng->mappos, TngEff_HarmlessGas2, thing->owner);
 }
 
@@ -3219,6 +3221,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     struct PlayerInfo* player = get_player(thing->owner);
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
+    player->influenced_thing_creation = 0;
     if (player->id_number == thing->owner)
         setup_eye_lens(0);
     set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
@@ -3506,7 +3509,7 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    return compute_creature_attack_spell_damage(shotst->damage, crconf->luck, cctrl->exp_level, creatng);
+    return compute_creature_attack_spell_damage(shotst->damage, crconf->luck, cctrl->exp_level, creatng->owner);
 }
 
 static void shot_init_lizard(const struct Thing *target, short angle_xy, unsigned char dexterity, struct Thing *shotng)
@@ -4449,6 +4452,13 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
         if (thing_is_invalid(creatng))
           break;
 
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        if (flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature))
+        {
+            i = creatng->next_of_class;
+            k++;
+            continue;
+        }
         if(creatng->owner == plr_idx)
         {
             if(creature_is_for_dungeon_diggers_list(creatng))
@@ -4463,7 +4473,6 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
                     struct CreatureControl* prevcctrl = creature_control_get_from_thing(thing_get(previous_digger));
                     prevcctrl->players_next_creature_idx = i;
                 }
-                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                 cctrl->players_next_creature_idx = 0;
                 cctrl->players_prev_creature_idx = previous_digger;
                 if (!flag_is_set(cctrl->creature_state_flags,TF2_Spectator) && !(flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature)))
@@ -4484,7 +4493,6 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
                     struct CreatureControl* prevcctrl = creature_control_get_from_thing(thing_get(previous_creature));
                     prevcctrl->players_next_creature_idx = i;
                 }
-                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                 cctrl->players_next_creature_idx = 0;
                 cctrl->players_prev_creature_idx = previous_creature;
                 if (!flag_is_set(cctrl->creature_state_flags,TF2_Spectator) && !(flag_is_set(cctrl->creature_state_flags, TF2_SummonedCreature)))
@@ -5355,7 +5363,14 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
     struct Thing* thing = INVALID_THING;
     if ((!is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
     {
-        thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+        if (!player_is_neutral(plyr_idx))
+        {
+            thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+        }
+        else
+        {
+            thing = get_player_list_creature_with_filter(game.nodungeon_creatr_list_start, filter, &param);
+        }
     }
     if (((is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) && thing_is_invalid(thing))
     {
@@ -6221,6 +6236,7 @@ long update_creature_levels(struct Thing *thing)
     {
         remove_creature_score_from_owner(thing); // the opposite is in set_creature_level()
         set_creature_level(thing, cctrl->exp_level+1);
+        check_experience_upgrade(thing);
         return 1;
     }
     // If it is highest level, check if the creature can grow up.
@@ -7364,7 +7380,7 @@ static long filter_criteria_loc(long desc_type)
     return desc_type >> 4;
 }
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria)
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, short criteria)
 {
     switch (filter_criteria_type(criteria))
     {
@@ -7470,10 +7486,11 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, T
         initialise_tab_tags_and_menu(menu);
         turn_on_menu(menu);
     }
+    struct Thing* creatng = thing_get(index);
     player->influenced_thing_idx = index;
+    player->influenced_thing_creation = creatng->creation_turn;
     if (zoom)
     {
-        struct Thing *creatng = thing_get(index);
         player->zoom_to_pos_x = creatng->mappos.x.val;
         player->zoom_to_pos_y = creatng->mappos.y.val;
         set_player_instance(player, PI_ZoomToPos, 0);
@@ -7661,9 +7678,8 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     return true;
 }
 
-TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long fmcl_bytes)
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, SpellKind spkind, CrtrExpLevel spell_level)
 {
-    SpellKind spkind = (fmcl_bytes >> 8) & 255;
     struct SpellConfig *spconf = get_spell_config(spkind);
     if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
@@ -7672,7 +7688,6 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing
             SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
-        CrtrExpLevel spell_level = fmcl_bytes & 255;
         if (spconf->caster_affect_sound)
         {
             thing_play_sample(thing, spconf->caster_affect_sound + SOUND_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
@@ -7700,7 +7715,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing
  * @param fmcl_bytes encoded bytes: f=cast for free flag,m=spell kind,c=caster player index,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
+TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, short criteria, SpellKind spell_idx, CrtrExpLevel charge)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing))
@@ -7708,7 +7723,7 @@ TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, Thing
         SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
-    return script_use_spell_on_creature(plyr_idx, thing, fmcl_bytes);
+    return script_use_spell_on_creature(plyr_idx, thing, spell_idx, charge);
 }
 
 void script_move_creature(struct Thing* thing, TbMapLocation location, ThingModel effect_id)

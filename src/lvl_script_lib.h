@@ -139,7 +139,7 @@ enum TbScriptCommands {
     Cmd_CREATE_EFFECTS_LINE                = 127,
     Cmd_DISPLAY_MESSAGE                    = 128,
     Cmd_QUICK_MESSAGE                      = 129,
-    Cmd_USE_SPELL_ON_CREATURE              = 130,
+    Cmd_CLEAR_MESSAGE                      = 130,
     Cmd_SET_HEART_HEALTH                   = 131,
     Cmd_ADD_HEART_HEALTH                   = 132,
     Cmd_CREATURE_ENTRANCE_LEVEL            = 133,
@@ -165,7 +165,7 @@ enum TbScriptCommands {
     Cmd_COUNT_CREATURES_AT_ACTION_POINT    = 153,
     Cmd_IF_ALLIED                          = 154,
     Cmd_SET_TEXTURE                        = 155,
-    Cmd_HIDE_HERO_GATE                     = 156,
+    Cmd_USE_SPELL_ON_CREATURE              = 156,
     Cmd_USE_SPELL_ON_PLAYERS_CREATURES     = 157,
     Cmd_SET_ROOM_CONFIGURATION             = 158,
     Cmd_NEW_TRAP_TYPE                      = 159,
@@ -196,6 +196,7 @@ enum TbScriptCommands {
     Cmd_SET_NEXT_LEVEL                     = 184,
     Cmd_SHOW_BONUS_LEVEL                   = 185,
     Cmd_HIDE_BONUS_LEVEL                   = 186,
+    Cmd_HIDE_HERO_GATE                     = 187,
 };
 
 struct ScriptLine {

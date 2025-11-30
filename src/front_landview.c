@@ -35,7 +35,7 @@
 #include "bflib_sound.h"
 #include "bflib_vidraw.h"
 #include "bflib_network.h"
-
+#include "bflib_network_exchange.h"
 
 #include "config_strings.h"
 #include "config_campaigns.h"
@@ -1509,7 +1509,7 @@ void frontmap_input(void)
       check_mouse_scroll();
       if (is_key_pressed(KC_F11, KMod_CONTROL))
       {
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if (game.easter_eggs_enabled == true)
         {
           set_all_ensigns_state(LvSt_Visible);
           clear_key_pressed(KC_F11);
@@ -1518,7 +1518,7 @@ void frontmap_input(void)
       }
       if (is_key_pressed(KC_F10, KMod_CONTROL))
       {
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if (game.easter_eggs_enabled == true)
         {
           move_campaign_to_next_level();
           frontmap_unload();
@@ -1530,7 +1530,7 @@ void frontmap_input(void)
       }
       if (is_key_pressed(KC_F9, KMod_CONTROL))
       {
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if (game.easter_eggs_enabled == true)
         {
           move_campaign_to_prev_level();
           frontmap_unload();
@@ -1714,7 +1714,7 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     if (fe_network_active)
     {
-      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket)) )
+      if (LbNetwork_Exchange(NETMSG_FRONTEND, nspck, &net_screen_packet, sizeof(struct ScreenPacket)))
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;

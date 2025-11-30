@@ -628,6 +628,20 @@ static int lua_Quick_message(lua_State *L)
     return 0;
 }
 
+static int lua_Clear_message(lua_State* L)
+{
+    char count = luaL_optCheckinteger(L, 1);
+    if ((count <= 0) || (count > GUI_MESSAGES_COUNT))
+    {
+        count = GUI_MESSAGES_COUNT;
+    }
+    for (int k = game.active_messages_count - 1; k >= (game.active_messages_count - count); k--)
+    {
+        game.messages[k].expiration_turn = game.play_gameturn;
+    }
+    return 0;
+}
+
 static int lua_Heart_lost_objective(lua_State *L)
 {
     long message_id = luaL_checkinteger(L, 1);
@@ -1746,9 +1760,7 @@ static int lua_Use_spell_on_creature(lua_State *L)
     long spell_id = luaL_checkNamedCommand(L,2,spell_desc);
     int spell_level = luaL_checkinteger(L, 3);
 
-    unsigned long fmcl_bytes = (spell_id << 8) | spell_level;
-
-    script_use_spell_on_creature(thing->owner, thing, fmcl_bytes);
+    script_use_spell_on_creature(thing->owner, thing, spell_id, spell_level);
     return 0;
 }
 
@@ -2104,6 +2116,7 @@ static const luaL_Reg global_methods[] = {
    {"QuickInformationWithPos"               ,lua_Quick_information_with_pos      },
    {"DisplayMessage"                        ,lua_Display_message                 },
    {"QuickMessage"                          ,lua_Quick_message                   },
+   {"ClearMessage"                          ,lua_Clear_message                   },
    {"HeartLostObjective"                    ,lua_Heart_lost_objective            },
    {"HeartLostQuickObjective"               ,lua_Heart_lost_quick_objective      },
    {"PlayMessage"                           ,lua_Play_message                    },

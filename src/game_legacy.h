@@ -140,6 +140,7 @@ struct LogThingDesyncInfo {
     HitPoints health;             // Thing's health
     unsigned short current_frame; // Current animation frame
     unsigned short max_frames;    // Maximum frames in animation
+    unsigned long spell_flags;
     TbBigChecksum checksum;       // Thing's computed checksum
 };
 
@@ -156,16 +157,37 @@ struct LogRoomDesyncInfo {
     TbBigChecksum checksum;       // Room's computed checksum
 };
 
+struct DesyncHistoryEntry {
+    GameTurn turn;
+    TbBool valid;
+    TbBigChecksum turn_checksum;
+    TbBigChecksum things_sum;
+    TbBigChecksum rooms_sum;
+    TbBigChecksum action_random_seed;
+    TbBigChecksum ai_random_seed;
+    TbBigChecksum player_random_seed;
+    TbBigChecksum player_checksums[PLAYERS_COUNT];
+    TbBigChecksum players_sum;
+    TbBigChecksum creatures_sum;
+    TbBigChecksum traps_sum;
+    TbBigChecksum shots_sum;
+    TbBigChecksum objects_sum;
+    TbBigChecksum effects_sum;
+    TbBigChecksum dead_creatures_sum;
+    TbBigChecksum effect_gens_sum;
+    TbBigChecksum doors_sum;
+};
+
 struct Game {
     LevelNumber continue_level_number;
     unsigned char system_flags;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
     unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
-    unsigned char flags_font;
     unsigned char flags_gui;
-    unsigned char eastegg01_cntr;
     unsigned char mode_flags;
+    TbBool easter_eggs_enabled;
+    unsigned char eastegg01_cntr;
     unsigned char eastegg02_cntr;
     char music_track; // cdrom / default music track to resume after load
     char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
@@ -249,6 +271,7 @@ struct Game {
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
+    int input_lag_turns;
     char active_players_count;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
@@ -266,9 +289,6 @@ struct Game {
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress[PLAYERS_COUNT];
-    GameTurn armageddon_cast_turn;
-    GameTurn armageddon_over_turn;
-    PlayerNumber armageddon_caster_idx;
     struct SoundSettings sound_settings;
     struct CreatureBattle battles[BATTLES_COUNT];
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
@@ -278,7 +298,10 @@ struct Game {
     char loaded_swipe_idx;
     unsigned char active_messages_count;
     long bonus_time;
-    struct Armageddon armageddon;
+    struct Coord3d armageddon_mappos;
+    GameTurn armageddon_cast_turn;
+    GameTurn armageddon_over_turn;
+    PlayerNumber armageddon_caster_idx;
     char active_panel_mnu_idx; /**< The MenuID of currently active panel menu, or 0 if none. */
     char comp_player_aggressive;
     char comp_player_defensive;
@@ -344,35 +367,14 @@ struct Game {
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
 
+    unsigned short skip_initial_input_turns;
+
     // Diagnostic checksums for desync analysis (sent by host during resync)
     struct {
-        GameTurn desync_turn;                    // Turn when desync was detected
-        TbBigChecksum host_things_sum;           // Host's things checksum at desync
-        TbBigChecksum host_rooms_sum;            // Host's rooms checksum at desync
-
-        // Detailed thing category checksums for deeper analysis
-        TbBigChecksum host_creatures_sum;        // Host's creatures checksum
-        TbBigChecksum host_traps_sum;            // Host's traps checksum
-        TbBigChecksum host_shots_sum;            // Host's shots checksum
-        TbBigChecksum host_objects_sum;          // Host's objects checksum
-        TbBigChecksum host_effects_sum;          // Host's effects checksum
-        TbBigChecksum host_dead_creatures_sum;   // Host's dead creatures checksum
-        TbBigChecksum host_effect_gens_sum;      // Host's effect generators checksum
-        TbBigChecksum host_doors_sum;            // Host's doors checksum
-
-        // Individual player checksums for detailed player analysis
-        TbBigChecksum host_player_checksums[PLAYERS_COUNT];  // Host's individual player checksums
-        TbBigChecksum host_action_random_seed;     // Host's action random seed
-        TbBigChecksum host_ai_random_seed;         // Host's AI random seed
-        TbBigChecksum host_player_random_seed;     // Host's player random seed
-
-        // Individual Thing detailed info for per-Thing desync analysis
-        struct LogThingDesyncInfo host_thing_info[THINGS_COUNT];  // Host's detailed Thing information
-
-        // Individual Room detailed info for per-Room desync analysis
-        struct LogRoomDesyncInfo host_room_info[ROOMS_COUNT + 1];     // Host's detailed Room information
+        struct DesyncHistoryEntry host_history[40];
 
         TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
+        GameTurn desync_detected_turn;           // Turn number where desync was detected
     } desync_diagnostics;
 };
 

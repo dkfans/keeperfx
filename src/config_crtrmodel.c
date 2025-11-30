@@ -1874,23 +1874,45 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             }
             break;
         case 5: // SLEEPEXPERIENCE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+        {
+            for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
             {
-              k = get_id(slab_desc, word_buf);
-              if (k >= 0)
-              {
-                crconf->sleep_exp_slab = k;
-                n++;
-              } else
-              {
-                crconf->sleep_exp_slab = 0;
-              }
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->sleep_experience = k;
-              n++;
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                  k = get_id(slab_desc, word_buf);
+                  if (k >= 0)
+                  {
+                    crconf->sleep_exp_slab[i] = k;
+                    n++;
+                  } else
+                  {
+                    crconf->sleep_exp_slab[i] = 0;
+                  }
+                }
+                else
+                {
+                    for (unsigned int j = i; j < SLEEP_XP_COUNT; j++)
+                    {
+                        crconf->sleep_exp_slab[j] = 0;
+                        crconf->sleep_experience[j] = 0;
+                    }
+                    break;
+                }
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                  k = atoi(word_buf);
+                  if (k < 0)
+                  {
+                      ERRORLOG("Slab sleep experience value (%s %d) must be 0 or greater.", slab_code_name(crconf->sleep_exp_slab[i]), k);
+                      k = 0;
+                  }
+                  crconf->sleep_experience[i] = k;
+                  n++;
+                }
+                else
+                {
+                    crconf->sleep_experience[i] = 0;
+                }
             }
             if (n < 2)
             {
@@ -1898,6 +1920,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
+        }
         case 6: // EXPERIENCEFORHITTING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
@@ -2615,15 +2638,16 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     if (strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
     }
 
     if (mods_conf.after_map_cnt > 0)
     {
         result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_map_item, mods_conf.after_map_cnt);
-        if (result)
-        {
-            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
-        }
+        // last one does not need to set (CnfLd_AcceptPartial | CnfLd_IgnoreErrors)
     }
 
     if (!result)

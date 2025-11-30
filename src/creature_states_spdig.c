@@ -1175,8 +1175,8 @@ short imp_doing_nothing(struct Thing *spdigtng)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
+
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Dungeon* dungeon = get_dungeon(spdigtng->owner);
     if (game.play_gameturn-cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
@@ -1195,7 +1195,9 @@ short imp_doing_nothing(struct Thing *spdigtng)
         spdigtng->continue_state = CrSt_ImpDoingNothing;
         return 1;
     }
-    dungeon->lvstats.promises_broken++;
+    struct Dungeon* dungeon = get_dungeon(spdigtng->owner);
+    if (!dungeon_invalid(dungeon))
+        dungeon->lvstats.promises_broken++;
     return 1;
 }
 

@@ -589,7 +589,7 @@ long process_sacrifice_award(struct Coord3d *pos, ThingModel model, PlayerNumber
         return 0;
   }
   long ret = SacR_DontCare;
-  struct SacrificeRecipe* sac = &game.conf.rules[plyr_idx].sacrifices.sacrifice_recipes[0];
+  struct SacrificeRecipe* sac = &game.conf.rules[0].sacrifices.sacrifice_recipes[0];
   do {
     // Check if the just sacrificed creature is in the sacrifice
     if (sacrifice_victim_model_count(sac,model) > 0)
@@ -609,11 +609,11 @@ long process_sacrifice_award(struct Coord3d *pos, ThingModel model, PlayerNumber
           break;
         }
       }
-      SYNCDBG(8,"Creature %d used in sacrifice %d",(int)model,(int)(sac-&game.conf.rules[plyr_idx].sacrifices.sacrifice_recipes[0]));
+      SYNCDBG(8,"Creature %d used in sacrifice %d",(int)model,(int)(sac-&game.conf.rules[0].sacrifices.sacrifice_recipes[0]));
       // Check if the complete sacrifice condition is met
       if (sacrifice_victim_conditions_met(dungeon, sac))
       {
-        SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&game.conf.rules[plyr_idx].sacrifices.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
+        SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&game.conf.rules[0].sacrifices.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
         CrtrExpLevel exp_level = creature_sacrifice_average_exp_level(dungeon, sac);
         switch (sac->action)
         {

@@ -607,7 +607,7 @@ extern "C" void StopAllSamples() {
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
-		if (game.flags_font & FFlg_AlexCheat) {
+		if (game.easter_eggs_enabled == true) {
 			TbDate date;
 			LbDate(&date);
 			g_bb_king_mode |= ((date.Day == 1) && (date.Month == 2));

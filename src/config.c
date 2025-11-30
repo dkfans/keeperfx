@@ -383,11 +383,11 @@ static int64_t get_datatype_min(uchar type)
         case dt_uint:
             return 0;
         case dt_long:
-            return LONG_MIN;
+            return INT32_MIN;
         case dt_ulong:
             return 0;
         case dt_longlong:
-            return LLONG_MIN;
+            return INT64_MIN;
         case dt_ulonglong:
             return 0;
         default:
@@ -756,7 +756,7 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
             *(unsigned int*)field = (unsigned int)value;
         break;
     case dt_long:
-        if (value < LONG_MIN || value > INT32_MAX)
+        if (value < INT32_MIN || value > INT32_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long: %" PRId64, value);
         else
             *(int32_t *)field = (signed long)value;
@@ -768,7 +768,7 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
             *(uint32_t *)field = (unsigned long)value;
         break;
     case dt_longlong:
-        if (value < LLONG_MIN || value > INT64_MAX)
+        if (value < INT64_MIN || value > INT64_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long long: %" PRId64, value);
         else
             *(int64_t *)field = (signed long long)value;

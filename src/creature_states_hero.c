@@ -90,7 +90,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
     PlayerNumber backup_plyr_idx = -1;
     struct PlayerInfo* player;
     struct Dungeon* dungeon;
-    long best_score = LONG_MIN;
+    long best_score = INT32_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
@@ -214,7 +214,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
         }
     }
 
-    struct Thing* gatetng = find_hero_door_hero_can_navigate_to(creatng);
+    struct Thing* gatetng = find_best_hero_gate_to_navigate_to(creatng);
     if (thing_is_invalid(gatetng))
     {
         SYNCLOG("Can't find any exit gate for hero %s index %d",thing_model_name(creatng),(int)creatng->index);
@@ -1155,7 +1155,7 @@ short creature_hero_entering(struct Thing *thing)
 long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
 {
     PlayerNumber best_plyr_idx = -1;
-    long best_score = LONG_MIN;
+    long best_score = INT32_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);

@@ -170,6 +170,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, int32_t *n)
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
     player->influenced_thing_idx = dungeon->things_in_hand[0];
+    player->influenced_thing_creation = thing->creation_turn;
     if (!thing_is_invalid(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Pickup);
@@ -185,6 +186,7 @@ long pinstfe_hand_drop(struct PlayerInfo *player, int32_t *n)
         set_power_hand_graphic(player->id_number, HndA_Hover);
     }
     player->influenced_thing_idx = 0;
+    player->influenced_thing_creation = 0;
     return 0;
 }
 
@@ -353,6 +355,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
         if (is_my_player(player))
             PaletteSetPlayerPalette(player, engine_palette);
         player->influenced_thing_idx = 0;
+        player->influenced_thing_creation = 0;
         player->allocflags &= ~PlaF_KeyboardInputDisabled;
         player->allocflags &= ~PlaF_MouseInputDisabled;
         set_player_instance(player, PI_Unset, true);
@@ -412,13 +415,13 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
 long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing) && (thing->creation_turn == player->influenced_thing_creation))
     {
         if (!control_creature_as_controller(player, thing)) {
             thing = INVALID_THING;
         }
     }
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
     {
         set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
         if (is_my_player(player)) {
@@ -492,6 +495,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   leave_creature_as_controller(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
+  player->influenced_thing_creation = 0;
   light_turn_light_on(player->cursor_light_idx);
   play_non_3d_sample(177);
   return 0;
@@ -532,6 +536,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   leave_creature_as_passenger(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
+  player->influenced_thing_creation = 0;
   light_turn_light_on(player->cursor_light_idx);
   play_non_3d_sample(177);
   return 0;
@@ -567,7 +572,9 @@ long pinstfs_unquery_creature(struct PlayerInfo *player, int32_t *n)
 long pinstfs_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 {
     SYNCDBG(6,"Starting for player %d",(int)player->id_number);
-    LbPaletteDataFillWhite(zoom_to_heart_palette);
+    if (is_my_player_number(player->id_number)) {
+        LbPaletteDataFillWhite(zoom_to_heart_palette);
+    }
     light_turn_light_off(player->cursor_light_idx);
     struct Thing* thing = get_player_soul_container(player->id_number);
     ThingModel spectator_breed = get_players_spectator_model(player->id_number);
@@ -589,7 +596,9 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 
 long pinstfm_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 {
-    reset_interpolation_of_camera(player);
+    if (is_my_player_number(player->id_number)) {
+        reset_interpolation_of_camera(player);
+    }
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     if (!thing_is_invalid(thing))
     {
@@ -599,8 +608,10 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
         pos.z.val = thing->mappos.z.val + (thing->solid_size_z / 2);
         move_thing_in_map(thing, &pos);
   }
-  if (player->instance_remain_turns <= 8)
-    LbPaletteFade(zoom_to_heart_palette, 8, Lb_PALETTE_FADE_OPEN);
+  if (is_my_player_number(player->id_number)) {
+      if (player->instance_remain_turns <= 8)
+        LbPaletteFade(zoom_to_heart_palette, 8, Lb_PALETTE_FADE_OPEN);
+  }
   return 0;
 }
 
@@ -608,7 +619,8 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 long pinstfe_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 {
     set_player_instance(player, PI_HeartZoomOut, false);
-    LbPaletteStopOpenFade();
+    if (is_my_player_number(player->id_number))
+        LbPaletteStopOpenFade();
     return 0;
 }
 
@@ -678,14 +690,16 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
     }
-    if (player->instance_remain_turns >= 8)
-      LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
+    if (is_my_player_number(player->id_number) && (player->instance_remain_turns >= 8))
+        LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
     return 0;
 }
 
 long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
-  LbPaletteStopOpenFade();
+  if (is_my_player(player)) {
+    LbPaletteStopOpenFade();
+  }
   struct Camera* cam = player->acamera;
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
@@ -696,8 +710,9 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
   game.view_mode_flags &= ~GNFldD_CreaturePasngr;
-  if (is_my_player(player))
+  if (is_my_player(player)) {
     PaletteSetPlayerPalette(player, engine_palette);
+  }
   return 0;
 }
 

@@ -525,22 +525,21 @@ long compute_creature_attack_melee_damage(long base_param, long luck, CrtrExpLev
  * @param luck Creature luck, scaled 0..100.
  * @param exp_level Creature level, 0..9.
  */
-long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, struct Thing* thing)
+long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (exp_level >= CREATURE_MAX_LEVEL)
         exp_level = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)exp_level) / 100;
     // Apply modifier.
-    if (!is_neutral_thing(thing))
+    if (!dungeon_invalid(dungeon))
     {
-        dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
         max_param = (max_param * modifier) / 100;
     }
     if (luck > 0)
     {
-        if (THING_RANDOM(thing, 100) < luck)
+        if (PLAYER_RANDOM(plyr_idx,100) < luck)
             max_param *= 2;
     }
     return max_param;
@@ -871,8 +870,8 @@ long compute_value_percentage(long base_val, short npercent)
     } else
     if (base_val < 0)
     {
-        if (base_val < LONG_MIN/(abs(npercent)+1))
-            base_val = LONG_MIN/(abs(npercent)+1);
+        if (base_val < INT32_MIN/(abs(npercent)+1))
+            base_val = INT32_MIN/(abs(npercent)+1);
     }
     return (base_val*(long)npercent+49)/100;
 }

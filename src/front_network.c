@@ -109,6 +109,8 @@ const struct ConfigInfo default_net_config_info = {
 int fe_network_active;
 int net_service_index_selected;
 char tmp_net_player_name[24];
+static TbClockMSec frontnet_ping_stabilization_end_time = 0;
+static int previous_player_count_for_ping_wait = -1;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -374,6 +376,33 @@ void frontnet_rewite_net_messages(void)
       memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
 }
 
+TbBool frontnet_is_waiting_for_ping_stabilization(void)
+{
+    TbClockMSec now;
+    if (net_number_of_enum_players != previous_player_count_for_ping_wait) {
+        frontnet_ping_stabilization_end_time = LbTimerClock() + FRONTNET_PING_STABILIZATION_DELAY_MS;
+        previous_player_count_for_ping_wait = net_number_of_enum_players;
+    }
+    if (net_number_of_enum_players < 2) {
+        return true;
+    }
+    if (frontnet_ping_stabilization_end_time == 0) {
+        return false;
+    }
+    now = LbTimerClock();
+    if (now >= frontnet_ping_stabilization_end_time) {
+        frontnet_ping_stabilization_end_time = 0;
+        return false;
+    }
+    return true;
+}
+
+void frontnet_reset_ping_stabilization(void)
+{
+    frontnet_ping_stabilization_end_time = 0;
+    previous_player_count_for_ping_wait = -1;
+}
+
 void handle_autostart_multiplayer_messaging(void)
 {
     static int previous_player_count = 1;
@@ -403,9 +432,23 @@ void handle_autostart_multiplayer_messaging(void)
             message_length = strlen(host_message);
             message_prepared = true;
           }
-          // Start sending the message
-          message_char_index = 0;
+          // Schedule the message send
+          if (frontnet_is_waiting_for_ping_stabilization()) {
+            message_char_index = -2;
+          } else {
+            message_char_index = 0;
+          }
         }
+      }
+
+      if (net_number_of_enum_players < 2) {
+        if (message_char_index < 0) {
+          message_char_index = -1;
+        }
+      }
+
+      if (message_char_index == -2 && !frontnet_is_waiting_for_ping_stabilization()) {
+        message_char_index = 0;
       }
 
       // Send message one character per frame
@@ -469,6 +512,8 @@ void frontnet_start_update(void)
     }
     process_frontend_packets();
     frontnet_rewite_net_messages();
+
+    LbNetwork_UpdateInputLagIfHost();
 }
 
 void display_attempting_to_join_message(void)
@@ -544,6 +589,7 @@ void frontnet_session_setup(void)
 
 void frontnet_start_setup(void)
 {
+    frontnet_reset_ping_stabilization();
     frontend_alliances = -1;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;

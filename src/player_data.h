@@ -182,7 +182,7 @@ struct PlayerInfo {
     short hand_thing_idx;
     short cta_flag_idx;
     short influenced_thing_idx;
-    long influenced_thing_creation;
+    GameTurn influenced_thing_creation;
     short engine_window_width;
     short engine_window_height;
     short engine_window_x;

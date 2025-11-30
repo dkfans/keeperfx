@@ -2982,7 +2982,7 @@ TbBool frontmainmnu_input(void)
     }
     if (lbKeyOn[KC_T] && lbKeyOn[KC_LSHIFT])
     {
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if (game.easter_eggs_enabled == true)
         {
             lbKeyOn[KC_T] = 0;
             set_player_as_won_level(get_my_player());
@@ -2993,7 +2993,7 @@ TbBool frontmainmnu_input(void)
 #if (BFDEBUG_LEVEL > 0)
     if (lbKeyOn[KC_F] && lbKeyOn[KC_LSHIFT])
     {
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if (game.easter_eggs_enabled == true)
         {
             lbKeyOn[KC_F] = 0;
             frontend_set_state(FeSt_FONT_TEST);

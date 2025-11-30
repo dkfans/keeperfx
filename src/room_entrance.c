@@ -102,7 +102,7 @@ TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
         return false;
     }
 
-    if ( (game.armageddon_cast_turn == 0) || (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) )
+    if ( (game.armageddon_cast_turn == 0) || (game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn > game.play_gameturn) )
     {
         if ( (dungeon->turns_between_entrance_generation != -1) &&
              (game.play_gameturn - dungeon->last_entrance_generation_gameturn >= dungeon->turns_between_entrance_generation) ) {
@@ -119,7 +119,7 @@ TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
     SYNCDBG(9,"Starting");
     if (!dungeon_has_room_of_role(dungeon, RoRoF_CrPoolSpawn))
         return false;
-    if ((game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) && (game.armageddon_cast_turn > 0)) //No new creatures during armageddon
+    if (((game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn) > game.play_gameturn) && (game.armageddon_cast_turn > 0)) //No new creatures during armageddon
         return false;
     return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
@@ -243,7 +243,7 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
 
 TbBool remove_creature_from_generate_pool(ThingModel crmodel)
 {
-    if (game.pool.crtr_kind[crmodel] > LONG_MIN)
+    if (game.pool.crtr_kind[crmodel] > INT32_MIN)
     {
         game.pool.crtr_kind[crmodel]--;
         return true;
@@ -441,9 +441,9 @@ void add_creature_to_pool(ThingModel kind, long amount)
     {
         game.pool.crtr_kind[kind] = INT32_MAX;
     }
-    else if (amount < 0 && game.pool.crtr_kind[kind] < LONG_MIN - amount)
+    else if (amount < 0 && game.pool.crtr_kind[kind] < INT32_MIN - amount)
     {
-        game.pool.crtr_kind[kind] = LONG_MIN;
+        game.pool.crtr_kind[kind] = INT32_MIN;
     }
     else
     {

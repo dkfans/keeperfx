@@ -815,7 +815,7 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     const struct Dungeon *dungeon = comp->dungeon;
 
     chosen_job = Job_NULL;
-    chosen_priority = LONG_MIN;
+    chosen_priority = INT32_MIN;
     for (k=0; move_to_best_job[k].job_kind != Job_NULL; k++)
     {
         const struct MoveToBestJob * mvto;
@@ -2499,7 +2499,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
     }
     struct Thing *pick_thing;
     long pick_score;
-    pick_score = LONG_MIN;
+    pick_score = INT32_MIN;
     pick_thing = INVALID_THING;
 
     unsigned long k;
@@ -2543,7 +2543,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                             score = get_creature_thing_score(thing);
                             break;
                         default:
-                            score = 0; // Still more than LONG_MIN
+                            score = 0; // Still more than INT32_MIN
                             break;
                         }
                         if (score >= pick_score)
@@ -2560,7 +2560,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                         if (best_score) {
                             score = get_creature_thing_score(thing);
                         } else {
-                            score = 0; // Still more than LONG_MIN
+                            score = 0; // Still more than INT32_MIN
                         }
                         if (score >= pick_score)
                         {
@@ -2829,7 +2829,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
     long best_factor;
     struct Thing *best_creatng;
     best_creatng = INVALID_THING;
-    best_factor = LONG_MIN;
+    best_factor = INT32_MIN;
     k = 0;
     i = dungeon->creatr_list_start;
     while (i != 0)

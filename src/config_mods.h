@@ -11,6 +11,9 @@
  *     If more types of data can be loaded later(eg. effects), the functionality will become very powerful.
  *     More information can be referred to https://github.com/dkfans/keeperfx/issues/3027
  *
+ *     hzzdev - 18 Sep 2025, Add sprite loading for mods.
+ *     hzzdev - 30 Oct 2025, Add multi-lang string loading for mods.
+ *
  */
 /******************************************************************************/
 
@@ -41,7 +44,10 @@ extern "C" {
 #define MODS_AFTER_CAMPAIGN_BLOCK_NAME "after_campaign"
 #define MODS_AFTER_MAP_BLOCK_NAME "after_map"
 
+// base, campaign, map
+#define MOD_ITEM_TYPE_CNT  3
 #define MOD_ITEM_MAX  50
+
 
 
 struct ModExistState{

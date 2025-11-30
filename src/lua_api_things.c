@@ -225,6 +225,13 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "moveto_pos") == 0)
         {
             luaL_checkCoord3d(L, 3, &cctrl->moveto_pos);
+        } else if (strcmp(key, "flee_pos") == 0)
+        {
+            luaL_checkCoord3d(L, 3, &cctrl->flee_pos);
+        }
+        else if (strcmp(key, "max_speed") == 0)
+        {
+            cctrl->max_speed = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "patrol_pos") == 0)
         {
             luaL_checkCoord3d(L, 3, &cctrl->patrol.pos);
@@ -332,44 +339,6 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "picked_up") == 0) {
         lua_pushboolean(L, thing_is_picked_up(thing));
-    } else if (strcmp(key, "state") == 0) {
-        lua_pushstring(L, get_conf_parameter_text(creatrstate_desc,thing->active_state));
-    } else if (strcmp(key, "continue_state") == 0) {
-        lua_pushstring(L, get_conf_parameter_text(creatrstate_desc,thing->continue_state));
-    } else if (strcmp(key, "workroom") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'workroom' of non-creature thing");
-        lua_pushRoom(L, room_get(cctrl->work_room_id));
-    } else if (strcmp(key, "moveto_pos") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            lua_pushPos(L, &cctrl->moveto_pos);
-    } else if (strcmp(key, "patrol_pos") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access patrol pos of non-creature thing");
-        lua_pushPos(L, &cctrl->patrol.pos);
-    } else if (strcmp(key, "patrol_countdown") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access patrol countdown of non-creature thing");
-        lua_pushinteger(L, cctrl->patrol.countdown);
-    } else if (strcmp(key, "party_objective") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access party objective of non-creature thing");
-        lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.objective));
-    } else if (strcmp(key, "party_original_objective") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access original party objective of non-creature thing");
-        lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.original_objective));
-    } else if (strcmp(key, "party_target_player") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access party target player of non-creature thing");
-        lua_pushPlayer(L, cctrl->party.target_plyr_idx);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }
@@ -388,7 +357,9 @@ static int thing_get_field(lua_State *L) {
         } else if (strcmp(key, "party") == 0) {
             lua_pushPartyTable(L, get_group_leader(thing));
         } else if (strcmp(key, "level") == 0) {
-            lua_pushinteger(L, cctrl->exp_level);
+            lua_pushinteger(L, cctrl->exp_level + 1);
+        } else if (strcmp(key, "max_speed") == 0) {
+            lua_pushinteger(L, cctrl->max_speed);
         } else if (strcmp(key, "exp_points") == 0) {
             lua_pushinteger(L, cctrl->exp_points);
         } else if (strcmp(key, "creature_kills") == 0) {
@@ -415,6 +386,26 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->force_health_flower_hidden);
         } else if (strcmp(key, "hand_blocked_turns") == 0) {
             lua_pushinteger(L, cctrl->hand_blocked_turns);
+        } else if (strcmp(key, "state") == 0) {
+            lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, thing->active_state));
+        } else if (strcmp(key, "continue_state") == 0) {
+            lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, thing->continue_state));
+        } else if (strcmp(key, "workroom") == 0) {
+            lua_pushRoom(L, room_get(cctrl->work_room_id));
+        } else if (strcmp(key, "moveto_pos") == 0) {
+            lua_pushPos(L, &cctrl->moveto_pos);
+        } else if (strcmp(key, "flee_pos") == 0) {
+            lua_pushPos(L, &cctrl->flee_pos);
+        } else if (strcmp(key, "patrol_pos") == 0) {
+            lua_pushPos(L, &cctrl->patrol.pos);
+        } else if (strcmp(key, "patrol_countdown") == 0) {
+            lua_pushinteger(L, cctrl->patrol.countdown);
+        } else if (strcmp(key, "party_objective") == 0) {
+            lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.objective));
+        } else if (strcmp(key, "party_original_objective") == 0) {
+            lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.original_objective));
+        } else if (strcmp(key, "party_target_player") == 0) {
+            lua_pushPlayer(L, cctrl->party.target_plyr_idx);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }

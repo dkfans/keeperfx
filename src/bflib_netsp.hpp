@@ -74,11 +74,6 @@ protected:
 public:
     ServiceProvider();
     virtual ~ServiceProvider();
-    static unsigned long GetRequestCompositeExchangeDataMsgSize(void);
-    static void EncodeMessageStub(void *enc_msg, unsigned long a2, unsigned char a3, unsigned long a4);
-    static void EncodeDeletePlayerMsg(unsigned char *buf, unsigned long val);
-    static void EncodeRequestExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2);
-    static void EncodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2);
     static void DecodeMessageStub(const void *enc_msg, uint32_t *a2, unsigned char *a3, uint32_t *a4);
     TbError Send(unsigned long a1, void *a2);
     TbError Receive(unsigned long a1);

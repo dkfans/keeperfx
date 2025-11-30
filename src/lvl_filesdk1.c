@@ -1367,7 +1367,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
     // Resetting all values to empty strings
     reset_strings(level_strings, STRINGS_MAX);
     // Analyzing strings data and filling correct values
-    TbBool result = create_strings_list(level_strings, level_strings_data, strings_data_end, STRINGS_MAX);
+    TbBool result = fill_strings_list(level_strings, level_strings_data, strings_data_end, STRINGS_MAX);
     if (result)
     {
         SYNCMSG("Loaded %lu strings from %s", loaded_strings_count, fname);

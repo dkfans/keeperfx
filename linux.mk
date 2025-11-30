@@ -43,6 +43,7 @@ src/bflib_mspointer.cpp \
 src/bflib_netsession.c \
 src/bflib_netsp.cpp \
 src/bflib_network.cpp \
+src/bflib_network_exchange.cpp \
 src/bflib_planar.c \
 src/bflib_render.c \
 src/bflib_render_gpoly.c \
@@ -197,8 +198,12 @@ src/map_events.c \
 src/map_locations.c \
 src/map_utils.c \
 src/moonphase.c \
+src/net_checksums.c \
 src/net_game.c \
-src/net_sync.c \
+src/net_input_lag.c \
+src/net_received_packets.c \
+src/net_redundant_packets.c \
+src/net_resync.cpp \
 src/packets.c \
 src/packets_cheats.c \
 src/packets_input.c \

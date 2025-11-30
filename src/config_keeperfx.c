@@ -936,7 +936,7 @@ static void load_configuration_for_mod_one(const struct ModConfigItem *mod_item)
     sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
     sprintf(config_textname, "Mod config '%s'", mod_item->name);
 
-    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_Main, keeper_config_file);
+    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_Main, "%s", keeper_config_file);
     load_file_configuration(fname, keeper_config_file, config_textname, CnfLd_IgnoreErrors);
 }
 
@@ -982,8 +982,15 @@ short load_configuration(void)
   const char* sname; // Filename
   const char* fname; // Filepath
 
-  load_mods_order_config_file();
-  recheck_all_mod_exist();
+  if (start_params.ignore_mods == false)
+  {
+      load_mods_order_config_file();
+      recheck_all_mod_exist();
+  }
+  else
+  {
+      SYNCMSG("Mod loading skipped");
+  }
 
   // Check if custom config file is set '-config <file>'
   if (start_params.overrides[Clo_ConfigFile])

@@ -101,48 +101,6 @@ void NilSystemUserMsgCallback(unsigned long player_id, void *system_data, unsign
 /******************************************************************************/
 // methods of virtual class ServiceProvider
 
-void ServiceProvider::EncodeMessageStub(void *enc_msg, unsigned long dataLen,
-      unsigned char messageType, unsigned long seqNbr)
-{
-  if (enc_msg == NULL)
-  {
-    WARNLOG("NULL ptr");
-    return;
-  }
-  *(uint32_t *)enc_msg = (messageType << 24) | ((seqNbr & 0xF) << 20) | (dataLen & 0xFFFFF);
-}
-
-void ServiceProvider::EncodeDeletePlayerMsg(unsigned char *buf, unsigned long val)
-{
-  if (buf == NULL)
-    WARNLOG("NULL ptr");
-  else
-    *(uint32_t *)buf = 0x2000004;
-  memcpy(buf+4, &val, 4);
-}
-
-void ServiceProvider::EncodeRequestExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2)
-{
-  if (buf == NULL)
-  {
-    WARNLOG("NULL ptr");
-    return;
-  }
-  *(uint32_t *)buf = ((a2 & 0xF) << 20) | 0x5000004;
-  memcpy(buf+4, &a1, 4);
-}
-
-void ServiceProvider::EncodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2)
-{
-  if (buf == NULL)
-  {
-    WARNLOG("NULL ptr");
-    return;
-  }
-  *(uint32_t *)buf = ((a2 & 0xF) << 20) | 0x6000004;
-  memcpy(buf+4, &a1, 4);
-}
-
 void ServiceProvider::DecodeMessageStub(const void *msgHeader, uint32_t *dataLen,
       unsigned char *messageType, uint32_t *seqNbr)
 {
@@ -167,11 +125,6 @@ void ServiceProvider::DecodeMessageStub(const void *msgHeader, uint32_t *dataLen
       k = *(uint32_t *)msgHeader;
       *messageType = (k >> 24)  & 0xFF;
   }
-}
-
-unsigned long ServiceProvider::GetRequestCompositeExchangeDataMsgSize(void)
-{
-  return 8;
 }
 
 ServiceProvider::ServiceProvider() :
@@ -453,7 +406,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           CheckForDeletedHost(msgBuffer);
-          memcpy(&id, msgBuffer, id);
+          memcpy(&id, msgBuffer, sizeof(id));
           DeletePlayer(id);
           memcpy(&tmpInt1, msgBuffer, sizeof(tmpInt1));
           if (recvCallbacks->deleteMsg) {
