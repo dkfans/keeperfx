@@ -1367,7 +1367,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     // CLEANSE.
     if (flag_is_set(spell_flags, CSAfF_Cleanse))
     {
-        clear_flag(cctrl->spell_flags, CSAfF_Cleanse);
+        // 'CSAfF_Cleanse' is never set but we still want to mark it cleared to free the spell slot.
         cleared = true;
     }
     if (!cleared)
@@ -7868,7 +7868,6 @@ void cleanse_creature(struct Thing* creatng)
     process_cleanse_effect(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct SpellConfig* spconf = get_spell_config(32);
-    clean_spell_effect(creatng, spconf->cleanse_flags);
     for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[i];
