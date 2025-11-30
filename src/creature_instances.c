@@ -1838,7 +1838,7 @@ TbBool validate_target_requires_cleansing
     )
 {
     if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target) ||
-        !creature_requires_cleansing(target))
+        !creature_requires_cleansing(target, param1))
     {
         return false;
     }
