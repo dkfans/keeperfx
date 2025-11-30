@@ -1508,12 +1508,15 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_level);
     // Check for cleansing one-time effect.
-    if (spconf->cleanse_flags > 0
-    && any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags))
+    if ((spconf->cleanse_flags > 0)
+    && (any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags)))
     {
-        clean_spell_effect(thing, spconf->cleanse_flags);
-        if (spconf->spell_flags == 0
-        && !spell_is_continuous(spell_idx, duration))
+        if (!creature_is_immune_to_spell_effect(thing, CSAfF_Cleanse))
+        {
+            clean_spell_effect(thing, spconf->cleanse_flags);
+        }
+        if ((spconf->spell_flags == 0)
+        && (!spell_is_continuous(spell_idx, duration)))
         {
             update_aura_effect_to_thing(thing, spell_idx);
             return; // Exit the function, no continuous effect to apply.
