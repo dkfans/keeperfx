@@ -104,7 +104,7 @@ struct StatsData scrolling_stats_data[] = {
 long stat_return_c_slong(void *ptr)
 {
     if (ptr == NULL) return 0;
-    return *(long *)ptr;
+    return *(int32_t *)ptr;
 }
 /******************************************************************************/
 #ifdef __cplusplus

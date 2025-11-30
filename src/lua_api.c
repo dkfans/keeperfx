@@ -379,7 +379,7 @@ static int lua_Set_next_level(lua_State *L)
     {
         return luaL_argerror(L, 1, lua_pushfstring(L, "Level '%d' not part of current campaign", lvnum));
     }
-    
+
     intralvl.next_level = lvnum;
     return 0;
 }
@@ -695,7 +695,7 @@ static int lua_Play_message(lua_State *L)
 static int lua_Tutorial_flash_button(lua_State *L)
 {
     long button = -1;
-    
+
     if (lua_isnumber(L, 1))
     {
         button = luaL_checkinteger(L, 1);
@@ -769,8 +769,8 @@ static int lua_Reveal_map_location(lua_State *L)
     SYNCDBG(0, "Revealing location type %lu", target);
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
-        long x = 0;
-        long y = 0;
+        int32_t x = 0;
+        int32_t y = 0;
         find_map_location_coords(target, &x, &y, i, __func__);
         if ((x == 0) && (y == 0))
         {
@@ -1941,7 +1941,7 @@ static int lua_get_things_of_class(lua_State *L)
     return 1; // return value is the amount of args you push back
 }
 
-static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, unsigned long *k)
+static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, uint32_t *k)
 {
     int ri = dungeon->room_list_start[rkind];
 
@@ -1972,7 +1972,7 @@ static int lua_get_rooms_of_player_and_kind(lua_State *L)
     const char* room_name = luaL_checkstring(L, 2);
 
     lua_newtable(L);
-    unsigned long k = 0;
+    uint32_t k = 0;
 
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {

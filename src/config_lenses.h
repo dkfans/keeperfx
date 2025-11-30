@@ -50,7 +50,7 @@ struct LensConfig {
 };
 
 struct LensesConfig {
-    long lenses_count;
+    int32_t lenses_count;
     struct LensConfig lenses[LENS_ITEMS_MAX];
 };
 /******************************************************************************/

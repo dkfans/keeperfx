@@ -62,19 +62,19 @@ extern "C" {
 #define MAX_CREATURES_SEARCHED 100
 
 /******************************************************************************/
-long instf_attack_room_slab(struct Thing *creatng, long *param);
-long instf_creature_cast_spell(struct Thing *creatng, long *param);
-long instf_creature_fire_shot(struct Thing *creatng, long *param);
-long instf_damage_wall(struct Thing *creatng, long *param);
-long instf_destroy(struct Thing *creatng, long *param);
-long instf_dig(struct Thing *creatng, long *param);
-long instf_eat(struct Thing *creatng, long *param);
-long instf_fart(struct Thing *creatng, long *param);
-long instf_first_person_do_imp_task(struct Thing *creatng, long *param);
-long instf_pretty_path(struct Thing *creatng, long *param);
-long instf_reinforce(struct Thing *creatng, long *param);
-long instf_tortured(struct Thing *creatng, long *param);
-long instf_tunnel(struct Thing *creatng, long *param);
+long instf_attack_room_slab(struct Thing *creatng, int32_t *param);
+long instf_creature_cast_spell(struct Thing *creatng, int32_t *param);
+long instf_creature_fire_shot(struct Thing *creatng, int32_t *param);
+long instf_damage_wall(struct Thing *creatng, int32_t *param);
+long instf_destroy(struct Thing *creatng, int32_t *param);
+long instf_dig(struct Thing *creatng, int32_t *param);
+long instf_eat(struct Thing *creatng, int32_t *param);
+long instf_fart(struct Thing *creatng, int32_t *param);
+long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param);
+long instf_pretty_path(struct Thing *creatng, int32_t *param);
+long instf_reinforce(struct Thing *creatng, int32_t *param);
+long instf_tortured(struct Thing *creatng, int32_t *param);
+long instf_tunnel(struct Thing *creatng, int32_t *param);
 
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
@@ -440,7 +440,7 @@ void process_creature_instance(struct Thing *thing)
     }
 }
 
-long instf_creature_fire_shot(struct Thing *creatng, long *param)
+long instf_creature_fire_shot(struct Thing *creatng, int32_t *param)
 {
     struct Thing *target;
     int hittype;
@@ -497,7 +497,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     return 0;
 }
 
-long instf_creature_cast_spell(struct Thing *creatng, long *param)
+long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -605,7 +605,7 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     return (i < game.conf.crtr_conf.instances_count) ? i : CrInst_NULL;
 }
 
-long instf_dig(struct Thing *creatng, long *param)
+long instf_dig(struct Thing *creatng, int32_t *param)
 {
     long stl_x;
     long stl_y;
@@ -683,7 +683,7 @@ long instf_dig(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_destroy(struct Thing *creatng, long *param)
+long instf_destroy(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
@@ -751,7 +751,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_attack_room_slab(struct Thing *creatng, long *param)
+long instf_attack_room_slab(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     struct Room* room = get_room_thing_is_on(creatng);
@@ -801,7 +801,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_damage_wall(struct Thing *creatng, long *param)
+long instf_damage_wall(struct Thing *creatng, int32_t *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
@@ -831,7 +831,7 @@ long instf_damage_wall(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_eat(struct Thing *creatng, long *param)
+long instf_eat(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -842,7 +842,7 @@ long instf_eat(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
+long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct PlayerInfo* player = get_player(get_appropriate_player_for_creature(creatng));
@@ -1004,13 +1004,13 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     if (dig)
     {
         //TODO CONFIG shot model dependency
-        long locparam = ShM_Dig;
+        int32_t locparam = ShM_Dig;
         instf_creature_fire_shot(creatng, &locparam);
     }
     return 1;
 }
 
-long instf_pretty_path(struct Thing *creatng, long *param)
+long instf_pretty_path(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     SYNCDBG(16,"Starting");
@@ -1027,7 +1027,7 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_reinforce(struct Thing *creatng, long *param)
+long instf_reinforce(struct Thing *creatng, int32_t *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
@@ -1073,13 +1073,13 @@ long instf_reinforce(struct Thing *creatng, long *param)
     return 0;
 }
 
-long instf_tortured(struct Thing *creatng, long *param)
+long instf_tortured(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     return 1;
 }
 
-long instf_tunnel(struct Thing *creatng, long *param)
+long instf_tunnel(struct Thing *creatng, int32_t *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);

@@ -148,7 +148,7 @@ long get_parchment_map_area_rect(struct TbRect *map_area)
     return block_size;
 }
 
-TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, const long screen_y, long *map_x, long *map_y)
+TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, const long screen_y, int32_t *map_x, int32_t *map_y)
 {
     // Sizes of the parchment map on which we are
     struct TbRect map_area;

@@ -131,7 +131,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
     return netstate.sp->init(OnDroppedUser);
 }
 
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns) {
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns) {
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
@@ -154,7 +154,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     return Lb_OK;
 }
 
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, long *plyr_num, void *optns) {
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, int32_t *plyr_num, void *optns) {
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
         return Lb_FAIL;

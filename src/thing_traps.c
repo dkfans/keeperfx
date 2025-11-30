@@ -1102,7 +1102,7 @@ void init_traps(void)
  * @return Amount of traps removed.
  */
 
-unsigned long remove_trap(struct Thing *traptng, long *sell_value)
+unsigned long remove_trap(struct Thing *traptng, int32_t *sell_value)
 {
     unsigned long total = 0;
     if (!thing_is_invalid(traptng))
@@ -1134,13 +1134,13 @@ unsigned long remove_trap(struct Thing *traptng, long *sell_value)
     return total;
 }
 
-unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
+unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *sell_value)
 {
     struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
     return remove_trap(traptng, sell_value);
 }
 
-unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
+unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *sell_value)
 {
     unsigned long total = 0;
     for (long k = 0; k < AROUND_TILES_COUNT; k++)

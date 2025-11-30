@@ -558,7 +558,7 @@ void get_player_gui_clicks(void)
               }
           }
         // do NOT do right_button_clicked = 0 here: it breaks dropping creatures!
-      }          
+      }
       if (right_button_released)
       {
         if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
@@ -2646,7 +2646,7 @@ void initialise_tab_tags_and_menu(MenuID menu_id)
 
 void init_gui(void)
 {
-  memset(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(unsigned short));
+  memset(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(uint16_t));
   memset(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
   memset(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
   memset(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));

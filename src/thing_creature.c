@@ -812,7 +812,7 @@ long get_free_spell_slot(struct Thing *creatng)
     struct CastedSpellData *cspell;
     long i;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long cval = LONG_MAX;
+    long cval = INT32_MAX;
     long ci = -1;
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
@@ -1638,7 +1638,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     struct SpellConfig* spconf = get_spell_config(cspell->spkind);
     struct Room* room = NULL;
     const struct Thing* desttng = NULL;
-    long distance = LONG_MAX;
+    int32_t distance = INT32_MAX;
     struct Dungeon *dungeon = get_players_num_dungeon(thing->owner);
     RoomKind rkind = 0;
     long i;
@@ -4007,7 +4007,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
                                 angle_xy_to = get_angle_xy_to(&thing->mappos, &i->mappos);
                                 angle_difference = get_angle_difference(angle_xy_to, thing->move_angle_xy);
                                 if (angle_difference >= max_hit_angle || !creature_can_see_thing(thing, i))
-                                    angle_difference = LONG_MAX;
+                                    angle_difference = INT32_MAX;
                                 if (smallest_angle_diff > angle_difference)
                                 {
                                     smallest_angle_diff = angle_difference;
@@ -4088,7 +4088,7 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
  * @param ritime Returns instance duration turns.
  * @param raitime Returns instance turn on which action function is executed.
  */
-void get_creature_instance_times(const struct Thing *thing, long inst_idx, long *ritime, long *raitime)
+void get_creature_instance_times(const struct Thing *thing, long inst_idx, int32_t *ritime, int32_t *raitime)
 {
     long itime;
     long aitime;
@@ -4158,8 +4158,8 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtn
           i = inst_inf->force_visibility;
         cctrl->force_visible = i;
     }
-    long itime;
-    long aitime;
+    int32_t itime;
+    int32_t aitime;
     get_creature_instance_times(thing, inst_idx, &itime, &aitime);
     if ((cctrl->instance_id != CrInst_NULL) && (cctrl->instance_id == inst_idx))
     {
@@ -4320,7 +4320,7 @@ void draw_creature_view(struct Thing *thing)
 
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
 {
-    MapCoordDelta nearest_distance = LONG_MAX;
+    MapCoordDelta nearest_distance = INT32_MAX;
     struct Thing *nearest_thing = INVALID_THING;
 
     for (long k = 0; k < AROUND_TILES_COUNT; k++)
@@ -5032,7 +5032,7 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
     if (param->primary_number > 0)
     {
         if (cctrl->dragtng_idx == param->primary_number) {
-            return LONG_MAX;
+            return INT32_MAX;
         }
         return -1;
     }
@@ -5223,7 +5223,7 @@ long player_list_creature_filter_of_gui_job(const struct Thing *thing, MaxTngFil
     {
         // New 'maximizer' equal to MAX_LONG will stop the sweeping
         // and return this thing immediately.
-        return LONG_MAX;
+        return INT32_MAX;
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -5250,7 +5250,7 @@ long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *th
       {
           // New 'maximizer' equal to MAX_LONG will stop the sweeping
           // and return this thing immediately.
-          return LONG_MAX;
+          return INT32_MAX;
       }
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
@@ -5278,7 +5278,7 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
       {
           // New 'maximizer' equal to MAX_LONG will stop the sweeping
           // and return this thing immediately.
-          return LONG_MAX;
+          return INT32_MAX;
       }
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
@@ -5663,19 +5663,19 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_PAINFUL_TORTURE)))
         {
             param->secondary_number = Job_PAINFUL_TORTURE;
-            return LONG_MAX;
+            return INT32_MAX;
         }
         // Or putting in prison
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_CAPTIVITY)))
         {
             param->secondary_number = Job_CAPTIVITY;
-            return LONG_MAX;
+            return INT32_MAX;
         }
         // If we can't, then just let it leave the dungeon
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_EXEMPT)))
         {
             param->secondary_number = Job_EXEMPT;
-            return LONG_MAX;
+            return INT32_MAX;
         }
     }
 
@@ -5691,7 +5691,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TEMPLE_PRAY)))
         {
             param->secondary_number = Job_TEMPLE_PRAY;
-            return LONG_MAX;
+            return INT32_MAX;
         }
     }
 
@@ -5710,7 +5710,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
                 {
                     if (try_game_action(comp, dungeon->owner, GA_UsePwrHealCrtr, spell_level, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->index, 1) > Lb_OK)
                     {
-                        return LONG_MAX;
+                        return INT32_MAX;
                     } else
                     {
                         return -1;
@@ -5723,7 +5723,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
                         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SLEEP)))
                         {
                             param->secondary_number = Job_TAKE_SLEEP;
-                            return LONG_MAX;
+                            return INT32_MAX;
                         }
                     }
                 }
@@ -5747,7 +5747,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
                 if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SLEEP)))
                 {
                     param->secondary_number = Job_TAKE_SLEEP;
-                    return LONG_MAX;
+                    return INT32_MAX;
                 }
             }
         }
@@ -5766,7 +5766,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_FEED)))
         {
             param->secondary_number = Job_TAKE_FEED;
-            return LONG_MAX;
+            return INT32_MAX;
         }
     }
 
@@ -5779,7 +5779,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SALARY)))
         {
             param->secondary_number = Job_TAKE_SALARY;
-            return LONG_MAX;
+            return INT32_MAX;
         }
     }
 
@@ -5799,7 +5799,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         if (!creature_is_doing_job_in_room_role(thing, get_room_role_for_job(new_job)))
         {
             param->secondary_number = new_job;
-            return LONG_MAX;
+            return INT32_MAX;
         }
     }
     return -1;
@@ -6154,10 +6154,10 @@ TbBool add_creature_score_to_owner(struct Thing *thing)
     if (dungeon_invalid(dungeon))
         return false;
     long score = get_creature_thing_score(thing);
-    if (dungeon->score < LONG_MAX-score)
+    if (dungeon->score < INT32_MAX-score)
         dungeon->score += score;
     else
-        dungeon->score = LONG_MAX;
+        dungeon->score = INT32_MAX;
     return true;
 }
 
@@ -7243,7 +7243,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     struct Thing *result = NULL;
-    MapCoordDelta old_distance = LONG_MAX;
+    MapCoordDelta old_distance = INT32_MAX;
     MapCoordDelta new_distance;
     long dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
     long dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);

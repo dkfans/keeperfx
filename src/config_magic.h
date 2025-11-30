@@ -407,7 +407,7 @@ struct MagicConfig {
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
     long shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
-    long power_types_count;
+    int32_t power_types_count;
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];

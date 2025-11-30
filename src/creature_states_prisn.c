@@ -181,7 +181,7 @@ struct Thing *find_prisoner_to_freeze(struct Thing *creatng, SpellKind spell_idx
         i = 0;
     }
     struct Thing* out_creatng = INVALID_THING;
-    long out_delay = LONG_MAX;
+    long out_delay = INT32_MAX;
     unsigned long k = 0;
     while (i != 0)
     {
@@ -199,7 +199,7 @@ struct Thing *find_prisoner_to_freeze(struct Thing *creatng, SpellKind spell_idx
         if (out_delay < 0)
         {
             // If we have a victim which isn't frozen, accept only other unfrozen creatures
-            if ((dist <= LONG_MAX) && !creature_under_spell_effect(thing, CSAfF_Freeze)) {
+            if ((dist <= INT32_MAX) && !creature_under_spell_effect(thing, CSAfF_Freeze)) {
                 out_creatng = thing;
                 out_delay = -1;
             }

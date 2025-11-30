@@ -717,7 +717,7 @@ TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
     return false;
 }
 
-/*void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct Thing **near_thing,struct Map *mapblk, long plyr_idx, long x, long y)
+/*void get_nearest_thing_for_hand_or_slap_on_map_block(int32_t *near_distance, struct Thing **near_thing,struct Map *mapblk, long plyr_idx, long x, long y)
 {
   struct Thing *thing;
   long i;
@@ -769,7 +769,7 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
           dist_x = param->primary_number-(MapCoord)thing->mappos.x.val;
           dist_y = param->secondary_number-(MapCoord)thing->mappos.y.val;
           // This function should return max value when the distance is minimal, so:
-          return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+          return INT32_MAX-(dist_x*dist_x + dist_y*dist_y);
       }
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
@@ -1689,7 +1689,7 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, P
     {
         struct HandRule hand_rule;
         TbBool overwrite_default_block = false;
-        for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) 
+        for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--)
         {
             hand_rule = dungeon->hand_rules[thing_to_pick->model][i];
             if (hand_rule.enabled

@@ -612,7 +612,7 @@ void clear_slab_dig(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_id
             {
                 if (players_are_mutual_allies(plyr_idx, i)) // this includes plyr_idx itself
                 {
-                    untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), i); 
+                    untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), i);
                 }
             }
         }
@@ -632,10 +632,10 @@ void clear_slab_dig(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_id
  * @param start_y Slabs range Y starting coord.
  * @param end_y Slabs range Y ending coord.
  */
-void clear_dig_for_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y)
+void clear_dig_for_map_rect(long plyr_idx, MapSubtlCoord start_x, MapSubtlCoord end_x, MapSubtlCoord start_y, MapSubtlCoord end_y)
 {
-    long x;
-    long y;
+    int32_t x;
+    int32_t y;
     for (y = start_y; y < end_y; y++)
         for (x = start_x; x < end_x; x++)
         {
@@ -664,13 +664,13 @@ void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
  */
 void player_reveal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h)
 {
-  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
+  SYNCDBG(0,"Revealing around (%d,%d)",x,y);
   reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1), y-(h>>1), y+(h>>1));
 }
 
 void player_conceal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h, TbBool all)
 {
-  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
+  SYNCDBG(0,"Revealing around (%d,%d)",x,y);
   conceal_map_area(plyr_idx, x-(w>>1), x+(w>>1), y-(h>>1), y+(h>>1),all);
 }
 

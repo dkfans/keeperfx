@@ -1835,7 +1835,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     long blow_distance = param->primary_number;
     // calculate max distance
     int maxdistance = shotst->health * shotst->speed;
-    MapCoordDelta creature_distance = LONG_MAX;
+    MapCoordDelta creature_distance = INT32_MAX;
     TbBool apply_velocity = false;
     switch (thing->class_id)
     {

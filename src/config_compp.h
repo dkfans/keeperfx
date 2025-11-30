@@ -111,13 +111,13 @@ struct ComputerType {
 };
 
 struct ComputerPlayerConfig {
-  long processes_count;
+  int32_t processes_count;
   struct ComputerProcess process_types[COMPUTER_PROCESS_TYPES_COUNT];
-  long checks_count;
+  int32_t checks_count;
   struct ComputerCheck check_types[COMPUTER_CHECKS_TYPES_COUNT];
-  long events_count;
+  int32_t events_count;
   struct ComputerEvent event_types[COMPUTER_EVENTS_TYPES_COUNT];
-  long computers_count;
+  int32_t computers_count;
   struct ComputerType computer_types[COMPUTER_MODELS_COUNT];
   long skirmish_first;
   long skirmish_last;

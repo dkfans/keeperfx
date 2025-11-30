@@ -47,7 +47,7 @@ struct WibbleTable {
   long view_height_offset;
 };
 /******************************************************************************/
-extern long randomisors[512];
+extern int32_t randomisors[512];
 extern struct WibbleTable wibble_table[WIBBLE_TABLE_SIZE];
 extern long floor_height_table[256];
 extern long lintel_top_height[256];

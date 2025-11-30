@@ -187,7 +187,7 @@ const char *network_player_name(int plyr_idx)
 
 long network_session_join(void)
 {
-    long plyr_num;
+    int32_t plyr_num;
     display_attempting_to_join_message();
     if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
     {
@@ -217,7 +217,7 @@ void sync_various_data()
    game.action_random_seed = initial_sync_data.action_random_seed;
    game.input_lag_turns = initial_sync_data.input_lag_turns;
    game.skip_initial_input_turns = calculate_skip_input();
-   NETLOG("Initial network state synced: action_seed=%lu, input_lag=%d", game.action_random_seed, game.input_lag_turns);
+   NETLOG("Initial network state synced: action_seed=%u, input_lag=%d", game.action_random_seed, game.input_lag_turns);
 }
 /******************************************************************************/
 #ifdef __cplusplus

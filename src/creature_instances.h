@@ -94,7 +94,7 @@ enum CreatureInstances {
 
 struct Thing;
 
-typedef long (*Creature_Instf_Func)(struct Thing *, long *);
+typedef long (*Creature_Instf_Func)(struct Thing *, int32_t *);
 typedef TbBool (*Creature_Validate_Func)(struct Thing *, struct Thing *, CrInstance, int32_t, int32_t);
 typedef TbBool (*Creature_Target_Search_Func)(struct Thing *, CrInstance, ThingIndex **, uint16_t *, int32_t, int32_t);
 
@@ -112,7 +112,7 @@ struct InstanceInfo {
     short force_visibility;
     unsigned char primary_target;
     unsigned char func_idx;
-    long func_params[2];
+    int32_t func_params[2];
     long range_min;
     long range_max;
     long symbol_spridx;
