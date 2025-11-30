@@ -640,7 +640,7 @@ TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *lo
 }
 
 // TODO: replace this function by find_location_pos
-void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr_idx, const char *func_name)
+void find_map_location_coords(TbMapLocation location, int32_t *x, int32_t *y, int plyr_idx, const char *func_name)
 {
     struct ActionPoint *apt;
     struct Thing *thing;
@@ -649,7 +649,7 @@ void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr
     long pos_x;
     long pos_y;
     long i;
-    SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
+    SYNCDBG(15,"From %s; Location %ld, pos(%d,%d)",func_name, location, *x, *y);
     pos_y = 0;
     pos_x = 0;
     i = get_map_location_longval(location);

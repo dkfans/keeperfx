@@ -471,7 +471,7 @@ ThingModel parse_creature_name(const char *creature_name)
 }
 
 // Variables that could be set
-TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
+TbBool parse_set_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type)
 {
     char c;
     int len = 0;
@@ -490,13 +490,13 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
     }
     if (*varib_id == -1)
     {
-        if (2 == sscanf(varib_name, "BOX%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        if (2 == sscanf(varib_name, "BOX%d_ACTIVATE%c", varib_id, &c) && (c == 'D'))
         {
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
         else
-        if (2 == sscanf(varib_name, "TRAP%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        if (2 == sscanf(varib_name, "TRAP%d_ACTIVATE%c", varib_id, &c) && (c == 'D'))
         {
             // activateD
             *varib_type = SVar_TRAP_ACTIVATED;
@@ -524,7 +524,7 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
     return true;
 }
 
-TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type, long lvl_file_version)
+TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type, long lvl_file_version)
 {
     char c;
     int len = 0;
@@ -579,12 +579,12 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type,
     }
     if (*varib_id == -1)
     {
-        if (2 == sscanf(varib_name, "BOX%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        if (2 == sscanf(varib_name, "BOX%d_ACTIVATE%c", varib_id, &c) && (c == 'D'))
         {
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
-        else if (2 == sscanf(varib_name, "TRAP%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        else if (2 == sscanf(varib_name, "TRAP%d_ACTIVATE%c", varib_id, &c) && (c == 'D'))
         {
             // activateD
             *varib_type = SVar_TRAP_ACTIVATED;
@@ -991,47 +991,47 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
 
     if (start_x < 0)
     {
-        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_x,x,width);
+        SCRPTWRNLOG("Starting X coordinate '%d' (from %d-%ld/2) is out of range, fixing it to '0'.", start_x,x,width);
         start_x = 0;
     }
     else if (start_x > game.map_subtiles_x)
     {
-        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_x, x, width, game.map_subtiles_x);
+        SCRPTWRNLOG("Starting X coordinate '%d' (from %d-%ld/2) is out of range, fixing it to '%d'.", start_x, x, width, game.map_subtiles_x);
         start_x = game.map_subtiles_x;
     }
     if (end_x < 0)
     {
-        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_x, x, width);
+        SCRPTWRNLOG("Ending X coordinate '%d' (from %d+%ld/2) is out of range, fixing it to '0'.", end_x, x, width);
         end_x = 0;
     }
     else if (end_x > game.map_subtiles_x)
     {
-        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_x, x, width, game.map_subtiles_x);
+        SCRPTWRNLOG("Ending X coordinate '%d' (from %d+%ld/2) is out of range, fixing it to '%d'.", end_x, x, width, game.map_subtiles_x);
         end_x = game.map_subtiles_x;
     }
     if (start_y < 0)
     {
-        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_y, y, height);
+        SCRPTWRNLOG("Starting Y coordinate '%d' (from %d-%ld/2) is out of range, fixing it to '0'.", start_y, y, height);
         start_y = 0;
     }
     else if (start_y > game.map_subtiles_y)
     {
-        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_y, y, height, game.map_subtiles_y);
+        SCRPTWRNLOG("Starting Y coordinate '%d' (from %d-%ld/2) is out of range, fixing it to '%d'.", start_y, y, height, game.map_subtiles_y);
         start_y = game.map_subtiles_y;
     }
     if (end_y < 0)
     {
-        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_y, y, height);
+        SCRPTWRNLOG("Ending Y coordinate '%d' (from %d+%ld/2) is out of range, fixing it to '0'.", end_y, y, height);
         end_y = 0;
     }
     else if (end_y > game.map_subtiles_y)
     {
-        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_y, y, height, game.map_subtiles_y);
+        SCRPTWRNLOG("Ending Y coordinate '%d' (from %d+%ld/2) is out of range, fixing it to '%d'.", end_y, y, height, game.map_subtiles_y);
         end_y = game.map_subtiles_y;
     }
     if ((x < 0) || (x > game.map_subtiles_x) || (y < 0) || (y > game.map_subtiles_y))
     {
-        SCRPTERRLOG("Conceal coordinates out of range, trying to set conceal center point to (%ld,%ld) on map that's %ldx%ld subtiles", x, y, game.map_subtiles_x, game.map_subtiles_y);
+        SCRPTERRLOG("Conceal coordinates out of range, trying to set conceal center point to (%d,%d) on map that's %dx%d subtiles", x, y, game.map_subtiles_x, game.map_subtiles_y);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -1309,7 +1309,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     char flag_player_id = scline->np[3];
     const char *flag_name = scline->tp[4];
 
-    long flag_id, flag_type;
+    int32_t flag_id, flag_type;
     if (!parse_get_varib(flag_name, &flag_id, &flag_type, level_file_version))
     {
         SCRPTERRLOG("Unknown flag, '%s'", flag_name);
@@ -1358,7 +1358,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %ld", scline->tp[0], game.conf.slab_conf.room_types_count + 1);
+    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.conf.slab_conf.room_types_count + 1);
     game.conf.slab_conf.room_types_count++;
 
     struct RoomConfigStats* roomst;
@@ -1393,7 +1393,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %ld", scline->tp[0], game.conf.object_conf.object_types_count + 1);
+    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], game.conf.object_conf.object_types_count + 1);
     game.conf.object_conf.object_types_count++;
 
     int tmodel = game.conf.object_conf.object_types_count -1;
@@ -1415,7 +1415,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Cannot increase trap count for trap type '%s', already at maximum %d traps.", scline->tp[0], TRAPDOOR_TYPES_MAX);
         return;
     }
-    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %ld", scline->tp[0], game.conf.trapdoor_conf.trap_types_count + 1);
+    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], game.conf.trapdoor_conf.trap_types_count + 1);
     game.conf.trapdoor_conf.trap_types_count++;
     short i = game.conf.trapdoor_conf.trap_types_count-1;
     struct TrapConfigStats *trapst = get_trap_model_stats(i);
@@ -3211,7 +3211,7 @@ static void add_bonus_time_process(struct ScriptContext *context)
 
 static void display_variable_check(const struct ScriptLine *scline)
 {
-    long varib_id, varib_type;
+    int32_t varib_id, varib_type;
     if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type, level_file_version))
     {
         SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
@@ -3523,7 +3523,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[2] < 0 || scline->np[2] >= game.conf.slab_conf.slab_types_count) //slab kind
     {
-        SCRPTERRLOG("Unsupported slab '%ld'. Slabs range 0-%ld allowed.", scline->np[2],game.conf.slab_conf.slab_types_count-1);
+        SCRPTERRLOG("Unsupported slab '%ld'. Slabs range 0-%d allowed.", scline->np[2],game.conf.slab_conf.slab_types_count-1);
         return;
     }
     else
@@ -3573,8 +3573,8 @@ static void reveal_map_location_process(struct ScriptContext *context)
 {
     TbMapLocation target = context->value->longs[0];
     SYNCDBG(0, "Revealing location type %lu", target);
-    long x = 0;
-    long y = 0;
+    int32_t x = 0;
+    int32_t y = 0;
     long r = context->value->longs[1];
     find_map_location_coords(target, &x, &y, context->player_idx, __func__);
     if ((x == 0) && (y == 0))
@@ -3998,16 +3998,16 @@ static void if_check(const struct ScriptLine *scline)
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
 
-    long plr_range_id_right = -1;
+    int32_t plr_range_id_right = -1;
     const char *varib_name_right = scline->tp[4];
 
     long value = 0;
 
     TbBool double_var_mode = false;
-    long varib_type;
-    long varib_id;
-    long varib_type_right;
-    long varib_id_right;
+    int32_t varib_type;
+    int32_t varib_id;
+    int32_t varib_type_right;
+    int32_t varib_id_right;
 
 
     if (*varib_name_right != '\0')
@@ -4094,14 +4094,14 @@ static void if_available_check(const struct ScriptLine *scline)
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
 
-    long plr_range_id_right;
+    int32_t plr_range_id_right;
     const char *varib_name_right = scline->tp[4];
 
     long value;
 
     TbBool double_var_mode = false;
-    long varib_type_right;
-    long varib_id_right;
+    int32_t varib_type_right;
+    int32_t varib_id_right;
 
 
     if (*varib_name_right != '\0')
@@ -4204,14 +4204,14 @@ static void if_controls_check(const struct ScriptLine *scline)
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
 
-    long plr_range_id_right;
+    int32_t plr_range_id_right;
     const char *varib_name_right = scline->tp[4];
 
     long value;
 
     TbBool double_var_mode = false;
-    long varib_type_right = 0;
-    long varib_id_right = 0;
+    int32_t varib_type_right = 0;
+    int32_t varib_id_right = 0;
 
 
     if (*varib_name_right != '\0')
@@ -4987,7 +4987,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, plyr_idx);
 
     const char* rulename = scline->tp[0];
-    
+
 
     long rulegroup = 0;
     long ruleval = 0;

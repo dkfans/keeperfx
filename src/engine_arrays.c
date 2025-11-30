@@ -38,7 +38,7 @@ short iso_td[TD_ISO_POINTS];
 unsigned short floor_to_ceiling_map[TEXTURE_BLOCKS_COUNT];
 struct WibbleTable blank_wibble_table[128];
 
-long randomisors[512];
+int32_t randomisors[512];
 struct WibbleTable wibble_table[128];
 long floor_height_table[256];
 long lintel_top_height[256];
@@ -998,7 +998,7 @@ void init_iso_3d_conversion_tables(void)
  */
 void setup_mesh_randomizers(void)
 {
-    unsigned long seed;
+    uint32_t seed;
     long i;
     long k;
     SYNCDBG(6,"Starting");

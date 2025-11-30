@@ -29,7 +29,7 @@
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
 #endif
-
+#include <math.h>
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -752,13 +752,13 @@ long LbMathOperation(unsigned char opkind, long first_operand, long second_opera
   }
 }
 
-unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place)
+unsigned long LbRandomSeries(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place)
 {
   if (range == 0)
     return 0;
   unsigned long i = 9377 * (*seed) + 9439;
 #ifndef FUNCTESTING // don't modify seeds when functional testing is enabled
-  *seed = (i >> 13) | (i << ((sizeof(long) * 8) - 13));
+  *seed = (i >> 13) | (i << ((sizeof(int32_t) * 8) - 13));
 #endif // FUNCTESTING
   i = (*seed) % range;
   return i;
@@ -821,15 +821,6 @@ long LbDiagonalLength(long a, long b)
 float LbLerp(float low, float high, float interval)
 {
     return (low * (1.0 - interval)) + (high * interval);
-}
-
-float fmodf(float x, float y)
-{
-    float result = x - ((int)(x / y)) * y;
-    if (result < 0) {
-        result += y;
-    }
-    return result;
 }
 
 float lerp_angle(float from, float to, float weight) {

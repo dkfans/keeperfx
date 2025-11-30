@@ -513,9 +513,9 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             if (room_role_matches(bldroom->rkind, RoRoF_CratesManufctr))
             {
                 struct Dungeon* dungeon = comp->dungeon;
-                long used_capacity;
-                long total_capacity;
-                long storaged_capacity;
+                int32_t used_capacity;
+                int32_t total_capacity;
+                int32_t storaged_capacity;
                 get_room_kind_total_used_and_storage_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity, &storaged_capacity);
                 if ((cevent->secondary_parameter != 0) && (storaged_capacity > (used_capacity * cevent->secondary_parameter / 100)))
                 {

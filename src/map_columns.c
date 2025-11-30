@@ -155,7 +155,7 @@ long get_top_cube_at_pos(SubtlCodedCoords stl_num)
     return tcube;
 }
 
-long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos)
+long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *cube_pos)
 {
     struct Column *col;
     unsigned long top_pos;
@@ -546,7 +546,7 @@ TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long i;
-    long cube_pos;
+    int32_t cube_pos;
     i = get_top_cube_at(stl_x, stl_y, &cube_pos);
     // Only low ground cubes are really sacrificial - high ground is most likely magic door.
     return cube_pos<4 && cube_is_sacrificial(i);
