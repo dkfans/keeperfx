@@ -77,6 +77,7 @@ TbBool LbNumberSignsSame(long num_a, long num_b);
 char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);
 long LbDiagonalLength(long a, long b);
 float LbLerp(float low, float high, float interval);
+float LbFmodf(float x, float y);
 float lerp_angle(float from, float to, float weight);
 double fastPow(double a, double b);
 /******************************************************************************/
