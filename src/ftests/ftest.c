@@ -287,7 +287,7 @@ TbBool ftest_setup_test(struct FTestConfig* const test_config)
     }
 
     // set frame skip
-    game.frame_skip = test_config->frame_skip;
+    game.fastforward_speed = test_config->fastforward_speed;
 
     // set seed
     start_params.functest_seed = test_config->seed;

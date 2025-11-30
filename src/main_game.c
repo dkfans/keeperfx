@@ -296,7 +296,7 @@ void startup_saved_packet_game(void)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
     SYNCMSG("Packet Loading Active (File contains %lu turns)", game.turns_stored);
     SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
-    SYNCMSG("Fast Forward through %lu game turns", game.turns_fastforward);
+    SYNCMSG("Fast Forward through %lu game turns", game.turns_to_skip);
     if (game.turns_packetoff != -1)
         SYNCMSG("Packet Quit at %lu", game.turns_packetoff);
     if (game.packet_load_enable)
@@ -329,8 +329,8 @@ void startup_saved_packet_game(void)
     init_players();
     if (game.active_players_count == 1)
         game.game_kind = GKind_LocalGame;
-    if (game.turns_stored < game.turns_fastforward)
-        game.turns_fastforward = game.turns_stored;
+    if (game.turns_stored < game.turns_to_skip)
+        game.turns_to_skip = game.turns_stored;
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
@@ -476,6 +476,7 @@ void clear_complete_game(void)
     snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
     game.packet_save_enable = start_params.packet_save_enable;
     game.packet_load_enable = start_params.packet_load_enable;
+    game.turns_to_skip = start_params.skip_to_turn;
     my_player_number = default_loc_player;
 }
 
@@ -491,6 +492,15 @@ void init_seeds()
     {
         // Unsynced seeds - these values will be different per-player in multiplayer
         unsigned long calender_time = (unsigned long)LbTimeSec();
+
+        
+        if (start_params.use_override_seed) { // Override seed if using -seed launch argument with a number
+            calender_time = start_params.override_seed;
+        }
+        if (start_params.log_seed) { // Log seed if -seed launch argument was used, with or without number
+            JUSTLOG("Base seed: %lu", calender_time);
+        }
+
         game.unsync_random_seed = calender_time * 9007 + 9011;  // Use prime multipliers for different seeds
         game.sound_random_seed = calender_time * 7919 + 7927;
 

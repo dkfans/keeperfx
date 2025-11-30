@@ -136,12 +136,16 @@ struct StartupParameters {
     TbBool packet_load_enable;
     char packet_fname[150];
     unsigned char packet_checksum_verify;
-    int frame_skip;
+    int fastforward_speed;
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
     GameTurn pause_at_gameturn;
     unsigned char startup_flags;
+    GameTurn skip_to_turn;
+    unsigned long override_seed;
+    TbBool log_seed;
+    TbBool use_override_seed;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];

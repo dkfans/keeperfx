@@ -351,8 +351,6 @@ void load_packets_for_turn(GameTurn nturn)
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
         memcpy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
     TbBigChecksum tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT * sizeof(struct Packet)]);
-    if (game.turns_fastforward > 0)
-        game.turns_fastforward--;
     if (game.packet_checksum_verify)
     {
         pckt = get_packet(my_player_number);

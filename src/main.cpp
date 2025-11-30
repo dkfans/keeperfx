@@ -1149,7 +1149,7 @@ short setup_game(void)
       }
   }
 
-  game.frame_skip = start_params.frame_skip;
+  game.fastforward_speed = start_params.fastforward_speed;
 
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
@@ -3263,10 +3263,10 @@ short display_should_be_updated_this_turn(void)
 {
     if ((game.operation_flags & GOF_Paused) != 0)
       return true;
-    if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) )
+    if ( (game.turns_to_skip == 0) && (!game.packet_loading_in_progress) )
     {
       find_frame_rate();
-      if ( (game.frame_skip == 0) || ((game.play_gameturn % game.frame_skip) == 0))
+      if ( (game.fastforward_speed == 0) || ((game.play_gameturn % game.fastforward_speed) == 0))
         return true;
     } else
     if ( ((game.play_gameturn & 0x3F)==0) ||
@@ -3314,12 +3314,12 @@ TbBool keeper_wait_for_next_turn(void)
         // No idea when such situation occurs
         tick_ns_one_frame = tick_ns_one_sec;
     }
-    if (game.frame_skip >= 0)
+    if (game.fastforward_speed >= 0)
     {
         // Standard delaying system
         long num_fps = game_num_fps;
-        if (game.frame_skip > 0)
-            num_fps *= game.frame_skip;
+        if (game.fastforward_speed > 0)
+            num_fps *= game.fastforward_speed;
 
         tick_ns_one_frame = tick_ns_one_sec/num_fps;
     }
@@ -3347,8 +3347,8 @@ TbBool keeper_wait_for_next_turn(void)
 
 TbBool keeper_wait_for_next_draw(void)
 {
-    // fps.draw is currently unable to work properly with frame_skip
-    if (game_num_fps_draw > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
+    // fps.draw is currently unable to work properly with fast forward
+    if (game_num_fps_draw > 0 && is_feature_on(Ft_DeltaTime) == true && game.fastforward_speed == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
         const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw;
@@ -3401,7 +3401,7 @@ void gameplay_loop_logic()
             {
                 game.paused_at_gameturn = true;
 
-                game.frame_skip = 0;
+                game.fastforward_speed = 0;
                 if(game.packet_load_enable)
                 {
                     disable_packet_mode();
@@ -3504,7 +3504,7 @@ void gameplay_loop_timestep()
         game.delta_time = 1;
         game.process_turn_time = 1;
         // Make delay if the machine is too fast
-        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
+        if ( (!game.packet_load_enable) || (game.turns_to_skip == 0) ) {
             keeper_wait_for_next_turn();
         }
     }
@@ -4198,14 +4198,29 @@ short process_command_line(unsigned short argc, char *argv[])
               narg++;
           }
       }
-      else if (strcasecmp(parstr,"frameskip") == 0)
+      else if (strcasecmp(parstr,"fastforward") == 0)
       {
-         start_params.frame_skip = atoi(pr2str);
+         start_params.fastforward_speed = atoi(pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"framestep") == 0)
       {
          set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
+      }
+      else if (strcasecmp(parstr,"skipturns") == 0)
+      {
+         start_params.skip_to_turn = atoi(pr2str);
+         narg++;
+      }
+      else if (strcasecmp(parstr,"seed") == 0)
+      {
+         start_params.log_seed = true;
+         // Check if there's a valid number provided (not empty and not another flag)
+         if (pr2str[0] != '\0' && pr2str[0] != '-' && pr2str[0] != '/') {
+            start_params.override_seed = atoi(pr2str);
+            start_params.use_override_seed = true;
+            narg++;
+         }
       }
       else if (strcasecmp(parstr, "timer") == 0)
       {

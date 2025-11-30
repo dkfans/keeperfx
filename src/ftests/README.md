@@ -4,7 +4,7 @@ This is proof of concept; the goal is primarily for setting up scenarios to repl
 
 Added benefit is that if tests are setup in a continuous integration environment we can automatically know when we break behaviours when adding new features.
 
-The functional tests should run fast, hence you will see `frame_skip = 8` is used by default for some tests. It can be specified per-test.
+The functional tests should run fast, hence you will see `fastforward_speed = 8` is used by default for some tests. It can be specified per-test.
 They also skip the trademark/cutscene by default for super fast launch.
 
 # Quickstart
@@ -74,8 +74,8 @@ They also skip the trademark/cutscene by default for super fast launch.
     - add the include for your tests header file
         - example: `#include "tests/ftest_bug_warlock_cooks_chicken.h"`
     - update [tests_list](./ftest_list.c#L30)
-        - add the `test_name` of your test, your tests `init_func`, the `level_file` and specify the `frame_skip` *(there are other advanced optional values not listed here)*
-        - example: `{ .test_name="bug_warlock_cooks_chicken",  .init_func=ftest_bug_warlock_cooks_chicken_init,  .level_file="keeporig",  .level=1,  .frame_skip=0 },`
+        - add the `test_name` of your test, your tests `init_func`, the `level_file` and specify the `fastforward_speed` *(there are other advanced optional values not listed here)*
+        - example: `{ .test_name="bug_warlock_cooks_chicken",  .init_func=ftest_bug_warlock_cooks_chicken_init,  .level_file="keeporig",  .level=1,  .fastforward_speed=0 },`
         - this `test_name` is what you pass to the `ftests` arg in [launch.json](../../.vscode/launch.json) if you only want to run that test
 6. [Run Your Test](#run-existing-test)
 

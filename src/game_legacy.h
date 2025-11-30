@@ -226,7 +226,7 @@ struct Game {
     unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
-    unsigned long turns_fastforward;
+    unsigned long turns_to_skip;
     unsigned char packet_loading_in_progress;
     unsigned char packet_checksum_verify;
     unsigned long log_things_start_turn;
@@ -285,7 +285,7 @@ struct Game {
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
-    long frame_skip;
+    long fastforward_speed;
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress[PLAYERS_COUNT];
