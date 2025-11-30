@@ -1176,6 +1176,13 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // CLEANSE.
+    if (flag_is_set(spconf->spell_flags, CSAfF_Cleanse)
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Cleanse)))
+    {
+        cleanse_creature(thing);
+        affected = true;
+    }
     if (!affected)
     {
         SYNCDBG(7, "%s: No spell flags %d to set on %s index %d", func_name, (uint)spconf->spell_flags, thing_model_name(thing), (int)thing->index);
@@ -1355,6 +1362,12 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     if (flag_is_set(spell_flags, CSAfF_Heal))
     {
         // 'CSAfF_Heal' is never set but we still want to mark it cleared to free the spell slot.
+        cleared = true;
+    }
+    // CLEANSE.
+    if (flag_is_set(spell_flags, CSAfF_Cleanse))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Cleanse);
         cleared = true;
     }
     if (!cleared)
@@ -6326,7 +6339,13 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
     } else
     {
-        if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
+        if (creature_under_spell_effect(thing, CSAfF_Freeze))
+        {
+            if (creature_instance_is_available(thing, CrInst_CLEANSE) && creature_instance_has_reset(thing, CrInst_CLEANSE)) { 
+                cctrl->stopped_for_hand_turns = 0;
+            }
+        }
+        else if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
             if (cctrl->stopped_for_hand_turns > 0)
             {
@@ -7842,6 +7861,22 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     }
     SYNCDBG(19, "Finished");
     return true;
+}
+
+void cleanse_creature(struct Thing* creatng) 
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct SpellConfig* spconf = get_spell_config(32);
+    clean_spell_effect(creatng, spconf->cleanse_flags);
+    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        struct CastedSpellData *cspell = &cctrl->casted_spells[i];
+        struct SpellConfig* spconf2 = get_spell_config(cspell->spkind);
+        if (flag_is_set(spconf->cleanse_flags, spconf2->spell_flags))
+        {
+            cspell->duration = 0;
+        }
+    }
 }
 
 /******************************************************************************/

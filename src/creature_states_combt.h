@@ -71,6 +71,7 @@ TbBool creature_has_creature_in_combat(const struct Thing *thing, const struct T
 TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrAttackType attack_type);
 TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_id);
 TbBool creature_would_benefit_from_healing(const struct Thing* thing);
+TbBool creature_requires_cleansing(const struct Thing* thing);
 
 void reset_postal_instance_cache();
 CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long dist);
