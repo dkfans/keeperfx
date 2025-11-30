@@ -1903,7 +1903,7 @@ void process_thing_spell_effects(struct Thing *thing)
         struct SpellConfig *spconf = get_spell_config(cspell->spkind);
         // Terminate the spell if its duration expires, or if the spell flags are cleared and no other continuous effects are active.
         if ((cspell->duration <= 0)
-            || ((spconf->spell_flags > 0) && !flag_is_set(cctrl->spell_flags, spconf->spell_flags) && !spell_is_continuous(cspell->spkind, cspell->duration)))
+            || ((spconf->spell_flags > 0) && !any_flag_is_set(cctrl->spell_flags, spconf->spell_flags) && !spell_is_continuous(cspell->spkind, cspell->duration)))
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
             continue;
