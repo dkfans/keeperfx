@@ -1180,7 +1180,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Cleanse)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Cleanse)))
     {
-        cleanse_creature(thing);
+        process_cleanse_effect(thing);
         affected = true;
     }
     // Spell Blocks.
@@ -7875,22 +7875,6 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     }
     SYNCDBG(19, "Finished");
     return true;
-}
-
-void cleanse_creature(struct Thing* creatng) 
-{
-    process_cleanse_effect(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct SpellConfig* spconf = get_spell_config(32);
-    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    {
-        struct CastedSpellData *cspell = &cctrl->casted_spells[i];
-        struct SpellConfig* spconf2 = get_spell_config(cspell->spkind);
-        if (flag_is_set(spconf->cleanse_flags, spconf2->spell_flags))
-        {
-            cspell->duration = 0;
-        }
-    }
 }
 
 /******************************************************************************/
