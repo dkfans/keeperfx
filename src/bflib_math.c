@@ -29,7 +29,7 @@
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
 #endif
-
+#include <math.h>
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -821,15 +821,6 @@ long LbDiagonalLength(long a, long b)
 float LbLerp(float low, float high, float interval)
 {
     return (low * (1.0 - interval)) + (high * interval);
-}
-
-float fmodf(float x, float y)
-{
-    float result = x - ((int)(x / y)) * y;
-    if (result < 0) {
-        result += y;
-    }
-    return result;
 }
 
 float lerp_angle(float from, float to, float weight) {

@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include <stddef.h>
-
+#include <math.h>
 #include "engine_render.h"
 #include "globals.h"
 
