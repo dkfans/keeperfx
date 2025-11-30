@@ -1183,6 +1183,13 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         cleanse_creature(thing);
         affected = true;
     }
+    // Spell Blocks.
+    if (flag_is_set(spconf->spell_flags, CSAfF_SpellBlocks)
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_SpellBlocks)))
+    {
+        set_flag(cctrl->spell_flags, CSAfF_SpellBlocks);
+        affected = true;
+    }
     if (!affected)
     {
         SYNCDBG(7, "%s: No spell flags %d to set on %s index %d", func_name, (uint)spconf->spell_flags, thing_model_name(thing), (int)thing->index);
@@ -1368,6 +1375,13 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     if (flag_is_set(spell_flags, CSAfF_Cleanse))
     {
         // 'CSAfF_Cleanse' is never set but we still want to mark it cleared to free the spell slot.
+        cleared = true;
+    }
+    // Spell Blocks.
+    if (flag_is_set(spell_flags, CSAfF_SpellBlocks)
+    && (creature_under_spell_effect(thing, CSAfF_SpellBlocks)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_SpellBlocks);
         cleared = true;
     }
     if (!cleared)
