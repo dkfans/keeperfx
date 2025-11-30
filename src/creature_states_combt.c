@@ -3549,7 +3549,7 @@ TbBool creature_requires_cleansing(const struct Thing* thing)
 TbBool creature_is_debuffed(const struct Thing* thing) 
 {
     for (int i = 0; i < game.conf.magic_conf.debuff_count; ++i) {
-        if (creature_affected_by_spell(thing, game.conf.magic_conf.debuffs[i])) {
+        if (creature_under_spell_effect(thing, game.conf.magic_conf.debuffs[i])) {
             return true;
         }
     }

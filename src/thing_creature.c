@@ -6331,7 +6331,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
     } else
     {
-        if (creature_affected_by_spell(thing, SplK_Freeze))
+        if (creature_under_spell_effect(thing, SplK_Freeze))
         {
             if (creature_instance_is_available(thing, CrInst_CLEANSE) && creature_instance_has_reset(thing, CrInst_CLEANSE)) { 
                 cctrl->stopped_for_hand_turns = 0;
