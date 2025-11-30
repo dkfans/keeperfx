@@ -126,6 +126,7 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_target_benefits_from_wind",                      10},
     {"validate_target_non_idle",                                11},
     {"validate_target_takes_gas_damage",                        12},
+    {"validate_target_requires_cleansing",                      13},
     {NULL, 0},
 };
 
@@ -143,6 +144,7 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_target_benefits_from_wind,
     validate_target_non_idle,
     validate_target_takes_gas_damage,
+    validate_target_requires_cleansing,
     NULL,
 };
 
