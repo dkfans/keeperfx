@@ -718,11 +718,13 @@ TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned 
     }
     if (creature_under_spell_effect(thing, CSAfF_SpellBlocks))
     {
-        struct InstanceInfo* inst_inf = creature_instance_info_get(CrInst_CLEANSE);
-        struct SpellConfig* spconf = get_spell_config(inst_inf->func_params[0]);
-        if (flag_is_set(spconf->cleanse_flags, spell_flags))
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_invalid(cctrl))
         {
-            return true;
+            if (flag_is_set(cctrl->cleanse_flags, spell_flags))
+            {
+                return true;
+            }
         }
     }
     return flag_is_set(crconf->immunity_flags, spell_flags);
@@ -1197,6 +1199,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_SpellBlocks)))
     {
         set_flag(cctrl->spell_flags, CSAfF_SpellBlocks);
+        cctrl->cleanse_flags = spconf->cleanse_flags;
         affected = true;
     }
     if (!affected)
@@ -1391,6 +1394,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_SpellBlocks)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_SpellBlocks);
+        cctrl->cleanse_flags = 0;
         cleared = true;
     }
     if (!cleared)
