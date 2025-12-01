@@ -1478,6 +1478,10 @@ short get_creature_control_action_inputs(void)
     }
     // Use the Query/Message keys and mouse wheel to scroll through query pages and go to correct query page when selecting an instance.
     struct Thing* thing = thing_get(player->controlled_thing_idx);
+    if (!thing_is_creature(thing))
+    {
+        return false;
+    }
     if (menu_is_active(GMnu_CREATURE_QUERY1))
     {
       if ( ( (is_key_pressed(KC_7,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD7,KMod_DONTCARE))) && (creature_instance_get_available_id_for_pos(thing,6) > 0) ) ||
