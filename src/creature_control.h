@@ -405,7 +405,6 @@ struct CreatureControl {
     unsigned long timebomb_countdown;
     ThingIndex timebomb_countdown_id;
     ThingIndex timebomb_target_id;
-    TbBool timebomb_death;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
     SpellKind summon_spl_idx;

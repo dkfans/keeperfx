@@ -1492,7 +1492,6 @@ short cleanup_timebomb(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
     cctrl->timebomb_target_id = 0;
-    cctrl->timebomb_death = false;
     return 0;
 }
 

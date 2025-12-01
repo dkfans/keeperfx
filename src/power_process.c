@@ -761,7 +761,6 @@ void timebomb_explode(struct Thing *creatng)
         HitPoints damage = (compute_creature_attack_spell_damage(shotst->area_damage, crconf->luck, cctrl->exp_level, creatng->owner) * weight) / WEIGHT_DIVISOR;
         long blow_strength = (shotst->area_blow * weight) / WEIGHT_DIVISOR;
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        cctrl->timebomb_death = flag_is_set(shotst->model_flags, ShMF_Exploding);
         shot_kill_creature(shotng, creatng);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, blow_strength, hit_targets);
     }
