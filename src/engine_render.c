@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include <stddef.h>
-#include <math.h>
+
 #include "engine_render.h"
 #include "globals.h"
 
@@ -540,7 +540,7 @@ float interpolate_angle(float variable_to_interpolate, float previous, float cur
     float future = current + (current - previous);
     float desired_value = lerp_angle(current, future, 0.5);
     float result = lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
-    float result_change = fmodf((result - current) + DEGREES_180, DEGREES_360) - DEGREES_180;
+    float result_change = LbFmodf((result - current) + DEGREES_180, DEGREES_360) - DEGREES_180;
     if (result_change > -0.5f && result_change < 0.5f) {
         return current;
     }
