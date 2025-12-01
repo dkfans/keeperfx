@@ -4190,8 +4190,8 @@ TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, Creatu
     RoomRole rrole = get_room_role_for_job(jobpref);
     if (!room_exists(room))
     {
-        SYNCLOG("%s: The %s owned by player %d can no longer work in %s because former work room doesn't exist",
-            func_name,thing_model_name(thing),(int)thing->owner,room_role_code_name(rrole));
+        SYNCLOG("%s: The %s(%d) owned by player %d can no longer work in %s because former work room doesn't exist",
+            func_name,thing_model_name(thing),thing->index,(int)thing->owner,room_role_code_name(rrole));
         // Note that if given room doesn't exist, it do not mean this
         return true;
     }
