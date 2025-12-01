@@ -1361,13 +1361,16 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
                     break;
                 }
             }
-            if (tngmodel == ShM_Null)
+            if (tngmodel != ShM_Null)
+            {
+                struct ShotConfigStats* shotst = get_shot_model_stats(tngmodel);
+                if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
+                num_affected++;
+            }
+            else
             {
                 break;
             }
-            struct ShotConfigStats* shotst = get_shot_model_stats(tngmodel);
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
-                num_affected++;
         }
         // Per thing processing block ends
         k++;
