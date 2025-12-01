@@ -1360,7 +1360,11 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
                     tngmodel = ShM_Null;
                     break;
                 }
-            } 
+            }
+            if (tngmodel == ShM_Null)
+            {
+                break;
+            }
             struct ShotConfigStats* shotst = get_shot_model_stats(tngmodel);
             if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
                 num_affected++;
