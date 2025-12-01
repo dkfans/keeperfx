@@ -1348,6 +1348,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
                     break;
                 }
                 case TCls_Creature:
+                case TCls_DeadCreature:
                 case TCls_Effect:
                 {
                     // Time Bomb
