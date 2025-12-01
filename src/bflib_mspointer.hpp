@@ -29,8 +29,8 @@
 /******************************************************************************/
 #define CURSOR_SCALING_XSTEPS MAX_SUPPORTED_SCREEN_WIDTH/10
 #define CURSOR_SCALING_YSTEPS MAX_SUPPORTED_SCREEN_HEIGHT/10
-extern long cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
-extern long cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
+extern int32_t cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
+extern int32_t cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
 
 // Exported class

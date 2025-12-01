@@ -114,7 +114,7 @@ unsigned long long LbSystemClockMilliseconds(void);
 #define SYNCLOG(format, ...) LbSyncLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define JUSTLOG(format, ...) LbJustLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 extern TbBool detailed_multiplayer_logging;
-#define MULTIPLAYER_LOG(format, ...) do { if (detailed_multiplayer_logging) { LbJustLog("[%lu][%llu ms] %s: " format "\n", get_gameturn(), LbSystemClockMilliseconds(), __func__ , ##__VA_ARGS__); } } while(0)
+#define MULTIPLAYER_LOG(format, ...) do { if (detailed_multiplayer_logging && game.game_kind == GKind_MultiGame) { LbJustLog("[%lu][%llu ms] %s: " format "\n", get_gameturn(), LbSystemClockMilliseconds(), __func__ , ##__VA_ARGS__); } } while(0)
 #define SCRPTLOG(format, ...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
 #define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
@@ -266,7 +266,7 @@ typedef long MapCoord;
 /** Distance between map coordinates in full resolution. */
 typedef long MapCoordDelta;
 /** Map subtile coordinate. Every slab consists of 3x3 subtiles. */
-typedef long MapSubtlCoord;
+typedef int32_t MapSubtlCoord;
 /** Distance between map subtiles. */
 typedef long MapSubtlDelta;
 /** Map slab coordinate. Slab is a cubic part of map with specific content. */

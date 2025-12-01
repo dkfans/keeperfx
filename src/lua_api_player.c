@@ -50,7 +50,7 @@ static int lua_Set_texture(lua_State *L)
 
 
 static const struct luaL_Reg player_methods[] = {
-   {"set_texture"                          ,lua_Set_texture                     },   
+   {"set_texture"                          ,lua_Set_texture                     },
    {"add_gold"                             ,lua_Add_gold_to_player              },
    //{"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
    //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
@@ -96,7 +96,7 @@ static int player_get_available(lua_State *L) {
         else
         {
             svartype = SVar_AVAILABLE_CREATURE;
-        }      
+        }
         if(id == -1)
         {
             id = get_rid(room_desc, text);
@@ -131,7 +131,7 @@ static int player_get_available(lua_State *L) {
 static int player_tostring(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
-    
+
     lua_pushstring(L,get_conf_parameter_text(player_desc,player_idx));
     return 1;
 
@@ -144,8 +144,8 @@ static int player_set_field(lua_State *L) {
     const char* key = luaL_checkstring(L, 2);
     int value = luaL_checkinteger(L, 3);
 
-    long variable_type;
-    long variable_id;
+    int32_t variable_type;
+    int32_t variable_id;
 
     if (parse_get_varib(key, &variable_id, &variable_type,1))
     {
@@ -160,7 +160,7 @@ static int player_get_field(lua_State *L) {
     const char* key = luaL_checkstring(L, 2);
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
 
-    long variable_type, variable_id;
+    int32_t variable_type, variable_id;
 
     // C method lookup
     if (try_get_c_method(L, key, player_methods))
@@ -255,8 +255,6 @@ void Player_register(lua_State *L) {
         lua_pushPlayer(L,i);
         lua_setglobal(L, get_conf_parameter_text(player_desc,i));
     }
-    
+
 
 }
-
-

@@ -243,7 +243,7 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
 
 TbBool remove_creature_from_generate_pool(ThingModel crmodel)
 {
-    if (game.pool.crtr_kind[crmodel] > LONG_MIN)
+    if (game.pool.crtr_kind[crmodel] > INT32_MIN)
     {
         game.pool.crtr_kind[crmodel]--;
         return true;
@@ -413,7 +413,7 @@ void process_entrance_generation(void)
     }
     if (due)
     {
-        if (game.armageddon_cast_turn == 0) 
+        if (game.armageddon_cast_turn == 0)
         {
             update_dungeons_scores();
             update_dungeon_generation_speeds();
@@ -437,13 +437,13 @@ void add_creature_to_pool(ThingModel kind, long amount)
 {
     kind %= game.conf.crtr_conf.model_count;
 
-    if (amount > 0 && game.pool.crtr_kind[kind] > LONG_MAX - amount)
+    if (amount > 0 && game.pool.crtr_kind[kind] > INT32_MAX - amount)
     {
-        game.pool.crtr_kind[kind] = LONG_MAX;
+        game.pool.crtr_kind[kind] = INT32_MAX;
     }
-    else if (amount < 0 && game.pool.crtr_kind[kind] < LONG_MIN - amount)
+    else if (amount < 0 && game.pool.crtr_kind[kind] < INT32_MIN - amount)
     {
-        game.pool.crtr_kind[kind] = LONG_MIN;
+        game.pool.crtr_kind[kind] = INT32_MIN;
     }
     else
     {

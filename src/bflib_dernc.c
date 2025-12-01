@@ -89,7 +89,7 @@ static unsigned long mirror(unsigned long x, int n);
 // in `*leeway', if `leeway' isn't NULL.
 long rnc_unpack (const void *packed, void *unpacked, unsigned int flags
 #ifdef COMPRESSOR
-         , long *leeway
+         , int32_t *leeway
 #endif
          )
 {

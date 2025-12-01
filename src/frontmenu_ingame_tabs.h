@@ -46,7 +46,7 @@ enum IngameButtonGroupIDs {
 };
 
 /******************************************************************************/
-extern long activity_list[24];
+extern int32_t activity_list[24];
 extern char gui_room_type_highlighted;
 extern char gui_door_type_highlighted;
 extern char gui_trap_type_highlighted;

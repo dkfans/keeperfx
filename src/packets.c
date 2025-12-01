@@ -150,7 +150,7 @@ void update_double_click_detection(long plyr_idx)
   }
   if ((pckt->control_flags & (PCtr_LBtnClick|PCtr_LBtnHeld)) == 0)
   {
-    if (packet_left_button_click_space_count[plyr_idx] < LONG_MAX)
+    if (packet_left_button_click_space_count[plyr_idx] < INT32_MAX)
       packet_left_button_click_space_count[plyr_idx]++;
   }
 }
@@ -536,8 +536,8 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
             case ';':
             case '(':
             case ')':
-            case '.': 
-            case '_': 
+            case '.':
+            case '_':
             case '\'':
             case '+':
             case '=':
@@ -579,7 +579,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 {
     struct PlayerInfo *swplyr;
     struct PlayerInfo* myplyr = get_my_player();
-    long plyr_count;
+    int32_t plyr_count;
     plyr_count = 0;
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
@@ -1238,6 +1238,7 @@ void process_players_creature_passenger_packet_action(long plyr_idx)
     if (pckt->action == PckA_PasngrCtrlExit)
     {
         player->influenced_thing_idx = pckt->actn_par1;
+        player->influenced_thing_creation = pckt->actn_par2;
         set_player_instance(player, PI_PsngrCtLeave, 0);
     }
     SYNCDBG(8,"Finished");
@@ -1433,7 +1434,7 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    
+
     // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cctng);
     long maxTurnSpeed = crconf->max_turning_speed;
@@ -1448,7 +1449,7 @@ void process_players_creature_control_packet_control(long idx)
     } else if (horizontalTurnSpeed > maxTurnSpeed) {
         horizontalTurnSpeed = maxTurnSpeed;
     }
-    
+
     // Vertical look
     long verticalTurnSpeed = pckt->pos_y;
     if (verticalTurnSpeed < -maxTurnSpeed) {
@@ -1492,6 +1493,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   {
   case PckA_DirectCtrlExit:
       player->influenced_thing_idx = pckt->actn_par1;
+      player->influenced_thing_creation = pckt->actn_par2;
       thing = thing_get(player->controlled_thing_idx);
       cctrl = creature_control_get_from_thing(thing);
       struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
@@ -1731,7 +1733,7 @@ void process_packets(void)
 
     MULTIPLAYER_LOG("process_packets: Loading packets from input lag queue");
     load_old_packets(player->packet_num);
-    
+
     fill_missing_packets_from_previous_turn();
 
     if (input_lag_skips_initial_processing())
@@ -1812,7 +1814,7 @@ static TbBool try_starting_level_from_chat(char* message, long player_id)
 
     char campaign_filename[80];
     snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
-    
+
     if (!change_campaign(campaign_filename)) {
         ERRORLOG("Unable to load campaign '%.*s' for level %d", campaign_len, message, (int)level_num);
         return false;
@@ -1834,7 +1836,7 @@ static void handle_chat_message(char* message, long player_id, TbBool clear_text
         }
         return;
     }
-    
+
     add_message(player_id, message);
     if (clear_text) {
         text_to_clear[0] = '\0';
@@ -2008,20 +2010,20 @@ void apply_default_flee_and_imprison_setting(void)
     if (!player_exists(player) || game.packet_load_enable) {
         return;
     }
-    
+
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     unsigned short tendencies_to_toggle = 0;
-    
+
     TbBool current_imprison_state = (dungeon->creature_tendencies & 0x01) != 0;
     if (IMPRISON_BUTTON_DEFAULT != current_imprison_state) {
         tendencies_to_toggle |= CrTend_Imprison;
     }
-    
+
     TbBool current_flee_state = (dungeon->creature_tendencies & 0x02) != 0;
     if (FLEE_BUTTON_DEFAULT != current_flee_state) {
         tendencies_to_toggle |= CrTend_Flee;
     }
-    
+
     if (tendencies_to_toggle) {
         set_players_packet_action(player, PckA_ToggleTendency, tendencies_to_toggle, 0, 0, 0);
     }
@@ -2032,7 +2034,7 @@ void force_application_close()
 {
     extern unsigned char exit_keeper;
     extern int frontend_menu_state;
-    
+
     // Check if we're in gameplay vs frontend
     if (frontend_menu_state == 0)
     {

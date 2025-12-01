@@ -62,7 +62,7 @@ BIN      = bin/keeperfx$(EXEEXT)
 TEST_BIN = bin/tests$(EXEEXT)
 HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
-GENSRC   = obj/ver_defs.h
+GENSRC   = src/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 
 DEPS = \
@@ -334,6 +334,7 @@ obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
 obj/spritesheet.o \
+obj/windows.o \
 $(FTEST_OBJS) \
 $(RES)
 
@@ -380,8 +381,7 @@ INCS = \
 	-I"deps/astronomy/include" \
 	-I"deps/ffmpeg" \
 	-I"deps/openal/include" \
-	-I"deps/luajit/include" \
-	-I"obj" # To find ver_defs.h
+	-I"deps/luajit/include"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -418,7 +418,7 @@ endif
 STLOGFLAGS = -DBFDEBUG_LEVEL=0
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
-WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror
+WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-sign-compare -Wno-strict-aliasing -Wno-unknown-pragmas -Werror
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
@@ -613,7 +613,7 @@ res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08b
 	$(PNGTOICO) "$@" $(word 8,$^) $(word 7,$^) $(word 6,$^) --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
 	-$(ECHO) ' '
 
-obj/ver_defs.h: version.mk Makefile
+src/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
 	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
@@ -697,7 +697,7 @@ deps/luajit/lib/libluajit.a: | deps/luajit/include/lua.h
 deps/luajit/include/lua.h: deps/luajit-mingw32.tar.gz | deps/luajit
 	tar xzmf $< -C deps/luajit
 
-cppcheck: | obj/ver_defs.h
+cppcheck: | src/ver_defs.h
 cppcheck: | deps/zlib/include/zlib.h
 cppcheck: | deps/spng/include/spng.h
 cppcheck: | deps/astronomy/include/astronomy.h

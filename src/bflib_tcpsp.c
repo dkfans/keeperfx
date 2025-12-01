@@ -171,7 +171,7 @@ static TbError send_buffer(TCPsocket socket, const char * buffer, size_t size)
 
     NETDBG(9, "Trying to send %u bytes", size);
 
-    if ((retval = SDLNet_TCP_Send(socket, buffer, size)) != size) {
+    if ((retval = SDLNet_TCP_Send(socket, buffer, size)) != (int) size) {
         NETMSG("Failure to send to socket: %d", retval);
         return Lb_FAIL;
     }
@@ -207,7 +207,7 @@ static TbError read_stage(TCPsocket socket, char * buffer, size_t size)
 
     NETDBG(9, "Trying to read %u bytes", size);
 
-    if ((retval = SDLNet_TCP_Recv(socket, buffer, size)) != size) {
+    if ((retval = SDLNet_TCP_Recv(socket, buffer, size)) != (int) size) {
         NETMSG("Failure to read from socket: %d", retval);
         return Lb_FAIL;
     }

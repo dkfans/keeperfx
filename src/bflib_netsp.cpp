@@ -101,8 +101,8 @@ void NilSystemUserMsgCallback(unsigned long player_id, void *system_data, unsign
 /******************************************************************************/
 // methods of virtual class ServiceProvider
 
-void ServiceProvider::DecodeMessageStub(const void *msgHeader, unsigned long *dataLen,
-      unsigned char *messageType, unsigned long *seqNbr)
+void ServiceProvider::DecodeMessageStub(const void *msgHeader, uint32_t *dataLen,
+      unsigned char *messageType, uint32_t *seqNbr)
 {
   unsigned long k;
   if (msgHeader == NULL)
@@ -112,17 +112,17 @@ void ServiceProvider::DecodeMessageStub(const void *msgHeader, unsigned long *da
   }
   if (dataLen != NULL)
   {
-      k = *(unsigned long *)msgHeader;
+      k = *(uint32_t *)msgHeader;
       *dataLen = k & 0xFFFFF; //does not include length of header (which is 4 bytes)
   }
   if (seqNbr != NULL)
   {
-      k = *(unsigned long *)msgHeader;
+      k = *(uint32_t *)msgHeader;
       *seqNbr = ((k >> 20) & 0xF);
   }
   if (messageType != NULL)
   {
-      k = *(unsigned long *)msgHeader;
+      k = *(uint32_t *)msgHeader;
       *messageType = (k >> 24)  & 0xFF;
   }
 }
@@ -172,8 +172,8 @@ TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a
 TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 {
   unsigned char messageType;
-  unsigned long dataLen;
-  unsigned long seqNbr;
+  uint32_t dataLen;
+  uint32_t seqNbr;
   unsigned long player_id_from_buffer;
   void *imsg;
   char str[32];
@@ -211,7 +211,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       memcpy(imsg, buf, dataLen+4);
       break;
   case NETMSGTYPE_ADD:
-      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(unsigned long));
+      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(uint32_t));
       snprintf(str, sizeof(str), "%s", (char*)buf + 8);
       this->AddPlayer(player_id_from_buffer, str, 0, 0);
       if (recvCallbacks->addMsg == NULL)
@@ -241,7 +241,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       recvCallbacks->systemUserMsg(this->localPlayerId, (char *)buf+4, dataLen, this->callback_context);
       break;
   case NETMSGTYPE_MPREQEXDATA:
-      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(unsigned long));
+      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(uint32_t));
       if (recvCallbacks->mpReqExDataMsg == NULL)
       {
         break;
@@ -249,7 +249,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       recvCallbacks->mpReqExDataMsg(player_id_from_buffer, seqNbr, this->callback_context);
       break;
   case NETMSGTYPE_MPREQCOMPEXDATA:
-      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(unsigned long));
+      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(uint32_t));
       if (recvCallbacks->mpReqCompsExDataMsg == NULL)
       {
         break;
@@ -274,14 +274,14 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 
 TbError ServiceProvider::Receive(unsigned long flags)
 {
-    unsigned long playerId;
-    unsigned long dataLen;
-    unsigned long seqNbr;
+    uint32_t playerId;
+    uint32_t dataLen;
+    uint32_t seqNbr;
     unsigned char messageType;
     unsigned long id;
     TbBool keepExchanging;
     char msgBuffer[1028];
-    ulong msgLen;
+    uint32_t msgLen;
     char array2[32];
     char array3[32];
     char * msgBufferPtr;
@@ -429,7 +429,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           if (recvCallbacks->systemUserMsg) {
-              recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(ulong*) msgBuffer) & 0xFFFFF, callback_context);
+              recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(uint32_t *) msgBuffer) & 0xFFFFF, callback_context);
           }
 
           break;
@@ -662,11 +662,11 @@ TbBool ServiceProvider::DecodeAddPlayerMsg(const unsigned char *enc_buf, unsigne
 {
   const unsigned char *inp;
   inp = enc_buf;
-  inp += sizeof(unsigned long);
-  memcpy(&id, inp, sizeof(unsigned long));
+  inp += sizeof(uint32_t);
+  memcpy(&id, inp, sizeof(uint32_t));
   if (msg_str == NULL)
     return true;
-  inp += sizeof(unsigned long);
+  inp += sizeof(uint32_t);
   strcpy(msg_str, (const char *)inp);
   return true;
 }
@@ -677,9 +677,9 @@ TbError ServiceProvider::SystemAddPlayerHandler(const void *enc_buf)
   const unsigned char *inp;
   unsigned long plyr_id;
   inp = (const unsigned char *)enc_buf;
-  inp += sizeof(unsigned long);
-  memcpy(&plyr_id, inp, sizeof(unsigned long));
-  inp += sizeof(unsigned long);
+  inp += sizeof(uint32_t);
+  memcpy(&plyr_id, inp, sizeof(uint32_t));
+  inp += sizeof(uint32_t);
   net_copy_name_string(name,(const char *)inp,NETSP_PLAYER_NAME_MAX_LEN);
   if (AddPlayer(plyr_id, name, 0, 0) == Lb_OK)
     return Lb_OK;
@@ -692,8 +692,8 @@ TbError ServiceProvider::SystemDeletePlayerHandler(const void *enc_buf)
   unsigned long plyr_id;
   CheckForDeletedHost(enc_buf);
   inp = (const unsigned char *)enc_buf;
-  inp += sizeof(unsigned long);
-  memcpy(&plyr_id, inp, sizeof(unsigned long));
+  inp += sizeof(uint32_t);
+  memcpy(&plyr_id, inp, sizeof(uint32_t));
   if (DeletePlayer(plyr_id) == Lb_OK)
     return Lb_OK;
   return Lb_FAIL;
@@ -708,8 +708,8 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   TbBool got;
   long i;
   inp = (const unsigned char *)enc_buf;
-  inp += sizeof(unsigned long);
-  memcpy(&plyr_id, inp, sizeof(unsigned long));
+  inp += sizeof(uint32_t);
+  memcpy(&plyr_id, inp, sizeof(uint32_t));
 
 
   //TODO NET CheckForDeletedHost
@@ -778,16 +778,16 @@ TbError ServiceProvider::BroadcastSystemMessage(void *enc_msg)
   inp = (unsigned char *)enc_msg;
   messageType = 0;
   this->DecodeMessageStub(inp, NULL, &messageType, NULL);
-  inp += sizeof(unsigned long);
+  inp += sizeof(uint32_t);
   if ( (messageType < 1) || ((messageType > 1) && (messageType != 2)) )
   {
     WARNLOG("invalid message type: %02X", (int)messageType);
     return Lb_FAIL;
   } else
   {
-    memcpy(&id, inp, sizeof(unsigned long));
+    memcpy(&id, inp, sizeof(uint32_t));
   }
-  inp += sizeof(unsigned long);
+  inp += sizeof(uint32_t);
   result = Lb_OK;
   for (i=0; i < this->players_count; i++)
   {

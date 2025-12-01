@@ -952,21 +952,21 @@ TbBool load_map_and_window(LevelNumber lvnum)
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
     map_window_len = LbFileLoadAt(fname, ptr);
-    if (map_window_len < (long)(WINDOW_Y_SIZE*sizeof(long)))
+    if (map_window_len < (int32_t)(WINDOW_Y_SIZE*sizeof(int32_t)))
     {
         ERRORLOG("Unable to load Land Map Window \"%s.dat\"",land_window);
         unload_map_and_window();
         return false;
     }
     // Prepare pointer to offsets array; WINDOW_Y_SIZE entries
-    map_window.Lines = (long *)&ptr[0];
+    map_window.Lines = (int32_t *)&ptr[0];
     // Prepare pointer to window data
-    map_window.Data = &ptr[WINDOW_Y_SIZE*sizeof(long)];
+    map_window.Data = &ptr[WINDOW_Y_SIZE*sizeof(int32_t)];
     // Fill the rest of huge sprite
     map_window.SWidth = WINDOW_X_SIZE;
     map_window.SHeight = WINDOW_Y_SIZE;
     // Update length, so that it corresponds to map_window pointer
-    map_window_len -= WINDOW_Y_SIZE*sizeof(long);
+    map_window_len -= WINDOW_Y_SIZE*sizeof(int32_t);
     // Load palette
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
     if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)

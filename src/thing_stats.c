@@ -865,13 +865,13 @@ long compute_value_percentage(long base_val, short npercent)
 {
     if (base_val > 0)
     {
-        if (base_val > LONG_MAX/(abs(npercent)+1))
-            base_val = LONG_MAX/(abs(npercent)+1);
+        if (base_val > INT32_MAX/(abs(npercent)+1))
+            base_val = INT32_MAX/(abs(npercent)+1);
     } else
     if (base_val < 0)
     {
-        if (base_val < LONG_MIN/(abs(npercent)+1))
-            base_val = LONG_MIN/(abs(npercent)+1);
+        if (base_val < INT32_MIN/(abs(npercent)+1))
+            base_val = INT32_MIN/(abs(npercent)+1);
     }
     return (base_val*(long)npercent+49)/100;
 }

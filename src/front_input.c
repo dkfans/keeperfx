@@ -189,7 +189,7 @@ short game_is_busy_doing_gui_string_input(void)
   return (input_button != NULL);
 }
 
-int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
+int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
 {
   int result;
   int i;
@@ -499,7 +499,7 @@ short zoom_shortcuts(void)
 {
     for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++)
     {
-        long val;
+        int32_t val;
         if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
         {
             clear_key_pressed(val);
@@ -574,7 +574,7 @@ short get_global_inputs(void)
   if (game_is_busy_doing_gui_string_input())
     return false;
   struct PlayerInfo* player = get_my_player();
-  long keycode;
+  int32_t keycode;
   if ((player->allocflags & PlaF_NewMPMessage) != 0)
   {
     get_players_message_inputs();
@@ -690,7 +690,7 @@ short get_global_inputs(void)
 
 TbBool get_level_lost_inputs(void)
 {
-    long keycode;
+    int32_t keycode;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
@@ -725,8 +725,8 @@ TbBool get_level_lost_inputs(void)
         long mouse_x = GetMouseX();
         long mouse_y = GetMouseY();
         // Position on the parchment map on which we're doing action
-        long map_x;
-        long map_y;
+        int32_t map_x;
+        int32_t map_y;
         TbBool map_valid = point_to_overhead_map(player->acamera, mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
         if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
         {
@@ -1025,7 +1025,7 @@ short get_status_panel_keyboard_action_inputs(void)
 
 TbBool get_dungeon_control_pausable_action_inputs(void)
 {
-    long val;
+    int32_t val;
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
       return true;
@@ -1231,7 +1231,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
 
 TbBool get_dungeon_control_action_inputs(void)
 {
-    long val;
+    int32_t val;
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
         return true;
@@ -1394,7 +1394,7 @@ short get_creature_passenger_action_inputs(void)
 
 short get_creature_control_action_inputs(void)
 {
-    long keycode;
+    int32_t keycode;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
@@ -1478,6 +1478,10 @@ short get_creature_control_action_inputs(void)
     }
     // Use the Query/Message keys and mouse wheel to scroll through query pages and go to correct query page when selecting an instance.
     struct Thing* thing = thing_get(player->controlled_thing_idx);
+    if (!thing_is_creature(thing))
+    {
+        return false;
+    }
     if (menu_is_active(GMnu_CREATURE_QUERY1))
     {
       if ( ( (is_key_pressed(KC_7,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD7,KMod_DONTCARE))) && (creature_instance_get_available_id_for_pos(thing,6) > 0) ) ||
@@ -1687,7 +1691,7 @@ short get_creature_control_action_inputs(void)
             numkey = 9;
         }
     }
-        long val;
+        int32_t val;
         TextStringId StrID = 0;
         for (int i = 0; i <= 15; i++)
         {
@@ -1914,8 +1918,8 @@ short get_map_action_inputs(void)
     long mouse_x = GetMouseX();
     long mouse_y = GetMouseY();
     // Get map coordinates from mouse position on parchment screen
-    long map_x;
-    long map_y;
+    int32_t map_x;
+    int32_t map_y;
     TbBool map_valid = point_to_overhead_map(player->acamera, mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
     if  (map_valid)
     {
@@ -1959,7 +1963,7 @@ short get_map_action_inputs(void)
           if (toggle_main_cheat_menu())
             clear_key_pressed(KC_RETURN);
       }
-      long keycode;
+      int32_t keycode;
       if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
       {
           clear_key_pressed(keycode);
@@ -2675,7 +2679,7 @@ short get_inputs(void)
         set_players_packet_position(get_packet(my_player_number), 0, 0 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
-            long keycode;
+            int32_t keycode;
             if (is_game_key_pressed(Gkey_TogglePause, &keycode, false))
             {
                 lbKeyOn[keycode] = 0;

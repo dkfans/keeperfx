@@ -517,8 +517,8 @@ TbResult LbScreenInitialize(void)
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
-    long hot_x;
-    long hot_y;
+    int32_t hot_x;
+    int32_t hot_y;
     const struct TbSprite* msspr = NULL;
     LbExeReferenceNumber();
     if (lbDisplay.MouseSprite != NULL)
@@ -939,7 +939,7 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
 #endif
         return Lb_SCREEN_MODE_INVALID;
     }
-    if (lbScreenModeInfoNum >= sizeof(lbScreenModeInfo)/sizeof(lbScreenModeInfo[0]))
+    if ((size_t) lbScreenModeInfoNum >= sizeof(lbScreenModeInfo)/sizeof(lbScreenModeInfo[0]))
     {
         // No free mode slots
         return Lb_SCREEN_MODE_INVALID;

@@ -263,19 +263,19 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
 void lightning_modify_palette(struct Thing *thing);
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
-unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
+unsigned long seed_check_random(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
 void init_lookups(void);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 void turn_off_query(PlayerNumber plyr_idx);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
-short winning_player_quitting(struct PlayerInfo *player, long *plyr_count);
+short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count);
 short lose_level(struct PlayerInfo *player);
 short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
-void set_general_information(long msg_id, TbMapLocation target, long x, long y);
-void set_quick_information(long msg_id, TbMapLocation target, long x, long y);
-void process_objective(const char *msg_text, TbMapLocation target, long x, long y);
+void set_general_information(long msg_id, TbMapLocation target, int32_t x, int32_t y);
+void set_quick_information(long msg_id, TbMapLocation target, int32_t x, int32_t y);
+void process_objective(const char *msg_text, TbMapLocation target, int32_t x, int32_t y);
 void set_general_objective(long msg_id, TbMapLocation target, long x, long y);
 void turn_off_power_sight_of_evil(PlayerNumber plridx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
