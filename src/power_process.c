@@ -764,7 +764,6 @@ void timebomb_explode(struct Thing *creatng)
         cctrl->timebomb_death = flag_is_set(shotst->model_flags, ShMF_Exploding);
         shot_kill_creature(shotng, creatng);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, blow_strength, hit_targets);
-        create_used_effect_or_element(&shotng->mappos, TngEff_Explosion5, shotng->owner, shotng->index);
     }
 }
 /******************************************************************************/
