@@ -23,6 +23,7 @@
 #include "power_specials.h"
 #include "thing_creature.h"
 #include "thing_effects.h"
+#include "thing_shots.h"
 #include "magic_powers.h"
 
 #include "lua_base.h"
@@ -878,6 +879,29 @@ static int lua_Add_object_to_level_at_pos(lua_State *L)
     short angle            = lua_tointeger(L, 6);
 
     lua_pushThing(L,script_process_new_object(obj_id, stl_x, stl_y, arg, plr_idx,angle));
+    return 1;
+}
+
+static int lua_Add_shot_to_level(lua_State *L)
+{
+    ThingModel shot_id     = luaL_checkNamedCommand(L,1,shot_desc);
+    TbMapLocation location = luaL_checkLocation(L,  2);
+    PlayerNumber owner     = luaL_checkPlayerSingle(L, 3);
+    int hittype            = luaL_checkHitType(L, 4);
+    struct Thing *target   = luaL_optCheckThing(L, 5);
+
+    ThingIndex target_index;
+
+    if (thing_is_invalid(target))
+    {
+        target_index = 0;
+    }
+    else
+    {
+        target_index = target->index;
+    }
+
+    lua_pushThing(L,script_process_new_shot(shot_id, location, owner, target_index, hittype));
     return 1;
 }
 
@@ -2133,6 +2157,7 @@ static const luaL_Reg global_methods[] = {
    {"AddHeartHealth"                      ,lua_Add_heart_health                },
    {"AddObjectToLevel"                    ,lua_Add_object_to_level             },
    {"AddObjectToLevelAtPos"               ,lua_Add_object_to_level_at_pos      },
+   {"AddShotToLevel"                      ,lua_Add_shot_to_level               },
    {"AddEffectGeneratorToLevel"           ,lua_Add_effect_generator_to_level   },
    {"PlaceDoor"                           ,lua_Place_door                      },
    {"PlaceTrap"                           ,lua_Place_trap                      },
@@ -2248,6 +2273,7 @@ void Player_register(lua_State *L);
 void Thing_register(lua_State *L);
 void Slab_register(lua_State *L);
 void room_register(lua_State *L);
+void Camera_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
@@ -2256,4 +2282,5 @@ void reg_host_functions(lua_State *L)
     Thing_register(L);
     Slab_register(L);
     room_register(L);
+    Camera_register(L);
 }
