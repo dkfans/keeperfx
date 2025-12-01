@@ -1339,48 +1339,15 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            ThingModel tngmodel;
-            TbBool affect;
-            switch (tngsrc->class_id)
+            if (thing_is_shot(tngsrc))
             {
-                case TCls_Shot:
-                {
-                    tngmodel = tngsrc->model;
-                    affect = true;
-                    break;
-                }
-                case TCls_Creature:
-                {
-                    // Time Bomb
-                    struct CreatureControl *cctrl = creature_control_get_from_thing(tngsrc);
-                    struct SpellConfig *spconf = get_spell_config(cctrl->active_timebomb_spell);
-                    tngmodel = spconf->shot_model;
-                    affect = true;
-                    break;
-                }
-                case TCls_DeadCreature:
-                case TCls_Effect:
-                {
-                    // Time Bomb
-                    tngmodel = ShM_Null;
-                    affect = true;
-                    break;
-                }
-                default:
-                {
-                    ERRORLOG("Exploding thing %s is not a shot", thing_model_name(tngsrc));
-                    affect = false;
-                    break;
-                }
-            }
-            if (affect)
-            {
-                struct ShotConfigStats* shotst = get_shot_model_stats(tngmodel);
+                struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
                 if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
                     num_affected++;
             }
             else
             {
+                ERRORLOG("Exploding thing %s is not a shot", thing_model_name(tngsrc));
                 break;
             }
         }
