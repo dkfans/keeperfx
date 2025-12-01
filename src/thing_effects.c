@@ -1339,6 +1339,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
+            // Explosions from creatures and effects can affect things too (Time Bomb); so, we are simply passing a null ShotConfigStat instead of throwing an error with non-shots 
             struct ShotConfigStats* shotst = (thing_is_shot(tngsrc)) ? get_shot_model_stats(tngsrc->model) : &game.conf.magic_conf.shot_cfgstats[0];
             if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
                 num_affected++;
