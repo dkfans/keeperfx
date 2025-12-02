@@ -189,6 +189,19 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         }
         return Lb_OK;
     }
+    if (type == NETMSG_PAUSE) {
+        TbBool pause_state = (TbBool)*ptr;
+        ptr += 1;
+        unsigned long delay_milliseconds = *(unsigned long*)ptr;
+        MULTIPLAYER_LOG("ProcessMessage NETMSG_PAUSE: received pause_state=%d, delay_milliseconds=%lu", pause_state, delay_milliseconds);
+        if (pause_state || delay_milliseconds == 0) {
+            process_pause_packet(pause_state, 0);
+        } else {
+            scheduled_unpause_time = LbTimerClock() + delay_milliseconds;
+            MULTIPLAYER_LOG("ProcessMessage NETMSG_PAUSE: scheduled unpause at time=%lu", scheduled_unpause_time);
+        }
+        return Lb_OK;
+    }
     return Lb_OK;
 }
 
@@ -323,6 +336,25 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     }
     netstate.seq_nbr += 1;
     return Lb_OK;
+}
+
+void LbNetwork_SendPauseImmediate(TbBool pause_state, unsigned long delay_milliseconds) {
+    MULTIPLAYER_LOG("LbNetwork_SendPauseImmediate: sending pause_state=%d, delay_milliseconds=%lu", pause_state, delay_milliseconds);
+
+    char* message_pointer = InitMessageBuffer(NETMSG_PAUSE);
+    *message_pointer = pause_state;
+    message_pointer++;
+    *(unsigned long*)message_pointer = delay_milliseconds;
+    message_pointer += sizeof(unsigned long);
+
+    int message_size = message_pointer - netstate.msg_buffer;
+
+    for (NetUserId id = 0; id < netstate.max_players; id++) {
+        if (id == netstate.my_id || !IsUserActive(id)) {
+            continue;
+        }
+        netstate.sp->sendmsg_single(id, netstate.msg_buffer, message_size);
+    }
 }
 
 /******************************************************************************/

@@ -113,6 +113,8 @@ extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber 
 extern TbBool change_campaign(const char *cmpgn_fname);
 extern int total_sprite_zip_count;
 /******************************************************************************/
+unsigned long scheduled_unpause_time = 0;
+/******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
@@ -298,10 +300,10 @@ void process_pause_packet(long curr_pause, long new_pause)
   {
       player = get_my_player();
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
-      if ((game.operation_flags & GOF_Paused) != 0)
+      if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
-      else
-          clear_flag(game.operation_flags, GOF_Paused);
+          game.skip_initial_input_turns = game.input_lag_turns + 1;
+      }
       if ( !SoundDisabled )
       {
         if ((game.operation_flags & GOF_Paused) != 0)
@@ -1656,6 +1658,12 @@ void process_packets(void)
     int i;
     struct PlayerInfo* player = get_my_player();
     SYNCDBG(5, "Starting");
+
+    if (scheduled_unpause_time > 0 && LbTimerClock() >= scheduled_unpause_time) {
+        MULTIPLAYER_LOG("process_packets: Executing scheduled unpause at time=%lu", LbTimerClock());
+        scheduled_unpause_time = 0;
+        process_pause_packet(0, 0);
+    }
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)game.play_gameturn);
     set_local_packet_turn();

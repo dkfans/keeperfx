@@ -45,6 +45,8 @@ struct Packet* get_local_input_lag_packet_for_turn(GameTurn target_turn) {
 }
 
 TbBool input_lag_skips_initial_processing(void) {
+    if ((game.operation_flags & GOF_Paused) != 0 && game.game_kind != GKind_LocalGame) {return true;}
+
     if (game.skip_initial_input_turns > 0) {
         game.skip_initial_input_turns--;
         MULTIPLAYER_LOG("process_packets: Input lag skip turns remaining: %d, skipping packet processing", game.skip_initial_input_turns);
