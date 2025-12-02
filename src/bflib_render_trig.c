@@ -3019,6 +3019,10 @@ void trig_render_md10(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
+    if (tlr->screen_buffer_ptr == NULL) {
+        ERRORLOG("screen buffer not set");
+        return;
+    }
     texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
