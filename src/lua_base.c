@@ -212,7 +212,6 @@ const char* lua_get_serialised_data(size_t *len)
 	if (lua_isfunction(Lvl_script, -1))
 	{
         int result = lua_pcall(Lvl_script, 0, 1, 0);
-        JUSTLOG("lua_pcall result: %d", result);
         if (!CheckLua(Lvl_script, result, "GetSerializedData")) {
             ERRORLOG("Failed to call GetSerializedData");
             return NULL;
