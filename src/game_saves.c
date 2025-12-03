@@ -355,7 +355,6 @@ TbBool load_game(long slot_num)
         ERRORLOG("Outranged slot index %d",(int)slot_num);
         return false;
     }
-    SYNCMSG("Loading game from slot %d",(int)slot_num);
     TbFileHandle fh;
 //  unsigned char buf[14];
 //  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
