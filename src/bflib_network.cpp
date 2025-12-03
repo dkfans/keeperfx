@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_network.c
+/** @file bflib_network.cpp
  *     Network support library.
  * @par Purpose:
  *     Network support routines.
