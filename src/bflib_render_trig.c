@@ -3005,12 +3005,36 @@ void trig_render_md09(struct TrigLocalRend *tlr)
     }
 }
 
+#ifdef WIN32
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <excpt.h>
+
+static long CALLBACK ehandler(EXCEPTION_POINTERS *)
+{
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
+static bool pointer_is_valid(const void *ptr)
+{
+    MEMORY_BASIC_INFORMATION mbi;
+    if (VirtualQuery(ptr, &mbi, sizeof(mbi)) != 0) {
+        return mbi.State == MEM_COMMIT;
+    }
+    return false;
+}
+
+#endif
+
 void trig_render_md10(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
     long texture_v_step_fixed;
+    long orig_render_height = INT_MAX;
+    bool done = false;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -3019,6 +3043,10 @@ void trig_render_md10(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
+#ifdef WIN32
+    __try1 (ehandler) {
+        orig_render_height = tlr->render_height;
+#endif
     texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
@@ -3095,6 +3123,45 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
     }
+#ifdef WIN32
+        done = true;
+    } __except1 {
+        if (done) return;
+        ERRORLOG("trig_render_md10: crashed");
+        if (pointer_is_valid(tlr)) {
+            ERRORLOG("tlr: 0x%p, screen_buffer_ptr: 0x%p%s, orig_render_height %ld, render_height %ld, u_step %ld, v_step %ld, shade_step %ld",
+                tlr,
+                tlr->screen_buffer_ptr,
+                pointer_is_valid(tlr->screen_buffer_ptr) ? "" : " invalid",
+                orig_render_height,
+                tlr->render_height,
+                tlr->u_step,
+                tlr->v_step,
+                tlr->shade_step
+            );
+            ERRORLOG("polyscans: 0x%p%s, vec_screen_width: %ld, vec_window_width: %ld",
+                polyscans,
+                pointer_is_valid(polyscans) ? "" : " invalid",
+                vec_screen_width,
+                vec_window_width
+            );
+        } else {
+            ERRORLOG("tlr: 0x%p (invalid)", tlr);
+        }
+        if (pointer_is_valid(polygon_point)) {
+            ERRORLOG("polygon_point: 0x%p, X: %ld, Y: %ld, U: %ld, V: %ld, S: %ld",
+                polygon_point,
+                polygon_point->X,
+                polygon_point->Y,
+                polygon_point->U,
+                polygon_point->V,
+                polygon_point->S
+            );
+        } else {
+            ERRORLOG("polygon_point: 0x%p (invalid)", polygon_point);
+        }
+    }
+#endif
 }
 
 void trig_render_md12(struct TrigLocalRend *tlr)
