@@ -1650,6 +1650,14 @@ void set_local_packet_turn(void) {
     MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)game.play_gameturn, (unsigned long)pckt->checksum);
 }
 
+void check_scheduled_unpause(void) {
+    if (scheduled_unpause_time > 0 && LbTimerClock() >= scheduled_unpause_time) {
+        MULTIPLAYER_LOG("process_packets: Executing scheduled unpause at time=%lu", LbTimerClock());
+        scheduled_unpause_time = 0;
+        process_pause_packet(0, 0);
+    }
+}
+
 /**
  * Exchange packets if MP game, then process all packets influencing local game state.
  */
@@ -1659,16 +1667,12 @@ void process_packets(void)
     struct PlayerInfo* player = get_my_player();
     SYNCDBG(5, "Starting");
 
-    if (scheduled_unpause_time > 0 && LbTimerClock() >= scheduled_unpause_time) {
-        MULTIPLAYER_LOG("process_packets: Executing scheduled unpause at time=%lu", LbTimerClock());
-        scheduled_unpause_time = 0;
-        process_pause_packet(0, 0);
-    }
-
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)game.play_gameturn);
     set_local_packet_turn();
     update_turn_checksums();
     store_local_packet_in_input_lag_queue(player->packet_num);
+
+    check_scheduled_unpause();
 
     if (game.game_kind != GKind_LocalGame)
     {
