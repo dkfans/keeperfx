@@ -113,6 +113,8 @@ extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber 
 extern TbBool change_campaign(const char *cmpgn_fname);
 extern int total_sprite_zip_count;
 /******************************************************************************/
+unsigned long scheduled_unpause_time = 0;
+/******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
@@ -298,10 +300,10 @@ void process_pause_packet(long curr_pause, long new_pause)
   {
       player = get_my_player();
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
-      if ((game.operation_flags & GOF_Paused) != 0)
+      if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
-      else
-          clear_flag(game.operation_flags, GOF_Paused);
+          game.skip_initial_input_turns = game.input_lag_turns + 1;
+      }
       if ( !SoundDisabled )
       {
         if ((game.operation_flags & GOF_Paused) != 0)
@@ -1642,55 +1644,18 @@ static void load_old_packets(PlayerNumber my_packet_num) {
     }
 }
 
-// If a packet was missed, this feature assumes that your inputs will be the same as the previous turn. This guess will be correct 80% of the time.
-void fill_missing_packets_from_previous_turn(void)
-{
-    struct PlayerInfo* my_player = get_my_player();
-    if (!player_exists(my_player)) {
-        return;
-    }
-    struct Packet* my_pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
-    if (my_pckt == NULL) {
-        ERRORLOG("fill_missing_packets: Could not get local checksum from input lag queue");
-        return;
-    }
-    TbBigChecksum local_checksum = my_pckt->checksum;
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (i == my_player->packet_num) {
-            continue;
-        }
-        if (!network_player_active(i)) {
-            continue;
-        }
-        const char* player_name;
-        if (i == 0) {player_name = "Host";} else {player_name = "Client";}
-        struct Packet* pckt = get_packet_direct(i);
-        if (is_packet_empty(pckt)) {
-            const struct Packet* prev_pckt = get_received_packet_for_player(game.play_gameturn - 1, i);
-            if (prev_pckt != NULL && !is_packet_empty(prev_pckt)) {
-                MULTIPLAYER_LOG("fill_missing_packets: Reusing packet[%s] from turn %lu for turn %lu", player_name, (unsigned long)(game.play_gameturn - 1), (unsigned long)game.play_gameturn);
-                pckt->action = prev_pckt->action;
-                pckt->actn_par1 = prev_pckt->actn_par1;
-                pckt->actn_par2 = prev_pckt->actn_par2;
-                pckt->actn_par3 = prev_pckt->actn_par3;
-                pckt->actn_par4 = prev_pckt->actn_par4;
-                pckt->pos_x = prev_pckt->pos_x;
-                pckt->pos_y = prev_pckt->pos_y;
-                pckt->control_flags = prev_pckt->control_flags;
-                pckt->additional_packet_values = prev_pckt->additional_packet_values;
-                pckt->turn = game.play_gameturn;
-                pckt->checksum = local_checksum;
-            } else {
-                MULTIPLAYER_LOG("fill_missing_packets: No previous packet found for player[%s], skipping", player_name);
-            }
-        }
-    }
-}
-
 void set_local_packet_turn(void) {
     struct Packet* pckt = get_packet(my_player_number);
     pckt->turn = game.play_gameturn;
     MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)game.play_gameturn, (unsigned long)pckt->checksum);
+}
+
+void check_scheduled_unpause(void) {
+    if (scheduled_unpause_time > 0 && LbTimerClock() >= scheduled_unpause_time) {
+        MULTIPLAYER_LOG("process_packets: Executing scheduled unpause at time=%lu", LbTimerClock());
+        scheduled_unpause_time = 0;
+        process_pause_packet(0, 0);
+    }
 }
 
 /**
@@ -1706,6 +1671,8 @@ void process_packets(void)
     set_local_packet_turn();
     update_turn_checksums();
     store_local_packet_in_input_lag_queue(player->packet_num);
+
+    check_scheduled_unpause();
 
     if (game.game_kind != GKind_LocalGame)
     {
@@ -1727,14 +1694,13 @@ void process_packets(void)
             if (exchange_result != Lb_OK) {
                 ERRORLOG("LbNetwork_Exchange failed");
             }
+            LbNetwork_WaitForMissingPackets(game.packets, sizeof(struct Packet));
         }
         replace_with_ai(old_active_players);
     }
 
     MULTIPLAYER_LOG("process_packets: Loading packets from input lag queue");
     load_old_packets(player->packet_num);
-
-    fill_missing_packets_from_previous_turn();
 
     if (input_lag_skips_initial_processing())
     {

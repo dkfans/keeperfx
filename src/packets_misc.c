@@ -22,6 +22,8 @@
 #include "net_redundant_packets.h"
 
 #include "bflib_fileio.h"
+#include "bflib_network_exchange.h"
+#include "bflib_datetm.h"
 #include "front_landview.h"
 #include "game_legacy.h"
 #include "game_saves.h"
@@ -378,12 +380,16 @@ void set_packet_pause_toggle()
         return;
     if (player->packet_num >= PACKETS_COUNT)
         return;
-    long desired_pause;
     if ((game.operation_flags & GOF_Paused) == 0) {
-        desired_pause = 1;
-    } else {
-        desired_pause = 0;
+        set_players_packet_action(player, PckA_TogglePause, 1, 0, 0, 0);
+        return;
     }
-    process_pause_packet(desired_pause, 0);
-    set_players_packet_action(player, PckA_UpdatePause, desired_pause, 0, 0, 0);
+    if (game.game_kind != GKind_LocalGame) {
+        long delay_milliseconds = (1000 / game_num_fps) * (game.input_lag_turns + 1);
+        scheduled_unpause_time = LbTimerClock() + delay_milliseconds;
+        MULTIPLAYER_LOG("set_packet_pause_toggle: Scheduled local unpause at time=%lu", scheduled_unpause_time);
+        LbNetwork_SendPauseImmediate(0, delay_milliseconds);
+        return;
+    }
+    process_pause_packet(0, 0);
 }
