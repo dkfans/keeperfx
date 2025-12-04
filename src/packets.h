@@ -26,6 +26,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
+struct Camera;
+struct Packet;
+struct PlayerInfo;
+struct Thing;
+/******************************************************************************/
 
 enum TbPacketAction {
         PckA_None = 0,
@@ -325,6 +330,8 @@ void process_frontend_packets(void);
 void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
+void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player);
+void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
 void process_packets(void);
 void set_local_packet_turn(void);
 void clear_packets(void);

@@ -58,6 +58,7 @@
 #include "player_data.h"
 #include "config_players.h"
 #include "player_utils.h"
+#include "engine_camera.h"
 #include "thing_physics.h"
 #include "thing_doors.h"
 #include "thing_effects.h"
@@ -327,15 +328,9 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-void process_players_dungeon_control_packet_control(long plyr_idx)
+void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player)
 {
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
-    struct Camera* cam = player->acamera;
-    if (cam == NULL)
-    {
-        ERRORLOG("No active camera");
+    if (cam == NULL) {
         return;
     }
     long inter_val;
@@ -413,11 +408,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_set_camera_tilt(cam, 1);
-            if (is_my_player(player))
-            {
-                settings.isometric_tilt = cam->rotation_angle_y;
-                save_settings();
-            }
             break;
         }
     }
@@ -428,11 +418,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_set_camera_tilt(cam, 2);
-            if (is_my_player(player))
-            {
-                settings.isometric_tilt = cam->rotation_angle_y;
-                save_settings();
-            }
             break;
         }
     }
@@ -443,11 +428,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_set_camera_tilt(cam, 0);
-            if (is_my_player(player))
-            {
-                settings.isometric_tilt = cam->rotation_angle_y;
-                save_settings();
-            }
             break;
         }
     }
@@ -461,20 +441,10 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoStraightView:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
-            if (is_my_player(player))
-            {
-                settings.isometric_view_zoom_level = cam->zoom;
-                save_settings();
-            }
             break;
         default:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             break;
-        }
-        if (is_my_player(player))
-        {
-            settings.frontview_zoom_level = cam->zoom;
-            save_settings();
         }
     }
     if (pckt->control_flags & PCtr_ViewZoomOut)
@@ -485,20 +455,41 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoStraightView:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
-            if (is_my_player(player))
-            {
-                settings.isometric_view_zoom_level = cam->zoom;
-                save_settings();
-            }
             break;
         default:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
-            if (is_my_player(player))
-            {
-                settings.frontview_zoom_level = cam->zoom;
-                save_settings();
-            }
             break;
+        }
+    }
+}
+
+void process_players_dungeon_control_packet_control(long plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
+    struct Camera* cam = player->acamera;
+    if (cam == NULL) {
+        ERRORLOG("No active camera");
+        return;
+    }
+    process_camera_controls(cam, pckt, player);
+    if (is_my_player(player)) {
+        TbBool settings_changed = false;
+        if ((pckt->control_flags & (PCtr_ViewTiltUp | PCtr_ViewTiltDown | PCtr_ViewTiltReset)) != 0) {
+            settings.isometric_tilt = cam->rotation_angle_y;
+            settings_changed = true;
+        }
+        if ((pckt->control_flags & (PCtr_ViewZoomIn | PCtr_ViewZoomOut)) != 0) {
+            if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
+                settings.isometric_view_zoom_level = cam->zoom;
+            } else {
+                settings.frontview_zoom_level = cam->zoom;
+            }
+            settings_changed = true;
+        }
+        if (settings_changed) {
+            save_settings();
         }
     }
     process_dungeon_control_packet_clicks(plyr_idx);
@@ -823,11 +814,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].rotation_angle_x = pckt->actn_par1;
       player->cameras[CamIV_FrontView].rotation_angle_x = pckt->actn_par1;
       player->cameras[CamIV_Isometric].rotation_angle_x = pckt->actn_par1;
-
-      if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
-        // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
-          reset_interpolation_of_camera(player);
-      }
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
@@ -1275,6 +1261,40 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     return true;
 }
 
+void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll)
+{
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    long maxTurnSpeed = crconf->max_turning_speed;
+    if (maxTurnSpeed < 1) {
+        maxTurnSpeed = 1;
+    }
+    long horizontalTurnSpeed = pckt->pos_x;
+    if (horizontalTurnSpeed < -maxTurnSpeed) {
+        horizontalTurnSpeed = -maxTurnSpeed;
+    } else if (horizontalTurnSpeed > maxTurnSpeed) {
+        horizontalTurnSpeed = maxTurnSpeed;
+    }
+    long verticalTurnSpeed = pckt->pos_y;
+    if (verticalTurnSpeed < -maxTurnSpeed) {
+        verticalTurnSpeed = -maxTurnSpeed;
+    } else if (verticalTurnSpeed > maxTurnSpeed) {
+        verticalTurnSpeed = maxTurnSpeed;
+    }
+    long verticalPos = (current_vertical + verticalTurnSpeed) & ANGLE_MASK;
+    long lowerLimit = ANGLE_MASK - 227;
+    long upperLimit = 227;
+    if (verticalPos > upperLimit && verticalPos < lowerLimit) {
+        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
+            verticalPos = upperLimit;
+        } else {
+            verticalPos = lowerLimit;
+        }
+    }
+    *out_vertical = verticalPos;
+    *out_horizontal = (current_horizontal + horizontalTurnSpeed) & ANGLE_MASK;
+    *out_roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
+}
+
 void process_players_creature_control_packet_control(long idx)
 {
     struct InstanceInfo *inst_inf;
@@ -1437,47 +1457,11 @@ void process_players_creature_control_packet_control(long idx)
         }
     }
 
-    // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
-    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cctng);
-    long maxTurnSpeed = crconf->max_turning_speed;
-    if (maxTurnSpeed < 1) {
-        maxTurnSpeed = 1;
-    }
-
-    // Horizontal look
-    long horizontalTurnSpeed = pckt->pos_x;
-    if (horizontalTurnSpeed < -maxTurnSpeed) {
-        horizontalTurnSpeed = -maxTurnSpeed;
-    } else if (horizontalTurnSpeed > maxTurnSpeed) {
-        horizontalTurnSpeed = maxTurnSpeed;
-    }
-
-    // Vertical look
-    long verticalTurnSpeed = pckt->pos_y;
-    if (verticalTurnSpeed < -maxTurnSpeed) {
-        verticalTurnSpeed = -maxTurnSpeed;
-    } else if (verticalTurnSpeed > maxTurnSpeed) {
-        verticalTurnSpeed = maxTurnSpeed;
-    }
-
-    // Limits the vertical view.
-    // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
-    // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
-    #define viewable_angle 227;
-    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & ANGLE_MASK;
-
-    long lowerLimit = ANGLE_MASK - viewable_angle;
-    long upperLimit = viewable_angle;
-    if (verticalPos > upperLimit && verticalPos < lowerLimit) {
-        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
-            verticalPos = upperLimit;
-        } else {
-            verticalPos = lowerLimit;
-        }
-    }
-    cctng->move_angle_z = verticalPos; // Sets the vertical look
-    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & ANGLE_MASK; // Sets the horizontal look
-    ccctrl->roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
+    long new_horizontal, new_vertical, new_roll;
+    process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
+    cctng->move_angle_xy = new_horizontal;
+    cctng->move_angle_z = new_vertical;
+    ccctrl->roll = new_roll;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
