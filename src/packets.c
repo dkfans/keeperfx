@@ -1733,7 +1733,6 @@ void process_packets(void)
     }
     // Clear all packets
     clear_packets();
-    decrement_consecutive_resync_count();
     if (((game.system_flags & GSF_NetGameNoSync) != 0)
     || ((game.system_flags & GSF_NetSeedNoSync) != 0))
     {

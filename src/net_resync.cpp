@@ -66,42 +66,6 @@ static struct Boing boing;
 
 TbBool detailed_multiplayer_logging = false;
 
-#define CONSECUTIVE_RESYNC_DECAY_SECONDS 30
-#define CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE 3
-
-static GameTurn last_resync_turn = 0;
-static int consecutive_resync_count = 0;
-
-void decrement_consecutive_resync_count(void) {
-    if (game.game_kind == GKind_LocalGame) {
-        return;
-    }
-    if (consecutive_resync_count == 0) {
-        return;
-    }
-    if (last_resync_turn == 0) {
-        return;
-    }
-    GameTurn decay_window = CONSECUTIVE_RESYNC_DECAY_SECONDS * game_num_fps;
-    GameTurn turns_since_last = game.play_gameturn - last_resync_turn;
-    if (turns_since_last >= decay_window) {
-        consecutive_resync_count--;
-        MULTIPLAYER_LOG("Consecutive resync count decayed to %d", consecutive_resync_count);
-    }
-}
-
-static void resync_potentially_increases_input_lag(void) {
-    consecutive_resync_count += 1;
-    last_resync_turn = game.play_gameturn;
-    MULTIPLAYER_LOG("Consecutive resync count: %d", consecutive_resync_count);
-
-    if (consecutive_resync_count >= CONSECUTIVE_RESYNC_THRESHOLD_FOR_LAG_INCREASE) {
-        consecutive_resync_count = 0;
-        game.input_lag_turns += 1;
-        NETLOG("Input lag increased: %d -> %d", game.input_lag_turns - 1, game.input_lag_turns);
-    }
-}
-
 #define RESYNC_RECEIVE_TIMEOUT_MS 30000
 #define RESYNC_TIMESYNC_TIMEOUT_MS 15000
 static long g_timesync_offset_ms = 0;
@@ -345,7 +309,6 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length) {
 TbBool send_resync_game(void) {
   pack_desync_history_for_resync();
 
-  resync_potentially_increases_input_lag();
   clear_flag(game.operation_flags, GOF_Paused);
   animate_resync_progress_bar(0, 6);
   NETLOG("Initiating re-synchronization of network game");
