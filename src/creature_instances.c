@@ -126,6 +126,7 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_target_benefits_from_wind",                      10},
     {"validate_target_non_idle",                                11},
     {"validate_target_takes_gas_damage",                        12},
+    {"validate_target_requires_cleansing",                      13},
     {NULL, 0},
 };
 
@@ -143,6 +144,7 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_target_benefits_from_wind,
     validate_target_non_idle,
     validate_target_takes_gas_damage,
+    validate_target_requires_cleansing,
     NULL,
 };
 
@@ -1824,6 +1826,39 @@ void script_set_creature_instance(ThingModel crmodel, short slot, int instance, 
 
 
     }
+}
+
+TbBool validate_target_requires_cleansing
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target) ||
+        !creature_requires_cleansing(target, param1))
+    {
+        return false;
+    }
+
+    if (source->index == target->index)
+    {
+        // Special case. The creature is always allowed to cleanse itself even if
+        // it's being tortured or imprisoned.
+        return true;
+    }
+    else
+    {
+        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /******************************************************************************/
