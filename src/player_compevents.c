@@ -193,7 +193,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     }
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
     {
-        if (!is_task_in_progress_using_hand(comp) || ((cevent->secondary_parameter & 0x02) != 0))
+        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->secondary_parameter & 0x02) != 0))
         {
             if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->secondary_parameter)) {
                 SYNCDBG(18,"Cannot move to defend for %s",cevent->name);
@@ -333,7 +333,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     }
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
     {
-        if (!is_task_in_progress_using_hand(comp))
+        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
         {
             if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->secondary_parameter)) {
                 return CTaskRet_Unk4;
