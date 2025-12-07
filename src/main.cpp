@@ -2266,8 +2266,15 @@ int set_players_creatures_to_get_paid(PlayerNumber plyr_idx)
                     cctrl->paydays_advanced--;
                 } else
                 {
-                    cctrl->paydays_owed++;
-                    count++;
+                    if (!creature_is_kept_in_custody_by_enemy(thing))
+                    {
+                        cctrl->paydays_owed++;
+                        count++;
+                    }
+                    else
+                    {
+                        cctrl->paydays_advanced--;
+                    }
                 }
             }
         }
