@@ -3163,8 +3163,8 @@ void free_room_structure(struct Room *room)
         }
         --dungeon->room_discrete_count[room->kind];
     }
-    delete_room_structure(room);
     remove_room_from_global_list(room);
+    delete_room_structure(room);
 }
 
 void reset_creatures_rooms(struct Room *room)
