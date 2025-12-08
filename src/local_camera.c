@@ -91,18 +91,14 @@ void init_local_cameras(struct PlayerInfo *player)
     local_camera_ready = true;
 }
 
-void process_local_minimap_click(void) {
-    for (int lag_offset = game.input_lag_turns; lag_offset >= 0; lag_offset--) {
-        GameTurn packet_turn = game.play_gameturn - lag_offset;
-        struct Packet* lag_packet = get_local_input_lag_packet_for_turn(packet_turn);
-        if (lag_packet != NULL && lag_packet->action == PckA_BookmarkLoad) {
-            long pos_x = subtile_coord_center(lag_packet->actn_par1);
-            long pos_y = subtile_coord_center(lag_packet->actn_par2);
-            for (int i = CamIV_Isometric; i <= CamIV_FrontView; i++) {
-                if (i != CamIV_FirstPerson) {
-                    desired_local_cameras[i].mappos.x.val = pos_x;
-                    desired_local_cameras[i].mappos.y.val = pos_y;
-                }
+void process_local_minimap_click(struct Packet* packet) {
+    if (packet != NULL && packet->action == PckA_BookmarkLoad) {
+        long pos_x = subtile_coord_center(packet->actn_par1);
+        long pos_y = subtile_coord_center(packet->actn_par2);
+        for (int i = CamIV_Isometric; i <= CamIV_FrontView; i++) {
+            if (i != CamIV_FirstPerson) {
+                desired_local_cameras[i].mappos.x.val = pos_x;
+                desired_local_cameras[i].mappos.y.val = pos_y;
             }
         }
     }
@@ -146,10 +142,18 @@ void update_local_cameras(void)
     if (in_first_person) {
         update_local_first_person_camera(ctrltng);
     } else {
-        process_local_minimap_click();
         struct Packet* local_packet = get_local_input_lag_packet_for_turn(game.play_gameturn-1);
         if (local_packet == NULL) {
             return;
+        }
+        if (game.game_kind == GKind_LocalGame) {
+            process_local_minimap_click(local_packet);
+        } else {
+            for (int lag_offset = game.input_lag_turns; lag_offset >= 0; lag_offset--) {
+                GameTurn packet_turn = game.play_gameturn - lag_offset;
+                struct Packet* lag_packet = get_local_input_lag_packet_for_turn(packet_turn);
+                process_local_minimap_click(lag_packet);
+            }
         }
         for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
             if (cam_idx == CamIV_FirstPerson || cam_idx == CamIV_Parchment) {
