@@ -355,6 +355,7 @@ static void process_event(const SDL_Event *ev)
                 {
                     mute_audio(false);
                 }
+                redetect_screen_refresh_rate_for_draw();
                 break;
             }
             case SDL_WINDOWEVENT_FOCUS_LOST:
