@@ -350,7 +350,7 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     MapSlabCoord slb_y;
     TRACE_THING(thing);
     struct Thing* heartng = get_player_soul_container(thing->owner);
-    if (!thing_is_invalid(heartng))
+    if (thing_exists(heartng))
     {
         TRACE_THING(heartng);
         revealstl_x = heartng->mappos.x.stl.num;

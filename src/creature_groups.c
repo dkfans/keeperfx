@@ -321,7 +321,7 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     while (i > 0)
     {
         ctng = thing_get(i);
-        if (thing_is_invalid(ctng))
+        if (!thing_is_creature(ctng))
         {
             ERRORLOG("Invalid creature in group %s index %d", thing_model_name(grptng), (int)grptng->index);
             return potential_leader;
@@ -503,7 +503,7 @@ long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng
         remove_creature_from_group(creatng);
     }
     struct Thing* leadtng = get_group_leader(grptng);
-    if (thing_is_invalid(leadtng))
+    if (!thing_is_creature(leadtng))
         leadtng = grptng;
     // Change old leader to normal group member, and add new one to chain as its head
     internal_add_member_to_group_chain_head(creatng, leadtng);
@@ -589,7 +589,7 @@ TbBool delete_member_from_party(int party_id, long crtr_model, CrtrExpLevel exp_
 TbBool make_group_member_leader(struct Thing *leadtng)
 {
     struct Thing* prvtng = get_group_leader(leadtng);
-    if (thing_is_invalid(prvtng))
+    if (!thing_is_creature(prvtng))
         return false;
     SYNCDBG(3,"Group owned by player %d leader change to %s index %d",
         (int)leadtng->owner,thing_model_name(leadtng),(int)leadtng->index);
@@ -626,7 +626,7 @@ TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *po
 long process_obey_leader(struct Thing *thing)
 {
     struct Thing* leadtng = get_group_leader(thing);
-    if (thing_is_invalid(leadtng)) {
+    if (!thing_is_creature(leadtng)) {
         WARNDBG(3,"Leader invalid, resetting %s index %d owned by player %d",
             thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
