@@ -670,7 +670,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     struct Camera *cam = player->acamera;
     struct Thing *thing = get_player_soul_container(player->id_number);
 
-    if (thing_is_invalid(thing)) {
+    if (!thing_exists(thing)) {
         return 0;
     }
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
