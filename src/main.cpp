@@ -145,7 +145,11 @@ struct StartupParameters start_params;
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
 long game_num_fps;
-long game_num_fps_draw = 0;
+
+long game_num_fps_draw_current = 0;
+long game_num_fps_draw_main = 0; // -1 if auto
+long game_num_fps_draw_secondary = 0;
+
 
 unsigned char *blue_palette;
 unsigned char *red_palette;
@@ -1122,6 +1126,7 @@ short setup_game(void)
   }
 
   game.frame_skip = start_params.frame_skip;
+  redetect_screen_refresh_rate_for_draw();
 
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
@@ -3327,10 +3332,10 @@ TbBool keeper_wait_for_next_turn(void)
 TbBool keeper_wait_for_next_draw(void)
 {
     // fps.draw is currently unable to work properly with frame_skip
-    if (game_num_fps_draw > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
+    if (game_num_fps_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
-        const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw;
+        const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw_current;
 
         static long double tick_ns_last_draw = 0;
         long double tick_ns_cur = get_time_tick_ns();
@@ -3348,6 +3353,29 @@ TbBool keeper_wait_for_next_draw(void)
         return true;
     }
     return false;
+}
+
+void redetect_screen_refresh_rate_for_draw()
+{
+    game_num_fps_draw_current = 0;
+
+    if (game_num_fps_draw_main == -1) {
+        if (game_num_fps_draw_secondary > 0)
+            game_num_fps_draw_current = game_num_fps_draw_secondary;
+
+        if (lbWindow != NULL) {
+            int display_index = SDL_GetWindowDisplayIndex(lbWindow);
+            if (display_index >= 0) {
+                SDL_DisplayMode mode;
+                if (SDL_GetCurrentDisplayMode(display_index, &mode) == 0 && mode.refresh_rate > 0) {
+                    game_num_fps_draw_current = mode.refresh_rate;
+                }
+            }
+        }
+
+    } else if (game_num_fps_draw_main > 0) {
+        game_num_fps_draw_current = game_num_fps_draw_main;
+    }
 }
 
 TbBool keeper_wait_for_screen_focus(void)
@@ -3492,7 +3520,7 @@ void gameplay_loop_timestep()
         exit_keeper = 1;
     }
 
-    if (game_num_fps_draw > 0 && is_feature_on(Ft_DeltaTime) == true) {
+    if (game_num_fps_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true) {
         keeper_wait_for_next_draw();
 
         if (game.turns_packetoff == game.play_gameturn) {
@@ -4058,8 +4086,8 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "fps_draw") == 0)
       {
           narg++;
-          start_params.num_fps_draw = atoi(pr2str);
-          start_params.overrides[Clo_FramesPerSecond] = true;
+	  if (parse_draw_fps_config_val(pr2str, &start_params.num_fps_draw_main, &start_params.num_fps_draw_secondary) > 0)
+            start_params.overrides[Clo_FramesPerSecond] = true;
       } else
       if (strcasecmp(parstr, "human") == 0)
       {
