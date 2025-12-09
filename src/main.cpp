@@ -1505,7 +1505,7 @@ short zoom_to_next_annoyed_creature(void)
     dungeon = get_players_num_dungeon(my_player_number);
     dungeon->zoom_annoyed_creature_idx = find_next_annoyed_creature(player->id_number,dungeon->zoom_annoyed_creature_idx);
     thing = thing_get(dungeon->zoom_annoyed_creature_idx);
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
     {
       return false;
     }

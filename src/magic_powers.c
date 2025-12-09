@@ -588,9 +588,8 @@ TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     if (dungeon->sight_casted_thing_idx <= 0) {
         return false;
     }
-    struct Thing *thing;
-    thing = thing_get(dungeon->sight_casted_thing_idx);
-    if (thing_is_invalid(thing)) {
+    struct Thing *thing = thing_get(dungeon->sight_casted_thing_idx);
+    if (!thing_exists(thing)) {
         return false;
     }
     long soe_x;
