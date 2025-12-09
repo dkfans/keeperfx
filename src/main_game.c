@@ -467,7 +467,9 @@ void clear_complete_game(void)
     else
         set_selected_level_number(first_singleplayer_level());
     game_num_fps = start_params.num_fps;
-    game_num_fps_draw = start_params.num_fps_draw;
+    game_num_fps_draw_current = 0;
+    game_num_fps_draw_main = start_params.num_fps_draw_main;
+    game_num_fps_draw_secondary = start_params.num_fps_draw_secondary;
     game.mode_flags = start_params.mode_flags;
     game.easter_eggs_enabled = start_params.easter_egg;
     set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);

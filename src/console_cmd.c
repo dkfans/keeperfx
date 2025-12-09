@@ -25,6 +25,7 @@
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "config.h"
+#include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "config_effects.h"
 #include "config_magic.h"
@@ -290,7 +291,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %ld, draw fps is %ld", game_num_fps, game_num_fps_draw);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %ld, draw fps is %ld", game_num_fps, game_num_fps_draw_current);
     return true;
 }
 
@@ -308,13 +309,8 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_fps_draw(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
-        game_num_fps_draw = start_params.num_fps_draw;
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Drawrate is %ld fps", game_num_fps_draw);
-    } else {
-        game_num_fps_draw = atoi(pr2str);
-    }
+    parse_draw_fps_config_val(args, &game_num_fps_draw_main, &game_num_fps_draw_secondary);
+    redetect_screen_refresh_rate_for_draw();
     return true;
 }
 

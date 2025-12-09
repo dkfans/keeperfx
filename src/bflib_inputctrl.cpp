@@ -387,6 +387,11 @@ static void process_event(const SDL_Event *ev)
                 isMouseActive = false;
                 break;
             }
+            case SDL_WINDOWEVENT_MOVED:
+            {
+                redetect_screen_refresh_rate_for_draw();
+                break;
+            }
             default: break;
         }
         /* else if (ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {

@@ -126,6 +126,7 @@ extern TbBool IMPRISON_BUTTON_DEFAULT;
 void load_configuration_for_mod_all(void);
 short load_configuration(void);
 void process_cmdline_overrides(void);
+int parse_draw_fps_config_val(const char *arg, long *fps_draw_main, long *fps_draw_secondary);
 /******************************************************************************/
 TbBool is_feature_on(unsigned long feature);
 void set_skip_heart_zoom_feature(TbBool enable);
