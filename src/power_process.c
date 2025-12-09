@@ -290,7 +290,7 @@ void update_god_lightning_ball(struct Thing *thing)
         break;
     case 1:
         target = thing_get(thing->shot.target_idx);
-        if (thing_is_invalid(target))
+        if (!thing_exists(target))
             break;
         shotst = get_shot_model_stats(thing->model);
         draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
@@ -298,7 +298,7 @@ void update_god_lightning_ball(struct Thing *thing)
     case 2:
     {
         target = thing_get(thing->shot.target_idx);
-        if (thing_is_invalid(target))
+        if (!thing_exists(target))
             break;
         shotst = get_shot_model_stats(thing->model);
         apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner);
@@ -361,7 +361,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
     SYNCDBG(8,"The best target for %s index %d owner %d is %s index %d owner %d",
         thing_model_name(shotng),(int)shotng->index,(int)shotng->owner,
         thing_model_name(best_thing),(int)best_thing->index,(int)best_thing->owner);
-    if (!thing_is_invalid(best_thing)) {
+    if (thing_exists(best_thing)) {
         shotng->shot.target_idx = best_thing->index;
     } else {
         shotng->shot.target_idx = 0;
@@ -682,7 +682,7 @@ void process_timebomb(struct Thing *creatng)
     update_creature_speed(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
-    if (thing_is_invalid(timetng))
+    if (!thing_exists(timetng))
     {
         if ((cctrl->timebomb_countdown % game_num_fps) == 0)
         {
@@ -709,7 +709,7 @@ void process_timebomb(struct Thing *creatng)
         }
     }
     struct Thing* trgtng = thing_get(cctrl->timebomb_target_id);
-    if (!thing_is_invalid(trgtng))
+    if (thing_exists(trgtng))
     {
         if ((creatng->mappos.x.stl.num == trgtng->mappos.x.stl.num) && (creatng->mappos.y.stl.num == trgtng->mappos.y.stl.num))
         {

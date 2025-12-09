@@ -1507,7 +1507,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       break;
   case PckA_CtrlCrtrSetInstnc:
       thing = thing_get(player->controlled_thing_idx);
-      if (thing_is_invalid(thing))
+      if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
       if (creature_control_invalid(cctrl))
@@ -1532,7 +1532,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       break;
   case PckA_CheatCtrlCrtrSetInstnc:
       thing = thing_get(player->controlled_thing_idx);
-      if (thing_is_invalid(thing))
+      if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
       if (creature_control_invalid(cctrl))

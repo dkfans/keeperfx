@@ -158,7 +158,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, int32_t *n)
         return 0;
     }
     struct Thing* handtng = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(handtng))
+    if (thing_exists(handtng))
     {
         set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
@@ -171,7 +171,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, int32_t *n)
     struct Thing* thing = thing_get(player->hand_thing_idx);
     player->influenced_thing_idx = dungeon->things_in_hand[0];
     player->influenced_thing_creation = thing->creation_turn;
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
@@ -181,7 +181,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, int32_t *n)
 long pinstfe_hand_drop(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Hover);
     }
@@ -193,7 +193,7 @@ long pinstfe_hand_drop(struct PlayerInfo *player, int32_t *n)
 long pinstfs_hand_whip(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Slap);
     }
@@ -291,7 +291,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, int32_t *n)
 long pinstfs_hand_whip_end(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_SideSlap);
     }
@@ -301,7 +301,7 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, int32_t *n)
 long pinstfe_hand_whip_end(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_SideHover);
     }
@@ -349,7 +349,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
     if (cam == NULL)
         return 0;
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (thing_is_invalid(thing) || (thing->class_id == TCls_DeadCreature) || creature_is_dying(thing))
+    if (!thing_exists(thing) || (thing->class_id == TCls_DeadCreature) || creature_is_dying(thing))
     {
         set_camera_zoom(cam, player->dungeon_camera_zoom);
         if (is_my_player(player))
@@ -455,7 +455,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
 long pinstfe_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         load_swipe_graphic_for_creature(thing);
         control_creature_as_passenger(player, thing);
@@ -600,7 +600,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
         reset_interpolation_of_camera(player);
     }
     struct Thing* thing = thing_get(player->controlled_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
@@ -627,14 +627,14 @@ long pinstfe_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->controlled_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
         leave_creature_as_controller(player, thing);
     set_player_mode(player, PVT_DungeonTop);
     struct Camera* cam = player->acamera;
     if (cam == NULL)
         return 0;
     thing = get_player_soul_container(player->id_number);
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
     {
         cam->mappos.x.val = subtile_coord_center(game.map_subtiles_x / 2);
         cam->mappos.y.val = subtile_coord_center(game.map_subtiles_y / 2);

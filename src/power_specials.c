@@ -237,7 +237,7 @@ void increase_level(struct PlayerInfo *player, int count)
     {
         struct Thing* famlrtng = thing_get(dungeon->summon_list[i]);
         cctrl = creature_control_get_from_thing(famlrtng);
-        if (thing_is_invalid(famlrtng))
+        if (!thing_exists(famlrtng))
         {
           ERRORLOG("Jump to invalid creature detected");
           continue;
@@ -758,7 +758,7 @@ long create_transferred_creatures_on_level(void)
                 if (player_is_roaming(p))
                 {
                     plyr_idx = p;
-                    if (thing_is_invalid(srcetng))
+                    if (!thing_exists(srcetng))
                     {
                         for (long n = 1; n < 16; n++)
                         {

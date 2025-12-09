@@ -900,7 +900,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
              && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
                 heartng = get_player_soul_container(wandr->plyr_idx);
-                if (!thing_is_invalid(heartng))
+                if (thing_exists(heartng))
                 {
 
                     dstpos.x.val = subtile_coord_center(stl_x);
@@ -922,7 +922,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
                 heartng = get_player_soul_container(wandr->plyr_idx);
-                if (!thing_is_invalid(heartng))
+                if (thing_exists(heartng))
                 {
                     dstpos.x.val = subtile_coord_center(stl_x);
                     dstpos.y.val = subtile_coord_center(stl_y);
