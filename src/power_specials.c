@@ -760,7 +760,7 @@ long create_transferred_creatures_on_level(void)
                     plyr_idx = p;
                     if (!thing_exists(srcetng))
                     {
-                        for (long n = 1; n < 16; n++)
+                        for (long n = 1; n < HERO_GATES_COUNT; n++)
                         {
                             srcetng = find_hero_gate_of_number(n);
                             if (!thing_is_invalid(srcetng))
