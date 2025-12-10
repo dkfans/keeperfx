@@ -29,8 +29,8 @@
 /******************************************************************************/
 #define CURSOR_SCALING_XSTEPS MAX_SUPPORTED_SCREEN_WIDTH/10
 #define CURSOR_SCALING_YSTEPS MAX_SUPPORTED_SCREEN_HEIGHT/10
-extern long cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
-extern long cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
+extern int32_t cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
+extern int32_t cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
 
 // Exported class
@@ -43,12 +43,8 @@ class LbI_PointerHandler {
     void Release(void);
     void NewMousePos(void);
     bool OnMove(void);
-    void OnBeginPartialUpdate(void);
-    void OnEndPartialUpdate(void);
     void OnBeginSwap(void);
     void OnEndSwap(void);
-    void OnBeginFlip(void);
-    void OnEndFlip(void);
  protected:
     void ClipHotspot(void);
     void Draw(bool);
@@ -63,8 +59,8 @@ class LbI_PointerHandler {
     struct TbRect rect_1038;
     long draw_pos_x;
     long draw_pos_y;
-    bool field_1050;
-    bool field_1054;
+    bool is_active;
+    bool needs_redraw;
     const struct TbSprite *sprite;
     std::mutex lock;
 };

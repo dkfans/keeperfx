@@ -41,48 +41,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-/******************************************************************************/
-struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *grptng)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    CrtrExpLevel best_exp_level = 0;
-    long best_score = 0;
-    struct Thing* best_creatng = INVALID_THING;
-    long i = cctrl->group_info & TngGroup_LeaderIndex;
-    if (i == 0) {
-        // One creature is not a group, but we may still get its experience
-        i = grptng->index;
-    }
-    unsigned long k = 0;
-    while (i > 0)
-    {
-        struct Thing* ctng = thing_get(i);
-        TRACE_THING(ctng);
-        cctrl = creature_control_get_from_thing(ctng);
-        if (creature_control_invalid(cctrl))
-            break;
-        // Per-thing code
-        if (best_exp_level <= cctrl->exp_level) {
-            long score = get_creature_thing_score(ctng);
-            // If got a new best score, or best level changed - update best values
-            if ((best_score < score) || (best_exp_level < cctrl->exp_level)) {
-                best_exp_level = cctrl->exp_level;
-                best_score = score;
-                best_creatng = ctng;
-            }
-        }
-        // Per-thing code ends
-        i = cctrl->next_in_group;
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures group");
-            break;
-        }
-    }
-    return best_creatng;
-}
-
 long get_no_creatures_in_group(const struct Thing *grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
@@ -326,7 +284,7 @@ static short creature_could_be_lead_digger(struct Thing* creatng, struct Creatur
     short potential_leader = 0;
     if (thing_is_creature_digger(creatng))
     {
-        if (cctrl->party_objective != CHeroTsk_DefendParty)
+        if (cctrl->party.objective != CHeroTsk_DefendParty)
         {
             potential_leader = 2;
         }
@@ -363,6 +321,12 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     while (i > 0)
     {
         ctng = thing_get(i);
+        if (thing_is_invalid(ctng))
+        {
+            ERRORLOG("Invalid creature in group %s index %d", thing_model_name(grptng), (int)grptng->index);
+            return potential_leader;
+        }
+
         cctrl = creature_control_get_from_thing(ctng);
         potential_leader = creature_could_be_lead_digger(ctng, cctrl);
         if (potential_leader == 2)
@@ -417,12 +381,12 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
         // Per-thing code
         long score = get_creature_thing_score(ctng);
         // Units who are supposed to defend the party, are considered for party leadership last.
-        if (cctrl->party_objective != CHeroTsk_DefendParty)
+        if (cctrl->party.objective != CHeroTsk_DefendParty)
         {
             if (has_digger < 2 || is_digger) // if we want a digger, do not consider non-diggers
             {
                 // If the current unit does not defend party, overwrite any unit that does.
-                if (bcctrl->party_objective == CHeroTsk_DefendParty)
+                if (bcctrl->party.objective == CHeroTsk_DefendParty)
                 {
                     best_exp_level = cctrl->exp_level;
                     best_score = score;
@@ -447,7 +411,7 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
         else // so party_objective == CHeroTsk_DefendParty)
         {
             // Only look to overwrite other defending unit, or noexisting unit, with this defending unit
-            if ((bcctrl->party_objective == CHeroTsk_DefendParty) || (best_creatng == INVALID_THING))
+            if ((bcctrl->party.objective == CHeroTsk_DefendParty) || (best_creatng == INVALID_THING))
             {
                 if (has_digger < 1 || is_digger) // if we want a digger, do not consider non-diggers
                 {
@@ -549,17 +513,6 @@ long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng
     return 1;
 }
 
-struct Party *get_party_of_name(const char *prtname)
-{
-    for (int i = 0; i < game.script.creature_partys_num; i++)
-    {
-        struct Party* party = &game.script.creature_partys[i];
-        if (strcasecmp(party->prtname, prtname) == 0)
-            return party;
-    }
-    return NULL;
-}
-
 int get_party_index_of_name(const char *prtname)
 {
     for (int i = 0; i < game.script.creature_partys_num; i++)
@@ -604,7 +557,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level
     member->crtr_kind = crtr_model;
     member->carried_gold = carried_gold;
     member->exp_level = exp_level-1;
-    member->field_6F = 1;
+    member->is_active = 1;
     member->objectv = objctv_id;
     member->countdown = countdown;
     party->members_num++;
@@ -677,6 +630,10 @@ long process_obey_leader(struct Thing *thing)
         WARNDBG(3,"Leader invalid, resetting %s index %d owned by player %d",
             thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
+        return 1;
+    }
+    if (creature_is_being_dropped(thing))
+    {
         return 1;
     }
     if ((leadtng->alloc_flags & TAlF_IsControlled) != 0)
@@ -770,10 +727,10 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
     cctrl->group_info = (group_len << 12) | (cctrl->group_info & ~TngGroup_MemberCount);
     memset(cctrl->followers_pos, 0, sizeof(cctrl->followers_pos));
 
-    int len_xv = LbSinL(leadtng->move_angle_xy + LbFPMath_PI) << 8 >> 16;
-    int len_yv = -((LbCosL(leadtng->move_angle_xy + LbFPMath_PI) << 8) >> 8) >> 8;
-    int len_xh = LbSinL(leadtng->move_angle_xy - LbFPMath_PI / 2) << 8 >> 16;
-    int len_yh = -((LbCosL(leadtng->move_angle_xy - LbFPMath_PI / 2) << 8) >> 8) >> 8;
+    int len_xv = LbSinL(leadtng->move_angle_xy + DEGREES_180) << 8 >> 16;
+    int len_yv = -((LbCosL(leadtng->move_angle_xy + DEGREES_180) << 8) >> 8) >> 8;
+    int len_xh = LbSinL(leadtng->move_angle_xy - DEGREES_90) << 8 >> 16;
+    int len_yh = -((LbCosL(leadtng->move_angle_xy - DEGREES_90) << 8) >> 8) >> 8;
 
     int ih;
     int iv;
@@ -874,8 +831,8 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
         pos.x.val = leadtng->mappos.x.val;
         pos.y.val = leadtng->mappos.y.val;
 
-        pos.x.stl.pos = CREATURE_RANDOM(leadtng, 127);
-        pos.y.stl.pos = CREATURE_RANDOM(leadtng, 127);
+        pos.x.stl.pos = THING_RANDOM(leadtng, 127);
+        pos.y.stl.pos = THING_RANDOM(leadtng, 127);
 
         pos.z.val = get_floor_height_at(&pos);
         creature_follower_pos_add(leadtng, ifollow, &pos);
@@ -908,8 +865,8 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
           if (!thing_is_invalid(thing))
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-              cctrl->party_objective = member->objectv;
-              cctrl->original_party_objective = cctrl->party_objective;
+              cctrl->party.objective = member->objectv;
+              cctrl->party.original_objective = cctrl->party.objective;
               cctrl->wait_to_turn = game.play_gameturn + member->countdown;
               cctrl->hero.wait_time = game.play_gameturn + member->countdown;
               if (thing_is_invalid(grptng))
@@ -924,13 +881,13 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
                   struct Thing* bestng = get_best_creature_to_lead_group(grptng);
                   struct CreatureControl* bestctrl = creature_control_get_from_thing(bestng);
                   // If current leader wants to defend, and current unit has an objective, new unit will be group leader.
-                  if ((cctrl->party_objective != CHeroTsk_DefendParty) && (bestctrl->party_objective == CHeroTsk_DefendParty))
+                  if ((cctrl->party.objective != CHeroTsk_DefendParty) && (bestctrl->party.objective == CHeroTsk_DefendParty))
                   {
                       add_creature_to_group_as_leader(thing, grptng);
                       leadtng = thing;
                   } else
                   // if best and current unit want to defend party, or neither do, the strongest will be leader
-                  if (((cctrl->party_objective == CHeroTsk_DefendParty) && (bestctrl->party_objective == CHeroTsk_DefendParty)) || ((cctrl->party_objective != CHeroTsk_DefendParty) && (bestctrl->party_objective != CHeroTsk_DefendParty)))
+                  if (((cctrl->party.objective == CHeroTsk_DefendParty) && (bestctrl->party.objective == CHeroTsk_DefendParty)) || ((cctrl->party.objective != CHeroTsk_DefendParty) && (bestctrl->party.objective != CHeroTsk_DefendParty)))
                   {
                       if ((cctrl->exp_level > bestctrl->exp_level) || ((cctrl->exp_level == bestctrl->exp_level) && (get_creature_thing_score(thing) > get_creature_thing_score(bestng))))
                       {

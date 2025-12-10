@@ -379,9 +379,9 @@ enum GUIStrings {
     GUIStr_Error,
     GUIStr_ErrorSaving,
     GUIStr_NewLevels = STRINGS_MAX+888,
-    GUIStr_InsertDataCD = STRINGS_MAX+889,
-    GUIStr_InsertKeeperCD,
-    GUIStr_InbsertDeeperCD,
+    GUIStr_TrapAvailable = STRINGS_MAX+889,
+    GUIStr_TrapWorkshopNeeded,
+    GUIStr_TrapUnavailable,
     GUIStr_LevelEventMessageDD = STRINGS_MAX+892, // range 892..940, Deeper Dungeons
     GUIStr_EventSecretDoorDiscovDesc = STRINGS_MAX+937,
     GUIStr_EventSecretDoorDiscovered,
@@ -494,7 +494,7 @@ TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings, int max);
 const char * get_string(TextStringId stridx);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
-TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
+TbBool fill_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
 unsigned long count_strings(char *strings, int size);
 const char * cmpgn_string(unsigned int index);
 /******************************************************************************/

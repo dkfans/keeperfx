@@ -92,7 +92,7 @@ enum CreatureInstances {
 
 struct Thing;
 
-typedef long (*Creature_Instf_Func)(struct Thing *, long *);
+typedef long (*Creature_Instf_Func)(struct Thing *, int32_t *);
 typedef TbBool (*Creature_Validate_Func)(struct Thing *, struct Thing *, CrInstance, int32_t, int32_t);
 typedef TbBool (*Creature_Target_Search_Func)(struct Thing *, CrInstance, ThingIndex **, uint16_t *, int32_t, int32_t);
 
@@ -110,7 +110,7 @@ struct InstanceInfo {
     short force_visibility;
     unsigned char primary_target;
     unsigned char func_idx;
-    long func_params[2];
+    int32_t func_params[2];
     long range_min;
     long range_max;
     long symbol_spridx;
@@ -155,8 +155,6 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 TbBool creature_has_weapon_for_postal(const struct Thing *creatng);
 TbBool creature_has_melee_attack(const struct Thing *creatng);
 
-int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
-int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
 TbBool instance_draws_possession_swipe(CrInstance inum);

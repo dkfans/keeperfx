@@ -30,7 +30,7 @@ struct ftest_donottouch__variables ftest_donottouch__vars = {
     .pending_init = NULL,
     .total_actions = 0,
     .current_action = 0,
-    .previous_action = ULONG_MAX,
+    .previous_action = UINT32_MAX,
     .is_restarting_actions_queue = false,
     .current_turn_counter = 0
 };
@@ -97,7 +97,7 @@ void ftest_reset_action_args(struct FTestActionArgs* const args)
     }
 
     args->intended_start_at_game_turn = 0;
-    args->actual_started_at_game_turn = ULONG_MAX;
+    args->actual_started_at_game_turn = UINT32_MAX;
     args->action_index = 0;
     args->times_executed = 0;
     args->data = NULL;
@@ -109,7 +109,7 @@ void ftest_clear_actions()
 
     vars->total_actions = 0;
     vars->current_action = 0;
-    vars->previous_action = ULONG_MAX;
+    vars->previous_action = UINT32_MAX;
     vars->is_restarting_actions_queue = false;
     vars->current_turn_counter = 0;
 
@@ -307,7 +307,7 @@ TbBool ftest_setup_test(struct FTestConfig* const test_config)
     {
         set_selected_level_number(selected_level);
     }
-    
+
     ftest_clear_actions();
 
     //queue init for corresponding test level
@@ -320,7 +320,7 @@ void ftest_quit_game()
 {
     FTESTLOG("Quitting/exiting map");
     struct PlayerInfo *player = get_my_player();
-    set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);           
+    set_players_packet_action(player, PckA_QuitToMainMenu, 0, 0, 0, 0);
 }
 
 void ftest_srand()
@@ -329,14 +329,20 @@ void ftest_srand()
     {
         if(start_params.functest_seed == 0)
         {
-            game.action_rand_seed = game.play_gameturn;
-            game.unsync_rand_seed = game.play_gameturn;
+            game.action_random_seed = game.play_gameturn;
+            game.ai_random_seed = game.play_gameturn * 9377 + 9439 + game.play_gameturn;
+            game.player_random_seed = game.play_gameturn * 9439 + 9377 + game.play_gameturn;
+            game.unsync_random_seed = game.play_gameturn;
+            game.sound_random_seed = game.play_gameturn * 7919 + 7927;
             srand(game.play_gameturn);
         }
         else
         {
-            game.action_rand_seed = start_params.functest_seed;
-            game.unsync_rand_seed = start_params.functest_seed;
+            game.action_random_seed = start_params.functest_seed;
+            game.ai_random_seed = start_params.functest_seed * 9377 + 9439 + game.play_gameturn;
+            game.player_random_seed = start_params.functest_seed * 9439 + 9377 + game.play_gameturn;
+            game.unsync_random_seed = start_params.functest_seed;
+            game.sound_random_seed = start_params.functest_seed * 7919 + 7927;
             srand(start_params.functest_seed);
         }
     }
@@ -383,7 +389,7 @@ TbBool ftest_init()
 FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
 {
     struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
-    
+
     // enforce init call first
     if(!flag_is_set(start_params.functest_flags, FTF_Enabled) || vars->current_state == FTSt_PendingInitialSetup)
     {
@@ -409,7 +415,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
     // tests already completed!
     if(vars->current_state == FTSt_TestsCompletedSuccessfully)
     {
-        return FTSt_TestsCompletedSuccessfully; 
+        return FTSt_TestsCompletedSuccessfully;
     }
 
     // setup tests (change to campaign/level)
@@ -476,7 +482,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
             {
                 test_action = vars->actions_func_list[vars->current_action];
                 current_test_action_args = &vars->actions_func_arguments[vars->current_action];
-                
+
                 if(test_action == NULL)
                 {
                     //empty, skip to next
@@ -488,7 +494,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
                     return FTSt_InvalidState;
                 }
             } while (test_action == NULL && vars->current_action < ftest_actions_length);
-            
+
             if(test_action)
             {
                 if(game.play_gameturn >= current_test_action_args->intended_start_at_game_turn)
@@ -562,7 +568,7 @@ void ftest_restart_actions()
     const unsigned long ftest_actions_length = sizeof(ftest_donottouch__vars.actions_func_list) / sizeof(ftest_donottouch__vars.actions_func_list[0]);
 
     ftest_donottouch__vars.is_restarting_actions_queue = true;
-    
+
     for(unsigned long i = 0; i < ftest_actions_length; ++i)
     {
         if(ftest_donottouch__vars.actions_func_list[i] == NULL)
@@ -574,7 +580,7 @@ void ftest_restart_actions()
         if(current_action_args != NULL)
         {
             current_action_args->intended_start_at_game_turn = game.play_gameturn + ftest_donottouch__vars.actions_func_turn_list[i];
-            current_action_args->actual_started_at_game_turn = ULONG_MAX;
+            current_action_args->actual_started_at_game_turn = UINT32_MAX;
         }
     }
 
@@ -583,7 +589,7 @@ void ftest_restart_actions()
 
 /**
  * @brief Returns the current test config (some tests may want to modify it... meta!)
- * 
+ *
  */
 struct FTestConfig* ftest_get_current_test_config()
 {

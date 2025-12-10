@@ -29,7 +29,6 @@
 extern "C" {
 #endif
 
-#define ROOM_TYPES_COUNT_OLD  17
 #define SLAB_AROUND_COUNT      4
 #define ROOMS_COUNT          511
 /******************************************************************************/
@@ -77,12 +76,6 @@ struct Dungeon;
 
 typedef void (*Room_Update_Func)(struct Room *);
 
-struct RoomInfo { // sizeof = 6
-  unsigned short field_0;
-  unsigned short field_2;
-  unsigned short ambient_snd_smp_id;
-};
-
 struct Room {
     unsigned char alloc_flags;
     RoomIndex index; // index in the rooms array
@@ -103,7 +96,7 @@ struct Room {
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
       unsigned long capacity_used_for_storage;
-      ThingIndex hatchfield_1B;
+      ThingIndex cached_nearby_creature_index;
     };
     /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
      *  Rooms which have such list are entrances (only?). */
@@ -153,24 +146,21 @@ struct RoomReposition {
 /******************************************************************************/
 extern unsigned short const room_effect_elements[];
 extern struct AroundLByte const room_spark_offset[];
-extern RoomKind look_through_rooms[ROOM_TYPES_COUNT_OLD + 1];
 /******************************************************************************/
 struct Room *room_get(RoomIndex room_idx);
 struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Room *slab_room_get(MapSlabCoord slb_x, MapSlabCoord slb_y);
-struct Room *slab_number_room_get(SlabCodedCoords slab_num);
 TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);
 
-long get_room_look_through(RoomKind rkind);
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency);
 void set_room_efficiency(struct Room *room);
 void do_room_recalculation(struct Room* room);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole);
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind);
-void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap);
-void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap, long *storaged_cap);
+void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind room_kind, int32_t *total_cap, int32_t *used_cap);
+void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, RoomKind room_kind, int32_t *total_cap, int32_t *used_cap, int32_t *storaged_cap);
 TbBool thing_is_on_any_room_tile(const struct Thing *thing);
 TbBool thing_is_on_own_room_tile(const struct Thing *thing);
 struct Room *get_room_thing_is_on(const struct Thing *thing);
@@ -189,8 +179,8 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
 struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long room_idx, long n, long spare);
 struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole rrole, long spare);
 struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare);
-struct Room *find_room_of_role_with_most_spare_capacity(const struct Dungeon *dungeon,RoomRole rrole, long *total_spare_cap);
-struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance);
+struct Room *find_room_of_role_with_most_spare_capacity(const struct Dungeon *dungeon,RoomRole rrole, int32_t *total_spare_cap);
+struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, int32_t *room_distance);
 // Finding a navigable room for a thing
 struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long min_used_cap);
 struct Room *find_random_room_of_role_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
@@ -232,6 +222,7 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);
 long claim_room(struct Room *room,struct Thing *claimtng);
 long take_over_room(struct Room* room, PlayerNumber newowner);
+TbBool remove_room_from_players_list(struct Room* room, PlayerNumber plyr_idx);
 void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubble);
 TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long effrange, PlayerNumber effowner);
 TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx);

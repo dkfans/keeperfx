@@ -217,6 +217,18 @@ enum CreatureStateTypes {
     CrStTyp_ListEnd,
 };
 
+enum JobStage {
+    JobStage_Unused = 0,          // Initial job stage (unused in current implementation)
+    JobStage_SearchingForWork = 1,// Workshop: Finding an available work position in the room
+    JobStage_PreparingToWork = 2, // Workshop: Setting up equipment and work timer before starting
+    JobStage_MovingToPosition = 3,// Workshop/Research: Moving to or staying at work position
+    JobStage_TurningToFace = 4,   // Workshop/Research: Turning to face work direction or random thinking
+    JobStage_Manufacturing = 5,   // Workshop: Actively manufacturing items (swinging weapon animation)
+    JobStage_JobFailed = 6,       // Unused
+    JobStage_ScavengedDisappearing = 7, // Scavenging: This creature was successfully scavenged and is disappearing
+    JobStage_BeingScavenged = 8   // Scavenging: This creature is currently being scavenged by an enemy creature
+};
+
 /** Defines return values of creature state functions. */
 enum CreatureStateReturns {
     CrStRet_Deleted       = -1, /**< Returned if the creature being updated no longer exists. */
@@ -260,7 +272,6 @@ extern const CreatureStateCheck move_check_func_list[];
 extern long const state_type_to_gui_state[];
 /******************************************************************************/
 CrtrStateId get_creature_state_besides_move(const struct Thing *thing);
-CrtrStateId get_creature_state_besides_drag(const struct Thing *thing);
 CrtrStateId get_creature_state_besides_interruptions(const struct Thing *thing);
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name);
 #define get_creature_state_type(thing) get_creature_state_type_f(thing,__func__)

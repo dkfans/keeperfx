@@ -66,7 +66,7 @@ struct GuiButtonInit frontend_net_session_buttons[] = {
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  61,  82,  61,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  63,  91,  63,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {19},            0, NULL },
   { 5, -1,-1, 0, frontnet_session_set_player_name,NULL,frontend_over_button,19,200,63,95,63,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = tmp_net_player_name}, 20, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_session_add,NULL,      frontend_over_button,0, 321,  93, 321,  93,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,     {110},            0, NULL },
+  //{ LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_session_add,NULL,      frontend_over_button,0, 321,  93, 321,  93,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,     {110},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82, 112,  82, 112,220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty, 0,      {28},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82, 138,  82, 138,450,180, frontnet_draw_scroll_box,          0, GUIStr_Empty, 0,      {25},            0, NULL },
   { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_session_up,NULL,       frontend_over_button,0, 532, 137, 532, 137, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,      {17},            0, frontnet_session_up_maintain },
@@ -124,7 +124,7 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0, 536, 285, 536, 285,  20, 88, frontnet_draw_messages_scroll_tab, 0, GUIStr_Empty, 0,  {40},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  82, 386,  82, 386, 459, 28, frontnet_draw_current_message,     0, GUIStr_Empty, 0,  {43},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  89, 273,  89, 273, 438,104, frontnet_draw_messages,            0, GUIStr_Empty, 0,  {44},    0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, set_packet_start,   NULL,   frontend_over_button,    0,  49, 412,  49, 412, 247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {15},    0, frontnet_start_game_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, set_packet_start,   NULL,   frontend_over_button,    0,  49, 412,  49, 412, 247, 46, frontnet_draw_start_game_button,   0, GUIStr_Empty, 0,  {15},    0, frontnet_start_game_maintain },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_return_to_session_menu,NULL,frontend_over_button,1, 345,412,345,412,247,46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {16},    0, NULL },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,           0,  0,   {0},    0, NULL },
 };
@@ -244,7 +244,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
     } else {
         snprintf(text, sizeof(text), "%s", net_player_name);
     }
-    unsigned long plyr_num;
+    uint32_t plyr_num;
     if (LbNetwork_Create(text, net_player_name, &plyr_num, nullptr))
     {
         process_network_error(-801);

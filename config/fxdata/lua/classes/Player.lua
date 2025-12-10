@@ -1,27 +1,47 @@
 
 ---@meta
 
----@class Player: creaturefields,roomfields
+---@class flagfields
+---@field FLAG0 integer
+---@field FLAG1 integer
+---@field FLAG2 integer
+---@field FLAG3 integer
+---@field FLAG4 integer
+---@field FLAG5 integer
+---@field FLAG6 integer
+---@field FLAG7 integer
+---@field CAMPAIGN_FLAG0 integer
+---@field CAMPAIGN_FLAG1 integer
+---@field CAMPAIGN_FLAG2 integer
+---@field CAMPAIGN_FLAG3 integer
+---@field CAMPAIGN_FLAG4 integer
+---@field CAMPAIGN_FLAG5 integer
+---@field CAMPAIGN_FLAG6 integer
+---@field CAMPAIGN_FLAG7 integer
+
+---@class Player: creaturefields,roomfields,flagfields,trapfields,doorfields
 ---@field private name string
 ---
 ---@field CONTROLS creaturefields
 ---@field MONEY integer
 ---@field GAME_TURN integer
----@field BREAK_IN integer
+---@field VIEW_TYPE integer What the player is currently viewing. Returns 1 when keeping, 2 in Possession, 4 on the map screen
+---@field BREAK_IN integer The number of times that players walls have been breached
 ---@field TOTAL_DIGGERS integer
 ---@field TOTAL_CREATURES integer
----@field TOTAL_RESEARCH integer
+---@field TOTAL_RESEARCH integer The amount of research points that player has got
 ---@field TOTAL_DOORS integer
 ---@field TOTAL_AREA integer
 ---@field TOTAL_CREATURES_LEFT integer
 ---@field CREATURES_ANNOYED integer
+---@field ACTIVE_BATTLES integer
 ---@field BATTLES_LOST integer
 ---@field BATTLES_WON integer
 ---@field ROOMS_DESTROYED integer
 ---@field SPELLS_STOLEN integer
 ---@field TIMES_BROKEN_INTO integer
 ---@field GOLD_POTS_STOLEN integer
----@field HEART_HEALTH integer
+---@field HEART_HEALTH integer The amount of health the dungeon heart of the player has
 ---@field GHOSTS_RAISED integer
 ---@field SKELETONS_RAISED integer
 ---@field VAMPIRES_RAISED integer
@@ -53,14 +73,13 @@
 ---@field DOORS_SOLD integer
 ---@field MANUFACTURED_SOLD integer
 ---@field MANUFACTURE_GOLD integer
----@field TOTAL_SCORE integer
+---@field TOTAL_SCORE integer The level score, based on quality of the dungeon and number of creatures
 ---@field BONUS_TIME integer
 ---@field CREATURES_TRANSFERRED integer
 ---@field TOTAL_SLAPS integer
----@field SCORE integer
----@field PLAYER_SCORE integer
----@field MANAGE_SCORE integer
----
+---@field SCORE integer Sum of all the creatures the player has, based on stats and experience. Unrelated to the level score
+---@field PLAYER_SCORE integer The highest level score reached, only set when the level is won. Before that it is 0
+---@field MANAGE_SCORE integer Part of level score, based on quality of the dungeon
 ---@field heart Thing The player's primary dungeon heart
 if not Player then Player = {} end
 

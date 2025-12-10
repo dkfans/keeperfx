@@ -18,8 +18,12 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
+#include "net_received_packets.h"
+#include "net_redundant_packets.h"
 
 #include "bflib_fileio.h"
+#include "bflib_network_exchange.h"
+#include "bflib_datetm.h"
 #include "front_landview.h"
 #include "game_legacy.h"
 #include "game_saves.h"
@@ -33,7 +37,10 @@ extern "C" {
 /******************************************************************************/
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct PacketEx) + sizeof(TbBigChecksum))
 struct Packet bad_packet;
-unsigned long start_seed;
+unsigned long initial_replay_seed;
+extern TbBool IMPRISON_BUTTON_DEFAULT;
+extern TbBool FLEE_BUTTON_DEFAULT;
+extern TbBool get_skip_heart_zoom_feature(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -160,7 +167,9 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 void post_init_packets(void)
 {
     SYNCDBG(6,"Starting");
-    if ((game.packet_load_enable) && (game.numfield_149F47))
+    initialize_packet_tracking();
+    initialize_redundant_packets();
+    if ((game.packet_load_enable) && (game.packet_load_initialized))
     {
         struct CatalogueEntry centry;
         open_packet_file_for_load(game.packet_fname, &centry);
@@ -169,13 +178,14 @@ void post_init_packets(void)
     clear_packets();
 }
 
-static TbBigChecksum get_thing_simple_checksum(const struct Thing *tng)
-{
-    return (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
-         + (ulong)tng->move_angle_xy + (ulong)tng->owner;
-}
-
-static TbBigChecksum get_packet_save_checksum(void)
+/**
+ * Computes verification checksum for -packetsave/-packetload replay files.
+ * NOT used for multiplayer - only for single-player replay integrity checking.
+ * Sums position/movement data of all things except ambient sounds and effect elements.
+ *
+ * @return Checksum value for detecting replay file corruption
+ */
+TbBigChecksum compute_replay_integrity(void)
 {
     TbBigChecksum sum = 0;
     for (long tng_idx = 0; tng_idx < THINGS_COUNT; tng_idx++)
@@ -185,9 +195,10 @@ static TbBigChecksum get_packet_save_checksum(void)
         {
             // It would be nice to completely ignore effects, but since
             // thing indices are used in packets, lack of effect may cause desync too.
-            if ((tng->class_id != TCls_AmbientSnd) && (tng->class_id != TCls_EffectElem))
+            if (!is_non_synchronized_thing_class(tng->class_id))
             {
-                sum += get_thing_simple_checksum(tng);
+                sum += (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
+                     + (ulong)tng->move_angle_xy + (ulong)tng->owner;
             }
         }
     }
@@ -201,7 +212,7 @@ short save_packets(void)
     TbBigChecksum chksum;
     SYNCDBG(6,"Starting");
     if (game.packet_checksum_verify)
-        chksum = get_packet_save_checksum();
+        chksum = compute_replay_integrity();
     else
         chksum = 0;
     LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
@@ -281,7 +292,11 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.frontview_zoom_level = settings.frontview_zoom_level;
     game.packet_save_head.isometric_tilt = settings.isometric_tilt;
     game.packet_save_head.video_rotate_mode = settings.video_rotate_mode;
-    game.packet_save_head.action_seed = start_seed;
+    game.packet_save_head.action_seed = initial_replay_seed;
+    game.packet_save_head.skip_heart_zoom = get_skip_heart_zoom_feature();
+    game.packet_save_head.default_imprison_tendency = IMPRISON_BUTTON_DEFAULT;
+    game.packet_save_head.default_flee_tendency = FLEE_BUTTON_DEFAULT;
+    game.packet_save_head.highlight_mode = settings.highlight_mode;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
@@ -320,7 +335,7 @@ void load_packets_for_turn(GameTurn nturn)
     const int turn_data_size = PACKET_TURN_SIZE;
     unsigned char pckt_buf[PACKET_TURN_SIZE+4];
     struct Packet* pckt = get_packet(my_player_number);
-    TbChecksum pckt_chksum = pckt->chksum;
+    TbBigChecksum pckt_chksum = pckt->checksum;
     if (nturn >= game.turns_stored)
     {
         ERRORDBG(18,"Out of turns to load from Packet File");
@@ -343,13 +358,13 @@ void load_packets_for_turn(GameTurn nturn)
     if (game.packet_checksum_verify)
     {
         pckt = get_packet(my_player_number);
-        if (get_packet_save_checksum() != tot_chksum)
+        if (compute_replay_integrity() != tot_chksum)
         {
             ERRORLOG("PacketSave checksum - Out of sync (GameTurn %lu)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         } else
-        if (pckt->chksum != pckt_chksum)
+        if (pckt->checksum != pckt_chksum)
         {
             ERRORLOG("Oops we are really Out Of Sync (GameTurn %lu)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
@@ -365,6 +380,16 @@ void set_packet_pause_toggle()
         return;
     if (player->packet_num >= PACKETS_COUNT)
         return;
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
+    if ((game.operation_flags & GOF_Paused) == 0) {
+        set_players_packet_action(player, PckA_TogglePause, 1, 0, 0, 0);
+        return;
+    }
+    if (game.game_kind != GKind_LocalGame) {
+        long delay_milliseconds = (1000 / game_num_fps) * (game.input_lag_turns + 1);
+        scheduled_unpause_time = LbTimerClock() + delay_milliseconds;
+        MULTIPLAYER_LOG("set_packet_pause_toggle: Scheduled local unpause at time=%lu", scheduled_unpause_time);
+        LbNetwork_SendPauseImmediate(0, delay_milliseconds);
+        return;
+    }
+    process_pause_packet(0, 0);
 }

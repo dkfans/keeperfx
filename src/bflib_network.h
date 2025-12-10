@@ -20,7 +20,6 @@
 #ifndef BFLIB_NETWRK_H
 #define BFLIB_NETWRK_H
 
-#include <basetyps.h>
 #include "bflib_basics.h"
 #include "globals.h"
 
@@ -45,6 +44,20 @@ enum NetDropReason
 {
     NETDROP_MANUAL, // via drop_user()
     NETDROP_ERROR // connection error
+};
+
+enum NetMessageType {
+    NETMSG_LOGIN,
+    NETMSG_USERUPDATE,
+    NETMSG_FRONTEND,
+    NETMSG_SMALLDATA,
+    NETMSG_GAMEPLAY,
+    NETMSG_RESYNC_DATA,
+    NETMSG_RESYNC_RESUME,
+    NETMSG_TIMESYNC_REQUEST,
+    NETMSG_TIMESYNC_REPLY,
+    NETMSG_TIMESYNC_COMPLETE,
+    NETMSG_PAUSE,
 };
 
 typedef TbBool  (*NetNewUserCallback)(NetUserId * assigned_id);
@@ -94,6 +107,14 @@ struct NetSP // new version
      * @param size Must be > 0
      */
     void    (*sendmsg_single)(NetUserId destination, const char * buffer, size_t size);
+
+    /**
+     * Sends a message buffer to a certain user using unsequenced delivery.
+     * @param destination Destination user.
+     * @param buffer
+     * @param size Must be > 0
+     */
+    void    (*sendmsg_single_unsequenced)(NetUserId destination, const char * buffer, size_t size);
 
     /**
      * Sends a message buffer to all remote users.
@@ -148,8 +169,8 @@ enum TbNetworkService {
 
 struct ClientDataEntry {
   unsigned long plyrid;
-  unsigned long isactive;
-  unsigned long field_8;
+  TbBool isactive;
+  TbBool has_exchanged_data;
   char name[32];
 };
 
@@ -166,7 +187,7 @@ long active;
 struct TbNetworkCallbackData {
   char svc_name[12];
   char plyr_name[20];
-  char field_20[32];
+  char session_data[32];
 };
 
 struct TbNetworkPlayerName {
@@ -177,10 +198,10 @@ struct TbNetworkPlayerNameEntry {
   unsigned char id;
   unsigned long islocal;
   unsigned long ishost;
-  unsigned long field_9;
+  unsigned long is_active;
   char name[19];
-  unsigned char field_20[20];
-  unsigned char field_34[4];
+  unsigned char player_extra_data[20];
+  unsigned char reserved_padding[4];
 };
 
 //TODO: find out what this struct really is, and how long is it
@@ -190,30 +211,30 @@ struct SystemUserMsg {
 };
 
 struct UnidirectionalDataMessage {
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned char field_14[492];
-  unsigned char field_200[12];
+  unsigned long message_header;
+  unsigned long message_type;
+  unsigned long data_length;
+  unsigned long sequence_number;
+  unsigned long timestamp;
+  unsigned char payload_data[492];
+  unsigned char message_footer[12];
 };
 
 struct UnidirectionalRTSMessage {
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
+  unsigned long message_header;
+  unsigned long message_type;
+  unsigned long data_length;
+  unsigned long sequence_number;
+  unsigned long timestamp;
 };
 
 /** Structure for storing network service configuration. Used to pass information about configuration into LbNetwork_Init().
  */
 struct ServiceInitData {
-long field_0;
-    long numfield_4;
-    long field_8;
-    long field_C;
+long service_flags;
+    long max_connections;
+    long buffer_size;
+    long timeout_value;
 };
 
 /******************************************************************************/
@@ -223,18 +244,14 @@ long field_0;
 void    LbNetwork_SetServerPort(int port);
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
-TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
-TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
-TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
-TbBool  LbNetwork_Resync(void * buf, size_t len);
-void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, int32_t *playr_num, void *optns);
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
-TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
-TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
+TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_data);
+TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
+void    LbNetwork_UpdateInputLagIfHost(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

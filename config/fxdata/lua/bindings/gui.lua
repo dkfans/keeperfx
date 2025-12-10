@@ -69,10 +69,13 @@ function DisplayMessage(msg_id,icon) end
 ---@param icon string|Player|Creature The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message. Accepts None for no icon.
 function QuickMessage(msg,icon) end
 
+---Clears QuickMessages, DisplayMessages and chat messages from the screen.
+---@param amount? integer The amount of the oldest chat messages to remove. Leave empty or put to 0 to clear them all.
+function ClearMessage(amount) end
 
 ---Flashes a button on the toolar until the player selects it.
----@param button integer Id of the button.
----@param gameturns integer how long the button should flash for in 1/20th of a secon.
+---@param button integer|room_type|power_kind|trap_type|door_type button that should flash, can be the Id of the button. or the type of the room, power, trap or door.
+---@param gameturns integer how long the button should flash for in 1/20th of a second.
 function TutorialFlashButton(button,gameturns) end
 
 ---Displays an Objective message when the player lost his Dungeon Heart

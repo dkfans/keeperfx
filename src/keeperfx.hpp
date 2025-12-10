@@ -66,35 +66,26 @@ extern "C" {
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
-#define CMDLINE_OVERRIDES      3
+
+#define CMDLINE_OVERRIDES      4
 
 /** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
     Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
     Clo_CDMusic,
     Clo_GameTurns,
+    Clo_FramesPerSecond,
 };
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
     MFlg_EyeLensReady       =  0x02,
-    MFlg_unk04              =  0x04,
+    MFlg_Unusedparam04      =  0x04,
     MFlg_DeadBackToPool     =  0x08,
     MFlg_NoCdMusic          =  0x10, // unused
-    MFlg_unk20              =  0x20,
-    MFlg_unk40              =  0x40,
+    MFlg_Unusedparam20      =  0x20,
+    MFlg_DemoMode           =  0x40,
     MFlg_NoHeroHealthFlower =  0x80,
-};
-
-enum FFlags {
-    FFlg_unk01              =  0x01,
-    FFlg_unk02              =  0x02,
-    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
-    FFlg_unk08              =  0x08,
-    FFlg_unk10              =  0x10,
-    FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40, // now unused
-    FFlg_unk80              =  0x80,
 };
 
 enum DebugFlags {
@@ -132,12 +123,16 @@ struct StartupParameters {
     LevelNumber selected_level_number;
     TbBool no_intro;
     TbBool one_player;
+    TbBool easter_egg;
+    TbBool ignore_mods;
     unsigned char operation_flags;
     unsigned char flags_font;
-    unsigned char flags_cd;
+    unsigned char mode_flags;
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
     long num_fps;
+    long num_fps_draw_main; // -1 if auto
+    long num_fps_draw_secondary;
     TbBool packet_save_enable;
     TbBool packet_load_enable;
     char packet_fname[150];
@@ -207,12 +202,10 @@ extern unsigned char *lightning_palette;
 #pragma pack()
 /******************************************************************************/
 // Variables inside the main module
-extern TbClockMSec last_loop_time;
 extern short default_loc_player;
 extern struct GuiBox *gui_cheat_box_1;
 extern struct GuiBox *gui_cheat_box_2;
 extern struct GuiBox *gui_cheat_box_3;
-extern int test_variable;
 extern struct StartupParameters start_params;
 
 //Functions - reworked
@@ -243,7 +236,7 @@ void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
-void add_creature_to_pool(long kind, long amount);
+void add_creature_to_pool(ThingModel kind, long amount);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
 short zoom_to_next_annoyed_creature(void);
@@ -271,19 +264,19 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
 void lightning_modify_palette(struct Thing *thing);
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
-unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
+unsigned long seed_check_random(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
 void init_lookups(void);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 void turn_off_query(PlayerNumber plyr_idx);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
-short winning_player_quitting(struct PlayerInfo *player, long *plyr_count);
+short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count);
 short lose_level(struct PlayerInfo *player);
 short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
-void set_general_information(long msg_id, TbMapLocation target, long x, long y);
-void set_quick_information(long msg_id, TbMapLocation target, long x, long y);
-void process_objective(const char *msg_text, TbMapLocation target, long x, long y);
+void set_general_information(long msg_id, TbMapLocation target, int32_t x, int32_t y);
+void set_quick_information(long msg_id, TbMapLocation target, int32_t x, int32_t y);
+void process_objective(const char *msg_text, TbMapLocation target, int32_t x, int32_t y);
 void set_general_objective(long msg_id, TbMapLocation target, long x, long y);
 void turn_off_power_sight_of_evil(PlayerNumber plridx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
@@ -299,18 +292,20 @@ void update_thing_animation(struct Thing *thing);
 long update_cave_in(struct Thing *thing);
 void initialise_map_collides(void);
 void initialise_map_health(void);
-void setup_3d(void);
+void setup_mesh_randomizers(void);
 void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_aura(struct Thing *thing);
 void init_seeds();
 
+
 TbPixel get_player_path_colour(unsigned short owner);
 
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
+void redetect_screen_refresh_rate_for_draw();
 void update_time(void);
 extern TbClockMSec timerstarttime;
 struct TimerTime {

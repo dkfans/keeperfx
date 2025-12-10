@@ -27,23 +27,19 @@ extern "C" {
 #endif
 
 #define ACTN_POINTS_COUNT     256
-#define ACTN_POINTS_COUNT_OLD 32
+#define HERO_GATES_COUNT      256
 
 /******************************************************************************/
 #pragma pack(1)
 
-enum ActionPointFlags {
-    AptF_Exists            = 0x01,
-};
-
-struct InitActionPoint { // sizeof = 8
+struct InitActionPoint {
     struct Coord2d mappos;
     unsigned short range;
     unsigned short num;
 };
 
-struct ActionPoint { // sizeof = 0xA
-    unsigned char flags;
+struct ActionPoint {
+    TbBool exists;
     struct Coord2d mappos;
     unsigned short range;
     unsigned short num;
@@ -62,7 +58,6 @@ struct ActionPoint *action_point_get(ActionPointId apt_idx);
 struct ActionPoint *action_point_get_by_number(long apt_num);
 TbBool action_point_exists(const struct ActionPoint *apt);
 TbBool action_point_exists_idx(ActionPointId apt_idx);
-TbBool action_point_exists_number(long apt_num);
 ActionPointId action_point_number_to_index(long apt_num);
 TbBool action_point_is_invalid(const struct ActionPoint *apt);
 

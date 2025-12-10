@@ -396,7 +396,7 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
             else if (slabmap_owner(slb) == plyr_idx)
             {
                 int slab_type_from_room_kind = room_corresponding_slab(rkind);
-                
+
                 if (slab_type_from_room_kind == slb->kind)
                 {
                     result = 2; // same room type
@@ -405,7 +405,7 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
                 {
                     result = 3; // different room type
                 }
-                
+
             }
         }
     }
@@ -479,7 +479,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
             if ((slabmap_owner(round_slb) == slabmap_owner(slb)) && (round_slb->kind == slb->kind))
             {
                 eff_score += 2;
-            } else if((slabmap_owner(round_slb) == slabmap_owner(slb)) || ((synergy_slab_num >= 0) && !(get_slab_kind_stats(synergy_slab_num)->is_ownable) && (round_slb->kind == synergy_slab_num)))
+            } else if (((slabmap_owner(round_slb) == slabmap_owner(slb)) || !(get_slab_kind_stats(synergy_slab_num)->is_ownable)) && ((round_slb->kind == synergy_slab_num) && (synergy_slab_num >= 0)))
             {
                 eff_score += 2;
             } else
@@ -673,7 +673,7 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
             if ((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->block_flags & SlbAtFlg_IsRoom) || (slabst->block_flags & SlbAtFlg_IsDoor))
             {
                 num_owned++;
-            }    
+            }
         }
     }
     if (IncludeDiagonals)
@@ -689,8 +689,8 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
                 if ((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->block_flags & SlbAtFlg_IsRoom) || (slabst->block_flags & SlbAtFlg_IsDoor))
                 {
                     num_owned++;
-                }    
-            } 
+                }
+            }
         }
     }
     return num_owned;
@@ -704,7 +704,7 @@ void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb
         MapSlabCoord y = base_slb_y + small_around[n].delta_y;
         struct SlabMap *slb = get_slabmap_block(x, y);
         struct SlabConfigStats* slabst = get_slab_stats(slb);
-        if ( ( (((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->block_flags & SlbAtFlg_IsRoom) || ((slabst->block_flags & SlbAtFlg_IsDoor)) )) 
+        if ( ( (((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->block_flags & SlbAtFlg_IsRoom) || ((slabst->block_flags & SlbAtFlg_IsDoor)) ))
       && (slabmap_owner(slb) == keep_plyr_idx) ) || (slabst->category == SlbAtCtg_Unclaimed) )
         {
             for (int k = -1; k < 2; k+=2)
@@ -779,7 +779,7 @@ TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
             MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
             MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
             struct SlabMap* aslb = get_slabmap_block(aslb_x, aslb_y);
-            if (aslb->kind == slbkind) 
+            if (aslb->kind == slbkind)
             {
                 return true;
             }

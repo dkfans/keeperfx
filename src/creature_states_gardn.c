@@ -75,7 +75,7 @@ TbBool hunger_is_creature_hungry(const struct Thing *creatng)
 
 void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room)
 {
-    thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 112+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
     creatng->continue_state = CrSt_CreatureToGarden;
@@ -110,7 +110,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
 
 void person_search_for_food_again(struct Thing *creatng, struct Room *room)
 {
-    long near_food_dist = LONG_MAX;
+    long near_food_dist = INT32_MAX;
     struct Thing* near_food_tng = INVALID_THING;
     unsigned long k = 0;
     unsigned long i = room->slabs_list;
@@ -192,8 +192,8 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         set_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
     } else
     {
-        near_food_tng->food.byte_15 = 255;
-        near_food_tng->food.byte_16 = 127;
+        near_food_tng->food.freshness_state = 255;
+        near_food_tng->food.possession_startup_timer = 127;
     }
     creatng->continue_state = CrSt_CreatureEatingAtGarden;
     cctrl = creature_control_get_from_thing(creatng);

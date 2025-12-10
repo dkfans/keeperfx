@@ -120,11 +120,17 @@ extern char cmd_char;
 extern short api_enabled;
 extern uint16_t api_port;
 extern TbBool exit_on_lua_error;
+extern TbBool FLEE_BUTTON_DEFAULT;
+extern TbBool IMPRISON_BUTTON_DEFAULT;
 /******************************************************************************/
+void load_configuration_for_mod_all(void);
 short load_configuration(void);
 void process_cmdline_overrides(void);
+int parse_draw_fps_config_val(const char *arg, long *fps_draw_main, long *fps_draw_secondary);
 /******************************************************************************/
 TbBool is_feature_on(unsigned long feature);
+void set_skip_heart_zoom_feature(TbBool enable);
+TbBool get_skip_heart_zoom_feature(void);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
 TbBool resize_movies_enabled(void);
@@ -134,7 +140,6 @@ TbBool lock_cursor_in_possession(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
 /******************************************************************************/
-const char *get_current_language_str(void);
 const char *get_language_lwrstr(int lang_id);
 /******************************************************************************/
 

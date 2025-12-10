@@ -84,7 +84,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
     struct Thing* thing = create_object(&pos, tngmodel, plyr_idx, -1);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %ld, %ld",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
+        ERRORLOG("Couldn't create %s at location %d, %d",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
         return INVALID_THING;
     }
     thing->move_angle_xy = move_angle;
@@ -139,7 +139,7 @@ struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation lo
     }
     thing->effect_generator.range = range;
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    
+
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))
     {
@@ -359,7 +359,7 @@ void get_chat_icon_from_value(const char* txt, char* id, char* type)
 }
 
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
-TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num)
+TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *func_name, long ln_num)
 {
     *plr_range_id = get_rid(player_desc, plrname);
     if (*plr_range_id == -1)

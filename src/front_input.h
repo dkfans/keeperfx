@@ -56,7 +56,7 @@ enum GameKeys {
     Gkey_ZoomRoomGuardPost,
     Gkey_ZoomRoomBridge,
     Gkey_ZoomRoomPortal, // 25
-    Gkey_ZoomToFight, 
+    Gkey_ZoomToFight,
     Gkey_ZoomCrAnnoyed,
     Gkey_CrtrContrlMod,
     Gkey_CrtrQueryMod,
@@ -74,7 +74,7 @@ enum GameKeys {
     Gkey_TiltDown,
     Gkey_TiltReset,
     Gkey_Ascend,
-    Gkey_Descend
+    Gkey_Descend,
 };
 
 enum TbButtonFrontendFlags {
@@ -104,11 +104,13 @@ struct GuiButton;
 /******************************************************************************/
 extern long old_mx;
 extern long old_my;
+extern int synthetic_left;
+extern int synthetic_right;
 /******************************************************************************/
 void input(void);
 short get_inputs(void);
 short get_screen_capture_inputs(void);
-int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods);
+int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);
 short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];

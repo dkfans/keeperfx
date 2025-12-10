@@ -96,7 +96,7 @@ struct EffectElementConfigStats {
     TbBool movable;
     unsigned char through_walls;
     unsigned char size_change; /**< See enum ThingSizeChange. */
-    unsigned char fall_acceleration;
+    char fall_acceleration;
     short inertia_floor;
     short inertia_air;
     unsigned short subeffect_model;
@@ -123,7 +123,7 @@ struct EffectElementConfigStats {
 
 struct EffectsConfig {
     struct EffectConfigStats effect_cfgstats[EFFECTS_TYPES_MAX];
-    long effectgen_cfgstats_count;
+    int32_t effectgen_cfgstats_count;
     struct EffectGeneratorConfigStats effectgen_cfgstats[EFFECTSGEN_TYPES_MAX];
     struct EffectElementConfigStats effectelement_cfgstats[EFFECTSELLEMENTS_TYPES_MAX];
 };

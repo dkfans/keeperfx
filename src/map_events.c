@@ -284,35 +284,19 @@ void event_delete_event(long plyr_idx, EventIndex evidx)
     event_delete_event_structure(evidx);
 }
 
-void event_update_on_battle_removal(void)
+void event_update_on_battle_removal(BattleIndex battle_idx)
 {
-    for (long i = 0; i < EVENTS_COUNT; i++)
+    for (EventIndex i = 0; i < EVENTS_COUNT; i++)
     {
         struct Event* event = &game.event[i];
         if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         {
-            // Clear coords - new ones will be set during update_battle_events() call
-            event->mappos_x = 0;
-            event->mappos_y = 0;
+            if (event->target == battle_idx)
+            {
+                event->lifespan_turns = 0;
+            }
         }
     }
-}
-
-/**
- * Returns event button index associated to given event.
- * @param event The event which associated button is to be found.
- * @param dungeon
- * @return Event button index, or -1 if the event doesn't have any button associated.
- */
-int event_get_button_index(const struct Dungeon *dungeon, EventIndex evidx)
-{
-    for (int i = 0; i <= EVENT_BUTTONS_COUNT; i++)
-    {
-        if (dungeon->event_button_index[i] == evidx) {
-            return i;
-        }
-    }
-    return -1;
 }
 
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon)
@@ -364,28 +348,6 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
         }
     }
     if (i < 0)
-    {
-        kill_oldest_my_event(dungeon);
-        dungeon->event_button_index[EVENT_BUTTONS_COUNT] = event->index;
-    }
-}
-
-void event_add_to_event_buttons_list(struct Event *event, struct Dungeon *dungeon)
-{
-    if (dungeon->owner != event->owner) {
-      ERRORLOG("Illegal my_event player allocation");
-    }
-    long i;
-    for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
-    {
-        long ev_idx = dungeon->event_button_index[i];
-        if (ev_idx == 0)
-        {
-            dungeon->event_button_index[i] = event->index;
-            break;
-        }
-    }
-    if (i == 0)
     {
         kill_oldest_my_event(dungeon);
         dungeon->event_button_index[EVENT_BUTTONS_COUNT] = event->index;
@@ -719,7 +681,7 @@ ThingIndex get_thing_index_event_is_attached_to(const struct Event *event)
 struct Thing *event_is_attached_to_thing(EventIndex evidx)
 {
     struct Event* event = &game.event[evidx];
-    if ((event->flags & EvF_Exists) == 0) 
+    if ((event->flags & EvF_Exists) == 0)
     {
         return INVALID_THING;
     }

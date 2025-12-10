@@ -49,8 +49,8 @@ struct TbSpriteDrawData {
     TbBool mirror;
 };
 /******************************************************************************/
-long xsteps_array[2*SPRITE_SCALING_XSTEPS];
-long ysteps_array[2*SPRITE_SCALING_YSTEPS];
+int32_t xsteps_array[2*SPRITE_SCALING_XSTEPS];
+int32_t ysteps_array[2*SPRITE_SCALING_YSTEPS];
 
 unsigned char *poly_screen;
 unsigned char *vec_screen;
@@ -461,10 +461,10 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
  *
  * @param sp Sprite data buffer pointer.
  * @param r Output buffer pointer.
- * @param x1 Width to be drawn.
+ * @param remaining_width Width to be drawn.
  * @param left Width of the area to skip.
  */
-static inline short LbSpriteDrawLineSkipLeft(const char **sp, short *x1, short left)
+static inline short LbSpriteDrawLineSkipLeft(const char **sp, short *remaining_width, short left)
 {
     char schr;
     // Cut the left side of the sprite, if needed
@@ -478,7 +478,7 @@ static inline short LbSpriteDrawLineSkipLeft(const char **sp, short *x1, short l
             // Equal to 0 means EOL
             if (schr == 0)
             {
-              (*x1) = 0;
+              (*remaining_width) = 0;
               break;
             }
             if (schr < 0)
@@ -516,12 +516,12 @@ static inline short LbSpriteDrawLineSkipLeft(const char **sp, short *x1, short l
 /** Internal function used to skip to next line after drawing a requested area.
  *
  * @param sp Sprite data buffer pointer.
- * @param x1 Width difference after draw.
+ * @param remaining_width Width difference after draw.
  */
-static inline void LbSpriteDrawLineSkipToEol(const char **sp, short *x1)
+static inline void LbSpriteDrawLineSkipToEol(const char **sp, short *remaining_width)
 {
     char schr;
-    if ((*x1) <= 0)
+    if ((*remaining_width) <= 0)
     {
       do {
         schr = *(*sp);
@@ -702,110 +702,15 @@ static inline void LbDrawBufferOneColorSolid(unsigned char **buf_out,const TbPix
     }
 }
 
-/** Internal function used to draw part of sprite line.
- *
- * @param buf_out
- * @param buf_inp
- * @param buf_len
- * @param mirror
- */
-static inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
-        const int buf_len, const unsigned char *cmap, const TbBool mirror)
-{
-  int i;
-  unsigned int val;
-  if ( mirror )
-  {
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            val = cmap[*(const unsigned char *)buf_inp];
-            **buf_out = lbDisplay.GlassMap[(val<<8) + **buf_out];
-            buf_inp++;
-            (*buf_out)--;
-        }
-    } else
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            val = cmap[*(const unsigned char *)buf_inp];
-            **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + val];
-            buf_inp++;
-            (*buf_out)--;
-        }
-    }
-  } else
-  {
-    if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            val = cmap[*(const unsigned char *)buf_inp];
-            **buf_out = lbDisplay.GlassMap[(val<<8) + **buf_out];
-            buf_inp++;
-            (*buf_out)++;
-        }
-    } else
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            val = cmap[*(const unsigned char *)buf_inp];
-            **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + val];
-            buf_inp++;
-            (*buf_out)++;
-        }
-    }
-  }
-}
-
-/** Internal function used to draw part of sprite line.
- *
- * @param buf_out
- * @param buf_inp
- * @param buf_len
- * @param mirror
- */
-static inline void LbDrawBufferSlRemap(unsigned char **buf_out,const char *buf_inp,
-        const int buf_len, const unsigned char *cmap, const TbBool mirror)
-{
-    int i;
-    for (i=0; i < buf_len; i++)
-    {
-        **buf_out = cmap[*(const unsigned char *)buf_inp];
-        buf_inp++;
-        (*buf_out)--;
-    }
-}
-
-/** Internal function used to draw part of sprite line.
- *
- * @param buf_out
- * @param buf_inp
- * @param buf_len
- * @param mirror
- */
-static inline void LbDrawBufferFCRemap(unsigned char **buf_out,const char *buf_inp,
-        const int buf_len, const unsigned char *cmap)
-{
-    int i;
-    for (i=0; i < buf_len; i++)
-    {
-        **buf_out = cmap[*(const unsigned char *)buf_inp];
-        buf_inp++;
-        (*buf_out)++;
-    }
-}
-
 /** Internal routine to draw one line of a transparent sprite.
  *
  * @param sp
  * @param r
- * @param x1
+ * @param remaining_width
  * @param lpos
  * @param mirror
  */
-static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, short *x1,
+static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, short *remaining_width,
     short lpos, const TbBool mirror)
 {
     char schr;
@@ -817,8 +722,8 @@ static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, s
         if (schr < 0)
         {
             drawOut = -schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             if ( mirror )
                 (*r) -= drawOut;
             else
@@ -829,16 +734,16 @@ static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, s
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             LbDrawBufferTranspr(r,(*sp)+(lpos+1),drawOut,mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
-        (*x1) -= drawOut;
+        (*remaining_width) -= drawOut;
     }
     // Draw the visible part of a sprite
-    while ((*x1) > 0)
+    while ((*remaining_width) > 0)
     {
         schr = *(*sp);
         if (schr == 0)
@@ -847,7 +752,7 @@ static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, s
         }
         if (schr < 0)
         { // Skipping some pixels
-            (*x1) += schr;
+            (*remaining_width) += schr;
             if ( mirror )
                (*r) += *(*sp);
             else
@@ -857,10 +762,10 @@ static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, s
         //if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
-            if (drawOut >= (*x1))
-                drawOut = (*x1);
+            if (drawOut >= (*remaining_width))
+                drawOut = (*remaining_width);
             LbDrawBufferTranspr(r,(*sp)+1,drawOut,mirror);
-            (*x1) -= schr;
+            (*remaining_width) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
     } //end while
@@ -899,11 +804,11 @@ static inline TbResult LbSpriteDrawTranspr(const char *sp,short sprWd,short sprH
  *
  * @param sp
  * @param r
- * @param x1
+ * @param remaining_width
  * @param lpos
  * @param mirror
  */
-static inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, short *x1, short lpos, const TbBool mirror)
+static inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, short *remaining_width, short lpos, const TbBool mirror)
 {
     char schr;
     unsigned char drawOut;
@@ -914,24 +819,24 @@ static inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, sho
         if (schr < 0)
         {
             drawOut = -schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             (*r) -= drawOut;
             (*sp)++;
         } else
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             LbDrawBufferSolid(r,(*sp)+(lpos+1),drawOut,mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
-        (*x1) -= drawOut;
+        (*remaining_width) -= drawOut;
     }
     // Draw the visible part of a sprite
-    while ((*x1) > 0)
+    while ((*remaining_width) > 0)
     {
         schr = *(*sp);
         if (schr == 0)
@@ -940,17 +845,17 @@ static inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, sho
         }
         if (schr < 0)
         { // Skipping some pixels
-            (*x1) += schr;
+            (*remaining_width) += schr;
             (*r) += *(*sp);
             (*sp)++;
         } else
         //if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
-            if (drawOut >= (*x1))
-                drawOut = (*x1);
+            if (drawOut >= (*remaining_width))
+                drawOut = (*remaining_width);
             LbDrawBufferSolid(r,(*sp)+1,drawOut,mirror);
-            (*x1) -= schr;
+            (*remaining_width) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
     } //end while
@@ -995,7 +900,7 @@ static inline TbResult LbSpriteDrawSolid(const char *sp,short sprWd,short sprHt,
     return Lb_SUCCESS;
 }
 
-static inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, short *x1, short lpos)
+static inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, short *remaining_width, short lpos)
 {
     char schr;
     unsigned char drawOut;
@@ -1006,23 +911,23 @@ static inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, s
         if (schr < 0)
         {
             drawOut = -schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             (*r) += drawOut;
             (*sp)++;
         } else
         {
             drawOut = schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             LbDrawBufferSolid(r, (*sp)+(lpos+1), drawOut, false);
             (*r) += drawOut;
             (*sp) += (*(*sp)) + 1;
         }
-        (*x1) -= drawOut;
+        (*remaining_width) -= drawOut;
     }
     // Draw the visible part of a sprite
-    while ((*x1) > 0)
+    while ((*remaining_width) > 0)
     {
         schr = *(*sp);
         if (schr == 0)
@@ -1031,17 +936,17 @@ static inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, s
         }
         if (schr < 0)
         { // Skipping some pixels
-            (*x1) += schr;
+            (*remaining_width) += schr;
             (*r) -= *(*sp);
             (*sp)++;
         } else
         //if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
-            if (drawOut >= (*x1))
-                drawOut = (*x1);
+            if (drawOut >= (*remaining_width))
+                drawOut = (*remaining_width);
             memcpy((*r), (*sp)+1, drawOut);
-            (*x1) -= schr;
+            (*remaining_width) -= schr;
             (*r) += schr;
             (*sp) += (*(*sp)) + 1;
         }
@@ -1104,313 +1009,15 @@ TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr)
         return LbSpriteDrawFastCpy(spd.sp,spd.Wd,spd.Ht,spd.r,spd.nextRowDelta,spd.startShift,spd.mirror);
 }
 
-/** Internal routine to draw one line of a remapped transparent sprite.
- *
- * @param sp
- * @param r
- * @param x1
- * @param lpos
- * @param mirror
- */
-static inline void LbSpriteDrawLineTrRemap(const char **sp, unsigned char **r, short *x1,
-    const unsigned char *cmap, short lpos,const TbBool mirror)
-{
-    char schr;
-    unsigned char drawOut;
-    // Draw any unfinished block, which should be only partially visible
-    if (lpos > 0)
-    {
-        schr = *(*sp);
-        if (schr < 0)
-        {
-            drawOut = -schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
-            if ( mirror )
-                (*r) -= drawOut;
-            else
-                (*r) += drawOut;
-            (*sp)++;
-
-        } else
-        {
-            // Draw the part of current block which exceeds value of 'lpos'
-            drawOut = schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferTrRemap(r,(*sp)+(lpos+1),drawOut,cmap,mirror);
-            // Update positions and break the skipping loop
-            (*sp) += (*(*sp)) + 1;
-        }
-        (*x1) -= drawOut;
-    }
-    // Draw the visible part of a sprite
-    while ((*x1) > 0)
-    {
-        schr = *(*sp);
-        if (schr == 0)
-        { // EOL, breaking line loop
-            break;
-        }
-        if (schr < 0)
-        { // Skipping some pixels
-            (*x1) += schr;
-            if ( mirror )
-               (*r) += *(*sp);
-            else
-               (*r) -= *(*sp);
-            (*sp)++;
-        } else
-        //if ( schr > 0 )
-        { // Drawing some pixels
-            drawOut = schr;
-            if (drawOut >= (*x1))
-                drawOut = (*x1);
-            LbDrawBufferTrRemap(r,(*sp)+1,drawOut,cmap,mirror);
-            (*x1) -= schr;
-            (*sp) += (*(*sp)) + 1;
-        }
-    } //end while
-}
-
-static inline TbResult LbSpriteDrawTrRemap(const char *sp,short sprWd,short sprHt,
-        unsigned char *r,const unsigned char *cmap,int nextRowDelta,short left,const TbBool mirror)
-{
-    unsigned char *nextRow;
-    long htIndex;
-    nextRow = &(r[nextRowDelta]);
-    htIndex = sprHt;
-    // For all lines of the sprite
-    while (1)
-    {
-        short x1;
-        short lpos;
-        x1 = sprWd;
-        // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
-        // Do the actual drawing
-        LbSpriteDrawLineTrRemap(&sp,&r,&x1,cmap,lpos,mirror);
-        // Go to next line
-        htIndex--;
-        if (htIndex == 0)
-            return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
-        r = nextRow;
-        nextRow += nextRowDelta;
-    } //end while
-    return Lb_SUCCESS;
-}
-
-static inline void LbSpriteDrawLineSlRemap(const char **sp, unsigned char **r, short *x1,
-    const unsigned char *cmap, short lpos,const TbBool mirror)
-{
-    char schr;
-    unsigned char drawOut;
-    // Draw any unfinished block, which should be only partially visible
-    if (lpos > 0)
-    {
-        schr = *(*sp);
-        if (schr < 0)
-        {
-            drawOut = -schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
-            (*r) -= drawOut;
-            (*sp)++;
-        } else
-        {
-            // Draw the part of current block which exceeds value of 'lpos'
-            drawOut = schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferSlRemap(r,(*sp)+(lpos+1),drawOut,cmap,mirror);
-            // Update positions and break the skipping loop
-            (*sp) += (*(*sp)) + 1;
-        }
-        (*x1) -= drawOut;
-    }
-    // Draw the visible part of a sprite
-    while ((*x1) > 0)
-    {
-        schr = *(*sp);
-        if (schr == 0)
-        { // EOL, breaking line loop
-            break;
-        }
-        if (schr < 0)
-        { // Skipping some pixels
-            (*x1) += schr;
-            (*r) += *(*sp);
-            (*sp)++;
-        } else
-        //if ( schr > 0 )
-        { // Drawing some pixels
-            drawOut = schr;
-            if (drawOut >= (*x1))
-                drawOut = (*x1);
-            LbDrawBufferSlRemap(r,(*sp)+1,drawOut,cmap,mirror);
-            (*x1) -= schr;
-            (*sp) += (*(*sp)) + 1;
-        }
-    } //end while
-}
-
-static inline TbResult LbSpriteDrawSlRemap(const char *sp,short sprWd,short sprHt,
-        unsigned char *r,const unsigned char *cmap,int nextRowDelta,short left,const TbBool mirror)
-{
-    unsigned char *nextRow;
-    long htIndex;
-    nextRow = &(r[nextRowDelta]);
-    htIndex = sprHt;
-    // For all lines of the sprite
-    while (1)
-    {
-        short x1;
-        short lpos;
-        x1 = sprWd;
-        // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
-        // Do the actual drawing
-        LbSpriteDrawLineSlRemap(&sp,&r,&x1,cmap,lpos,mirror);
-        // Go to next line
-        htIndex--;
-        if (htIndex == 0)
-            return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
-        r = nextRow;
-        nextRow += nextRowDelta;
-    } //end while
-    return Lb_SUCCESS;
-}
-
-static inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, short *x1,
-    const unsigned char *cmap, short lpos,const TbBool mirror)
-{
-    char schr;
-    unsigned char drawOut;
-    // Draw any unfinished block, which should be only partially visible
-    if (lpos > 0)
-    {
-        schr = *(*sp);
-        if (schr < 0)
-        {
-            drawOut = -schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
-            if ( mirror )
-                (*r) -= drawOut;
-            else
-                (*r) += drawOut;
-            (*sp)++;
-
-        } else
-        {
-            // Draw the part of current block which exceeds value of 'lpos'
-            drawOut = schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferFCRemap(r,(*sp)+(lpos+1),drawOut,cmap);
-            // Update positions and break the skipping loop
-            (*sp) += (*(*sp)) + 1;
-        }
-        (*x1) -= drawOut;
-    }
-    // Draw the visible part of a sprite
-    while ((*x1) > 0)
-    {
-        schr = *(*sp);
-        if (schr == 0)
-        { // EOL, breaking line loop
-            break;
-        }
-        if (schr < 0)
-        { // Skipping some pixels
-            (*x1) += schr;
-            if ( mirror )
-               (*r) += *(*sp);
-            else
-               (*r) -= *(*sp);
-            (*sp)++;
-        } else
-        //if ( schr > 0 )
-        { // Drawing some pixels
-            drawOut = schr;
-            if (drawOut >= (*x1))
-                drawOut = (*x1);
-            LbDrawBufferFCRemap(r,(*sp)+1,drawOut,cmap);
-            (*x1) -= schr;
-            (*sp) += (*(*sp)) + 1;
-        }
-    } //end while
-}
-
-/** Fast copy sprite drawing routine with colour remap. Does not support transparency nor mirroring.
- *
- * @param sp
- * @param sprWd
- * @param sprHt
- * @param r
- * @param nextRowDelta
- * @param left
- * @param mirror
- * @return
- */
-static inline TbResult LbSpriteDrawFCRemap(const char *sp,short sprWd,short sprHt,unsigned char *r,
-    const unsigned char *cmap,int nextRowDelta,short left,const TbBool mirror)
-{
-    unsigned char *nextRow;
-    long htIndex;
-    nextRow = &(r[nextRowDelta]);
-    htIndex = sprHt;
-    // For all lines of the sprite
-    while (1)
-    {
-        short x1;
-        short lpos;
-        x1 = sprWd;
-        // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
-        // Do the actual drawing
-        LbSpriteDrawLineFCRemap(&sp,&r,&x1,cmap,lpos,mirror);
-        // Go to next line
-        htIndex--;
-        if (htIndex == 0)
-            return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
-        r = nextRow;
-        nextRow += nextRowDelta;
-    } //end while
-    return Lb_SUCCESS;
-}
-
-int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,const unsigned char *cmap)
-{
-    struct TbSpriteDrawData spd;
-    TbResult ret;
-    SYNCDBG(19,"At (%ld,%ld)",x,y);
-    ret = LbSpriteDrawPrepare(&spd, x, y, spr);
-    if (ret != Lb_SUCCESS)
-        return ret;
-    if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4|Lb_SPRITE_TRANSPAR8)) != 0) {
-        return LbSpriteDrawTrRemap(spd.sp,spd.Wd,spd.Ht,spd.r,cmap,spd.nextRowDelta,spd.startShift,spd.mirror);
-    } else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0) {
-        return LbSpriteDrawSlRemap(spd.sp,spd.Wd,spd.Ht,spd.r,cmap,spd.nextRowDelta,spd.startShift,spd.mirror);
-    } else
-    {
-        return LbSpriteDrawFCRemap(spd.sp,spd.Wd,spd.Ht,spd.r,cmap,spd.nextRowDelta,spd.startShift,spd.mirror);
-    }
-}
-
 /** Internal routine to draw one line of a transparent sprite.
  *
  * @param sp
  * @param r
- * @param x1
+ * @param remaining_width
  * @param lpos
  * @param mirror
  */
-static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **r, short *x1,
+static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **r, short *remaining_width,
     TbPixel colour, short lpos,const TbBool mirror)
 {
     char schr;
@@ -1422,8 +1029,8 @@ static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **
         if (schr < 0)
         {
             drawOut = -schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             if ( mirror )
                 (*r) -= drawOut;
             else
@@ -1434,16 +1041,16 @@ static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             LbDrawBufferOneColour(r,colour,drawOut,mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
-        (*x1) -= drawOut;
+        (*remaining_width) -= drawOut;
     }
     // Draw the visible part of a sprite
-    while ((*x1) > 0)
+    while ((*remaining_width) > 0)
     {
         schr = *(*sp);
         if (schr == 0)
@@ -1452,7 +1059,7 @@ static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **
         }
         if (schr < 0)
         { // Skipping some pixels
-            (*x1) += schr;
+            (*remaining_width) += schr;
             if ( mirror )
                (*r) += *(*sp);
             else
@@ -1462,10 +1069,10 @@ static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **
         //if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
-            if (drawOut >= (*x1))
-                drawOut = (*x1);
+            if (drawOut >= (*remaining_width))
+                drawOut = (*remaining_width);
             LbDrawBufferOneColour(r,colour,drawOut,mirror);
-            (*x1) -= schr;
+            (*remaining_width) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
     } //end while
@@ -1499,7 +1106,7 @@ static inline TbResult LbSpriteDrawTrOneColour(const char *sp,short sprWd,short 
     return Lb_SUCCESS;
 }
 
-static inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **r, short *x1,
+static inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **r, short *remaining_width,
     TbPixel colour, short lpos,const TbBool mirror)
 {
     char schr;
@@ -1511,24 +1118,24 @@ static inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **
         if (schr < 0)
         {
             drawOut = -schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             (*r) -= drawOut;
             (*sp)++;
         } else
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             LbDrawBufferOneColorSolid(r,colour,drawOut,mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
-        (*x1) -= drawOut;
+        (*remaining_width) -= drawOut;
     }
     // Draw the visible part of a sprite
-    while ((*x1) > 0)
+    while ((*remaining_width) > 0)
     {
         schr = *(*sp);
         if (schr == 0)
@@ -1537,17 +1144,17 @@ static inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **
         }
         if (schr < 0)
         { // Skipping some pixels
-            (*x1) += schr;
+            (*remaining_width) += schr;
             (*r) += *(*sp);
             (*sp)++;
         } else
         //if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
-            if (drawOut >= (*x1))
-                drawOut = (*x1);
+            if (drawOut >= (*remaining_width))
+                drawOut = (*remaining_width);
             LbDrawBufferOneColorSolid(r,colour,drawOut,mirror);
-            (*x1) -= schr;
+            (*remaining_width) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
     } //end while
@@ -1581,7 +1188,7 @@ static inline TbResult LbSpriteDrawSlOneColour(const char *sp,short sprWd,short 
     return Lb_SUCCESS;
 }
 
-static inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **r, short *x1, TbPixel colour, short lpos)
+static inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **r, short *remaining_width, TbPixel colour, short lpos)
 {
     char schr;
     unsigned char drawOut;
@@ -1592,23 +1199,23 @@ static inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **
         if (schr < 0)
         {
             drawOut = -schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             (*r) += drawOut;
             (*sp)++;
         } else
         {
             drawOut = schr - lpos;
-            if (drawOut > (*x1))
-              drawOut = (*x1);
+            if (drawOut > (*remaining_width))
+              drawOut = (*remaining_width);
             LbDrawBufferOneColorSolid(r, colour, drawOut, false);
             (*r) += drawOut;
             (*sp) += (*(*sp)) + 1;
         }
-        (*x1) -= drawOut;
+        (*remaining_width) -= drawOut;
     }
     // Draw the visible part of a sprite
-    while ((*x1) > 0)
+    while ((*remaining_width) > 0)
     {
         schr = *(*sp);
         if (schr == 0)
@@ -1617,17 +1224,17 @@ static inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **
         }
         if (schr < 0)
         { // Skipping some pixels
-            (*x1) += schr;
+            (*remaining_width) += schr;
             (*r) -= *(*sp);
             (*sp)++;
         } else
         //if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
-            if (drawOut >= (*x1))
-                drawOut = (*x1);
+            if (drawOut >= (*remaining_width))
+                drawOut = (*remaining_width);
             memset((*r), colour, drawOut);
-            (*x1) -= schr;
+            (*remaining_width) -= schr;
             (*r) += schr;
             (*sp) += (*(*sp)) + 1;
         }
@@ -1702,10 +1309,10 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
         long l;
         for ( l = len>>2; l > 0; l--)
         {
-            pxquad = *(unsigned long *)src;
-            src += sizeof(unsigned long);
-            *(unsigned long *)dst = pxquad;
-            dst += sizeof(unsigned long);
+            pxquad = *(uint32_t *)src;
+            src += sizeof(uint32_t);
+            *(uint32_t *)dst = pxquad;
+            dst += sizeof(uint32_t);
         }
         if (len & 3)
         {
@@ -1729,9 +1336,9 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
  * @param dwidth Width which the sprite should have on destination buffer.
  * @param gwidth Graphics buffer visible window line width.
  */
-void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth, long dwidth, long gwidth)
+void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swidth, long dwidth, long gwidth)
 {
-    long *pwidth;
+    int32_t *pwidth;
     long pxpos;
     pwidth = xsteps_arr;
     long factor = (dwidth<<16)/swidth;
@@ -1771,9 +1378,9 @@ void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth,
     } while (w > 0);
 }
 
-void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, long dwidth)
+void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, long x, long swidth, long dwidth)
 {
-    long *pwidth;
+    int32_t *pwidth;
     long cwidth;
     pwidth = xsteps_arr;
     long factor = (dwidth<<16)/swidth;
@@ -1796,10 +1403,10 @@ void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, 
     } while (w > 0);
 }
 
-void LbSpriteClearScalingWidthArray(long * xsteps_arr, long swidth)
+void LbSpriteClearScalingWidthArray(int32_t * xsteps_arr, int32_t swidth)
 {
     int i;
-    long *pwidth;
+    int32_t *pwidth;
     pwidth = xsteps_arr;
     for (i=0; i < swidth; i++)
     {
@@ -1818,9 +1425,9 @@ void LbSpriteClearScalingWidthArray(long * xsteps_arr, long swidth)
  * @param dheight Height which the sprite should have on destination buffer.
  * @param gheight Graphics buffer visible window lines count.
  */
-void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheight, long dheight, long gheight)
+void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long sheight, long dheight, long gheight)
 {
-    long *pheight;
+    int32_t *pheight;
     long lnpos;
     pheight = ysteps_arr;
     long factor = (dheight<<16)/sheight;
@@ -1864,9 +1471,9 @@ void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheigh
     } while (h > 0);
 }
 
-void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight, long dheight)
+void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, long y, long sheight, long dheight)
 {
-    long *pheight;
+    int32_t *pheight;
     long cheight;
     pheight = ysteps_arr;
     long factor = (dheight<<16)/sheight;
@@ -1889,10 +1496,10 @@ void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight
     } while (h > 0);
 }
 
-void LbSpriteClearScalingHeightArray(long * ysteps_arr, long sheight)
+void LbSpriteClearScalingHeightArray(int32_t * ysteps_arr, long sheight)
 {
     int i;
-    long *pheight;
+    int32_t *pheight;
     pheight = ysteps_arr;
     for (i=0; i < sheight; i++)
     {
@@ -2021,12 +1628,12 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
  * @return Gives 0 on success.
  */
 TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int outheight,
-    long *xstep, long *ystep, const struct TbHugeSprite *sprite)
+    int32_t *xstep, int32_t *ystep, const struct TbHugeSprite *sprite)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
     const unsigned char *sprdata;
-    long *ycurstep;
+    int32_t *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
@@ -2034,8 +1641,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
     }
     ycurstep = ystep;
 
-    int h;
-    for (h=0; h < sprite->SHeight; h++)
+    for (uint32_t h = 0; h < sprite->SHeight; h++)
     {
         if (ycurstep[1] != 0)
         {
@@ -2044,7 +1650,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
             TbPixel * out_line;
             int xdup;
             int ydup;
-            long *xcurstep;
+            int32_t *xcurstep;
             ydup = ycurstep[1];
             if (ycurstep[0]+ydup > outheight)
                 ydup = outheight-ycurstep[0];
@@ -2055,7 +1661,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
             while (out_end - outbuf < scanline)
             {
                 int pxlen;
-                pxlen = *(unsigned long *)sprdata;
+                pxlen = *(uint32_t *)sprdata;
                 sprdata += 4;
                 TbPixel *out_start;
                 out_start = out_end;
@@ -2091,12 +1697,12 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
                     }
                 }
                 // Transparent bytes count
-                pxlen = *(unsigned long *)sprdata;
+                pxlen = *(uint32_t *)sprdata;
                 sprdata += 4;
                 out_end -= xcurstep[0];
                 xcurstep += 2 * pxlen;
                 // In case we've exceeded sprite width, don't try to access xcurstep[] any more
-                if ((xcurstep - xstep)/2 >= sprite->SWidth)
+                if ((unsigned long) ((xcurstep - xstep) / 2) >= sprite->SWidth)
                     break;
                 out_end += xcurstep[0];
             }
@@ -2456,7 +2062,7 @@ void LbDrawCircle(long x, long y, long radius, TbPixel colour)
         LbDrawCircleFilled(x, y, radius, colour);
 }
 
-void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, long **xstep, long **ystep, int *scanline)
+void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, int32_t **xstep, int32_t **ystep, int *scanline)
 {
     long sposx;
     long sposy;
@@ -2474,7 +2080,7 @@ void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, lo
     (*ystep) = &ysteps_array[2 * sposy];
 }
 
-void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, int *outheight)
+void setup_outbuf(const int32_t *xstep, const int32_t *ystep, uchar **outbuf, int *outheight)
 {
     int gspos_x;
     int gspos_y;

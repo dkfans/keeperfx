@@ -147,7 +147,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     // Heroes should flee to their gate
     if (is_hero_thing(creatng))
     {
-        struct Thing* gatetng = find_hero_door_hero_can_navigate_to(creatng);
+        struct Thing* gatetng = find_best_hero_gate_to_navigate_to(creatng);
         if ( !thing_is_invalid(gatetng) )
         {
             pos->x.val = gatetng->mappos.x.val;
@@ -283,7 +283,7 @@ void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttac
         ERRORLOG("Failed to enter combat state for %s index %d",thing_model_name(fightng),(int)fightng->index);
         return;
     }
-    cctrl->field_AA = 0;
+    cctrl->fighting_at_same_position = 0;
     cctrl->fight_til_death = 0;
     if ( !set_creature_combat_state(fightng, enmtng, attack_type) ) {
         WARNLOG("Couldn't setup combat state for %s index %d and %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);

@@ -148,7 +148,7 @@ long get_parchment_map_area_rect(struct TbRect *map_area)
     return block_size;
 }
 
-TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, const long screen_y, long *map_x, long *map_y)
+TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, const long screen_y, int32_t *map_x, int32_t *map_y)
 {
     // Sizes of the parchment map on which we are
     struct TbRect map_area;
@@ -265,7 +265,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
       } else
       if (slb->kind == SlbT_ROCK_FLOOR)
       {
-          pixval = 0; //todo make it distinct from rock, preferably by showing a pattern like on walls
+          pixval = pixmap.ghost[3];
       }
       else
       if ((mapblk->flags & SlbAtFlg_Filled) != 0)
@@ -585,6 +585,16 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
                       LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colours[15][0][15]);
                   }
               }
+              else if ( thing_is_workshop_crate(thing) )
+              {
+                  long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB  + ((block_size + 1)/5);
+                  long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB + ((block_size + 1)/5);
+                  short pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
+                  for (int p = 0; p < pixel_end; p++)
+                  {
+                      LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colours[7][6][7]);
+                  }
+              }
             }
         }
         // Per-thing code ends
@@ -706,7 +716,8 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             }
             case TCls_Trap:
             {
-                if ((!thing->trap.revealed) && (player->id_number != thing->owner))
+                struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
+                if ((!thing->trap.revealed) && (player->id_number != thing->owner) && (trapst->hidden != 0))
                     break;
                 struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
                 spridx = manufctr->medsym_sprite_idx;

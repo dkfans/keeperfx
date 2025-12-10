@@ -39,6 +39,8 @@ extern "C" {
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
+
+#define SLEEP_XP_COUNT 3
 /******************************************************************************/
 enum CreatureModelFlags {
     CMF_IsSpecDigger      = 0x000001, // is a dedicated digger that doesn't do things normal units do (like imp)
@@ -172,7 +174,7 @@ enum CreatureAttackType {
 
 enum CreatureSpawnType {
     SpwnT_None = 0,
-    SpwnT_Default, 
+    SpwnT_Default,
     SpwnT_Jump,
     SpwnT_Fall,
     SpwnT_Initialize
@@ -270,8 +272,8 @@ struct CreatureModelConfig {
     unsigned short annoy_level;
     unsigned char lair_size;
     unsigned char hurt_by_lava;
-    unsigned char sleep_exp_slab;
-    short sleep_experience;
+    unsigned char sleep_exp_slab[SLEEP_XP_COUNT];
+    short sleep_experience[SLEEP_XP_COUNT];
     short exp_for_hitting;
     short gold_hold;
     short training_cost;
@@ -368,7 +370,7 @@ struct CreatureModelConfig {
     ThingModel torture_kind;
     ThingModel hostile_towards[CREATURE_TYPES_MAX];
     unsigned long immunity_flags;
-    struct CreaturePickedUpOffset creature_picked_up_offset;
+    struct PickedUpOffset creature_picked_up_offset;
 };
 
 /**
@@ -394,7 +396,7 @@ struct CreatureExperience {
 struct CreatureConfig {
     long model_count;
     struct CreatureModelConfig model[CREATURE_TYPES_MAX];
-    long states_count;
+    int32_t states_count;
     struct CreatureStateConfig states[CREATURE_STATES_MAX];
     long instances_count;
     struct CreatureInstanceConfig instances[INSTANCE_TYPES_MAX];
@@ -477,8 +479,6 @@ CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify
 CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qualify_flags, unsigned long prevent_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
 struct Thing* thing_death_flesh_explosion(struct Thing* thing);
-/******************************************************************************/
-const char *attack_type_job_code_name(CrAttackType attack_type);
 /******************************************************************************/
 #ifdef __cplusplus
 }

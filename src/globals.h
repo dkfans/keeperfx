@@ -97,6 +97,8 @@ extern "C" {
 //    these are defined in errno.h
 #define ERR_BASE_RNC      -90
 
+unsigned long long LbSystemClockMilliseconds(void);
+
 // Debug fuction-like macros - for free messages
 #define ERRORMSG(format, ...) LbErrorLog(format "\n", ##__VA_ARGS__)
 #define WARNMSG(format, ...) LbWarnLog(format "\n", ##__VA_ARGS__)
@@ -111,6 +113,8 @@ extern "C" {
 #define WARNLOG(format, ...) LbWarnLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define SYNCLOG(format, ...) LbSyncLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define JUSTLOG(format, ...) LbJustLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+extern TbBool detailed_multiplayer_logging;
+#define MULTIPLAYER_LOG(format, ...) do { if (detailed_multiplayer_logging && game.game_kind == GKind_MultiGame) { LbJustLog("[%lu][%llu ms] %s: " format "\n", get_gameturn(), LbSystemClockMilliseconds(), __func__ , ##__VA_ARGS__); } } while(0)
 #define SCRPTLOG(format, ...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
 #define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
@@ -153,6 +157,41 @@ extern "C" {
 #define MAX_TILES_Y 170
 #define MAX_SUBTILES_X 511
 #define MAX_SUBTILES_Y 511
+
+enum AnglesAndDegrees {
+    // Cardinal directions (clockwise from North)
+    ANGLE_NORTH = 0,        // 0° - North direction (up)
+    ANGLE_NORTHEAST = 256,  // 45° - Northeast direction (up-right)
+    ANGLE_EAST = 512,       // 90° - East direction (right)
+    ANGLE_SOUTHEAST = 768,  // 135° - Southeast direction (down-right)
+    ANGLE_SOUTH = 1024,     // 180° - South direction (down)
+    ANGLE_SOUTHWEST = 1280, // 225° - Southwest direction (down-left)
+    ANGLE_WEST = 1536,      // 270° - West direction (left)
+    ANGLE_NORTHWEST = 1792, // 315° - Northwest direction (up-left)
+    ANGLE_MASK = 2047,      // Bitmask for angle/degrees values (0x7FF)
+    // Degrees
+    DEGREES_2_8125 = 16,    // 2.8125° - DEGREES_180 / 64
+    DEGREES_8_18 = 46,      // 8.18° - DEGREES_180 / 22
+    DEGREES_10 = 56,        // 10° - DEGREES_180 / 18
+    DEGREES_11_25 = 64,     // 11.25° - DEGREES_180 / 16
+    DEGREES_15 = 85,        // 15° - DEGREES_180 / 12
+    DEGREES_20 = 113,       // 20° - DEGREES_180 / 9
+    DEGREES_22_5 = 128,     // 22.5° - DEGREES_180 / 8
+    DEGREES_30 = 170,       // 30° - DEGREES_180 / 6
+    DEGREES_45 = 256,       // 45° - DEGREES_180 / 4
+    DEGREES_50 = 284,       // 50°
+    DEGREES_60 = 341,       // 60° - DEGREES_180 / 3
+    DEGREES_90 = 512,       // 90° - DEGREES_180 / 2
+    DEGREES_120 = 682,      // 120° - 2 * DEGREES_180 / 3
+    DEGREES_135 = 768,      // 135°
+    DEGREES_180 = 1024,     // 180° - Half a circle
+    DEGREES_202_5 = 1151,   // 202.5° - Sprite flip threshold
+    DEGREES_225 = 1280,     // 225°
+    DEGREES_270 = 1536,     // 270°
+    DEGREES_315 = 1792,     // 315°
+    DEGREES_337_5 = 1919,   // 337.5° - Sprite flip threshold
+    DEGREES_360 = 2048,     // 360° - Full circle
+};
 
 #pragma pack(1)
 
@@ -197,8 +236,8 @@ typedef unsigned char EventKind;
 /** Type which stores dungeon special kind. */
 typedef unsigned short SpecialKind;
 /** Type which stores index of the new event, or negative index of updated event, in map events array. */
-typedef short EventIndex;
-typedef short BattleIndex;
+typedef unsigned char EventIndex;
+typedef unsigned char BattleIndex;
 typedef long HitPoints;
 /** Type which stores TUFRet_* values. */
 typedef short TngUpdateRet;
@@ -227,7 +266,7 @@ typedef long MapCoord;
 /** Distance between map coordinates in full resolution. */
 typedef long MapCoordDelta;
 /** Map subtile coordinate. Every slab consists of 3x3 subtiles. */
-typedef long MapSubtlCoord;
+typedef int32_t MapSubtlCoord;
 /** Distance between map subtiles. */
 typedef long MapSubtlDelta;
 /** Map slab coordinate. Slab is a cubic part of map with specific content. */
@@ -401,6 +440,12 @@ struct IRECT_2D {
     int r;
     int t;
     int b;
+};
+
+struct PickedUpOffset
+{
+    short delta_x;
+    short delta_y;
 };
 
 extern GameTurn get_gameturn();

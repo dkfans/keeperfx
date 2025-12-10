@@ -30,6 +30,8 @@
 #define RANDOMISORS_MASK   0x1ff
 #define RANDOMISORS_RANGE     63
 
+#define WIBBLE_TABLE_SIZE   128
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,18 +39,16 @@ extern "C" {
 #pragma pack(1)
 
 struct WibbleTable {
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10;
-  long field_14;
-  long field_18;
-  long field_1C;
+  long offset_x;
+  long offset_y;
+  long offset_z;
+  long lightness_offset;
+  long view_width_offset;
+  long view_height_offset;
 };
 /******************************************************************************/
-extern long randomisors[512];
-extern struct WibbleTable wibble_table[128];
+extern int32_t randomisors[512];
+extern struct WibbleTable wibble_table[WIBBLE_TABLE_SIZE];
 extern long floor_height_table[256];
 extern long lintel_top_height[256];
 extern long lintel_bottom_height[256];
@@ -59,14 +59,14 @@ extern short iso_td_add[KEEPERSPRITE_ADD_NUM];
 extern short td_iso_add[KEEPERSPRITE_ADD_NUM];
 /******************************************************************************/
 extern unsigned short floor_to_ceiling_map[TEXTURE_BLOCKS_COUNT];
-extern struct WibbleTable blank_wibble_table[128];
+extern struct WibbleTable blank_wibble_table[WIBBLE_TABLE_SIZE];
 /******************************************************************************/
 short convert_td_iso(short n);
 short straight_td_iso(short n);
 short straight_iso_td(short n);
 
 void init_iso_3d_conversion_tables(void);
-void setup_3d(void);
+void setup_mesh_randomizers(void);
 
 TbBool load_ceiling_table(void);
 void generate_wibble_table(void);

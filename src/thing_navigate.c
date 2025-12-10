@@ -88,7 +88,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         stl_y = sstep->v + pos->y.stl.num;
         if ( stl_x < 0 )
         {
-            stl_x = 0; 
+            stl_x = 0;
         }
         else if ( stl_x > game.map_subtiles_x )
         {
@@ -97,7 +97,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
 
         if ( stl_y < 0 )
         {
-            stl_y = 0; 
+            stl_y = 0;
         }
         else if ( stl_y > game.map_subtiles_y )
         {
@@ -105,7 +105,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         }
 
         mapblk = get_map_block_at(stl_x, stl_y);
-        
+
         if ( (mapblk->flags & SlbAtFlg_Blocking) == 0 )
         {
             spiral_pos.x.val = (stl_x << 8) + 128;
@@ -129,8 +129,8 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
 static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, NaviRouteFlags flags)
 {
     long nav_sizexy;
-    long px;
-    long py;
+    int32_t px;
+    int32_t py;
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
@@ -247,17 +247,46 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Co
     return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, flags);
 }
 
+struct ClosestGate
+{
+    ThingIndex index;
+    TbBool friendly;
+    MapCoordDelta distance;
+};
+int sortgates(const void* a, const void* b) 
+{
+    const struct ClosestGate* ga = (const struct ClosestGate*)a;
+    const struct ClosestGate* gb = (const struct ClosestGate*)b;
+    // Primary: friendly first (friendly == 1)
+    if (ga->friendly != gb->friendly)
+        return (gb->friendly - ga->friendly); // friendly ones first
+
+    // Secondary: smaller distance first
+    if (ga->distance < gb->distance) return -1;
+    if (ga->distance > gb->distance) return 1;
+
+    return 0;
+}
+
 /**
- * Returns a hero gate object to which given hero can navigate.
- * @todo CREATURE_AI It returns first hero door found, not the best one.
- *     Maybe it should find the one he will reach faster, or at least a random one?
+ * Returns Hero gate object from list to which given hero can navigate.
+ * Avoids gates on enemy land if possible. Only checks 10 close ones if can be navigated to, otherwise uses fallback.
  * @param herotng The hero to be able to make it to gate.
  * @return The gate thing, or invalid thing.
  */
-struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
+struct Thing *find_best_hero_gate_to_navigate_to(struct Thing *herotng)
 {
-    unsigned long k = 0;
+    struct ClosestGate hero_gates[HERO_GATES_COUNT];
+    for (int g = 0; g < HERO_GATES_COUNT; g++)
+    {
+        hero_gates[g].index = 0;
+        hero_gates[g].distance = INT32_MAX;
+    }
+
+    //Go through all objects to find gates and record distance
     int i = game.thing_lists[TngList_Objects].index;
+    int32_t k = 0;
+    short found_gates = 0;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -268,12 +297,18 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         }
         i = thing->next_of_class;
         // Per thing code
-        if (object_is_hero_gate(thing) && !thing_is_picked_up(thing))
+        if (!object_is_hero_gate(thing) || thing_is_picked_up(thing))
         {
-            if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, NavRtF_Default)) {
-                return thing;
-            }
+            continue;
         }
+
+        hero_gates[found_gates].index = thing->index;
+        hero_gates[found_gates].distance = get_chessboard_distance(&thing->mappos, &herotng->mappos);;
+        hero_gates[found_gates].friendly = (players_are_enemies(herotng->owner, get_slab_owner_thing_is_on(thing)) == false);
+        found_gates++;
+        if (found_gates > HERO_GATES_COUNT)
+            break;
+
         // Per thing code ends
         k++;
         if (k > THINGS_COUNT)
@@ -282,7 +317,26 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
             break;
         }
     }
-    return NULL;
+
+    //sort them by friendly first, distance second
+    qsort(hero_gates, found_gates, sizeof(hero_gates[0]),&sortgates);
+
+    // Return the closest one the hero can navigate to.
+    struct Thing* gatetng = INVALID_THING;
+    for (int g = 0; g < HERO_GATES_COUNT; g++)
+    {
+        if (hero_gates[g].index == 0)
+            continue;
+        gatetng = thing_get(hero_gates[g].index);
+        if (!thing_is_invalid(gatetng))
+        {
+            if (creature_can_navigate_to_with_storage(herotng, &gatetng->mappos, NavRtF_Default))
+            {
+                return gatetng;
+            }
+        }
+    }
+    return INVALID_THING;
 }
 
 void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const char *func_name)
@@ -389,7 +443,7 @@ TbBool creature_can_get_to_dungeon_heart(struct Thing *creatng, PlayerNumber ply
 {
     SYNCDBG(18,"Starting");
     struct PlayerInfo* player = get_player(plyr_idx);
-    if (!player_exists(player) || (player->is_active != 1))
+    if (!player_exists(player) || ((player->is_active != 1) && !player_is_roaming(plyr_idx)))
     {
         SYNCDBG(18,"The %s index %d cannot get to inactive player %d",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -432,7 +486,7 @@ long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
         return -1;*/
 
     long angle = (get_angle_xy_to(&thing->mappos, pos)
-        + LbFPMath_PI) & LbFPMath_AngleMask;
+        + DEGREES_180) & ANGLE_MASK;
 
     return creature_turn_to_face_angle(thing,angle);
 }
@@ -452,7 +506,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
         angle_delta = -angle_delta;
     }
 
-    thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & LbFPMath_AngleMask;
+    thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & ANGLE_MASK;
 
     return get_angle_difference(thing->move_angle_xy, angle);
 }
@@ -466,8 +520,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     if ( backward )
     {
         // Rotate the creature 180 degrees to trace route with forward move
-        i = (thing->move_angle_xy + LbFPMath_PI);
-        thing->move_angle_xy = i & LbFPMath_AngleMask;
+        i = (thing->move_angle_xy + DEGREES_180);
+        thing->move_angle_xy = i & ANGLE_MASK;
     }
     struct Coord3d nextpos;
     AriadneReturn follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, speed, flags);
@@ -475,10 +529,10 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     if ( backward )
     {
         // Rotate the creature back
-        i = (thing->move_angle_xy + LbFPMath_PI);
-        thing->move_angle_xy = i & LbFPMath_AngleMask;
+        i = (thing->move_angle_xy + DEGREES_180);
+        thing->move_angle_xy = i & ANGLE_MASK;
     }
-    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Val2))
+    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Failed))
     {
         creature_set_speed(thing, 0);
         return -1;
@@ -497,7 +551,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, -speed);
-            cctrl->flgfield_2 |= TF2_Unkn01;
+            cctrl->creature_state_flags |= TF2_CreatureIsMoving;
             if (get_chessboard_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive backward speed",
@@ -523,7 +577,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, speed);
-            cctrl->flgfield_2 |= TF2_Unkn01;
+            cctrl->creature_state_flags |= TF2_CreatureIsMoving;
             if (get_chessboard_distance(&thing->mappos, &nextpos) > 2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive forward speed",
@@ -565,7 +619,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
         if (destination_valid)
          {
              // Use teleport only over large enough distances
-             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.conf.rules.magic.min_distance_for_teleport)
+             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.conf.rules[thing->owner].magic.min_distance_for_teleport)
              {
                  set_creature_instance(thing, CrInst_TELEPORT, 0, pos);
                  return true;
@@ -667,7 +721,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
              MapSubtlCoord floor_height = get_column_floor_filled_subtiles(col);
              if (floor_height < highest_floor_stl)
                  highest_floor_stl = floor_height;
-             
+
              if ((col->bitfields & CLF_CEILING_MASK) != 0)
              {
                  MapSubtlCoord ceiling_height = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -689,7 +743,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         MapSubtlCoord floor_height = get_column_floor_filled_subtiles(col);
         if (floor_height <= highest_floor_stl)
             highest_floor_stl = floor_height;
-        
+
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
             MapSubtlCoord ceiling_height = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -710,7 +764,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         MapSubtlCoord floor_height = get_column_floor_filled_subtiles(col);
         if (floor_height <= highest_floor_stl)
             highest_floor_stl = floor_height;
-        
+
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
             MapSubtlCoord ceiling_height = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -741,7 +795,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         if (filled_subtiles < lowest_ceiling_stl)
             lowest_ceiling_stl = filled_subtiles;
     }
-    
+
     update_floor_and_ceiling_heights_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL, &highest_floor_stl, &lowest_ceiling_stl);
 
     MapCoord highest_floor = highest_floor_stl * COORD_PER_STL;
@@ -753,22 +807,6 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         return pos->z.val;
     else
         return lowest_ceiling - 1 - thing->clipbox_size_z;
-}
-
-TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
-{
-    long nav_radius = thing_nav_sizexy(thing) /2;
-
-    if ((abs((pos2->x.val - nav_radius) - (pos1->x.val - nav_radius)) < COORD_PER_STL)
-     && (abs((pos2->x.val + nav_radius) - (pos1->x.val + nav_radius)) < COORD_PER_STL)
-     && (abs((pos2->y.val - nav_radius) - (pos1->y.val - nav_radius)) < COORD_PER_STL)
-     && (abs((pos2->y.val + nav_radius) - (pos1->y.val + nav_radius)) < COORD_PER_STL)
-     && (abs(pos2->z.val - pos1->z.val) < COORD_PER_STL)
-     && (abs((thing->clipbox_size_z + pos2->z.val) - (thing->clipbox_size_z + pos1->z.val)) < COORD_PER_STL) )
-    {
-        return true;
-    }
-    return false;
 }
 
 long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
@@ -826,8 +864,8 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
 
 /**
  * Whether the current slab is safe land, unsafe land that the creature can pass, or is a door that the creature can pass.
- * 
- * Used for wallhugging by creature_can_have_combat_with_object and creature_can_have_combat_with_creature. 
+ *
+ * Used for wallhugging by creature_can_have_combat_with_object and creature_can_have_combat_with_creature.
  */
 TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {

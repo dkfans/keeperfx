@@ -228,7 +228,7 @@ const struct NamedCommand creatmodel_jobs_commands[] = {
   {"PARTNERTRAINING",     11},
   {NULL,                   0},
   };
-  
+
 const struct NamedCommand creatmodel_sounds_commands[] = {
   {"HURT",                 CrSnd_Hurt},
   {"HIT",                  CrSnd_Hit},
@@ -259,7 +259,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
   const char * block_name = "attributes";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -972,7 +972,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
   struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
   const char * block_name = "attraction";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -1084,7 +1084,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "annoyance";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1461,7 +1461,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "senses";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1541,7 +1541,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = atoi(word_buf);
               if (k > 0)
               {
-                  crconf->max_turning_speed = (k * LbFPMath_PI) / 180;
+                  crconf->max_turning_speed = (k * DEGREES_180) / 180;
                   n++;
               }
             }
@@ -1572,7 +1572,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "appearance";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1776,7 +1776,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "experience";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1874,23 +1874,45 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             }
             break;
         case 5: // SLEEPEXPERIENCE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+        {
+            for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
             {
-              k = get_id(slab_desc, word_buf);
-              if (k >= 0)
-              {
-                crconf->sleep_exp_slab = k;
-                n++;
-              } else
-              {
-                crconf->sleep_exp_slab = 0;
-              }
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->sleep_experience = k;
-              n++;
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                  k = get_id(slab_desc, word_buf);
+                  if (k >= 0)
+                  {
+                    crconf->sleep_exp_slab[i] = k;
+                    n++;
+                  } else
+                  {
+                    crconf->sleep_exp_slab[i] = 0;
+                  }
+                }
+                else
+                {
+                    for (unsigned int j = i; j < SLEEP_XP_COUNT; j++)
+                    {
+                        crconf->sleep_exp_slab[j] = 0;
+                        crconf->sleep_experience[j] = 0;
+                    }
+                    break;
+                }
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                  k = atoi(word_buf);
+                  if (k < 0)
+                  {
+                      ERRORLOG("Slab sleep experience value (%s %d) must be 0 or greater.", slab_code_name(crconf->sleep_exp_slab[i]), k);
+                      k = 0;
+                  }
+                  crconf->sleep_experience[i] = k;
+                  n++;
+                }
+                else
+                {
+                    crconf->sleep_experience[i] = 0;
+                }
             }
             if (n < 2)
             {
@@ -1898,6 +1920,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
+        }
         case 6: // EXPERIENCEFORHITTING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
@@ -1945,7 +1968,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "jobs";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -2139,7 +2162,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   int n;
   // Find the block
   const char * block_name = "sprites";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -2209,7 +2232,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
 {
     // Find the block
     const char * block_name = "sounds";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -2240,7 +2263,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 k = atoi(word_buf);
                 game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
                 n++;
-            }            
+            }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
@@ -2278,7 +2301,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 k = atoi(word_buf);
                 game.conf.crtr_conf.creature_sounds[crtr_model].happy.count = k;
                 n++;
-            }            
+            }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
@@ -2297,7 +2320,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 k = atoi(word_buf);
                 game.conf.crtr_conf.creature_sounds[crtr_model].sad.count = k;
                 n++;
-            }            
+            }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
@@ -2471,7 +2494,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
     return true;
 }
 
-static TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const char *fname,unsigned short flags)
+static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s model %ld from file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",crtr_model,fname);
     long len = LbFileLengthRnc(fname);
@@ -2503,11 +2526,70 @@ static TbBool load_creaturemodel_config_file(long crtr_model,const char *textnam
     return result;
 }
 
+/* @comment
+ *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod_one need to be consistent.
+ */
+static TbBool load_creaturemodel_config_for_mod_one(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_item)
+{
+    set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+
+    TbBool result = false;
+    const struct ModExistState *mod_state = &mod_item->state;
+    char* fname = NULL;
+    char mod_dir[256] = {0};
+    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
+
+    if (mod_state->crtr_data)
+    {
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CrtrData, "%s.cfg", conf_fnstr);
+        if (strlen(fname) > 0)
+        {
+            result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        }
+    }
+
+    if (mod_state->cmpg_crtrs)
+    {
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
+        if (strlen(fname) > 0)
+        {
+            result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        }
+    }
+
+    if (mod_state->cmpg_lvls)
+    {
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+        if (strlen(fname) > 0)
+        {
+            result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        }
+    }
+
+    return result;
+}
+
+static TbBool load_creaturemodel_config_for_mod_list(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_items, long mod_cnt)
+{
+    TbBool result = false;
+
+    for (long i=0; i<mod_cnt; i++)
+    {
+        const struct ModConfigItem *mod_item = mod_items + i;
+        if (mod_item->state.mod_dir == 0)
+            continue;
+
+        result |= load_creaturemodel_config_for_mod_one(crmodel, flags, conf_fnstr, mod_item);
+    }
+
+    return result;
+}
+
+/* @comment
+ *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod_one need to be consistent.
+ */
 TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
 {
-    static const char config_global_textname[] = "global creature model config";
-    static const char config_campgn_textname[] = "campaign creature model config";
-    static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc,crmodel));
     strtolower(conf_fnstr);
@@ -2516,26 +2598,58 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
         WARNMSG("Cannot get config file name for creature %d.",crmodel);
         return false;
     }
+
     char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
-    TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
+    TbBool result = load_creaturemodel_config_file(crmodel, fname, flags);
     if (result)
     {
         set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
     }
-    fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
-    if (strlen(fname) > 0)
+
+    if (mods_conf.after_base_cnt > 0)
     {
-        result |= load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags);
+        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_base_item, mods_conf.after_base_cnt);
         if (result)
         {
             set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
         }
     }
+
+    fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
+    if (strlen(fname) > 0)
+    {
+        result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
+    }
+
+    if (mods_conf.after_campaign_cnt > 0)
+    {
+        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
+    }
+
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
     if (strlen(fname) > 0)
     {
-        result |= load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags);
+        result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
     }
+
+    if (mods_conf.after_map_cnt > 0)
+    {
+        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_map_item, mods_conf.after_map_cnt);
+        // last one does not need to set (CnfLd_AcceptPartial | CnfLd_IgnoreErrors)
+    }
+
     if (!result)
     {
         ERRORLOG("Unable to load a complete '%s' creature model config file.", creature_code_name(crmodel));
@@ -2545,9 +2659,6 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
 
 TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsigned short flags)
 {
-    static const char config_global_textname[] = "global creature model config";
-    static const char config_campgn_textname[] = "campaing creature model config";
-    static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc, nwcrmodel));
     strtolower(conf_fnstr);
@@ -2557,16 +2668,16 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
         return false;
     }
     char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
-    TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
+    TbBool result = load_creaturemodel_config_file(crmodel, fname, flags);
     fname = prepare_file_fmtpath(FGrp_CmpgCrtrs, "%s.cfg", conf_fnstr);
     if (strlen(fname) > 0)
     {
-        load_creaturemodel_config_file(crmodel, config_campgn_textname, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
+        load_creaturemodel_config_file(crmodel, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
     }
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
     if (strlen(fname) > 0)
     {
-        load_creaturemodel_config_file(crmodel, config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        load_creaturemodel_config_file(crmodel, fname, flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
@@ -2605,7 +2716,7 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         }
         do_to_players_all_creatures_of_model(plyr_idx, crtr_id, process_job_stress_and_going_postal);
     }
-    
+
     recalculate_all_creature_digger_lists();
     update_creatr_model_activities_list(1);
 
@@ -2640,13 +2751,6 @@ TbBool change_max_health_of_creature_kind(ThingModel crmodel, HitPoints new_max)
     SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crconf->health,(int)new_max);
     crconf->health = saturate_set_signed(new_max, 16);
     int n = do_to_all_things_of_class_and_model(TCls_Creature, crmodel, update_creature_health_to_max);
-    return (n > 0);
-}
-
-TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel)
-{
-    SYNCDBG(3,"Healing all player %d creatures of model %s",(int)plyr_idx,creature_code_name(crmodel));
-    int n = do_to_players_all_creatures_of_model(plyr_idx, crmodel, update_creature_health_to_max);
     return (n > 0);
 }
 

@@ -62,7 +62,7 @@ static TbBool load_textureanim_config_file(const char *fname, unsigned short fla
             VALUE *frames_arr = value_dict_get(section, "frames");
             if(value_array_size(frames_arr) != TEXTURE_BLOCKS_ANIM_FRAMES)
             {
-                WARNLOG("invalid frame no, expected %d got %d",TEXTURE_BLOCKS_ANIM_FRAMES,value_array_size(frames_arr));
+                WARNLOG("invalid frame no, expected %d got %d",TEXTURE_BLOCKS_ANIM_FRAMES, (int) value_array_size(frames_arr));
             }
             for (size_t frame_no = 0; frame_no < TEXTURE_BLOCKS_ANIM_FRAMES; frame_no++)
             {
@@ -71,7 +71,7 @@ static TbBool load_textureanim_config_file(const char *fname, unsigned short fla
         }
     }
     value_fini(&file_root);
-    
+
     return true;
 }
 

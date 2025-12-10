@@ -209,6 +209,7 @@ TbBool packets_process_cheats(
             if (player->controlled_thing_idx != player->thing_under_hand)
             {
                 player->influenced_thing_idx = player->thing_under_hand;
+                player->influenced_thing_creation = thing->creation_turn;
             }
           }
           if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))

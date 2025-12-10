@@ -43,44 +43,6 @@ long delaunay_stack[DELAUNAY_COUNT];
 long tree_val[TREEVALS_COUNT];
 
 /******************************************************************************/
-/******************************************************************************/
-void nodes_classify(void)
-{
-}
-
-void tree_init(void)
-{
-    for (long i = 0; i < TREEVALS_COUNT; i++)
-    {
-        tree_val[i] = -LONG_MAX;
-    }
-}
-
-/** Computes the cost for route through the current tree.
- *
- * @param tag_start_id Starting tag ID to place in the route.
- * @param tag_end_id Ending tag ID to place in the route.
- * @return Returns cost of the route.
- */
-long compute_tree_move_cost(long tag_start_id, long tag_end_id)
-{
-    long long rcost = 0;
-    long itag = tag_start_id;
-    long ipt = 0;
-    while (itag != tag_end_id)
-    {
-        rcost += tree_val[itag];
-        ipt++;
-        if (ipt >= TREEITEMS_COUNT)
-            return LONG_MAX;
-        itag = tree_dad[itag];
-    }
-    if (rcost >= LONG_MAX)
-        return LONG_MAX;
-    if (rcost <= LONG_MIN)
-        return LONG_MIN;
-    return rcost;
-}
 
 /** Copies the current tree into given route.
  *
@@ -91,7 +53,7 @@ long compute_tree_move_cost(long tag_start_id, long tag_end_id)
  * @return Returns index of the last point filled.
  *     If route_len is too small, points up to route_len are filled and -1 is returned.
  */
-long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, long route_len)
+long copy_tree_to_route(long tag_start_id, long tag_end_id, int32_t *route_pts, long route_len)
 {
     long itag = tag_start_id;
     long ipt = 0;
@@ -107,20 +69,6 @@ long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, lon
     }
     route_pts[ipt] = tag_end_id;
     return ipt;
-}
-
-long tree_to_route(long tag_start_id, long tag_end_id, long *route_pts)
-{
-    if (tag_current != Tags[tag_start_id])
-        return -1;
-    long ipt = copy_tree_to_route(tag_start_id, tag_end_id, route_pts, 3000 + 1);
-    if (ipt < 0)
-    {
-        erstat_inc(ESE_BadRouteTree);
-        ERRORDBG(6,"route length overflow");
-    }
-    return ipt;
-
 }
 
 void tags_init(void)
@@ -141,7 +89,7 @@ void tags_init(void)
  * @param border_len
  * @return
  */
-long update_border_tags(long tag_id, long *border_pt, long border_len)
+long update_border_tags(long tag_id, int32_t *border_pt, long border_len)
 {
     long iset = 0;
     for (long ipt = 0; ipt < border_len; ipt++)
@@ -159,7 +107,7 @@ long update_border_tags(long tag_id, long *border_pt, long border_len)
     return iset;
 }
 
-long border_tags_to_current(long *border_pt, long border_len)
+long border_tags_to_current(int32_t *border_pt, long border_len)
 {
     return update_border_tags(tag_current, border_pt, border_len);
 }
@@ -224,51 +172,51 @@ TbBool delaunay_add_triangle(long tri_idx)
 static void delaunay_stack_point(long pt_x, long pt_y)
 {
     long cor_idx;
-    long dst_tri_idx;
-    long dst_cor_idx;
-    long tri_id2;
+    int32_t dst_tri_idx;
+    int32_t dst_cor_idx;
+    long adjacent_triangle_index;
     NAVIDBG(19,"Starting");
 
-    long tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
-    if (tri_idx == -1) {
+    long found_triangle_index = triangle_find8(pt_x << 8, pt_y << 8);
+    if (found_triangle_index == -1) {
         NAVIDBG(19,"Tri not found");
         return;
     }
-    delaunay_add_triangle(tri_idx);
+    delaunay_add_triangle(found_triangle_index);
     for (cor_idx=0; cor_idx < 3; cor_idx++)
     {
-        tri_id2 = Triangles[tri_idx].tags[cor_idx];
-        if (tri_id2 != -1) {
-            delaunay_add_triangle(tri_id2);
+        adjacent_triangle_index = Triangles[found_triangle_index].tags[cor_idx];
+        if (adjacent_triangle_index != -1) {
+            delaunay_add_triangle(adjacent_triangle_index);
         }
     }
     if (point_find(pt_x, pt_y, &dst_tri_idx, &dst_cor_idx))
     {
-      tri_idx = dst_tri_idx;
+      found_triangle_index = dst_tri_idx;
       cor_idx = dst_cor_idx;
       unsigned long k = 0;
       do
       {
-          tri_id2 = Triangles[tri_idx].tags[cor_idx];
-          if (tri_id2 == -1) {
+          adjacent_triangle_index = Triangles[found_triangle_index].tags[cor_idx];
+          if (adjacent_triangle_index == -1) {
               NAVIDBG(19,"Tag not found");
               break;
           }
-          long i = link_find(tri_id2, tri_idx);
+          long i = link_find(adjacent_triangle_index, found_triangle_index);
           if (i == -1) {
               NAVIDBG(19,"Link not found");
               break;
           }
           cor_idx = MOD3[i+1];
-          tri_idx = tri_id2;
-          delaunay_add_triangle(tri_idx);
+          found_triangle_index = adjacent_triangle_index;
+          delaunay_add_triangle(found_triangle_index);
           k++;
           if (k >= TRIANLGLES_COUNT) {
               ERRORDBG(9,"Infinite loop detected");
               break;
           }
       }
-      while (tri_idx != dst_tri_idx);
+      while (found_triangle_index != dst_tri_idx);
     }
     NAVIDBG(19,"Done");
 }
@@ -285,8 +233,8 @@ long optimise_heuristic(long tri_id1, long tri_id2)
         return 0;
     }
     long tri_lnk = link_find(tri_id3, tri_id1);
-    if (( (tri1->field_D & (1 << tri_id2)) == 0)
-     || ( (tri3->field_D & (1 << tri_lnk)) == 0))
+    if (( (tri1->navigation_flags & (1 << tri_id2)) == 0)
+     || ( (tri3->navigation_flags & (1 << tri_lnk)) == 0))
     {
         return 0;
     }
@@ -339,10 +287,10 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
             }
             for (long cor_id2 = 0; cor_id2 < 3; cor_id2++)
             {
-                long tri_id2 = Triangles[tri_idx].tags[cor_id2];
-                if (tri_id2 == -1)
+                long local_adjacent_triangle = Triangles[tri_idx].tags[cor_id2];
+                if (local_adjacent_triangle == -1)
                     continue;
-                delaunay_add_triangle(tri_id2);
+                delaunay_add_triangle(local_adjacent_triangle);
             }
         }
     }

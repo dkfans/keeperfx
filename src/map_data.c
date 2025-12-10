@@ -276,8 +276,8 @@ TbBool slabs_iter_will_change(SlabKind orig_slab_kind, SlabKind current, long fi
 TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
     unsigned long plr_range_id = param->plyr_idx;
-    long fill_type = param->num1;
-    SlabKind orig_slab_kind = param->num2;
+    long fill_type = param->primary_number;
+    SlabKind orig_slab_kind = param->secondary_number;
     SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind;
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {
@@ -289,9 +289,9 @@ TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilter
 
 TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
-    SlabKind target_slab_kind = param->num1;
-    long fill_type = param->num2;
-    SlabKind orig_slab_kind = param->num3;
+    SlabKind target_slab_kind = param->primary_number;
+    long fill_type = param->secondary_number;
+    SlabKind orig_slab_kind = param->tertiary_number;
     SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {
@@ -304,9 +304,9 @@ TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterP
 
 TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
-    unsigned char target_slab_texture = param->num1;
-    long fill_type = param->num2;
-    SlabKind orig_slab_kind = param->num3;
+    unsigned char target_slab_texture = param->primary_number;
+    long fill_type = param->secondary_number;
+    SlabKind orig_slab_kind = param->tertiary_number;
     SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {
@@ -322,7 +322,7 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
         return false;
-    if (game.conf.rules.game.allies_share_vision)
+    if (game.conf.rules[plyr_idx].game.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
@@ -589,7 +589,7 @@ void clear_mapmap(void)
  * @param slb_y Slab Y coord.
  * @param plyr_idx Player index whose dig tag shall be cleared.
  */
-void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
+void clear_slab_dig(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
 {
     const struct SlabMap *slb = get_slabmap_block(slb_x,slb_y);
     if ( get_slab_stats(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
@@ -604,9 +604,22 @@ void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
         untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
         }
     }
-    else if ( !subtile_revealed(slab_subtile(slb_x, 0) , slab_subtile(slb_y, 0), plyr_idx) )
+    else if ( !subtile_revealed(slab_subtile(slb_x, 0) , slab_subtile(slb_y, 0), plyr_idx) )          //    if (map_block_revealed(mapblk, plyr_idx))
     {
-        untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+        if (game.conf.rules[plyr_idx].game.allies_share_vision)
+        {
+            for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+            {
+                if (players_are_mutual_allies(plyr_idx, i)) // this includes plyr_idx itself
+                {
+                    untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), i);
+                }
+            }
+        }
+        else
+        {
+            untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+        }
     }
 }
 
@@ -619,10 +632,10 @@ void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
  * @param start_y Slabs range Y starting coord.
  * @param end_y Slabs range Y ending coord.
  */
-void clear_dig_for_map_rect(long plyr_idx,long start_x,long end_x,long start_y,long end_y)
+void clear_dig_for_map_rect(long plyr_idx, MapSubtlCoord start_x, MapSubtlCoord end_x, MapSubtlCoord start_y, MapSubtlCoord end_y)
 {
-    long x;
-    long y;
+    int32_t x;
+    int32_t y;
     for (y = start_y; y < end_y; y++)
         for (x = start_x; x < end_x; x++)
         {
@@ -651,14 +664,14 @@ void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
  */
 void player_reveal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h)
 {
-  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
-  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
+  SYNCDBG(0,"Revealing around (%d,%d)",x,y);
+  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1), y-(h>>1), y+(h>>1));
 }
 
 void player_conceal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h, TbBool all)
 {
-  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
-  conceal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1),all);
+  SYNCDBG(0,"Revealing around (%d,%d)",x,y);
+  conceal_map_area(plyr_idx, x-(w>>1), x+(w>>1), y-(h>>1), y+(h>>1),all);
 }
 
 /**
@@ -707,18 +720,6 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
         }
     }
     panel_map_update(start_x,start_y,end_x,end_y);
-}
-/**
- * Returns if given map position is unsafe (contains a terrain which may lead to creature death).
- * Unsafe terrain is currently lava and sacrificial ground.
- * @param stl_x
- * @param stl_y
- * @return
- */
-TbBool map_pos_is_unsafe(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    unsigned long navmap = get_navigation_map(stl_x, stl_y);
-    return ((navmap & NAVMAP_UNSAFE_SURFACE) != 0);
 }
 
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -841,7 +842,7 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
         {
             return true;
         }
-        if (!(((slabst->is_diggable) == 0) || 
+        if (!(((slabst->is_diggable) == 0) ||
         ((slabmap_owner(slb) != plyr_idx) && ((slabst->block_flags & SlbAtFlg_Filled) != 0))))
         {
             return true;

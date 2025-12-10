@@ -88,7 +88,7 @@ short at_research_room(struct Thing *thing)
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
-    cctrl->research.job_stage = 3;
+    cctrl->research.job_stage = JobStage_MovingToPosition;
     return 1;
 }
 
@@ -218,6 +218,7 @@ CrCheckRet process_research_function(struct Thing *creatng)
     if ( !room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_RESEARCH), creatng) ) {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",
             room_code_name(room->kind), (int)room->owner, thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        remove_creature_from_work_room(creatng);
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
@@ -282,21 +283,21 @@ short researching(struct Thing *thing)
     // Shall we do some "Standing and thinking"
     if (cctrl->turns_at_job <= 128)
     {
-      if (cctrl->research.job_stage == 3)
+      if (cctrl->research.job_stage == JobStage_MovingToPosition)
       {
           // Do some random thinking
           if ((cctrl->turns_at_job % 16) == 0)
           {
-              long i = CREATURE_RANDOM(thing, LbFPMath_PI) - LbFPMath_PI / 2;
-              cctrl->research.random_thinking_angle = ((long)thing->move_angle_xy + i) & LbFPMath_AngleMask;
-              cctrl->research.job_stage = 4;
+              long i = THING_RANDOM(thing, DEGREES_180) - DEGREES_90;
+              cctrl->research.random_thinking_angle = ((long)thing->move_angle_xy + i) & ANGLE_MASK;
+              cctrl->research.job_stage = JobStage_TurningToFace;
           }
       } else
       {
           // Look at different direction while thinking
-          if (creature_turn_to_face_angle(thing, cctrl->research.random_thinking_angle) < LbFPMath_PI/18)
+          if (creature_turn_to_face_angle(thing, cctrl->research.random_thinking_angle) < DEGREES_10)
           {
-              cctrl->research.job_stage = 3;
+              cctrl->research.job_stage = JobStage_MovingToPosition;
           }
       }
       return 1;
@@ -310,7 +311,7 @@ short researching(struct Thing *thing)
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
-    cctrl->research.job_stage = 3;
+    cctrl->research.job_stage = JobStage_MovingToPosition;
     if (cctrl->exp_level < 3)
     {
         create_effect(&thing->mappos, TngEff_RoomSparkeSmall, thing->owner);

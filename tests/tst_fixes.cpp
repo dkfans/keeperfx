@@ -83,7 +83,7 @@ void clear_things_and_persons_data(void)
 {
 }
 
-void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
+void draw_texture(long texture_x, long texture_y, long texture_width, long texture_height, long texture_block_index, long flags, long fade_level)
 {
 }
 

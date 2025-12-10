@@ -72,31 +72,28 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
 TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_id);
 TbBool creature_would_benefit_from_healing(const struct Thing* thing);
 
-long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target);
-
 void reset_postal_instance_cache();
 CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long dist);
 
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *creatng);
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);
-TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing);
 TbBool creature_look_for_enemy_door_combat(struct Thing *thing);
 TbBool creature_look_for_enemy_object_combat(struct Thing* thing);
 TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struct Thing* traptng);
 
 struct Thing *check_for_door_to_fight(struct Thing *thing);
 struct Thing* check_for_object_to_fight(struct Thing* thing);
-CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, unsigned long *outscore);
+CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, uint32_t *outscore);
 CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist);
 CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct Thing* fightng, struct Thing** outenmtng, long maxdist);
-TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4);
+TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long try_opposite_direction);
 TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta dist);
 long get_combat_distance(const struct Thing *thing, const struct Thing *enemy);
 TbBool set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *enemy, CrAttackType attack_type);
 CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,short crmodel[], struct Thing **enemytng);
 long remove_all_traces_of_combat(struct Thing *thing);
-long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrAttackType attack_type, long a4);
+long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrAttackType attack_type, long distance);
 CrInstance get_self_spell_casting(const struct Thing* thing);
 /******************************************************************************/
 #ifdef __cplusplus

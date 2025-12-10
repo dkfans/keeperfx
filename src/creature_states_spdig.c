@@ -68,40 +68,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-TbBool creature_is_doing_digger_activity(const struct Thing* thing)
-{
-    CrtrStateId i = get_creature_state_besides_interruptions(thing);
-    switch (i)
-    {
-        // case CrSt_ImpDoingNothing:
-        case CrSt_ImpArrivesAtDigDirt:
-        case CrSt_ImpArrivesAtMineGold:
-        case CrSt_ImpDigsDirt:
-        case CrSt_ImpMinesGold:
-        case CrSt_ImpDropsGold:
-        case CrSt_ImpLastDidJob:
-        case CrSt_ImpArrivesAtImproveDungeon:
-        case CrSt_ImpImprovesDungeon:
-        case CrSt_ImpToking:
-        case CrSt_ImpPicksUpGoldPile:
-        case CrSt_MoveBackwardsToPosition:
-        case CrSt_CreatureDropBodyInLair:
-        case CrSt_CreatureDropBodyInPrison:
-        case CrSt_ImpArrivesAtConvertDungeon:
-        case CrSt_ImpConvertsDungeon:
-        case CrSt_ImpArrivesAtReinforce:
-        case CrSt_ImpReinforces:
-        case CrSt_CreaturePicksUpSpellObject:
-        case CrSt_CreatureDropsSpellObjectInLibrary:
-        case CrSt_CreaturePicksUpCorpse:
-        case CrSt_CreatureDropsCorpseInGraveyard:
-        case CrSt_CreatureGoingToSafetyForToking:
-            return true;
-        default:
-            return false;
-    }
-}
-
 struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel)
 {
     TRACE_THING(spdigtng);
@@ -184,16 +150,16 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 
 /**
  * @brief dropped special digger look for unconscious creature to save
- * 
+ *
  * only if drag_to_lair rule in activated
- * 
- * @param spdigtng 
+ *
+ * @param spdigtng
  * @param range maximum distance to look for unconscious creatures
  * @return return 1 if special digger is succesfully assigned
  */
 long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
 {
-    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules.workers.drag_to_lair)
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules[spdigtng->owner].workers.drag_to_lair)
     {
         return 0;
     }
@@ -216,22 +182,22 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
             if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
-                {   
+                {
                     // only save creatures with lair
-                    if (game.conf.rules.workers.drag_to_lair == 1) {
+                    if (game.conf.rules[spdigtng->owner].workers.drag_to_lair == 1) {
                         struct Room * room = get_creature_lair_room(thing);
-                        if (room_is_invalid(room)) 
+                        if (room_is_invalid(room))
                         {
                             return 0;
                         }
-                    }    
+                    }
                     //or creature who can have have and use a lair
-                    else if (game.conf.rules.workers.drag_to_lair == 2 && !creature_can_do_healing_sleep(thing))
+                    else if (game.conf.rules[spdigtng->owner].workers.drag_to_lair == 2 && !creature_can_do_healing_sleep(thing))
                     {
                         return 0;
                     }
 
-                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) 
+                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
                     {
                         spdigtng->continue_state = CrSt_CreatureSaveUnconsciousCreature;
                         cctrl->pickup_creature_id = thing->index;
@@ -239,7 +205,7 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
                     }
                 }
             }
-        }    
+        }
         // Per-thing code ends
         k++;
         if (k > slist->count)
@@ -323,7 +289,8 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
         if (thing_is_spellbook(thing) || thing_is_special_box(thing))
         {
             if ((thing->owner != spdigtng->owner) && !thing_is_dragged_or_pulled(thing)
-              && (get_slab_owner_thing_is_on(thing) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner))
+              && (get_slab_owner_thing_is_on(thing) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner)
+                &! object_is_ignored_by_imps(thing))
             {
                 if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
                 {
@@ -505,7 +472,7 @@ long check_out_unconverted_drop_place(struct Thing *thing)
 }
 
 static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
-{  
+{
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
 
@@ -517,7 +484,7 @@ static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
     MapSubtlCoord dig_place_stl_y = 0;
     SubtlCodedCoords stl_num;
     int task_idx = 0;
-    int rand = CREATURE_RANDOM(spdigtng,3);
+    int rand = THING_RANDOM(spdigtng,3);
 
     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
@@ -735,8 +702,8 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     long stl_num;
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     long i;
     long n;
     stl_x = thing->mappos.x.stl.num;
@@ -935,8 +902,8 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
 
 TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *spdigtng, SubtlCodedCoords stl_num)
 {
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     TRACE_THING(spdigtng);
     if (!check_place_to_dig_and_get_position(spdigtng, stl_num, &pos_x, &pos_y))
         return false;
@@ -1029,7 +996,7 @@ short imp_birth(struct Thing *thing)
         else
         {
             set_start_state(thing);
-        }            
+        }
         return 1;
     }
     long i = game.play_gameturn - thing->creation_turn;
@@ -1046,7 +1013,7 @@ long digger_work_experience(struct Thing* spdigtng)
 {
     if (creature_can_gain_experience(spdigtng))
     {
-        return game.conf.rules.workers.digger_work_experience;
+        return game.conf.rules[spdigtng->owner].workers.digger_work_experience;
     }
     return 0;
 }
@@ -1070,7 +1037,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
       if (cctrl->instance_id == CrInst_NULL)
       {
           CrInstance inst_idx = get_self_spell_casting(spdigtng);
-          if (inst_idx > CrInst_NULL) 
+          if (inst_idx > CrInst_NULL)
           {
               set_creature_instance(spdigtng, inst_idx, 0, 0);
               return 1;
@@ -1098,7 +1065,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
               }
           }
       }
-      if (game.conf.rules.workers.digger_work_experience != 0)
+      if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
       {
           cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
           check_experience_upgrade(spdigtng);
@@ -1128,7 +1095,7 @@ short imp_digs_mines(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(spdigtng);
         check_experience_upgrade(spdigtng);
@@ -1208,8 +1175,8 @@ short imp_doing_nothing(struct Thing *spdigtng)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
+
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Dungeon* dungeon = get_dungeon(spdigtng->owner);
     if (game.play_gameturn-cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
@@ -1228,7 +1195,9 @@ short imp_doing_nothing(struct Thing *spdigtng)
         spdigtng->continue_state = CrSt_ImpDoingNothing;
         return 1;
     }
-    dungeon->lvstats.promises_broken++;
+    struct Dungeon* dungeon = get_dungeon(spdigtng->owner);
+    if (!dungeon_invalid(dungeon))
+        dungeon->lvstats.promises_broken++;
     return 1;
 }
 
@@ -1278,8 +1247,8 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     if ( (gold_added > 0) || (gold_created) )
     {
-        thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        if (game.conf.rules.workers.digger_work_experience != 0)
+        thing_play_sample(spdigtng, SOUND_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
             cctrl->exp_points += digger_work_experience(spdigtng);
@@ -1314,7 +1283,7 @@ short imp_improves_dungeon(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
         check_experience_upgrade(spdigtng);
@@ -1459,7 +1428,7 @@ short imp_reinforces(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
     }
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[thing->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
@@ -1475,7 +1444,7 @@ short imp_reinforces(struct Thing *thing)
 
 short creature_going_to_safety_for_toking(struct Thing *thing)
 {
-    struct Coord3d locpos;
+    struct Coord3d locpos = {};
     if (!get_flee_position(thing, &locpos))
     {
         ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
@@ -1502,7 +1471,7 @@ short imp_toking(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        if (CREATURE_RANDOM(creatng, 8))
+        if (THING_RANDOM(creatng, 8))
         {
             set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
         }
@@ -1643,9 +1612,9 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
 
 /**
  * @brief special digger will drag unconscious creature to their lair
- * 
+ *
  * only if drag_to_lair rule in activated
- * 
+ *
  * @param thing creature that is being dragged
  * @return returns 1 if creature successfully arrived at its lair
  */
@@ -1676,7 +1645,7 @@ short creature_save_unconscious_creature(struct Thing *thing)
 
     struct Room* dstroom = get_creature_lair_room(picktng);
     //if creature doesn't have a lair but need one
-    if (room_is_invalid(dstroom) && creature_can_do_healing_sleep(picktng) && game.conf.rules.workers.drag_to_lair == 2)
+    if (room_is_invalid(dstroom) && creature_can_do_healing_sleep(picktng) && game.conf.rules[thing->owner].workers.drag_to_lair == 2)
     {
         dstroom = get_best_new_lair_for_creature(picktng);
         //send special digger directly at the right place for the lair-totem of the creature
@@ -1708,12 +1677,12 @@ short creature_save_unconscious_creature(struct Thing *thing)
             set_start_state(thing);
             return 0;
         }
-        pos = lairtng->mappos;   
+        pos = lairtng->mappos;
     }
 
     if (!setup_person_move_backwards_to_coord(thing, &pos, NavRtF_Default))
         {
-            SYNCDBG(8,"Cannot drag %s to (%d,%d)",thing_model_name(picktng),(int)&pos.x.stl.num,(int)&pos.y.stl.num);
+            SYNCDBG(8,"Cannot drag %s to (%u,%u)",thing_model_name(picktng), pos.x.stl.num, pos.y.stl.num);
             set_start_state(thing);
             return 0;
         }
@@ -1942,7 +1911,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     add_body_to_graveyard(deadtng, room);
     // The action of moving object is now finished
     set_start_state(creatng);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[creatng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
@@ -2002,9 +1971,9 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     }
     // The action of moving object is now finished
     set_start_state(thing);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[thing->owner].workers.digger_work_experience != 0)
     {
-        cctrl->exp_points += game.conf.rules.workers.digger_work_experience;
+        cctrl->exp_points += game.conf.rules[thing->owner].workers.digger_work_experience;
         check_experience_upgrade(thing);
     }
     return 1;
@@ -2070,7 +2039,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     }
     // The action of moving object is now finished
     set_start_state(creatng);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[creatng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
@@ -2110,10 +2079,6 @@ short creature_arms_trap(struct Thing *thing)
         return 0;
     }
     rearm_trap(traptng);
-    if (imp_will_soon_be_arming_trap(traptng)) //Another crate is still earmarked for this trap, refund it.
-    {
-        readd_workshop_item_to_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
-    }
     dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
@@ -2121,7 +2086,11 @@ short creature_arms_trap(struct Thing *thing)
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     // The action of moving object is now finished
     set_start_state(thing);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (imp_will_soon_be_arming_trap(traptng)) //Another crate is still earmarked for this trap, refund it.
+    {
+        readd_workshop_item_to_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+    }
+    if (game.conf.rules[thing->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
@@ -2140,7 +2109,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     dungeon->lvstats.traps_armed++;
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[creatng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);

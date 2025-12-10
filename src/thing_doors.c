@@ -100,13 +100,13 @@ char determine_door_angle(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked)
 {
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(TCls_Door))
     {
         ERRORDBG(3,"Cannot create door model %d (%s) for player %d. There are too many things allocated.",(int)tngmodel, door_code_name(tngmodel), (int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* doortng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* doortng = allocate_free_thing_structure(TCls_Door);
     if (doortng->index == 0) {
         ERRORDBG(3,"Should be able to allocate door %d (%s) for player %d, but failed.",(int)tngmodel, door_code_name(tngmodel), (int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
@@ -268,7 +268,7 @@ long destroy_door(struct Thing *doortng)
     }
     struct Thing* efftng = create_effect(&pos, TngEff_Dummy, plyr_idx);
     if (!thing_is_invalid(efftng)) {
-        thing_play_sample(efftng, 72 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+        thing_play_sample(efftng, 72 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
     if (plyr_idx != game.neutral_player_num)
     {
@@ -472,8 +472,11 @@ void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
         clear_flag(keytng->rendering_flags, TRF_Invisible);
         set_flag(keytng->rendering_flags, TRF_Transpar_4);
     }
-    event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorDiscovered, plyr_idx, 0);
-    event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorSpotted, doortng->owner, 0);
+    if (!players_are_mutual_allies(plyr_idx, doortng->owner))
+    {
+        event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorDiscovered, plyr_idx, 0);
+        event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorSpotted, doortng->owner, 0);
+    }
     set_flag(doortng->door.revealed,to_flag(plyr_idx));
     MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
     MapSubtlCoord stl_y = doortng->mappos.y.stl.num;
@@ -561,6 +564,16 @@ TngUpdateRet process_door(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
+
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+
+    if (doorst->updatefn_idx < 0)
+    {
+        if (luafunc_thing_update_func(doorst->updatefn_idx, thing) <= 0) {
+            return TUFRet_Deleted;
+        }
+    }
+
     if ( !door_can_stand(thing) || (thing->health <= 0) )
     {
         thing->health = -1;

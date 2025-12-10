@@ -32,12 +32,6 @@ extern "C" {
 struct Thing;
 struct PlayerInfo;
 
-struct Armageddon { // sizeof = 14
-  unsigned long count_down;
-  unsigned long duration;
-  struct Coord3d mappos;
-};
-
 #pragma pack()
 /******************************************************************************/
 void set_chosen_power(PowerKind pwkind, TextStringId sptooltip);
@@ -47,7 +41,6 @@ void process_disease(struct Thing *thing);
 void process_timebomb(struct Thing *creatng);
 void timebomb_explode(struct Thing *creatng);
 
-TbBool player_uses_power_armageddon(PlayerNumber plyr_idx);
 void process_armageddon(void);
 void process_armageddon_influencing_creature(struct Thing *creatng);
 void teleport_armageddon_influenced_creature(struct Thing *creatng);

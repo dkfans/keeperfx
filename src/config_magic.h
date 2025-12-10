@@ -189,11 +189,15 @@ enum ShotModelFlags {
 #define PwCast_Anywhere       (1LL << 29)
 #define PwCast_DiggersOnly    (1LL << 30)
 #define PwCast_DiggersNot     (1LL << 31)
+#define PwCast_OwnedObjects   (1LL << 32)
+#define PwCast_NeutrlObjects  (1LL << 33)
+#define PwCast_EnemyObjects   (1LL << 34)
 
 #define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_NConscCrtrs|PwCast_BoundCrtrs)
 #define PwCast_AllFood (PwCast_OwnedFood|PwCast_NeutrlFood|PwCast_EnemyFood)
 #define PwCast_AllGold (PwCast_OwnedGold|PwCast_NeutrlGold|PwCast_EnemyGold)
-#define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_AllFood|PwCast_AllGold|PwCast_OwnedSpell|PwCast_OwnedBoulders)
+#define PwCast_AllObjects (PwCast_OwnedObjects|PwCast_NeutrlObjects|PwCast_EnemyObjects)
+#define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_AllFood|PwCast_AllGold|PwCast_OwnedSpell|PwCast_OwnedBoulders|PwCast_AllObjects)
 #define PwCast_AllGround (PwCast_UnclmdGround|PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround|PwCast_EnemyGround)
 #define PwCast_NotEnemyGround (PwCast_UnclmdGround|PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround)
 #define PwCast_AllTall (PwCast_NeutrlTall|PwCast_OwnedTall|PwCast_AlliedTall|PwCast_EnemyTall)
@@ -294,14 +298,14 @@ struct ShotConfigStats {
     short fixed_damage;
     short light_radius;
     unsigned char light_intensity;
-    unsigned char lightf_53;
+    unsigned char light_flags;
     unsigned char unshaded;
     unsigned char soft_landing;
     EffectOrEffElModel effect_id;
     EffectOrEffElModel effect_bleeding;
     EffectOrEffElModel effect_frozen;
     unsigned char fire_logic; // see enum ShotFireLogics
-    unsigned char update_logic; // see enum ShotUpdateLogics
+    short update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
     unsigned short periodical;
@@ -401,7 +405,7 @@ struct MagicConfig {
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
     long shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
-    long power_types_count;
+    int32_t power_types_count;
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
@@ -420,6 +424,8 @@ extern const struct LongNamedCommand powermodel_castability_commands[];
 extern const struct NamedCommand powermodel_expand_check_func_type[];
 extern const struct NamedCommand magic_power_commands[];
 extern const Expand_Check_Func powermodel_expand_check_func_list[];
+extern const struct NamedCommand magic_use_func_commands[];
+extern const struct NamedCommand magic_cost_formula_commands[];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(SpellKind spell_idx);
 TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo);

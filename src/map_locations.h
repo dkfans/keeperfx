@@ -60,7 +60,6 @@ extern const struct NamedCommand head_for_desc[];
 unsigned short get_map_location_type(TbMapLocation location);
 unsigned long get_map_location_longval(TbMapLocation location);
 unsigned long get_map_location_plyrval(TbMapLocation location);
-unsigned short get_map_location_plyridx(TbMapLocation location);
 TbBool get_map_location_code_name(TbMapLocation location, char *name);
 
 TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBool random_factor);
@@ -71,7 +70,7 @@ TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx);
 
 TbMapLocation get_coord_encoded_location(MapSubtlCoord stl_x,MapSubtlCoord stl_y);
 
-void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr_idx, const char *func_name);
+void find_map_location_coords(TbMapLocation location, int32_t *x, int32_t *y, int plyr_idx, const char *func_name);
 
 void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 

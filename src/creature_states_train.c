@@ -58,7 +58,7 @@ TbBool creature_can_be_trained(const struct Thing *thing)
     // Creatures without training value can't be trained
     if (crconf->training_value <= 0)
         return false;
-    if ((cctrl->exp_level >= game.conf.rules.rooms.training_room_max_level-1) &! (game.conf.rules.rooms.training_room_max_level == 0))
+    if ((cctrl->exp_level >= game.conf.rules[thing->owner].rooms.training_room_max_level-1) &! (game.conf.rules[thing->owner].rooms.training_room_max_level == 0))
         return false;
     // If its model can train, check if this one can gain more experience
     return creature_can_gain_experience(thing);
@@ -161,7 +161,7 @@ static void setup_move_to_new_training_position(struct Thing *thing, struct Room
     if ( restart )
       cctrl->training.search_timeout = 50;
     // Try partner training
-    if ((crconf->partner_training > 0) && (CREATURE_RANDOM(thing, 100) < crconf->partner_training))
+    if ((crconf->partner_training > 0) && (THING_RANDOM(thing, 100) < crconf->partner_training))
     {
         struct Thing* prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
         if (!thing_is_invalid(prtng))
@@ -208,9 +208,9 @@ static void setup_training_search_for_post(struct Thing *creatng)
     // Let's start from a random slab
     long slb_x = -1;
     long slb_y = -1;
-    long min_distance = LONG_MAX;
+    long min_distance = INT32_MAX;
     struct Thing* traintng = INVALID_THING;
-    long start_slab = CREATURE_RANDOM(creatng, room->slabs_count);
+    long start_slab = THING_RANDOM(creatng, room->slabs_count);
     long k = start_slab;
     long i = room->slabs_list;
     while (i != 0)
@@ -399,7 +399,7 @@ static void process_creature_in_training_room(struct Thing *thing, struct Room *
     case CrTrMd_TurnToTrainPost:
         pos.x.val = subtile_coord_center(cctrl->training.pole_stl_x);
         pos.y.val = subtile_coord_center(cctrl->training.pole_stl_y);
-        if (creature_turn_to_face(thing, &pos) < LbFPMath_PI/18)
+        if (creature_turn_to_face(thing, &pos) < DEGREES_10)
         {
           cctrl->training.mode = CrTrMd_DoTrainWithTrainPost;
           cctrl->training.train_timeout = 75;
@@ -448,7 +448,7 @@ static void process_creature_in_training_room(struct Thing *thing, struct Room *
         } else
         if (dist >= 156)
         {
-            if (creature_turn_to_face(thing, &crtng->mappos) < LbFPMath_PI/18)
+            if (creature_turn_to_face(thing, &crtng->mappos) < DEGREES_10)
             {
               cctrl->training.train_timeout--;
               if (cctrl->training.train_timeout > 0)
@@ -576,9 +576,9 @@ CrStateRet training(struct Thing *thing)
     GoldAmount training_cost = calculate_correct_creature_training_cost(thing);
     // Pay for the training
     cctrl->turns_at_job++;
-    if (cctrl->turns_at_job >= game.conf.rules.rooms.train_cost_frequency)
+    if (cctrl->turns_at_job >= game.conf.rules[thing->owner].rooms.train_cost_frequency)
     {
-        cctrl->turns_at_job -= game.conf.rules.rooms.train_cost_frequency;
+        cctrl->turns_at_job -= game.conf.rules[thing->owner].rooms.train_cost_frequency;
         if (take_money_from_dungeon(thing->owner, training_cost, 1) < 0) {
             ERRORLOG("Cannot take %d gold from dungeon %d",(int)training_cost,(int)thing->owner);
         }

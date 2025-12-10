@@ -166,17 +166,21 @@ TbBool remove_workshop_object_from_workshop(struct Room *room, struct Thing *cra
     return remove_item_from_room_capacity(room);
 }
 
-TbBool set_manufacture_level(struct Dungeon *dungeon)
+long calculate_manufacture_level(struct Dungeon* dungeon)
 {
     int mnfctr_slabs = get_room_of_role_slabs_count(dungeon->owner, RoRoF_CratesManufctr);
     int level = 0;
     while (mnfctr_slabs > (level + 3) * (level + 3))
     {
-        level++; 
+        level++;
     }
-    SYNCDBG(19, "Dungeon %d manufacture level set to %d",dungeon->owner, level);
-    dungeon->manufacture_level = level;
-    return true;
+    return level;
+}
+
+void set_manufacture_level(struct Dungeon *dungeon)
+{
+    dungeon->manufacture_level = calculate_manufacture_level(dungeon);
+    SYNCDBG(19, "Dungeon %d manufacture level set to %ld",dungeon->owner, dungeon->manufacture_level);
 }
 
 struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
@@ -496,7 +500,7 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
  * @param dungeon The dungeon which is to be checked.
  * @param mnfctr_class Class of the manufacture with minimal items available.
  * @param mnfctr_kind Kind of the manufacture with minimal items available.
- * @return Gives minimal amount of items available, or LONG_MAX if no doable manufacture was found.
+ * @return Gives minimal amount of items available, or INT32_MAX if no doable manufacture was found.
  */
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind)
 {
@@ -561,7 +565,7 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
     int chosen_amount = get_doable_manufacture_with_minimal_amount_available(dungeon, &chosen_class, &chosen_kind);
     if (chosen_amount >= MANUFACTURED_ITEMS_LIMIT)
     {
-        if (chosen_amount == LONG_MAX) {
+        if (chosen_amount == INT_MAX) {
             WARNDBG(7,"Player %d has %s but no doable manufacture",(int)dungeon->owner,room_role_code_name(RoRoF_CratesStorage));
         } else {
             WARNDBG(6,"Player %d reached manufacture limit for all items",(int)dungeon->owner);
