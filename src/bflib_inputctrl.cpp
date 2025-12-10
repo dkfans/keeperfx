@@ -355,6 +355,7 @@ static void process_event(const SDL_Event *ev)
                 {
                     mute_audio(false);
                 }
+                redetect_screen_refresh_rate_for_draw();
                 break;
             }
             case SDL_WINDOWEVENT_FOCUS_LOST:
@@ -385,6 +386,11 @@ static void process_event(const SDL_Event *ev)
             case SDL_WINDOWEVENT_LEAVE:
             {
                 isMouseActive = false;
+                break;
+            }
+            case SDL_WINDOWEVENT_MOVED:
+            {
+                redetect_screen_refresh_rate_for_draw();
                 break;
             }
             default: break;

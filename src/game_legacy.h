@@ -382,7 +382,11 @@ struct Game {
 /******************************************************************************/
 extern struct Game game;
 extern long game_num_fps;
-extern long game_num_fps_draw;
+
+extern long game_num_fps_draw_current;
+extern long game_num_fps_draw_main;
+extern long game_num_fps_draw_secondary;
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
