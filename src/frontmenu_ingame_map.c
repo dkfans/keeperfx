@@ -234,8 +234,8 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
 
 void interpolate_minimap_thing(struct Thing *thing, struct Camera *cam)
 {
-    long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
-    long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
+    long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)cam->mappos.x.val);
+    long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)cam->mappos.y.val);
     if ((reset_all_minimap_interpolation == true) || (thing->previous_minimap_pos_x == 0 && thing->previous_minimap_pos_y == 0))
     {
         thing->interp_minimap_pos_x = current_minimap_x;
@@ -1288,8 +1288,8 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         angle = cam->rotation_angle_x & ANGLE_MASK_4; //cam->rotation_angle_x
         shift_x = -LbSinL(angle) * zoom / 256;
         shift_y = LbCosL(angle) * zoom / 256;
-        long current_minimap_x = (cam->mappos.x.stl.num << 16);
-        long current_minimap_y = (cam->mappos.y.stl.num << 16);
+        long current_minimap_x = (cam->mappos.x.val << 8);
+        long current_minimap_y = (cam->mappos.y.val << 8);
         if (reset_all_minimap_interpolation == true)
         {
             interp_minimap.x = current_minimap_x;
