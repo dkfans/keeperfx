@@ -3058,14 +3058,10 @@ void trig_render_md10(struct TrigLocalRend *tlr)
         else
         {
             ushort colL, colH;
-            unsigned char pY_overflow;
 
             if (point_y_a > vec_window_width)
                 point_y_a = vec_window_width;
-            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
-            point_y_a = point_y_a - point_x_a;
-            if ( (unsigned char)(((point_y_a & 0x8000u) != 0) ^ pY_overflow) | ((ushort)point_y_a == 0) )
-                continue;
+            continue;
             o += point_x_a;
             factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
