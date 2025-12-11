@@ -45,6 +45,7 @@
 #include "game_legacy.h"
 #include "power_hand.h"
 #include "player_instances.h"
+#include "local_camera.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -371,7 +372,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 void draw_god_lightning(struct Thing *shotng)
 {
     struct PlayerInfo* player = get_player(shotng->owner);
-    const struct Camera* cam = player->acamera;
+    const struct Camera* cam = get_local_camera(player->acamera);
     if (cam == NULL) {
         return;
     }

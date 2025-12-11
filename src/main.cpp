@@ -73,6 +73,7 @@
 #include "engine_render.h"
 #include "engine_lenses.h"
 #include "engine_camera.h"
+#include "local_camera.h"
 #include "engine_arrays.h"
 #include "engine_textures.h"
 #include "engine_redraw.h"
@@ -2688,7 +2689,6 @@ void update(void)
         return;
     }
     player = get_my_player();
-    set_previous_camera_values(player);
 
     if (!flag_is_set(game.operation_flags,GOF_Paused))
     {
