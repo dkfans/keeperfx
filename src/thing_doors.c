@@ -472,8 +472,11 @@ void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
         clear_flag(keytng->rendering_flags, TRF_Invisible);
         set_flag(keytng->rendering_flags, TRF_Transpar_4);
     }
-    event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorDiscovered, plyr_idx, 0);
-    event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorSpotted, doortng->owner, 0);
+    if (!players_are_mutual_allies(plyr_idx, doortng->owner))
+    {
+        event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorDiscovered, plyr_idx, 0);
+        event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorSpotted, doortng->owner, 0);
+    }
     set_flag(doortng->door.revealed,to_flag(plyr_idx));
     MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
     MapSubtlCoord stl_y = doortng->mappos.y.stl.num;

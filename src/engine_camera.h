@@ -33,6 +33,8 @@ struct EngineCoord;
 struct M33;
 struct EngineCol;
 struct PlayerInfo;
+struct Packet;
+struct Thing;
 
 // Camera constants; zoom max is zoomed in (everything large), zoom min is zoomed out (everything small)
 #define CAMERA_ZOOM_MAX 12000
@@ -83,20 +85,6 @@ struct Camera {
     TbBool in_active_movement_y;
 };
 
-extern long previous_cam_mappos_x;
-extern long previous_cam_mappos_y;
-extern long previous_cam_mappos_z;
-extern float interpolated_cam_mappos_x;
-extern float interpolated_cam_mappos_y;
-extern float interpolated_cam_mappos_z;
-extern float previous_cam_rotation_angle_x;
-extern float previous_cam_rotation_angle_y;
-extern float previous_cam_rotation_angle_z;
-extern float interpolated_cam_rotation_angle_x;
-extern float interpolated_cam_rotation_angle_y;
-extern float interpolated_cam_rotation_angle_z;
-extern long previous_camera_zoom;
-extern float interpolated_camera_zoom;
 
 /******************************************************************************/
 
@@ -126,12 +114,11 @@ void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
+void view_process_camera_inertia(struct Camera *cam);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
-void set_previous_camera_values(struct PlayerInfo* player);
-void reset_interpolation_of_camera(struct PlayerInfo* player);
-void reset_interpolation_for_parchment_view(struct PlayerInfo* player);
+void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height);
 
 /******************************************************************************/
 #ifdef __cplusplus

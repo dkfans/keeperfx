@@ -744,6 +744,31 @@ void add_room_to_global_list(struct Room *room)
     }
 }
 
+void remove_room_from_global_list(struct Room* room)
+{
+    // There is only one global list of rooms - the list of entrances
+    if (room->kind != RoK_ENTRANCE)
+        return;
+
+    struct Room* pvroom = room_get(room->prev_of_kind);
+    struct Room* nxroom = room_get(room->next_of_kind);
+
+    if (!room_is_invalid(pvroom)) {
+        pvroom->next_of_kind = room->next_of_kind;
+    }
+    else {
+        game.entrance_room_id = room->next_of_kind;
+    }
+
+    if (!room_is_invalid(nxroom)) {
+        nxroom->prev_of_kind = room->prev_of_kind;
+    }
+
+    room->next_of_kind = 0;
+    room->prev_of_kind = 0;
+    game.entrances_count--;
+}
+
 TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
 {
     if (room->kind >= game.conf.slab_conf.room_types_count) {
@@ -3138,6 +3163,7 @@ void free_room_structure(struct Room *room)
         }
         --dungeon->room_discrete_count[room->kind];
     }
+    remove_room_from_global_list(room);
     delete_room_structure(room);
 }
 
