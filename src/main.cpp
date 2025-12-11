@@ -2070,7 +2070,11 @@ void set_mouse_light(struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
     struct Packet *pckt;
-    pckt = get_packet_direct(player->packet_num);
+    if (is_my_player(player)) {
+        pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+    } else {
+        pckt = get_packet_direct(player->packet_num);
+    }
     if (player->cursor_light_idx != 0)
     {
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
