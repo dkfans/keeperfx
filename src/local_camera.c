@@ -36,6 +36,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+// In update(), camera code runs after turns are incremented
+#define CURRENT_TURN_FOR_CAMERA (game.play_gameturn-1)
+/******************************************************************************/
 struct Camera local_cameras[4];
 struct Camera previous_local_cameras[4];
 struct Camera desired_local_cameras[4];
@@ -109,19 +112,17 @@ void update_local_first_person_camera(struct Thing *ctrltng)
     struct Camera* cam = &desired_local_cameras[CamIV_FirstPerson];
     int eye_height = get_creature_eye_height(ctrltng);
     update_first_person_position(cam, ctrltng, eye_height);
-    long current_horizontal = ctrltng->move_angle_xy;
-    long current_vertical = ctrltng->move_angle_z;
-    for (int lag_offset = game.input_lag_turns; lag_offset >= 0; lag_offset--) {
-        GameTurn packet_turn = game.play_gameturn - lag_offset;
-        struct Packet* lag_packet = get_local_input_lag_packet_for_turn(packet_turn);
-        if (lag_packet != NULL) {
-            long new_horizontal, new_vertical, new_roll;
-            process_first_person_look(ctrltng, lag_packet, current_horizontal, current_vertical, &new_horizontal, &new_vertical, &new_roll);
-            current_horizontal = new_horizontal;
-            current_vertical = new_vertical;
-            if ((ctrltng->movement_flags & TMvF_Flying) != 0) {
-                cam->rotation_angle_z = new_roll;
-            }
+
+    long current_horizontal = desired_local_cameras[CamIV_FirstPerson].rotation_angle_x;
+    long current_vertical = desired_local_cameras[CamIV_FirstPerson].rotation_angle_y;
+    struct Packet* latest_packet = get_local_input_lag_packet_for_turn(CURRENT_TURN_FOR_CAMERA);
+    if (latest_packet != NULL) {
+        long new_horizontal, new_vertical, new_roll;
+        process_first_person_look(ctrltng, latest_packet, current_horizontal, current_vertical, &new_horizontal, &new_vertical, &new_roll);
+        current_horizontal = new_horizontal;
+        current_vertical = new_vertical;
+        if ((ctrltng->movement_flags & TMvF_Flying) != 0) {
+            cam->rotation_angle_z = new_roll;
         }
     }
     cam->rotation_angle_x = current_horizontal;
@@ -142,19 +143,11 @@ void update_local_cameras(void)
     if (in_first_person) {
         update_local_first_person_camera(ctrltng);
     } else {
-        struct Packet* local_packet = get_local_input_lag_packet_for_turn(game.play_gameturn-1);
+        struct Packet* local_packet = get_local_input_lag_packet_for_turn(CURRENT_TURN_FOR_CAMERA);
         if (local_packet == NULL) {
             return;
         }
-        if (game.game_kind == GKind_LocalGame) {
-            process_local_minimap_click(local_packet);
-        } else {
-            for (int lag_offset = game.input_lag_turns; lag_offset >= 0; lag_offset--) {
-                GameTurn packet_turn = game.play_gameturn - lag_offset;
-                struct Packet* lag_packet = get_local_input_lag_packet_for_turn(packet_turn);
-                process_local_minimap_click(lag_packet);
-            }
-        }
+        process_local_minimap_click(local_packet);
         for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
             if (cam_idx == CamIV_FirstPerson || cam_idx == CamIV_Parchment) {
                 continue;
