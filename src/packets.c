@@ -873,6 +873,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_ZoomToRoom:
   {
+      if (player->instance_num == PI_ZoomToPos) {
+          return 0;
+      }
       if (player->work_state == PSt_CreatrInfo)
           turn_off_query(plyr_idx);
       struct Room* room = room_get(pckt->actn_par1);
@@ -885,6 +888,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   }
   case PckA_ZoomToTrap:
+      if (player->instance_num == PI_ZoomToPos) {
+          return 0;
+      }
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->actn_par1);
@@ -896,6 +902,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_ZoomToDoor:
+      if (player->instance_num == PI_ZoomToPos) {
+          return 0;
+      }
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->actn_par1);
@@ -907,6 +916,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_ZoomToPosition:
+      if (player->instance_num == PI_ZoomToPos) {
+          return 0;
+      }
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       player->zoom_to_pos_x = pckt->actn_par1;
