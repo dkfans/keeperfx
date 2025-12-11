@@ -1613,10 +1613,6 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
  * If either thing owner or ground owner doesn't match, we can't pick that thing.
  * Additionally, we have a special condition in case our thing + our ground, because
  * in that case the thing may already be on a correct position.
- *
- * @param thing
- * @param dungeon
- * @param rkind
  * @return
  */
 TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned short flags)

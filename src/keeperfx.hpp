@@ -131,7 +131,8 @@ struct StartupParameters {
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
     long num_fps;
-    long num_fps_draw;
+    long num_fps_draw_main; // -1 if auto
+    long num_fps_draw_secondary;
     TbBool packet_save_enable;
     TbBool packet_load_enable;
     char packet_fname[150];
@@ -298,11 +299,13 @@ long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_aura(struct Thing *thing);
 void init_seeds();
 
+
 TbPixel get_player_path_colour(unsigned short owner);
 
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
+void redetect_screen_refresh_rate_for_draw();
 void update_time(void);
 extern TbClockMSec timerstarttime;
 struct TimerTime {

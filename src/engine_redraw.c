@@ -42,6 +42,7 @@
 #include "power_process.h"
 #include "engine_render.h"
 #include "engine_lenses.h"
+#include "local_camera.h"
 #include "front_simple.h"
 #include "front_easter.h"
 #include "frontend.h"
@@ -525,6 +526,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         // fall through
     case PVM_CreatureView:
         player->acamera = &player->cameras[CamIV_FirstPerson];
+        sync_local_camera(player->acamera);
         if (!is_my_player(player))
             break;
         lens_mode = 2;
@@ -537,6 +539,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
     case PVM_IsoStraightView:
         player->acamera = &player->cameras[CamIV_Isometric];
         player->acamera->view_mode = val;
+        sync_local_camera(player->acamera);
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -547,6 +550,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         break;
     case PVM_ParchmentView:
         player->acamera = &player->cameras[CamIV_Parchment];
+        sync_local_camera(player->acamera);
         if (!is_my_player(player))
             break;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -558,6 +562,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         break;
     case PVM_FrontView:
         player->acamera = &player->cameras[CamIV_FrontView];
+        sync_local_camera(player->acamera);
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -572,6 +577,8 @@ void set_engine_view(struct PlayerInfo *player, long val)
 
 void draw_overlay_compass(long base_x, long base_y)
 {
+    struct PlayerInfo* player = get_my_player();
+    struct Camera* cam = get_local_camera(player->acamera);
     unsigned short flg_mem = lbDisplay.DrawFlags;
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
@@ -582,23 +589,23 @@ void draw_overlay_compass(long base_x, long base_y)
     int h = (LbSprFontCharHeight(lbFontPtr, '/') * tx_units_per_px / 16) / 2 + 2 * units_per_px / 16;
     int center_x = base_x * units_per_px / 16 + MapDiagonalLength / 2;
     int center_y = base_y * units_per_px / 16 + MapDiagonalLength / 2;
-    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
-    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapN));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbSinL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbCosL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapS));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbCosL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = (-(MapDiagonalLength*7/16) * LbSinL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapE));
     }
-    shift_x = (-(MapDiagonalLength*7/16) * LbCosL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbSinL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
     }
@@ -718,10 +725,11 @@ void redraw_isometric_view(void)
     TbGraphicsWindow ewnd;
     memset(&ewnd, 0, sizeof(TbGraphicsWindow));
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
+    struct Camera* render_cam = get_local_camera(&player->cameras[CamIV_Isometric]);
     // Camera position modifications
     make_camera_deviations(player,dungeon);
     update_explored_flags_for_power_sight(player);
-    engine(player,&player->cameras[CamIV_Isometric]);
+    engine(player,render_cam);
     if (smooth_on)
     {
         store_engine_window(&ewnd,pixel_size);
@@ -748,8 +756,9 @@ void redraw_frontview(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
+    struct Camera* render_cam = get_local_camera(&player->cameras[CamIV_FrontView]);
     update_explored_flags_for_power_sight(player);
-    draw_frontview_engine(&player->cameras[CamIV_FrontView]);
+    draw_frontview_engine(render_cam);
      remove_explored_flags_for_power_sight(player);
     if (flag_is_set(game.operation_flags,GOF_ShowGui)) {
         draw_whole_status_panel();
@@ -1045,6 +1054,7 @@ void redraw_display(void)
       set_pointer_graphic_none();
     else
       process_pointer_graphic();
+    interpolate_local_cameras();
     switch (player->view_mode)
     {
     case PVM_EmptyView:
