@@ -189,6 +189,7 @@ obj/dungeon_data.o \
 obj/dungeon_stats.o \
 obj/engine_arrays.o \
 obj/engine_camera.o \
+obj/local_camera.o \
 obj/engine_lenses.o \
 obj/engine_redraw.o \
 obj/engine_render.o \
