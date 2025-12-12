@@ -35,7 +35,7 @@ struct PlayerInfo;
 /******************************************************************************/
 extern struct Camera local_cameras[4];
 extern struct Camera previous_local_cameras[4];
-extern struct Camera desired_local_cameras[4];
+extern struct Camera destination_local_cameras[4];
 extern float interpolated_cam_mappos_x[4];
 extern float interpolated_cam_mappos_y[4];
 extern float interpolated_cam_mappos_z[4];
@@ -48,8 +48,8 @@ extern TbBool local_camera_ready;
 void init_local_cameras(struct PlayerInfo *player);
 void update_local_cameras(void);
 void interpolate_local_cameras(void);
-void sync_local_camera(struct Camera *cam);
-void set_local_desired_camera(struct Camera *cam);
+void sync_local_camera(struct PlayerInfo *player);
+void set_local_camera_destination(struct Camera *cam);
 struct Camera* get_local_camera(struct Camera* cam);
 
 /******************************************************************************/
