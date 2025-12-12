@@ -1158,7 +1158,8 @@ TbBool validate_source_basic
     }
     if (creature_under_spell_effect(source, CSAfF_Freeze))
     {
-        return (inst_idx == CrInst_CLEANSE);
+        struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+        return flag_is_set(inst_inf->instance_property_flags, InstPF_AllowWhileFrozen);
     }
 
     return true;
