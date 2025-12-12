@@ -985,7 +985,7 @@ short load_script(long lvnum)
 static void add_to_party_process(struct ScriptContext *context)
 {
     struct PartyTrigger* pr_trig = context->pr_trig;
-    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
+    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown,pr_trig->target);
 }
 
 static void process_party(struct PartyTrigger* pr_trig)
