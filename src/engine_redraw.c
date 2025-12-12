@@ -530,7 +530,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         // fall through
     case PVM_CreatureView:
         player->acamera = &player->cameras[CamIV_FirstPerson];
-        sync_local_camera(player->acamera);
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         lens_mode = 2;
@@ -543,7 +543,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
     case PVM_IsoStraightView:
         player->acamera = &player->cameras[CamIV_Isometric];
         player->acamera->view_mode = val;
-        sync_local_camera(player->acamera);
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -554,7 +554,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         break;
     case PVM_ParchmentView:
         player->acamera = &player->cameras[CamIV_Parchment];
-        sync_local_camera(player->acamera);
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -566,7 +566,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         break;
     case PVM_FrontView:
         player->acamera = &player->cameras[CamIV_FrontView];
-        sync_local_camera(player->acamera);
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         lens_mode = 0;
