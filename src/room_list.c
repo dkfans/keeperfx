@@ -52,6 +52,31 @@ void clear_rooms(void)
   }
 }
 
+void recalculate_player_roomlist(PlayerNumber plyr_idx,RoomKind rkind)
+{
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+
+    RoomIndex last_idx = 0;
+
+    for (RoomIndex room_idx = 0; room_idx < ROOMS_COUNT; room_idx++)
+    {
+        struct Room* room = &game.rooms[room_idx];
+        if (!room_is_invalid(room) && (room->owner == plyr_idx) && (room->kind == rkind))
+        {
+            if (last_idx != 0)
+            {
+                struct Room* last_room = &game.rooms[last_idx];
+                last_room->prev_of_owner = room->index;
+            }
+
+            room->next_of_owner = last_idx;
+            dungeon->room_list_start[rkind] = room->index;
+            last_idx = room->index;
+
+        }
+    }
+}
+
 /**
  * Counts amount of rooms of specific type owned by specific player.
  * @param plyr_idx The player number. Only specific player number is accepted.
@@ -85,7 +110,8 @@ long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
         k++;
         if (k > ROOMS_COUNT)
         {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            ERRORLOG("Infinite loop detected when sweeping rooms list %s for player %d",room_code_name(rkind),(int)plyr_idx);
+            recalculate_player_roomlist(plyr_idx, rkind);
             break;
         }
     }
