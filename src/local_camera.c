@@ -186,10 +186,7 @@ void interpolate_local_cameras(void)
 
 void sync_local_camera(struct PlayerInfo *player)
 {
-    if (!is_my_player(player)) {
-        return;
-    }
-    if (!local_camera_ready) {
+    if (!is_my_player(player) || !local_camera_ready) {
         return;
     }
     if (player->acamera == &player->cameras[CamIV_FirstPerson]) {
@@ -204,17 +201,13 @@ void sync_local_camera(struct PlayerInfo *player)
     }
 }
 
-void set_local_camera_destination(struct Camera *cam)
+void set_local_camera_destination(struct PlayerInfo *player)
 {
-    if (!local_camera_ready) {
+    if (!is_my_player(player) || !local_camera_ready) {
         return;
     }
-    struct PlayerInfo *player = get_my_player();
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
-        if (cam == &player->cameras[cam_idx]) {
-            destination_local_cameras[cam_idx] = *cam;
-            break;
-        }
+        destination_local_cameras[cam_idx] = player->cameras[cam_idx];
     }
 }
 
@@ -224,9 +217,6 @@ struct Camera* get_local_camera(struct Camera* cam)
         return cam;
     }
     struct PlayerInfo *player = get_my_player();
-    if ((player->allocflags & PlaF_CompCtrl) != 0) {
-        return cam;
-    }
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
         if (cam == &player->cameras[cam_idx]) {
             return &local_cameras[cam_idx];

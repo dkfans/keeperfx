@@ -410,7 +410,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
         {
           cam->rotation_angle_x -= DEGREES_360;
         }
-        set_local_camera_destination(cam);
+        set_local_camera_destination(player);
     }
     return 0;
 }
@@ -512,7 +512,7 @@ long pinstfm_leave_creature(struct PlayerInfo *player, int32_t *n)
         if (get_camera_zoom(player->acamera) < player->dungeon_camera_zoom) {
             set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
         }
-        set_local_camera_destination(player->acamera);
+        set_local_camera_destination(player);
     }
     return 0;
 }
@@ -691,8 +691,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
         dstcam = &player->cameras[CamIV_FrontView];
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
-        set_local_camera_destination(&player->cameras[CamIV_Isometric]);
-        set_local_camera_destination(&player->cameras[CamIV_FrontView]);
+        set_local_camera_destination(player);
     }
     if (is_my_player_number(player->id_number) && (player->instance_remain_turns >= 8))
         LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
@@ -709,8 +708,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
   {
     cam->zoom = player->isometric_view_zoom_level;
     cam->rotation_angle_x = DEGREES_45;
-    set_local_camera_destination(&player->cameras[CamIV_Isometric]);
-    set_local_camera_destination(&player->cameras[CamIV_FrontView]);
+    set_local_camera_destination(player);
   }
   light_turn_light_on(player->cursor_light_idx);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
@@ -883,7 +881,7 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, int32_t *n)
         player->instance_remain_turns = 0;
     cam->mappos.x.val = x;
     cam->mappos.y.val = y;
-    set_local_camera_destination(cam);
+    set_local_camera_destination(player);
     return 0;
 }
 
