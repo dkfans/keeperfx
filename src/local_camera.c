@@ -41,7 +41,7 @@ extern "C" {
 /******************************************************************************/
 struct Camera local_cameras[4];
 struct Camera previous_local_cameras[4];
-struct Camera desired_local_cameras[4];
+struct Camera destination_local_cameras[4];
 float interpolated_cam_mappos_x[4];
 float interpolated_cam_mappos_y[4];
 float interpolated_cam_mappos_z[4];
@@ -55,7 +55,7 @@ TbBool local_camera_ready;
 void sync_camera_state(int cam_idx, struct Camera *cam)
 {
     local_cameras[cam_idx] = *cam;
-    desired_local_cameras[cam_idx] = *cam;
+    destination_local_cameras[cam_idx] = *cam;
     previous_local_cameras[cam_idx] = *cam;
     interpolated_cam_mappos_x[cam_idx] = cam->mappos.x.val;
     interpolated_cam_mappos_y[cam_idx] = cam->mappos.y.val;
@@ -100,8 +100,8 @@ void process_local_minimap_click(struct Packet* packet) {
         long pos_y = subtile_coord_center(packet->actn_par2);
         for (int i = CamIV_Isometric; i <= CamIV_FrontView; i++) {
             if (i != CamIV_FirstPerson) {
-                desired_local_cameras[i].mappos.x.val = pos_x;
-                desired_local_cameras[i].mappos.y.val = pos_y;
+                destination_local_cameras[i].mappos.x.val = pos_x;
+                destination_local_cameras[i].mappos.y.val = pos_y;
             }
         }
     }
@@ -109,12 +109,12 @@ void process_local_minimap_click(struct Packet* packet) {
 
 void update_local_first_person_camera(struct Thing *ctrltng)
 {
-    struct Camera* cam = &desired_local_cameras[CamIV_FirstPerson];
+    struct Camera* cam = &destination_local_cameras[CamIV_FirstPerson];
     int eye_height = get_creature_eye_height(ctrltng);
     update_first_person_position(cam, ctrltng, eye_height);
 
-    long current_horizontal = desired_local_cameras[CamIV_FirstPerson].rotation_angle_x;
-    long current_vertical = desired_local_cameras[CamIV_FirstPerson].rotation_angle_y;
+    long current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
+    long current_vertical = destination_local_cameras[CamIV_FirstPerson].rotation_angle_y;
     struct Packet* latest_packet = get_local_input_lag_packet_for_turn(CURRENT_TURN_FOR_CAMERA);
     if (latest_packet != NULL) {
         long new_horizontal, new_vertical, new_roll;
@@ -135,7 +135,7 @@ void update_local_cameras(void)
         return;
     }
     for (int i = 0; i < 4; i++) {
-        previous_local_cameras[i] = desired_local_cameras[i];
+        previous_local_cameras[i] = destination_local_cameras[i];
     }
     struct PlayerInfo* my_player = get_my_player();
     struct Thing *ctrltng = thing_get(my_player->controlled_thing_idx);
@@ -152,8 +152,8 @@ void update_local_cameras(void)
             if (cam_idx == CamIV_FirstPerson || cam_idx == CamIV_Parchment) {
                 continue;
             }
-            process_camera_controls(&desired_local_cameras[cam_idx], local_packet, my_player);
-            view_process_camera_inertia(&desired_local_cameras[cam_idx]);
+            process_camera_controls(&destination_local_cameras[cam_idx], local_packet, my_player);
+            view_process_camera_inertia(&destination_local_cameras[cam_idx]);
         }
     }
 }
@@ -165,7 +165,7 @@ void interpolate_local_cameras(void)
     }
     for (int i = 0; i < 4; i++) {
         struct Camera* prev = &previous_local_cameras[i];
-        struct Camera* desired = &desired_local_cameras[i];
+        struct Camera* desired = &destination_local_cameras[i];
         struct Camera* out = &local_cameras[i];
         interpolated_cam_mappos_x[i] = interpolate(interpolated_cam_mappos_x[i], prev->mappos.x.val, desired->mappos.x.val);
         interpolated_cam_mappos_y[i] = interpolate(interpolated_cam_mappos_y[i], prev->mappos.y.val, desired->mappos.y.val);
@@ -184,40 +184,30 @@ void interpolate_local_cameras(void)
     }
 }
 
-void sync_local_camera(struct Camera *cam)
+void sync_local_camera(struct PlayerInfo *player)
 {
-    if (!local_camera_ready) {
+    if (!is_my_player(player) || !local_camera_ready) {
         return;
     }
-    struct PlayerInfo *player = get_my_player();
-    if (cam == &player->cameras[CamIV_FirstPerson]) {
-        sync_first_person_camera(cam, player);
+    if (player->acamera == &player->cameras[CamIV_FirstPerson]) {
+        sync_first_person_camera(player->acamera, player);
         return;
     }
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
-        if (cam == &player->cameras[cam_idx]) {
-            sync_camera_state(cam_idx, cam);
-            if (cam_idx != CamIV_Parchment) {
-                if (player->view_mode == PVM_ParchmentView) {
-                    reset_all_minimap_interpolation = true;
-                }
-            }
-            return;
-        }
+        sync_camera_state(cam_idx, &player->cameras[cam_idx]);
+    }
+    if (player->view_mode == PVM_ParchmentView) {
+        reset_all_minimap_interpolation = true;
     }
 }
 
-void set_local_desired_camera(struct Camera *cam)
+void set_local_camera_destination(struct PlayerInfo *player)
 {
-    if (!local_camera_ready) {
+    if (!is_my_player(player) || !local_camera_ready) {
         return;
     }
-    struct PlayerInfo *player = get_my_player();
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
-        if (cam == &player->cameras[cam_idx]) {
-            desired_local_cameras[cam_idx] = *cam;
-            break;
-        }
+        destination_local_cameras[cam_idx] = player->cameras[cam_idx];
     }
 }
 
@@ -227,9 +217,6 @@ struct Camera* get_local_camera(struct Camera* cam)
         return cam;
     }
     struct PlayerInfo *player = get_my_player();
-    if ((player->allocflags & PlaF_CompCtrl) != 0) {
-        return cam;
-    }
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
         if (cam == &player->cameras[cam_idx]) {
             return &local_cameras[cam_idx];
