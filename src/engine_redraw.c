@@ -623,7 +623,7 @@ void redraw_creature_view(void)
     update_explored_flags_for_power_sight(player);
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     TRACE_THING(thing);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
       draw_creature_view(thing);
     if (smooth_on)
     {
@@ -912,7 +912,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             thing = thing_get(player->thing_under_hand);
             TRACE_THING(thing);
             TbBool can_cast = false;
-            if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
+            if ((player->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
                 PowerKind pwkind = PwrK_POSSESS;
                 if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))

@@ -1313,7 +1313,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
     MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets)
 {
     PlayerNumber owner;
-    if (!thing_is_invalid(tngsrc))
+    if (thing_exists(tngsrc))
         owner = tngsrc->owner;
     else
         owner = -1;
@@ -1485,7 +1485,7 @@ long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *ma
     MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, unsigned char area_affect_type, SpellKind spell_idx)
 {
     PlayerNumber owner;
-    if (!thing_is_invalid(tngsrc))
+    if (thing_exists(tngsrc))
         owner = tngsrc->owner;
     else
         owner = -1;

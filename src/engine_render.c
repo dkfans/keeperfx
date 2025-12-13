@@ -7963,7 +7963,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                   struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
-                  if (thing_is_invalid(dragtng))
+                  if (!thing_exists(dragtng))
                   {
                     lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                     lbSpriteReMapPtr = white_pal;
@@ -7971,7 +7971,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   else if (thing_is_trap_crate(dragtng))
                   {
                       struct Thing *handthing = thing_get(player->thing_under_hand);
-                      if (!thing_is_invalid(handthing))
+                      if (thing_exists(handthing))
                       {
                           if (handthing->class_id == TCls_Trap)
                           {
