@@ -55,8 +55,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Teleport     = 0x008000,
     CSAfF_Timebomb     = 0x010000,
     CSAfF_Wind         = 0x020000,
-    CSAfF_Cleanse      = 0x040000,
-    CSAfF_SpellBlocks  = 0x080000,
+    CSAfF_SpellBlocks  = 0x040000,
 };
 
 enum SpellPropertiesFlags {

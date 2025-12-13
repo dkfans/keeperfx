@@ -1188,13 +1188,6 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
-    // CLEANSE.
-    if (flag_is_set(spconf->spell_flags, CSAfF_Cleanse)
-    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Cleanse)))
-    {
-        process_cleanse_effect(thing);
-        affected = true;
-    }
     // Spell Blocks.
     if (flag_is_set(spconf->spell_flags, CSAfF_SpellBlocks)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_SpellBlocks)))
@@ -1384,12 +1377,6 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         // 'CSAfF_Heal' is never set but we still want to mark it cleared to free the spell slot.
         cleared = true;
     }
-    // CLEANSE.
-    if (flag_is_set(spell_flags, CSAfF_Cleanse))
-    {
-        // 'CSAfF_Cleanse' is never set but we still want to mark it cleared to free the spell slot.
-        cleared = true;
-    }
     // Spell Blocks.
     if (flag_is_set(spell_flags, CSAfF_SpellBlocks)
     && (creature_under_spell_effect(thing, CSAfF_SpellBlocks)))
@@ -1525,10 +1512,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
     if ((spconf->cleanse_flags > 0)
     && (any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags)))
     {
-        if (!creature_is_immune_to_spell_effect(thing, CSAfF_Cleanse))
-        {
-            clean_spell_effect(thing, spconf->cleanse_flags);
-        }
+        clean_spell_effect(thing, spconf->cleanse_flags);
         if ((spconf->spell_flags == 0)
         && (!spell_is_continuous(spell_idx, duration)))
         {

@@ -281,7 +281,6 @@ TngUpdateRet update_effect_element(struct Thing *thing);
 TngUpdateRet update_effect(struct Thing *thing);
 TngUpdateRet process_effect_generator(struct Thing *thing);
 void process_spells_affected_by_effect_elements(struct Thing *thing);
-void process_cleanse_effect(struct Thing* thing);
 TbBool destroy_effect_thing(struct Thing *thing);
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
 void process_fx_lines();
