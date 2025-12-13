@@ -454,7 +454,7 @@ static int lua_Add_to_party(lua_State *L)
       return 0;
     }
 
-    add_member_to_party(party_id, crtr_id, experience, gold, objective_id, countdown);
+    add_member_to_party(party_id, crtr_id, experience, gold, objective_id, countdown, -1);
     return 0;
 }
 

@@ -538,7 +538,7 @@ TbBool create_party(const char *prtname)
     return true;
 }
 
-TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level, long carried_gold, long objctv_id, long countdown)
+TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level, long carried_gold, long objctv_id, long countdown, PlayerNumber target)
 {
     if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
@@ -561,6 +561,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level
     member->objectv = objctv_id;
     member->countdown = countdown;
     party->members_num++;
+    member->target = target;
     return true;
 }
 
@@ -866,6 +867,7 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
               cctrl->party.objective = member->objectv;
+              cctrl->party.target_plyr_idx = member->target;
               cctrl->party.original_objective = cctrl->party.objective;
               cctrl->wait_to_turn = game.play_gameturn + member->countdown;
               cctrl->hero.wait_time = game.play_gameturn + member->countdown;
