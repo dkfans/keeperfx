@@ -655,6 +655,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
     cam->zoom = 24000;
   }
   cam->rotation_angle_x = 0;
+  sync_local_camera(player);
   if (!TimerNoReset)
   {
      timerstarttime = LbTimerClock();

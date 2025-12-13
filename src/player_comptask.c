@@ -2158,7 +2158,10 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
                             TbResult res = game_action(dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1);
                             if (res <= Lb_OK)
                             {
-                                WARNLOG("Game action GA_MarkDig returned code %d - location %d,%d around gem not marked for digging", res, slb_x + x, slb_y + y);
+                                if ((find_from_task_list(dungeon->owner, get_subtile_number(stl_x, stl_y)) == -1))
+                                {
+                                    WARNLOG("Game action GA_MarkDig returned code %d - location %d,%d (%s) around gem not marked for digging", res, slb_x + x, slb_y + y, slabst->code_name);
+                                }
                             }
                         }
                     }

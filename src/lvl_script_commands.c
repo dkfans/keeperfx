@@ -721,7 +721,8 @@ static void add_to_party_check(const struct ScriptLine *scline)
       SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
       return;
     }
-    long objective_id = get_rid(hero_objective_desc, scline->tp[4]);
+    PlayerNumber target = -1;
+    long objective_id = get_objective_id_with_potential_target(scline->tp[4], &target);
     if (objective_id == -1)
     {
       SCRPTERRLOG("Unknown party member objective, '%s'", scline->tp[4]);
@@ -731,7 +732,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
 
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
-        add_member_to_party(party_id, crtr_id, scline->np[2], scline->np[3], objective_id, scline->np[5]);
+        add_member_to_party(party_id, crtr_id, scline->np[2], scline->np[3], objective_id, scline->np[5], target);
     } else
     {
         if (game.script.party_triggers_num < PARTY_TRIGGERS_COUNT)
@@ -746,6 +747,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
             pr_trig->objectv = objective_id;
             pr_trig->countdown = scline->np[5];
             pr_trig->condit_idx = get_script_current_condition();
+            pr_trig->target = target;
         }
         else
         {
