@@ -328,7 +328,7 @@ struct Thing *find_best_hero_gate_to_navigate_to(struct Thing *herotng)
         if (hero_gates[g].index == 0)
             continue;
         gatetng = thing_get(hero_gates[g].index);
-        if (!thing_is_invalid(gatetng))
+        if (thing_exists(gatetng))
         {
             if (creature_can_navigate_to_with_storage(herotng, &gatetng->mappos, NavRtF_Default))
             {
@@ -449,7 +449,7 @@ TbBool creature_can_get_to_dungeon_heart(struct Thing *creatng, PlayerNumber ply
         return false;
     }
     struct Thing* heartng = get_player_soul_container(player->id_number);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         SYNCDBG(18,"The %s index %d cannot get to player %d without heart",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;

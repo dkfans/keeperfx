@@ -1213,7 +1213,7 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         WARNLOG("Tried to init player %d which has no dungeon",(int)player->id_number);
         return;
     }
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         dungeon->dnheart_idx = thing->index;
         dungeon->mappos.x.val = thing->mappos.x.val;
@@ -1235,7 +1235,7 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
     dungeon->backup_heart_idx = 0;
     struct Thing* scndthing = find_players_backup_dungeon_heart(player->id_number);
     {
-        if (!thing_is_invalid(scndthing))
+        if (thing_exists(scndthing))
         {
             dungeon->backup_heart_idx = scndthing->index;
         }
@@ -1262,7 +1262,7 @@ void setup_computer_player(int plr_idx)
 {
     SYNCDBG(5,"Starting for player %d",plr_idx);
     struct Thing* thing = find_players_dungeon_heart(plr_idx); // cannot use player->id_number, as it isn't set yet
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         script_support_setup_player_as_computer_keeper(plr_idx, 0);
     } else

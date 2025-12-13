@@ -290,9 +290,7 @@ TbBool object_can_be_damaged (const struct Thing* thing)
 
 TbBool thing_is_object_with_tooltip(const struct Thing* thing, TbBool is_optional)
 {
-    if (thing_is_invalid(thing))
-        return false;
-    if (thing->class_id != TCls_Object)
+    if (!thing_is_object(thing))
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return ((objst->tooltip_stridx != GUIStr_Empty) && (objst->tooltip_optional == is_optional));
@@ -1132,7 +1130,7 @@ static long object_being_dropped(struct Thing *thing)
 
 void update_dungeon_heart_beat(struct Thing *heartng)
 {
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         ERRORLOG("Trying to beat non-existing heart");
         return;
@@ -1272,7 +1270,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
                 dungeon->backup_heart_idx = 0;
                 struct Thing* scndthing = find_players_backup_dungeon_heart(heartng->owner);
                 {
-                    if (!thing_is_invalid(scndthing))
+                    if (thing_exists(scndthing))
                     {
                         dungeon->backup_heart_idx = scndthing->index;
                     }
@@ -2066,10 +2064,8 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
  */
 TbBool thing_is_gold_hoard(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
+    if (!thing_is_object(thing))
         return false;
-    if (thing->class_id != TCls_Object)
-      return false;
     return object_is_gold_hoard(thing);
 }
 

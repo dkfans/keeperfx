@@ -3586,9 +3586,8 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
     }
     if ((x == 255) && (y == 255))
     {
-        struct Thing *creatng;
-        creatng = lord_of_the_land_find();
-        if (!thing_is_invalid(creatng))
+        struct Thing *creatng = lord_of_the_land_find();
+        if (thing_exists(creatng))
         {
             cor_x = creatng->mappos.x.val;
             cor_y = creatng->mappos.y.val;

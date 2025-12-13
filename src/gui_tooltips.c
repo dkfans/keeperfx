@@ -275,7 +275,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   struct Thing *handthing = thing_get(player->thing_under_hand);
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
           return false;
       }
       if (help_tip_time <= 50) {
@@ -305,7 +305,7 @@ short setup_room_tooltips(struct Coord3d *pos)
 
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
           return false;
       }
       if (help_tip_time <= 50) {

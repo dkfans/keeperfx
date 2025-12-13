@@ -581,7 +581,7 @@ void draw_power_hand(void)
         return;
     }
     thing = thing_get(player->hand_thing_idx);
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
         return;
     if (player->hand_busy_until_turn > game.play_gameturn)
     {
@@ -623,7 +623,7 @@ void draw_power_hand(void)
     long inputpos_x;
     long inputpos_y;
     picktng = get_first_thing_in_power_hand(player);
-    if ((!thing_is_invalid(picktng)) && ((picktng->rendering_flags & TRF_Invisible) == 0))
+    if ((thing_exists(picktng)) && ((picktng->rendering_flags & TRF_Invisible) == 0))
     {
         SYNCDBG(7,"Holding %s",thing_model_name(picktng));
         switch (picktng->class_id)
@@ -1438,7 +1438,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
         return Lb_FAIL;
     }
     thing = thing_get(tng_idx);
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
     {
         thing = INVALID_THING;
     } else
@@ -1451,7 +1451,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
         if (player->thing_under_hand > 0)
             thing = thing_get(player->thing_under_hand);
     }
-    if (thing_is_invalid(thing)) {
+    if (!thing_exists(thing)) {
         return Lb_FAIL;
     }
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))

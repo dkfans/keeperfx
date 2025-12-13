@@ -112,7 +112,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         {
             if ((dungeon->heart_destroy_turn == 10) && (dungeon->free_soul_idx == 0))
             {
-                if (thing_is_invalid(soultng))
+                if (!thing_exists(soultng))
                 {
                     soultng = create_creature(central_pos, get_players_spectator_model(plyr_idx), plyr_idx);
                 }

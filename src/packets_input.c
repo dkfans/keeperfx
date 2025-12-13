@@ -212,7 +212,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         player->thing_under_hand = thing->index;
     }
     thing = get_first_thing_in_power_hand(player);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         if (player->hand_thing_idx == 0) {
             create_power_hand(player->id_number);
@@ -239,10 +239,10 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             (player->instance_num != PI_Whip) && (player->instance_num != PI_WhipEnd))
         {
             thing = get_first_thing_in_power_hand(player);
-            if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
+            if ((player->thing_under_hand != 0) || !thing_exists(thing))
             {
                 set_power_hand_graphic(plyr_idx, HndA_Hover);
-                if (!thing_is_invalid(thing))
+                if (thing_exists(thing))
                     thing->rendering_flags |= TRF_Invisible;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))

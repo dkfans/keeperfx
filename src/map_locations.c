@@ -160,7 +160,7 @@ TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx)
     SYNCDBG(7,"Starting at player %d", (int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         ERRORLOG("Script error - attempt to create thing in player %d dungeon with no heart",(int)plyr_idx);
         return false;
@@ -311,7 +311,7 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
         thing = get_player_soul_container(i);
       } else
         thing = INVALID_THING;
-      if (!thing_is_invalid(thing))
+      if (thing_exists(thing))
       {
         *pos = thing->mappos;
       } else
@@ -680,7 +680,7 @@ void find_map_location_coords(TbMapLocation location, int32_t *x, int32_t *y, in
             thing = get_player_soul_container(i);
         } else
           thing = INVALID_THING;
-        if (!thing_is_invalid(thing))
+        if (thing_exists(thing))
         {
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;

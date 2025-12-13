@@ -1787,7 +1787,7 @@ short get_creature_control_action_inputs(void)
                     player->thing_under_hand = traptng->index;
                 }
             }
-            else if (thing_is_invalid(dragtng))
+            else if (!thing_exists(dragtng))
             {
                 struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
                 TbBool diggable_subtile = false;

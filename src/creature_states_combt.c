@@ -100,7 +100,7 @@ TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng)
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
-        if (!thing_is_invalid(enmtng))
+        if (thing_exists(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -111,7 +111,7 @@ TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng)
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
-        if (!thing_is_invalid(enmtng))
+        if (thing_exists(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -130,7 +130,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
-        if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
+        if (thing_exists(enmtng) && !thing_is_creature_digger(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -141,7 +141,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
-        if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
+        if (thing_exists(enmtng) && !thing_is_creature_digger(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -217,7 +217,7 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
-        if (!thing_is_invalid(enmtng))
+        if (thing_exists(enmtng))
         {
             if (enmtng->model != enmodel) {
                 return true;
@@ -228,7 +228,7 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
-        if (!thing_is_invalid(enmtng))
+        if (thing_exists(enmtng))
         {
             if (enmtng->model != enmodel) {
                 return true;
@@ -713,7 +713,7 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         {
             struct Thing* attcktng = thing_get(cctrl->combat.battle_enemy_idx);
             TRACE_THING(attcktng);
-            if (!thing_is_invalid(attcktng) && ((attcktng->index == tng1->index) || (attcktng->index == tng2->index)))
+            if (thing_exists(attcktng) && ((attcktng->index == tng1->index) || (attcktng->index == tng2->index)))
             {
                 return true;
             }
@@ -1547,7 +1547,7 @@ CrAttackType check_for_possible_melee_combat_with_attacker_within_distance(struc
         else
             thing = INVALID_THING;
         TRACE_THING(thing);
-        if (thing_is_invalid(thing))
+        if (!thing_exists(thing))
             continue;
         // When counting distance, take size of creatures into account
         long distance = get_combat_distance(fightng, thing);
@@ -1583,7 +1583,7 @@ CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(stru
         else
             thing = INVALID_THING;
         TRACE_THING(thing);
-        if (thing_is_invalid(thing))
+        if (!thing_exists(thing))
             continue;
         // When counting distance, take size of creatures into account
         long distance = get_combat_distance(fightng, thing);
