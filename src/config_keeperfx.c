@@ -876,19 +876,11 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
       case 39: // FRAMES_PER_SECOND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          if (!start_params.overrides[Clo_FramesPerSecond] && get_conf_parameter_whole(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              i = atoi(word_buf);
-          }
-          if ((i >= 0) && (i <= INT32_MAX))
-          {
-              if (!start_params.overrides[Clo_FramesPerSecond])
-              {
-                  start_params.num_fps_draw = i;
-              }
-          }
-          else {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              i = parse_draw_fps_config_val(word_buf, &start_params.num_fps_draw_main, &start_params.num_fps_draw_secondary);
+              if (i <= 0)
+                  CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
       case 40: // TAG_MODE_TOGGLING
@@ -1068,5 +1060,55 @@ void process_cmdline_overrides(void)
     features_enabled &= ~Ft_NoCdMusic;
   }
 }
+
+int parse_draw_fps_config_val(const char *arg, long *fps_draw_main, long *fps_draw_secondary)
+{
+  int cnt = 0, val1 = 0, val2 = 0;
+  long len = strlen(arg);
+  int32_t pos = 0;
+  char word_buf[32];
+  for (int i=0; i<2; i++)
+  {
+    if (get_conf_parameter_single(arg,&pos,len,word_buf,sizeof(word_buf)) <= 0)
+      break;
+
+    switch (i)
+    {
+    case 0:
+      if (strcasecmp(word_buf, "auto") == 0) {
+        val1=-1;
+        cnt++;
+      } else {
+        val1 = atoi(word_buf);
+        if (val1 >= 0){
+          cnt++;
+        } else {
+          i=2; // jump out for loop
+          break;
+        }
+      }
+      break;
+    case 1:
+        val2 = atoi(word_buf);
+        if (val2 >= 0){
+          cnt++;
+        } else {
+          i=2; // jump out for loop
+          break;
+        }
+      break;
+    }
+  }
+
+  if (cnt > 0) {
+    *fps_draw_main = val1;
+  }
+  if (cnt > 1) {
+    *fps_draw_secondary = val2;
+  }
+
+  return cnt;
+}
+
 
 /******************************************************************************/

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <enet/enet.h>
 
+#include "bflib_enet.h"
 #include "front_landview.h"
 
 enum NetMessageType
@@ -50,7 +51,7 @@ namespace
         }
         va_end(lst);
         ENetPacket *packet = enet_packet_create(buffer, sz, ENET_PACKET_FLAG_RELIABLE);
-        enet_peer_send(client_peer, 0, packet);
+        enet_peer_send(client_peer, ENET_CHANNEL_RELIABLE, packet);
         fprintf(stderr, "sending %d bytes to %p\n", sz, client_peer);
     }
 
@@ -84,7 +85,7 @@ namespace
                 screen_packet = reinterpret_cast<struct ScreenPacket *>(packet->data);
                 out.packet.reserved_padding[0] = 0x15;
                 ENetPacket *out_packet = enet_packet_create(&out, sizeof(out), ENET_PACKET_FLAG_RELIABLE);
-                enet_peer_send(peer, 0, out_packet);
+                enet_peer_send(peer, ENET_CHANNEL_RELIABLE, out_packet);
                 break;
             }
             default:

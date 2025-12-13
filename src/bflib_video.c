@@ -26,6 +26,8 @@
 #include "bflib_sprfnt.h"
 #include "bflib_vidsurface.h"
 
+#include "keeperfx.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <math.h>
@@ -644,6 +646,9 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     }
 
     reset_bflib_render();
+
+    redetect_screen_refresh_rate_for_draw();
+
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }

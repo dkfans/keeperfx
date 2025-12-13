@@ -177,6 +177,7 @@
     <ClCompile Include="src\lens_flyeye.cpp" />
     <ClCompile Include="src\lens_mist.cpp" />
     <ClCompile Include="src\light_data.c" />
+    <ClCompile Include="src\local_camera.c" />
     <ClCompile Include="src\lua_api.c" />
     <ClCompile Include="src\lua_api_player.c" />
     <ClCompile Include="src\lua_api_slabs.c" />
@@ -413,6 +414,7 @@
     <ClInclude Include="src\lens_flyeye.h" />
     <ClInclude Include="src\lens_mist.h" />
     <ClInclude Include="src\light_data.h" />
+    <ClInclude Include="src\local_camera.h" />
     <ClInclude Include="src\lua_api.h" />
     <ClInclude Include="src\lua_base.h" />
     <ClInclude Include="src\lua_cfg_funcs.h" />

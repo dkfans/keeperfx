@@ -280,9 +280,9 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
 
 long PaletteFadePlayer(struct PlayerInfo *player)
 {
-    if (game.game_kind == GKind_MultiGame)
-        return 0; //todo Fix the bug properly. This function causes crashes in multiplayer.
-
+    if (player->main_palette == NULL) {
+        return 0;
+    }
     long i;
     unsigned char palette[PALETTE_SIZE];
     // Find the fade step
