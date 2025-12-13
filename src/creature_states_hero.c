@@ -621,7 +621,7 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         SYNCDBG(3,"The %s index %d cannot move to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -666,7 +666,7 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -698,7 +698,7 @@ TbBool good_setup_rush_to_dungeon_heart(struct Thing* creatng, PlayerNumber plyr
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
         return false;
@@ -712,7 +712,7 @@ TbBool good_setup_wander_to_own_heart(struct Thing* creatng)
     SYNCDBG(7, "Starting");
     struct Thing* heartng = get_player_soul_container(creatng->owner);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, creatng->owner);
         return false;
@@ -1221,7 +1221,7 @@ TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNum
     SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
@@ -1244,7 +1244,7 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
     SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng)) {
+    if (!thing_exists(heartng)) {
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }

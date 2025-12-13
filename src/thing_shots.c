@@ -1249,7 +1249,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (shotng->shot.damage != 0)
     {
         HitPoints damage_done;
-        if (!thing_is_invalid(shooter)) {
+        if (thing_exists(shooter)) {
             damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
         } else {
             damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1);

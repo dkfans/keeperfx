@@ -192,7 +192,7 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
                 thing = thing_get(friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        if (!thing_is_invalid(thing) && thing_revealed(thing, dungeon->owner))
+        if (thing_exists(thing) && thing_revealed(thing, dungeon->owner))
         {
             battle_creature_over = thing->index;
         }
@@ -297,7 +297,7 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
                 thing = thing_get(enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        if (!thing_is_invalid(thing) && thing_revealed(thing, dungeon->owner))
+        if (thing_exists(thing) && thing_revealed(thing, dungeon->owner))
         {
             battle_creature_over = thing->index;
         }

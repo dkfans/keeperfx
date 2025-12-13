@@ -427,7 +427,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             thing = thing_get(event->target);
             // If thing is invalid - leave the message without it.
             // Otherwise, put creature type in it.
-            if (!thing_is_invalid(thing))
+            if (thing_exists(thing))
             {
                 crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
@@ -460,7 +460,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             thing = thing_get(event->target);
             // If thing is invalid - leave the message without it.
             // Otherwise, put creature type in it.
-            if (!thing_is_invalid(thing))
+            if (thing_exists(thing))
             {
                 crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
@@ -481,7 +481,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_SpellPickedUp:
             other_off = 1;
             thing = thing_get(event->target);
-            if (thing_is_invalid(thing))
+            if (!thing_exists(thing))
                 break;
             i = get_power_name_strindex(book_thing_to_power_kind(thing));
             str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
@@ -503,7 +503,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             thing = thing_get(event->target);
             // If thing is invalid - leave the message without it.
             // Otherwise, put creature type in it.
-            if (!thing_is_invalid(thing))
+            if (thing_exists(thing))
             {
                 crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
@@ -537,7 +537,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_TrapCrateFound:
             other_off = 1;
             thing = thing_get(event->target);
-            if (thing_is_invalid(thing))
+            if (!thing_exists(thing))
                 break;
             trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(thing));
             i = trapst->name_stridx;
@@ -547,7 +547,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_DoorCrateFound:
             other_off = 1;
             thing = thing_get(event->target);
-            if (thing_is_invalid(thing))
+            if (!thing_exists(thing))
               break;
             doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
             i = doorst->name_stridx;
@@ -557,7 +557,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_DnSpecialFound:
             other_off = 1;
             thing = thing_get(event->target);
-            if (thing_is_invalid(thing))
+            if (!thing_exists(thing))
               break;
             i = get_special_description_strindex(box_thing_to_special(thing));
             str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
@@ -732,7 +732,7 @@ void update_all_events(void)
     for (long i = EVENTS_COUNT; i > 0; i--)
     {
         struct Thing* thing = event_is_attached_to_thing(i);
-        if (!thing_is_invalid(thing))
+        if (thing_exists(thing))
         {
             struct Event* event = &game.event[i];
             if ((thing->class_id == TCls_Creature) && thing_is_picked_up(thing))
@@ -781,7 +781,7 @@ void remove_events_thing_is_attached_to(struct Thing *thing)
         if (((event->flags & EvF_Exists) != 0) && (event->kind != EvKind_Objective))
         {
             struct Thing* atchtng = event_is_attached_to_thing(i);
-            if (!thing_is_invalid(atchtng))
+            if (thing_exists(atchtng))
             {
                 if (atchtng->index == thing->index) {
                     event_delete_event(event->owner, event->index);
