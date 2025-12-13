@@ -54,7 +54,6 @@ function GetSerializedData()
         local prepped = preprocess(Game)
         return binser.serialize(prepped)
     end)
-    print("GetSerializedData ok: " .. tostring(ok))
     if not ok then
         error("binser failed: " .. result)
     end
