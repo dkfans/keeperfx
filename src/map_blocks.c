@@ -2628,7 +2628,7 @@ SlabKind choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
     struct Coord3d pos, pos2;
     struct Thing *heartng = get_player_soul_container(plyr_idx);
     // this function calculates distance in slabs, not subtiles
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         pos.x.val = 42;
         pos.y.val = 42;

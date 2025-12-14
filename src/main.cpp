@@ -1512,7 +1512,7 @@ short zoom_to_next_annoyed_creature(void)
     dungeon = get_players_num_dungeon(my_player_number);
     dungeon->zoom_annoyed_creature_idx = find_next_annoyed_creature(player->id_number,dungeon->zoom_annoyed_creature_idx);
     thing = thing_get(dungeon->zoom_annoyed_creature_idx);
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
     {
       return false;
     }
@@ -2071,7 +2071,11 @@ void set_mouse_light(struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
     struct Packet *pckt;
-    pckt = get_packet_direct(player->packet_num);
+    if (is_my_player(player)) {
+        pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+    } else {
+        pckt = get_packet_direct(player->packet_num);
+    }
     if (player->cursor_light_idx != 0)
     {
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)

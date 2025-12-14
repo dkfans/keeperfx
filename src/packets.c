@@ -59,6 +59,7 @@
 #include "config_players.h"
 #include "player_utils.h"
 #include "engine_camera.h"
+#include "engine_render.h"
 #include "local_camera.h"
 #include "thing_physics.h"
 #include "thing_doors.h"
@@ -464,6 +465,21 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
     }
 }
 
+void update_box_lag_compensation(struct PlayerInfo* player) {
+    box_lag_compensation_x = 0;
+    box_lag_compensation_y = 0;
+    if (is_my_player(player)) {
+        struct Packet* auth_pckt = get_packet_direct(player->packet_num);
+        struct Packet* visual_pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+        if (visual_pckt != NULL) {
+            box_lag_compensation_x = coord_slab(auth_pckt->pos_x) - coord_slab(visual_pckt->pos_x);
+            box_lag_compensation_y = coord_slab(auth_pckt->pos_y) - coord_slab(visual_pckt->pos_y);
+            box_lag_compensation_x = slab_coord(box_lag_compensation_x);
+            box_lag_compensation_y = slab_coord(box_lag_compensation_y);
+        }
+    }
+}
+
 void process_players_dungeon_control_packet_control(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -492,6 +508,9 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         if (settings_changed) {
             save_settings();
         }
+    }
+    if (is_my_player(player)) {
+        update_box_lag_compensation(player);
     }
     process_dungeon_control_packet_clicks(plyr_idx);
     set_mouse_light(player);
@@ -1505,7 +1524,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       break;
   case PckA_CtrlCrtrSetInstnc:
       thing = thing_get(player->controlled_thing_idx);
-      if (thing_is_invalid(thing))
+      if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
       if (creature_control_invalid(cctrl))
@@ -1530,7 +1549,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       break;
   case PckA_CheatCtrlCrtrSetInstnc:
       thing = thing_get(player->controlled_thing_idx);
-      if (thing_is_invalid(thing))
+      if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
       if (creature_control_invalid(cctrl))
