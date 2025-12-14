@@ -421,6 +421,8 @@ long x_init_off;
 long y_init_off;
 long floor_pointed_at_x;
 long floor_pointed_at_y;
+long box_lag_compensation_x;
+long box_lag_compensation_y;
 
 static long fade_scaler;
 static long fade_way_out;
@@ -2829,20 +2831,20 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
         if (current_player->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
-            create_map_volume_box(x, y, z, line_color);
+            create_map_volume_box(x + box_lag_compensation_x, y + box_lag_compensation_y, z, line_color);
         }
         else
         {
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_map_volume_box(current_player->render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, line_color, false);
+        create_fancy_map_volume_box(current_player->render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, line_color, false);
     }
     map_volume_box.color = default_color;
 }
@@ -8376,14 +8378,14 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     int32_t coord_y;
     int32_t coord_z;
     long box_width, box_height;
-    pos.y.val = map_volume_box.end_y;
-    pos.x.val = map_volume_box.end_x;
+    pos.y.val = map_volume_box.end_y - box_lag_compensation_y;
+    pos.x.val = map_volume_box.end_x - box_lag_compensation_x;
     pos.z.val = subtile_coord(5,0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
-    pos.y.val = map_volume_box.beg_y;
-    pos.x.val = map_volume_box.beg_x;
+    pos.y.val = map_volume_box.beg_y - box_lag_compensation_y;
+    pos.x.val = map_volume_box.beg_x - box_lag_compensation_x;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width -= coord_x;
     box_height -= coord_y;
@@ -8438,14 +8440,14 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
     valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
     valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
-    pos.y.val = valid_slabs.end_y;
-    pos.x.val = valid_slabs.end_x;
+    pos.y.val = valid_slabs.end_y - box_lag_compensation_y;
+    pos.x.val = valid_slabs.end_x - box_lag_compensation_x;
     pos.z.val = subtile_coord(5,0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
-    pos.y.val = valid_slabs.beg_y;
-    pos.x.val = valid_slabs.beg_x;
+    pos.y.val = valid_slabs.beg_y - box_lag_compensation_y;
+    pos.x.val = valid_slabs.beg_x - box_lag_compensation_x;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width -= coord_x;
     box_height -= coord_y;
