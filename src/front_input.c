@@ -30,6 +30,7 @@
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
 #include "bflib_network.h"
+#include "bflib_network_exchange.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -68,6 +69,8 @@
 #include "room_data.h"
 #include "map_blocks.h"
 #include "local_camera.h"
+#include "packets.h"
+#include "console_cmd.h"
 
 #include "keeperfx.hpp"
 #include "KeeperSpeech.h"
@@ -262,39 +265,34 @@ int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
 short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if (is_key_pressed(KC_RETURN, KMod_NONE))
-    {
+    if (is_key_pressed(KC_RETURN, KMod_NONE)) {
+        memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
+        if ((game.system_flags & GSF_NetworkActive) != 0) {
+            LbNetwork_SendChatMessageImmediate(player->id_number, player->mp_message_text);
+        }
+        player->allocflags &= ~PlaF_NewMPMessage;
+        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_RETURN);
-        return true;
-    } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
-    {
+    } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
         clear_key_pressed(KC_ESCAPE);
-        return true;
-    }
-    else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char)
-    {
-        set_players_packet_action(player, PckA_PlyrMsgCmdAutoCompletion, 0, 0, 0, 0);
+    } else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char) {
+        cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         clear_key_pressed(KC_TAB);
-        return true;
-    }
-    else if (is_key_pressed(KC_UP, KMod_NONE))
-    {
-        set_players_packet_action(player, PckA_PlyrMsgLast, 0, 0, 0, 0);
+    } else if (is_key_pressed(KC_UP, KMod_NONE)) {
+        memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_UP);
-        return true;
+    } else {
+        LbTextSetFont(winfont);
+        if (is_key_pressed(KC_BACK,KMod_DONTCARE) || pixel_size * LbTextStringWidth(player->mp_message_text) < 450) {
+            message_text_key_add(player->mp_message_text, lbInkey, key_modifiers);
+            clear_key_pressed(lbInkey);
+            return true;
+        }
+        return false;
     }
-
-    LbTextSetFont(winfont);
-    int msg_width = pixel_size * LbTextStringWidth(player->mp_message_text);
-    if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )
-    {
-        set_players_packet_action(player,PckA_PlyrMsgChar,lbInkey,key_modifiers,0,0);
-        clear_key_pressed(lbInkey);
-        return true;
-    }
-    return false;
+    return true;
 }
 
 /**
@@ -593,7 +591,7 @@ short get_global_inputs(void)
               clear_key_pressed(KC_RETURN);
               return true;
           }
-        set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
+        player->allocflags |= PlaF_NewMPMessage;
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -703,7 +701,7 @@ TbBool get_level_lost_inputs(void)
     {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
-        set_players_packet_action(player, PckA_PlyrMsgBegin, 0,0,0,0);
+        player->allocflags |= PlaF_NewMPMessage;
         clear_key_pressed(KC_RETURN);
         return true;
       }
