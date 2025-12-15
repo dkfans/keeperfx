@@ -50,6 +50,15 @@ TbBool event_is_invalid(const struct Event *event)
     return (event <= &game.event[0]) || (event > &game.event[EVENTS_COUNT-1]) || (event == NULL);
 }
 
+TbBool event_exists(const struct Event* event)
+{
+    if (event_is_invalid(event))
+        return false;
+    if ((event->flags & EvF_Exists) == 0)
+        return false;
+    return true;
+}
+
 struct Event *get_event_nearby_of_type_for_player(MapCoord map_x, MapCoord map_y, long max_dist, EventKind evkind, PlayerNumber plyr_idx)
 {
     for (int i = 1; i < EVENTS_COUNT; i++)
@@ -293,7 +302,9 @@ void event_update_on_battle_removal(BattleIndex battle_idx)
         {
             if (event->target == battle_idx)
             {
-                event->lifespan_turns = 0;
+                // Clear coords - new ones will be set during update_battle_events() call
+                event->mappos_y = 0;
+                event->mappos_x = 0;
             }
         }
     }
@@ -694,7 +705,7 @@ void event_process_events(void)
     for (long i = 0; i < EVENTS_COUNT; i++)
     {
         struct Event* event = &game.event[i];
-        if ((event->flags & EvF_Exists) == 0) {
+        if (!event_exists(event)) {
             continue;
         }
         struct PlayerInfo*player = get_player(event->owner);
