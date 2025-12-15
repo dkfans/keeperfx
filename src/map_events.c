@@ -302,7 +302,9 @@ void event_update_on_battle_removal(BattleIndex battle_idx)
         {
             if (event->target == battle_idx)
             {
-                event->lifespan_turns = 0;
+                // Clear coords - new ones will be set during update_battle_events() call
+                event->mappos_y = 0;
+                event->mappos_x = 0;
             }
         }
     }
