@@ -598,8 +598,8 @@ TbBool cleanup_battle(BattleIndex battle_id)
         return true;
     } else
     {
-        return false;
         SYNCDBG(7,"There are still %d participants in battle %d",(int)count,(int)battle_id);
+        return false;
     }
 }
 
