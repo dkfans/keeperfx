@@ -129,7 +129,8 @@ REM Little note for invis
 
     IF_AVAILABLE(PLAYER0, POWER_CONCEAL == 1)
         TUTORIAL_FLASH_BUTTON(29, 100)
-        QUICK_INFORMATION(43, "With the amount of heroes controlling and guarding this realm, you may find sneaking into their territory effective.")
+        REM "With the amount of heroes controlling and guarding this realm, you may find sneaking into their territory effective."
+        DISPLAY_INFORMATION(149)
     ENDIF
 
 REM Magic config
@@ -168,7 +169,8 @@ REM Wincon
 
     IF(PLAYER3, DUNGEON_DESTROYED == 1)
         IF(PLAYER_GOOD, DUNGEON_DESTROYED == 1)
-            QUICK_OBJECTIVE(2, "It seems like you are well practiced in laying waste to realms like this. Expertly done, Keeper.")
+            REM "It seems like you are well practiced in laying waste to realms like this. Expertly done, Keeper."
+            DISPLAY_OBJECTIVE(150)
             WIN_GAME
         ENDIF
     ENDIF
@@ -181,12 +183,14 @@ REM Events and timers
 
     IF (PLAYER0, TIMER0 > 100)
         ZOOM_TO_LOCATION(PLAYER0, 2)
-        QUICK_OBJECTIVE(3, "With your arachnid friends to support you, try recruiting these Mistresses for your cause. In this realm Mistresses can only learn abilities by finding shrines to bestow skills on them. Look around and enhance their skills to crush your rival Keeper and the Heroes in this realm.", 2)
+        REM "With your arachnid friends to support you, try recruiting these Mistresses for your cause. In this realm Mistresses can only learn abilities by finding shrines to bestow skills on them. Look around and enhance their skills to crush your rival Keeper and the Heroes in this realm."
+        DISPLAY_OBJECTIVE(151, 2)
         REVEAL_MAP_LOCATION(PLAYER0, 2, -1)
     ENDIF
 
     IF(PLAYER0, DARK_MISTRESS > 0)
-        QUICK_OBJECTIVE(6, "These Mistresses know no combat abilities yet and cannot fight as they are now. They can only learn new skills by powering them up at the shrines in this realm. Find the first shrine to teach them deadly skills to crush your foes with.", 8)
+        REM "These Mistresses know no combat abilities yet and cannot fight as they are now. They can only learn new skills by powering them up at the shrines in this realm. Find the first shrine to teach them deadly skills to crush your foes with."
+        DISPLAY_OBJECTIVE(152, 8)
     ENDIF   
 
 REM Logic for the special boxes / shrines
@@ -195,15 +199,21 @@ REM Logic for the special boxes / shrines
 
         REM Make specials in shrine 1 accessible
         IF_ACTION_POINT(7, PLAYER0)
-            QUICK_MESSAGE(4, "Choose your level 1 ability wisely...", DARK_MISTRESS)
-            QUICK_OBJECTIVE(5, "Bestow upon your Mistresses their ability they will learn at level 1. Every shrine will let you choose only 1 of 3 abilities to permanently power up your mistresses. There are many other shrines in this realm, seek them all out to become stronger. Here, pick between a regular melee slash, the scorching flame breath, or the ability to fire arrows at a distance.", 8)
+            REM "Choose your level 1 ability wisely..."
+            DISPLAY_MESSAGE(153, DARK_MISTRESS)
+            REM "Bestow upon your Mistresses their ability they will learn at level 1. Every shrine will let you choose only 1 of 3 abilities to permanently power up your mistresses. There are many other shrines in this realm, seek them all out to become stronger. Here, pick between a regular melee slash, the scorching flame breath, or the ability to fire arrows at a distance."
+            DISPLAY_OBJECTIVE(154, 8)
             CHANGE_SLAB_OWNER(85, 105, PLAYER0, MATCH)
         ENDIF
 
-        SET_BOX_TOOLTIP(1,"Learn Melee Slash")
-        SET_BOX_TOOLTIP(2,"Learn Flame Breath")
-        SET_BOX_TOOLTIP(3,"Learn Arrow")
-        SET_BOX_TOOLTIP(4,"Learn Dig")
+        REM "Learn Melee Slash"
+        SET_BOX_TOOLTIP_ID(1,155)
+        REM "Learn Flame Breath"
+        SET_BOX_TOOLTIP_ID(2,156)
+        REM "Learn Arrow"
+        SET_BOX_TOOLTIP_ID(3,157)
+        REM "Learn Dig"
+        SET_BOX_TOOLTIP_ID(4,158)
 
         CREATE_PARTY(first_shrine)
             ADD_TO_PARTY(first_shrine, THIEF, 1, 200, ATTACK_ENEMIES, 0)
@@ -223,7 +233,8 @@ REM Logic for the special boxes / shrines
 
             SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,MELEE)
 
-            QUICK_MESSAGE(7, "Learned Melee Slash!", DARK_MISTRESS)
+            REM "Learned Melee Slash!"
+            DISPLAY_MESSAGE(159, DARK_MISTRESS)
 
             SET_TIMER(PLAYER0, TIMER1)
         ENDIF
@@ -240,7 +251,8 @@ REM Logic for the special boxes / shrines
             REM This version of flame breath fixes an issue with the regular version of it
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 1, FLAME_BREATH_MISTRESS, 1)
 
-            QUICK_MESSAGE(8, "Learned Flame Breath!", DARK_MISTRESS)
+            REM "Learned Flame Breath!"
+            DISPLAY_MESSAGE(160, DARK_MISTRESS)
 
             REM Give preference for melee so the mistress actually makes use of flamethrower
             SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,MELEE)
@@ -259,7 +271,8 @@ REM Logic for the special boxes / shrines
 
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 1, FIRE_ARROW, 1)
 
-            QUICK_MESSAGE(9, "Learned Arrow!", DARK_MISTRESS)
+            REM "Learned Arrow!"
+            DISPLAY_MESSAGE(161, DARK_MISTRESS)
 
             SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,RANGED)
 
@@ -272,10 +285,12 @@ REM Logic for the special boxes / shrines
     REM Unlock dig secret
 
         IF (PLAYER0,BOX4_ACTIVATED > 0)
-            QUICK_INFORMATION(35, "What a fascinating find. In Possession, it seems your Mistresses can now dig as well!")
+            REM "What a fascinating find. In Possession, it seems your Mistresses can now dig as well!"
+            DISPLAY_INFORMATION(162)
             PLAY_MESSAGE(PLAYER0,SPEECH,80)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 2, FIRST_PERSON_DIG, 1)
-            QUICK_MESSAGE(34, "Learned Dig!", DARK_MISTRESS)
+            REM "Learned Dig!"
+            DISPLAY_MESSAGE(163, DARK_MISTRESS)
         ENDIF
 
     REM Add parties
@@ -328,12 +343,14 @@ REM Logic for the special boxes / shrines
         IF (PLAYER0, FLAG0 == 0)
 
             IF (PLAYER0, TIMER1 > 500)
-                QUICK_OBJECTIVE(52, "Now that you are armed with your Mistresses having learned their first ability, you have the strength needed to capture the Entrance.", 81)
+                REM "Now that you are armed with your Mistresses having learned their first ability, you have the strength needed to capture the Entrance."
+                DISPLAY_OBJECTIVE(164, 81)
             ENDIF
 
             IF (PLAYER0, TIMER1 > 2000)
                 ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD, first_shrine_tunneller, -2, DUNGEON_HEART, 0, 1, 100)
-                QUICK_MESSAGE(30, "Your presence is known to the heroes. Stay alert.", SPELL_FLIGHT)
+                REM "Your presence is known to the heroes. Stay alert."
+                DISPLAY_MESSAGE(165, SPELL_FLIGHT)
                 TUTORIAL_FLASH_BUTTON(37, 100)
             ENDIF
 
@@ -361,15 +378,19 @@ REM Logic for the special boxes / shrines
 
     REM Shrine 2
 
-        SET_BOX_TOOLTIP(21,"Learn Gas Projectile")
-        SET_BOX_TOOLTIP(22,"Learn Heal")
-        SET_BOX_TOOLTIP(23,"Learn Slow")
+        REM "Learn Gas Projectile"
+        SET_BOX_TOOLTIP_ID(21,166)
+        REM "Learn Heal"
+        SET_BOX_TOOLTIP_ID(22,167)
+        REM "Learn Slow"
+        SET_BOX_TOOLTIP_ID(23,168)
 
         IF (PLAYER0,BOX21_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 3, POISON_CLOUD, 2)
             SET_CREATURE_CONFIGURATION(DARK_MISTRESS, SpellImmunity, POISON_CLOUD, 1)
 
-            QUICK_MESSAGE(10, "Learned Gas Projectile and Immunity!", DARK_MISTRESS)
+            REM "Learned Gas Projectile and Immunity!"
+            DISPLAY_MESSAGE(169, DARK_MISTRESS)
 
             REM Effects and tile changes
 
@@ -383,7 +404,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX22_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 3, HEAL, 2)
-            QUICK_MESSAGE(11, "Learned Heal!", DARK_MISTRESS)
+            REM "Learned Heal!"
+            DISPLAY_MESSAGE(170, DARK_MISTRESS)
 
             REM Make the mistress more likely to heal
             SET_CREATURE_CONFIGURATION(DARK_MISTRESS, HealRequirement, 200)
@@ -400,7 +422,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX23_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 3, SLOW, 2)
-            QUICK_MESSAGE(12, "Learned Slow!", DARK_MISTRESS)
+            REM "Learned Slow!"
+            DISPLAY_MESSAGE(171, DARK_MISTRESS)
 
             REM Effects and tile changes
 
@@ -413,19 +436,24 @@ REM Logic for the special boxes / shrines
 
         REM Make specials in shrine 2 accessible
         IF_ACTION_POINT(25, PLAYER0)
-            QUICK_MESSAGE(32, "Choose your level 2 ability wisely...", DARK_MISTRESS)
+            REM "Choose your level 2 ability wisely..."
+            DISPLAY_MESSAGE(172, DARK_MISTRESS)
             CHANGE_SLAB_OWNER(13, 110, PLAYER0, MATCH)
         ENDIF
 
     REM Shrine 4
 
-        SET_BOX_TOOLTIP(31,"Learn Freeze")
-        SET_BOX_TOOLTIP(32,"Learn Health Drain")
-        SET_BOX_TOOLTIP(33,"Learn Armour")
+        REM "Learn Freeze"
+        SET_BOX_TOOLTIP_ID(31,173)
+        REM "Learn Health Drain"
+        SET_BOX_TOOLTIP_ID(32,174)
+        REM "Learn Armour"
+        SET_BOX_TOOLTIP_ID(33,175)
 
         IF (PLAYER0,BOX31_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 4, FREEZE, 4)
-            QUICK_MESSAGE(13, "Learned Freeze!", DARK_MISTRESS)
+            REM "Learned Freeze!"
+            DISPLAY_MESSAGE(176, DARK_MISTRESS)
 
             REM Effects and tile changes
             CHANGE_SLAB_TYPE(11, 61, LAVA, MATCH)
@@ -437,7 +465,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX32_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 4, DRAIN, 4)
-            QUICK_MESSAGE(14, "Learned Health Drain!", DARK_MISTRESS)
+            REM "Learned Health Drain!"
+            DISPLAY_MESSAGE(177, DARK_MISTRESS)
             SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,RANGED)
 
             REM Effects and tile changes
@@ -450,7 +479,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX33_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 4, ARMOUR, 4)
-            QUICK_MESSAGE(15, "Learned Armour!", DARK_MISTRESS)
+            REM "Learned Armour!"
+            DISPLAY_MESSAGE(178, DARK_MISTRESS)
 
             REM Effects and tile changes
             CHANGE_SLAB_TYPE(11, 61, LAVA, MATCH)
@@ -462,19 +492,24 @@ REM Logic for the special boxes / shrines
 
         REM Make specials in shrine 4 accessible
         IF_ACTION_POINT(51, PLAYER0)
-            QUICK_MESSAGE(36, "Choose your level 4 ability wisely...", DARK_MISTRESS)
+            REM "Choose your level 4 ability wisely..."
+            DISPLAY_MESSAGE(179, DARK_MISTRESS)
             CHANGE_SLAB_OWNER(11, 61, PLAYER0, MATCH)
         ENDIF
 
     REM Shrine 6
 
-        SET_BOX_TOOLTIP(41,"Learn Speed")
-        SET_BOX_TOOLTIP(42,"Learn Rebound Projectiles")
-        SET_BOX_TOOLTIP(43,"Learn Lightning")
+        REM "Learn Speed"
+        SET_BOX_TOOLTIP_ID(41,180)
+        REM "Learn Rebound Projectiles"
+        SET_BOX_TOOLTIP_ID(42,181)
+        REM "Learn Lightning"
+        SET_BOX_TOOLTIP_ID(43,182)
 
         IF (PLAYER0,BOX41_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 6, SPEED, 6)
-            QUICK_MESSAGE(16, "Learned Speed!", DARK_MISTRESS)
+            REM "Learned Speed!"
+            DISPLAY_MESSAGE(183, DARK_MISTRESS)
 
             REM Effects and tile changes
             CHANGE_SLAB_TYPE(110, 54, LAVA, MATCH)
@@ -486,7 +521,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX42_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 6, REBOUND, 6)
-            QUICK_MESSAGE(18, "Learned Rebound!", DARK_MISTRESS)
+            REM "Learned Rebound!"
+            DISPLAY_MESSAGE(184, DARK_MISTRESS)
 
             REM Effects and tile changes
             CHANGE_SLAB_TYPE(110, 54, LAVA, MATCH)
@@ -498,7 +534,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX43_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 6, LIGHTNING, 6)
-            QUICK_MESSAGE(17, "Learned Lightning!", DARK_MISTRESS)
+            REM "Learned Lightning!"
+            DISPLAY_MESSAGE(185, DARK_MISTRESS)
             SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,RANGED)
 
             REM Effects and tile changes
@@ -511,15 +548,19 @@ REM Logic for the special boxes / shrines
 
         REM Make specials in shrine 6 accessible
         IF_ACTION_POINT(52, PLAYER0)
-            QUICK_MESSAGE(37, "Choose your level 6 ability wisely...", DARK_MISTRESS)
+            REM "Choose your level 6 ability wisely..."
+            DISPLAY_MESSAGE(186, DARK_MISTRESS)
             CHANGE_SLAB_OWNER(110, 54, PLAYER0, MATCH)
         ENDIF
 
     REM Shrine 8
 
-        SET_BOX_TOOLTIP(51,"Learn Fart")
-        SET_BOX_TOOLTIP(52,"Learn Flight")
-        SET_BOX_TOOLTIP(53,"Learn Homing Missile")
+        REM "Learn Fart"
+        SET_BOX_TOOLTIP_ID(51,187)
+        REM "Learn Flight"
+        SET_BOX_TOOLTIP_ID(52,188)
+        REM "Learn Homing Missile"
+        SET_BOX_TOOLTIP_ID(53,189)
 
         CREATE_PARTY(shrine8fart)
             ADD_TO_PARTY(shrine8fart, THIEF, 6, 100, ATTACK_ENEMIES, 0)
@@ -533,7 +574,8 @@ REM Logic for the special boxes / shrines
         IF (PLAYER0,BOX51_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 8, FART, 8)
             SET_CREATURE_CONFIGURATION(DARK_MISTRESS, SpellImmunity, POISON_CLOUD, 1)
-            QUICK_MESSAGE(19, "Learned Fart and Gas Immunity!", DARK_MISTRESS)
+            REM "Learned Fart and Gas Immunity!"
+            DISPLAY_MESSAGE(190, DARK_MISTRESS)
 
             REM Only set the preference to melee if the base attack isn't arrow
 
@@ -556,7 +598,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX52_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 8, FLY, 8)
-            QUICK_MESSAGE(20, "Learned Flight!", DARK_MISTRESS)
+            REM "Learned Flight!"
+            DISPLAY_MESSAGE(191, DARK_MISTRESS)
 
             REM Effects and tile changes
             CHANGE_SLAB_TYPE(70, 7, LAVA, MATCH)
@@ -573,7 +616,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX53_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 8, NAVIGATING_MISSILE, 8)
-            QUICK_MESSAGE(21, "Learned Homing Missile!", DARK_MISTRESS)
+            REM "Learned Homing Missile!"
+            DISPLAY_MESSAGE(192, DARK_MISTRESS)
             SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,RANGED)
 
             REM Effects and tile changes
@@ -591,7 +635,8 @@ REM Logic for the special boxes / shrines
 
         REM Make specials in shrine 8 accessible
         IF_ACTION_POINT(53, PLAYER0)
-            QUICK_MESSAGE(38, "Choose your level 8 ability wisely...", DARK_MISTRESS)
+            REM "Choose your level 8 ability wisely..."
+            DISPLAY_MESSAGE(193, DARK_MISTRESS)
             CHANGE_SLAB_OWNER(70, 7, PLAYER0, MATCH)
         ENDIF
 
@@ -609,13 +654,17 @@ REM Logic for the special boxes / shrines
 
     REM Shrine 10
 
-        SET_BOX_TOOLTIP(61,"Learn Word of Power")
-        SET_BOX_TOOLTIP(62,"Learn Disease")
-        SET_BOX_TOOLTIP(63,"Learn Meteor")
+        REM "Learn Word of Power"
+        SET_BOX_TOOLTIP_ID(61,194)
+        REM "Learn Disease"
+        SET_BOX_TOOLTIP_ID(62,195)
+        REM "Learn Meteor"
+        SET_BOX_TOOLTIP_ID(63,196)
 
         IF (PLAYER0,BOX61_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 10, WORD_OF_POWER, 10)
-            QUICK_MESSAGE(22, "Learned Word of Power!", DARK_MISTRESS)
+            REM "Learned Word of Power!"
+            DISPLAY_MESSAGE(197, DARK_MISTRESS)
 
             IF (PLAYER0, FLAG1 != 1)
                 SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,MELEE)
@@ -631,7 +680,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX62_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 10, CAST_SPELL_DISEASE, 10)
-            QUICK_MESSAGE(23, "Learned Disease!", DARK_MISTRESS)
+            REM "Learned Disease!"
+            DISPLAY_MESSAGE(198, DARK_MISTRESS)
 
             REM Effects and tile changes
             CHANGE_SLAB_TYPE(114, 69, LAVA, MATCH)
@@ -643,7 +693,8 @@ REM Logic for the special boxes / shrines
 
         IF (PLAYER0,BOX63_ACTIVATED > 0)
             SET_CREATURE_INSTANCE(DARK_MISTRESS, 10, FIRE_BOMB, 10)
-            QUICK_MESSAGE(24, "Learned Meteor!", DARK_MISTRESS)
+            REM "Learned Meteor!"
+            DISPLAY_MESSAGE(199, DARK_MISTRESS)
 
             REM Effects and tile changes
             CHANGE_SLAB_TYPE(114, 69, LAVA, MATCH)
@@ -655,7 +706,8 @@ REM Logic for the special boxes / shrines
 
         REM Make specials in shrine 10 accessible
         IF_ACTION_POINT(54, PLAYER0)
-            QUICK_MESSAGE(39, "Choose your level 10 ability wisely...", DARK_MISTRESS)
+            REM "Choose your level 10 ability wisely..."
+            DISPLAY_MESSAGE(200, DARK_MISTRESS)
             CHANGE_SLAB_OWNER(114, 69, PLAYER0, MATCH)
         ENDIF
 
@@ -715,7 +767,8 @@ REM Entry to white heart
         IF_CONTROLS (PLAYER_GOOD, WITCH == 0)
             CHANGE_SLAB_TYPE(25, 27, PRETTY_PATH, NONE)
             CREATE_EFFECT_AT_POS(68, 76, 82)
-            QUICK_OBJECTIVE(25, "Having beaten both gatekeepers, the path to the white heart is open now.", 11)
+            REM "Having beaten both gatekeepers, the path to the white heart is open now."
+            DISPLAY_OBJECTIVE(901, 11)
         ENDIF
     ENDIF
 
@@ -723,19 +776,22 @@ REM Entry to white heart
 
         IF_CONTROLS(PLAYER_GOOD, KNIGHT == 1)
             IF_CONTROLS (PLAYER_GOOD, WITCH == 1)
-                QUICK_INFORMATION(28, "Two Gatekeepers need to be defeated to be able to enter the white heart. Defeat the Knight and the Priestess.", 11)
+                REM "Two Gatekeepers need to be defeated to be able to enter the white heart. Defeat the Knight and the Priestess."
+                DISPLAY_INFORMATION(902, 11)
             ENDIF
         ENDIF
 
         IF_CONTROLS(PLAYER_GOOD, KNIGHT == 0)
             IF_CONTROLS (PLAYER_GOOD, WITCH == 1)
-                QUICK_MESSAGE(29, "What remains to open the gate is to defeat the Priestess.", WITCH)
+                REM "What remains to open the gate is to defeat the Priestess."
+                DISPLAY_MESSAGE(903, WITCH)
             ENDIF
         ENDIF
 
         IF_CONTROLS(PLAYER_GOOD, KNIGHT == 1)
             IF_CONTROLS (PLAYER_GOOD, WITCH == 0)
-                QUICK_MESSAGE(26, "What remains to open the gate is to defeat the Knight.", KNIGHT)
+                REM "What remains to open the gate is to defeat the Knight."
+                DISPLAY_MESSAGE(904, KNIGHT)
             ENDIF
         ENDIF
 
@@ -749,7 +805,8 @@ REM Yellow dungeon
         ADD_CREATURE_TO_LEVEL(PLAYER6, VAMPIRE, 15, 1, 10, 500)
         ADD_CREATURE_TO_LEVEL(PLAYER6, VAMPIRE, 15, 1, 10, 500)
         ADD_CREATURE_TO_LEVEL(PLAYER6, VAMPIRE, 15, 1, 10, 500)
-        QUICK_MESSAGE(27, "Who dares disturb our slumber?", VAMPIRE)
+        REM "Who dares disturb our slumber?"
+        DISPLAY_MESSAGE(905, VAMPIRE)
         CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_YELLOW, 367, 91)
     ENDIF
 
@@ -785,7 +842,8 @@ REM Yellow dungeon
         REM Allow the enemy keeper to start scavenging
         CHANGE_SLAB_TYPE(97, 20, PRETTY_PATH, NONE)
 
-        QUICK_OBJECTIVE(44, "You have intruded on the other Keeper's territory. He's aware of your presence now and will try to scavenge your creatures.")
+        REM "You have intruded on the other Keeper's territory. He's aware of your presence now and will try to scavenge your creatures."
+        DISPLAY_OBJECTIVE(906)
     ENDIF
 
 REM White heart defense
@@ -801,7 +859,8 @@ REM White heart defense
     ENDIF
 
     IF_ACTION_POINT(74, PLAYER0)
-        QUICK_OBJECTIVE(40, "Beyond here lies the heart of the heroes. Make sure you're prepared before you venture in.", 21)
+        REM "Beyond here lies the heart of the heroes. Make sure you're prepared before you venture in."
+        DISPLAY_OBJECTIVE(907, 21)
     ENDIF
 
     CREATE_PARTY(avatar_party)
@@ -814,7 +873,8 @@ REM White heart defense
         ADD_TO_PARTY(heart_defense, BARBARIAN, 10, 1000, DEFEND_HEART, 0)
 
     IF_ACTION_POINT(21, PLAYER0)
-        QUICK_MESSAGE(31, "Your evil conquest ends here!", AVATAR)
+        REM "Your evil conquest ends here!"
+        DISPLAY_MESSAGE(908, AVATAR)
         SET_TIMER(PLAYER0, TIMER5)
     ENDIF
 
@@ -882,7 +942,8 @@ REM Event when the player arrives at the middle
 
     IF_ACTION_POINT(28, PLAYER0)
         SET_TIMER(PLAYER0, TIMER2)
-        QUICK_INFORMATION(33, "Your progress has alerted the heroes that you are encroaching on their territory. Remain vigilant and keep an eye on their patrols.", -3)
+        REM "Your progress has alerted the heroes that you are encroaching on their territory. Remain vigilant and keep an eye on their patrols."
+        DISPLAY_INFORMATION(909, -3)
         REVEAL_MAP_RECT(PLAYER0, 190, 160, 18, 18)
         SET_FLAG(PLAYER0, FLAG0, 1)
     ENDIF
@@ -890,7 +951,8 @@ REM Event when the player arrives at the middle
 REM Logic for the hidden door
 
     IF_ACTION_POINT(75, PLAYER0)
-        QUICK_INFORMATION(45, "Something looks off about that wall...", 75)
+        REM "Something looks off about that wall..."
+        DISPLAY_INFORMATION(910, 75)
     ENDIF
 
 REM Spawn creatures all over the map when the player hits the middle
@@ -1149,8 +1211,10 @@ REM Boss 2 - Priestess
     REM Prevent the player making too many imps because of the creature limit 
 
     IF (PLAYER0, IMP > 49)
-        QUICK_MESSAGE(41, "create more than 50 imps at a time.", IMP)
-        QUICK_MESSAGE(42, "In this realm, you may not", IMP)
+        REM "create more than 50 imps at a time."
+        DISPLAY_MESSAGE(911, IMP)
+        REM "In this realm, you may not"
+        DISPLAY_MESSAGE(912, IMP)
         NEXT_COMMAND_REUSABLE
         MAGIC_AVAILABLE(PLAYER0, POWER_IMP, 0, 0)
     ENDIF
@@ -1162,10 +1226,13 @@ REM Boss 2 - Priestess
 
 REM Mode selection
 
-    SET_BOX_TOOLTIP(90, "Easy Mode")
-    SET_BOX_TOOLTIP(91, "Normal Mode")
+    REM "Easy Mode"
+    SET_BOX_TOOLTIP_ID(90,913)
+    REM "Normal Mode"
+    SET_BOX_TOOLTIP_ID(91,914)
 
-    QUICK_OBJECTIVE(46, "Select your difficulty. On Normal, you will need to rely on building an army of your own, customized Mistresses to win. Playing the map on Normal is recommended for those wanting more of a challenge. On Easy, you will be able to find more rooms like a Prison to gain a creature advantage.")
+    REM "Select your difficulty. On Normal, you will need to rely on building an army of your own, customized Mistresses to win. Playing the map on Normal is recommended for those wanting more of a challenge. On Easy, you will be able to find more rooms like a Prison to gain a creature advantage."
+    DISPLAY_OBJECTIVE(915)
 
     IF (PLAYER0,BOX90_ACTIVATED > 0)
         SET_FLAG(PLAYER0, FLAG2, 1)
@@ -1189,7 +1256,8 @@ REM Mode selection
         CHANGE_SLAB_OWNER(60, 81, PLAYER0)
         CHANGE_SLAB_OWNER(66, 81, PLAYER0)
 
-        QUICK_OBJECTIVE(1, "The curtain rises on your conquest of this realm full of shrines of great power. Heroes patrol this realm to protect these shrines, and a rival keeper is also interested in their power to strenghten one's creatures. Both of their hearts are practically begging for you to destroy them. However, your portal appears to be guarded by heroes, so you'll need to find creatures first to claim it. Try heading east first and sneak past the enemy until you can fight.", 1)
+        REM "The curtain rises on your conquest of this realm full of shrines of great power. Heroes patrol this realm to protect these shrines, and a rival keeper is also interested in their power to strenghten one's creatures. Both of their hearts are practically begging for you to destroy them. However, your portal appears to be guarded by heroes, so you'll need to find creatures first to claim it. Try heading east first and sneak past the enemy until you can fight."
+        DISPLAY_OBJECTIVE(916, 1)
 
         REM Intro little fancy thing
 
@@ -1229,13 +1297,15 @@ REM Mode selection
 
     REM Easy Mode
     IF (PLAYER0, FLAG2 == 1)
-        QUICK_MESSAGE(47, "Easy difficulty selected.", SPELL_FLIGHT)
+        REM "Easy difficulty selected."
+        DISPLAY_MESSAGE(917, SPELL_FLIGHT)
         PLAY_MESSAGE(PLAYER0,SPEECH,80)
     ENDIF
 
     REM Normal Mode
     IF (PLAYER0, FLAG2 == 2)
-        QUICK_MESSAGE(48, "Normal difficulty selected.", SPELL_FLIGHT)
+        REM "Normal difficulty selected."
+        DISPLAY_MESSAGE(918, SPELL_FLIGHT)
         PLAY_MESSAGE(PLAYER0,SPEECH,80)
 
         REM Remove neutral prison
@@ -1255,5 +1325,6 @@ REM Mode selection
     ENDIF
 
     IF (PLAYER0, ENTRANCE > 0)
-        QUICK_OBJECTIVE(49, "Excellent work capturing the entrance, Keeper. This will help you attract more Mistresses and other creatures. When you feel ready, set out North and eliminate your enemies.", 28)
+        REM "Excellent work capturing the entrance, Keeper. This will help you attract more Mistresses and other creatures. When you feel ready, set out North and eliminate your enemies."
+        DISPLAY_OBJECTIVE(919, 28)
     ENDIF
