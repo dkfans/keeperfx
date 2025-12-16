@@ -404,6 +404,16 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
         } else {
             tooltip_delay = 10;
         }
+
+        struct GuiMenu* gmnu = get_active_menu(gbtn->gmenu_idx);
+        if (gmnu) {
+            long menu_id = gmnu->ident;
+            if (menu_id == GMnu_OPTIONS || menu_id == GMnu_VIDEO || menu_id == GMnu_SOUND ||
+                menu_id == GMnu_AUTOPILOT) {
+                tooltip_delay = 0;
+            }
+        }
+
         if ( (tool_tip_time > tooltip_delay) || (player->work_state == PSt_CreatrQuery) )
         {
           if (gbtn->has_shown_before == 0) {
