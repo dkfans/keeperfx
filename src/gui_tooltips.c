@@ -398,9 +398,27 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
   {
     if (tool_tip_box.gbutton == gbtn)
     {
-        tooltip_delay = 10;
+        // Increase tooltip time if the tooltip has been shown before
+        if (gbtn->has_shown_before == 2) {
+            tooltip_delay = 40;
+        } else {
+            tooltip_delay = 10;
+        }
+
+        struct GuiMenu* gmnu = get_active_menu(gbtn->gmenu_idx);
+        if (gmnu) {
+            long menu_id = gmnu->ident;
+            if (menu_id == GMnu_OPTIONS || menu_id == GMnu_VIDEO || menu_id == GMnu_SOUND ||
+                menu_id == GMnu_AUTOPILOT) {
+                tooltip_delay = 0;
+            }
+        }
+
         if ( (tool_tip_time > tooltip_delay) || (player->work_state == PSt_CreatrQuery) )
         {
+          if (gbtn->has_shown_before == 0) {
+            gbtn->has_shown_before = 1;
+          }
           busy_doing_gui = 1;
           if (gbtn->draw_call != gui_area_text)
             setup_gui_tooltip(gbtn);
@@ -413,6 +431,9 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
     {
         clear_gui_tooltip_button();
         update_gui_tooltip_button(gbtn);
+        if (gbtn->has_shown_before == 1) {
+          gbtn->has_shown_before = 2;
+        }
     }
     return true;
   }
