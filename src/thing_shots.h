@@ -115,6 +115,8 @@ TbBool shot_is_boulder(const struct Thing *shotng);
 struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags a4, long a5);
 
 void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
+
+void shot_kill_creature(struct Thing *shotng, struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -209,7 +209,7 @@ struct NamedField {
 };
 
 struct NamedFieldSet {
-    long *const count_field;
+    int32_t *const count_field;
     const char* block_basename;
     const struct NamedField* named_fields;
     struct NamedCommand* names;
@@ -246,7 +246,7 @@ char *prepare_file_fmtpath_mod(const char *mod_dir, short fgroup, const char *fm
 char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname);
 char *prepare_file_path(short fgroup, const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
-unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
+unsigned char *load_data_file_to_buffer(int32_t *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags);
 /******************************************************************************/
@@ -287,19 +287,19 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/
 TbBool parameter_is_number(const char* parstr);
 
-short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
-TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen);
-int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
-int get_conf_line(const char *buf, long *pos, long buflen, char *dst, long dstlen);
-TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
-int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
-int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
+short find_conf_block(const char *buf,int32_t *pos,long buflen,const char *blockname);
+TbBool iterate_conf_blocks(const char * buf, int32_t * pos, long buflen, const char ** name, int * namelen);
+int recognize_conf_command(const char *buf,int32_t *pos,long buflen,const struct NamedCommand *commands);
+int get_conf_line(const char *buf, int32_t *pos, long buflen, char *dst, long dstlen);
+TbBool skip_conf_to_next_line(const char *buf,int32_t *pos,long buflen);
+int get_conf_parameter_single(const char *buf,int32_t *pos,long buflen,char *dst,long dstlen);
+int get_conf_parameter_whole(const char *buf,int32_t *pos,long buflen,char *dst,long dstlen);
 
 TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
     const struct NamedField named_field[], const struct NamedFieldSet* named_fields_set, int idx);
 TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,
         const struct NamedFieldSet* named_fields_set);
-int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
+int recognize_conf_parameter(const char *buf,int32_t *pos,long buflen,const struct NamedCommand *commands);
 void assign_named_field_value(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_named_field_id(const struct NamedField *desc, const char *itmname);

@@ -50,6 +50,15 @@ TbBool event_is_invalid(const struct Event *event)
     return (event <= &game.event[0]) || (event > &game.event[EVENTS_COUNT-1]) || (event == NULL);
 }
 
+TbBool event_exists(const struct Event* event)
+{
+    if (event_is_invalid(event))
+        return false;
+    if ((event->flags & EvF_Exists) == 0)
+        return false;
+    return true;
+}
+
 struct Event *get_event_nearby_of_type_for_player(MapCoord map_x, MapCoord map_y, long max_dist, EventKind evkind, PlayerNumber plyr_idx)
 {
     for (int i = 1; i < EVENTS_COUNT; i++)
@@ -284,16 +293,19 @@ void event_delete_event(long plyr_idx, EventIndex evidx)
     event_delete_event_structure(evidx);
 }
 
-void event_update_on_battle_removal(void)
+void event_update_on_battle_removal(BattleIndex battle_idx)
 {
-    for (long i = 0; i < EVENTS_COUNT; i++)
+    for (EventIndex i = 0; i < EVENTS_COUNT; i++)
     {
         struct Event* event = &game.event[i];
         if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         {
-            // Clear coords - new ones will be set during update_battle_events() call
-            event->mappos_x = 0;
-            event->mappos_y = 0;
+            if (event->target == battle_idx)
+            {
+                // Clear coords - new ones will be set during update_battle_events() call
+                event->mappos_y = 0;
+                event->mappos_x = 0;
+            }
         }
     }
 }
@@ -426,7 +438,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             thing = thing_get(event->target);
             // If thing is invalid - leave the message without it.
             // Otherwise, put creature type in it.
-            if (!thing_is_invalid(thing))
+            if (thing_exists(thing))
             {
                 crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
@@ -459,7 +471,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             thing = thing_get(event->target);
             // If thing is invalid - leave the message without it.
             // Otherwise, put creature type in it.
-            if (!thing_is_invalid(thing))
+            if (thing_exists(thing))
             {
                 crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
@@ -480,7 +492,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_SpellPickedUp:
             other_off = 1;
             thing = thing_get(event->target);
-            if (thing_is_invalid(thing))
+            if (!thing_exists(thing))
                 break;
             i = get_power_name_strindex(book_thing_to_power_kind(thing));
             str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
@@ -502,7 +514,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             thing = thing_get(event->target);
             // If thing is invalid - leave the message without it.
             // Otherwise, put creature type in it.
-            if (!thing_is_invalid(thing))
+            if (thing_exists(thing))
             {
                 crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
@@ -536,7 +548,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_TrapCrateFound:
             other_off = 1;
             thing = thing_get(event->target);
-            if (thing_is_invalid(thing))
+            if (!thing_exists(thing))
                 break;
             trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(thing));
             i = trapst->name_stridx;
@@ -546,7 +558,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_DoorCrateFound:
             other_off = 1;
             thing = thing_get(event->target);
-            if (thing_is_invalid(thing))
+            if (!thing_exists(thing))
               break;
             doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
             i = doorst->name_stridx;
@@ -556,7 +568,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_DnSpecialFound:
             other_off = 1;
             thing = thing_get(event->target);
-            if (thing_is_invalid(thing))
+            if (!thing_exists(thing))
               break;
             i = get_special_description_strindex(box_thing_to_special(thing));
             str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
@@ -693,7 +705,7 @@ void event_process_events(void)
     for (long i = 0; i < EVENTS_COUNT; i++)
     {
         struct Event* event = &game.event[i];
-        if ((event->flags & EvF_Exists) == 0) {
+        if (!event_exists(event)) {
             continue;
         }
         struct PlayerInfo*player = get_player(event->owner);
@@ -731,7 +743,7 @@ void update_all_events(void)
     for (long i = EVENTS_COUNT; i > 0; i--)
     {
         struct Thing* thing = event_is_attached_to_thing(i);
-        if (!thing_is_invalid(thing))
+        if (thing_exists(thing))
         {
             struct Event* event = &game.event[i];
             if ((thing->class_id == TCls_Creature) && thing_is_picked_up(thing))
@@ -780,7 +792,7 @@ void remove_events_thing_is_attached_to(struct Thing *thing)
         if (((event->flags & EvF_Exists) != 0) && (event->kind != EvKind_Objective))
         {
             struct Thing* atchtng = event_is_attached_to_thing(i);
-            if (!thing_is_invalid(atchtng))
+            if (thing_exists(atchtng))
             {
                 if (atchtng->index == thing->index) {
                     event_delete_event(event->owner, event->index);

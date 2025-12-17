@@ -128,7 +128,7 @@ TbResult LbMoveGameCursorToHostCursor(void);
 TbBool IsMouseInsideWindow(void);
 TbResult LbMouseChangeSprite(const struct TbSprite *mouseSprite);
 TbResult LbMouseSuspend(void);
-void GetPointerHotspot(long *hot_x, long *hot_y);
+void GetPointerHotspot(int32_t *hot_x, int32_t *hot_y);
 TbResult LbMouseIsInstalled(void);
 TbResult LbMouseSetWindow(long x, long y, long width, long height);
 TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y);

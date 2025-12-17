@@ -143,7 +143,7 @@ short creature_being_scavenged(struct Thing *creatng)
     if (thing_is_invalid(fellowtng)) {
         fellowtng = get_player_soul_container(creatng->owner);
     }
-    if (thing_is_invalid(fellowtng)) {
+    if (!thing_exists(fellowtng)) {
         SYNCDBG(19,"Cannot get thing to follow");
         return 0;
     }
@@ -284,7 +284,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
 struct Thing *select_scavenger_target(const struct Thing *calltng)
 {
     struct Thing* weaktng = INVALID_THING;
-    long weakpts = LONG_MAX;
+    long weakpts = INT32_MAX;
     SYNCDBG(18,"Starting");
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
     unsigned long k = 0;

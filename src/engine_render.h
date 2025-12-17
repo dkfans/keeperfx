@@ -116,6 +116,8 @@ extern short mz;
 
 extern long floor_pointed_at_x;
 extern long floor_pointed_at_y;
+extern long box_lag_compensation_x;
+extern long box_lag_compensation_y;
 extern Offset vert_offset[3];
 extern Offset hori_offset[3];
 extern Offset high_offset[3];

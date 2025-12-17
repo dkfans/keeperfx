@@ -72,7 +72,7 @@ long link_find(long ntri, long val);
 TbBool outer_locked(long ntri, long ncor);
 
 long point_loop(long pt_tri, long pt_cor);
-long reduce_point(long *pt_tri, long *pt_cor);
+long reduce_point(int32_t *pt_tri, int32_t *pt_cor);
 void edgelen_set(long tri_id);
 long edge_rotateAC(long tri1_id, long cor1_id);
 

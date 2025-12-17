@@ -40,19 +40,19 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-unsigned long *eye_lens_memory;
+uint32_t *eye_lens_memory;
 TbPixel *eye_lens_spare_screen_memory;
 /******************************************************************************/
-void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period);
+void init_lens(uint32_t *lens_mem, int width, int height, int pitch, int nlens, int mag, int period);
 /******************************************************************************/
 
-void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period)
+void init_lens(uint32_t *lens_mem, int width, int height, int pitch, int nlens, int mag, int period)
 {
     long w;
     long h;
     long shift_w;
     long shift_h;
-    unsigned long *mem;
+    uint32_t *mem;
     double flwidth;
     double flheight;
     double center_w;
@@ -208,7 +208,7 @@ void initialise_eye_lenses(void)
   eye_lens_width = lbDisplay.GraphicsScreenWidth;
   unsigned long screen_size = eye_lens_width * eye_lens_height + 2;
   if (screen_size < 256*256) screen_size = 256*256 + 2;
-  eye_lens_memory = (unsigned long *)calloc(screen_size, sizeof(unsigned long));
+  eye_lens_memory = (uint32_t *)calloc(screen_size, sizeof(uint32_t));
   eye_lens_spare_screen_memory = (unsigned char *)calloc(screen_size, sizeof(TbPixel));
   if ((eye_lens_memory == NULL) || (eye_lens_spare_screen_memory == NULL))
   {
@@ -290,11 +290,11 @@ void reinitialise_eye_lens(long nlens)
   SYNCDBG(18,"Finished");
 }
 
-static void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int dstpitch)
+static void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, uint32_t *lens_mem, int width, int height, int dstpitch)
 {
     SYNCDBG(16,"Starting");
     unsigned char* dst = dstbuf;
-    unsigned long* mem = lens_mem;
+    uint32_t* mem = lens_mem;
     for (int h = 0; h < height; h++)
     {
         for (int w = 0; w < width; w++)

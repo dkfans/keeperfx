@@ -209,6 +209,7 @@ TbBool packets_process_cheats(
             if (player->controlled_thing_idx != player->thing_under_hand)
             {
                 player->influenced_thing_idx = player->thing_under_hand;
+                player->influenced_thing_creation = thing->creation_turn;
             }
           }
           if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
@@ -531,7 +532,7 @@ TbBool packets_process_cheats(
         clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         thing = get_player_soul_container(player->cheatselection.chosen_player);
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-        if (!thing_is_invalid(thing))
+        if (thing_exists(thing))
         {
             targeted_message_add(MsgType_Player, thing->owner, plyr_idx, 1, "%d/%d", thing->health, objst->health);
         }

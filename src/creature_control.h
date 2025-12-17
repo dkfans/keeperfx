@@ -393,7 +393,7 @@ struct CreatureControl {
     unsigned long armageddon_teleport_turn;
     short battle_prev_creatr;
     short battle_next_creatr;
-    unsigned char battle_id;
+    BattleIndex battle_id;
     MapSubtlCoord alarm_stl_x;
     MapSubtlCoord alarm_stl_y;
     unsigned long alarm_over_turn;
@@ -405,7 +405,6 @@ struct CreatureControl {
     unsigned long timebomb_countdown;
     ThingIndex timebomb_countdown_id;
     ThingIndex timebomb_target_id;
-    TbBool timebomb_death;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
     SpellKind summon_spl_idx;

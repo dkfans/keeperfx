@@ -132,13 +132,13 @@ struct ManufactureData {
 };
 
 struct TrapDoorConfig {
-    long trap_types_count;
+    int32_t trap_types_count;
     struct TrapConfigStats trap_cfgstats[TRAPDOOR_TYPES_MAX];
-    long door_types_count;
+    int32_t door_types_count;
     struct DoorConfigStats door_cfgstats[TRAPDOOR_TYPES_MAX];
     ThingModel trap_to_object[TRAPDOOR_TYPES_MAX];
     ThingModel door_to_object[TRAPDOOR_TYPES_MAX];
-    long manufacture_types_count;
+    int32_t manufacture_types_count;
     /* Stores manufacturable items. Was originally named trap_data. */
     struct ManufactureData manufacture_data[2*TRAPDOOR_TYPES_MAX];
 };

@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <stdarg.h>
+#include <inttypes.h>
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
@@ -107,7 +108,7 @@ TbBool parameter_is_number(const char* parstr) {
     return true;
 }
 
-int get_conf_line(const char *buf, long *pos, long buflen, char *dst, long dstlen)
+int get_conf_line(const char *buf, int32_t *pos, long buflen, char *dst, long dstlen)
 {
     SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return ccr_endOfFile;
@@ -143,7 +144,7 @@ int get_conf_line(const char *buf, long *pos, long buflen, char *dst, long dstle
 }
 
 
-TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
+TbBool skip_conf_to_next_line(const char *buf,int32_t *pos,long buflen)
 {
   // Skip to end of the line
   while ((*pos) < buflen)
@@ -162,7 +163,7 @@ TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
   return ((*pos) < buflen);
 }
 
-TbBool skip_conf_spaces(const char *buf, long *pos, long buflen)
+TbBool skip_conf_spaces(const char *buf, int32_t *pos, long buflen)
 {
   while ((*pos) < buflen)
   {
@@ -177,7 +178,7 @@ TbBool skip_conf_spaces(const char *buf, long *pos, long buflen)
  * Starts at position given with pos, and sets it to position of block data.
  * @return Returns 1 if the block is found, -1 if buffer exceeded.
  */
-short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname)
+short find_conf_block(const char *buf,int32_t *pos,long buflen,const char *blockname)
 {
   text_line_number = 1;
   int blname_len = strlen(blockname);
@@ -223,7 +224,7 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
  * Sets name and namelen to the block name and name length respectively.
  * Returns true on success, false when the block name is zero.
  */
-TbBool conf_get_block_name(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+TbBool conf_get_block_name(const char * buf, int32_t * pos, long buflen, const char ** name, int * namelen)
 {
   const long start = *pos;
   *name = NULL;
@@ -254,7 +255,7 @@ TbBool conf_get_block_name(const char * buf, long * pos, long buflen, const char
  * Sets name and namelen to the block name and name length respectively.
  * Returns true on success, false when no more blocks are found.
  */
-TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+TbBool iterate_conf_blocks(const char * buf, int32_t * pos, long buflen, const char ** name, int * namelen)
 {
   text_line_number = 1;
   *name = NULL;
@@ -306,7 +307,7 @@ TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char
  * If ccr_unrecognised is returned, that means the command wasn't recognized.
  * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
  */
-int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
+int recognize_conf_command(const char *buf,int32_t *pos,long buflen,const struct NamedCommand commands[])
 {
     SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return ccr_endOfFile;
@@ -382,11 +383,11 @@ static int64_t get_datatype_min(uchar type)
         case dt_uint:
             return 0;
         case dt_long:
-            return LONG_MIN;
+            return INT32_MIN;
         case dt_ulong:
             return 0;
         case dt_longlong:
-            return LLONG_MIN;
+            return INT64_MIN;
         case dt_ulonglong:
             return 0;
         default:
@@ -415,13 +416,13 @@ static int64_t get_datatype_max(uchar type)
         case dt_uint:
             return UINT_MAX;
         case dt_long:
-            return LONG_MAX;
+            return INT32_MAX;
         case dt_ulong:
-            return ULONG_MAX;
+            return UINT32_MAX;
         case dt_longlong:
-            return LLONG_MAX;
+            return INT64_MAX;
         case dt_ulonglong:
-            return ULLONG_MAX;
+            return UINT64_MAX;
         default:
             break;
     }
@@ -438,12 +439,12 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
         int64_t maximum = min(named_field->max, get_datatype_max(named_field->type));
         if( value < minimum)
         {
-            NAMFIELDWRNLOG("field '%s' smaller than min value '%I64d', was '%I64d'",named_field->name,minimum,value);
+            NAMFIELDWRNLOG("field '%s' smaller than min value '%" PRId64 "', was '%" PRId64 "'",named_field->name,minimum,value);
             value = minimum;
         }
         else if( value > maximum)
         {
-            NAMFIELDWRNLOG("field '%s' greater than max value '%I64d', was '%I64d'",named_field->name,maximum,value);
+            NAMFIELDWRNLOG("field '%s' greater than max value '%" PRId64 "', was '%" PRId64 "'",named_field->name,maximum,value);
             value = maximum;
         }
         return value;
@@ -487,7 +488,7 @@ int64_t value_longflagsfield(const struct NamedField* named_field, const char* v
         return 0;
     }
 
-    long pos = 0;
+    int32_t pos = 0;
     long len = strlen(value_text);
     int i = 0;
     while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -528,7 +529,7 @@ int64_t value_flagsfield(const struct NamedField* named_field, const char* value
         return 0;
     }
 
-    long pos = 0;
+    int32_t pos = 0;
     long len = strlen(value_text);
     int i = 0;
     while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -683,13 +684,13 @@ int64_t get_named_field_value(const struct NamedField* named_field, const struct
     case dt_uint:
         return *(unsigned int*)field;
     case dt_long:
-        return *(signed long*)field;
+        return *(int32_t *)field;
     case dt_ulong:
-        return *(unsigned long*)field;
+        return *(uint32_t *)field;
     case dt_longlong:
-        return *(signed long long*)field;
+        return *(int64_t *)field;
     case dt_ulonglong:
-        return *(unsigned long long*)field;
+        return *(uint64_t *)field;
     case dt_float:
         return (int64_t)(*(float*)field);
     case dt_double:
@@ -717,7 +718,7 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
     {
     case dt_uchar:
         if (value < 0 || value > UCHAR_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned char: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for unsigned char: %" PRId64, value);
         else
             *(unsigned char*)field = (unsigned char)value;
         break;
@@ -726,57 +727,57 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
         break;
     case dt_char:
         if (value < CHAR_MIN || value > CHAR_MAX)
-            NAMFIELDWRNLOG("Value out of range for char: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for char: %" PRId64, value);
         else
             *(char*)field = (char)value;
         break;
     case dt_short:
         if (value < SHRT_MIN || value > SHRT_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed short: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for signed short: %" PRId64, value);
         else
             *(signed short*)field = (signed short)value;
         break;
     case dt_ushort:
         if (value < 0 || value > USHRT_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned short: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for unsigned short: %" PRId64, value);
         else
             *(unsigned short*)field = (unsigned short)value;
         break;
     case dt_int:
         if (value < INT_MIN || value > INT_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed int: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for signed int: %" PRId64, value);
         else
             *(signed int*)field = (signed int)value;
         break;
     case dt_uint:
         if (value < 0 || value > UINT_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned int: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for unsigned int: %" PRId64, value);
         else
             *(unsigned int*)field = (unsigned int)value;
         break;
     case dt_long:
-        if (value < LONG_MIN || value > LONG_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed long: %lld", value);
+        if (value < INT32_MIN || value > INT32_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed long: %" PRId64, value);
         else
-            *(signed long*)field = (signed long)value;
+            *(int32_t *)field = (signed long)value;
         break;
     case dt_ulong:
-        if (value < 0 || value > ULONG_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned long: %lld", value);
+        if (value < 0 || value > UINT32_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned long: %" PRId64, value);
         else
-            *(unsigned long*)field = (unsigned long)value;
+            *(uint32_t *)field = (unsigned long)value;
         break;
     case dt_longlong:
-        if (value < LLONG_MIN || value > LLONG_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed long long: %lld", value);
+        if (value < INT64_MIN || value > INT64_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed long long: %" PRId64, value);
         else
-            *(signed long long*)field = (signed long long)value;
+            *(int64_t *)field = (signed long long)value;
         break;
     case dt_ulonglong:
-        if (value < 0 || value > ULLONG_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned long long: %lld", value);
+        if (value < 0)
+            NAMFIELDWRNLOG("Value out of range for unsigned long long: %" PRId64, value);
         else
-            *(unsigned long long*)field = (unsigned long long)value;
+            *(uint64_t *)field = (unsigned long long)value;
         break;
     case dt_float:
         *(float*)field = (float)value;
@@ -823,7 +824,7 @@ void assign_named_field_value(const struct NamedField* named_field, int64_t valu
  * If ccr_error        is returned, that means something went wrong.
  */
 
-int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[], const struct NamedFieldSet* named_fields_set, int idx, unsigned short flags, const char *config_textname)
+int assign_conf_command_field(const char *buf,int32_t *pos,long buflen,const struct NamedField commands[], const struct NamedFieldSet* named_fields_set, int idx, unsigned short flags, const char *config_textname)
 {
     SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return -1;
@@ -946,7 +947,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
 TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
                          const struct NamedField named_field[], const struct NamedFieldSet* named_fields_set, int idx)
 {
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, blockname);
     if (k < 0)
     {
@@ -1015,7 +1016,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set, const char *conf
 TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,
                                const struct NamedFieldSet* named_fields_set)
 {
-    long pos = 0;
+    int32_t pos = 0;
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -1049,7 +1050,7 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
     return true;
 }
 
-int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen)
+int get_conf_parameter_whole(const char *buf,int32_t *pos,long buflen,char *dst,long dstlen)
 {
   int i;
   if ((*pos) >= buflen) return 0;
@@ -1071,7 +1072,7 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
   return i;
 }
 
-int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen)
+int get_conf_parameter_single(const char *buf,int32_t *pos,long buflen,char *dst,long dstlen)
 {
     int i;
     if ((*pos) >= buflen) return 0;
@@ -1100,7 +1101,7 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
 /**
  * Returns parameter num from given NamedCommand array, or 0 if not found.
  */
-int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
+int recognize_conf_parameter(const char *buf,int32_t *pos,long buflen,const struct NamedCommand commands[])
 {
   if ((*pos) >= buflen) return 0;
   // Skipping spaces after previous parameter
@@ -1419,7 +1420,7 @@ short get_level_fgroup(LevelNumber lvnum)
  * on success, returns a buffer which should be freed after use,
  * and sets ldsize into its size.
  */
-unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...)
+unsigned char *load_data_file_to_buffer(int32_t *ldsize, short fgroup, const char *fmt_str, ...)
 {
   // Prepare file name
   va_list arg;
@@ -1513,7 +1514,7 @@ struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo)
     return NULL;
   if (previnfo == NULL)
     return NULL;
-  int i = previnfo - &campaign.lvinfos[0];
+  unsigned long i = previnfo - &campaign.lvinfos[0];
   i++;
   if (i >= campaign.lvinfos_count)
     return NULL;
@@ -1586,7 +1587,7 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buffer_en
   const char * block_name = "credits";
   // Find the block
   long len = buffer_end_pointer - buf;
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -1829,7 +1830,7 @@ LevelNumber first_multiplayer_level(void)
  */
 LevelNumber first_extra_level(void)
 {
-    for (long lvidx = 0; lvidx < campaign.extra_levels_index; lvidx++)
+    for (unsigned long lvidx = 0; lvidx < campaign.extra_levels_index; lvidx++)
     {
         long lvnum = campaign.extra_levels[lvidx];
         if (lvnum > 0)

@@ -53,7 +53,7 @@ long tree_val[TREEVALS_COUNT];
  * @return Returns index of the last point filled.
  *     If route_len is too small, points up to route_len are filled and -1 is returned.
  */
-long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, long route_len)
+long copy_tree_to_route(long tag_start_id, long tag_end_id, int32_t *route_pts, long route_len)
 {
     long itag = tag_start_id;
     long ipt = 0;
@@ -89,7 +89,7 @@ void tags_init(void)
  * @param border_len
  * @return
  */
-long update_border_tags(long tag_id, long *border_pt, long border_len)
+long update_border_tags(long tag_id, int32_t *border_pt, long border_len)
 {
     long iset = 0;
     for (long ipt = 0; ipt < border_len; ipt++)
@@ -107,7 +107,7 @@ long update_border_tags(long tag_id, long *border_pt, long border_len)
     return iset;
 }
 
-long border_tags_to_current(long *border_pt, long border_len)
+long border_tags_to_current(int32_t *border_pt, long border_len)
 {
     return update_border_tags(tag_current, border_pt, border_len);
 }
@@ -172,8 +172,8 @@ TbBool delaunay_add_triangle(long tri_idx)
 static void delaunay_stack_point(long pt_x, long pt_y)
 {
     long cor_idx;
-    long dst_tri_idx;
-    long dst_cor_idx;
+    int32_t dst_tri_idx;
+    int32_t dst_cor_idx;
     long adjacent_triangle_index;
     NAVIDBG(19,"Starting");
 

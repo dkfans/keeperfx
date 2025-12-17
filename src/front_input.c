@@ -67,6 +67,7 @@
 #include "creature_states_spdig.h"
 #include "room_data.h"
 #include "map_blocks.h"
+#include "local_camera.h"
 
 #include "keeperfx.hpp"
 #include "KeeperSpeech.h"
@@ -189,7 +190,7 @@ short game_is_busy_doing_gui_string_input(void)
   return (input_button != NULL);
 }
 
-int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
+int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
 {
   int result;
   int i;
@@ -499,7 +500,7 @@ short zoom_shortcuts(void)
 {
     for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++)
     {
-        long val;
+        int32_t val;
         if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
         {
             clear_key_pressed(val);
@@ -574,7 +575,7 @@ short get_global_inputs(void)
   if (game_is_busy_doing_gui_string_input())
     return false;
   struct PlayerInfo* player = get_my_player();
-  long keycode;
+  int32_t keycode;
   if ((player->allocflags & PlaF_NewMPMessage) != 0)
   {
     get_players_message_inputs();
@@ -690,7 +691,7 @@ short get_global_inputs(void)
 
 TbBool get_level_lost_inputs(void)
 {
-    long keycode;
+    int32_t keycode;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
@@ -725,9 +726,9 @@ TbBool get_level_lost_inputs(void)
         long mouse_x = GetMouseX();
         long mouse_y = GetMouseY();
         // Position on the parchment map on which we're doing action
-        long map_x;
-        long map_y;
-        TbBool map_valid = point_to_overhead_map(player->acamera, mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
+        int32_t map_x;
+        int32_t map_y;
+        TbBool map_valid = point_to_overhead_map(get_local_camera(player->acamera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
         if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
         {
             lbKeyOn[keycode] = 0;
@@ -1025,7 +1026,7 @@ short get_status_panel_keyboard_action_inputs(void)
 
 TbBool get_dungeon_control_pausable_action_inputs(void)
 {
-    long val;
+    int32_t val;
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
       return true;
@@ -1231,7 +1232,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
 
 TbBool get_dungeon_control_action_inputs(void)
 {
-    long val;
+    int32_t val;
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
         return true;
@@ -1394,7 +1395,7 @@ short get_creature_passenger_action_inputs(void)
 
 short get_creature_control_action_inputs(void)
 {
-    long keycode;
+    int32_t keycode;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
@@ -1478,6 +1479,10 @@ short get_creature_control_action_inputs(void)
     }
     // Use the Query/Message keys and mouse wheel to scroll through query pages and go to correct query page when selecting an instance.
     struct Thing* thing = thing_get(player->controlled_thing_idx);
+    if (!thing_is_creature(thing))
+    {
+        return false;
+    }
     if (menu_is_active(GMnu_CREATURE_QUERY1))
     {
       if ( ( (is_key_pressed(KC_7,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD7,KMod_DONTCARE))) && (creature_instance_get_available_id_for_pos(thing,6) > 0) ) ||
@@ -1687,7 +1692,7 @@ short get_creature_control_action_inputs(void)
             numkey = 9;
         }
     }
-        long val;
+        int32_t val;
         TextStringId StrID = 0;
         for (int i = 0; i <= 15; i++)
         {
@@ -1782,7 +1787,7 @@ short get_creature_control_action_inputs(void)
                     player->thing_under_hand = traptng->index;
                 }
             }
-            else if (thing_is_invalid(dragtng))
+            else if (!thing_exists(dragtng))
             {
                 struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
                 TbBool diggable_subtile = false;
@@ -1914,9 +1919,9 @@ short get_map_action_inputs(void)
     long mouse_x = GetMouseX();
     long mouse_y = GetMouseY();
     // Get map coordinates from mouse position on parchment screen
-    long map_x;
-    long map_y;
-    TbBool map_valid = point_to_overhead_map(player->acamera, mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
+    int32_t map_x;
+    int32_t map_y;
+    TbBool map_valid = point_to_overhead_map(get_local_camera(player->acamera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
     if  (map_valid)
     {
         MapSubtlCoord stl_x = coord_subtile(map_x);
@@ -1927,7 +1932,6 @@ short get_map_action_inputs(void)
         if (left_button_released) {
             left_button_released = 0;
             set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
-            reset_interpolation_for_parchment_view(player);
             return true;
         }
     }
@@ -1959,7 +1963,7 @@ short get_map_action_inputs(void)
           if (toggle_main_cheat_menu())
             clear_key_pressed(KC_RETURN);
       }
-      long keycode;
+      int32_t keycode;
       if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
       {
           clear_key_pressed(keycode);
@@ -2333,7 +2337,7 @@ void get_dungeon_control_nonaction_inputs(void)
           set_players_packet_position(pckt, pos.x.val, pos.y.val, context);
     }
   } else
-  if (screen_to_map(player->acamera, my_mouse_x, my_mouse_y, &pos))
+  if (screen_to_map(get_local_camera(player->acamera), my_mouse_x, my_mouse_y, &pos))
   {
       set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
       pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
@@ -2385,7 +2389,7 @@ void get_map_nonaction_inputs(void)
     pos.y.val = 0;
     pos.z.val = 0;
     struct PlayerInfo* player = get_my_player();
-    TbBool coords_valid = screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos);
+    TbBool coords_valid = screen_to_map(get_local_camera(player->acamera), GetMouseX(), GetMouseY(), &pos);
     set_players_packet_position(get_packet(my_player_number), pos.x.val, pos.y.val, 0);
     struct Packet* pckt = get_packet(my_player_number);
     if (coords_valid) {
@@ -2675,7 +2679,7 @@ short get_inputs(void)
         set_players_packet_position(get_packet(my_player_number), 0, 0 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
-            long keycode;
+            int32_t keycode;
             if (is_game_key_pressed(Gkey_TogglePause, &keycode, false))
             {
                 lbKeyOn[keycode] = 0;
@@ -3278,7 +3282,7 @@ void process_cheat_mode_selection_inputs()
                 if (is_key_pressed(KC_LALT, KMod_DONTCARE))
                 {
                     struct Coord3d pos;
-                    if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
+                    if (screen_to_map(get_local_camera(player->acamera), GetMouseX(), GetMouseY(), &pos))
                     {
                         MapSlabCoord slb_x = subtile_slab(pos.x.stl.num);
                         MapSlabCoord slb_y = subtile_slab(pos.y.stl.num);

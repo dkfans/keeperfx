@@ -900,7 +900,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
              && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
                 heartng = get_player_soul_container(wandr->plyr_idx);
-                if (!thing_is_invalid(heartng))
+                if (thing_exists(heartng))
                 {
 
                     dstpos.x.val = subtile_coord_center(stl_x);
@@ -922,7 +922,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
                 heartng = get_player_soul_container(wandr->plyr_idx);
-                if (!thing_is_invalid(heartng))
+                if (thing_exists(heartng))
                 {
                     dstpos.x.val = subtile_coord_center(stl_x);
                     dstpos.y.val = subtile_coord_center(stl_y);
@@ -1165,7 +1165,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Coord3d pos;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    long sell_value = 0;
+    int32_t sell_value = 0;
     unsigned long traps_sold;
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player->full_slab_cursor == false)
@@ -1332,6 +1332,12 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
             }
         }
     }
+}
+
+void set_player_roomspace_size(struct PlayerInfo *player, long size) {
+    player->user_defined_roomspace_width = size;
+    player->roomspace_width = size;
+    player->roomspace_height = size;
 }
 
 /******************************************************************************/

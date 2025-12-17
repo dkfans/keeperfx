@@ -49,8 +49,8 @@ struct TbSpriteDrawData {
     TbBool mirror;
 };
 /******************************************************************************/
-long xsteps_array[2*SPRITE_SCALING_XSTEPS];
-long ysteps_array[2*SPRITE_SCALING_YSTEPS];
+int32_t xsteps_array[2*SPRITE_SCALING_XSTEPS];
+int32_t ysteps_array[2*SPRITE_SCALING_YSTEPS];
 
 unsigned char *poly_screen;
 unsigned char *vec_screen;
@@ -1309,10 +1309,10 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
         long l;
         for ( l = len>>2; l > 0; l--)
         {
-            pxquad = *(unsigned long *)src;
-            src += sizeof(unsigned long);
-            *(unsigned long *)dst = pxquad;
-            dst += sizeof(unsigned long);
+            pxquad = *(uint32_t *)src;
+            src += sizeof(uint32_t);
+            *(uint32_t *)dst = pxquad;
+            dst += sizeof(uint32_t);
         }
         if (len & 3)
         {
@@ -1336,9 +1336,9 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
  * @param dwidth Width which the sprite should have on destination buffer.
  * @param gwidth Graphics buffer visible window line width.
  */
-void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth, long dwidth, long gwidth)
+void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swidth, long dwidth, long gwidth)
 {
-    long *pwidth;
+    int32_t *pwidth;
     long pxpos;
     pwidth = xsteps_arr;
     long factor = (dwidth<<16)/swidth;
@@ -1378,9 +1378,9 @@ void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth,
     } while (w > 0);
 }
 
-void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, long dwidth)
+void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, long x, long swidth, long dwidth)
 {
-    long *pwidth;
+    int32_t *pwidth;
     long cwidth;
     pwidth = xsteps_arr;
     long factor = (dwidth<<16)/swidth;
@@ -1403,10 +1403,10 @@ void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, 
     } while (w > 0);
 }
 
-void LbSpriteClearScalingWidthArray(long * xsteps_arr, long swidth)
+void LbSpriteClearScalingWidthArray(int32_t * xsteps_arr, int32_t swidth)
 {
     int i;
-    long *pwidth;
+    int32_t *pwidth;
     pwidth = xsteps_arr;
     for (i=0; i < swidth; i++)
     {
@@ -1425,9 +1425,9 @@ void LbSpriteClearScalingWidthArray(long * xsteps_arr, long swidth)
  * @param dheight Height which the sprite should have on destination buffer.
  * @param gheight Graphics buffer visible window lines count.
  */
-void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheight, long dheight, long gheight)
+void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long sheight, long dheight, long gheight)
 {
-    long *pheight;
+    int32_t *pheight;
     long lnpos;
     pheight = ysteps_arr;
     long factor = (dheight<<16)/sheight;
@@ -1471,9 +1471,9 @@ void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheigh
     } while (h > 0);
 }
 
-void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight, long dheight)
+void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, long y, long sheight, long dheight)
 {
-    long *pheight;
+    int32_t *pheight;
     long cheight;
     pheight = ysteps_arr;
     long factor = (dheight<<16)/sheight;
@@ -1496,10 +1496,10 @@ void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight
     } while (h > 0);
 }
 
-void LbSpriteClearScalingHeightArray(long * ysteps_arr, long sheight)
+void LbSpriteClearScalingHeightArray(int32_t * ysteps_arr, long sheight)
 {
     int i;
-    long *pheight;
+    int32_t *pheight;
     pheight = ysteps_arr;
     for (i=0; i < sheight; i++)
     {
@@ -1628,12 +1628,12 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
  * @return Gives 0 on success.
  */
 TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int outheight,
-    long *xstep, long *ystep, const struct TbHugeSprite *sprite)
+    int32_t *xstep, int32_t *ystep, const struct TbHugeSprite *sprite)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
     const unsigned char *sprdata;
-    long *ycurstep;
+    int32_t *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
@@ -1641,8 +1641,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
     }
     ycurstep = ystep;
 
-    int h;
-    for (h=0; h < sprite->SHeight; h++)
+    for (uint32_t h = 0; h < sprite->SHeight; h++)
     {
         if (ycurstep[1] != 0)
         {
@@ -1651,7 +1650,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
             TbPixel * out_line;
             int xdup;
             int ydup;
-            long *xcurstep;
+            int32_t *xcurstep;
             ydup = ycurstep[1];
             if (ycurstep[0]+ydup > outheight)
                 ydup = outheight-ycurstep[0];
@@ -1662,7 +1661,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
             while (out_end - outbuf < scanline)
             {
                 int pxlen;
-                pxlen = *(unsigned long *)sprdata;
+                pxlen = *(uint32_t *)sprdata;
                 sprdata += 4;
                 TbPixel *out_start;
                 out_start = out_end;
@@ -1698,12 +1697,12 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
                     }
                 }
                 // Transparent bytes count
-                pxlen = *(unsigned long *)sprdata;
+                pxlen = *(uint32_t *)sprdata;
                 sprdata += 4;
                 out_end -= xcurstep[0];
                 xcurstep += 2 * pxlen;
                 // In case we've exceeded sprite width, don't try to access xcurstep[] any more
-                if ((xcurstep - xstep)/2 >= sprite->SWidth)
+                if ((unsigned long) ((xcurstep - xstep) / 2) >= sprite->SWidth)
                     break;
                 out_end += xcurstep[0];
             }
@@ -2063,7 +2062,7 @@ void LbDrawCircle(long x, long y, long radius, TbPixel colour)
         LbDrawCircleFilled(x, y, radius, colour);
 }
 
-void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, long **xstep, long **ystep, int *scanline)
+void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, int32_t **xstep, int32_t **ystep, int *scanline)
 {
     long sposx;
     long sposy;
@@ -2081,7 +2080,7 @@ void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, lo
     (*ystep) = &ysteps_array[2 * sposy];
 }
 
-void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, int *outheight)
+void setup_outbuf(const int32_t *xstep, const int32_t *ystep, uchar **outbuf, int *outheight)
 {
     int gspos_x;
     int gspos_y;

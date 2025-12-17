@@ -73,7 +73,7 @@ TbBool load_stats_files(void)
     load_config(&keeper_textureanim_file_data,  CnfLd_Standard);
     load_config(&keeper_powerhands_file_data,   CnfLd_Standard);
     load_config(&keeper_spritecolors_file_data, CnfLd_Standard);
-    load_config(&keeper_cubes_file_data,        CnfLd_Standard);  
+    load_config(&keeper_cubes_file_data,        CnfLd_Standard);
     load_config(&keeper_playerstates_file_data, CnfLd_Standard);
     load_config(&keeper_keepcomp_file_data,     CnfLd_Standard);
     load_config(&keeper_slabset_file_data,      CnfLd_Standard);
@@ -220,12 +220,12 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     {
         manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_discrete_count[RoK_ENTRANCE],
             dungeon->room_manage_area, dungeon->portal_scavenge_boost);
-        max_manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(LONG_MAX, LONG_MAX, LONG_MAX);
+        max_manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(INT32_MAX, INT32_MAX, INT32_MAX);
     }
     {
         manage_efficiency += 40 * compute_dungeon_creature_tactics_score(dungeon->battles_won, dungeon->battles_lost,
             dungeon->creatures_scavenge_gain, dungeon->creatures_scavenge_lost);
-        max_manage_efficiency += 40 * compute_dungeon_creature_tactics_score(LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
+        max_manage_efficiency += 40 * compute_dungeon_creature_tactics_score(INT32_MAX, INT32_MAX, INT32_MAX, INT32_MAX);
     }
     {
         // Compute amount of different types of rooms built
@@ -236,12 +236,12 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
                 room_types++;
         }
         manage_efficiency += 40 * compute_dungeon_rooms_variety_score(room_types, dungeon->total_area);
-        max_manage_efficiency += 40 * compute_dungeon_rooms_variety_score(game.conf.slab_conf.room_types_count, LONG_MAX);
+        max_manage_efficiency += 40 * compute_dungeon_rooms_variety_score(game.conf.slab_conf.room_types_count, INT32_MAX);
     }
     {
         manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(dungeon->total_experience_creatures_gained,
             dungeon->total_research_points, dungeon->total_manufacture_points, dungeon->total_money_owned);
-        max_manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
+        max_manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(INT32_MAX, INT32_MAX, INT32_MAX, INT32_MAX);
     }
     unsigned long creatures_efficiency;
     unsigned long creatures_mood;
@@ -249,9 +249,9 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     unsigned long max_creatures_mood;
     {
         creatures_efficiency = compute_dungeon_creature_amount_score(dungeon->num_active_creatrs);
-        max_creatures_efficiency = compute_dungeon_creature_amount_score(LONG_MAX);
+        max_creatures_efficiency = compute_dungeon_creature_amount_score(INT32_MAX);
         creatures_mood = compute_dungeon_creature_mood_score(dungeon->num_active_creatrs,dungeon->creatures_annoyed);
-        max_creatures_mood = compute_dungeon_creature_mood_score(LONG_MAX,LONG_MAX);
+        max_creatures_mood = compute_dungeon_creature_mood_score(INT32_MAX,INT32_MAX);
     }
     { // Compute total score for this turn
         i = manage_efficiency + creatures_efficiency;

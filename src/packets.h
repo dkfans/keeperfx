@@ -26,6 +26,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
+struct Camera;
+struct Packet;
+struct PlayerInfo;
+struct Thing;
+/******************************************************************************/
 
 enum TbPacketAction {
         PckA_None = 0,
@@ -254,13 +259,14 @@ struct PlayerInfo;
 struct CatalogueEntry;
 
 extern unsigned long initial_replay_seed;
+extern unsigned long scheduled_unpause_time;
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
  */
 struct Packet {
-    int unusedparam;
-    TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
+    GameTurn turn;
+    TbBigChecksum checksum; //! Checksum of the entire game state of the previous turn, used solely for desync detection
     unsigned char action; //! Action kind performed by the player which owns this packet
     long actn_par1; //! Players action parameter #1
     long actn_par2; //! Players action parameter #2
@@ -304,6 +310,7 @@ struct PacketEx
 struct Packet *get_packet_direct(long pckt_idx);
 struct Packet *get_packet(long plyr_idx);
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4);
+TbBool is_packet_empty(const struct Packet *pckt);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long flag);
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
@@ -323,7 +330,10 @@ void process_frontend_packets(void);
 void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
+void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player);
+void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
 void process_packets(void);
+void set_local_packet_turn(void);
 void clear_packets(void);
 TbBigChecksum compute_replay_integrity(void);
 void post_init_packets(void);

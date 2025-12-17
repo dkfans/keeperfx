@@ -35,6 +35,7 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "frontmenu_ingame_map.h"
+#include "local_camera.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -45,80 +46,11 @@ extern "C" {
 long zoom_distance_setting;
 long frontview_zoom_distance_setting;
 long camera_zoom;
-
-long previous_cam_mappos_x;
-long previous_cam_mappos_y;
-long previous_cam_mappos_z;
-float interpolated_cam_mappos_x;
-float interpolated_cam_mappos_y;
-float interpolated_cam_mappos_z;
-float previous_cam_rotation_angle_x;
-float previous_cam_rotation_angle_y;
-float previous_cam_rotation_angle_z;
-float interpolated_cam_rotation_angle_x;
-float interpolated_cam_rotation_angle_y;
-float interpolated_cam_rotation_angle_z;
-long previous_camera_zoom;
-float interpolated_camera_zoom;
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
-
-
-// Instantly move camera when going from parchment view to main view
-void reset_interpolation_for_parchment_view(struct PlayerInfo* player)
-{
-    struct Camera *cam = player->acamera;
-    interpolated_cam_rotation_angle_x = cam->rotation_angle_x;
-    interpolated_cam_rotation_angle_z = cam->rotation_angle_z;
-    previous_cam_rotation_angle_x = cam->rotation_angle_x;
-    previous_cam_rotation_angle_z = cam->rotation_angle_z;
-    interpolated_cam_mappos_x = cam->mappos.x.val;
-    interpolated_cam_mappos_y = cam->mappos.y.val;
-    interpolated_cam_mappos_z = cam->mappos.z.val;
-    previous_cam_mappos_x = cam->mappos.x.val;
-    previous_cam_mappos_y = cam->mappos.y.val;
-    previous_cam_mappos_z = cam->mappos.z.val;
-    reset_all_minimap_interpolation = true; // Stops minimap from smoothly moving to the new position upon exiting Parchment View
-}
-
-void reset_interpolation_of_camera(struct PlayerInfo* player)
-{
-    struct Camera *cam = player->acamera;
-    interpolated_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
-    previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
-    interpolated_cam_rotation_angle_x = cam->rotation_angle_x;
-    interpolated_cam_rotation_angle_y = cam->rotation_angle_y;
-    interpolated_cam_rotation_angle_z = cam->rotation_angle_z;
-    previous_cam_rotation_angle_x = cam->rotation_angle_x;
-    previous_cam_rotation_angle_y = cam->rotation_angle_y;
-    previous_cam_rotation_angle_z = cam->rotation_angle_z;
-    interpolated_cam_mappos_x = cam->mappos.x.val;
-    interpolated_cam_mappos_y = cam->mappos.y.val;
-    interpolated_cam_mappos_z = cam->mappos.z.val;
-    previous_cam_mappos_x = cam->mappos.x.val;
-    previous_cam_mappos_y = cam->mappos.y.val;
-    previous_cam_mappos_z = cam->mappos.z.val;
-    reset_all_minimap_interpolation = true;
-}
-
-void set_previous_camera_values(struct PlayerInfo* player) {
-    // Used for interpolation mainly
-    struct Camera *cam = player->acamera;
-    previous_cam_mappos_x = cam->mappos.x.val;
-    previous_cam_mappos_y = cam->mappos.y.val;
-    previous_cam_mappos_z = cam->mappos.z.val;
-    previous_cam_rotation_angle_x = cam->rotation_angle_x;
-    previous_cam_rotation_angle_y = cam->rotation_angle_y;
-    previous_cam_rotation_angle_z = cam->rotation_angle_z;
-    previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
-    if (game.frame_skip > 0)
-    {
-        reset_interpolation_of_camera(player); // Stop camera from being laggy while frameskipping
-    }
-}
 
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
@@ -476,7 +408,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->view_mode = PVM_FrontView;
     cam->zoom = player->frontview_zoom_level;
 
-    reset_interpolation_of_camera(player);
+    init_local_cameras(player);
 }
 
 static int get_walking_bob_direction(struct Thing *thing)
@@ -496,14 +428,11 @@ static int get_walking_bob_direction(struct Thing *thing)
     }
 }
 
-void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
+void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height)
 {
-    int eye_height = get_creature_eye_height(thing);
-
     if ( thing_is_creature(thing) )
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-        // apply square wave as head bob motion, could be improved by using sine wave instead
         if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
             cctrl->head_bob = 16 * get_walking_bob_direction(thing);
         else
@@ -538,15 +467,11 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         if ( (thing->movement_flags & TMvF_Flying) != 0 )
         {
             cam->mappos.z.val = thing->mappos.z.val + eye_height;
-            cam->rotation_angle_x = thing->move_angle_xy;
-            cam->rotation_angle_y = thing->move_angle_z;
             cam->rotation_angle_z = cctrl->roll;
         }
         else
         {
             cam->mappos.z.val = cam->mappos.z.val + ((int64_t)thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
-            cam->rotation_angle_x = thing->move_angle_xy;
-            cam->rotation_angle_y = thing->move_angle_z;
             cam->rotation_angle_z = 0;
             if ( eye_height + thing->mappos.z.val <= cam->mappos.z.val )
             {
@@ -582,9 +507,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         if ( thing_is_mature_food(thing) )
         {
             cam->mappos.z.val = thing->mappos.z.val + 240;
-            cam->rotation_angle_x = thing->move_angle_xy;
             cam->rotation_angle_z = 0;
-            cam->rotation_angle_y = thing->move_angle_z;
             thing->move_angle_z = 0;
             if ( thing->food.possession_startup_timer )
             {
@@ -596,8 +519,6 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         }
         else
         {
-            cam->rotation_angle_x = thing->move_angle_xy;
-            cam->rotation_angle_y = thing->move_angle_z;
             cam->rotation_angle_z = 0;
             if ( thing->mappos.z.val + 32 <= cam->mappos.z.val )
             {
@@ -613,6 +534,14 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             }
         }
     }
+}
+
+void update_first_person_camera(struct Camera *cam, struct Thing *thing)
+{
+    int eye_height = get_creature_eye_height(thing);
+    update_first_person_position(cam, thing, eye_height);
+    cam->rotation_angle_x = thing->move_angle_xy;
+    cam->rotation_angle_y = thing->move_angle_z;
 }
 
 void view_move_camera_left(struct Camera *cam, long distance)
@@ -843,7 +772,7 @@ void update_player_camera(struct PlayerInfo *player)
         if (player->controlled_thing_idx > 0) {
             struct Thing *ctrltng;
             ctrltng = thing_get(player->controlled_thing_idx);
-            update_player_camera_fp(cam, ctrltng);
+            update_first_person_camera(cam, ctrltng);
         } else
         if (player->instance_num != PI_HeartZoom) {
             ERRORLOG("Cannot go first person without controlling creature");
@@ -882,5 +811,6 @@ void update_all_players_cameras(void)
           update_player_camera(player);
     }
   }
+  update_local_cameras();
 }
 /******************************************************************************/

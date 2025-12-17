@@ -41,6 +41,7 @@
 #include "config_players.h"
 #include "config_settings.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 #include <math.h>
@@ -274,7 +275,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   struct Thing *handthing = thing_get(player->thing_under_hand);
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
           return false;
       }
       if (help_tip_time <= 50) {
@@ -304,7 +305,7 @@ short setup_room_tooltips(struct Coord3d *pos)
 
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
           return false;
       }
       if (help_tip_time <= 50) {
@@ -403,6 +404,16 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
         } else {
             tooltip_delay = 10;
         }
+
+        struct GuiMenu* gmnu = get_active_menu(gbtn->gmenu_idx);
+        if (gmnu) {
+            long menu_id = gmnu->ident;
+            if (menu_id == GMnu_OPTIONS || menu_id == GMnu_VIDEO || menu_id == GMnu_SOUND ||
+                menu_id == GMnu_AUTOPILOT) {
+                tooltip_delay = 0;
+            }
+        }
+
         if ( (tool_tip_time > tooltip_delay) || (player->work_state == PSt_CreatrQuery) )
         {
           if (gbtn->has_shown_before == 0) {
@@ -443,7 +454,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
             return false;
         }
         struct Coord3d mappos;
-        if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &mappos))
+        if (screen_to_map(get_local_camera(player->acamera), GetMouseX(), GetMouseY(), &mappos))
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {

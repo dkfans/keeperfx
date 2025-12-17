@@ -445,6 +445,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
             }
         }
         shotng->move_angle_z = 0;
+        shotng->parent_idx = traptng->index;
         struct ShotConfigStats* shotst = get_shot_model_stats(trapst->created_itm_model);
         struct ComponentVector cvect;
         angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
@@ -1101,7 +1102,7 @@ void init_traps(void)
  * @return Amount of traps removed.
  */
 
-unsigned long remove_trap(struct Thing *traptng, long *sell_value)
+unsigned long remove_trap(struct Thing *traptng, int32_t *sell_value)
 {
     unsigned long total = 0;
     if (!thing_is_invalid(traptng))
@@ -1133,13 +1134,13 @@ unsigned long remove_trap(struct Thing *traptng, long *sell_value)
     return total;
 }
 
-unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
+unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *sell_value)
 {
     struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
     return remove_trap(traptng, sell_value);
 }
 
-unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
+unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *sell_value)
 {
     unsigned long total = 0;
     for (long k = 0; k < AROUND_TILES_COUNT; k++)

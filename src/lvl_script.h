@@ -103,6 +103,7 @@ struct PartyTrigger {
   {
       unsigned short ncopies;
       unsigned char objectv;
+      PlayerNumber target;
   };
 };
 

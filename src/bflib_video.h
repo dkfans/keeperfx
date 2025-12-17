@@ -190,17 +190,17 @@ struct DisplayStruct {
         /** Current mouse clipping window height (in pixels). */
         long MouseWindowHeight;
         /** Mouse position during button "down" event, X coordinate. */
-        long MouseX;
+        int32_t MouseX;
         /** Mouse position during button "down" event, Y coordinate. */
-        long MouseY;
+        int32_t MouseY;
         /** Mouse position during move, X coordinate. */
-        long MMouseX;
+        int32_t MMouseX;
         /** Mouse position during move, Y coordinate. */
-        long MMouseY;
+        int32_t MMouseY;
         /** Mouse position during button release, X coordinate. */
-        long RMouseX;
+        int32_t RMouseX;
         /** Mouse position during button release, Y coordinate. */
-        long RMouseY;
+        int32_t RMouseY;
         ushort DrawFlags;
         short MouseMoveRatio; // was ushort OldVideoMode; but wasn't needed
         ushort ScreenMode;

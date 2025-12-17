@@ -40,7 +40,7 @@ short LbDataFree(struct TbLoadFiles *load_file)
   if (load_file == NULL)
     return 0;
   unsigned char** data = load_file->SEnd;
-  if (load_file->FName[0] == '!')
+  if (load_file->FName[0] == '!' || strcmp(load_file->FName, "*TEXTURE_PAGE") == 0)
       return 1;
   if (data != NULL)
   {
@@ -108,7 +108,7 @@ int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, 
 #ifdef __DEBUG
     LbJustLog("LbDataLoad: filelength %ld for file \"%s\"\n",slength,fname);
 #endif
-    load_file->SLength = get_size_fn? get_size_fn(slength): slength;
+    load_file->SLength = (get_size_fn) ? (long) get_size_fn(slength): slength;
     if (slength <= 0)
         return -101;
     if (!is_static)

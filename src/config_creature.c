@@ -609,7 +609,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     snprintf(game.conf.crtr_conf.model[0].name, COMMAND_WORD_LEN, "%s", "NOCREATURE");
     // Find the block
     const char * block_name = "common";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -750,7 +750,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
     }
     // Find the block
     const char * block_name = "experience";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1015,7 +1015,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
     // Load the file blocks
     const char * blockname = NULL;
     int blocknamelen = 0;
-    long pos = 0;
+    int32_t pos = 0;
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
         // look for blocks starting with "instance", followed by one or more digits
@@ -1447,7 +1447,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
     // Load the file blocks
     const char * blockname = NULL;
     int blocknamelen = 0;
-    long pos = 0;
+    int32_t pos = 0;
     TbBool seen[INSTANCE_TYPES_MAX];
     memset(seen, 0, sizeof(seen));
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
@@ -1699,7 +1699,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
     // Load the file blocks
     const char * blockname = NULL;
     int blocknamelen = 0;
-    long pos = 0;
+    int32_t pos = 0;
     TbBool seen[INSTANCE_TYPES_MAX];
     memset(seen, 0, sizeof(seen));
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
@@ -1787,7 +1787,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     // Load the file blocks
     const char * blockname = NULL;
     int blocknamelen = 0;
-    long pos = 0;
+    int32_t pos = 0;
     TbBool seen[INSTANCE_TYPES_MAX];
     memset(seen, 0, sizeof(seen));
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
@@ -2110,7 +2110,7 @@ const char *creature_own_name(const struct Thing *creatng)
         end_consonants_len = sizeof(name_consonants)/sizeof(name_consonants[0]);
     }
     {
-        unsigned long seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
+        uint32_t seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
         int name_len = 0;
         {

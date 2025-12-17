@@ -145,14 +145,14 @@ long triangle_find8(long pt_x, long pt_y)
 {
     NAVIDBG(19,"Starting");
     //TODO PATHFINDING triangulate_area sub-sub-sub-function
-    long ntri = triangle_find_cache_get(pt_x, pt_y);
+    int32_t ntri = triangle_find_cache_get(pt_x, pt_y);
     for (unsigned long k = 0; k < TRIANLGLES_COUNT; k++)
     {
         int eqA = triangle_divide_areas_s8differ(ntri, 0, 1, pt_x, pt_y) > 0;
         int eqB = triangle_divide_areas_s8differ(ntri, 1, 2, pt_x, pt_y) > 0;
         int eqC = triangle_divide_areas_s8differ(ntri, 2, 0, pt_x, pt_y) > 0;
 
-        long ncor = 0;
+        int32_t ncor = 0;
         long nxcor = 0; // Used only to verify if pointed_at8() didn't failed
         switch ((eqC << 2) + (eqB << 1) + eqA)
         {
@@ -202,7 +202,7 @@ long triangle_find8(long pt_x, long pt_y)
  * @param output_corner_index
  * @return
  */
-TbBool point_find(long pt_x, long pt_y, long *output_triangle_index, long *output_corner_index)
+TbBool point_find(long pt_x, long pt_y, int32_t *output_triangle_index, int32_t *output_corner_index)
 {
     long tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
     if (tri_idx < 0)

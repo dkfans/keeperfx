@@ -215,11 +215,17 @@ struct Thing *thing_get_f(long tng_idx, const char *func_name)
     return INVALID_THING;
 }
 
+/**
+ * Returns true if thing pointer address is inside game.things.lookup. May be true on an empty (0) thing.
+ */
 short thing_is_invalid(const struct Thing *thing)
 {
     return (thing <= game.things.lookup[0]) || (thing > game.things.lookup[THINGS_COUNT-1]) || (thing == NULL);
 }
 
+/**
+ * Returns true if thing exists.
+ */
 TbBool thing_exists(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
@@ -233,6 +239,22 @@ TbBool thing_exists(const struct Thing *thing)
         WARNLOG("Thing %d is of invalid class %d",(int)thing->index,(int)thing->class_id);
 #endif
     return true;
+}
+
+/**
+ * Returns thing based on parent_idx. Cannot be own parent.
+ * Validates by creation turns.
+ */
+struct Thing* get_parent_thing(const struct Thing* thing)
+{
+    if ((thing->parent_idx <= 0) || (thing->index == thing->parent_idx))
+        return INVALID_THING;
+    struct Thing* parent = thing_get(thing->parent_idx);
+    if (!thing_exists(parent))
+        return INVALID_THING;
+    if (thing->creation_turn < parent->creation_turn)
+        return INVALID_THING;
+    return parent;
 }
 
 /**

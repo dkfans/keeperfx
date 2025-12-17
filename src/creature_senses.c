@@ -232,7 +232,7 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct 
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
     // If we don't want to ignore any doors
-    if (thing_is_invalid(doortng))
+    if (!thing_exists(doortng))
     {
         // Check for door at central subtile
         if (subtile_is_door(stl_slab_center_subtile(nextpos->x.stl.num),stl_slab_center_subtile(nextpos->y.stl.num))) {

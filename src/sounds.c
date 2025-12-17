@@ -29,6 +29,7 @@
 #include "engine_render.h"
 #include "map_utils.h"
 #include "engine_camera.h"
+#include "local_camera.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
 #include "front_landview.h"
@@ -117,7 +118,7 @@ void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID sm
 void play_thing_walking(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
-    struct Camera* cam = myplyr->acamera;
+    struct Camera* cam = get_local_camera(myplyr->acamera);
     struct CreatureModelConfig* crconf;
     { // Skip the thing if its distance to camera is too big
         MapSubtlDelta dist_x = coord_subtile(abs(cam->mappos.x.val - (MapCoordDelta)thing->mappos.x.val));
@@ -221,7 +222,7 @@ void find_nearest_rooms_for_ambient_sound(void)
     if ((SoundDisabled) || (GetCurrentSoundMasterVolume() <= 0))
         return;
     struct PlayerInfo* player = get_my_player();
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_local_camera(player->acamera);
     if (cam == NULL || LbIsFrozenOrPaused())
     {
         if (cam == NULL)
@@ -263,7 +264,7 @@ void find_nearest_rooms_for_ambient_sound(void)
 TbBool update_3d_sound_receiver(struct PlayerInfo* player)
 {
     SYNCDBG(7, "Starting");
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_local_camera(player->acamera);
     if (cam == NULL)
         return false;
     S3DSetSoundReceiverPosition(cam->mappos.x.val, cam->mappos.y.val, cam->mappos.z.val);

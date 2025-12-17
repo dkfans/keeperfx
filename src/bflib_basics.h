@@ -20,7 +20,6 @@
 #ifndef BFLIB_BASICS_H
 #define BFLIB_BASICS_H
 
-#include <io.h>
 #include <time.h>
 #include <stdio.h>
 
@@ -86,7 +85,6 @@ struct TbDate {
 typedef long TbClockMSec;
 typedef time_t TbTimeSec;
 
-typedef unsigned char TbChecksum;
 typedef unsigned long TbBigChecksum;
 typedef long Offset;
 typedef FILE * TbFileHandle;

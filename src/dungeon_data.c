@@ -209,7 +209,7 @@ TbBool player_has_heart(PlayerNumber plyr_idx)
 void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on_damage)
 {
     struct Thing* heartng = get_player_soul_container(plyr_idx);
-    if (!thing_is_invalid(heartng))
+    if (thing_exists(heartng))
     {
         struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
         long old_health = heartng->health;

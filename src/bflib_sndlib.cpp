@@ -408,7 +408,7 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 		stream.seekg(directory.first_data_offset + sample.data_offset, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
-	JUSTLOG("Loaded %d sound samples from %s", buffers.size(), filename);
+	JUSTLOG("Loaded %d sound samples from %s", (int) buffers.size(), filename);
 	return buffers;
 }
 

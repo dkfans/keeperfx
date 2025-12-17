@@ -87,7 +87,7 @@ long smaller_gold_vein_lookup_idx(long higher_gold_slabs, long higher_gem_slabs)
     return gold_idx;
 }
 
-void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, long *gold_next_idx, MapSlabCoord veinslb_x, MapSlabCoord veinslb_y)
+void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, int32_t *gold_next_idx, MapSlabCoord veinslb_x, MapSlabCoord veinslb_y)
 {
     long gold_idx;
     // First, find a vein
@@ -220,7 +220,7 @@ void check_map_for_gold(void)
         }
     }
     // Add treasures to lookup as gold veins
-    long gold_next_idx = 0;
+    int32_t gold_next_idx = 0;
     for (slb_y = 0; slb_y < game.map_tiles_y; slb_y++)
     {
         for (slb_x = 0; slb_x < game.map_tiles_x; slb_x++)
@@ -232,6 +232,6 @@ void check_map_for_gold(void)
             }
         }
     }
-    SYNCDBG(8,"Found %ld possible digging locations",gold_next_idx);
+    SYNCDBG(8,"Found %d possible digging locations",gold_next_idx);
 }
 /******************************************************************************/

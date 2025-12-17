@@ -193,7 +193,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     }
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
     {
-        if (!is_task_in_progress_using_hand(comp) || ((cevent->secondary_parameter & 0x02) != 0))
+        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->secondary_parameter & 0x02) != 0))
         {
             if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->secondary_parameter)) {
                 SYNCDBG(18,"Cannot move to defend for %s",cevent->name);
@@ -333,7 +333,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     }
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
     {
-        if (!is_task_in_progress_using_hand(comp))
+        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
         {
             if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->secondary_parameter)) {
                 return CTaskRet_Unk4;
@@ -513,9 +513,9 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             if (room_role_matches(bldroom->rkind, RoRoF_CratesManufctr))
             {
                 struct Dungeon* dungeon = comp->dungeon;
-                long used_capacity;
-                long total_capacity;
-                long storaged_capacity;
+                int32_t used_capacity;
+                int32_t total_capacity;
+                int32_t storaged_capacity;
                 get_room_kind_total_used_and_storage_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity, &storaged_capacity);
                 if ((cevent->secondary_parameter != 0) && (storaged_capacity > (used_capacity * cevent->secondary_parameter / 100)))
                 {

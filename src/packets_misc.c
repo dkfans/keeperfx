@@ -18,8 +18,12 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
+#include "net_received_packets.h"
+#include "net_redundant_packets.h"
 
 #include "bflib_fileio.h"
+#include "bflib_network_exchange.h"
+#include "bflib_datetm.h"
 #include "front_landview.h"
 #include "game_legacy.h"
 #include "game_saves.h"
@@ -163,6 +167,8 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 void post_init_packets(void)
 {
     SYNCDBG(6,"Starting");
+    initialize_packet_tracking();
+    initialize_redundant_packets();
     if ((game.packet_load_enable) && (game.packet_load_initialized))
     {
         struct CatalogueEntry centry;
@@ -329,7 +335,7 @@ void load_packets_for_turn(GameTurn nturn)
     const int turn_data_size = PACKET_TURN_SIZE;
     unsigned char pckt_buf[PACKET_TURN_SIZE+4];
     struct Packet* pckt = get_packet(my_player_number);
-    TbChecksum pckt_chksum = pckt->chksum;
+    TbBigChecksum pckt_chksum = pckt->checksum;
     if (nturn >= game.turns_stored)
     {
         ERRORDBG(18,"Out of turns to load from Packet File");
@@ -358,7 +364,7 @@ void load_packets_for_turn(GameTurn nturn)
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         } else
-        if (pckt->chksum != pckt_chksum)
+        if (pckt->checksum != pckt_chksum)
         {
             ERRORLOG("Oops we are really Out Of Sync (GameTurn %lu)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
@@ -374,6 +380,16 @@ void set_packet_pause_toggle()
         return;
     if (player->packet_num >= PACKETS_COUNT)
         return;
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
+    if ((game.operation_flags & GOF_Paused) == 0) {
+        set_players_packet_action(player, PckA_TogglePause, 1, 0, 0, 0);
+        return;
+    }
+    if (game.game_kind != GKind_LocalGame) {
+        long delay_milliseconds = (1000 / game_num_fps) * (game.input_lag_turns + 1);
+        scheduled_unpause_time = LbTimerClock() + delay_milliseconds;
+        MULTIPLAYER_LOG("set_packet_pause_toggle: Scheduled local unpause at time=%lu", scheduled_unpause_time);
+        LbNetwork_SendPauseImmediate(0, delay_milliseconds);
+        return;
+    }
+    process_pause_packet(0, 0);
 }

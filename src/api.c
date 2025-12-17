@@ -976,7 +976,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
 
         // Recognize variable
-        long variable_id, variable_type;
+        int32_t variable_id, variable_type;
         if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
             api_err("UNKNOWN_VAR", ack_id);
@@ -1012,7 +1012,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
 
         // Recognize variable
-        long variable_id, variable_type;
+        int32_t variable_id, variable_type;
         if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
             api_err("UNKNOWN_VAR", ack_id);
@@ -1212,7 +1212,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
             VALUE *player_info = value_dict_add(flag_data, player_code_name(player_index));
             value_init_dict(player_info);
 
-            for (int flag_index = 0; flag_index < get_max_flags(); flag_index++)
+            for (size_t flag_index = 0; flag_index < get_max_flags(); flag_index++)
             {
                 // Get flag value
                 long flag_value = get_condition_value(player_id, SVar_FLAG, flag_index);
@@ -1244,7 +1244,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
 
         // Recognize variable
-        long variable_id, variable_type;
+        int32_t variable_id, variable_type;
         if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
             api_err("UNKNOWN_VAR", ack_id);
@@ -1276,7 +1276,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
 
         // Recognize variable
-        long variable_id, variable_type;
+        int32_t variable_id, variable_type;
         if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
             api_err("UNKNOWN_VAR", ack_id);

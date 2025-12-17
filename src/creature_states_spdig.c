@@ -702,8 +702,8 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     long stl_num;
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     long i;
     long n;
     stl_x = thing->mappos.x.stl.num;
@@ -902,8 +902,8 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
 
 TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *spdigtng, SubtlCodedCoords stl_num)
 {
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     TRACE_THING(spdigtng);
     if (!check_place_to_dig_and_get_position(spdigtng, stl_num, &pos_x, &pos_y))
         return false;
@@ -1530,13 +1530,13 @@ TbBool set_creature_being_dragged_by(struct Thing *dragtng, struct Thing *thing)
     // Check if we're already dragging
     struct Thing* picktng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(picktng);
-    if (!thing_is_invalid(picktng)) {
+    if (thing_exists(picktng)) {
         ERRORLOG("Thing is already dragging something");
         return false;
     }
     picktng = thing_get(dragctrl->dragtng_idx);
     TRACE_THING(picktng);
-    if (!thing_is_invalid(picktng)) {
+    if (thing_exists(picktng)) {
         if (picktng->index != thing->index)
         {
             ERRORLOG("Thing is already dragged by something");
@@ -1579,7 +1579,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
      struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
      struct Thing* picktng = thing_get(cctrl->pickup_creature_id);
      TRACE_THING(picktng);
-     if (thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || thing_is_dragged_or_pulled(picktng) || (get_chessboard_distance(&thing->mappos, &picktng->mappos) >= 512))
+     if (!thing_exists(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || thing_is_dragged_or_pulled(picktng) || (get_chessboard_distance(&thing->mappos, &picktng->mappos) >= 512))
      {
          SYNCDBG(8, "The %s index %d to be picked up isn't in correct place or state", thing_model_name(picktng), (int)picktng->index);
          set_start_state(thing);
@@ -1636,7 +1636,7 @@ short creature_save_unconscious_creature(struct Thing *thing)
      struct Thing* lairtng = thing_get(cctrlpicktng->lairtng_idx);
      TRACE_THING(picktng);
 
-     if (thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || thing_is_dragged_or_pulled(picktng) || (get_chessboard_distance(&thing->mappos, &picktng->mappos) >= 512))
+     if (!thing_exists(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || thing_is_dragged_or_pulled(picktng) || (get_chessboard_distance(&thing->mappos, &picktng->mappos) >= 512))
      {
          SYNCDBG(8, "The %s index %d to be picked up isn't in correct place or state", thing_model_name(picktng), (int)picktng->index);
          set_start_state(thing);
@@ -1698,7 +1698,7 @@ short creature_picks_up_corpse(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if (thing_is_invalid(picktng) || (flag_is_set(picktng->alloc_flags,TAlF_IsDragged))
+    if (!thing_exists(picktng) || (flag_is_set(picktng->alloc_flags,TAlF_IsDragged))
         || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2, 0)))
     {
         set_start_state(creatng);

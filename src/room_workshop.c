@@ -500,7 +500,7 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
  * @param dungeon The dungeon which is to be checked.
  * @param mnfctr_class Class of the manufacture with minimal items available.
  * @param mnfctr_kind Kind of the manufacture with minimal items available.
- * @return Gives minimal amount of items available, or LONG_MAX if no doable manufacture was found.
+ * @return Gives minimal amount of items available, or INT32_MAX if no doable manufacture was found.
  */
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind)
 {

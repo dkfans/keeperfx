@@ -25,6 +25,7 @@
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "config.h"
+#include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "config_effects.h"
 #include "config_magic.h"
@@ -115,7 +116,7 @@ static char get_door_number_for_command(char* msg);
 static char get_trap_number_for_command(char* msg);
 static long get_creature_model_for_command(char *msg);
 
-static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *args)
+static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *args)
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
@@ -130,7 +131,7 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
     return 1;
 }
 
-static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
+static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *args)
 {
     struct Computer2 *comp = get_computer_player(args[0]);
     int i = 0;
@@ -203,7 +204,7 @@ static unsigned long  get_event_flags(struct Computer2 *comp, int i)
     return 0;
 }
 
-static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *args)
+static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *args)
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
@@ -290,7 +291,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %ld, draw fps is %ld", game_num_fps, game_num_fps_draw);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %ld, draw fps is %ld", game_num_fps, game_num_fps_draw_current);
     return true;
 }
 
@@ -308,13 +309,8 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_fps_draw(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
-        game_num_fps_draw = start_params.num_fps_draw;
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Drawrate is %ld fps", game_num_fps_draw);
-    } else {
-        game_num_fps_draw = atoi(pr2str);
-    }
+    parse_draw_fps_config_val(args, &game_num_fps_draw_main, &game_num_fps_draw_secondary);
+    redetect_screen_refresh_rate_for_draw();
     return true;
 }
 
@@ -338,6 +334,16 @@ TbBool cmd_frametime_max(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_network_stats(PlayerNumber plyr_idx, char * args)
+{
+    if (debug_display_network_stats == 1) {
+        debug_display_network_stats = 0;
+    } else {
+        debug_display_network_stats = 1;
+    }
+    return true;
+}
+
 TbBool cmd_quit(PlayerNumber plyr_idx, char * args)
 {
     quit_game = 1;
@@ -349,8 +355,8 @@ TbBool cmd_time(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
     char * pr3str = strsep(&args, " ");
-    unsigned long turn = (pr2str != NULL) ? atoi(pr2str) : game.play_gameturn;
-    unsigned char frames = (pr3str != NULL) ? atoi(pr3str) : game_num_fps;
+    GameTurn turn = (pr2str != NULL) ? (GameTurn) atoi(pr2str) : game.play_gameturn;
+    long frames = (pr3str != NULL) ? (long) atoi(pr3str) : game_num_fps;
     show_game_time_taken(frames, turn);
     return true;
 }
@@ -1595,6 +1601,7 @@ TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
                             thing->index,
                             thing_class_and_model_name(thing->class_id, thing->model));
     player->influenced_thing_idx = thing->index;
+    player->influenced_thing_creation = thing->creation_turn;
     return true;
 }
 
@@ -1702,6 +1709,7 @@ TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
     }
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got room ID %d", room->index);
     player->influenced_thing_idx = room->index;
+    player->influenced_thing_creation = room->creation_turn;
     return true;
 }
 
@@ -2189,6 +2197,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "ft", cmd_frametime },
     { "frametime.max", cmd_frametime_max },
     { "ft.max", cmd_frametime_max },
+    { "netstats", cmd_network_stats },
     { "quit", cmd_quit },
     { "time", cmd_time },
     { "timer.toggle", cmd_timer_toggle },

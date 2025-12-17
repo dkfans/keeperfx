@@ -212,7 +212,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         player->thing_under_hand = thing->index;
     }
     thing = get_first_thing_in_power_hand(player);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         if (player->hand_thing_idx == 0) {
             create_power_hand(player->id_number);
@@ -239,10 +239,10 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             (player->instance_num != PI_Whip) && (player->instance_num != PI_WhipEnd))
         {
             thing = get_first_thing_in_power_hand(player);
-            if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
+            if ((player->thing_under_hand != 0) || !thing_exists(thing))
             {
                 set_power_hand_graphic(plyr_idx, HndA_Hover);
-                if (!thing_is_invalid(thing))
+                if (thing_exists(thing))
                     thing->rendering_flags |= TRF_Invisible;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
@@ -435,6 +435,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                             turn_on_menu(GMnu_CREATURE_QUERY1);
                         }
                         player->influenced_thing_idx = player->thing_under_hand;
+                        player->influenced_thing_creation = thing->creation_turn;
                         set_player_state(player, PSt_CreatrQuery, 0);
                         set_player_instance(player, PI_QueryCrtr, 0);
                     }
@@ -777,6 +778,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 if (player->thing_under_hand > 0)
                 {
                     player->influenced_thing_idx = player->thing_under_hand;
+                    player->influenced_thing_creation = thing->creation_turn;
                     set_player_instance(player, PI_PsngrCtrl, 0);
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
@@ -864,7 +866,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     set_player_instance(player, PI_UnqueryCrtr, 0);
                     unset_packet_control(pckt, PCtr_RBtnRelease);
                 } else
-                if (creature_is_dying(thing))
+                if (creature_is_dying(thing) || (thing->creation_turn != player->influenced_thing_creation))
                 {
                     set_player_instance(player, PI_UnqueryCrtr, 0);
                     if (is_my_player(player))
