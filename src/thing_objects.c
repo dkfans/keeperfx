@@ -1251,12 +1251,15 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner, heartng->index);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-            destroy_dungeon_heart_room(heartng->owner, heartng);
             if (!dungeon_invalid(dungeon) && heartng->index == dungeon->backup_heart_idx)
             {
                 dungeon->backup_heart_idx = 0;
             }
-            delete_thing_structure(heartng, 0);
+            destroy_dungeon_heart_room(heartng->owner, heartng);
+            if (!thing_is_invalid(heartng))
+            {
+                delete_thing_structure(heartng, 0);
+            }
         }
         return TUFRet_Unchanged;
     }
