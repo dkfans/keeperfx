@@ -265,9 +265,9 @@ struct Dungeon {
     unsigned long fights_num;
     unsigned char research_override; // could be easily changed into flags..
     int last_creature_dropped_gameturn;
-    unsigned char devastation_centr_x;
-    unsigned char devastation_centr_y;
-    unsigned long devastation_turn;
+    MapSubtlCoord devastation_centr_x;
+    MapSubtlCoord devastation_centr_y;
+    GameTurn devastation_turn;
     long creatures_total_pay;
     unsigned short gold_hoard_for_pickup;
     unsigned long gold_pickup_amount;
