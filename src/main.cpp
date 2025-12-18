@@ -1548,6 +1548,7 @@ void reinit_level_after_load(void)
     // Reinit structures from within the game
     player = get_my_player();
     player->lens_palette = 0;
+    player->main_palette = engine_palette;
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
