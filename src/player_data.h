@@ -197,6 +197,7 @@ struct PlayerInfo {
     PlayerState continue_work_state;
     short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
+    char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
     char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor

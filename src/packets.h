@@ -20,7 +20,9 @@
 #define DK_PACKETS_H
 
 #include "bflib_basics.h"
+#include "bflib_keybrd.h"
 #include "globals.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -330,6 +332,8 @@ void process_frontend_packets(void);
 void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
+void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif);
+void process_chat_message_end(int player_id, const char *message);
 void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player);
 void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
 void process_packets(void);

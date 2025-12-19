@@ -29,6 +29,7 @@
 #include "net_received_packets.h"
 #include "net_redundant_packets.h"
 #include "game_legacy.h"
+#include "packets.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -202,6 +203,18 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         }
         return Lb_OK;
     }
+    if (type == NETMSG_CHATMESSAGE) {
+        int player_id = (int)*ptr;
+        ptr += 1;
+        size_t max_read = sizeof(netstate.msg_buffer) - (ptr - netstate.msg_buffer);
+        size_t msg_len = strnlen(ptr, max_read);
+        if (msg_len >= max_read) {
+            ERRORLOG("Chat message too long or not null-terminated");
+            return Lb_OK;
+        }
+        process_chat_message_end(player_id, ptr);
+        return Lb_OK;
+    }
     return Lb_OK;
 }
 
@@ -343,17 +356,29 @@ void LbNetwork_SendPauseImmediate(TbBool pause_state, unsigned long delay_millis
 
     char* message_pointer = InitMessageBuffer(NETMSG_PAUSE);
     *message_pointer = pause_state;
-    message_pointer++;
+    message_pointer += 1;
     *(unsigned long*)message_pointer = delay_milliseconds;
     message_pointer += sizeof(unsigned long);
 
     int message_size = message_pointer - netstate.msg_buffer;
 
-    for (NetUserId id = 0; id < netstate.max_players; id++) {
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id || !IsUserActive(id)) {
             continue;
         }
         netstate.sp->sendmsg_single(id, netstate.msg_buffer, message_size);
+    }
+}
+
+void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
+    char* ptr = InitMessageBuffer(NETMSG_CHATMESSAGE);
+    *ptr = player_id;
+    ptr += 1;
+    strcpy(ptr, message);
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+        if (id != netstate.my_id && IsUserActive(id)) {
+            netstate.sp->sendmsg_single(id, netstate.msg_buffer, 3 + strlen(message));
+        }
     }
 }
 
