@@ -490,7 +490,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         ERRORLOG("No active camera");
         return;
     }
-    process_camera_controls(cam, pckt, player);
     if (is_my_player(player)) {
         TbBool settings_changed = false;
         if ((pckt->control_flags & (PCtr_ViewTiltUp | PCtr_ViewTiltDown | PCtr_ViewTiltReset)) != 0) {
@@ -508,9 +507,9 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         if (settings_changed) {
             save_settings();
         }
-    }
-    if (is_my_player(player)) {
         update_box_lag_compensation(player);
+    } else {
+        process_camera_controls(cam, pckt, player);
     }
     process_dungeon_control_packet_clicks(plyr_idx);
     set_mouse_light(player);

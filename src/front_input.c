@@ -2498,6 +2498,14 @@ void get_creature_control_nonaction_inputs(void)
         } else if (pckt->pos_y > 255) {
             pckt->pos_y = 255;
         }
+
+        if (thing_exists(thing)) {
+            long xy, z, dummy;
+            struct Camera *cam = &player->cameras[CamIV_FirstPerson];
+            process_first_person_look(thing, pckt, cam->rotation_angle_x, cam->rotation_angle_y, &xy, &z, &dummy);
+            cam->rotation_angle_x = xy;
+            cam->rotation_angle_y = z;
+        }
     }
     // Now do user actions
     if (thing_is_creature(thing))

@@ -58,6 +58,7 @@
 #include "game_legacy.h"
 #include "config_magic.h"
 #include "thing_shots.h"
+#include "thing_data.h"
 #include "bflib_inputctrl.h"
 #include "map_blocks.h"
 #include "lua_triggers.h"
@@ -1111,26 +1112,30 @@ TbBool is_thing_some_way_controlled(const struct Thing *thing)
 
 TbBool set_selected_thing_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name)
 {
-    if (thing_exists(thing))
-    {
-        player->controlled_thing_idx = thing->index;
-        player->controlled_thing_creatrn = thing->creation_turn;
-        return true;
+    if (!thing_exists(thing)) {
+        ERRORLOG("%s: Cannot select %s index %d",func_name,thing_model_name(thing),(int)thing->index);
+        return false;
     }
-    ERRORLOG("%s: Cannot select %s index %d",func_name,thing_model_name(thing),(int)thing->index);
-    return false;
+    player->controlled_thing_idx = thing->index;
+    player->controlled_thing_creatrn = thing->creation_turn;
+    struct Camera *cam = &player->cameras[CamIV_FirstPerson];
+    cam->rotation_angle_x = thing->move_angle_xy;
+    cam->rotation_angle_y = thing->move_angle_z;
+    return true;
 }
 
 TbBool set_selected_creature_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name)
 {
-    if (thing_is_creature(thing))
-    {
-        player->controlled_thing_idx = thing->index;
-        player->controlled_thing_creatrn = thing->creation_turn;
-        return true;
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("%s: Cannot select %s index %d",func_name,thing_model_name(thing),(int)thing->index);
+        return false;
     }
-    ERRORLOG("%s: Cannot select %s index %d",func_name,thing_model_name(thing),(int)thing->index);
-    return false;
+    player->controlled_thing_idx = thing->index;
+    player->controlled_thing_creatrn = thing->creation_turn;
+    struct Camera *cam = &player->cameras[CamIV_FirstPerson];
+    cam->rotation_angle_x = thing->move_angle_xy;
+    cam->rotation_angle_y = thing->move_angle_z;
+    return true;
 }
 
 TbBool clear_selected_thing(struct PlayerInfo *player)

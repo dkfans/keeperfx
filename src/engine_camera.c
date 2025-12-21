@@ -35,6 +35,8 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "frontmenu_ingame_map.h"
+#include "net_input_lag.h"
+#include "packets.h"
 
 #include "post_inc.h"
 
@@ -536,12 +538,13 @@ void update_first_person_position(struct Camera *cam, struct Thing *thing, int e
     }
 }
 
-void update_first_person_camera(struct Camera *cam, struct Thing *thing)
+void update_first_person_camera(struct Camera *cam, struct Thing *thing, struct PlayerInfo *player)
 {
-    int eye_height = get_creature_eye_height(thing);
-    update_first_person_position(cam, thing, eye_height);
-    cam->rotation_angle_x = thing->move_angle_xy;
-    cam->rotation_angle_y = thing->move_angle_z;
+    update_first_person_position(cam, thing, get_creature_eye_height(thing));
+    if (!is_my_player(player)) {
+        cam->rotation_angle_x = thing->move_angle_xy;
+        cam->rotation_angle_y = thing->move_angle_z;
+    }
 }
 
 void view_move_camera_left(struct Camera *cam, long distance)
@@ -772,7 +775,7 @@ void update_player_camera(struct PlayerInfo *player)
         if (player->controlled_thing_idx > 0) {
             struct Thing *ctrltng;
             ctrltng = thing_get(player->controlled_thing_idx);
-            update_first_person_camera(cam, ctrltng);
+            update_first_person_camera(cam, ctrltng, player);
         } else
         if (player->instance_num != PI_HeartZoom) {
             ERRORLOG("Cannot go first person without controlling creature");
@@ -812,5 +815,14 @@ void update_all_players_cameras(void)
     }
   }
 
+  struct PlayerInfo* my_player = get_my_player();
+  struct Camera* cam = my_player->acamera;
+  if (cam != NULL && cam->view_mode != PVM_CreatureView && cam->view_mode != PVM_ParchmentView) {
+      struct Packet* local_packet = get_local_input_lag_packet_for_turn(game.play_gameturn - 1);
+      if (local_packet != NULL) {
+          process_camera_controls(cam, local_packet, my_player);
+          view_process_camera_inertia(cam);
+      }
+  }
 }
 /******************************************************************************/

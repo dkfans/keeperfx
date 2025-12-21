@@ -128,14 +128,10 @@ static TbBigChecksum compute_rooms_checksum(void) {
 }
 
 TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
-    if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL)) {
-        struct Coord3d* mappos = &(player->acamera->mappos);
+    if ((player->allocflags & PlaF_CompCtrl) == 0) {
         TbBigChecksum checksum = 0;
         CHECKSUM_ADD(checksum, player->instance_remain_turns);
         CHECKSUM_ADD(checksum, player->instance_num);
-        CHECKSUM_ADD(checksum, mappos->x.val);
-        CHECKSUM_ADD(checksum, mappos->y.val);
-        CHECKSUM_ADD(checksum, mappos->z.val);
         return checksum;
     }
     return 0;
@@ -223,6 +219,8 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing) {
     CHECKSUM_ADD(checksum, thing->mappos.x.val);
     CHECKSUM_ADD(checksum, thing->mappos.y.val);
     CHECKSUM_ADD(checksum, thing->mappos.z.val);
+    CHECKSUM_ADD(checksum, thing->move_angle_xy);
+    CHECKSUM_ADD(checksum, thing->move_angle_z);
     CHECKSUM_ADD(checksum, thing->health);
     CHECKSUM_ADD(checksum, thing->current_frame);
     CHECKSUM_ADD(checksum, thing->max_frames);
