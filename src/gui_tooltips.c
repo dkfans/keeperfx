@@ -41,7 +41,7 @@
 #include "config_players.h"
 #include "config_settings.h"
 #include "game_legacy.h"
-#include "local_camera.h"
+
 #include "keeperfx.hpp"
 #include "post_inc.h"
 #include <math.h>
@@ -454,7 +454,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
             return false;
         }
         struct Coord3d mappos;
-        if (screen_to_map(get_local_camera(player->acamera), GetMouseX(), GetMouseY(), &mappos))
+        if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &mappos))
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {

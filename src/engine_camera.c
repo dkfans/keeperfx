@@ -35,7 +35,7 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "frontmenu_ingame_map.h"
-#include "local_camera.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -408,7 +408,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->view_mode = PVM_FrontView;
     cam->zoom = player->frontview_zoom_level;
 
-    init_local_cameras(player);
+
 }
 
 static int get_walking_bob_direction(struct Thing *thing)
@@ -811,6 +811,6 @@ void update_all_players_cameras(void)
           update_player_camera(player);
     }
   }
-  update_local_cameras();
+
 }
 /******************************************************************************/

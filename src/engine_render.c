@@ -48,7 +48,7 @@
 #include "engine_lenses.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
-#include "local_camera.h"
+
 #include "front_simple.h"
 #include "frontend.h"
 #include "game_heap.h"
@@ -5082,7 +5082,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(player->acamera);
+    const struct Camera *cam = player->acamera;
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -5241,7 +5241,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(player->acamera);
+    const struct Camera *cam = player->acamera;
     if (cam == NULL)
     {
         return;
@@ -5480,7 +5480,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(player->acamera);
+    const struct Camera *cam = player->acamera;
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -6704,7 +6704,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
-                cam = get_local_camera(player->acamera);
+                cam = player->acamera;
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {

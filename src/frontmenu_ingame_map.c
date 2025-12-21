@@ -48,7 +48,7 @@
 #include "player_instances.h"
 #include "engine_render.h"
 #include "gui_draw.h"
-#include "local_camera.h"
+
 #include "post_inc.h"
 
 // Local constants
@@ -267,7 +267,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam = get_local_camera(player->acamera);
+    struct Camera *cam = player->acamera;
     n = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
     k = 0;
@@ -326,7 +326,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam = get_local_camera(player->acamera);
+    struct Camera *cam = player->acamera;
     n = 0;
     k = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Trap);
@@ -404,7 +404,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam = get_local_camera(player->acamera);
+    struct Camera *cam = player->acamera;
     n = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
     k = 0;
@@ -491,7 +491,7 @@ void panel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord bas
 int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
 {
     const struct Camera* cam;
-    cam = get_local_camera(player->acamera);
+    cam = player->acamera;
     if (cam == NULL)
         return 0;
     if (cam->view_mode != PVM_CreatureView)
@@ -533,7 +533,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam = get_local_camera(player->acamera);
+    struct Camera *cam = player->acamera;
     n = 0;
     k = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Creature);
@@ -668,7 +668,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam = get_local_camera(player->acamera);
+    struct Camera *cam = player->acamera;
     struct Thing *thing = get_player_soul_container(player->id_number);
 
     if (!thing_exists(thing)) {
@@ -849,7 +849,7 @@ static void do_map_rotate_stuff(long relpos_x, long relpos_y, int32_t *stl_x, in
 {
     const struct PlayerInfo *player = get_my_player();
     const struct Camera *cam;
-    cam = get_local_camera(player->acamera);
+    cam = player->acamera;
     int angle;
     angle = cam->rotation_angle_x & ANGLE_MASK_4;
     int shift_x;
@@ -1273,7 +1273,7 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     auto_gen_tables(units_per_px);
     update_panel_colors();
     struct PlayerInfo *player = get_my_player();
-    struct Camera *cam = get_local_camera(player->acamera);
+    struct Camera *cam = player->acamera;
 
     if ((cam == NULL) || (MapDiagonalLength < 1))
         return;

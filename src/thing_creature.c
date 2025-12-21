@@ -54,7 +54,7 @@
 #include "dungeon_data.h"
 #include "engine_arrays.h"
 #include "engine_lenses.h"
-#include "local_camera.h"
+
 #include "engine_redraw.h"
 #include "front_input.h"
 #include "front_simple.h"
@@ -4255,7 +4255,7 @@ void draw_creature_view(struct Thing *thing)
 {
   // If no eye lens required - just draw on the screen, directly
   struct PlayerInfo* player = get_my_player();
-  struct Camera* render_cam = get_local_camera(&player->cameras[CamIV_FirstPerson]);
+  struct Camera* render_cam = &player->cameras[CamIV_FirstPerson];
   if (((game.mode_flags & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.applied_lens_type == 0))
   {
       engine(player, render_cam);

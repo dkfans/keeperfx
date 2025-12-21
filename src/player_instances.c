@@ -50,7 +50,7 @@
 #include "gui_soundmsgs.h"
 #include "engine_arrays.h"
 #include "engine_camera.h"
-#include "local_camera.h"
+
 #include "engine_redraw.h"
 #include "sounds.h"
 #include "config_settings.h"
@@ -411,7 +411,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
         {
           cam->rotation_angle_x -= DEGREES_360;
         }
-        set_local_camera_destination(player);
+
     }
     return 0;
 }
@@ -513,7 +513,7 @@ long pinstfm_leave_creature(struct PlayerInfo *player, int32_t *n)
         if (get_camera_zoom(player->acamera) < player->dungeon_camera_zoom) {
             set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
         }
-        set_local_camera_destination(player);
+
     }
     return 0;
 }
@@ -656,7 +656,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
     cam->zoom = 24000;
   }
   cam->rotation_angle_x = 0;
-  sync_local_camera(player);
+
   if (!TimerNoReset)
   {
      timerstarttime = LbTimerClock();
@@ -693,7 +693,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
         dstcam = &player->cameras[CamIV_FrontView];
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
-        set_local_camera_destination(player);
+
     }
     if (is_my_player_number(player->id_number) && (player->instance_remain_turns >= 8))
         LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
@@ -710,7 +710,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
   {
     cam->zoom = player->isometric_view_zoom_level;
     cam->rotation_angle_x = DEGREES_45;
-    set_local_camera_destination(player);
+
   }
   light_turn_light_on(player->cursor_light_idx);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
@@ -883,7 +883,7 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, int32_t *n)
         player->instance_remain_turns = 0;
     cam->mappos.x.val = x;
     cam->mappos.y.val = y;
-    set_local_camera_destination(player);
+
     return 0;
 }
 
@@ -968,7 +968,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
         player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
         player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
-        sync_local_camera(player);
+
         clear_selected_thing(player);
         return;
     }
@@ -989,7 +989,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
     player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
     player->cameras[CamIV_FrontView].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-    sync_local_camera(player);
+
     if (thing->class_id == TCls_Creature)
     {
         set_start_state(thing);
@@ -1021,7 +1021,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
     player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
     player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
-    sync_local_camera(player);
+
     clear_selected_thing(player);
     return;
   }
@@ -1035,7 +1035,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   player->cameras[CamIV_FrontView].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-  sync_local_camera(player);
+
   clear_selected_thing(player);
 }
 
