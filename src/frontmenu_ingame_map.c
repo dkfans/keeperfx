@@ -48,6 +48,7 @@
 #include "player_instances.h"
 #include "engine_render.h"
 #include "gui_draw.h"
+#include "keeperfx.hpp"
 
 #include "post_inc.h"
 
@@ -890,6 +891,7 @@ short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_
   if (subtile_has_slab(curr_x, curr_y))
   {
     set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
+    set_player_cameras_position(player, subtile_coord_center(curr_x), subtile_coord_center(curr_y));
   }
   return 1;
 }
@@ -916,6 +918,7 @@ short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr
         {
           result = 1;
           set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
+          set_player_cameras_position(player, subtile_coord_center(curr_x), subtile_coord_center(curr_y));
         }
       }
     grabbed_small_map = 0;
