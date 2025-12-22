@@ -131,6 +131,10 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     const int extra_turn_processing_time = 30;
     int combined_time = turn_time_ms + extra_turn_processing_time;
     input_lag = max(1, average_ping / combined_time);
+    
+    if (average_ping <= 40) {
+        input_lag = 0;
+    }
 
     //  55ms ping : 0.69 turns : input lag 1
     // 135ms ping : 1.69 turns : input lag 1
