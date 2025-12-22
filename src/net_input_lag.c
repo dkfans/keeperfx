@@ -132,7 +132,7 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     int combined_time = turn_time_ms + extra_turn_processing_time;
     input_lag = max(1, average_ping / combined_time);
     
-    if (average_ping <= 50) {
+    if (average_ping <= 40) {
         input_lag = 0;
     }
 
