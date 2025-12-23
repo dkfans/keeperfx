@@ -1844,6 +1844,20 @@ short get_creature_control_action_inputs(void)
     return false;
 }
 
+void input_slap_local(struct PlayerInfo* player) {
+    if (player->work_state == PSt_CtrlDungeon && power_hand_is_empty(player)) {
+        struct Coord3d pos;
+        if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos)) {
+            MapSubtlCoord stl_x = coord_subtile(pos.x.val);
+            MapSubtlCoord stl_y = coord_subtile(pos.y.val);
+            struct Thing* thing = get_nearest_thing_for_slap(my_player_number, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
+            if (thing_exists(thing)) {
+                set_players_packet_action(player, PckA_Slap, thing->index, player->acamera->rotation_angle_x, 0, 0);
+            }
+        }
+    }
+}
+
 void get_packet_control_mouse_clicks(void)
 {
     SYNCDBG(8,"Starting");
@@ -1900,6 +1914,7 @@ void get_packet_control_mouse_clicks(void)
     if ( right_button_released || synthetic_right == 3 )
     {
       set_players_packet_control(player, PCtr_RBtnRelease);
+      input_slap_local(player);
       synthetic_right = 0;
     }
 

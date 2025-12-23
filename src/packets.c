@@ -1224,6 +1224,13 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     case PckA_ToggleComputer:
         toggle_computer_player(plyr_idx);
         break;
+    case PckA_Slap:
+        struct Thing* thing = thing_get(pckt->actn_par1);
+        if (thing_exists(thing) && thing_slappable(thing, plyr_idx)) {
+            player->slap_angle = pckt->actn_par2;
+            magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
+        }
+        break;
     default:
         return process_players_dungeon_control_cheats_packet_action(plyr_idx, pckt);
     }

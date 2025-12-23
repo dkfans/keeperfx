@@ -420,6 +420,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
     case GA_UseSlap:
     case GA_UsePwrSlap:
         thing = thing_get(param1);
+        get_player(plyr_idx)->slap_angle = PLAYER_RANDOM(plyr_idx, DEGREES_360);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, power_level, stl_x, stl_y, thing, PwMod_Default);
     default:
         ERRORLOG("Unknown game action %d", (int)gaction);

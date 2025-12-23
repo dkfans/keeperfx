@@ -233,12 +233,8 @@ long pinstfe_hand_whip(struct PlayerInfo *player, int32_t *n)
           if ( creature_model_bleeds(thing->model) )
               create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
           thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-          struct Camera* cam = player->acamera;
-          if (cam != NULL)
-          {
-            thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, cam->rotation_angle_x);
-            thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, cam->rotation_angle_x);
-          }
+          thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, player->slap_angle);
+          thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, player->slap_angle);
       }
       break;
   }
@@ -246,7 +242,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, int32_t *n)
       shotst = get_shot_model_stats(thing->model);
       if (shotst->model_flags & ShMF_Boulder)
       {
-          thing->move_angle_xy = player->acamera->rotation_angle_x;
+          thing->move_angle_xy = player->slap_angle;
           if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
           {
               thing->health -= game.conf.rules[thing->owner].game.boulder_reduce_health_slap;
