@@ -68,6 +68,7 @@
 #include "creature_states_spdig.h"
 #include "room_data.h"
 #include "map_blocks.h"
+#include "engine_camera.h"
 
 #include "packets.h"
 #include "console_cmd.h"
@@ -743,6 +744,7 @@ TbBool get_level_lost_inputs(void)
                 MapSubtlCoord stl_x = coord_subtile(map_x);
                 MapSubtlCoord stl_y = coord_subtile(map_y);
                 set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+                reset_interpolation_for_parchment_view(player);
                 left_button_released = 0;
             }
         }
@@ -1945,6 +1947,7 @@ short get_map_action_inputs(void)
         if (left_button_released) {
             left_button_released = 0;
             set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+            reset_interpolation_for_parchment_view(player);
             return true;
         }
     }

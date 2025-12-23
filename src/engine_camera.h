@@ -85,6 +85,24 @@ struct Camera {
     TbBool in_active_movement_y;
 };
 
+struct CameraInterpolationState {
+    float previous_mappos_x;
+    float previous_mappos_y;
+    float previous_mappos_z;
+    float mappos_x;
+    float mappos_y;
+    float mappos_z;
+    float previous_rotation_angle_x;
+    float previous_rotation_angle_y;
+    float previous_rotation_angle_z;
+    float rotation_angle_x;
+    float rotation_angle_y;
+    float rotation_angle_z;
+    float previous_zoom;
+    float zoom;
+};
+
+extern struct CameraInterpolationState camera_interpolation;
 
 /******************************************************************************/
 
@@ -119,6 +137,9 @@ void view_process_camera_inertia(struct Camera *cam);
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
 void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height);
+void set_previous_camera_values(struct PlayerInfo* player);
+void reset_interpolation_of_camera(struct PlayerInfo* player);
+void reset_interpolation_for_parchment_view(struct PlayerInfo* player);
 
 /******************************************************************************/
 #ifdef __cplusplus

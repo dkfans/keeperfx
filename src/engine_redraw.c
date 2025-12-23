@@ -577,8 +577,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
 
 void draw_overlay_compass(long base_x, long base_y)
 {
-    struct PlayerInfo* player = get_my_player();
-    struct Camera* cam = player->acamera;
     unsigned short flg_mem = lbDisplay.DrawFlags;
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
@@ -589,23 +587,23 @@ void draw_overlay_compass(long base_x, long base_y)
     int h = (LbSprFontCharHeight(lbFontPtr, '/') * tx_units_per_px / 16) / 2 + 2 * units_per_px / 16;
     int center_x = base_x * units_per_px / 16 + MapDiagonalLength / 2;
     int center_y = base_y * units_per_px / 16 + MapDiagonalLength / 2;
-    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL((long)camera_interpolation.rotation_angle_x)) >> LbFPMath_TrigmBits;
+    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL((long)camera_interpolation.rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapN));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbSinL((long)camera_interpolation.rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbCosL((long)camera_interpolation.rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapS));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbCosL((long)camera_interpolation.rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = (-(MapDiagonalLength*7/16) * LbSinL((long)camera_interpolation.rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapE));
     }
-    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_x = (-(MapDiagonalLength*7/16) * LbCosL((long)camera_interpolation.rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbSinL((long)camera_interpolation.rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
     }

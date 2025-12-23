@@ -582,6 +582,16 @@ void interpolate_thing(struct Thing *thing)
     }
 }
 
+void interpolate_camera(struct Camera *cam) {
+    camera_interpolation.zoom = interpolate(camera_interpolation.zoom, camera_interpolation.previous_zoom, camera_zoom);
+    camera_interpolation.rotation_angle_x = interpolate_angle(camera_interpolation.rotation_angle_x, camera_interpolation.previous_rotation_angle_x, (float)cam->rotation_angle_x);
+    camera_interpolation.rotation_angle_y = interpolate_angle(camera_interpolation.rotation_angle_y, camera_interpolation.previous_rotation_angle_y, (float)cam->rotation_angle_y);
+    camera_interpolation.rotation_angle_z = interpolate_angle(camera_interpolation.rotation_angle_z, camera_interpolation.previous_rotation_angle_z, (float)cam->rotation_angle_z);
+    camera_interpolation.mappos_x = interpolate(camera_interpolation.mappos_x, camera_interpolation.previous_mappos_x, cam->mappos.x.val);
+    camera_interpolation.mappos_y = interpolate(camera_interpolation.mappos_y, camera_interpolation.previous_mappos_y, cam->mappos.y.val);
+    camera_interpolation.mappos_z = interpolate(camera_interpolation.mappos_z, camera_interpolation.previous_mappos_z, cam->mappos.z.val);
+}
+
 static void get_floor_pointed_at(long x, long y, int32_t *floor_x, int32_t *floor_y)
 {
     long long ofs_x;
@@ -6831,9 +6841,11 @@ void draw_view(struct Camera *cam, unsigned char a2)
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    long x = cam->mappos.x.val;
-    long y = cam->mappos.y.val;
-    long z = cam->mappos.z.val;
+    interpolate_camera(cam);
+    camera_zoom = (long)camera_interpolation.zoom;
+    long x = (long)camera_interpolation.mappos_x;
+    long y = (long)camera_interpolation.mappos_y;
+    long z = (long)camera_interpolation.mappos_z;
 
     getpoly = poly_pool;
     memset(buckets, 0, sizeof(buckets));
@@ -6856,13 +6868,13 @@ void draw_view(struct Camera *cam, unsigned char a2)
     rotpers = rotpers_routines[i];
     update_fade_limits(cells_away);
     init_coords_and_rotation(&object_origin,&camera_matrix);
-    rotate_base_axis(&camera_matrix, cam->rotation_angle_x, 2);
+    rotate_base_axis(&camera_matrix, (long)camera_interpolation.rotation_angle_x, 2);
     update_normal_shade(&camera_matrix);
-    rotate_base_axis(&camera_matrix, -cam->rotation_angle_y, 1);
-    rotate_base_axis(&camera_matrix, -cam->rotation_angle_z, 3);
-    cam_map_angle = cam->rotation_angle_x;
-    map_roll = cam->rotation_angle_z;
-    map_tilt = -cam->rotation_angle_y;
+    rotate_base_axis(&camera_matrix, -(long)camera_interpolation.rotation_angle_y, 1);
+    rotate_base_axis(&camera_matrix, -(long)camera_interpolation.rotation_angle_z, 3);
+    cam_map_angle = (long)camera_interpolation.rotation_angle_x;
+    map_roll = (long)camera_interpolation.rotation_angle_z;
+    map_tilt = -(long)camera_interpolation.rotation_angle_y;
 
     frame_wibble_generate();
     view_alt = z;
@@ -7079,31 +7091,31 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     struct PlayerInfo* player = get_my_player();
 
     zoom = 32 * camera_zoom / 256;
-    orientation = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
+    orientation = ((unsigned int)((long)camera_interpolation.rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
 
     switch ( orientation )
     {
         case 0:
-            vertical_delta = pos->y.val - cam->mappos.y.val;
-            horizontal_delta = pos->x.val - cam->mappos.x.val;
+            vertical_delta = pos->y.val - (long)camera_interpolation.mappos_y;
+            horizontal_delta = pos->x.val - (long)camera_interpolation.mappos_x;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 1:
-            vertical_delta = cam->mappos.x.val - pos->x.val;
-            horizontal_delta = pos->y.val - cam->mappos.y.val;
+            vertical_delta = (long)camera_interpolation.mappos_x - pos->x.val;
+            horizontal_delta = pos->y.val - (long)camera_interpolation.mappos_y;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 2:
-            vertical_delta = cam->mappos.y.val - pos->y.val;
-            horizontal_delta = cam->mappos.x.val - pos->x.val;
+            vertical_delta = (long)camera_interpolation.mappos_y - pos->y.val;
+            horizontal_delta = (long)camera_interpolation.mappos_x - pos->x.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 3:
-            vertical_delta = pos->x.val - cam->mappos.x.val;
-            horizontal_delta = cam->mappos.y.val - pos->y.val;
+            vertical_delta = pos->x.val - (long)camera_interpolation.mappos_x;
+            horizontal_delta = (long)camera_interpolation.mappos_y - pos->y.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
     }
@@ -8975,8 +8987,10 @@ void draw_frontview_engine(struct Camera *cam)
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    cam_x = cam->mappos.x.val;
-    cam_y = cam->mappos.y.val;
+    interpolate_camera(cam);
+    camera_zoom = (long)camera_interpolation.zoom;
+    cam_x = (long)camera_interpolation.mappos_x;
+    cam_y = (long)camera_interpolation.mappos_y;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
     LbScreenStoreGraphicsWindow(&grwnd);

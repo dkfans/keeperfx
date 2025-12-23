@@ -48,11 +48,61 @@ extern "C" {
 long zoom_distance_setting;
 long frontview_zoom_distance_setting;
 long camera_zoom;
+
+struct CameraInterpolationState camera_interpolation;
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+
+void reset_interpolation_for_parchment_view(struct PlayerInfo* player) {
+    struct Camera *cam = player->acamera;
+    camera_interpolation.rotation_angle_x = cam->rotation_angle_x;
+    camera_interpolation.rotation_angle_z = cam->rotation_angle_z;
+    camera_interpolation.previous_rotation_angle_x = cam->rotation_angle_x;
+    camera_interpolation.previous_rotation_angle_z = cam->rotation_angle_z;
+    camera_interpolation.mappos_x = (float)cam->mappos.x.val;
+    camera_interpolation.mappos_y = (float)cam->mappos.y.val;
+    camera_interpolation.mappos_z = (float)cam->mappos.z.val;
+    camera_interpolation.previous_mappos_x = (float)cam->mappos.x.val;
+    camera_interpolation.previous_mappos_y = (float)cam->mappos.y.val;
+    camera_interpolation.previous_mappos_z = (float)cam->mappos.z.val;
+    reset_all_minimap_interpolation = true;
+}
+
+void reset_interpolation_of_camera(struct PlayerInfo* player) {
+    struct Camera *cam = player->acamera;
+    camera_interpolation.zoom = (float)scale_camera_zoom_to_screen(cam->zoom);
+    camera_interpolation.previous_zoom = (float)scale_camera_zoom_to_screen(cam->zoom);
+    camera_interpolation.rotation_angle_x = cam->rotation_angle_x;
+    camera_interpolation.rotation_angle_y = cam->rotation_angle_y;
+    camera_interpolation.rotation_angle_z = cam->rotation_angle_z;
+    camera_interpolation.previous_rotation_angle_x = cam->rotation_angle_x;
+    camera_interpolation.previous_rotation_angle_y = cam->rotation_angle_y;
+    camera_interpolation.previous_rotation_angle_z = cam->rotation_angle_z;
+    camera_interpolation.mappos_x = (float)cam->mappos.x.val;
+    camera_interpolation.mappos_y = (float)cam->mappos.y.val;
+    camera_interpolation.mappos_z = (float)cam->mappos.z.val;
+    camera_interpolation.previous_mappos_x = (float)cam->mappos.x.val;
+    camera_interpolation.previous_mappos_y = (float)cam->mappos.y.val;
+    camera_interpolation.previous_mappos_z = (float)cam->mappos.z.val;
+    reset_all_minimap_interpolation = true;
+}
+
+void set_previous_camera_values(struct PlayerInfo* player) {
+    struct Camera *cam = player->acamera;
+    camera_interpolation.previous_mappos_x = (float)cam->mappos.x.val;
+    camera_interpolation.previous_mappos_y = (float)cam->mappos.y.val;
+    camera_interpolation.previous_mappos_z = (float)cam->mappos.z.val;
+    camera_interpolation.previous_rotation_angle_x = cam->rotation_angle_x;
+    camera_interpolation.previous_rotation_angle_y = cam->rotation_angle_y;
+    camera_interpolation.previous_rotation_angle_z = cam->rotation_angle_z;
+    camera_interpolation.previous_zoom = (float)scale_camera_zoom_to_screen(cam->zoom);
+    if (game.frame_skip > 0) {
+        reset_interpolation_of_camera(player);
+    }
+}
 
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
@@ -410,7 +460,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->view_mode = PVM_FrontView;
     cam->zoom = player->frontview_zoom_level;
 
-
+    reset_interpolation_of_camera(player);
 }
 
 static int get_walking_bob_direction(struct Thing *thing)

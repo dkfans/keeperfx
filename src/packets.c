@@ -94,6 +94,7 @@
 #include "net_resync.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
+#include "engine_camera.h"
 #include "frontmenu_ingame_tabs.h"
 #include "vidfade.h"
 #include "spdigger_stack.h"
@@ -771,6 +772,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_FrontView].rotation_angle_x = pckt->actn_par1;
       player->cameras[CamIV_Isometric].rotation_angle_x = pckt->actn_par1;
 
+      if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
+          reset_interpolation_of_camera(player);
+      }
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);

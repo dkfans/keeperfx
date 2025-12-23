@@ -2694,6 +2694,7 @@ void update(void)
         return;
     }
     player = get_my_player();
+    set_previous_camera_values(player);
 
     if (!flag_is_set(game.operation_flags,GOF_Paused))
     {

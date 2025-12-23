@@ -47,6 +47,7 @@
 #include "vidfade.h"
 #include "player_instances.h"
 #include "engine_render.h"
+#include "engine_camera.h"
 #include "gui_draw.h"
 #include "keeperfx.hpp"
 
@@ -118,7 +119,11 @@ unsigned char grabbed_small_map;
 long MapDiagonalLength = 0;
 TbBool reset_all_minimap_interpolation = false;
 
-
+static void rotate_minimap_coords(long zmpos_x, long zmpos_y, long *mapos_x, long *mapos_y) {
+    long angle = (long)camera_interpolation.rotation_angle_x;
+    *mapos_x = (zmpos_x * LbCosL(angle) + zmpos_y * LbSinL(angle)) >> 16;
+    *mapos_y = (zmpos_y * LbCosL(angle) - zmpos_x * LbSinL(angle)) >> 16;
+}
 
 /******************************************************************************/
 
@@ -293,11 +298,9 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
                 long zmpos_x = thing->interp_minimap_pos_x / zoom;
                 long zmpos_y = thing->interp_minimap_pos_y / zoom;
 
-                // Now rotate the coordinates to receive minimap points
                 long mapos_x;
                 long mapos_y;
-                mapos_x = (zmpos_x * LbCosL(cam->rotation_angle_x) + zmpos_y * LbSinL(cam->rotation_angle_x)) >> 16;
-                mapos_y = (zmpos_y * LbCosL(cam->rotation_angle_x) - zmpos_x * LbSinL(cam->rotation_angle_x)) >> 16;
+                rotate_minimap_coords(zmpos_x, zmpos_y, &mapos_x, &mapos_y);
                 draw_call_to_arms_circle(thing->owner, 0, 0, mapos_x, mapos_y, zoom);
                 n++;
             }
@@ -350,11 +353,9 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
             long zmpos_x = thing->interp_minimap_pos_x / scaled_zoom;
             long zmpos_y = thing->interp_minimap_pos_y / scaled_zoom;
 
-            // Now rotate the coordinates to receive minimap points
-            RealScreenCoord mapos_x;
-            RealScreenCoord mapos_y;
-            mapos_x = (zmpos_x * LbCosL(cam->rotation_angle_x) + zmpos_y * LbSinL(cam->rotation_angle_x)) >> 16;
-            mapos_y = (zmpos_y * LbCosL(cam->rotation_angle_x) - zmpos_x * LbSinL(cam->rotation_angle_x)) >> 16;
+            long mapos_x;
+            long mapos_y;
+            rotate_minimap_coords(zmpos_x, zmpos_y, &mapos_x, &mapos_y);
             RealScreenCoord basepos;
             basepos = MapDiagonalLength/2;
             // Do the drawing
@@ -432,9 +433,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
 
                 long mapos_x;
                 long mapos_y;
-                // Now rotate the coordinates to receive minimap points
-                mapos_x = (zmpos_x * LbCosL(cam->rotation_angle_x) + zmpos_y * LbSinL(cam->rotation_angle_x)) >> 16;
-                mapos_y = (zmpos_y * LbCosL(cam->rotation_angle_x) - zmpos_x * LbSinL(cam->rotation_angle_x)) >> 16;
+                rotate_minimap_coords(zmpos_x, zmpos_y, &mapos_x, &mapos_y);
                 RealScreenCoord basepos;
                 basepos = MapDiagonalLength/2;
 
@@ -569,11 +568,9 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 long zmpos_x = thing->interp_minimap_pos_x / zoom;
                 long zmpos_y = thing->interp_minimap_pos_y / zoom;
 
-                // Now rotate the coordinates to receive minimap points
                 long mapos_x;
                 long mapos_y;
-                mapos_x = (zmpos_x * LbCosL(cam->rotation_angle_x) + zmpos_y * LbSinL(cam->rotation_angle_x)) >> 16;
-                mapos_y = (zmpos_y * LbCosL(cam->rotation_angle_x) - zmpos_x * LbSinL(cam->rotation_angle_x)) >> 16;
+                rotate_minimap_coords(zmpos_x, zmpos_y, &mapos_x, &mapos_y);
                 RealScreenCoord basepos;
                 basepos = MapDiagonalLength/2;
                 // Do the drawing
@@ -634,8 +631,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
 
                     long mapos_x;
                     long mapos_y;
-                    mapos_x = (zmpos_x * LbCosL(cam->rotation_angle_x) + zmpos_y * LbSinL(cam->rotation_angle_x)) >> 16;
-                    mapos_y = (zmpos_y * LbCosL(cam->rotation_angle_x) - zmpos_x * LbSinL(cam->rotation_angle_x)) >> 16;
+                    rotate_minimap_coords(zmpos_x, zmpos_y, &mapos_x, &mapos_y);
                     RealScreenCoord basepos;
                     basepos = MapDiagonalLength/2;
                     // Do the drawing
@@ -682,11 +678,9 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     long zmpos_x = thing->interp_minimap_pos_x / zoom;
     long zmpos_y = thing->interp_minimap_pos_y / zoom;
 
-    // Now rotate the coordinates to receive minimap points
-    RealScreenCoord mapos_x;
-    RealScreenCoord mapos_y;
-    mapos_x = (zmpos_x * LbCosL(cam->rotation_angle_x) + zmpos_y * LbSinL(cam->rotation_angle_x)) >> 16;
-    mapos_y = (zmpos_y * LbCosL(cam->rotation_angle_x) - zmpos_x * LbSinL(cam->rotation_angle_x)) >> 16;
+    long mapos_x;
+    long mapos_y;
+    rotate_minimap_coords(zmpos_x, zmpos_y, &mapos_x, &mapos_y);
     RealScreenCoord basepos;
     basepos = MapDiagonalLength/2;
     // Do the drawing
@@ -852,7 +846,7 @@ static void do_map_rotate_stuff(long relpos_x, long relpos_y, int32_t *stl_x, in
     const struct Camera *cam;
     cam = player->acamera;
     int angle;
-    angle = cam->rotation_angle_x & ANGLE_MASK_4;
+    angle = (long)camera_interpolation.rotation_angle_x & ANGLE_MASK_4;
     int shift_x;
     int shift_y;
     shift_x = -LbSinL(angle);
@@ -1288,7 +1282,7 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     long shift_stl_y;
     {
         int angle;
-        angle = cam->rotation_angle_x & ANGLE_MASK_4; //cam->rotation_angle_x
+        angle = (long)camera_interpolation.rotation_angle_x & ANGLE_MASK_4;
         shift_x = -LbSinL(angle) * zoom / 256;
         shift_y = LbCosL(angle) * zoom / 256;
         long current_minimap_x = (cam->mappos.x.val << 8);
