@@ -232,6 +232,10 @@ short save_packets(void)
             }
         }
     }
+    struct PlayerInfo *player = get_player(my_player_number);
+    if (LbFileWrite(game.packet_save_fp, player->cameras, sizeof(struct Camera) * CamIV_EndList) != sizeof(struct Camera) * CamIV_EndList) {
+        ERRORLOG("Camera state file write error");
+    }
     if ( !LbFileFlush(game.packet_save_fp) )
     {
         ERRORLOG("Unable to flush PacketSave File");
@@ -367,6 +371,12 @@ void load_packets_for_turn(GameTurn nturn)
                 ERRORDBG(18,"Cannot read chat message from Packet File");
             }
         }
+    }
+    struct PlayerInfo *player = get_player(my_player_number);
+    if (LbFileRead(game.packet_save_fp, player->cameras, sizeof(struct Camera) * CamIV_EndList) == sizeof(struct Camera) * CamIV_EndList) {
+        game.packet_file_pos += sizeof(struct Camera) * CamIV_EndList;
+    } else {
+        ERRORDBG(18,"Cannot read camera state from Packet File");
     }
     TbBigChecksum tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT * sizeof(struct Packet)]);
     if (game.turns_fastforward > 0)
