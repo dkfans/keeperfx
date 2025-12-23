@@ -868,6 +868,8 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, int32_t *n)
     struct Camera* cam = player->acamera;
     cam->inertia_x = 0;
     cam->inertia_y = 0;
+    cam->inertia_x_remainder = 0;
+    cam->inertia_y_remainder = 0;
     if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
       x = player->zoom_to_movement_x + cam->mappos.x.val;
     else

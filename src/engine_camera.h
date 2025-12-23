@@ -77,12 +77,15 @@ struct Camera {
     int rotation_angle_z;
     int horizontal_fov; // Horizontal Field of View in degrees
     int zoom;
-    int inertia_rotation;
+    float inertia_rotation;
     TbBool in_active_movement_rotation;
-    long inertia_x;
+    float inertia_x;
     TbBool in_active_movement_x;
-    long inertia_y;
+    float inertia_y;
     TbBool in_active_movement_y;
+    float inertia_x_remainder;
+    float inertia_y_remainder;
+    float inertia_rotation_remainder;
 };
 
 struct CameraInterpolationState {

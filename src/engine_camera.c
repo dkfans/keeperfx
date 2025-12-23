@@ -337,43 +337,49 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 
 void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
 {
-    long abslimit = abs(ilimit);
+    float abslimit = abs(ilimit);
     cam->inertia_y += delta;
     if (cam->inertia_y < -abslimit) {
         cam->inertia_y = -abslimit;
+        cam->inertia_y_remainder = 0;
     } else
     if (cam->inertia_y > abslimit) {
         cam->inertia_y = abslimit;
+        cam->inertia_y_remainder = 0;
     }
     cam->in_active_movement_y = true;
 }
 
 void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
 {
-    long abslimit = abs(ilimit);
+    float abslimit = abs(ilimit);
     cam->inertia_x += delta;
     if (cam->inertia_x < -abslimit) {
         cam->inertia_x = -abslimit;
+        cam->inertia_x_remainder = 0;
     } else
     if (cam->inertia_x > abslimit) {
         cam->inertia_x = abslimit;
+        cam->inertia_x_remainder = 0;
     }
     cam->in_active_movement_x = true;
 }
 
 void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit)
 {
-    int limit_val = abs(ilimit);
-    int new_val = delta + cam->inertia_rotation;
+    float limit_val = abs(ilimit);
+    float new_val = delta + cam->inertia_rotation;
     cam->inertia_rotation = new_val;
     if (new_val < -limit_val)
     {
         cam->inertia_rotation = -limit_val;
+        cam->inertia_rotation_remainder = 0;
         cam->in_active_movement_rotation = true;
     } else
     if (new_val > limit_val)
     {
         cam->inertia_rotation = limit_val;
+        cam->inertia_rotation_remainder = 0;
         cam->in_active_movement_rotation = true;
     } else
     {
@@ -778,25 +784,28 @@ void view_move_camera_down(struct Camera *cam, long distance)
 
 void view_process_camera_inertia(struct Camera *cam)
 {
-    int i;
-    i = cam->inertia_x;
-    if (i > 0) {
-        view_move_camera_right(cam, abs(i));
+    float total_x = cam->inertia_x + cam->inertia_x_remainder;
+    int move_x = (int)total_x;
+    cam->inertia_x_remainder = total_x - move_x;
+    if (move_x > 0) {
+        view_move_camera_right(cam, abs(move_x));
     } else
-    if (i < 0) {
-        view_move_camera_left(cam, abs(i));
+    if (move_x < 0) {
+        view_move_camera_left(cam, abs(move_x));
     }
     if ( cam->in_active_movement_x ) {
         cam->in_active_movement_x = false;
     } else {
         cam->inertia_x /= 2;
     }
-    i = cam->inertia_y;
-    if (i > 0) {
-        view_move_camera_down(cam, abs(i));
+    float total_y = cam->inertia_y + cam->inertia_y_remainder;
+    int move_y = (int)total_y;
+    cam->inertia_y_remainder = total_y - move_y;
+    if (move_y > 0) {
+        view_move_camera_down(cam, abs(move_y));
     } else
-    if (i < 0) {
-        view_move_camera_up(cam, abs(i));
+    if (move_y < 0) {
+        view_move_camera_up(cam, abs(move_y));
     }
     if (cam->in_active_movement_y) {
         cam->in_active_movement_y = false;
@@ -804,7 +813,10 @@ void view_process_camera_inertia(struct Camera *cam)
         cam->inertia_y /= 2;
     }
     if (cam->inertia_rotation) {
-        cam->rotation_angle_x = (cam->inertia_rotation + cam->rotation_angle_x) & ANGLE_MASK;
+        float total_rot = cam->inertia_rotation + cam->inertia_rotation_remainder;
+        int move_rot = (int)total_rot;
+        cam->inertia_rotation_remainder = total_rot - move_rot;
+        cam->rotation_angle_x = (move_rot + cam->rotation_angle_x) & ANGLE_MASK;
     }
     if (cam->in_active_movement_rotation) {
         cam->in_active_movement_rotation = false;
