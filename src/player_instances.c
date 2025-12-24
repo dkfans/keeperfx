@@ -594,6 +594,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
         player->allocflags |= PlaF_MouseInputDisabled;
         game.view_mode_flags |= GNFldD_CreaturePasngr;
     }
+    reset_interpolation_of_camera(player);
     return 0;
 }
 
