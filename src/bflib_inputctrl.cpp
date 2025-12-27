@@ -51,7 +51,6 @@ static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
 static TbBool firstTimeMouseInit = true;
 
-std::map<int, TbKeyCode> keymap_sdl_to_bf;
 static SDL_GameController *controller = NULL;
 static SDL_Joystick *joystick = NULL;
 
