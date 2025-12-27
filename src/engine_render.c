@@ -537,7 +537,7 @@ float interpolate(float variable_to_interpolate, long previous, long current)
 
 float interpolate_angle(float variable_to_interpolate, float previous, float current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false) {
+    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
     float future = current + (current - previous);

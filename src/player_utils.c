@@ -50,6 +50,7 @@
 #include "frontend.h"
 #include "magic_powers.h"
 #include "engine_redraw.h"
+#include "local_camera.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
 #include "gui_frontbtns.h"
@@ -1132,6 +1133,7 @@ void process_player_states(void)
                 if ((cam != NULL) && thing_exists(thing)) {
                     cam->mappos.x.val = thing->mappos.x.val;
                     cam->mappos.y.val = thing->mappos.y.val;
+                    set_local_camera_destination(player);
                 }
             }
         }
