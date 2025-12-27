@@ -54,6 +54,9 @@ static TbBool firstTimeMouseInit = true;
 static SDL_GameController *controller = NULL;
 static SDL_Joystick *joystick = NULL;
 
+static TbBool lt_pressed = false;
+static TbBool rt_pressed = false;
+
 /**
  * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
  * @param eventType SDL event type.
@@ -464,11 +467,30 @@ TbBool LbWindowsControl(void)
         // Handle right stick for mouse movement
         Sint16 rightX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
         Sint16 rightY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
-        if (rightX > 1000 || rightX < -1000 || rightY > 1000 || rightY < -1000) { // Deadzone
+        if (rightX > 200 || rightX < -200 || rightY > 200 || rightY < -200) { // Deadzone
             struct TbPoint mouseDelta;
             mouseDelta.x = rightX / 16384; // Scale down the axis value for slower movement
             mouseDelta.y = rightY / 16384;
             mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+        }
+
+        // Handle triggers for mouse buttons
+        Sint16 lt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+        Sint16 rt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+        struct TbPoint delta = {0, 0};
+        if (lt > 10000 && !lt_pressed) {
+            lt_pressed = true;
+            mouseControl(MActn_LBUTTONDOWN, &delta);
+        } else if (lt <= 10000 && lt_pressed) {
+            lt_pressed = false;
+            mouseControl(MActn_LBUTTONUP, &delta);
+        }
+        if (rt > 10000 && !rt_pressed) {
+            rt_pressed = true;
+            mouseControl(MActn_RBUTTONDOWN, &delta);
+        } else if (rt <= 10000 && rt_pressed) {
+            rt_pressed = false;
+            mouseControl(MActn_RBUTTONUP, &delta);
         }
     } else if (joystick != NULL) {
         // Similar for joystick
