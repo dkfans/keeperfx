@@ -71,7 +71,7 @@ TbBool player_can_afford_to_train_creature(const struct Thing *thing)
     return (dungeon->total_money_owned >= training_cost);
 }
 
-void setup_training_move(struct Thing *creatng, SubtlCodedCoords stl_num)
+static void setup_training_move(struct Thing *creatng, SubtlCodedCoords stl_num)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->moveto_pos.x.val = subtile_coord_center(stl_num_decode_x(stl_num));
@@ -87,7 +87,7 @@ void setup_training_move(struct Thing *creatng, SubtlCodedCoords stl_num)
         (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
 }
 
-void setup_training_move_near(struct Thing *creatng, SubtlCodedCoords stl_num)
+static void setup_training_move_near(struct Thing *creatng, SubtlCodedCoords stl_num)
 {
     MapSubtlCoord stl_x = stl_num_decode_x(stl_num);
     MapSubtlCoord stl_y = stl_num_decode_y(stl_num);
@@ -113,7 +113,7 @@ void setup_training_move_near(struct Thing *creatng, SubtlCodedCoords stl_num)
     setup_training_move(creatng, near_stl_num);
 }
 
-struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Room *room, struct Thing *partnertng)
+static struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Room *room, struct Thing *partnertng)
 {
     TRACE_THING(partnertng);
     long i = room->creatures_list;
@@ -152,7 +152,7 @@ struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Ro
     return INVALID_THING;
 }
 
-void setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long restart)
+static void setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long restart)
 {
     struct Coord3d pos;
     SYNCDBG(8,"Starting for %s",thing_model_name(thing));
@@ -202,7 +202,7 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
  *
  * @param creatng The creature who wish to train with training post.
  */
-void setup_training_search_for_post(struct Thing *creatng)
+static void setup_training_search_for_post(struct Thing *creatng)
 {
     struct Room* room = get_room_thing_is_on(creatng);
     // Let's start from a random slab
@@ -260,7 +260,7 @@ void setup_training_search_for_post(struct Thing *creatng)
     }
 }
 
-struct Thing *find_training_post_just_next_to_creature(struct Thing *creatng)
+static struct Thing *find_training_post_just_next_to_creature(struct Thing *creatng)
 {
     struct Thing* traintng = INVALID_THING;
     for (long i = 0; i < 4; i++)
@@ -274,7 +274,7 @@ struct Thing *find_training_post_just_next_to_creature(struct Thing *creatng)
     return traintng;
 }
 
-void process_creature_in_training_room(struct Thing *thing, struct Room *room)
+static void process_creature_in_training_room(struct Thing *thing, struct Room *room)
 {
     static const struct Around corners[] = {
         {1, 2},

@@ -259,6 +259,7 @@ const struct NamedCommand room_roles_desc[] = {
   {"ROOM_ROLE_POOL_LEAVE",     RoRoF_CrPoolLeave},
   {"ROOM_ROLE_PASS_WATER",     RoRoF_PassWater},
   {"ROOM_ROLE_PASS_LAVA",      RoRoF_PassLava},
+  {"ROOM_ROLE_ARENA",          RoRoF_Arena},
   {"ROOM_ROLE_NONE",           RoRoF_None},
   {NULL,                       0},
 };
