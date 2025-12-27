@@ -3494,4 +3494,23 @@ short creature_damage_walls(struct Thing *creatng)
 
 }
 
+TbBool creature_requires_cleansing(const struct Thing* thing, SpellKind spell_idx)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig* spconf = get_spell_config(spell_idx);
+    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        struct CastedSpellData *cspell = &cctrl->casted_spells[i];
+        struct SpellConfig* spconf2 = get_spell_config(cspell->spkind);
+        if (flag_is_set(spconf->cleanse_flags, spconf2->spell_flags))
+        {
+            if (creature_under_spell_effect(thing, spconf2->spell_flags))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 /******************************************************************************/
