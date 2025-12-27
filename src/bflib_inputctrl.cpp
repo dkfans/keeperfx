@@ -467,10 +467,10 @@ TbBool LbWindowsControl(void)
         // Handle right stick for mouse movement
         Sint16 rightX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
         Sint16 rightY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
-        if (rightX > 200 || rightX < -200 || rightY > 200 || rightY < -200) { // Deadzone
+        if (rightX > 1000 || rightX < -1000 || rightY > 1000 || rightY < -1000) { // Deadzone
             struct TbPoint mouseDelta;
-            mouseDelta.x = rightX / 16384; // Scale down the axis value for slower movement
-            mouseDelta.y = rightY / 16384;
+            mouseDelta.x = rightX / 2048; // Scale down the axis value for slower movement
+            mouseDelta.y = rightY / 2048;
             mouseControl(MActn_MOUSEMOVE, &mouseDelta);
         }
 
