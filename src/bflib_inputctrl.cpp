@@ -460,6 +460,16 @@ TbBool LbWindowsControl(void)
         if (leftY > 8000) lbKeyOn[KC_S] = 1; // Down
         if (leftX < -8000) lbKeyOn[KC_A] = 1; // Left
         if (leftX > 8000) lbKeyOn[KC_D] = 1; // Right
+
+        // Handle right stick for mouse movement
+        Sint16 rightX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
+        Sint16 rightY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
+        if (rightX > 1000 || rightX < -1000 || rightY > 1000 || rightY < -1000) { // Deadzone
+            struct TbPoint mouseDelta;
+            mouseDelta.x = rightX / 16384; // Scale down the axis value for slower movement
+            mouseDelta.y = rightY / 16384;
+            mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+        }
     } else if (joystick != NULL) {
         // Similar for joystick
     }
