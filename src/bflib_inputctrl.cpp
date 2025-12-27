@@ -35,27 +35,30 @@
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
+#include <map>
+#include "bflib_inputctrl.h"
+
 using namespace std;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-extern volatile TbBool lbScreenInitialised;
-extern volatile TbBool lbHasSecondSurface;
-extern SDL_Color lbPaletteColors[PALETTE_COLORS];
-
 volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
+std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
 static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
 static TbBool firstTimeMouseInit = true;
 
-std::map<int, TbKeyCode> keymap_sdl_to_bf;
+static SDL_GameController *controller = NULL;
+static SDL_Joystick *joystick = NULL;
 
-/******************************************************************************/
+static TbBool lt_pressed = false;
+static TbBool rt_pressed = false;
+
 /**
  * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
  * @param eventType SDL event type.
@@ -219,6 +222,21 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MENU, KC_APPS));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_POWER, KC_POWER));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
+
+    // Initialize controller
+    if (SDL_NumJoysticks() > 0) {
+        if (SDL_IsGameController(0)) {
+            controller = SDL_GameControllerOpen(0);
+            if (controller == NULL) {
+                WARNLOG("Could not open gamecontroller 0: %s", SDL_GetError());
+            }
+        } else {
+            joystick = SDL_JoystickOpen(0);
+            if (joystick == NULL) {
+                WARNLOG("Could not open joystick 0: %s", SDL_GetError());
+            }
+        }
+    }
 }
 
 static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
@@ -404,6 +422,9 @@ static void process_event(const SDL_Event *ev)
     case SDL_JOYHATMOTION:
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
+    case SDL_CONTROLLERAXISMOTION:
+    case SDL_CONTROLLERBUTTONDOWN:
+    case SDL_CONTROLLERBUTTONUP:
         //TODO INPUT make joypad support
         break;
 
@@ -424,6 +445,59 @@ TbBool LbWindowsControl(void)
     while (SDL_PollEvent(&ev)) {
         process_event(&ev);
     }
+
+    // Poll controller state
+    if (controller != NULL) {
+        // Map controller buttons to keyboard keys
+        lbKeyOn[KC_W] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+        lbKeyOn[KC_S] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+        lbKeyOn[KC_A] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+        lbKeyOn[KC_D] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+        lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+        lbKeyOn[KC_LCONTROL] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+        lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
+        lbKeyOn[KC_RETURN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
+
+        // Handle analog sticks for movement
+        Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+        Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+        if (leftY < -8000) lbKeyOn[KC_W] = 1; // Up
+        if (leftY > 8000) lbKeyOn[KC_S] = 1; // Down
+        if (leftX < -8000) lbKeyOn[KC_A] = 1; // Left
+        if (leftX > 8000) lbKeyOn[KC_D] = 1; // Right
+
+        // Handle right stick for mouse movement
+        Sint16 rightX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
+        Sint16 rightY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
+        if (rightX > 1000 || rightX < -1000 || rightY > 1000 || rightY < -1000) { // Deadzone
+            struct TbPoint mouseDelta;
+            mouseDelta.x = rightX / 2048; // Scale down the axis value for slower movement
+            mouseDelta.y = rightY / 2048;
+            mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+        }
+
+        // Handle triggers for mouse buttons
+        Sint16 lt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+        Sint16 rt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+        struct TbPoint delta = {0, 0};
+        if (lt > 10000 && !lt_pressed) {
+            lt_pressed = true;
+            mouseControl(MActn_LBUTTONDOWN, &delta);
+        } else if (lt <= 10000 && lt_pressed) {
+            lt_pressed = false;
+            mouseControl(MActn_LBUTTONUP, &delta);
+        }
+        if (rt > 10000 && !rt_pressed) {
+            rt_pressed = true;
+            mouseControl(MActn_RBUTTONDOWN, &delta);
+        } else if (rt <= 10000 && rt_pressed) {
+            rt_pressed = false;
+            mouseControl(MActn_RBUTTONUP, &delta);
+        }
+    } else if (joystick != NULL) {
+        // Similar for joystick
+    }
+
     return (lbUserQuit < 1);
 }
 

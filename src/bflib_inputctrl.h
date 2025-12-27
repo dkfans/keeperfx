@@ -42,6 +42,7 @@ enum MouseGrabEvents {
 extern volatile int lbUserQuit;
 extern volatile TbBool lbMouseGrab;
 extern volatile TbBool lbMouseGrabbed;
+extern volatile TbBool lbAppActive;
 /******************************************************************************/
 TbBool LbWindowsControl(void);
 TbBool LbIsActive(void);
