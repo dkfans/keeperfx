@@ -349,7 +349,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
     GoldAmount take_remain = amount_take;
     GoldAmount total_money = dungeon->total_money_owned;
     if (take_remain <= 0) {
-        WARNLOG("%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
+        SYNCDBG(7, "%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
         return 0;
     }
     if (take_remain > total_money)
