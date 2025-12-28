@@ -50,6 +50,7 @@ TbBool LbIsMouseActive(void);
 void LbGrabMouseCheck(long grab_event);
 void LbGrabMouseInit(void);
 void LbSetMouseGrab(TbBool grab_mouse);
+void controller_rumble(long ms);
 /******************************************************************************/
 #ifdef __cplusplus
 }

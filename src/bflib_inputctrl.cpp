@@ -439,6 +439,13 @@ static void process_event(const SDL_Event *ev)
         break;
     }
 }
+
+void controller_rumble(long ms)
+{
+    if (controller != NULL) {
+        SDL_GameControllerRumble(controller, 0xFFFF, 0xFFFF, ms);
+    }
+}
 /******************************************************************************/
 TbBool LbWindowsControl(void)
 {
