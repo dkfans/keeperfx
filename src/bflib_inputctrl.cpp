@@ -29,6 +29,8 @@
 #include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
 #include "config_keeperfx.h"
+#include "config_settings.h"
+#include "front_input.h"
 #include "sounds.h"
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 #include "keeperfx.hpp" // for start_params
@@ -506,8 +508,12 @@ TbBool LbWindowsControl(void)
         //lbKeyOn[KC_SPACE] = SDL_JoystickGetButton(joystick, 0); // Button 0 (A)
         //lbKeyOn[KC_LCONTROL] = SDL_JoystickGetButton(joystick, 1); // Button 1 (B)
         lbKeyOn[KC_LSHIFT] = SDL_JoystickGetButton(joystick, 2); // Button 2 (X)
-        lbKeyOn[KC_RETURN] = SDL_JoystickGetButton(joystick, 3); // Button 3 (Y)
-
+        lbKeyOn[KC_LCONTROL] = SDL_JoystickGetButton(joystick, 3); // Button 3 (Y)
+        lbKeyOn[settings.kbkeys[Gkey_ZoomToFight].code] = SDL_JoystickGetButton(joystick, 4); 
+        lbKeyOn[settings.kbkeys[Gkey_ZoomRoomHeart].code] = SDL_JoystickGetButton(joystick, 5);
+        lbKeyOn[settings.kbkeys[Gkey_SwitchToMap].code] = SDL_JoystickGetButton(joystick, 6);
+        lbKeyOn[settings.kbkeys[Gkey_ToggleMessage].code] = SDL_JoystickGetButton(joystick, 7);
+        
         // Handle analog sticks for movement (axes 0 and 1)
         Sint16 leftX = SDL_JoystickGetAxis(joystick, 0);
         Sint16 leftY = SDL_JoystickGetAxis(joystick, 1);
@@ -517,8 +523,8 @@ TbBool LbWindowsControl(void)
         lbKeyOn[KC_RIGHT] = (leftX > 8000) ;
 
         // Handle right stick for mouse movement (axes 2 and 3)
-        Sint16 rightX = SDL_JoystickGetAxis(joystick, 2);
-        Sint16 rightY = SDL_JoystickGetAxis(joystick, 3);
+        Sint16 rightX = SDL_JoystickGetAxis(joystick, 3);
+        Sint16 rightY = SDL_JoystickGetAxis(joystick, 4);
         if (rightX > DEADZONE || rightX < -DEADZONE || rightY > DEADZONE || rightY < -DEADZONE) { // Deadzone
             struct TbPoint mouseDelta;
             mouseDelta.x = rightX / 2048; // Scale down the axis value
