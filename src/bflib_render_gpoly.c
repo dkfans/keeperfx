@@ -856,6 +856,8 @@ void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_comb
 
     pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
 
+    if (pixel_dst < LOC_vec_screen) return;
+
     pixel_span_remaining_count = pixel_span_len;
     int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
     uint8_t *texture_map = LOC_vec_map;
@@ -1247,11 +1249,22 @@ REMAINDER_SCANLINE_STEP:
         texture_xaccumulator_high_backup = tex_x_accum_high;
         texture_xaccumulator_backup = tex_x_accum_combined;
         int x_end_int = shadeAccumulatorNext >> 16;
-        uint8_t *screen_line_offset = &screen_line_ptr[x_start_int];
-        bool span_too_small_or_complete = x_end_int <= x_start_int;
-        int pixel_span_len = x_end_int - x_start_int;
+        int clipped_x_start = x_start_int;
+        int clipped_x_end = x_end_int;
+        if (clipped_x_start < 0) clipped_x_start = 0;
+        if (clipped_x_end > LOC_vec_screen_width) clipped_x_end = LOC_vec_screen_width;
+        bool span_too_small_or_complete = clipped_x_end <= clipped_x_start;
+        int pixel_span_len = clipped_x_end - clipped_x_start;
         if ( !span_too_small_or_complete )
         {
+          int skip_left = clipped_x_start - x_start_int;
+          if (skip_left > 0) {
+            for (int i = 0; i < skip_left; i++) {
+              tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, shade_interpolation_bottom_combined) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+              tex_x_accum_high += shade_interpolation_bottom_combined;
+            }
+          }
+          uint8_t *screen_line_offset = &screen_line_ptr[clipped_x_start];
           unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screen_line_offset);
         }
         xStart = current_scanline_xposition;
