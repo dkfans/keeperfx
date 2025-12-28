@@ -484,17 +484,17 @@ TbBool LbWindowsControl(void)
         struct TbPoint delta = {0, 0};
         if (lt > 10000 && !lt_pressed) {
             lt_pressed = true;
-            mouseControl(MActn_LBUTTONDOWN, &delta);
+            mouseControl(MActn_RBUTTONDOWN, &delta);
         } else if (lt <= 10000 && lt_pressed) {
             lt_pressed = false;
-            mouseControl(MActn_LBUTTONUP, &delta);
+            mouseControl(MActn_RBUTTONUP, &delta);
         }
         if (rt > 10000 && !rt_pressed) {
             rt_pressed = true;
-            mouseControl(MActn_RBUTTONDOWN, &delta);
+            mouseControl(MActn_LBUTTONDOWN, &delta);
         } else if (rt <= 10000 && rt_pressed) {
             rt_pressed = false;
-            mouseControl(MActn_RBUTTONUP, &delta);
+            mouseControl(MActn_LBUTTONUP, &delta);
         }
     } else if (joystick != NULL) {
         // Map joystick buttons to keyboard keys (assuming standard layout)
@@ -531,17 +531,17 @@ TbBool LbWindowsControl(void)
         struct TbPoint delta = {0, 0};
         if (lt > 10000 && !lt_pressed) {
             lt_pressed = true;
-            mouseControl(MActn_LBUTTONDOWN, &delta);
+            mouseControl(MActn_RBUTTONDOWN, &delta);
         } else if (lt <= 10000 && lt_pressed) {
             lt_pressed = false;
-            mouseControl(MActn_LBUTTONUP, &delta);
+            mouseControl(MActn_RBUTTONUP, &delta);
         }
         if (rt > 10000 && !rt_pressed) {
             rt_pressed = true;
-            mouseControl(MActn_RBUTTONDOWN, &delta);
+            mouseControl(MActn_LBUTTONDOWN, &delta);
         } else if (rt <= 10000 && rt_pressed) {
             rt_pressed = false;
-            mouseControl(MActn_RBUTTONUP, &delta);
+            mouseControl(MActn_LBUTTONUP, &delta);
         }
     }
 
