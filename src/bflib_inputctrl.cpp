@@ -502,8 +502,9 @@ TbBool LbWindowsControl(void)
         lbKeyOn[KC_END] = SDL_JoystickGetButton(joystick, 12); // D-pad down
         lbKeyOn[KC_PGDOWN] = SDL_JoystickGetButton(joystick, 13); // D-pad left
         lbKeyOn[KC_DELETE] = SDL_JoystickGetButton(joystick, 11); // D-pad right
-        lbKeyOn[KC_SPACE] = SDL_JoystickGetButton(joystick, 0); // Button 0 (A)
-        lbKeyOn[KC_LCONTROL] = SDL_JoystickGetButton(joystick, 1); // Button 1 (B)
+
+        //lbKeyOn[KC_SPACE] = SDL_JoystickGetButton(joystick, 0); // Button 0 (A)
+        //lbKeyOn[KC_LCONTROL] = SDL_JoystickGetButton(joystick, 1); // Button 1 (B)
         lbKeyOn[KC_LSHIFT] = SDL_JoystickGetButton(joystick, 2); // Button 2 (X)
         lbKeyOn[KC_RETURN] = SDL_JoystickGetButton(joystick, 3); // Button 3 (Y)
 
@@ -526,22 +527,32 @@ TbBool LbWindowsControl(void)
         }
 
         // Handle triggers for mouse buttons (axes 4 and 5)
-        Sint16 lt = SDL_JoystickGetAxis(joystick, 4);
-        Sint16 rt = SDL_JoystickGetAxis(joystick, 5);
-        struct TbPoint delta = {0, 0};
-        if (lt > 10000 && !lt_pressed) {
+        struct TbPoint delta = { 0, 0 };
+        if (SDL_JoystickGetButton(joystick, 0))
+        {
             lt_pressed = true;
-            mouseControl(MActn_RBUTTONDOWN, &delta);
-        } else if (lt <= 10000 && lt_pressed) {
-            lt_pressed = false;
-            mouseControl(MActn_RBUTTONUP, &delta);
-        }
-        if (rt > 10000 && !rt_pressed) {
-            rt_pressed = true;
             mouseControl(MActn_LBUTTONDOWN, &delta);
-        } else if (rt <= 10000 && rt_pressed) {
+        }
+        else
+        {
+            if (lt_pressed)
+            {
+                mouseControl(MActn_LBUTTONUP, &delta);
+            }
+            lt_pressed = false;
+        }
+        if (SDL_JoystickGetButton(joystick, 1))
+        {
+            rt_pressed = true;
+            mouseControl(MActn_RBUTTONDOWN, &delta);
+        }
+        else
+        {
+            if (rt_pressed)
+            {
+                mouseControl(MActn_RBUTTONUP, &delta);
+            }
             rt_pressed = false;
-            mouseControl(MActn_LBUTTONUP, &delta);
         }
     }
 
