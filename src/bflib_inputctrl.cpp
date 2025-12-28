@@ -61,6 +61,9 @@ static SDL_Joystick *joystick = NULL;
 static TbBool lt_pressed = false;
 static TbBool rt_pressed = false;
 
+static Uint8 prev_start = 0;
+static Uint8 prev_back = 0;
+
 /**
  * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
  * @param eventType SDL event type.
@@ -464,10 +467,29 @@ TbBool LbWindowsControl(void)
         lbKeyOn[KC_END] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
         lbKeyOn[KC_PGDOWN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
         lbKeyOn[KC_DELETE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+
         lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
         lbKeyOn[KC_LCONTROL] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
         lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
         lbKeyOn[KC_RETURN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
+
+
+        // Handle Start and Back buttons with edge detection to simulate key presses
+        Uint8 current_start = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
+        if (current_start && !prev_start) {
+            keyboardControl(KActn_KEYDOWN, KC_ESCAPE, KMod_NONE, 0);
+        } else if (!current_start && prev_start) {
+            keyboardControl(KActn_KEYUP, KC_ESCAPE, KMod_NONE, 0);
+        }
+        prev_start = current_start;
+
+        Uint8 current_back = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK);
+        if (current_back && !prev_back) {
+            keyboardControl(KActn_KEYDOWN, KC_P, KMod_NONE, 0);
+        } else if (!current_back && prev_back) {
+            keyboardControl(KActn_KEYUP, KC_P, KMod_NONE, 0);
+        }
+        prev_back = current_back;
 
         // Handle analog sticks for movement
         Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
