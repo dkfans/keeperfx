@@ -50,6 +50,7 @@
 #include "frontend.h"
 #include "magic_powers.h"
 #include "engine_redraw.h"
+#include "local_camera.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
 #include "gui_frontbtns.h"
@@ -349,7 +350,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
     GoldAmount take_remain = amount_take;
     GoldAmount total_money = dungeon->total_money_owned;
     if (take_remain <= 0) {
-        WARNLOG("%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
+        SYNCDBG(7, "%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
         return 0;
     }
     if (take_remain > total_money)
@@ -1132,6 +1133,7 @@ void process_player_states(void)
                 if ((cam != NULL) && thing_exists(thing)) {
                     cam->mappos.x.val = thing->mappos.x.val;
                     cam->mappos.y.val = thing->mappos.y.val;
+                    set_local_camera_destination(player);
                 }
             }
         }

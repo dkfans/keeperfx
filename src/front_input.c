@@ -2170,6 +2170,7 @@ void get_overhead_view_nonaction_inputs(void)
         if (mx >= MyScreenWidth-4)
           set_packet_control(pckt, PCtr_MoveRight);
     }
+    set_local_camera_destination(player);
 }
 
 void get_front_view_nonaction_inputs(void)
