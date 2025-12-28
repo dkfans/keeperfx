@@ -856,6 +856,8 @@ void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_comb
 
     pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
 
+    if (pixel_dst < LOC_vec_screen) return;
+
     pixel_span_remaining_count = pixel_span_len;
     int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
     uint8_t *texture_map = LOC_vec_map;
