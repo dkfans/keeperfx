@@ -514,8 +514,8 @@ TbBool LbWindowsControl(void)
         if (leftX > 8000) lbKeyOn[KC_RIGHT] = 1; // Right
 
         // Handle right stick for mouse movement (axes 2 and 3)
-        Sint16 rightX = SDL_JoystickGetAxis(joystick, 2);
-        Sint16 rightY = SDL_JoystickGetAxis(joystick, 3);
+        Sint16 rightX = SDL_JoystickGetAxis(joystick, 3);
+        Sint16 rightY = SDL_JoystickGetAxis(joystick, 4);
         if (rightX > DEADZONE || rightX < -DEADZONE || rightY > DEADZONE || rightY < -DEADZONE) { // Deadzone
             struct TbPoint mouseDelta;
             mouseDelta.x = rightX / 2048; // Scale down the axis value
