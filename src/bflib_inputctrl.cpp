@@ -440,6 +440,8 @@ static void process_event(const SDL_Event *ev)
 /******************************************************************************/
 TbBool LbWindowsControl(void)
 {
+
+    #define DEADZONE 8000
     SDL_Event ev;
     //process events until event queue is empty
     while (SDL_PollEvent(&ev)) {
@@ -449,10 +451,10 @@ TbBool LbWindowsControl(void)
     // Poll controller state
     if (controller != NULL) {
         // Map controller buttons to keyboard keys
-        lbKeyOn[KC_W] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
-        lbKeyOn[KC_S] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-        lbKeyOn[KC_A] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-        lbKeyOn[KC_D] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+        lbKeyOn[KC_UP] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+        lbKeyOn[KC_DOWN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+        lbKeyOn[KC_LEFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+        lbKeyOn[KC_RIGHT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
         lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
         lbKeyOn[KC_LCONTROL] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
         lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
@@ -461,15 +463,15 @@ TbBool LbWindowsControl(void)
         // Handle analog sticks for movement
         Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
         Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
-        if (leftY < -8000) lbKeyOn[KC_W] = 1; // Up
-        if (leftY > 8000) lbKeyOn[KC_S] = 1; // Down
-        if (leftX < -8000) lbKeyOn[KC_A] = 1; // Left
-        if (leftX > 8000) lbKeyOn[KC_D] = 1; // Right
+        if (leftY < -8000) lbKeyOn[KC_UP] = 1; // Up
+        if (leftY > 8000) lbKeyOn[KC_DOWN] = 1; // Down
+        if (leftX < -8000) lbKeyOn[KC_LEFT] = 1; // Left
+        if (leftX > 8000) lbKeyOn[KC_RIGHT] = 1; // Right
 
         // Handle right stick for mouse movement
         Sint16 rightX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
         Sint16 rightY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
-        if (rightX > 3000 || rightX < -3000 || rightY > 3000 || rightY < -3000) { // Deadzone
+        if (rightX > DEADZONE || rightX < -DEADZONE || rightY > DEADZONE || rightY < -DEADZONE) { // Deadzone
             struct TbPoint mouseDelta;
             mouseDelta.x = rightX / 2048; // Scale down the axis value for slower movement
             mouseDelta.y = rightY / 2048;
@@ -496,10 +498,10 @@ TbBool LbWindowsControl(void)
         }
     } else if (joystick != NULL) {
         // Map joystick buttons to keyboard keys (assuming standard layout)
-        lbKeyOn[KC_W] = SDL_JoystickGetButton(joystick, 10); // D-pad up
-        lbKeyOn[KC_S] = SDL_JoystickGetButton(joystick, 12); // D-pad down
-        lbKeyOn[KC_A] = SDL_JoystickGetButton(joystick, 13); // D-pad left
-        lbKeyOn[KC_D] = SDL_JoystickGetButton(joystick, 11); // D-pad right
+        lbKeyOn[KC_UP] = SDL_JoystickGetButton(joystick, 10); // D-pad up
+        lbKeyOn[KC_DOWN] = SDL_JoystickGetButton(joystick, 12); // D-pad down
+        lbKeyOn[KC_LEFT] = SDL_JoystickGetButton(joystick, 13); // D-pad left
+        lbKeyOn[KC_RIGHT] = SDL_JoystickGetButton(joystick, 11); // D-pad right
         lbKeyOn[KC_SPACE] = SDL_JoystickGetButton(joystick, 0); // Button 0 (A)
         lbKeyOn[KC_LCONTROL] = SDL_JoystickGetButton(joystick, 1); // Button 1 (B)
         lbKeyOn[KC_LSHIFT] = SDL_JoystickGetButton(joystick, 2); // Button 2 (X)
@@ -508,15 +510,15 @@ TbBool LbWindowsControl(void)
         // Handle analog sticks for movement (axes 0 and 1)
         Sint16 leftX = SDL_JoystickGetAxis(joystick, 0);
         Sint16 leftY = SDL_JoystickGetAxis(joystick, 1);
-        if (leftY < -8000) lbKeyOn[KC_W] = 1; // Up
-        if (leftY > 8000) lbKeyOn[KC_S] = 1; // Down
-        if (leftX < -8000) lbKeyOn[KC_A] = 1; // Left
-        if (leftX > 8000) lbKeyOn[KC_D] = 1; // Right
+        if (leftY < -8000) lbKeyOn[KC_UP] = 1; // Up
+        if (leftY > 8000) lbKeyOn[KC_DOWN] = 1; // Down
+        if (leftX < -8000) lbKeyOn[KC_LEFT] = 1; // Left
+        if (leftX > 8000) lbKeyOn[KC_RIGHT] = 1; // Right
 
         // Handle right stick for mouse movement (axes 2 and 3)
         Sint16 rightX = SDL_JoystickGetAxis(joystick, 2);
         Sint16 rightY = SDL_JoystickGetAxis(joystick, 3);
-        if (rightX > 3000 || rightX < -3000 || rightY > 3000 || rightY < -3000) { // Deadzone
+        if (rightX > DEADZONE || rightX < -DEADZONE || rightY > DEADZONE || rightY < -DEADZONE) { // Deadzone
             struct TbPoint mouseDelta;
             mouseDelta.x = rightX / 2048; // Scale down the axis value
             mouseDelta.y = rightY / 2048;
