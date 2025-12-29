@@ -1303,12 +1303,12 @@ void maintain_buildable_info(struct GuiButton* gbtn)
      !is_trap_built(my_player_number, manufctr->tngmodel)))
     {
         gbtn->flags |= LbBtnF_Enabled;
-        gbtn->tooltip_stridx = 0;
+        gbtn->tooltip_stridx = GUIStr_Empty;
         gbtn->sprite_idx = 0;
     } else
     {
         gbtn->flags &= ~LbBtnF_Enabled;
-        gbtn->tooltip_stridx = 0;
+        gbtn->tooltip_stridx = GUIStr_Empty;
         gbtn->sprite_idx = 0;
         return;
     }
