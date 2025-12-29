@@ -66,6 +66,8 @@ static Uint8 prev_start = 0;
 static Uint8 prev_back = 0;
 static Uint8 prev_leftshoulder = 0;
 static Uint8 prev_rightshoulder = 0;
+static Uint8 prev_joy_left = 0;
+//static Uint8 prev_joy_right = 0;
 
 /******************************************************************************/
 
@@ -477,11 +479,7 @@ TbBool LbWindowsControl(void)
         lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
         lbKeyOn[KC_LCONTROL] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
         lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
-        lbKeyOn[KC_RETURN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
-
-        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER)) {
-            
-        }
+        lbKeyOn[settings.kbkeys[Gkey_ZoomRoomHeart].code] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
 
         Uint8 current_leftshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
         if (current_leftshoulder && !prev_leftshoulder) {
@@ -511,6 +509,22 @@ TbBool LbWindowsControl(void)
             keyboardControl(KActn_KEYUP, KC_P, KMod_NONE, 0);
         }
         prev_back = current_back;
+
+        Uint8 current_joy_left = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSTICK);
+        if (current_joy_left && !prev_joy_left) {
+            keyboardControl(KActn_KEYDOWN, settings.kbkeys[Gkey_SwitchToMap].code, KMod_NONE, 0);
+        } else if (!current_joy_left && prev_joy_left) {
+            keyboardControl(KActn_KEYUP, settings.kbkeys[Gkey_SwitchToMap].code, KMod_NONE, 0);
+        }
+        prev_joy_left = current_joy_left;
+
+        //Uint8 current_joy_right = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSTICK);
+        //if (current_joy_right && !prev_joy_right) {
+        //    keyboardControl(KActn_KEYDOWN, KC_P, KMod_NONE, 0);
+        //} else if (!current_joy_right && prev_joy_right) {
+        //    keyboardControl(KActn_KEYUP, KC_P, KMod_NONE, 0);
+        //}
+        //prev_joy_right = current_joy_right;
 
         // Handle analog sticks for movement
         Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
