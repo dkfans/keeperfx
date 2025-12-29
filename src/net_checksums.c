@@ -18,20 +18,16 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "net_checksums.h"
-
-#include "globals.h"
-#include "bflib_basics.h"
-#include "bflib_coroutine.h"
 #include "bflib_network_exchange.h"
 #include "game_legacy.h"
 #include "net_game.h"
 #include "packets.h"
 #include "player_data.h"
 #include "thing_data.h"
-#include "room_data.h"
 #include "room_list.h"
 #include "creature_control.h"
 #include "frontend.h"
+#include "thing_list.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -39,46 +35,69 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define DESYNC_HISTORY_TURNS 40
+#define CHECKSUM_ADD(checksum, value) checksum = ((checksum << 5) | (checksum >> 27)) ^ (ulong)(value)
+#define SNAPSHOT_BUFFER_SIZE 15
 
-static struct {
-    struct DesyncHistoryEntry entries[DESYNC_HISTORY_TURNS];
-    int head;
-} local_desync_history;
+struct ChecksumSnapshot {
+    GameTurn turn;
+    TbBool valid;
+    struct DesyncChecksums checksums;
+    struct LogDetailedSnapshot log_details;
+};
 
-/******************************************************************************/
-static void clear_desync_entry(struct DesyncHistoryEntry* entry) {
-    entry->turn = 10000000;
-    entry->valid = false;
-    entry->turn_checksum = 0;
-    entry->things_sum = 0;
-    entry->rooms_sum = 0;
-    entry->action_random_seed = 0;
-    entry->ai_random_seed = 0;
-    entry->player_random_seed = 0;
-    for (int i = 0; i < PLAYERS_COUNT; i++) {
-        entry->player_checksums[i] = 0;
+static struct ChecksumSnapshot snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
+static int snapshot_head = 0;
+static GameTurn desync_turn = 0;
+
+TbBigChecksum get_thing_checksum(const struct Thing* thing) {
+    if (!thing_exists(thing) || is_non_synchronized_thing_class(thing->class_id)) {
+        return 0;
     }
-    entry->players_sum = 0;
-    entry->creatures_sum = 0;
-    entry->traps_sum = 0;
-    entry->shots_sum = 0;
-    entry->objects_sum = 0;
-    entry->effects_sum = 0;
-    entry->dead_creatures_sum = 0;
-    entry->effect_gens_sum = 0;
-    entry->doors_sum = 0;
+    TbBigChecksum checksum = 0;
+    CHECKSUM_ADD(checksum, thing->index);
+    CHECKSUM_ADD(checksum, thing->class_id);
+    CHECKSUM_ADD(checksum, thing->model);
+    CHECKSUM_ADD(checksum, thing->owner);
+    CHECKSUM_ADD(checksum, thing->creation_turn);
+    CHECKSUM_ADD(checksum, thing->random_seed);
+    CHECKSUM_ADD(checksum, thing->mappos.x.val);
+    CHECKSUM_ADD(checksum, thing->mappos.y.val);
+    CHECKSUM_ADD(checksum, thing->mappos.z.val);
+    CHECKSUM_ADD(checksum, thing->health);
+    CHECKSUM_ADD(checksum, thing->current_frame);
+    CHECKSUM_ADD(checksum, thing->max_frames);
+
+    if (thing->class_id == TCls_Creature) {
+        struct CreatureControl* creature_control = creature_control_get_from_thing(thing);
+        CHECKSUM_ADD(checksum, creature_control->inst_turn);
+        CHECKSUM_ADD(checksum, creature_control->instance_id);
+    }
+    return checksum;
 }
 
-void clear_desync_analysis(void) {
-    for (int i = 0; i < DESYNC_HISTORY_TURNS; ++i) {
-        clear_desync_entry(&local_desync_history.entries[i]);
+static TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
+    if ((player->allocflags & PlaF_CompCtrl) != 0 || player->acamera == NULL) {
+        return 0;
     }
-    local_desync_history.head = 0;
+    struct Coord3d* mappos = &(player->acamera->mappos);
+    TbBigChecksum checksum = 0;
+    CHECKSUM_ADD(checksum, player->instance_remain_turns);
+    CHECKSUM_ADD(checksum, player->instance_num);
+    CHECKSUM_ADD(checksum, mappos->x.val);
+    CHECKSUM_ADD(checksum, mappos->y.val);
+    CHECKSUM_ADD(checksum, mappos->z.val);
+    return checksum;
 }
 
-void initialize_desync_analysis(void) {
-    clear_desync_analysis();
+static TbBigChecksum get_room_checksum(const struct Room* room) {
+    TbBigChecksum checksum = 0;
+    CHECKSUM_ADD(checksum, room->slabs_count);
+    CHECKSUM_ADD(checksum, room->central_stl_x);
+    CHECKSUM_ADD(checksum, room->central_stl_y);
+    CHECKSUM_ADD(checksum, room->efficiency);
+    CHECKSUM_ADD(checksum, room->used_capacity);
+    CHECKSUM_ADD(checksum, room->index);
+    return checksum;
 }
 
 static TbBigChecksum compute_things_list_checksum(struct StructureList *list) {
@@ -102,144 +121,47 @@ static TbBigChecksum compute_things_list_checksum(struct StructureList *list) {
     return sum;
 }
 
-
-#define CHECKSUM_ADD(checksum, value) checksum = ((checksum << 5) | (checksum >> 27)) ^ (ulong)(value)
-
-static TbBigChecksum get_room_checksum(const struct Room* room) {
-    TbBigChecksum checksum = 0;
-    CHECKSUM_ADD(checksum, room->slabs_count);
-    CHECKSUM_ADD(checksum, room->central_stl_x);
-    CHECKSUM_ADD(checksum, room->central_stl_y);
-    CHECKSUM_ADD(checksum, room->efficiency);
-    CHECKSUM_ADD(checksum, room->used_capacity);
-    CHECKSUM_ADD(checksum, room->index);
-    return checksum;
-}
-
-static TbBigChecksum compute_rooms_checksum(void) {
-    TbBigChecksum checksum = 0;
+static void compute_checksums(struct DesyncChecksums* checksums) {
+    checksums->creatures = compute_things_list_checksum(&game.thing_lists[TngList_Creatures]);
+    checksums->traps = compute_things_list_checksum(&game.thing_lists[TngList_Traps]);
+    checksums->shots = compute_things_list_checksum(&game.thing_lists[TngList_Shots]);
+    checksums->objects = compute_things_list_checksum(&game.thing_lists[TngList_Objects]);
+    checksums->effects = compute_things_list_checksum(&game.thing_lists[TngList_Effects]);
+    checksums->dead_creatures = compute_things_list_checksum(&game.thing_lists[TngList_DeadCreatrs]);
+    checksums->effect_gens = compute_things_list_checksum(&game.thing_lists[TngList_EffectGens]);
+    checksums->doors = compute_things_list_checksum(&game.thing_lists[TngList_Doors]);
+    checksums->rooms = 0;
     for (struct Room* room = start_rooms; room < end_rooms; room++) {
-        if (!room_exists(room)) {
-            continue;
+        if (room_exists(room)) {
+            CHECKSUM_ADD(checksums->rooms, get_room_checksum(room));
         }
-        CHECKSUM_ADD(checksum, get_room_checksum(room));
     }
-    return checksum;
-}
-
-TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
-    if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL)) {
-        struct Coord3d* mappos = &(player->acamera->mappos);
-        TbBigChecksum checksum = 0;
-        CHECKSUM_ADD(checksum, player->instance_remain_turns);
-        CHECKSUM_ADD(checksum, player->instance_num);
-        CHECKSUM_ADD(checksum, mappos->x.val);
-        CHECKSUM_ADD(checksum, mappos->y.val);
-        CHECKSUM_ADD(checksum, mappos->z.val);
-        return checksum;
-    }
-    return 0;
-}
-
-static TbBigChecksum compute_players_checksum_detailed(TbBigChecksum player_checksums[PLAYERS_COUNT]) {
-    TbBigChecksum total = 0;
+    checksums->players = 0;
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player)) {
-            player_checksums[i] = compute_player_checksum(player);
-            total += player_checksums[i];
-        } else {
-            player_checksums[i] = 0;
+            checksums->players += compute_player_checksum(player);
         }
     }
-    return total;
+    checksums->action_seed = game.action_random_seed;
+    checksums->ai_seed = game.ai_random_seed;
+    checksums->player_seed = game.player_random_seed;
+    checksums->game_turn = game.play_gameturn;
 }
 
-void update_turn_checksums(void) {
-    int index = local_desync_history.head;
-    struct DesyncHistoryEntry* entry = &local_desync_history.entries[index];
-
-    entry->turn = game.play_gameturn;
-    entry->valid = true;
-
-    entry->creatures_sum = compute_things_list_checksum(&game.thing_lists[TngList_Creatures]);
-    entry->traps_sum = compute_things_list_checksum(&game.thing_lists[TngList_Traps]);
-    entry->shots_sum = compute_things_list_checksum(&game.thing_lists[TngList_Shots]);
-    entry->objects_sum = compute_things_list_checksum(&game.thing_lists[TngList_Objects]);
-    entry->effects_sum = compute_things_list_checksum(&game.thing_lists[TngList_Effects]);
-    entry->dead_creatures_sum = compute_things_list_checksum(&game.thing_lists[TngList_DeadCreatrs]);
-    entry->effect_gens_sum = compute_things_list_checksum(&game.thing_lists[TngList_EffectGens]);
-    entry->doors_sum = compute_things_list_checksum(&game.thing_lists[TngList_Doors]);
-
-    entry->things_sum = entry->creatures_sum + entry->traps_sum + entry->shots_sum +
-                        entry->objects_sum + entry->effects_sum + entry->dead_creatures_sum +
-                        entry->effect_gens_sum + entry->doors_sum;
-
-    entry->rooms_sum = compute_rooms_checksum();
-    entry->action_random_seed = game.action_random_seed;
-    entry->ai_random_seed = game.ai_random_seed;
-    entry->player_random_seed = game.player_random_seed;
-
-    entry->players_sum = compute_players_checksum_detailed(entry->player_checksums);
-
-    struct Packet* pckt = get_packet(my_player_number);
-    pckt->checksum = 0;
-    pckt->checksum += entry->things_sum;
-    pckt->checksum += entry->rooms_sum;
-    pckt->checksum += entry->players_sum;
-    pckt->checksum += entry->action_random_seed;
-    pckt->checksum += entry->player_random_seed;
-    pckt->checksum += entry->ai_random_seed;
-
-    entry->turn_checksum = pckt->checksum;
-
-    local_desync_history.head = (index + 1) % DESYNC_HISTORY_TURNS;
-
-    MULTIPLAYER_LOG("update_turn_checksums: turn=%lu checksum=%08lx things=%08lx rooms=%08lx players=%08lx", (unsigned long)entry->turn, (unsigned long)entry->turn_checksum, (unsigned long)entry->things_sum, (unsigned long)entry->rooms_sum, (unsigned long)entry->players_sum);
-}
-
-void pack_desync_history_for_resync(void) {
-    memcpy(game.desync_diagnostics.host_history, local_desync_history.entries, sizeof(game.desync_diagnostics.host_history));
-    game.desync_diagnostics.has_desync_diagnostics = true;
-    ERRORLOG("Host packed desync history for resync");
-}
-
-TbBigChecksum get_thing_checksum(const struct Thing* thing) {
-    SYNCDBG(18, "Starting");
-    if (!thing_exists(thing)) {
-        return 0;
+static struct ChecksumSnapshot* find_snapshot(GameTurn turn) {
+    for (int i = 0; i < SNAPSHOT_BUFFER_SIZE; i++) {
+        if (snapshot_buffer[i].valid && snapshot_buffer[i].turn == turn) {
+            return &snapshot_buffer[i];
+        }
     }
-    if (is_non_synchronized_thing_class(thing->class_id)) {
-        return 0;
-    }
-
-    TbBigChecksum checksum = 0;
-    CHECKSUM_ADD(checksum, thing->index);
-    CHECKSUM_ADD(checksum, thing->class_id);
-    CHECKSUM_ADD(checksum, thing->model);
-    CHECKSUM_ADD(checksum, thing->owner);
-    CHECKSUM_ADD(checksum, thing->creation_turn);
-    CHECKSUM_ADD(checksum, thing->random_seed);
-    CHECKSUM_ADD(checksum, thing->mappos.x.val);
-    CHECKSUM_ADD(checksum, thing->mappos.y.val);
-    CHECKSUM_ADD(checksum, thing->mappos.z.val);
-    CHECKSUM_ADD(checksum, thing->health);
-    CHECKSUM_ADD(checksum, thing->current_frame);
-    CHECKSUM_ADD(checksum, thing->max_frames);
-
-    if (thing->class_id == TCls_Creature) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        CHECKSUM_ADD(checksum, cctrl->inst_turn);
-        CHECKSUM_ADD(checksum, cctrl->instance_id);
-    }
-    return checksum;
+    return NULL;
 }
 
 short checksums_different(void) {
     int host_player_id = get_host_player_id();
     struct Packet* host_packet = get_packet(host_player_id);
     TbBigChecksum host_checksum = host_packet->checksum;
-    GameTurn host_turn = host_packet->turn;
     TbBool mismatch = false;
 
     for (int i = 0; i < PLAYERS_COUNT; i++) {
@@ -247,21 +169,210 @@ short checksums_different(void) {
         if (i == host_player_id || !player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
             continue;
         }
-        struct Packet* pckt = get_packet_direct(player->packet_num);
-        if (is_packet_empty(pckt)) {
+        struct Packet* packet = get_packet_direct(player->packet_num);
+        if (is_packet_empty(packet)) {
             MULTIPLAYER_LOG("checksums_different: packet[%d] is EMPTY", i);
             mismatch = true;
             continue;
         }
-        if (pckt->checksum != host_checksum) {
-            ERRORLOG("Checksums %08lx(Host) != %08lx(Client) turn: %ld vs %ld", host_checksum, pckt->checksum, host_turn, pckt->turn);
+        if (packet->checksum != host_checksum) {
+            ERRORLOG("Checksums %08lx(Host) != %08lx(Client) turn: %ld vs %ld", host_checksum, packet->checksum, host_packet->turn, packet->turn);
+            desync_turn = host_packet->turn;
             mismatch = true;
         }
     }
-    if (mismatch) {
-        game.desync_diagnostics.desync_detected_turn = host_turn;
-    }
     return mismatch;
+}
+
+void update_turn_checksums(void) {
+    struct ChecksumSnapshot* snapshot = &snapshot_buffer[snapshot_head];
+    struct LogDetailedSnapshot* snapshot_info = &snapshot->log_details;
+    snapshot->turn = game.play_gameturn;
+    snapshot->valid = true;
+    compute_checksums(&snapshot->checksums);
+    snapshot_info->thing_count = 0;
+    snapshot_info->player_count = 0;
+    snapshot_info->room_count = 0;
+    if ((game.system_flags & GSF_NetworkActive) != 0) {
+        for (int i = 1; i < SYNCED_THINGS_COUNT; i++) {
+            struct Thing* thing = thing_get(i);
+            if (!thing_exists(thing) || is_non_synchronized_thing_class(thing->class_id)) {
+                continue;
+            }
+            struct LogThingDesyncInfo* thing_snapshot = &snapshot_info->things[snapshot_info->thing_count++];
+            thing_snapshot->index = thing->index;
+            thing_snapshot->class_id = thing->class_id;
+            thing_snapshot->model = thing->model;
+            thing_snapshot->owner = thing->owner;
+            thing_snapshot->mappos = thing->mappos;
+            thing_snapshot->health = thing->health;
+            thing_snapshot->creation_turn = thing->creation_turn;
+            thing_snapshot->random_seed = thing->random_seed;
+            thing_snapshot->checksum = get_thing_checksum(thing);
+        }
+        for (int i = 0; i < PLAYERS_COUNT; i++) {
+            struct PlayerInfo* player = get_player(i);
+            if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0) || player->acamera == NULL) {
+                continue;
+            }
+            struct LogPlayerDesyncInfo* player_snapshot = &snapshot_info->players[snapshot_info->player_count++];
+            player_snapshot->id = i;
+            player_snapshot->instance_num = player->instance_num;
+            player_snapshot->instance_remain_turns = player->instance_remain_turns;
+            player_snapshot->mappos = player->acamera->mappos;
+            player_snapshot->checksum = compute_player_checksum(player);
+        }
+        for (struct Room* room = start_rooms; room < end_rooms; room++) {
+            if (!room_exists(room)) {
+                continue;
+            }
+            struct LogRoomDesyncInfo* room_snapshot = &snapshot_info->rooms[snapshot_info->room_count++];
+            room_snapshot->index = room->index;
+            room_snapshot->slabs_count = room->slabs_count;
+            room_snapshot->central_stl_x = room->central_stl_x;
+            room_snapshot->central_stl_y = room->central_stl_y;
+            room_snapshot->efficiency = room->efficiency;
+            room_snapshot->used_capacity = room->used_capacity;
+            room_snapshot->checksum = get_room_checksum(room);
+        }
+    }
+    snapshot_head = (snapshot_head + 1) % SNAPSHOT_BUFFER_SIZE;
+
+    struct DesyncChecksums* checksums = &snapshot->checksums;
+    TbBigChecksum things_sum = 0;
+    things_sum += checksums->creatures;
+    things_sum += checksums->traps;
+    things_sum += checksums->shots;
+    things_sum += checksums->objects;
+    things_sum += checksums->effects;
+    things_sum += checksums->dead_creatures;
+    things_sum += checksums->effect_gens;
+    things_sum += checksums->doors;
+
+    struct Packet* packet = get_packet(my_player_number);
+    packet->checksum = 0;
+    packet->checksum += things_sum;
+    packet->checksum += checksums->rooms;
+    packet->checksum += checksums->players;
+    packet->checksum += checksums->action_seed;
+    packet->checksum += checksums->player_seed;
+    packet->checksum += checksums->ai_seed;
+
+    MULTIPLAYER_LOG("update_turn_checksums: turn=%lu checksum=%08lx things=%08lx rooms=%08lx players=%08lx", (unsigned long)game.play_gameturn, (unsigned long)packet->checksum, (unsigned long)things_sum, (unsigned long)checksums->rooms, (unsigned long)checksums->players);
+}
+
+void pack_desync_history_for_resync(void) {
+    struct ChecksumSnapshot* snapshot = find_snapshot(desync_turn);
+    if (snapshot == NULL) {
+        compute_checksums(&game.host_checksums);
+        game.log_snapshot.thing_count = 0;
+        game.log_snapshot.player_count = 0;
+        game.log_snapshot.room_count = 0;
+        return;
+    }
+    game.host_checksums = snapshot->checksums;
+    game.log_snapshot = snapshot->log_details;
+}
+
+static void log_thing_differences(struct LogDetailedSnapshot* client, const char* name, TbBigChecksum client_sum, TbBigChecksum host_sum, ThingClass filter_class) {
+    ERRORLOG("  %s %s - Host: %08lx, Client: %08lx", name, (client_sum == host_sum) ? "match" : "MISMATCH", (unsigned long)host_sum, (unsigned long)client_sum);
+    if (client_sum == host_sum) {
+        return;
+    }
+    struct LogDetailedSnapshot* host = &game.log_snapshot;
+    int shown = 0;
+    for (int s = 0; s < client->thing_count && shown < 10; s++) {
+        struct LogThingDesyncInfo* client_thing = &client->things[s];
+        if (client_thing->class_id != filter_class) {
+            continue;
+        }
+        struct LogThingDesyncInfo* host_thing = NULL;
+        for (int h = 0; h < host->thing_count; h++) {
+            if (host->things[h].index == client_thing->index) {
+                host_thing = &host->things[h];
+                break;
+            }
+        }
+        if (host_thing == NULL || client_thing->checksum != host_thing->checksum) {
+            if (host_thing != NULL) {
+                ERRORLOG("    [Host] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08lx", host_thing->index, host_thing->class_id, host_thing->model, host_thing->owner, (long)host_thing->mappos.x.val, (long)host_thing->mappos.y.val, (long)host_thing->mappos.z.val, (long)host_thing->health, (unsigned long)host_thing->creation_turn, host_thing->random_seed);
+            } else {
+                ERRORLOG("    [Host] Thing[%d] missing", client_thing->index);
+            }
+            ERRORLOG("    [Client] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08lx", client_thing->index, client_thing->class_id, client_thing->model, client_thing->owner, (long)client_thing->mappos.x.val, (long)client_thing->mappos.y.val, (long)client_thing->mappos.z.val, (long)client_thing->health, (unsigned long)client_thing->creation_turn, client_thing->random_seed);
+            shown++;
+        }
+    }
+}
+
+void compare_desync_history_from_host(void) {
+    struct ChecksumSnapshot* snapshot = find_snapshot(desync_turn);
+    if (snapshot == NULL) {
+        ERRORLOG("=== DESYNC: No client snapshot for turn %lu ===", (unsigned long)desync_turn);
+        return;
+    }
+    struct DesyncChecksums* host = &game.host_checksums;
+    struct DesyncChecksums* client = &snapshot->checksums;
+    struct LogDetailedSnapshot* host_snapshot = &game.log_snapshot;
+    struct LogDetailedSnapshot* client_snapshot = &snapshot->log_details;
+
+    ERRORLOG("=== DESYNC ANALYSIS: Host (turn %lu) vs Client (turn %lu) ===", (unsigned long)host->game_turn, (unsigned long)client->game_turn);
+    ERRORLOG("  ACTION_SEED %s - Host: %08lx, Client: %08lx", (client->action_seed == host->action_seed) ? "match" : "MISMATCH", (unsigned long)host->action_seed, (unsigned long)client->action_seed);
+    ERRORLOG("  AI_SEED %s - Host: %08lx, Client: %08lx", (client->ai_seed == host->ai_seed) ? "match" : "MISMATCH", (unsigned long)host->ai_seed, (unsigned long)client->ai_seed);
+    ERRORLOG("  PLAYER_SEED %s - Host: %08lx, Client: %08lx", (client->player_seed == host->player_seed) ? "match" : "MISMATCH", (unsigned long)host->player_seed, (unsigned long)client->player_seed);
+    ERRORLOG("  Players %s - Host: %08lx, Client: %08lx", (client->players == host->players) ? "match" : "MISMATCH", (unsigned long)host->players, (unsigned long)client->players);
+    if (client->players != host->players) {
+        for (int i = 0; i < client_snapshot->player_count; i++) {
+            struct LogPlayerDesyncInfo* client_player = &client_snapshot->players[i];
+            struct LogPlayerDesyncInfo* host_player = NULL;
+            for (int j = 0; j < host_snapshot->player_count; j++) {
+                if (host_snapshot->players[j].id == client_player->id) {
+                    host_player = &host_snapshot->players[j];
+                    break;
+                }
+            }
+            if (host_player == NULL) {
+                ERRORLOG("    Player[%d] missing from host", client_player->id);
+            } else if (client_player->checksum != host_player->checksum) {
+                ERRORLOG("    Player[%d] instance_num: Host=%u Client=%u, instance_remain_turns: Host=%lu Client=%lu, mappos: Host=(%ld,%ld,%ld) Client=(%ld,%ld,%ld)", client_player->id,
+                    (unsigned)host_player->instance_num, (unsigned)client_player->instance_num,
+                    (unsigned long)host_player->instance_remain_turns, (unsigned long)client_player->instance_remain_turns,
+                    (long)host_player->mappos.x.val, (long)host_player->mappos.y.val, (long)host_player->mappos.z.val,
+                    (long)client_player->mappos.x.val, (long)client_player->mappos.y.val, (long)client_player->mappos.z.val);
+            }
+        }
+    }
+    ERRORLOG("  Rooms %s - Host: %08lx, Client: %08lx", (client->rooms == host->rooms) ? "match" : "MISMATCH", (unsigned long)host->rooms, (unsigned long)client->rooms);
+    if (client->rooms != host->rooms) {
+        int shown = 0;
+        for (int i = 0; i < client_snapshot->room_count && shown < 10; i++) {
+            struct LogRoomDesyncInfo* client_room = &client_snapshot->rooms[i];
+            struct LogRoomDesyncInfo* host_room = NULL;
+            for (int j = 0; j < host_snapshot->room_count; j++) {
+                if (host_snapshot->rooms[j].index == client_room->index) {
+                    host_room = &host_snapshot->rooms[j];
+                    break;
+                }
+            }
+            if (host_room == NULL) {
+                ERRORLOG("    Room[%d] missing from host", client_room->index);
+                shown++;
+            } else if (client_room->checksum != host_room->checksum) {
+                ERRORLOG("    Room[%d] slabs_count: Host=%d Client=%d, efficiency: Host=%d Client=%d",
+                    client_room->index, host_room->slabs_count, client_room->slabs_count, host_room->efficiency, client_room->efficiency);
+                shown++;
+            }
+        }
+    }
+    log_thing_differences(client_snapshot, "Creatures", client->creatures, host->creatures, TCls_Creature);
+    log_thing_differences(client_snapshot, "Traps", client->traps, host->traps, TCls_Trap);
+    log_thing_differences(client_snapshot, "Shots", client->shots, host->shots, TCls_Shot);
+    log_thing_differences(client_snapshot, "Objects", client->objects, host->objects, TCls_Object);
+    log_thing_differences(client_snapshot, "Effects", client->effects, host->effects, TCls_Effect);
+    log_thing_differences(client_snapshot, "DeadCreatures", client->dead_creatures, host->dead_creatures, TCls_DeadCreature);
+    log_thing_differences(client_snapshot, "EffectGens", client->effect_gens, host->effect_gens, TCls_EffectGen);
+    log_thing_differences(client_snapshot, "Doors", client->doors, host->doors, TCls_Door);
+    ERRORLOG("=== END ===");
 }
 
 CoroutineLoopState perform_checksum_verification(CoroutineLoop *con) {
@@ -298,128 +409,6 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con) {
     NETLOG("Checksums are verified");
 
     return CLS_CONTINUE;
-}
-
-static void log_checksum_comparison(const char* category_name, TbBigChecksum client_checksum, TbBigChecksum host_checksum) {
-    const char* status = (client_checksum != host_checksum) ? "MISMATCH" : "match";
-    ERRORLOG("    %s %s - Client: %08lx, Host: %08lx", category_name, status, client_checksum, host_checksum);
-}
-
-static void log_things_count_by_category(void) {
-    int obj_count = 0;
-    int creature_count = 0;
-    int effectgen_count = 0;
-    int total = 0;
-
-    struct StructureList* list = &game.thing_lists[TngList_Objects];
-    int i = list->index;
-    while (i != 0) {
-        obj_count++;
-        total++;
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing)) {
-            break;
-        }
-        i = thing->next_of_class;
-    }
-
-    list = &game.thing_lists[TngList_Creatures];
-    i = list->index;
-    while (i != 0) {
-        creature_count++;
-        total++;
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing)) {
-            break;
-        }
-        i = thing->next_of_class;
-    }
-
-    list = &game.thing_lists[TngList_EffectGens];
-    i = list->index;
-    while (i != 0) {
-        effectgen_count++;
-        total++;
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing)) {
-            break;
-        }
-        i = thing->next_of_class;
-    }
-
-    ERRORLOG("Things count by category (pre-resync): OBJECT:%d CREATURE:%d EFFECTGEN:%d TOTAL:%d",
-             obj_count, creature_count, effectgen_count, total);
-}
-
-static void log_analyze_things_mismatch_details(struct DesyncHistoryEntry* client_entry, struct DesyncHistoryEntry* host_entry) {
-    ERRORLOG("  Breaking down THINGS MISMATCH by category:");
-    log_checksum_comparison("Creatures", client_entry->creatures_sum, host_entry->creatures_sum);
-    log_checksum_comparison("Traps", client_entry->traps_sum, host_entry->traps_sum);
-    log_checksum_comparison("Shots", client_entry->shots_sum, host_entry->shots_sum);
-    log_checksum_comparison("Objects", client_entry->objects_sum, host_entry->objects_sum);
-    log_checksum_comparison("Effects", client_entry->effects_sum, host_entry->effects_sum);
-    log_checksum_comparison("Dead Creatures", client_entry->dead_creatures_sum, host_entry->dead_creatures_sum);
-    log_checksum_comparison("Effect Generators", client_entry->effect_gens_sum, host_entry->effect_gens_sum);
-    log_checksum_comparison("Doors", client_entry->doors_sum, host_entry->doors_sum);
-}
-
-static void log_analyze_desync_diagnostics_from_host(struct DesyncHistoryEntry* client_entry, struct DesyncHistoryEntry* host_entry, GameTurn client_turn, GameTurn host_turn) {
-    ERRORLOG("=== DESYNC ANALYSIS: Client (turn %lu) vs Host (turn %lu) ===",
-             (unsigned long)client_turn, (unsigned long)host_turn);
-
-    log_checksum_comparison("Turn Checksum", client_entry->turn_checksum, host_entry->turn_checksum);
-
-    log_things_count_by_category();
-
-    log_checksum_comparison("Things", client_entry->things_sum, host_entry->things_sum);
-
-    if (client_entry->things_sum != host_entry->things_sum) {
-        log_analyze_things_mismatch_details(client_entry, host_entry);
-    }
-
-    log_checksum_comparison("Objects", client_entry->objects_sum, host_entry->objects_sum);
-    log_checksum_comparison("Effects", client_entry->effects_sum, host_entry->effects_sum);
-    log_checksum_comparison("Dead Creatures", client_entry->dead_creatures_sum, host_entry->dead_creatures_sum);
-    log_checksum_comparison("Effect Generators", client_entry->effect_gens_sum, host_entry->effect_gens_sum);
-    log_checksum_comparison("Doors", client_entry->doors_sum, host_entry->doors_sum);
-    log_checksum_comparison("Rooms", client_entry->rooms_sum, host_entry->rooms_sum);
-    log_checksum_comparison("Players", client_entry->players_sum, host_entry->players_sum);
-    log_checksum_comparison("GAME_RANDOM seed", client_entry->action_random_seed, host_entry->action_random_seed);
-    log_checksum_comparison("AI_RANDOM seed", client_entry->ai_random_seed, host_entry->ai_random_seed);
-    log_checksum_comparison("PLAYER_RANDOM seed", client_entry->player_random_seed, host_entry->player_random_seed);
-
-    ERRORLOG("=== END DESYNC ANALYSIS ===");
-}
-
-void compare_desync_history_from_host(void) {
-    GameTurn desync_turn = game.desync_diagnostics.desync_detected_turn;
-
-    struct DesyncHistoryEntry* client_entry = NULL;
-    struct DesyncHistoryEntry* host_entry = NULL;
-
-    for (int i = 0; i < DESYNC_HISTORY_TURNS; i++) {
-        if (local_desync_history.entries[i].valid && local_desync_history.entries[i].turn == desync_turn) {
-            client_entry = &local_desync_history.entries[i];
-            break;
-        }
-    }
-
-    for (int i = 0; i < DESYNC_HISTORY_TURNS; i++) {
-        if (game.desync_diagnostics.host_history[i].valid && game.desync_diagnostics.host_history[i].turn == desync_turn) {
-            host_entry = &game.desync_diagnostics.host_history[i];
-            break;
-        }
-    }
-
-    if (client_entry == NULL || host_entry == NULL) {
-        ERRORLOG("No desync history found, so the cause of the desync was likely from a packet not being received, which means the input lag was set too low.");
-        game.desync_diagnostics.has_desync_diagnostics = false;
-        return;
-    }
-
-    log_analyze_desync_diagnostics_from_host(client_entry, host_entry, client_entry->turn, host_entry->turn);
-
-    game.desync_diagnostics.has_desync_diagnostics = false;
 }
 
 /******************************************************************************/
