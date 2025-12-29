@@ -64,6 +64,10 @@ static TbBool rt_pressed = false;
 
 static Uint8 prev_start = 0;
 static Uint8 prev_back = 0;
+static Uint8 prev_leftshoulder = 0;
+static Uint8 prev_rightshoulder = 0;
+
+/******************************************************************************/
 
 /**
  * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
@@ -71,7 +75,8 @@ static Uint8 prev_back = 0;
  * @param button SDL button definition.
  * @return
  */
- 
+
+extern void go_to_adjacent_menu_tab(int direction);
 
 static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
 {
@@ -474,6 +479,21 @@ TbBool LbWindowsControl(void)
         lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
         lbKeyOn[KC_RETURN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
 
+        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER)) {
+            
+        }
+
+        Uint8 current_leftshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+        if (current_leftshoulder && !prev_leftshoulder) {
+            go_to_adjacent_menu_tab(-1);
+        }
+        prev_leftshoulder = current_leftshoulder;
+
+        Uint8 current_rightshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+        if (current_rightshoulder && !prev_rightshoulder) {
+            go_to_adjacent_menu_tab(1);
+        }
+        prev_rightshoulder = current_rightshoulder;
 
         // Handle Start and Back buttons with edge detection to simulate key presses
         Uint8 current_start = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
