@@ -2746,29 +2746,23 @@ void update(void)
 }
 
 void intentional_desync() {
-    if (game.play_gameturn == 30 && my_player_number == 0) {
-        int k = 0;
-        int i = game.thing_lists[TngList_Creatures].index;
-        while (i != 0) {
-            struct Thing* thing = thing_get(i);
-            if (thing_is_invalid(thing)) {
-                ERRORLOG("Jump to invalid thing detected");
-                break;
-            }
-            i = thing->next_of_class;
-
-            struct Coord3d new_pos;
-            new_pos.x.val = thing->mappos.x.val - 256;
-            new_pos.y.val = thing->mappos.y.val;
-            new_pos.z.val = thing->mappos.z.val;
-            move_thing_in_map(thing, &new_pos);
-
-            k++;
-            if (k > THINGS_COUNT) {
-                break;
-            }
+    if (game.play_gameturn != 50 || !is_my_player_number(0)) {
+        return;
+    }
+    for (struct Room* room = start_rooms; room < end_rooms; room += 1) {
+        if (room_exists(room)) {
+            room->slabs_count += 1;
+            break;
         }
     }
+    int i = game.thing_lists[TngList_Creatures].index;
+    if (i != 0) {
+        struct Thing* thing = thing_get(i);
+        if (!thing_is_invalid(thing)) {
+            thing->health += 1;
+        }
+    }
+    get_player(0)->instance_remain_turns += 1;
 }
 
 void first_gameturn_actions() {
@@ -2776,7 +2770,7 @@ void first_gameturn_actions() {
         apply_default_flee_and_imprison_setting();
         send_sprite_zip_count_to_other_players();
     }
-    //intentional_desync(); //Move all creatures left by 1 subtile after turn 30
+    //intentional_desync();
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)

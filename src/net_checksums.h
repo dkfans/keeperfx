@@ -28,19 +28,12 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#pragma pack(1)
-
-#pragma pack()
-/******************************************************************************/
 struct PlayerInfo;
 struct Thing;
 
-void initialize_desync_analysis(void);
-void clear_desync_analysis(void);
 void update_turn_checksums(void);
 void pack_desync_history_for_resync(void);
 void compare_desync_history_from_host(void);
-TbBigChecksum compute_player_checksum(struct PlayerInfo *player);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short checksums_different(void);
 CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
