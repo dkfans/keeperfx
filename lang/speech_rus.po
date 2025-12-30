@@ -20,648 +20,656 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-11-13 19:11+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team\n"
+"POT-Creation-Date: 2025-12-29 10:32+0100\n"
+"PO-Revision-Date: 2025-12-30 11:26+0100\n"
+"Last-Translator: \n"
+"Language-Team: KeeperFX Team \n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 3.8\n"
 
 #: speech:1
 msgctxt "In-game mentor"
 msgid "Your creatures are becoming angry."
-msgstr ""
+msgstr "Ваши создания гневаются."
 
 #: speech:2
 msgctxt "In-game mentor"
 msgid "Your creatures are angry - they have nowhere to live."
-msgstr ""
+msgstr "Ваши создания разгневаны - им негде жить."
 
 #: speech:3
 msgctxt "In-game mentor"
 msgid "Your minions are annoyed - you cannot pay them."
-msgstr ""
+msgstr "Ваши создания недовольны - Вам нечем им платить."
 
 #: speech:4
 msgctxt "In-game mentor"
 msgid "Your creatures are upset because they are hungry."
-msgstr ""
+msgstr "Ваши создания расстроены - они голодны."
 
 #: speech:5
 msgctxt "In-game mentor"
 msgid "Your minions are vandalizing your dungeon!"
-msgstr ""
+msgstr "Ваши прислужники разносят Ваше подземелье!"
 
 #: speech:6
 msgctxt "In-game mentor"
 msgid "Creatures are deserting!"
-msgstr ""
+msgstr "Ваши создания дезертируют!"
 
 #: speech:7
 msgctxt "In-game mentor"
 msgid "The enemy has broken through your walls!"
-msgstr ""
+msgstr "Враг проломил стены Вашего подземелья!"
 
 #: speech:8
 msgctxt "In-game mentor"
 msgid "Your Dungeon Heart is being attacked!"
-msgstr ""
+msgstr "На сердце Вашего подземелья напали!"
 
 #: speech:9
 msgctxt "In-game mentor"
 msgid "Your minions have lost a battle."
-msgstr ""
+msgstr "Ваши прислужники проиграли сражение."
 
 #: speech:10
 msgctxt "In-game mentor"
 msgid "Your creatures have won a battle!"
-msgstr ""
+msgstr "Ваши создания победили в сражении!"
 
 #: speech:11
 msgctxt "In-game mentor"
 msgid "Your creatures are falling in battle!"
-msgstr ""
+msgstr "Ваши создания гибнут в сражении!"
 
 #: speech:12
 msgctxt "In-game mentor"
 msgid "Your minions are winning a battle."
-msgstr ""
+msgstr "Ваши прислужники побеждают в сражении."
 
 #: speech:13
 msgctxt "In-game mentor"
 msgid "Your creatures are under attack."
-msgstr ""
+msgstr "На Ваших созданий напали."
 
 #: speech:14
 msgctxt "In-game mentor"
 msgid "Your creatures are attacking the enemy!"
-msgstr ""
+msgstr "Ваши создания нападают на врага!"
 
 #: speech:15
 msgctxt "In-game mentor"
 msgid "The enemy is destroying your rooms!"
-msgstr ""
+msgstr "Враг разрушает Ваши помещения!"
 
 #: speech:16
 msgctxt "In-game mentor"
 msgid "You are losing territory."
-msgstr ""
+msgstr "Вы утрачиваете территории."
 
 #: speech:17
 msgctxt "In-game mentor"
 msgid "You have claimed an enemy room."
-msgstr ""
+msgstr "Вы захватили помещение врага."
 
 #: speech:18
 msgctxt "In-game mentor"
 msgid "You have taken control of a new room."
-msgstr ""
+msgstr "Вы захватили новое помещение."
 
 #: speech:19
 msgctxt "In-game mentor"
 msgid "Beware, the lord of the land approaches!"
-msgstr ""
+msgstr "Берегитесь! Лорд земли объявился!"
 
 #: speech:20
 msgctxt "In-game mentor"
 msgid "Your creatures are fighting amongst themselves."
-msgstr ""
+msgstr "Ваши создания дерутся друг с другом."
 
 #: speech:21
 msgctxt "In-game mentor"
 msgid "The battle is over."
-msgstr ""
+msgstr "Сражение окончено."
 
 #: speech:22
 msgctxt "In-game mentor"
 msgid "Food is scarce, enlarge your Hatchery."
-msgstr ""
+msgstr "Расширьте питомник. Еды не хватает на всех."
 
 #: speech:23
 msgctxt "In-game mentor"
 msgid "Your creatures need a bigger Lair."
-msgstr ""
+msgstr "Вашим существам нужно логово попросторнее."
 
 #: speech:24
 msgctxt "In-game mentor"
 msgid "You need a bigger Treasure Room."
-msgstr ""
+msgstr "Пора расширить сокровищницу."
 
 #: speech:25
 msgctxt "In-game mentor"
 msgid "Your Library is too small."
-msgstr ""
+msgstr "Ваша библиотека слишком мала."
 
 #: speech:26
 msgctxt "In-game mentor"
 msgid "Your Prison is too small."
-msgstr ""
+msgstr "В Вашей тюрьме не хватает места."
 
 #: speech:27
 msgctxt "In-game mentor"
 msgid "Your Torture Chamber is not big enough."
-msgstr ""
+msgstr "Пыточная недостаточно просторна."
 
 #: speech:28
 msgctxt "In-game mentor"
 msgid "You need a bigger Training Room."
-msgstr ""
+msgstr "Расширьте тренировочный зал."
 
 #: speech:29
 msgctxt "In-game mentor"
 msgid "Your Workshop is not big enough."
-msgstr ""
+msgstr "В мастерских нужно больше места."
 
 #: speech:30
 msgctxt "In-game mentor"
 msgid "Your Scavenger Room is too small."
-msgstr ""
+msgstr "Растлительная требует расширения."
 
 #: speech:31
 msgctxt "In-game mentor"
 msgid "You need a bigger Temple."
-msgstr ""
+msgstr "Вам нужен более величественный храм."
 
 #: speech:32
 msgctxt "In-game mentor"
 msgid "Your Graveyard is not big enough."
-msgstr ""
+msgstr "Кладбище требует расширения."
 
 #: speech:33
 msgctxt "In-game mentor"
 msgid "Your Barracks require expansion."
-msgstr ""
+msgstr "Пришло время расширить Ваши бараки."
 
 #: speech:34
 msgctxt "In-game mentor"
 msgid "Hungry creatures cannot get to a Hatchery."
-msgstr ""
+msgstr "Голодные создания не могут попасть в питомник."
 
 #: speech:35
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach the Treasure Room."
-msgstr ""
+msgstr "Часть Ваших прислужников не может попасть в сокровищницу."
 
 #: speech:36
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach their lairs."
-msgstr ""
+msgstr "Часть Ваших прислужников не может вернуться к себе в логова."
 
 #: speech:37
 msgctxt "In-game mentor"
 msgid "An Entrance has been claimed."
-msgstr ""
+msgstr "Портал захвачен."
 
 #: speech:38
 msgctxt "In-game mentor"
 msgid "You have lost an entrance."
-msgstr ""
+msgstr "Портал утрачен."
 
 #: speech:39
 msgctxt "In-game mentor"
 msgid "You must build a Treasure Room, to store gold."
-msgstr ""
+msgstr "Вы должны построить сокровищницу, чтобы было куда складывать золото."
 
 #: speech:40
 msgctxt "In-game mentor"
 msgid "You need to build a Lair for your creatures."
-msgstr ""
+msgstr "Вы должны построить логово для своих созданий."
 
 #: speech:41
 msgctxt "In-game mentor"
 msgid "You should build a Hatchery, to feed your minions."
 msgstr ""
+"Вы должны построить питомник, чтобы Вашим созданиям было чем питаться."
 
 #: speech:42
 msgctxt "In-game mentor"
 msgid "A new room has been researched."
-msgstr ""
+msgstr "Изучены планы нового помещения."
 
 #: speech:43
 msgctxt "In-game mentor"
 msgid "A new spell has been researched."
-msgstr ""
+msgstr "Изучено новое заклинание."
 
 #: speech:44
 msgctxt "In-game mentor"
 msgid "A door has been manufactured."
-msgstr ""
+msgstr "Изготовлена дверь."
 
 #: speech:45
 msgctxt "In-game mentor"
 msgid "A trap has been manufactured."
-msgstr ""
+msgstr "Изготовлена ловушка."
 
 #: speech:46
 msgctxt "In-game mentor"
 msgid "There is nothing left to research."
-msgstr ""
+msgstr "Больше нечего изучать."
 
 #: speech:47
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's spellbook."
-msgstr ""
+msgstr "Вы захватили вражескую книгу заклинаний."
 
 #: speech:48
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's trap design."
-msgstr ""
+msgstr "Вы захватили вражеские чертежи ловушки."
 
 #: speech:49
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's door design."
-msgstr ""
+msgstr "Вы захватили вражеские чертежи двери."
 
 #: speech:50
 msgctxt "In-game mentor"
 msgid "The enemy has stolen a spellbook!"
-msgstr ""
+msgstr "Враг украл книгу заклинаний!"
 
 #: speech:51
 msgctxt "In-game mentor"
 msgid "A trap design has been taken from you."
-msgstr ""
+msgstr "Ваши чертежи ловушки были украдены."
 
 #: speech:52
 msgctxt "In-game mentor"
 msgid "The enemy has taken a door design."
-msgstr ""
+msgstr "Враг захватил чертежи двери."
 
 #: speech:53
 msgctxt "In-game mentor"
 msgid "Information has been tortured from the enemy."
-msgstr ""
+msgstr "Информация была выпытана у врага."
 
 #: speech:54
 msgctxt "In-game mentor"
 msgid "An enemy has been converted to your cause."
-msgstr ""
+msgstr "Враг перешел на Вашу сторону."
 
 #: speech:55
 msgctxt "In-game mentor"
 msgid "A prisoner has died and risen as a Skeleton."
-msgstr ""
+msgstr "Пленник умер и восстал как скелет."
 
 #: speech:56
 msgctxt "In-game mentor"
 msgid "A torture victim has died and returned as a Ghost."
-msgstr ""
+msgstr "Жертва пыток погибла и восстала привидением."
 
 #: speech:57
 msgctxt "In-game mentor"
 msgid "Your prisoners are escaping!"
-msgstr ""
+msgstr "Пленники бегут из тюрьмы!"
 
 #: speech:58
 msgctxt "In-game mentor"
 msgid "A Vampire has risen in your Graveyard."
-msgstr ""
+msgstr "Вампир восстал на кладбище."
 
 #: speech:59
 msgctxt "In-game mentor"
 msgid "You have freed your creatures from prison!"
-msgstr ""
+msgstr "Вы освободили Своих созданий из тюрьмы!"
 
 #: speech:60
 msgctxt "In-game mentor"
 msgid "Your prisoners are starving to death."
-msgstr ""
+msgstr "Ваши пленники помирают с голоду."
 
 #: speech:61
 msgctxt "In-game mentor"
 msgid "One of your creatures is being scavenged!"
-msgstr ""
+msgstr "Ваше создание растлевают!"
 
 #: speech:62
 msgctxt "In-game mentor"
 msgid "One of your minions has been scavenged!"
-msgstr ""
+msgstr "Вашего прислужника растлевают!"
 
 #: speech:63
 msgctxt "In-game mentor"
 msgid "One of your creatures has joined the enemy."
-msgstr ""
+msgstr "Ваше создание перешло на сторону врага."
 
 #: speech:64
 msgctxt "In-game mentor"
 msgid "Secrets have been tortured from your creatures!"
-msgstr ""
+msgstr "Из Ваших созданий выпытывают секреты!"
 
 #. Message when good sacrifice recipe progressed
 #: speech:65
 msgctxt "In-game mentor"
 msgid "The Gods are pleased with your sacrifice."
-msgstr ""
+msgstr "Боги благосклонно отнеслись к Вашей жертве."
 
 #. Message when good sacrifice recipe finished
 #: speech:66
 msgctxt "In-game mentor"
 msgid "The Gods have rewarded your offering."
-msgstr ""
+msgstr "Боги снизошли до того, чтобы вознаградить Вас."
 
 #. Message when sacrifice didn't progressed any recipe
 #: speech:67
 msgctxt "In-game mentor"
 msgid "The Gods do not care for your sacrifice."
-msgstr ""
+msgstr "Боги остались глухи к принесенной Вами жертве."
 
 #. Message when bad sacrifice recipe progressed
 #: speech:68
 msgctxt "In-game mentor"
 msgid "Your offering has made the Gods angry!"
-msgstr ""
+msgstr "Ваше подношение прогневало Богов!"
 
 #. Message when bad sacrifice recipe finished
 #: speech:69
 msgctxt "In-game mentor"
 msgid "The Gods have punished your unworthy offering."
-msgstr ""
+msgstr "Боги покарали Вас за недостойное подношение."
 
 #. Message when dropping gold into Temple water
 #: speech:70
 msgctxt "In-game mentor"
 msgid "This is no wishing well, keeper."
-msgstr ""
+msgstr "Это Вам не колодец желаний, Хранитель."
 
 #. Message when Dungeon Special found on level
 #: speech:71
 msgctxt "In-game mentor"
 msgid "Your creatures have discovered a mysterious magic box."
-msgstr ""
+msgstr "Ваши создания обнаружили таинственный волшебный ящик."
 
 #. Message when spellbook found on level
 #: speech:72
 msgctxt "In-game mentor"
 msgid "Your creatures have found a spell."
-msgstr ""
+msgstr "Ваши создания обнаружили заклинание."
 
 #. Message when door crate found on level
 #: speech:73
 msgctxt "In-game mentor"
 msgid "A door design has been discovered."
-msgstr ""
+msgstr "Обнаружены чертежи двери."
 
 #. Message when trap crate found on level
 #: speech:74
 msgctxt "In-game mentor"
 msgid "A trap design has been discovered."
-msgstr ""
+msgstr "Обнаружены чертежи ловушки."
 
 #: speech:75
 msgctxt "In-game mentor"
 msgid "New creatures have joined your dungeon."
-msgstr ""
+msgstr "Новые создания пришли в Ваше подземелье."
 
 #. Message when digging has revealed a cavern
 #: speech:76
 msgctxt "In-game mentor"
 msgid "You have tunneled into a new area."
-msgstr ""
+msgstr "Вы пробили туннель в новые земли."
 
 #: speech:77
 msgctxt "In-game mentor"
 msgid "The entire realm has been revealed to you."
-msgstr ""
+msgstr "Королевство открылось Вам целиком."
 
 #: speech:78
 msgctxt "In-game mentor"
 msgid "You may resurrect one creature."
-msgstr ""
+msgstr "Вы можете возродить любое создание."
 
 #: speech:79
 msgctxt "In-game mentor"
 msgid "Select a creature to take with you to the next realm."
-msgstr ""
+msgstr "Выберите создание, которое возьмете с собой в следующее королевство."
 
 #: speech:80
 msgctxt "In-game mentor"
 msgid "So be it."
-msgstr ""
+msgstr "Да будет так!"
 
 #: speech:81
 msgctxt "In-game mentor"
 msgid "You have bewitched a hero."
-msgstr ""
+msgstr "Вы приворотили героя."
 
 #: speech:82
 msgctxt "In-game mentor"
 msgid "Your creatures have been doubled in number."
-msgstr ""
+msgstr "Численность Ваших созданий удвоилась."
 
 #: speech:83
 msgctxt "In-game mentor"
 msgid "Your creatures have been blessed with experience."
-msgstr ""
+msgstr "Ваши создания были одарены опытом."
 
 #: speech:84
 msgctxt "In-game mentor"
 msgid "Your dungeon has been fortified."
-msgstr ""
+msgstr "Стены Вашего подземелья укрепились."
 
 #: speech:85
 msgctxt "In-game mentor"
-msgid "You have found a hidden realm. Go there when you've conquered this land."
+msgid ""
+"You have found a hidden realm. Go there when you've conquered this land."
 msgstr ""
+"Вы обнаружили тайное королевство. Отправляйтесь туда, когда покорите эти "
+"земли."
 
 #: speech:86
 msgctxt "In-game mentor"
 msgid "Your gold reserves are running low."
-msgstr ""
+msgstr "В Вашей сокровищнице заканчивается золото."
 
 #: speech:87
 msgctxt "In-game mentor"
 msgid "You do not have enough gold."
-msgstr ""
+msgstr "У Вас не хватает золота."
 
 #: speech:88
 msgctxt "In-game mentor"
 msgid "You are too poor to scavenge creatures."
-msgstr ""
+msgstr "Вы слишком бедны, чтобы кого-либо растлить."
 
 #: speech:89
 msgctxt "In-game mentor"
 msgid "You cannot afford to train creatures."
-msgstr ""
+msgstr "Вы не можете оплатить тренировку созданий."
 
 #: speech:90
 msgctxt "In-game mentor"
 msgid "It is payday."
-msgstr ""
+msgstr "Настал День выплаты жалования."
 
 #: speech:91
 msgctxt "In-game mentor random funny message"
 msgid "My god, it's full of pies."
-msgstr ""
+msgstr "О боже, он полон гнезд!"
 
 #: speech:92
 msgctxt "In-game mentor random funny message"
 msgid "Something surreal is happening."
-msgstr ""
+msgstr "Творится что-то невероятное."
 
 #: speech:93
 msgctxt "In-game mentor random funny message"
 msgid "Your creatures are developing a strange accent."
-msgstr ""
+msgstr "У ваших созданий появился странный выговор."
 
 #: speech:94
 msgctxt "In-game mentor random funny message"
 msgid "Your pants are definitely too tight."
-msgstr ""
+msgstr "Эти штаны Вам точно малы."
 
 #: speech:95
 msgctxt "In-game mentor random funny message"
 msgid "Your minions have a craving for chocolate."
-msgstr ""
+msgstr "Ваши прислужники алчут шоколада."
 
 #: speech:96
 msgctxt "In-game mentor random funny message"
 msgid "There's that smell again."
-msgstr ""
+msgstr "Опять этот запах."
 
 #: speech:97
 msgctxt "In-game mentor random funny message"
 msgid "Hello?"
-msgstr ""
+msgstr "Э-эй!"
 
 #: speech:98
 msgctxt "In-game mentor random funny message"
 msgid "Blech."
-msgstr ""
+msgstr "Фу!"
 
 #: speech:99
 msgctxt "In-game mentor random funny message"
 msgid "Achoo"
-msgstr ""
+msgstr "Апчхи!"
 
 #: speech:100
 msgctxt "In-game mentor random funny message"
 msgid "Cough"
-msgstr ""
+msgstr "Кхе-кхе!"
 
 #: speech:101
 msgctxt "In-game mentor"
 msgid "You cannot give your Imps any more jobs."
-msgstr ""
+msgstr "Вы не можете нагрузить бесов дополнительной работой."
 
 #: speech:102
 msgctxt "In-game mentor"
 msgid "Game loaded."
-msgstr ""
+msgstr "Игра загружена."
 
 #: speech:103
 msgctxt "In-game mentor"
 msgid "Game saved."
-msgstr ""
+msgstr "Игра сохранена."
 
 #: speech:104
 msgctxt "In-game mentor"
 msgid "You have defeated an enemy Keeper."
-msgstr ""
+msgstr "Вы одолели вражеского Хранителя."
 
 #: speech:105
 msgctxt "In-game mentor"
 msgid "You have been defeated."
-msgstr ""
+msgstr "Вас победили."
 
 #: speech:106
 msgctxt "In-game mentor"
 msgid "You have conquered this realm!"
-msgstr ""
+msgstr "Вы завоевали это королевство!"
 
 #: speech:107
 msgctxt "In-game mentor"
 msgid "Master, I sense the presence of the Avatar!"
-msgstr ""
+msgstr "Повелитель! Я ощущаю присутствие Аватара!"
 
 #: speech:108
 msgctxt "In-game mentor"
 msgid "What trickery is this? The Avatar's body has vanished."
-msgstr ""
+msgstr "Что это за жульничество? Тело Аватара исчезло."
 
 #: speech:109
 msgctxt "In-game mentor"
-msgid "You are victorious, your darkness pervades throughout the kingdom. All hail the new lord of shadows."
+msgid ""
+"You are victorious, your darkness pervades throughout the kingdom. All hail "
+"the new lord of shadows."
 msgstr ""
+"Вы одержали победу! Тьма распространяется по всему королевству. Славьте "
+"нового Владыку теней!"
 
 #: speech:110
 msgctxt "Enemy Keeper Harassment"
 msgid "Your efforts are futile!"
-msgstr ""
+msgstr "Твои усилия тщетны!"
 
 #: speech:111
 msgctxt "Enemy Keeper Harassment"
 msgid "My dungeon is the finest you shall ever see!"
-msgstr ""
+msgstr "Мое подземелье лучшее, что тебе доведется увидеть!"
 
 #: speech:112
 msgctxt "Enemy Keeper Harassment"
 msgid "My minions will leave your dungeon a crumbling ruin!"
-msgstr ""
+msgstr "Мои прислужники не оставят камня на камне от твоего подземелья!"
 
 #: speech:113
 msgctxt "Enemy Keeper Harassment"
 msgid "You entrails will decorate the darkest alchove of my domain!"
-msgstr ""
+msgstr "Твои кишки украсят самые темные ниши Моих владений!"
 
 #: speech:114
 msgctxt "Enemy Keeper Harassment"
 msgid "Your corpse shall feed my minions yet, keeper!"
-msgstr ""
+msgstr "Я скормлю твое тело Своим прислужникам, хранитель!"
 
 #: speech:115
 msgctxt "Enemy Keeper Harassment"
 msgid "Prepare for oblivion, Keeper!"
-msgstr ""
+msgstr "Приготовься встретить забвение, хранитель!"
 
 #: speech:116
 msgctxt "Enemy Keeper Harassment"
 msgid "Pathetic creature, I shall crush you in an instant!"
-msgstr ""
+msgstr "Жалкое создание! Я сокрушу тебя прямо сейчас!"
 
 #: speech:117
 msgctxt "Enemy Keeper Harassment"
 msgid "Ho ho ho ho!"
-msgstr ""
+msgstr "Ха-ха-ха-ха!"
 
 #: speech:118
 msgctxt "Hero Talk Upon Entering"
 msgid "Your dark days are numbered, evil one!"
-msgstr ""
+msgstr "Твои дни сочтены, злодей!"
 
 #: speech:119
 msgctxt "Hero Talk Upon Entering"
 msgid "We come to rid the world of your evil!"
-msgstr ""
+msgstr "Мы идем избавить мир от твоего зла!"
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall send you back to the pits, vile one!"
-msgstr ""
+msgstr "Мы отправим тебя обратно в ту дыру, из которой ты вылез, презренный!"
 
 #: speech:121
 msgctxt "Hero Talk Upon Entering"
 msgid "Your reign shall end before this day is done!"
-msgstr ""
+msgstr "Твое владычество окончится еще до заката!"
 
 #: speech:122
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall cast you back into the shadows, keeper!"
-msgstr ""
+msgstr "Мы отправим тебя обратно во тьму, хранитель!"
 
 #: speech:123
 msgctxt "Hero Talk Upon Entering"
 msgid "Leave us to live our lives in peace!"
-msgstr ""
+msgstr "Дай нам жить в мире и спокойствии!"
 
 #: speech:124
 msgctxt "Hero Talk Upon Entering"
 msgid "In the name of all that is good, we shall defeat you!"
-msgstr ""
+msgstr "Во имя всего хорошего, что есть в мире, мы одолеем тебя!"
 
 #: speech:125
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
-msgstr ""
-
+msgstr "Мы больше не потерпим присутствия твоего зла!"
