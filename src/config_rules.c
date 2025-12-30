@@ -484,7 +484,7 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
 /**
  * Searches the list of sacrifices for one which is supposed to make special diggers cheaper.
  */
-static void mark_cheaper_diggers_sacrifice(void)
+void mark_cheaper_diggers_sacrifice(void)
 {
     game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model = 0;
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)

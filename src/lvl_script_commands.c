@@ -3405,6 +3405,7 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
     }
 
     script_set_sacrifice_recipe(action, param, victims);
+    mark_cheaper_diggers_sacrifice();
 }
 
 static void set_box_tooltip_check(const struct ScriptLine* scline)

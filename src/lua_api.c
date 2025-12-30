@@ -1110,6 +1110,7 @@ static int lua_Set_sacrifice_recipe(lua_State *L)
     }
 
     script_set_sacrifice_recipe(command, reward, victims);
+    mark_cheaper_diggers_sacrifice();
     return 0;
 
 }
@@ -1127,6 +1128,7 @@ static int lua_Remove_sacrifice_recipe(lua_State *L)
     }
 
     script_set_sacrifice_recipe(command, reward, victims);
+    mark_cheaper_diggers_sacrifice();
     return 0;
 
 }
