@@ -1155,12 +1155,6 @@ short setup_game(void)
 
   if (result == 1)
   {
-    if ( !setup_heaps() )
-      result = 0;
-  }
-
-  if (result == 1)
-  {
       init_keeper();
       set_gamma(settings.gamma_correction, 0);
       set_music_volume(settings.music_volume);
