@@ -2107,7 +2107,7 @@ msgstr "Слипиберг"
 #: guitext:216
 msgctxt "Level name"
 msgid "Woodly Rhyme"
-msgstr "Вуди-Райм"
+msgstr "Вудли-Райм"
 
 #: guitext:217
 msgctxt "Level name"
