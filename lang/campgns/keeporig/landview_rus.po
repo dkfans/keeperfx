@@ -14,20 +14,17 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
+#, fuzzy:
 msgid ""
 msgstr ""
 "Project-Id-Version: Original Campaign for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-12-31 02:30+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
-"Language: ru_RU\n"
+"Language-Team: KeeperFX Team"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
 
 #: landview:10
 msgctxt "Level introduction"
@@ -40,7 +37,7 @@ msgstr ""
 #: landview:11
 msgctxt "Level summary"
 msgid ""
-"Branahawk. War and anthrax have taken to this land likes fleas to a rat. The "
+"Brana Hauk. War and anthrax have taken to this land likes fleas to a rat. The "
 "region is, thanks to your unstinting efforts, now a major eyesore."
 msgstr ""
 "Бранахок. Война и язвы покрыли эту землю как блохи крысу.Теперь, благодаря "
@@ -49,16 +46,15 @@ msgstr ""
 #: landview:20
 msgctxt "Level introduction"
 msgid ""
-"Cozyton. A hideous sham of a town, in which the prosperous citizens have no "
+"Cosyton. A hideous sham of a town, in which the prosperous citizens have no "
 "gripes or moans. Sadly, even the children are happy and secure. This is "
 "because they aren't punished for non-existent crimes.."
 msgstr ""
 
 #: landview:21
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Darkhana. The surviving citizens have more on their plates than a Demonspawn "
+"Darkanna. The surviving citizens have more on their plates than a Demonspawn "
 "with three dead adventurers to munch. Not that many citizens have survived, "
 "as such."
 msgstr ""
@@ -69,16 +65,15 @@ msgstr ""
 #: landview:30
 msgctxt "Level introduction"
 msgid ""
-"WaterDream Warm. A region of pointless frolicking and endless pleasure. No "
+"Waterdream Warm. A region of pointless frolicking and endless pleasure. No "
 "one here understands the true meaning of suffering and RANDOM SHOCKING "
 "VIOLENCE METED OUT ARBITRARILY."
 msgstr ""
 
 #: landview:31
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Wither's Tread. This place now has a proper name, because of what you did "
+"Withersdread. This place now has a proper name, because of what you did "
 "here. There is a healthy disrespect for life, and you will be amused to hear "
 "that cannibalism has gained a strong foothold amongst the ragged inhabitants."
 msgstr ""
@@ -96,21 +91,20 @@ msgid ""
 msgstr ""
 
 #: landview:41
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Firemore. There's a burning mess where once a pretty village stood. Truly "
-"you have achieved a significant improvement in the area. Even the poisonous "
-"smoke smells sweet."
+"Valianor. Nothing is left of this settlement apart from a stubborn stain on "
+"the ground. Our trolls are hard at work trying to erase this at the moment. "
+"Then we'll spray acid over the entire locale."
 msgstr ""
-"Фаэморн. Горящее месиво теперь на месте милой деревушки. Воистину, вы "
-"добились значительных результатов в этой местности. Даже отравленный дым "
-"пахнет сладко."
+"Валианор. Ничего не осталось от этого поселения кроме упрямого пятна на "
+"земле. Наши тролли усердно работают, пытаясь его отодрать, потом они "
+"распылят кислоту по всей локации."
 
 #: landview:50
 msgctxt "Level introduction"
 msgid ""
-"Lushmeadow-on-down. The bloody axes of war and famine have so far bypassed "
+"Lushmeadow-on-Down. The bloody axes of war and famine have so far bypassed "
 "this quiet backwater, leaving the inhabitants totally unaware of the purpose "
 "of real agony and loss. Unbearably most die of old age."
 msgstr ""
@@ -130,42 +124,40 @@ msgstr ""
 #: landview:60
 msgctxt "Level introduction"
 msgid ""
-"Snugglebell. The folk of snugglebell worship the common rabbit. Floppy eared "
+"Snuggledell. The folk of Snuggledell worship the common rabbit. Floppy eared "
 "bunnies are encouraged to hop around the fields surrounding the hamlet, "
 "bringing happiness, love, and more bunnies to the entire area."
 msgstr ""
 
 #: landview:61
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Steepscythe. Everyone has been put to the sword, and we've made an enormous "
-"magic carpet out of the thousands of bunnies that swarmed here. Your minions "
-"will feast on their tiny remains for weeks. Truly a majestic victory."
-msgstr ""
-"Стипсайв. Все были убиты, и громадный волшебный ковер был сделан из тысяч "
-"заек, которые носились сдесь толпами! Ваши подданые будут пирествовать на их "
-"крошечных останках неделями, воистину грандиозная победа."
-
-#: landview:70
-msgctxt "Level introduction"
-msgid ""
-"Wishveil. This region of dreaming underlings is ruled by the Lady Catherine. "
-"She is kind, and fair, and doesn't imprison or torture her subjects, for "
-"some reason."
-msgstr ""
-
-#: landview:71
-#, fuzzy
-msgctxt "Level summary"
-msgid ""
-"Panicantrizica. A weeping, wizened crone presides over this ruined empty "
+"Panic Intrisica. A weeping, wizened crone presides over this ruined empty "
 "land now. Once she was beautiful, now she's one to make you vomit. The "
 "improvement is impressive."
 msgstr ""
 "Паникинтринсика. Рыдающая, высохшая крона возвышается над этой разрушеной и "
 "пустой землей. Когда-то она была прекрасна... Теперь от ее вида вас тошнит. "
 "Прогресс впечатляет."
+
+#: landview:70
+msgctxt "Level introduction"
+msgid ""
+"Wishvale. This region of dreaming underlings is ruled by the Lady Catherine. "
+"She is kind, and fair, and doesn't imprison or torture her subjects, for "
+"some reason."
+msgstr ""
+
+#: landview:71
+msgctxt "Level summary"
+msgid ""
+"Neverdorf. Once a flourishing homestead, now it's a stinking hole in the "
+"ground. It will be years before even the hardiest weed grows here again. "
+"War, on the other hand, is in full blossom."
+msgstr ""
+"Невердорф. Когда-то цветущая ферма, теперь - вонючая дыра в земле. Годы "
+"пройдут прежде чем даже сильнейший сорняк сдесь проростет. С другой стороны, "
+"война в самом расцвете!"
 
 #: landview:80
 msgctxt "Level introduction"
@@ -176,16 +168,14 @@ msgid ""
 msgstr ""
 
 #: landview:81
-#, fuzzy
-msgctxt "Level summary"
 msgid ""
-"Neverdwarf. Once a flourishing homestead, now it's a stinking hole in the "
-"ground. It will be years before even the hardiest weed grows here again. "
-"War, on the other hand, is in full blossom."
+"Grimsforth. The legions of hell have been through here at your bidding. "
+"They've altered the appearance of the place as you would wish Master. Now we "
+"breath the heady perfumes of toxins wherever we wander."
 msgstr ""
-"Невердорф. Когда-то цветущая ферма, теперь - вонючая дыра в земле. Годы "
-"пройдут прежде чем даже сильнейший сорняк сдесь проростет. С другой стороны, "
-"война в самом расцвете!"
+"Гримсфорф. По вашему приказу сдесь прошли легионы ада. Они изменили место "
+"так, как вам-бы хотелось, повелитель. Теперь мы дышим тяжелыми парами "
+"токсинов куда-бы мы не пошли."
 
 #: landview:90
 msgctxt "Level introduction"
@@ -196,16 +186,16 @@ msgid ""
 msgstr ""
 
 #: landview:91
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Grimsforth. The legions of hell have been through here at your bidding. "
-"They've altered the appearance of the place as you would wish Master. Now we "
-"breath the heady perfumes of toxins wherever we wander."
+"Rivalmark. A Kingdom fit for a Dungeon Keeper of your standard, Sire. The "
+"blackened hulks of the houses welcome you, and the overgrounders prostrate "
+"themselves; mainly because we've killed them..."
 msgstr ""
-"Гримсфорф. По вашему приказу сдесь прошли легионы ада. Они изменили место "
-"так, как вам-бы хотелось, повелитель. Теперь мы дышим тяжелыми парами "
-"токсинов куда-бы мы не пошли."
+"Райвалмарк. Королевство, подходящее хранителю подземелья вашего типа, ваше "
+"величесто. Почерневшие развалины домов приветствуют вас, а жители "
+"поверхности обосрались... В основном, потому-что мы их убили."
+msgctxt "Level summary"
 
 #: landview:100
 msgctxt "Level introduction"
@@ -216,16 +206,15 @@ msgid ""
 msgstr ""
 
 #: landview:101
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Rivalmark. A Kingdom fit for a Dungeon Keeper of your standard, Sire. The "
-"blackened hulks of the houses welcome you, and the overgrounders prostrate "
-"themselves; mainly because we've killed them..."
+"Ruiniana. Not a soul stirs here now, even the rats are afraid to come out of "
+"the drains to feast on the dead. You really outdid yourself here master, "
+"it's a pity the destruction was so easy."
 msgstr ""
-"Райвалмарк. Королевство, подходящее хранителю подземелья вашего типа, ваше "
-"величесто. Почерневшие развалины домов приветствуют вас, а жители "
-"поверхности обосрались... В основном, потому-что мы их убили."
+"Руиниана. Ни одна душа не шевелится сдесь.... Даже крысам боязно вылезать из "
+"канализации, что-бы попировать на мертвых. Вы действительно превзошли сдесь "
+"самого себя, повелитель! Жаль, что разрушение было стоь легким..."
 
 #: landview:110
 msgctxt "Level introduction"
@@ -236,30 +225,28 @@ msgid ""
 msgstr ""
 
 #: landview:111
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Dragontine. We've set fire to this place. It's still burning with a fierce "
-"unnatural intensity, so we can't get anywhere near it. But we're sure you'll "
-"love it... Once it's cooled down a bit."
+"Steepscythe. Everyone has been put to the sword, and we've made an enormous "
+"magic carpet out of the thousands of bunnies that swarmed here. Your minions "
+"will feast on their tiny remains for weeks. Truly a majestic victory."
 msgstr ""
-"Дрэгонтайнд. Мы подожгли это место. Оно все еще горит со свирепой, "
-"ненормальной силой, так-что мы пока неможем приблизиться. Но вам непременно "
-"понравится... когда оно немного остынет."
+"Стипсайв. Все были убиты, и громадный волшебный ковер был сделан из тысяч "
+"заек, которые носились сдесь толпами! Ваши подданые будут пирествовать на их "
+"крошечных останках неделями, воистину грандиозная победа."
 
 #: landview:120
 msgctxt "Level introduction"
 msgid ""
-"Elf's Dance. A village set inside a giant fairy ring. A weak kind of magic "
+"Elves' Dance. A village set inside a giant fairy ring. A weak kind of magic "
 "provides the dwellers with all their hearts could desire. Embarrassingly, "
 "most simply wish for peace, happiness, and a long untroubled life."
 msgstr ""
 
 #: landview:121
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Carn Forge. The Fairy ring lies smashed, and the folk have fled to the "
+"Carnforge. The Fairy ring lies smashed, and the folk have fled to the "
 "hills. Our vampires are out hunting them down as we speak. Rest assured, we "
 "will be dragging them back soon, my lord."
 msgstr ""
@@ -277,10 +264,9 @@ msgid ""
 msgstr ""
 
 #: landview:131
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Arilyns Down. The people enjoyed each other's company so much, that they'll "
+"Herelyn's Down. The people enjoyed each other's company so much, that they'll "
 "be together forever now. We've thrown them all into a big pit and piled tons "
 "of rocks onto them. A fitting end, we trust you'll agree."
 msgstr ""
@@ -291,16 +277,15 @@ msgstr ""
 #: landview:140
 msgctxt "Level introduction"
 msgid ""
-"Sleepiborough. A settlement in the fertile farmland near the mountains. "
+"Sleepiburgh. A settlement in the fertile farmland near the mountains. "
 "Nothing ever happens here, apart from some good deeds and the odd exchange "
 "of kind-hearted greetings. A disgusting pit of Hades in other words."
 msgstr ""
 
 #: landview:141
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Mormonflak. We have developed this area. It is now a breeding ground for our "
+"Mormondflach. We have developed this area. It is now a breeding ground for our "
 "legions of beetles and flies. To think it was once pointless farmland, "
 "providing food for the weak population that lived there in so-called peace..."
 msgstr ""
@@ -318,10 +303,9 @@ msgid ""
 msgstr ""
 
 #: landview:151
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Hasimlock. Vampires have sucked the life out of everyone here. They’ve "
+"Hassomloch. Vampires have sucked the life out of everyone here. They’ve "
 "poisoned the well, and smeared dung on all the door handles, as a joke. Not "
 "a sophisticated sense of humour, these undead blood suckers..."
 msgstr ""
@@ -338,10 +322,9 @@ msgid ""
 msgstr ""
 
 #: landview:161
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Demonsdirth. The flowers lie trampled in the dirt. Their disgusting pong has "
+"Demon's Dearth. The flowers lie trampled in the dirt. Their disgusting pong has "
 "been replaced by the smell of soiled armour, and the internal juices of "
 "those sliced to pieces by your servants. Quite an improvement, you'll agree."
 msgstr ""
@@ -358,16 +341,15 @@ msgid ""
 msgstr ""
 
 #: landview:171
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Valynore. Nothing is left of this settlement apart from a stubborn stain on "
-"the ground. Our trolls are hard at work trying to erase this at the moment. "
-"Then we'll spray acid over the entire locale."
+"Dragon Tyne. We've set fire to this place. It's still burning with a fierce "
+"unnatural intensity, so we can't get anywhere near it. But we're sure you'll "
+"love it... Once it's cooled down a bit."
 msgstr ""
-"Валианор. Ничего не осталось от этого поселения кроме упрямого пятна на "
-"земле. Наши тролли усердно работают, пытаясь его отодрать, потом они "
-"распылят кислоту по всей локации."
+"Дрэгонтайнд. Мы подожгли это место. Оно все еще горит со свирепой, "
+"ненормальной силой, так-что мы пока неможем приблизиться. Но вам непременно "
+"понравится... когда оно немного остынет."
 
 #: landview:180
 msgctxt "Level introduction"
@@ -378,16 +360,15 @@ msgid ""
 msgstr ""
 
 #: landview:181
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Ruiniena. Not a soul stirs here now, even the rats are afraid to come out of "
-"the drains to feast on the dead. You really outdid yourself here master, "
-"it's a pity the destruction was so easy."
+"Darksword. A great battle has been won here. It was a bit one-sided, "
+"granted, but our minions performed valiantly, and now the day is ours. We've "
+"dealt with the survivors by the way, properly."
 msgstr ""
-"Руиниана. Ни одна душа не шевелится сдесь.... Даже крысам боязно вылезать из "
-"канализации, что-бы попировать на мертвых. Вы действительно превзошли сдесь "
-"самого себя, повелитель! Жаль, что разрушение было стоь легким..."
+"Дарксод. Великая битва была выиграна сдесь. Она была немного "
+"однофронтовая... Но наши подданые интенсивно работали, и теперь день ваш. Мы "
+"разделались с выжившими, походу. Как подобается."
 
 #: landview:190
 msgctxt "Level introduction"
@@ -398,16 +379,15 @@ msgid ""
 msgstr ""
 
 #: landview:191
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Darksword. A great battle has been won here. It was a bit one-sided, "
-"granted, but our minions performed valiantly, and now the day is ours. We've "
-"dealt with the survivors by the way, properly."
+"Firemoor. There's a burning mess where once a pretty village stood. Truly "
+"you have achieved a significant improvement in the area. Even the poisonous "
+"smoke smells sweet."
 msgstr ""
-"Дарксод. Великая битва была выиграна сдесь. Она была немного "
-"однофронтовая... Но наши подданые интенсивно работали, и теперь день ваш. Мы "
-"разделались с выжившими, походу. Как подобается."
+"Фаэморн. Горящее месиво теперь на месте милой деревушки. Воистину, вы "
+"добились значительных результатов в этой местности. Даже отравленный дым "
+"пахнет сладко."
 
 #: landview:200
 msgctxt "Level introduction"
@@ -419,10 +399,9 @@ msgid ""
 msgstr ""
 
 #: landview:201
-#, fuzzy
 msgctxt "Level summary"
 msgid ""
-"Donterror. The world of Skybird Trill is nothing more than a charred wreck "
+"Longterror. The world of Skybird Trill is nothing more than a charred wreck "
 "of a nightmare. We have won a furious, vital victory, and you are ruler "
 "supreme over the whole world! What next, Master?"
 msgstr ""
