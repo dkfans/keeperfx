@@ -1,7 +1,7 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file keeporig/landview_rus.po
+#   @file keeporig/landview_kor.po
 #      KeeperFX Land View Strings translation file
 #  @par Purpose:
 #      Contains translation of the national land descriptions in the game.
@@ -14,7 +14,6 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-#, fuzzy:
 msgid ""
 msgstr ""
 "Project-Id-Version: Original Campaign for KeeperFX\n"

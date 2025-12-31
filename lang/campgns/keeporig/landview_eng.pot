@@ -17,7 +17,6 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-#, fuzzy:
 msgid ""
 msgstr ""
 "Project-Id-Version: Original Campaign for KeeperFX\n"
