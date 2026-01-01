@@ -628,7 +628,7 @@ msgstr "可怜的生物，我会像捏臭虫一样捏死你！"
 #: speech:117
 msgctxt "Enemy Keeper Harassment"
 msgid "Pah ha ha ha ha ha!"
-msgstr ""
+msgstr "呵，嘿嘿哈哈哈…"
 
 #: speech:118
 msgctxt "Hero Talk Upon Entering"
@@ -670,6 +670,3 @@ msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
 msgstr "我们不能再对你的邪恶的存在，置之不理了！"
 
-#~ msgctxt "Enemy Keeper Harassment"
-#~ msgid "Ho ho ho ho!"
-#~ msgstr "呵，嘿嘿哈哈哈…"

@@ -673,6 +673,3 @@ msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
 msgstr "Nebudeme už tolerovat tvou ďábelskou přítomnost!"
 
-#~ msgctxt "Enemy Keeper Harassment"
-#~ msgid "Ho ho ho ho!"
-#~ msgstr "Ho ho ho ho!"

@@ -628,7 +628,7 @@ msgstr "Patetyczny stworze, zniszczę się w mgnieniu oka!"
 #: speech:117
 msgctxt "Enemy Keeper Harassment"
 msgid "Pah ha ha ha ha ha!"
-msgstr ""
+msgstr "Ha ha ha ha!"
 
 #: speech:118
 msgctxt "Hero Talk Upon Entering"
@@ -670,6 +670,3 @@ msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
 msgstr "Nie zniesiemy dłużej twej demonicznej obecności!"
 
-#~ msgctxt "Enemy Keeper Harassment"
-#~ msgid "Ho ho ho ho!"
-#~ msgstr "Ha ha ha ha!"
