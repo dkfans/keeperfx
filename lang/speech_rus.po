@@ -1,7 +1,7 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file speech_rus.pot
+#   @file speech_rus.po
 #      KeeperFX Speeches translation file
 #  @par Purpose:
 #      Contains translation of the national speeches in the game.
