@@ -34,6 +34,8 @@ res/keeperfx_icon.ico
 /deps/ffmpeg
 /deps/openal
 /deps/luajit
+/deps/miniupnpc
+/deps/libnatpmp
 /deps/*.tar.gz
 /cppcheck.cache
 /src/ver_defs.h
