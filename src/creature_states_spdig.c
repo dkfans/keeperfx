@@ -902,12 +902,12 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
 
 TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *spdigtng, SubtlCodedCoords stl_num)
 {
-    MapSubtlCoord pos_x;
-    MapSubtlCoord pos_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     TRACE_THING(spdigtng);
-    if (!check_place_to_dig_and_get_position(spdigtng, stl_num, &pos_x, &pos_y))
+    if (!check_place_to_dig_and_get_position(spdigtng, stl_num, &stl_x, &stl_y))
         return false;
-    if (!setup_person_move_to_position(spdigtng, pos_x, pos_y, NavRtF_Default))
+    if (!setup_person_move_to_position(spdigtng, stl_x, stl_y, NavRtF_Default))
         return false;
     spdigtng->continue_state = CrSt_ImpArrivesAtDigDirt;
     return true;
