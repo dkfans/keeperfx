@@ -4,7 +4,7 @@
 #   @file speech_kor.po
 #      KeeperFX Speeches translation file
 #  @par Purpose:
-#      Contains translation of the national strings in the game.
+#      Contains translation of the national speeches in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
