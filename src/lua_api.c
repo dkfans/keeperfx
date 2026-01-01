@@ -769,8 +769,8 @@ static int lua_Reveal_map_location(lua_State *L)
     SYNCDBG(0, "Revealing location type %lu", target);
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
-        int32_t x = 0;
-        int32_t y = 0;
+        MapSubtlCoord x = 0;
+        MapSubtlCoord y = 0;
         find_map_location_coords(target, &x, &y, i, __func__);
         if ((x == 0) && (y == 0))
         {

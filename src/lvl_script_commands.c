@@ -3575,8 +3575,8 @@ static void reveal_map_location_process(struct ScriptContext *context)
 {
     TbMapLocation target = context->value->longs[0];
     SYNCDBG(0, "Revealing location type %lu", target);
-    int32_t x = 0;
-    int32_t y = 0;
+    MapSubtlCoord x = 0;
+    MapSubtlCoord y = 0;
     long r = context->value->longs[1];
     find_map_location_coords(target, &x, &y, context->player_idx, __func__);
     if ((x == 0) && (y == 0))
