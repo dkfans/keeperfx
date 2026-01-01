@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2026-01-01 07:08+0000\n"
+"PO-Revision-Date: 2026-01-01 08:12+0000\n"
 "Last-Translator: Language-Team: KeeperFX Team\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -527,21 +527,25 @@ msgid "Hello?"
 msgstr "よう！"
 
 #: speech:98
+#, fuzzy
 msgctxt "In-game mentor random funny message"
 msgid "Blech."
 msgstr "うぇ。"
 
 #: speech:99
+#, fuzzy
 msgctxt "In-game mentor random funny message"
 msgid "Achoo"
 msgstr "ヘクシュ"
 
 #: speech:100
+#, fuzzy
 msgctxt "In-game mentor random funny message"
 msgid "Cough"
 msgstr "ゲフン"
 
 #: speech:101
+#, fuzzy
 msgctxt "In-game mentor"
 msgid "You cannot give your Imps any more jobs."
 msgstr "ちょっと待ってくれ。"
@@ -639,6 +643,7 @@ msgid "We come to rid the world of your evil!"
 msgstr "邪悪なものどもめ、一匹残らず消し去ってやる！"
 
 #: speech:120
+#, fuzzy
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall shoo you back to the pits, foul one!"
 msgstr "薄汚い奴等め、奈落の底へ消えてしまえ！"
