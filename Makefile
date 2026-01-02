@@ -367,8 +367,8 @@ LINKLIB = -mwindows \
 	-L"deps/openal" -lOpenAL32 \
 	-L"deps/astronomy" -lastronomy \
 	-L"deps/enet" -lenet \
-	-L"deps/miniupnpc/lib" -lminiupnpc \
-	-L"deps/libnatpmp/lib" -lnatpmp -liphlpapi \
+	-L"deps/miniupnpc" -lminiupnpc \
+	-L"deps/libnatpmp" -lnatpmp -liphlpapi \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
