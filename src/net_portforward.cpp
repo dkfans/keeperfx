@@ -67,15 +67,23 @@ static int is_cgnat_detected() {
         return 0;
     }
     for (IP_ADAPTER_INFO *adapter = adapter_info; adapter; adapter = adapter->Next) {
-        unsigned long gateway_ip = inet_addr(adapter->GatewayList.IpAddress.String);
-        if (gateway_ip == INADDR_NONE || gateway_ip == 0) {
-            continue;
+        unsigned long local_ip = inet_addr(adapter->IpAddressList.IpAddress.String);
+        if (local_ip != INADDR_NONE && local_ip != 0) {
+            unsigned char first_octet = local_ip & 0xFF;
+            unsigned char second_octet = (local_ip >> 8) & 0xFF;
+            if (first_octet == 100 && second_octet >= 64 && second_octet <= 127) {
+                free(adapter_info);
+                return 1;
+            }
         }
-        unsigned char first_octet = gateway_ip & 0xFF;
-        unsigned char second_octet = (gateway_ip >> 8) & 0xFF;
-        if (first_octet == 100 && second_octet >= 64 && second_octet <= 127) {
-            free(adapter_info);
-            return 1;
+        unsigned long gateway_ip = inet_addr(adapter->GatewayList.IpAddress.String);
+        if (gateway_ip != INADDR_NONE && gateway_ip != 0) {
+            unsigned char first_octet = gateway_ip & 0xFF;
+            unsigned char second_octet = (gateway_ip >> 8) & 0xFF;
+            if (first_octet == 100 && second_octet >= 64 && second_octet <= 127) {
+                free(adapter_info);
+                return 1;
+            }
         }
     }
     free(adapter_info);
@@ -225,7 +233,12 @@ void port_forward_remove_mapping(void) {
         fd_set file_descriptors;
         struct timeval timeout;
         int result;
+        clock_t start_time = clock();
         do {
+            double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+            if (elapsed > NATPMP_TIMEOUT_SECONDS) {
+                break;
+            }
             FD_ZERO(&file_descriptors);
             FD_SET(natpmp.s, &file_descriptors);
             getnatpmprequesttimeout(&natpmp, &timeout);
