@@ -697,35 +697,35 @@ long check_out_empty_traps(struct Thing *spdigtng, long range)
 long check_out_unreinforced_drop_place(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
+    MapSubtlCoord digger_stl_x;
+    MapSubtlCoord digger_stl_y;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     long stl_num;
-    int32_t pos_x;
-    int32_t pos_y;
+    MapSubtlCoord dest_stl_x;
+    MapSubtlCoord dest_stl_y;
     long i;
     long n;
-    stl_x = thing->mappos.x.stl.num;
-    stl_y = thing->mappos.y.stl.num;
+    digger_stl_x = thing->mappos.x.stl.num;
+    digger_stl_y = thing->mappos.y.stl.num;
     cctrl = creature_control_get_from_thing(thing);
-    n = reinforce_edges[STL_PER_SLB * (stl_y % STL_PER_SLB) + (stl_x % STL_PER_SLB)];
+    n = reinforce_edges[STL_PER_SLB * (digger_stl_y % STL_PER_SLB) + (digger_stl_x % STL_PER_SLB)];
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
-        slb_x = subtile_slab(stl_x) + (long)small_around[n].delta_x;
-        slb_y = subtile_slab(stl_y) + (long)small_around[n].delta_y;
+        slb_x = subtile_slab(digger_stl_x) + (long)small_around[n].delta_x;
+        slb_y = subtile_slab(digger_stl_y) + (long)small_around[n].delta_y;
         if ( check_place_to_reinforce(thing, slb_x, slb_y) > 0 )
         {
             stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
-            if ( check_out_uncrowded_reinforce_position(thing, stl_num, &pos_x, &pos_y) )
+            if ( check_out_uncrowded_reinforce_position(thing, stl_num, &dest_stl_x, &dest_stl_y) )
             {
-                if ( setup_person_move_to_position(thing, pos_x, pos_y, NavRtF_Default) )
+                if ( setup_person_move_to_position(thing, dest_stl_x, dest_stl_y, NavRtF_Default) )
                 {
 
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
                     cctrl->digger.working_stl = stl_num;
                     cctrl->digger.consecutive_reinforcements = 0;
-                    SYNCDBG(8,"Assigned reinforce at (%d,%d) to %s index %d",(int)pos_x,(int)pos_y,thing_model_name(thing),(int)thing->index);
+                    SYNCDBG(8,"Assigned reinforce at (%d,%d) to %s index %d",(int)dest_stl_x,(int)dest_stl_y,thing_model_name(thing),(int)thing->index);
                     return 1;
                 }
             }
@@ -902,12 +902,12 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
 
 TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *spdigtng, SubtlCodedCoords stl_num)
 {
-    int32_t pos_x;
-    int32_t pos_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     TRACE_THING(spdigtng);
-    if (!check_place_to_dig_and_get_position(spdigtng, stl_num, &pos_x, &pos_y))
+    if (!check_place_to_dig_and_get_position(spdigtng, stl_num, &stl_x, &stl_y))
         return false;
-    if (!setup_person_move_to_position(spdigtng, pos_x, pos_y, NavRtF_Default))
+    if (!setup_person_move_to_position(spdigtng, stl_x, stl_y, NavRtF_Default))
         return false;
     spdigtng->continue_state = CrSt_ImpArrivesAtDigDirt;
     return true;

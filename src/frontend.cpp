@@ -3558,10 +3558,10 @@ void update_player_objectives(PlayerNumber plyr_idx)
     }
 }
 
-void display_objectives(PlayerNumber plyr_idx, long x, long y)
+void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
 {
-    long cor_x;
-    long cor_y;
+    MapCoord cor_x;
+    MapCoord cor_y;
     cor_y = 0;
     cor_x = 0;
     if ((x > 0) || (y > 0))
