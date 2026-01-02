@@ -705,13 +705,13 @@ deps/luajit/include/lua.h: deps/luajit-mingw32.tar.gz | deps/luajit
 	tar xzmf $< -C deps/luajit
 
 deps/miniupnpc-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/miniupnpc-mingw32.tar.gz"
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260102/miniupnpc-mingw32.tar.gz"
 
 deps/miniupnpc/include/miniupnpc/miniupnpc.h: deps/miniupnpc-mingw32.tar.gz | deps/miniupnpc
 	tar xzmf $< -C deps/miniupnpc
 
 deps/libnatpmp-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/libnatpmp-mingw32.tar.gz"
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260102/libnatpmp-mingw32.tar.gz"
 
 deps/libnatpmp/include/natpmp/natpmp.h: deps/libnatpmp-mingw32.tar.gz | deps/libnatpmp
 	tar xzmf $< -C deps/libnatpmp
