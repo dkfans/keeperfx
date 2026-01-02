@@ -29,8 +29,12 @@
 #include <natpmp/natpmp.h>
 
 #include <cstdio>
+#include <ctime>
 #include <winsock2.h>
 #include <iphlpapi.h>
+
+#define NATPMP_TIMEOUT_SECONDS 1.0
+#define UPNP_TIMEOUT_MS 3000
 
 #include "post_inc.h"
 
@@ -79,6 +83,7 @@ static int is_cgnat_detected() {
 }
 
 static int natpmp_add_port_mapping(uint16_t port) {
+    clock_t start_time = clock();
     if (initnatpmp(&natpmp, 0, 0) < 0) {
         LbNetLog("NAT-PMP: Failed to initialize\n");
         return 0;
@@ -93,6 +98,12 @@ static int natpmp_add_port_mapping(uint16_t port) {
     struct timeval timeout;
     int result;
     do {
+        double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+        if (elapsed > NATPMP_TIMEOUT_SECONDS) {
+            LbNetLog("NAT-PMP: Timeout getting public address\n");
+            closenatpmp(&natpmp);
+            return 0;
+        }
         FD_ZERO(&file_descriptors);
         FD_SET(natpmp.s, &file_descriptors);
         getnatpmprequesttimeout(&natpmp, &timeout);
@@ -110,6 +121,12 @@ static int natpmp_add_port_mapping(uint16_t port) {
         return 0;
     }
     do {
+        double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+        if (elapsed > NATPMP_TIMEOUT_SECONDS) {
+            LbNetLog("NAT-PMP: Timeout on port mapping\n");
+            closenatpmp(&natpmp);
+            return 0;
+        }
         FD_ZERO(&file_descriptors);
         FD_SET(natpmp.s, &file_descriptors);
         getnatpmprequesttimeout(&natpmp, &timeout);
@@ -124,6 +141,12 @@ static int natpmp_add_port_mapping(uint16_t port) {
             return 0;
         }
         do {
+            double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+            if (elapsed > NATPMP_TIMEOUT_SECONDS) {
+                LbNetLog("NAT-PMP: Timeout on timed lease\n");
+                closenatpmp(&natpmp);
+                return 0;
+            }
             FD_ZERO(&file_descriptors);
             FD_SET(natpmp.s, &file_descriptors);
             getnatpmprequesttimeout(&natpmp, &timeout);
@@ -155,7 +178,7 @@ int port_forward_add_mapping(uint16_t port) {
         return 1;
     }
     int error = 0;
-    struct UPNPDev *device_list = upnpDiscover(2000, NULL, NULL, 0, 0, 2, &error);
+    struct UPNPDev *device_list = upnpDiscover(UPNP_TIMEOUT_MS, NULL, NULL, 0, 0, 2, &error);
     if (!device_list) {
         LbNetLog("UPnP: No devices found\n");
         return 0;
