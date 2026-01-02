@@ -30,6 +30,7 @@
 
 #include <cstdio>
 #include <winsock2.h>
+#include <iphlpapi.h>
 
 #include "post_inc.h"
 
@@ -47,6 +48,35 @@ static struct IGDdatas upnp_data;
 static char upnp_lanaddr[64];
 
 static natpmp_t natpmp;
+
+static int is_cgnat_detected() {
+    ULONG buffer_size = 0;
+    if (GetAdaptersInfo(NULL, &buffer_size) != ERROR_BUFFER_OVERFLOW) {
+        return 0;
+    }
+    IP_ADAPTER_INFO *adapter_info = (IP_ADAPTER_INFO *)malloc(buffer_size);
+    if (!adapter_info) {
+        return 0;
+    }
+    if (GetAdaptersInfo(adapter_info, &buffer_size) != NO_ERROR) {
+        free(adapter_info);
+        return 0;
+    }
+    for (IP_ADAPTER_INFO *adapter = adapter_info; adapter; adapter = adapter->Next) {
+        unsigned long gateway_ip = inet_addr(adapter->GatewayList.IpAddress.String);
+        if (gateway_ip == INADDR_NONE || gateway_ip == 0) {
+            continue;
+        }
+        unsigned char first_octet = gateway_ip & 0xFF;
+        unsigned char second_octet = (gateway_ip >> 8) & 0xFF;
+        if (first_octet == 100 && second_octet >= 64 && second_octet <= 127) {
+            free(adapter_info);
+            return 1;
+        }
+    }
+    free(adapter_info);
+    return 0;
+}
 
 static int natpmp_add_port_mapping(uint16_t port) {
     if (initnatpmp(&natpmp, 0, 0) < 0) {
@@ -114,6 +144,10 @@ static int natpmp_add_port_mapping(uint16_t port) {
 }
 
 int port_forward_add_mapping(uint16_t port) {
+    if (is_cgnat_detected()) {
+        LbNetLog("CGNAT detected, automatic port forwarding unavailable\n");
+        return 0;
+    }
     if (active_method != PORT_FORWARD_NONE) {
         port_forward_remove_mapping();
     }
