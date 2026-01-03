@@ -98,7 +98,7 @@ extern "C" {
 //    these are defined in errno.h
 #define ERR_BASE_RNC      -90
 
-unsigned long long LbSystemClockMilliseconds(void);
+uint64_t LbSystemClockMilliseconds(void);
 
 // Debug fuction-like macros - for free messages
 #define ERRORMSG(format, ...) LbErrorLog(format "\n", ##__VA_ARGS__)
