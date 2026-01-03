@@ -933,7 +933,7 @@ void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, Map
             break;
         }
     }
-    WARNLOG("Slab %ld couldn't be found in room tiles list.",slb_num);
+    WARNLOG("Slab %d couldn't be found in room tiles list.",slb_num);
     rmslb->next_in_room = 0;
     rmslb->room_index = 0;
 }

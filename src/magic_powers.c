@@ -2296,13 +2296,13 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
  */
 TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
 {
-    SYNCDBG(0, "Using power at location of type %lu", target);
+    SYNCDBG(0, "Using power at location of type %u", target);
     MapSubtlCoord x = 0;
     MapSubtlCoord y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
-        WARNLOG("Can't decode location %lu", target);
+        WARNLOG("Can't decode location %u", target);
         return Lb_FAIL;
     }
     return script_use_power_at_pos(plyr_idx, x, y, fml_bytes);

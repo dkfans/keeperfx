@@ -125,37 +125,37 @@ struct LegacyInitLight { // sizeof=0x14
 unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,int32_t *ldsize,unsigned short flags)
 {
   short fgroup = get_level_fgroup(lvnum);
-  char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", lvnum, fext);
+  char* fname = prepare_file_fmtpath(fgroup, "map%05u.%s", lvnum, fext);
   long fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
       if ((flags & LMFF_Optional) == 0)
-          WARNMSG("Map file \"map%05lu.%s\" doesn't exist or is too small.", lvnum, fext);
+          WARNMSG("Map file \"map%05u.%s\" doesn't exist or is too small.", lvnum, fext);
       else
-          SYNCMSG("Optional file \"map%05lu.%s\" doesn't exist or is too small.", lvnum, fext);
+          SYNCMSG("Optional file \"map%05u.%s\" doesn't exist or is too small.", lvnum, fext);
       return NULL;
   }
   unsigned char* buf = calloc(fsize + 16, 1);
   if (buf == NULL)
   {
     if ((flags & LMFF_Optional) == 0)
-      WARNMSG("Can't allocate %ld bytes to load \"map%05lu.%s\".",fsize,lvnum,fext);
+      WARNMSG("Can't allocate %ld bytes to load \"map%05u.%s\".",fsize,lvnum,fext);
     else
-      SYNCMSG("Can't allocate %ld bytes to load \"map%05lu.%s\".",fsize,lvnum,fext);
+      SYNCMSG("Can't allocate %ld bytes to load \"map%05u.%s\".",fsize,lvnum,fext);
     return NULL;
   }
   fsize = LbFileLoadAt(fname,buf);
   if (fsize < *ldsize)
   {
     if ((flags & LMFF_Optional) == 0)
-      WARNMSG("Reading map file \"map%05lu.%s\" failed.",lvnum,fext);
+      WARNMSG("Reading map file \"map%05u.%s\" failed.",lvnum,fext);
     else
-      SYNCMSG("Reading optional file \"map%05lu.%s\" failed.",lvnum,fext);
+      SYNCMSG("Reading optional file \"map%05u.%s\" failed.",lvnum,fext);
     free(buf);
     return NULL;
   }
   *ldsize = fsize;
-  SYNCDBG(7,"Map file \"map%05lu.%s\" loaded.",lvnum,fext);
+  SYNCDBG(7,"Map file \"map%05u.%s\" loaded.",lvnum,fext);
   return buf;
 }
 
@@ -789,7 +789,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     VALUE *common_section = value_dict_get(root_ptr, "common");
     if (!common_section)
     {
-        WARNMSG("No [common] in %s for level %ld", msg_name, lv_num);
+        WARNMSG("No [common] in %s for level %d", msg_name, lv_num);
         value_fini(root_ptr);
         free(buf);
         return false;
@@ -1430,7 +1430,7 @@ static TbBool load_level_file(LevelNumber lvnum)
         }
     } else
     {
-        ERRORLOG("The level \"map%05lu\" doesn't exist; creating empty map.",lvnum);
+        ERRORLOG("The level \"map%05u\" doesn't exist; creating empty map.",lvnum);
         init_whole_blocks();
         load_slab_file();
         init_columns();

@@ -176,7 +176,7 @@ short checksums_different(void) {
             continue;
         }
         if (packet->checksum != host_checksum) {
-            ERRORLOG("Checksums %08lx(Host) != %08lx(Client) turn: %ld vs %ld", host_checksum, packet->checksum, host_packet->turn, packet->turn);
+            ERRORLOG("Checksums %08lx(Host) != %08lx(Client) turn: %d vs %d", host_checksum, packet->checksum, host_packet->turn, packet->turn);
             desync_turn = host_packet->turn;
             mismatch = true;
         }

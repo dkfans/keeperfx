@@ -1719,11 +1719,11 @@ short is_bonus_level(LevelNumber lvnum)
   {
     if (campaign.bonus_levels[i] == lvnum)
     {
-        SYNCDBG(7,"Level %ld identified as bonus",lvnum);
+        SYNCDBG(7,"Level %d identified as bonus",lvnum);
         return true;
     }
   }
-  SYNCDBG(7,"Level %ld not recognized as bonus",lvnum);
+  SYNCDBG(7,"Level %d not recognized as bonus",lvnum);
   return false;
 }
 
@@ -1734,11 +1734,11 @@ short is_extra_level(LevelNumber lvnum)
   {
       if (campaign.extra_levels[i] == lvnum)
       {
-          SYNCDBG(7,"Level %ld identified as extra",lvnum);
+          SYNCDBG(7,"Level %d identified as extra",lvnum);
           return true;
       }
   }
-  SYNCDBG(7,"Level %ld not recognized as extra",lvnum);
+  SYNCDBG(7,"Level %d not recognized as extra",lvnum);
   return false;
 }
 
@@ -1850,7 +1850,7 @@ LevelNumber get_extra_level(unsigned short elv_kind)
     if ((i < 0) || (i >= EXTRA_LEVELS_COUNT))
         return LEVELNUMBER_ERROR;
     LevelNumber lvnum = campaign.extra_levels[i];
-    SYNCDBG(5, "Extra level kind %d has number %ld", (int)elv_kind, lvnum);
+    SYNCDBG(5, "Extra level kind %d has number %d", (int)elv_kind, lvnum);
     if (lvnum > 0)
     {
         return lvnum;
@@ -1991,18 +1991,18 @@ short is_singleplayer_level(LevelNumber lvnum)
 {
   if (lvnum < 1)
   {
-    SYNCDBG(17,"Level index %ld is not correct",lvnum);
+    SYNCDBG(17,"Level index %d is not correct",lvnum);
     return false;
   }
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == lvnum)
     {
-      SYNCDBG(17,"Level %ld identified as SP",lvnum);
+      SYNCDBG(17,"Level %d identified as SP",lvnum);
       return true;
     }
   }
-  SYNCDBG(17,"Level %ld not recognized as SP",lvnum);
+  SYNCDBG(17,"Level %d not recognized as SP",lvnum);
   return false;
 }
 
@@ -2014,11 +2014,11 @@ short is_multiplayer_level(LevelNumber lvnum)
   {
     if (campaign.multi_levels[i] == lvnum)
     {
-        SYNCDBG(17,"Level %ld identified as MP",lvnum);
+        SYNCDBG(17,"Level %d identified as MP",lvnum);
         return true;
     }
   }
-  SYNCDBG(17,"Level %ld not recognized as MP",lvnum);
+  SYNCDBG(17,"Level %d not recognized as MP",lvnum);
   return false;
 }
 
@@ -2046,11 +2046,11 @@ short is_freeplay_level(LevelNumber lvnum)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {
-        SYNCDBG(18,"%ld is freeplay",lvnum);
+        SYNCDBG(18,"%d is freeplay",lvnum);
         return true;
     }
   }
-  SYNCDBG(18,"%ld is NOT freeplay",lvnum);
+  SYNCDBG(18,"%d is NOT freeplay",lvnum);
   return false;
 }
 
