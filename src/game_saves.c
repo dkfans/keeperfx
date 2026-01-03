@@ -603,11 +603,11 @@ TbBool continue_game_available(void)
     lvnum = get_continue_level_number();
     if (is_singleplayer_like_level(lvnum))
     {
-        SYNCDBG(7,"Continue to level %ld is available",lvnum);
+        SYNCDBG(7,"Continue to level %d is available",(int)lvnum);
         return true;
     } else
     {
-        SYNCDBG(7,"Level %ld from continue file is not single player",lvnum);
+        SYNCDBG(7,"Level %d from continue file is not single player",(int)lvnum);
         return false;
     }
 }

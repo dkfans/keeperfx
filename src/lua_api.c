@@ -377,7 +377,7 @@ static int lua_Set_next_level(lua_State *L)
     LevelNumber lvnum = luaL_checkinteger(L, 1);
     if(!is_level_in_current_campaign(lvnum))
     {
-        return luaL_argerror(L, 1, lua_pushfstring(L, "Level '%ld' not part of current campaign", lvnum));
+        return luaL_argerror(L, 1, lua_pushfstring(L, "Level '%d' not part of current campaign", lvnum));
     }
 
     intralvl.next_level = lvnum;

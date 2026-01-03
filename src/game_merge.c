@@ -116,7 +116,7 @@ TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum)
   int k = (1 << (i % 8));
   if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
   {
-    WARNLOG("Bonus level %ld has invalid store position.",bn_lvnum);
+    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
     return false;
   }
   return ((intralvl.bonuses_found[n] & k) != 0);
@@ -130,14 +130,14 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
     int i = storage_index_for_bonus_level(bn_lvnum);
     if (i < 0)
     {
-        WARNLOG("Can't set state of non-existing bonus level %ld.", bn_lvnum);
+        WARNLOG("Can't set state of non-existing bonus level %d.", (int)bn_lvnum);
         return false;
     }
     int n = i / 8;
     int k = (1 << (i % 8));
     if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
     {
-        WARNLOG("Bonus level %ld has invalid store position.",bn_lvnum);
+        WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
         return false;
     }
     set_flag_value(intralvl.bonuses_found[n], k, visible);

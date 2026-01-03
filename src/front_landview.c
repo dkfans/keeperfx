@@ -1448,9 +1448,9 @@ void draw_map_level_descriptions(void)
     else
       lv_name = lvinfo->name;
     if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
-      snprintf(level_name, sizeof(level_name), "%s %ld: %s", get_string(GUIStr_MnuLevel), lvinfo->lvnum, lv_name);
+      snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
     } else {
-      snprintf(level_name, sizeof(level_name), "%s %ld", get_string(GUIStr_MnuLevel), lvinfo->lvnum);
+      snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
     }
     long w = LbTextStringWidth(level_name);
     long x = lvinfo->ensign_x - map_info.screen_shift_x;
@@ -1603,7 +1603,7 @@ void frontnetmap_input(void)
               left_button_clicked = 0;
               lvinfo = get_level_info(fe_net_level_selected);
               if (lvinfo != NULL) {
-                snprintf(level_name, sizeof(level_name), "%s %ld", get_string(GUIStr_MnuLevel), lvinfo->lvnum);
+                snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
               } else {
                 snprintf(level_name, sizeof(level_name), "%s", get_string(GUIStr_MnuLevel));
               }
@@ -1804,7 +1804,7 @@ TbBool frontnetmap_update(void)
     if ((!nmps.tmp1) && (nmps.lvnum > 0) && (nmps.is_selected))
     {
         set_selected_level_number(nmps.lvnum);
-        snprintf(level_name, sizeof(level_name), "%s %ld", get_string(GUIStr_MnuLevel), nmps.lvnum);
+        snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.lvnum);
         map_info.state_trigger = (fe_network_active < 1) ? FeSt_START_KPRLEVEL : FeSt_START_MPLEVEL;
         frontmap_zoom_in_init(nmps.lvnum);
         if (!fe_network_active)
