@@ -3687,7 +3687,7 @@ static TbBool wait_at_frontend(void)
                 WARNMSG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
             }
             else {
-                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%u).", start_params.selected_level_number);
+                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%lu).", start_params.selected_level_number);
             }
         }
         set_selected_level_number(start_params.selected_level_number);
