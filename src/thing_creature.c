@@ -4926,14 +4926,14 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
     struct Thing* thing = create_creature(&pos, crmodel, owner);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
+        ERRORLOG("Cannot create creature %s at (%d,%d)",creature_code_name(crmodel),x,y);
         return INVALID_THING;
     }
     pos.z.val = get_thing_height_at(thing, &pos);
     if (thing_in_wall_at(thing, &pos))
     {
         delete_thing_structure(thing, 0);
-        ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
+        ERRORLOG("Creature %s at (%d,%d) deleted because is in wall",creature_code_name(crmodel),x,y);
         return INVALID_THING;
     }
     thing->mappos.x.val = pos.x.val;

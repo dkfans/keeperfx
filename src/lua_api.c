@@ -766,7 +766,7 @@ static int lua_Reveal_map_location(lua_State *L)
     MapSubtlDelta range = luaL_checkinteger(L, 3);
 
 
-    SYNCDBG(0, "Revealing location type %lu", target);
+    SYNCDBG(0, "Revealing location type %u", target);
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         MapSubtlCoord x = 0;
@@ -774,7 +774,7 @@ static int lua_Reveal_map_location(lua_State *L)
         find_map_location_coords(target, &x, &y, i, __func__);
         if ((x == 0) && (y == 0))
         {
-            WARNLOG("Can't decode location %lu", target);
+            WARNLOG("Can't decode location %u", target);
             return 0;
         }
         if (range == -1)

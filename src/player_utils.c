@@ -332,11 +332,11 @@ void recalculate_total_gold(struct Dungeon* dungeon, const char* func_name)
     }
     if (gold_before == dungeon->total_money_owned)
     {
-        SYNCDBG(7, "%s: Dungeon %d did not need gold recalculation. Correct at %ld.", func_name, dungeon->owner, dungeon->total_money_owned);
+        SYNCDBG(7, "%s: Dungeon %d did not need gold recalculation. Correct at %d.", func_name, dungeon->owner, dungeon->total_money_owned);
     }
     else
     {
-        ERRORLOG("%s: Gold recalculation found an error, Dungeon %d correct gold amount %ld not %ld.", func_name, dungeon->owner, dungeon->total_money_owned, gold_before);
+        ERRORLOG("%s: Gold recalculation found an error, Dungeon %d correct gold amount %d not %d.", func_name, dungeon->owner, dungeon->total_money_owned, gold_before);
     }
 }
 

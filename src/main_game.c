@@ -201,7 +201,7 @@ static void init_level(void)
     if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
-        JUSTMSG("Unable to load level %lu from %s", get_selected_level_number(), campaign.name);
+        JUSTMSG("Unable to load level %u from %s", get_selected_level_number(), campaign.name);
         return;
     }
     else
@@ -209,7 +209,7 @@ static void init_level(void)
         if (script_preloaded == false && luascript_loaded == false)
         {
             show_onscreen_msg(200,"%s: No Script %lu", get_string(GUIStr_Error), get_selected_level_number());
-            JUSTMSG("Unable to load script level %lu from %s", get_selected_level_number(), campaign.name);
+            JUSTMSG("Unable to load script level %u from %s", get_selected_level_number(), campaign.name);
         }
     }
     init_navigation();
@@ -247,7 +247,7 @@ static void init_level(void)
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
     reset_postal_instance_cache();
-    JUSTMSG("Started level %lu from %s", get_selected_level_number(), campaign.name);
+    JUSTMSG("Started level %u from %s", get_selected_level_number(), campaign.name);
 
     api_event("GAME_STARTED");
 }
