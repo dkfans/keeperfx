@@ -4172,7 +4172,7 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
     if ((current_annoyed_creature->alloc_flags & TAlF_Exists) == 0 ||
          !thing_is_creature(current_annoyed_creature) ||
          (current_annoyed_creature->alloc_flags & TAlF_IsInLimbo) != 0 ||
-         (current_annoyed_creature->state_flags & TAlF_IsInMapWho) != 0 ||
+         (current_annoyed_creature->state_flags & TF1_InCtrldLimbo) != 0 ||
          current_annoyed_creature->active_state == CrSt_CreatureUnconscious)
     {
         creatng = thing_get(dungeon->creatr_list_start);
@@ -4204,12 +4204,12 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
         if (thing_exists(creatng) &&
             thing_is_creature(creatng) &&
             (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
-            (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+            (creatng->state_flags & TF1_InCtrldLimbo) == 0 &&
             creatng->active_state != CrSt_CreatureUnconscious)
         {
             TbBool found = true;
             while (!anger_is_creature_angry(creatng) || (creatng->alloc_flags & TAlF_Exists) == 0 || !thing_is_creature(creatng) ||
-                   (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TAlF_IsInMapWho) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
+                   (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TF1_InCtrldLimbo) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
             {
                 cctrl = creature_control_get_from_thing(creatng);
                 creatng = thing_get(cctrl->players_next_creature_idx);
@@ -4234,7 +4234,7 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
                     (creatng->alloc_flags & TAlF_Exists) != 0 &&
                     thing_is_creature(creatng) &&
                     (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
-                    (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+                    (creatng->state_flags & TF1_InCtrldLimbo) == 0 &&
                     creatng->active_state != CrSt_CreatureUnconscious)
                 {
                     dungeon->zoom_annoyed_creature_idx = creatng->index;
