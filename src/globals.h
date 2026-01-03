@@ -255,7 +255,7 @@ typedef int16_t CrAttackType;
 /** Creature death flags, stores CrDed_* values. */
 typedef uint16_t CrDeathFlags;
 /** Level number within a campaign. */
-typedef long LevelNumber;
+typedef int32_t LevelNumber;
 /** Game turn number, used for in-game time computations. */
 typedef uint32_t GameTurn;
 /** Game turns difference, used for in-game time computations. */
