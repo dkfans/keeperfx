@@ -913,7 +913,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
     }
     if ((land_view == NULL) || (land_window == NULL))
     {
-        ERRORLOG("No Land View file names for level %ld",lvnum);
+        ERRORLOG("No Land View file names for level %d",lvnum);
         return false;
     }
     // Prepare full file name and load the image

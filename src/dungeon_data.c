@@ -216,7 +216,7 @@ void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on
         long long new_health = heartng->health + healthdelta;
         if (new_health > objst->health)
         {
-            SCRIPTDBG(7,"Player %u's calculated heart health (%I64d) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
+            SCRIPTDBG(7,"Player %u's calculated heart health (%I64d) is greater than maximum: %d", heartng->owner, new_health, objst->health);
             new_health = objst->health;
         }
         heartng->health = new_health;

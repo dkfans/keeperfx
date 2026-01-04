@@ -72,7 +72,7 @@ TbMapLocation get_coord_encoded_location(MapSubtlCoord stl_x,MapSubtlCoord stl_y
 
 void find_map_location_coords(TbMapLocation location, MapSubtlCoord *x, MapSubtlCoord *y, int plyr_idx, const char *func_name);
 
-void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
+void find_location_pos(TbMapLocation location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
 #define get_map_location_id(locname, location) get_map_location_id_f(locname, location, __func__, text_line_number)
 TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num);

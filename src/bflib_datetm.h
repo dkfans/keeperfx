@@ -41,7 +41,7 @@ TbBool LbSleepUntilExt(long double tick_ns_end);
 TbBool LbSleepDelayExt(long double tick_ns_delay);
 TbResult LbTime(struct TbTime *curr_time);
 TbTimeSec LbTimeSec(void);
-unsigned long long LbSystemClockMilliseconds(void);
+uint64_t LbSystemClockMilliseconds(void);
 TbResult LbDate(struct TbDate *curr_date);
 TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
 TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);

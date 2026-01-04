@@ -486,7 +486,7 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
 
     GoldAmount power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    SYNCDBG(18, "Digger creation power price: %ld, lowest: %ld", power_price, lowest_price);
+    SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
 
     if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
         && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
