@@ -147,7 +147,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
         }
     }
 
-    snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%ld", 0, comp->gameturn_wait);
+    snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%u", 0, comp->gameturn_wait);
     return 1;
 }
 
