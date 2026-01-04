@@ -351,7 +351,7 @@ void increaseFrameskip(void)
     clip_frame_skip();
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%ld", game.frame_skip);
+        sprintf(speed_txt, "x%d", game.frame_skip);
     show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
 }
 
@@ -369,7 +369,7 @@ void decreaseFrameskip(void)
     clip_frame_skip();
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%ld", game.frame_skip);
+        sprintf(speed_txt, "x%d", game.frame_skip);
     show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
 }
 
@@ -599,7 +599,7 @@ short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KMod_ALT) )
   {
-    JUSTMSG("REPORT. gameturn is %u, requested fps is %ld",game.play_gameturn, game_num_fps);
+    JUSTMSG("REPORT. gameturn is %u, requested fps is %d",game.play_gameturn, game_num_fps);
   }
 
   for (int idx = KC_F1; idx <= KC_F8; idx++)
@@ -667,7 +667,7 @@ short get_global_inputs(void)
         {
             update_time();
             struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
-            SYNCMSG("Finished level %d. Total turns taken: %u (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+            SYNCMSG("Finished level %d. Total turns taken: %u (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
                 game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);

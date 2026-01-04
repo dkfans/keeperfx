@@ -104,7 +104,7 @@ enum GameNumfieldDFlags {
 #pragma pack(1)
 
 struct CreaturePool {
-  long crtr_kind[CREATURE_TYPES_MAX];
+  int32_t crtr_kind[CREATURE_TYPES_MAX];
   unsigned char is_empty;
 };
 
@@ -135,14 +135,14 @@ struct LogThingDesyncInfo {
     struct Coord3d mappos;
     HitPoints health;
     GameTurn creation_turn;
-    unsigned long random_seed;
+    uint32_t random_seed;
     TbBigChecksum checksum;
 };
 
 struct LogPlayerDesyncInfo {
     PlayerNumber id;
     unsigned char instance_num;
-    unsigned long instance_remain_turns;
+    uint32_t instance_remain_turns;
     struct Coord3d mappos;
     TbBigChecksum checksum;
 };
@@ -230,23 +230,23 @@ struct Game {
     TbFileHandle packet_save_fp;
     unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
-    unsigned long turns_stored;
-    unsigned long turns_fastforward;
+    uint32_t turns_stored;
+    uint32_t turns_fastforward;
     unsigned char packet_loading_in_progress;
     unsigned char packet_checksum_verify;
-    unsigned long log_things_start_turn;
-    unsigned long log_things_end_turn;
-    unsigned long turns_packetoff;
+    uint32_t log_things_start_turn;
+    uint32_t log_things_end_turn;
+    uint32_t turns_packetoff;
     PlayerNumber local_plyr_idx;
     unsigned char packet_load_initialized; // something with packetload
     // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];
-    unsigned long ceiling_height_max;
-    unsigned long ceiling_height_min;
-    unsigned long ceiling_dist;
-    unsigned long ceiling_search_dist;
-    unsigned long ceiling_step;
+    uint32_t ceiling_height_max;
+    uint32_t ceiling_height_min;
+    uint32_t ceiling_dist;
+    uint32_t ceiling_search_dist;
+    uint32_t ceiling_step;
     short col_static_entries[18];
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
@@ -271,7 +271,7 @@ struct Game {
     uint32_t sound_random_seed;
     int something_light_x;
     int something_light_y;
-    unsigned long time_delta;
+    uint32_t time_delta;
     short top_cube[TEXTURE_BLOCKS_COUNT];// if you ask for top cube on a column without cubes, it'll return the first cube it finds with said texture at the top
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
@@ -290,7 +290,7 @@ struct Game {
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
-    long frame_skip;
+    int32_t frame_skip;
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress[PLAYERS_COUNT];
@@ -299,10 +299,10 @@ struct Game {
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
-    long flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
+    int32_t flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
     char loaded_swipe_idx;
     unsigned char active_messages_count;
-    long bonus_time;
+    int32_t bonus_time;
     struct Coord3d armageddon_mappos;
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
@@ -328,13 +328,13 @@ struct Game {
     int manufactr_spridx;
     int manufactr_tooltip;
     struct Configs conf;
-    unsigned long turn_last_checked_for_gold;
+    GameTurn turn_last_checked_for_gold;
     unsigned short computer_chat_flags;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct GuiMessage messages[GUI_MESSAGES_COUNT];
     struct LightSystemState lightst;
     uint8_t               max_custom_box_kind;
-    unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
+    GameTurn         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
     char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
@@ -345,17 +345,17 @@ struct Game {
     struct LevelScript script;
     PlayerNumber script_timer_player;
     unsigned char script_timer_id;
-    unsigned long script_timer_limit;
+    uint32_t script_timer_limit;
     TbBool timer_real;
     unsigned char script_value_type;
     unsigned char script_value_id;
     PlayerNumber script_variable_player;
-    long script_variable_target;
+    int32_t script_variable_target;
     unsigned char script_variable_target_type;
     TbBool heart_lost_display_message;
     TbBool heart_lost_quick_message;
-    unsigned long heart_lost_message_id;
-    long heart_lost_message_target;
+    uint32_t heart_lost_message_id;
+    int32_t heart_lost_message_target;
     unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
     unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
     float delta_time;
@@ -365,8 +365,8 @@ struct Game {
     MapSubtlCoord map_subtiles_y;
     MapSlabCoord map_tiles_x;
     MapSlabCoord map_tiles_y;
-    long navigation_map_size_x;
-    long navigation_map_size_y;
+    int32_t navigation_map_size_x;
+    int32_t navigation_map_size_y;
     short around_map[AROUND_MAP_LENGTH];
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
@@ -381,11 +381,11 @@ struct Game {
 #pragma pack()
 /******************************************************************************/
 extern struct Game game;
-extern long game_num_fps;
+extern int32_t game_num_fps;
 
-extern long game_num_fps_draw_current;
-extern long game_num_fps_draw_main;
-extern long game_num_fps_draw_secondary;
+extern int32_t game_num_fps_draw_current;
+extern int32_t game_num_fps_draw_main;
+extern int32_t game_num_fps_draw_secondary;
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -204,7 +204,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                     if (game.box_tooltip[thing->custom_box.box_kind][0] == 0)
                     {
                         i = box_thing_to_special(thing);
-                        long strngindex = get_special_description_strindex(i);
+                        int32_t strngindex = get_special_description_strindex(i);
                         if (strngindex != GUIStr_Empty)
                         {
                             set_gui_tooltip_box_fmt(5, "%s", get_string(strngindex));

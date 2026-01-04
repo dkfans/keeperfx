@@ -455,16 +455,16 @@ TextStringId get_power_description_strindex(PowerKind pwkind)
   return game.conf.magic_conf.power_cfgstats[pwkind].tooltip_stridx;
 }
 
-long get_special_description_strindex(int spckind)
+int32_t get_special_description_strindex(int spckind)
 {
   if ((spckind < 0) || (spckind >= game.conf.magic_conf.power_types_count))
     return game.conf.magic_conf.special_cfgstats[0].tooltip_stridx;
   return game.conf.magic_conf.special_cfgstats[spckind].tooltip_stridx;
 }
 
-long get_power_index_for_work_state(long work_state)
+int32_t get_power_index_for_work_state(int32_t work_state)
 {
-    for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
+    for (int32_t i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         if (game.conf.magic_conf.power_cfgstats[i].work_state == work_state) {
             return i;

@@ -165,7 +165,7 @@ static int thing_tostring(lua_State *L)
 {
     char buff[64];
     struct Thing* thing = luaL_checkThing(L, 1);
-    snprintf(buff, sizeof(buff), "id: %d turn: %ld %s", thing->index, thing->creation_turn, thing_class_and_model_name(thing->class_id,thing->model));
+    snprintf(buff, sizeof(buff), "id: %d turn: %d %s", thing->index, thing->creation_turn, thing_class_and_model_name(thing->class_id,thing->model));
 
     lua_pushfstring(L, "Thing (%s)", buff);
     return 1;
