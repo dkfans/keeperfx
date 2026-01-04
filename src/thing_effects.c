@@ -48,6 +48,7 @@
 #include "thing_shots.h"
 #include "thing_stats.h"
 #include <math.h>
+#include "bflib_inputctrl.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1071,6 +1072,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 if (is_my_player_number(tngdst->owner))
                 {
                     output_message(SMsg_HeartUnderAttack, 400);
+                    controller_rumble(50);
                 }
             } else // Explosions move creatures and other things
             {

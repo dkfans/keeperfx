@@ -29,11 +29,16 @@
 #include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
 #include "config_keeperfx.h"
+#include "config_settings.h"
+#include "front_input.h"
 #include "sounds.h"
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 #include "keeperfx.hpp" // for start_params
 #include <SDL2/SDL.h>
 #include "post_inc.h"
+
+#include <map>
+#include "bflib_inputctrl.h"
 
 using namespace std;
 
@@ -41,10 +46,6 @@ using namespace std;
 extern "C" {
 #endif
 /******************************************************************************/
-extern volatile TbBool lbScreenInitialised;
-extern volatile TbBool lbHasSecondSurface;
-extern SDL_Color lbPaletteColors[PALETTE_COLORS];
-
 volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
 
@@ -55,14 +56,29 @@ static TbBool firstTimeMouseInit = true;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
+static SDL_GameController *controller = NULL;
+static SDL_Joystick *joystick = NULL;
+
+static TbBool lt_pressed = false;
+static TbBool rt_pressed = false;
+
+static Uint8 prev_start = 0;
+static Uint8 prev_back = 0;
+static Uint8 prev_leftshoulder = 0;
+static Uint8 prev_rightshoulder = 0;
+static Uint8 prev_joy_left = 0;
+//static Uint8 prev_joy_right = 0;
+
 /******************************************************************************/
+
 /**
  * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
  * @param eventType SDL event type.
  * @param button SDL button definition.
  * @return
  */
- 
+
+extern void go_to_adjacent_menu_tab(int direction);
 
 static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
 {
@@ -219,6 +235,21 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MENU, KC_APPS));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_POWER, KC_POWER));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
+
+    // Initialize controller
+    if (SDL_NumJoysticks() > 0) {
+        if (SDL_IsGameController(0)) {
+            controller = SDL_GameControllerOpen(0);
+            if (controller == NULL) {
+                WARNLOG("Could not open gamecontroller 0: %s", SDL_GetError());
+            }
+        } else {
+            joystick = SDL_JoystickOpen(0);
+            if (joystick == NULL) {
+                WARNLOG("Could not open joystick 0: %s", SDL_GetError());
+            }
+        }
+    }
 }
 
 static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
@@ -404,6 +435,9 @@ static void process_event(const SDL_Event *ev)
     case SDL_JOYHATMOTION:
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
+    case SDL_CONTROLLERAXISMOTION:
+    case SDL_CONTROLLERBUTTONDOWN:
+    case SDL_CONTROLLERBUTTONUP:
         //TODO INPUT make joypad support
         break;
 
@@ -416,14 +450,182 @@ static void process_event(const SDL_Event *ev)
         break;
     }
 }
+
+void controller_rumble(long ms)
+{
+    if (controller != NULL) {
+        SDL_GameControllerRumble(controller, 0xFFFF, 0xFFFF, ms);
+    }
+}
 /******************************************************************************/
 TbBool LbWindowsControl(void)
 {
+
+    #define DEADZONE 8000
     SDL_Event ev;
     //process events until event queue is empty
     while (SDL_PollEvent(&ev)) {
         process_event(&ev);
     }
+
+    // Poll controller state
+    if (controller != NULL) {
+        // Map controller buttons to keyboard keys
+        lbKeyOn[KC_HOME] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+        lbKeyOn[KC_END] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+        lbKeyOn[KC_PGDOWN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+        lbKeyOn[KC_DELETE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+
+        lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+        lbKeyOn[KC_LCONTROL] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+        lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
+        lbKeyOn[settings.kbkeys[Gkey_ZoomRoomHeart].code] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
+
+        Uint8 current_leftshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+        if (current_leftshoulder && !prev_leftshoulder) {
+            go_to_adjacent_menu_tab(-1);
+        }
+        prev_leftshoulder = current_leftshoulder;
+
+        Uint8 current_rightshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+        if (current_rightshoulder && !prev_rightshoulder) {
+            go_to_adjacent_menu_tab(1);
+        }
+        prev_rightshoulder = current_rightshoulder;
+
+        // Handle Start and Back buttons with edge detection to simulate key presses
+        Uint8 current_start = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
+        if (current_start && !prev_start) {
+            keyboardControl(KActn_KEYDOWN, KC_ESCAPE, KMod_NONE, 0);
+        } else if (!current_start && prev_start) {
+            keyboardControl(KActn_KEYUP, KC_ESCAPE, KMod_NONE, 0);
+        }
+        prev_start = current_start;
+
+        Uint8 current_back = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK);
+        if (current_back && !prev_back) {
+            keyboardControl(KActn_KEYDOWN, KC_P, KMod_NONE, 0);
+        } else if (!current_back && prev_back) {
+            keyboardControl(KActn_KEYUP, KC_P, KMod_NONE, 0);
+        }
+        prev_back = current_back;
+
+        Uint8 current_joy_left = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSTICK);
+        if (current_joy_left && !prev_joy_left) {
+            keyboardControl(KActn_KEYDOWN, settings.kbkeys[Gkey_SwitchToMap].code, KMod_NONE, 0);
+        } else if (!current_joy_left && prev_joy_left) {
+            keyboardControl(KActn_KEYUP, settings.kbkeys[Gkey_SwitchToMap].code, KMod_NONE, 0);
+        }
+        prev_joy_left = current_joy_left;
+
+        //Uint8 current_joy_right = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSTICK);
+        //if (current_joy_right && !prev_joy_right) {
+        //    keyboardControl(KActn_KEYDOWN, KC_P, KMod_NONE, 0);
+        //} else if (!current_joy_right && prev_joy_right) {
+        //    keyboardControl(KActn_KEYUP, KC_P, KMod_NONE, 0);
+        //}
+        //prev_joy_right = current_joy_right;
+
+        // Handle analog sticks for movement
+        Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+        Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+        lbKeyOn[KC_UP]    = (leftY < -8000);
+        lbKeyOn[KC_DOWN]  = (leftY >  8000);
+        lbKeyOn[KC_LEFT]  = (leftX < -8000);
+        lbKeyOn[KC_RIGHT] = (leftX >  8000);
+
+        // Handle right stick for mouse movement
+        Sint16 rightX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
+        Sint16 rightY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
+        if (rightX > DEADZONE || rightX < -DEADZONE || rightY > DEADZONE || rightY < -DEADZONE) { // Deadzone
+            struct TbPoint mouseDelta;
+            mouseDelta.x = rightX / 2048; // Scale down the axis value for slower movement
+            mouseDelta.y = rightY / 2048;
+            mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+        }
+
+        // Handle triggers for mouse buttons
+        Sint16 lt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+        Sint16 rt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+        struct TbPoint delta = {0, 0};
+        if (lt > 10000 && !lt_pressed) {
+            lt_pressed = true;
+            mouseControl(MActn_RBUTTONDOWN, &delta);
+        } else if (lt <= 10000 && lt_pressed) {
+            lt_pressed = false;
+            mouseControl(MActn_RBUTTONUP, &delta);
+        }
+        if (rt > 10000 && !rt_pressed) {
+            rt_pressed = true;
+            mouseControl(MActn_LBUTTONDOWN, &delta);
+        } else if (rt <= 10000 && rt_pressed) {
+            rt_pressed = false;
+            mouseControl(MActn_LBUTTONUP, &delta);
+        }
+    } else if (joystick != NULL) {
+        // Map joystick buttons to keyboard keys (assuming standard layout)
+        lbKeyOn[KC_HOME] = SDL_JoystickGetButton(joystick, 10); // D-pad up
+        lbKeyOn[KC_END] = SDL_JoystickGetButton(joystick, 12); // D-pad down
+        lbKeyOn[KC_PGDOWN] = SDL_JoystickGetButton(joystick, 13); // D-pad left
+        lbKeyOn[KC_DELETE] = SDL_JoystickGetButton(joystick, 11); // D-pad right
+
+        //lbKeyOn[KC_SPACE] = SDL_JoystickGetButton(joystick, 0); // Button 0 (A)
+        //lbKeyOn[KC_LCONTROL] = SDL_JoystickGetButton(joystick, 1); // Button 1 (B)
+        lbKeyOn[KC_LSHIFT] = SDL_JoystickGetButton(joystick, 2); // Button 2 (X)
+        lbKeyOn[KC_LCONTROL] = SDL_JoystickGetButton(joystick, 3); // Button 3 (Y)
+        lbKeyOn[settings.kbkeys[Gkey_ZoomToFight].code] = SDL_JoystickGetButton(joystick, 4); 
+        lbKeyOn[settings.kbkeys[Gkey_ZoomRoomHeart].code] = SDL_JoystickGetButton(joystick, 5);
+        lbKeyOn[settings.kbkeys[Gkey_SwitchToMap].code] = SDL_JoystickGetButton(joystick, 6);
+        lbKeyOn[settings.kbkeys[Gkey_ToggleMessage].code] = SDL_JoystickGetButton(joystick, 7);
+        
+        // Handle analog sticks for movement (axes 0 and 1)
+        Sint16 leftX = SDL_JoystickGetAxis(joystick, 0);
+        Sint16 leftY = SDL_JoystickGetAxis(joystick, 1);
+        lbKeyOn[KC_UP]    = (leftY < -8000);
+        lbKeyOn[KC_DOWN]  = (leftY > 8000) ;
+        lbKeyOn[KC_LEFT]  = (leftX < -8000);
+        lbKeyOn[KC_RIGHT] = (leftX > 8000) ;
+
+        // Handle right stick for mouse movement (axes 2 and 3)
+        Sint16 rightX = SDL_JoystickGetAxis(joystick, 3);
+        Sint16 rightY = SDL_JoystickGetAxis(joystick, 4);
+        if (rightX > DEADZONE || rightX < -DEADZONE || rightY > DEADZONE || rightY < -DEADZONE) { // Deadzone
+            struct TbPoint mouseDelta;
+            mouseDelta.x = rightX / 2048; // Scale down the axis value
+            mouseDelta.y = rightY / 2048;
+            mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+        }
+
+        // Handle triggers for mouse buttons (axes 4 and 5)
+        struct TbPoint delta = { 0, 0 };
+        if (SDL_JoystickGetButton(joystick, 0))
+        {
+            lt_pressed = true;
+            mouseControl(MActn_LBUTTONDOWN, &delta);
+        }
+        else
+        {
+            if (lt_pressed)
+            {
+                mouseControl(MActn_LBUTTONUP, &delta);
+            }
+            lt_pressed = false;
+        }
+        if (SDL_JoystickGetButton(joystick, 1))
+        {
+            rt_pressed = true;
+            mouseControl(MActn_RBUTTONDOWN, &delta);
+        }
+        else
+        {
+            if (rt_pressed)
+            {
+                mouseControl(MActn_RBUTTONUP, &delta);
+            }
+            rt_pressed = false;
+        }
+    }
+
     return (lbUserQuit < 1);
 }
 
