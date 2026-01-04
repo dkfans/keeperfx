@@ -5052,7 +5052,7 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"戦闘中のクリーチャーを掴む: 左クリックでクリーチャーをピックアップ。右クリッ"
+"戦闘中のクリーチャーを掴む: 左クリックでクリーチャーを掴む。右クリッ"
 "クで表示。 [22.2.1]"
 
 #: guitext:737
