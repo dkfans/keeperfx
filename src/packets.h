@@ -23,6 +23,7 @@
 #include "bflib_keybrd.h"
 #include "globals.h"
 #include "player_data.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -270,14 +271,14 @@ struct Packet {
     GameTurn turn;
     TbBigChecksum checksum; //! Checksum of the entire game state of the previous turn, used solely for desync detection
     unsigned char action; //! Action kind performed by the player which owns this packet
-    long actn_par1; //! Players action parameter #1
-    long actn_par2; //! Players action parameter #2
-    long pos_x; //! Mouse Cursor Position X
-    long pos_y; //! Mouse Cursor Position Y
-    unsigned long control_flags;
+    int32_t actn_par1; //! Players action parameter #1
+    int32_t actn_par2; //! Players action parameter #2
+    int32_t pos_x; //! Mouse Cursor Position X
+    int32_t pos_y; //! Mouse Cursor Position Y
+    uint32_t control_flags;
     unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
-    long actn_par3; //! Players action parameter #3
-    long actn_par4; //! Players action parameter #4
+    int32_t actn_par3; //! Players action parameter #3
+    int32_t actn_par4; //! Players action parameter #4
 };
 
 struct PacketSaveHead {
@@ -285,15 +286,15 @@ struct PacketSaveHead {
     unsigned short game_ver_minor;
     unsigned short game_ver_release;
     unsigned short game_ver_build;
-    unsigned long level_num;
+    uint32_t level_num;
     PlayerBitFlags players_exist;
     PlayerBitFlags players_comp;
-    unsigned long isometric_view_zoom_level;
-    unsigned long frontview_zoom_level;
+    uint32_t isometric_view_zoom_level;
+    uint32_t frontview_zoom_level;
     int isometric_tilt;
     unsigned char video_rotate_mode;
     TbBool chksum_available; // if needed, this can be replaced with flags
-    unsigned long action_seed;
+    uint32_t action_seed;
     TbBool default_imprison_tendency;
     TbBool default_flee_tendency;
     TbBool skip_heart_zoom;
