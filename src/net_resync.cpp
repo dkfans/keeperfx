@@ -311,7 +311,7 @@ TbBool send_resync_game(void) {
   clear_flag(game.operation_flags, GOF_Paused);
   animate_resync_progress_bar(0, 6);
   NETLOG("Initiating re-synchronization of network game");
-  TbBool result = LbNetwork_Resync(&game, sizeof(struct Game));
+  TbBool result = LbNetwork_Resync(&game, sizeof(game));
   if (!result) {
     return false;
   }
@@ -326,7 +326,7 @@ TbBool receive_resync_game(void) {
     clear_flag(game.operation_flags, GOF_Paused);
     animate_resync_progress_bar(0, 6);
     NETLOG("Initiating re-synchronization of network game");
-    TbBool result = LbNetwork_Resync(&game, sizeof(struct Game));
+    TbBool result = LbNetwork_Resync(&game, sizeof(game));
     if (!result) {
         return false;
     }
