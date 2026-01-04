@@ -5038,14 +5038,14 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"待機中のクリーチャーを掴む: 左クリックでクリーチャーをピックアップ。右クリッ"
+"待機中のクリーチャーを掴む: 左クリックでクリーチャーを掴む。右クリッ"
 "クで表示。 [22.2.1]"
 
 #: guitext:735
 msgctxt "In-game interface description"
 msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"作業中のクリーチャーを掴む: 左クリックでクリーチャーをピックアップ。右クリッ"
+"作業中のクリーチャーを掴む: 左クリックでクリーチャーを掴む。右クリッ"
 "クで表示。 [22.2.1]"
 
 #: guitext:736
