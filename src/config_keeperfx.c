@@ -1061,7 +1061,7 @@ void process_cmdline_overrides(void)
   }
 }
 
-int parse_draw_fps_config_val(const char *arg, long *fps_draw_main, long *fps_draw_secondary)
+int parse_draw_fps_config_val(const char *arg, int32_t *fps_draw_main, int32_t *fps_draw_secondary)
 {
   int cnt = 0, val1 = 0, val2 = 0;
   long len = strlen(arg);

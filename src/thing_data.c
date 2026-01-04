@@ -152,13 +152,13 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
     return false;
 }
 
-void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
+void delete_thing_structure_f(struct Thing *thing, TbBool deleting_everything, const char *func_name)
 {
     TRACE_THING(thing);
     if ((thing->alloc_flags & TAlF_InDungeonList) != 0) {
         remove_first_creature(thing);
     }
-    if (!a2) {
+    if (!deleting_everything) {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_invalid(cctrl)) {
             if (creature_under_spell_effect(thing, CSAfF_Armour)) {
@@ -204,12 +204,12 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
  * @param tng_idx
  * @return Returns thing, or invalid thing pointer if not found.
  */
-struct Thing *thing_get_f(long tng_idx, const char *func_name)
+struct Thing *thing_get_f(ThingIndex tng_idx, const char *func_name)
 {
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT)) {
         return game.things.lookup[tng_idx];
     }
-    if ((tng_idx < 0) || (tng_idx >= THINGS_COUNT)) {
+    if (tng_idx >= THINGS_COUNT) {
         ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)tng_idx);
     }
     return INVALID_THING;
@@ -351,7 +351,7 @@ void query_thing(struct Thing *thing)
                 struct ObjectConfigStats* objst = get_object_model_stats(querytng->model);
                 if (object_is_gold(querytng))
                 {
-                    snprintf(amount, sizeof(amount), "Amount: %ld", querytng->valuable.gold_stored);
+                    snprintf(amount, sizeof(amount), "Amount: %d", querytng->valuable.gold_stored);
                 }
                 snprintf(health, sizeof(health), "Health: %d/%d", querytng->health, objst->health);
             }

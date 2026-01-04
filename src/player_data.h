@@ -159,7 +159,7 @@ struct PlayerInfo {
     unsigned char *lens_palette;
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;
-    long hand_animationId;
+    int32_t hand_animationId;
     unsigned int hand_busy_until_turn;
     char player_name[20];
     unsigned char victory_state;
@@ -209,24 +209,24 @@ struct PlayerInfo {
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
-    unsigned long instance_remain_turns;
+    GameTurnDelta instance_remain_turns;
     /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
     char view_mode_restore;
-    long dungeon_camera_zoom;
-    long palette_fade_step_map;
-    long palette_fade_step_pain;
-    long palette_fade_step_possession;
+    int32_t dungeon_camera_zoom;
+    int32_t palette_fade_step_map;
+    int32_t palette_fade_step_pain;
+    int32_t palette_fade_step_possession;
     unsigned char *main_palette;
     /** Overcharge level while casting keeper powers. */
-    long cast_expand_level;
+    int32_t cast_expand_level;
     char video_cluedo_mode;
     MapCoordDelta zoom_to_movement_x;
     MapCoordDelta zoom_to_movement_y;
     GameTurn power_of_cooldown_turn;
-    long game_version;
+    int32_t game_version;
     GameTurn display_objective_turn;
-    unsigned long isometric_view_zoom_level;
-    unsigned long frontview_zoom_level;
+    uint32_t isometric_view_zoom_level;
+    uint32_t frontview_zoom_level;
     unsigned char hand_idx;
     struct CheatSelection cheatselection;
     TbBool first_person_dig_claim_mode;

@@ -131,8 +131,8 @@ struct StartupParameters {
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
     long num_fps;
-    long num_fps_draw_main; // -1 if auto
-    long num_fps_draw_secondary;
+    int32_t num_fps_draw_main; // -1 if auto
+    int32_t num_fps_draw_secondary;
     TbBool packet_save_enable;
     TbBool packet_load_enable;
     char packet_fname[150];
