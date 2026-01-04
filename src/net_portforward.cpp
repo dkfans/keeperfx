@@ -30,6 +30,7 @@
 
 #include <cstdio>
 #include <ctime>
+#include <thread>
 #include <winsock2.h>
 #include <iphlpapi.h>
 
@@ -174,29 +175,29 @@ static int natpmp_add_port_mapping(uint16_t port) {
     return 1;
 }
 
-int port_forward_add_mapping(uint16_t port) {
+static void port_forward_add_mapping_internal(uint16_t port) {
     if (is_cgnat_detected()) {
         LbNetLog("CGNAT detected, automatic port forwarding unavailable\n");
-        return 0;
+        return;
     }
     if (active_method != PORT_FORWARD_NONE) {
         port_forward_remove_mapping();
     }
     if (natpmp_add_port_mapping(port)) {
-        return 1;
+        return;
     }
     int error = 0;
     struct UPNPDev *device_list = upnpDiscover(UPNP_TIMEOUT_MS, NULL, NULL, 0, 0, 2, &error);
     if (!device_list) {
         LbNetLog("UPnP: No devices found\n");
-        return 0;
+        return;
     }
     int internet_gateway_device_result = UPNP_GetValidIGD(device_list, &upnp_urls, &upnp_data, upnp_lanaddr, sizeof(upnp_lanaddr), NULL, 0);
     freeUPNPDevlist(device_list);
     if (internet_gateway_device_result == 0) {
         LbNetLog("UPnP: Failed to get valid IGD\n");
         FreeUPNPUrls(&upnp_urls);
-        return 0;
+        return;
     }
     char port_string[16];
     snprintf(port_string, sizeof(port_string), "%u", port);
@@ -208,12 +209,16 @@ int port_forward_add_mapping(uint16_t port) {
         if (result != UPNPCOMMAND_SUCCESS) {
             LbNetLog("UPnP: Failed to add port mapping\n");
             FreeUPNPUrls(&upnp_urls);
-            return 0;
+            return;
         }
     }
     LbNetLog("UPnP: Mapped port %u\n", port);
     mapped_port = port;
     active_method = PORT_FORWARD_UPNP;
+}
+
+int port_forward_add_mapping(uint16_t port) {
+    std::thread(port_forward_add_mapping_internal, port).detach();
     return 1;
 }
 
