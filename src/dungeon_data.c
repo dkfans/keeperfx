@@ -30,7 +30,7 @@
 /******************************************************************************/
 struct Dungeon bad_dungeon;
 /******************************************************************************/
-struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name)
+struct Dungeon *get_players_num_dungeon_f(PlayerNumber plyr_idx,const char *func_name)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     PlayerNumber plyr_num = player->id_number;
@@ -86,7 +86,7 @@ void clear_dungeons(void)
   bad_dungeon.owner = PLAYERS_COUNT;
 }
 
-void decrease_dungeon_area(PlayerNumber plyr_idx, long value)
+void decrease_dungeon_area(PlayerNumber plyr_idx, int32_t value)
 {
     if (plyr_idx == game.neutral_player_num)
         return;
@@ -97,7 +97,7 @@ void decrease_dungeon_area(PlayerNumber plyr_idx, long value)
       dungeon->total_area -= value;
 }
 
-void increase_room_area(PlayerNumber plyr_idx, long value)
+void increase_room_area(PlayerNumber plyr_idx, int32_t value)
 {
     if (plyr_idx == game.neutral_player_num)
         return;
@@ -106,7 +106,7 @@ void increase_room_area(PlayerNumber plyr_idx, long value)
     dungeon->total_area += value;
 }
 
-void decrease_room_area(PlayerNumber plyr_idx, long value)
+void decrease_room_area(PlayerNumber plyr_idx, int32_t value)
 {
     if (plyr_idx == game.neutral_player_num)
         return;
@@ -123,7 +123,7 @@ void decrease_room_area(PlayerNumber plyr_idx, long value)
       dungeon->total_area -= value;
 }
 
-void increase_dungeon_area(PlayerNumber plyr_idx, long value)
+void increase_dungeon_area(PlayerNumber plyr_idx, int32_t value)
 {
     if (plyr_idx == game.neutral_player_num)
         return;
@@ -176,7 +176,7 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
  * @param rrole Room role being checked.
  * @return
  */
-long count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
+int32_t count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
     if (plyr_idx == game.neutral_player_num)
         return 0;
@@ -341,7 +341,7 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
     }
 }
 
-TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
+TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, int32_t buildable, int32_t amount)
 {
     if ( (tngmodel <= 0) || (tngmodel >= game.conf.trapdoor_conf.trap_types_count) ) {
         ERRORDBG(1,"Can't set trap availability; invalid trap kind %d.",(int)tngmodel);
@@ -370,7 +370,7 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
     return true;
 }
 
-TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
+TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, int32_t buildable, int32_t amount)
 {
     if ( (tngmodel <= 0) || (tngmodel >= game.conf.trapdoor_conf.door_types_count) ) {
         ERRORDBG(1,"Can't set door availability; invalid door kind %d.",(int)tngmodel);
@@ -426,7 +426,7 @@ TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon)
     return false;
 }
 
-TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
+TbBool restart_script_timer(PlayerNumber plyr_idx, int32_t timer_id)
 {
     if ( (timer_id < 0) || (timer_id >= TURN_TIMERS_COUNT) ) {
         ERRORLOG("Can't restart timer; invalid timer id %d.",(int)timer_id);
@@ -442,7 +442,7 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
     return true;
 }
 
-void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long value)
+void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, int32_t value)
 {
     if (timer_id >= TURN_TIMERS_COUNT) {
         ERRORLOG("Can't manipulate timer; invalid timer id %d.",(int)timer_id);
@@ -456,7 +456,7 @@ void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long val
     dungeon->turn_timers[timer_id].count -= value;
 }
 
-TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
+TbBool set_script_flag(PlayerNumber plyr_idx, int32_t flag_id, int32_t value)
 {
     if ( (flag_id < 0) || (flag_id >= SCRIPT_FLAGS_COUNT) ) {
         ERRORLOG("Can't set flag; invalid flag id %d.",(int)flag_id);

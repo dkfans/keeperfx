@@ -119,15 +119,15 @@ struct SubtileXY {
 
 struct Wander
 {
-  unsigned long points_count;
+  uint32_t points_count;
   /** Index at which the search function inserts (or replaces) points. */
-  unsigned long point_insert_idx;
+  uint32_t point_insert_idx;
   /** Slab last checked by the search function. */
-  unsigned long last_checked_slb_num;
+  uint32_t last_checked_slb_num;
   /** Amount of slabs to be checked in one run of the search function. */
-  unsigned long num_check_per_run;
+  uint32_t num_check_per_run;
   /** Max amount of points added in one run of the search function. */
-  unsigned long max_found_per_check;
+  uint32_t max_found_per_check;
   unsigned char search_limiting_enabled;
   unsigned char wandr_slot;
   PlayerNumber plyr_idx;
@@ -279,7 +279,7 @@ extern TbPixel possession_hit_colours[];
 extern unsigned short const player_cubes[];
 extern struct PlayerInfo bad_player;
 /******************************************************************************/
-struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
+struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
 #define get_my_player() get_player_f(my_player_number,__func__)
 TbBool player_invalid(const struct PlayerInfo *player);
@@ -287,7 +287,7 @@ TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
-TbBool players_are_enemies(long plyr1_idx, long plyr2_idx);
+TbBool players_are_enemies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool players_creatures_tolerate_each_other(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber origin_plyr_idx);
@@ -300,7 +300,7 @@ TbBool player_is_roaming(PlayerNumber plyr_num);
 TbBool player_is_keeper(PlayerNumber plyr_num);
 TbBool player_is_neutral(PlayerNumber plyr_num);
 
-void set_player_state(struct PlayerInfo *player, short a1, long a2);
+void set_player_state(struct PlayerInfo *player, short a1, int32_t a2);
 void set_player_mode(struct PlayerInfo *player, unsigned short nview);
 void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
