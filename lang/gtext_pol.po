@@ -5172,18 +5172,18 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Wybierz bezczynne stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
+"Podnieś bezczynne stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
 
 #: guitext:735
 msgctxt "In-game interface description"
 msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Wybierz pracujące stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
+"Podnieś pracujące stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
 
 #: guitext:736
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "Wybierz walczące stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
+msgstr "Podnieś walczące stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
 
 #: guitext:737
 msgctxt "In-game interface description"
