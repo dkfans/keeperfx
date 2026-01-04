@@ -5165,7 +5165,7 @@ msgid ""
 "Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
 "Zoom. [22.2.1]"
 msgstr ""
-"Podnieś stwory: LPM wszystkie stwory. Ctrl LPM doświadczone stwory. PPM "
+"Podnieś stwory: LPM dowolne stwór. Ctrl LPM doświadczone stwory. PPM "
 "przybliża. [22.2.1]"
 
 #: guitext:734
