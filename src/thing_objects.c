@@ -1723,7 +1723,7 @@ TngUpdateRet move_object(struct Thing *thing)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {
-                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %ld. Move to valid position.",
+                        SYNCDBG(7, "Found no free position next to (%d,%d) due to blocked flag %ld. Move to valid position.",
                             pos.x.val, pos.y.val, blocked_flags);
                         move_creature_to_nearest_valid_position(thing);
                     }

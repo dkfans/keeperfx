@@ -281,7 +281,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     }
     if (creatng->health < (fear * (long long)crmaxhealth) / 1000)
     {
-        SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
+        SYNCDBG(8,"The %s index %d is scared due to low health (%d/%d)",thing_model_name(creatng),(int)creatng->index,creatng->health,crmaxhealth);
         return true;
     }
     // Units dropped will fight stronger units for a bit

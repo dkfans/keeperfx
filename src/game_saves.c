@@ -430,7 +430,7 @@ TbBool load_game(long slot_num)
       dungeon->lvstats.allow_save_score = 1;
     }
     game.loaded_swipe_idx = -1;
-    JUSTMSG("Loaded level %ld from %s", game.continue_level_number, campaign.name);
+    JUSTMSG("Loaded level %d from %s", game.continue_level_number, campaign.name);
 
     api_event("GAME_LOADED");
 
@@ -643,7 +643,7 @@ short load_continue_game(void)
         sizeof(struct IntralevelData));
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     update_extra_levels_visibility();
-    JUSTMSG("Continued level %ld from %s", lvnum, campaign.name);
+    JUSTMSG("Continued level %d from %s", lvnum, campaign.name);
     return true;
 }
 
@@ -680,7 +680,7 @@ LevelNumber move_campaign_to_next_level(void)
 {
     LevelNumber curr_lvnum = get_continue_level_number();
     LevelNumber lvnum = next_singleplayer_level(curr_lvnum, false);
-    SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
+    SYNCDBG(15,"Campaign move %d to %d",curr_lvnum,lvnum);
     {
         struct PlayerInfo* player = get_my_player();
         player->display_flags &= ~PlaF6_PlyrHasQuit;
@@ -688,7 +688,7 @@ LevelNumber move_campaign_to_next_level(void)
     if (lvnum != LEVELNUMBER_ERROR)
     {
         curr_lvnum = set_continue_level_number(lvnum);
-        SYNCDBG(8,"Continue level moved to %ld.",curr_lvnum);
+        SYNCDBG(8,"Continue level moved to %d.",curr_lvnum);
         return curr_lvnum;
     } else
     {
@@ -700,13 +700,13 @@ LevelNumber move_campaign_to_next_level(void)
 
 LevelNumber move_campaign_to_prev_level(void)
 {
-    long curr_lvnum = get_continue_level_number();
-    long lvnum = prev_singleplayer_level(curr_lvnum);
-    SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
+    LevelNumber curr_lvnum = get_continue_level_number();
+    LevelNumber lvnum = prev_singleplayer_level(curr_lvnum);
+    SYNCDBG(15,"Campaign move %d to %d",curr_lvnum,lvnum);
     if (lvnum != LEVELNUMBER_ERROR)
     {
         curr_lvnum = set_continue_level_number(lvnum);
-        SYNCDBG(8,"Continue level moved to %ld.",(long)curr_lvnum);
+        SYNCDBG(8,"Continue level moved to %d.",curr_lvnum);
         return curr_lvnum;
     } else
     {

@@ -278,7 +278,7 @@ TbBool get_map_location_code_name(TbMapLocation location, char *name)
 
 
 // TODO: z location
-void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name)
+void find_location_pos(TbMapLocation location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name)
 {
   struct ActionPoint *apt;
   struct Thing *thing;
@@ -347,10 +347,10 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
     case MLoc_DOORKIND:
     case MLoc_TRAPKIND:
     default:
-      WARNMSG("%s: Unsupported location, %lu.",func_name,location);
+      WARNMSG("%s: Unsupported location, %u.",func_name,location);
       break;
   }
-  SYNCDBG(15,"From %s; Location %ld, pos(%u,%u)",func_name, location, pos->x.stl.num, pos->y.stl.num);
+  SYNCDBG(15,"From %s; Location %d, pos(%u,%u)",func_name, location, pos->x.stl.num, pos->y.stl.num);
 }
 
 /**
@@ -649,7 +649,7 @@ void find_map_location_coords(TbMapLocation location, MapSubtlCoord *x, MapSubtl
     long pos_x;
     long pos_y;
     long i;
-    SYNCDBG(15,"From %s; Location %ld, pos(%d,%d)",func_name, location, *x, *y);
+    SYNCDBG(15,"From %s; Location %d, pos(%d,%d)",func_name, location, *x, *y);
     pos_y = 0;
     pos_x = 0;
     i = get_map_location_longval(location);
@@ -717,7 +717,7 @@ void find_map_location_coords(TbMapLocation location, MapSubtlCoord *x, MapSubtl
     case MLoc_DOORKIND:
     case MLoc_TRAPKIND:
     default:
-          WARNMSG("%s: Unsupported location, %lu.",func_name,location);
+          WARNMSG("%s: Unsupported location, %u.",func_name,location);
         break;
     }
     *y = pos_y;
