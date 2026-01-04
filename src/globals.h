@@ -285,9 +285,10 @@ typedef int16_t MoveSpeed;
 /** Parameter for storing gold sum or price. */
 typedef int32_t GoldAmount;
 /** Type for storing Action Point index.
- * Note that it stores index in array, not Action Point number.
- * Action Point number doesn't need type, it will probably be replaced by a string. */
+ * Note that it stores index in array, not Action Point number. */
 typedef int32_t ActionPointId;
+/** Not to be confused with ActionPointId */
+typedef uint16_t ActionPointNumber;
 /** Parameter for filtering functions which return an item with max filter parameter. */
 typedef int32_t FilterParam;
 /** Type which stores IAvail_* values. */
