@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2025-10-15 18:42+0100\n"
+"PO-Revision-Date: 2026-01-04 20:25+0000\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ja_JP\n"
@@ -4440,8 +4440,8 @@ msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
 "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
-"神殿: 暗黒の神々を拝むとクリーチャーは幸せになる。生け贄を捧げるには洗礼盤にク"
-"リーチャーを落とす。左クリックで選択。右クリックで表示。 [17.12]"
+"神殿: 暗黒の神々を拝むとクリーチャーは幸せになる。生け贄を捧げるには洗礼盤に"
+"クリーチャーを落とす。左クリックで選択。右クリックで表示。 [17.12]"
 
 #: guitext:629
 msgctxt "Room description"
@@ -5031,28 +5031,28 @@ msgid ""
 "Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
 "Zoom. [22.2.1]"
 msgstr ""
-"最も経験レベルが高いクリーチャーを選択: 左クリックでクリーチャーをピックアッ"
-"プ。右クリックで表示。 [22.2.1]"
+"クリーチャーを掴む: 左クリックで任意のクリーチャー。Ctrl＋左クリック"
+"で経験を積んだもの。右クリックで表示。 [22.2.1]"
 
 #: guitext:734
 msgctxt "In-game interface description"
 msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"待機中のクリーチャーを選択: 左クリックでクリーチャーをピックアップ。右クリッ"
+"待機中のクリーチャーを掴む: 左クリックでクリーチャーを掴む。右クリッ"
 "クで表示。 [22.2.1]"
 
 #: guitext:735
 msgctxt "In-game interface description"
 msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"作業中のクリーチャーを選択: 左クリックでクリーチャーをピックアップ。右クリッ"
+"作業中のクリーチャーを掴む: 左クリックでクリーチャーを掴む。右クリッ"
 "クで表示。 [22.2.1]"
 
 #: guitext:736
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"戦闘中のクリーチャーを選択: 左クリックでクリーチャーをピックアップ。右クリッ"
+"戦闘中のクリーチャーを掴む: 左クリックでクリーチャーを掴む。右クリッ"
 "クで表示。 [22.2.1]"
 
 #: guitext:737
