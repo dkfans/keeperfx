@@ -638,7 +638,7 @@ TbBool LbWindowsControl(void)
     }
 
     if (!keyboard_event_this_frame)
-    poll_controller();
+        poll_controller();
 
     keyboard_event_this_frame = false;
 
