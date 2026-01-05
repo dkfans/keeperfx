@@ -659,11 +659,9 @@ TbBool packets_process_cheats(
                 char* dis_msg = strtok(str, ":");
                 if (dis_msg == NULL)
                 {
-                    dis_msg = malloc(strlen(str) + 1);
-                    strcpy(dis_msg, str);
+                    dis_msg = str;
                 }
                 targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
-                free(dis_msg);
             }
             else
             {
