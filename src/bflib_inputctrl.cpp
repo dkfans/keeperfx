@@ -482,7 +482,7 @@ static void poll_controller()
 
         //analog sticks and dpad, layout based on what's available, with mouse being most important, then movement, then cam rotation/zoom
 
-        if (has_right_stick && has_left_stick && false) {
+        if (has_right_stick && has_left_stick) {
             lbKeyOn[KC_HOME] =   SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
             lbKeyOn[KC_END] =    SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
             lbKeyOn[KC_PGDOWN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
@@ -503,7 +503,7 @@ static void poll_controller()
                 mouseDelta.y = rightY / 2048;
                 mouseControl(MActn_MOUSEMOVE, &mouseDelta);
             }
-        } else if (has_left_stick && false) {
+        } else if (has_left_stick) {
 
             lbKeyOn[KC_UP]    = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
             lbKeyOn[KC_DOWN]  = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
