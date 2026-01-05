@@ -301,11 +301,11 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
 }
 
 TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t client_frame_size) {
-    netstate.sp->update(OnNewUser);
     if (netstate.my_id < 0 || netstate.my_id >= netstate.max_players) {
-        ERRORLOG("Critical error: Invalid my_id %i in LbNetwork_Exchange", netstate.my_id);
-        abort();
+        ERRORLOG("Invalid my_id %i in LbNetwork_Exchange (disconnected?)", netstate.my_id);
+        return Lb_FAIL;
     }
+    netstate.sp->update(OnNewUser);
     memcpy(((char*)server_buf) + netstate.my_id * client_frame_size, send_buf, client_frame_size);
     SendFrameToPeers(netstate.my_id, send_buf, client_frame_size, netstate.seq_nbr, msg_type);
     NetUserId id;

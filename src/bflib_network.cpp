@@ -193,6 +193,7 @@ TbError LbNetwork_Stop(void) {
         netstate.sp->exit();
     }
     memset(&netstate, 0, sizeof(netstate));
+    netstate.my_id = INVALID_USER_ID;
     return Lb_OK;
 }
 
