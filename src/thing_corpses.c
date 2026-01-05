@@ -221,7 +221,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
     long corpse_age;
-    if ((thing->alloc_flags & TAlF_IsDragged) == 0)
+    if (!thing->alloc_flags.TAlF_IsDragged)
     {
         if (thing->active_state == DCrSt_Dying)
         {
@@ -274,7 +274,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     if (subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
         thing->movement_flags |= TMvF_IsOnWater;
     }
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    if (thing->alloc_flags.TAlF_IsControlled)
     {
         return move_dead_creature(thing);
     }
@@ -491,7 +491,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
 struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpscondition)
 {
     ThingModel crmodel = thing->model;
-    TbBool memf1 = ((thing->alloc_flags & TAlF_IsControlled) != 0);
+    TbBool memf1 = thing->alloc_flags.TAlF_IsControlled;
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
@@ -511,7 +511,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
         return INVALID_THING;
     }
     deadtng->move_angle_xy = angle;
-    set_flag_value(deadtng->alloc_flags, TAlF_IsControlled, memf1);
+    deadtng->alloc_flags.TAlF_IsControlled = memf1;
     if (owner != game.neutral_player_num)
     {
         // Update thing index inside player struct

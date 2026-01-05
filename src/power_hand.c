@@ -176,12 +176,12 @@ TbBool object_is_pickable_by_hand_to_hold_by_player(const struct Thing* thing, l
   */
 TbBool thing_is_picked_up(const struct Thing *thing)
 {
-    return (((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->state_flags & TF1_InCtrldLimbo) != 0));
+    return (thing->alloc_flags.TAlF_IsInLimbo || ((thing->state_flags & TF1_InCtrldLimbo) != 0));
 }
 
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    if ((thing->alloc_flags & TAlF_IsInLimbo) == 0)
+    if (!thing->alloc_flags.TAlF_IsInLimbo)
         return false;
     if (thing_is_in_power_hand_list(thing, plyr_idx))
         return true;
@@ -190,7 +190,7 @@ TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr
 
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing)
 {
-    if ((thing->alloc_flags & TAlF_IsInLimbo) == 0)
+    if (!thing->alloc_flags.TAlF_IsInLimbo)
         return false;
     return !thing_is_in_power_hand_list(thing, thing->owner) && !thing_is_in_computer_power_hand_list(thing, thing->owner) && ((thing->state_flags & TF1_InCtrldLimbo) == 0);
 }
@@ -251,7 +251,7 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
     {
         return false;
     }
-    if ( (thing->active_state == CrSt_CreatureUnconscious) || ((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->state_flags & TF1_InCtrldLimbo) != 0) || (thing->health <= 0) )
+    if ( (thing->active_state == CrSt_CreatureUnconscious) || thing->alloc_flags.TAlF_IsInLimbo || ((thing->state_flags & TF1_InCtrldLimbo) != 0) || (thing->health <= 0) )
     {
         return false;
     }
@@ -515,12 +515,12 @@ void place_thing_in_limbo(struct Thing *thing)
         thing->light_id = 0;
     }
     thing->rendering_flags |= TRF_Invisible;
-    thing->alloc_flags |= TAlF_IsInLimbo;
+    thing->alloc_flags.TAlF_IsInLimbo = 1;
 }
 
 void remove_thing_from_limbo(struct Thing *thing)
 {
-    thing->alloc_flags &= ~TAlF_IsInLimbo;
+    thing->alloc_flags.TAlF_IsInLimbo = 0;
     thing->rendering_flags &= ~TRF_Invisible;
     place_thing_in_mapwho(thing);
 }

@@ -242,7 +242,7 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
     // Finish removing the thing from group
     cctrl->group_info &= ~TngGroup_LeaderIndex;
     cctrl->group_info &= ~TngGroup_MemberCount;
-    creatng->alloc_flags &= ~TAlF_IsFollowingLeader;
+    creatng->alloc_flags.TAlF_IsFollowingLeader = 0;
     // Find leader of the party
     struct Thing *leadtng;
     if (was_leader) {
@@ -263,13 +263,13 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
         if (creature_control_invalid(cctrl)) {
             WARNLOG("Group had only one member, %s index %d",thing_model_name(creatng),(int)creatng->index);
         }
-        leadtng->alloc_flags &= ~TAlF_IsFollowingLeader;
+        leadtng->alloc_flags.TAlF_IsFollowingLeader = 0;
         return false;
     }
     // If there is still more than one creature
     if (was_leader) {
         internal_update_leader_index_in_group(leadtng);
-        leadtng->alloc_flags &= ~TAlF_IsFollowingLeader;
+        leadtng->alloc_flags.TAlF_IsFollowingLeader = 0;
         leader_find_positions_for_followers(leadtng);
     }
     return true;
@@ -489,7 +489,7 @@ TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
         // Remove member count from non-leader creature; the leader will have it computed somewhere else
         crctrl->group_info &= ~TngGroup_MemberCount;
     }
-    creatng->alloc_flags |= TAlF_IsFollowingLeader;
+    creatng->alloc_flags.TAlF_IsFollowingLeader = 1;
     return true;
 }
 
@@ -507,7 +507,7 @@ long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng
         leadtng = grptng;
     // Change old leader to normal group member, and add new one to chain as its head
     internal_add_member_to_group_chain_head(creatng, leadtng);
-    leadtng->alloc_flags |= TAlF_IsFollowingLeader;
+    leadtng->alloc_flags.TAlF_IsFollowingLeader = 1;
     // Now go through all group members and set leader index
     internal_update_leader_index_in_group(creatng);
     return 1;
@@ -637,7 +637,7 @@ long process_obey_leader(struct Thing *thing)
     {
         return 1;
     }
-    if ((leadtng->alloc_flags & TAlF_IsControlled) != 0)
+    if (leadtng->alloc_flags.TAlF_IsControlled)
     {
         // If leader is controlled, always force followers to stay
         if (thing->active_state != CrSt_CreatureFollowLeader) {

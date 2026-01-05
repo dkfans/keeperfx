@@ -977,7 +977,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     if (is_my_player(player)) {
         setup_eye_lens(0);
     }
-    thing->alloc_flags &= ~TAlF_IsControlled;
+    thing->alloc_flags.TAlF_IsControlled = 0;
     thing->rendering_flags &= ~TRF_Invisible;
     player->allocflags &= ~PlaF_CreaturePassengerMode;
     set_engine_view(player, player->view_mode_restore);
@@ -1373,7 +1373,7 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
             case PI_HeartZoomOut:
             case PI_Drop:
             {
-                if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+                if (thing->alloc_flags.TAlF_IsControlled)
                 {
                     if (player->view_type == PVT_CreatureContrl)
                     {

@@ -259,7 +259,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     cam = player->acamera;
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
-    thing->alloc_flags |= TAlF_IsControlled;
+    thing->alloc_flags.TAlF_IsControlled = 1;
     thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
     {
@@ -1955,7 +1955,7 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing)
 void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, SpellKind spl_idx, CrtrExpLevel shot_level)
 {
     unsigned char hit_type;
-    if ((castng->alloc_flags & TAlF_IsControlled) != 0)
+    if (castng->alloc_flags.TAlF_IsControlled)
     {
         if ((targetng->class_id == TCls_Object) || (targetng->class_id == TCls_Trap))
             hit_type = THit_CrtrsNObjcts;
@@ -2203,7 +2203,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
     // Check if the spell can be fired as a shot. It is definitely not if casted on itself.
     if ((spconf->shot_model > 0) && (cctrl->targtng_idx != 0) && (cctrl->targtng_idx != castng->index))
     {
-        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
+        if (castng->alloc_flags.TAlF_IsControlled)
           i = THit_CrtrsNObjcts;
         else
         {
@@ -2230,7 +2230,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
     else if (spconf->shot_model > 0)
     {
         // Note that Wind has shot model and its CastAtThing is 0, besides, the target index is itself.
-        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
+        if (castng->alloc_flags.TAlF_IsControlled)
             i = THit_CrtrsNObjcts;
         else
             i = THit_CrtrsOnlyNotOwn;
@@ -3337,7 +3337,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         create_effect_around_thing(creatng, ball_puff_effects[get_player_color_idx(creatng->owner)]);
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
-        if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
+        if (flag_is_set(flags, CrDed_NoEffects) && creatng->alloc_flags.TAlF_IsControlled)
         {
             prepare_to_controlled_creature_death(creatng);
         }
@@ -3372,7 +3372,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
 
     if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
-        if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
+        if (flag_is_set(flags, CrDed_NoEffects) && creatng->alloc_flags.TAlF_IsControlled)
         {
             prepare_to_controlled_creature_death(creatng);
         }
@@ -3414,7 +3414,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     }
     if (flag_is_set(flags, CrDed_NoEffects))
     {
-        if (flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
+        if (creatng->alloc_flags.TAlF_IsControlled)
         {
             prepare_to_controlled_creature_death(creatng);
         }
@@ -4039,7 +4039,7 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
     long delta = (long)game.play_gameturn - (long)cctrl->instance_use_turn[inst_idx];
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    if (thing->alloc_flags.TAlF_IsControlled)
     {
         ritime = inst_inf->fp_reset_time + cctrl->inst_total_turns - cctrl->inst_action_turns;
     } else
@@ -4061,7 +4061,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, int32
     long itime;
     long aitime;
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    if (thing->alloc_flags.TAlF_IsControlled)
     {
         itime = inst_inf->fp_time;
         aitime = inst_inf->fp_action_time;
@@ -4169,9 +4169,9 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
     struct Thing *creatng;
     struct CreatureControl* cctrl;
 
-    if ((current_annoyed_creature->alloc_flags & TAlF_Exists) == 0 ||
+    if (!current_annoyed_creature->alloc_flags.TAlF_Exists ||
          !thing_is_creature(current_annoyed_creature) ||
-         (current_annoyed_creature->alloc_flags & TAlF_IsInLimbo) != 0 ||
+         current_annoyed_creature->alloc_flags.TAlF_IsInLimbo ||
          (current_annoyed_creature->state_flags & TF1_InCtrldLimbo) != 0 ||
          current_annoyed_creature->active_state == CrSt_CreatureUnconscious)
     {
@@ -4203,13 +4203,13 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
 
         if (thing_exists(creatng) &&
             thing_is_creature(creatng) &&
-            (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
+            !creatng->alloc_flags.TAlF_IsInLimbo &&
             (creatng->state_flags & TF1_InCtrldLimbo) == 0 &&
             creatng->active_state != CrSt_CreatureUnconscious)
         {
             TbBool found = true;
-            while (!anger_is_creature_angry(creatng) || (creatng->alloc_flags & TAlF_Exists) == 0 || !thing_is_creature(creatng) ||
-                   (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TF1_InCtrldLimbo) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
+            while (!anger_is_creature_angry(creatng) || !creatng->alloc_flags.TAlF_Exists || !thing_is_creature(creatng) ||
+                   creatng->alloc_flags.TAlF_IsInLimbo || (creatng->state_flags & TF1_InCtrldLimbo) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
             {
                 cctrl = creature_control_get_from_thing(creatng);
                 creatng = thing_get(cctrl->players_next_creature_idx);
@@ -4231,9 +4231,9 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
             while (!thing_is_invalid(creatng))
             {
                 if (anger_is_creature_angry(creatng) &&
-                    (creatng->alloc_flags & TAlF_Exists) != 0 &&
+                    creatng->alloc_flags.TAlF_Exists &&
                     thing_is_creature(creatng) &&
-                    (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
+                    !creatng->alloc_flags.TAlF_IsInLimbo &&
                     (creatng->state_flags & TF1_InCtrldLimbo) == 0 &&
                     creatng->active_state != CrSt_CreatureUnconscious)
                 {
@@ -4337,7 +4337,7 @@ void set_first_creature(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
 
-    if ((creatng->alloc_flags & TAlF_InDungeonList) != 0) {
+    if (creatng->alloc_flags.TAlF_InDungeonList) {
         ERRORLOG("Thing already in Peter list");
         return;
     }
@@ -4360,7 +4360,7 @@ void set_first_creature(struct Thing *creatng)
             cctrl->players_prev_creature_idx = 0;
             game.nodungeon_creatr_list_start = creatng->index;
         }
-        creatng->alloc_flags |= TAlF_InDungeonList;
+        creatng->alloc_flags.TAlF_InDungeonList = 1;
     } else
     if (!creature_is_for_dungeon_diggers_list(creatng))
     {
@@ -4384,7 +4384,7 @@ void set_first_creature(struct Thing *creatng)
             dungeon->owned_creatures_of_model[creatng->model]++;
             dungeon->num_active_creatrs++;
         }
-        creatng->alloc_flags |= TAlF_InDungeonList;
+        creatng->alloc_flags.TAlF_InDungeonList = 1;
     }
     else
     {
@@ -4409,7 +4409,7 @@ void set_first_creature(struct Thing *creatng)
             dungeon->num_active_diggers++;
             dungeon->owned_creatures_of_model[creatng->model]++;
         }
-        creatng->alloc_flags |= TAlF_InDungeonList;
+        creatng->alloc_flags.TAlF_InDungeonList = 1;
     }
 }
 
@@ -4525,7 +4525,7 @@ void remove_first_creature(struct Thing *creatng)
     struct CreatureControl *secctrl;
     struct Thing *sectng;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((creatng->alloc_flags & TAlF_InDungeonList) == 0)
+    if (!creatng->alloc_flags.TAlF_InDungeonList)
     {
         ERRORLOG("The %s index %d is not in Peter list",thing_model_name(creatng),(int)creatng->index);
         return;
@@ -4588,7 +4588,7 @@ void remove_first_creature(struct Thing *creatng)
     }
     cctrl->players_prev_creature_idx = 0;
     cctrl->players_next_creature_idx = 0;
-    creatng->alloc_flags &= ~TAlF_InDungeonList;
+    creatng->alloc_flags.TAlF_InDungeonList = 0;
 }
 
 TbBool thing_is_creature(const struct Thing *thing)
@@ -4706,7 +4706,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     }
     cleanup_creature_state_and_interactions(creatng);
     remove_creature_lair(creatng);
-    if ((creatng->alloc_flags & TAlF_InDungeonList) != 0) {
+    if (creatng->alloc_flags.TAlF_InDungeonList) {
         remove_first_creature(creatng);
     }
     if (!is_neutral_thing(creatng))
@@ -5907,7 +5907,7 @@ short update_creature_movements(struct Thing *thing)
         cctrl->creature_state_flags &= ~TF2_CreatureIsMoving;
     } else
     {
-      if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+      if (thing->alloc_flags.TAlF_IsControlled)
       {
           if (update_controlled_creature_movement(thing)) {
               upd_done = 1;
@@ -5925,7 +5925,7 @@ short update_creature_movements(struct Thing *thing)
           cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->move_angle_xy);
           cctrl->moveaccel.z.val = 0;
       }
-      if (((thing->movement_flags & TMvF_Flying) != 0) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
+      if (((thing->movement_flags & TMvF_Flying) != 0) && !thing->alloc_flags.TAlF_IsControlled)
       {
           if (update_flight_altitude_towards_typical(thing)) {
               upd_done = 1;
@@ -5943,7 +5943,7 @@ short update_creature_movements(struct Thing *thing)
 
 void check_for_creature_escape_from_lava(struct Thing *thing)
 {
-    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnLava) != 0))
+    if (!thing->alloc_flags.TAlF_IsControlled && ((thing->movement_flags & TMvF_IsOnLava) != 0))
     {
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         if (crconf->hurt_by_lava > 0)
@@ -6301,7 +6301,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         process_creature_instance(thing);
     }
     update_creature_count(thing);
-    if (flag_is_set(thing->alloc_flags,TAlF_IsControlled))
+    if (thing->alloc_flags.TAlF_IsControlled)
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
@@ -6354,7 +6354,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         thing->velocity.z.val += cctrl->moveaccel.z.val;
     }
     move_creature(thing);
-    if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
+    if (thing->alloc_flags.TAlF_IsControlled)
     {
         if (!flag_is_set(cctrl->creature_control_flags, CCFlg_MoveY))
         {
@@ -7363,7 +7363,7 @@ void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSu
 
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
 {
-    if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
+    if (creatng->alloc_flags.TAlF_IsControlled)
     {
         for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
         {

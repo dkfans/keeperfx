@@ -101,7 +101,7 @@ static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const ch
 
     struct Thing *thing = thing_get(thing_idx);
     memset(thing, 0, sizeof(struct Thing));
-    thing->alloc_flags |= TAlF_Exists;
+    thing->alloc_flags.TAlF_Exists = 1;
     thing->index = thing_idx;
     thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
     TRACE_THING(thing);
@@ -155,7 +155,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
 {
     TRACE_THING(thing);
-    if ((thing->alloc_flags & TAlF_InDungeonList) != 0) {
+    if (thing->alloc_flags.TAlF_InDungeonList) {
         remove_first_creature(thing);
     }
     if (!a2) {
@@ -230,7 +230,7 @@ TbBool thing_exists(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return false;
-    if ((thing->alloc_flags & TAlF_Exists) == 0)
+    if (!thing->alloc_flags.TAlF_Exists)
         return false;
 #if (BFDEBUG_LEVEL > 0)
     if (thing->index != (thing-thing_get(0)))
@@ -262,17 +262,17 @@ struct Thing* get_parent_thing(const struct Thing* thing)
   */
 TbBool thing_is_in_limbo(const struct Thing* thing)
 {
-    return (thing->alloc_flags & TAlF_IsInLimbo);
+    return thing->alloc_flags.TAlF_IsInLimbo;
 }
 
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing)
 {
-    return ((thing->state_flags & TF1_IsDragged1) != 0) || ((thing->alloc_flags & TAlF_IsDragged) != 0);
+    return ((thing->state_flags & TF1_IsDragged1) != 0) || thing->alloc_flags.TAlF_IsDragged;
 }
 
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
 {
-    if ((thing->alloc_flags & TAlF_IsControlled) == 0)
+    if (!thing->alloc_flags.TAlF_IsControlled)
         return INVALID_PLAYER;
     return get_player(thing->owner);
 }

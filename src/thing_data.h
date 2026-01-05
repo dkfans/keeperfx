@@ -19,6 +19,7 @@
 #ifndef DK_THING_DATA_H
 #define DK_THING_DATA_H
 
+#include <assert.h>
 #include "globals.h"
 #include "bflib_basics.h"
 
@@ -36,16 +37,18 @@ typedef unsigned short Thingid;
 
 /******************************************************************************/
 /** Enums for thing->alloc_flags bit fields. */
-enum ThingAllocFlags {
-    TAlF_Exists            = 0x01,
-    TAlF_IsInMapWho        = 0x02,
-    TAlF_IsInStrucList     = 0x04,
-    TAlF_InDungeonList     = 0x08,
-    TAlF_IsInLimbo         = 0x10,
-    TAlF_IsControlled      = 0x20,
-    TAlF_IsFollowingLeader = 0x40,
-    TAlF_IsDragged         = 0x80,
-};
+typedef struct {
+  unsigned char TAlF_Exists : 1;
+  unsigned char TAlF_IsInMapWho : 1;
+  unsigned char TAlF_IsInStrucList : 1;
+  unsigned char TAlF_InDungeonList : 1;
+  unsigned char TAlF_IsInLimbo : 1;
+  unsigned char TAlF_IsControlled : 1;
+  unsigned char TAlF_IsFollowingLeader : 1;
+  unsigned char TAlF_IsDragged : 1;
+} ThingAllocFlags;
+
+static_assert(sizeof(ThingAllocFlags) == 1, "Bit field ThingAllocFlags must be one byte");
 
 /** Enum for specifying thing allocation pool type. */
 enum ThingAllocationPool {
@@ -117,7 +120,7 @@ enum ThingMovementFlags {
 struct Room;
 
 struct Thing {
-    unsigned char alloc_flags;
+    ThingAllocFlags alloc_flags;
     unsigned char state_flags;
     unsigned short next_on_mapblk;
     unsigned short prev_on_mapblk;

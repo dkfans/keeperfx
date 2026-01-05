@@ -700,7 +700,7 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
         ERRORLOG("Computer tries to pick up %s index %d which is not pickable", thing_model_name(thing),(int)thing->index);
         return 0;
     }
-    if (flag_is_set(thing->alloc_flags, TAlF_IsControlled)) {
+    if (thing->alloc_flags.TAlF_IsControlled) {
         SYNCDBG(7,"Computer tries to pick up %s index %d which is being controlled", thing_model_name(thing),(int)thing->index);
         return 0;
     }
@@ -2350,7 +2350,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(i);
 
-        if ( flag_is_set(i->alloc_flags, TAlF_IsInLimbo) )
+        if (i->alloc_flags.TAlF_IsInLimbo)
             continue;
         if (flag_is_set(i->state_flags, TF1_InCtrldLimbo) )
             continue;

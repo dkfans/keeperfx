@@ -106,7 +106,7 @@ void set_previous_thing_position(struct Thing *thing) {
  */
 void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 {
-    if ((thing->alloc_flags & TAlF_IsInStrucList) != 0)
+    if (thing->alloc_flags.TAlF_IsInStrucList)
     {
         ERRORLOG("Thing is already in list");
         return;
@@ -116,7 +116,7 @@ void add_thing_to_list(struct Thing *thing, struct StructureList *list)
         prevtng = thing_get(list->index);
     }
     list->count++;
-    thing->alloc_flags |= TAlF_IsInStrucList;
+    thing->alloc_flags.TAlF_IsInStrucList = 1;
     thing->prev_of_class = 0;
     thing->next_of_class = list->index;
     if (!thing_is_invalid(prevtng)) {
@@ -128,7 +128,7 @@ void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)
 {
     struct Thing *sibtng;
-    if ((thing->alloc_flags & TAlF_IsInStrucList) == 0)
+    if (!thing->alloc_flags.TAlF_IsInStrucList)
         return;
     if (thing->index == slist->index)
     {
@@ -164,7 +164,7 @@ void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)
         thing->prev_of_class = 0;
         thing->next_of_class = 0;
     }
-    thing->alloc_flags &= ~TAlF_IsInStrucList;
+    thing->alloc_flags.TAlF_IsInStrucList = 0;
     if (slist->count <= 0) {
         ERRORLOG("List has < 0 structures");
         return;
@@ -993,9 +993,9 @@ void update_things_in_list(struct StructureList *list)
       }
       i = thing->next_of_class;
       // Per-thing code
-      if ((thing->alloc_flags & TAlF_IsFollowingLeader) == 0)
+      if (!thing->alloc_flags.TAlF_IsFollowingLeader)
       {
-          if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
+          if (thing->alloc_flags.TAlF_IsInLimbo) {
               update_thing_animation(thing);
           } else {
               update_thing(thing);
@@ -1095,9 +1095,9 @@ unsigned long update_creatures_not_in_list(void)
       ERRORLOG("Some THING has been deleted during the processing of another thing");
       break;
     }
-    if ((thing->alloc_flags & TAlF_IsFollowingLeader) != 0)
+    if (thing->alloc_flags.TAlF_IsFollowingLeader)
     {
-      if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
+      if (thing->alloc_flags.TAlF_IsInLimbo) {
         update_thing_animation(thing);
       } else {
         update_thing(thing);
@@ -1354,7 +1354,7 @@ void remove_thing_from_mapwho(struct Thing *thing)
 {
     struct Thing *mwtng;
     SYNCDBG(18,"Starting");
-    if ((thing->alloc_flags & TAlF_IsInMapWho) == 0)
+    if (!thing->alloc_flags.TAlF_IsInMapWho)
         return;
     if (thing->prev_on_mapblk > 0)
     {
@@ -1387,13 +1387,13 @@ void remove_thing_from_mapwho(struct Thing *thing)
     }
     thing->next_on_mapblk = 0;
     thing->prev_on_mapblk = 0;
-    thing->alloc_flags &= ~TAlF_IsInMapWho;
+    thing->alloc_flags.TAlF_IsInMapWho = 0;
 }
 
 void place_thing_in_mapwho(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
-    if ((thing->alloc_flags & TAlF_IsInMapWho) != 0)
+    if (thing->alloc_flags.TAlF_IsInMapWho)
         return;
     struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     thing->next_on_mapblk = get_mapwho_thing_index(mapblk);
@@ -1409,7 +1409,7 @@ void place_thing_in_mapwho(struct Thing *thing)
     }
     set_mapwho_thing_index(mapblk, thing->index);
     thing->prev_on_mapblk = 0;
-    thing->alloc_flags |= TAlF_IsInMapWho;
+    thing->alloc_flags.TAlF_IsInMapWho = 1;
 }
 
 struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel model, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -3100,7 +3100,7 @@ void stop_all_things_playing_samples(void)
     for (long i = 0; i < THINGS_COUNT; i++)
     {
         struct Thing* thing = thing_get(i);
-        if ((thing->alloc_flags & TAlF_Exists) != 0)
+        if (thing->alloc_flags.TAlF_Exists)
         {
             if (thing->snd_emitter_id)
             {
@@ -3176,7 +3176,7 @@ TbBool update_thing(struct Thing *thing)
                 }
                 else
                 {
-                    if (thing_above_flight_altitude(thing) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
+                    if (thing_above_flight_altitude(thing) && !thing->alloc_flags.TAlF_IsControlled)
                     {
                         thing->veloc_push_add.z.val -= thing->fall_acceleration;
                         thing->state_flags |= TF1_PushAdd;

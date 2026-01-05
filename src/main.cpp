@@ -2508,7 +2508,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
         apply_damage_to_thing_and_display_health(thing, param->secondary_number, param->primary_number);
         if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
-            if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
+            if (!thing->alloc_flags.TAlF_IsControlled && !creature_is_kept_in_custody(thing))
             {
                 if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureEscapingDeath)
                 {
@@ -3559,7 +3559,7 @@ void keeper_gameplay_loop(void)
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
 {
-    if ( (!thing_is_creature(thing)) || !( (thing->owner == plyr_idx) || (creature_is_kept_in_custody_by_player(thing, plyr_idx)) ) || (thing->alloc_flags & TAlF_IsInLimbo) || (thing->state_flags & TF1_InCtrldLimbo) || (thing->active_state == CrSt_CreatureUnconscious) )
+    if ( (!thing_is_creature(thing)) || !( (thing->owner == plyr_idx) || (creature_is_kept_in_custody_by_player(thing, plyr_idx)) ) || thing->alloc_flags.TAlF_IsInLimbo || (thing->state_flags & TF1_InCtrldLimbo) || (thing->active_state == CrSt_CreatureUnconscious) )
     {
         return false;
     }

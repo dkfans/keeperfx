@@ -1285,7 +1285,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     process_dungeon_destroy(heartng);
 
     SYNCDBG(18,"Beat update");
-    if ((heartng->alloc_flags & TAlF_Exists) == 0)
+    if (!heartng->alloc_flags.TAlF_Exists)
       return TUFRet_Modified;
     if (objst->model_flags & OMF_Beating)
     {

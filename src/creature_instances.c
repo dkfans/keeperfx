@@ -446,14 +446,14 @@ long instf_creature_fire_shot(struct Thing *creatng, int32_t *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->targtng_idx == 0)
     {
-        if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+        if (!creatng->alloc_flags.TAlF_IsControlled)
         {
             hittype = THit_CrtrsOnlyNotOwn;
         }
         else
             hittype = THit_CrtrsNObjcts;
     }
-    else if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
+    else if (creatng->alloc_flags.TAlF_IsControlled)
     {
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
@@ -1131,7 +1131,7 @@ TbBool validate_source_basic
     int32_t param2
     )
 {
-    if ((source->alloc_flags & TAlF_IsControlled) != 0)
+    if (source->alloc_flags.TAlF_IsControlled)
     {
         // If this creature is under player's control (Possession).
         return false;

@@ -1224,7 +1224,7 @@ short imp_drops_gold(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
-    unsigned char state = ((spdigtng->alloc_flags & TAlF_IsControlled) == 0) ? CrSt_ImpLastDidJob : CrSt_Unused;
+    unsigned char state = !spdigtng->alloc_flags.TAlF_IsControlled ? CrSt_ImpLastDidJob : CrSt_Unused;
     long gold_added = 0;
     TbBool gold_created = false;
     struct Thing* gldtng = find_gold_hoard_at(center_stl_x, center_stl_y);
@@ -1266,7 +1266,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     if ((spdigtng->creature.gold_carried > 0) && (room->used_capacity < room->total_capacity))
     {
-        if ((spdigtng->alloc_flags & TAlF_IsControlled) == 0)
+        if (!spdigtng->alloc_flags.TAlF_IsControlled)
         {
             if (setup_head_for_empty_treasure_space(spdigtng, room)) {
                 spdigtng->continue_state = CrSt_ImpDropsGold;
@@ -1698,7 +1698,7 @@ short creature_picks_up_corpse(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if (!thing_exists(picktng) || (flag_is_set(picktng->alloc_flags,TAlF_IsDragged))
+    if (!thing_exists(picktng) || picktng->alloc_flags.TAlF_IsDragged
         || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2, 0)))
     {
         set_start_state(creatng);

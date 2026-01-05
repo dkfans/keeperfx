@@ -191,7 +191,7 @@ TbBigChecksum compute_replay_integrity(void)
     for (long tng_idx = 0; tng_idx < THINGS_COUNT; tng_idx++)
     {
         struct Thing* tng = thing_get(tng_idx);
-        if ((tng->alloc_flags & TAlF_Exists) != 0)
+        if (tng->alloc_flags.TAlF_Exists)
         {
             // It would be nice to completely ignore effects, but since
             // thing indices are used in packets, lack of effect may cause desync too.

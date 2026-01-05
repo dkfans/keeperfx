@@ -149,7 +149,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     const struct Camera* cam = player->acamera;
     set_selected_creature(player, thing);
     player->view_mode_restore = cam->view_mode;
-    thing->alloc_flags |= TAlF_IsControlled;
+    thing->alloc_flags.TAlF_IsControlled = 1;
     thing->rendering_flags |= TRF_Invisible;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->creature_state_flags |= TF2_Spectator;

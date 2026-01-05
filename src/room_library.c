@@ -465,7 +465,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
         {
             ThingModel objkind = thing->model;
             PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
+            if ((spl_idx > 0) && !thing->alloc_flags.TAlF_IsDragged)
             {
                 if (game.play_gameturn > 10) //Function is used to place books in rooms before dungeons are intialized
                 {
@@ -630,7 +630,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         if (thing_is_spellbook(thing))
         {
             PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
+            if ((spl_idx > 0) && !thing->alloc_flags.TAlF_IsDragged && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
                 if (room->used_capacity > room->total_capacity)

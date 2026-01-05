@@ -2602,7 +2602,7 @@ void creature_drag_object(struct Thing *creatng, struct Thing *dragtng)
     TRACE_THING(dragtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->dragtng_idx = dragtng->index;
-    dragtng->alloc_flags |= TAlF_IsDragged;
+    dragtng->alloc_flags.TAlF_IsDragged = 1;
     dragtng->state_flags |= TF1_IsDragged1;
     dragtng->owner = game.neutral_player_num;
     if (dragtng->light_id != 0) {
@@ -2624,7 +2624,7 @@ void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
     cctrl->dragtng_idx = 0;
     struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
     dragctrl->dragtng_idx = 0;
-    dragtng->alloc_flags &= ~TAlF_IsDragged;
+    dragtng->alloc_flags.TAlF_IsDragged = 0;
     dragtng->state_flags &= ~TF1_IsDragged1;
     move_thing_in_map(dragtng, &creatng->mappos);
     if (dragtng->light_id != 0) {
@@ -4507,7 +4507,7 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
     {
         enemytng = thing_get(cctrl->seek_enemy.enemy_idx);
         TRACE_THING(enemytng);
-        if (((enemytng->alloc_flags & TAlF_Exists) == 0) || (cctrl->seek_enemy.enemy_creation_turn != enemytng->creation_turn))
+        if (!enemytng->alloc_flags.TAlF_Exists || (cctrl->seek_enemy.enemy_creation_turn != enemytng->creation_turn))
         {
           enemytng = INVALID_THING;
           cctrl->seek_enemy.enemy_creation_turn = 0;
@@ -4913,7 +4913,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     if (curr_stati->state_type == CrStTyp_Move)
       curr_stati = get_thing_state_info_num(thing->continue_state);
     struct CreatureStateConfig* next_stati = get_thing_state_info_num(next_state);
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    if (thing->alloc_flags.TAlF_IsControlled)
     {
         if ( (next_stati->state_type != CrStTyp_Idle) )
         {
@@ -4969,7 +4969,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     struct CreatureModelConfig* crconf;
     SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s, stacked %s",func_name,thing_model_name(thing),
         (int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state),creature_state_code_name(thing->continue_state));
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    if (thing->alloc_flags.TAlF_IsControlled)
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_ManualControl);
@@ -5702,7 +5702,7 @@ short creature_timebomb(struct Thing *creatng)
         ERRORLOG("Invalid creature control; no action");
         return CrStRet_Unchanged;
     }
-    if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+    if (!creatng->alloc_flags.TAlF_IsControlled)
     {
         struct Thing* trgtng = get_timebomb_target(creatng);
         if (!thing_is_invalid(trgtng))

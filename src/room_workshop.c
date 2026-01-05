@@ -194,7 +194,7 @@ struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->model == objmodel) && (thing->owner == owner) )
+        if ( thing->alloc_flags.TAlF_Exists && (thing->model == objmodel) && (thing->owner == owner) )
         {
             struct Room* room = get_room_thing_is_on(thing);
             if (!thing_is_picked_up(thing) && room_role_matches(room->kind, RoRoF_CratesStorage) && (room->owner == owner))

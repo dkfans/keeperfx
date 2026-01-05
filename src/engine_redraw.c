@@ -135,7 +135,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
         x += scale_ui_value_lofi(spr->SWidth);
     }
-    if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
+    if ( (cctrl->dragtng_idx != 0) && !creatng->alloc_flags.TAlF_IsDragged )
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
         unsigned long spr_idx;

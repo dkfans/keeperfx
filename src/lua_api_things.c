@@ -53,7 +53,7 @@ static int make_thing_zombie (lua_State *L)
     //thing->active_state = CrSt_Disabled;
     //thing->continue_state = CrSt_Disabled;
 
-    thing->alloc_flags |= TAlF_IsControlled;
+    thing->alloc_flags.TAlF_IsControlled = 1;
 
 
     return 0;

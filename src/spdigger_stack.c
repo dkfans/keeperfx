@@ -519,7 +519,7 @@ static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, Ma
 
     while (!thing_is_invalid(thing))
     {
-        if ((thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & TF1_InCtrldLimbo) == 0)
+        if (!thing->alloc_flags.TAlF_IsInLimbo && (thing->state_flags & TF1_InCtrldLimbo) == 0)
         {
           if (thing->active_state == CrSt_MoveToPosition)
               continue_state = thing->continue_state;
@@ -730,7 +730,7 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
                     (int)slb_x,(int)slb_y,thing_model_name(thing),(int)thing->index);
                 return 0;
             }
-            else if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+            else if (thing->alloc_flags.TAlF_IsControlled)
             {
                 if (players_are_mutual_allies(thing->owner, creatng->owner))
                 {

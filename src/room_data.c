@@ -2965,7 +2965,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             }
             i = thing->next_on_mapblk;
             // Per thing code start
-            if (thing_is_spellbook(thing) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
+            if (thing_is_spellbook(thing) && !thing->alloc_flags.TAlF_IsDragged)
             {
                 PowerKind spl_idx = book_thing_to_power_kind(thing);
                 dungeon = get_dungeon(plyr_idx);

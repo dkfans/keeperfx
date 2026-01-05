@@ -1455,7 +1455,7 @@ short get_creature_control_action_inputs(void)
         if (!make_packet)
         {
             TRACE_THING(thing);
-            if ((player->controlled_thing_creatrn != thing->creation_turn) || (!flag_is_set(thing->alloc_flags, TAlF_Exists)) || (thing->active_state == CrSt_CreatureUnconscious))
+            if ((player->controlled_thing_creatrn != thing->creation_turn) || !thing->alloc_flags.TAlF_Exists || (thing->active_state == CrSt_CreatureUnconscious))
             {
                 make_packet = true;
             }

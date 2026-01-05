@@ -280,7 +280,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
     crconf->learned_instance_id[slot] = instance;
     for (long i = 0; i < THINGS_COUNT; i++) {
         struct Thing * thing = thing_get(i);
-        if ((thing->alloc_flags & TAlF_Exists) != 0) {
+        if (thing->alloc_flags.TAlF_Exists) {
             if (thing->class_id == TCls_Creature) {
                 creature_increase_available_instances(thing);
             }

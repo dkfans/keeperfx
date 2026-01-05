@@ -1853,7 +1853,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     {
         long turns_progress;
         long turns_required;
-        if ((ctrltng->alloc_flags & TAlF_IsControlled) != 0) {
+        if (ctrltng->alloc_flags.TAlF_IsControlled) {
             turns_required = inst_inf->fp_reset_time;
         } else {
             turns_required = inst_inf->reset_time;
