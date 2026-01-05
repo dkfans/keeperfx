@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2026-01-01 07:10+0000\n"
+"PO-Revision-Date: 2026-01-05 01:54+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ko_KR\n"
@@ -645,7 +645,7 @@ msgstr "우리는 너의 악을 없애기 위해 왔도다!"
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall shoo you back to the pits, foul one!"
+msgid "We shall send you back to the pits, foul one!"
 msgstr "우리가 널 구덩이로 돌려보내겠다, 비열한 놈!"
 
 #: speech:121

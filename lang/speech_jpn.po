@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2026-01-01 08:12+0000\n"
+"PO-Revision-Date: 2026-01-05 01:54+0000\n"
 "Last-Translator: Language-Team: KeeperFX Team\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -643,9 +643,8 @@ msgid "We come to rid the world of your evil!"
 msgstr "邪悪なものどもめ、一匹残らず消し去ってやる！"
 
 #: speech:120
-#, fuzzy
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall shoo you back to the pits, foul one!"
+msgid "We shall send you back to the pits, foul one!"
 msgstr "薄汚い奴等め、奈落の底へ消えてしまえ！"
 
 #: speech:121

@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2026-01-01 07:11+0000\n"
+"PO-Revision-Date: 2026-01-05 01:55+0000\n"
 "Last-Translator: Altieres Lima\n"
 "Language-Team: KeeperFX Team\n"
 "Language: pt_BR\n"
@@ -644,7 +644,7 @@ msgstr "Viemos para livrar o mundo do seu mal!"
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall shoo you back to the pits, foul one!"
+msgid "We shall send you back to the pits, foul one!"
 msgstr "Nós o enviaremos de volta para o abismo, criatura vil!"
 
 #: speech:121

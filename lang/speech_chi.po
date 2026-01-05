@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2026-01-01 07:09+0000\n"
+"PO-Revision-Date: 2026-01-05 01:53+0000\n"
 "Last-Translator: YFdyh000 <yfdyh000@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: zh_CN\n"
@@ -642,7 +642,7 @@ msgstr "我们要除掉你邪恶的世界！"
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall shoo you back to the pits, foul one!"
+msgid "We shall send you back to the pits, foul one!"
 msgstr "我们要把你送进坟墓，邪恶的家伙！"
 
 #: speech:121
@@ -669,4 +669,3 @@ msgstr "以光明的名义，我们发誓打败你！"
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
 msgstr "我们不能再对你的邪恶的存在，置之不理了！"
-

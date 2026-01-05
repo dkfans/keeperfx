@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2026-01-01 07:11+0000\n"
+"PO-Revision-Date: 2026-01-05 01:55+0000\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -642,7 +642,7 @@ msgstr "Przyszliśmy by uwolnić od ciebie świat!"
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall shoo you back to the pits, foul one!"
+msgid "We shall send you back to the pits, foul one!"
 msgstr "Poslemy cię z powrotem do piachu, głupcze!"
 
 #: speech:121
@@ -669,4 +669,3 @@ msgstr "W imie wszystkiego co dobre, pokonamy cię!"
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
 msgstr "Nie zniesiemy dłużej twej demonicznej obecności!"
-
