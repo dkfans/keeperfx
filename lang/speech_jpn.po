@@ -1,674 +1,673 @@
 # *****************************************************************************
-# Free implementation of Bullfrog's Dungeon Keeper strategy game.
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-# @file speech_cze.po
+#   @file speech_jpn.po
 #      KeeperFX Speeches translation file
-# @par Purpose:
+#  @par Purpose:
 #      Contains translation of the national speeches in the game.
-# @par Comment:
+#  @par Comment:
 #      Use this file to improve the translation for specific language.
-# @author KeeperFX Team
-# @date 25 Aug 2012 - 02 Oct 2012
-# @par Copying and copyrights:
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 02 Oct 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
 #
 # *****************************************************************************
 msgid ""
 msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2026-01-05 01:54+0000\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
-"Language: cs_CZ\n"
+"Last-Translator: Language-Team: KeeperFX Team\n"
+"Language-Team: \n"
+"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Poedit 3.8\n"
-"X-Poedit-SourceCharset: UTF-8\n"
 
 #: speech:1
 msgctxt "In-game mentor"
 msgid "Your creatures are becoming angry."
-msgstr "Tvé bytosti se začínají zlobit."
+msgstr "クリーチャーが怒り始めた。"
 
 #: speech:2
 msgctxt "In-game mentor"
 msgid "Your creatures are angry - they have nowhere to live."
-msgstr "Tvé bytosti se zlobí - nemají kde bydlet."
+msgstr "クリーチャーが怒っている。住む場所が無いからだ。"
 
 #: speech:3
 msgctxt "In-game mentor"
 msgid "Your minions are annoyed - you cannot pay them."
-msgstr "Tví přisluhovači jsou naštvaní - nemůžeš jim zaplatit."
+msgstr "手下が不機嫌だ。財宝が足りないせいだ。"
 
 #: speech:4
 msgctxt "In-game mentor"
 msgid "Your creatures are upset because they are hungry."
-msgstr "Tvoje příšery jsou naštvané, protože mají hlad."
+msgstr "クリーチャーが空腹で苛ついている。"
 
 #: speech:5
 msgctxt "In-game mentor"
 msgid "Your minions are vandalising your dungeon!"
-msgstr "Tví přisluhovači demolují tvou kobku!"
+msgstr "手下がダンジョンを破壊している！"
 
 #: speech:6
 msgctxt "In-game mentor"
 msgid "Creatures are deserting!"
-msgstr "Příšery dezertují!"
+msgstr "手下が去っていく！"
 
 #: speech:7
 msgctxt "In-game mentor"
 msgid "The enemy has broken through your walls!"
-msgstr "Nepřítel prolomil tvé zdi!"
+msgstr "敵が壁を突破した！"
 
 #: speech:8
 msgctxt "In-game mentor"
 msgid "Your Dungeon Heart is being attacked!"
-msgstr "Tvé Srdce kobky je napadeno!"
+msgstr "ダンジョンハートが攻撃されている！"
 
 #: speech:9
 msgctxt "In-game mentor"
 msgid "Your minions have lost a battle."
-msgstr "Tví přisluhovači prohráli bitvu."
+msgstr "手下が戦闘に負けた。"
 
 #: speech:10
 msgctxt "In-game mentor"
 msgid "Your creatures have won a battle!"
-msgstr "Tví tvorové vyhráli bitvu!"
+msgstr "手下が敵を倒した！"
 
 #: speech:11
 msgctxt "In-game mentor"
 msgid "Your creatures are falling in battle!"
-msgstr "Tvé stvoření prohrávají bitvu!"
+msgstr "手下が戦闘に負けそうだ！"
 
 #: speech:12
 msgctxt "In-game mentor"
 msgid "Your minions are winning a battle."
-msgstr "Tví přisluhovači vítězí v bitvě."
+msgstr "手下が敵を倒しそうだ。"
 
 #: speech:13
 msgctxt "In-game mentor"
 msgid "Your creatures are under attack."
-msgstr "Tví tvorové jsou pod útokem."
+msgstr "手下が攻撃されている。"
 
 #: speech:14
 msgctxt "In-game mentor"
 msgid "Your creatures are attacking the enemy!"
-msgstr "Tvá stvoření útočí na nepřítele!"
+msgstr "手下が敵を攻撃している！"
 
 #: speech:15
 msgctxt "In-game mentor"
 msgid "The enemy is destroying your rooms!"
-msgstr "Nepřítel je ničí tvé místnosti!"
+msgstr "敵が部屋を破壊しているぞ！"
 
 #: speech:16
 msgctxt "In-game mentor"
 msgid "You are losing territory."
-msgstr "Strácíš území."
+msgstr "領地を失いそうだ。"
 
 #: speech:17
 msgctxt "In-game mentor"
 msgid "You have claimed an enemy room."
-msgstr "Zabral jsi místnost nepřítele."
+msgstr "敵の部屋を占領した。"
 
 #: speech:18
 msgctxt "In-game mentor"
 msgid "You have taken control of a new room."
-msgstr "Převzal jsi kontrolu nad novou místností."
+msgstr "新しい部屋を占領した。"
 
 #: speech:19
 msgctxt "In-game mentor"
 msgid "Beware, the Lord of the Land approaches!"
-msgstr "Dej si pozor, pán země příchází!"
+msgstr "気をつけろ！ロードが近づいてきた！"
 
 #: speech:20
 msgctxt "In-game mentor"
 msgid "Your creatures are fighting amongst themselves."
-msgstr "Tvé stvoření bojují samy mezi sebou."
+msgstr "仲間同士で争っている。"
 
 #: speech:21
 msgctxt "In-game mentor"
 msgid "The battle is over."
-msgstr "Bitva skončila."
+msgstr "戦闘終了。"
 
 #: speech:22
 msgctxt "In-game mentor"
 msgid "Food is scarce; enlarge your Hatchery."
-msgstr "Jídlo je vzácné, zvětši Líheň."
+msgstr "食糧不足だ、鶏小屋を広げろ。"
 
 #: speech:23
 msgctxt "In-game mentor"
 msgid "Your creatures need a bigger Lair."
-msgstr "Tví tvorové potřebují větší Doupě."
+msgstr "もっと広いねぐらを用意しろ。"
 
 #: speech:24
 msgctxt "In-game mentor"
 msgid "You need a bigger Treasure Room."
-msgstr "Potřebuješ větší Pokladnici."
+msgstr "もっと広い宝物庫を用意しろ。"
 
 #: speech:25
 msgctxt "In-game mentor"
 msgid "Your Library is too small."
-msgstr "Tvoje Knihovna je příliš malá."
+msgstr "図書館が狭すぎる。"
 
 #: speech:26
 msgctxt "In-game mentor"
 msgid "Your Prison is too small."
-msgstr "Tvojě Vězení je příliš malé."
+msgstr "牢獄が狭すぎる。"
 
 #: speech:27
 msgctxt "In-game mentor"
 msgid "Your Torture Chamber is not big enough."
-msgstr "Tvoje Mučírna není dost velká."
+msgstr "拷問室をもっと広げろ。"
 
 #: speech:28
 msgctxt "In-game mentor"
 msgid "You need a bigger Training Room."
-msgstr "Potřebuješ větší Tréningovou místnost."
+msgstr "広い訓練室が必要だ。"
 
 #: speech:29
 msgctxt "In-game mentor"
 msgid "Your Workshop is not big enough."
-msgstr "Tvoje Dílna není dost velká."
+msgstr "工房をもっと広げろ。"
 
 #: speech:30
 msgctxt "In-game mentor"
 msgid "Your Scavenger Room is too small."
-msgstr "Tvůj Očistec je příliš malý."
+msgstr "洗脳室が狭すぎる。"
 
 #: speech:31
 msgctxt "In-game mentor"
 msgid "You need a bigger Temple."
-msgstr "Potřebuješ větší Chrám."
+msgstr "もっと大きな神殿が必要だ。"
 
 #: speech:32
 msgctxt "In-game mentor"
 msgid "Your Graveyard is not big enough."
-msgstr "Tvůj hřbitov není dost velký ."
+msgstr "墓場が死体で溢れている。"
 
 #: speech:33
 msgctxt "In-game mentor"
 msgid "Your Barracks require expansion."
-msgstr "Tvoje Kasárna vyžadují rozšířit."
+msgstr "兵舎をもっと広くしろ。"
 
 #: speech:34
 msgctxt "In-game mentor"
 msgid "Hungry creatures cannot get to a Hatchery."
-msgstr "Hladové bytosti se nemohou dostat do Líhně."
+msgstr "手下が鶏小屋にたどり着けないぞ。"
 
 #: speech:35
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach the Treasure Room."
-msgstr "Někteří z tvých poskoků se nejsou schopni dostat k Pokladnici."
+msgstr "宝物庫にたどり着けない手下がいるぞ。"
 
 #: speech:36
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach their lairs."
-msgstr "Někteří z tvých poskoků se nejsou schnopni dostat do Doupat."
+msgstr "ねぐらにたどり着けない手下がいるぞ。"
 
 #: speech:37
 msgctxt "In-game mentor"
 msgid "An Entrance has been claimed."
-msgstr "Dosáhnul jsi Vstupu."
+msgstr "ゲートを占領した。"
 
 #: speech:38
 msgctxt "In-game mentor"
 msgid "You have lost an entrance."
-msgstr "Ztratil jsi Vstup."
+msgstr "ゲートを奪われた。"
 
 #: speech:39
 msgctxt "In-game mentor"
 msgid "You must build a Treasure Room, to store gold."
-msgstr "Musíš vybudovat Pokladnici k ukládání zlata."
+msgstr "財宝を入れる宝物庫を作れ。"
 
 #: speech:40
 msgctxt "In-game mentor"
 msgid "You need to build a Lair for your creatures."
-msgstr "Musíš vybudovat Doupě pro tvé stvoření."
+msgstr "クリーチャーのためにねぐらを作れ。"
 
 #: speech:41
 msgctxt "In-game mentor"
 msgid "You should build a Hatchery, to feed your minions."
-msgstr "Měl by jsi postavit Líheň, ať můžeš nakrmit své přisluhovače."
+msgstr "手下のために鶏小屋を作れ。"
 
 #: speech:42
 msgctxt "In-game mentor"
 msgid "A new room has been researched."
-msgstr "Byla vynalezena nová místnost."
+msgstr "新しい部屋が開発された。"
 
 #: speech:43
 msgctxt "In-game mentor"
 msgid "A new spell has been researched."
-msgstr "Bylo vynalezeno nové kouzlo."
+msgstr "新しい魔法が開発された。"
 
 #: speech:44
 msgctxt "In-game mentor"
 msgid "A door has been manufactured."
-msgstr "Byly vyrobeny dveře."
+msgstr "ドアが完成した。"
 
 #: speech:45
 msgctxt "In-game mentor"
 msgid "A trap has been manufactured."
-msgstr "Byla vyrobena past."
+msgstr "トラップが完成した。"
 
 #: speech:46
 msgctxt "In-game mentor"
 msgid "There is nothing left to research."
-msgstr "Není nic nového k výzkumu."
+msgstr "全ての研究を完了した。"
 
 #: speech:47
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's spellbook."
-msgstr "Vzal jsi nepříteli knihu kouzel."
+msgstr "魔法の書を奪った。"
 
 #: speech:48
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's trap design."
-msgstr "Zabral jsi design k pasti nepřítele."
+msgstr "トラップの設計図を奪った。"
 
 #: speech:49
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's door design."
-msgstr "Zabral jsi konstrukční plán k dveřím nepřítele."
+msgstr "ドアの設計図を奪った。"
 
 #: speech:50
 msgctxt "In-game mentor"
 msgid "The enemy has stolen a spellbook!"
-msgstr "Nepřítel ti ukradnul knihu kouzel! "
+msgstr "魔法の書を奪われた！"
 
 #: speech:51
 msgctxt "In-game mentor"
 msgid "A trap design has been taken from you."
-msgstr "Byl ti ukraden plán k výrobě pastí."
+msgstr "トラップの設計図を奪われた。"
 
 #: speech:52
 msgctxt "In-game mentor"
 msgid "The enemy has taken a door design."
-msgstr "Nepřítel ti ukradnul projekt k výrobě dveří."
+msgstr "ドアの設計図を奪われた。"
 
 #: speech:53
 msgctxt "In-game mentor"
 msgid "Information has been tortured from the enemy."
-msgstr "Mučením byla získána informace z nepřítele."
+msgstr "拷問した敵が情報を吐いた。"
 
 #: speech:54
 msgctxt "In-game mentor"
 msgid "An enemy has been converted to your cause."
-msgstr "Nepřítel konvertoval k tvému cíli."
+msgstr "敵がこちらに寝返った。"
 
 #: speech:55
 msgctxt "In-game mentor"
 msgid "A prisoner has died and risen as a Skeleton."
-msgstr "Vězeň zemřel a vrátil se jako Kostlivec."
+msgstr "死んだ囚人がスケルトンになった。"
 
 #: speech:56
 msgctxt "In-game mentor"
 msgid "A torture victim has died and returned as a Ghost."
-msgstr "Oběť mučení zemřela a vrátila jako duch."
+msgstr "拷問で死んだものがゴーストになった。"
 
 #: speech:57
 msgctxt "In-game mentor"
 msgid "Your prisoners are escaping!"
-msgstr "Utíkají ti vězni!"
+msgstr "囚人どもが脱走した！"
 
 #: speech:58
 msgctxt "In-game mentor"
 msgid "A Vampire has risen in your Graveyard."
-msgstr "Na hřbitově povstal upír."
+msgstr "墓場でバンパイアが復活した。"
 
 #: speech:59
 msgctxt "In-game mentor"
 msgid "You have freed your creatures from prison!"
-msgstr "Osvobodil jsi své bytosti z vězení!"
+msgstr "手下を牢獄から解放した！"
 
 #: speech:60
 msgctxt "In-game mentor"
 msgid "Your prisoners are starving to death."
-msgstr "Tví vězni hladoví k smrti."
+msgstr "囚人たちが飢え死にしそうだ。"
 
 #: speech:61
 msgctxt "In-game mentor"
 msgid "One of your creatures is being scavenged!"
-msgstr "Jedno z tvých stvoření je očišťováno!"
+msgstr "クリーチャーが洗脳を受けている！"
 
 #: speech:62
 msgctxt "In-game mentor"
 msgid "One of your minions has been scavenged!"
-msgstr "Jden z tvých přisluhovačů je očišťován!"
+msgstr "手下が洗脳された！"
 
 #: speech:63
 msgctxt "In-game mentor"
 msgid "One of your creatures has joined the enemy."
-msgstr "Jeden z tvých tvorů se přidal k nepříteli."
+msgstr "クリーチャーが敵に寝返った。"
 
 #: speech:64
 msgctxt "In-game mentor"
 msgid "Secrets have been tortured from your creatures!"
-msgstr "Tajemství byla získána mučením z tvých stvoření."
+msgstr "拷問された手下から秘密が漏れた！"
 
 #. Message when good sacrifice recipe progressed
 #: speech:65
 msgctxt "In-game mentor"
 msgid "The Gods are pleased with your sacrifice."
-msgstr "Bohové jsou spokojeni s tvou obětí."
+msgstr "神は生贄が気に入ったようだ。"
 
 #. Message when good sacrifice recipe finished
 #: speech:66
 msgctxt "In-game mentor"
 msgid "The Gods have rewarded your offering."
-msgstr "Bohové odměněnili tvou nabídku."
+msgstr "神からの褒美を受けた。"
 
 #. Message when sacrifice didn't progressed any recipe
 #: speech:67
 msgctxt "In-game mentor"
 msgid "The Gods do not care for your sacrifice."
-msgstr "Tvá oběť bohy nezajímá."
+msgstr "神は生贄が気に入らないようだ。"
 
 #. Message when bad sacrifice recipe progressed
 #: speech:68
 msgctxt "In-game mentor"
 msgid "Your offering has made the Gods angry!"
-msgstr "Tvá nabídka rozzuřila bohy!"
+msgstr "供え物が神を怒らせた！"
 
 #. Message when bad sacrifice recipe finished
 #: speech:69
 msgctxt "In-game mentor"
 msgid "The Gods have punished your unworthy offering."
-msgstr "Bohové tě potrestali za tvou nedůstojnou nabídku."
+msgstr "酷い供え物に怒り、天罰を下した。"
 
 #. Message when dropping gold into Temple water
 #: speech:70
 msgctxt "In-game mentor"
 msgid "This is no wishing well, Keeper."
-msgstr "Toto není žádné sbohem, Správče!"
+msgstr "キーパーよ、ここは願掛けの井戸ではない。"
 
 #. Message when Dungeon Special found on level
 #: speech:71
 msgctxt "In-game mentor"
 msgid "Your creatures have discovered a mysterious magic box."
-msgstr "Tvé stvoření objevily tajemnou magickou bednu."
+msgstr "クリーチャーが魔法箱を見つけた。"
 
 #. Message when spellbook found on level
 #: speech:72
 msgctxt "In-game mentor"
 msgid "Your creatures have found a spell."
-msgstr "Tví tvorové našli kouzlo."
+msgstr "クリーチャーが魔法を見つけた。"
 
 #. Message when door crate found on level
 #: speech:73
 msgctxt "In-game mentor"
 msgid "A door design has been discovered."
-msgstr "Byla objevena nová konstrukce dveří."
+msgstr "ドアの設計図が見つかった。"
 
 #. Message when trap crate found on level
 #: speech:74
 msgctxt "In-game mentor"
 msgid "A trap design has been discovered."
-msgstr "Byla vynalezen design nové pasti."
+msgstr "トラップの設計図が見つかった。"
 
 #: speech:75
 msgctxt "In-game mentor"
 msgid "New creatures have joined your dungeon."
-msgstr "Nové stvoření přišly do tvé kobky."
+msgstr "新しいクリーチャーが仲間入りした。"
 
 #. Message when digging has revealed a cavern
 #: speech:76
 msgctxt "In-game mentor"
 msgid "You have tunnelled into a new area."
-msgstr "Prokopal jsi se do voné oblasti."
+msgstr "新しい場所が見つかった。"
 
 #: speech:77
 msgctxt "In-game mentor"
 msgid "The entire realm has been revealed to you."
-msgstr "Byla ti odhalena celá země."
+msgstr "土地全体が明らかになった。"
 
 #: speech:78
 msgctxt "In-game mentor"
 msgid "You may resurrect one creature."
-msgstr "Můžeš vzkřísit jednu bytost."
+msgstr "クリーチャーを一人復活できる。"
 
 #: speech:79
 msgctxt "In-game mentor"
 msgid "Select a creature to take with you to the next realm."
-msgstr "Vyber si stvoření, které si sebou vezmeš do další říše."
+msgstr "次の王国へ連れて行くクリーチャーを選べ。"
 
 #: speech:80
 msgctxt "In-game mentor"
 msgid "So be it."
-msgstr "Staniž se."
+msgstr "よし、いいだろう。"
 
 #: speech:81
 msgctxt "In-game mentor"
 msgid "You have bewitched a hero."
-msgstr "Očaroval jsi hrdinu."
+msgstr "勇者を一人仲間にした。"
 
 #: speech:82
 msgctxt "In-game mentor"
 msgid "Your creatures have been doubled in number."
-msgstr "Počet tvých příšer se zdvojnásobil."
+msgstr "クリーチャーの数が倍になった。"
 
 #: speech:83
 msgctxt "In-game mentor"
 msgid "Your creatures have been blessed with experience."
-msgstr "Tvé příšery byly požehnány zkušenostmi."
+msgstr "神々の恩恵でクリーチャーの経験値があがった。"
 
 #: speech:84
 msgctxt "In-game mentor"
 msgid "Your dungeon has been fortified."
-msgstr "Tvá kobka byla opevněna."
+msgstr "ダンジョンの守りは鉄壁になった。"
 
 #: speech:85
 msgctxt "In-game mentor"
 msgid ""
 "You have found a hidden realm. Go there when you've conquered this land."
-msgstr "Našel jsi skrytou říši. Běž tam, až si podmaníš tuto zemi."
+msgstr "秘密の王国を発見した。この土地を征服次第、そこへ向かえ。"
 
 #: speech:86
 msgctxt "In-game mentor"
 msgid "Your gold reserves are running low."
-msgstr "Tvé zásoby zlata docházejí."
+msgstr "財宝がもう幾らも無い。"
 
 #: speech:87
 msgctxt "In-game mentor"
 msgid "You do not have enough gold."
-msgstr "Nemáš dostatek zlata."
+msgstr "財宝が足りない。"
 
 #: speech:88
 msgctxt "In-game mentor"
 msgid "You are too poor to scavenge creatures."
-msgstr "Jsi příliš chudý na to, aby jsi očistil příšeru."
+msgstr "財宝が無い、クリーチャーを洗脳できない。"
 
 #: speech:89
 msgctxt "In-game mentor"
 msgid "You cannot afford to train creatures."
-msgstr "Nemůžeš si dovolit trénovat bytosti."
+msgstr "財宝が足りないので訓練できない。"
 
 #: speech:90
 msgctxt "In-game mentor"
 msgid "It is payday."
-msgstr "Je den výplaty."
+msgstr "給料日だ。"
 
 #: speech:91
 msgctxt "In-game mentor random funny message"
 msgid "My god, it's full of pies."
-msgstr "Můj bože, je to plné koláčů."
+msgstr "神よ、楽しい事だらけだ。"
 
 #: speech:92
 msgctxt "In-game mentor random funny message"
 msgid "Something surreal is happening."
-msgstr "Děje se něco neskutečného."
+msgstr "思いもよらないことばかりだ。"
 
 #: speech:93
 msgctxt "In-game mentor random funny message"
 msgid "Your creatures are developing a strange accent."
-msgstr "Tvé bytosti si rozvíjí zvláštní přízvuk."
+msgstr "クリーチャーが何やら喋っている。"
 
 #: speech:94
 msgctxt "In-game mentor random funny message"
 msgid "Your pants are definitely too tight."
-msgstr "Tvé kalhoty jsou rozhodně příliš těsné."
+msgstr "お前のズボンはどう見てもきつ過ぎる。"
 
 #: speech:95
 msgctxt "In-game mentor random funny message"
 msgid "Your minions have a craving for chocolate."
-msgstr "Tví přisluhovači mají chuť na čokoládu."
+msgstr "手下がチョコレートをとても欲しがっている。"
 
 #: speech:96
 msgctxt "In-game mentor random funny message"
 msgid "There's that smell again."
-msgstr "A je tu ten smrad, opět."
+msgstr "またあの臭いだ。"
 
 #: speech:97
 msgctxt "In-game mentor random funny message"
 msgid "Hello?"
-msgstr "Ahoj."
+msgstr "よう！"
 
 #: speech:98
+#, fuzzy
 msgctxt "In-game mentor random funny message"
 msgid "Blech."
-msgstr "Blech."
+msgstr "うぇ。"
 
 #: speech:99
+#, fuzzy
 msgctxt "In-game mentor random funny message"
 msgid "Achoo"
-msgstr "Achoo"
+msgstr "ヘクシュ"
 
 #: speech:100
+#, fuzzy
 msgctxt "In-game mentor random funny message"
 msgid "Cough"
-msgstr "Zakašlání."
+msgstr "ゲフン"
 
 #: speech:101
+#, fuzzy
 msgctxt "In-game mentor"
 msgid "You cannot give your Imps any more jobs."
-msgstr "Nemůžeš dát svým Impům žádnou další práci ."
+msgstr "ちょっと待ってくれ。"
 
 #: speech:102
 msgctxt "In-game mentor"
 msgid "Game loaded."
-msgstr "Hra načtena."
+msgstr "ゲームロード。"
 
 #: speech:103
 msgctxt "In-game mentor"
 msgid "Game saved."
-msgstr "Hra uložena."
+msgstr "ゲームセーブ。"
 
 #: speech:104
 msgctxt "In-game mentor"
 msgid "You have defeated an enemy Keeper."
-msgstr "Porazil jsi nepřátelského Správce."
+msgstr "敵のキーパーを打ち倒した。"
 
 #: speech:105
 msgctxt "In-game mentor"
 msgid "You have been defeated."
-msgstr "Byl jsi poražen."
+msgstr "立ち去れ、もうお前には無い。"
 
 #: speech:106
 msgctxt "In-game mentor"
 msgid "You have conquered this realm!"
-msgstr "Dobyl jsi tuto říši!"
+msgstr "見事に王国を征服した！"
 
 #: speech:107
 msgctxt "In-game mentor"
 msgid "Master, I sense the presence of the Avatar!"
-msgstr "Mistře, cítím přítomnost Avatara!"
+msgstr "支配者よ、アバタールの存在を感じるぞ！"
 
 #: speech:108
 msgctxt "In-game mentor"
 msgid "What trickery is this? The Avatar's body has vanished!"
-msgstr "Co je to podvod? Tělo Avatar zmizelo."
+msgstr "どういうことだ、アバタールの死体が消えている！"
 
 #: speech:109
 msgctxt "In-game mentor"
 msgid ""
 "You are victorious! Your darkness pervades throughout the kingdom. All hail "
 "the new lord of shadows!"
-msgstr ""
-"Zvítězil jsi, tvá temnota prostupuje skrze království. Všichni oslavujte "
-"nového pána stínů."
+msgstr "お前の勝利だ！王国は悪の闇に覆われた。新たなる影の帝王の誕生だ！"
 
 #: speech:110
 msgctxt "Enemy Keeper Harassment"
 msgid "Your efforts are futile!"
-msgstr "Tvé snahy jsou marné!"
+msgstr "努力しても無駄さ！"
 
 #: speech:111
 msgctxt "Enemy Keeper Harassment"
 msgid "My dungeon is the finest you shall ever see!"
-msgstr "Má kobka je nejlepší jakou kdy uvidíš!"
+msgstr "俺の作るダンジョンは最高だ！"
 
 #: speech:112
 msgctxt "Enemy Keeper Harassment"
 msgid "My minions will leave your dungeon a crumbling ruin!"
-msgstr "Mí přisluhovači zanechají z tvé kobky rozpadající zříceninu!"
+msgstr "お前のダンジョンを廃墟にしてやる！"
 
 #: speech:113
 msgctxt "Enemy Keeper Harassment"
 msgid "You entrails will decorate the darkest alchove of my domain!"
-msgstr "Tvé vnitřnosti budou zdobit nejtmavší alchow mé domény!"
+msgstr "貴様の内臓を抉り出して、オレ様の部屋に飾ってやる！"
 
 #: speech:114
 msgctxt "Enemy Keeper Harassment"
 msgid "Your corpse shall feed my minions yet, Keeper!"
-msgstr "Tvé tělo ještě potká mé přisluhovače, Správče!"
+msgstr "お前の死体を鶏に喰わせてやる！"
 
 #: speech:115
 msgctxt "Enemy Keeper Harassment"
 msgid "Prepare for oblivion, Keeper!"
-msgstr "Připrav se na zapomnění, Správče!"
+msgstr "キーパー消えてなくなれ！"
 
 #: speech:116
 msgctxt "Enemy Keeper Harassment"
 msgid "Pathetic creature, I shall crush you in an instant!"
-msgstr "Ubohé stvoření, rozdrtím tě v mžiku!"
+msgstr "憐れなクリーチャーどもよ、今すぐ殺してやるからな！"
 
 #: speech:117
 msgctxt "Enemy Keeper Harassment"
 msgid "Pah ha ha ha ha ha!"
-msgstr ""
+msgstr "イャハハハハハハハ！"
 
 #: speech:118
 msgctxt "Hero Talk Upon Entering"
 msgid "Your dark days are numbered, evil one!"
-msgstr "Zlochu, tvé dny temna jsou u konce!"
+msgstr "貴様らはもう終わりだ！"
 
 #: speech:119
 msgctxt "Hero Talk Upon Entering"
 msgid "We come to rid the world of your evil!"
-msgstr "Zbavíme se tvého světa zla!"
+msgstr "邪悪なものどもめ、一匹残らず消し去ってやる！"
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall send you back to the pits, foul one!"
-msgstr "Odporný, zaženeme tě zpátky do děr!"
+msgstr "薄汚い奴等め、奈落の底へ消えてしまえ！"
 
 #: speech:121
 msgctxt "Hero Talk Upon Entering"
 msgid "Your reign shall end before this day is done!"
-msgstr "Tvá vláda skončí dříve než bude tento den u konce!"
+msgstr "お前の支配も、もうこれまでだ！"
 
 #: speech:122
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall cast you back into the shadows, Keeper!"
-msgstr "Uvrhneme tě zpátky do stínů, správče!"
+msgstr "キーパーよ、闇の住処へ帰るがよい！"
 
 #: speech:123
 msgctxt "Hero Talk Upon Entering"
 msgid "Leave us to live our lives in peace!"
-msgstr "Nechte nás žít naše životy v míru!"
+msgstr "我々は平和な世界を取り戻すためやってきた！"
 
 #: speech:124
 msgctxt "Hero Talk Upon Entering"
 msgid "In the name of all that is good, we shall defeat you!"
-msgstr "Ve jménu všeho, co je dobré , tě porazíme!"
+msgstr "全ての善良なものの名にかけて、貴様を打ち倒す！"
 
 #: speech:125
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
-msgstr "Nebudeme už tolerovat tvou ďábelskou přítomnost!"
+msgstr "邪悪な貴様らをもう許してはおけん！"

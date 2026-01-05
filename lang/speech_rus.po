@@ -1,13 +1,12 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file speech_eng.pot
-#      KeeperFX Speeches translation template
+#   @file speech_rus.po
+#      KeeperFX Speeches translation file
 #  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as english translation script.
+#      Contains translation of the national speeches in the game.
 #  @par Comment:
-#      Use this file to create or update script of speeches.
+#      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
 #  @date     25 Aug 2012 - 02 Oct 2012
 #  @par  Copying and copyrights:
@@ -20,10 +19,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
-"POT-Creation-Date: 2025-12-29 10:32+0100\n"
-"PO-Revision-Date: 2025-12-30 11:26+0100\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2026-01-05 01:55+0000\n"
 "Last-Translator: \n"
-"Language-Team: KeeperFX Team \n"
+"Language-Team: KeeperFX Team\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -52,7 +51,7 @@ msgstr "Ваши создания расстроены - они голодны."
 
 #: speech:5
 msgctxt "In-game mentor"
-msgid "Your minions are vandalizing your dungeon!"
+msgid "Your minions are vandalising your dungeon!"
 msgstr "Ваши прислужники разносят Ваше подземелье!"
 
 #: speech:6
@@ -122,7 +121,7 @@ msgstr "Вы захватили новое помещение."
 
 #: speech:19
 msgctxt "In-game mentor"
-msgid "Beware, the lord of the land approaches!"
+msgid "Beware, the Lord of the Land approaches!"
 msgstr "Берегитесь! Лорд земли объявился!"
 
 #: speech:20
@@ -137,7 +136,7 @@ msgstr "Сражение окончено."
 
 #: speech:22
 msgctxt "In-game mentor"
-msgid "Food is scarce, enlarge your Hatchery."
+msgid "Food is scarce; enlarge your Hatchery."
 msgstr "Расширьте питомник. Еды не хватает на всех."
 
 #: speech:23
@@ -233,8 +232,7 @@ msgstr "Вы должны построить логово для своих со
 #: speech:41
 msgctxt "In-game mentor"
 msgid "You should build a Hatchery, to feed your minions."
-msgstr ""
-"Вы должны построить питомник, чтобы Вашим созданиям было чем питаться."
+msgstr "Вы должны построить питомник, чтобы Вашим созданиям было чем питаться."
 
 #: speech:42
 msgctxt "In-game mentor"
@@ -384,7 +382,7 @@ msgstr "Боги покарали Вас за недостойное подно�
 #. Message when dropping gold into Temple water
 #: speech:70
 msgctxt "In-game mentor"
-msgid "This is no wishing well, keeper."
+msgid "This is no wishing well, Keeper."
 msgstr "Это Вам не колодец желаний, Хранитель."
 
 #. Message when Dungeon Special found on level
@@ -419,7 +417,7 @@ msgstr "Новые создания пришли в Ваше подземель�
 #. Message when digging has revealed a cavern
 #: speech:76
 msgctxt "In-game mentor"
-msgid "You have tunneled into a new area."
+msgid "You have tunnelled into a new area."
 msgstr "Вы пробили туннель в новые земли."
 
 #: speech:77
@@ -582,14 +580,14 @@ msgstr "Повелитель! Я ощущаю присутствие Авата�
 
 #: speech:108
 msgctxt "In-game mentor"
-msgid "What trickery is this? The Avatar's body has vanished."
+msgid "What trickery is this? The Avatar's body has vanished!"
 msgstr "Что это за жульничество? Тело Аватара исчезло."
 
 #: speech:109
 msgctxt "In-game mentor"
 msgid ""
-"You are victorious, your darkness pervades throughout the kingdom. All hail "
-"the new lord of shadows."
+"You are victorious! Your darkness pervades throughout the kingdom. All hail "
+"the new lord of shadows!"
 msgstr ""
 "Вы одержали победу! Тьма распространяется по всему королевству. Славьте "
 "нового Владыку теней!"
@@ -616,7 +614,7 @@ msgstr "Твои кишки украсят самые темные ниши Мо
 
 #: speech:114
 msgctxt "Enemy Keeper Harassment"
-msgid "Your corpse shall feed my minions yet, keeper!"
+msgid "Your corpse shall feed my minions yet, Keeper!"
 msgstr "Я скормлю твое тело Своим прислужникам, хранитель!"
 
 #: speech:115
@@ -631,7 +629,7 @@ msgstr "Жалкое создание! Я сокрушу тебя прямо с�
 
 #: speech:117
 msgctxt "Enemy Keeper Harassment"
-msgid "Ho ho ho ho!"
+msgid "Pah ha ha ha ha ha!"
 msgstr "Ха-ха-ха-ха!"
 
 #: speech:118
@@ -646,7 +644,7 @@ msgstr "Мы идем избавить мир от твоего зла!"
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall send you back to the pits, vile one!"
+msgid "We shall send you back to the pits, foul one!"
 msgstr "Мы отправим тебя обратно в ту дыру, из которой ты вылез, презренный!"
 
 #: speech:121
@@ -656,7 +654,7 @@ msgstr "Твое владычество окончится еще до зака�
 
 #: speech:122
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall cast you back into the shadows, keeper!"
+msgid "We shall cast you back into the shadows, Keeper!"
 msgstr "Мы отправим тебя обратно во тьму, хранитель!"
 
 #: speech:123
