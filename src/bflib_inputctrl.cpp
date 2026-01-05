@@ -471,13 +471,67 @@ void controller_rumble(long ms)
 static void poll_controller()
 {
     #define DEADZONE 8000
-
     if (controller != NULL) {
-        // Map controller buttons to keyboard keys
-        lbKeyOn[KC_HOME] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
-        lbKeyOn[KC_END] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-        lbKeyOn[KC_PGDOWN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-        lbKeyOn[KC_DELETE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+        
+        TbBool has_right_stick =
+            SDL_GameControllerHasAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) &&
+            SDL_GameControllerHasAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
+        TbBool has_left_stick =
+            SDL_GameControllerHasAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) &&
+            SDL_GameControllerHasAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+
+        //analog sticks and dpad, layout based on what's available, with mouse being most important, then movement, then cam rotation/zoom
+
+        if (has_right_stick && has_left_stick && false) {
+            lbKeyOn[KC_HOME] =   SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+            lbKeyOn[KC_END] =    SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+            lbKeyOn[KC_PGDOWN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+            lbKeyOn[KC_DELETE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+
+            Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+            Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+            lbKeyOn[KC_UP]    = (leftY < -8000);
+            lbKeyOn[KC_DOWN]  = (leftY >  8000);
+            lbKeyOn[KC_LEFT]  = (leftX < -8000);
+            lbKeyOn[KC_RIGHT] = (leftX >  8000);
+
+            Sint16 rightX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
+            Sint16 rightY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
+            if (rightX > DEADZONE || rightX < -DEADZONE || rightY > DEADZONE || rightY < -DEADZONE) {
+                struct TbPoint mouseDelta;
+                mouseDelta.x = rightX / 2048; // Scale down the axis value for slower movement
+                mouseDelta.y = rightY / 2048;
+                mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+            }
+        } else if (has_left_stick && false) {
+
+            lbKeyOn[KC_UP]    = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+            lbKeyOn[KC_DOWN]  = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+            lbKeyOn[KC_LEFT]  = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+            lbKeyOn[KC_RIGHT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+
+            Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+            Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+            if (leftX > DEADZONE || leftX < -DEADZONE || leftY > DEADZONE || leftY < -DEADZONE) {
+                struct TbPoint mouseDelta;
+                mouseDelta.x = leftX / 2048; // Scale down the axis value for slower movement
+                mouseDelta.y = leftY / 2048;
+                mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+            }
+        } else {
+            TbBool up    = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+            TbBool down  = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+            TbBool left  = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+            TbBool right = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+
+            struct TbPoint mouseDelta;
+            mouseDelta.x = (right - left) * 5;
+            mouseDelta.y = (down - up) * 5;
+            mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+        }
+
+
+
 
         lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
         lbKeyOn[KC_LCONTROL] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
@@ -529,23 +583,7 @@ static void poll_controller()
         //}
         //prev_joy_right = current_joy_right;
 
-        // Handle analog sticks for movement
-        Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
-        Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
-        lbKeyOn[KC_UP]    = (leftY < -8000);
-        lbKeyOn[KC_DOWN]  = (leftY >  8000);
-        lbKeyOn[KC_LEFT]  = (leftX < -8000);
-        lbKeyOn[KC_RIGHT] = (leftX >  8000);
 
-        // Handle right stick for mouse movement
-        Sint16 rightX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
-        Sint16 rightY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
-        if (rightX > DEADZONE || rightX < -DEADZONE || rightY > DEADZONE || rightY < -DEADZONE) { // Deadzone
-            struct TbPoint mouseDelta;
-            mouseDelta.x = rightX / 2048; // Scale down the axis value for slower movement
-            mouseDelta.y = rightY / 2048;
-            mouseControl(MActn_MOUSEMOVE, &mouseDelta);
-        }
 
         // Handle triggers for mouse buttons
         Sint16 lt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
