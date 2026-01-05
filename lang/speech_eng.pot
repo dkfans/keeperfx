@@ -51,7 +51,7 @@ msgstr ""
 
 #: speech:5
 msgctxt "In-game mentor"
-msgid "Your minions are vandalizing your dungeon!"
+msgid "Your minions are vandalising your dungeon!"
 msgstr ""
 
 #: speech:6
@@ -121,7 +121,7 @@ msgstr ""
 
 #: speech:19
 msgctxt "In-game mentor"
-msgid "Beware, the lord of the land approaches!"
+msgid "Beware, the Lord of the Land approaches!"
 msgstr ""
 
 #: speech:20
@@ -136,7 +136,7 @@ msgstr ""
 
 #: speech:22
 msgctxt "In-game mentor"
-msgid "Food is scarce, enlarge your Hatchery."
+msgid "Food is scarce; enlarge your Hatchery."
 msgstr ""
 
 #: speech:23
@@ -382,7 +382,7 @@ msgstr ""
 #. Message when dropping gold into Temple water
 #: speech:70
 msgctxt "In-game mentor"
-msgid "This is no wishing well, keeper."
+msgid "This is no wishing well, Keeper."
 msgstr ""
 
 #. Message when Dungeon Special found on level
@@ -417,7 +417,7 @@ msgstr ""
 #. Message when digging has revealed a cavern
 #: speech:76
 msgctxt "In-game mentor"
-msgid "You have tunneled into a new area."
+msgid "You have tunnelled into a new area."
 msgstr ""
 
 #: speech:77
@@ -577,12 +577,12 @@ msgstr ""
 
 #: speech:108
 msgctxt "In-game mentor"
-msgid "What trickery is this? The Avatar's body has vanished."
+msgid "What trickery is this? The Avatar's body has vanished!"
 msgstr ""
 
 #: speech:109
 msgctxt "In-game mentor"
-msgid "You are victorious, your darkness pervades throughout the kingdom. All hail the new lord of shadows."
+msgid "You are victorious! Your darkness pervades throughout the kingdom. All hail the new lord of shadows!"
 msgstr ""
 
 #: speech:110
@@ -607,7 +607,7 @@ msgstr ""
 
 #: speech:114
 msgctxt "Enemy Keeper Harassment"
-msgid "Your corpse shall feed my minions yet, keeper!"
+msgid "Your corpse shall feed my minions yet, Keeper!"
 msgstr ""
 
 #: speech:115
@@ -622,7 +622,7 @@ msgstr ""
 
 #: speech:117
 msgctxt "Enemy Keeper Harassment"
-msgid "Ho ho ho ho!"
+msgid "Pah ha ha ha ha ha!"
 msgstr ""
 
 #: speech:118
@@ -637,7 +637,7 @@ msgstr ""
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall send you back to the pits, vile one!"
+msgid "We shall send you back to the pits, foul one!"
 msgstr ""
 
 #: speech:121
@@ -647,7 +647,7 @@ msgstr ""
 
 #: speech:122
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall cast you back into the shadows, keeper!"
+msgid "We shall cast you back into the shadows, Keeper!"
 msgstr ""
 
 #: speech:123
