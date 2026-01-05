@@ -62,7 +62,7 @@ static SDL_Joystick *joystick = NULL;
 static TbBool lt_pressed = false;
 static TbBool rt_pressed = false;
 
-static uint16_t num_keys_down = false;
+static uint16_t num_keys_down = 0;
 
 static Uint8 prev_start = 0;
 static Uint8 prev_back = 0;
@@ -530,25 +530,70 @@ static void poll_controller()
             mouseControl(MActn_MOUSEMOVE, &mouseDelta);
         }
 
+        TbBool has_triggers =
+            SDL_GameControllerHasAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) &&
+            SDL_GameControllerHasAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+
+        if(has_triggers)
+        {
+            Uint8 current_leftshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+            if (current_leftshoulder && !prev_leftshoulder) {
+                go_to_adjacent_menu_tab(-1);
+            }
+            prev_leftshoulder = current_leftshoulder;
+
+            Uint8 current_rightshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+            if (current_rightshoulder && !prev_rightshoulder) {
+                go_to_adjacent_menu_tab(1);
+            }
+            prev_rightshoulder = current_rightshoulder;
 
 
+            // Handle triggers for mouse buttons
+            Sint16 lt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+            Sint16 rt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+            struct TbPoint delta = {0, 0};
+            if (lt > 10000 && !lt_pressed) {
+                lt_pressed = true;
+                mouseControl(MActn_RBUTTONDOWN, &delta);
+            } else if (lt <= 10000 && lt_pressed) {
+                lt_pressed = false;
+                mouseControl(MActn_RBUTTONUP, &delta);
+            }
+            if (rt > 10000 && !rt_pressed) {
+                rt_pressed = true;
+                mouseControl(MActn_LBUTTONDOWN, &delta);
+            } else if (rt <= 10000 && rt_pressed) {
+                rt_pressed = false;
+                mouseControl(MActn_LBUTTONUP, &delta);
+            }
+        }
+        else {
+            struct TbPoint delta = {0, 0};
+
+            Uint8 current_leftshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+            if (current_leftshoulder && !prev_leftshoulder) {
+                mouseControl(MActn_RBUTTONDOWN, &delta);
+            }
+            else if (!current_leftshoulder && prev_leftshoulder) {
+                mouseControl(MActn_RBUTTONUP, &delta);
+            }
+            prev_leftshoulder = current_leftshoulder;
+
+            Uint8 current_rightshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+            if (current_rightshoulder && !prev_rightshoulder) {
+                mouseControl(MActn_LBUTTONDOWN, &delta);
+            }
+            else if (!current_rightshoulder && prev_rightshoulder) {
+                mouseControl(MActn_LBUTTONUP, &delta);
+            }
+            prev_rightshoulder = current_rightshoulder;
+        }
 
         lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
         lbKeyOn[KC_LCONTROL] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
         lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
         lbKeyOn[settings.kbkeys[Gkey_ZoomRoomHeart].code] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
-
-        Uint8 current_leftshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-        if (current_leftshoulder && !prev_leftshoulder) {
-            go_to_adjacent_menu_tab(-1);
-        }
-        prev_leftshoulder = current_leftshoulder;
-
-        Uint8 current_rightshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-        if (current_rightshoulder && !prev_rightshoulder) {
-            go_to_adjacent_menu_tab(1);
-        }
-        prev_rightshoulder = current_rightshoulder;
 
         // Handle Start and Back buttons with edge detection to simulate key presses
         Uint8 current_start = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
@@ -584,25 +629,6 @@ static void poll_controller()
         //prev_joy_right = current_joy_right;
 
 
-
-        // Handle triggers for mouse buttons
-        Sint16 lt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
-        Sint16 rt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-        struct TbPoint delta = {0, 0};
-        if (lt > 10000 && !lt_pressed) {
-            lt_pressed = true;
-            mouseControl(MActn_RBUTTONDOWN, &delta);
-        } else if (lt <= 10000 && lt_pressed) {
-            lt_pressed = false;
-            mouseControl(MActn_RBUTTONUP, &delta);
-        }
-        if (rt > 10000 && !rt_pressed) {
-            rt_pressed = true;
-            mouseControl(MActn_LBUTTONDOWN, &delta);
-        } else if (rt <= 10000 && rt_pressed) {
-            rt_pressed = false;
-            mouseControl(MActn_LBUTTONUP, &delta);
-        }
     } else if (joystick != NULL) {
         // Map joystick buttons to keyboard keys (assuming standard layout)
         lbKeyOn[KC_HOME] = SDL_JoystickGetButton(joystick, 10); // D-pad up
@@ -676,7 +702,7 @@ TbBool LbWindowsControl(void)
     while (SDL_PollEvent(&ev)) {
         process_event(&ev);
     }
-    JUSTLOG("num_key %d",num_keys_down);
+    
     if (num_keys_down == 0)
         poll_controller();
 
