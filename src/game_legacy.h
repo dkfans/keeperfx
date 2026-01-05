@@ -45,6 +45,7 @@
 #include "thing_doors.h"
 #include "thing_objects.h"
 #include "thing_creature.h"
+#include "thing_list.h"
 #include "room_data.h"
 #include "slab_data.h"
 #include "map_data.h"
@@ -126,56 +127,60 @@ struct Configs {
     struct LuaFuncsConf lua;
 };
 
-// Structure to store detailed thing information for desync analysis
 struct LogThingDesyncInfo {
-    ThingIndex index;             // Thing's index
-    ThingClass class_id;          // Type of thing (creature, object, etc.)
-    ThingModel model;             // Model within the class
-    PlayerNumber owner;           // Owner player of the thing
-    GameTurn creation_turn;       // Turn when thing was created
-    TbBigChecksum random_seed;    // Thing's random seed
-    long pos_x;                   // Position X coordinate (full .val)
-    long pos_y;                   // Position Y coordinate (full .val)
-    long pos_z;                   // Position Z coordinate (full .val)
-    HitPoints health;             // Thing's health
-    unsigned short current_frame; // Current animation frame
-    unsigned short max_frames;    // Maximum frames in animation
-    unsigned long spell_flags;
-    TbBigChecksum checksum;       // Thing's computed checksum
+    ThingIndex index;
+    ThingClass class_id;
+    ThingModel model;
+    PlayerNumber owner;
+    struct Coord3d mappos;
+    HitPoints health;
+    GameTurn creation_turn;
+    unsigned long random_seed;
+    TbBigChecksum checksum;
 };
 
-// Structure to store detailed room information for desync analysis
+struct LogPlayerDesyncInfo {
+    PlayerNumber id;
+    unsigned char instance_num;
+    unsigned long instance_remain_turns;
+    struct Coord3d mappos;
+    TbBigChecksum checksum;
+};
+
 struct LogRoomDesyncInfo {
-    RoomKind kind;                // Type of room (temple, lair, etc.)
-    PlayerNumber owner;           // Owner player of the room
-    MapSubtlCoord central_stl_x;  // Central position X coordinate
-    MapSubtlCoord central_stl_y;  // Central position Y coordinate
-    SlabCodedCoords slabs_count;  // Number of slabs in the room
-    long efficiency;              // Room efficiency value
-    long used_capacity;           // Current capacity usage
-    RoomIndex index;              // Room's index
-    TbBigChecksum checksum;       // Room's computed checksum
+    RoomIndex index;
+    unsigned short slabs_count;
+    MapSubtlCoord central_stl_x;
+    MapSubtlCoord central_stl_y;
+    unsigned short efficiency;
+    unsigned short used_capacity;
+    TbBigChecksum checksum;
 };
 
-struct DesyncHistoryEntry {
-    GameTurn turn;
-    TbBool valid;
-    TbBigChecksum turn_checksum;
-    TbBigChecksum things_sum;
-    TbBigChecksum rooms_sum;
-    TbBigChecksum action_random_seed;
-    TbBigChecksum ai_random_seed;
-    TbBigChecksum player_random_seed;
-    TbBigChecksum player_checksums[PLAYERS_COUNT];
-    TbBigChecksum players_sum;
-    TbBigChecksum creatures_sum;
-    TbBigChecksum traps_sum;
-    TbBigChecksum shots_sum;
-    TbBigChecksum objects_sum;
-    TbBigChecksum effects_sum;
-    TbBigChecksum dead_creatures_sum;
-    TbBigChecksum effect_gens_sum;
-    TbBigChecksum doors_sum;
+struct DesyncChecksums {
+    TbBigChecksum creatures;
+    TbBigChecksum traps;
+    TbBigChecksum shots;
+    TbBigChecksum objects;
+    TbBigChecksum effects;
+    TbBigChecksum dead_creatures;
+    TbBigChecksum effect_gens;
+    TbBigChecksum doors;
+    TbBigChecksum rooms;
+    TbBigChecksum players;
+    TbBigChecksum action_seed;
+    TbBigChecksum ai_seed;
+    TbBigChecksum player_seed;
+    GameTurn game_turn;
+};
+
+struct LogDetailedSnapshot {
+    struct LogThingDesyncInfo things[SYNCED_THINGS_COUNT];
+    int thing_count;
+    struct LogPlayerDesyncInfo players[PLAYERS_COUNT];
+    int player_count;
+    struct LogRoomDesyncInfo rooms[ROOMS_COUNT];
+    int room_count;
 };
 
 struct Game {
@@ -369,13 +374,8 @@ struct Game {
 
     unsigned short skip_initial_input_turns;
 
-    // Diagnostic checksums for desync analysis (sent by host during resync)
-    struct {
-        struct DesyncHistoryEntry host_history[40];
-
-        TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
-        GameTurn desync_detected_turn;           // Turn number where desync was detected
-    } desync_diagnostics;
+    struct DesyncChecksums host_checksums;
+    struct LogDetailedSnapshot log_snapshot;
 };
 
 #pragma pack()

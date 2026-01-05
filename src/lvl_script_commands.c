@@ -993,42 +993,42 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
 
     if (start_x < 0)
     {
-        SCRPTWRNLOG("Starting X coordinate '%d' (from %d-%ld/2) is out of range, fixing it to '0'.", start_x,x,width);
+        SCRPTWRNLOG("Starting X coordinate '%d' (from %d-%d/2) is out of range, fixing it to '0'.", start_x,x,width);
         start_x = 0;
     }
     else if (start_x > game.map_subtiles_x)
     {
-        SCRPTWRNLOG("Starting X coordinate '%d' (from %d-%ld/2) is out of range, fixing it to '%d'.", start_x, x, width, game.map_subtiles_x);
+        SCRPTWRNLOG("Starting X coordinate '%d' (from %d-%d/2) is out of range, fixing it to '%d'.", start_x, x, width, game.map_subtiles_x);
         start_x = game.map_subtiles_x;
     }
     if (end_x < 0)
     {
-        SCRPTWRNLOG("Ending X coordinate '%d' (from %d+%ld/2) is out of range, fixing it to '0'.", end_x, x, width);
+        SCRPTWRNLOG("Ending X coordinate '%d' (from %d+%d/2) is out of range, fixing it to '0'.", end_x, x, width);
         end_x = 0;
     }
     else if (end_x > game.map_subtiles_x)
     {
-        SCRPTWRNLOG("Ending X coordinate '%d' (from %d+%ld/2) is out of range, fixing it to '%d'.", end_x, x, width, game.map_subtiles_x);
+        SCRPTWRNLOG("Ending X coordinate '%d' (from %d+%d/2) is out of range, fixing it to '%d'.", end_x, x, width, game.map_subtiles_x);
         end_x = game.map_subtiles_x;
     }
     if (start_y < 0)
     {
-        SCRPTWRNLOG("Starting Y coordinate '%d' (from %d-%ld/2) is out of range, fixing it to '0'.", start_y, y, height);
+        SCRPTWRNLOG("Starting Y coordinate '%d' (from %d-%d/2) is out of range, fixing it to '0'.", start_y, y, height);
         start_y = 0;
     }
     else if (start_y > game.map_subtiles_y)
     {
-        SCRPTWRNLOG("Starting Y coordinate '%d' (from %d-%ld/2) is out of range, fixing it to '%d'.", start_y, y, height, game.map_subtiles_y);
+        SCRPTWRNLOG("Starting Y coordinate '%d' (from %d-%d/2) is out of range, fixing it to '%d'.", start_y, y, height, game.map_subtiles_y);
         start_y = game.map_subtiles_y;
     }
     if (end_y < 0)
     {
-        SCRPTWRNLOG("Ending Y coordinate '%d' (from %d+%ld/2) is out of range, fixing it to '0'.", end_y, y, height);
+        SCRPTWRNLOG("Ending Y coordinate '%d' (from %d+%d/2) is out of range, fixing it to '0'.", end_y, y, height);
         end_y = 0;
     }
     else if (end_y > game.map_subtiles_y)
     {
-        SCRPTWRNLOG("Ending Y coordinate '%d' (from %d+%ld/2) is out of range, fixing it to '%d'.", end_y, y, height, game.map_subtiles_y);
+        SCRPTWRNLOG("Ending Y coordinate '%d' (from %d+%d/2) is out of range, fixing it to '%d'.", end_y, y, height, game.map_subtiles_y);
         end_y = game.map_subtiles_y;
     }
     if ((x < 0) || (x > game.map_subtiles_x) || (y < 0) || (y > game.map_subtiles_y))
@@ -1577,7 +1577,7 @@ static void set_heart_health_check(const struct ScriptLine *scline)
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
     if (scline->np[1] > objst->health)
     {
-        SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], objst->health);
+        SCRPTWRNLOG("Value %ld is greater than maximum: %d", scline->np[1], objst->health);
         value->longs[1] = objst->health;
     }
     else
@@ -3574,14 +3574,14 @@ static void reveal_map_location_check(const struct ScriptLine *scline)
 static void reveal_map_location_process(struct ScriptContext *context)
 {
     TbMapLocation target = context->value->longs[0];
-    SYNCDBG(0, "Revealing location type %lu", target);
-    int32_t x = 0;
-    int32_t y = 0;
+    SYNCDBG(0, "Revealing location type %u", target);
+    MapSubtlCoord x = 0;
+    MapSubtlCoord y = 0;
     long r = context->value->longs[1];
     find_map_location_coords(target, &x, &y, context->player_idx, __func__);
     if ((x == 0) && (y == 0))
     {
-        WARNLOG("Can't decode location %lu", target);
+        WARNLOG("Can't decode location %u", target);
         return;
     }
     if (r == -1)

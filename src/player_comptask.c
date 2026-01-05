@@ -3975,14 +3975,14 @@ long process_tasks(struct Computer2 *comp)
 TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination)
 {
     struct Computer2* comp = get_computer_player(plyr_idx);
-    int32_t orig_x = 0, orig_y = 0;
-    int32_t dest_x = 0, dest_y = 0;
+    MapSubtlCoord orig_x = 0, orig_y = 0;
+    MapSubtlCoord dest_x = 0, dest_y = 0;
 
     //dig origin
     find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
     if ((orig_x == 0) && (orig_y == 0))
     {
-        WARNLOG("Can't decode origin location %ld", origin);
+        WARNLOG("Can't decode origin location %d", origin);
         return Lb_FAIL;
     }
     struct Coord3d startpos;
@@ -3994,7 +3994,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, Tb
     find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
     if ((dest_x == 0) && (dest_y == 0))
     {
-        WARNLOG("Can't decode destination location %ld", destination);
+        WARNLOG("Can't decode destination location %d", destination);
         return Lb_FAIL;
     }
     struct Coord3d endpos;

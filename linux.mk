@@ -112,6 +112,7 @@ src/dungeon_data.c \
 src/dungeon_stats.c \
 src/engine_arrays.c \
 src/engine_camera.c \
+src/local_camera.c \
 src/engine_lenses.c \
 src/engine_redraw.c \
 src/engine_render.c \

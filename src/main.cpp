@@ -1155,12 +1155,6 @@ short setup_game(void)
 
   if (result == 1)
   {
-    if ( !setup_heaps() )
-      result = 0;
-  }
-
-  if (result == 1)
-  {
       init_keeper();
       set_gamma(settings.gamma_correction, 0);
       set_music_volume(settings.music_volume);
@@ -1907,7 +1901,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, TbMapLocation target, int32_t x, int32_t y)
+void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1924,7 +1918,7 @@ void set_general_information(long msg_id, TbMapLocation target, int32_t x, int32
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, TbMapLocation target, int32_t x, int32_t y)
+void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1946,11 +1940,11 @@ void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
     process_objective(get_string(msg_id), target, x, y);
 }
 
-void process_objective(const char *msg_text, TbMapLocation target, int32_t x, int32_t y)
+void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player;
-    int32_t pos_x;
-    int32_t pos_y;
+    MapSubtlCoord pos_x;
+    MapSubtlCoord pos_y;
     player = get_my_player();
     find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_y = y;
@@ -2746,29 +2740,23 @@ void update(void)
 }
 
 void intentional_desync() {
-    if (game.play_gameturn == 30 && my_player_number == 0) {
-        int k = 0;
-        int i = game.thing_lists[TngList_Creatures].index;
-        while (i != 0) {
-            struct Thing* thing = thing_get(i);
-            if (thing_is_invalid(thing)) {
-                ERRORLOG("Jump to invalid thing detected");
-                break;
-            }
-            i = thing->next_of_class;
-
-            struct Coord3d new_pos;
-            new_pos.x.val = thing->mappos.x.val - 256;
-            new_pos.y.val = thing->mappos.y.val;
-            new_pos.z.val = thing->mappos.z.val;
-            move_thing_in_map(thing, &new_pos);
-
-            k++;
-            if (k > THINGS_COUNT) {
-                break;
-            }
+    if (game.play_gameturn != 50 || !is_my_player_number(0)) {
+        return;
+    }
+    for (struct Room* room = start_rooms; room < end_rooms; room += 1) {
+        if (room_exists(room)) {
+            room->slabs_count += 1;
+            break;
         }
     }
+    int i = game.thing_lists[TngList_Creatures].index;
+    if (i != 0) {
+        struct Thing* thing = thing_get(i);
+        if (!thing_is_invalid(thing)) {
+            thing->health += 1;
+        }
+    }
+    get_player(0)->instance_remain_turns += 1;
 }
 
 void first_gameturn_actions() {
@@ -2776,7 +2764,7 @@ void first_gameturn_actions() {
         apply_default_flee_and_imprison_setting();
         send_sprite_zip_count_to_other_players();
     }
-    //intentional_desync(); //Move all creatures left by 1 subtile after turn 30
+    //intentional_desync();
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
@@ -3699,7 +3687,7 @@ static TbBool wait_at_frontend(void)
                 WARNMSG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
             }
             else {
-                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%lu).", start_params.selected_level_number);
+                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%u).", start_params.selected_level_number);
             }
         }
         set_selected_level_number(start_params.selected_level_number);
