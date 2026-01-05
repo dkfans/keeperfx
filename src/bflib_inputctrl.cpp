@@ -62,6 +62,8 @@ static SDL_Joystick *joystick = NULL;
 static TbBool lt_pressed = false;
 static TbBool rt_pressed = false;
 
+static TbBool keyboard_event_this_frame = false;
+
 static Uint8 prev_start = 0;
 static Uint8 prev_back = 0;
 static Uint8 prev_leftshoulder = 0;
@@ -317,13 +319,19 @@ static void process_event(const SDL_Event *ev)
     case SDL_KEYDOWN:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
+        {
+            keyboard_event_this_frame = true;
             keyboardControl(KActn_KEYDOWN,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        }
         break;
 
     case SDL_KEYUP:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
+        {
+            keyboard_event_this_frame = true;
             keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        }
         break;
 
     case SDL_MOUSEMOTION:
@@ -457,18 +465,9 @@ void controller_rumble(long ms)
         SDL_GameControllerRumble(controller, 0xFFFF, 0xFFFF, ms);
     }
 }
-/******************************************************************************/
-TbBool LbWindowsControl(void)
+
+static void poll_controller()
 {
-
-    #define DEADZONE 8000
-    SDL_Event ev;
-    //process events until event queue is empty
-    while (SDL_PollEvent(&ev)) {
-        process_event(&ev);
-    }
-
-    // Poll controller state
     if (controller != NULL) {
         // Map controller buttons to keyboard keys
         lbKeyOn[KC_HOME] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
@@ -625,6 +624,23 @@ TbBool LbWindowsControl(void)
             rt_pressed = false;
         }
     }
+
+}
+/******************************************************************************/
+TbBool LbWindowsControl(void)
+{
+
+    #define DEADZONE 8000
+    SDL_Event ev;
+    //process events until event queue is empty
+    while (SDL_PollEvent(&ev)) {
+        process_event(&ev);
+    }
+
+    if (!keyboard_event_this_frame)
+    poll_controller();
+
+    keyboard_event_this_frame = false;
 
     return (lbUserQuit < 1);
 }
