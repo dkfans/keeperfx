@@ -491,10 +491,10 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_JOYDEVICEADDED:
-        open_controller(event.cdevice.which);
+        open_controller(ev->jdevice.which);
         break;
     case SDL_JOYDEVICEREMOVED:
-        close_controller(event.cdevice.which);
+        close_controller(ev->jdevice.which);
         break;
 
     case SDL_QUIT:
