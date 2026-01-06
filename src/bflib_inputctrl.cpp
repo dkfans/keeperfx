@@ -308,6 +308,41 @@ TbBool LbIsFrozenOrPaused(void)
     return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
 }
 
+static void open_controller(int device_index)
+{
+    if (controller || joystick) return;
+
+    if (SDL_IsGameController(device_index)) {
+        controller = SDL_GameControllerOpen(device_index);
+        if (controller) {
+            joystick = NULL;
+            return;
+        }
+    }
+
+    joystick = SDL_JoystickOpen(device_index);
+}
+
+static void close_controller(SDL_JoystickID instance_id)
+{
+    if (controller) {
+        SDL_Joystick *joy = SDL_GameControllerGetJoystick(controller);
+        if (SDL_JoystickInstanceID(joy) == instance_id) {
+            SDL_GameControllerClose(controller);
+            controller = NULL;
+        }
+    }
+
+    if (joystick) {
+        if (SDL_JoystickInstanceID(joystick) == instance_id) {
+            SDL_JoystickClose(joystick);
+            joystick = NULL;
+        }
+    }
+    lt_pressed = false;
+    rt_pressed = false;
+}
+
 static void process_event(const SDL_Event *ev)
 {
     struct TbPoint mouseDelta;
@@ -453,6 +488,13 @@ static void process_event(const SDL_Event *ev)
 
     case SDL_SYSWMEVENT:
     case SDL_WINDOWEVENT_RESIZED:
+        break;
+
+    case SDL_JOYDEVICEADDED:
+        open_controller(event.cdevice.which);
+        break;
+    case SDL_JOYDEVICEREMOVED:
+        close_controller(event.cdevice.which);
         break;
 
     case SDL_QUIT:
