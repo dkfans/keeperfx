@@ -129,6 +129,7 @@
 #include "net_input_lag.h"
 #include "moonphase.h"
 #include "frontmenu_ingame_map.h"
+#include <stdint.h>
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -145,11 +146,11 @@ short default_loc_player = 0;
 struct StartupParameters start_params;
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
-long game_num_fps;
+int32_t game_num_fps;
 
-long game_num_fps_draw_current = 0;
-long game_num_fps_draw_main = 0; // -1 if auto
-long game_num_fps_draw_secondary = 0;
+int32_t game_num_fps_draw_current = 0;
+int32_t game_num_fps_draw_main = 0; // -1 if auto
+int32_t game_num_fps_draw_secondary = 0;
 
 
 unsigned char *blue_palette;
@@ -160,36 +161,36 @@ unsigned char exit_keeper;
 unsigned char quit_game;
 unsigned char is_running_under_wine = false;
 int continue_game_option_available;
-long last_mouse_x;
-long last_mouse_y;
+int32_t last_mouse_x;
+int32_t last_mouse_y;
 int FatalError;
-long define_key_scroll_offset;
-unsigned long time_last_played_demo;
+int32_t define_key_scroll_offset;
+uint32_t time_last_played_demo;
 short drag_menu_x;
 short drag_menu_y;
 unsigned short tool_tip_time;
 unsigned short help_tip_time;
-long pointer_x;
-long pointer_y;
-long block_pointed_at_x;
-long block_pointed_at_y;
-long pointed_at_frac_x;
-long pointed_at_frac_y;
-long top_pointed_at_x;
-long top_pointed_at_y;
-long top_pointed_at_frac_x;
-long top_pointed_at_frac_y;
+int32_t pointer_x;
+int32_t pointer_y;
+int32_t block_pointed_at_x;
+int32_t block_pointed_at_y;
+int32_t pointed_at_frac_x;
+int32_t pointed_at_frac_y;
+int32_t top_pointed_at_x;
+int32_t top_pointed_at_y;
+int32_t top_pointed_at_frac_x;
+int32_t top_pointed_at_frac_y;
 char level_name[88];
 char top_of_breed_list;
 /** Amount of different creature kinds the local player has. Used for creatures tab in panel menu. */
 char no_of_breeds_owned;
-long optimised_lights;
-long total_lights;
+int32_t optimised_lights;
+int32_t total_lights;
 unsigned char do_lights;
 struct Thing *thing_pointed_at;
 struct Map *me_pointed_at;
-long my_mouse_x;
-long my_mouse_y;
+int32_t my_mouse_x;
+int32_t my_mouse_y;
 char *level_names_data;
 char *end_level_names_data;
 unsigned char *frontend_backup_palette;
@@ -1238,7 +1239,7 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
     return false;
 }
 
-TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos)
+TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, struct Coord3d *mappos)
 {
     TbBool result;
     int32_t x;
@@ -2787,7 +2788,7 @@ long near_map_block_thing_filter_queryable_object(const struct Thing *thing, Max
     return -1;
 }
 
-struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
@@ -2799,7 +2800,7 @@ struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long ply
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
+void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y)
 {
     player->cameras[CamIV_Parchment].mappos.x.val = pos_x;
     player->cameras[CamIV_FrontView].mappos.x.val = pos_x;
@@ -3044,7 +3045,7 @@ void scale_tmap2(long texture_block_index, long flags, long fade_level, long scr
     }
 }
 
-void draw_texture(long texture_x, long texture_y, long texture_width, long texture_height, long texture_block_index, long flags, long fade_level)
+void draw_texture(int32_t texture_x, int32_t texture_y, int32_t texture_width, int32_t texture_height, int32_t texture_block_index, int32_t flags, int32_t fade_level)
 {
     scale_tmap2(texture_block_index, flags, fade_level, texture_x / pixel_size, texture_y / pixel_size, texture_width / pixel_size, texture_height / pixel_size);
 }

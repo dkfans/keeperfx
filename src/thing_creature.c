@@ -7165,11 +7165,11 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
             if (value < picktng->creature.gold_carried)
             {
-                snprintf(str, sizeof(str), "%ld (%ld)", picktng->creature.gold_carried, value);
+                snprintf(str, sizeof(str), "%d (%ld)", picktng->creature.gold_carried, value);
             }
             else
             {
-                snprintf(str, sizeof(str), "%ld", picktng->creature.gold_carried);
+                snprintf(str, sizeof(str), "%d", picktng->creature.gold_carried);
             }
         }
         id = 3;

@@ -147,7 +147,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
         }
     }
 
-    snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%ld", 0, comp->gameturn_wait);
+    snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%u", 0, comp->gameturn_wait);
     return 1;
 }
 
@@ -291,7 +291,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %ld, draw fps is %ld", game_num_fps, game_num_fps_draw_current);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", game_num_fps, game_num_fps_draw_current);
     return true;
 }
 
@@ -300,7 +300,7 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
         game_num_fps = start_params.num_fps;
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %ld fps", game_num_fps);
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %d fps", game_num_fps);
     } else {
         game_num_fps = atoi(pr2str);
     }

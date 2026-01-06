@@ -204,7 +204,7 @@ void sync_various_data()
    }
 
    struct {
-      unsigned long action_random_seed;
+      uint32_t action_random_seed;
       int input_lag_turns;
    } initial_sync_data;
 

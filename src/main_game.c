@@ -294,15 +294,15 @@ void startup_saved_packet_game(void)
     game.pckt_gameturn = 0;
 #if (BFDEBUG_LEVEL > 0)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
-    SYNCMSG("Packet Loading Active (File contains %lu turns)", game.turns_stored);
+    SYNCMSG("Packet Loading Active (File contains %u turns)", game.turns_stored);
     SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
-    SYNCMSG("Fast Forward through %lu game turns", game.turns_fastforward);
+    SYNCMSG("Fast Forward through %u game turns", game.turns_fastforward);
     if (game.turns_packetoff != -1)
-        SYNCMSG("Packet Quit at %lu", game.turns_packetoff);
+        SYNCMSG("Packet Quit at %u", game.turns_packetoff);
     if (game.packet_load_enable)
     {
       if (game.log_things_end_turn != game.log_things_start_turn)
-        SYNCMSG("Logging things, game turns %lu -> %lu", game.log_things_start_turn, game.log_things_end_turn);
+        SYNCMSG("Logging things, game turns %u -> %u", game.log_things_start_turn, game.log_things_end_turn);
     }
     SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
         (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);
