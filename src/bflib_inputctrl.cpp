@@ -64,7 +64,6 @@ static TbBool rt_pressed = false;
 
 static uint16_t num_keys_down = 0;
 
-static Uint8 prev_start = 0;
 static Uint8 prev_back = 0;
 static Uint8 prev_leftshoulder = 0;
 static Uint8 prev_rightshoulder = 0;
@@ -632,24 +631,21 @@ static void poll_controller()
             prev_rightshoulder = current_rightshoulder;
         }
 
-        lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+        lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
         lbKeyOn[KC_LCONTROL] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
-        lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
+        lbKeyOn[settings.kbkeys[Gkey_ZoomToFight].code]   = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
         lbKeyOn[settings.kbkeys[Gkey_ZoomRoomHeart].code] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
 
         // Handle Start and Back buttons with edge detection to simulate key presses
-        Uint8 current_start = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
-        if (current_start && !prev_start) {
-            keyboardControl(KActn_KEYDOWN, KC_ESCAPE, KMod_NONE, 0);
-        } else if (!current_start && prev_start) {
-            keyboardControl(KActn_KEYUP, KC_ESCAPE, KMod_NONE, 0);
-        }
-        prev_start = current_start;
+        lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
+
 
         Uint8 current_back = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK);
         if (current_back && !prev_back) {
+            keyboardControl(KActn_KEYDOWN, KC_ESCAPE, KMod_NONE, 0);
             keyboardControl(KActn_KEYDOWN, KC_P, KMod_NONE, 0);
         } else if (!current_back && prev_back) {
+            keyboardControl(KActn_KEYUP, KC_ESCAPE, KMod_NONE, 0);
             keyboardControl(KActn_KEYUP, KC_P, KMod_NONE, 0);
         }
         prev_back = current_back;
