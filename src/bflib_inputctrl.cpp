@@ -241,6 +241,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_POWER, KC_POWER));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
 
+    SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
     // Initialize controller
     if (SDL_NumJoysticks() > 0) {
         if (SDL_IsGameController(0)) {
