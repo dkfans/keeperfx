@@ -156,7 +156,6 @@ void update_local_cameras(void)
             view_process_camera_inertia(&destination_local_cameras[cam_idx]);
         }
     }
-    sync_local_camera(my_player);
 }
 
 void interpolate_local_cameras(void)
@@ -209,6 +208,11 @@ void set_local_camera_destination(struct PlayerInfo *player)
     }
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
         destination_local_cameras[cam_idx] = player->cameras[cam_idx];
+    }
+    struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
+    if (thing_exists(ctrltng)) {
+        destination_local_cameras[CamIV_FirstPerson].rotation_angle_x = ctrltng->move_angle_xy;
+        destination_local_cameras[CamIV_FirstPerson].rotation_angle_y = ctrltng->move_angle_z;
     }
 }
 
