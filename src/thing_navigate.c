@@ -511,7 +511,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
     thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & ANGLE_MASK;
 
     struct PlayerInfo* my_player = get_my_player();
-    if (my_player->controlled_thing_idx == thing->index && my_player->view_type == PVT_CreatureContrl) {
+    if (my_player->controlled_thing_idx == thing->index && (my_player->view_type == PVT_CreatureContrl || my_player->view_type == PVT_CreaturePasngr)) {
         sync_local_camera(my_player);
     }
 
