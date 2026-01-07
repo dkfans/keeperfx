@@ -29,6 +29,7 @@ src/bflib_cpu.c \
 src/bflib_datetm.cpp \
 src/bflib_dernc.c \
 src/bflib_enet.cpp \
+src/net_portforward.cpp \
 src/bflib_fileio.c \
 src/bflib_filelst.c \
 src/bflib_fmvids.cpp \
@@ -294,7 +295,9 @@ KFX_LDFLAGS += \
 	$(shell pkg-config --libs-only-l luajit) \
 	$(shell pkg-config --libs-only-l spng) \
 	$(shell pkg-config --libs-only-l minizip) \
-	$(shell pkg-config --libs-only-l zlib)
+	$(shell pkg-config --libs-only-l zlib) \
+	-lminiupnpc \
+	-lnatpmp
 
 TOML_SOURCES = \
 	deps/centitoml/toml_api.c
