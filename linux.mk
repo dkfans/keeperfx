@@ -296,8 +296,8 @@ KFX_LDFLAGS += \
 	$(shell pkg-config --libs-only-l spng) \
 	$(shell pkg-config --libs-only-l minizip) \
 	$(shell pkg-config --libs-only-l zlib) \
-	$(shell pkg-config --libs-only-l miniupnpc) \
-	$(shell pkg-config --libs-only-l libnatpmp)
+	-lminiupnpc \
+	-lnatpmp
 
 TOML_SOURCES = \
 	deps/centitoml/toml_api.c
