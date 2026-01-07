@@ -139,7 +139,7 @@ void update_local_cameras(void)
     }
     struct PlayerInfo* my_player = get_my_player();
     struct Thing *ctrltng = thing_get(my_player->controlled_thing_idx);
-    TbBool in_first_person = thing_exists(ctrltng) && thing_is_creature(ctrltng) && my_player->view_mode == PVM_CreatureView;
+    TbBool in_first_person = ( (thing_exists(ctrltng)) && (my_player->view_mode == PVM_CreatureView) );
     if (in_first_person) {
         update_local_first_person_camera(ctrltng);
     } else {
@@ -208,6 +208,11 @@ void set_local_camera_destination(struct PlayerInfo *player)
     }
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
         destination_local_cameras[cam_idx] = player->cameras[cam_idx];
+    }
+    struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
+    if (thing_exists(ctrltng)) {
+        destination_local_cameras[CamIV_FirstPerson].rotation_angle_x = ctrltng->move_angle_xy;
+        destination_local_cameras[CamIV_FirstPerson].rotation_angle_y = ctrltng->move_angle_z;
     }
 }
 

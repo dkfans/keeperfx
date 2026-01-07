@@ -512,7 +512,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
 
     struct PlayerInfo* my_player = get_my_player();
     if (my_player->controlled_thing_idx == thing->index && my_player->view_mode == PVM_CreatureView) {
-        sync_local_camera(my_player);
+        set_local_camera_destination(my_player);
     }
 
     return get_angle_difference(thing->move_angle_xy, angle);
