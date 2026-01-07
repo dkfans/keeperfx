@@ -204,7 +204,11 @@ static void port_forward_add_mapping_internal(uint16_t port) {
         LbNetLog("UPnP: No devices found\n");
         return;
     }
+#ifdef __WIN32__
     int internet_gateway_device_result = UPNP_GetValidIGD(device_list, &upnp_urls, &upnp_data, upnp_lanaddr, sizeof(upnp_lanaddr), NULL, 0);
+#else
+    int internet_gateway_device_result = UPNP_GetValidIGD(device_list, &upnp_urls, &upnp_data, upnp_lanaddr, sizeof(upnp_lanaddr));
+#endif
     freeUPNPDevlist(device_list);
     if (internet_gateway_device_result == 0) {
         LbNetLog("UPnP: Failed to get valid IGD\n");
