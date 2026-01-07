@@ -29,6 +29,7 @@ src/bflib_cpu.c \
 src/bflib_datetm.cpp \
 src/bflib_dernc.c \
 src/bflib_enet.cpp \
+obj/net_portforward.o \
 src/bflib_fileio.c \
 src/bflib_filelst.c \
 src/bflib_fmvids.cpp \
