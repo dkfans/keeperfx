@@ -22,6 +22,7 @@
 
 #include <time.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,11 +83,11 @@ struct TbDate {
         unsigned short Year;
         unsigned char DayOfWeek;
 };
-typedef long TbClockMSec;
+typedef int32_t TbClockMSec;
 typedef time_t TbTimeSec;
 
-typedef unsigned long TbBigChecksum;
-typedef long Offset;
+typedef uint32_t TbBigChecksum;
+typedef int32_t Offset;
 typedef FILE * TbFileHandle;
 typedef unsigned char TbBool;
 typedef short TbScreenPos;
