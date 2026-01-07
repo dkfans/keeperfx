@@ -26,7 +26,11 @@
 #include <miniupnpc/upnperrors.h>
 
 #define NATPMP_STATICLIB
+#ifdef __WIN32__
 #include <natpmp/natpmp.h>
+#else
+#include <natpmp.h>
+#endif
 
 #include <cstdio>
 #include <ctime>
