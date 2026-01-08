@@ -19,11 +19,17 @@
 #include "pre_inc.h"
 #include "net_portforward.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 
 #define MINIUPNP_STATICLIB
 #include <miniupnpc/miniupnpc.h>
 #include <miniupnpc/upnpcommands.h>
 #include <miniupnpc/upnperrors.h>
+
+#if defined(__MINGW32__)
+// mingw is somewhat broken...
+typedef struct LPMSG *MSG;
+#endif
 
 #define NATPMP_STATICLIB
 #ifdef __WIN32__
@@ -162,7 +168,7 @@ static int natpmp_add_port_mapping(uint16_t port) {
             return 0;
         }
         do {
-            double elapsed = (double)(LbTimerClock() - start_time) / 1000.0
+            double elapsed = (double)(LbTimerClock() - start_time) / 1000.0;
             if (elapsed > NATPMP_TIMEOUT_SECONDS) {
                 LbNetLog("NAT-PMP: Timeout on timed lease\n");
                 closenatpmp(&natpmp);
