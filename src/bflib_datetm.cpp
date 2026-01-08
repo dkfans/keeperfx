@@ -209,42 +209,17 @@ void framerate_measurement_capture(int framerate_kind)
   trigger_time_measurement_capture(frametime_measurements.framerate_measurement + framerate_kind);
 }
 
-/******************************************************************************/
 /**
  * Returns the number of milliseconds elapsed since the program was launched.
- * A version for (CLOCKS_PER_SEC == 1000).
+ * Uses std::chrono for consistent wall-clock time across platforms.
  */
-TbClockMSec LbTimerClock_1000(void)
+static TimePoint program_start_time;
+static TbClockMSec LbTimerClock_chrono(void)
 {
-  return clock();
-}
-
-/**
- * Returns the number of milliseconds elapsed since the program was launched.
- * A version for (CLOCKS_PER_SEC == 1024).
- */
-TbClockMSec LbTimerClock_1024(void)
-{
-    clock_t cclk = clock();
-    return cclk - (cclk >> 6) - (cclk >> 7);
-}
-
-/**
- * Returns the number of milliseconds elapsed since the program was launched.
- * Version for any CLOCKS_PER_SEC, but unsafe.
- */
-TbClockMSec LbTimerClock_any(void)
-{
-  clock_t cclk = clock();
-  if (CLOCKS_PER_SEC > 1000) {
-    return cclk / (CLOCKS_PER_SEC / 1000);
-  } else if (CLOCKS_PER_SEC > 100) {
-    return (cclk / (CLOCKS_PER_SEC / 100)) * 10;
-  } else if (CLOCKS_PER_SEC > 10) {
-    return (cclk / (CLOCKS_PER_SEC / 10)) * 100;
-  } else {
-    return (cclk / CLOCKS_PER_SEC) * 1000;
-  }
+  auto now = std::chrono::high_resolution_clock::now();
+  auto duration = now - program_start_time;
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+  return static_cast<TbClockMSec>(millis);
 }
 
 /** Fills structure with current time.
@@ -416,19 +391,10 @@ TbBool LbSleepDelayExt(long double tick_ns_delay)
 
 TbResult LbTimerInit(void)
 {
-  switch (CLOCKS_PER_SEC)
-  {
-  case 1000:
-    LbTimerClock = LbTimerClock_1000;
-    break;
-  case 1024:
-    LbTimerClock = LbTimerClock_1024;
-    break;
-  default:
-    LbTimerClock = LbTimerClock_any;
-    WARNMSG("Timer uses unsafe clock multiplication!");
-    break;
-  }
+  // Initialize program start time for chrono-based timer
+  program_start_time = std::chrono::high_resolution_clock::now();
+  // Use std::chrono-based timer for consistent wall-clock time on all platforms
+  LbTimerClock = LbTimerClock_chrono;
   return Lb_SUCCESS;
 }
 
