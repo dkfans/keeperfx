@@ -26,13 +26,19 @@
 #include <miniupnpc/upnperrors.h>
 
 #define NATPMP_STATICLIB
+#ifdef __WIN32__
 #include <natpmp/natpmp.h>
+#else
+#include <natpmp.h>
+#endif
 
 #include <cstdio>
 #include <ctime>
 #include <thread>
+#ifdef __WIN32__
 #include <winsock2.h>
 #include <iphlpapi.h>
+#endif
 
 #define NATPMP_TIMEOUT_SECONDS 1.0
 #define UPNP_TIMEOUT_MS 3000
@@ -54,6 +60,7 @@ static char upnp_lanaddr[64];
 
 static natpmp_t natpmp;
 
+#ifdef __WIN32__
 static int is_cgnat_detected() {
     ULONG buffer_size = 0;
     if (GetAdaptersInfo(NULL, &buffer_size) != ERROR_BUFFER_OVERFLOW) {
@@ -90,6 +97,11 @@ static int is_cgnat_detected() {
     free(adapter_info);
     return 0;
 }
+#else
+static int is_cgnat_detected() {
+    return 0;
+}
+#endif
 
 static int natpmp_add_port_mapping(uint16_t port) {
     clock_t start_time = clock();
@@ -192,7 +204,11 @@ static void port_forward_add_mapping_internal(uint16_t port) {
         LbNetLog("UPnP: No devices found\n");
         return;
     }
+#ifdef __WIN32__
     int internet_gateway_device_result = UPNP_GetValidIGD(device_list, &upnp_urls, &upnp_data, upnp_lanaddr, sizeof(upnp_lanaddr), NULL, 0);
+#else
+    int internet_gateway_device_result = UPNP_GetValidIGD(device_list, &upnp_urls, &upnp_data, upnp_lanaddr, sizeof(upnp_lanaddr));
+#endif
     freeUPNPDevlist(device_list);
     if (internet_gateway_device_result == 0) {
         LbNetLog("UPnP: Failed to get valid IGD\n");
