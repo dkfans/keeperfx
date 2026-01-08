@@ -4449,7 +4449,7 @@ int kfxmain(int argc, char *argv[])
 
 void update_time(void)
 {
-    unsigned long time = ((unsigned long)clock()) - timerstarttime;
+    unsigned long time = ((unsigned long)LbTimerClock()) - timerstarttime;
     Timer.MSeconds = time % 1000;
     time /= 1000;
     Timer.Seconds = time % 60;

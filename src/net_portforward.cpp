@@ -19,11 +19,17 @@
 #include "pre_inc.h"
 #include "net_portforward.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 
 #define MINIUPNP_STATICLIB
 #include <miniupnpc/miniupnpc.h>
 #include <miniupnpc/upnpcommands.h>
 #include <miniupnpc/upnperrors.h>
+
+#if defined(__MINGW32__)
+// mingw is somewhat broken...
+typedef struct LPMSG *MSG;
+#endif
 
 #define NATPMP_STATICLIB
 #ifdef __WIN32__
@@ -104,7 +110,7 @@ static int is_cgnat_detected() {
 #endif
 
 static int natpmp_add_port_mapping(uint16_t port) {
-    clock_t start_time = clock();
+    clock_t start_time = LbTimerClock();
     if (initnatpmp(&natpmp, 0, 0) < 0) {
         LbNetLog("NAT-PMP: Failed to initialize\n");
         return 0;
@@ -119,7 +125,7 @@ static int natpmp_add_port_mapping(uint16_t port) {
     struct timeval timeout;
     int result;
     do {
-        double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+        double elapsed = (double)(LbTimerClock() - start_time) / 1000.0;
         if (elapsed > NATPMP_TIMEOUT_SECONDS) {
             LbNetLog("NAT-PMP: Timeout getting public address\n");
             closenatpmp(&natpmp);
@@ -142,7 +148,7 @@ static int natpmp_add_port_mapping(uint16_t port) {
         return 0;
     }
     do {
-        double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+        double elapsed = (double)(LbTimerClock() - start_time) / 1000.0;
         if (elapsed > NATPMP_TIMEOUT_SECONDS) {
             LbNetLog("NAT-PMP: Timeout on port mapping\n");
             closenatpmp(&natpmp);
@@ -162,7 +168,7 @@ static int natpmp_add_port_mapping(uint16_t port) {
             return 0;
         }
         do {
-            double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+            double elapsed = (double)(LbTimerClock() - start_time) / 1000.0;
             if (elapsed > NATPMP_TIMEOUT_SECONDS) {
                 LbNetLog("NAT-PMP: Timeout on timed lease\n");
                 closenatpmp(&natpmp);
@@ -254,9 +260,9 @@ void port_forward_remove_mapping(void) {
         fd_set file_descriptors;
         struct timeval timeout;
         int result;
-        clock_t start_time = clock();
+        clock_t start_time = LbTimerClock();
         do {
-            double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+            double elapsed = (double)(LbTimerClock() - start_time) / 1000.0;
             if (elapsed > NATPMP_TIMEOUT_SECONDS) {
                 break;
             }
