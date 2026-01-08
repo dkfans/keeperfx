@@ -550,8 +550,8 @@ TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
         return false;
     }
     int id = atoi(pr2str);
-    if (id < 0 || id > PLAYERS_COUNT) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT);
+    if (id < 0 || id >= PLAYERS_COUNT) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT-1);
         return false;
     }
     int i = cmd_comp_list(id, COMPUTER_PROCESSES_COUNT,
@@ -583,8 +583,8 @@ TbBool cmd_comp_events(PlayerNumber plyr_idx, char * args)
         return false;
     }
     int id = atoi(pr2str);
-    if (id < 0 || id > PLAYERS_COUNT) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT);
+    if (id < 0 || id >= PLAYERS_COUNT) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT-1);
         return false;
     }
     cmd_comp_list(id, COMPUTER_EVENTS_COUNT,
@@ -607,8 +607,8 @@ TbBool cmd_comp_checks(PlayerNumber plyr_idx, char * args)
         return false;
     }
     int id = atoi(pr2str);
-    if (id < 0 || id > PLAYERS_COUNT) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT);
+    if (id < 0 || id >= PLAYERS_COUNT) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT-1);
         return false;
     }
     cmd_comp_list(id, COMPUTER_CHECKS_COUNT,
