@@ -762,6 +762,9 @@
     <ClCompile Include="src\local_camera.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\net_portforward.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1431,6 +1434,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\local_camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_portforward.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

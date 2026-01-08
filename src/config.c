@@ -756,28 +756,28 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
             *(unsigned int*)field = (unsigned int)value;
         break;
     case dt_long:
-        if (value < INT32_MIN || value > INT32_MAX)
+        if (value < LONG_MIN || value > LONG_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long: %" PRId64, value);
         else
-            *(int32_t *)field = (signed long)value;
+            *(signed long *)field = (signed long)value;
         break;
     case dt_ulong:
-        if (value < 0 || value > UINT32_MAX)
+        if (value < 0 || value > ULONG_MAX)
             NAMFIELDWRNLOG("Value out of range for unsigned long: %" PRId64, value);
         else
-            *(uint32_t *)field = (unsigned long)value;
+            *(unsigned long *)field = (unsigned long)value;
         break;
     case dt_longlong:
         if (value < INT64_MIN || value > INT64_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long long: %" PRId64, value);
         else
-            *(int64_t *)field = (signed long long)value;
+            *(signed long long *)field = (signed long long)value;
         break;
     case dt_ulonglong:
         if (value < 0)
             NAMFIELDWRNLOG("Value out of range for unsigned long long: %" PRId64, value);
         else
-            *(uint64_t *)field = (unsigned long long)value;
+            *(unsigned long long *)field = (unsigned long long)value;
         break;
     case dt_float:
         *(float*)field = (float)value;

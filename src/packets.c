@@ -1604,7 +1604,7 @@ void set_local_packet_turn(void) {
 
 void check_scheduled_unpause(void) {
     if (scheduled_unpause_time > 0 && LbTimerClock() >= scheduled_unpause_time) {
-        MULTIPLAYER_LOG("process_packets: Executing scheduled unpause at time=%lu", LbTimerClock());
+        MULTIPLAYER_LOG("process_packets: Executing scheduled unpause at time=%u", LbTimerClock());
         scheduled_unpause_time = 0;
         process_pause_packet(0, 0);
     }

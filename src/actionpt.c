@@ -37,7 +37,7 @@ extern "C" {
 /******************************************************************************/
 struct ActionPoint *action_point_get_free(void)
 {
-    for (long apt_idx = 1; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
+    for (ActionPointId apt_idx = 1; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
     {
         struct ActionPoint* apt = &game.action_points[apt_idx];
         if (apt->exists == false)
@@ -46,7 +46,7 @@ struct ActionPoint *action_point_get_free(void)
     return INVALID_ACTION_POINT;
 }
 
-struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num)
+struct ActionPoint *allocate_free_action_point_structure_with_number(ActionPointNumber apt_num)
 {
     struct ActionPoint* apt = action_point_get_by_number(apt_num);
     if (action_point_exists(apt)) {
@@ -99,7 +99,7 @@ struct ActionPoint *action_point_get(ActionPointId apt_idx)
     return &game.action_points[apt_idx];
 }
 
-struct ActionPoint *action_point_get_by_number(long apt_num)
+struct ActionPoint *action_point_get_by_number(ActionPointNumber apt_num)
 {
     for (ActionPointId apt_idx = 0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
     {
@@ -110,7 +110,7 @@ struct ActionPoint *action_point_get_by_number(long apt_num)
     return INVALID_ACTION_POINT;
 }
 
-ActionPointId action_point_number_to_index(long apt_num)
+ActionPointId action_point_number_to_index(ActionPointNumber apt_num)
 {
     for (ActionPointId apt_idx = 0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
     {

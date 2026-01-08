@@ -176,7 +176,7 @@ short checksums_different(void) {
             continue;
         }
         if (packet->checksum != host_checksum) {
-            ERRORLOG("Checksums %08lx(Host) != %08lx(Client) turn: %d vs %d", host_checksum, packet->checksum, host_packet->turn, packet->turn);
+            ERRORLOG("Checksums %08x(Host) != %08x(Client) turn: %d vs %d", host_checksum, packet->checksum, host_packet->turn, packet->turn);
             desync_turn = host_packet->turn;
             mismatch = true;
         }
@@ -295,11 +295,11 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
         }
         if (host_thing == NULL || client_thing->checksum != host_thing->checksum) {
             if (host_thing != NULL) {
-                ERRORLOG("    [Host] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08lx", host_thing->index, host_thing->class_id, host_thing->model, host_thing->owner, (long)host_thing->mappos.x.val, (long)host_thing->mappos.y.val, (long)host_thing->mappos.z.val, (long)host_thing->health, (unsigned long)host_thing->creation_turn, host_thing->random_seed);
+                ERRORLOG("    [Host] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x", host_thing->index, host_thing->class_id, host_thing->model, host_thing->owner, (long)host_thing->mappos.x.val, (long)host_thing->mappos.y.val, (long)host_thing->mappos.z.val, (long)host_thing->health, (unsigned long)host_thing->creation_turn, host_thing->random_seed);
             } else {
                 ERRORLOG("    [Host] Thing[%d] missing", client_thing->index);
             }
-            ERRORLOG("    [Client] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08lx", client_thing->index, client_thing->class_id, client_thing->model, client_thing->owner, (long)client_thing->mappos.x.val, (long)client_thing->mappos.y.val, (long)client_thing->mappos.z.val, (long)client_thing->health, (unsigned long)client_thing->creation_turn, client_thing->random_seed);
+            ERRORLOG("    [Client] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x", client_thing->index, client_thing->class_id, client_thing->model, client_thing->owner, (long)client_thing->mappos.x.val, (long)client_thing->mappos.y.val, (long)client_thing->mappos.z.val, (long)client_thing->health, (unsigned long)client_thing->creation_turn, client_thing->random_seed);
             shown++;
         }
     }
@@ -308,7 +308,7 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
 void compare_desync_history_from_host(void) {
     struct ChecksumSnapshot* snapshot = find_snapshot(desync_turn);
     if (snapshot == NULL) {
-        ERRORLOG("=== DESYNC: No client snapshot for turn %lu ===", (unsigned long)desync_turn);
+        ERRORLOG("=== DESYNC: No client snapshot for turn %u ===", desync_turn);
         return;
     }
     struct DesyncChecksums* host = &game.host_checksums;

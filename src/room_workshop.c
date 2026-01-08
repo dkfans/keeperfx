@@ -180,7 +180,7 @@ long calculate_manufacture_level(struct Dungeon* dungeon)
 void set_manufacture_level(struct Dungeon *dungeon)
 {
     dungeon->manufacture_level = calculate_manufacture_level(dungeon);
-    SYNCDBG(19, "Dungeon %d manufacture level set to %ld",dungeon->owner, dungeon->manufacture_level);
+    SYNCDBG(19, "Dungeon %d manufacture level set to %d",dungeon->owner, dungeon->manufacture_level);
 }
 
 struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)

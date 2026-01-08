@@ -46,7 +46,6 @@ TbResult LbDate(struct TbDate *curr_date);
 TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
 TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
 TbResult LbTimerInit(void);
-TbClockMSec LbTimerClock_1000(void);
 /******************************************************************************/
 
 

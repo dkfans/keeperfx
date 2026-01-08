@@ -19,20 +19,32 @@
 #include "pre_inc.h"
 #include "net_portforward.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 
 #define MINIUPNP_STATICLIB
 #include <miniupnpc/miniupnpc.h>
 #include <miniupnpc/upnpcommands.h>
 #include <miniupnpc/upnperrors.h>
 
+#if defined(__MINGW32__)
+// mingw is somewhat broken...
+typedef struct LPMSG *MSG;
+#endif
+
 #define NATPMP_STATICLIB
+#ifdef __WIN32__
 #include <natpmp/natpmp.h>
+#else
+#include <natpmp.h>
+#endif
 
 #include <cstdio>
 #include <ctime>
 #include <thread>
+#ifdef __WIN32__
 #include <winsock2.h>
 #include <iphlpapi.h>
+#endif
 
 #define NATPMP_TIMEOUT_SECONDS 1.0
 #define UPNP_TIMEOUT_MS 3000
@@ -54,6 +66,7 @@ static char upnp_lanaddr[64];
 
 static natpmp_t natpmp;
 
+#ifdef __WIN32__
 static int is_cgnat_detected() {
     ULONG buffer_size = 0;
     if (GetAdaptersInfo(NULL, &buffer_size) != ERROR_BUFFER_OVERFLOW) {
@@ -90,9 +103,14 @@ static int is_cgnat_detected() {
     free(adapter_info);
     return 0;
 }
+#else
+static int is_cgnat_detected() {
+    return 0;
+}
+#endif
 
 static int natpmp_add_port_mapping(uint16_t port) {
-    clock_t start_time = clock();
+    clock_t start_time = LbTimerClock();
     if (initnatpmp(&natpmp, 0, 0) < 0) {
         LbNetLog("NAT-PMP: Failed to initialize\n");
         return 0;
@@ -107,7 +125,7 @@ static int natpmp_add_port_mapping(uint16_t port) {
     struct timeval timeout;
     int result;
     do {
-        double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+        double elapsed = (double)(LbTimerClock() - start_time) / 1000.0;
         if (elapsed > NATPMP_TIMEOUT_SECONDS) {
             LbNetLog("NAT-PMP: Timeout getting public address\n");
             closenatpmp(&natpmp);
@@ -130,7 +148,7 @@ static int natpmp_add_port_mapping(uint16_t port) {
         return 0;
     }
     do {
-        double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+        double elapsed = (double)(LbTimerClock() - start_time) / 1000.0;
         if (elapsed > NATPMP_TIMEOUT_SECONDS) {
             LbNetLog("NAT-PMP: Timeout on port mapping\n");
             closenatpmp(&natpmp);
@@ -150,7 +168,7 @@ static int natpmp_add_port_mapping(uint16_t port) {
             return 0;
         }
         do {
-            double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+            double elapsed = (double)(LbTimerClock() - start_time) / 1000.0;
             if (elapsed > NATPMP_TIMEOUT_SECONDS) {
                 LbNetLog("NAT-PMP: Timeout on timed lease\n");
                 closenatpmp(&natpmp);
@@ -192,7 +210,11 @@ static void port_forward_add_mapping_internal(uint16_t port) {
         LbNetLog("UPnP: No devices found\n");
         return;
     }
+#ifdef __WIN32__
     int internet_gateway_device_result = UPNP_GetValidIGD(device_list, &upnp_urls, &upnp_data, upnp_lanaddr, sizeof(upnp_lanaddr), NULL, 0);
+#else
+    int internet_gateway_device_result = UPNP_GetValidIGD(device_list, &upnp_urls, &upnp_data, upnp_lanaddr, sizeof(upnp_lanaddr));
+#endif
     freeUPNPDevlist(device_list);
     if (internet_gateway_device_result == 0) {
         LbNetLog("UPnP: Failed to get valid IGD\n");
@@ -238,9 +260,9 @@ void port_forward_remove_mapping(void) {
         fd_set file_descriptors;
         struct timeval timeout;
         int result;
-        clock_t start_time = clock();
+        clock_t start_time = LbTimerClock();
         do {
-            double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
+            double elapsed = (double)(LbTimerClock() - start_time) / 1000.0;
             if (elapsed > NATPMP_TIMEOUT_SECONDS) {
                 break;
             }

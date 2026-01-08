@@ -36,6 +36,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "post_inc.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -433,7 +434,7 @@ TbBool update_creature_pool_state(void)
     return true;
 }
 
-void add_creature_to_pool(ThingModel kind, long amount)
+void add_creature_to_pool(ThingModel kind, int32_t amount)
 {
     kind %= game.conf.crtr_conf.model_count;
 
