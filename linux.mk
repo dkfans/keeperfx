@@ -274,8 +274,8 @@ KFX_INCLUDES = \
 	-Ideps/astronomy/include \
 	$(shell pkg-config --cflags-only-I luajit)
 
-KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=aarch64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
-KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=aarch64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
+KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
+KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
 
 KFX_LDFLAGS += \
 	-g \
@@ -307,7 +307,7 @@ TOML_OBJECTS = $(patsubst deps/centitoml/%.c,obj/centitoml/%.o,$(TOML_SOURCES))
 TOML_INCLUDES = \
 	-Ideps/centijson/include
 
-TOML_CFLAGS += -O3 -march=aarch64 $(TOML_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter
+TOML_CFLAGS += -O3 -march=x86-64 $(TOML_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter
 
 ifeq ($(ENABLE_LTO), 1)
 KFX_CFLAGS += -flto
