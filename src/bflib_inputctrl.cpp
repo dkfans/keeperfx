@@ -74,6 +74,10 @@ static Uint8 prev_joy_left = 0;
 static float mouse_accum_x = 0.0f;
 static float mouse_accum_y = 0.0f;
 
+static float movement_accum_x = 0.0f;
+static float movement_accum_y = 0.0f;
+
+
 /******************************************************************************/
 
 /**
@@ -241,18 +245,28 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_POWER, KC_POWER));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
 
-    SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
+    SDL_GameControllerAddMappingsFromFile(prepare_file_path(FGrp_FxData, "gamecontrollerdb.txt"));
+
     // Initialize controller
     if (SDL_NumJoysticks() > 0) {
         if (SDL_IsGameController(0)) {
+            
             controller = SDL_GameControllerOpen(0);
             if (controller == NULL) {
                 WARNLOG("Could not open gamecontroller 0: %s", SDL_GetError());
+            }
+            else {
+                const char* controller_name = SDL_GameControllerName(controller);                
+                SYNCLOG("GameController connected: %s", 
+                        controller_name ? controller_name : "Unknown");
             }
         } else {
             joystick = SDL_JoystickOpen(0);
             if (joystick == NULL) {
                 WARNLOG("Could not open joystick 0: %s", SDL_GetError());
+            }
+            else {             
+                SYNCLOG("Generic Joystick connected");
             }
         }
     }
@@ -518,6 +532,63 @@ void controller_rumble(long ms)
 #define STICK_DEADZONE      0.15f
 #define SECONDS_TO_CROSS   10.0f
 #define MIN_PIXEL_STEP     1
+#define MOVEMENT_RATE      10.0f    // movement key presses per second at full deflection
+#define MOVEMENT_RATE      10.0f    // movement key presses per second at full deflection
+
+void poll_controller_movement(Sint16 lx, Sint16 ly)
+{
+    float nx = lx / 32768.0f;
+    float ny = ly / 32768.0f;
+    
+
+    struct Packet* packet = get_packet(my_player_number);
+
+    // Handle horizontal movement
+    float move_mag_x = fabsf(nx);
+    if (move_mag_x > STICK_DEADZONE) {
+        float norm_mag = (move_mag_x - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
+        float curved = norm_mag * norm_mag;
+        float presses_this_frame = MOVEMENT_RATE * curved * game.delta_time;
+        
+        movement_accum_x += (nx > 0 ? presses_this_frame : -presses_this_frame);
+        
+        // Apply movement when we've accumulated enough
+        while (movement_accum_x >= 1.0f) {
+            set_packet_control(packet, PCtr_MoveRight);
+            movement_accum_x -= 1.0f;
+        }
+        while (movement_accum_x <= -1.0f) {
+            set_packet_control(packet, PCtr_MoveLeft);
+            movement_accum_x += 1.0f;
+        }
+    } else {
+        // Reset accumulator when stick returns to center
+        movement_accum_x = 0.0f;
+    }
+    
+    // Handle vertical movement
+    float move_mag_y = fabsf(ny);
+    if (move_mag_y > STICK_DEADZONE) {
+        float norm_mag = (move_mag_y - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
+        float curved = norm_mag * norm_mag;
+        float presses_this_frame = MOVEMENT_RATE * curved * game.delta_time;
+        
+        movement_accum_y += (ny > 0 ? presses_this_frame : -presses_this_frame);
+        
+        // Apply movement when we've accumulated enough
+        while (movement_accum_y >= 1.0f) {
+            set_packet_control(packet, PCtr_MoveDown);
+            movement_accum_y -= 1.0f;
+        }
+        while (movement_accum_y <= -1.0f) {
+            set_packet_control(packet, PCtr_MoveUp);
+            movement_accum_y += 1.0f;
+        }
+    } else {
+        // Reset accumulator when stick returns to center
+        movement_accum_y = 0.0f;
+    }
+}
 
 void poll_controller_mouse(Sint16 rx, Sint16 ry)
 {
@@ -535,8 +606,6 @@ void poll_controller_mouse(Sint16 rx, Sint16 ry)
     float curved = norm_mag * norm_mag;
     float pixels_per_second = lbDisplay.GraphicsWindowWidth / SECONDS_TO_CROSS;
     float pixels_this_frame = pixels_per_second * game.delta_time;
-
-    JUSTLOG("game.delta_time = %f", game.delta_time);
 
     mouse_accum_x += nx * curved * pixels_this_frame;
     mouse_accum_y += ny * curved * pixels_this_frame;
@@ -576,10 +645,7 @@ static void poll_controller()
             
             Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
             Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
-            lbKeyOn[KC_UP]    = (leftY < -8000);
-            lbKeyOn[KC_DOWN]  = (leftY >  8000);
-            lbKeyOn[KC_LEFT]  = (leftX < -8000);
-            lbKeyOn[KC_RIGHT] = (leftX >  8000);
+            poll_controller_movement(leftX, leftY);
 
             Sint16 rx = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
             Sint16 ry = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
@@ -722,10 +788,7 @@ static void poll_controller()
         // Handle analog sticks for movement (axes 0 and 1)
         Sint16 leftX = SDL_JoystickGetAxis(joystick, 0);
         Sint16 leftY = SDL_JoystickGetAxis(joystick, 1);
-        lbKeyOn[KC_UP]    = (leftY < -8000);
-        lbKeyOn[KC_DOWN]  = (leftY > 8000) ;
-        lbKeyOn[KC_LEFT]  = (leftX < -8000);
-        lbKeyOn[KC_RIGHT] = (leftX > 8000) ;
+        poll_controller_movement(leftX, leftY);
 
         // Handle right stick for mouse movement (axes 2 and 3)
         Sint16 rightX = SDL_JoystickGetAxis(joystick, 3);
