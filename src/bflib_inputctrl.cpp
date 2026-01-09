@@ -77,6 +77,12 @@ static float mouse_accum_y = 0.0f;
 static float movement_accum_x = 0.0f;
 static float movement_accum_y = 0.0f;
 
+#define TimePoint std::chrono::high_resolution_clock::time_point
+#define TimeNow std::chrono::high_resolution_clock::now()
+
+static TimePoint delta_time_previous_timepoint;
+static float input_delta_time = 0.0f;
+
 
 /******************************************************************************/
 
@@ -548,7 +554,7 @@ void poll_controller_movement(Sint16 lx, Sint16 ly)
     if (move_mag_x > STICK_DEADZONE) {
         float norm_mag = (move_mag_x - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
         float curved = norm_mag * norm_mag;
-        float presses_this_frame = MOVEMENT_RATE * curved * game.delta_time;
+        float presses_this_frame = MOVEMENT_RATE * curved * input_delta_time;
         
         movement_accum_x += (nx > 0 ? presses_this_frame : -presses_this_frame);
         
@@ -571,7 +577,7 @@ void poll_controller_movement(Sint16 lx, Sint16 ly)
     if (move_mag_y > STICK_DEADZONE) {
         float norm_mag = (move_mag_y - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
         float curved = norm_mag * norm_mag;
-        float presses_this_frame = MOVEMENT_RATE * curved * game.delta_time;
+        float presses_this_frame = MOVEMENT_RATE * curved * input_delta_time;
         
         movement_accum_y += (ny > 0 ? presses_this_frame : -presses_this_frame);
         
@@ -605,7 +611,7 @@ void poll_controller_mouse(Sint16 rx, Sint16 ry)
     float norm_mag = (mag - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
     float curved = norm_mag * norm_mag;
     float pixels_per_second = lbDisplay.GraphicsWindowWidth / SECONDS_TO_CROSS;
-    float pixels_this_frame = pixels_per_second * game.delta_time;
+    float pixels_this_frame = pixels_per_second * input_delta_time;
 
     mouse_accum_x += nx * curved * pixels_this_frame;
     mouse_accum_y += ny * curved * pixels_this_frame;
@@ -622,9 +628,17 @@ void poll_controller_mouse(Sint16 rx, Sint16 ry)
     }
 }
 
+static float get_input_delta_time()
+{
+    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
+    delta_time_previous_timepoint = TimeNow;
+    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game_num_fps;
+    return min(calculated_delta_time, 1.0f);
+}
 
 static void poll_controller()
 {
+    input_delta_time = get_input_delta_time();
     if (controller != NULL) {
         
         TbBool has_right_stick =
@@ -668,8 +682,8 @@ static void poll_controller()
             TbBool right = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
 
             struct TbPoint mouseDelta;
-            mouseDelta.x = (right - left)  * lbDisplay.GraphicsWindowHeight * game.delta_time / 0.02f;
-            mouseDelta.y = (down - up)     * lbDisplay.GraphicsWindowHeight * game.delta_time / 0.02f;
+            mouseDelta.x = (right - left)  * lbDisplay.GraphicsWindowHeight * input_delta_time / 0.02f;
+            mouseDelta.y = (down - up)     * lbDisplay.GraphicsWindowHeight * input_delta_time / 0.02f;
             mouseControl(MActn_MOUSEMOVE, &mouseDelta);
         }
 
