@@ -2136,19 +2136,47 @@ void get_isometric_view_nonaction_inputs(void)
             set_packet_control(packet, PCtr_ViewTiltReset);
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
         {
-            movement_accum_x = -1.0f;
+            if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect)
+            {
+                set_packet_control(packet, PCtr_MoveLeft);
+            }
+            else
+            {
+                 movement_accum_x = -1.0f;
+            }
         }
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
         {
-            movement_accum_x = 1.0f;
+            if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect)
+            {
+                set_packet_control(packet, PCtr_MoveRight);
+            }
+            else
+            {
+                 movement_accum_x = 1.0f;
+            }
         }
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
         {
-            movement_accum_y = -1.0f;
+            if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect)
+            {
+                set_packet_control(packet, PCtr_MoveUp);
+            }
+            else
+            {
+                 movement_accum_y = -1.0f;
+            }
         }
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
         {
-            movement_accum_y = 1.0f;
+            if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect)
+            {
+                set_packet_control(packet, PCtr_MoveDown);
+            }
+            else
+            {
+                 movement_accum_y = 1.0f;
+            }
         }
         // Packets will be sent by send_camera_catchup_packets() based on position difference
     }

@@ -550,6 +550,19 @@ void poll_controller_movement(Sint16 lx, Sint16 ly)
         float presses_this_frame = curved * input_delta_time;
         
         movement_accum_x += (nx > 0 ? presses_this_frame : -presses_this_frame);
+
+        struct PlayerInfo* player = get_my_player();
+        if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect) {
+            struct Packet* packet = get_packet(my_player_number);
+            while (movement_accum_x >= 1.0f) {
+                set_packet_control(packet, PCtr_MoveRight);
+                movement_accum_x -= 1.0f;
+            }
+            while (movement_accum_x <= -1.0f) {
+                set_packet_control(packet, PCtr_MoveLeft);
+                movement_accum_x += 1.0f;
+            }
+        }
     }
     
     // Handle vertical movement - just accumulate for local camera
@@ -560,6 +573,19 @@ void poll_controller_movement(Sint16 lx, Sint16 ly)
         float presses_this_frame = curved * input_delta_time;
         
         movement_accum_y += (ny > 0 ? presses_this_frame : -presses_this_frame);
+        
+        struct PlayerInfo* player = get_my_player();
+        if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect) {
+            struct Packet* packet = get_packet(my_player_number);
+            while (movement_accum_y >= 1.0f) {
+                set_packet_control(packet, PCtr_MoveDown);
+                movement_accum_y -= 1.0f;
+            }
+            while (movement_accum_y <= -1.0f) {
+                set_packet_control(packet, PCtr_MoveUp);
+                movement_accum_y += 1.0f;
+            }
+        }
     }
     // Packets will be sent by send_camera_catchup_packets() based on position difference
 }
