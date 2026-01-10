@@ -207,7 +207,7 @@ struct ScriptLine {
 };
 struct CommandDesc { // sizeof = 14 // originally was 13
   const char *textptr;
-  char args[COMMANDDESC_ARGS_COUNT+1] __attribute__((nonstring)); // originally was [8]
+  char args[COMMANDDESC_ARGS_COUNT+1]; // originally was [8]
   unsigned char index;
   void (*check_fn)(const struct ScriptLine *scline); // should check
   void (*process_fn)(struct ScriptContext *context); // called from value or from
