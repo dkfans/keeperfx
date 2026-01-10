@@ -2134,7 +2134,7 @@ TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    generate_lua_types_file(args);
+    generate_lua_types_file();
     return true;
 }
 
