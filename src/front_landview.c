@@ -71,6 +71,7 @@ struct NetMapPlayersState {
 /******************************************************************************/
 #define WINDOW_X_SIZE 960
 #define WINDOW_Y_SIZE 720
+#define LANDVIEW_DELTA_TIME (game.delta_time * (33.0f / game_num_fps))
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
 const long hand_limp_yoffset[] = {-11, -10,  -9,  -8,  -7,  -6,  -5,  -4,  -3,  -2,  -1,  0, };
@@ -456,8 +457,8 @@ void draw_map_level_ensigns(void)
       const struct TbSprite* spr = get_ensign_sprite_for_level(lvinfo, k);
       if (spr != NULL)
       {
-          long x = lvinfo->ensign_x - map_info.screen_shift_x - (int)(spr->SWidth >> 1);
-          long y = lvinfo->ensign_y - map_info.screen_shift_y - (int)(spr->SHeight);
+          long x = lvinfo->ensign_x - (long)map_info.screen_shift_x - (int)(spr->SWidth >> 1);
+          long y = lvinfo->ensign_y - (long)map_info.screen_shift_y - (int)(spr->SHeight);
           LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
       }
       lvinfo = get_prev_level_info(lvinfo);
@@ -506,8 +507,8 @@ void set_map_info_screen_shift(long map_x, long map_y)
     set_map_info_screen_shift_raw(map_x - delta_x, map_y - delta_y);
     // Reset precise shifts, which are often used for screen shift update
     // The reset is here so that new values have correct clipping applied
-    map_info.precise_scrshift_x = map_info.screen_shift_x << 8;
-    map_info.precise_scrshift_y = map_info.screen_shift_y << 8;
+    map_info.precise_scrshift_x = map_info.screen_shift_x * 256;
+    map_info.precise_scrshift_y = map_info.screen_shift_y * 256;
 }
 
 void step_frontmap_info_screen_shift_zoom(void)
@@ -517,10 +518,10 @@ void step_frontmap_info_screen_shift_zoom(void)
     long scr_y = map_info.hotspot_shift_y - map_info.screen_shift_aimed_y;
     if ((scr_x != 0) || (scr_y != 0))
     {
-        long step = LbSinL(DEGREES_90 * map_info.fade_pos / FRONTMAP_ZOOM_LENGTH);
-        map_info.precise_scrshift_x = (map_info.screen_shift_aimed_x << 8) + (scr_x * step) / 256;
-        map_info.precise_scrshift_y = (map_info.screen_shift_aimed_y << 8) + (scr_y * step) / 256;
-        set_map_info_screen_shift_raw(map_info.precise_scrshift_x >> 8, map_info.precise_scrshift_y >> 8);
+        long step = LbSinL(DEGREES_90 * (long)map_info.fade_pos / FRONTMAP_ZOOM_LENGTH);
+        map_info.precise_scrshift_x = (map_info.screen_shift_aimed_x * 256) + (scr_x * step) / 256;
+        map_info.precise_scrshift_y = (map_info.screen_shift_aimed_y * 256) + (scr_y * step) / 256;
+        set_map_info_screen_shift_raw(map_info.precise_scrshift_x / 256, map_info.precise_scrshift_y / 256);
     }
 }
 
@@ -1090,27 +1091,15 @@ void process_map_zoom_out(void)
 
 void process_zoom_palette(void)
 {
-    SYNCDBG(8,"Starting");
-    if (map_info.fade_step > 0)
-    {
-        if (map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH/2)
-        {
-            LbPaletteFade(NULL, 29, Lb_PALETTE_FADE_OPEN);
-        }
-    } else
-    if (map_info.fade_step < 0)
-    {
-        if (map_info.fade_pos > FRONTMAP_ZOOM_LENGTH/2)
-        {
-            if (map_info.fade_pos+map_info.fade_step > FRONTMAP_ZOOM_LENGTH/2)
-            {
-                LbPaletteFade(frontend_palette, 29, Lb_PALETTE_FADE_OPEN);
-            } else
-            {
-                LbPaletteSet(frontend_palette);
-            }
-        }
+    if (map_info.fade_step == 0 || map_info.fade_pos <= FRONTMAP_ZOOM_LENGTH/2)
+        return;
+    unsigned char palette[PALETTE_SIZE];
+    int remaining = FRONTMAP_ZOOM_LENGTH - map_info.fade_pos;
+    int half_length = FRONTMAP_ZOOM_LENGTH / 2;
+    for (int i = 0; i < PALETTE_SIZE; i++) {
+        palette[i] = frontend_palette[i] * remaining / half_length;
     }
+    LbPaletteSet(palette);
 }
 
 TbBool frontmap_update_zoom(void)
@@ -1124,7 +1113,7 @@ TbBool frontmap_update_zoom(void)
     {
         process_map_zoom_out();
     }
-    map_info.fade_pos += map_info.fade_step;
+    map_info.fade_pos += map_info.fade_step * game.delta_time * (33.0f / game_num_fps);
     if ((map_info.fade_pos <= 1) || (map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH-1))
     {
         SYNCDBG(8,"Stopping fade");
@@ -1296,7 +1285,7 @@ void check_mouse_scroll(void)
     long mx = GetMouseX();
     if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, NULL, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
     {
-        map_info.velocity_x -= 8;
+        map_info.velocity_x -= 8 * LANDVIEW_DELTA_TIME;
         if (map_info.velocity_x < -48)
             map_info.velocity_x = -48;
         if (map_info.velocity_x > 48)
@@ -1304,7 +1293,7 @@ void check_mouse_scroll(void)
   } else
   if ( (mx >= lbDisplay.PhysicalScreenWidth-8) || ( (is_game_key_pressed(Gkey_MoveRight, NULL, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_x += 8;
+    map_info.velocity_x += 8 * LANDVIEW_DELTA_TIME;
     if (map_info.velocity_x < -48)
       map_info.velocity_x = -48;
     if (map_info.velocity_x > 48)
@@ -1313,7 +1302,7 @@ void check_mouse_scroll(void)
   long my = GetMouseY();
   if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, NULL, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_y -= 8;
+    map_info.velocity_y -= 8 * LANDVIEW_DELTA_TIME;
     if (map_info.velocity_y < -48)
       map_info.velocity_y = -48;
     if (map_info.velocity_y > 48)
@@ -1321,7 +1310,7 @@ void check_mouse_scroll(void)
   } else
   if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, NULL, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_y += 8;
+    map_info.velocity_y += 8 * LANDVIEW_DELTA_TIME;
     if (map_info.velocity_y < -48)
       map_info.velocity_y = -48;
     if (map_info.velocity_y > 48)
@@ -1333,31 +1322,30 @@ void update_velocity(void)
 {
     if (map_info.velocity_x != 0)
     {
-      map_info.screen_shift_x += map_info.velocity_x / 4;
+      map_info.screen_shift_x += (map_info.velocity_x / 4) * LANDVIEW_DELTA_TIME;
       if (map_info.screen_shift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview)
         map_info.screen_shift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview;
       if (map_info.screen_shift_x < 0)
         map_info.screen_shift_x = 0;
       if (map_info.velocity_x < 0)
-        map_info.velocity_x += 2;
+        map_info.velocity_x += 2 * LANDVIEW_DELTA_TIME;
       else
-        map_info.velocity_x -= 2;
+        map_info.velocity_x -= 2 * LANDVIEW_DELTA_TIME;
     }
     if (map_info.velocity_y != 0)
     {
-      map_info.screen_shift_y += map_info.velocity_y / 4;
+      map_info.screen_shift_y += (map_info.velocity_y / 4) * LANDVIEW_DELTA_TIME;
       if (map_info.screen_shift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview)
         map_info.screen_shift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview;
       if (map_info.screen_shift_y < 0)
         map_info.screen_shift_y = 0;
       if (map_info.velocity_y < 0)
-        map_info.velocity_y += 2;
+        map_info.velocity_y += 2 * LANDVIEW_DELTA_TIME;
       else
-        map_info.velocity_y -= 2;
+        map_info.velocity_y -= 2 * LANDVIEW_DELTA_TIME;
     }
-    // As we've changed non-precise coords, update the precise ones to match
-    map_info.precise_scrshift_x = map_info.screen_shift_x << 8;
-    map_info.precise_scrshift_y = map_info.screen_shift_y << 8;
+    map_info.precise_scrshift_x = map_info.screen_shift_x * 256;
+    map_info.precise_scrshift_y = map_info.screen_shift_y * 256;
 }
 
 /**
@@ -1411,8 +1399,13 @@ void draw_netmap_players_hands(void)
             k = LbTimerClock() / 150;
             spr = get_sprite(map_hand, 17 + (k%4));
         }
-        x += nspck->stored_data1 - map_info.screen_shift_x - 18;
-        y += nspck->stored_data2 - map_info.screen_shift_y - 25;
+        if (i == my_player_number && n == 0 && nspck->param1 == SINGLEPLAYER_NOTSTARTED) {
+            x += GetMouseX()*16/units_per_pixel_landview - 18;
+            y += GetMouseY()*16/units_per_pixel_landview - 25;
+        } else {
+            x += nspck->stored_data1 - (long)map_info.screen_shift_x - 18;
+            y += nspck->stored_data2 - (long)map_info.screen_shift_y - 25;
+        }
         LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
         w = LbTextStringWidth(plyr_nam);
         if (w > 0)
@@ -1453,8 +1446,8 @@ void draw_map_level_descriptions(void)
       snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
     }
     long w = LbTextStringWidth(level_name);
-    long x = lvinfo->ensign_x - map_info.screen_shift_x;
-    long y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
+    long x = lvinfo->ensign_x - (long)map_info.screen_shift_x;
+    long y = lvinfo->ensign_y - (long)map_info.screen_shift_y - 8;
     long h = LbTextHeight(level_name);
     LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), 0);
     LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, level_name);
@@ -1580,8 +1573,8 @@ void frontnetmap_input(void)
         {
             lvinfo = get_level_info(fe_net_level_selected);
             if (lvinfo != NULL) {
-              LbMouseSetPosition(scale_value_landview(lvinfo->ensign_x - map_info.screen_shift_x),
-                  scale_value_landview(lvinfo->ensign_y - map_info.screen_shift_y));
+              LbMouseSetPosition(scale_value_landview(lvinfo->ensign_x - (long)map_info.screen_shift_x),
+                  scale_value_landview(lvinfo->ensign_y - (long)map_info.screen_shift_y));
             }
             fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
         }
@@ -1666,8 +1659,8 @@ long frontmap_update(void)
 
 TbBool frontmap_exchange_screen_packet(void)
 {
-    memset(net_screen_packet, 0, sizeof(net_screen_packet));
     struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
+    memset(nspck, 0, sizeof(struct ScreenPacket));
     nspck->networkstatus_flags |= 0x01;
     nspck->param1 = fe_net_level_selected;
     if (net_map_limp_time > 0)

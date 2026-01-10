@@ -36,7 +36,7 @@
 
 #ifdef __cplusplus
 void gameplay_loop_draw();
-extern "C" void network_yield_draw();
+extern "C" void network_yield_draw_gameplay();
 #endif
 
 #ifdef __cplusplus

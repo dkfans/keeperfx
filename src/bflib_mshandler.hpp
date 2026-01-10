@@ -45,6 +45,7 @@ class MouseStateHandler {
     bool SetMouseWindow(long x, long y,long width, long height);
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
+    void UpdateMouseFromSDL(void);
  protected:
     bool SetPointer(const struct TbSprite *spr, struct TbPoint *pt);
     // Properties

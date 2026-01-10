@@ -32,6 +32,7 @@
 #include "bflib_guibtns.h"
 #include "bflib_sound.h"
 #include "bflib_mouse.h"
+#include "bflib_mshandler.hpp"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
 #include "net_resync.h"
@@ -250,6 +251,9 @@ TbBool should_use_delta_time_on_menu()
         case FeSt_LEVEL_SELECT:
         case FeSt_CAMPAIGN_SELECT:
         case FeSt_MAPPACK_SELECT:
+        case FeSt_LAND_VIEW:
+        case FeSt_NETLAND_VIEW:
+        case FeSt_TORTURE:
             return true;
         default:
             return false;
@@ -3485,13 +3489,29 @@ void gameplay_loop_draw()
     last_draw_completed_time = get_time_tick_ns();
 }
 
-void gameplay_loop_timestep();
- 
-extern "C" void network_yield_draw()
+extern "C" void network_yield_draw_gameplay()
 {
     game.delta_time = get_delta_time();
     game.process_turn_time += game.delta_time;
     gameplay_loop_draw();
+}
+
+extern "C" void update_velocity(void);
+extern "C" void check_mouse_scroll(void);
+extern "C" void fronttorture_update(void);
+
+extern "C" void network_yield_draw_frontend()
+{
+    game.delta_time = get_delta_time();
+    if (frontend_menu_state == FeSt_NETLAND_VIEW) {
+        check_mouse_scroll();
+        update_velocity();
+    }
+    if (frontend_menu_state == FeSt_TORTURE) {
+        fronttorture_update();
+    }
+    frontend_draw();
+    LbScreenSwap();
 }
 
 void gameplay_loop_timestep()
@@ -3807,10 +3827,10 @@ static TbBool wait_at_frontend(void)
         fade_in();
         fade_palette_in = 0;
       } else {
-        // Frontend delta time for smooth mouse, disable delta time for states with zoom/scroll issues
         if (is_feature_on(Ft_DeltaTime) == true && should_use_delta_time_on_menu()) {
-          // No sleep needed as delta time handles frame timing
+          game.delta_time = get_delta_time();
         } else {
+          game.delta_time = 1;
           LbSleepUntil(fe_last_loop_time + 30);
         }
       }

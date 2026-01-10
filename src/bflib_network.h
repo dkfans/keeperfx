@@ -29,6 +29,11 @@ extern "C" {
 /******************************************************************************/
 
 #define CLIENT_TABLE_LEN 32
+
+#define TIMEOUT_ENET_CONNECT 2000
+#define TIMEOUT_JOIN_LOBBY 2000
+#define TIMEOUT_LOBBY_EXCHANGE 3000
+#define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
 /******************************************************************************/
 #pragma pack(1)
 
