@@ -31,7 +31,6 @@
 #include "post_inc.h"
 
 #define NUM_CHANNELS 2
-#define CONNECT_TIMEOUT 3000
 #define DEFAULT_PORT 5556
 
 namespace
@@ -175,7 +174,7 @@ namespace
         {
             return Lb_FAIL;
         }
-        if (wait_for_connect(CONNECT_TIMEOUT))
+        if (wait_for_connect(TIMEOUT_ENET_CONNECT))
         {
             host_destroy();
             return Lb_FAIL;
