@@ -52,6 +52,44 @@ float interpolated_camera_zoom[4];
 TbBool local_camera_ready;
 /******************************************************************************/
 
+void send_camera_catchup_packets(struct PlayerInfo *player)
+{
+    // Threshold distance before sending catchup packets (in map coordinates)
+    #define CAMERA_DESYNC_THRESHOLD 512
+
+    if (!is_my_player(player) || !local_camera_ready) {
+        return;
+    }
+    
+    // Determine which camera to compare based on view mode
+    int cam_idx = (player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
+    
+    struct Camera* local_cam = &destination_local_cameras[cam_idx];
+    struct Camera* packet_cam = &player->cameras[cam_idx];
+    struct Packet* pckt = get_packet(player->id_number);
+    
+    long diff_map_x = local_cam->mappos.x.val - packet_cam->mappos.x.val;
+    long diff_map_y = local_cam->mappos.y.val - packet_cam->mappos.y.val;
+    
+    long angle = local_cam->rotation_angle_x;
+    long cos_angle = LbCosL(angle);
+    long sin_angle = LbSinL(angle);
+    long diff_cam_right = (diff_map_x * cos_angle + diff_map_y * sin_angle) >> 16;
+    long diff_cam_forward = (-diff_map_x * sin_angle + diff_map_y * cos_angle) >> 16;
+
+    // Send catchup packets if position has drifted too far in camera space
+    if (diff_cam_right > CAMERA_DESYNC_THRESHOLD) {
+        set_packet_control(pckt, PCtr_MoveRight);
+    } else if (diff_cam_right < -CAMERA_DESYNC_THRESHOLD) {
+        set_packet_control(pckt, PCtr_MoveLeft);
+    }
+    if (diff_cam_forward > CAMERA_DESYNC_THRESHOLD) {
+        set_packet_control(pckt, PCtr_MoveDown);
+    } else if (diff_cam_forward < -CAMERA_DESYNC_THRESHOLD) {
+        set_packet_control(pckt, PCtr_MoveUp);
+    }
+}
+
 void sync_camera_state(int cam_idx, struct Camera *cam)
 {
     local_cameras[cam_idx] = *cam;
@@ -148,13 +186,13 @@ void update_local_cameras(void)
             return;
         }
         process_local_minimap_click(local_packet);
-        for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
-            if (cam_idx == CamIV_FirstPerson || cam_idx == CamIV_Parchment) {
-                continue;
-            }
-            process_camera_controls(&destination_local_cameras[cam_idx], local_packet, my_player);
-            view_process_camera_inertia(&destination_local_cameras[cam_idx]);
-        }
+        // Only process camera controls for the currently active camera view
+        int active_cam_idx = (my_player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
+        process_camera_controls(&destination_local_cameras[active_cam_idx], local_packet, my_player, true);
+        view_process_camera_inertia(&destination_local_cameras[active_cam_idx]);
+        
+        // Send catchup packets if local camera has drifted too far from packet-based camera
+        send_camera_catchup_packets(my_player);
     }
 }
 

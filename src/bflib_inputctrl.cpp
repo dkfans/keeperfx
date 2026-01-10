@@ -74,8 +74,8 @@ static Uint8 prev_joy_left = 0;
 static float mouse_accum_x = 0.0f;
 static float mouse_accum_y = 0.0f;
 
-static float movement_accum_x = 0.0f;
-static float movement_accum_y = 0.0f;
+float movement_accum_x = 0.0f;
+float movement_accum_y = 0.0f;
 
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
@@ -536,66 +536,35 @@ void controller_rumble(long ms)
 
 
 #define STICK_DEADZONE      0.15f
-#define SECONDS_TO_CROSS   10.0f
-#define MIN_PIXEL_STEP     1
-#define MOVEMENT_RATE      10.0f    // movement key presses per second at full deflection
-#define MOVEMENT_RATE      10.0f    // movement key presses per second at full deflection
 
 void poll_controller_movement(Sint16 lx, Sint16 ly)
 {
     float nx = lx / 32768.0f;
     float ny = ly / 32768.0f;
     
-
-    struct Packet* packet = get_packet(my_player_number);
-
-    // Handle horizontal movement
+    // Handle horizontal movement - just accumulate for local camera
     float move_mag_x = fabsf(nx);
     if (move_mag_x > STICK_DEADZONE) {
         float norm_mag = (move_mag_x - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
         float curved = norm_mag * norm_mag;
-        float presses_this_frame = MOVEMENT_RATE * curved * input_delta_time;
+        float presses_this_frame = curved * input_delta_time;
         
         movement_accum_x += (nx > 0 ? presses_this_frame : -presses_this_frame);
-        
-        // Apply movement when we've accumulated enough
-        while (movement_accum_x >= 1.0f) {
-            set_packet_control(packet, PCtr_MoveRight);
-            movement_accum_x -= 1.0f;
-        }
-        while (movement_accum_x <= -1.0f) {
-            set_packet_control(packet, PCtr_MoveLeft);
-            movement_accum_x += 1.0f;
-        }
-    } else {
-        // Reset accumulator when stick returns to center
-        movement_accum_x = 0.0f;
     }
     
-    // Handle vertical movement
+    // Handle vertical movement - just accumulate for local camera
     float move_mag_y = fabsf(ny);
     if (move_mag_y > STICK_DEADZONE) {
         float norm_mag = (move_mag_y - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
         float curved = norm_mag * norm_mag;
-        float presses_this_frame = MOVEMENT_RATE * curved * input_delta_time;
+        float presses_this_frame = curved * input_delta_time;
         
         movement_accum_y += (ny > 0 ? presses_this_frame : -presses_this_frame);
-        
-        // Apply movement when we've accumulated enough
-        while (movement_accum_y >= 1.0f) {
-            set_packet_control(packet, PCtr_MoveDown);
-            movement_accum_y -= 1.0f;
-        }
-        while (movement_accum_y <= -1.0f) {
-            set_packet_control(packet, PCtr_MoveUp);
-            movement_accum_y += 1.0f;
-        }
-    } else {
-        // Reset accumulator when stick returns to center
-        movement_accum_y = 0.0f;
     }
+    // Packets will be sent by send_camera_catchup_packets() based on position difference
 }
 
+#define SECONDS_TO_CROSS   10.0f
 void poll_controller_mouse(Sint16 rx, Sint16 ry)
 {
     float nx = rx / 32768.0f;
