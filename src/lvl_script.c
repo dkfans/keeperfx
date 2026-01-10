@@ -425,7 +425,7 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
 static TbBool process_subfunc(char **line, struct ScriptLine *scline, const struct CommandDesc *cmd_desc, const struct CommandDesc *funcmd_desc, int *para_level, int src, int dst, long file_version)
 {
     struct CommandToken token;
-    struct ScriptLine* funscline = (struct ScriptLine*)calloc(sizeof(struct ScriptLine), 1);
+    struct ScriptLine* funscline = (struct ScriptLine*)calloc(1, sizeof(struct ScriptLine));
     if (funscline == NULL) {
         SCRPTERRLOG("Can't allocate buffer to recognize line");
         return false;
@@ -721,7 +721,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     const char *line_start = line;
     struct CommandToken token = { 0 };
     SCRIPTDBG(12,"Starting");
-    struct ScriptLine* scline = (struct ScriptLine*)calloc(sizeof(struct ScriptLine), 1);
+    struct ScriptLine* scline = (struct ScriptLine*)calloc(1, sizeof(struct ScriptLine));
     if (scline == NULL)
     {
       SCRPTERRLOG("Can't allocate buffer to recognize line");
