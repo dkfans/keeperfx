@@ -26,7 +26,6 @@
 #include "bflib_basics.h"
 #include "bflib_mouse.h"
 #include "bflib_sprite.h"
-#include <SDL2/SDL.h>
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -266,18 +265,5 @@ bool MouseStateHandler::PointerEndSwap(void)
       }
     }
     return true;
-}
-
-void MouseStateHandler::UpdateMouseFromSDL(void)
-{
-    int host_cursor_x;
-    int host_cursor_y;
-    std::lock_guard<std::mutex> guard(lock);
-    SDL_PumpEvents();
-    SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
-    if (SetPosition(host_cursor_x, host_cursor_y)) {
-        lbDisplay.MMouseX = mspos.x;
-        lbDisplay.MMouseY = mspos.y;
-    }
 }
 /******************************************************************************/

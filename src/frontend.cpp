@@ -89,7 +89,6 @@
 #include "sprites.h"
 #include "moonphase.h"
 #include "config_keeperfx.h"
-#include "bflib_mshandler.hpp"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -3403,7 +3402,7 @@ void draw_debug_messages() {
  */
 short frontend_draw(void)
 {
-    pointerHandler.UpdateMouseFromSDL();
+    LbWindowsControl();
     short result;
     switch (frontend_menu_state)
     {
