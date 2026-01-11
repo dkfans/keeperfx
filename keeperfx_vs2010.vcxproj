@@ -207,6 +207,7 @@
     <ClCompile Include="src\moonphase.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_portforward.cpp" />
+    <ClCompile Include="src\net_resync.cpp" />
     <ClCompile Include="src\packets.c" />
     <ClCompile Include="src\packets_cheats.c" />
     <ClCompile Include="src\packets_input.c" />
@@ -441,6 +442,7 @@
     <ClInclude Include="src\mutex.hpp" />
     <ClInclude Include="src\net_game.h" />
     <ClInclude Include="src\net_portforward.h" />
+    <ClInclude Include="src\net_resync.h" />
     <ClInclude Include="src\packets.h" />
     <ClInclude Include="src\player_complookup.h" />
     <ClInclude Include="src\player_computer.h" />
