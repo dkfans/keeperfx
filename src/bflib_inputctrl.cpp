@@ -367,6 +367,13 @@ static void close_controller(SDL_JoystickID instance_id)
     rt_pressed = false;
 }
 
+static TbKeyCode mousebutton_to_keycode(const Uint8 *button)
+{
+    if (button == NULL || *button < 1 || *button > 9)
+        return KC_UNASSIGNED;
+    return (KC_MOUSE1 + 1 - *button);
+}
+
 static void process_event(const SDL_Event *ev)
 {
     struct TbPoint mouseDelta;
@@ -423,13 +430,31 @@ static void process_event(const SDL_Event *ev)
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
-        if (!isMouseActive)
+
+        if(ev->button.button == SDL_BUTTON_LEFT || ev->button.button == SDL_BUTTON_RIGHT || ev->button.button == SDL_BUTTON_MIDDLE)
         {
-          return;
+            if (!isMouseActive)
+            {
+            return;
+            }
+            mouseDelta.x = 0;
+            mouseDelta.y = 0;
+            mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
         }
-        mouseDelta.x = 0;
-        mouseDelta.y = 0;
-        mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
+        else
+        {
+            x = mousebutton_to_keycode(&ev->button.button);
+            if (x != KC_UNASSIGNED)
+            {
+                if (ev->type == SDL_MOUSEBUTTONDOWN)
+                {
+                    lbKeyOn[x] = 1;
+                    lbInkey = x;
+                }
+                else
+                    lbKeyOn[x] = 0;
+            }
+        }
         break;
 
     case SDL_MOUSEWHEEL:
