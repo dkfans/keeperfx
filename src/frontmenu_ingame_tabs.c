@@ -2924,8 +2924,7 @@ void go_to_adjacent_menu_tab(int direction)
     }
     int next_index = (current_index + direction + num_menus) % num_menus;
     MenuID next_menu = menus[next_index];
-    set_menu_mode(next_menu);
-    // Update the tab button visual by faking a click
+    
     int tab_bid;
     switch (next_menu) {
         case GMnu_QUERY:
