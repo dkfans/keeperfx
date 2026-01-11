@@ -1639,54 +1639,54 @@ short get_creature_control_action_inputs(void)
     }
     if (numkey == -1)
     {
-        if (is_key_pressed(79,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD1,KMod_DONTCARE))
         {
-            clear_key_pressed(79);
+            clear_key_pressed(KC_NUMPAD1);
             numkey = 0;
         } else
-        if (is_key_pressed(80,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD2,KMod_DONTCARE))
         {
-            clear_key_pressed(80);
+            clear_key_pressed(KC_NUMPAD2);
             numkey = 1;
         } else
-        if (is_key_pressed(81,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD3,KMod_DONTCARE))
         {
-            clear_key_pressed(81);
+            clear_key_pressed(KC_NUMPAD3);
             numkey = 2;
         } else
-        if (is_key_pressed(75,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD4,KMod_DONTCARE))
         {
-            clear_key_pressed(75);
+            clear_key_pressed(KC_NUMPAD4);
             numkey = 3;
         } else
-        if (is_key_pressed(76,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD5,KMod_DONTCARE))
         {
-            clear_key_pressed(76);
+            clear_key_pressed(KC_NUMPAD5);
             numkey = 4;
         } else
-        if (is_key_pressed(77,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD6,KMod_DONTCARE))
         {
-            clear_key_pressed(77);
+            clear_key_pressed(KC_NUMPAD6);
             numkey = 5;
         } else
-        if (is_key_pressed(71,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD7,KMod_DONTCARE))
         {
-            clear_key_pressed(71);
+            clear_key_pressed(KC_NUMPAD7);
             numkey = 6;
         } else
-        if (is_key_pressed(72,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD8,KMod_DONTCARE))
         {
-            clear_key_pressed(72);
+            clear_key_pressed(KC_NUMPAD8);
             numkey = 7;
         } else
-        if (is_key_pressed(73,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD9,KMod_DONTCARE))
         {
-            clear_key_pressed(73);
+            clear_key_pressed(KC_NUMPAD9);
             numkey = 8;
         } else
-        if (is_key_pressed(82,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD0,KMod_DONTCARE))
         {
-            clear_key_pressed(82);
+            clear_key_pressed(KC_NUMPAD0);
             numkey = 9;
         }
     }
