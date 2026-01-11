@@ -1639,54 +1639,54 @@ short get_creature_control_action_inputs(void)
     }
     if (numkey == -1)
     {
-        if (is_key_pressed(79,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD1,KMod_DONTCARE))
         {
-            clear_key_pressed(79);
+            clear_key_pressed(KC_NUMPAD1);
             numkey = 0;
         } else
-        if (is_key_pressed(80,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD2,KMod_DONTCARE))
         {
-            clear_key_pressed(80);
+            clear_key_pressed(KC_NUMPAD2);
             numkey = 1;
         } else
-        if (is_key_pressed(81,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD3,KMod_DONTCARE))
         {
-            clear_key_pressed(81);
+            clear_key_pressed(KC_NUMPAD3);
             numkey = 2;
         } else
-        if (is_key_pressed(75,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD4,KMod_DONTCARE))
         {
-            clear_key_pressed(75);
+            clear_key_pressed(KC_NUMPAD4);
             numkey = 3;
         } else
-        if (is_key_pressed(76,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD5,KMod_DONTCARE))
         {
-            clear_key_pressed(76);
+            clear_key_pressed(KC_NUMPAD5);
             numkey = 4;
         } else
-        if (is_key_pressed(77,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD6,KMod_DONTCARE))
         {
-            clear_key_pressed(77);
+            clear_key_pressed(KC_NUMPAD6);
             numkey = 5;
         } else
-        if (is_key_pressed(71,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD7,KMod_DONTCARE))
         {
-            clear_key_pressed(71);
+            clear_key_pressed(KC_NUMPAD7);
             numkey = 6;
         } else
-        if (is_key_pressed(72,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD8,KMod_DONTCARE))
         {
-            clear_key_pressed(72);
+            clear_key_pressed(KC_NUMPAD8);
             numkey = 7;
         } else
-        if (is_key_pressed(73,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD9,KMod_DONTCARE))
         {
-            clear_key_pressed(73);
+            clear_key_pressed(KC_NUMPAD9);
             numkey = 8;
         } else
-        if (is_key_pressed(82,KMod_DONTCARE))
+        if (is_key_pressed(KC_NUMPAD0,KMod_DONTCARE))
         {
-            clear_key_pressed(82);
+            clear_key_pressed(KC_NUMPAD0);
             numkey = 9;
         }
     }
@@ -1977,6 +1977,10 @@ short get_map_action_inputs(void)
 // rather than using this global variable. But this works.
 int global_frameskipTurn = 0;
 
+
+extern float movement_accum_x;
+extern float movement_accum_y;
+
 void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
@@ -2058,7 +2062,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            set_packet_control(pckt, PCtr_MoveLeft);
+            movement_accum_x = -1.0f;
         }
         if (mx >= MyScreenWidth-edge_scrolling_border)
         {
@@ -2067,7 +2071,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            set_packet_control(pckt, PCtr_MoveRight);
+            movement_accum_x = 1.0f;
         }
         if (my <= edge_scrolling_border)
         {
@@ -2076,7 +2080,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            set_packet_control(pckt, PCtr_MoveUp);
+            movement_accum_y = -1.0f;
         }
         if (my >= MyScreenHeight-edge_scrolling_border)
         {
@@ -2085,7 +2089,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            set_packet_control(pckt, PCtr_MoveDown);
+            movement_accum_y = 1.0f;
         }
     }
 }
@@ -2131,13 +2135,50 @@ void get_isometric_view_nonaction_inputs(void)
         if ( is_game_key_pressed(Gkey_TiltReset, NULL, false) )
             set_packet_control(packet, PCtr_ViewTiltReset);
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-            set_packet_control(packet, PCtr_MoveLeft);
+        {
+            if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect)
+            {
+                set_packet_control(packet, PCtr_MoveLeft);
+            }
+            else
+            {
+                 movement_accum_x = -1.0f;
+            }
+        }
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-            set_packet_control(packet, PCtr_MoveRight);
+        {
+            if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect)
+            {
+                set_packet_control(packet, PCtr_MoveRight);
+            }
+            else
+            {
+                 movement_accum_x = 1.0f;
+            }
+        }
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-            set_packet_control(packet, PCtr_MoveUp);
+        {
+            if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect)
+            {
+                set_packet_control(packet, PCtr_MoveUp);
+            }
+            else
+            {
+                 movement_accum_y = -1.0f;
+            }
+        }
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-            set_packet_control(packet, PCtr_MoveDown);
+        {
+            if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect)
+            {
+                set_packet_control(packet, PCtr_MoveDown);
+            }
+            else
+            {
+                 movement_accum_y = 1.0f;
+            }
+        }
+        // Packets will be sent by send_camera_catchup_packets() based on position difference
     }
 }
 

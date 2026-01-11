@@ -30,6 +30,7 @@ PKG_CREATURE_FILES = $(patsubst config/creatrs/%,pkg/creatrs/%,$(wildcard config
 PKG_FXDATA_FILES = \
 	$(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.cfg)) \
 	$(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.toml)) \
+	$(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.txt)) \
 	$(patsubst config/%,pkg/%,$(wildcard config/fxdata/lua/**/*.lua)) \
 	pkg/fxdata/lua/init.lua
 PKG_FXDATA_DIRS = $(sort $(dir $(PKG_FXDATA_FILES)))
@@ -118,6 +119,9 @@ pkg/fxdata/%.cfg: config/fxdata/%.cfg | pkg/fxdata
 	$(CP) $^ $@
 
 pkg/fxdata/%.toml: config/fxdata/%.toml | pkg/fxdata
+	$(CP) $^ $@
+
+pkg/fxdata/%.txt: config/fxdata/%.txt | pkg/fxdata
 	$(CP) $^ $@
 
 pkg/fxdata/lua/%.lua: config/fxdata/lua/%.lua | pkg/fxdata/lua

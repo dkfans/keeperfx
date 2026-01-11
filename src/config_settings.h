@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define DK_GAME_KEYS_COUNT     32
 #define GAME_KEYS_COUNT        45
 
 #ifdef __cplusplus
