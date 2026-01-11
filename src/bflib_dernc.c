@@ -148,11 +148,11 @@ long rnc_unpack (const void *packed, void *unpacked, unsigned int flags
             else
               {output=outputend;ch_count=0;break;}
       }
-      huf_table raw;
+      huf_table raw = {0};
       read_huftable(&raw, &bs, &input, inputend);
-      huf_table dist;
+      huf_table dist = {0};
       read_huftable(&dist, &bs, &input, inputend);
-      huf_table len;
+      huf_table len = {0};
       read_huftable(&len, &bs, &input, inputend);
       ch_count = bit_read (&bs, 0xFFFF, 16, &input, inputend);
 

@@ -210,7 +210,7 @@ static void port_forward_add_mapping_internal(uint16_t port) {
         LbNetLog("UPnP: No devices found\n");
         return;
     }
-#ifdef __WIN32__
+#if (MINIUPNPC_API_VERSION >= 18)
     int internet_gateway_device_result = UPNP_GetValidIGD(device_list, &upnp_urls, &upnp_data, upnp_lanaddr, sizeof(upnp_lanaddr), NULL, 0);
 #else
     int internet_gateway_device_result = UPNP_GetValidIGD(device_list, &upnp_urls, &upnp_data, upnp_lanaddr, sizeof(upnp_lanaddr));
