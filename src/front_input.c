@@ -1394,7 +1394,6 @@ short get_creature_passenger_action_inputs(void)
 static void set_possession_instance(struct PlayerInfo* player, struct Thing* thing, int direction)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    ;
 
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     int current_pos = 0;
