@@ -38,9 +38,6 @@
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
-#include <map>
-#include "bflib_inputctrl.h"
-
 using namespace std;
 
 #ifdef __cplusplus
