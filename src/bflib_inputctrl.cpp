@@ -80,7 +80,7 @@ float movement_accum_y = 0.0f;
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
 
-static TimePoint delta_time_previous_timepoint;
+static TimePoint delta_time_previous_timepoint = TimeNow;
 static float input_delta_time = 0.0f;
 
 
