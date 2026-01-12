@@ -2134,7 +2134,7 @@ TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    generate_lua_types_file(args);
+    generate_lua_types_file();
     return true;
 }
 
@@ -2308,7 +2308,7 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
 
     size_t cmd_len = strlen(cmd_str);
 
-    int *same_idx = (int *)calloc(sizeof(int), console_command_count);
+    int *same_idx = (int *)calloc(console_command_count, sizeof(int));
     int same_count = 0;
     for (int i = 0; i < console_command_count; ++i) {
         if (strncasecmp(cmd_str, console_commands[i].name, cmd_len) == 0) {

@@ -96,6 +96,8 @@ extern "C" {
 #endif
 
 extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern long double last_draw_completed_time;
+long double get_time_tick_ns();
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -3400,6 +3402,7 @@ void draw_debug_messages() {
  */
 short frontend_draw(void)
 {
+    LbWindowsControl();
     short result;
     switch (frontend_menu_state)
     {
@@ -3476,6 +3479,7 @@ short frontend_draw(void)
     draw_debug_messages();
     perform_any_screen_capturing();
     LbScreenUnlock();
+    last_draw_completed_time = get_time_tick_ns();
     return result;
 }
 

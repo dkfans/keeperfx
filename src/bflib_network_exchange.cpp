@@ -35,7 +35,9 @@
 
 #ifdef __cplusplus
 void gameplay_loop_draw();
-extern "C" void network_yield_draw();
+extern "C" void network_yield_draw_gameplay();
+extern "C" void network_yield_draw_frontend();
+extern "C" short frontend_draw();
 extern "C" long double last_draw_completed_time;
 long double get_time_tick_ns();
 #endif
@@ -46,7 +48,6 @@ extern "C" {
 /******************************************************************************/
 
 #define NETWORK_FPS 60
-#define NETWORK_WAIT_TIMEOUT 5000
 
 char* InitMessageBuffer(enum NetMessageType msg_type) {
     char* ptr = netstate.msg_buffer;
@@ -233,10 +234,10 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name) {
     TbClockMSec start = LbTimerClock();
     while (true) {
         TbClockMSec elapsed = LbTimerClock() - start;
-        if (elapsed >= 5000) {
+        if (elapsed >= TIMEOUT_JOIN_LOBBY) {
             break;
         }
-        unsigned wait_ms = (unsigned)(5000 - elapsed);
+        unsigned wait_ms = (unsigned)(TIMEOUT_JOIN_LOBBY - elapsed);
         if (!netstate.sp->msgready(SERVER_ID, wait_ms)) {
             break;
         }
@@ -270,7 +271,7 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
         TbClockMSec start = LbTimerClock();
         while (true) {
             int elapsed = LbTimerClock() - start;
-            if (elapsed >= NETWORK_WAIT_TIMEOUT) {
+            if (elapsed >= TIMEOUT_GAMEPLAY_MISSING_PACKET) {
                 MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Timeout waiting for turn=%lu packets", (unsigned long)historical_turn);
                 break;
             }
@@ -281,7 +282,7 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
                 if (netstate.users[id].progress == USER_UNUSED) { continue; }
                 if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
 
-                int wait_time = NETWORK_WAIT_TIMEOUT - elapsed;
+                int wait_time = TIMEOUT_GAMEPLAY_MISSING_PACKET - elapsed;
                 if (netstate.sp->msgready(id, wait_time)) {
                     while (netstate.sp->msgready(id, 0)) {
                         ProcessMessage(id, server_buf, client_frame_size);
@@ -295,7 +296,7 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
                 break;
             }
 
-            network_yield_draw();
+            network_yield_draw_gameplay();
         }
     }
 }
@@ -308,42 +309,57 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     netstate.sp->update(OnNewUser);
     memcpy(((char*)server_buf) + netstate.my_id * client_frame_size, send_buf, client_frame_size);
     SendFrameToPeers(netstate.my_id, send_buf, client_frame_size, netstate.seq_nbr, msg_type);
+
+    long double draw_interval_nanoseconds = 1000000000.0 / NETWORK_FPS;
+    if (msg_type == NETMSG_FRONTEND) {
+        draw_interval_nanoseconds = 0;
+    }
+    int timeout_max = TIMEOUT_LOBBY_EXCHANGE;
+    if (msg_type == NETMSG_GAMEPLAY) {
+        timeout_max = (1000 / game_num_fps);
+    }
+
     NetUserId id;
     for (id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id) { continue; }
         if (netstate.users[id].progress == USER_UNUSED) { continue; }
         if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
-        if (msg_type == NETMSG_GAMEPLAY) {
-            const long double draw_interval_nanoseconds = 1000000000.0 / NETWORK_FPS;
-            const int timeout_max = (1000 / game_num_fps);
-            TbClockMSec start = LbTimerClock();
-            while (true) {
-                int elapsed = LbTimerClock() - start;
-                if (elapsed >= timeout_max) {break;}
 
-                long long time_since_draw_nanoseconds = get_time_tick_ns() - last_draw_completed_time;
-                int remaining_time_until_draw = (int)((draw_interval_nanoseconds - time_since_draw_nanoseconds) / 1000000.0);
-                int wait = min(timeout_max - elapsed, remaining_time_until_draw);
-                
-                if (netstate.sp->msgready(id, wait)) {
-                    TbBool received_gameplay_packet = false;
-                    ProcessMessage(id, server_buf, client_frame_size);
-                    if (netstate.msg_buffer[0] == NETMSG_GAMEPLAY) {received_gameplay_packet = true;}
-                    // Process the rest too, for the case of multiple packets having arrived at once.
-                    while (netstate.sp->msgready(id, 0)) {
-                        ProcessMessage(id, server_buf, client_frame_size);
-                        if (netstate.msg_buffer[0] == NETMSG_GAMEPLAY) {received_gameplay_packet = true;}
-                    }
-                    if (received_gameplay_packet == true) {break;}
+        TbClockMSec start = LbTimerClock();
+        while (true) {
+            int elapsed = LbTimerClock() - start;
+            if (elapsed >= timeout_max) {
+                break;
+            }
+
+            long long time_since_draw_nanoseconds = get_time_tick_ns() - last_draw_completed_time;
+            int remaining_time_until_draw = (int)((draw_interval_nanoseconds - time_since_draw_nanoseconds) / 1000000.0);
+            if (remaining_time_until_draw < 0) {remaining_time_until_draw = 0;}
+            int wait = min(timeout_max - elapsed, remaining_time_until_draw);
+
+            if (netstate.sp->msgready(id, wait)) {
+                ProcessMessage(id, server_buf, client_frame_size);
+                if (msg_type != NETMSG_GAMEPLAY) {
+                    break;
                 }
-
-                if (LbTimerClock() - start < timeout_max) {
-                    network_yield_draw();
+                TbBool received_gameplay_msg = (netstate.msg_buffer[0] == NETMSG_GAMEPLAY);
+                while (netstate.sp->msgready(id, 0)) {
+                    ProcessMessage(id, server_buf, client_frame_size);
+                    if (netstate.msg_buffer[0] == NETMSG_GAMEPLAY) {
+                        received_gameplay_msg = true;
+                    }
+                }
+                if (received_gameplay_msg) {
+                    break;
                 }
             }
-        } else {
-            if (netstate.sp->msgready(id, 10000)) {
-                ProcessMessage(id, server_buf, client_frame_size);
+
+            if (LbTimerClock() - start < timeout_max) {
+                if (msg_type == NETMSG_FRONTEND) {
+                    network_yield_draw_frontend();
+                } else {
+                    network_yield_draw_gameplay();
+                }
             }
         }
     }
