@@ -445,7 +445,8 @@ static void process_event(const SDL_Event *ev)
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
         {
-            num_keys_down--;
+            if (num_keys_down > 0)
+                num_keys_down--;
             keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
         }
         break;
