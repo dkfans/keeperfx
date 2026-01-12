@@ -38,9 +38,6 @@
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
-#include <map>
-#include "bflib_inputctrl.h"
-
 using namespace std;
 
 #ifdef __cplusplus
@@ -80,7 +77,7 @@ float movement_accum_y = 0.0f;
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
 
-static TimePoint delta_time_previous_timepoint;
+static TimePoint delta_time_previous_timepoint = TimeNow;
 static float input_delta_time = 0.0f;
 
 
@@ -416,6 +413,8 @@ static TbKeyCode joystickbutton_to_keycode(const Uint8 button)
         }
     }
 
+    if (button < 1 || button > 20)
+        return KC_UNASSIGNED;
     return KC_JOYSTICK_BUTTON1 + button - 1;
 }
 
@@ -443,7 +442,8 @@ static void process_event(const SDL_Event *ev)
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
         {
-            num_keys_down--;
+            if (num_keys_down > 0)
+                num_keys_down--;
             keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
         }
         break;
