@@ -374,6 +374,55 @@ static TbKeyCode mousebutton_to_keycode(const Uint8 *button)
     return (KC_MOUSE1 + 1 - *button);
 }
 
+static TbKeyCode gamecontrollerbutton_to_keycode(const Uint8 button)
+{
+    switch (button) {
+        case SDL_CONTROLLER_BUTTON_A: return KC_GAMEPAD_A;
+        case SDL_CONTROLLER_BUTTON_B: return KC_GAMEPAD_B;
+        case SDL_CONTROLLER_BUTTON_X: return KC_GAMEPAD_X;
+        case SDL_CONTROLLER_BUTTON_Y: return KC_GAMEPAD_Y;
+        case SDL_CONTROLLER_BUTTON_BACK: return KC_GAMEPAD_BACK;
+        case SDL_CONTROLLER_BUTTON_GUIDE: return KC_GAMEPAD_GUIDE;
+        case SDL_CONTROLLER_BUTTON_START: return KC_GAMEPAD_START;
+        case SDL_CONTROLLER_BUTTON_LEFTSTICK: return KC_GAMEPAD_LEFTSTICK;
+        case SDL_CONTROLLER_BUTTON_RIGHTSTICK: return KC_GAMEPAD_RIGHTSTICK;
+        case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: return KC_GAMEPAD_LEFTSHOULDER;
+        case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return KC_GAMEPAD_RIGHTSHOULDER;
+        case SDL_CONTROLLER_BUTTON_DPAD_UP: return KC_GAMEPAD_DPAD_UP;
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return KC_GAMEPAD_DPAD_DOWN;
+        case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return KC_GAMEPAD_DPAD_LEFT;
+        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return KC_GAMEPAD_DPAD_RIGHT;
+        default: break;
+    }
+    return KC_UNASSIGNED;
+}
+
+static TbKeyCode joystickbutton_to_keycode(const Uint8 button)
+{
+    if (controller)
+    {
+        // Find which controller button this joystick button corresponds to
+        SDL_GameControllerButton ctrl_button = SDL_CONTROLLER_BUTTON_INVALID;
+        for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++)
+        {
+            SDL_GameControllerButtonBind bind = SDL_GameControllerGetBindForButton(controller, (SDL_GameControllerButton)i);
+            if (bind.bindType == SDL_CONTROLLER_BINDTYPE_BUTTON && bind.value.button == button)
+            {
+                ctrl_button = (SDL_GameControllerButton)i;
+                break;
+            }
+        }
+
+        if (ctrl_button != SDL_CONTROLLER_BUTTON_INVALID)
+        {
+            return gamecontrollerbutton_to_keycode(ctrl_button);
+        }
+    }
+
+    return KC_JOYSTICK_BUTTON1 + button - 1;
+}
+
+
 static void process_event(const SDL_Event *ev)
 {
     struct TbPoint mouseDelta;
@@ -527,14 +576,47 @@ static void process_event(const SDL_Event *ev)
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:
     case SDL_JOYHATMOTION:
+        break;
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
+    {   
+        TbKeyCode keycode = joystickbutton_to_keycode(ev->jbutton.button);
+        if (keycode != KC_UNASSIGNED)
+        {
+            if (ev->type == SDL_JOYBUTTONDOWN)
+            {
+                lbKeyOn[keycode] = 1;
+                lbInkey = keycode;
+            }
+            else
+            {
+                lbKeyOn[keycode] = 0;
+            }
+        }
+    }
+        break;
     case SDL_CONTROLLERAXISMOTION:
+        break;
     case SDL_CONTROLLERBUTTONDOWN:
     case SDL_CONTROLLERBUTTONUP:
-        //TODO INPUT make joypad support
+    {
+        // Some controllers with proper mappings send these events instead of joystick events
+        Uint8 button_val = ev->cbutton.button;
+        TbKeyCode keycode = gamecontrollerbutton_to_keycode(button_val);
+        if (keycode != KC_UNASSIGNED)
+        {
+            if (ev->type == SDL_CONTROLLERBUTTONDOWN)
+            {
+                lbKeyOn[keycode] = 1;
+                lbInkey = keycode;
+            }
+            else
+            {
+                lbKeyOn[keycode] = 0;
+            }
+        }
+    }
         break;
-
     case SDL_SYSWMEVENT:
     case SDL_WINDOWEVENT_RESIZED:
         break;

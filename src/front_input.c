@@ -1391,6 +1391,52 @@ short get_creature_passenger_action_inputs(void)
     return false;
 }
 
+static void set_possession_instance(struct PlayerInfo* player, struct Thing* thing, int direction)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    ;
+
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    int current_pos = 0;
+    for (int pos = 0; pos < LEARNED_INSTANCES_COUNT; pos++)
+    {
+        if (cctrl->active_instance_id == crconf->learned_instance_id[pos])
+        {
+            current_pos = pos;
+            break;
+        }
+    }
+
+    int final_pos = -1;
+    for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
+    {
+        int pos = current_pos + direction * (i + 1);
+        
+        pos += LEARNED_INSTANCES_COUNT;
+        pos %= LEARNED_INSTANCES_COUNT;
+        
+        if (creature_instance_is_available(thing, crconf->learned_instance_id[pos]))
+        {
+            int inst_id = crconf->learned_instance_id[pos];
+            final_pos = pos;
+            set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id, 1, 0, 0);
+            break;
+        }
+    }
+
+
+    if (menu_is_active(GMnu_CREATURE_QUERY1) && final_pos > 5)
+    {
+        turn_off_menu(GMnu_CREATURE_QUERY1);
+        turn_on_menu(GMnu_CREATURE_QUERY2);
+    }
+    else if (menu_is_active(GMnu_CREATURE_QUERY2) && final_pos <= 5)
+    {
+        turn_off_menu(GMnu_CREATURE_QUERY2);
+        turn_on_menu(GMnu_CREATURE_QUERY1);
+    }
+}
+
 short get_creature_control_action_inputs(void)
 {
     int32_t keycode;
@@ -1838,6 +1884,24 @@ short get_creature_control_action_inputs(void)
                         }
                         num_avail++;
                     }
+                }
+            }
+            
+            // Next/Previous instance switching
+            if (menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2))
+            {
+                struct Thing* cthing = thing_get(player->controlled_thing_idx);
+                
+                if (is_key_pressed(KC_GAMEPAD_RIGHTSHOULDER, KMod_DONTCARE))
+                {
+                    clear_key_pressed(KC_GAMEPAD_RIGHTSHOULDER);
+                    set_possession_instance(player, cthing, 1);
+                    
+                }
+                else if (is_key_pressed(KC_GAMEPAD_LEFTSHOULDER, KMod_DONTCARE))
+                {
+                    clear_key_pressed(KC_GAMEPAD_LEFTSHOULDER);
+                    set_possession_instance(player, cthing, -1);
                 }
             }
         }
