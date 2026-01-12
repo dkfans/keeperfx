@@ -92,9 +92,6 @@ static float input_delta_time = 0.0f;
  * @param button SDL button definition.
  * @return
  */
-
-extern void go_to_adjacent_menu_tab(int direction);
-
 static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
 {
     if (eventType == SDL_MOUSEBUTTONDOWN) {

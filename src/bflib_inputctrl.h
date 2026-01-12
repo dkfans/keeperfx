@@ -43,6 +43,9 @@ extern volatile int lbUserQuit;
 extern volatile TbBool lbMouseGrab;
 extern volatile TbBool lbMouseGrabbed;
 extern volatile TbBool lbAppActive;
+
+extern float movement_accum_x;
+extern float movement_accum_y;
 /******************************************************************************/
 TbBool LbWindowsControl(void);
 TbBool LbIsActive(void);

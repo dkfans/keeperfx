@@ -332,9 +332,6 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-extern float movement_accum_x;
-extern float movement_accum_y;
-
 void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera)
 {
     if (cam == NULL) {

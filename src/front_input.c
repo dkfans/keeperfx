@@ -2041,10 +2041,6 @@ short get_map_action_inputs(void)
 // rather than using this global variable. But this works.
 int global_frameskipTurn = 0;
 
-
-extern float movement_accum_x;
-extern float movement_accum_y;
-
 void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
