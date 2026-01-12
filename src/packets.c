@@ -40,6 +40,7 @@
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
 #include "bflib_planar.h"
+#include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
 #include "front_input.h"

@@ -29,6 +29,7 @@
 #include "bflib_planar.h"
 #include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
+#include "frontmenu_ingame_tabs.h"
 #include "config_keeperfx.h"
 #include "config_settings.h"
 #include "front_input.h"
