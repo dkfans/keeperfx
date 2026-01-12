@@ -695,7 +695,7 @@ void poll_controller_movement(Sint16 lx, Sint16 ly)
     // Packets will be sent by send_camera_catchup_packets() based on position difference
 }
 
-#define SECONDS_TO_CROSS   10.0f
+#define SECONDS_TO_CROSS   20.0f
 void poll_controller_mouse(Sint16 rx, Sint16 ry)
 {
     float nx = rx / 32768.0f;
@@ -853,10 +853,10 @@ static void poll_controller()
         lbKeyOn[settings.kbkeys[Gkey_ZoomRoomHeart].code] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
 
         // Handle Start and Back buttons with edge detection to simulate key presses
-        lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
+        lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK);
 
 
-        Uint8 current_back = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK);
+        Uint8 current_back = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
         if (current_back && !prev_back) {
             keyboardControl(KActn_KEYDOWN, KC_ESCAPE, KMod_NONE, 0);
             keyboardControl(KActn_KEYDOWN, KC_P, KMod_NONE, 0);
