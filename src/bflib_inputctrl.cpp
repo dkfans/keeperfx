@@ -419,6 +419,8 @@ static TbKeyCode joystickbutton_to_keycode(const Uint8 button)
         }
     }
 
+    if (button < 1 || button > 20)
+        return KC_UNASSIGNED;
     return KC_JOYSTICK_BUTTON1 + button - 1;
 }
 
