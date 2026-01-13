@@ -152,6 +152,12 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_MOUSE3,          GUIStr_MouseButton},
   {KC_MOUSEWHEEL_UP,   GUIStr_MouseScrollWheelUp},
   {KC_MOUSEWHEEL_DOWN, GUIStr_MouseScrollWheelDown},
+  {KC_MOUSE4,          GUIStr_MouseButton},
+  {KC_MOUSE5,          GUIStr_MouseButton},
+  {KC_MOUSE6,          GUIStr_MouseButton},
+  {KC_MOUSE7,          GUIStr_MouseButton},
+  {KC_MOUSE8,          GUIStr_MouseButton},
+  {KC_MOUSE9,          GUIStr_MouseButton},
   {  0,     0},
 };
 

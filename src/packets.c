@@ -22,6 +22,8 @@
 #include "net_input_lag.h"
 #include "net_checksums.h"
 
+#include <math.h>
+
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
@@ -38,6 +40,7 @@
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
 #include "bflib_planar.h"
+#include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
 #include "front_input.h"
@@ -330,7 +333,7 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player)
+void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera)
 {
     if (cam == NULL) {
         return;
@@ -369,14 +372,43 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
     if (pckt->additional_packet_values & PCAdV_SpeedupPressed)
       inter_val *= 3;
 
-    if ((pckt->control_flags & PCtr_MoveUp) != 0)
-        view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
-    if ((pckt->control_flags & PCtr_MoveDown) != 0)
-        view_set_camera_y_inertia(cam, inter_val/4, inter_val);
-    if ((pckt->control_flags & PCtr_MoveLeft) != 0)
-        view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
-    if ((pckt->control_flags & PCtr_MoveRight) != 0)
-        view_set_camera_x_inertia(cam, inter_val/4, inter_val);
+    if (is_local_camera && !game.packet_load_enable)
+    {
+        movement_accum_x = clamp(movement_accum_x, -1.0f, 1.0f);
+        movement_accum_y = clamp(movement_accum_y, -1.0f, 1.0f);
+        
+        // Apply same scaling as packet-based movement for consistency
+        if (movement_accum_y != 0.0f) {
+            long delta = (long)(movement_accum_y * inter_val / 4.0f);
+            long limit = (long)(movement_accum_y * inter_val);
+            view_set_camera_y_inertia(cam, delta, limit);
+        }
+        if (movement_accum_x != 0.0f) {
+            long delta = (long)(movement_accum_x * inter_val / 4.0f);
+            long limit = (long)(movement_accum_x * inter_val);
+            view_set_camera_x_inertia(cam, delta, limit);
+        }
+        movement_accum_x = 0.0f;
+        movement_accum_y = 0.0f;
+    }
+    else
+    {
+        // Packet-based movement for non-local cameras or when local camera is disabled
+        if ((pckt->control_flags & PCtr_MoveUp) != 0) {
+            view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
+        }
+        if ((pckt->control_flags & PCtr_MoveDown) != 0) {
+            view_set_camera_y_inertia(cam, inter_val/4, inter_val);
+        }
+        if ((pckt->control_flags & PCtr_MoveLeft) != 0) {
+            view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
+        }
+        if ((pckt->control_flags & PCtr_MoveRight) != 0) {
+            view_set_camera_x_inertia(cam, inter_val/4, inter_val);
+        }
+    }
+
+
     if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
     {
         switch (cam->view_mode)
@@ -490,7 +522,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         ERRORLOG("No active camera");
         return;
     }
-    process_camera_controls(cam, pckt, player);
+    process_camera_controls(cam, pckt, player, false);
     if (is_my_player(player)) {
         TbBool settings_changed = false;
         if ((pckt->control_flags & (PCtr_ViewTiltUp | PCtr_ViewTiltDown | PCtr_ViewTiltReset)) != 0) {
@@ -1466,7 +1498,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
         break;
       i = pckt->actn_par1;
       inst_inf = creature_instance_info_get(i);
-      if (!inst_inf->instant)
+      if (!inst_inf->instant || pckt->actn_par2)
       {
         cctrl->active_instance_id = i;
       } else

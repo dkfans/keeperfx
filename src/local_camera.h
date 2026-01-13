@@ -51,6 +51,7 @@ void interpolate_local_cameras(void);
 void sync_local_camera(struct PlayerInfo *player);
 void set_local_camera_destination(struct PlayerInfo *player);
 struct Camera* get_local_camera(struct Camera* cam);
+void send_camera_catchup_packets(struct PlayerInfo *player);
 
 /******************************************************************************/
 #ifdef __cplusplus

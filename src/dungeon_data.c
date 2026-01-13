@@ -25,6 +25,7 @@
 #include "game_legacy.h"
 #include "player_instances.h"
 #include "gui_soundmsgs.h"
+#include "bflib_inputctrl.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -228,6 +229,7 @@ void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on
                 if (is_my_player_number(heartng->owner))
                 {
                     output_message(SMsg_HeartUnderAttack, 400);
+                    controller_rumble(50);
                 }
             }
         }

@@ -506,7 +506,7 @@ TbResult LbScreenInitialize(void)
         LbRegisterModernVideoModes(); // register modern and flexible custom modes
     }
     // Initialize SDL library
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) < 0) {
         ERRORLOG("SDL init: %s",SDL_GetError());
         return Lb_FAIL;
     }
