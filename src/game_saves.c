@@ -36,6 +36,7 @@
 #include "front_highscore.h"
 #include "front_lvlstats.h"
 #include "lens_api.h"
+#include "local_camera.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "game_merge.h"
@@ -419,6 +420,7 @@ TbBool load_game(long slot_num)
     player->lens_palette = 0;
     PaletteSetPlayerPalette(player, engine_palette);
     reinitialise_eye_lens(game.applied_lens_type);
+    init_local_cameras(player);
     // Update the lights system state
     light_import_system_state(&game.lightst);
     // Victory state

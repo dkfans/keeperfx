@@ -20,6 +20,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_inputctrl.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"
@@ -1003,6 +1004,11 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
             i = 1;
         }
         PaletteApplyPainToPlayer(player, i);
+
+        if (is_my_player(player))
+        {
+            controller_rumble(100);
+        }
     }
     return cdamage;
 }
