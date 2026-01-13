@@ -36,6 +36,7 @@
 #include "front_highscore.h"
 #include "front_lvlstats.h"
 #include "lens_api.h"
+#include "local_camera.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "game_merge.h"
