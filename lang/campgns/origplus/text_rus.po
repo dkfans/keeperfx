@@ -1,3 +1,16 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
@@ -15,20 +28,23 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-"Project-Id-Version: GUI Strings for origplus "
-"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
-
 #. Level Eversmile information soon after start
 #: guitext:1
 msgctxt "In-game message"
-msgid "You are an experienced Keeper. Heroes will not wait for you to build a "
-"Dungeon. Rival Dungeon Keepers will give it their best to defeat you."
-msgstr "Вы опытный Хранитель. Герои не будут ждать, пока вы построите подземелье. "
-"Соперничающие Хранители подземелий приложат все усилия, чтобы вас победить."
+msgid ""
+"You are an experienced Keeper. Heroes will not wait for you to build a Dungeon. "
+"Rival Dungeon Keepers will give it their best to defeat you."
+msgstr ""
+"Вы опытный Хранитель. Герои не станут дожидаться, пока Вы построите подземелье, "
+"а другие Хранители подземелий, готовые бросить Вам вызов, приложат все усилия, "
+"чтобы одолеть Вас."
 
 #: guitext:2
 msgctxt "In-game message"
-msgid "Transferring creatures to a new realm has been made very difficult. "
-"But surely an experienced Keeper as yourself can conquer realms without help."
-msgstr "Передача существ в новое царство стала очень сложной. Но, конечно же, "
-"опытный Хранитель, как вы, может покорить царства без посторонней помощи."
+msgid ""
+"Transferring creatures to a new realm has been made very difficult. But surely "
+"an experienced Keeper as yourself can conquer realms without help."
+msgstr ""
+"Переносить созданий в новое королевство в этой кампании очень сложно. Но такому "
+"опытному Хранителю, как Вы, помощь в покорении мирных королевств вовсе не "
+"требуется, ведь так?"

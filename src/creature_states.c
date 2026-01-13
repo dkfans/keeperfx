@@ -1111,13 +1111,13 @@ short arrive_at_call_to_arms(struct Thing *creatng)
         return 1;
     }
     struct Thing* cmbttng = check_for_door_to_fight(creatng);
-    if (!thing_is_invalid(cmbttng))
+    if (thing_exists(cmbttng))
     {
         set_creature_door_combat(creatng, cmbttng);
         return 2;
     }
     cmbttng = check_for_object_to_fight(creatng);
-    if (!thing_is_invalid(cmbttng))
+    if (thing_exists(cmbttng))
     {
         set_creature_object_combat(creatng, cmbttng);
         return 2;
@@ -1492,7 +1492,6 @@ short cleanup_timebomb(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
     cctrl->timebomb_target_id = 0;
-    cctrl->timebomb_death = false;
     return 0;
 }
 
@@ -1559,7 +1558,7 @@ short creature_being_dropped(struct Thing *creatng)
         check_map_explored(creatng, stl_x, stl_y);
         // Creatures dropped far from group are removed from it
         struct Thing* leadtng = get_group_leader(creatng);
-        if (!thing_is_invalid(leadtng))
+        if (thing_is_creature(leadtng))
         {
             if (leadtng->index != creatng->index)
             {
@@ -3096,7 +3095,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if ( thing_is_invalid(picktng) || ((picktng->state_flags & TF1_IsDragged1) != 0)
+    if ( !thing_exists(picktng) || ((picktng->state_flags & TF1_IsDragged1) != 0)
       || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(creatng);
@@ -3619,7 +3618,7 @@ CrCheckRet move_check_attack_any_door(struct Thing *creatng)
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->collided_door_subtile);
     SYNCDBG(8,"Door at (%d,%d) collided with %s",(int)stl_x,(int)stl_y,thing_model_name(creatng));
     struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-    if (thing_is_invalid(doortng)) {
+    if (!thing_exists(doortng)) {
         SYNCDBG(8,"Door collided with %s not found",thing_model_name(creatng));
         return 0;
     }
@@ -3910,7 +3909,7 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
           }
       }
       doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
-      if (!thing_is_invalid(doortng))
+      if (thing_exists(doortng))
       {
         internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
         cctrl->blocking_door_id = doortng->index;
@@ -4190,8 +4189,8 @@ TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, Creatu
     RoomRole rrole = get_room_role_for_job(jobpref);
     if (!room_exists(room))
     {
-        SYNCLOG("%s: The %s owned by player %d can no longer work in %s because former work room doesn't exist",
-            func_name,thing_model_name(thing),(int)thing->owner,room_role_code_name(rrole));
+        SYNCLOG("%s: The %s(%d) owned by player %d can no longer work in %s because former work room doesn't exist",
+            func_name,thing_model_name(thing),thing->index,(int)thing->owner,room_role_code_name(rrole));
         // Note that if given room doesn't exist, it do not mean this
         return true;
     }

@@ -608,11 +608,11 @@ long LbCosL(long x)
  * @param y
  * @return
  */
-long LbArcTanAngle(long x,long y)
+int32_t LbArcTanAngle(int32_t x,int32_t y)
 {
-    long ux;
-    long uy;
-    unsigned long index;
+    int32_t ux;
+    int32_t uy;
+    uint32_t index;
     if ((x == 0) && (y == 0))
         return 0;
     if (x < 0)
@@ -625,10 +625,10 @@ long LbArcTanAngle(long x,long y)
             // This way we won't exceed factors array bounds (which is 256 elements).
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return DEGREES_360   - (long)lbArcTanFactors[index];
+                return DEGREES_360   - (int32_t)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return ANGLE_WEST + (long)lbArcTanFactors[index];
+                return ANGLE_WEST + (int32_t)lbArcTanFactors[index];
             }
         } else
         {
@@ -636,10 +636,10 @@ long LbArcTanAngle(long x,long y)
             // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return   DEGREES_180   + (long)lbArcTanFactors[index];
+                return   DEGREES_180   + (int32_t)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return ANGLE_WEST - (long)lbArcTanFactors[index];
+                return ANGLE_WEST - (int32_t)lbArcTanFactors[index];
             }
         }
     } else
@@ -651,10 +651,10 @@ long LbArcTanAngle(long x,long y)
             // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return                 (long)lbArcTanFactors[index];
+                return                 (int32_t)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return ANGLE_EAST - (long)lbArcTanFactors[index];
+                return ANGLE_EAST - (int32_t)lbArcTanFactors[index];
             }
         } else
         {
@@ -662,10 +662,10 @@ long LbArcTanAngle(long x,long y)
             // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return DEGREES_180   - (long)lbArcTanFactors[index];
+                return DEGREES_180   - (int32_t)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return ANGLE_EAST + (long)lbArcTanFactors[index];
+                return ANGLE_EAST + (int32_t)lbArcTanFactors[index];
             }
         }
     }

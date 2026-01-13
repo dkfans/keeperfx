@@ -4,7 +4,7 @@
 #   @file speech_chi.po
 #      KeeperFX Speeches translation file
 #  @par Purpose:
-#      Contains translation of the national strings in the game.
+#      Contains translation of the national speeches in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
@@ -20,652 +20,652 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
-"POT-Creation-Date: 2017-04-01 11:44+0800\n"
-"PO-Revision-Date: 2017-04-01 12:29+0800\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2026-01-05 01:53+0000\n"
+"Last-Translator: YFdyh000 <yfdyh000@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0\n"
-"Last-Translator: YFdyh000 <yfdyh000@gmail.com>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Language: zh_CN\n"
+"X-Generator: Poedit 3.8\n"
 
-#: speech:0
+#: speech:1
 msgctxt "In-game mentor"
 msgid "Your creatures are becoming angry."
 msgstr "你的怪物生气了。"
 
-#: speech:1
+#: speech:2
 msgctxt "In-game mentor"
 msgid "Your creatures are angry - they have nowhere to live."
 msgstr "你的怪物生气了 - 他们没有地方住。"
 
-#: speech:2
+#: speech:3
 msgctxt "In-game mentor"
 msgid "Your minions are annoyed - you cannot pay them."
 msgstr "你的怪物生气了 - 你没钱给他们发薪水。"
 
-#: speech:3
+#: speech:4
 msgctxt "In-game mentor"
 msgid "Your creatures are upset because they are hungry."
 msgstr "你的怪物不高兴，因为他们饿了。"
 
-#: speech:4
+#: speech:5
 msgctxt "In-game mentor"
-msgid "Your minions are vandalizing your dungeon!"
+msgid "Your minions are vandalising your dungeon!"
 msgstr "你的怪物正在破坏你的地下城！"
 
-#: speech:5
+#: speech:6
 msgctxt "In-game mentor"
 msgid "Creatures are deserting!"
 msgstr "怪物们正在离开你！"
 
-#: speech:6
+#: speech:7
 msgctxt "In-game mentor"
 msgid "The enemy has broken through your walls!"
 msgstr "敌人攻破了你的城墙！"
 
-#: speech:7
+#: speech:8
 msgctxt "In-game mentor"
 msgid "Your Dungeon Heart is being attacked!"
 msgstr "地下城的心脏遭到攻击！"
 
-#: speech:8
+#: speech:9
 msgctxt "In-game mentor"
 msgid "Your minions have lost a battle."
 msgstr "你的怪物输掉了这场战斗。"
 
-#: speech:9
+#: speech:10
 msgctxt "In-game mentor"
 msgid "Your creatures have won a battle!"
 msgstr "你的怪物赢得了这场战斗。"
 
-#: speech:10
+#: speech:11
 msgctxt "In-game mentor"
 msgid "Your creatures are falling in battle!"
 msgstr "你的怪物正在输掉这场战斗！"
 
-#: speech:11
+#: speech:12
 msgctxt "In-game mentor"
-msgid "Your minions are winning the battle."
+msgid "Your minions are winning a battle."
 msgstr "你的怪物正在赢得这场战斗！"
 
-#: speech:12
+#: speech:13
 msgctxt "In-game mentor"
 msgid "Your creatures are under attack."
 msgstr "你的怪物遭到攻击。"
 
-#: speech:13
+#: speech:14
 msgctxt "In-game mentor"
 msgid "Your creatures are attacking the enemy!"
 msgstr "你的怪物正在攻击敌人！"
 
-#: speech:14
+#: speech:15
 msgctxt "In-game mentor"
 msgid "The enemy is destroying your rooms!"
 msgstr "敌人正在破坏你的房间！"
 
-#: speech:15
+#: speech:16
 msgctxt "In-game mentor"
-msgid "You are losing teritory."
+msgid "You are losing territory."
 msgstr "你正在失去你的领土！"
 
-#: speech:16
+#: speech:17
 msgctxt "In-game mentor"
 msgid "You have claimed an enemy room."
 msgstr "你占领了敌人的一个房间。"
 
-#: speech:17
+#: speech:18
 msgctxt "In-game mentor"
 msgid "You have taken control of a new room."
 msgstr "你控制了一个新房间。"
 
-#: speech:18
+#: speech:19
 msgctxt "In-game mentor"
-msgid "Beware, the lord of the land approaches!"
+msgid "Beware, the Lord of the Land approaches!"
 msgstr "注意，国王进入了你的地下城！"
 
-#: speech:19
+#: speech:20
 msgctxt "In-game mentor"
 msgid "Your creatures are fighting amongst themselves."
 msgstr "你的怪物中发生了内战。"
 
-#: speech:20
+#: speech:21
 msgctxt "In-game mentor"
 msgid "The battle is over."
 msgstr "战斗结束了。"
 
-#: speech:21
+#: speech:22
 msgctxt "In-game mentor"
-msgid "Food is scarse, enlarge your Hatchery."
+msgid "Food is scarce; enlarge your Hatchery."
 msgstr "食物缺乏，扩建你的孵化室。"
 
-#: speech:22
+#: speech:23
 msgctxt "In-game mentor"
 msgid "Your creatures need a bigger Lair."
 msgstr "你的怪物需要更大的巢穴。"
 
-#: speech:23
+#: speech:24
 msgctxt "In-game mentor"
 msgid "You need a bigger Treasure Room."
 msgstr "你需要一个更大的储金室。"
 
-#: speech:24
+#: speech:25
 msgctxt "In-game mentor"
 msgid "Your Library is too small."
 msgstr "你的图书馆太小了。"
 
-#: speech:25
+#: speech:26
 msgctxt "In-game mentor"
 msgid "Your Prison is too small."
 msgstr "你的监狱太小了。"
 
-#: speech:26
+#: speech:27
 msgctxt "In-game mentor"
 msgid "Your Torture Chamber is not big enough."
 msgstr "你的审讯室不够大。"
 
-#: speech:27
+#: speech:28
 msgctxt "In-game mentor"
 msgid "You need a bigger Training Room."
 msgstr "你需要一个大一点的训练室。"
 
-#: speech:28
+#: speech:29
 msgctxt "In-game mentor"
 msgid "Your Workshop is not big enough."
 msgstr "你的工厂不够大。"
 
-#: speech:29
+#: speech:30
 msgctxt "In-game mentor"
-msgid "Your Scavenge Room is too small."
+msgid "Your Scavenger Room is too small."
 msgstr "你的招募中心太小了。"
 
-#: speech:30
+#: speech:31
 msgctxt "In-game mentor"
 msgid "You need a bigger Temple."
 msgstr "你需要一个大一点的寺庙。"
 
-#: speech:31
+#: speech:32
 msgctxt "In-game mentor"
 msgid "Your Graveyard is not big enough."
 msgstr "你的陵墓不够大。"
 
-#: speech:32
+#: speech:33
 msgctxt "In-game mentor"
 msgid "Your Barracks require expansion."
 msgstr "你的兵营需要扩建。"
 
-#: speech:33
+#: speech:34
 msgctxt "In-game mentor"
 msgid "Hungry creatures cannot get to a Hatchery."
 msgstr "饥饿的怪物无法到达孵化室。"
 
-#: speech:34
+#: speech:35
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach the Treasure Room."
 msgstr "你的一些怪物不能到达储金室。"
 
-#: speech:35
+#: speech:36
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach their lairs."
 msgstr "一些怪物无法回到他们的巢穴。"
 
-#: speech:36
+#: speech:37
 msgctxt "In-game mentor"
-msgid "An Entrance have been claimed."
+msgid "An Entrance has been claimed."
 msgstr "你得到了一个入口。"
 
-#: speech:37
+#: speech:38
 msgctxt "In-game mentor"
 msgid "You have lost an entrance."
 msgstr "你失去了一个入口。"
 
-#: speech:38
+#: speech:39
 msgctxt "In-game mentor"
 msgid "You must build a Treasure Room, to store gold."
 msgstr "你必须修一个储金室存放金子。"
 
-#: speech:39
+#: speech:40
 msgctxt "In-game mentor"
 msgid "You need to build a Lair for your creatures."
 msgstr "你要为你的怪物建造一个巢穴。"
 
-#: speech:40
+#: speech:41
 msgctxt "In-game mentor"
 msgid "You should build a Hatchery, to feed your minions."
 msgstr "你应该修建一个孵化室供给怪物们食物。"
 
-#: speech:41
+#: speech:42
 msgctxt "In-game mentor"
 msgid "A new room has been researched."
 msgstr "研究出了一个新的房间。"
 
-#: speech:42
+#: speech:43
 msgctxt "In-game mentor"
 msgid "A new spell has been researched."
 msgstr "新的魔法研究完成。"
 
-#: speech:43
+#: speech:44
 msgctxt "In-game mentor"
 msgid "A door has been manufactured."
 msgstr "新的门制造完成。"
 
-#: speech:44
+#: speech:45
 msgctxt "In-game mentor"
 msgid "A trap has been manufactured."
 msgstr "陷阱制造完成。"
 
-#: speech:45
+#: speech:46
 msgctxt "In-game mentor"
-msgid "There is nothing new to research."
+msgid "There is nothing left to research."
 msgstr "没有可以研究的了。"
 
-#: speech:46
+#: speech:47
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's spellbook."
 msgstr "你得到了一本敌人的魔法书。"
 
-#: speech:47
+#: speech:48
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's trap design."
 msgstr "你得到了敌人的陷阱设计图。"
 
-#: speech:48
+#: speech:49
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's door design."
 msgstr "你得到了敌人的门的设计图。"
 
-#: speech:49
+#: speech:50
 msgctxt "In-game mentor"
 msgid "The enemy has stolen a spellbook!"
 msgstr "一个敌人偷走一本魔法书！"
 
-#: speech:50
+#: speech:51
 msgctxt "In-game mentor"
 msgid "A trap design has been taken from you."
 msgstr "你的陷阱设计图被偷走了。"
 
-#: speech:51
+#: speech:52
 msgctxt "In-game mentor"
 msgid "The enemy has taken a door design."
 msgstr "敌人得到了一个门的设计图。"
 
-#: speech:52
+#: speech:53
 msgctxt "In-game mentor"
 msgid "Information has been tortured from the enemy."
 msgstr "拷问敌人获得了重要信息。"
 
-#: speech:53
+#: speech:54
 msgctxt "In-game mentor"
 msgid "An enemy has been converted to your cause."
 msgstr "一个敌人加入你方了。"
 
-#: speech:54
+#: speech:55
 msgctxt "In-game mentor"
-msgid "A prisonner have died and returned as a Skeleton."
+msgid "A prisoner has died and risen as a Skeleton."
 msgstr "一个囚犯死后变为骷髅了。"
 
-#: speech:55
+#: speech:56
 msgctxt "In-game mentor"
 msgid "A torture victim has died and returned as a Ghost."
 msgstr "一个被拷打的犯人死了，他变成了一个鬼。"
 
-#: speech:56
-msgctxt "In-game mentor"
-msgid "Your prisonners are escaping!"
-msgstr "你的囚犯逃跑了。"
-
 #: speech:57
 msgctxt "In-game mentor"
-msgid "A Vampire has risen on your Graveyard."
-msgstr "你的陵墓中诞生了一个吸血鬼。"
+msgid "Your prisoners are escaping!"
+msgstr "你的囚犯逃跑了。"
 
 #: speech:58
+msgctxt "In-game mentor"
+msgid "A Vampire has risen in your Graveyard."
+msgstr "你的陵墓中诞生了一个吸血鬼。"
+
+#: speech:59
 msgctxt "In-game mentor"
 msgid "You have freed your creatures from prison!"
 msgstr "你释放了监狱里的怪物。"
 
-#: speech:59
+#: speech:60
 msgctxt "In-game mentor"
-msgid "Your prisonners are starving to death."
+msgid "Your prisoners are starving to death."
 msgstr "你的囚犯饿死了。"
 
-#: speech:60
+#: speech:61
 msgctxt "In-game mentor"
 msgid "One of your creatures is being scavenged!"
 msgstr "你的一个怪物正在被敌人招募！"
 
-#: speech:61
+#: speech:62
 msgctxt "In-game mentor"
-msgid "One of your minions is being scavenged!"
+msgid "One of your minions has been scavenged!"
 msgstr "你的一个怪物被敌人招募了。"
 
-#: speech:62
+#: speech:63
 msgctxt "In-game mentor"
 msgid "One of your creatures has joined the enemy."
 msgstr "你的一个怪物加入了敌方。"
 
-#: speech:63
+#: speech:64
 msgctxt "In-game mentor"
 msgid "Secrets have been tortured from your creatures!"
 msgstr "你的怪物在拷打下说出了你的秘密。"
 
 #. Message when good sacrifice recipe progressed
-#: speech:64
+#: speech:65
 msgctxt "In-game mentor"
 msgid "The Gods are pleased with your sacrifice."
 msgstr "神对你的祭祀感到满意。"
 
 #. Message when good sacrifice recipe finished
-#: speech:65
+#: speech:66
 msgctxt "In-game mentor"
 msgid "The Gods have rewarded your offering."
 msgstr "你的贡品令神高兴，你得到了奖赏。"
 
 #. Message when sacrifice didn't progressed any recipe
-#: speech:66
+#: speech:67
 msgctxt "In-game mentor"
 msgid "The Gods do not care for your sacrifice."
 msgstr "神不喜欢你的祭祀。"
 
 #. Message when bad sacrifice recipe progressed
-#: speech:67
+#: speech:68
 msgctxt "In-game mentor"
 msgid "Your offering has made the Gods angry!"
 msgstr "你的贡品把神惹怒了。"
 
 #. Message when bad sacrifice recipe finished
-#: speech:68
+#: speech:69
 msgctxt "In-game mentor"
-msgid "The Gods have punished your unwothy offering."
+msgid "The Gods have punished your unworthy offering."
 msgstr "你的贡品不值钱，神惩罚你了。"
 
 #. Message when dropping gold into Temple water
-#: speech:69
+#: speech:70
 msgctxt "In-game mentor"
-msgid "This is no wishing well, keeper."
+msgid "This is no wishing well, Keeper."
 msgstr "这不是许愿井，守护者！"
 
 #. Message when Dungeon Special found on level
-#: speech:70
+#: speech:71
 msgctxt "In-game mentor"
-msgid "Your creatures have discovered a misterious magic box."
+msgid "Your creatures have discovered a mysterious magic box."
 msgstr "你的怪物发现了一个神秘的魔法盒。"
 
 #. Message when spellbook found on level
-#: speech:71
+#: speech:72
 msgctxt "In-game mentor"
 msgid "Your creatures have found a spell."
 msgstr "你的怪物发现了一种魔法。"
 
 #. Message when door crate found on level
-#: speech:72
+#: speech:73
 msgctxt "In-game mentor"
 msgid "A door design has been discovered."
 msgstr "发现了一种门的设计图。"
 
 #. Message when trap crate found on level
-#: speech:73
+#: speech:74
 msgctxt "In-game mentor"
 msgid "A trap design has been discovered."
 msgstr "一种陷阱的设计图被发现。"
 
-#: speech:74
+#: speech:75
 msgctxt "In-game mentor"
 msgid "New creatures have joined your dungeon."
 msgstr "新的怪物加入了你的地下城。"
 
 #. Message when digging has revealed a cavern
-#: speech:75
+#: speech:76
 msgctxt "In-game mentor"
-msgid "You have thalowed into a new area."
+msgid "You have tunnelled into a new area."
 msgstr "你的隧道挖掘到了一个新区域。"
 
-#: speech:76
+#: speech:77
 msgctxt "In-game mentor"
 msgid "The entire realm has been revealed to you."
 msgstr "整个王国的地图被揭示了。"
 
-#: speech:77
+#: speech:78
 msgctxt "In-game mentor"
 msgid "You may resurrect one creature."
 msgstr "你可以使你的一个怪物复活。"
 
-#: speech:78
+#: speech:79
 msgctxt "In-game mentor"
 msgid "Select a creature to take with you to the next realm."
 msgstr "选择一个怪物带到下一个王国。"
 
-#: speech:79
+#: speech:80
 msgctxt "In-game mentor"
 msgid "So be it."
 msgstr "让我们干吧。"
 
-#: speech:80
+#: speech:81
 msgctxt "In-game mentor"
 msgid "You have bewitched a hero."
 msgstr "你迷惑了一个英雄。"
 
-#: speech:81
+#: speech:82
 msgctxt "In-game mentor"
 msgid "Your creatures have been doubled in number."
 msgstr "你的怪物数量加倍了。"
 
-#: speech:82
+#: speech:83
 msgctxt "In-game mentor"
 msgid "Your creatures have been blessed with experience."
 msgstr "你的怪物的等级提升了。"
 
-#: speech:83
+#: speech:84
 msgctxt "In-game mentor"
 msgid "Your dungeon has been fortified."
 msgstr "你的地下城被强化了。"
 
-#: speech:84
+#: speech:85
 msgctxt "In-game mentor"
 msgid ""
 "You have found a hidden realm. Go there when you've conquered this land."
 msgstr "你发现了一个隐藏的王国。征服了这片土地后就进入它。"
 
-#: speech:85
+#: speech:86
 msgctxt "In-game mentor"
 msgid "Your gold reserves are running low."
 msgstr "你的金子不足了。"
 
-#: speech:86
+#: speech:87
 msgctxt "In-game mentor"
 msgid "You do not have enough gold."
 msgstr "你没有足够的金子。"
 
-#: speech:87
+#: speech:88
 msgctxt "In-game mentor"
 msgid "You are too poor to scavenge creatures."
 msgstr "你太穷了，不能招募怪物了。"
 
-#: speech:88
+#: speech:89
 msgctxt "In-game mentor"
 msgid "You cannot afford to train creatures."
 msgstr "你无法负担训练费用。"
 
-#: speech:89
+#: speech:90
 msgctxt "In-game mentor"
 msgid "It is payday."
 msgstr "这是发薪日。"
 
-#: speech:90
+#: speech:91
 msgctxt "In-game mentor random funny message"
 msgid "My god, it's full of pies."
 msgstr "天哪，全是馅饼。"
 
-#: speech:91
+#: speech:92
 msgctxt "In-game mentor random funny message"
 msgid "Something surreal is happening."
 msgstr "发生了超现实的事情。"
 
-#: speech:92
+#: speech:93
 msgctxt "In-game mentor random funny message"
 msgid "Your creatures are developing a strange accent."
 msgstr "你的怪物研制了一种奇怪的发音。"
 
-#: speech:93
+#: speech:94
 msgctxt "In-game mentor random funny message"
 msgid "Your pants are definitely too tight."
 msgstr "你的裤子太紧了。"
 
-#: speech:94
+#: speech:95
 msgctxt "In-game mentor random funny message"
 msgid "Your minions have a craving for chocolate."
 msgstr "你的怪物想吃巧克力。"
 
-#: speech:95
+#: speech:96
 msgctxt "In-game mentor random funny message"
 msgid "There's that smell again."
 msgstr "又是这种气味。"
 
-#: speech:96
+#: speech:97
 msgctxt "In-game mentor random funny message"
-msgid "Hello."
+msgid "Hello?"
 msgstr "嗨！"
 
-#: speech:97
+#: speech:98
 msgctxt "In-game mentor random funny message"
 msgid "Blech."
 msgstr "运动有趣吗。"
 
-#: speech:98
+#: speech:99
 msgctxt "In-game mentor random funny message"
 msgid "Achoo"
 msgstr "喷嚏声"
 
-#: speech:99
+#: speech:100
 msgctxt "In-game mentor random funny message"
 msgid "Cough"
 msgstr "咳嗽声"
 
-#: speech:100
+#: speech:101
 msgctxt "In-game mentor"
 msgid "You cannot give your Imps any more jobs."
 msgstr "你无法给你的小鬼更多的工作。"
 
-#: speech:101
+#: speech:102
 msgctxt "In-game mentor"
 msgid "Game loaded."
 msgstr "游戏载入完成。"
 
-#: speech:102
+#: speech:103
 msgctxt "In-game mentor"
 msgid "Game saved."
 msgstr "游戏储存完成。"
 
-#: speech:103
+#: speech:104
 msgctxt "In-game mentor"
 msgid "You have defeated an enemy Keeper."
 msgstr "你击败了一个敌对的守护者。"
 
-#: speech:104
+#: speech:105
 msgctxt "In-game mentor"
 msgid "You have been defeated."
 msgstr "你被打败了…"
 
-#: speech:105
+#: speech:106
 msgctxt "In-game mentor"
 msgid "You have conquered this realm!"
 msgstr "你征服了这个王国。"
 
-#: speech:106
-msgctxt "In-game mentor"
-msgid "Master, I sence the presence of the Avatar!"
-msgstr "主人，我觉得圣者出现了！"
-
 #: speech:107
 msgctxt "In-game mentor"
-msgid "What trickery is this? The Avatar's body has vanished."
-msgstr "这是什么诡计？圣者的尸体消失了！"
+msgid "Master, I sense the presence of the Avatar!"
+msgstr "主人，我觉得圣者出现了！"
 
 #: speech:108
 msgctxt "In-game mentor"
-msgid ""
-"You are victorious, your darkness pervades througout the kingdom. All hail "
-"the new lord of shadows."
-msgstr "你胜利了，你的黑暗笼罩了这个王国。为新的黑暗君主欢呼吧！"
+msgid "What trickery is this? The Avatar's body has vanished!"
+msgstr "这是什么诡计？圣者的尸体消失了！"
 
 #: speech:109
+msgctxt "In-game mentor"
+msgid ""
+"You are victorious! Your darkness pervades throughout the kingdom. All hail "
+"the new lord of shadows!"
+msgstr "你胜利了，你的黑暗笼罩了这个王国。为新的黑暗君主欢呼吧！"
+
+#: speech:110
 msgctxt "Enemy Keeper Harassment"
 msgid "Your efforts are futile!"
 msgstr "你的努力是徒劳的！"
 
-#: speech:110
+#: speech:111
 msgctxt "Enemy Keeper Harassment"
-msgid "My dungeon is the finest You shall ever see!"
+msgid "My dungeon is the finest you shall ever see!"
 msgstr "我的地下城是你所见过的最好的！"
 
-#: speech:111
+#: speech:112
 msgctxt "Enemy Keeper Harassment"
 msgid "My minions will leave your dungeon a crumbling ruin!"
 msgstr "我的怪物将把你的地下城变成废墟！"
 
-#: speech:112
-msgctxt "Enemy Keeper Harassment"
-msgid "You entrails will decorate the darkest alchow of my domain!"
-msgstr "我要你的内脏装饰我的房间！"
-
 #: speech:113
 msgctxt "Enemy Keeper Harassment"
-msgid "Your corpse shall se my minions yet, keeper!"
-msgstr "我要用你的尸体喂养我的怪物！"
+msgid "You entrails will decorate the darkest alchove of my domain!"
+msgstr "我要你的内脏装饰我的房间！"
 
 #: speech:114
+msgctxt "Enemy Keeper Harassment"
+msgid "Your corpse shall feed my minions yet, Keeper!"
+msgstr "我要用你的尸体喂养我的怪物！"
+
+#: speech:115
 msgctxt "Enemy Keeper Harassment"
 msgid "Prepare for oblivion, Keeper!"
 msgstr "准备消失吧，守护者！"
 
-#: speech:115
+#: speech:116
 msgctxt "Enemy Keeper Harassment"
 msgid "Pathetic creature, I shall crush you in an instant!"
 msgstr "可怜的生物，我会像捏臭虫一样捏死你！"
 
-#: speech:116
+#: speech:117
 msgctxt "Enemy Keeper Harassment"
-msgid "Ho ho ho ho!"
+msgid "Pah ha ha ha ha ha!"
 msgstr "呵，嘿嘿哈哈哈…"
 
-#: speech:117
+#: speech:118
 msgctxt "Hero Talk Upon Entering"
 msgid "Your dark days are numbered, evil one!"
 msgstr "你的黑暗统治的日子屈指可数了！"
 
-#: speech:118
+#: speech:119
 msgctxt "Hero Talk Upon Entering"
 msgid "We come to rid the world of your evil!"
 msgstr "我们要除掉你邪恶的世界！"
 
-#: speech:119
+#: speech:120
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall send you back to the pits, vile one!"
+msgid "We shall send you back to the pits, foul one!"
 msgstr "我们要把你送进坟墓，邪恶的家伙！"
 
-#: speech:120
+#: speech:121
 msgctxt "Hero Talk Upon Entering"
 msgid "Your reign shall end before this day is done!"
 msgstr "你的统治不会超过今天了！"
 
-#: speech:121
+#: speech:122
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall cast you back into the shadows, keeper!"
+msgid "We shall cast you back into the shadows, Keeper!"
 msgstr "守护者，我们要把你送回黑暗中！"
 
-#: speech:122
+#: speech:123
 msgctxt "Hero Talk Upon Entering"
 msgid "Leave us to live our lives in peace!"
 msgstr "让我们在和平中生活吧！"
 
-#: speech:123
+#: speech:124
 msgctxt "Hero Talk Upon Entering"
 msgid "In the name of all that is good, we shall defeat you!"
 msgstr "以光明的名义，我们发誓打败你！"
 
-#: speech:124
+#: speech:125
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
 msgstr "我们不能再对你的邪恶的存在，置之不理了！"

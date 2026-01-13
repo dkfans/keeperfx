@@ -192,7 +192,7 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
                 thing = thing_get(friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        if (!thing_is_invalid(thing) && thing_revealed(thing, dungeon->owner))
+        if (thing_exists(thing) && thing_revealed(thing, dungeon->owner))
         {
             battle_creature_over = thing->index;
         }
@@ -297,7 +297,7 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
                 thing = thing_get(enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        if (!thing_is_invalid(thing) && thing_revealed(thing, dungeon->owner))
+        if (thing_exists(thing) && thing_revealed(thing, dungeon->owner))
         {
             battle_creature_over = thing->index;
         }
@@ -516,7 +516,7 @@ void draw_gameturn_timer(void)
         {
             nturns = 0;
         }
-        snprintf(text, sizeof(text), "GameTurn %lu", game.play_gameturn);
+        snprintf(text, sizeof(text), "GameTurn %u", game.play_gameturn);
     }
     LbTextSetFont(winfont);
     int textLength = strlen(text);
@@ -900,7 +900,7 @@ void draw_network_stats() {
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Slowdown: %d%% | Slowdown average: %d%% | Max slowdown: %d%%", slowdown_current, slowdown_average, slowdown_max);
     LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Current gameturn: %lu", game.play_gameturn);
+    snprintf(text, sizeof(text), "Current gameturn: %u", game.play_gameturn);
     LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
 }
 /******************************************************************************/

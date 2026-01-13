@@ -343,6 +343,7 @@ TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib
 void get_chat_icon_from_value(const char* txt, char* id, char* type);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
 TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *func_name, long ln_num);
+PlayerNumber get_objective_id_with_potential_target(const char* locname, PlayerNumber* target);
 TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwrLevel power_level, PlayerNumber caster, TbBool is_free);
 const char * script_strval(long offset);
 long script_strdup(const char *src);

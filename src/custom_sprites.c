@@ -344,7 +344,7 @@ void init_custom_sprites(LevelNumber lvnum)
     }
     else
     {
-        ERRORLOG("Invalid level number %ld for loading custom sprites", lvnum);
+        ERRORLOG("Invalid level number %d for loading custom sprites", lvnum);
     }
     // Clear sprite data
     for (int i = 0; i < KEEPERSPRITE_ADD_NUM; i++)

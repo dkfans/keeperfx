@@ -16,6 +16,7 @@
 #include "bflib_enet.h"
 #include "bflib_network.h"
 #include "bflib_math.h"
+#include "net_portforward.h"
 #include "game_legacy.h"
 #include "player_data.h"
 
@@ -30,7 +31,6 @@
 #include "post_inc.h"
 
 #define NUM_CHANNELS 2
-#define CONNECT_TIMEOUT 3000
 #define DEFAULT_PORT 5556
 
 namespace
@@ -80,6 +80,7 @@ namespace
 
     void bf_enet_exit()
     {
+        port_forward_remove_mapping();
         host_destroy();
         g_drop_callback = nullptr;
         enet_deinitialize();
@@ -94,18 +95,19 @@ namespace
      */
     TbError bf_enet_host(const char *session, void *options)
     {
-        ENetAddress addr = {.host = 0,
+        ENetAddress address = {.host = 0,
                             .port = DEFAULT_PORT };
         if (!*session)
             return Lb_FAIL;
         int port = atoi(session);
         if (port > 0)
-            addr.port = port;
-        host = enet_host_create(&addr, 4, NUM_CHANNELS, 0, 0);
+            address.port = port;
+        host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
         if (!host) {
             return Lb_FAIL;
         }
         enet_host_compress_with_range_coder(host);
+        port_forward_add_mapping(address.port);
         return Lb_OK;
     }
 
@@ -172,7 +174,7 @@ namespace
         {
             return Lb_FAIL;
         }
-        if (wait_for_connect(CONNECT_TIMEOUT))
+        if (wait_for_connect(TIMEOUT_ENET_CONNECT))
         {
             host_destroy();
             return Lb_FAIL;
@@ -263,7 +265,7 @@ namespace
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
         if (client_peer) // Just send to server
         {
-            enet_peer_send(client_peer, 0, packet);
+            enet_peer_send(client_peer, ENET_CHANNEL_RELIABLE, packet);
         }
         else
         {
@@ -273,7 +275,7 @@ namespace
                     continue;
                 if (NetUserId(reinterpret_cast<ptrdiff_t>(currentPeer->data)) == destination)
                 {
-                    enet_peer_send(currentPeer, 0, packet);
+                    enet_peer_send(currentPeer, ENET_CHANNEL_RELIABLE, packet);
                 }
             }
         }
@@ -291,7 +293,7 @@ namespace
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_UNSEQUENCED);
         if (client_peer) // Just send to server
         {
-            enet_peer_send(client_peer, 0, packet);
+            enet_peer_send(client_peer, ENET_CHANNEL_UNSEQUENCED, packet);
         }
         else
         {
@@ -301,7 +303,7 @@ namespace
                     continue;
                 if (NetUserId(reinterpret_cast<ptrdiff_t>(currentPeer->data)) == destination)
                 {
-                    enet_peer_send(currentPeer, 0, packet);
+                    enet_peer_send(currentPeer, ENET_CHANNEL_UNSEQUENCED, packet);
                 }
             }
         }
@@ -316,7 +318,7 @@ namespace
     void bf_enet_sendmsg_all(const char *buffer, size_t size)
     {
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
-        enet_host_broadcast(host, 0, packet);
+        enet_host_broadcast(host, ENET_CHANNEL_RELIABLE, packet);
         enet_host_flush(host);
     }
 

@@ -426,7 +426,7 @@ void update_creature_rendering_flags(struct Thing *thing)
             thing->rendering_flags |= TRF_Invisible;
             struct PlayerInfo* player = get_my_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
-            if (creatng != thing)
+            if ((creatng != thing) && (thing_is_creature(creatng)))
             {
                 if ( (is_thing_directly_controlled_by_player(creatng, player->id_number)) || (is_thing_passenger_controlled_by_player(creatng, player->id_number)) )
                 {

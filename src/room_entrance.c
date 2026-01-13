@@ -36,6 +36,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "post_inc.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,7 +80,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     }
     struct Thing* heartng = get_player_soul_container(room->owner);
     TRACE_THING(heartng);
-    if (!thing_is_invalid(heartng))
+    if (thing_exists(heartng))
     {
         if (setup_person_move_to_position(creatng, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, 0)) {
             creatng->continue_state = CrSt_CreaturePresentToDungeonHeart;
@@ -87,7 +88,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
             heartng = INVALID_THING;
         }
     }
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         set_start_state(creatng);
     }
@@ -433,7 +434,7 @@ TbBool update_creature_pool_state(void)
     return true;
 }
 
-void add_creature_to_pool(ThingModel kind, long amount)
+void add_creature_to_pool(ThingModel kind, int32_t amount)
 {
     kind %= game.conf.crtr_conf.model_count;
 

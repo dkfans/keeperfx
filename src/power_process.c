@@ -45,6 +45,7 @@
 #include "game_legacy.h"
 #include "power_hand.h"
 #include "player_instances.h"
+#include "local_camera.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -290,7 +291,7 @@ void update_god_lightning_ball(struct Thing *thing)
         break;
     case 1:
         target = thing_get(thing->shot.target_idx);
-        if (thing_is_invalid(target))
+        if (!thing_exists(target))
             break;
         shotst = get_shot_model_stats(thing->model);
         draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
@@ -298,7 +299,7 @@ void update_god_lightning_ball(struct Thing *thing)
     case 2:
     {
         target = thing_get(thing->shot.target_idx);
-        if (thing_is_invalid(target))
+        if (!thing_exists(target))
             break;
         shotst = get_shot_model_stats(thing->model);
         apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner);
@@ -361,7 +362,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
     SYNCDBG(8,"The best target for %s index %d owner %d is %s index %d owner %d",
         thing_model_name(shotng),(int)shotng->index,(int)shotng->owner,
         thing_model_name(best_thing),(int)best_thing->index,(int)best_thing->owner);
-    if (!thing_is_invalid(best_thing)) {
+    if (thing_exists(best_thing)) {
         shotng->shot.target_idx = best_thing->index;
     } else {
         shotng->shot.target_idx = 0;
@@ -371,7 +372,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 void draw_god_lightning(struct Thing *shotng)
 {
     struct PlayerInfo* player = get_player(shotng->owner);
-    const struct Camera* cam = player->acamera;
+    const struct Camera* cam = get_local_camera(player->acamera);
     if (cam == NULL) {
         return;
     }
@@ -682,7 +683,7 @@ void process_timebomb(struct Thing *creatng)
     update_creature_speed(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
-    if (thing_is_invalid(timetng))
+    if (!thing_exists(timetng))
     {
         if ((cctrl->timebomb_countdown % game_num_fps) == 0)
         {
@@ -709,7 +710,7 @@ void process_timebomb(struct Thing *creatng)
         }
     }
     struct Thing* trgtng = thing_get(cctrl->timebomb_target_id);
-    if (!thing_is_invalid(trgtng))
+    if (thing_exists(trgtng))
     {
         if ((creatng->mappos.x.stl.num == trgtng->mappos.x.stl.num) && (creatng->mappos.y.stl.num == trgtng->mappos.y.stl.num))
         {
@@ -738,17 +739,8 @@ void timebomb_explode(struct Thing *creatng)
     struct SpellConfig *spconf = get_spell_config(cctrl->active_timebomb_spell);
     struct ShotConfigStats *shotst = get_shot_model_stats(spconf->shot_model);
     SYNCDBG(8, "Explode Timebomb");
-    long weight = compute_creature_weight(creatng);
-    if (shotst->area_range != 0)
-    {
-        struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
-        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crconf->luck, cctrl->exp_level) * weight) / WEIGHT_DIVISOR;
-        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crconf->luck, cctrl->exp_level, creatng->owner) * weight) / WEIGHT_DIVISOR;
-        HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / WEIGHT_DIVISOR, hit_targets);
-    }
-    struct Thing *efftng = create_used_effect_or_element(&creatng->mappos, TngEff_Explosion5, creatng->owner, creatng->index);
-    if (!thing_is_invalid(efftng))
+    struct Thing *shotng = create_shot(&creatng->mappos, spconf->shot_model, creatng->owner);
+    if (!thing_is_invalid(shotng))
     {
         create_used_effect_or_element(&creatng->mappos, shotst->explode.effect1_model, creatng->owner, creatng->index);
         create_used_effect_or_element(&creatng->mappos, shotst->explode.effect2_model, creatng->owner, creatng->index);
@@ -764,13 +756,14 @@ void timebomb_explode(struct Thing *creatng)
         {
             create_effect_around_thing(creatng, TngEff_Blood5);
         }
-        HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        cctrl->timebomb_death = ((shotst->model_flags & ShMF_Exploding) != 0);
-        MapCoord max_dist = (shotst->area_range * weight) / WEIGHT_DIVISOR;
-        HitPoints max_damage = (shotst->area_damage * weight) / WEIGHT_DIVISOR;
+        long weight = compute_creature_weight(creatng);
+        struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
+        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crconf->luck, cctrl->exp_level) * weight) / WEIGHT_DIVISOR;
+        HitPoints damage = (compute_creature_attack_spell_damage(shotst->area_damage, crconf->luck, cctrl->exp_level, creatng->owner) * weight) / WEIGHT_DIVISOR;
         long blow_strength = (shotst->area_blow * weight) / WEIGHT_DIVISOR;
-        kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
-        explosion_affecting_area(efftng, &efftng->mappos, max_dist, max_damage, blow_strength, hit_targets);
+        HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+        shot_kill_creature(shotng, creatng);
+        explosion_affecting_area(shotng, &shotng->mappos, dist, damage, blow_strength, hit_targets);
     }
 }
 /******************************************************************************/

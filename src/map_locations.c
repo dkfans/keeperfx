@@ -160,7 +160,7 @@ TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx)
     SYNCDBG(7,"Starting at player %d", (int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         ERRORLOG("Script error - attempt to create thing in player %d dungeon with no heart",(int)plyr_idx);
         return false;
@@ -278,7 +278,7 @@ TbBool get_map_location_code_name(TbMapLocation location, char *name)
 
 
 // TODO: z location
-void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name)
+void find_location_pos(TbMapLocation location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name)
 {
   struct ActionPoint *apt;
   struct Thing *thing;
@@ -311,7 +311,7 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
         thing = get_player_soul_container(i);
       } else
         thing = INVALID_THING;
-      if (!thing_is_invalid(thing))
+      if (thing_exists(thing))
       {
         *pos = thing->mappos;
       } else
@@ -347,10 +347,10 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
     case MLoc_DOORKIND:
     case MLoc_TRAPKIND:
     default:
-      WARNMSG("%s: Unsupported location, %lu.",func_name,location);
+      WARNMSG("%s: Unsupported location, %u.",func_name,location);
       break;
   }
-  SYNCDBG(15,"From %s; Location %ld, pos(%u,%u)",func_name, location, pos->x.stl.num, pos->y.stl.num);
+  SYNCDBG(15,"From %s; Location %d, pos(%u,%u)",func_name, location, pos->x.stl.num, pos->y.stl.num);
 }
 
 /**
@@ -640,7 +640,7 @@ TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *lo
 }
 
 // TODO: replace this function by find_location_pos
-void find_map_location_coords(TbMapLocation location, int32_t *x, int32_t *y, int plyr_idx, const char *func_name)
+void find_map_location_coords(TbMapLocation location, MapSubtlCoord *x, MapSubtlCoord *y, int plyr_idx, const char *func_name)
 {
     struct ActionPoint *apt;
     struct Thing *thing;
@@ -649,7 +649,7 @@ void find_map_location_coords(TbMapLocation location, int32_t *x, int32_t *y, in
     long pos_x;
     long pos_y;
     long i;
-    SYNCDBG(15,"From %s; Location %ld, pos(%d,%d)",func_name, location, *x, *y);
+    SYNCDBG(15,"From %s; Location %d, pos(%d,%d)",func_name, location, *x, *y);
     pos_y = 0;
     pos_x = 0;
     i = get_map_location_longval(location);
@@ -680,7 +680,7 @@ void find_map_location_coords(TbMapLocation location, int32_t *x, int32_t *y, in
             thing = get_player_soul_container(i);
         } else
           thing = INVALID_THING;
-        if (!thing_is_invalid(thing))
+        if (thing_exists(thing))
         {
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
@@ -717,7 +717,7 @@ void find_map_location_coords(TbMapLocation location, int32_t *x, int32_t *y, in
     case MLoc_DOORKIND:
     case MLoc_TRAPKIND:
     default:
-          WARNMSG("%s: Unsupported location, %lu.",func_name,location);
+          WARNMSG("%s: Unsupported location, %u.",func_name,location);
         break;
     }
     *y = pos_y;

@@ -19,6 +19,11 @@
 extern "C" {
 #endif
 
+enum {
+    ENET_CHANNEL_RELIABLE = 0,
+    ENET_CHANNEL_UNSEQUENCED = 1
+};
+
 struct NetSP;
 struct NetSP* InitEnetSP();
 unsigned long GetPing(int id);

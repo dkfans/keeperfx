@@ -1303,12 +1303,12 @@ void maintain_buildable_info(struct GuiButton* gbtn)
      !is_trap_built(my_player_number, manufctr->tngmodel)))
     {
         gbtn->flags |= LbBtnF_Enabled;
-        gbtn->tooltip_stridx = 0;
+        gbtn->tooltip_stridx = GUIStr_Empty;
         gbtn->sprite_idx = 0;
     } else
     {
         gbtn->flags &= ~LbBtnF_Enabled;
-        gbtn->tooltip_stridx = 0;
+        gbtn->tooltip_stridx = GUIStr_Empty;
         gbtn->sprite_idx = 0;
         return;
     }
@@ -2458,7 +2458,7 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
         char text[32];
         if (game.conf.rules[plyr_idx].game.display_portal_limit == true)
         {
-            snprintf(text, sizeof(text), " %u/%ld", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
+            snprintf(text, sizeof(text), " %u/%d", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
         } else {
             snprintf(text, sizeof(text), "%u", dungeon->num_active_creatrs);
         }
@@ -2526,7 +2526,7 @@ void gui_switch_players_visible(struct GuiButton *gbtn)
     return;
 }
 
-void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value)
+void draw_gold_total(PlayerNumber plyr_idx, int32_t scr_x, int32_t scr_y, int32_t units_per_px, long long value)
 {
     long long i;
     unsigned int flg_mem = lbDisplay.DrawFlags;

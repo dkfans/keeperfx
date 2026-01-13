@@ -48,7 +48,7 @@ struct PlayerInfo bad_player;
 /** The current player's number. */
 unsigned char my_player_number;
 /******************************************************************************/
-struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
+struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
     {
@@ -121,7 +121,7 @@ TbBool player_is_neutral(PlayerNumber plyr_num)
  * @param check_plyr_idx Index of the player who could be enemy.
  * @return True if the players are enemies; false otherwise.
  */
-TbBool players_are_enemies(long origin_plyr_idx, long check_plyr_idx)
+TbBool players_are_enemies(PlayerNumber origin_plyr_idx, PlayerNumber check_plyr_idx)
 {
     // Player can't be his own enemy
     if (origin_plyr_idx == check_plyr_idx)
@@ -299,7 +299,7 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
         clear_flag(player->players_with_locked_ally_status, to_flag(ally_idx)); // unlock ally player's ally status with player plyridx
 }
 
-void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
+void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chosen_kind)
 {
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter

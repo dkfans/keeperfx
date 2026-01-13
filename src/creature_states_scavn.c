@@ -143,7 +143,7 @@ short creature_being_scavenged(struct Thing *creatng)
     if (thing_is_invalid(fellowtng)) {
         fellowtng = get_player_soul_container(creatng->owner);
     }
-    if (thing_is_invalid(fellowtng)) {
+    if (!thing_exists(fellowtng)) {
         SYNCDBG(19,"Cannot get thing to follow");
         return 0;
     }

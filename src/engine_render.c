@@ -48,6 +48,7 @@
 #include "engine_lenses.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
+#include "local_camera.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "game_heap.h"
@@ -420,6 +421,8 @@ long x_init_off;
 long y_init_off;
 long floor_pointed_at_x;
 long floor_pointed_at_y;
+long box_lag_compensation_x;
+long box_lag_compensation_y;
 
 static long fade_scaler;
 static long fade_way_out;
@@ -534,7 +537,7 @@ float interpolate(float variable_to_interpolate, long previous, long current)
 
 float interpolate_angle(float variable_to_interpolate, float previous, float current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false) {
+    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
     float future = current + (current - previous);
@@ -577,19 +580,6 @@ void interpolate_thing(struct Thing *thing)
             thing->interp_floor_height = thing->floor_height;
         }
     }
-}
-void interpolate_camera(struct Camera *cam)
-{
-    // Smooth zoom
-    interpolated_camera_zoom = interpolate(interpolated_camera_zoom, previous_camera_zoom, camera_zoom);
-    // Smooth rotation, including possessed creature mouselook
-    interpolated_cam_rotation_angle_x = interpolate_angle(interpolated_cam_rotation_angle_x, previous_cam_rotation_angle_x, (float)cam->rotation_angle_x);
-    interpolated_cam_rotation_angle_y = interpolate_angle(interpolated_cam_rotation_angle_y, previous_cam_rotation_angle_y, (float)cam->rotation_angle_y);
-    interpolated_cam_rotation_angle_z = interpolate_angle(interpolated_cam_rotation_angle_z, previous_cam_rotation_angle_z, (float)cam->rotation_angle_z);
-    // Smooth camera position, including possessed creature position
-    interpolated_cam_mappos_x = interpolate(interpolated_cam_mappos_x, previous_cam_mappos_x, cam->mappos.x.val);
-    interpolated_cam_mappos_y = interpolate(interpolated_cam_mappos_y, previous_cam_mappos_y, cam->mappos.y.val);
-    interpolated_cam_mappos_z = interpolate(interpolated_cam_mappos_z, previous_cam_mappos_z, cam->mappos.z.val);
 }
 
 static void get_floor_pointed_at(long x, long y, int32_t *floor_x, int32_t *floor_y)
@@ -2841,20 +2831,20 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
         if (current_player->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
-            create_map_volume_box(x, y, z, line_color);
+            create_map_volume_box(x + box_lag_compensation_x, y + box_lag_compensation_y, z, line_color);
         }
         else
         {
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_map_volume_box(current_player->render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, line_color, false);
+        create_fancy_map_volume_box(current_player->render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, line_color, false);
     }
     map_volume_box.color = default_color;
 }
@@ -5092,7 +5082,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = player->acamera;
+    const struct Camera *cam = get_local_camera(player->acamera);
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -5251,7 +5241,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = player->acamera;
+    const struct Camera *cam = get_local_camera(player->acamera);
     if (cam == NULL)
     {
         return;
@@ -5490,7 +5480,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = player->acamera;
+    const struct Camera *cam = get_local_camera(player->acamera);
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -6714,7 +6704,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
-                cam = player->acamera;
+                cam = get_local_camera(player->acamera);
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
@@ -6841,11 +6831,9 @@ void draw_view(struct Camera *cam, unsigned char a2)
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    interpolate_camera(cam);
-    camera_zoom = (long)interpolated_camera_zoom;
-    long x = (long)interpolated_cam_mappos_x;
-    long y = (long)interpolated_cam_mappos_y;
-    long z = (long)interpolated_cam_mappos_z;
+    long x = cam->mappos.x.val;
+    long y = cam->mappos.y.val;
+    long z = cam->mappos.z.val;
 
     getpoly = poly_pool;
     memset(buckets, 0, sizeof(buckets));
@@ -6868,13 +6856,13 @@ void draw_view(struct Camera *cam, unsigned char a2)
     rotpers = rotpers_routines[i];
     update_fade_limits(cells_away);
     init_coords_and_rotation(&object_origin,&camera_matrix);
-    rotate_base_axis(&camera_matrix, (long)interpolated_cam_rotation_angle_x, 2);
+    rotate_base_axis(&camera_matrix, cam->rotation_angle_x, 2);
     update_normal_shade(&camera_matrix);
-    rotate_base_axis(&camera_matrix, -(long)interpolated_cam_rotation_angle_y, 1);
-    rotate_base_axis(&camera_matrix, -(long)interpolated_cam_rotation_angle_z, 3);
-    cam_map_angle = (long)interpolated_cam_rotation_angle_x;
-    map_roll = (long)interpolated_cam_rotation_angle_z;
-    map_tilt = -(long)interpolated_cam_rotation_angle_y;
+    rotate_base_axis(&camera_matrix, -cam->rotation_angle_y, 1);
+    rotate_base_axis(&camera_matrix, -cam->rotation_angle_z, 3);
+    cam_map_angle = cam->rotation_angle_x;
+    map_roll = cam->rotation_angle_z;
+    map_tilt = -cam->rotation_angle_y;
 
     frame_wibble_generate();
     view_alt = z;
@@ -7091,31 +7079,31 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     struct PlayerInfo* player = get_my_player();
 
     zoom = 32 * camera_zoom / 256;
-    orientation = ((unsigned int)((long)interpolated_cam_rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
+    orientation = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
 
     switch ( orientation )
     {
         case 0:
-            vertical_delta = pos->y.val - (long)interpolated_cam_mappos_y;
-            horizontal_delta = pos->x.val - (long)interpolated_cam_mappos_x;
+            vertical_delta = pos->y.val - cam->mappos.y.val;
+            horizontal_delta = pos->x.val - cam->mappos.x.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 1:
-            vertical_delta = (long)interpolated_cam_mappos_x - pos->x.val;
-            horizontal_delta = pos->y.val - (long)interpolated_cam_mappos_y;
+            vertical_delta = cam->mappos.x.val - pos->x.val;
+            horizontal_delta = pos->y.val - cam->mappos.y.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 2:
-            vertical_delta = (long)interpolated_cam_mappos_y - pos->y.val;
-            horizontal_delta = (long)interpolated_cam_mappos_x - pos->x.val;
+            vertical_delta = cam->mappos.y.val - pos->y.val;
+            horizontal_delta = cam->mappos.x.val - pos->x.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 3:
-            vertical_delta = pos->x.val - (long)interpolated_cam_mappos_x;
-            horizontal_delta = (long)interpolated_cam_mappos_y - pos->y.val;
+            vertical_delta = pos->x.val - cam->mappos.x.val;
+            horizontal_delta = cam->mappos.y.val - pos->y.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
     }
@@ -7977,7 +7965,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                   struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
-                  if (thing_is_invalid(dragtng))
+                  if (!thing_exists(dragtng))
                   {
                     lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                     lbSpriteReMapPtr = white_pal;
@@ -7985,7 +7973,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   else if (thing_is_trap_crate(dragtng))
                   {
                       struct Thing *handthing = thing_get(player->thing_under_hand);
-                      if (!thing_is_invalid(handthing))
+                      if (thing_exists(handthing))
                       {
                           if (handthing->class_id == TCls_Trap)
                           {
@@ -8390,14 +8378,14 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     int32_t coord_y;
     int32_t coord_z;
     long box_width, box_height;
-    pos.y.val = map_volume_box.end_y;
-    pos.x.val = map_volume_box.end_x;
+    pos.y.val = map_volume_box.end_y - box_lag_compensation_y;
+    pos.x.val = map_volume_box.end_x - box_lag_compensation_x;
     pos.z.val = subtile_coord(5,0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
-    pos.y.val = map_volume_box.beg_y;
-    pos.x.val = map_volume_box.beg_x;
+    pos.y.val = map_volume_box.beg_y - box_lag_compensation_y;
+    pos.x.val = map_volume_box.beg_x - box_lag_compensation_x;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width -= coord_x;
     box_height -= coord_y;
@@ -8452,14 +8440,14 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
     valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
     valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
-    pos.y.val = valid_slabs.end_y;
-    pos.x.val = valid_slabs.end_x;
+    pos.y.val = valid_slabs.end_y - box_lag_compensation_y;
+    pos.x.val = valid_slabs.end_x - box_lag_compensation_x;
     pos.z.val = subtile_coord(5,0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
-    pos.y.val = valid_slabs.beg_y;
-    pos.x.val = valid_slabs.beg_x;
+    pos.y.val = valid_slabs.beg_y - box_lag_compensation_y;
+    pos.x.val = valid_slabs.beg_x - box_lag_compensation_x;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width -= coord_x;
     box_height -= coord_y;
@@ -8987,10 +8975,8 @@ void draw_frontview_engine(struct Camera *cam)
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    interpolate_camera(cam);
-    camera_zoom = (long)interpolated_camera_zoom;
-    cam_x = (long)interpolated_cam_mappos_x;
-    cam_y = (long)interpolated_cam_mappos_y;
+    cam_x = cam->mappos.x.val;
+    cam_y = cam->mappos.y.val;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
     LbScreenStoreGraphicsWindow(&grwnd);
