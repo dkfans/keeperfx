@@ -8,6 +8,7 @@
 ---@field class string
 ---@field model string
 ---@field anim_sprite integer
+---@field anim_speed integer
 ---@field pos Pos3d
 ---@field orientation integer
 ---@field owner Player

@@ -195,11 +195,13 @@ static int thing_set_field(lua_State *L) {
         struct Coord3d pos;
         luaL_checkCoord3d(L, 3, &pos);
         move_thing_in_map(thing, &pos);
-    }
-    else if (strcmp(key, "anim_sprite") == 0)
+    } else if (strcmp(key, "anim_sprite") == 0)
     {
         thing->anim_sprite = luaL_checkinteger(L, 3);
         thing->max_frames = keepersprite_frames(thing->anim_sprite);
+    } else if (strcmp(key, "anim_speed") == 0)
+    {
+        thing->anim_speed = luaL_checkinteger(L, 3);
     }
 
     //Fields working for specific classes
@@ -342,6 +344,8 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, thing->health);
     } else if (strcmp(key, "anim_sprite") == 0) {
         lua_pushinteger(L, thing->anim_sprite);
+    } else if (strcmp(key, "anim_speed") == 0) {
+        lua_pushinteger(L, thing->anim_speed);
     } else if (strcmp(key, "max_health") == 0) {
         lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "picked_up") == 0) {
