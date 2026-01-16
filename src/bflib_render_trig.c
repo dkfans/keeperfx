@@ -3061,7 +3061,9 @@ void trig_render_md10(struct TrigLocalRend *tlr)
 
             if (point_y_a > vec_window_width)
                 point_y_a = vec_window_width;
-            continue;
+            if (point_y_a <= point_x_a)
+                continue;
+            point_y_a -= point_x_a;
             o += point_x_a;
             factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
