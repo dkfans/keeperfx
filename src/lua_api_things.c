@@ -202,6 +202,30 @@ static int thing_set_field(lua_State *L) {
     } else if (strcmp(key, "anim_speed") == 0)
     {
         thing->anim_speed = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "sprite_size") == 0)
+    {
+        thing->sprite_size = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "sprite_size_min") == 0)
+    {
+        thing->sprite_size_min = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "sprite_size_max") == 0)
+    {
+        thing->sprite_size_max = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "transformation_speed") == 0)
+    {
+        thing->transformation_speed = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "clipbox_size_xy") == 0)
+    {
+        thing->clipbox_size_xy = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "clipbox_size_z") == 0)
+    {
+        thing->clipbox_size_z = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "solid_size_xy") == 0)
+    {
+        thing->solid_size_xy = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "solid_size_z") == 0)
+    {
+        thing->solid_size_z = luaL_checkinteger(L, 3);
     }
 
     //Fields working for specific classes
@@ -346,6 +370,22 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, thing->anim_sprite);
     } else if (strcmp(key, "anim_speed") == 0) {
         lua_pushinteger(L, thing->anim_speed);
+    } else if (strcmp(key, "sprite_size") == 0) {
+        lua_pushinteger(L, thing->sprite_size);
+    } else if (strcmp(key, "sprite_size_min") == 0) {
+        lua_pushinteger(L, thing->sprite_size_min);
+    } else if (strcmp(key, "sprite_size_max") == 0) {
+        lua_pushinteger(L, thing->sprite_size_max);
+    } else if (strcmp(key, "transformation_speed") == 0) {
+        lua_pushinteger(L, thing->transformation_speed);
+    } else if (strcmp(key, "clipbox_size_xy") == 0) {
+        lua_pushinteger(L, thing->clipbox_size_xy);
+    } else if (strcmp(key, "clipbox_size_z") == 0) {
+        lua_pushinteger(L, thing->clipbox_size_z);
+    } else if (strcmp(key, "solid_size_xy") == 0) {
+        lua_pushinteger(L, thing->solid_size_xy);
+    } else if (strcmp(key, "solid_size_z") == 0) {
+        lua_pushinteger(L, thing->solid_size_z);
     } else if (strcmp(key, "max_health") == 0) {
         lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "picked_up") == 0) {
