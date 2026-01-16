@@ -7,6 +7,7 @@
 ---@field creation_turn integer
 ---@field class string
 ---@field model string
+---@field anim_sprite integer
 ---@field pos Pos3d
 ---@field orientation integer
 ---@field owner Player
