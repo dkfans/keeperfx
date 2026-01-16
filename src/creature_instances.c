@@ -501,7 +501,7 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long spl_idx = param[0];
     struct SpellConfig* spconf = get_spell_config(spl_idx);
-    struct Thing* target = NULL;
+    struct Thing* target = INVALID_THING;
 
     SYNCDBG(8,"The %s(%d) casts %s at %d", thing_model_name(creatng), (int)creatng->index,
         spell_code_name(spl_idx), cctrl->targtng_idx);
@@ -511,10 +511,9 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
         // If the targtng_idx is just the caster itself, we can call creature_cast_spell
         // instead of creature_cast_spell_at_thing.
         target = thing_get(cctrl->targtng_idx);
-        if (thing_is_invalid(target)) target = NULL;
     }
 
-    if (target != NULL)
+    if (!thing_is_invalid(target))
     {
         creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->exp_level);
     }

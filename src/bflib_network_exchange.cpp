@@ -29,12 +29,15 @@
 #include "net_received_packets.h"
 #include "net_redundant_packets.h"
 #include "game_legacy.h"
+#include "packets.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 void gameplay_loop_draw();
-extern "C" void network_yield_draw();
+extern "C" void network_yield_draw_gameplay();
+extern "C" void network_yield_draw_frontend();
+extern "C" short frontend_draw();
 extern "C" long double last_draw_completed_time;
 long double get_time_tick_ns();
 #endif
@@ -45,7 +48,6 @@ extern "C" {
 /******************************************************************************/
 
 #define NETWORK_FPS 60
-#define NETWORK_WAIT_TIMEOUT 5000
 
 char* InitMessageBuffer(enum NetMessageType msg_type) {
     char* ptr = netstate.msg_buffer;
@@ -202,6 +204,18 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         }
         return Lb_OK;
     }
+    if (type == NETMSG_CHATMESSAGE) {
+        int player_id = (int)*ptr;
+        ptr += 1;
+        size_t max_read = sizeof(netstate.msg_buffer) - (ptr - netstate.msg_buffer);
+        size_t msg_len = strnlen(ptr, max_read);
+        if (msg_len >= max_read) {
+            ERRORLOG("Chat message too long or not null-terminated");
+            return Lb_OK;
+        }
+        process_chat_message_end(player_id, ptr);
+        return Lb_OK;
+    }
     return Lb_OK;
 }
 
@@ -220,10 +234,10 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name) {
     TbClockMSec start = LbTimerClock();
     while (true) {
         TbClockMSec elapsed = LbTimerClock() - start;
-        if (elapsed >= 5000) {
+        if (elapsed >= TIMEOUT_JOIN_LOBBY) {
             break;
         }
-        unsigned wait_ms = (unsigned)(5000 - elapsed);
+        unsigned wait_ms = (unsigned)(TIMEOUT_JOIN_LOBBY - elapsed);
         if (!netstate.sp->msgready(SERVER_ID, wait_ms)) {
             break;
         }
@@ -257,7 +271,7 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
         TbClockMSec start = LbTimerClock();
         while (true) {
             int elapsed = LbTimerClock() - start;
-            if (elapsed >= NETWORK_WAIT_TIMEOUT) {
+            if (elapsed >= TIMEOUT_GAMEPLAY_MISSING_PACKET) {
                 MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Timeout waiting for turn=%lu packets", (unsigned long)historical_turn);
                 break;
             }
@@ -268,7 +282,7 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
                 if (netstate.users[id].progress == USER_UNUSED) { continue; }
                 if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
 
-                int wait_time = NETWORK_WAIT_TIMEOUT - elapsed;
+                int wait_time = TIMEOUT_GAMEPLAY_MISSING_PACKET - elapsed;
                 if (netstate.sp->msgready(id, wait_time)) {
                     while (netstate.sp->msgready(id, 0)) {
                         ProcessMessage(id, server_buf, client_frame_size);
@@ -282,55 +296,70 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
                 break;
             }
 
-            network_yield_draw();
+            network_yield_draw_gameplay();
         }
     }
 }
 
 TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t client_frame_size) {
-    netstate.sp->update(OnNewUser);
     if (netstate.my_id < 0 || netstate.my_id >= netstate.max_players) {
-        ERRORLOG("Critical error: Invalid my_id %i in LbNetwork_Exchange", netstate.my_id);
-        abort();
+        ERRORLOG("Invalid my_id %i in LbNetwork_Exchange (disconnected?)", netstate.my_id);
+        return Lb_FAIL;
     }
+    netstate.sp->update(OnNewUser);
     memcpy(((char*)server_buf) + netstate.my_id * client_frame_size, send_buf, client_frame_size);
     SendFrameToPeers(netstate.my_id, send_buf, client_frame_size, netstate.seq_nbr, msg_type);
+
+    long double draw_interval_nanoseconds = 1000000000.0 / NETWORK_FPS;
+    if (msg_type == NETMSG_FRONTEND) {
+        draw_interval_nanoseconds = 0;
+    }
+    int timeout_max = TIMEOUT_LOBBY_EXCHANGE;
+    if (msg_type == NETMSG_GAMEPLAY) {
+        timeout_max = (1000 / game_num_fps);
+    }
+
     NetUserId id;
     for (id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id) { continue; }
         if (netstate.users[id].progress == USER_UNUSED) { continue; }
         if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
-        if (msg_type == NETMSG_GAMEPLAY) {
-            const long double draw_interval_nanoseconds = 1000000000.0 / NETWORK_FPS;
-            const int timeout_max = (1000 / game_num_fps);
-            TbClockMSec start = LbTimerClock();
-            while (true) {
-                int elapsed = LbTimerClock() - start;
-                if (elapsed >= timeout_max) {break;}
 
-                long long time_since_draw_nanoseconds = get_time_tick_ns() - last_draw_completed_time;
-                int remaining_time_until_draw = (int)((draw_interval_nanoseconds - time_since_draw_nanoseconds) / 1000000.0);
-                int wait = min(timeout_max - elapsed, remaining_time_until_draw);
-                
-                if (netstate.sp->msgready(id, wait)) {
-                    TbBool received_gameplay_packet = false;
-                    ProcessMessage(id, server_buf, client_frame_size);
-                    if (netstate.msg_buffer[0] == NETMSG_GAMEPLAY) {received_gameplay_packet = true;}
-                    // Process the rest too, for the case of multiple packets having arrived at once.
-                    while (netstate.sp->msgready(id, 0)) {
-                        ProcessMessage(id, server_buf, client_frame_size);
-                        if (netstate.msg_buffer[0] == NETMSG_GAMEPLAY) {received_gameplay_packet = true;}
-                    }
-                    if (received_gameplay_packet == true) {break;}
+        TbClockMSec start = LbTimerClock();
+        while (true) {
+            int elapsed = LbTimerClock() - start;
+            if (elapsed >= timeout_max) {
+                break;
+            }
+
+            long long time_since_draw_nanoseconds = get_time_tick_ns() - last_draw_completed_time;
+            int remaining_time_until_draw = (int)((draw_interval_nanoseconds - time_since_draw_nanoseconds) / 1000000.0);
+            if (remaining_time_until_draw < 0) {remaining_time_until_draw = 0;}
+            int wait = min(timeout_max - elapsed, remaining_time_until_draw);
+
+            if (netstate.sp->msgready(id, wait)) {
+                ProcessMessage(id, server_buf, client_frame_size);
+                if (msg_type != NETMSG_GAMEPLAY) {
+                    break;
                 }
-
-                if (LbTimerClock() - start < timeout_max) {
-                    network_yield_draw();
+                TbBool received_gameplay_msg = (netstate.msg_buffer[0] == NETMSG_GAMEPLAY);
+                while (netstate.sp->msgready(id, 0)) {
+                    ProcessMessage(id, server_buf, client_frame_size);
+                    if (netstate.msg_buffer[0] == NETMSG_GAMEPLAY) {
+                        received_gameplay_msg = true;
+                    }
+                }
+                if (received_gameplay_msg) {
+                    break;
                 }
             }
-        } else {
-            if (netstate.sp->msgready(id, 10000)) {
-                ProcessMessage(id, server_buf, client_frame_size);
+
+            if (LbTimerClock() - start < timeout_max) {
+                if (msg_type == NETMSG_FRONTEND) {
+                    network_yield_draw_frontend();
+                } else {
+                    network_yield_draw_gameplay();
+                }
             }
         }
     }
@@ -343,17 +372,29 @@ void LbNetwork_SendPauseImmediate(TbBool pause_state, unsigned long delay_millis
 
     char* message_pointer = InitMessageBuffer(NETMSG_PAUSE);
     *message_pointer = pause_state;
-    message_pointer++;
+    message_pointer += 1;
     *(unsigned long*)message_pointer = delay_milliseconds;
     message_pointer += sizeof(unsigned long);
 
     int message_size = message_pointer - netstate.msg_buffer;
 
-    for (NetUserId id = 0; id < netstate.max_players; id++) {
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id || !IsUserActive(id)) {
             continue;
         }
         netstate.sp->sendmsg_single(id, netstate.msg_buffer, message_size);
+    }
+}
+
+void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
+    char* ptr = InitMessageBuffer(NETMSG_CHATMESSAGE);
+    *ptr = player_id;
+    ptr += 1;
+    strcpy(ptr, message);
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+        if (id != netstate.my_id && IsUserActive(id)) {
+            netstate.sp->sendmsg_single(id, netstate.msg_buffer, 3 + strlen(message));
+        }
     }
 }
 

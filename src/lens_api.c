@@ -155,6 +155,7 @@ TbBool clear_lens_palette(void)
     {
         // If there is a palette entry, then clear it
         player->lens_palette = NULL;
+        player->main_palette = engine_palette;
         SYNCDBG(9,"Clear done");
         return true;
     }

@@ -85,10 +85,10 @@ struct FlameProperties {
 
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    unsigned long model_flags;
-    long genre;
-    long map_icon;
-    long hand_icon;
+    uint32_t model_flags;
+    int32_t genre;
+    int32_t map_icon;
+    int32_t hand_icon;
     struct PickedUpOffset object_picked_up_offset;
     short tooltip_stridx;
     TbBool tooltip_optional;

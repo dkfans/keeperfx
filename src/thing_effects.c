@@ -48,6 +48,7 @@
 #include "thing_shots.h"
 #include "thing_stats.h"
 #include <math.h>
+#include "bflib_inputctrl.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1071,6 +1072,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 if (is_my_player_number(tngdst->owner))
                 {
                     output_message(SMsg_HeartUnderAttack, 400);
+                    controller_rumble(50);
                 }
             } else // Explosions move creatures and other things
             {
@@ -1313,7 +1315,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
     MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets)
 {
     PlayerNumber owner;
-    if (!thing_is_invalid(tngsrc))
+    if (thing_exists(tngsrc))
         owner = tngsrc->owner;
     else
         owner = -1;
@@ -1485,7 +1487,7 @@ long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *ma
     MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, unsigned char area_affect_type, SpellKind spell_idx)
 {
     PlayerNumber owner;
-    if (!thing_is_invalid(tngsrc))
+    if (thing_exists(tngsrc))
         owner = tngsrc->owner;
     else
         owner = -1;

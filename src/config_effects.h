@@ -61,20 +61,20 @@ struct EffectConfigStats {
 
 struct EffectGeneratorConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    long generation_delay_min;
-    long generation_delay_max;
-    long generation_amount;
+    int32_t generation_delay_min;
+    int32_t generation_delay_max;
+    int32_t generation_amount;
     ThingModel effect_model;
     unsigned char ignore_terrain;
-    long spawn_height;
-    long acc_x_min;
-    long acc_x_max;
-    long acc_y_min;
-    long acc_y_max;
-    long acc_z_min;
-    long acc_z_max;
-    long sound_sample_idx;
-    long sound_sample_rng;
+    int32_t spawn_height;
+    int32_t acc_x_min;
+    int32_t acc_x_max;
+    int32_t acc_y_min;
+    int32_t acc_y_max;
+    int32_t acc_z_min;
+    int32_t acc_z_max;
+    int32_t sound_sample_idx;
+    int32_t sound_sample_rng;
 };
 
 struct EffectElementConfigStats {
@@ -117,7 +117,7 @@ struct EffectElementConfigStats {
     unsigned short transform_model;
     unsigned short light_radius;
     unsigned char light_intensity;
-    long light_flags;
+    int32_t light_flags;
     unsigned char affected_by_wind;
 };
 
@@ -130,8 +130,8 @@ struct EffectsConfig {
 /******************************************************************************/
 extern const struct ConfigFileData keeper_effects_file_data;
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
-extern long const imp_spangle_effects[];
-extern long const ball_puff_effects[];
+extern int32_t const imp_spangle_effects[];
+extern int32_t const ball_puff_effects[];
 
 extern struct NamedCommand effectgen_desc[EFFECTSGEN_TYPES_MAX];
 extern struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];

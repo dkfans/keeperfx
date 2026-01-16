@@ -129,7 +129,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
             lbDisplay.DrawColour = LbTextGetFontFaceColor();
             lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
             char text[16];
-            snprintf(text, sizeof(text), "%lu", (cctrl->timebomb_countdown / game_num_fps));
+            snprintf(text, sizeof(text), "%u", (cctrl->timebomb_countdown / game_num_fps));
             LbTextDrawResized(0, 0, tx_units_per_px, text);
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
@@ -526,7 +526,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         // fall through
     case PVM_CreatureView:
         player->acamera = &player->cameras[CamIV_FirstPerson];
-        sync_local_camera(player->acamera);
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         lens_mode = 2;
@@ -539,7 +539,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
     case PVM_IsoStraightView:
         player->acamera = &player->cameras[CamIV_Isometric];
         player->acamera->view_mode = val;
-        sync_local_camera(player->acamera);
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -550,7 +550,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         break;
     case PVM_ParchmentView:
         player->acamera = &player->cameras[CamIV_Parchment];
-        sync_local_camera(player->acamera);
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -562,7 +562,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         break;
     case PVM_FrontView:
         player->acamera = &player->cameras[CamIV_FrontView];
-        sync_local_camera(player->acamera);
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -619,7 +619,7 @@ void redraw_creature_view(void)
     update_explored_flags_for_power_sight(player);
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     TRACE_THING(thing);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
       draw_creature_view(thing);
     if (smooth_on)
     {
@@ -908,7 +908,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             thing = thing_get(player->thing_under_hand);
             TRACE_THING(thing);
             TbBool can_cast = false;
-            if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
+            if ((player->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
                 PowerKind pwkind = PwrK_POSSESS;
                 if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))

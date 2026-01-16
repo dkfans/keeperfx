@@ -374,6 +374,45 @@ TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *f
     return true;
 }
 
+/**
+ * Returns hero objective, and also optionally checks the player name between brackets.
+ * @param target gets filled with player number, or -1.
+ * @return Hero Objective ID
+ */
+PlayerNumber get_objective_id_with_potential_target(const char* locname, PlayerNumber* target)
+{
+    char before_bracket[COMMAND_WORD_LEN];
+    char player_string[COMMAND_WORD_LEN];
+    const char* bracket = strchr(locname, '[');
+
+    if (bracket == NULL) {
+        strncpy(before_bracket, locname, sizeof(before_bracket) - 1);
+        before_bracket[sizeof(before_bracket) - 1] = '\0';
+        return get_rid(hero_objective_desc, before_bracket);
+    }
+
+    // Extract text before '['
+    size_t len = min((size_t)(bracket - locname), sizeof(before_bracket) - 1);
+    strncpy(before_bracket, locname, len);
+    before_bracket[len] = '\0';
+
+    // Extract text inside the brackets
+    const char* start = bracket + 1;
+    const char* end = strchr(start, ']');
+
+    if (end != NULL) {
+        size_t string_length = min((size_t)(end - start), sizeof(player_string) - 1);
+        strncpy(player_string, start, string_length);
+        player_string[string_length] = '\0';
+
+        PlayerNumber plyr_idx = get_rid(player_desc, player_string);
+        if (plyr_idx < 0)
+            plyr_idx = get_rid(cmpgn_human_player_options, player_string);
+        *target = plyr_idx;
+    }
+    return get_rid(hero_objective_desc, before_bracket);
+}
+
 #ifdef __cplusplus
 }
 #endif

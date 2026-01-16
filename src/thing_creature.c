@@ -517,7 +517,7 @@ struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *creatng)
         if (players_are_enemies(creatng->owner, enemy_idx))
         {
             struct Thing* heartng = get_players_soul_container_creature_can_see(creatng, enemy_idx);
-            if (!thing_is_invalid(heartng))
+            if (thing_exists(heartng))
             {
                 return heartng;
             }
@@ -2846,7 +2846,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
-    if (thing_is_invalid(lairtng))
+    if (!thing_exists(lairtng))
     {
         // If creature has no lair - treat dungeon heart as lair
         lairtng = get_player_soul_container(thing->owner);
@@ -2864,7 +2864,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
         set_start_state(thing);
         cctrl->active_timebomb_spell = 0;
     }
-    if (thing_is_invalid(lairtng))
+    if (!thing_exists(lairtng))
         return;
     create_effect(&thing->mappos, TngEff_HarmlessGas2, thing->owner);
     move_thing_in_map(thing, &lairtng->mappos);
@@ -3234,6 +3234,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   light_turn_light_on(player->cursor_light_idx);
+  PaletteSetPlayerPalette(player, engine_palette);
 }
 
 void delete_armour_effects_attached_to_creature(struct Thing *thing)
@@ -3336,6 +3337,10 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         create_effect_around_thing(creatng, ball_puff_effects[get_player_color_idx(creatng->owner)]);
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
+        if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
+        {
+            prepare_to_controlled_creature_death(creatng);
+        }
         return cause_creature_death(creatng, flags);
     }
     struct Dungeon *dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
@@ -4167,7 +4172,7 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
     if ((current_annoyed_creature->alloc_flags & TAlF_Exists) == 0 ||
          !thing_is_creature(current_annoyed_creature) ||
          (current_annoyed_creature->alloc_flags & TAlF_IsInLimbo) != 0 ||
-         (current_annoyed_creature->state_flags & TAlF_IsInMapWho) != 0 ||
+         (current_annoyed_creature->state_flags & TF1_InCtrldLimbo) != 0 ||
          current_annoyed_creature->active_state == CrSt_CreatureUnconscious)
     {
         creatng = thing_get(dungeon->creatr_list_start);
@@ -4181,7 +4186,7 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
             {
                 cctrl = creature_control_get_from_thing(creatng);
                 creatng = thing_get(cctrl->players_next_creature_idx);
-                if (thing_is_invalid(creatng))
+                if (!thing_exists(creatng))
                 {
                     dungeon->zoom_annoyed_creature_idx = 0;
                     return 0;
@@ -4196,20 +4201,19 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
         cctrl = creature_control_get_from_thing(thing_get(dungeon->zoom_annoyed_creature_idx));
         creatng = thing_get(cctrl->players_next_creature_idx);
 
-        if ((creatng->alloc_flags & TAlF_Exists) &&
+        if (thing_exists(creatng) &&
             thing_is_creature(creatng) &&
             (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
-            (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
-            creatng->active_state != CrSt_CreatureUnconscious &&
-            !thing_is_invalid(creatng))
+            (creatng->state_flags & TF1_InCtrldLimbo) == 0 &&
+            creatng->active_state != CrSt_CreatureUnconscious)
         {
             TbBool found = true;
             while (!anger_is_creature_angry(creatng) || (creatng->alloc_flags & TAlF_Exists) == 0 || !thing_is_creature(creatng) ||
-                   (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TAlF_IsInMapWho) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
+                   (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TF1_InCtrldLimbo) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
             {
                 cctrl = creature_control_get_from_thing(creatng);
-                creatng =thing_get(cctrl->players_next_creature_idx);
-                if ( thing_is_invalid(creatng))
+                creatng = thing_get(cctrl->players_next_creature_idx);
+                if (!thing_exists(creatng))
                 {
                     found = false;
                     break;
@@ -4230,7 +4234,7 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
                     (creatng->alloc_flags & TAlF_Exists) != 0 &&
                     thing_is_creature(creatng) &&
                     (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
-                    (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+                    (creatng->state_flags & TF1_InCtrldLimbo) == 0 &&
                     creatng->active_state != CrSt_CreatureUnconscious)
                 {
                     dungeon->zoom_annoyed_creature_idx = creatng->index;
@@ -4529,14 +4533,14 @@ void remove_first_creature(struct Thing *creatng)
     if (is_neutral_thing(creatng))
     {
       sectng = thing_get(cctrl->players_prev_creature_idx);
-      if (!thing_is_invalid(sectng)) {
+      if (thing_exists(sectng)) {
           secctrl = creature_control_get_from_thing(sectng);
           secctrl->players_next_creature_idx = cctrl->players_next_creature_idx;
       } else {
           game.nodungeon_creatr_list_start = cctrl->players_next_creature_idx;
       }
       sectng = thing_get(cctrl->players_next_creature_idx);
-      if (!thing_is_invalid(sectng)) {
+      if (thing_exists(sectng)) {
           secctrl = creature_control_get_from_thing(sectng);
           secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
       }
@@ -4545,14 +4549,14 @@ void remove_first_creature(struct Thing *creatng)
     {
         dungeon = get_dungeon(creatng->owner);
         sectng = thing_get(cctrl->players_prev_creature_idx);
-        if (!thing_is_invalid(sectng)) {
+        if (thing_exists(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_next_creature_idx = cctrl->players_next_creature_idx;
         } else {
             dungeon->digger_list_start = cctrl->players_next_creature_idx;
         }
         sectng = thing_get(cctrl->players_next_creature_idx);
-        if (!thing_is_invalid(sectng)) {
+        if (thing_exists(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
@@ -4565,14 +4569,14 @@ void remove_first_creature(struct Thing *creatng)
     {
         dungeon = get_dungeon(creatng->owner);
         sectng = thing_get(cctrl->players_prev_creature_idx);
-        if (!thing_is_invalid(sectng)) {
+        if (thing_exists(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_next_creature_idx = cctrl->players_next_creature_idx;
         } else {
             dungeon->creatr_list_start = cctrl->players_next_creature_idx;
         }
         sectng = thing_get(cctrl->players_next_creature_idx);
-        if (!thing_is_invalid(sectng)) {
+        if (thing_exists(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
@@ -4922,14 +4926,14 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
     struct Thing* thing = create_creature(&pos, crmodel, owner);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
+        ERRORLOG("Cannot create creature %s at (%d,%d)",creature_code_name(crmodel),x,y);
         return INVALID_THING;
     }
     pos.z.val = get_thing_height_at(thing, &pos);
     if (thing_in_wall_at(thing, &pos))
     {
         delete_thing_structure(thing, 0);
-        ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
+        ERRORLOG("Creature %s at (%d,%d) deleted because is in wall",creature_code_name(crmodel),x,y);
         return INVALID_THING;
     }
     thing->mappos.x.val = pos.x.val;
@@ -7161,11 +7165,11 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
             if (value < picktng->creature.gold_carried)
             {
-                snprintf(str, sizeof(str), "%ld (%ld)", picktng->creature.gold_carried, value);
+                snprintf(str, sizeof(str), "%d (%ld)", picktng->creature.gold_carried, value);
             }
             else
             {
-                snprintf(str, sizeof(str), "%ld", picktng->creature.gold_carried);
+                snprintf(str, sizeof(str), "%d", picktng->creature.gold_carried);
             }
         }
         id = 3;

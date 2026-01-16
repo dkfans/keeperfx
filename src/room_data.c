@@ -933,7 +933,7 @@ void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, Map
             break;
         }
     }
-    WARNLOG("Slab %ld couldn't be found in room tiles list.",slb_num);
+    WARNLOG("Slab %d couldn't be found in room tiles list.",slb_num);
     rmslb->next_in_room = 0;
     rmslb->room_index = 0;
 }
@@ -3144,25 +3144,24 @@ void kill_room_slab_and_contents(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
 void free_room_structure(struct Room *room)
 {
     PlayerNumber owner = room->owner;
-    if ( game.neutral_player_num != owner )
-    {
-        struct Dungeon *dungeon = get_dungeon(owner);
 
-        if ( room->index == dungeon->room_list_start[room->kind] )
-        {
-            dungeon->room_list_start[room->kind] = room->next_of_owner;
-            struct Room *next_room = room_get(room->next_of_owner);
-            next_room->prev_of_owner = 0;
-        }
-        else
-        {
-            struct Room *next_room = room_get(room->next_of_owner);
-            next_room->prev_of_owner = room->prev_of_owner;
-            struct Room *prev_room = room_get(room->prev_of_owner);
-            prev_room->next_of_owner = room->next_of_owner;
-        }
-        --dungeon->room_discrete_count[room->kind];
+    struct Dungeon *dungeon = get_dungeon(owner);
+
+    if ( room->index == dungeon->room_list_start[room->kind] )
+    {
+        dungeon->room_list_start[room->kind] = room->next_of_owner;
+        struct Room *next_room = room_get(room->next_of_owner);
+        next_room->prev_of_owner = 0;
     }
+    else
+    {
+        struct Room *next_room = room_get(room->next_of_owner);
+        next_room->prev_of_owner = room->prev_of_owner;
+        struct Room *prev_room = room_get(room->prev_of_owner);
+        prev_room->next_of_owner = room->next_of_owner;
+    }
+    --dungeon->room_discrete_count[room->kind];
+
     remove_room_from_global_list(room);
     delete_room_structure(room);
 }

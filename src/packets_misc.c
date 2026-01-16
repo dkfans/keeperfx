@@ -225,6 +225,13 @@ short save_packets(void)
     {
         ERRORLOG("Packet file write error");
     }
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (game.packets[i].action == PckA_PlyrMsgEnd) {
+            if (LbFileWrite(game.packet_save_fp, get_player(i)->mp_pending_message, PLAYER_MP_MESSAGE_LEN) != PLAYER_MP_MESSAGE_LEN) {
+                ERRORLOG("Chat message file write error");
+            }
+        }
+    }
     if ( !LbFileFlush(game.packet_save_fp) )
     {
         ERRORLOG("Unable to flush PacketSave File");
@@ -352,6 +359,15 @@ void load_packets_for_turn(GameTurn nturn)
     game.packet_file_pos += turn_data_size;
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
         memcpy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
+    for (long i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (game.packets[i].action == PckA_PlyrMsgEnd) {
+            if (LbFileRead(game.packet_save_fp, get_player(i)->mp_pending_message, PLAYER_MP_MESSAGE_LEN) == PLAYER_MP_MESSAGE_LEN) {
+                game.packet_file_pos += PLAYER_MP_MESSAGE_LEN;
+            } else {
+                ERRORDBG(18,"Cannot read chat message from Packet File");
+            }
+        }
+    }
     TbBigChecksum tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT * sizeof(struct Packet)]);
     if (game.turns_fastforward > 0)
         game.turns_fastforward--;
@@ -360,13 +376,13 @@ void load_packets_for_turn(GameTurn nturn)
         pckt = get_packet(my_player_number);
         if (compute_replay_integrity() != tot_chksum)
         {
-            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %lu)", game.play_gameturn);
+            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         } else
         if (pckt->checksum != pckt_chksum)
         {
-            ERRORLOG("Oops we are really Out Of Sync (GameTurn %lu)", game.play_gameturn);
+            ERRORLOG("Oops we are really Out Of Sync (GameTurn %u)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         }

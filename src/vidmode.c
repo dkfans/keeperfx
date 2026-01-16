@@ -641,7 +641,6 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     {
       reset_eye_lenses();
       reset_heap_manager();
-      reset_heap_memory();
       unload_pointer_file(hi_res);
     }
     if (nmode != old_mode)
@@ -705,11 +704,6 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     reload_parchment_file(hi_res);
   reinitialise_eye_lens(lens_mem);
   lbDisplay.DrawFlags = flg_mem;
-  if (!setup_heap_memory())
-  {
-    force_video_mode_reset = true;
-    return Lb_SCREEN_MODE_INVALID;
-  }
   setup_heap_manager();
   force_video_mode_reset = false;
   SYNCDBG(8,"Finished");
@@ -816,7 +810,6 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     {
       reset_eye_lenses();
       reset_heap_manager();
-      reset_heap_memory();
     }
     if ((!MinimalResolutionSetup && !hi_res) || (MinimalResolutionSetup && hi_res))
       unload_pointer_file(hi_res);

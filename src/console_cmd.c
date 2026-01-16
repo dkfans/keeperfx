@@ -147,7 +147,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
         }
     }
 
-    snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%ld", 0, comp->gameturn_wait);
+    snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%u", 0, comp->gameturn_wait);
     return 1;
 }
 
@@ -291,7 +291,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %ld, draw fps is %ld", game_num_fps, game_num_fps_draw_current);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", game_num_fps, game_num_fps_draw_current);
     return true;
 }
 
@@ -300,7 +300,7 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
         game_num_fps = start_params.num_fps;
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %ld fps", game_num_fps);
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %d fps", game_num_fps);
     } else {
         game_num_fps = atoi(pr2str);
     }
@@ -550,8 +550,8 @@ TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
         return false;
     }
     int id = atoi(pr2str);
-    if (id < 0 || id > PLAYERS_COUNT) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT);
+    if (id < 0 || id >= PLAYERS_COUNT) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT-1);
         return false;
     }
     int i = cmd_comp_list(id, COMPUTER_PROCESSES_COUNT,
@@ -583,8 +583,8 @@ TbBool cmd_comp_events(PlayerNumber plyr_idx, char * args)
         return false;
     }
     int id = atoi(pr2str);
-    if (id < 0 || id > PLAYERS_COUNT) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT);
+    if (id < 0 || id >= PLAYERS_COUNT) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT-1);
         return false;
     }
     cmd_comp_list(id, COMPUTER_EVENTS_COUNT,
@@ -607,8 +607,8 @@ TbBool cmd_comp_checks(PlayerNumber plyr_idx, char * args)
         return false;
     }
     int id = atoi(pr2str);
-    if (id < 0 || id > PLAYERS_COUNT) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT);
+    if (id < 0 || id >= PLAYERS_COUNT) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT-1);
         return false;
     }
     cmd_comp_list(id, COMPUTER_CHECKS_COUNT,
@@ -2134,7 +2134,7 @@ TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    generate_lua_types_file(args);
+    generate_lua_types_file();
     return true;
 }
 
@@ -2308,7 +2308,7 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
 
     size_t cmd_len = strlen(cmd_str);
 
-    int *same_idx = (int *)calloc(sizeof(int), console_command_count);
+    int *same_idx = (int *)calloc(console_command_count, sizeof(int));
     int same_count = 0;
     for (int i = 0; i < console_command_count; ++i) {
         if (strncasecmp(cmd_str, console_commands[i].name, cmd_len) == 0) {
