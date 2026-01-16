@@ -8,19 +8,19 @@
 
 #include "bflib_basics.h"
 #include "config_rules.h"
-#include "globals.h"
-#include "thing_data.h"
 #include "creature_states.h"
-#include "gui_msgs.h"
-#include "thing_navigate.h"
-#include "map_data.h"
+#include "custom_sprites.h"
 #include "game_legacy.h"
-#include "player_utils.h"
-#include "lvl_script_lib.h"
-#include "room_library.h"
+#include "globals.h"
+#include "gui_msgs.h"
 #include "keeperfx.hpp"
 #include "lua_base.h"
-
+#include "lvl_script_lib.h"
+#include "map_data.h"
+#include "player_utils.h"
+#include "room_library.h"
+#include "thing_data.h"
+#include "thing_navigate.h"
 
 #include "post_inc.h"
 
@@ -109,7 +109,6 @@ long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * 
     }
     luaL_argerror(L,index,"unrecognized command");
     return 0;
-
 }
 
 long luaL_optCheckinteger(lua_State* L, int index)
@@ -504,6 +503,25 @@ void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
     }
     luaL_argerror(L, index, "expected a pos");
     return;
+}
+
+long luaL_checkAnimationId(lua_State* L, int index)
+{
+    if (lua_isnumber(L, index))
+    {
+        return lua_tointeger(L, index);
+    }
+    else if (lua_isstring(L, index))
+    {
+        const char* text = lua_tostring(L, index);
+        long id = get_anim_id_(text);
+
+        luaL_argcheck(L, id != -1, index, "unrecognized command");
+
+        return id;
+    }
+    luaL_argerror(L, index, "unrecognized command");
+    return 0;
 }
 
 /***************************************************************************************************/

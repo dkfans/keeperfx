@@ -7,7 +7,7 @@
 ---@field creation_turn integer
 ---@field class string
 ---@field model string
----@field anim_sprite integer
+---@field anim_sprite string AnimationID or Custom sprite name
 ---@field anim_speed integer
 ---@field sprite_size integer How big the thing looks. Default size is 300, creatures grow beyond.
 ---@field sprite_size_min integer If the sprite_size is below min, it will be increased.
