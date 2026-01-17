@@ -464,10 +464,7 @@ short mz;
 unsigned char temp_cluedo_mode; // This is true(1) if the "short wall" have been enabled in the graphics options
 struct Thing *thing_being_displayed;
 
-TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
-TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
 struct HeapMgrHeader *graphics_heap;
-TbFileHandle jty_file_handle;
 
 struct MapVolumeBox map_volume_box;
 long view_height_over_2;
@@ -4977,7 +4974,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     }
 
     if (
-            ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
+            ((thing->anim_sprite >= total_keepersprite_animations) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
             || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
             )
     {
@@ -7513,57 +7510,10 @@ static unsigned short get_thing_shade(struct Thing* thing)
     return shval;
 }
 
-static long load_single_frame(TbSpriteData *data_ptr, unsigned short kspr_idx)
-{
-    long nlength;
-    nlength = creature_table[kspr_idx+1].DataOffset - creature_table[kspr_idx].DataOffset;
-    *data_ptr = he_alloc(nlength);
-
-    LbFileSeek(jty_file_handle, creature_table[kspr_idx].DataOffset, 0);
-    LbFileRead(jty_file_handle, *data_ptr, nlength);
-
-    keepsprite[kspr_idx] = data_ptr;
-    return 1;
-}
-
-static long load_keepersprite_if_needed(unsigned short kspr_idx)
-{
-    int frame_num;
-    int frame_count;
-    struct KeeperSprite *kspr_arr;
-    kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->Rotable) {
-        frame_count = 5 * kspr_arr->FramesCount;
-    } else {
-        frame_count = kspr_arr->FramesCount;
-    }
-    for (frame_num=0; frame_num < frame_count; frame_num++)
-    {
-        TbSpriteData *sprite_data_ptr = &sprite_heap_handle[kspr_idx+frame_num];
-        if ((*sprite_data_ptr) == NULL)
-        {
-            if (!load_single_frame(sprite_data_ptr, kspr_idx+frame_num))
-            {
-                return 0;
-            }
-        }
-    }
-    return 1;
-}
-
-static long heap_manage_keepersprite(unsigned short kspr_idx)
-{
-    long result;
-    if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET)
-        return 1;
-    result = load_keepersprite_if_needed(kspr_idx);
-    return result;
-}
-
 static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, long kspr_idx)
 {
     if ((kspr_idx < 0)
-        || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
+        || ((kspr_idx >= total_keepersprites) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
         || (kspr_idx > (KEEPERSPRITE_ADD_NUM + KEEPERSPRITE_ADD_OFFSET))) {
         WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%u,%u) alpha %d",
             kspr_idx, x, y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
@@ -7581,8 +7531,8 @@ static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, 
             if (kspr_idx - KEEPERSPRITE_ADD_OFFSET < KEEPERSPRITE_ADD_NUM) {
                 sprite_data_ptr = &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
             }
-        } else if (kspr_idx < KEEPSPRITE_LENGTH) {
-            sprite_data_ptr = keepsprite[kspr_idx];
+        } else if (kspr_idx < total_keepersprites) {
+            sprite_data_ptr = &keepsprite[kspr_idx];
         }
     }
     if (sprite_data_ptr == NULL || *sprite_data_ptr == NULL) {
@@ -8010,7 +7960,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     }
 
     if (
-        ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
+        ((thing->anim_sprite >= total_keepersprite_animations) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
         || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
     )
     {
@@ -8218,14 +8168,14 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
         }
-        else if (keepsprite_id >= KEEPSPRITE_LENGTH)
+        else if (keepsprite_id >= total_keepersprites)
         {
             ERRORLOG("Sprite %d outside of valid range.", keepsprite_id);
             return;
         }
         else
         {
-            sprite_data = *keepsprite[keepsprite_id];
+            sprite_data = keepsprite[keepsprite_id];
         }
         kspr = &kspr_arr[current_frame];
         fill_w = kspr->FrameWidth;
@@ -8270,13 +8220,13 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
         }
-        else if (keepsprite_id >= KEEPSPRITE_LENGTH)
+        else if (keepsprite_id >= total_keepersprites)
         {
             return; // WTF?!!
         }
         else
         {
-            sprite_data = *keepsprite[keepsprite_id];
+            sprite_data = keepsprite[keepsprite_id];
         }
         if ( flip_range )
         {

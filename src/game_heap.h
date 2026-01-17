@@ -26,11 +26,6 @@
 extern "C" {
 #endif
 
-/******************************************************************************/
-TbBool setup_heap_manager(void);
-void reset_heap_manager(void);
-
-/******************************************************************************/
 void *he_alloc(size_t size);
 
 #ifdef __cplusplus
