@@ -35,7 +35,6 @@
 #include "front_simple.h"
 #include "front_landview.h"
 #include "frontend.h"
-#include "game_heap.h"
 #include "gui_draw.h"
 #include "gui_parchment.h"
 #include "gui_topmsg.h"

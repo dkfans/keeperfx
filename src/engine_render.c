@@ -51,7 +51,6 @@
 #include "local_camera.h"
 #include "front_simple.h"
 #include "frontend.h"
-#include "game_heap.h"
 #include "game_lghtshdw.h"
 #include "gui_draw.h"
 #include "keeperfx.hpp"

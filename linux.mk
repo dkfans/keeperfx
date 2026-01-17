@@ -148,7 +148,6 @@ src/frontmenu_saves.c \
 src/frontmenu_saves_data.cpp \
 src/frontmenu_select_data.cpp \
 src/frontmenu_specials.c \
-src/game_heap.c \
 src/game_legacy.c \
 src/game_loop.c \
 src/game_lghtshdw.c \

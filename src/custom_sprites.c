@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file game_heap.c
+/** @file custom_sprites.c
  *     Definition of heap, used for storing memory-expensive sounds and graphics.
  * @par Purpose:
  *     Functions to create and maintain memory heap.

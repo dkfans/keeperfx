@@ -69,7 +69,6 @@
 #include "player_utils.h"
 #include "config_players.h"
 #include "player_computer.h"
-#include "game_heap.h"
 #include "game_saves.h"
 #include "engine_render.h"
 #include "engine_lenses.h"
@@ -3541,7 +3540,7 @@ void gameplay_loop_timestep()
             exit_keeper = 1;
         }
     }
-    
+
     frametime_end_measurement(Frametime_Sleep);
 }
 

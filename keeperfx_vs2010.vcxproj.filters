@@ -333,9 +333,6 @@
     <ClCompile Include="src\frontmenu_specials.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game_heap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\game_legacy.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1116,9 +1113,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\frontmenu_specials.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game_heap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game_legacy.h">
