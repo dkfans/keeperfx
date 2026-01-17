@@ -121,8 +121,6 @@ extern Offset vert_offset[3];
 extern Offset hori_offset[3];
 extern Offset high_offset[3];
 
-extern struct HeapMgrHeader *graphics_heap;
-
 extern long x_init_off;
 extern long y_init_off;
 extern struct Thing *thing_being_displayed;

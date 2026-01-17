@@ -464,8 +464,6 @@ short mz;
 unsigned char temp_cluedo_mode; // This is true(1) if the "short wall" have been enabled in the graphics options
 struct Thing *thing_being_displayed;
 
-struct HeapMgrHeader *graphics_heap;
-
 struct MapVolumeBox map_volume_box;
 long view_height_over_2;
 long view_width_over_2;
