@@ -346,8 +346,6 @@ long PaletteFadePlayer(struct PlayerInfo *player)
 
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
 {
-    if (flag_is_set(player->additional_flags, PlaAF_FreezePaletteIsActive))
-        return;
     long i = player->palette_fade_step_pain + intense;
     if (i < 1)
         i = 1;
