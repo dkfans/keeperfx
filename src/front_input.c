@@ -2625,7 +2625,6 @@ void get_creature_control_nonaction_inputs(void)
             turn_on_menu(GMnu_OPTIONS);
         }
     }
-    set_local_camera_destination(player);
 }
 
 static void speech_pickup_of_gui_job(int job_idx)

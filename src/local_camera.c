@@ -36,9 +36,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-// In update(), camera code runs after turns are incremented
-#define CURRENT_TURN_FOR_CAMERA (game.play_gameturn-1)
-/******************************************************************************/
 struct Camera local_cameras[4];
 struct Camera previous_local_cameras[4];
 struct Camera destination_local_cameras[4];
@@ -51,6 +48,17 @@ float interpolated_cam_rotation_angle_z[4];
 float interpolated_camera_zoom[4];
 TbBool local_camera_ready;
 /******************************************************************************/
+
+static struct Packet* get_packet_for_local_camera_update(void)
+{
+    GameTurn turn;
+    if (flag_is_set(game.operation_flags, GOF_Paused) && game.game_kind == GKind_LocalGame) {
+        turn = game.play_gameturn;
+    } else {
+        turn = game.play_gameturn - 1;
+    }
+    return get_local_input_lag_packet_for_turn(turn);
+}
 
 void send_camera_catchup_packets(struct PlayerInfo *player)
 {
@@ -153,7 +161,7 @@ void update_local_first_person_camera(struct Thing *ctrltng)
 
     long current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
     long current_vertical = destination_local_cameras[CamIV_FirstPerson].rotation_angle_y;
-    struct Packet* latest_packet = get_local_input_lag_packet_for_turn(CURRENT_TURN_FOR_CAMERA);
+    struct Packet* latest_packet = get_packet_for_local_camera_update();
     if (latest_packet != NULL) {
         long new_horizontal, new_vertical, new_roll;
         process_first_person_look(ctrltng, latest_packet, current_horizontal, current_vertical, &new_horizontal, &new_vertical, &new_roll);
@@ -181,7 +189,7 @@ void update_local_cameras(void)
     if (in_first_person) {
         update_local_first_person_camera(ctrltng);
     } else {
-        struct Packet* local_packet = get_local_input_lag_packet_for_turn(CURRENT_TURN_FOR_CAMERA);
+        struct Packet* local_packet = get_packet_for_local_camera_update();
         if (local_packet == NULL) {
             return;
         }
