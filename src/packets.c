@@ -1295,6 +1295,21 @@ void process_first_person_look(struct Thing *thing, struct Packet *pckt, long cu
     *out_roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
 }
 
+TbBool can_process_creature_input(struct Thing *thing)
+{
+    if (thing->class_id != TCls_Creature) {
+        return false;
+    }
+    if (creature_is_dying(thing)) {
+        return false;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->stateblock_flags != 0) || (thing->active_state == CrSt_CreatureUnconscious)) {
+        return false;
+    }
+    return true;
+}
+
 void process_players_creature_control_packet_control(long idx)
 {
     struct InstanceInfo *inst_inf;
@@ -1304,13 +1319,9 @@ void process_players_creature_control_packet_control(long idx)
     struct PlayerInfo* player = get_player(idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     struct Thing* cctng = thing_get(player->controlled_thing_idx);
-    if (cctng->class_id != TCls_Creature)
+    if (!can_process_creature_input(cctng))
         return;
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
-    if (creature_is_dying(cctng))
-        return;
-    if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
-        return;
     long speed_limit = get_creature_speed(cctng);
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
     {
