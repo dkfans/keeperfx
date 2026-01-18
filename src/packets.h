@@ -337,6 +337,7 @@ void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif);
 void process_chat_message_end(int player_id, const char *message);
 void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera);
 void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
+TbBool can_process_creature_input(struct Thing *thing);
 void process_packets(void);
 void set_local_packet_turn(void);
 void clear_packets(void);

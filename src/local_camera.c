@@ -159,6 +159,9 @@ void update_local_first_person_camera(struct Thing *ctrltng)
     int eye_height = get_creature_eye_height(ctrltng);
     update_first_person_position(cam, ctrltng, eye_height);
 
+    if (!can_process_creature_input(ctrltng)) {
+        return;
+    }
     long current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
     long current_vertical = destination_local_cameras[CamIV_FirstPerson].rotation_angle_y;
     struct Packet* latest_packet = get_packet_for_local_camera_update();
