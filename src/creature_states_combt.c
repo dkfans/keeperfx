@@ -1849,6 +1849,11 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
     return false;
 }
 
+TbBool creature_would_benefit_from_cleansing(const struct Thing* thing)
+{
+    return creature_is_debuffed(thing);
+}
+
 /**
  * @brief Get suitable spell for the caster itself.
  * @param thing The creature to use spell.
@@ -3492,6 +3497,63 @@ short creature_damage_walls(struct Thing *creatng)
     set_start_state(creatng);
     return 0;
 
+}
+
+/**
+ * Projects damage made by a creature attack on given target.
+ * Gives a best estimate of the damage, but shouldn't be used to actually inflict it.
+ * @param firing The creature which will be shooting.
+ * @param target The target creature.
+ */
+long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target)
+{
+    // Determine most likely shot of the firing creature
+    CrInstance inst_id;
+    long dist = get_combat_distance(firing, target);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
+    if (crstat->attack_preference == AttckT_Ranged) {
+        inst_id = get_best_combat_weapon_instance_to_use(firing, dist,2);
+        if (inst_id == CrInst_NULL) {
+            inst_id = get_best_combat_weapon_instance_to_use(firing, dist,4);
+        }
+    } else {
+        inst_id = get_best_combat_weapon_instance_to_use(firing, dist,4);
+        if (inst_id == CrInst_NULL) {
+            inst_id = get_best_combat_weapon_instance_to_use(firing, dist,2);
+        }
+    }
+    if (inst_id == CrInst_NULL) {
+        // It seem the creatures cannot currently attack each other
+        return CrInst_NULL;
+    }
+    // Get shot model from instance
+    ThingModel shot_model;
+    {
+        struct InstanceInfo* inst_inf = creature_instance_info_get(inst_id);
+        //TODO CREATURES Instance doesn't necessarily contain shot model, that depends on callback
+        // Do a check to make sure the instance fires a shot
+        shot_model = inst_inf->func_params[0];
+    }
+    long damage = project_creature_shot_damage(firing, shot_model);
+    // Adjust the damage with target creature defense.
+    long dexterity = calculate_correct_creature_dexterity(firing);
+    damage = project_damage_of_melee_shot(dexterity, damage, target);
+    return damage;
+}
+
+TbBool creature_requires_cleansing(const struct Thing* thing)
+{
+    return creature_is_debuffed(thing);
+}
+
+TbBool creature_is_debuffed(const struct Thing* thing) 
+{
+    for (int i = 0; i < game.conf.magic_conf.debuff_count; ++i) {
+        if (creature_under_spell_effect(thing, game.conf.magic_conf.debuffs[i])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /******************************************************************************/

@@ -182,6 +182,44 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     return thing;
 }
 
+// Initial state from the side view of the sphere:
+// 'r' is the radius of the circle
+// The equation of the circle is x^2 + y^2 = r^2
+// Solving for x, we get x = sqrt(r^2 - y^2)
+// As 'y' varies, we recompute 'x', which is the new radius for the lower and upper parts of the sphere
+// The point of origin would be the center of the creature
+// Starting at y = -r, then x = 0 (a single dot)
+// In 3D space, 'y' corresponds to 'z', representing the height
+void process_cleanse_effect(struct Thing* thing) {
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+
+    int height = thing->clipbox_size_z + thing->floor_height + (5 * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel);
+    int z_min = thing->mappos.z.val;
+    int z_max = z_min + height;
+    int z_mid = (z_min + z_max) >> 1;
+
+    int r_max = z_max - z_mid;
+    int r_max_s = r_max * r_max;
+
+    struct Coord3d pos;
+    pos.z.val = z_min;
+    while (true) {
+        pos.z.val += 64; 
+        if (pos.z.val >= z_max) {
+            break;
+        }
+        int y = pos.z.val - z_mid;
+        int r = LbSqrL(r_max_s - (y * y));
+        for (int j = 0; j < 32; ++j)
+        {
+            int angle = j << 6; // 11.25 degrees
+            pos.x.val = thing->mappos.x.val + (r * LbSinL(angle) >> 16);
+            pos.y.val = thing->mappos.y.val + (r * LbCosL(angle) >> 16);
+            create_thing(&pos, TCls_EffectElem, TngEffElm_TinyFlash1, thing->owner, -1);
+        }
+    }
+}
+
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
     struct CreatureModelConfig* crconf;
