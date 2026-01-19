@@ -41,6 +41,8 @@ unsigned long initial_replay_seed;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
+extern unsigned long get_host_player_id(void);
+extern void LbNetwork_TimesyncBarrier(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -401,10 +403,12 @@ void set_packet_pause_toggle()
         return;
     }
     if (game.game_kind != GKind_LocalGame) {
-        long delay_milliseconds = (1000 / game_num_fps) * (game.input_lag_turns + 1);
-        scheduled_unpause_time = LbTimerClock() + delay_milliseconds;
-        MULTIPLAYER_LOG("set_packet_pause_toggle: Scheduled local unpause at time=%lu", scheduled_unpause_time);
-        LbNetwork_SendPauseImmediate(0, delay_milliseconds);
+        MULTIPLAYER_LOG("set_packet_pause_toggle: Initiating unpause timesync");
+        LbNetwork_BroadcastUnpauseTimesync();
+        if (my_player_number == get_host_player_id()) {
+            LbNetwork_TimesyncBarrier();
+            process_pause_packet(0, 0);
+        }
         return;
     }
     process_pause_packet(0, 0);
