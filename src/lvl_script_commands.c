@@ -191,6 +191,19 @@ const struct NamedCommand hero_objective_desc[] = {
   {NULL,                   0},
 };
 
+const struct NamedCommand creature_control_flag_desc[] = {
+  {"EXISTS",                    CCFlg_Exists},
+  {"NO_COMP_CONTROL",           CCFlg_NoCompControl},
+  {"PREVENT_DAMAGE",            CCFlg_PreventDamage},
+  {"REPOSITIONED_IN_WALL",      CCFlg_RepositionedInWall},
+  {"AVOID_CREATURE_COLLISION",  CCFlg_AvoidCreatureCollision},
+  {"IS_IN_ROOM_LIST",           CCFlg_IsInRoomList},
+  {"MOVE_X",                    CCFlg_MoveX},
+  {"MOVE_Y",                    CCFlg_MoveY},
+  {"MOVE_Z",                    CCFlg_MoveZ},
+  {NULL,                        0},
+};
+
 const struct NamedCommand msgtype_desc[] = {
   {"SPEECH",           1},
   {"SOUND",            2},

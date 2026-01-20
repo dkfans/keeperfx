@@ -284,6 +284,9 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "continue_state") == 0)
         {
             thing->continue_state = luaL_checkNamedCommand(L, 3, creatrstate_desc);
+        } else if (strcmp(key, "creature_control_flags") == 0)
+        {
+            thing->continue_state = luaL_checkNamedCommand(L, 3, creature_control_flag_desc);
         } else if (strcmp(key, "hunger_amount") == 0)
         {
             cctrl->hunger_amount = luaL_checkinteger(L, 3);
@@ -445,6 +448,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, thing->active_state));
         } else if (strcmp(key, "continue_state") == 0) {
             lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, thing->continue_state));
+        } else if (strcmp(key, "creature_control_flags") == 0) {
+            lua_pushstring(L, get_conf_parameter_text(creature_control_flag_desc, cctrl->creature_control_flags));
         } else if (strcmp(key, "workroom") == 0) {
             lua_pushRoom(L, room_get(cctrl->work_room_id));
         } else if (strcmp(key, "moveto_pos") == 0) {

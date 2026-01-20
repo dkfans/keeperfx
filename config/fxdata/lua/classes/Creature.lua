@@ -10,6 +10,7 @@
 ---@field workroom Room the room the creature is currently working in
 ---@field state string
 ---@field continue_state string
+---@field creature_control_flags
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
 ---@field flee_pos Pos3d The position the creature will flee too. For keeper creatures this is their lair
 ---@field max_speed integer the movement speed of the creature after spell modifications
