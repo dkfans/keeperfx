@@ -311,6 +311,10 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "force_health_flower_hidden") == 0)
         {
             cctrl->force_health_flower_hidden = lua_toboolean(L, 3);
+        }
+        else if (strcmp(key, "conscious_back_turns") == 0)
+        {
+            cctrl->conscious_back_turns = lua_toboolean(L, 3);
         } else
         {
             return luaL_error(L, "Field '%s' is not writable on Creature thing", key);
@@ -457,6 +461,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.original_objective));
         } else if (strcmp(key, "party_target_player") == 0) {
             lua_pushPlayer(L, cctrl->party.target_plyr_idx);
+        } else if (strcmp(key, "conscious_back_turns") == 0) {
+            lua_pushPlayer(L, cctrl->conscious_back_turns);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }
