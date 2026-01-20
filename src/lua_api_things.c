@@ -319,10 +319,9 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "force_health_flower_hidden") == 0)
         {
             cctrl->force_health_flower_hidden = lua_toboolean(L, 3);
-        }
-        else if (strcmp(key, "conscious_back_turns") == 0)
+        } else if (strcmp(key, "conscious_back_turns") == 0)
         {
-            cctrl->conscious_back_turns = lua_toboolean(L, 3);
+            cctrl->conscious_back_turns = luaL_checkinteger(L, 3);
         } else
         {
             return luaL_error(L, "Field '%s' is not writable on Creature thing", key);
