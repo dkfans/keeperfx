@@ -3397,13 +3397,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         output_message_far_from_thing(creatng, SMsg_BattleWon, MESSAGE_DURATION_BATTLE);
     }
-    if (is_hero_thing(killertng))
-    {
-        if (player_creature_tends_to(killertng->owner, CrTend_Imprison))
-        {
-            ERRORLOG("Hero have tend to imprison"); // What is the point of this log error? Check if it can be removed.
-        }
-    }
     SYNCDBG(18, "Almost finished");
     if (!creature_can_be_set_unconscious(creatng, killertng, flags))
     {

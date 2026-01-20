@@ -813,8 +813,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       toggle_creature_tendencies(player, pckt->actn_par1);
       if (is_my_player(player)) {
           dungeon = get_players_dungeon(player);
-          game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-          game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+          game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+          game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
       }
       return 0;
   case PckA_CheatUnusedPlaceholder065:
@@ -1963,12 +1963,12 @@ void apply_default_flee_and_imprison_setting(void)
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     unsigned short tendencies_to_toggle = 0;
 
-    TbBool current_imprison_state = (dungeon->creature_tendencies & 0x01) != 0;
+    TbBool current_imprison_state = (dungeon->creature_tendencies & CrTend_Imprison) != 0;
     if (IMPRISON_BUTTON_DEFAULT != current_imprison_state) {
         tendencies_to_toggle |= CrTend_Imprison;
     }
 
-    TbBool current_flee_state = (dungeon->creature_tendencies & 0x02) != 0;
+    TbBool current_flee_state = (dungeon->creature_tendencies & CrTend_Flee) != 0;
     if (FLEE_BUTTON_DEFAULT != current_flee_state) {
         tendencies_to_toggle |= CrTend_Flee;
     }
