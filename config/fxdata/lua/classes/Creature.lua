@@ -50,7 +50,8 @@ function Creature:teleport(location,effect) end
 function Creature:kill() end
 
 ---Stuns the creature
-function Creature:stun() end
+---@param turns ? Sets conscious_back_turns; the duration of the stun.
+function Creature:stun(turns) end
 
 ---increases creatures level by a given amount
 ---@param levels integer

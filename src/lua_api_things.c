@@ -113,6 +113,11 @@ static int lua_stun_creature(lua_State* L)
 {
     struct Thing* thing = luaL_checkThing(L, 1);
     make_creature_unconscious(thing);
+    if (!lua_isnone(L, 2))
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl->conscious_back_turns = luaL_checkinteger(L, 2);
+    }
 
     return 0;
 }
