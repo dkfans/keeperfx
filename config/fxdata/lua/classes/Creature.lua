@@ -46,7 +46,8 @@ end
 function Creature:teleport(location,effect) end
 
 ---Kills the creature
-function Creature:kill() end
+--- @param killer? Creature that gets credited with the kill of the creature
+function Creature:kill(killer) end
 
 ---increases creatures level by a given amount
 ---@param levels integer

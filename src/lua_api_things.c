@@ -103,8 +103,15 @@ static int lua_creature_walk_to(lua_State *L)
 
 static int lua_kill_creature(lua_State *L)
 {
-    struct Thing* thing = luaL_checkThing(L, 1);
-    kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+    struct Thing* thing = luaL_checkCreature(L, 1);
+    struct Thing* killer = INVALID_THING;
+    PlayerNumber killing_player = -1;
+    if (!lua_isnone(L, 2))
+    {
+        killer = luaL_checkCreature(L, 2);
+        killing_player = killer->owner;
+    }
+    kill_creature(thing, killer, killing_player, CrDed_NoUnconscious);
 
     return 0;
 }
