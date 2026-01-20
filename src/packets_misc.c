@@ -36,8 +36,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct PacketEx) + sizeof(TbBigChecksum))
+#define MULTIPLAYER_PAUSE_COOLDOWN_MS 500
 struct Packet bad_packet;
 unsigned long initial_replay_seed;
+unsigned long last_pause_toggle_time = 0;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
@@ -398,6 +400,14 @@ void set_packet_pause_toggle()
         return;
     if (player->packet_num >= PACKETS_COUNT)
         return;
+    if (game.game_kind != GKind_LocalGame) {
+        unsigned long current_time = LbTimerClock();
+        if (current_time - last_pause_toggle_time < MULTIPLAYER_PAUSE_COOLDOWN_MS) {
+            MULTIPLAYER_LOG("set_packet_pause_toggle: cooldown active, ignoring");
+            return;
+        }
+        last_pause_toggle_time = current_time;
+    }
     if ((game.operation_flags & GOF_Paused) == 0) {
         set_players_packet_action(player, PckA_TogglePause, 1, 0, 0, 0);
         return;

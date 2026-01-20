@@ -193,6 +193,10 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         return Lb_OK;
     }
     if (type == NETMSG_UNPAUSE_NOW) {
+        if ((game.operation_flags & GOF_Paused) == 0) {
+            MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE_NOW: ignoring, not paused");
+            return Lb_OK;
+        }
         MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE_NOW: initiating timesync");
         if (my_player_number == get_host_player_id()) {
             LbNetwork_BroadcastUnpauseTimesync();
