@@ -104,7 +104,12 @@ static int lua_creature_walk_to(lua_State *L)
 static int lua_kill_creature(lua_State *L)
 {
     struct Thing* thing = luaL_checkThing(L, 1);
-    kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+    struct Thing* killer = INVALID_THING;
+    if (!lua_isnone(L, 2))
+    {
+        killer = luaL_checkThing(L, 2);
+    }
+    kill_creature(thing, killer, -1, CrDed_NoUnconscious);
 
     return 0;
 }
