@@ -49,6 +49,9 @@ function Creature:teleport(location,effect) end
 ---Kills the creature
 function Creature:kill() end
 
+---Stuns the creature
+function Creature:stun() end
+
 ---increases creatures level by a given amount
 ---@param levels integer
 function Creature:level_up(levels) end

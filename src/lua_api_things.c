@@ -109,6 +109,14 @@ static int lua_kill_creature(lua_State *L)
     return 0;
 }
 
+static int lua_stun_creature(lua_State* L)
+{
+    struct Thing* thing = luaL_checkThing(L, 1);
+    make_creature_unconscious(thing);
+
+    return 0;
+}
+
 static int lua_Transfer_creature(lua_State *L)
 {
     struct Thing* thing = luaL_checkCreature(L, 1);
@@ -544,6 +552,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"make_thing_zombie", make_thing_zombie},
     {"walk_to",  lua_creature_walk_to},
     {"kill",    lua_kill_creature},
+    {"stun",    lua_stun_creature},
     {"delete",     lua_delete_thing},
     {"isValid",         lua_is_valid},
     
