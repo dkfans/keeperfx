@@ -39,6 +39,9 @@ extern "C" void network_yield_draw_gameplay();
 extern "C" void network_yield_draw_frontend();
 extern "C" short frontend_draw();
 extern "C" long double last_draw_completed_time;
+extern "C" void LbNetwork_TimesyncBarrier(void);
+extern "C" TbBool keeper_screen_redraw(void);
+extern "C" TbResult LbScreenSwap(void);
 long double get_time_tick_ns();
 #endif
 
@@ -191,17 +194,21 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         }
         return Lb_OK;
     }
-    if (type == NETMSG_PAUSE) {
-        TbBool pause_state = (TbBool)*ptr;
-        ptr += 1;
-        unsigned long delay_milliseconds = *(unsigned long*)ptr;
-        MULTIPLAYER_LOG("ProcessMessage NETMSG_PAUSE: received pause_state=%d, delay_milliseconds=%lu", pause_state, delay_milliseconds);
-        if (pause_state || delay_milliseconds == 0) {
-            process_pause_packet(pause_state, 0);
-        } else {
-            scheduled_unpause_time = LbTimerClock() + delay_milliseconds;
-            MULTIPLAYER_LOG("ProcessMessage NETMSG_PAUSE: scheduled unpause at time=%lu", scheduled_unpause_time);
+    if (type == NETMSG_UNPAUSE) {
+        if ((game.operation_flags & GOF_Paused) == 0) {
+            MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE: ignoring, not paused");
+            return Lb_OK;
         }
+        MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE: initiating timesync");
+        unpausing_in_progress = 1;
+        keeper_screen_redraw();
+        LbScreenSwap();
+        if (my_player_number == get_host_player_id()) {
+            LbNetwork_BroadcastUnpauseTimesync();
+        }
+        LbNetwork_TimesyncBarrier();
+        process_pause_packet(0, 0);
+        unpausing_in_progress = 0;
         return Lb_OK;
     }
     if (type == NETMSG_CHATMESSAGE) {
@@ -367,25 +374,6 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     return Lb_OK;
 }
 
-void LbNetwork_SendPauseImmediate(TbBool pause_state, unsigned long delay_milliseconds) {
-    MULTIPLAYER_LOG("LbNetwork_SendPauseImmediate: sending pause_state=%d, delay_milliseconds=%lu", pause_state, delay_milliseconds);
-
-    char* message_pointer = InitMessageBuffer(NETMSG_PAUSE);
-    *message_pointer = pause_state;
-    message_pointer += 1;
-    *(unsigned long*)message_pointer = delay_milliseconds;
-    message_pointer += sizeof(unsigned long);
-
-    int message_size = message_pointer - netstate.msg_buffer;
-
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
-        if (id == netstate.my_id || !IsUserActive(id)) {
-            continue;
-        }
-        netstate.sp->sendmsg_single(id, netstate.msg_buffer, message_size);
-    }
-}
-
 void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
     char* ptr = InitMessageBuffer(NETMSG_CHATMESSAGE);
     *ptr = player_id;
@@ -394,6 +382,16 @@ void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
     for (NetUserId id = 0; id < netstate.max_players; id += 1) {
         if (id != netstate.my_id && IsUserActive(id)) {
             netstate.sp->sendmsg_single(id, netstate.msg_buffer, 3 + strlen(message));
+        }
+    }
+}
+
+void LbNetwork_BroadcastUnpauseTimesync(void) {
+    MULTIPLAYER_LOG("LbNetwork_BroadcastUnpauseTimesync");
+    InitMessageBuffer(NETMSG_UNPAUSE);
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+        if (id != netstate.my_id && IsUserActive(id)) {
+            netstate.sp->sendmsg_single(id, netstate.msg_buffer, 1);
         }
     }
 }

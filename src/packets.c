@@ -119,7 +119,7 @@ extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber 
 extern TbBool change_campaign(const char *cmpgn_fname);
 extern int total_sprite_zip_count;
 /******************************************************************************/
-unsigned long scheduled_unpause_time = 0;
+TbBool unpausing_in_progress = 0;
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
@@ -1645,13 +1645,6 @@ void set_local_packet_turn(void) {
     MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)game.play_gameturn, (unsigned long)pckt->checksum);
 }
 
-void check_scheduled_unpause(void) {
-    if (scheduled_unpause_time > 0 && LbTimerClock() >= scheduled_unpause_time) {
-        MULTIPLAYER_LOG("process_packets: Executing scheduled unpause at time=%u", LbTimerClock());
-        scheduled_unpause_time = 0;
-        process_pause_packet(0, 0);
-    }
-}
 
 /**
  * Exchange packets if MP game, then process all packets influencing local game state.
@@ -1666,8 +1659,6 @@ void process_packets(void)
     set_local_packet_turn();
     update_turn_checksums();
     store_local_packet_in_input_lag_queue(player->packet_num);
-
-    check_scheduled_unpause();
 
     if (game.game_kind != GKind_LocalGame)
     {
