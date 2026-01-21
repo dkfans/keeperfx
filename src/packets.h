@@ -262,7 +262,7 @@ struct PlayerInfo;
 struct CatalogueEntry;
 
 extern unsigned long initial_replay_seed;
-extern unsigned long scheduled_unpause_time;
+extern TbBool unpausing_in_progress;
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.

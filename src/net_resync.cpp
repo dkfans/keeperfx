@@ -104,6 +104,9 @@ void animate_resync_progress_bar(int current_phase, int total_phases) {
     if (game.play_gameturn == 0) {
         return;
     }
+    if ((game.operation_flags & GOF_Paused) != 0) {
+        return;
+    }
     const long max_progress = (long)(32 * units_per_pixel / 16);
     const long progress_pixels = (long)((double)max_progress * current_phase / total_phases);
     draw_out_of_sync_box(progress_pixels, max_progress, status_panel_width);
