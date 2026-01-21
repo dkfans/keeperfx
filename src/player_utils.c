@@ -781,6 +781,8 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
     player->main_palette = engine_palette;
+    JUSTLOG("player:%p pal:%p \n", player, player->main_palette);
+
     player->minimap_zoom = settings.minimap_zoom;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
