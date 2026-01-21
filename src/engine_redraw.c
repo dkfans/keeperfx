@@ -1157,7 +1157,7 @@ void redraw_display(void)
         draw_consolelog();
     }
 
-    if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
+    if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0) && !unpausing_in_progress)
     {
           LbTextSetFont(winfont);
           const char * text = get_string(GUIStr_PausedMsg);

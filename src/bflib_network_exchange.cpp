@@ -40,6 +40,8 @@ extern "C" void network_yield_draw_frontend();
 extern "C" short frontend_draw();
 extern "C" long double last_draw_completed_time;
 extern "C" void LbNetwork_TimesyncBarrier(void);
+extern "C" TbBool keeper_screen_redraw(void);
+extern "C" TbResult LbScreenSwap(void);
 long double get_time_tick_ns();
 #endif
 
@@ -198,11 +200,15 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
             return Lb_OK;
         }
         MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE_NOW: initiating timesync");
+        unpausing_in_progress = 1;
+        keeper_screen_redraw();
+        LbScreenSwap();
         if (my_player_number == get_host_player_id()) {
             LbNetwork_BroadcastUnpauseTimesync();
         }
         LbNetwork_TimesyncBarrier();
         process_pause_packet(0, 0);
+        unpausing_in_progress = 0;
         return Lb_OK;
     }
     if (type == NETMSG_CHATMESSAGE) {
