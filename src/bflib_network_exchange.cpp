@@ -194,12 +194,12 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         }
         return Lb_OK;
     }
-    if (type == NETMSG_UNPAUSE_NOW) {
+    if (type == NETMSG_UNPAUSE) {
         if ((game.operation_flags & GOF_Paused) == 0) {
-            MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE_NOW: ignoring, not paused");
+            MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE: ignoring, not paused");
             return Lb_OK;
         }
-        MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE_NOW: initiating timesync");
+        MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE: initiating timesync");
         unpausing_in_progress = 1;
         keeper_screen_redraw();
         LbScreenSwap();
@@ -388,7 +388,7 @@ void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
 
 void LbNetwork_BroadcastUnpauseTimesync(void) {
     MULTIPLAYER_LOG("LbNetwork_BroadcastUnpauseTimesync");
-    InitMessageBuffer(NETMSG_UNPAUSE_NOW);
+    InitMessageBuffer(NETMSG_UNPAUSE);
     for (NetUserId id = 0; id < netstate.max_players; id += 1) {
         if (id != netstate.my_id && IsUserActive(id)) {
             netstate.sp->sendmsg_single(id, netstate.msg_buffer, 1);
