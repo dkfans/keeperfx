@@ -1179,8 +1179,8 @@ static int lua_Set_creature_tendencies(lua_State *L)
         if (is_my_player(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
-            game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-            game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+            game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+            game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
         }
     }
     return 0;

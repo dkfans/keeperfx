@@ -1503,7 +1503,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
     // Enough prison capacity to enable imprisonment
     if ((total_capacity >= min_capacity) && (dungeon->num_active_creatrs < max_units))
     {
-        if ((dungeon->creature_tendencies & 0x01) != 0)
+        if ((dungeon->creature_tendencies & CrTend_Imprison) != 0)
         {
             SYNCDBG(8, "Prison tendency already enabled");
             return CTaskRet_Unk1;
@@ -1514,8 +1514,8 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
             {
                 if (is_my_player(player)) {
                     dungeon = get_players_dungeon(player);
-                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
                 }
                 SYNCDBG(18, "Player %d has enabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;
@@ -1535,7 +1535,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
     // Not enough prison capacity to keep imprisonment enabled, or too many units
     else
     {
-        if ((dungeon->creature_tendencies & 0x01) == 0)
+        if ((dungeon->creature_tendencies & CrTend_Imprison) == 0)
         {
             SYNCDBG(8, "Prison tendency already disabled");
             return CTaskRet_Unk1;
@@ -1546,8 +1546,8 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
             {
                 if (is_my_player(player)) {
                     dungeon = get_players_dungeon(player);
-                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
                 }
                 SYNCDBG(18, "Player %d has disabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;
