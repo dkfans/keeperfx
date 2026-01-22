@@ -103,8 +103,28 @@ static int lua_creature_walk_to(lua_State *L)
 
 static int lua_kill_creature(lua_State *L)
 {
+    struct Thing* thing = luaL_checkCreature(L, 1);
+    struct Thing* killer = INVALID_THING;
+    PlayerNumber killing_player = -1;
+    if (!lua_isnone(L, 2))
+    {
+        killer = luaL_checkCreature(L, 2);
+        killing_player = killer->owner;
+    }
+    kill_creature(thing, killer, killing_player, CrDed_NoUnconscious);
+
+    return 0;
+}
+
+static int lua_stun_creature(lua_State* L)
+{
     struct Thing* thing = luaL_checkThing(L, 1);
-    kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+    make_creature_unconscious(thing);
+    if (!lua_isnone(L, 2))
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl->conscious_back_turns = luaL_checkinteger(L, 2);
+    }
 
     return 0;
 }
@@ -165,7 +185,7 @@ static int thing_tostring(lua_State *L)
 {
     char buff[64];
     struct Thing* thing = luaL_checkThing(L, 1);
-    snprintf(buff, sizeof(buff), "id: %d turn: %ld %s", thing->index, thing->creation_turn, thing_class_and_model_name(thing->class_id,thing->model));
+    snprintf(buff, sizeof(buff), "id: %d turn: %d %s", thing->index, thing->creation_turn, thing_class_and_model_name(thing->class_id,thing->model));
 
     lua_pushfstring(L, "Thing (%s)", buff);
     return 1;
@@ -195,6 +215,37 @@ static int thing_set_field(lua_State *L) {
         struct Coord3d pos;
         luaL_checkCoord3d(L, 3, &pos);
         move_thing_in_map(thing, &pos);
+    } else if (strcmp(key, "anim_sprite") == 0)
+    {
+        thing->anim_sprite = luaL_checkAnimationId(L, 3);
+        thing->max_frames = keepersprite_frames(thing->anim_sprite);
+    } else if (strcmp(key, "anim_speed") == 0)
+    {
+        thing->anim_speed = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "sprite_size") == 0)
+    {
+        thing->sprite_size = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "sprite_size_min") == 0)
+    {
+        thing->sprite_size_min = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "sprite_size_max") == 0)
+    {
+        thing->sprite_size_max = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "transformation_speed") == 0)
+    {
+        thing->transformation_speed = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "clipbox_size_xy") == 0)
+    {
+        thing->clipbox_size_xy = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "clipbox_size_z") == 0)
+    {
+        thing->clipbox_size_z = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "solid_size_xy") == 0)
+    {
+        thing->solid_size_xy = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "solid_size_z") == 0)
+    {
+        thing->solid_size_z = luaL_checkinteger(L, 3);
     }
 
     //Fields working for specific classes
@@ -280,6 +331,9 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "force_health_flower_hidden") == 0)
         {
             cctrl->force_health_flower_hidden = lua_toboolean(L, 3);
+        } else if (strcmp(key, "conscious_back_turns") == 0)
+        {
+            cctrl->conscious_back_turns = luaL_checkinteger(L, 3);
         } else
         {
             return luaL_error(L, "Field '%s' is not writable on Creature thing", key);
@@ -335,6 +389,26 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, thing->move_angle_xy);
     } else if (strcmp(key, "health") == 0) {
         lua_pushinteger(L, thing->health);
+    } else if (strcmp(key, "anim_sprite") == 0) {
+        lua_pushinteger(L, thing->anim_sprite);
+    } else if (strcmp(key, "anim_speed") == 0) {
+        lua_pushinteger(L, thing->anim_speed);
+    } else if (strcmp(key, "sprite_size") == 0) {
+        lua_pushinteger(L, thing->sprite_size);
+    } else if (strcmp(key, "sprite_size_min") == 0) {
+        lua_pushinteger(L, thing->sprite_size_min);
+    } else if (strcmp(key, "sprite_size_max") == 0) {
+        lua_pushinteger(L, thing->sprite_size_max);
+    } else if (strcmp(key, "transformation_speed") == 0) {
+        lua_pushinteger(L, thing->transformation_speed);
+    } else if (strcmp(key, "clipbox_size_xy") == 0) {
+        lua_pushinteger(L, thing->clipbox_size_xy);
+    } else if (strcmp(key, "clipbox_size_z") == 0) {
+        lua_pushinteger(L, thing->clipbox_size_z);
+    } else if (strcmp(key, "solid_size_xy") == 0) {
+        lua_pushinteger(L, thing->solid_size_xy);
+    } else if (strcmp(key, "solid_size_z") == 0) {
+        lua_pushinteger(L, thing->solid_size_z);
     } else if (strcmp(key, "max_health") == 0) {
         lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "picked_up") == 0) {
@@ -406,6 +480,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.original_objective));
         } else if (strcmp(key, "party_target_player") == 0) {
             lua_pushPlayer(L, cctrl->party.target_plyr_idx);
+        } else if (strcmp(key, "conscious_back_turns") == 0) {
+            lua_pushinteger(L, cctrl->conscious_back_turns);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }
@@ -487,6 +563,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"make_thing_zombie", make_thing_zombie},
     {"walk_to",  lua_creature_walk_to},
     {"kill",    lua_kill_creature},
+    {"stun",    lua_stun_creature},
     {"delete",     lua_delete_thing},
     {"isValid",         lua_is_valid},
     

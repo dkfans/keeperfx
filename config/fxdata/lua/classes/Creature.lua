@@ -30,7 +30,8 @@
 ---@field party_original_objective string The originally assigned Hero party objective, returns to this when failing an alternative objective.
 ---@field party_target_player integer The player the hero party is targetting
 ---@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
----@field patrol_countdown integer when this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
+---@field patrol_countdown integer When this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
+---@field conscious_back_turns integer Turns until the creature wakes up from stun.
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
@@ -46,7 +47,12 @@ end
 function Creature:teleport(location,effect) end
 
 ---Kills the creature
-function Creature:kill() end
+--- @param killer? Creature that gets credited with the kill of the creature
+function Creature:kill(killer) end
+
+---Stuns the creature
+---@param turns ? Sets conscious_back_turns; the duration of the stun.
+function Creature:stun(turns) end
 
 ---increases creatures level by a given amount
 ---@param levels integer

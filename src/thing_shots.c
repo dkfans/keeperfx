@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
+#include "bflib_inputctrl.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "thing_data.h"
@@ -870,6 +871,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
             event_create_event_or_update_nearby_existing_event(shootertng->mappos.x.val, shootertng->mappos.y.val, EvKind_HeartAttacked, target->owner, shootertng->index);
             if (is_my_player_number(target->owner)) {
                 output_message(SMsg_HeartUnderAttack, 400);
+                controller_rumble(50);
             }
         }
     } else

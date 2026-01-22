@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2025-10-15 18:44+0100\n"
+"PO-Revision-Date: 2026-01-04 19:42+0000\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -5165,25 +5165,25 @@ msgid ""
 "Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
 "Zoom. [22.2.1]"
 msgstr ""
-"Wybierz najbardziej doświadczone stwory. LPM uaktywnia stwora. PPM "
+"Podnieś stwory: LPM dowolne stwór. Ctrl LPM doświadczone stwory. PPM "
 "przybliża. [22.2.1]"
 
 #: guitext:734
 msgctxt "In-game interface description"
 msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Wybierz bezczynne stwory. LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
+"Podnieś bezczynne stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
 
 #: guitext:735
 msgctxt "In-game interface description"
 msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Wybierz pracujące stwory. LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
+"Podnieś pracujące stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
 
 #: guitext:736
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "Wybierz walczące stwory. LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
+msgstr "Podnieś walczące stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
 
 #: guitext:737
 msgctxt "In-game interface description"
@@ -5191,7 +5191,7 @@ msgid ""
 "Invert Mouse: Inverts the vertical mouse movements while possessing a "
 "creature. LMB toggle."
 msgstr ""
-"Odwrócenie myszy. Odwraca kierunek sterowania myszą w pionie podczas "
+"Odwrócenie myszy: Odwraca kierunek sterowania myszą w pionie podczas "
 "opętania stwora. LPM przełącza."
 
 #: guitext:738

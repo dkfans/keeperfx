@@ -36,11 +36,17 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct PacketEx) + sizeof(TbBigChecksum))
+#define MULTIPLAYER_PAUSE_COOLDOWN_MS 500
 struct Packet bad_packet;
 unsigned long initial_replay_seed;
+unsigned long last_pause_toggle_time = 0;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
+extern unsigned long get_host_player_id(void);
+extern void LbNetwork_TimesyncBarrier(void);
+extern TbBool keeper_screen_redraw(void);
+extern TbResult LbScreenSwap(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -225,6 +231,13 @@ short save_packets(void)
     {
         ERRORLOG("Packet file write error");
     }
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (game.packets[i].action == PckA_PlyrMsgEnd) {
+            if (LbFileWrite(game.packet_save_fp, get_player(i)->mp_pending_message, PLAYER_MP_MESSAGE_LEN) != PLAYER_MP_MESSAGE_LEN) {
+                ERRORLOG("Chat message file write error");
+            }
+        }
+    }
     if ( !LbFileFlush(game.packet_save_fp) )
     {
         ERRORLOG("Unable to flush PacketSave File");
@@ -352,6 +365,15 @@ void load_packets_for_turn(GameTurn nturn)
     game.packet_file_pos += turn_data_size;
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
         memcpy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
+    for (long i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (game.packets[i].action == PckA_PlyrMsgEnd) {
+            if (LbFileRead(game.packet_save_fp, get_player(i)->mp_pending_message, PLAYER_MP_MESSAGE_LEN) == PLAYER_MP_MESSAGE_LEN) {
+                game.packet_file_pos += PLAYER_MP_MESSAGE_LEN;
+            } else {
+                ERRORDBG(18,"Cannot read chat message from Packet File");
+            }
+        }
+    }
     TbBigChecksum tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT * sizeof(struct Packet)]);
     if (game.turns_fastforward > 0)
         game.turns_fastforward--;
@@ -360,13 +382,13 @@ void load_packets_for_turn(GameTurn nturn)
         pckt = get_packet(my_player_number);
         if (compute_replay_integrity() != tot_chksum)
         {
-            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %lu)", game.play_gameturn);
+            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         } else
         if (pckt->checksum != pckt_chksum)
         {
-            ERRORLOG("Oops we are really Out Of Sync (GameTurn %lu)", game.play_gameturn);
+            ERRORLOG("Oops we are really Out Of Sync (GameTurn %u)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         }
@@ -380,15 +402,29 @@ void set_packet_pause_toggle()
         return;
     if (player->packet_num >= PACKETS_COUNT)
         return;
+    if (game.game_kind != GKind_LocalGame) {
+        unsigned long current_time = LbTimerClock();
+        if (current_time - last_pause_toggle_time < MULTIPLAYER_PAUSE_COOLDOWN_MS) {
+            MULTIPLAYER_LOG("set_packet_pause_toggle: cooldown active, ignoring");
+            return;
+        }
+        last_pause_toggle_time = current_time;
+    }
     if ((game.operation_flags & GOF_Paused) == 0) {
         set_players_packet_action(player, PckA_TogglePause, 1, 0, 0, 0);
         return;
     }
     if (game.game_kind != GKind_LocalGame) {
-        long delay_milliseconds = (1000 / game_num_fps) * (game.input_lag_turns + 1);
-        scheduled_unpause_time = LbTimerClock() + delay_milliseconds;
-        MULTIPLAYER_LOG("set_packet_pause_toggle: Scheduled local unpause at time=%lu", scheduled_unpause_time);
-        LbNetwork_SendPauseImmediate(0, delay_milliseconds);
+        MULTIPLAYER_LOG("set_packet_pause_toggle: Initiating unpause timesync");
+        unpausing_in_progress = 1;
+        keeper_screen_redraw();
+        LbScreenSwap();
+        LbNetwork_BroadcastUnpauseTimesync();
+        if (my_player_number == get_host_player_id()) {
+            LbNetwork_TimesyncBarrier();
+            process_pause_packet(0, 0);
+        }
+        unpausing_in_progress = 0;
         return;
     }
     process_pause_packet(0, 0);

@@ -45,21 +45,21 @@ enum MapLevelInfoFlags {
 
 struct MapLevelInfo { // sizeof = 56
   unsigned char fadeflags;
-  long fade_step;
-  long fade_pos;
-  long hotspot_imgpos_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Stored as land view background bitmap coordinate. */
-  long hotspot_imgpos_y;
+  float fade_step;
+  float fade_pos;
+  float hotspot_imgpos_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Stored as land view background bitmap coordinate. */
+  float hotspot_imgpos_y;
   long state_trigger;
-  long screen_shift_x; /**< Shift X coordinate for top left corner of the visible land picture area. Acts as the final shift in both zoom and non-zoom modes. */
-  long screen_shift_y; /**< Shift Y coordinate for top left corner of the visible land picture area. */
-  long precise_scrshift_x; /**< Precise shift X for top left corner of the visible land picture area. Extended precision version, used as source for scrshift_x while zooming. */
-  long precise_scrshift_y; /**< Precise shift Y for top left corner of the visible land picture area. */
-  long velocity_x; /**< Velocity at which screen_shift_x is being changed. */
-  long velocity_y; /**< Velocity at which screen_shift_y is being changed. */
-  long hotspot_shift_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Set to top left corner of an area which would have the ensign in center. */
-  long hotspot_shift_y;
-  long screen_shift_aimed_x; /**< Shift X coordinate at which the screen_shift is aiming towards zooming. */
-  long screen_shift_aimed_y;
+  float screen_shift_x; /**< Shift X coordinate for top left corner of the visible land picture area. Acts as the final shift in both zoom and non-zoom modes. */
+  float screen_shift_y; /**< Shift Y coordinate for top left corner of the visible land picture area. */
+  float precise_scrshift_x; /**< Precise shift X for top left corner of the visible land picture area. Extended precision version, used as source for scrshift_x while zooming. */
+  float precise_scrshift_y; /**< Precise shift Y for top left corner of the visible land picture area. */
+  float velocity_x; /**< Velocity at which screen_shift_x is being changed. */
+  float velocity_y; /**< Velocity at which screen_shift_y is being changed. */
+  float hotspot_shift_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Set to top left corner of an area which would have the ensign in center. */
+  float hotspot_shift_y;
+  float screen_shift_aimed_x; /**< Shift X coordinate at which the screen_shift is aiming towards zooming. */
+  float screen_shift_aimed_y;
 };
 
 struct ScreenPacket {

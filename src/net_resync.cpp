@@ -104,6 +104,9 @@ void animate_resync_progress_bar(int current_phase, int total_phases) {
     if (game.play_gameturn == 0) {
         return;
     }
+    if ((game.operation_flags & GOF_Paused) != 0) {
+        return;
+    }
     const long max_progress = (long)(32 * units_per_pixel / 16);
     const long progress_pixels = (long)((double)max_progress * current_phase / total_phases);
     draw_out_of_sync_box(progress_pixels, max_progress, status_panel_width);
@@ -308,7 +311,6 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length) {
 
 TbBool send_resync_game(void) {
   pack_desync_history_for_resync();
-
   clear_flag(game.operation_flags, GOF_Paused);
   animate_resync_progress_bar(0, 6);
   NETLOG("Initiating re-synchronization of network game");
@@ -335,12 +337,12 @@ TbBool receive_resync_game(void) {
     LbNetwork_TimesyncBarrier();
     animate_resync_progress_bar(6, 6);
     NETLOG("Client: Resync complete");
-    if (game.desync_diagnostics.has_desync_diagnostics) {
-        compare_desync_history_from_host();
-    }
+
+    compare_desync_history_from_host();
 
     return true;
 }
+
 
 void resync_game(void) {
     SYNCDBG(2,"Starting");
@@ -360,7 +362,6 @@ void resync_game(void) {
     clear_packet_tracking();
     clear_redundant_packets();
     clear_input_lag_queue();
-    clear_desync_analysis();
     NETLOG("Input lag after resync: %d turns", game.input_lag_turns);
 
     clear_flag(game.system_flags, GSF_NetGameNoSync);

@@ -1278,7 +1278,7 @@ void tag_open_closed_init(void)
 
 unsigned long nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy)
 {
-    NAVIDBG(19,"F=%lu Connect %03ld,%03ld %03ld,%03ld", game.play_gameturn, ptAx, ptAy, ptBx, ptBy);
+    NAVIDBG(19,"F=%u Connect %03ld,%03ld %03ld,%03ld", game.play_gameturn, ptAx, ptAy, ptBx, ptBy);
     long tri1_id;
     long tri2_id;
     tri1_id = triangle_findSE8(ptAx, ptAy);
@@ -3257,7 +3257,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
     long subroute, unsigned char nav_size, const char *func_name)
 {
     int32_t route_dist;
-    NAVIDBG(9,"%s: Path from %5ld,%5ld to %5ld,%5ld on turn %lu", func_name, start_x, start_y, end_x, end_y, game.play_gameturn);
+    NAVIDBG(9,"%s: Path from %5ld,%5ld to %5ld,%5ld on turn %u", func_name, start_x, start_y, end_x, end_y, game.play_gameturn);
     if (subroute == -1)
       WARNLOG("%s: implement random externally", func_name);
     path->start.x = start_x;

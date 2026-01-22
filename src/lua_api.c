@@ -766,15 +766,15 @@ static int lua_Reveal_map_location(lua_State *L)
     MapSubtlDelta range = luaL_checkinteger(L, 3);
 
 
-    SYNCDBG(0, "Revealing location type %lu", target);
+    SYNCDBG(0, "Revealing location type %u", target);
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
-        int32_t x = 0;
-        int32_t y = 0;
+        MapSubtlCoord x = 0;
+        MapSubtlCoord y = 0;
         find_map_location_coords(target, &x, &y, i, __func__);
         if ((x == 0) && (y == 0))
         {
-            WARNLOG("Can't decode location %lu", target);
+            WARNLOG("Can't decode location %u", target);
             return 0;
         }
         if (range == -1)
@@ -1179,8 +1179,8 @@ static int lua_Set_creature_tendencies(lua_State *L)
         if (is_my_player(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
-            game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-            game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+            game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+            game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
         }
     }
     return 0;

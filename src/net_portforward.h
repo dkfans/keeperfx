@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file game_heap.h
- *     Header file for game_heap.c.
+/**
+ * @file net_portforward.h
+ *     Port forwarding support using NAT-PMP and UPnP.
  * @par Purpose:
- *     Definition of heap, used for storing memory-expensive sounds and graphics.
- * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     07 Apr 2011 - 19 Nov 2012
+ *     Automatic port forwarding for multiplayer hosting.
+ *     Tries NAT-PMP first (simpler/faster), falls back to UPnP.
+ * @author   KeeperFX Team
+ * @date     01 Jan 2026
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,24 +16,20 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_GAME_HEAP_H
-#define DK_GAME_HEAP_H
+#ifndef NET_PORTFORWARD_H
+#define NET_PORTFORWARD_H
 
-#include "globals.h"
-#include "bflib_basics.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/******************************************************************************/
-TbBool setup_heap_manager(void);
-void reset_heap_manager(void);
-
-/******************************************************************************/
-void *he_alloc(size_t size);
+int port_forward_add_mapping(uint16_t port);
+void port_forward_remove_mapping(void);
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif

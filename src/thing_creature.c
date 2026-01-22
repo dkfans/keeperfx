@@ -3234,6 +3234,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   light_turn_light_on(player->cursor_light_idx);
+  PaletteSetPlayerPalette(player, engine_palette);
 }
 
 void delete_armour_effects_attached_to_creature(struct Thing *thing)
@@ -3299,6 +3300,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
 {
     SYNCDBG(18, "Starting");
     TRACE_THING(creatng);
+    force_any_creature_dragging_thing_to_drop_it(creatng);
     cleanup_creature_state_and_interactions(creatng);
     if (!thing_is_invalid(killertng))
     {
@@ -3336,6 +3338,10 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         create_effect_around_thing(creatng, ball_puff_effects[get_player_color_idx(creatng->owner)]);
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
+        if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
+        {
+            prepare_to_controlled_creature_death(creatng);
+        }
         return cause_creature_death(creatng, flags);
     }
     struct Dungeon *dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
@@ -3391,13 +3397,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     else if (is_my_player_number(killertng->owner))
     {
         output_message_far_from_thing(creatng, SMsg_BattleWon, MESSAGE_DURATION_BATTLE);
-    }
-    if (is_hero_thing(killertng))
-    {
-        if (player_creature_tends_to(killertng->owner, CrTend_Imprison))
-        {
-            ERRORLOG("Hero have tend to imprison"); // What is the point of this log error? Check if it can be removed.
-        }
     }
     SYNCDBG(18, "Almost finished");
     if (!creature_can_be_set_unconscious(creatng, killertng, flags))
@@ -4167,7 +4166,7 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
     if ((current_annoyed_creature->alloc_flags & TAlF_Exists) == 0 ||
          !thing_is_creature(current_annoyed_creature) ||
          (current_annoyed_creature->alloc_flags & TAlF_IsInLimbo) != 0 ||
-         (current_annoyed_creature->state_flags & TAlF_IsInMapWho) != 0 ||
+         (current_annoyed_creature->state_flags & TF1_InCtrldLimbo) != 0 ||
          current_annoyed_creature->active_state == CrSt_CreatureUnconscious)
     {
         creatng = thing_get(dungeon->creatr_list_start);
@@ -4199,12 +4198,12 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
         if (thing_exists(creatng) &&
             thing_is_creature(creatng) &&
             (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
-            (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+            (creatng->state_flags & TF1_InCtrldLimbo) == 0 &&
             creatng->active_state != CrSt_CreatureUnconscious)
         {
             TbBool found = true;
             while (!anger_is_creature_angry(creatng) || (creatng->alloc_flags & TAlF_Exists) == 0 || !thing_is_creature(creatng) ||
-                   (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TAlF_IsInMapWho) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
+                   (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TF1_InCtrldLimbo) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
             {
                 cctrl = creature_control_get_from_thing(creatng);
                 creatng = thing_get(cctrl->players_next_creature_idx);
@@ -4229,7 +4228,7 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
                     (creatng->alloc_flags & TAlF_Exists) != 0 &&
                     thing_is_creature(creatng) &&
                     (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
-                    (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+                    (creatng->state_flags & TF1_InCtrldLimbo) == 0 &&
                     creatng->active_state != CrSt_CreatureUnconscious)
                 {
                     dungeon->zoom_annoyed_creature_idx = creatng->index;
@@ -4921,14 +4920,14 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
     struct Thing* thing = create_creature(&pos, crmodel, owner);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
+        ERRORLOG("Cannot create creature %s at (%d,%d)",creature_code_name(crmodel),x,y);
         return INVALID_THING;
     }
     pos.z.val = get_thing_height_at(thing, &pos);
     if (thing_in_wall_at(thing, &pos))
     {
         delete_thing_structure(thing, 0);
-        ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
+        ERRORLOG("Creature %s at (%d,%d) deleted because is in wall",creature_code_name(crmodel),x,y);
         return INVALID_THING;
     }
     thing->mappos.x.val = pos.x.val;
@@ -7160,11 +7159,11 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
             if (value < picktng->creature.gold_carried)
             {
-                snprintf(str, sizeof(str), "%ld (%ld)", picktng->creature.gold_carried, value);
+                snprintf(str, sizeof(str), "%d (%ld)", picktng->creature.gold_carried, value);
             }
             else
             {
-                snprintf(str, sizeof(str), "%ld", picktng->creature.gold_carried);
+                snprintf(str, sizeof(str), "%d", picktng->creature.gold_carried);
             }
         }
         id = 3;

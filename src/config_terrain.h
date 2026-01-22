@@ -116,8 +116,8 @@ struct SlabConfigStats {
     RoomKind assigned_room;
     short block_flags_height;
     short block_health_index;
-    unsigned long block_flags;
-    unsigned long noblck_flags;
+    uint32_t block_flags;
+    uint32_t noblck_flags;
     unsigned char fill_style;
     unsigned char category;
     unsigned char slb_id;
@@ -135,27 +135,27 @@ struct RoomConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
     TextStringId tooltip_stridx;
-    long creature_creation_model;
+    int32_t creature_creation_model;
     SlabKind assigned_slab;
     short synergy_slab;
     char storage_height;
-    unsigned long flags;
+    uint32_t flags;
     RoomRole roles;
-    long panel_tab_idx;
+    int32_t panel_tab_idx;
     /** Sprite index of big symbol icon representing the room. */
-    long bigsym_sprite_idx;
+    int32_t bigsym_sprite_idx;
     /** Sprite index of medium symbol icon representing the room. */
-    long medsym_sprite_idx;
-    long pointer_sprite_idx;
-    unsigned int ambient_snd_smp_id;
-    long msg_needed;
-    long msg_too_small;
-    long msg_no_route;
+    int32_t medsym_sprite_idx;
+    int32_t pointer_sprite_idx;
+    uint32_t ambient_snd_smp_id;
+    int32_t msg_needed;
+    int32_t msg_too_small;
+    int32_t msg_no_route;
     short cost;
     HitPoints health;
-    int update_total_capacity_idx;
-    int update_storage_in_room_idx;
-    int update_workers_in_room_idx;
+    FuncIdx update_total_capacity_idx;
+    FuncIdx update_storage_in_room_idx;
+    FuncIdx update_workers_in_room_idx;
 };
 
 struct SlabsConfig {

@@ -168,17 +168,57 @@ enum KeyCodes {
         KC_WAKE        = 0xE3,    // System Wake
     // Add mouse buttons counting backwards from 0xFE
     // This allows them to be used as a bindable "key" by adding them to key_to_string_init[] [mouse buttons as keybinds - quick fix]
-        KC_MOUSE9          = 0xF4,    // Mouse button #9 (not yet supported by KFX)
-        KC_MOUSE8          = 0xF5,    // Mouse button #8 (not yet supported by KFX)
-        KC_MOUSE7          = 0xF6,    // Mouse button #7 (not yet supported by KFX)
-        KC_MOUSE6          = 0xF7,    // Mouse button #6 (not yet supported by KFX)
-        KC_MOUSE5          = 0xF8,    // Mouse button #5 (not yet supported by KFX)
-        KC_MOUSE4          = 0xF9,    // Mouse button #4 (not yet supported by KFX)
+        KC_MOUSE9          = 0xF4,    // Mouse button #9
+        KC_MOUSE8          = 0xF5,    // Mouse button #8
+        KC_MOUSE7          = 0xF6,    // Mouse button #7
+        KC_MOUSE6          = 0xF7,    // Mouse button #6
+        KC_MOUSE5          = 0xF8,    // Mouse button #5
+        KC_MOUSE4          = 0xF9,    // Mouse button #4
         KC_MOUSE3          = 0xFA,    // Middle Mouse button
         KC_MOUSE2          = 0xFB,    // Right Mouse button (don't use for binding, there will likely be conflicts)
         KC_MOUSE1          = 0xFC,    // Left Mouse button (don't use for binding, there will likely be conflicts)
         KC_MOUSEWHEEL_DOWN = 0xFD,    // Mouse Wheel Scroll down
         KC_MOUSEWHEEL_UP   = 0xFE,    // Mouse Wheel Scroll up
+        KC_GAMEPAD_A       = 0xFF,
+        KC_GAMEPAD_B       = 0x100,
+        KC_GAMEPAD_X       = 0x101,
+        KC_GAMEPAD_Y       = 0x102,
+        KC_GAMEPAD_BACK    = 0x103,
+        KC_GAMEPAD_GUIDE   = 0x104,
+        KC_GAMEPAD_START   = 0x105,
+        KC_GAMEPAD_LEFTSTICK  = 0x106,
+        KC_GAMEPAD_RIGHTSTICK = 0x107,
+        KC_GAMEPAD_LEFTSHOULDER  = 0x108,
+        KC_GAMEPAD_RIGHTSHOULDER = 0x109,
+        KC_GAMEPAD_DPAD_UP    = 0x10A,
+        KC_GAMEPAD_DPAD_DOWN  = 0x10B,
+        KC_GAMEPAD_DPAD_LEFT  = 0x10C,
+        KC_GAMEPAD_DPAD_RIGHT = 0x10D,
+        KC_JOYSTICK_BUTTON1    = 0x10E,
+        KC_JOYSTICK_BUTTON2    = 0x10F,
+        KC_JOYSTICK_BUTTON3    = 0x110,
+        KC_JOYSTICK_BUTTON4    = 0x111,
+        KC_JOYSTICK_BUTTON5    = 0x112,
+        KC_JOYSTICK_BUTTON6    = 0x113,
+        KC_JOYSTICK_BUTTON7    = 0x114,
+        KC_JOYSTICK_BUTTON8    = 0x115,
+        KC_JOYSTICK_BUTTON9    = 0x116,
+        KC_JOYSTICK_BUTTON10   = 0x117,
+        KC_JOYSTICK_BUTTON11   = 0x118,
+        KC_JOYSTICK_BUTTON12   = 0x119,
+        KC_JOYSTICK_BUTTON13   = 0x11A,
+        KC_JOYSTICK_BUTTON14   = 0x11B,
+        KC_JOYSTICK_BUTTON15   = 0x11C,
+        KC_JOYSTICK_BUTTON16   = 0x11D,
+        KC_JOYSTICK_BUTTON17   = 0x11E,
+        KC_JOYSTICK_BUTTON18   = 0x11F,
+        KC_JOYSTICK_BUTTON19   = 0x120,
+        KC_JOYSTICK_BUTTON20   = 0x121,
+
+
+
+        KC_LIST_END,
+
 };
 
 enum KeyAction {
@@ -198,7 +238,7 @@ enum KeyModifiers {
 /******************************************************************************/
 #pragma pack(1)
 
-typedef unsigned char TbKeyCode;
+typedef uint16_t TbKeyCode;
 typedef short TbKeyMods;
 
 #pragma pack()
@@ -207,8 +247,8 @@ typedef short TbKeyMods;
 extern const char AsciiToInkey[];
 extern char lbInkeyToAscii[];
 extern char lbInkeyToAsciiShift[];
-extern unsigned char lbKeyOn[256];
-extern unsigned char lbInkey;
+extern unsigned char lbKeyOn[KC_LIST_END];
+extern TbKeyCode lbInkey;
 
 /******************************************************************************/
 short LbIKeyboardOpen(void);

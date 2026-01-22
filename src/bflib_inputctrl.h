@@ -42,6 +42,10 @@ enum MouseGrabEvents {
 extern volatile int lbUserQuit;
 extern volatile TbBool lbMouseGrab;
 extern volatile TbBool lbMouseGrabbed;
+extern volatile TbBool lbAppActive;
+
+extern float movement_accum_x;
+extern float movement_accum_y;
 /******************************************************************************/
 TbBool LbWindowsControl(void);
 TbBool LbIsActive(void);
@@ -49,6 +53,7 @@ TbBool LbIsMouseActive(void);
 void LbGrabMouseCheck(long grab_event);
 void LbGrabMouseInit(void);
 void LbSetMouseGrab(TbBool grab_mouse);
+void controller_rumble(long ms);
 /******************************************************************************/
 #ifdef __cplusplus
 }
