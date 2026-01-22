@@ -1061,8 +1061,8 @@ msgid ""
 "If lands had legs, this one would be on its knees. Its desperate inhabitants are preparing a full scale attack on "
 "your dungeon. It will be an ideal opportunity to practise unspeakable evil on a massive scale. Go for it, master."
 msgstr ""
-"Если бы y стран были ноги, эта встала бы на колени. Её отчаявшиеся жители готовят полномасштабное наступление на "
-"Ваше подземелье. Это прекрасная возможность для применения чудовищного оружия массового злодейства. Дерзайте, "
+"Будь у стран ноги, эта бы уже стояла на коленях. Её жалкие жители готовят полномасштабное наступление на "
+"Ваше подземелье. Прекрасный шанс потренироваться в неописуемом зле на широких массах. Дерзайте, "
 "Повелитель."
 
 #. Level Woodly Rhyme information
