@@ -3327,6 +3327,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
 {
     SYNCDBG(18, "Starting");
     TRACE_THING(creatng);
+    force_any_creature_dragging_thing_to_drop_it(creatng);
     cleanup_creature_state_and_interactions(creatng);
     if (!thing_is_invalid(killertng))
     {

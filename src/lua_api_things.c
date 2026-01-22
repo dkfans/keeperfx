@@ -481,7 +481,7 @@ static int thing_get_field(lua_State *L) {
         } else if (strcmp(key, "party_target_player") == 0) {
             lua_pushPlayer(L, cctrl->party.target_plyr_idx);
         } else if (strcmp(key, "conscious_back_turns") == 0) {
-            lua_pushPlayer(L, cctrl->conscious_back_turns);
+            lua_pushinteger(L, cctrl->conscious_back_turns);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }
