@@ -197,13 +197,14 @@ TbBool open_lua_script(LevelNumber lvnum)
     short fgroup = get_level_fgroup(lvnum);
     fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
 	// Load and parse the Lua File
-    if (LbFileExists(fname))
-    {
-        if (!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname), "level_script_loading"))
-        {
-            ERRORLOG("failed to load lua level script");
-        }
-    }
+    if ( !LbFileExists(fname) )
+      return false;
+
+    if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"level_script_loading"))
+	{
+        ERRORLOG("failed to load lua script");
+        return false;
+	}
 
     return true;
 }
