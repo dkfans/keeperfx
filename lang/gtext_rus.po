@@ -5648,7 +5648,7 @@ msgid ""
 "The Lord of the Land is a pathetic individual who breeds fluffy bunnies. Pound him into the ground and then "
 "destroy the rival Keeper to achieve total domination."
 msgstr ""
-"Лорд этой страны - никчемный человечек, который разводит пушистых кроликов. Повергните его во прах, а потом "
+"Лорд этой страны - никчемный человечек, который разводит пушистых зайчишек. Повергните его во прах, а потом "
 "уничтожьте Хранителя-конкурента и станьте безраздельным властелином этих земель."
 
 #. DD Level Kanasko first objective
