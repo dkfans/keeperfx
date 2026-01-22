@@ -44,6 +44,7 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_input.h"
+#include "frontmenu_net.h"
 #include "gui_parchment.h"
 #include "gui_frontmenu.h"
 #include "gui_msgs.h"
@@ -3509,6 +3510,10 @@ extern "C" void network_yield_draw_frontend()
     }
     if (frontend_menu_state == FeSt_TORTURE) {
         fronttorture_update();
+    }
+    if (frontend_menu_state == FeSt_NET_START) {
+        LbWindowsControl();
+        frontnet_start_input();
     }
     frontend_draw();
     LbScreenSwap();
