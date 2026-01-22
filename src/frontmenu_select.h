@@ -38,6 +38,9 @@ extern struct GuiMenu frontend_select_level_menu;
 extern struct GuiMenu frontend_select_campaign_menu;
 #define frontend_select_mappack_items_max_visible  7
 extern struct GuiMenu frontend_select_mappack_menu;
+#define frontend_select_mp_mappack_items_max_visible  7
+extern struct GuiMenu frontend_select_mp_mappack_menu;
+
 /******************************************************************************/
 // Level list selection screen
 void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn);
@@ -75,11 +78,26 @@ void frontend_mappack_select_up_maintain(struct GuiButton *gbtn);
 void frontend_mappack_select_down_maintain(struct GuiButton *gbtn);
 void frontend_mappack_select_maintain(struct GuiButton *gbtn);
 void frontend_draw_mappack_select_button(struct GuiButton *gbtn);
+void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn);
 void frontend_mappack_select(struct GuiButton *gbtn);
 void frontend_mappack_select_update(void);
 void frontend_draw_mappack_scroll_tab(struct GuiButton *gbtn);
 void frontend_mappack_list_load(void);
 void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn);
+
+// Multiplayer Map pack selection screen
+void frontend_mp_mappack_select_up(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_down(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_scroll(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_up_maintain(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_down_maintain(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_maintain(struct GuiButton *gbtn);
+void frontend_mp_draw_mappack_select_button(struct GuiButton *gbtn);
+void frontend_mp_mappack_select(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_update(void);
+void frontend_mp_draw_mappack_scroll_tab(struct GuiButton *gbtn);
+void frontend_mp_mappack_list_load(void);
+void frontend_mp_draw_variable_mappack_exit_button(struct GuiButton *gbtn);
 /******************************************************************************/
 #ifdef __cplusplus
 }
