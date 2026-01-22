@@ -569,9 +569,15 @@ void process_chat_message_end(int player_id, const char *message)
     if (message[0] != '\0') {
         memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
         memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
-        lua_on_chatmsg(player_id, player->mp_message_text);
-        if (message[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || (game.system_flags & GSF_NetworkActive) != 0) {
-            message_add(MsgType_Player, player_id, player->mp_message_text);
+        if (frontend_menu_state == FeSt_NET_START) {
+            if (!try_starting_level_from_chat(player->mp_message_text, player_id)) {
+                add_message(player_id, player->mp_message_text);
+            }
+        } else {
+            lua_on_chatmsg(player_id, player->mp_message_text);
+            if (message[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || (game.system_flags & GSF_NetworkActive) != 0) {
+                message_add(MsgType_Player, player_id, player->mp_message_text);
+            }
         }
     }
     memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
@@ -1730,7 +1736,7 @@ void process_packets(void)
     SYNCDBG(7,"Finished");
 }
 
-static TbBool try_starting_level_from_chat(char* message, long player_id)
+TbBool try_starting_level_from_chat(char* message, long player_id)
 {
     char *separator_pos = strchr(message, ':');
     if (!separator_pos) {
@@ -1766,21 +1772,6 @@ static TbBool try_starting_level_from_chat(char* message, long player_id)
     set_selected_level_number(level_num);
     frontend_set_state(FeSt_START_MPLEVEL);
     return true;
-}
-
-static void handle_chat_message(char* message, long player_id, TbBool clear_text, char* text_to_clear)
-{
-    if (try_starting_level_from_chat(message, player_id)) {
-        if (clear_text) {
-            text_to_clear[0] = '\0';
-        }
-        return;
-    }
-
-    add_message(player_id, message);
-    if (clear_text) {
-        text_to_clear[0] = '\0';
-    }
 }
 
 void process_frontend_packets(void)
@@ -1846,12 +1837,8 @@ void process_frontend_packets(void)
     struct PlayerInfo* player = get_player(i);
     if ((nspckt->networkstatus_flags & 0x01) != 0)
     {
-        long k;
         switch (nspckt->networkstatus_flags >> 3)
         {
-        case 2:
-            handle_chat_message((char*)&nspckt->param1, i, false, NULL);
-            break;
         case 3:
             if (!validate_versions())
             {
@@ -1874,48 +1861,9 @@ void process_frontend_packets(void)
         case 7:
             fe_computer_players = nspckt->param1;
             break;
-        case 8:
-        {
-            k = strlen(player->mp_message_text);
-            unsigned short c;
-            if (nspckt->param1 == KC_BACK)
-            {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            else if (nspckt->param1 == KC_RETURN)
-            {
-                if (k > 0)
-                {
-                    handle_chat_message(player->mp_message_text, i, true, player->mp_message_text);
-                }
-            }
-            else
-            {
-                c = key_to_ascii(nspckt->param1, nspckt->param2);
-                if ((c != 0) && (frontend_font_char_width(1, c) > 1) && (k < 62))
-                {
-                    player->mp_message_text[k] = c;
-                    k++;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            if (frontend_font_string_width(1, player->mp_message_text) >= 420)
-            {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
+        default:
             break;
         }
-      default:
-        break;
-      }
       if (frontend_alliances == -1)
       {
         if (nspckt->frontend_alliances != -1)
@@ -1923,7 +1871,7 @@ void process_frontend_packets(void)
       }
       if (fe_computer_players == 2)
       {
-        k = ((nspckt->networkstatus_flags & 0x06) >> 1);
+        long k = ((nspckt->networkstatus_flags & 0x06) >> 1);
         if (k != 2)
           fe_computer_players = k;
       }
