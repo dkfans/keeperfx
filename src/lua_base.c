@@ -178,7 +178,6 @@ TbBool open_lua_script(LevelNumber lvnum)
         ERRORLOG("file %s missing",fname);
         return false;
     }
-
 	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"global_lua_file"))
 	{
         ERRORLOG("failed to load global lua script");
@@ -186,21 +185,27 @@ TbBool open_lua_script(LevelNumber lvnum)
         return false;
 	}
 
+    fname = prepare_file_fmtpath(FGrp_CmpgConfig, "lua/init.lua");
+    if (LbFileExists(fname))
+    {
+        if (!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname), "campaign_lua_file"))
+        {
+            ERRORLOG("failed to load campaign lua script");
+        }
+    }
+
     short fgroup = get_level_fgroup(lvnum);
     fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
-
 	// Load and parse the Lua File
-    if ( !LbFileExists(fname) )
-      return false;
-
-    if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"level_script_loading"))
-	{
-        ERRORLOG("failed to load lua script");
-        return false;
-	}
+    if (LbFileExists(fname))
+    {
+        if (!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname), "level_script_loading"))
+        {
+            ERRORLOG("failed to load lua level script");
+        }
+    }
 
     return true;
-
 }
 
 
