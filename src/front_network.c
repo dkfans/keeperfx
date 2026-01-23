@@ -30,6 +30,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
+#include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
 #include "gui_draw.h"
@@ -38,6 +39,7 @@
 #include "frontend.h"
 #include "player_data.h"
 #include "net_game.h"
+#include "net_matchmaking.h"
 #include "packets.h"
 #include "config.h"
 #include "config_strings.h"
@@ -235,6 +237,12 @@ void frontnet_session_update(void)
 {
     static long last_enum_players = 0;
     static long last_enum_sessions = 0;
+    static TbClockMSec last_matchmaking_fetch = 0;
+
+    if (lbAppActive && LbTimerClock() >= last_matchmaking_fetch + 5000) {
+        LbNetwork_FetchMatchmakingLobbies();
+        last_matchmaking_fetch = LbTimerClock();
+    }
 
     if (LbTimerClock() >= last_enum_sessions)
     {
@@ -388,6 +396,7 @@ void handle_autostart_multiplayer_messaging(void)
 void frontnet_start_update(void)
 {
     static TbClockMSec player_last_time = 0;
+    static TbClockMSec matchmaking_last_ping = 0;
     SYNCDBG(18,"Starting");
     if (LbTimerClock() >= player_last_time+200)
     {
@@ -399,6 +408,12 @@ void frontnet_start_update(void)
         return;
       }
       player_last_time = LbTimerClock();
+    }
+
+    if (matchmaking_is_registered() && LbTimerClock() >= matchmaking_last_ping + 30000)
+    {
+        matchmaking_ping_lobby();
+        matchmaking_last_ping = LbTimerClock();
     }
 
     handle_autostart_multiplayer_messaging();
@@ -486,6 +501,7 @@ void frontnet_session_setup(void)
     fe_computer_players = 2;
     lbInkey = 0;
     net_session_index_active_id = -1;
+    LbNetwork_FetchMatchmakingLobbies();
 }
 
 void frontnet_start_setup(void)

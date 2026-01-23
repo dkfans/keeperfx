@@ -105,6 +105,7 @@ obj/bflib_datetm.o \
 obj/bflib_dernc.o \
 obj/bflib_enet.o \
 obj/net_portforward.o \
+obj/net_matchmaking.o \
 obj/bflib_fileio.o \
 obj/bflib_filelst.o \
 obj/bflib_fmvids.o \
@@ -374,7 +375,7 @@ LINKLIB = -mwindows \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
 	deps/luajit/lib/libluajit.a \
-	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
+	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid -lwinhttp
 INCS = \
 	-I"deps/zlib/include" \
 	-I"deps/spng/include" \
