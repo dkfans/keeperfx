@@ -28,6 +28,7 @@
 #include "globals.h"
 #include "frontend.h"
 #include "net_game.h"
+#include "net_matchmaking.h"
 #include "front_landview.h"
 #include "front_network.h"
 #include "net_received_packets.h"
@@ -79,6 +80,13 @@ void SendUserUpdate(NetUserId dest, NetUserId updated_user) {
 
 void LbNetwork_SetServerPort(int port) {
     ServerPort = port;
+}
+
+int LbNetwork_GetServerPort(void) {
+    if (ServerPort != 0) {
+        return ServerPort;
+    }
+    return 5556;
 }
 
 static void AddSessionSegment(const char* start, const char* end) {
@@ -136,7 +144,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    const char *port = ":5555";
+    const char *port = ":5556";
     char buf[16] = "";
     if (ServerPort != 0) {
         snprintf(buf, sizeof(buf), "%d", ServerPort);
@@ -189,6 +197,7 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow) {
 }
 
 TbError LbNetwork_Stop(void) {
+    matchmaking_unregister_lobby();
     if (netstate.sp) {
         netstate.sp->exit();
     }
@@ -269,6 +278,31 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr) {
         callback((TbNetworkCallbackData *) &sessions[i], ptr);
     }
     return Lb_OK;
+}
+
+void LbNetwork_FetchMatchmakingLobbies(void) {
+    memset(sessions, 0, sizeof(sessions));
+    struct MatchmakingLobby lobbies[MATCHMAKING_MAX_LOBBIES];
+    int count = matchmaking_list_lobbies(lobbies, MATCHMAKING_MAX_LOBBIES);
+    unsigned slot = 0;
+    for (int i = 0; i < count && slot < SESSION_COUNT; i++) {
+        while (slot < SESSION_COUNT && sessions[slot].in_use) {
+            slot++;
+        }
+        if (slot >= SESSION_COUNT) {
+            break;
+        }
+        sessions[slot].in_use = 1;
+        sessions[slot].joinable = 1;
+        if (lobbies[i].ip[0] == '\0') {
+            snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s", lobbies[i].name);
+        } else if (lobbies[i].port != 0 && lobbies[i].port != 5556) {
+            snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s:%u", lobbies[i].ip, lobbies[i].port);
+        } else {
+            snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s", lobbies[i].ip);
+        }
+        slot++;
+    }
 }
 
 /******************************************************************************/
