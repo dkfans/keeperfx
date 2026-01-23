@@ -3783,6 +3783,9 @@ static TbBool wait_at_frontend(void)
     frontend_set_state(get_startup_menu_state());
     try_restore_frontend_error_box();
 
+    LbWindowsControl();
+    clear_mouse_pressed_lrbutton();
+
     short finish_menu = 0;
     clear_flag(game.mode_flags, MFlg_DemoMode);
     // TODO move to separate function
