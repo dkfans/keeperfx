@@ -95,6 +95,20 @@ function TriggerAddCondition(trigger, condition)
     table.insert(trigger.conditions, condition)
 end
 
+--- Removes a trigger from the game's trigger table
+--- @param trigger Trigger The trigger to remove
+--- @return boolean Returns true if the trigger was found and removed, false otherwise
+function RemoveTrigger(trigger)
+    Game.triggers = Game.triggers or {}
+    for i = #Game.triggers, 1, -1 do
+        if Game.triggers[i] == trigger then
+            table.remove(Game.triggers, i)
+            return true
+        end
+    end
+    return false
+end
+
 ---@param func function|string
 local function pfunc(func,eventData,triggerData)
     if type(func) == "function" then

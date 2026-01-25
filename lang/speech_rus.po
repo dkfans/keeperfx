@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2026-01-05 01:55+0000\n"
+"PO-Revision-Date: 2026-01-22 08:27+0100\n"
 "Last-Translator: \n"
 "Language-Team: KeeperFX Team\n"
 "Language: ru\n"
@@ -102,7 +102,7 @@ msgstr "Ваши создания нападают на врага!"
 #: speech:15
 msgctxt "In-game mentor"
 msgid "The enemy is destroying your rooms!"
-msgstr "Враг разрушает Ваши помещения!"
+msgstr "Враг громит Ваши помещения!"
 
 #: speech:16
 msgctxt "In-game mentor"
@@ -187,7 +187,7 @@ msgstr "Вам нужен более величественный храм."
 #: speech:32
 msgctxt "In-game mentor"
 msgid "Your Graveyard is not big enough."
-msgstr "Кладбище требует расширения."
+msgstr "На кладбище нужно больше мест."
 
 #: speech:33
 msgctxt "In-game mentor"
@@ -232,7 +232,7 @@ msgstr "Вы должны построить логово для своих со
 #: speech:41
 msgctxt "In-game mentor"
 msgid "You should build a Hatchery, to feed your minions."
-msgstr "Вы должны построить питомник, чтобы Вашим созданиям было чем питаться."
+msgstr "Вы должны построить питомник, чтобы у Ваших прислужников была еда."
 
 #: speech:42
 msgctxt "In-game mentor"
@@ -337,7 +337,7 @@ msgstr "Ваше создание растлевают!"
 #: speech:62
 msgctxt "In-game mentor"
 msgid "One of your minions has been scavenged!"
-msgstr "Вашего прислужника растлевают!"
+msgstr "Вашего прислужника растлили!"
 
 #: speech:63
 msgctxt "In-game mentor"
@@ -465,8 +465,7 @@ msgctxt "In-game mentor"
 msgid ""
 "You have found a hidden realm. Go there when you've conquered this land."
 msgstr ""
-"Вы обнаружили тайное королевство. Отправляйтесь туда, когда покорите эти "
-"земли."
+"Вы обнаружили тайный мир. Отправляйтесь туда, когда покорите эти земли."
 
 #: speech:86
 msgctxt "In-game mentor"
@@ -481,7 +480,7 @@ msgstr "У Вас не хватает золота."
 #: speech:88
 msgctxt "In-game mentor"
 msgid "You are too poor to scavenge creatures."
-msgstr "Вы слишком бедны, чтобы кого-либо растлить."
+msgstr "Вы слишком бедны, чтобы кого-то растлить."
 
 #: speech:89
 msgctxt "In-game mentor"
@@ -576,7 +575,7 @@ msgstr "Вы завоевали это королевство!"
 #: speech:107
 msgctxt "In-game mentor"
 msgid "Master, I sense the presence of the Avatar!"
-msgstr "Повелитель! Я ощущаю присутствие Аватара!"
+msgstr "Повелитель! Я чую присутствие Аватара!"
 
 #: speech:108
 msgctxt "In-game mentor"
@@ -605,7 +604,7 @@ msgstr "Мое подземелье лучшее, что тебе доведет
 #: speech:112
 msgctxt "Enemy Keeper Harassment"
 msgid "My minions will leave your dungeon a crumbling ruin!"
-msgstr "Мои прислужники не оставят камня на камне от твоего подземелья!"
+msgstr "Мои прислужники не оставят от твоего подземелья и камня на камне!"
 
 #: speech:113
 msgctxt "Enemy Keeper Harassment"
@@ -630,7 +629,7 @@ msgstr "Жалкое создание! Я сокрушу тебя прямо с�
 #: speech:117
 msgctxt "Enemy Keeper Harassment"
 msgid "Pah ha ha ha ha ha!"
-msgstr "Ха-ха-ха-ха!"
+msgstr "Мва-ха-ха-ха-ха!"
 
 #: speech:118
 msgctxt "Hero Talk Upon Entering"
@@ -645,7 +644,7 @@ msgstr "Мы идем избавить мир от твоего зла!"
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall send you back to the pits, foul one!"
-msgstr "Мы отправим тебя обратно в ту дыру, из которой ты вылез, презренный!"
+msgstr "Мы отправим тебя обратно в ту дыру, из которой ты вылез, поганый!"
 
 #: speech:121
 msgctxt "Hero Talk Upon Entering"
