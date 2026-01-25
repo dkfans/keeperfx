@@ -30,6 +30,7 @@ src/bflib_datetm.cpp \
 src/bflib_dernc.c \
 src/bflib_enet.cpp \
 src/net_portforward.cpp \
+src/net_matchmaking.c \
 src/bflib_fileio.c \
 src/bflib_filelst.c \
 src/bflib_fmvids.cpp \
@@ -297,6 +298,7 @@ KFX_LDFLAGS += \
 	$(shell pkg-config --libs-only-l spng) \
 	$(shell pkg-config --libs-only-l minizip) \
 	$(shell pkg-config --libs-only-l zlib) \
+	$(shell pkg-config --libs-only-l libcurl) \
 	-lminiupnpc \
 	-lnatpmp
 
