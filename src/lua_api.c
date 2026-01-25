@@ -1051,7 +1051,7 @@ static int lua_Set_hand_rule(lua_State *L)
     long crtr_id = luaL_checkNamedCommand(L,2,creature_desc);
     long rule_slot = luaL_checkinteger(L, 3);
     long rule_action = luaL_checkNamedCommand(L,4,rule_action_desc);
-    long rule = luaL_checkNamedCommand(L,4,rule_action_desc);
+    long rule = luaL_checkNamedCommand(L,4,hand_rule_desc);
     long param = luaL_checkinteger(L, 5);
 
     script_set_hand_rule(player_idx, crtr_id, rule_action, rule_slot, rule, param);
