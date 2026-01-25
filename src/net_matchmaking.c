@@ -105,7 +105,7 @@ static int http_request(const char *method, const char *path, const char *body) 
 static CURL *curl_handle = NULL;
 static size_t curl_response_pos = 0;
 
-static size_t curl_write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
+static size_t matchmaking_write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realsize = size * nmemb;
     if (curl_response_pos + realsize >= MATCHMAKING_RESPONSE_BUFFER_SIZE - 1) {
         realsize = MATCHMAKING_RESPONSE_BUFFER_SIZE - 1 - curl_response_pos;
@@ -130,7 +130,7 @@ static int http_request(const char *method, const char *path, const char *body) 
     snprintf(url, sizeof(url), "%s%s", MATCHMAKING_SERVER_URL, path);
     curl_easy_reset(curl_handle);
     curl_easy_setopt(curl_handle, CURLOPT_URL, url);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, curl_write_callback);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, matchmaking_write_callback);
     curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT_MS, (long)MATCHMAKING_HTTP_TIMEOUT_MS);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "KeeperFX/1.0");
     if (strcmp(method, "POST") == 0) {
