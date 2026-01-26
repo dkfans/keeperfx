@@ -97,7 +97,10 @@ static int lua_creature_walk_to(lua_State *L)
 
     CrtrStateId crstate = get_creature_state_besides_move(thing);
     lua_pushboolean(L, setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default));
-    thing->continue_state = crstate;
+    if (crstate != 0)
+    {
+        thing->continue_state = crstate;
+    }
     return 1;
 }
 
