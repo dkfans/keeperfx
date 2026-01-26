@@ -27,6 +27,9 @@
 #include "config.h"
 #include "thing_doors.h"
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -49,6 +52,7 @@ const struct ConfigFileData keeper_lenses_file_data = {
 static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static int64_t value_overlay(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
 const struct NamedField lenses_data_named_fields[] = {
     //name           //pos    //field                                           //default //min     //max    //NamedCommand
@@ -60,6 +64,8 @@ const struct NamedField lenses_data_named_fields[] = {
     {"DISPLACEMENT",      1, field(lenses_conf.lenses[0].displace_magnitude),       0,        0,      511, NULL,         value_default,   assign_default},
     {"DISPLACEMENT",      2, field(lenses_conf.lenses[0].displace_period),          1,        0,      511, NULL,         value_displace,  assign_default},
     {"PALETTE",           0, field(lenses_conf.lenses[0].palette),                  0,        0,        0, NULL,         value_pallete,   assign_null},
+    {"OVERLAY",           0, field(lenses_conf.lenses[0].overlay_file),             0,        0,        0, NULL,         value_overlay,   assign_null},
+    {"OVERLAY",           1, field(lenses_conf.lenses[0].overlay_alpha),          128,        0,      255, NULL,         value_default,   assign_default},
     {NULL},
 };
 
@@ -107,9 +113,53 @@ static int64_t value_pallete(const struct NamedField* named_field, const char* v
     return 0;
 }
 
+static int64_t value_overlay(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    if (value_text == NULL || value_text[0] == '\0') {
+        CONFWRNLOG("Empty filename for \"%s\" parameter in [%s%d] block of lens.cfg file.",
+            named_field->name, named_fields_set->block_basename, idx);
+        return 0;
+    }
+    
+    lenses_conf.lenses[idx].flags |= LCF_HasOverlay;
+    struct LensConfig* lenscfg = &lenses_conf.lenses[idx];
+    
+    // Store the filename
+    strncpy(lenscfg->overlay_file, value_text, DISKPATH_SIZE - 1);
+    lenscfg->overlay_file[DISKPATH_SIZE - 1] = '\0';
+    
+    // Try to extract mod directory from src_str (full config file path)
+    // src_str format for mods: "<keeper_dir>/mods/<mod_name>/fxdata/lenses.cfg"
+    // We want to extract "mods/<mod_name>"
+    lenscfg->overlay_mod_dir[0] = '\0';  // Default: no mod directory
+    if (src_str != NULL) {
+        const char* mods_pos = strstr(src_str, "mods/");
+        if (mods_pos != NULL) {
+            // Find the end of the mod name (before next '/')
+            const char* mod_start = mods_pos;
+            const char* next_slash = strchr(mods_pos + 5, '/');  // +5 to skip "mods/"
+            if (next_slash != NULL) {
+                size_t len = next_slash - mod_start;
+                if (len < DISKPATH_SIZE) {
+                    strncpy(lenscfg->overlay_mod_dir, mod_start, len);
+                    lenscfg->overlay_mod_dir[len] = '\0';
+                    SYNCDBG(9, "Detected mod directory for overlay: %s", lenscfg->overlay_mod_dir);
+                }
+            }
+        }
+    }
+    
+    // Initialize overlay data pointer to NULL - will be loaded during setup
+    lenscfg->overlay_data = NULL;
+    lenscfg->overlay_width = 0;
+    lenscfg->overlay_height = 0;
+    
+    return 0;
+}
+
 static TbBool load_lenses_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
+    SYNCLOG("%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {

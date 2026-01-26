@@ -20,10 +20,14 @@
 #include "lens_api.h"
 
 #include <math.h>
+#include <string.h>
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include "config_lenses.h"
 #include "lens_mist.h"
@@ -40,6 +44,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+#define RAW_OVERLAY_SIZE 256  // RAW overlay files are 256x256 pixels (matching mist texture format)
+
 uint32_t *eye_lens_memory;
 TbPixel *eye_lens_spare_screen_memory;
 /******************************************************************************/
@@ -145,6 +151,142 @@ void init_lens(uint32_t *lens_mem, int width, int height, int pitch, int nlens, 
     }
 }
 
+static TbBool load_overlay_image(struct LensConfig* lenscfg)
+{
+    if (lenscfg->overlay_data != NULL) {
+        // Already loaded
+        return true;
+    }
+    
+    // Validate overlay filename
+    if (lenscfg->overlay_file[0] == '\0') {
+        WARNLOG("Empty overlay filename");
+        return false;
+    }
+    
+    // Detect file format from extension
+    const char* ext = strrchr(lenscfg->overlay_file, '.');
+    TbBool is_raw = (ext != NULL && strcasecmp(ext, ".raw") == 0);
+    
+    char* fname = NULL;
+    
+    if (is_raw) {
+        // RAW format: 256x256 8-bit indexed palette data
+        // Try loading from mod directory first (if specified), then fall back to base game
+        SYNCLOG("Loading RAW overlay: file='%s', mod_dir='%s'", lenscfg->overlay_file, lenscfg->overlay_mod_dir);
+        if (lenscfg->overlay_mod_dir[0] != '\0') {
+            fname = prepare_file_path_mod(lenscfg->overlay_mod_dir, FGrp_StdData, lenscfg->overlay_file);
+            SYNCLOG("Trying mod path: %s", fname);
+            if (fname[0] != '\0' && LbFileExists(fname)) {
+                SYNCLOG("Found RAW overlay in mod: %s", fname);
+            } else {
+                SYNCLOG("Not found in mod directory");
+                fname = NULL;
+            }
+        }
+        
+        // Fall back to base game data directory
+        if (fname == NULL || fname[0] == '\0') {
+            fname = prepare_file_path(FGrp_StdData, lenscfg->overlay_file);
+            SYNCLOG("Trying base game path: %s", fname);
+        }
+        
+        // Load RAW file directly - expected to be 256x256 pixels
+        const size_t raw_size = (size_t)RAW_OVERLAY_SIZE * RAW_OVERLAY_SIZE;
+        lenscfg->overlay_data = (unsigned char*)malloc(raw_size);
+        if (lenscfg->overlay_data == NULL) {
+            ERRORLOG("Failed to allocate memory for RAW overlay image");
+            return false;
+        }
+        
+        long loaded = LbFileLoadAt(fname, lenscfg->overlay_data);
+        if (loaded != (long)raw_size) {
+            WARNLOG("Failed to load RAW overlay \"%s\" (expected %lu bytes, got %ld)", lenscfg->overlay_file, (unsigned long)raw_size, loaded);
+            free(lenscfg->overlay_data);
+            lenscfg->overlay_data = NULL;
+            return false;
+        }
+        
+        lenscfg->overlay_width = RAW_OVERLAY_SIZE;
+        lenscfg->overlay_height = RAW_OVERLAY_SIZE;
+        SYNCDBG(7, "Loaded RAW overlay image \"%s\" (%dx%d)", lenscfg->overlay_file, RAW_OVERLAY_SIZE, RAW_OVERLAY_SIZE);
+        return true;
+    }
+    
+    // PNG/BMP format: Use SDL_image
+    SDL_Surface* surface = NULL;
+    
+    // First try: mod directory (if overlay_mod_dir is set)
+    if (lenscfg->overlay_mod_dir[0] != '\0') {
+        fname = prepare_file_path_mod(lenscfg->overlay_mod_dir, FGrp_StdData, lenscfg->overlay_file);
+        if (fname[0] != '\0' && LbFileExists(fname)) {
+            surface = IMG_Load(fname);
+            if (surface != NULL) {
+                SYNCDBG(8, "Loaded overlay from mod: %s", fname);
+            }
+        }
+    }
+    
+    // Second try: base game data directory
+    if (surface == NULL) {
+        fname = prepare_file_path(FGrp_StdData, lenscfg->overlay_file);
+        surface = IMG_Load(fname);
+        if (surface != NULL) {
+            SYNCDBG(8, "Loaded overlay from base game: %s", fname);
+        }
+    }
+    
+    if (surface == NULL) {
+        WARNLOG("Failed to load overlay image \"%s\": %s", lenscfg->overlay_file, IMG_GetError());
+        return false;
+    }
+    
+    // Validate dimensions to prevent integer overflow
+    if (surface->w <= 0 || surface->h <= 0 || surface->w > 16384 || surface->h > 16384) {
+        WARNLOG("Invalid overlay image dimensions (%dx%d) in \"%s\"", surface->w, surface->h, lenscfg->overlay_file);
+        SDL_FreeSurface(surface);
+        return false;
+    }
+    
+    // Convert to 8-bit indexed format matching game palette
+    SDL_Surface* converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_INDEX8, 0);
+    if (converted == NULL) {
+        WARNLOG("Failed to convert overlay image \"%s\" to indexed format: %s", lenscfg->overlay_file, SDL_GetError());
+        SDL_FreeSurface(surface);
+        return false;
+    }
+    
+    // Store the image data - size is safe due to dimension validation above
+    size_t size = (size_t)converted->w * converted->h;
+    lenscfg->overlay_data = (unsigned char*)malloc(size);
+    if (lenscfg->overlay_data == NULL) {
+        ERRORLOG("Failed to allocate memory for overlay image");
+        SDL_FreeSurface(converted);
+        SDL_FreeSurface(surface);
+        return false;
+    }
+    
+    memcpy(lenscfg->overlay_data, converted->pixels, size);
+    lenscfg->overlay_width = converted->w;
+    lenscfg->overlay_height = converted->h;
+    
+    SDL_FreeSurface(converted);
+    SDL_FreeSurface(surface);
+    
+    SYNCDBG(7, "Loaded overlay image \"%s\" (%dx%d)", lenscfg->overlay_file, lenscfg->overlay_width, lenscfg->overlay_height);
+    return true;
+}
+
+static void free_overlay_image(struct LensConfig* lenscfg)
+{
+    if (lenscfg->overlay_data != NULL) {
+        free(lenscfg->overlay_data);
+        lenscfg->overlay_data = NULL;
+        lenscfg->overlay_width = 0;
+        lenscfg->overlay_height = 0;
+    }
+}
+
 TbBool clear_lens_palette(void)
 {
     SYNCDBG(7,"Staring");
@@ -175,6 +317,11 @@ void reset_eye_lenses(void)
     SYNCDBG(7,"Starting");
     free_mist();
     clear_lens_palette();
+    // Free any loaded overlay images
+    for (size_t i = 0; i < (size_t)lenses_conf.lenses_count; i++)
+    {
+        free_overlay_image(&lenses_conf.lenses[i]);
+    }
     if (eye_lens_memory != NULL)
     {
         free(eye_lens_memory);
@@ -276,6 +423,15 @@ void setup_eye_lens(long nlens)
         SYNCDBG(9,"Palette config entered");
         set_lens_palette(lenscfg->palette);
     }
+    if ((lenscfg->flags & LCF_HasOverlay) != 0)
+    {
+        SYNCLOG("Overlay config entered for lens %ld, file='%s', mod_dir='%s'", nlens, lenscfg->overlay_file, lenscfg->overlay_mod_dir);
+        if (!load_overlay_image(lenscfg)) {
+            WARNLOG("Failed to load overlay for lens %ld", nlens);
+        } else {
+            SYNCLOG("Successfully loaded overlay %dx%d", lenscfg->overlay_width, lenscfg->overlay_height);
+        }
+    }
     game.applied_lens_type = nlens;
     game.active_lens_type = nlens;
 }
@@ -320,6 +476,52 @@ void draw_copy(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long
     }
 }
 
+static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long height, struct LensConfig* lenscfg)
+{
+    if (lenscfg->overlay_data == NULL) {
+        WARNLOG("Overlay data is NULL, cannot draw");
+        return;
+    }
+    
+    // Validate dimensions
+    if (width <= 0 || height <= 0 || lenscfg->overlay_width <= 0 || lenscfg->overlay_height <= 0) {
+        WARNLOG("Invalid dimensions for overlay rendering: screen=%ldx%ld, overlay=%dx%d", width, height, lenscfg->overlay_width, lenscfg->overlay_height);
+        return;
+    }
+    
+    SYNCLOG("Drawing overlay: screen=%ldx%ld, overlay=%dx%d, alpha=%d", width, height, lenscfg->overlay_width, lenscfg->overlay_height, lenscfg->overlay_alpha);
+    
+    // Calculate scale factors to stretch/fit overlay to fill entire viewport
+    float scale_x = (float)lenscfg->overlay_width / width;
+    float scale_y = (float)lenscfg->overlay_height / height;
+    
+    // Draw the overlay - palette index 0 is transparent, all others are solid
+    unsigned char* dst = dstbuf;
+    for (long y = 0; y < height; y++)
+    {
+        int src_y = (int)(y * scale_y);
+        if (src_y >= lenscfg->overlay_height) src_y = lenscfg->overlay_height - 1;
+        
+        unsigned char* src_row = lenscfg->overlay_data + (src_y * lenscfg->overlay_width);
+        
+        for (long x = 0; x < width; x++)
+        {
+            int src_x = (int)(x * scale_x);
+            if (src_x >= lenscfg->overlay_width) src_x = lenscfg->overlay_width - 1;
+            
+            unsigned char overlay_pixel = src_row[src_x];
+            
+            // Color 0 (black) is treated as transparent - skip it completely
+            // All other pixels are drawn at full opacity (no dithering)
+            if (overlay_pixel != 0)
+            {
+                dst[x] = overlay_pixel;
+            }
+        }
+        dst += dstpitch;
+    }
+}
+
 void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long effect)
 {
     long copied = 0;
@@ -354,6 +556,19 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
     if ((lenscfg->flags & LCF_HasPalette) != 0)
     {
         // Nothing to do - palette is just set and don't have to be drawn
+    }
+    // Draw overlay effect if present
+    if ((lenscfg->flags & LCF_HasOverlay) != 0)
+    {
+        // First, copy the source buffer to destination if not already done
+        if (!copied)
+        {
+            draw_copy(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
+        }
+        // Now draw the overlay on top of the game scene
+        SYNCLOG("Calling draw_overlay (flags=%d, data=%p)", lenscfg->flags, lenscfg->overlay_data);
+        draw_overlay(dstbuf, dstpitch, width, height, lenscfg);
+        copied = true;
     }
     // If we haven't copied the buffer to screen yet, do so now
     if (!copied)
