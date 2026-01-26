@@ -94,6 +94,16 @@ unsigned char base_pal[PALETTE_SIZE];
 
 int total_sprite_zip_count = 0;
 
+// Indicates what custom assets to load
+enum CustomLoadFlags {
+    /// @brief Custom sprites
+    CLF_Sprites = 0x1,
+    /// @brief Custom icons
+    CLF_Icons = 0x2,
+    /// @brief Lens overlays
+    CLF_LensOverlays = 0x4
+};
+
 static unsigned char big_scratch_data[1024*1024*16] = {0};
 unsigned char *big_scratch = big_scratch_data;
 
@@ -216,22 +226,22 @@ static int load_file_sprites(const char *path, const char *file_desc)
     int add_flag = 0;
     if (add_custom_sprite(path))
     {
-        add_flag |= 0x1;
+        add_flag |= CLF_Sprites;
     }
 
     if (add_custom_json(path, "icons.json", &process_icon))
     {
-        add_flag |= 0x2;
+        add_flag |= CLF_Icons;
     }
 
     if (add_custom_json(path, "lenses.json", &process_lens_overlay))
     {
-        add_flag |= 0x4;
+        add_flag |= CLF_LensOverlays;
     }
 
     if (file_desc != NULL)
     {
-        if (add_flag & 0x1)
+        if (add_flag & CLF_Sprites)
         {
             JUSTLOG("Loaded per-map sprites from %s", file_desc);
         }
@@ -240,7 +250,7 @@ static int load_file_sprites(const char *path, const char *file_desc)
             SYNCDBG(0, "Unable to load per-map sprites from %s", file_desc);
         }
 
-        if (add_flag & 0x2)
+        if (add_flag & CLF_Icons)
         {
             JUSTLOG("Loaded per-map icons from %s", file_desc);
         }
@@ -249,7 +259,7 @@ static int load_file_sprites(const char *path, const char *file_desc)
             SYNCDBG(0, "Unable to load per-map icons from %s", file_desc);
         }
 
-        if (add_flag & 0x4)
+        if (add_flag & CLF_LensOverlays)
         {
             JUSTLOG("Loaded lens overlays from %s", file_desc);
         }
@@ -277,9 +287,9 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
         do {
             sprintf(full_path, "%s/%s", dir_path, fe.Filename);
             int add_flag = load_file_sprites(full_path, NULL);
-            if (add_flag & 0x1)
+            if (add_flag & CLF_Sprites)
                 cnt_sprite++;
-            if (add_flag & 0x2)
+            if (add_flag & CLF_Icons)
                 cnt_icon++;
             cnt_zip++;
         } while (LbFileFindNext(ff, &fe) >= 0);
