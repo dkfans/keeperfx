@@ -85,6 +85,11 @@ static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
 static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
 static int num_added_icons = 0;
+
+#define MAX_LENS_OVERLAYS 64
+static struct LensOverlayData added_lens_overlays[MAX_LENS_OVERLAYS];
+static int num_added_lens_overlays = 0;
+
 unsigned char base_pal[PALETTE_SIZE];
 
 int total_sprite_zip_count = 0;
@@ -98,6 +103,8 @@ static TbBool add_custom_sprite(const char *path);
 
 static TbBool
 add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root));
+
+static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root);
 
 static TbBool process_icon(const char *path, unzFile zip, VALUE *root);
 
@@ -217,6 +224,11 @@ static int load_file_sprites(const char *path, const char *file_desc)
         add_flag |= 0x2;
     }
 
+    if (add_custom_json(path, "lenses.json", &process_lens_overlay))
+    {
+        add_flag |= 0x4;
+    }
+
     if (file_desc != NULL)
     {
         if (add_flag & 0x1)
@@ -235,6 +247,15 @@ static int load_file_sprites(const char *path, const char *file_desc)
         else
         {
             SYNCDBG(0, "Unable to load per-map icons from %s", file_desc);
+        }
+
+        if (add_flag & 0x4)
+        {
+            JUSTLOG("Loaded lens overlays from %s", file_desc);
+        }
+        else
+        {
+            SYNCDBG(0, "Unable to load lens overlays from %s", file_desc);
         }
         total_sprite_zip_count++;
     }
@@ -1331,6 +1352,298 @@ end:
     return 0;
 }
 
+static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx, VALUE *root)
+{
+    VALUE *val;
+
+    val = value_dict_get(root, "name");
+    if (val == NULL)
+    {
+        WARNLOG("Invalid lens overlay %s/lenses.json[%d]: no \"name\" key", path, idx);
+        return 0;
+    }
+    const char *name = value_string(val);
+    SYNCDBG(2, "found lens overlay: '%s/%s'", path, name);
+
+    VALUE *file_value = value_dict_get(root, "file");
+    if (file_value == NULL)
+    {
+        WARNLOG("Invalid lens overlay %s/lenses.json[%d]: no \"file\" key", path, idx);
+        return 0;
+    }
+
+    const char *file = NULL;
+    if (value_type(file_value) == VALUE_STRING)
+    {
+        file = value_string(file_value);
+    }
+    else if (value_type(file_value) == VALUE_ARRAY && value_array_size(file_value) > 0)
+    {
+        file = value_string(value_array_get(file_value, 0));
+    }
+    else
+    {
+        WARNLOG("Invalid lens overlay %s/lenses.json[%d]: invalid \"file\" value", path, idx);
+        return 0;
+    }
+
+    if (fastUnzLocateFile(zip, file, 0))
+    {
+        WARNLOG("File '%s' not found in '%s'", file, path);
+        return 0;
+    }
+
+    unz_file_info64 zip_info = {0};
+    if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0))
+    {
+        WARNLOG("Failed to get file info for '%s' in '%s'", file, path);
+        return 0;
+    }
+
+    if (UNZ_OK != unzOpenCurrentFile(zip))
+    {
+        return 0;
+    }
+
+    // Check if this is a RAW file (256x256 = 65536 bytes)
+    const size_t raw_size = 256 * 256;
+    const char *ext = strrchr(file, '.');
+    TbBool is_raw = (zip_info.uncompressed_size == raw_size) && ext && (strcasecmp(ext, ".raw") == 0);
+
+    if (is_raw && zip_info.uncompressed_size == raw_size)
+    {
+        // Load RAW format directly (256x256 8-bit indexed palette data)
+        unsigned char *indexed_data = malloc(raw_size);
+        if (indexed_data == NULL)
+        {
+            ERRORLOG("Failed to allocate memory for RAW overlay");
+            unzCloseCurrentFile(zip);
+            return 0;
+        }
+
+        if (unzReadCurrentFile(zip, indexed_data, raw_size) != raw_size)
+        {
+            WARNLOG("Failed to read RAW file '%s' from '%s'", file, path);
+            free(indexed_data);
+            unzCloseCurrentFile(zip);
+            return 0;
+        }
+
+        unzCloseCurrentFile(zip);
+
+        // Check if overlay with this name already exists
+        struct LensOverlayData *existing = NULL;
+        for (int i = 0; i < num_added_lens_overlays; i++)
+        {
+            if (strcasecmp(added_lens_overlays[i].name, name) == 0)
+            {
+                existing = &added_lens_overlays[i];
+                break;
+            }
+        }
+
+        if (existing)
+        {
+            // Override existing overlay
+            free(existing->data);
+            existing->data = indexed_data;
+            existing->width = 256;
+            existing->height = 256;
+            JUSTLOG("Overriding lens overlay '%s/%s'", path, name);
+        }
+        else
+        {
+            // Add new overlay
+            if (num_added_lens_overlays >= MAX_LENS_OVERLAYS)
+            {
+                ERRORLOG("Too many lens overlays (max %d)", MAX_LENS_OVERLAYS);
+                free(indexed_data);
+                return 0;
+            }
+
+            added_lens_overlays[num_added_lens_overlays].name = strdup(name);
+            added_lens_overlays[num_added_lens_overlays].data = indexed_data;
+            added_lens_overlays[num_added_lens_overlays].width = 256;
+            added_lens_overlays[num_added_lens_overlays].height = 256;
+            num_added_lens_overlays++;
+            SYNCDBG(8, "Added RAW lens overlay '%s' (256x256)", name);
+        }
+
+        return 1;
+    }
+
+    // PNG format handling
+    if (zip_info.uncompressed_size > 1024 * 1024 * 4)
+    {
+        WARNLOG("Lens overlay file too large: '%s' in '%s'", file, path);
+        unzCloseCurrentFile(zip);
+        return 0;
+    }
+
+    unsigned char *png_buffer = malloc(zip_info.uncompressed_size);
+    if (png_buffer == NULL)
+    {
+        ERRORLOG("Failed to allocate memory for PNG buffer");
+        unzCloseCurrentFile(zip);
+        return 0;
+    }
+
+    if (unzReadCurrentFile(zip, png_buffer, zip_info.uncompressed_size) != zip_info.uncompressed_size)
+    {
+        WARNLOG("Failed to read '%s' from '%s'", file, path);
+        free(png_buffer);
+        unzCloseCurrentFile(zip);
+        return 0;
+    }
+
+    unzCloseCurrentFile(zip);
+
+    // Decode PNG using spng
+    spng_ctx *ctx = spng_ctx_new(0);
+    if (ctx == NULL)
+    {
+        ERRORLOG("Failed to create spng context");
+        free(png_buffer);
+        return 0;
+    }
+
+    spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
+    size_t limit = 1024 * 1024 * 4;
+    spng_set_chunk_limits(ctx, limit, limit);
+
+    if (spng_set_png_buffer(ctx, png_buffer, zip_info.uncompressed_size))
+    {
+        ERRORLOG("Failed to set PNG buffer for '%s'", file);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return 0;
+    }
+
+    struct spng_ihdr ihdr;
+    int r = spng_get_ihdr(ctx, &ihdr);
+    if (r)
+    {
+        ERRORLOG("spng_get_ihdr() error: %s for '%s'", spng_strerror(r), file);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return 0;
+    }
+
+    if (ihdr.width <= 0 || ihdr.height <= 0 || ihdr.width > 4096 || ihdr.height > 4096)
+    {
+        WARNLOG("Invalid lens overlay dimensions (%dx%d) in '%s'", ihdr.width, ihdr.height, file);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return 0;
+    }
+
+    // Decode to RGBA8
+    size_t out_size;
+    int fmt = SPNG_FMT_RGBA8;
+    if (spng_decoded_image_size(ctx, fmt, &out_size))
+    {
+        ERRORLOG("Failed to get decoded image size for '%s'", file);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return 0;
+    }
+
+    unsigned char *rgba_buffer = malloc(out_size);
+    if (rgba_buffer == NULL)
+    {
+        ERRORLOG("Failed to allocate memory for decoded image");
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return 0;
+    }
+
+    if (spng_decode_image(ctx, rgba_buffer, out_size, fmt, SPNG_DECODE_TRNS))
+    {
+        ERRORLOG("Failed to decode PNG '%s'", file);
+        free(rgba_buffer);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return 0;
+    }
+
+    spng_ctx_free(ctx);
+    free(png_buffer);
+
+    // Convert RGBA to indexed palette format
+    size_t indexed_size = ihdr.width * ihdr.height;
+    unsigned char *indexed_data = malloc(indexed_size);
+    if (indexed_data == NULL)
+    {
+        ERRORLOG("Failed to allocate memory for indexed image data");
+        free(rgba_buffer);
+        return 0;
+    }
+
+    // Convert RGBA to palette indices using rgb_to_pal_table
+    for (size_t i = 0; i < indexed_size; i++)
+    {
+        unsigned char red = rgba_buffer[i * 4 + 0];
+        unsigned char green = rgba_buffer[i * 4 + 1];
+        unsigned char blue = rgba_buffer[i * 4 + 2];
+        unsigned char alpha = rgba_buffer[i * 4 + 3];
+        
+        if (alpha < 128) {
+            // Transparent pixel - use color 0 (typically transparent/black)
+            indexed_data[i] = 0;
+        } else if (rgb_to_pal_table != NULL) {
+            // Use lookup table for color conversion
+            indexed_data[i] = rgb_to_pal_table[
+                ((red >> 2) << 12) | ((green >> 2) << 6) | (blue >> 2)
+            ];
+        } else {
+            // Fallback: simple grayscale conversion
+            indexed_data[i] = (red + green + blue) / 3;
+        }
+    }
+
+    free(rgba_buffer);
+
+    // Check if overlay with this name already exists
+    struct LensOverlayData *existing = NULL;
+    for (int i = 0; i < num_added_lens_overlays; i++)
+    {
+        if (strcasecmp(added_lens_overlays[i].name, name) == 0)
+        {
+            existing = &added_lens_overlays[i];
+            break;
+        }
+    }
+
+    if (existing)
+    {
+        // Override existing overlay
+        free(existing->data);
+        existing->data = indexed_data;
+        existing->width = ihdr.width;
+        existing->height = ihdr.height;
+        JUSTLOG("Overriding lens overlay '%s/%s'", path, name);
+    }
+    else
+    {
+        // Add new overlay
+        if (num_added_lens_overlays >= MAX_LENS_OVERLAYS)
+        {
+            ERRORLOG("Too many lens overlays (max %d)", MAX_LENS_OVERLAYS);
+            free(indexed_data);
+            return 0;
+        }
+        
+        added_lens_overlays[num_added_lens_overlays].name = strdup(name);
+        added_lens_overlays[num_added_lens_overlays].data = indexed_data;
+        added_lens_overlays[num_added_lens_overlays].width = ihdr.width;
+        added_lens_overlays[num_added_lens_overlays].height = ihdr.height;
+        num_added_lens_overlays++;
+        SYNCDBG(8, "Added PNG lens overlay '%s' (%dx%d)", name, ihdr.width, ihdr.height);
+    }
+
+    return 1;
+}
+
 static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE *root)
 {
     VALUE *val;
@@ -1422,6 +1735,21 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     }
 
     return 1;
+}
+
+static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root)
+{
+    TbBool ret_ok = true;
+    for (int i = 0; i < value_array_size(root); i++)
+    {
+        VALUE *val = value_array_get(root, i);
+        if (!process_lens_overlay_from_list(path, zip, i, val))
+        {
+            ret_ok = false;
+            continue;
+        }
+    }
+    return ret_ok;
 }
 
 static TbBool process_icon(const char *path, unzFile zip, VALUE *root)
@@ -1618,4 +1946,19 @@ int is_custom_icon(short icon_idx)
 {
     icon_idx -= GUI_PANEL_SPRITES_COUNT;
     return (icon_idx >= 0) && (icon_idx < num_sprites(custom_sprites));
+}
+
+const struct LensOverlayData* get_lens_overlay_data(const char *name)
+{
+    if (name == NULL || name[0] == '\0')
+        return NULL;
+
+    for (int i = 0; i < num_added_lens_overlays; i++)
+    {
+        if (strcasecmp(added_lens_overlays[i].name, name) == 0)
+        {
+            return &added_lens_overlays[i];
+        }
+    }
+    return NULL;
 }
