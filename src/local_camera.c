@@ -27,6 +27,7 @@
 #include "config_creature.h"
 #include "thing_creature.h"
 #include "game_legacy.h"
+#include "dungeon_data.h"
 #include "map_data.h"
 #include "bflib_math.h"
 #include "frontmenu_ingame_map.h"
@@ -46,6 +47,12 @@ float interpolated_cam_rotation_angle_x[4];
 float interpolated_cam_rotation_angle_y[4];
 float interpolated_cam_rotation_angle_z[4];
 float interpolated_camera_zoom[4];
+float previous_deviation_x;
+float previous_deviation_y;
+float destination_deviation_x;
+float destination_deviation_y;
+float interpolated_deviation_x;
+float interpolated_deviation_y;
 TbBool local_camera_ready;
 /******************************************************************************/
 
@@ -178,6 +185,20 @@ void update_local_first_person_camera(struct Thing *ctrltng)
     cam->rotation_angle_y = current_vertical;
 }
 
+void update_camera_deviations(int active_cam_idx)
+{
+    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
+    if (dungeon->camera_deviate_quake != 0) {
+        destination_deviation_x += UNSYNC_RANDOM(80) - 40;
+        destination_deviation_y += UNSYNC_RANDOM(80) - 40;
+    }
+    if (dungeon->camera_deviate_jump != 0) {
+        long angle = destination_local_cameras[active_cam_idx].rotation_angle_x;
+        destination_deviation_x += ( (dungeon->camera_deviate_jump * LbSinL(angle) >> 8) >> 8);
+        destination_deviation_y += (-(dungeon->camera_deviate_jump * LbCosL(angle) >> 8) >> 8);
+    }
+}
+
 void update_local_cameras(void)
 {
     if (!local_camera_ready) {
@@ -186,8 +207,12 @@ void update_local_cameras(void)
     for (int i = 0; i < 4; i++) {
         previous_local_cameras[i] = destination_local_cameras[i];
     }
+    previous_deviation_x = destination_deviation_x;
+    previous_deviation_y = destination_deviation_y;
     struct PlayerInfo* my_player = get_my_player();
     struct Thing *ctrltng = thing_get(my_player->controlled_thing_idx);
+    destination_deviation_x = 0;
+    destination_deviation_y = 0;
     TbBool in_first_person = ( (thing_exists(ctrltng)) && (my_player->view_mode == PVM_CreatureView) );
     if (in_first_person) {
         update_local_first_person_camera(ctrltng);
@@ -204,7 +229,37 @@ void update_local_cameras(void)
         
         // Send catchup packets if local camera has drifted too far from packet-based camera
         send_camera_catchup_packets(my_player);
+        update_camera_deviations(active_cam_idx);
     }
+}
+
+void interpolate_camera_deviations(void)
+{
+    struct PlayerInfo* my_player = get_my_player();
+    if (my_player->view_mode == PVM_CreatureView || my_player->view_mode == PVM_FrontView) {
+        return;
+    }
+    interpolated_deviation_x = interpolate(interpolated_deviation_x, previous_deviation_x, destination_deviation_x);
+    interpolated_deviation_y = interpolate(interpolated_deviation_y, previous_deviation_y, destination_deviation_y);
+    if (interpolated_deviation_x == 0 && interpolated_deviation_y == 0) {
+        return;
+    }
+    int active_cam_idx = (my_player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
+    struct Camera* cam = &local_cameras[active_cam_idx];
+    long x = cam->mappos.x.val + (long)interpolated_deviation_x;
+    long y = cam->mappos.y.val + (long)interpolated_deviation_y;
+    if (x < 0) {
+        x = 0;
+    } else if (x > (game.map_subtiles_x + 1) * COORD_PER_STL - 1) {
+        x = (game.map_subtiles_x + 1) * COORD_PER_STL - 1;
+    }
+    if (y < 0) {
+        y = 0;
+    } else if (y > (game.map_subtiles_y + 1) * COORD_PER_STL - 1) {
+        y = (game.map_subtiles_y + 1) * COORD_PER_STL - 1;
+    }
+    cam->mappos.x.val = x;
+    cam->mappos.y.val = y;
 }
 
 void interpolate_local_cameras(void)
@@ -231,6 +286,7 @@ void interpolate_local_cameras(void)
         out->rotation_angle_z = (int)interpolated_cam_rotation_angle_z[i] & ANGLE_MASK;
         out->zoom = (int)interpolated_camera_zoom[i];
     }
+    interpolate_camera_deviations();
 }
 
 void sync_local_camera(struct PlayerInfo *player)

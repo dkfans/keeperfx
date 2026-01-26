@@ -42,6 +42,8 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "bflib_enet.h"
+#include "bflib_network_exchange.h"
+#include "packets.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -119,29 +121,22 @@ void frontnet_start_game_maintain(struct GuiButton *gbtn)
 
 TbBool frontnet_start_input(void)
 {
-    if (lbInkey != KC_UNASSIGNED)
-    {
-        unsigned short asckey;
-        asckey = key_to_ascii(lbInkey, KMod_NONE);
-        if ((lbInkey == KC_BACK) || (lbInkey == KC_RETURN) || (frontend_font_char_width(1,asckey) > 0))
-        {
-            struct ScreenPacket *nspck;
-            nspck = &net_screen_packet[my_player_number];
-            if ((nspck->networkstatus_flags & 0xF8) == 0)
-            {
-                nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
-                nspck->param1 = lbInkey;
-                nspck->param2 = key_modifiers;
-                if (key_modifiers)
-                {
-                    lbInkey = KC_UNASSIGNED;
-                    return true;
-                }
-            }
-        }
-        lbInkey = KC_UNASSIGNED;
+    struct PlayerInfo *player = get_my_player();
+    if (lbInkey == KC_UNASSIGNED) {
+        return false;
     }
-    return false;
+    if (lbInkey == KC_RETURN) {
+        if (player->mp_message_text[0] != '\0') {
+            LbNetwork_SendChatMessageImmediate(my_player_number, player->mp_message_text);
+        }
+        process_chat_message_end(my_player_number, player->mp_message_text);
+    } else if (lbInkey == KC_ESCAPE) {
+        player->mp_message_text[0] = '\0';
+    } else if (lbInkey == KC_BACK || frontend_font_string_width(1, player->mp_message_text) < 420) {
+        message_text_key_add(player->mp_message_text, lbInkey, key_modifiers);
+    }
+    lbInkey = KC_UNASSIGNED;
+    return true;
 }
 
 void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn)
