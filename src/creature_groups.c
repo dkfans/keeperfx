@@ -264,6 +264,11 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
             WARNLOG("Group had only one member, %s index %d",thing_model_name(creatng),(int)creatng->index);
         }
         leadtng->alloc_flags &= ~TAlF_IsFollowingLeader;
+        CrtrStateId i = get_creature_state_besides_interruptions(leadtng);
+        if (i == CrSt_CreatureFollowLeader) 
+        {
+            set_start_state(leadtng);
+        }
         return false;
     }
     // If there is still more than one creature
