@@ -674,45 +674,6 @@ void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, l
     }
 }
 
-void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
-{
-    long x = player->acamera->mappos.x.val;
-    long y = player->acamera->mappos.y.val;
-    if (dungeon->camera_deviate_quake != 0)
-    {
-      x += UNSYNC_RANDOM(80) - 40;
-      y += UNSYNC_RANDOM(80) - 40;
-    }
-    if (dungeon->camera_deviate_jump != 0)
-    {
-      x += ( (dungeon->camera_deviate_jump * LbSinL(player->acamera->rotation_angle_x) >> 8) >> 8);
-      y += (-(dungeon->camera_deviate_jump * LbCosL(player->acamera->rotation_angle_x) >> 8) >> 8);
-    }
-    if ((dungeon->camera_deviate_quake != 0) || (dungeon->camera_deviate_jump != 0))
-    {
-      // bounding position
-      if (x < 0)
-      {
-        x = 0;
-      } else
-      if (x > (game.map_subtiles_x + 1) * COORD_PER_STL -1)
-      {
-        x = (game.map_subtiles_x + 1) * COORD_PER_STL -1;
-      }
-      if (y < 0)
-      {
-        y = 0;
-      } else
-      if (y > (game.map_subtiles_y + 1) * COORD_PER_STL -1)
-      {
-        y = (game.map_subtiles_y + 1) * COORD_PER_STL -1;
-      }
-      // setting deviated position
-      player->acamera->mappos.x.val = x;
-      player->acamera->mappos.y.val = y;
-    }
-}
-
 void redraw_isometric_view(void)
 {
     SYNCDBG(6,"Starting");
@@ -720,14 +681,9 @@ void redraw_isometric_view(void)
     struct PlayerInfo* player = get_my_player();
     if (player->acamera == NULL)
         return;
-    struct Coord3d pos;
-    memcpy(&pos, &player->acamera->mappos, sizeof(struct Coord3d));
     TbGraphicsWindow ewnd;
     memset(&ewnd, 0, sizeof(TbGraphicsWindow));
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     struct Camera* render_cam = get_local_camera(&player->cameras[CamIV_Isometric]);
-    // Camera position modifications
-    make_camera_deviations(player,dungeon);
     update_explored_flags_for_power_sight(player);
     engine(player,render_cam);
     if (smooth_on)
@@ -748,7 +704,6 @@ void redraw_isometric_view(void)
     gui_draw_all_boxes();
     draw_power_hand();
     draw_tooltip();
-    memcpy(&player->acamera->mappos,&pos,sizeof(struct Coord3d));
     SYNCDBG(8,"Finished");
 }
 
