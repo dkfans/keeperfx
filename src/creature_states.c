@@ -709,13 +709,16 @@ TbBool creature_can_be_set_unconscious(const struct Thing *creatng, const struct
     {
         return false;
     }
-    if (!player_has_room_of_role(killertng->owner, RoRoF_Prison))
+    if (THING_RANDOM(creatng, 100) >= game.conf.rules[creatng->owner].creature.stun_without_prison_chance)
     {
-        return false;
-    }
-    if (!player_creature_tends_to(killertng->owner, CrTend_Imprison))
-    {
-        return false;
+        if (!player_has_room_of_role(killertng->owner, RoRoF_Prison))
+        {
+            return false;
+        }
+        if (!player_creature_tends_to(killertng->owner, CrTend_Imprison))
+        {
+            return false;
+        }
     }
     if (flag_is_set(get_creature_model_flags(creatng), CMF_IsEvil) && (THING_RANDOM(creatng, 100) >= game.conf.rules[creatng->owner].creature.stun_enemy_chance_evil))
     {

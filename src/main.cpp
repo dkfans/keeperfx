@@ -44,6 +44,7 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_input.h"
+#include "frontmenu_net.h"
 #include "gui_parchment.h"
 #include "gui_frontmenu.h"
 #include "gui_msgs.h"
@@ -3510,6 +3511,10 @@ extern "C" void network_yield_draw_frontend()
     if (frontend_menu_state == FeSt_TORTURE) {
         fronttorture_update();
     }
+    if (frontend_menu_state == FeSt_NET_START) {
+        LbWindowsControl();
+        frontnet_start_input();
+    }
     frontend_draw();
     LbScreenSwap();
 }
@@ -3777,6 +3782,9 @@ static TbBool wait_at_frontend(void)
     LbPaletteSet(scratch);
     frontend_set_state(get_startup_menu_state());
     try_restore_frontend_error_box();
+
+    LbWindowsControl();
+    clear_mouse_pressed_lrbutton();
 
     short finish_menu = 0;
     clear_flag(game.mode_flags, MFlg_DemoMode);

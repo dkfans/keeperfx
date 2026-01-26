@@ -116,6 +116,19 @@ static int lua_kill_creature(lua_State *L)
     return 0;
 }
 
+static int lua_stun_creature(lua_State* L)
+{
+    struct Thing* thing = luaL_checkThing(L, 1);
+    make_creature_unconscious(thing);
+    if (!lua_isnone(L, 2))
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl->conscious_back_turns = luaL_checkinteger(L, 2);
+    }
+
+    return 0;
+}
+
 static int lua_Transfer_creature(lua_State *L)
 {
     struct Thing* thing = luaL_checkCreature(L, 1);
@@ -318,6 +331,9 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "force_health_flower_hidden") == 0)
         {
             cctrl->force_health_flower_hidden = lua_toboolean(L, 3);
+        } else if (strcmp(key, "conscious_back_turns") == 0)
+        {
+            cctrl->conscious_back_turns = luaL_checkinteger(L, 3);
         } else
         {
             return luaL_error(L, "Field '%s' is not writable on Creature thing", key);
@@ -464,6 +480,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.original_objective));
         } else if (strcmp(key, "party_target_player") == 0) {
             lua_pushPlayer(L, cctrl->party.target_plyr_idx);
+        } else if (strcmp(key, "conscious_back_turns") == 0) {
+            lua_pushinteger(L, cctrl->conscious_back_turns);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }
@@ -545,6 +563,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"make_thing_zombie", make_thing_zombie},
     {"walk_to",  lua_creature_walk_to},
     {"kill",    lua_kill_creature},
+    {"stun",    lua_stun_creature},
     {"delete",     lua_delete_thing},
     {"isValid",         lua_is_valid},
     
