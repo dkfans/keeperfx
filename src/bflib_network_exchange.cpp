@@ -344,6 +344,9 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
             if (remaining_time_until_draw < 0) {remaining_time_until_draw = 0;}
             int wait = min(timeout_max - elapsed, remaining_time_until_draw);
 
+            if (msg_type == NETMSG_FRONTEND && netstate.users[id].progress == USER_UNUSED) {
+                break;
+            }
             if (netstate.sp->msgready(id, wait)) {
                 ProcessMessage(id, server_buf, client_frame_size);
                 if (msg_type != NETMSG_GAMEPLAY) {
