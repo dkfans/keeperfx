@@ -1067,28 +1067,6 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     return dmg;
 }
 
-
-static const char *default_src_string(ThingClass class_id, const char *source_str)
-{
-    if ((source_str != NULL) && (source_str[0] != '\0'))
-    {
-        return source_str;
-    }
-    switch (class_id)
-    {
-    case TCls_Creature:
-        return "CREATURE";
-    case TCls_Trap:
-        return "TRAP";
-    case TCls_Object:
-        return "OBJECT";
-    case TCls_Door:
-        return "DOOR";
-    default:
-        return "UNKNOWN";
-    }
-}
-
 /**
  * Applies given damage points to a thing.
  * In case of targeting creature, uses its defense values to compute the actual damage.
@@ -1108,7 +1086,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
     if (thing->health < 0)
         return 0;
 
-    source_str = default_src_string(scrtng->class_id, source_str);
+    if (source_str == NULL || source_str[0] == '\0')
+        source_str = thing_class_code_name(thing->class_id);
     lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx, scrtng, source_str);
 
     HitPoints cdamage;
