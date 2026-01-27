@@ -1772,14 +1772,14 @@ TngUpdateRet update_object(struct Thing *thing)
         upcallback = object_update_functions[objst->updatefn_idx];
         if (upcallback != NULL)
         {
-            if (upcallback(thing) <= 0) {
+            if (upcallback(thing) < 0) {
                 return TUFRet_Deleted;
             }
         }
     }
     else if (objst->updatefn_idx < 0)
     {
-        if (luafunc_thing_update_func(objst->updatefn_idx, thing) <= 0) {
+        if (luafunc_thing_update_func(objst->updatefn_idx, thing) < 0) {
             return TUFRet_Deleted;
         }
     }
@@ -1793,7 +1793,7 @@ TngUpdateRet update_object(struct Thing *thing)
     if (stcallback != NULL)
     {
         SYNCDBG(18,"Updating state");
-        if (stcallback(thing) <= 0) {
+        if (stcallback(thing) < 0) {
             return TUFRet_Deleted;
         }
     }
