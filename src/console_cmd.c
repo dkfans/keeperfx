@@ -65,6 +65,7 @@
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
+#include "thing_creature.h"
 #include "version.h"
 #include "frontmenu_ingame_map.h"
 #include <string.h>

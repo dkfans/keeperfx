@@ -869,7 +869,7 @@ TbBool fill_spell_slot(struct Thing *thing, SpellKind spell_idx, GameTurnDelta s
     if (thing_exists(castertng))
         cspell->caster_thing_idx = castertng->index;
     else
-        cspell->caster_thing_idx = INVALID_THING;
+        cspell->caster_thing_idx = 0;
     return true;
 }
 
@@ -885,7 +885,7 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
     cspell->duration = 0;
     cspell->caster_level = 0;
     cspell->caster_owner = 0;
-    cspell->caster_thing_idx = INVALID_THING;
+    cspell->caster_thing_idx = 0;
     return true;
 }
 
@@ -1457,7 +1457,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, Crt
         if (thing_exists(castertng))
             cspell->caster_thing_idx = castertng->index;
         else
-            cspell->caster_thing_idx = INVALID_THING;
+            cspell->caster_thing_idx = 0;
         update_aura_effect_to_thing(thing, spell_idx);
     }
     return;

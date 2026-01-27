@@ -25,6 +25,7 @@
 #include "thing_effects.h"
 #include "magic_powers.h"
 
+#include "lua_api.h"
 #include "lua_base.h"
 #include "lua_params.h"
 

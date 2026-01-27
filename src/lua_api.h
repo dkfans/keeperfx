@@ -25,6 +25,7 @@ extern "C" {
 #endif
 
 void reg_host_functions(lua_State *L);
+void DamageSourceKind_register(lua_State *L);
 
 #ifdef __cplusplus
 }
