@@ -215,7 +215,7 @@ void process_disease(struct Thing *creatng)
                 && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
                 && (cctrl->disease_caster_plyridx != game.neutral_player_num))
                 { // Apply the spell kind stored in 'active_disease_spell'.
-                    apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->exp_level, creatng->owner, creatng, "POWER_DISEASE");
+                    apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->exp_level, creatng->owner, creatng, DSK_PowerDisease);
                     tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
                 }
                 // Per thing code ends.
@@ -231,7 +231,7 @@ void process_disease(struct Thing *creatng)
     }
     if (((game.play_gameturn - cctrl->disease_start_turn) % game.conf.rules[creatng->owner].magic.disease_lose_health_time) == 0)
     {
-        apply_damage_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].magic.disease_lose_percentage_health * cctrl->max_health / 100, cctrl->disease_caster_plyridx, INVALID_THING, "POWER_DISEASE");
+        apply_damage_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].magic.disease_lose_percentage_health * cctrl->max_health / 100, cctrl->disease_caster_plyridx, INVALID_THING, DSK_PowerDisease);
     }
 }
 
@@ -303,7 +303,7 @@ void update_god_lightning_ball(struct Thing *thing)
         if (!thing_exists(target))
             break;
         shotst = get_shot_model_stats(thing->model);
-        apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner, INVALID_THING, "POWER_LIGHTNING");
+        apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner, INVALID_THING, DSK_PowerLightning);
         if (target->health < 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(target);

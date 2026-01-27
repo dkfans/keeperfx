@@ -1417,7 +1417,7 @@ void update_aura_effect_to_thing(struct Thing *thing, SpellKind spell_idx)
     }
 }
 
-void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx, struct Thing *castertng, const char *source_str)
+void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx, struct Thing *castertng, DamageSourceKind source_kind)
 {
     if (spell_level > SPELL_MAX_LEVEL)
     {
@@ -1438,7 +1438,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     return;
 }
 
-void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx, int slot_idx, struct Thing *castertng, const char *source_str)
+void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx, int slot_idx, struct Thing *castertng, DamageSourceKind source_kind)
 {
     if (spell_level > SPELL_MAX_LEVEL)
     {
@@ -1463,7 +1463,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, Crt
     return;
 }
 
-void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx, struct Thing *castertng, const char *source_str)
+void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx, struct Thing *castertng, DamageSourceKind source_kind)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -1505,7 +1505,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
     // Check for damage/heal one-time effect.
     if ((spconf->damage != 0) && (spconf->damage_frequency == 0))
     {
-        process_thing_spell_damage_or_heal_effects(thing, spell_idx, spell_level, plyr_idx, castertng, source_str);
+        process_thing_spell_damage_or_heal_effects(thing, spell_idx, spell_level, plyr_idx, castertng, source_kind);
         if (spconf->spell_flags == 0
         && !spell_is_continuous(spell_idx, duration))
         {
@@ -1531,11 +1531,11 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
     {
         if (cctrl->casted_spells[i].spkind == spell_idx)
         {
-            reapply_spell_effect_to_thing(thing, spell_idx, spell_level, plyr_idx, i, castertng, source_str);
+            reapply_spell_effect_to_thing(thing, spell_idx, spell_level, plyr_idx, i, castertng, source_kind);
             return; // Exit the function, spell is already active.
         }
     }
-    first_apply_spell_effect_to_thing(thing, spell_idx, spell_level, plyr_idx, castertng, source_str);
+    first_apply_spell_effect_to_thing(thing, spell_idx, spell_level, plyr_idx, castertng, source_kind);
 }
 
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
@@ -1823,7 +1823,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     }
 }
 
-void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel caster_level, PlayerNumber caster_owner, struct Thing *caster_tng, const char *source_str)
+void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel caster_level, PlayerNumber caster_owner, struct Thing *caster_tng, DamageSourceKind source_kind)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
@@ -1862,7 +1862,7 @@ void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind s
     // Apply damage.
     if (damage >= 0)
     {
-        apply_damage_to_thing_and_display_health(thing, damage, caster_owner, caster_tng, source_str);
+        apply_damage_to_thing_and_display_health(thing, damage, caster_owner, caster_tng, source_kind);
     }
     else // Or heal if damage is negative.
     {
@@ -1904,7 +1904,7 @@ void process_thing_spell_effects(struct Thing *thing)
                 struct Thing* caster_tng = thing_get(cspell->caster_thing_idx);
                 if (!thing_exists(caster_tng))
                     caster_tng = INVALID_THING;
-                process_thing_spell_damage_or_heal_effects(thing, cspell->spkind, cspell->caster_level, cspell->caster_owner, caster_tng, "UNKNOWN_DOT");
+                process_thing_spell_damage_or_heal_effects(thing, cspell->spkind, cspell->caster_level, cspell->caster_owner, caster_tng, DSK_DOTSpell);
             }
         }
         // Process spell with teleport flag.
@@ -2237,7 +2237,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
         {
             thing_play_sample(castng, spconf->caster_affect_sound + SOUND_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
-        apply_spell_effect_to_thing(castng, spl_idx, cctrl->exp_level, castng->owner, castng, NULL);
+        apply_spell_effect_to_thing(castng, spl_idx, cctrl->exp_level, castng->owner, castng, DSK_NONE);
     }
     else if (spconf->shot_model > 0)
     {
@@ -6051,12 +6051,12 @@ void process_creature_leave_footsteps(struct Thing *thing)
  * @param dmg
  * @param inflicting_plyr_idx
  */
-HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, struct Thing *scrtng, const char *source_str)
+HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, struct Thing *scrtng, DamageSourceKind source_kind)
 {
     HitPoints cdamage;
     if (dmg > 0)
     {
-        cdamage = apply_damage_to_thing(thing, dmg, inflicting_plyr_idx, scrtng, source_str);
+        cdamage = apply_damage_to_thing(thing, dmg, inflicting_plyr_idx, scrtng, source_kind);
     } else {
         cdamage = 0;
     }
@@ -6106,7 +6106,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
         if (cube_is_lava(i))
         {
             struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-            apply_damage_to_thing_and_display_health(thing, crconf->hurt_by_lava, -1, INVALID_THING, "LAVA");
+            apply_damage_to_thing_and_display_health(thing, crconf->hurt_by_lava, -1, INVALID_THING, DSK_Lava);
             thing->movement_flags |= TMvF_IsOnLava;
         } else
         if (cube_is_water(i))
@@ -7704,7 +7704,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing
         {
             thing_play_sample(thing, spconf->caster_affect_sound + SOUND_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
-        apply_spell_effect_to_thing(thing, spkind, spell_level, plyr_idx, INVALID_THING, "SCRIPT_SPELL");
+        apply_spell_effect_to_thing(thing, spkind, spell_level, plyr_idx, INVALID_THING, DSK_ScriptSpell);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
             struct CreatureControl *cctrl;

@@ -1067,6 +1067,53 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     return dmg;
 }
 
+DamageSourceKind check_dmg_src_kind(struct Thing* scrtng, DamageSourceKind source_kind)
+{
+    if ((source_kind == DSK_NONE) && (scrtng != NULL && !thing_is_invalid(scrtng)))
+    {
+        switch(scrtng->class_id)
+        {
+        case TCls_Creature:
+            source_kind = DSK_Creature;
+            break;
+        case TCls_Trap:
+            source_kind = DSK_Trap;
+            break;
+        case TCls_Object:
+            source_kind = DSK_Object;
+            break;
+        case TCls_Door:
+            source_kind = DSK_Door;
+            break;
+        default:
+            source_kind = DSK_NONE;
+            break;
+        }
+    }
+    return source_kind;
+}
+
+const char *damage_source_kind_name(DamageSourceKind kind)
+{
+    switch (kind)
+    {
+    case DSK_Lava: return "LAVA";
+    case DSK_PowerSlap: return "POWER_SLAP";
+    case DSK_PowerDisease: return "POWER_DISEASE";
+    case DSK_PowerLightning: return "POWER_LIGHTNING";
+    case DSK_PhysicalForce: return "PHYSICAL_FORCE";
+    case DSK_CommandFreeze: return "COMMAND_FREEZE";
+    case DSK_CommandSlow: return "COMMAND_SLOW";
+    case DSK_ScriptSpell: return "SCRIPT_SPELL";
+    case DSK_DOTSpell: return "UNKNOWN_DOT";
+    case DSK_Creature: return "CREATURE";
+    case DSK_Trap: return "TRAP";
+    case DSK_Object: return "OBJECT";
+    case DSK_Door: return "DOOR";
+    default: return NULL;
+    }
+}
+
 /**
  * Applies given damage points to a thing.
  * In case of targeting creature, uses its defense values to compute the actual damage.
@@ -1076,7 +1123,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
  * @param inflicting_plyr_idx
  * @return Amount of damage really inflicted.
  */
-HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx, struct Thing* scrtng, const char *source_str)
+HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx, struct Thing* scrtng, DamageSourceKind source_kind)
 {
     // We're here to damage, not to heal.
     SYNCDBG(19, "Dealing %d damage to %s by player %d", (int)dmg, thing_model_name(thing), (int)dealing_plyr_idx);
@@ -1085,10 +1132,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
     // If it's already dead, then don't interfere.
     if (thing->health < 0)
         return 0;
-
-    if (source_str == NULL || source_str[0] == '\0')
-        source_str = thing_class_code_name(thing->class_id);
-    lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx, scrtng, source_str);
+    DamageSourceKind damagesource = check_dmg_src_kind(scrtng, source_kind);
+        lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx, scrtng, damagesource);
 
     HitPoints cdamage;
     switch (thing->class_id)

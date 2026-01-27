@@ -182,7 +182,7 @@ void lua_on_creature_rebirth(struct Thing* crtng)
 }
 
 
-void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx, struct Thing *tngsrc, const char *source_str)
+void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx, struct Thing *tngsrc, DamageSourceKind source_kind)
 {
 	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "OnApplyDamage");
@@ -192,6 +192,7 @@ void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumb
 		lua_pushinteger(Lvl_script, dmg);
 		lua_pushPlayer(Lvl_script, dealing_plyr_idx);
 		lua_pushThing(Lvl_script, tngsrc);
+		const char *source_str = damage_source_kind_name(source_kind);
 		if (source_str)
 			lua_pushstring(Lvl_script, source_str);
 		else

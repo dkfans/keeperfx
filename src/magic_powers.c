@@ -613,7 +613,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     if (crconf->slaps_to_kill > 0)
     {
         HitPoints slap_damage = calculate_correct_creature_max_health(thing) / crconf->slaps_to_kill;
-        apply_damage_to_thing_and_display_health(thing, slap_damage, player->id_number, INVALID_THING, "POWER_SLAP");
+        apply_damage_to_thing_and_display_health(thing, slap_damage, player->id_number, INVALID_THING, DSK_PowerSlap);
     }
     powerst = get_power_model_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
@@ -1386,7 +1386,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
         create_used_effect_or_element(&effpos, powerst->effect_id, thing->owner, 0);
     }
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, powerst->spell_idx, power_level, plyr_idx, INVALID_THING, NULL);
+    apply_spell_effect_to_thing(thing, powerst->spell_idx, power_level, plyr_idx, INVALID_THING, DSK_NONE);
     // Special cases.
     if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
     { // Set disease_caster_plyridx if spell_idx has 'CSAfF_Disease'.
