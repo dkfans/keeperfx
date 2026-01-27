@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "thing_stats.h"
 
 #ifdef __cplusplus
 extern "C" {
