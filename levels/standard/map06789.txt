@@ -1,0 +1,1296 @@
+REM Basics
+
+    LEVEL_VERSION(1)
+    SET_GENERATE_SPEED(400)
+    SET_MUSIC(4)
+    RUN_AFTER_VICTORY(1)
+
+REM Starting conditions
+
+    START_MONEY(PLAYER0,0)
+    START_MONEY(PLAYER3,9900000)
+
+    MAX_CREATURES(PLAYER0,25)
+    MAX_CREATURES(PLAYER3,30)
+
+REM Computer and player config
+
+    SET_PLAYER_COLOR(PLAYER0, RED)
+    SET_TEXTURE(PLAYER0, SKULL_RELIEF)
+
+    REM An extra roaming player with a few enemy creatures
+    COMPUTER_PLAYER(PLAYER2, ROAMING)
+    ALLY_PLAYERS(PLAYER2, PLAYER_GOOD, 3)
+
+    REM The enemy keeper, and a roaming copy with the same color
+    COMPUTER_PLAYER(PLAYER3, 9)
+    SET_PLAYER_COLOR(PLAYER6, YELLOW)
+    COMPUTER_PLAYER(PLAYER6, ROAMING)
+    ALLY_PLAYERS(PLAYER3, PLAYER6, 3)
+
+REM Creature pool
+
+    REM Both
+    ADD_CREATURE_TO_POOL(SORCEROR,10)
+    ADD_CREATURE_TO_POOL(TENTACLE,10)
+    ADD_CREATURE_TO_POOL(HELL_HOUND,10)
+    ADD_CREATURE_TO_POOL(SPIDER,10)
+    ADD_CREATURE_TO_POOL(TROLL,10)
+    ADD_CREATURE_TO_POOL(DEMONSPAWN,10)
+    ADD_CREATURE_TO_POOL(FLY,10)
+    ADD_CREATURE_TO_POOL(BUG,10)
+    ADD_CREATURE_TO_POOL(ORC,10)
+
+    REM Yellow only
+    ADD_CREATURE_TO_POOL(BILE_DEMON,5)
+    ADD_CREATURE_TO_POOL(DRAGON,5)
+
+    REM Only player
+    ADD_CREATURE_TO_POOL(DARK_MISTRESS,10)
+    ADD_CREATURE_TO_POOL(ARCHER,10)
+    ADD_CREATURE_TO_POOL(DWARFA,10)
+    ADD_CREATURE_TO_POOL(MAIDEN,5)
+
+REM Creature availability
+
+    REM Both
+    CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+    CREATURE_AVAILABLE(ALL_PLAYERS,TENTACLE,1,0)
+    CREATURE_AVAILABLE(ALL_PLAYERS,HELL_HOUND,1,0)
+    CREATURE_AVAILABLE(ALL_PLAYERS,SPIDER,1,0)
+    CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,0)
+    CREATURE_AVAILABLE(ALL_PLAYERS,DEMONSPAWN,1,0)
+    CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,0)
+    CREATURE_AVAILABLE(ALL_PLAYERS,BUG,1,0)
+    CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
+
+    REM Only for Yellow
+    CREATURE_AVAILABLE(PLAYER3,DRAGON,1,0)
+    CREATURE_AVAILABLE(PLAYER3,BILE_DEMON,1,0)
+
+    REM Only for player
+    CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
+    CREATURE_AVAILABLE(PLAYER0,ARCHER,1,0)
+    CREATURE_AVAILABLE(PLAYER0,DWARFA,1,0)
+    CREATURE_AVAILABLE(PLAYER0,MAIDEN,1,0)
+
+REM Rooms 
+
+    ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,BARRACKS,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
+
+REM Rooms that become available after claiming them
+
+    IF (PLAYER0, TORTURE > 0)
+        TUTORIAL_FLASH_BUTTON(17, 100)
+        ROOM_AVAILABLE(PLAYER0, TORTURE, 1, 1)
+    ENDIF
+
+    IF (PLAYER0, PRISON > 0)
+        TUTORIAL_FLASH_BUTTON(11, 100)
+        ROOM_AVAILABLE(PLAYER0, PRISON, 1, 1)
+    ENDIF
+
+    IF (PLAYER0, GRAVEYARD > 0)
+        TUTORIAL_FLASH_BUTTON(15, 100)
+        ROOM_AVAILABLE(PLAYER0, GRAVEYARD, 1, 1)
+    ENDIF
+
+    IF (PLAYER0, SCAVENGER > 0)
+        TUTORIAL_FLASH_BUTTON(14, 100)
+        ROOM_AVAILABLE(PLAYER0, SCAVENGER, 1, 1)
+    ENDIF
+
+    IF (PLAYER0, WORKSHOP > 0)
+        TUTORIAL_FLASH_BUTTON(13, 100)
+        ROOM_AVAILABLE(PLAYER0, WORKSHOP, 1, 1)
+    ENDIF
+
+    REM Temple logic
+    IF_SLAB_OWNER(42, 41, PLAYER0)
+        SET_FLAG(PLAYER0, FLAG3, 1)
+    ENDIF
+
+    IF_SLAB_OWNER(105, 18, PLAYER0)
+        SET_FLAG(PLAYER0, FLAG3, 1)
+    ENDIF
+
+    IF (PLAYER0, FLAG3 > 0)
+        TUTORIAL_FLASH_BUTTON(12, 100)
+        ROOM_AVAILABLE(PLAYER0, TEMPLE, 1, 1)
+    ENDIF
+
+REM Little note for invis
+
+    IF_AVAILABLE(PLAYER0, POWER_CONCEAL == 1)
+        TUTORIAL_FLASH_BUTTON(29, 100)
+        REM "With the amount of heroes controlling and guarding this realm, you may find sneaking into their territory effective."
+        DISPLAY_INFORMATION(1)
+    ENDIF
+
+REM Magic config
+
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT, 1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_OBEY,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HOLD_AUDIENCE,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CAVE_IN,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CHICKEN,1,0)
+
+REM Workshop Config
+
+    TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
+    TRAP_AVAILABLE(ALL_PLAYERS,LIGHTNING,1,0)
+    TRAP_AVAILABLE(ALL_PLAYERS,WORD_OF_POWER,1,0)
+
+    DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,3)
+    DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
+    DOOR_AVAILABLE(ALL_PLAYERS,MAGIC,1,0)
+
+REM Progression check
+
+    REM Whether the player has moved past the middle - ends left waves
+    SET_FLAG(PLAYER0, FLAG0, 0)
+
+REM Wincon
+
+    IF(PLAYER3, DUNGEON_DESTROYED == 1)
+        IF(PLAYER_GOOD, DUNGEON_DESTROYED == 1)
+            REM "It seems like you are well practiced in laying waste to realms like this. Expertly done, Keeper."
+            DISPLAY_OBJECTIVE(2)
+            WIN_GAME
+        ENDIF
+    ENDIF
+
+REM Events and timers
+
+    IF_ACTION_POINT(1, PLAYER0)
+        SET_TIMER(PLAYER0, TIMER0)
+    ENDIF
+
+    IF (PLAYER0, TIMER0 > 100)
+        ZOOM_TO_LOCATION(PLAYER0, 2)
+        REM "With your arachnid friends to support you, try recruiting these Mistresses for your cause. In this realm Mistresses can only learn abilities by finding shrines to bestow skills on them. Look around and enhance their skills to crush your rival Keeper and the Heroes in this realm."
+        DISPLAY_OBJECTIVE(3, 2)
+        REVEAL_MAP_LOCATION(PLAYER0, 2, -1)
+    ENDIF
+
+    IF(PLAYER0, DARK_MISTRESS > 0)
+        REM "These Mistresses know no combat abilities yet and cannot fight as they are now. They can only learn new skills by powering them up at the shrines in this realm. Find the first shrine to teach them deadly skills to crush your foes with."
+        DISPLAY_OBJECTIVE(4, 8)
+    ENDIF   
+
+REM Logic for the special boxes / shrines
+
+    REM Shrine 1
+
+        REM Make specials in shrine 1 accessible
+        IF_ACTION_POINT(7, PLAYER0)
+            QUICK_MESSAGE(4, "Choose your level 1 ability wisely...", DARK_MISTRESS)
+            REM "Bestow upon your Mistresses their ability they will learn at level 1. Every shrine will let you choose only 1 of 3 abilities to permanently power up your mistresses. There are many other shrines in this realm, seek them all out to become stronger. Here, pick between a regular melee slash, the scorching flame breath, or the ability to fire arrows at a distance."
+            DISPLAY_OBJECTIVE(6, 8)
+            CHANGE_SLAB_OWNER(85, 105, PLAYER0, MATCH)
+        ENDIF
+
+        REM "Learn Melee Slash"
+        SET_BOX_TOOLTIP_ID(1,7)
+        REM "Learn Flame Breath"
+        SET_BOX_TOOLTIP_ID(2,8)
+        REM "Learn Arrow"
+        SET_BOX_TOOLTIP_ID(3,9)
+        REM "Learn Dig"
+        SET_BOX_TOOLTIP_ID(4,10)
+
+        CREATE_PARTY(first_shrine)
+            ADD_TO_PARTY(first_shrine, THIEF, 1, 200, ATTACK_ENEMIES, 0)
+
+        IF (PLAYER0,BOX1_ACTIVATED > 0)
+
+            CHANGE_SLAB_TYPE(85,105,PATH, MATCH)
+            CHANGE_SLAB_OWNER(85,105, PLAYER_GOOD, MATCH)
+            CHANGE_SLAB_TYPE(85,105,LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 253, 316)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 256, 316)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 259, 316)
+
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 1,SWING_WEAPON_SWORD, 1)
+
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,MELEE)
+
+            QUICK_MESSAGE(7, "Learned Melee Slash!", DARK_MISTRESS)
+
+            SET_TIMER(PLAYER0, TIMER1)
+        ENDIF
+
+        IF (PLAYER0,BOX2_ACTIVATED > 0)
+
+            CHANGE_SLAB_TYPE(85,105,LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 253, 316)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 256, 316)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 259, 316)
+
+            REM This version of flame breath fixes an issue with the regular version of it
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 1, FLAME_BREATH_MISTRESS, 1)
+
+            QUICK_MESSAGE(8, "Learned Flame Breath!", DARK_MISTRESS)
+
+            REM Give preference for melee so the mistress actually makes use of flamethrower
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,MELEE)
+
+            SET_TIMER(PLAYER0, TIMER1)
+        ENDIF
+
+        IF (PLAYER0,BOX3_ACTIVATED > 0)
+
+            CHANGE_SLAB_TYPE(85,105,LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 253, 316)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 256, 316)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 259, 316)
+
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 1, FIRE_ARROW, 1)
+
+            QUICK_MESSAGE(9, "Learned Arrow!", DARK_MISTRESS)
+
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,RANGED)
+
+            REM Flag determines the mistress retaining ranged preference
+            SET_FLAG(PLAYER0, FLAG1, 1)
+
+            SET_TIMER(PLAYER0, TIMER1)
+        ENDIF
+
+    REM Unlock dig secret
+
+        IF (PLAYER0,BOX4_ACTIVATED > 0)
+            REM "What a fascinating find. In Possession, it seems your Mistresses can now dig as well!"
+            DISPLAY_INFORMATION(14)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 2, FIRST_PERSON_DIG, 1)
+            QUICK_MESSAGE(34, "Learned Dig!", DARK_MISTRESS)
+        ENDIF
+
+    REM Add parties
+
+        IF (PLAYER0, TIMER1 > 60)
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, first_shrine, -1, 4)
+        ENDIF
+
+        IF (PLAYER0, TIMER1 > 70)
+            HIDE_HERO_GATE(1, 1)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 256, 307)
+        ENDIF
+
+    REM Tunneller party after a little while
+
+        CREATE_PARTY(first_shrine_tunneller)
+            ADD_TO_PARTY(first_shrine_tunneller, THIEF, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller, THIEF, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller, ARCHER, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller, ARCHER, 2, 200, ATTACK_ENEMIES, 0)
+
+        CREATE_PARTY(first_shrine_tunneller_two)
+            ADD_TO_PARTY(first_shrine_tunneller_two, THIEF, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller_two, THIEF, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller_two, THIEF, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller_two, THIEF, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller_two, THIEF, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller_two, THIEF, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller_two, ARCHER, 2, 200, ATTACK_ENEMIES, 0)
+            ADD_TO_PARTY(first_shrine_tunneller_two, ARCHER, 2, 200, ATTACK_ENEMIES, 0)
+
+        CREATE_PARTY(first_shrine_thieves)
+            ADD_TO_PARTY(first_shrine_thieves, THIEF, 4, 200, STEAL_GOLD, 0)
+            ADD_TO_PARTY(first_shrine_thieves, THIEF, 4, 200, STEAL_SPELLS, 0)
+
+        CREATE_PARTY(first_shrine_invis)
+            ADD_TO_PARTY(first_shrine_invis, THIEF, 7, 200, STEAL_GOLD, 0)
+            ADD_TO_PARTY(first_shrine_invis, THIEF, 7, 200, STEAL_SPELLS, 0)
+
+        CREATE_PARTY(first_shrine_monkghost)
+            ADD_TO_PARTY(first_shrine_monkghost, MONK, 5, 200, ATTACK_DUNGEON_HEART, 0)
+            ADD_TO_PARTY(first_shrine_monkghost, GHOST, 5, 0, ATTACK_DUNGEON_HEART, 0)
+            ADD_TO_PARTY(first_shrine_monkghost, GHOST, 5, 0, ATTACK_DUNGEON_HEART, 0)
+            ADD_TO_PARTY(first_shrine_monkghost, GHOST, 5, 0, ATTACK_DUNGEON_HEART, 0)
+            ADD_TO_PARTY(first_shrine_monkghost, GHOST, 5, 0, ATTACK_DUNGEON_HEART, 0)
+            ADD_TO_PARTY(first_shrine_monkghost, GHOST, 5, 0, ATTACK_DUNGEON_HEART, 0)
+            ADD_TO_PARTY(first_shrine_monkghost, GHOST, 5, 0, ATTACK_DUNGEON_HEART, 0)
+
+        REM Only spawn enemies until the middle is discovered
+        IF (PLAYER0, FLAG0 == 0)
+
+            IF (PLAYER0, TIMER1 > 500)
+                REM "Now that you are armed with your Mistresses having learned their first ability, you have the strength needed to capture the Entrance."
+                DISPLAY_OBJECTIVE(16, 81)
+            ENDIF
+
+            IF (PLAYER0, TIMER1 > 2000)
+                ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD, first_shrine_tunneller, -2, DUNGEON_HEART, 0, 1, 100)
+                QUICK_MESSAGE(30, "Your presence is known to the heroes. Stay alert.", SPELL_FLIGHT)
+                TUTORIAL_FLASH_BUTTON(37, 100)
+            ENDIF
+
+            IF (PLAYER0, TIMER1 > 6000)
+                ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD, first_shrine_tunneller_two, -2, DUNGEON_HEART, 0, 1, 100)
+            ENDIF
+
+            IF (PLAYER0, TIMER1 > 12000)
+                ADD_PARTY_TO_LEVEL(PLAYER_GOOD, first_shrine_thieves, -2, 3)
+            ENDIF
+
+            IF (PLAYER0, TIMER1 > 18000)
+                ADD_PARTY_TO_LEVEL(PLAYER_GOOD, first_shrine_thieves, -2, 3)
+            ENDIF
+
+            IF (PLAYER0, TIMER1 > 24000)
+                ADD_PARTY_TO_LEVEL(PLAYER_GOOD, first_shrine_invis, -2, 3)
+            ENDIF
+
+            IF (PLAYER0, TIMER1 > 34000)
+                ADD_PARTY_TO_LEVEL(PLAYER_GOOD, first_shrine_monkghost, -2, 1)
+            ENDIF
+
+        ENDIF
+
+    REM Shrine 2
+
+        REM "Learn Gas Projectile"
+        SET_BOX_TOOLTIP_ID(21,18)
+        REM "Learn Heal"
+        SET_BOX_TOOLTIP_ID(22,19)
+        REM "Learn Slow"
+        SET_BOX_TOOLTIP_ID(23,20)
+
+        IF (PLAYER0,BOX21_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 3, POISON_CLOUD, 2)
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS, SpellImmunity, POISON_CLOUD, 1)
+
+            QUICK_MESSAGE(10, "Learned Gas Projectile and Immunity!", DARK_MISTRESS)
+
+            REM Effects and tile changes
+
+            CHANGE_SLAB_TYPE(13,110,LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 40, 331)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 43, 331)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 46, 331)
+
+        ENDIF
+
+        IF (PLAYER0,BOX22_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 3, HEAL, 2)
+            QUICK_MESSAGE(11, "Learned Heal!", DARK_MISTRESS)
+
+            REM Make the mistress more likely to heal
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS, HealRequirement, 200)
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS, HealThreshold, 200)
+
+            REM Effects and tile changes
+
+            CHANGE_SLAB_TYPE(13,110,LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 40, 331)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 43, 331)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 46, 331)
+        ENDIF
+
+        IF (PLAYER0,BOX23_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 3, SLOW, 2)
+            QUICK_MESSAGE(12, "Learned Slow!", DARK_MISTRESS)
+
+            REM Effects and tile changes
+
+            CHANGE_SLAB_TYPE(13,110,LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 40, 331)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 43, 331)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 46, 331)
+        ENDIF
+
+        REM Make specials in shrine 2 accessible
+        IF_ACTION_POINT(25, PLAYER0)
+            QUICK_MESSAGE(32, "Choose your level 2 ability wisely...", DARK_MISTRESS)
+            CHANGE_SLAB_OWNER(13, 110, PLAYER0, MATCH)
+        ENDIF
+
+    REM Shrine 4
+
+        REM "Learn Freeze"
+        SET_BOX_TOOLTIP_ID(31,25)
+        REM "Learn Health Drain"
+        SET_BOX_TOOLTIP_ID(32,26)
+        REM "Learn Armour"
+        SET_BOX_TOOLTIP_ID(33,27)
+
+        IF (PLAYER0,BOX31_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 4, FREEZE, 4)
+            QUICK_MESSAGE(13, "Learned Freeze!", DARK_MISTRESS)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(11, 61, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 34, 184)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 37, 184)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 40, 184)
+        ENDIF
+
+        IF (PLAYER0,BOX32_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 4, DRAIN, 4)
+            QUICK_MESSAGE(14, "Learned Health Drain!", DARK_MISTRESS)
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,RANGED)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(11, 61, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 34, 184)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 37, 184)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 40, 184)
+        ENDIF
+
+        IF (PLAYER0,BOX33_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 4, ARMOUR, 4)
+            QUICK_MESSAGE(15, "Learned Armour!", DARK_MISTRESS)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(11, 61, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 34, 184)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 37, 184)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 40, 184)
+        ENDIF
+
+        REM Make specials in shrine 4 accessible
+        IF_ACTION_POINT(51, PLAYER0)
+            QUICK_MESSAGE(36, "Choose your level 4 ability wisely...", DARK_MISTRESS)
+            CHANGE_SLAB_OWNER(11, 61, PLAYER0, MATCH)
+        ENDIF
+
+    REM Shrine 6
+
+        REM "Learn Speed"
+        SET_BOX_TOOLTIP_ID(41,32)
+        REM "Learn Rebound Projectiles"
+        SET_BOX_TOOLTIP_ID(42,33)
+        REM "Learn Lightning"
+        SET_BOX_TOOLTIP_ID(43,34)
+
+        IF (PLAYER0,BOX41_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 6, SPEED, 6)
+            QUICK_MESSAGE(16, "Learned Speed!", DARK_MISTRESS)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(110, 54, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 331, 163)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 331, 166)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 331, 169)
+        ENDIF
+
+        IF (PLAYER0,BOX42_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 6, REBOUND, 6)
+            QUICK_MESSAGE(18, "Learned Rebound!", DARK_MISTRESS)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(110, 54, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 331, 163)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 331, 166)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 331, 169)
+        ENDIF
+
+        IF (PLAYER0,BOX43_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 6, LIGHTNING, 6)
+            QUICK_MESSAGE(17, "Learned Lightning!", DARK_MISTRESS)
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,RANGED)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(110, 54, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 331, 163)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 331, 166)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 331, 169)
+        ENDIF
+
+        REM Make specials in shrine 6 accessible
+        IF_ACTION_POINT(52, PLAYER0)
+            QUICK_MESSAGE(37, "Choose your level 6 ability wisely...", DARK_MISTRESS)
+            CHANGE_SLAB_OWNER(110, 54, PLAYER0, MATCH)
+        ENDIF
+
+    REM Shrine 8
+
+        REM "Learn Fart"
+        SET_BOX_TOOLTIP_ID(51,39)
+        REM "Learn Flight"
+        SET_BOX_TOOLTIP_ID(52,40)
+        REM "Learn Homing Missile"
+        SET_BOX_TOOLTIP_ID(53,41)
+
+        CREATE_PARTY(shrine8fart)
+            ADD_TO_PARTY(shrine8fart, THIEF, 6, 100, ATTACK_ENEMIES, 0)
+
+        CREATE_PARTY(shrine8flight)
+            ADD_TO_PARTY(shrine8flight, FAIRY, 8, 100, ATTACK_ENEMIES, 0)
+
+        CREATE_PARTY(shrine8missile)
+            ADD_TO_PARTY(shrine8missile, GIANT, 8, 100, ATTACK_ENEMIES, 0)
+
+        IF (PLAYER0,BOX51_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 8, FART, 8)
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS, SpellImmunity, POISON_CLOUD, 1)
+            QUICK_MESSAGE(19, "Learned Fart and Gas Immunity!", DARK_MISTRESS)
+
+            REM Only set the preference to melee if the base attack isn't arrow
+
+            IF (PLAYER0, FLAG1 != 1)
+                SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,MELEE)
+            ENDIF
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(70, 7, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 211, 22)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 211, 25)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 211, 28)
+
+            REM Spawn heroes
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, shrine8fart, -7, 15)
+            HIDE_HERO_GATE(7, 1)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 202, 25)
+        ENDIF
+
+        IF (PLAYER0,BOX52_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 8, FLY, 8)
+            QUICK_MESSAGE(20, "Learned Flight!", DARK_MISTRESS)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(70, 7, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 211, 22)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 211, 25)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 211, 28)
+
+            REM Spawn heroes
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, shrine8flight, -7, 3)
+            HIDE_HERO_GATE(7, 1)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 202, 25)
+        ENDIF
+
+        IF (PLAYER0,BOX53_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 8, NAVIGATING_MISSILE, 8)
+            QUICK_MESSAGE(21, "Learned Homing Missile!", DARK_MISTRESS)
+            SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,RANGED)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(70, 7, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 211, 22)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 211, 25)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 211, 28)
+
+            REM Spawn heroes
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, shrine8missile, -7, 3)
+            HIDE_HERO_GATE(7, 1)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 202, 25)
+        ENDIF
+
+        REM Make specials in shrine 8 accessible
+        IF_ACTION_POINT(53, PLAYER0)
+            QUICK_MESSAGE(38, "Choose your level 8 ability wisely...", DARK_MISTRESS)
+            CHANGE_SLAB_OWNER(70, 7, PLAYER0, MATCH)
+        ENDIF
+
+        REM Shrine 8 creatures
+
+        IF_ACTION_POINT(35, PLAYER0)
+            ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 36, 1, 8, 100)
+            ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 36, 1, 8, 100)
+            ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 36, 1, 8, 100)
+            ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, FAIRY, 36, 1, 8, 100)
+            ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, FAIRY, 36, 1, 8, 100)
+            ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, FAIRY, 36, 1, 8, 100)
+            ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, FAIRY, 36, 1, 8, 100)
+        ENDIF
+
+    REM Shrine 10
+
+        REM "Learn Word of Power"
+        SET_BOX_TOOLTIP_ID(61,46)
+        REM "Learn Disease"
+        SET_BOX_TOOLTIP_ID(62,47)
+        REM "Learn Meteor"
+        SET_BOX_TOOLTIP_ID(63,48)
+
+        IF (PLAYER0,BOX61_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 10, WORD_OF_POWER, 10)
+            QUICK_MESSAGE(22, "Learned Word of Power!", DARK_MISTRESS)
+
+            IF (PLAYER0, FLAG1 != 1)
+                SET_CREATURE_CONFIGURATION(DARK_MISTRESS,AttackPreference,MELEE)
+            ENDIF
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(114, 69, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 343, 208)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 346, 208)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 349, 208)
+        ENDIF
+
+        IF (PLAYER0,BOX62_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 10, CAST_SPELL_DISEASE, 10)
+            QUICK_MESSAGE(23, "Learned Disease!", DARK_MISTRESS)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(114, 69, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 343, 208)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 346, 208)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 349, 208)
+        ENDIF
+
+        IF (PLAYER0,BOX63_ACTIVATED > 0)
+            SET_CREATURE_INSTANCE(DARK_MISTRESS, 10, FIRE_BOMB, 10)
+            QUICK_MESSAGE(24, "Learned Meteor!", DARK_MISTRESS)
+
+            REM Effects and tile changes
+            CHANGE_SLAB_TYPE(114, 69, LAVA, MATCH)
+            PLAY_MESSAGE(PLAYER0,SPEECH,80)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 343, 208)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 346, 208)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 349, 208)
+        ENDIF
+
+        REM Make specials in shrine 10 accessible
+        IF_ACTION_POINT(54, PLAYER0)
+            QUICK_MESSAGE(39, "Choose your level 10 ability wisely...", DARK_MISTRESS)
+            CHANGE_SLAB_OWNER(114, 69, PLAYER0, MATCH)
+        ENDIF
+
+        CREATE_PARTY(shrine10party)
+            ADD_TO_PARTY(shrine10party, THIEF, 10, 200, ATTACK_ENEMIES, 0)
+
+        IF_ACTION_POINT(12, PLAYER0)
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD,shrine10party, 13, 5)
+        ENDIF
+
+REM Entry to white heart
+
+    REM These flags control the effects when the bosses are defeated
+
+    REM This timer is exclusively used for decoration
+    SET_TIMER(PLAYER0, TIMER3)
+    IF (PLAYER0, TIMER3 >= 6)
+        SET_TIMER(PLAYER0, TIMER3)
+    ENDIF
+
+    IF_CONTROLS(PLAYER_GOOD, KNIGHT == 0)
+        SET_FLAG(PLAYER0, FLAG4, 1)
+    ENDIF
+
+    IF_CONTROLS (PLAYER_GOOD, WITCH == 0)
+        SET_FLAG(PLAYER0, FLAG5, 1)
+    ENDIF
+
+    REM Creates an animated flame near the entrance, left side (knight)
+    IF (PLAYER0, FLAG4 == 1)
+        IF (PLAYER0, TIMER3 >= 4)
+            NEXT_COMMAND_REUSABLE
+            CREATE_EFFECT(EFFECT_SPANGLE_WHITE, 9)
+        ENDIF
+
+        IF (PLAYER0, TIMER3 >= 5)
+            NEXT_COMMAND_REUSABLE
+            CREATE_EFFECT(EFFECT_SPANGLE_BLACK, 80)
+        ENDIF
+    ENDIF
+
+    REM Animated flame, right side (witch)
+    IF (PLAYER0, FLAG5 == 1)
+
+        IF (PLAYER0, TIMER3 >= 4)
+            NEXT_COMMAND_REUSABLE
+            CREATE_EFFECT(EFFECT_SPANGLE_WHITE, 79)
+        ENDIF
+
+        IF (PLAYER0, TIMER3 >= 5)
+            NEXT_COMMAND_REUSABLE
+            CREATE_EFFECT(EFFECT_SPANGLE_BLACK, 10)
+        ENDIF
+    ENDIF
+
+    IF_CONTROLS(PLAYER_GOOD, KNIGHT == 0)
+        IF_CONTROLS (PLAYER_GOOD, WITCH == 0)
+            CHANGE_SLAB_TYPE(25, 27, PRETTY_PATH, NONE)
+            CREATE_EFFECT_AT_POS(68, 76, 82)
+            REM "Having beaten both gatekeepers, the path to the white heart is open now."
+            DISPLAY_OBJECTIVE(53, 11)
+        ENDIF
+    ENDIF
+
+    IF_ACTION_POINT(14, PLAYER0)
+
+        IF_CONTROLS(PLAYER_GOOD, KNIGHT == 1)
+            IF_CONTROLS (PLAYER_GOOD, WITCH == 1)
+                REM "Two Gatekeepers need to be defeated to be able to enter the white heart. Defeat the Knight and the Priestess."
+                DISPLAY_INFORMATION(54, 11)
+            ENDIF
+        ENDIF
+
+        IF_CONTROLS(PLAYER_GOOD, KNIGHT == 0)
+            IF_CONTROLS (PLAYER_GOOD, WITCH == 1)
+                QUICK_MESSAGE(29, "What remains to open the gate is to defeat the Priestess.", WITCH)
+            ENDIF
+        ENDIF
+
+        IF_CONTROLS(PLAYER_GOOD, KNIGHT == 1)
+            IF_CONTROLS (PLAYER_GOOD, WITCH == 0)
+                QUICK_MESSAGE(26, "What remains to open the gate is to defeat the Knight.", KNIGHT)
+            ENDIF
+        ENDIF
+
+    ENDIF
+
+REM Yellow dungeon
+
+    REM Graveyard attack
+
+    IF_SLAB_OWNER(119,29, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, VAMPIRE, 15, 1, 10, 500)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, VAMPIRE, 15, 1, 10, 500)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, VAMPIRE, 15, 1, 10, 500)
+        QUICK_MESSAGE(27, "Who dares disturb our slumber?", VAMPIRE)
+        CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_YELLOW, 367, 91)
+    ENDIF
+
+    REM Enemy heart party
+
+    IF (PLAYER3, HEART_HEALTH < 29000)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, HORNY, 19, 1, 10, 500)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, HORNY, 20, 1, 10, 500)
+    ENDIF
+
+    REM Enemy corridoor attack
+
+    IF_ACTION_POINT(16, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, BILE_DEMON, 17, 1, 10, 200)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, BILE_DEMON, 17, 1, 10, 200)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, BILE_DEMON, 18, 1, 10, 200)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, BILE_DEMON, 18, 1, 10, 200)
+
+        ADD_CREATURE_TO_LEVEL(PLAYER6, FLY, 17, 10, 10, 200)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, FLY, 18, 10, 10, 200)
+    ENDIF
+
+    REM Entrance room
+
+    IF_ACTION_POINT(37, PLAYER0)
+
+        ADD_CREATURE_TO_LEVEL(PLAYER6, SORCEROR, 38, 2, 10, 200)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, ORC, 38, 2, 10, 200)
+
+        REM Add the scavenger room to yellow's dungeon
+        CHANGE_SLAB_TYPE(93, 18, SCAVENGE_AREA, MATCH)
+
+        REM Allow the enemy keeper to start scavenging
+        CHANGE_SLAB_TYPE(97, 20, PRETTY_PATH, NONE)
+
+        REM "You have intruded on the other Keeper's territory. He's aware of your presence now and will try to scavenge your creatures."
+        DISPLAY_OBJECTIVE(58)
+    ENDIF
+
+REM White heart defense
+
+    CREATE_PARTY(before_finale)
+        ADD_TO_PARTY(before_finale, SAMURAI, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(before_finale, SAMURAI, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(before_finale, GIANT, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(before_finale, GIANT, 10, 1000, ATTACK_ENEMIES, 0)
+
+    IF_ACTION_POINT(73, PLAYER0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD, before_finale, -8, 1)
+    ENDIF
+
+    IF_ACTION_POINT(74, PLAYER0)
+        REM "Beyond here lies the heart of the heroes. Make sure you're prepared before you venture in."
+        DISPLAY_OBJECTIVE(59, 21)
+    ENDIF
+
+    CREATE_PARTY(avatar_party)
+        ADD_TO_PARTY(avatar_party, AVATAR, 10, 1000, ATTACK_ENEMIES, 0)
+
+    CREATE_PARTY(heart_defense)
+        ADD_TO_PARTY(heart_defense, BARBARIAN, 10, 1000, DEFEND_HEART, 0)
+        ADD_TO_PARTY(heart_defense, BARBARIAN, 10, 1000, DEFEND_HEART, 0)
+        ADD_TO_PARTY(heart_defense, BARBARIAN, 10, 1000, DEFEND_HEART, 0)
+        ADD_TO_PARTY(heart_defense, BARBARIAN, 10, 1000, DEFEND_HEART, 0)
+
+    IF_ACTION_POINT(21, PLAYER0)
+        QUICK_MESSAGE(31, "Your evil conquest ends here!", AVATAR)
+        SET_TIMER(PLAYER0, TIMER5)
+    ENDIF
+
+    IF(PLAYER0, TIMER5 > 40)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, BARBARIAN, 22, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, BARBARIAN, 23, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, BARBARIAN, 24, 1, 10, 100)
+    ENDIF
+
+    IF(PLAYER0, TIMER5 > 60)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 22, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 23, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 24, 1, 10, 100)
+    ENDIF
+
+    IF(PLAYER0, TIMER5 > 80)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 22, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 23, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 24, 1, 10, 100)
+    ENDIF
+
+    IF(PLAYER0, TIMER5 > 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 22, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 23, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 24, 1, 10, 100)
+    ENDIF
+
+    IF(PLAYER0, TIMER5 > 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, MONK, 22, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, MONK, 23, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, MONK, 24, 1, 10, 100)
+    ENDIF
+
+    IF(PLAYER0, TIMER5 > 200)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD, avatar_party, -4, 1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD, heart_defense, -4, 1)
+
+        CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 31, 46)
+        HIDE_HERO_GATE(4, 1)
+    ENDIF
+
+REM Creature around the middle of the level
+
+    IF_ACTION_POINT(26, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 26, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 26, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 26, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 26, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 26, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, DWARFA, 26, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, DWARFA, 26, 1, 8, 100)
+    ENDIF
+
+    IF_ACTION_POINT(27, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 27, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 27, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 27, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 27, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 27, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 27, 1, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 27, 1, 8, 100)
+    ENDIF
+
+REM Event when the player arrives at the middle
+
+    IF_ACTION_POINT(28, PLAYER0)
+        SET_TIMER(PLAYER0, TIMER2)
+        REM "Your progress has alerted the heroes that you are encroaching on their territory. Remain vigilant and keep an eye on their patrols."
+        DISPLAY_INFORMATION(61, -3)
+        REVEAL_MAP_RECT(PLAYER0, 190, 160, 18, 18)
+        SET_FLAG(PLAYER0, FLAG0, 1)
+    ENDIF
+
+REM Logic for the hidden door
+
+    IF_ACTION_POINT(75, PLAYER0)
+        REM "Something looks off about that wall..."
+        DISPLAY_INFORMATION(62, 75)
+    ENDIF
+
+REM Spawn creatures all over the map when the player hits the middle
+
+    IF_ACTION_POINT(28, PLAYER0)
+        REM Treasury of orange/yellow
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 39, 3, 10, 100)
+
+        REM In the water pocket near yellow
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, DWARFA, 40, 4, 8, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 40, 2, 8, 100)
+
+        REM Hero Dungeon 1
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, FAIRY, 41, 3, 6, 100)
+
+        REM Hero Dungeon 2
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 42, 3, 7, 100)
+
+        REM Green Tentacles in the middle
+        ADD_CREATURE_TO_LEVEL(PLAYER2, TENTACLE, 43, 4, 6, 0)
+    ENDIF
+
+    REM Hide this gate by default
+    HIDE_HERO_GATE(3, 1)
+
+    IF(PLAYER0, TIMER2 > 40)
+        PLAY_MESSAGE(PLAYER0, SOUND, 147)
+
+        CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 184, 160)
+        CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 190, 154)
+        CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 196, 160)
+
+        ADD_OBJECT_TO_LEVEL(HEARTFLAME_WHITE, 29, 0, PLAYER0)
+        ADD_OBJECT_TO_LEVEL(HEARTFLAME_WHITE, 30, 0, PLAYER0)
+        ADD_OBJECT_TO_LEVEL(HEARTFLAME_WHITE, 31, 0, PLAYER0)
+    ENDIF
+
+
+    IF(PLAYER0, TIMER2 > 70)
+        HIDE_HERO_GATE(3, 0)
+        PLAY_MESSAGE(PLAYER0, SOUND, 147)
+        CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 190, 160)
+    ENDIF
+
+    CREATE_PARTY(middle1)
+        ADD_TO_PARTY(middle1, WIZARD, 5, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle1, BARBARIAN, 5, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle1, ARCHER, 5, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle1, MONK, 5, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle1, GIANT, 5, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle1, FAIRY, 5, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle1, THIEF, 5, 200, ATTACK_DUNGEON_HEART, 100)
+
+    CREATE_PARTY(middle2)
+        ADD_TO_PARTY(middle2, DWARFA, 7, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle2, DWARFA, 7, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle2, DWARFA, 7, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle2, DWARFA, 7, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle2, DWARFA, 7, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle2, DWARFA, 7, 200, ATTACK_DUNGEON_HEART, 100)
+        ADD_TO_PARTY(middle2, DWARFA, 7, 200, ATTACK_DUNGEON_HEART, 100)
+
+    CREATE_PARTY(middle3)
+        ADD_TO_PARTY(middle3, FLY, 6, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle3, BUG, 6, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle3, SPIDER, 6, 200, ATTACK_DUNGEON_HEART, 0)
+
+    CREATE_PARTY(middle4)
+        ADD_TO_PARTY(middle4, DRUID, 7, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle4, TENTACLE, 5, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle4, TENTACLE, 5, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle4, TENTACLE, 5, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle4, TENTACLE, 5, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle4, TENTACLE, 5, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle4, TENTACLE, 5, 200, ATTACK_DUNGEON_HEART, 0)
+
+    CREATE_PARTY(middle5)
+        ADD_TO_PARTY(middle5, SORCEROR, 8, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle5, WIZARD, 8, 200, ATTACK_DUNGEON_HEART, 0)
+
+    CREATE_PARTY(middle_final)
+        ADD_TO_PARTY(middle_final, GIANT, 10, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle_final, GIANT, 10, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle_final, HELL_HOUND, 9, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle_final, HELL_HOUND, 9, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle_final, HELL_HOUND, 9, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle_final, HELL_HOUND, 9, 200, ATTACK_DUNGEON_HEART, 0)
+        ADD_TO_PARTY(middle_final, HELL_HOUND, 9, 200, ATTACK_DUNGEON_HEART, 0)
+
+    IF (PLAYER_GOOD, DUNGEON_DESTROYED == 0)
+        IF(PLAYER0, TIMER2 > 200)
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, middle1, -3, 1)
+        ENDIF
+
+        IF(PLAYER0, TIMER2 > 8000)
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, middle2, -3, 1)
+        ENDIF
+
+        IF(PLAYER0, TIMER2 > 16000)
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, middle3, -3, 7)
+            ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, MAIDEN, -3, 1, 10, 100)
+        ENDIF
+
+        IF(PLAYER0, TIMER2 > 28000)
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, middle4, -3, 1)
+        ENDIF
+        
+        IF(PLAYER0, TIMER2 > 40000)
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, middle5, -3, 3)
+        ENDIF
+
+        IF(PLAYER0, TIMER2 > 50000)
+            ADD_PARTY_TO_LEVEL(PLAYER_GOOD, middle_final, -3, 1)
+            HIDE_HERO_GATE(-3, 1)
+        ENDIF
+    ENDIF
+
+REM Spawn green dragons and demonspawn near the last shrine lava pits
+
+    IF_ACTION_POINT(44, PLAYER0)
+        REM Top pit
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DRAGON, 45, 3, 7, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DEMONSPAWN, 45, 1, 7, 0)
+
+        REM Middle pit
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DRAGON, 46, 4, 7, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DEMONSPAWN, 46, 3, 7, 0)
+
+        REM Bottom pit
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DRAGON, 47, 3, 7, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DEMONSPAWN, 47, 3, 7, 0)
+
+        REM Bottom little room
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, SAMURAI, 48, 3, 8, 100)
+
+        REM Prison
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, SKELETON, 49, 5, 10, 0)
+
+        REM Before prison
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, MONK, 50, 5, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, WIZARD, 50, 1, 10, 0)
+
+        REM Gas trap room
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, BILE_DEMON, 32, 5, 8, 0)
+    ENDIF
+
+    REM Spawn enemies in front of yellow's dungeon
+
+    IF_ACTION_POINT(56, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, DRAGON, 57, 1, 8, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, BILE_DEMON, 57, 1, 8, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, DARK_MISTRESS, 57, 1, 8, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, SORCEROR, 57, 1, 8, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, ORC, 57, 1, 8, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, DEMONSPAWN, 57, 1, 8, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, TENTACLE, 57, 1, 8, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, SPIDER, 57, 1, 8, 0)
+    ENDIF
+
+    IF_ACTION_POINT(56, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, MAIDEN, 58, 1, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, MAIDEN, 58, 1, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, SPIDER, 58, 1, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER6, SPIDER, 58, 1, 10, 0)
+    ENDIF
+
+REM Boss 1 - Knight
+
+    CREATE_PARTY(knight_boss)
+        ADD_TO_PARTY(knight_boss, ARCHER, 8, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(knight_boss, THIEF, 8, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(knight_boss, MONK, 8, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(knight_boss, BARBARIAN, 8, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(knight_boss, WIZARD, 8, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(knight_boss, DWARFA, 8, 1000, ATTACK_ENEMIES, 0)
+
+    IF_SLAB_TYPE(5, 37, PRETTY_PATH)
+    REM IF_ACTION_POINT(33, PLAYER0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD, knight_boss, -5, 1)
+    ENDIF
+
+REM Enemies in front of the boss 1 area
+
+    IF_ACTION_POINT(59, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 61, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 61, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 61, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 61, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 61, 1, 6, 100)
+    ENDIF
+
+    IF_ACTION_POINT(62, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, FLY, 60, 25, 4, 0)
+    ENDIF
+
+REM Boss 2 - Priestess
+
+    IF_ACTION_POINT(63, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 64, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 65, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 66, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 68, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 69, 1, 10, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, ARCHER, 70, 1, 10, 100)
+    ENDIF
+
+    REM Protecting parties on the way
+
+    IF_ACTION_POINT(71, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD, THIEF, 34, 1, 6, 100)
+    ENDIF
+
+    IF_ACTION_POINT(72, PLAYER0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DRAGON, 67, 1, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DRAGON, 67, 1, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DRAGON, 67, 1, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DRAGON, 67, 1, 10, 0)
+
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DEMONSPAWN, 67, 1, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DEMONSPAWN, 67, 1, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DEMONSPAWN, 67, 1, 10, 0)
+        ADD_CREATURE_TO_LEVEL(PLAYER2, DEMONSPAWN, 67, 1, 10, 0)
+    ENDIF
+
+    REM Boss
+
+    CREATE_PARTY(witch_boss)
+        ADD_TO_PARTY(witch_boss, ARCHER, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(witch_boss, ARCHER, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(witch_boss, ARCHER, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(witch_boss, ARCHER, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(witch_boss, ARCHER, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(witch_boss, ARCHER, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(witch_boss, BARBARIAN, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(witch_boss, BARBARIAN, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(witch_boss, BARBARIAN, 10, 1000, ATTACK_ENEMIES, 0)
+        ADD_TO_PARTY(witch_boss, BARBARIAN, 10, 1000, ATTACK_ENEMIES, 0)
+
+    IF_SLAB_TYPE(30, 6, PRETTY_PATH)
+    REM IF_ACTION_POINT(55, PLAYER0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD, witch_boss, -6, 1)
+    ENDIF
+
+    REM Prevent the player making too many imps because of the creature limit 
+
+    IF (PLAYER0, IMP > 49)
+        QUICK_MESSAGE(41, "create more than 50 imps at a time.", IMP)
+        QUICK_MESSAGE(42, "In this realm, you may not", IMP)
+        NEXT_COMMAND_REUSABLE
+        MAGIC_AVAILABLE(PLAYER0, POWER_IMP, 0, 0)
+    ENDIF
+
+    IF(PLAYER0, IMP < 50)
+        NEXT_COMMAND_REUSABLE
+        MAGIC_AVAILABLE(PLAYER0, POWER_IMP, 1, 1)
+    ENDIF
+
+REM Mode selection
+
+    REM "Easy Mode"
+    SET_BOX_TOOLTIP_ID(90,65)
+    REM "Normal Mode"
+    SET_BOX_TOOLTIP_ID(91,66)
+
+    REM "Select your difficulty. On Normal, you will need to rely on building an army of your own, customized Mistresses to win. Playing the map on Normal is recommended for those wanting more of a challenge. On Easy, you will be able to find more rooms like a Prison to gain a creature advantage."
+    DISPLAY_OBJECTIVE(67)
+
+    IF (PLAYER0,BOX90_ACTIVATED > 0)
+        SET_FLAG(PLAYER0, FLAG2, 1)
+    ENDIF
+
+    IF (PLAYER0,BOX91_ACTIVATED > 0)
+        SET_FLAG(PLAYER0, FLAG2, 2)
+    ENDIF
+
+    REM Do this always
+    IF (PLAYER0, FLAG2 > 0)
+
+        REM Dunk both specials into water and re-convert to pretty path
+
+        CHANGE_SLAB_TYPE(60, 81, WATER, NONE)
+        CHANGE_SLAB_TYPE(66, 81, WATER, NONE)
+
+        CHANGE_SLAB_TYPE(60, 81, PRETTY_PATH, NONE)
+        CHANGE_SLAB_TYPE(66, 81, PRETTY_PATH, NONE)
+
+        CHANGE_SLAB_OWNER(60, 81, PLAYER0)
+        CHANGE_SLAB_OWNER(66, 81, PLAYER0)
+
+        REM "The curtain rises on your conquest of this realm full of shrines of great power. Heroes patrol this realm to protect these shrines, and a rival keeper is also interested in their power to strenghten one's creatures. Both of their hearts are practically begging for you to destroy them. However, your portal appears to be guarded by heroes, so you'll need to find creatures first to claim it. Try heading east first and sneak past the enemy until you can fight."
+        DISPLAY_OBJECTIVE(68, 1)
+
+        REM Intro little fancy thing
+
+        SET_TIMER(PLAYER0, TIMER4)
+
+        IF (PLAYER0, TIMER4 >= 30)
+            PLAY_MESSAGE(PLAYER0, SOUND, 147)
+
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 187, 241)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 193, 241)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 187, 247)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_RED, 193, 247)
+
+            ADD_OBJECT_TO_LEVEL(HEARTFLAME_RED, 3, 0, PLAYER0)
+            ADD_OBJECT_TO_LEVEL(HEARTFLAME_RED, 4, 0, PLAYER0)
+            ADD_OBJECT_TO_LEVEL(HEARTFLAME_RED, 5, 0, PLAYER0)
+            ADD_OBJECT_TO_LEVEL(HEARTFLAME_RED, 6, 0, PLAYER0)
+        ENDIF
+
+        IF (PLAYER0, TIMER4 >= 60)
+            PLAY_MESSAGE(PLAYER0, SOUND, 147)
+
+            ADD_CREATURE_TO_LEVEL(PLAYER0, IMP, 33, 1, 1, 0)
+            ADD_CREATURE_TO_LEVEL(PLAYER0, IMP, 55, 1, 1, 0)
+            ADD_CREATURE_TO_LEVEL(PLAYER0, IMP, 76, 1, 1, 0)
+            ADD_CREATURE_TO_LEVEL(PLAYER0, IMP, 77, 1, 1, 0)
+
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 184, 238)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 196, 238)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 184, 250)
+            CREATE_EFFECT_AT_POS(EFFECT_SPANGLE_WHITE, 196, 250)
+
+            ADD_GOLD_TO_PLAYER(PLAYER0, 10000)
+        ENDIF
+
+    ENDIF
+
+    REM Easy Mode
+    IF (PLAYER0, FLAG2 == 1)
+        QUICK_MESSAGE(47, "Easy difficulty selected.", SPELL_FLIGHT)
+        PLAY_MESSAGE(PLAYER0,SPEECH,80)
+    ENDIF
+
+    REM Normal Mode
+    IF (PLAYER0, FLAG2 == 2)
+        QUICK_MESSAGE(48, "Normal difficulty selected.", SPELL_FLIGHT)
+        PLAY_MESSAGE(PLAYER0,SPEECH,80)
+
+        REM Remove neutral prison
+        CHANGE_SLAB_OWNER(97, 102, PLAYER_GOOD)
+        CHANGE_SLAB_TYPE(97, 102, PRETTY_PATH, MATCH)
+        REM Remove enemy prison
+        CHANGE_SLAB_TYPE(119, 19, WORKSHOP_AREA, MATCH)
+        CHANGE_SLAB_TYPE(119, 20, WORKSHOP_AREA, MATCH)
+        REM Remove enemy graveyard
+        CHANGE_SLAB_TYPE(118, 29, PRETTY_PATH, MATCH)
+
+        REM Add some decoration in the emptied rooms
+        CHANGE_SLAB_TYPE(119, 30, WATER, NONE)
+        CHANGE_SLAB_TYPE(120, 30, WATER, NONE)
+
+        ADD_OBJECT_TO_LEVEL(LAIR_SKELT, 78, 0, PLAYER_GOOD)
+    ENDIF
+
+    IF (PLAYER0, ENTRANCE > 0)
+        REM "Excellent work capturing the entrance, Keeper. This will help you attract more Mistresses and other creatures. When you feel ready, set out North and eliminate your enemies."
+        DISPLAY_OBJECTIVE(71, 28)
+    ENDIF

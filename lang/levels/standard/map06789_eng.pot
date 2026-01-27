@@ -1,0 +1,377 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file levels/standard/map06789_eng.pot
+#      KeeperFX Campaign Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings for map Derelict Chasm
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Standard levels for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: KeeperFX Team"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: guitext:1
+msgctxt "In-game message"
+msgid "With the amount of heroes controlling and guarding this realm, you may find sneaking into their territory effective."
+msgstr ""
+
+#: guitext:2
+msgctxt "In-game message"
+msgid "It seems like you are well practiced in laying waste to realms like this. Expertly done, Keeper."
+msgstr ""
+
+#: guitext:3
+msgctxt "In-game message"
+msgid "With your arachnid friends to support you, try recruiting these Mistresses for your cause. In this realm Mistresses can only learn abilities by finding shrines to bestow skills on them. Look around and enhance their skills to crush your rival Keeper and the Heroes in this realm."
+msgstr ""
+
+#: guitext:4
+msgctxt "In-game message"
+msgid "These Mistresses know no combat abilities yet and cannot fight as they are now. They can only learn new skills by powering them up at the shrines in this realm. Find the first shrine to teach them deadly skills to crush your foes with."
+msgstr ""
+
+#: guitext:5
+msgctxt "In-game message"
+msgid "Choose your level 1 ability wisely..."
+msgstr ""
+
+#: guitext:6
+msgctxt "In-game message"
+msgid "Bestow upon your Mistresses their ability they will learn at level 1. Every shrine will let you choose only 1 of 3 abilities to permanently power up your mistresses. There are many other shrines in this realm, seek them all out to become stronger. Here, pick between a regular melee slash, the scorching flame breath, or the ability to fire arrows at a distance."
+msgstr ""
+
+#: guitext:7
+msgctxt "In-game message"
+msgid "Learn Melee Slash"
+msgstr ""
+
+#: guitext:8
+msgctxt "In-game message"
+msgid "Learn Flame Breath"
+msgstr ""
+
+#: guitext:9
+msgctxt "In-game message"
+msgid "Learn Arrow"
+msgstr ""
+
+#: guitext:10
+msgctxt "In-game message"
+msgid "Learn Dig"
+msgstr ""
+
+#: guitext:11
+msgctxt "In-game message"
+msgid "Learned Melee Slash!"
+msgstr ""
+
+#: guitext:12
+msgctxt "In-game message"
+msgid "Learned Flame Breath!"
+msgstr ""
+
+#: guitext:13
+msgctxt "In-game message"
+msgid "Learned Arrow!"
+msgstr ""
+
+#: guitext:14
+msgctxt "In-game message"
+msgid "What a fascinating find. In Possession, it seems your Mistresses can now dig as well!"
+msgstr ""
+
+#: guitext:15
+msgctxt "In-game message"
+msgid "Learned Dig!"
+msgstr ""
+
+#: guitext:16
+msgctxt "In-game message"
+msgid "Now that you are armed with your Mistresses having learned their first ability, you have the strength needed to capture the Entrance."
+msgstr ""
+
+#: guitext:17
+msgctxt "In-game message"
+msgid "Your presence is known to the heroes. Stay alert."
+msgstr ""
+
+#: guitext:18
+msgctxt "In-game message"
+msgid "Learn Gas Projectile"
+msgstr ""
+
+#: guitext:19
+msgctxt "In-game message"
+msgid "Learn Heal"
+msgstr ""
+
+#: guitext:20
+msgctxt "In-game message"
+msgid "Learn Slow"
+msgstr ""
+
+#: guitext:21
+msgctxt "In-game message"
+msgid "Learned Gas Projectile and Immunity!"
+msgstr ""
+
+#: guitext:22
+msgctxt "In-game message"
+msgid "Learned Heal!"
+msgstr ""
+
+#: guitext:23
+msgctxt "In-game message"
+msgid "Learned Slow!"
+msgstr ""
+
+#: guitext:24
+msgctxt "In-game message"
+msgid "Choose your level 2 ability wisely..."
+msgstr ""
+
+#: guitext:25
+msgctxt "In-game message"
+msgid "Learn Freeze"
+msgstr ""
+
+#: guitext:26
+msgctxt "In-game message"
+msgid "Learn Health Drain"
+msgstr ""
+
+#: guitext:27
+msgctxt "In-game message"
+msgid "Learn Armour"
+msgstr ""
+
+#: guitext:28
+msgctxt "In-game message"
+msgid "Learned Freeze!"
+msgstr ""
+
+#: guitext:29
+msgctxt "In-game message"
+msgid "Learned Health Drain!"
+msgstr ""
+
+#: guitext:30
+msgctxt "In-game message"
+msgid "Learned Armour!"
+msgstr ""
+
+#: guitext:31
+msgctxt "In-game message"
+msgid "Choose your level 4 ability wisely..."
+msgstr ""
+
+#: guitext:32
+msgctxt "In-game message"
+msgid "Learn Speed"
+msgstr ""
+
+#: guitext:33
+msgctxt "In-game message"
+msgid "Learn Rebound Projectiles"
+msgstr ""
+
+#: guitext:34
+msgctxt "In-game message"
+msgid "Learn Lightning"
+msgstr ""
+
+#: guitext:35
+msgctxt "In-game message"
+msgid "Learned Speed!"
+msgstr ""
+
+#: guitext:36
+msgctxt "In-game message"
+msgid "Learned Rebound!"
+msgstr ""
+
+#: guitext:37
+msgctxt "In-game message"
+msgid "Learned Lightning!"
+msgstr ""
+
+#: guitext:38
+msgctxt "In-game message"
+msgid "Choose your level 6 ability wisely..."
+msgstr ""
+
+#: guitext:39
+msgctxt "In-game message"
+msgid "Learn Fart"
+msgstr ""
+
+#: guitext:40
+msgctxt "In-game message"
+msgid "Learn Flight"
+msgstr ""
+
+#: guitext:41
+msgctxt "In-game message"
+msgid "Learn Homing Missile"
+msgstr ""
+
+#: guitext:42
+msgctxt "In-game message"
+msgid "Learned Fart and Gas Immunity!"
+msgstr ""
+
+#: guitext:43
+msgctxt "In-game message"
+msgid "Learned Flight!"
+msgstr ""
+
+#: guitext:44
+msgctxt "In-game message"
+msgid "Learned Homing Missile!"
+msgstr ""
+
+#: guitext:45
+msgctxt "In-game message"
+msgid "Choose your level 8 ability wisely..."
+msgstr ""
+
+#: guitext:46
+msgctxt "In-game message"
+msgid "Learn Word of Power"
+msgstr ""
+
+#: guitext:47
+msgctxt "In-game message"
+msgid "Learn Disease"
+msgstr ""
+
+#: guitext:48
+msgctxt "In-game message"
+msgid "Learn Meteor"
+msgstr ""
+
+#: guitext:49
+msgctxt "In-game message"
+msgid "Learned Word of Power!"
+msgstr ""
+
+#: guitext:50
+msgctxt "In-game message"
+msgid "Learned Disease!"
+msgstr ""
+
+#: guitext:51
+msgctxt "In-game message"
+msgid "Learned Meteor!"
+msgstr ""
+
+#: guitext:52
+msgctxt "In-game message"
+msgid "Choose your level 10 ability wisely..."
+msgstr ""
+
+#: guitext:53
+msgctxt "In-game message"
+msgid "Having beaten both gatekeepers, the path to the white heart is open now."
+msgstr ""
+
+#: guitext:54
+msgctxt "In-game message"
+msgid "Two Gatekeepers need to be defeated to be able to enter the white heart. Defeat the Knight and the Priestess."
+msgstr ""
+
+#: guitext:55
+msgctxt "In-game message"
+msgid "What remains to open the gate is to defeat the Priestess."
+msgstr ""
+
+#: guitext:56
+msgctxt "In-game message"
+msgid "What remains to open the gate is to defeat the Knight."
+msgstr ""
+
+#: guitext:57
+msgctxt "In-game message"
+msgid "Who dares disturb our slumber?"
+msgstr ""
+
+#: guitext:58
+msgctxt "In-game message"
+msgid "You have intruded on the other Keeper's territory. He's aware of your presence now and will try to scavenge your creatures."
+msgstr ""
+
+#: guitext:59
+msgctxt "In-game message"
+msgid "Beyond here lies the heart of the heroes. Make sure you're prepared before you venture in."
+msgstr ""
+
+#: guitext:60
+msgctxt "In-game message"
+msgid "Your evil conquest ends here!"
+msgstr ""
+
+#: guitext:61
+msgctxt "In-game message"
+msgid "Your progress has alerted the heroes that you are encroaching on their territory. Remain vigilant and keep an eye on their patrols."
+msgstr ""
+
+#: guitext:62
+msgctxt "In-game message"
+msgid "Something looks off about that wall..."
+msgstr ""
+
+#: guitext:63
+msgctxt "In-game message"
+msgid "create more than 50 imps at a time."
+msgstr ""
+
+#: guitext:64
+msgctxt "In-game message"
+msgid "In this realm, you may not"
+msgstr ""
+
+#: guitext:65
+msgctxt "In-game message"
+msgid "Easy Mode"
+msgstr ""
+
+#: guitext:66
+msgctxt "In-game message"
+msgid "Normal Mode"
+msgstr ""
+
+#: guitext:67
+msgctxt "In-game message"
+msgid "Select your difficulty. On Normal, you will need to rely on building an army of your own, customized Mistresses to win. Playing the map on Normal is recommended for those wanting more of a challenge. On Easy, you will be able to find more rooms like a Prison to gain a creature advantage."
+msgstr ""
+
+#: guitext:68
+msgctxt "In-game message"
+msgid "The curtain rises on your conquest of this realm full of shrines of great power. Heroes patrol this realm to protect these shrines, and a rival keeper is also interested in their power to strenghten one's creatures. Both of their hearts are practically begging for you to destroy them. However, your portal appears to be guarded by heroes, so you'll need to find creatures first to claim it. Try heading east first and sneak past the enemy until you can fight."
+msgstr ""
+
+#: guitext:69
+msgctxt "In-game message"
+msgid "Easy difficulty selected."
+msgstr ""
+
+#: guitext:70
+msgctxt "In-game message"
+msgid "Normal difficulty selected."
+msgstr ""
+
+#: guitext:71
+msgctxt "In-game message"
+msgid "Excellent work capturing the entrance, Keeper. This will help you attract more Mistresses and other creatures. When you feel ready, set out North and eliminate your enemies."
+msgstr ""
