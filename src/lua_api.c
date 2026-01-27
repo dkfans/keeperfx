@@ -2256,4 +2256,5 @@ void reg_host_functions(lua_State *L)
     Thing_register(L);
     Slab_register(L);
     room_register(L);
+    DamageSourceKind_register(L);
 }

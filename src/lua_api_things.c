@@ -210,7 +210,7 @@ static int thing_set_field(lua_State *L) {
     } else if (strcmp(key, "health") == 0)
     {
         thing->health = luaL_checkinteger(L, 3);
-    } else if (strcmp(key, "pos") == 0) 
+    } else if (strcmp(key, "pos") == 0)
     {
         struct Coord3d pos;
         luaL_checkCoord3d(L, 3, &pos);
@@ -566,7 +566,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"stun",    lua_stun_creature},
     {"delete",     lua_delete_thing},
     {"isValid",         lua_is_valid},
-    
+
    {"transfer"                    ,lua_Transfer_creature               },
    {"level_up"                    ,lua_Level_up_creature               },
    {"teleport"                    ,lua_Teleport_creature               },
@@ -611,4 +611,57 @@ void Thing_register(lua_State *L) {
 
     // Pop the metatable
     lua_pop(L, 1);
+}
+
+// In lua_api.c oder lua_api_things.c
+
+void DamageSourceKind_register(lua_State *L) {
+    // Create global table "DamageSourceKind"
+    lua_newtable(L);
+
+    // Add enum values as fields
+    lua_pushinteger(L, DSK_NONE);
+    lua_setfield(L, -2, "NONE");
+
+    lua_pushinteger(L, DSK_Lava);
+    lua_setfield(L, -2, "LAVA");
+
+    lua_pushinteger(L, DSK_PowerSlap);
+    lua_setfield(L, -2, "POWER_SLAP");
+
+    lua_pushinteger(L, DSK_PowerDisease);
+    lua_setfield(L, -2, "POWER_DISEASE");
+
+    lua_pushinteger(L, DSK_PowerLightning);
+    lua_setfield(L, -2, "POWER_LIGHTNING");
+
+    lua_pushinteger(L, DSK_PhysicalForce);
+    lua_setfield(L, -2, "PHYSICAL_FORCE");
+
+    lua_pushinteger(L, DSK_CommandFreeze);
+    lua_setfield(L, -2, "COMMAND_FREEZE");
+
+    lua_pushinteger(L, DSK_CommandSlow);
+    lua_setfield(L, -2, "COMMAND_SLOW");
+
+    lua_pushinteger(L, DSK_ScriptSpell);
+    lua_setfield(L, -2, "SCRIPT_SPELL");
+
+    lua_pushinteger(L, DSK_DOTSpell);
+    lua_setfield(L, -2, "DOT_SPELL");
+
+    lua_pushinteger(L, DSK_Creature);
+    lua_setfield(L, -2, "CREATURE");
+
+    lua_pushinteger(L, DSK_Trap);
+    lua_setfield(L, -2, "TRAP");
+
+    lua_pushinteger(L, DSK_Object);
+    lua_setfield(L, -2, "OBJECT");
+
+    lua_pushinteger(L, DSK_Door);
+    lua_setfield(L, -2, "DOOR");
+
+    // Set as global "DamageSourceKind"
+    lua_setglobal(L, "DamageSourceKind");
 }

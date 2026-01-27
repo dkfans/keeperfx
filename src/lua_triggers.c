@@ -192,11 +192,7 @@ void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumb
 		lua_pushinteger(Lvl_script, dmg);
 		lua_pushPlayer(Lvl_script, dealing_plyr_idx);
 		lua_pushThing(Lvl_script, tngsrc);
-		const char *source_str = damage_source_kind_name(source_kind);
-		if (source_str)
-			lua_pushstring(Lvl_script, source_str);
-		else
-			lua_pushnil(Lvl_script);
+		lua_pushinteger(Lvl_script, source_kind);
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 5, 0, 0),"OnApplyDamage");
 	}
