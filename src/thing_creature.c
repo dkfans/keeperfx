@@ -4273,13 +4273,18 @@ void draw_creature_view(struct Thing *thing)
   engine(player, render_cam);
   // Draw swipe into buffer BEFORE lens effects (so overlay renders on top of swipe)
   draw_swipe_graphic();
+  // Get the actual viewport dimensions (accounts for sidebar)
+  long view_width = player->engine_window_width / pixel_size;
+  long view_height = player->engine_window_height / pixel_size;
+  long view_x = player->engine_window_x / pixel_size;
   // Restore original graphics settings
   lbDisplay.WScreen = wscr_cp;
   LbScreenLoadGraphicsWindow(&grwnd);
-  // Draw the buffer on real screen
+  // Draw the buffer on real screen using actual viewport dimensions
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  draw_lens_effect(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem, eye_lens_width,
-      MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.applied_lens_type);
+  // Apply lens effect to the viewport area only (not including sidebar)
+  draw_lens_effect(lbDisplay.WScreen + view_x, lbDisplay.GraphicsScreenWidth, 
+      scrmem + view_x, eye_lens_width, view_width, view_height, game.applied_lens_type);
 }
 
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
