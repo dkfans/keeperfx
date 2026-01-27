@@ -25,6 +25,7 @@
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
 #include "thing_list.h"
+#include "thing_stats.h"
 #include "map_locations.h"
 #include "packets.h"
 
