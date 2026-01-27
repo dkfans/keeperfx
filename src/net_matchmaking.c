@@ -133,11 +133,11 @@ static int http_request(const char *method, const char *path, const char *body) 
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, matchmaking_write_callback);
     curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT_MS, (long)MATCHMAKING_HTTP_TIMEOUT_MS);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "KeeperFX/1.0");
+    struct curl_slist *headers = NULL;
     if (strcmp(method, "POST") == 0) {
         curl_easy_setopt(curl_handle, CURLOPT_POST, 1L);
         if (body) {
             curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, body);
-            struct curl_slist *headers = NULL;
             headers = curl_slist_append(headers, "Content-Type: application/json");
             curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
         }
@@ -145,6 +145,7 @@ static int http_request(const char *method, const char *path, const char *body) 
         curl_easy_setopt(curl_handle, CURLOPT_CUSTOMREQUEST, "DELETE");
     }
     CURLcode res = curl_easy_perform(curl_handle);
+    curl_slist_free_all(headers);
     if (res != CURLE_OK) {
         return 0;
     }
@@ -164,7 +165,7 @@ TbBool matchmaking_register_lobby(const char *name, uint16_t port) {
     }
     char body[256];
     snprintf(body, sizeof(body), "{\"name\":\"%s\",\"port\":%u}", name, port);
-    if (!http_request("POST", "/lobbies", body) || sscanf(response_buffer, "{\"id\":\"%48[^\"]\"}", current_lobby_id) != 1) {
+    if (!http_request("POST", "/lobbies", body) || sscanf(response_buffer, "{\"id\":\"%63[^\"]\"}", current_lobby_id) != 1) {
         ERRORLOG("Failed to register lobby: %s", response_buffer);
         return 0;
     }

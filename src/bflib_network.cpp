@@ -86,7 +86,7 @@ int LbNetwork_GetServerPort(void) {
     if (ServerPort != 0) {
         return ServerPort;
     }
-    return 5556;
+    return DEFAULT_SERVER_PORT;
 }
 
 static void AddSessionSegment(const char* start, const char* end) {
@@ -144,7 +144,9 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    const char *port = ":5556";
+    char default_port[8];
+    snprintf(default_port, sizeof(default_port), ":%d", DEFAULT_SERVER_PORT);
+    const char *port = default_port;
     char buf[16] = "";
     if (ServerPort != 0) {
         snprintf(buf, sizeof(buf), "%d", ServerPort);
@@ -296,7 +298,7 @@ void LbNetwork_FetchMatchmakingLobbies(void) {
         sessions[slot].joinable = 1;
         if (lobbies[i].ip[0] == '\0') {
             snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s", lobbies[i].name);
-        } else if (lobbies[i].port != 0 && lobbies[i].port != 5556) {
+        } else if (lobbies[i].port != 0 && lobbies[i].port != DEFAULT_SERVER_PORT) {
             snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s:%u", lobbies[i].ip, lobbies[i].port);
         } else {
             snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s", lobbies[i].ip);

@@ -34,6 +34,8 @@ extern "C" {
 #define TIMEOUT_JOIN_LOBBY 2000
 #define TIMEOUT_LOBBY_EXCHANGE 3000
 #define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
+
+#define DEFAULT_SERVER_PORT 5556
 /******************************************************************************/
 #pragma pack(1)
 
