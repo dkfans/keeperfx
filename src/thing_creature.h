@@ -129,7 +129,7 @@ TbBool thing_can_be_eaten(struct Thing *thing);
 void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
 void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotive reason, long a3, const char *func_name);
 #define anger_apply_anger_to_creature(thing, anger, reason, a3) anger_apply_anger_to_creature_f(thing, anger, reason, a3, __func__)
-HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, struct Thing* tngsrc, const char *source_str);
+HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, struct Thing* scrtng, const char *source_str);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos);

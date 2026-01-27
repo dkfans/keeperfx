@@ -1454,6 +1454,10 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, Crt
         cspell->duration = duration;
         cspell->caster_level = spell_level;
         cspell->caster_owner = plyr_idx;
+        if (thing_exists(castertng))
+            cspell->caster_thing_idx = castertng->index;
+        else
+            cspell->caster_thing_idx = INVALID_THING;
         update_aura_effect_to_thing(thing, spell_idx);
     }
     return;
@@ -6047,12 +6051,12 @@ void process_creature_leave_footsteps(struct Thing *thing)
  * @param dmg
  * @param inflicting_plyr_idx
  */
-HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, struct Thing *tngsrc, const char *source_str)
+HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx, struct Thing *scrtng, const char *source_str)
 {
     HitPoints cdamage;
     if (dmg > 0)
     {
-        cdamage = apply_damage_to_thing(thing, dmg, inflicting_plyr_idx, tngsrc, source_str);
+        cdamage = apply_damage_to_thing(thing, dmg, inflicting_plyr_idx, scrtng, source_str);
     } else {
         cdamage = 0;
     }

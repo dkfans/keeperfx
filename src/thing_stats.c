@@ -1085,7 +1085,7 @@ static const char *default_src_string(ThingClass class_id, const char *source_st
     case TCls_Door:
         return "DOOR";
     default:
-        return source_str;
+        return "UNKNOWN";
     }
 }
 
@@ -1108,7 +1108,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
     if (thing->health < 0)
         return 0;
 
-    source_str = default_src_string(thing->class_id, source_str);
+    source_str = default_src_string(scrtng->class_id, source_str);
     lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx, scrtng, source_str);
 
     HitPoints cdamage;
