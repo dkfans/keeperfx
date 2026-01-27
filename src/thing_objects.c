@@ -817,7 +817,6 @@ static long food_moves(struct Thing *objtng)
     }
     if (snd_smplidx > 0) {
         thing_play_sample(objtng, snd_smplidx, 100, 0, 3u, 0, 1, 256);
-        return 1;
     }
     return 1;
 }
@@ -833,7 +832,7 @@ static long food_grows(struct Thing *objtng)
     pos.x.val = objtng->mappos.x.val;
     pos.y.val = objtng->mappos.y.val;
     pos.z.val = objtng->mappos.z.val;
-    long ret = 0;
+    long ret = TUFRet_Unchanged;
     PlayerNumber tngowner = objtng->owner;
     struct Thing* nobjtng;
     struct Room* room = subtile_room_get(pos.x.stl.num, pos.y.stl.num);
@@ -1266,7 +1265,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
                 delete_thing_structure(heartng, 0);
             }
         }
-        return TUFRet_Unchanged;
+        return TUFRet_Deleted; //Also when it is not deleted, to stop the heart from flashing
     }
     else
     {
@@ -1531,7 +1530,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     {
         ERRORLOG("Neutral %s index %d cannot be power sight.", thing_model_name(objtng), (int)objtng->index);
         delete_thing_structure(objtng, 0);
-        return 0;
+        return TUFRet_Deleted;
     }
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
@@ -1581,7 +1580,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
                 dungeon->sight_casted_thing_idx = 0;
                 memset(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
                 delete_thing_structure(objtng, 0);
-                return 0;
+                return TUFRet_Deleted;
             }
         }
         else
