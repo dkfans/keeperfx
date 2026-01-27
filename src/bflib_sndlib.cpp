@@ -620,6 +620,16 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 			WARNLOG("OpenAL already initialized");
 			return true;
 		}
+        // Help OpenAL with device enumeration for virtual audio devices.
+#if defined(_WIN32)
+		// Windows: Try WASAPI (modern) -> DirectSound (compatible), -> WinMM (fallback), WASAPI will be for Win10+
+		_putenv_s("ALSOFT_DRIVERS", "wasapi,dsound,winmm");
+#elif defined(__linux__)
+		setenv("ALSOFT_DRIVERS", "pulse,alsa,oss", 1);
+#elif defined(__APPLE__)
+		setenv("ALSOFT_DRIVERS", "core", 1);
+#endif
+        
 		print_device_info();
 		ALCdevice_ptr device(alcOpenDevice(nullptr));
 		if (!device) {
