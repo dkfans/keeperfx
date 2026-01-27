@@ -67,15 +67,20 @@ namespace
             newest_packet = nullptr;
             incoming_queue_size = 0;
         }
-        if (client_peer)
-        {
-            client_peer = nullptr;
-        }
         if (host)
         {
+            for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; ++peer)
+            {
+                if (peer->state == ENET_PEER_STATE_CONNECTED)
+                {
+                    enet_peer_disconnect_now(peer, 0);
+                }
+            }
+            enet_host_flush(host);
             enet_host_destroy(host);
             host = nullptr;
         }
+        client_peer = nullptr;
     }
 
     void bf_enet_exit()
