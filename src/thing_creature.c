@@ -4271,6 +4271,8 @@ void draw_creature_view(struct Thing *thing)
   // Draw on our buffer
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   engine(player, render_cam);
+  // Draw swipe into buffer BEFORE lens effects (so overlay renders on top of swipe)
+  draw_swipe_graphic();
   // Restore original graphics settings
   lbDisplay.WScreen = wscr_cp;
   LbScreenLoadGraphicsWindow(&grwnd);
