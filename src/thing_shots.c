@@ -429,6 +429,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool destroy_shot = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
+    struct Thing* damage_source = get_parent_thing(shotng);
     TbBool digging = (shotst->model_flags & ShMF_Digging);
     HitPoints old_health = 0;
     EffectOrEffElModel eff_kind;
@@ -538,7 +539,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             if (!shotst->hit_door.withstand)
               destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
-            apply_damage_to_thing(doortng, i, -1);
+            apply_damage_to_thing(doortng, i, -1, damage_source, NULL);
             reveal_secret_door_to_player(doortng,shotng->owner);
         } else
         if (cube_is_water(cube_id))
@@ -599,7 +600,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 if (!shotst->hit_door.withstand)
                     destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
-                apply_damage_to_thing(doortng, i, -1);
+                apply_damage_to_thing(doortng, i, -1, damage_source, NULL);
                 reveal_secret_door_to_player(doortng,shotng->owner);
             } else
             {
@@ -662,6 +663,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool shot_explodes = false;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     struct Thing* efftng = INVALID_THING;
+    struct Thing* damage_source = get_parent_thing(shotng);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (blocked_flags != 0)
     {
@@ -692,7 +694,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             }
             // Apply damage to the door
             i = calculate_shot_real_damage_to_door(doortng, shotng);
-            apply_damage_to_thing(doortng, i, -1);
+            apply_damage_to_thing(doortng, i, -1, damage_source, NULL);
             reveal_secret_door_to_player(doortng,shotng->owner);
       }
     }
@@ -791,6 +793,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (shotng->parent_idx != shotng->index) {
         shootertng = thing_get(shotng->parent_idx);
     }
+    struct Thing* damage_source = shootertng;
     int i = shotst->hit_generic.sndsample_idx;
     if (i > 0) {
         thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
@@ -802,7 +805,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
 
         if ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming)))
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1, damage_source, NULL);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
@@ -887,7 +890,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1, shootertng, NULL);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
@@ -1068,9 +1071,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         }
         create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
         if (!thing_is_invalid(shooter)) {
-            damage = apply_damage_to_thing_and_display_health(trgtng, damage, shooter->owner);
+            damage = apply_damage_to_thing_and_display_health(trgtng, damage, shooter->owner, shooter, NULL);
         } else {
-            damage = apply_damage_to_thing_and_display_health(trgtng, damage, -1);
+            damage = apply_damage_to_thing_and_display_health(trgtng, damage, -1, shooter, NULL);
         }
         if (shotst->model_flags & ShMF_LifeDrain)
         {
@@ -1084,7 +1087,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
             {
                 spell_level = scctrl->exp_level;
             }
-            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner);
+            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner, shooter, NULL);
             struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
             if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
             {
@@ -1252,9 +1255,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         HitPoints damage_done;
         if (thing_exists(shooter)) {
-            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner, shooter, NULL);
         } else {
-            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1);
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1, shooter, NULL);
         }
         if (shotst->model_flags & ShMF_LifeDrain)
         {
@@ -1276,7 +1279,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             spell_level = scctrl->exp_level;
         }
-        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner);
+        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner, shooter, NULL);
         struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
@@ -1740,7 +1743,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                   {
                       shotst = get_shot_model_stats(ShM_GodLightBall);
                       draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
-                      apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner);
+                      apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner, thing, NULL);
                   }
                 }
                 break;

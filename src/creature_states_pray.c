@@ -377,7 +377,7 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
         // Thing list loop body
         if (creature_matches_model(thing,crmodel))
         {
-            apply_spell_effect_to_thing(thing, spl_idx, overchrg, plyr_idx);
+            apply_spell_effect_to_thing(thing, spl_idx, overchrg, plyr_idx, INVALID_THING, NULL);
         }
         // Thing list loop body ends
         k++;

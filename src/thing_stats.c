@@ -1067,6 +1067,28 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     return dmg;
 }
 
+
+static const char *default_src_string(ThingClass class_id, const char *source_str)
+{
+    if ((source_str != NULL) && (source_str[0] != '\0'))
+    {
+        return source_str;
+    }
+    switch (class_id)
+    {
+    case TCls_Creature:
+        return "CREATURE";
+    case TCls_Trap:
+        return "TRAP";
+    case TCls_Object:
+        return "OBJECT";
+    case TCls_Door:
+        return "DOOR";
+    default:
+        return source_str;
+    }
+}
+
 /**
  * Applies given damage points to a thing.
  * In case of targeting creature, uses its defense values to compute the actual damage.
@@ -1076,7 +1098,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
  * @param inflicting_plyr_idx
  * @return Amount of damage really inflicted.
  */
-HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
+HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx, struct Thing* scrtng, const char *source_str)
 {
     // We're here to damage, not to heal.
     SYNCDBG(19, "Dealing %d damage to %s by player %d", (int)dmg, thing_model_name(thing), (int)dealing_plyr_idx);
@@ -1085,7 +1107,9 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
     // If it's already dead, then don't interfere.
     if (thing->health < 0)
         return 0;
-    lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx);
+
+    source_str = default_src_string(thing->class_id, source_str);
+    lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx, scrtng, source_str);
 
     HitPoints cdamage;
     switch (thing->class_id)
@@ -1102,6 +1126,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
         }
         break;
     case TCls_Trap:
+        cdamage = apply_damage_to_object(thing, dmg);
+        break;
     case TCls_Object:
         cdamage = apply_damage_to_object(thing, dmg);
         break;

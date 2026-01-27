@@ -74,11 +74,15 @@ end
 ---@param thing Thing
 ---@param damage integer
 ---@param dealing_player Player
-function OnApplyDamage(thing, damage, dealing_player)
+---@param source_thing Thing|nil
+---@param source_string string|nil
+function OnApplyDamage(thing, damage, dealing_player, source_thing, source_string)
     local eventData = {}
     eventData.thing = thing
     eventData.damage = damage
     eventData.dealing_player = dealing_player
+    eventData.source_thing = source_thing
+    eventData.source_string = source_string
     ProcessEvent("ApplyDamage",eventData)
 end
 
