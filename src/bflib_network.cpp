@@ -169,7 +169,11 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    if (netstate.sp->join(nsname->text, optns) == Lb_FAIL) {
+    const char *address = nsname->text;
+    if (nsname->ip[0] != '\0') {
+        address = nsname->ip;
+    }
+    if (netstate.sp->join(address, optns) == Lb_FAIL) {
         return Lb_FAIL;
     }
     netstate.my_id = INVALID_USER_ID;
@@ -296,12 +300,11 @@ void LbNetwork_FetchMatchmakingLobbies(void) {
         }
         sessions[slot].in_use = 1;
         sessions[slot].joinable = 1;
-        if (lobbies[i].ip[0] == '\0') {
-            snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s", lobbies[i].name);
-        } else if (lobbies[i].port != 0 && lobbies[i].port != DEFAULT_SERVER_PORT) {
-            snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s:%u", lobbies[i].ip, lobbies[i].port);
+        snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s's lobby", lobbies[i].name);
+        if (lobbies[i].port != 0 && lobbies[i].port != DEFAULT_SERVER_PORT) {
+            snprintf(sessions[slot].ip, sizeof(sessions[slot].ip), "%s:%u", lobbies[i].ip, lobbies[i].port);
         } else {
-            snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s", lobbies[i].ip);
+            snprintf(sessions[slot].ip, sizeof(sessions[slot].ip), "%s", lobbies[i].ip);
         }
         slot++;
     }

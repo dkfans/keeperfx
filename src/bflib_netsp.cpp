@@ -138,6 +138,7 @@ ServiceProvider::ServiceProvider() :
     nsnames[i].id = 0;
     nsnames[i].in_use = false;
     memset(nsnames[i].text, 0, SESSION_NAME_MAX_LEN);
+    memset(nsnames[i].ip, 0, sizeof(nsnames[i].ip));
   }
   this->reference_count = 0;
   this->status_flags = 0;

@@ -249,7 +249,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
         process_network_error(-801);
         return;
     }
-    matchmaking_register_lobby(text, LbNetwork_GetServerPort());
+    matchmaking_register_lobby(net_player_name, LbNetwork_GetServerPort());
     frontend_set_player_number(plyr_num);
     fe_computer_players = 0;
     frontend_set_state(FeSt_NET_START);

@@ -48,6 +48,7 @@ struct TbNetworkSessionNameEntry {
     unsigned long id;
     unsigned long in_use;
     char text[SESSION_NAME_MAX_LEN];
+    char ip[64];
 };
 
 struct TbNetworkPlayerEntry {
