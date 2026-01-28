@@ -3019,10 +3019,6 @@ void trig_render_md10(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    if (tlr->screen_buffer_ptr == NULL) {
-        ERRORLOG("screen buffer not set");
-        return;
-    }
     texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
@@ -3062,14 +3058,12 @@ void trig_render_md10(struct TrigLocalRend *tlr)
         else
         {
             ushort colL, colH;
-            unsigned char pY_overflow;
 
             if (point_y_a > vec_window_width)
                 point_y_a = vec_window_width;
-            pY_overflow = __OFSUBS__(point_y_a, point_x_a);
-            point_y_a = point_y_a - point_x_a;
-            if ( (unsigned char)(((point_y_a & 0x8000u) != 0) ^ pY_overflow) | ((ushort)point_y_a == 0) )
+            if (point_y_a <= point_x_a)
                 continue;
+            point_y_a -= point_x_a;
             o += point_x_a;
             factorA = __ROL4__(polygon_point->V, 16);
             colH = factorA;
