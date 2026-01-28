@@ -70,15 +70,19 @@ function OnDungeonDestroyed(player)
     ProcessEvent("DungeonDestroyed",eventData)
 end
 
---- Called when a thing taked damage
----@param thing Thing
----@param damage integer
----@param dealing_player Player
-function OnApplyDamage(thing, damage, dealing_player)
+--- Called when a thing takes damage
+---@param thing Thing The thing receiving damage
+---@param damage integer Amount of damage dealt
+---@param dealing_player Player Player responsible for the damage
+---@param source_thing Thing|nil The thing that caused the damage (e.g., attacking creature, trap)
+---@param source_kind damage_source_kind Integer enum value from DamageSourceKind (e.g., DamageSourceKind.LAVA)
+function OnApplyDamage(thing, damage, dealing_player, source_thing, source_kind)
     local eventData = {}
     eventData.thing = thing
     eventData.damage = damage
     eventData.dealing_player = dealing_player
+    eventData.source_thing = source_thing
+    eventData.source_kind = source_kind
     ProcessEvent("ApplyDamage",eventData)
 end
 

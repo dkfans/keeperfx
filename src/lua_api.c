@@ -25,6 +25,7 @@
 #include "thing_effects.h"
 #include "magic_powers.h"
 
+#include "lua_api.h"
 #include "lua_base.h"
 #include "lua_params.h"
 
@@ -2256,4 +2257,5 @@ void reg_host_functions(lua_State *L)
     Thing_register(L);
     Slab_register(L);
     room_register(L);
+    DamageSourceKind_register(L);
 }

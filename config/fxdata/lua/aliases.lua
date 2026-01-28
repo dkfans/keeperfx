@@ -26,5 +26,26 @@
 ---@alias actionpoint integer
 ---@alias location playersingle|actionpoint|"LAST_EVENT"|"COMBAT"|Pos3d
 ---@alias thing_class "Object"|"Shot"|"EffectElem"|"DeadCreature"|"Creature"|"Effect"|"EffectGen"|"Trap"|"Door"|"AmbientSnd"|"CaveIn"
----@alias effect_or_effelem_type integer|string|effect_type|effect_element_type -- I allow string here because there's to many entries for, the language server to handle 
+---@alias effect_or_effelem_type integer|string|effect_type|effect_element_type -- I allow string here because there's to many entries for, the language server to handle
+---@alias damage_source_kind integer
+
+---@class DamageSourceKindTable
+---@field NONE integer Unspecified damage source (0)
+---@field LAVA integer Damage from lava terrain (1)
+---@field POWER_SLAP integer Damage from player slap power (2)
+---@field POWER_DISEASE integer Damage from disease spell (3)
+---@field POWER_LIGHTNING integer Damage from lightning spell (4)
+---@field PHYSICAL_FORCE integer Physical damage (5)
+---@field COMMAND_FREEZE integer Damage from freeze command/spell (6)
+---@field COMMAND_SLOW integer Damage from slow command/spell (7)
+---@field SCRIPT_SPELL integer Damage from script-triggered spell (8)
+---@field DOT_SPELL integer Damage from damage-over-time spell effects (9)
+---@field CREATURE integer Damage from creature attack (10)
+---@field TRAP integer Damage from trap activation (11)
+---@field OBJECT integer Damage from object interaction (12)
+---@field DOOR integer Damage from door (13)
+
+--- Global table containing damage source kind constants
+---@type DamageSourceKindTable
+DamageSourceKind = {}
 

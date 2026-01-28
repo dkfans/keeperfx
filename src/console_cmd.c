@@ -65,6 +65,7 @@
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
+#include "thing_creature.h"
 #include "version.h"
 #include "frontmenu_ingame_map.h"
 #include <string.h>
@@ -1839,7 +1840,7 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
-    apply_spell_effect_to_thing(thing, 3, 8, plyr_idx); // 3 was 'SplK_Freeze' in the enum.
+    apply_spell_effect_to_thing(thing, 3, 8, plyr_idx, INVALID_THING, DSK_CommandFreeze); // 3 was 'SplK_Freeze' in the enum.
     return true;
 }
 
@@ -1857,7 +1858,7 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
-    apply_spell_effect_to_thing(thing, 12, 8, plyr_idx); // 12 was 'SplK_Slow' in the enum.
+    apply_spell_effect_to_thing(thing, 12, 8, plyr_idx, INVALID_THING, DSK_CommandSlow); // 12 was 'SplK_Slow' in the enum.
     return true;
 }
 
