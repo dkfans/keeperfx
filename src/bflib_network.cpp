@@ -173,13 +173,18 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     if (nsname->ip[0] != '\0') {
         address = nsname->ip;
     }
+    SYNCMSG("LbNetwork_Join: Connecting to address='%s' as player='%s'", address, plyr_name);
     if (netstate.sp->join(address, optns) == Lb_FAIL) {
+        SYNCMSG("LbNetwork_Join: sp->join failed for address='%s'", address);
         return Lb_FAIL;
     }
+    SYNCMSG("LbNetwork_Join: Connection established, exchanging login");
     netstate.my_id = INVALID_USER_ID;
     if (LbNetwork_ExchangeLogin(plyr_name) == Lb_FAIL) {
+        SYNCMSG("LbNetwork_Join: Login exchange failed");
         return Lb_FAIL;
     }
+    SYNCMSG("LbNetwork_Join: Login successful, assigned player ID %d", netstate.my_id);
     *plyr_num = netstate.my_id;
     return Lb_OK;
 }

@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
 #include "bflib_network.h"
+#include "bflib_netsession.h"
 #include "bflib_network_exchange.h"
 #include "net_resync.h"
 
@@ -188,12 +189,15 @@ const char *network_player_name(int plyr_idx)
 long network_session_join(void)
 {
     int32_t plyr_num;
+    struct TbNetworkSessionNameEntry *session = net_session[net_session_index_active];
+    SYNCMSG("network_session_join: Joining session name='%s' ip='%s'", session->text, session->ip);
     display_attempting_to_join_message();
-    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
-    {
-      process_network_error(-802);
-      return -1;
+    if (LbNetwork_Join(session, net_player_name, &plyr_num, NULL)) {
+        SYNCMSG("network_session_join: LbNetwork_Join failed");
+        process_network_error(-802);
+        return -1;
     }
+    SYNCMSG("network_session_join: Successfully joined as player %d", plyr_num);
     return plyr_num;
 }
 
