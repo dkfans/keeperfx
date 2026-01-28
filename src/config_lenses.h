@@ -35,6 +35,7 @@ enum LensConfigFlags {
     LCF_HasMist     = 0x01,
     LCF_HasDisplace = 0x02,
     LCF_HasPalette  = 0x04,
+    LCF_HasOverlay  = 0x08,
 };
 
 struct LensConfig {
@@ -47,6 +48,12 @@ struct LensConfig {
     short displace_kind;
     short displace_magnitude;
     short displace_period;
+    char overlay_file[DISKPATH_SIZE];
+    char overlay_mod_dir[DISKPATH_SIZE];  // Mod directory for overlay, empty for base game
+    unsigned char *overlay_data;
+    int overlay_width;
+    int overlay_height;
+    short overlay_alpha;
 };
 
 struct LensesConfig {

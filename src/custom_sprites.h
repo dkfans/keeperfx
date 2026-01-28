@@ -42,6 +42,17 @@ const struct TbSprite *get_new_icon_sprite(short sprite_idx);
 const struct TbSprite *get_panel_sprite(short sprite_idx);
 int is_custom_icon(short icon_idx);
 
+// Lens overlay data structure
+struct LensOverlayData {
+    char *name;
+    unsigned char *data;
+    int width;
+    int height;
+};
+
+// Get lens overlay data by name (returns NULL if not found)
+const struct LensOverlayData* get_lens_overlay_data(const char *name);
+
 extern short bad_icon_id;
 #ifdef __cplusplus
 }

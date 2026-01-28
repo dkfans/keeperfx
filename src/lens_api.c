@@ -20,10 +20,14 @@
 #include "lens_api.h"
 
 #include <math.h>
+#include <string.h>
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include "config_lenses.h"
 #include "lens_mist.h"
@@ -31,6 +35,7 @@
 #include "vidmode.h"
 #include "game_legacy.h"
 #include "config_keeperfx.h"
+#include "custom_sprites.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -40,6 +45,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+#define RAW_OVERLAY_SIZE 256  // RAW overlay files are 256x256 pixels (matching mist texture format)
+
 uint32_t *eye_lens_memory;
 TbPixel *eye_lens_spare_screen_memory;
 /******************************************************************************/
@@ -145,6 +152,56 @@ void init_lens(uint32_t *lens_mem, int width, int height, int pitch, int nlens, 
     }
 }
 
+static TbBool load_overlay_image(struct LensConfig* lenscfg)
+{
+    if (lenscfg->overlay_data != NULL) {
+        // Already loaded
+        return true;
+    }
+    
+    if (lenscfg->overlay_file[0] == '\0') {
+        WARNLOG("Empty overlay name");
+        return false;
+    }
+    
+    // Look up overlay by name in the custom sprites registry
+    const struct LensOverlayData* overlay = get_lens_overlay_data(lenscfg->overlay_file);
+    
+    if (overlay == NULL) {
+        WARNLOG("Lens overlay '%s' not found. Make sure it's defined in a lenses.json file in a .zip", lenscfg->overlay_file);
+        return false;
+    }
+    
+    if (overlay->data == NULL || overlay->width <= 0 || overlay->height <= 0) {
+        WARNLOG("Invalid lens overlay data for '%s'", lenscfg->overlay_file);
+        return false;
+    }
+    
+    size_t size = overlay->width * overlay->height;
+    lenscfg->overlay_data = (unsigned char*)malloc(size);
+    if (lenscfg->overlay_data == NULL) {
+        ERRORLOG("Failed to allocate memory for overlay image");
+        return false;
+    }
+    
+    memcpy(lenscfg->overlay_data, overlay->data, size);
+    lenscfg->overlay_width = overlay->width;
+    lenscfg->overlay_height = overlay->height;
+    
+    SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from registry", lenscfg->overlay_file, lenscfg->overlay_width, lenscfg->overlay_height);
+    return true;
+}
+
+static void free_overlay_image(struct LensConfig* lenscfg)
+{
+    if (lenscfg->overlay_data != NULL) {
+        free(lenscfg->overlay_data);
+        lenscfg->overlay_data = NULL;
+        lenscfg->overlay_width = 0;
+        lenscfg->overlay_height = 0;
+    }
+}
+
 TbBool clear_lens_palette(void)
 {
     SYNCDBG(7,"Staring");
@@ -175,6 +232,11 @@ void reset_eye_lenses(void)
     SYNCDBG(7,"Starting");
     free_mist();
     clear_lens_palette();
+    // Free any loaded overlay images
+    for (size_t i = 0; i < (size_t)lenses_conf.lenses_count; i++)
+    {
+        free_overlay_image(&lenses_conf.lenses[i]);
+    }
     if (eye_lens_memory != NULL)
     {
         free(eye_lens_memory);
@@ -276,6 +338,15 @@ void setup_eye_lens(long nlens)
         SYNCDBG(9,"Palette config entered");
         set_lens_palette(lenscfg->palette);
     }
+    if ((lenscfg->flags & LCF_HasOverlay) != 0)
+    {
+        SYNCDBG(7, "Overlay config entered for lens %ld, name='%s'", nlens, lenscfg->overlay_file);
+        if (!load_overlay_image(lenscfg)) {
+            WARNLOG("Failed to load overlay for lens %ld", nlens);
+        } else {
+            SYNCDBG(7, "Successfully loaded overlay %dx%d", lenscfg->overlay_width, lenscfg->overlay_height);
+        }
+    }
     game.applied_lens_type = nlens;
     game.active_lens_type = nlens;
 }
@@ -320,6 +391,75 @@ void draw_copy(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long
     }
 }
 
+static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long height, struct LensConfig* lenscfg)
+{
+    if (lenscfg->overlay_data == NULL) {
+        WARNLOG("Overlay data is NULL, cannot draw");
+        return;
+    }
+    
+    // Validate dimensions
+    if (width <= 0 || height <= 0 || lenscfg->overlay_width <= 0 || lenscfg->overlay_height <= 0) {
+        WARNLOG("Invalid dimensions for overlay rendering: screen=%ldx%ld, overlay=%dx%d", width, height, lenscfg->overlay_width, lenscfg->overlay_height);
+        return;
+    }
+    
+    SYNCDBG(8, "Drawing overlay: screen=%ldx%ld, overlay=%dx%d, alpha=%d", width, height, lenscfg->overlay_width, lenscfg->overlay_height, lenscfg->overlay_alpha);
+    
+    // Calculate scale factors to stretch/fit overlay to fill entire viewport
+    float scale_x = (float)lenscfg->overlay_width / width;
+    float scale_y = (float)lenscfg->overlay_height / height;
+    
+    // Determine dithering threshold based on alpha (0-255)
+    // alpha=255 (opaque): draw all pixels
+    // alpha=128 (50%): draw checkerboard pattern
+    // alpha=0 (transparent): draw nothing
+    int alpha = lenscfg->overlay_alpha;
+    if (alpha < 0) alpha = 0;
+    if (alpha > 255) alpha = 255;
+    
+    // Draw the overlay with alpha transparency using dithering
+    unsigned char* dst = dstbuf;
+    for (long y = 0; y < height; y++)
+    {
+        int src_y = (int)(y * scale_y);
+        if (src_y >= lenscfg->overlay_height) src_y = lenscfg->overlay_height - 1;
+        
+        unsigned char* src_row = lenscfg->overlay_data + (src_y * lenscfg->overlay_width);
+        
+        for (long x = 0; x < width; x++)
+        {
+            int src_x = (int)(x * scale_x);
+            if (src_x >= lenscfg->overlay_width) src_x = lenscfg->overlay_width - 1;
+            
+            unsigned char overlay_pixel = src_row[src_x];
+            
+            // Color 0 is treated as transparent - skip it completely
+            if (overlay_pixel != 0)
+            {
+                // Apply alpha dithering using checkerboard pattern
+                if (alpha >= 255)
+                {
+                    // Fully opaque - always draw
+                    dst[x] = overlay_pixel;
+                }
+                else if (alpha > 0)
+                {
+                    // Partial transparency - use checkerboard dithering
+                    // Dither pattern alternates based on x+y coordinate
+                    int dither = ((x + y) & 1) ? 255 : 0;
+                    if (alpha > dither)
+                    {
+                        dst[x] = overlay_pixel;
+                    }
+                }
+                // If alpha == 0, skip pixel (fully transparent)
+            }
+        }
+        dst += dstpitch;
+    }
+}
+
 void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long effect)
 {
     long copied = 0;
@@ -354,6 +494,19 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
     if ((lenscfg->flags & LCF_HasPalette) != 0)
     {
         // Nothing to do - palette is just set and don't have to be drawn
+    }
+    // Draw overlay effect if present
+    if ((lenscfg->flags & LCF_HasOverlay) != 0)
+    {
+        // First, copy the source buffer to destination if not already done
+        if (!copied)
+        {
+            draw_copy(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
+        }
+        // Now draw the overlay on top of the game scene
+        SYNCDBG(8, "Calling draw_overlay (flags=%d, data=%p)", lenscfg->flags, lenscfg->overlay_data);
+        draw_overlay(dstbuf, dstpitch, width, height, lenscfg);
+        copied = true;
     }
     // If we haven't copied the buffer to screen yet, do so now
     if (!copied)
