@@ -771,6 +771,9 @@
     <ClCompile Include="src\bflib_input_joyst.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\net_matchmaking.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1446,6 +1449,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\net_resync.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_matchmaking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
