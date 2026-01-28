@@ -2077,7 +2077,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
             HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 2, max_dist / 2, distance);
             if (damage != 0)
             {
-                apply_damage_to_thing_and_display_health(tngdst, damage, owner, tngsrc, DSK_NONE);
+                apply_damage_to_thing_and_display_health(tngdst, damage, owner, tngsrc, DSK_PowerLightning);
                 affected = true;
             }
         }

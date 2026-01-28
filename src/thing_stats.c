@@ -38,6 +38,7 @@
 #include "player_utils.h"
 #include "thing_effects.h"
 #include "thing_list.h"
+#include "thing_data.h"
 #include "thing_physics.h"
 #include "thing_stats.h"
 #include "vidfade.h"
@@ -1067,30 +1068,51 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     return dmg;
 }
 
+static struct Thing* resolve_damage_source_thing(struct Thing* scrtng)
+{
+    if ((scrtng == NULL) || thing_is_invalid(scrtng))
+        return INVALID_THING;
+
+    struct Thing* source_tng = scrtng;
+    switch (source_tng->class_id)
+    {
+    case TCls_Shot:
+    case TCls_Effect:
+    case TCls_EffectElem:
+        {
+            struct Thing* parent_tng = get_parent_thing(source_tng);
+            if (thing_exists(parent_tng))
+                source_tng = parent_tng;
+        }
+        break;
+    default:
+        break;
+    }
+    return source_tng;
+}
+
 DamageSourceKind check_dmg_src_kind(struct Thing* scrtng, DamageSourceKind source_kind)
 {
-    if ((source_kind == DSK_NONE) && (scrtng != NULL && !thing_is_invalid(scrtng)))
+    if (source_kind != DSK_NONE)
+        return source_kind;
+
+    struct Thing* source_tng = resolve_damage_source_thing(scrtng);
+    if (!thing_exists(source_tng))
+        return DSK_NONE;
+
+    switch (source_tng->class_id)
     {
-        switch(scrtng->class_id)
-        {
-        case TCls_Creature:
-            source_kind = DSK_Creature;
-            break;
-        case TCls_Trap:
-            source_kind = DSK_Trap;
-            break;
-        case TCls_Object:
-            source_kind = DSK_Object;
-            break;
-        case TCls_Door:
-            source_kind = DSK_Door;
-            break;
-        default:
-            source_kind = DSK_NONE;
-            break;
-        }
+    case TCls_Creature:
+        return DSK_Creature;
+    case TCls_Trap:
+        return DSK_Trap;
+    case TCls_Object:
+        return DSK_Object;
+    case TCls_Door:
+        return DSK_Door;
+    default:
+        return DSK_NONE;
     }
-    return source_kind;
 }
 
 const char *damage_source_kind_name(DamageSourceKind kind)
@@ -1127,13 +1149,24 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
 {
     // We're here to damage, not to heal.
     SYNCDBG(19, "Dealing %d damage to %s by player %d", (int)dmg, thing_model_name(thing), (int)dealing_plyr_idx);
+    if ((scrtng != NULL) && !thing_is_invalid(scrtng)) {
+        SYNCDBG(8, "ApplyDamage: incoming kind=%d src=%s", (int)source_kind, thing_model_name(scrtng));
+    } else {
+        SYNCDBG(8, "ApplyDamage: incoming kind=%d src=<none>", (int)source_kind);
+    }
     if (dmg <= 0)
         return 0;
     // If it's already dead, then don't interfere.
     if (thing->health < 0)
         return 0;
-    DamageSourceKind damagesource = check_dmg_src_kind(scrtng, source_kind);
-        lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx, scrtng, damagesource);
+    struct Thing* src_tng = resolve_damage_source_thing(scrtng);
+    DamageSourceKind damagesource = check_dmg_src_kind(src_tng, source_kind);
+    if (thing_exists(src_tng)) {
+        SYNCDBG(8, "ApplyDamage: resolved kind=%d src=%s", (int)damagesource, thing_model_name(src_tng));
+    } else {
+        SYNCDBG(8, "ApplyDamage: resolved kind=%d src=<none>", (int)damagesource);
+    }
+    lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx, src_tng, damagesource);
 
     HitPoints cdamage;
     switch (thing->class_id)

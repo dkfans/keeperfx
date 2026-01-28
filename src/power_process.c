@@ -303,7 +303,7 @@ void update_god_lightning_ball(struct Thing *thing)
         if (!thing_exists(target))
             break;
         shotst = get_shot_model_stats(thing->model);
-        apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner, INVALID_THING, DSK_PowerLightning);
+        apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner, thing, DSK_PowerLightning);
         if (target->health < 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(target);

@@ -56,6 +56,20 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
+static TbBool effect_model_is_gas(EffectOrEffElModel eff_kind)
+{
+    return (eff_kind == TngEff_Gas1) || (eff_kind == TngEff_Gas2) || (eff_kind == TngEff_Gas3);
+}
+
+static ThingIndex get_shot_hit_effect_parent(const struct Thing *shotng, EffectOrEffElModel eff_kind)
+{
+    if (effect_model_is_gas(eff_kind) && (shotng->parent_idx > 0) && (shotng->parent_idx != shotng->index))
+    {
+        return shotng->parent_idx;
+    }
+    return shotng->index;
+}
+
 TbBool thing_is_shot(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
@@ -627,8 +641,28 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if (!thing_is_invalid(efftng)) {
         efftng->shot_effect.hit_type = shotst->area_hit_type;
-        efftng->shot_effect.parent_class_id = TCls_Shot;
-        efftng->shot_effect.parent_model = shotng->model;
+        if (effect_model_is_gas(efftng->model))
+        {
+            ThingIndex parent_idx = get_shot_hit_effect_parent(shotng, efftng->model);
+            struct Thing* parent_tng = (parent_idx > 0) ? thing_get(parent_idx) : INVALID_THING;
+            if (thing_exists(parent_tng))
+            {
+                efftng->shot_effect.parent_class_id = parent_tng->class_id;
+                efftng->shot_effect.parent_model = parent_tng->model;
+                efftng->parent_idx = parent_tng->index;
+            }
+            else
+            {
+                efftng->shot_effect.parent_class_id = TCls_Shot;
+                efftng->shot_effect.parent_model = shotng->model;
+                efftng->parent_idx = parent_idx;
+            }
+        }
+        else
+        {
+            efftng->shot_effect.parent_class_id = TCls_Shot;
+            efftng->shot_effect.parent_model = shotng->model;
+        }
     }
     if ( destroy_shot )
     {
@@ -674,7 +708,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             // If the shot hit is supposed to create effect thing
             if (shotst->hit_door.effect_model != 0)
             {
-                efftng = create_used_effect_or_element(&shotng->mappos, shotst->hit_door.effect_model, shotng->owner, shotng->index);
+                efftng = create_used_effect_or_element(&shotng->mappos, shotst->hit_door.effect_model, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->hit_door.effect_model));
             }
             // If the shot hit is supposed to create sound
             int n = shotst->hit_door.sndsample_idx;
@@ -863,7 +897,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (shotst->hit_heart.effect_model != 0)
         {
-            create_used_effect_or_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner, shotng->index);
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->hit_heart.effect_model));
         }
         if (shotst->hit_heart.sndsample_idx > 0)
         {
@@ -944,18 +978,18 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
     {
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (shotst->hit_creature.effect_model != 0) {
-            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner, shotng->index);
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->hit_creature.effect_model));
         }
         if (creature_under_spell_effect(target, CSAfF_Freeze))
         {
             if (shotst->effect_frozen != 0) {
-                create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner, shotng->index);
+                create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->effect_frozen));
             }
         } else
         if (creature_model_bleeds(target->model))
         {
             if (shotst->effect_bleeding != 0) {
-                create_used_effect_or_element(&shotng->mappos, shotst->effect_bleeding, shotng->owner, shotng->index);
+                create_used_effect_or_element(&shotng->mappos, shotst->effect_bleeding, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->effect_bleeding));
             }
         }
     }
@@ -964,7 +998,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         // TODO for a later PR: introduces trap/object hit, for now it uses the on hit creature sound and effect.
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (shotst->hit_creature.effect_model != 0) {
-            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner, shotng->index);
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->hit_creature.effect_model));
         }
     }
 }
