@@ -73,3 +73,7 @@ function AddTunnellerPartyToLevel(owner,party_name,spawn_location,head_for,targe
 ---@param location location where the party should be spawned
 ---@return Creature[] party_creatures list of creatures in the party, first entry is the leader
 function AddPartyToLevel(owner,party_name,location) return {} end
+
+---@param tunneler Creature the tunneller that should be sent to the location, only works on diggers that are owned by roaming player
+---@param location location where the tunneller should start digging towards
+function SendTunnellerToLocation(tunneler,location) end
