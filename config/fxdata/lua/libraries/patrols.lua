@@ -1,4 +1,4 @@
--- patrol.lua
+-- patrols.lua
 -- Contains functions to assign individual heroes or parties to patrol locations
 
 local function is_close_enough(creature, target)
