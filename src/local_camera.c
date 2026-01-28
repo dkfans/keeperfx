@@ -188,10 +188,6 @@ void update_local_first_person_camera(struct Thing *ctrltng)
 void update_camera_deviations(int active_cam_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    if (dungeon->camera_deviate_quake != 0) {
-        destination_deviation_x += UNSYNC_RANDOM(80) - 40;
-        destination_deviation_y += UNSYNC_RANDOM(80) - 40;
-    }
     if (dungeon->camera_deviate_jump != 0) {
         long angle = destination_local_cameras[active_cam_idx].rotation_angle_x;
         destination_deviation_x += ( (dungeon->camera_deviate_jump * LbSinL(angle) >> 8) >> 8);
@@ -241,13 +237,19 @@ void interpolate_camera_deviations(void)
     }
     interpolated_deviation_x = interpolate(interpolated_deviation_x, previous_deviation_x, destination_deviation_x);
     interpolated_deviation_y = interpolate(interpolated_deviation_y, previous_deviation_y, destination_deviation_y);
-    if (interpolated_deviation_x == 0 && interpolated_deviation_y == 0) {
+    long total_deviation_x = (long)interpolated_deviation_x;
+    long total_deviation_y = (long)interpolated_deviation_y;
+    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
+    if (dungeon->camera_deviate_quake != 0) {
+        total_deviation_x += UNSYNC_RANDOM(80) - 40;
+        total_deviation_y += UNSYNC_RANDOM(80) - 40;
+    }
+    if (total_deviation_x == 0 && total_deviation_y == 0) {
         return;
     }
-    int active_cam_idx = (my_player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
-    struct Camera* cam = &local_cameras[active_cam_idx];
-    long x = cam->mappos.x.val + (long)interpolated_deviation_x;
-    long y = cam->mappos.y.val + (long)interpolated_deviation_y;
+    struct Camera* cam = &local_cameras[CamIV_Isometric];
+    long x = cam->mappos.x.val + total_deviation_x;
+    long y = cam->mappos.y.val + total_deviation_y;
     if (x < 0) {
         x = 0;
     } else if (x > (game.map_subtiles_x + 1) * COORD_PER_STL - 1) {
