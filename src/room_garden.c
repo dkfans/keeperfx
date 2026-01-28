@@ -130,7 +130,7 @@ short room_grow_food(struct Room *room)
     return false;
 }
 
-TbBool rectreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool recreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
 {
     if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
         return false;
@@ -269,7 +269,7 @@ void count_and_reposition_food_in_room_on_subtile(struct Room *room, MapSubtlCoo
             break;
         case 0:
             // There are no matching things there, something can be re-created
-            rectreate_repositioned_food_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            recreate_repositioned_food_in_room_on_subtile(room, stl_x, stl_y, rrepos);
             break;
         default:
             WARNLOG("Invalid value returned by reposition check");
