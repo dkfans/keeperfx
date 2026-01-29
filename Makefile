@@ -65,7 +65,19 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 GENSRC   = src/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 
+ENET6_OBJS = \
+obj/enet6/address.o \
+obj/enet6/callbacks.o \
+obj/enet6/compress.o \
+obj/enet6/host.o \
+obj/enet6/list.o \
+obj/enet6/packet.o \
+obj/enet6/peer.o \
+obj/enet6/protocol.o \
+obj/enet6/win32.o
+
 DEPS = \
+$(ENET6_OBJS) \
 obj/centitoml/toml_api.o \
 deps/luajit/lib/libluajit.a
 
@@ -366,7 +378,6 @@ LINKLIB = -mwindows \
 	-L"deps/ffmpeg/libavutil" -lavutil \
 	-L"deps/openal" -lOpenAL32 \
 	-L"deps/astronomy" -lastronomy \
-	-L"deps/enet" -lenet \
 	-L"deps/miniupnpc" -lminiupnpc \
 	-L"deps/libnatpmp" -lnatpmp -liphlpapi \
 	-L"deps/spng" -lspng \
@@ -379,7 +390,7 @@ INCS = \
 	-I"deps/spng/include" \
 	-I"sdl/include" \
 	-I"sdl/include/SDL2" \
-	-I"deps/enet/include" \
+	-I"deps/enet6/include" \
 	-I"deps/centijson/include" \
 	-I"deps/centitoml" \
 	-I"deps/astronomy/include" \
@@ -636,14 +647,14 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp
+	-$(RM) -rf obj/std/enet6 obj/hvlog/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp
 	-$(RM) libexterns
 
-deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp:
+deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp:
 	$(MKDIR) $@
 
 src/api.c: deps/centijson/include/json.h
-src/bflib_enet.cpp: deps/enet/include/enet/enet.h
+src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h deps/centijson/include/json.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
@@ -654,11 +665,17 @@ src/net_resync.cpp: deps/zlib/include/zlib.h
 src/console_cmd.c: deps/luajit/include/lua.h
 src/net_portforward.cpp: deps/miniupnpc/include/miniupnpc/miniupnpc.h deps/libnatpmp/include/natpmp/natpmp.h
 
-deps/enet-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
+deps/enet6/include/enet6/enet.h:
+	@echo "enet6 source already present"
 
-deps/enet/include/enet/enet.h: deps/enet-mingw32.tar.gz | deps/enet
-	tar xzmf $< -C deps/enet
+obj/std/enet6 obj/hvlog/enet6:
+	$(MKDIR) $@
+
+obj/std/enet6/%.o: deps/enet6/src/%.c | obj/std/enet6
+	$(CC) $(INCS) -std=gnu11 $(OPTFLAGS) -c -o $@ $<
+
+obj/hvlog/enet6/%.o: deps/enet6/src/%.c | obj/hvlog/enet6
+	$(CC) $(INCS) -std=gnu11 $(OPTFLAGS) -c -o $@ $<
 
 deps/zlib-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/zlib-mingw32.tar.gz"
@@ -721,7 +738,7 @@ cppcheck: | deps/zlib/include/zlib.h
 cppcheck: | deps/spng/include/spng.h
 cppcheck: | deps/astronomy/include/astronomy.h
 cppcheck: | deps/centijson/include/json.h
-cppcheck: | deps/enet/include/enet/enet.h
+cppcheck: | deps/enet6/include/enet6/enet.h
 cppcheck: | deps/luajit/include/lua.h
 cppcheck: | deps/openal/include/AL/al.h
 cppcheck: | deps/ffmpeg/libavformat/avformat.h
@@ -741,7 +758,7 @@ cppcheck:
 		-I deps/spng/include \
 		-I sdl/include \
 		-I sdl/include/SDL2 \
-		-I deps/enet/include \
+		-I deps/enet6/include \
 		-I deps/centijson/include \
 		-I deps/centitoml \
 		-I deps/astronomy/include \

@@ -27,7 +27,7 @@ extern "C" {
 /******************************************************************************/
 #define NETSP_PLAYERS_COUNT 32
 #define SESSION_ENTRIES_COUNT 32
-#define SESSION_NAME_MAX_LEN  32
+#define SESSION_NAME_MAX_LEN  128
 #define NETSP_PLAYER_NAME_MAX_LEN 32
 
 enum NetMsgType
