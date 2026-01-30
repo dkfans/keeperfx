@@ -1,17 +1,85 @@
 {
     "configurations": [
         {
-            "name": "MinGW",
+            "name": "WSL MinGW",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/deps/zlib/include",
+                "${workspaceFolder}/deps/spng/include",
+                "${workspaceFolder}/sdl/include",
+                "${workspaceFolder}/sdl/include/SDL2",
+                "${workspaceFolder}/deps/enet/include",
+                "${workspaceFolder}/deps/centijson/include",
+                "${workspaceFolder}/deps/astronomy/include",
+                "${workspaceFolder}/deps/openal/include",
+                "${workspaceFolder}/deps/luajit/include",
+                "${workspaceFolder}/deps/miniupnpc/include",
+                "${workspaceFolder}/deps/libnatpmp/include"
             ],
-            "defines": [],
-            "compilerPath": "/usr/bin/i686-w64-mingw32-gcc",
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
+            "defines": [
+                "SPNG_STATIC=1",
+                "AL_LIBTYPE_STATIC",
+                "USE_PRE_FILE=1",
+                "BFDEBUG_LEVEL=0"
+            ],
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14",
             "intelliSenseMode": "windows-gcc-x86",
-            //"configurationProvider": "ms-vscode.makefile-tools",
-            //"compileCommands": "${workspaceFolder}/compile_commands.json",
+            "compileCommands": "${workspaceFolder}/compile_commands.json"
+        },
+        {
+            "name": "Linux MinGW",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/deps/zlib/include",
+                "${workspaceFolder}/deps/spng/include",
+                "${workspaceFolder}/sdl/include",
+                "${workspaceFolder}/sdl/include/SDL2",
+                "${workspaceFolder}/deps/enet/include",
+                "${workspaceFolder}/deps/centijson/include",
+                "${workspaceFolder}/deps/astronomy/include",
+                "${workspaceFolder}/deps/openal/include",
+                "${workspaceFolder}/deps/luajit/include",
+                "${workspaceFolder}/deps/miniupnpc/include",
+                "${workspaceFolder}/deps/libnatpmp/include"
+            ],
+            "defines": [
+                "SPNG_STATIC=1",
+                "AL_LIBTYPE_STATIC",
+                "USE_PRE_FILE=1",
+                "BFDEBUG_LEVEL=0"
+            ],
+            "compilerPath": "/usr/bin/i686-w64-mingw32-gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "linux-gcc-x86"
+        },
+        {
+            "name": "Windows MinGW",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/deps/zlib/include",
+                "${workspaceFolder}/deps/spng/include",
+                "${workspaceFolder}/sdl/include",
+                "${workspaceFolder}/sdl/include/SDL2",
+                "${workspaceFolder}/deps/enet/include",
+                "${workspaceFolder}/deps/centijson/include",
+                "${workspaceFolder}/deps/astronomy/include",
+                "${workspaceFolder}/deps/openal/include",
+                "${workspaceFolder}/deps/luajit/include",
+                "${workspaceFolder}/deps/miniupnpc/include",
+                "${workspaceFolder}/deps/libnatpmp/include"
+            ],
+            "defines": [
+                "SPNG_STATIC=1",
+                "AL_LIBTYPE_STATIC",
+                "USE_PRE_FILE=1",
+                "BFDEBUG_LEVEL=0"
+            ],
+            "compilerPath": "C:\\msys64\\mingw32\\bin\\gcc.exe",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "windows-gcc-x86"
         }
     ],
     "version": 4
