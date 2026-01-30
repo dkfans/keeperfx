@@ -132,11 +132,6 @@ static int64_t value_overlay(const struct NamedField* named_field, const char* v
         strncpy(lenscfg->overlay_file, value_text, DISKPATH_SIZE - 1);
         lenscfg->overlay_file[DISKPATH_SIZE - 1] = '\0';
         
-        // Initialize overlay data pointer to NULL - will be looked up during setup
-        lenscfg->overlay_data = NULL;
-        lenscfg->overlay_width = 0;
-        lenscfg->overlay_height = 0;
-        
         SYNCDBG(9, "Registered overlay name '%s' for lens %d", value_text, idx);
     }
     else

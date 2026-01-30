@@ -49,10 +49,6 @@ struct LensConfig {
     short displace_magnitude;
     short displace_period;
     char overlay_file[DISKPATH_SIZE];
-    char overlay_mod_dir[DISKPATH_SIZE];  // Mod directory for overlay, empty for base game
-    unsigned char *overlay_data;
-    int overlay_width;
-    int overlay_height;
     short overlay_alpha;
 };
 

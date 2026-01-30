@@ -48,6 +48,16 @@ extern "C" {
 /******************************************************************************/
 #define RAW_OVERLAY_SIZE 256  // RAW overlay files are 256x256 pixels (matching mist texture format)
 
+// Cache structure for lens overlay data (separate from save files)
+struct LensOverlayCache {
+    unsigned char *data;
+    int width;
+    int height;
+};
+
+// Overlay cache for each lens (indexed by lens number)
+static struct LensOverlayCache overlay_cache[LENS_ITEMS_MAX];
+
 uint32_t *eye_lens_memory;
 TbPixel *eye_lens_spare_screen_memory;
 /******************************************************************************/
@@ -224,13 +234,20 @@ void init_lens(uint32_t *lens_mem, int width, int height, int pitch, int nlens, 
     }
 }
 
-static TbBool load_overlay_image(struct LensConfig* lenscfg)
+static TbBool load_overlay_image(long lens_idx)
 {
-    if (lenscfg->overlay_data != NULL) {
+    if (lens_idx < 0 || lens_idx >= LENS_ITEMS_MAX) {
+        ERRORLOG("Invalid lens index %ld", lens_idx);
+        return false;
+    }
+    
+    struct LensOverlayCache* cache = &overlay_cache[lens_idx];
+    if (cache->data != NULL) {
         // Already loaded
         return true;
     }
     
+    struct LensConfig* lenscfg = &lenses_conf.lenses[lens_idx];
     if (lenscfg->overlay_file[0] == '\0') {
         WARNLOG("Empty overlay name");
         return false;
@@ -243,26 +260,26 @@ static TbBool load_overlay_image(struct LensConfig* lenscfg)
         char* fname = prepare_file_path(FGrp_StdData, lenscfg->overlay_file);
         
         // RAW overlay files are 256x256 8-bit indexed (same as mist files)
-        lenscfg->overlay_width = 256;
-        lenscfg->overlay_height = 256;
-        size_t size = lenscfg->overlay_width * lenscfg->overlay_height;  // 1 byte per pixel
+        cache->width = 256;
+        cache->height = 256;
+        size_t size = cache->width * cache->height;  // 1 byte per pixel
         
-        lenscfg->overlay_data = (unsigned char*)malloc(size);
-        if (lenscfg->overlay_data == NULL) {
+        cache->data = (unsigned char*)malloc(size);
+        if (cache->data == NULL) {
             ERRORLOG("Failed to allocate memory for overlay image");
             return false;
         }
         
-        if (LbFileLoadAt(fname, lenscfg->overlay_data) != size) {
+        if (LbFileLoadAt(fname, cache->data) != size) {
             WARNLOG("Failed to load overlay file '%s' from /data directory", lenscfg->overlay_file);
-            free(lenscfg->overlay_data);
-            lenscfg->overlay_data = NULL;
-            lenscfg->overlay_width = 0;
-            lenscfg->overlay_height = 0;
+            free(cache->data);
+            cache->data = NULL;
+            cache->width = 0;
+            cache->height = 0;
             return false;
         }
         
-        SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from file", lenscfg->overlay_file, lenscfg->overlay_width, lenscfg->overlay_height);
+        SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from file", lenscfg->overlay_file, cache->width, cache->height);
         return true;
     }
     
@@ -276,33 +293,33 @@ static TbBool load_overlay_image(struct LensConfig* lenscfg)
         snprintf(fname_raw, sizeof(fname_raw), "%s.raw", lenscfg->overlay_file);
         
         // RAW overlay files are 256x256 8-bit indexed (1 byte per pixel, same as mist files)
-        lenscfg->overlay_width = 256;
-        lenscfg->overlay_height = 256;
-        size_t size = lenscfg->overlay_width * lenscfg->overlay_height;  // 65536 bytes
+        cache->width = 256;
+        cache->height = 256;
+        size_t size = cache->width * cache->height;  // 65536 bytes
         
-        lenscfg->overlay_data = (unsigned char*)malloc(size);
-        if (lenscfg->overlay_data == NULL) {
+        cache->data = (unsigned char*)malloc(size);
+        if (cache->data == NULL) {
             ERRORLOG("Failed to allocate memory for overlay image");
             return false;
         }
         
         // Try loading from mods with fallback to base game
         const char* loaded_from = NULL;
-        if (try_load_file_from_mods_with_fallback(fname_raw, FGrp_StdData, lenscfg->overlay_data, size, &loaded_from)) {
+        if (try_load_file_from_mods_with_fallback(fname_raw, FGrp_StdData, cache->data, size, &loaded_from)) {
             if (loaded_from != NULL) {
-                SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from mod '%s' data directory", fname_raw, lenscfg->overlay_width, lenscfg->overlay_height, loaded_from);
+                SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from mod '%s' data directory", fname_raw, cache->width, cache->height, loaded_from);
             } else {
-                SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from base game data directory", fname_raw, lenscfg->overlay_width, lenscfg->overlay_height);
+                SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from base game data directory", fname_raw, cache->width, cache->height);
             }
             return true;
         }
         
         // Not found anywhere
         WARNLOG("Lens overlay '%s' not found. Make sure it's defined in a lenses.json file in a .zip or provide a .raw file in /data", lenscfg->overlay_file);
-        free(lenscfg->overlay_data);
-        lenscfg->overlay_data = NULL;
-        lenscfg->overlay_width = 0;
-        lenscfg->overlay_height = 0;
+        free(cache->data);
+        cache->data = NULL;
+        cache->width = 0;
+        cache->height = 0;
         return false;
     }
     
@@ -313,27 +330,32 @@ static TbBool load_overlay_image(struct LensConfig* lenscfg)
     }
     
     size_t size = overlay->width * overlay->height;
-    lenscfg->overlay_data = (unsigned char*)malloc(size);
-    if (lenscfg->overlay_data == NULL) {
+    cache->data = (unsigned char*)malloc(size);
+    if (cache->data == NULL) {
         ERRORLOG("Failed to allocate memory for overlay image");
         return false;
     }
     
-    memcpy(lenscfg->overlay_data, overlay->data, size);
-    lenscfg->overlay_width = overlay->width;
-    lenscfg->overlay_height = overlay->height;
+    memcpy(cache->data, overlay->data, size);
+    cache->width = overlay->width;
+    cache->height = overlay->height;
     
-    SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from registry", lenscfg->overlay_file, lenscfg->overlay_width, lenscfg->overlay_height);
+    SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from registry", lenscfg->overlay_file, cache->width, cache->height);
     return true;
 }
 
-static void free_overlay_image(struct LensConfig* lenscfg)
+static void free_overlay_image(long lens_idx)
 {
-    if (lenscfg->overlay_data != NULL) {
-        free(lenscfg->overlay_data);
-        lenscfg->overlay_data = NULL;
-        lenscfg->overlay_width = 0;
-        lenscfg->overlay_height = 0;
+    if (lens_idx < 0 || lens_idx >= LENS_ITEMS_MAX) {
+        return;
+    }
+    
+    struct LensOverlayCache* cache = &overlay_cache[lens_idx];
+    if (cache->data != NULL) {
+        free(cache->data);
+        cache->data = NULL;
+        cache->width = 0;
+        cache->height = 0;
     }
 }
 
@@ -369,10 +391,10 @@ void reset_eye_lenses(void)
     SYNCDBG(7,"Starting");
     free_mist();
     clear_lens_palette();
-    // Free any loaded overlay images
-    for (size_t i = 0; i < (size_t)lenses_conf.lenses_count; i++)
+    // Free any loaded overlay images from cache
+    for (int i = 0; i < LENS_ITEMS_MAX; i++)
     {
-        free_overlay_image(&lenses_conf.lenses[i]);
+        free_overlay_image(i);
     }
     if (eye_lens_memory != NULL)
     {
@@ -507,10 +529,10 @@ void setup_eye_lens(long nlens)
     if ((lenscfg->flags & LCF_HasOverlay) != 0)
     {
         SYNCDBG(7, "Overlay config entered for lens %ld, name='%s'", nlens, lenscfg->overlay_file);
-        if (!load_overlay_image(lenscfg)) {
+        if (!load_overlay_image(nlens)) {
             WARNLOG("Failed to load overlay for lens %ld", nlens);
         } else {
-            SYNCDBG(7, "Successfully loaded overlay %dx%d", lenscfg->overlay_width, lenscfg->overlay_height);
+            SYNCDBG(7, "Successfully loaded overlay %dx%d", overlay_cache[nlens].width, overlay_cache[nlens].height);
         }
     }
     game.applied_lens_type = nlens;
@@ -557,24 +579,32 @@ void draw_copy(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long
     }
 }
 
-static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long height, struct LensConfig* lenscfg)
+static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long height, long lens_idx)
 {
-    if (lenscfg->overlay_data == NULL) {
+    if (lens_idx < 0 || lens_idx >= LENS_ITEMS_MAX) {
+        ERRORLOG("Invalid lens index %ld", lens_idx);
+        return;
+    }
+    
+    struct LensOverlayCache* cache = &overlay_cache[lens_idx];
+    struct LensConfig* lenscfg = &lenses_conf.lenses[lens_idx];
+    
+    if (cache->data == NULL) {
         WARNLOG("Overlay data is NULL, cannot draw");
         return;
     }
     
     // Validate dimensions
-    if (width <= 0 || height <= 0 || lenscfg->overlay_width <= 0 || lenscfg->overlay_height <= 0) {
-        WARNLOG("Invalid dimensions for overlay rendering: screen=%ldx%ld, overlay=%dx%d", width, height, lenscfg->overlay_width, lenscfg->overlay_height);
+    if (width <= 0 || height <= 0 || cache->width <= 0 || cache->height <= 0) {
+        WARNLOG("Invalid dimensions for overlay rendering: screen=%ldx%ld, overlay=%dx%d", width, height, cache->width, cache->height);
         return;
     }
     
-    SYNCDBG(8, "Drawing overlay: screen=%ldx%ld, overlay=%dx%d, alpha=%d", width, height, lenscfg->overlay_width, lenscfg->overlay_height, lenscfg->overlay_alpha);
+    SYNCDBG(8, "Drawing overlay: screen=%ldx%ld, overlay=%dx%d, alpha=%d", width, height, cache->width, cache->height, lenscfg->overlay_alpha);
     
     // Calculate scale factors to stretch/fit overlay to fill entire viewport
-    float scale_x = (float)lenscfg->overlay_width / width;
-    float scale_y = (float)lenscfg->overlay_height / height;
+    float scale_x = (float)cache->width / width;
+    float scale_y = (float)cache->height / height;
     
     // Determine dithering threshold based on alpha (0-255)
     // alpha=255 (opaque): draw all pixels
@@ -589,14 +619,14 @@ static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long 
     for (long y = 0; y < height; y++)
     {
         int src_y = (int)(y * scale_y);
-        if (src_y >= lenscfg->overlay_height) src_y = lenscfg->overlay_height - 1;
+        if (src_y >= cache->height) src_y = cache->height - 1;
         
-        unsigned char* src_row = lenscfg->overlay_data + (src_y * lenscfg->overlay_width);
+        unsigned char* src_row = cache->data + (src_y * cache->width);
         
         for (long x = 0; x < width; x++)
         {
             int src_x = (int)(x * scale_x);
-            if (src_x >= lenscfg->overlay_width) src_x = lenscfg->overlay_width - 1;
+            if (src_x >= cache->width) src_x = cache->width - 1;
             
             unsigned char overlay_pixel = src_row[src_x];
             
@@ -669,9 +699,12 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
         {
             draw_copy(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
         }
-        // Now draw the overlay on top of the game scene
-        SYNCDBG(8, "Calling draw_overlay (flags=%d, data=%p)", lenscfg->flags, lenscfg->overlay_data);
-        draw_overlay(dstbuf, dstpitch, width, height, lenscfg);
+        // Load overlay if not already loaded
+        if (load_overlay_image(effect)) {
+            // Now draw the overlay on top of the game scene
+            SYNCDBG(8, "Calling draw_overlay (flags=%d, lens_idx=%ld)", lenscfg->flags, effect);
+            draw_overlay(dstbuf, dstpitch, width, height, effect);
+        }
         copied = true;
     }
     // If we haven't copied the buffer to screen yet, do so now
