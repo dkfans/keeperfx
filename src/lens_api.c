@@ -444,7 +444,6 @@ void initialise_eye_lenses(void)
 
 void setup_eye_lens(long nlens)
 {
-    WARNLOG("CONFIG_DEBUG: setup_eye_lens called with nlens=%ld", nlens);
     if ((game.mode_flags & MFlg_EyeLensReady) == 0)
     {
         WARNLOG("Can't setup lens - not initialized");
@@ -630,8 +629,8 @@ static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long 
             
             unsigned char overlay_pixel = src_row[src_x];
             
-            // Color 0 is treated as transparent - skip it completely
-            if (overlay_pixel != 0)
+            // Color 255 (magenta) is treated as transparent - skip it completely
+            if (overlay_pixel != 255)
             {
                 // Apply alpha dithering using checkerboard pattern
                 if (alpha >= 255)
