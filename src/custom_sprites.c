@@ -90,6 +90,10 @@ static int num_added_icons = 0;
 static struct LensOverlayData added_lens_overlays[MAX_LENS_OVERLAYS];
 static int num_added_lens_overlays = 0;
 
+#define MAX_LENS_MISTS 64
+static struct LensMistData added_lens_mists[MAX_LENS_MISTS];
+static int num_added_lens_mists = 0;
+
 unsigned char base_pal[PALETTE_SIZE];
 
 int total_sprite_zip_count = 0;
@@ -101,7 +105,9 @@ enum CustomLoadFlags {
     /// @brief Custom icons
     CLF_Icons = 0x2,
     /// @brief Lens overlays
-    CLF_LensOverlays = 0x4
+    CLF_LensOverlays = 0x4,
+    /// @brief Lens mists
+    CLF_LensMists = 0x8
 };
 
 static unsigned char big_scratch_data[1024*1024*16] = {0};
@@ -115,6 +121,7 @@ static TbBool
 add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root));
 
 static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root);
+static TbBool process_lens_mist(const char *path, unzFile zip, VALUE *root);
 
 static TbBool process_icon(const char *path, unzFile zip, VALUE *root);
 
@@ -239,6 +246,11 @@ static int load_file_sprites(const char *path, const char *file_desc)
         add_flag |= CLF_LensOverlays;
     }
 
+    if (add_custom_json(path, "mists.json", &process_lens_mist))
+    {
+        add_flag |= CLF_LensMists;
+    }
+
     if (file_desc != NULL)
     {
         if (add_flag & CLF_Sprites)
@@ -266,6 +278,14 @@ static int load_file_sprites(const char *path, const char *file_desc)
         else
         {
             SYNCDBG(0, "Unable to load lens overlays from %s", file_desc);
+        }
+        if (add_flag & CLF_LensMists)
+        {
+            JUSTLOG("Loaded lens mists from %s", file_desc);
+        }
+        else
+        {
+            SYNCDBG(0, "Unable to load lens mists from %s", file_desc);
         }
         total_sprite_zip_count++;
     }
@@ -1362,6 +1382,143 @@ end:
     return 0;
 }
 
+// Helper function to decode PNG from ZIP file to indexed palette format
+// Returns indexed data on success, NULL on failure
+// Caller must free the returned data
+static unsigned char* decode_png_to_indexed(unzFile zip, const char *file, const char *path, 
+                                             int *out_width, int *out_height, 
+                                             unz_file_info64 *zip_info)
+{
+    if (zip_info->uncompressed_size > 1024 * 1024 * 4)
+    {
+        WARNLOG("PNG file too large: '%s' in '%s'", file, path);
+        return NULL;
+    }
+
+    unsigned char *png_buffer = malloc(zip_info->uncompressed_size);
+    if (png_buffer == NULL)
+    {
+        ERRORLOG("Failed to allocate memory for PNG buffer");
+        return NULL;
+    }
+
+    if (unzReadCurrentFile(zip, png_buffer, zip_info->uncompressed_size) != zip_info->uncompressed_size)
+    {
+        WARNLOG("Failed to read '%s' from '%s'", file, path);
+        free(png_buffer);
+        return NULL;
+    }
+
+    // Decode PNG using spng
+    spng_ctx *ctx = spng_ctx_new(0);
+    if (ctx == NULL)
+    {
+        ERRORLOG("Failed to create spng context");
+        free(png_buffer);
+        return NULL;
+    }
+
+    spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
+    size_t limit = 1024 * 1024 * 4;
+    spng_set_chunk_limits(ctx, limit, limit);
+
+    if (spng_set_png_buffer(ctx, png_buffer, zip_info->uncompressed_size))
+    {
+        ERRORLOG("Failed to set PNG buffer for '%s'", file);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return NULL;
+    }
+
+    struct spng_ihdr ihdr;
+    int r = spng_get_ihdr(ctx, &ihdr);
+    if (r)
+    {
+        ERRORLOG("spng_get_ihdr() error: %s for '%s'", spng_strerror(r), file);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return NULL;
+    }
+
+    if (ihdr.width <= 0 || ihdr.height <= 0 || ihdr.width > 4096 || ihdr.height > 4096)
+    {
+        WARNLOG("Invalid image dimensions (%dx%d) in '%s'", ihdr.width, ihdr.height, file);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return NULL;
+    }
+
+    // Decode to RGBA8
+    size_t out_size;
+    int fmt = SPNG_FMT_RGBA8;
+    if (spng_decoded_image_size(ctx, fmt, &out_size))
+    {
+        ERRORLOG("Failed to get decoded image size for '%s'", file);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return NULL;
+    }
+
+    unsigned char *rgba_buffer = malloc(out_size);
+    if (rgba_buffer == NULL)
+    {
+        ERRORLOG("Failed to allocate memory for decoded image");
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return NULL;
+    }
+
+    if (spng_decode_image(ctx, rgba_buffer, out_size, fmt, SPNG_DECODE_TRNS))
+    {
+        ERRORLOG("Failed to decode PNG '%s'", file);
+        free(rgba_buffer);
+        spng_ctx_free(ctx);
+        free(png_buffer);
+        return NULL;
+    }
+
+    spng_ctx_free(ctx);
+    free(png_buffer);
+
+    // Convert RGBA to indexed palette format
+    size_t indexed_size = ihdr.width * ihdr.height;
+    unsigned char *indexed_data = malloc(indexed_size);
+    if (indexed_data == NULL)
+    {
+        ERRORLOG("Failed to allocate memory for indexed image data");
+        free(rgba_buffer);
+        return NULL;
+    }
+
+    // Convert RGBA to palette indices using rgb_to_pal_table
+    for (size_t i = 0; i < indexed_size; i++)
+    {
+        unsigned char red = rgba_buffer[i * 4 + 0];
+        unsigned char green = rgba_buffer[i * 4 + 1];
+        unsigned char blue = rgba_buffer[i * 4 + 2];
+        unsigned char alpha = rgba_buffer[i * 4 + 3];
+        
+        if (alpha < 128) {
+            // Transparent pixel - use color 0 (typically transparent/black)
+            indexed_data[i] = 0;
+        } else if (rgb_to_pal_table != NULL) {
+            // Use lookup table for color conversion
+            indexed_data[i] = rgb_to_pal_table[
+                ((red >> 2) << 12) | ((green >> 2) << 6) | (blue >> 2)
+            ];
+        } else {
+            // Fallback: simple grayscale conversion
+            indexed_data[i] = (red + green + blue) / 3;
+        }
+    }
+
+    free(rgba_buffer);
+
+    *out_width = ihdr.width;
+    *out_height = ihdr.height;
+    return indexed_data;
+}
+
 static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx, VALUE *root)
 {
     VALUE *val;
@@ -1482,136 +1639,20 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
         return 1;
     }
 
-    // PNG format handling
-    if (zip_info.uncompressed_size > 1024 * 1024 * 4)
-    {
-        WARNLOG("Lens overlay file too large: '%s' in '%s'", file, path);
-        unzCloseCurrentFile(zip);
-        return 0;
-    }
-
-    unsigned char *png_buffer = malloc(zip_info.uncompressed_size);
-    if (png_buffer == NULL)
-    {
-        ERRORLOG("Failed to allocate memory for PNG buffer");
-        unzCloseCurrentFile(zip);
-        return 0;
-    }
-
-    if (unzReadCurrentFile(zip, png_buffer, zip_info.uncompressed_size) != zip_info.uncompressed_size)
-    {
-        WARNLOG("Failed to read '%s' from '%s'", file, path);
-        free(png_buffer);
-        unzCloseCurrentFile(zip);
-        return 0;
-    }
-
-    unzCloseCurrentFile(zip);
-
-    // Decode PNG using spng
-    spng_ctx *ctx = spng_ctx_new(0);
-    if (ctx == NULL)
-    {
-        ERRORLOG("Failed to create spng context");
-        free(png_buffer);
-        return 0;
-    }
-
-    spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
-    size_t limit = 1024 * 1024 * 4;
-    spng_set_chunk_limits(ctx, limit, limit);
-
-    if (spng_set_png_buffer(ctx, png_buffer, zip_info.uncompressed_size))
-    {
-        ERRORLOG("Failed to set PNG buffer for '%s'", file);
-        spng_ctx_free(ctx);
-        free(png_buffer);
-        return 0;
-    }
-
-    struct spng_ihdr ihdr;
-    int r = spng_get_ihdr(ctx, &ihdr);
-    if (r)
-    {
-        ERRORLOG("spng_get_ihdr() error: %s for '%s'", spng_strerror(r), file);
-        spng_ctx_free(ctx);
-        free(png_buffer);
-        return 0;
-    }
-
-    if (ihdr.width <= 0 || ihdr.height <= 0 || ihdr.width > 4096 || ihdr.height > 4096)
-    {
-        WARNLOG("Invalid lens overlay dimensions (%dx%d) in '%s'", ihdr.width, ihdr.height, file);
-        spng_ctx_free(ctx);
-        free(png_buffer);
-        return 0;
-    }
-
-    // Decode to RGBA8
-    size_t out_size;
-    int fmt = SPNG_FMT_RGBA8;
-    if (spng_decoded_image_size(ctx, fmt, &out_size))
-    {
-        ERRORLOG("Failed to get decoded image size for '%s'", file);
-        spng_ctx_free(ctx);
-        free(png_buffer);
-        return 0;
-    }
-
-    unsigned char *rgba_buffer = malloc(out_size);
-    if (rgba_buffer == NULL)
-    {
-        ERRORLOG("Failed to allocate memory for decoded image");
-        spng_ctx_free(ctx);
-        free(png_buffer);
-        return 0;
-    }
-
-    if (spng_decode_image(ctx, rgba_buffer, out_size, fmt, SPNG_DECODE_TRNS))
-    {
-        ERRORLOG("Failed to decode PNG '%s'", file);
-        free(rgba_buffer);
-        spng_ctx_free(ctx);
-        free(png_buffer);
-        return 0;
-    }
-
-    spng_ctx_free(ctx);
-    free(png_buffer);
-
-    // Convert RGBA to indexed palette format
-    size_t indexed_size = ihdr.width * ihdr.height;
-    unsigned char *indexed_data = malloc(indexed_size);
+    // PNG format handling - use shared helper
+    int width, height;
+    unsigned char *indexed_data = decode_png_to_indexed(zip, file, path, &width, &height, &zip_info);
     if (indexed_data == NULL)
     {
-        ERRORLOG("Failed to allocate memory for indexed image data");
-        free(rgba_buffer);
         return 0;
     }
 
-    // Convert RGBA to palette indices using rgb_to_pal_table
-    for (size_t i = 0; i < indexed_size; i++)
+    if (width <= 0 || height <= 0 || width > 4096 || height > 4096)
     {
-        unsigned char red = rgba_buffer[i * 4 + 0];
-        unsigned char green = rgba_buffer[i * 4 + 1];
-        unsigned char blue = rgba_buffer[i * 4 + 2];
-        unsigned char alpha = rgba_buffer[i * 4 + 3];
-        
-        if (alpha < 128) {
-            // Transparent pixel - use color 0 (typically transparent/black)
-            indexed_data[i] = 0;
-        } else if (rgb_to_pal_table != NULL) {
-            // Use lookup table for color conversion
-            indexed_data[i] = rgb_to_pal_table[
-                ((red >> 2) << 12) | ((green >> 2) << 6) | (blue >> 2)
-            ];
-        } else {
-            // Fallback: simple grayscale conversion
-            indexed_data[i] = (red + green + blue) / 3;
-        }
+        WARNLOG("Invalid lens overlay dimensions (%dx%d) in '%s'", width, height, file);
+        free(indexed_data);
+        return 0;
     }
-
-    free(rgba_buffer);
 
     // Check if overlay with this name already exists
     struct LensOverlayData *existing = NULL;
@@ -1629,8 +1670,8 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
         // Override existing overlay
         free(existing->data);
         existing->data = indexed_data;
-        existing->width = ihdr.width;
-        existing->height = ihdr.height;
+        existing->width = width;
+        existing->height = height;
         JUSTLOG("Overriding lens overlay '%s/%s'", path, name);
     }
     else
@@ -1645,10 +1686,10 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
         
         added_lens_overlays[num_added_lens_overlays].name = strdup(name);
         added_lens_overlays[num_added_lens_overlays].data = indexed_data;
-        added_lens_overlays[num_added_lens_overlays].width = ihdr.width;
-        added_lens_overlays[num_added_lens_overlays].height = ihdr.height;
+        added_lens_overlays[num_added_lens_overlays].width = width;
+        added_lens_overlays[num_added_lens_overlays].height = height;
         num_added_lens_overlays++;
-        SYNCDBG(8, "Added PNG lens overlay '%s' (%dx%d)", name, ihdr.width, ihdr.height);
+        SYNCDBG(8, "Added PNG lens overlay '%s' (%dx%d)", name, width, height);
     }
 
     return 1;
@@ -1754,6 +1795,160 @@ static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root)
     {
         VALUE *val = value_array_get(root, i);
         if (!process_lens_overlay_from_list(path, zip, i, val))
+        {
+            ret_ok = false;
+            continue;
+        }
+    }
+    return ret_ok;
+}
+
+static int process_lens_mist_from_list(const char *path, unzFile zip, int idx, VALUE *root)
+{
+    VALUE *val;
+
+    val = value_dict_get(root, "name");
+    if (val == NULL)
+    {
+        WARNLOG("Invalid lens mist %s/mists.json[%d]: no \"name\" key", path, idx);
+        return 0;
+    }
+    const char *name = value_string(val);
+    SYNCDBG(2, "found lens mist: '%s/%s'", path, name);
+
+    VALUE *file_value = value_dict_get(root, "file");
+    if (file_value == NULL)
+    {
+        WARNLOG("Invalid lens mist %s/mists.json[%d]: no \"file\" key", path, idx);
+        return 0;
+    }
+
+    const char *file = NULL;
+    if (value_type(file_value) == VALUE_STRING)
+    {
+        file = value_string(file_value);
+    }
+    else if (value_type(file_value) == VALUE_ARRAY && value_array_size(file_value) > 0)
+    {
+        file = value_string(value_array_get(file_value, 0));
+    }
+    else
+    {
+        WARNLOG("Invalid lens mist %s/mists.json[%d]: invalid \"file\" value", path, idx);
+        return 0;
+    }
+
+    if (fastUnzLocateFile(zip, file, 0))
+    {
+        WARNLOG("File '%s' not found in '%s'", file, path);
+        return 0;
+    }
+
+    unz_file_info64 zip_info = {0};
+    if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0))
+    {
+        WARNLOG("Failed to get file info for '%s' in '%s'", file, path);
+        return 0;
+    }
+
+    if (UNZ_OK != unzOpenCurrentFile(zip))
+    {
+        return 0;
+    }
+
+    unsigned char *mist_data = NULL;
+    const size_t mist_size = 256 * 256;
+
+    // Try PNG format first
+    if (zip_info.uncompressed_size != mist_size)
+    {
+        // Not RAW format, try PNG
+        int width, height;
+        mist_data = decode_png_to_indexed(zip, file, path, &width, &height, &zip_info);
+        if (mist_data == NULL)
+        {
+            // Already closed by decode function on failure
+            return 0;
+        }
+
+        // Validate mist dimensions (must be 256x256)
+        if (width != 256 || height != 256)
+        {
+            WARNLOG("Invalid mist dimensions for '%s' in '%s': expected 256x256, got %dx%d", 
+                    file, path, width, height);
+            free(mist_data);
+            return 0;
+        }
+
+        SYNCDBG(7, "Loaded PNG mist '%s' from '%s'", file, path);
+    }
+    else
+    {
+        // RAW format (256x256 = 65536 bytes)
+        mist_data = malloc(mist_size);
+        if (mist_data == NULL)
+        {
+            ERRORLOG("Failed to allocate memory for mist data");
+            unzCloseCurrentFile(zip);
+            return 0;
+        }
+
+        if (unzReadCurrentFile(zip, mist_data, mist_size) != mist_size)
+        {
+            WARNLOG("Failed to read mist file '%s' from '%s'", file, path);
+            free(mist_data);
+            unzCloseCurrentFile(zip);
+            return 0;
+        }
+
+        unzCloseCurrentFile(zip);
+        SYNCDBG(7, "Loaded RAW mist '%s' from '%s'", file, path);
+    }
+
+    // Check if mist with this name already exists
+    struct LensMistData *existing = NULL;
+    for (int i = 0; i < num_added_lens_mists; i++)
+    {
+        if (strcasecmp(added_lens_mists[i].name, name) == 0)
+        {
+            existing = &added_lens_mists[i];
+            break;
+        }
+    }
+
+    if (existing)
+    {
+        // Override existing mist
+        free(existing->data);
+        existing->data = mist_data;
+        JUSTLOG("Overriding lens mist '%s/%s'", path, name);
+    }
+    else
+    {
+        // Add new mist
+        if (num_added_lens_mists >= MAX_LENS_MISTS)
+        {
+            ERRORLOG("Too many lens mists (max %d)", MAX_LENS_MISTS);
+            free(mist_data);
+            return 0;
+        }
+
+        added_lens_mists[num_added_lens_mists].name = strdup(name);
+        added_lens_mists[num_added_lens_mists].data = mist_data;
+        num_added_lens_mists++;
+        SYNCDBG(8, "Added lens mist '%s' (256x256)", name);
+    }
+
+    return 1;
+}
+
+static TbBool process_lens_mist(const char *path, unzFile zip, VALUE *root)
+{
+    TbBool ret_ok = true;
+    for (int i = 0; i < value_array_size(root); i++)
+    {
+        VALUE *val = value_array_get(root, i);
+        if (!process_lens_mist_from_list(path, zip, i, val))
         {
             ret_ok = false;
             continue;
@@ -1968,6 +2163,21 @@ const struct LensOverlayData* get_lens_overlay_data(const char *name)
         if (strcasecmp(added_lens_overlays[i].name, name) == 0)
         {
             return &added_lens_overlays[i];
+        }
+    }
+    return NULL;
+}
+
+const struct LensMistData* get_lens_mist_data(const char *name)
+{
+    if (name == NULL || name[0] == '\0')
+        return NULL;
+
+    for (int i = 0; i < num_added_lens_mists; i++)
+    {
+        if (strcasecmp(added_lens_mists[i].name, name) == 0)
+        {
+            return &added_lens_mists[i];
         }
     }
     return NULL;

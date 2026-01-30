@@ -124,12 +124,15 @@ static int64_t value_overlay(const struct NamedField* named_field, const char* v
     lenses_conf.lenses[idx].flags |= LCF_HasOverlay;
     struct LensConfig* lenscfg = &lenses_conf.lenses[idx];
     
-    // Only store the overlay name when processing position 0 (the name field), pos 1 is for alpha value
+    // Only store the overlay name when processing position 0 (the name field)
+    // Position 1 is the alpha value, handled by value_default
     if (named_field->argnum == 0)
     {
+        // Store the overlay name (a reference name from JSON)
         strncpy(lenscfg->overlay_file, value_text, DISKPATH_SIZE - 1);
         lenscfg->overlay_file[DISKPATH_SIZE - 1] = '\0';
         
+        // Initialize overlay data pointer to NULL - will be looked up during setup
         lenscfg->overlay_data = NULL;
         lenscfg->overlay_width = 0;
         lenscfg->overlay_height = 0;

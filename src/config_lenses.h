@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define LENS_ITEMS_MAX 32
+#define LENS_ITEMS_MAX 255
 
 enum LensConfigFlags {
     LCF_HasMist     = 0x01,

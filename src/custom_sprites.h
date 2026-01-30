@@ -50,8 +50,17 @@ struct LensOverlayData {
     int height;
 };
 
+// Lens mist data structure
+struct LensMistData {
+    char *name;
+    unsigned char *data;  // 256x256 mist texture
+};
+
 // Get lens overlay data by name (returns NULL if not found)
 const struct LensOverlayData* get_lens_overlay_data(const char *name);
+
+// Get lens mist data by name (returns NULL if not found)
+const struct LensMistData* get_lens_mist_data(const char *name);
 
 extern short bad_icon_id;
 #ifdef __cplusplus

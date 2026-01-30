@@ -36,6 +36,7 @@
 #include "game_legacy.h"
 #include "config_keeperfx.h"
 #include "custom_sprites.h"
+#include "config_mods.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -164,14 +165,95 @@ static TbBool load_overlay_image(struct LensConfig* lenscfg)
         return false;
     }
     
+    // Check if this is a direct file path (contains .raw or other file extension)
+    const char* ext = strrchr(lenscfg->overlay_file, '.');
+    if (ext != NULL && strcasecmp(ext, ".raw") == 0) {
+        // Load directly from file in /data directory
+        char* fname = prepare_file_path(FGrp_StdData, lenscfg->overlay_file);
+        
+        // RAW overlay files are 256x256 8-bit indexed (same as mist files)
+        lenscfg->overlay_width = 256;
+        lenscfg->overlay_height = 256;
+        size_t size = lenscfg->overlay_width * lenscfg->overlay_height;  // 1 byte per pixel
+        
+        lenscfg->overlay_data = (unsigned char*)malloc(size);
+        if (lenscfg->overlay_data == NULL) {
+            ERRORLOG("Failed to allocate memory for overlay image");
+            return false;
+        }
+        
+        if (LbFileLoadAt(fname, lenscfg->overlay_data) != size) {
+            WARNLOG("Failed to load overlay file '%s' from /data directory", lenscfg->overlay_file);
+            free(lenscfg->overlay_data);
+            lenscfg->overlay_data = NULL;
+            lenscfg->overlay_width = 0;
+            lenscfg->overlay_height = 0;
+            return false;
+        }
+        
+        SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from file", lenscfg->overlay_file, lenscfg->overlay_width, lenscfg->overlay_height);
+        return true;
+    }
+    
     // Look up overlay by name in the custom sprites registry
     const struct LensOverlayData* overlay = get_lens_overlay_data(lenscfg->overlay_file);
     
+    // If not found in registry, try loading from /data directory as RAW file fallback
     if (overlay == NULL) {
-        WARNLOG("Lens overlay '%s' not found. Make sure it's defined in a lenses.json file in a .zip", lenscfg->overlay_file);
-        return false;
+        // Try loading RAW file from mod data directories, then base game /data
+        char fname_raw[256];
+        snprintf(fname_raw, sizeof(fname_raw), "%s.raw", lenscfg->overlay_file);
+        
+        // RAW overlay files are 256x256 8-bit indexed (1 byte per pixel, same as mist files)
+        lenscfg->overlay_width = 256;
+        lenscfg->overlay_height = 256;
+        size_t size = lenscfg->overlay_width * lenscfg->overlay_height;  // 65536 bytes
+        
+        lenscfg->overlay_data = (unsigned char*)malloc(size);
+        if (lenscfg->overlay_data == NULL) {
+            ERRORLOG("Failed to allocate memory for overlay image");
+            return false;
+        }
+        
+        // Try loading from all loaded mods' data directories first (same order as mod loading)
+        TbBool loaded = false;
+        
+        // Check after_base mods
+        for (int i = 0; i < mods_conf.after_base_cnt && !loaded; i++) {
+            const struct ModConfigItem* mod_item = &mods_conf.after_base_item[i];
+            if (mod_item->state.fx_data) {
+                char mod_dir[256];
+                snprintf(mod_dir, sizeof(mod_dir), "%s/%s", MODS_DIR_NAME, mod_item->name);
+                char* fname_mod = prepare_file_path_mod(mod_dir, FGrp_StdData, fname_raw);
+                if (LbFileLoadAt(fname_mod, lenscfg->overlay_data) == size) {
+                    SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from mod '%s' data directory", fname_raw, lenscfg->overlay_width, lenscfg->overlay_height, mod_item->name);
+                    loaded = true;
+                }
+            }
+        }
+        
+        // If not found in mods, try base game /data directory
+        if (!loaded) {
+            char* fname_base = prepare_file_path(FGrp_StdData, fname_raw);
+            if (LbFileLoadAt(fname_base, lenscfg->overlay_data) == size) {
+                SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from base game data directory", fname_raw, lenscfg->overlay_width, lenscfg->overlay_height);
+                loaded = true;
+            }
+        }
+        
+        if (!loaded) {
+            WARNLOG("Lens overlay '%s' not found. Make sure it's defined in a lenses.json file in a .zip or provide a .raw file in /data", lenscfg->overlay_file);
+            free(lenscfg->overlay_data);
+            lenscfg->overlay_data = NULL;
+            lenscfg->overlay_width = 0;
+            lenscfg->overlay_height = 0;
+            return false;
+        }
+        
+        return true;
     }
     
+    // Found in registry - load it
     if (overlay->data == NULL || overlay->width <= 0 || overlay->height <= 0) {
         WARNLOG("Invalid lens overlay data for '%s'", lenscfg->overlay_file);
         return false;
@@ -223,6 +305,8 @@ TbBool clear_lens_palette(void)
 static void set_lens_palette(unsigned char *palette)
 {
     struct PlayerInfo* player = get_my_player();
+    WARNLOG("CONFIG_DEBUG: set_lens_palette called, palette[0-4]: %02x %02x %02x %02x %02x",
+        palette[0], palette[1], palette[2], palette[3], palette[4]);
     player->main_palette = palette;
     player->lens_palette = palette;
 }
@@ -285,6 +369,7 @@ void initialise_eye_lenses(void)
 
 void setup_eye_lens(long nlens)
 {
+    WARNLOG("CONFIG_DEBUG: setup_eye_lens called with nlens=%ld", nlens);
     if ((game.mode_flags & MFlg_EyeLensReady) == 0)
     {
         WARNLOG("Can't setup lens - not initialized");
@@ -309,8 +394,30 @@ void setup_eye_lens(long nlens)
     if ((lenscfg->flags & LCF_HasMist) != 0)
     {
         SYNCDBG(9,"Mist config entered");
-        char* fname = prepare_file_path(FGrp_StdData, lenscfg->mist_file);
-        LbFileLoadAt(fname, eye_lens_memory);
+        
+        // Try to load from registry first (ZIP files with mists.json)
+        const struct LensMistData* mist = get_lens_mist_data(lenscfg->mist_file);
+        
+        if (mist != NULL && mist->data != NULL)
+        {
+            // Load from registry
+            memcpy(eye_lens_memory, mist->data, 256 * 256);
+            SYNCDBG(7, "Loaded mist '%s' from registry", lenscfg->mist_file);
+        }
+        else
+        {
+            // Fall back to loading from /data directory
+            char* fname = prepare_file_path(FGrp_StdData, lenscfg->mist_file);
+            if (LbFileLoadAt(fname, eye_lens_memory) > 0)
+            {
+                SYNCDBG(7, "Loaded mist '%s' from file", lenscfg->mist_file);
+            }
+            else
+            {
+                WARNLOG("Failed to load mist file '%s'", lenscfg->mist_file);
+            }
+        }
+        
         setup_mist((unsigned char *)eye_lens_memory,
             &pixmap.fade_tables[(lenscfg->mist_lightness)*256],
             &pixmap.ghost[(lenscfg->mist_ghost)*256]);
@@ -336,6 +443,7 @@ void setup_eye_lens(long nlens)
     if ((lenscfg->flags & LCF_HasPalette) != 0)
     {
         SYNCDBG(9,"Palette config entered");
+        WARNLOG("CONFIG_DEBUG: setup_eye_lens %ld calling set_lens_palette, flags=0x%02x", nlens, lenscfg->flags);
         set_lens_palette(lenscfg->palette);
     }
     if ((lenscfg->flags & LCF_HasOverlay) != 0)
