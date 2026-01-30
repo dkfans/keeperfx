@@ -51,6 +51,50 @@ extern "C" {
 uint32_t *eye_lens_memory;
 TbPixel *eye_lens_spare_screen_memory;
 /******************************************************************************/
+/**
+ * Try to load a file from mod data directories with fallback to base game.
+ * This is a helper function to reduce code duplication when loading files
+ * that support mod overrides.
+ * 
+ * @param fname_base The base filename (without path) to load
+ * @param fgroup The file group (e.g. FGrp_StdData)
+ * @param buffer Pre-allocated buffer to load data into
+ * @param expected_size Expected file size in bytes
+ * @param loaded_from Optional output parameter to store which mod loaded the file (NULL if base game)
+ * @return true if file was loaded successfully, false otherwise
+ */
+static TbBool try_load_file_from_mods_with_fallback(const char* fname_base, short fgroup, 
+                                                      unsigned char* buffer, size_t expected_size,
+                                                      const char** loaded_from)
+{
+    // Try loading from all loaded mods' data directories first (same order as mod loading)
+    for (int i = 0; i < mods_conf.after_base_cnt; i++) {
+        const struct ModConfigItem* mod_item = &mods_conf.after_base_item[i];
+        if (mod_item->state.fx_data) {
+            char mod_dir[256];
+            snprintf(mod_dir, sizeof(mod_dir), "%s/%s", MODS_DIR_NAME, mod_item->name);
+            char* fname_mod = prepare_file_path_mod(mod_dir, fgroup, fname_base);
+            if (LbFileLoadAt(fname_mod, buffer) == expected_size) {
+                if (loaded_from != NULL) {
+                    *loaded_from = mod_item->name;
+                }
+                return true;
+            }
+        }
+    }
+    
+    // If not found in mods, try base game directory
+    char* fname_base_path = prepare_file_path(fgroup, fname_base);
+    if (LbFileLoadAt(fname_base_path, buffer) == expected_size) {
+        if (loaded_from != NULL) {
+            *loaded_from = NULL;  // NULL indicates base game
+        }
+        return true;
+    }
+    
+    return false;
+}
+/******************************************************************************/
 void init_lens(uint32_t *lens_mem, int width, int height, int pitch, int nlens, int mag, int period);
 /******************************************************************************/
 
@@ -215,42 +259,24 @@ static TbBool load_overlay_image(struct LensConfig* lenscfg)
             return false;
         }
         
-        // Try loading from all loaded mods' data directories first (same order as mod loading)
-        TbBool loaded = false;
-        
-        // Check after_base mods
-        for (int i = 0; i < mods_conf.after_base_cnt && !loaded; i++) {
-            const struct ModConfigItem* mod_item = &mods_conf.after_base_item[i];
-            if (mod_item->state.fx_data) {
-                char mod_dir[256];
-                snprintf(mod_dir, sizeof(mod_dir), "%s/%s", MODS_DIR_NAME, mod_item->name);
-                char* fname_mod = prepare_file_path_mod(mod_dir, FGrp_StdData, fname_raw);
-                if (LbFileLoadAt(fname_mod, lenscfg->overlay_data) == size) {
-                    SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from mod '%s' data directory", fname_raw, lenscfg->overlay_width, lenscfg->overlay_height, mod_item->name);
-                    loaded = true;
-                }
-            }
-        }
-        
-        // If not found in mods, try base game /data directory
-        if (!loaded) {
-            char* fname_base = prepare_file_path(FGrp_StdData, fname_raw);
-            if (LbFileLoadAt(fname_base, lenscfg->overlay_data) == size) {
+        // Try loading from mods with fallback to base game
+        const char* loaded_from = NULL;
+        if (try_load_file_from_mods_with_fallback(fname_raw, FGrp_StdData, lenscfg->overlay_data, size, &loaded_from)) {
+            if (loaded_from != NULL) {
+                SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from mod '%s' data directory", fname_raw, lenscfg->overlay_width, lenscfg->overlay_height, loaded_from);
+            } else {
                 SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from base game data directory", fname_raw, lenscfg->overlay_width, lenscfg->overlay_height);
-                loaded = true;
             }
+            return true;
         }
         
-        if (!loaded) {
-            WARNLOG("Lens overlay '%s' not found. Make sure it's defined in a lenses.json file in a .zip or provide a .raw file in /data", lenscfg->overlay_file);
-            free(lenscfg->overlay_data);
-            lenscfg->overlay_data = NULL;
-            lenscfg->overlay_width = 0;
-            lenscfg->overlay_height = 0;
-            return false;
-        }
-        
-        return true;
+        // Not found anywhere
+        WARNLOG("Lens overlay '%s' not found. Make sure it's defined in a lenses.json file in a .zip or provide a .raw file in /data", lenscfg->overlay_file);
+        free(lenscfg->overlay_data);
+        lenscfg->overlay_data = NULL;
+        lenscfg->overlay_width = 0;
+        lenscfg->overlay_height = 0;
+        return false;
     }
     
     // Found in registry - load it
