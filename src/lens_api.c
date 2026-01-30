@@ -70,26 +70,35 @@ static TbBool try_load_file_from_mods_with_fallback(const char* fname_base, shor
     // Try loading from all loaded mods' data directories first (same order as mod loading)
     for (int i = 0; i < mods_conf.after_base_cnt; i++) {
         const struct ModConfigItem* mod_item = &mods_conf.after_base_item[i];
-        if (mod_item->state.fx_data) {
+        // Only check mods that have a directory (mod_dir flag)
+        if (mod_item->state.mod_dir) {
             char mod_dir[256];
             snprintf(mod_dir, sizeof(mod_dir), "%s/%s", MODS_DIR_NAME, mod_item->name);
             char* fname_mod = prepare_file_path_mod(mod_dir, fgroup, fname_base);
-            if (LbFileLoadAt(fname_mod, buffer) == expected_size) {
-                if (loaded_from != NULL) {
-                    *loaded_from = mod_item->name;
+            
+            // Check if file exists first to avoid error messages
+            if (LbFileExists(fname_mod)) {
+                long loaded = LbFileLoadAt(fname_mod, buffer);
+                if (loaded == expected_size) {
+                    if (loaded_from != NULL) {
+                        *loaded_from = mod_item->name;
+                    }
+                    return true;
                 }
-                return true;
             }
         }
     }
     
     // If not found in mods, try base game directory
     char* fname_base_path = prepare_file_path(fgroup, fname_base);
-    if (LbFileLoadAt(fname_base_path, buffer) == expected_size) {
-        if (loaded_from != NULL) {
-            *loaded_from = NULL;  // NULL indicates base game
+    if (LbFileExists(fname_base_path)) {
+        long loaded = LbFileLoadAt(fname_base_path, buffer);
+        if (loaded == expected_size) {
+            if (loaded_from != NULL) {
+                *loaded_from = NULL;  // NULL indicates base game
+            }
+            return true;
         }
-        return true;
     }
     
     return false;
