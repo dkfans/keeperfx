@@ -432,11 +432,16 @@ void setup_eye_lens(long nlens)
         }
         else
         {
-            // Fall back to loading from /data directory
-            char* fname = prepare_file_path(FGrp_StdData, lenscfg->mist_file);
-            if (LbFileLoadAt(fname, eye_lens_memory) > 0)
+            // Fall back to loading from mods with fallback to base game /data directory
+            const char* loaded_from = NULL;
+            if (try_load_file_from_mods_with_fallback(lenscfg->mist_file, FGrp_StdData, 
+                                                        (unsigned char*)eye_lens_memory, 256 * 256, &loaded_from))
             {
-                SYNCDBG(7, "Loaded mist '%s' from file", lenscfg->mist_file);
+                if (loaded_from != NULL) {
+                    SYNCDBG(7, "Loaded mist '%s' from mod '%s' data directory", lenscfg->mist_file, loaded_from);
+                } else {
+                    SYNCDBG(7, "Loaded mist '%s' from base game data directory", lenscfg->mist_file);
+                }
             }
             else
             {
