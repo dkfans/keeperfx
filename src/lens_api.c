@@ -76,14 +76,26 @@ static TbBool try_load_file_from_mods_with_fallback(const char* fname_base, shor
             snprintf(mod_dir, sizeof(mod_dir), "%s/%s", MODS_DIR_NAME, mod_item->name);
             char* fname_mod = prepare_file_path_mod(mod_dir, fgroup, fname_base);
             
+            SYNCDBG(7, "CONFIG_DEBUG: Checking mod file: '%s'", fname_mod);
+            
             // Check if file exists first to avoid error messages
             if (LbFileExists(fname_mod)) {
-                long loaded = LbFileLoadAt(fname_mod, buffer);
-                if (loaded == expected_size) {
-                    if (loaded_from != NULL) {
-                        *loaded_from = mod_item->name;
+                // Check file size before loading to prevent buffer overflows
+                long file_size = LbFileLengthRnc(fname_mod);
+                SYNCDBG(7, "CONFIG_DEBUG: File exists (size: %ld bytes, expected: %lu bytes)", file_size, (unsigned long)expected_size);
+                
+                // Only load if file size matches expected size (exact match required for safety)
+                if (file_size == expected_size) {
+                    long loaded = LbFileLoadAt(fname_mod, buffer);
+                    SYNCDBG(7, "CONFIG_DEBUG: Loaded %ld bytes", loaded);
+                    if (loaded == expected_size) {
+                        if (loaded_from != NULL) {
+                            *loaded_from = mod_item->name;
+                        }
+                        return true;
                     }
-                    return true;
+                } else {
+                    WARNLOG("File '%s' has wrong size: %ld bytes (expected %lu bytes)", fname_mod, file_size, (unsigned long)expected_size);
                 }
             }
         }
@@ -92,12 +104,18 @@ static TbBool try_load_file_from_mods_with_fallback(const char* fname_base, shor
     // If not found in mods, try base game directory
     char* fname_base_path = prepare_file_path(fgroup, fname_base);
     if (LbFileExists(fname_base_path)) {
-        long loaded = LbFileLoadAt(fname_base_path, buffer);
-        if (loaded == expected_size) {
-            if (loaded_from != NULL) {
-                *loaded_from = NULL;  // NULL indicates base game
+        // Check file size before loading to prevent buffer overflows
+        long file_size = LbFileLengthRnc(fname_base_path);
+        
+        // Only load if file size matches expected size (exact match required for safety)
+        if (file_size == expected_size) {
+            long loaded = LbFileLoadAt(fname_base_path, buffer);
+            if (loaded == expected_size) {
+                if (loaded_from != NULL) {
+                    *loaded_from = NULL;  // NULL indicates base game
+                }
+                return true;
             }
-            return true;
         }
     }
     
