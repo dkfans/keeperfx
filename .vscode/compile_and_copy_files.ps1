@@ -92,6 +92,17 @@ Copy-Item -Path "${workspaceFolder}\\bin\\*" -Destination $gameDir -Force;
 # Copy campaign mod files from .local to game directory
 if (Test-Path "${workspaceFolder}\\.local\\campaign_data") {
     Write-Host 'Copying campaign mod files...' -ForegroundColor Cyan;
+    
+    # First copy the source sound files to the campaign structure
+    if (Test-Path "${workspaceFolder}\\.local\\assets\\maiden dk2 wav") {
+        $soundSource = "${workspaceFolder}\\.local\\assets\\maiden dk2 wav";
+        $soundDest = "${workspaceFolder}\\.local\\campaign_data\\examplemaiden_crtr\\assets\\sounds";
+        if (-not (Test-Path $soundDest)) {
+            New-Item -Path $soundDest -ItemType Directory -Force | Out-Null;
+        }
+        Copy-Item -Path "$soundSource\\*" -Destination $soundDest -Recurse -Force;
+    }
+    
     $campaignDest = "$gameDir\\campgns";
     Copy-Item -Path "${workspaceFolder}\\.local\\campaign_data\\examplemaiden.cfg" -Destination "$campaignDest\\examplemaiden.cfg" -Force -ErrorAction SilentlyContinue;
     Copy-Item -Path "${workspaceFolder}\\.local\\campaign_data\\examplemaiden" -Destination "$campaignDest\\examplemaiden" -Recurse -Force -ErrorAction SilentlyContinue;

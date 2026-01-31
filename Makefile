@@ -322,7 +322,6 @@ obj/scrcapt.o \
 obj/slab_data.o \
 obj/sounds.o \
 obj/sound_manager.o \
-obj/sound_manager_test.o \
 obj/spdigger_stack.o \
 obj/steam_api.o \
 obj/tasks_list.o \

@@ -2496,35 +2496,88 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             break;
         case CrSnd_CustomSound:
             {
-                // Parse: CustomSound = <sound_type> <wav_file_path>
+                // Parse: CustomSound = <sound_type> [file1.wav, file2.wav, ...]
                 char sound_type[COMMAND_WORD_LEN];
-                char wav_path[512];
+                char wav_paths[32][512];  // Support up to 32 WAV files
+                int wav_count = 0;
                 
+                // Read sound type
                 if (get_conf_parameter_single(buf,&pos,len,sound_type,sizeof(sound_type)) > 0)
                 {
                     n++;
-                }
-                if (get_conf_parameter_single(buf,&pos,len,wav_path,sizeof(wav_path)) > 0)
-                {
-                    n++;
+                    
+                    // Check for array format [file1, file2, ...]
+                    // Skip whitespace
+                    while (pos < len && (buf[pos] == ' ' || buf[pos] == '\t')) pos++;
+                    
+                    if (pos < len && buf[pos] == '[')
+                    {
+                        // Array format - read comma-separated list
+                        pos++; // Skip opening bracket
+                        
+                        while (wav_count < 32 && pos < len)
+                        {
+                            // Skip whitespace
+                            while (pos < len && (buf[pos] == ' ' || buf[pos] == '\t')) pos++;
+                            
+                            // Check for closing bracket
+                            if (buf[pos] == ']') {
+                                pos++;
+                                break;
+                            }
+                            
+                            // Read filename
+                            int idx = 0;
+                            while (pos < len && buf[pos] != ',' && buf[pos] != ']' && buf[pos] != '\n' && buf[pos] != '\r' && idx < 511)
+                            {
+                                if (buf[pos] != ' ' || idx > 0) // Skip leading spaces but keep internal ones
+                                {
+                                    wav_paths[wav_count][idx++] = buf[pos];
+                                }
+                                pos++;
+                            }
+                            
+                            // Trim trailing spaces
+                            while (idx > 0 && wav_paths[wav_count][idx-1] == ' ') idx--;
+                            wav_paths[wav_count][idx] = '\0';
+                            
+                            if (idx > 0)
+                            {
+                                wav_count++;
+                                n++;
+                            }
+                            
+                            // Skip comma if present
+                            if (pos < len && buf[pos] == ',') pos++;
+                        }
+                    }
+                    else
+                    {
+                        // Legacy format - space-separated list
+                        while (wav_count < 32 && get_conf_parameter_single(buf,&pos,len,wav_paths[wav_count],sizeof(wav_paths[0])) > 0)
+                        {
+                            wav_count++;
+                            n++;
+                        }
+                    }
                 }
                 
-                if (n >= 2)
+                if (n >= 2 && wav_count > 0)
                 {
-                    // Call C++ SoundManager to load custom sound
+                    // Call C++ SoundManager to load custom sounds
                     #ifdef __cplusplus
                     extern "C" {
                     #endif
-                    extern int load_creature_custom_sound(long crtr_model, const char* sound_type, const char* wav_path, const char* config_textname);
+                    extern int load_creature_custom_sounds(long crtr_model, const char* sound_type, const char* wav_paths, int count, const char* config_textname);
                     #ifdef __cplusplus
                     }
                     #endif
                     
-                    load_creature_custom_sound(crtr_model, sound_type, wav_path, config_textname);
+                    load_creature_custom_sounds(crtr_model, sound_type, (const char*)wav_paths, wav_count, config_textname);
                 }
                 else
                 {
-                    CONFWRNLOG("Incorrect CustomSound syntax in [%s] block of %s file. Expected: CustomSound = <type> <file>",
+                    CONFWRNLOG("Incorrect CustomSound syntax in [%s] block of %s file. Expected: CustomSound = <type> [file1, file2, ...]",
                         block_name, config_textname);
                 }
             }

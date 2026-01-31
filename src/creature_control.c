@@ -302,10 +302,16 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
         return;
     }
     long i = SOUND_RANDOM(crsound->count);
-    SoundSmplTblID sample_idx = crsound->index + i;
     
-    ("play_creature_sound: creature=%s, snd_idx=%ld, crsound->index=%d, random_offset=%ld, final_sample_idx=%d", 
-            creature_code_name(thing->model), snd_idx, crsound->index, i, sample_idx);
+    // Handle negative indices (custom sounds) differently
+    // For custom sounds: -1, -2, -3, etc. represent sequential custom bank samples
+    // We subtract the offset to keep them negative
+    SoundSmplTblID sample_idx;
+    if (crsound->index < 0) {
+        sample_idx = crsound->index - i;  // -1, -2, -3, etc.
+    } else {
+        sample_idx = crsound->index + i;  // Regular positive indices
+    }
     
     SYNCDBG(18,"Playing sample %ld (sound type %ld, index %ld) for creature %d",
             sample_idx, snd_idx, crsound->index, thing->model);

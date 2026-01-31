@@ -98,10 +98,11 @@ public:
      * @param creature_model Creature model (e.g., "MAIDEN")
      * @param sound_type Sound type (e.g., "Happy", "Hurt", "Die")
      * @param custom_sound_name Name of the custom sound to use
+     * @param count Number of sounds (for random selection), default 1
      * @return true if successful
      */
     bool setCreatureSound(const std::string& creature_model, const std::string& sound_type, 
-                          const std::string& custom_sound_name);
+                          const std::string& custom_sound_name, int count = 1);
     
     /**
      * @brief Check if a custom sound is loaded

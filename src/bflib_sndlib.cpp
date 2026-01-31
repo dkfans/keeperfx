@@ -560,7 +560,6 @@ extern "C" void resume_music() {
 }
 
 extern "C" void stop_music() {
-	("Stopping music");
 	game.music_track = 0;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
 	if (features_enabled & Ft_NoCdMusic) {
@@ -716,8 +715,6 @@ extern "C" SoundMilesID play_sample(
 	unsigned char ctype, // possible values: 2, 3
 	SoundBankID bank_id
 ) {
-	JUSTMSG("play_sample called: emit_id=%ld, smptbl_id=%d, bank_id=%d, volume=%ld", emit_id, smptbl_id, bank_id, volume);
-	
 	if (emit_id <= 0) {
 		ERRORLOG("Can't play sample %d from bank %u, invalid emitter ID", smptbl_id, bank_id);
 		return 0;
@@ -732,7 +729,6 @@ extern "C" SoundMilesID play_sample(
 	// Validate sample ID based on bank
 	if (bank_id == 2) {
 		// Custom bank
-		JUSTMSG("Validating custom bank: smptbl_id=%d, g_custom_bank.size()=%d", smptbl_id, (int)g_custom_bank.size());
 		if (smptbl_id < 0 || smptbl_id >= g_custom_bank.size()) {
 			ERRORLOG("Can't play sample %d from custom bank, invalid sample ID", smptbl_id);
 			return 0;
@@ -772,7 +768,7 @@ extern "C" SoundMilesID play_sample(
 				// Play from appropriate bank
 				if (bank_id == 2) {
 					// Custom bank
-				JUSTMSG("Playing custom sound: bank=%d, sample=%d, emit=%ld, vol=%ld", bank_id, smptbl_id, emit_id, volume);
+
 				source.play(g_custom_bank[smptbl_id].buffer);
 			} else {
 				// Regular banks (0 and 1)

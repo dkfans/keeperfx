@@ -475,7 +475,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         k = get_creature_anim(thing, CGI_Scream);
         set_thing_draw(thing, k, 128, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
-        ("Creature dying: model=%s, index=%d, playing death sound", creature_code_name(thing->model), thing->index);
+
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }

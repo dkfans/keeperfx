@@ -205,7 +205,7 @@ extern "C" {
 
 // Set creature sound override
 bool SoundManager::setCreatureSound(const std::string& creature_model, const std::string& sound_type, 
-                                     const std::string& custom_sound_name) {
+                                     const std::string& custom_sound_name, int count) {
     // Check if custom sound exists
     auto it = custom_sounds_.find(custom_sound_name);
     if (it == custom_sounds_.end() || !it->second.loaded) {
@@ -250,15 +250,14 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     override.custom_sound_name = custom_sound_name;
     creature_sound_overrides_.push_back(override);
     
-    // Modify the creature configuration to use custom sound
-    // NOTE: We need to modify thing_play_sample to support bank_id parameter
-    // For now, store the negative of bank index to indicate custom bank
-    target_sound->index = -(it->second.sample_id + 1);  // Negative = custom bank, -1 to avoid 0
-    target_sound->count = 1;
+    // Modify the creature configuration to use custom sound(s)
+    // Negative index indicates custom bank: -1 = sample 0, -2 = sample 1, etc.
+    target_sound->index = -(it->second.sample_id + 1);  // Negative = custom bank
+    target_sound->count = count;  // Set count for multiple sounds
     
-    printf("[SoundManager] Set creature sound: %s.%s -> '%s' (custom bank index %d)\n",
+    printf("[SoundManager] Set creature sound: %s.%s -> '%s' (custom bank index %d, count %d)\n",
            creature_model.c_str(), sound_type.c_str(), custom_sound_name.c_str(),
-           it->second.sample_id);
+           it->second.sample_id, count);
     
     return true;
 }
@@ -374,7 +373,6 @@ int load_creature_custom_sound(long crtr_model, const char* sound_type, const ch
     // Ensure SoundManager is initialized
     SoundManager& sm = SoundManager::getInstance();
     if (!sm.isInitialized()) {
-        ("Initializing SoundManager...");
         if (!sm.initialize()) {
             WARNLOG("Failed to initialize SoundManager");
             // Continue anyway - sound system might be disabled
@@ -384,16 +382,11 @@ int load_creature_custom_sound(long crtr_model, const char* sound_type, const ch
     // Get creature name
     const char* creature_name = creature_code_name((ThingModel)crtr_model);
     
-    ("Parsing custom sound: %s.%s -> %s", 
-           creature_name, sound_type, wav_path);
-    
     // Resolve full path through file group system
     // wav_path is relative to FGrp_CmpgCrtrs directory
     char full_wav_path[2048];
     const char* resolved_path = prepare_file_path(FGrp_CmpgCrtrs, wav_path);
     snprintf(full_wav_path, sizeof(full_wav_path), "%s", resolved_path);
-    
-    ("Resolved path: %s", full_wav_path);
     
     // Generate unique name for this custom sound
     char sound_name[256];
@@ -411,8 +404,67 @@ int load_creature_custom_sound(long crtr_model, const char* sound_type, const ch
     bool success = sm.setCreatureSound(creature_name, sound_type, sound_name);
     
     if (success) {
-        ("Successfully set custom sound: %s.%s (bank index %d)",
-               creature_name, sound_type, bank_index);
+        return 1;
+    } else {
+        WARNLOG("Failed to set creature sound override");
+        return 0;
+    }
+}
+
+// Config parser bridge: load multiple custom sounds from creature cfg file
+int load_creature_custom_sounds(long crtr_model, const char* sound_type, const char* wav_paths_ptr, int count, const char* config_textname) {
+    using namespace KeeperFX;
+    
+    // Ensure SoundManager is initialized
+    SoundManager& sm = SoundManager::getInstance();
+    if (!sm.isInitialized()) {
+        if (!sm.initialize()) {
+            WARNLOG("Failed to initialize SoundManager");
+        }
+    }
+    
+    const char (*wav_paths)[512] = (const char (*)[512])wav_paths_ptr;
+    const char* creature_name = creature_code_name((ThingModel)crtr_model);
+    
+    int start_index = -1;
+    int loaded_count = 0;
+    
+    // Load each WAV file
+    for (int i = 0; i < count; i++) {
+        // Resolve full path
+        char full_wav_path[2048];
+        const char* resolved_path = prepare_file_path(FGrp_CmpgCrtrs, wav_paths[i]);
+        snprintf(full_wav_path, sizeof(full_wav_path), "%s", resolved_path);
+        
+        // Generate unique name
+        char sound_name[256];
+        snprintf(sound_name, sizeof(sound_name), "%s_%s_custom_%d", creature_name, sound_type, i);
+        
+        // Load the sound
+        SoundSmplTblID bank_index = sm.loadCustomSound(sound_name, full_wav_path);
+        
+        if (bank_index < 0) {
+            WARNLOG("Failed to load custom sound %d from %s", i, full_wav_path);
+            continue;
+        }
+        
+        if (start_index < 0) {
+            start_index = bank_index;  // Remember first index
+        }
+        loaded_count++;
+    }
+    
+    if (loaded_count == 0 || start_index < 0) {
+        WARNLOG("Failed to load any custom sounds for %s.%s", creature_name, sound_type);
+        return 0;
+    }
+    
+    // Set the creature sound with count
+    char first_sound_name[256];
+    snprintf(first_sound_name, sizeof(first_sound_name), "%s_%s_custom_0", creature_name, sound_type);
+    
+    // Set with count for multiple sounds
+    if (sm.setCreatureSound(creature_name, sound_type, first_sound_name, loaded_count)) {
         return 1;
     } else {
         WARNLOG("Failed to set creature sound override");

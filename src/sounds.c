@@ -89,7 +89,7 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         // Custom bank sound
         bank_id = 2;
         sample_id = (-smptbl_idx) - 1;  // Convert back to positive index
-        ("thing_play_sample: Decoded negative index %d to bank_id=%d, sample_id=%d", smptbl_idx, bank_id, sample_id);
+
     } else if (smptbl_idx >= 1000) {
         // Bank 1 sounds are typically >= 1000
         bank_id = 1;
