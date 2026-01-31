@@ -1519,16 +1519,7 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
         return NULL;
     }
 
-    // Complete RGBA data dump - filtered for Knight overlays only
-    TbBool is_knight = (strstr(file, "Knight") != NULL || strstr(file, "knight") != NULL);
-    if (use_palette_conversion && is_knight) {
-        JUSTLOG("=== COMPLETE RGBA DATA DUMP FOR '%s' (ALL %d PIXELS) ===", file, (int)indexed_size);
-        for (size_t i = 0; i < indexed_size; i++) {
-            JUSTLOG("Pixel[%d]: R=%3d G=%3d B=%3d A=%3d", (int)i,
-                    rgba_buffer[i * 4 + 0], rgba_buffer[i * 4 + 1],
-                    rgba_buffer[i * 4 + 2], rgba_buffer[i * 4 + 3]);
-        }
-    }
+
 
     // Convert RGBA to palette indices using rgb_to_pal_table
     int transparent_count = 0, opaque_count = 0;
@@ -1567,19 +1558,6 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
     }
 
     free(rgba_buffer);
-
-    if (use_palette_conversion) {
-        JUSTLOG("Conversion complete: %d transparent pixels, %d opaque pixels (total %d)", 
-                transparent_count, opaque_count, (int)indexed_size);
-        
-        // Dump complete indexed buffer - filtered for Knight overlays only
-        if (is_knight) {
-            JUSTLOG("=== COMPLETE INDEXED BUFFER DUMP FOR '%s' (ALL %d PIXELS) ===", file, (int)indexed_size);
-            for (size_t i = 0; i < indexed_size; i++) {
-                JUSTLOG("IndexedPixel[%d]: %3d", (int)i, indexed_data[i]);
-            }
-        }
-    }
 
     *out_width = ihdr.width;
     *out_height = ihdr.height;

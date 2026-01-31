@@ -124,6 +124,11 @@ static int64_t value_overlay(const struct NamedField* named_field, const char* v
     lenses_conf.lenses[idx].flags |= LCF_HasOverlay;
     struct LensConfig* lenscfg = &lenses_conf.lenses[idx];
     
+    // Clear mist flag and mist_file if this lens only has an overlay
+    // This prevents garbage mist data from previous lens configurations
+    lenscfg->flags &= ~LCF_HasMist;
+    lenscfg->mist_file[0] = '\0';
+    
     // Only store the overlay name when processing position 0 (the name field)
     // Position 1 is the alpha value, handled by value_default
     if (named_field->argnum == 0)
