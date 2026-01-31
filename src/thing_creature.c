@@ -286,6 +286,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (thing->class_id == TCls_Creature)
     {
         crconf = creature_stats_get_from_thing(thing);
+        SYNCDBG(7,"Controlling creature '%s', eye_effect=%d", crconf->name, crconf->eye_effect);
         setup_eye_lens(crconf->eye_effect);
     }
     return true;
@@ -4280,6 +4281,8 @@ void draw_creature_view(struct Thing *thing)
   if (((game.mode_flags & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.applied_lens_type == 0))
   {
       engine(player, render_cam);
+      // Still need to draw swipe even when no lens effect is active.
+      draw_swipe_graphic();
       return;
   }
   // So there is an eye lens - we have to put a buffer in place of screen,
@@ -4298,13 +4301,20 @@ void draw_creature_view(struct Thing *thing)
   // Draw on our buffer
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   engine(player, render_cam);
+  // Draw swipe into buffer BEFORE lens effects (so overlay renders on top of swipe)
+  draw_swipe_graphic();
+  // Get the actual viewport dimensions (accounts for sidebar)
+  long view_width = player->engine_window_width / pixel_size;
+  long view_height = player->engine_window_height / pixel_size;
+  long view_x = player->engine_window_x / pixel_size;
   // Restore original graphics settings
   lbDisplay.WScreen = wscr_cp;
   LbScreenLoadGraphicsWindow(&grwnd);
-  // Draw the buffer on real screen
+  // Draw the buffer on real screen using actual viewport dimensions
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  draw_lens_effect(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem, eye_lens_width,
-      MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.applied_lens_type);
+  // Apply lens effect to the viewport area only (not including sidebar)
+  draw_lens_effect(lbDisplay.WScreen + view_x, lbDisplay.GraphicsScreenWidth, 
+      scrmem + view_x, eye_lens_width, view_width, view_height, game.applied_lens_type);
 }
 
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)

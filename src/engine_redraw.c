@@ -633,7 +633,6 @@ void redraw_creature_view(void)
             ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     }
     remove_explored_flags_for_power_sight(player);
-    draw_swipe_graphic();
     if ((game.operation_flags & GOF_ShowGui) != 0) {
         draw_whole_status_panel();
     }
