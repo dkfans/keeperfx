@@ -80,6 +80,22 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
     SoundVolume volume_scale = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
     SoundVolume adjusted_loudness = (loudness * volume_scale) / FULL_LOUDNESS;
 
+    // Decode custom bank encoding: negative indices = custom bank (bank_id=2)
+    // -1 → bank index 0, -2 → bank index 1, etc.
+    SoundBankID bank_id = 0;  // Default: Bank 0 (sound.dat)
+    SoundSmplTblID sample_id = smptbl_idx;
+    
+    if (smptbl_idx < 0) {
+        // Custom bank sound
+        bank_id = 2;
+        sample_id = (-smptbl_idx) - 1;  // Convert back to positive index
+        ("thing_play_sample: Decoded negative index %d to bank_id=%d, sample_id=%d", smptbl_idx, bank_id, sample_id);
+    } else if (smptbl_idx >= 1000) {
+        // Bank 1 sounds are typically >= 1000
+        bank_id = 1;
+        sample_id = smptbl_idx;
+    }
+
     struct Coord3d rcpos;
     rcpos.x.val = Receiver.pos.val_x;
     rcpos.y.val = Receiver.pos.val_y;
@@ -89,11 +105,11 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, adjusted_loudness, repeats, ctype, flags | 0x01, priority);
+            S3DAddSampleToEmitterPri(eidx, sample_id, bank_id, pitch, adjusted_loudness, repeats, ctype, flags | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, adjusted_loudness, repeats, flags | 0x01, priority);
+               sample_id, bank_id, pitch, adjusted_loudness, repeats, flags | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }

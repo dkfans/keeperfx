@@ -242,6 +242,7 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
   {"FOOT",                 CrSnd_Foot},
   {"FIGHT",                CrSnd_Fight},
   {"PISS",                 CrSnd_Piss},
+  {"CUSTOMSOUND",          CrSnd_CustomSound},
   {NULL,                   0},
   };
 
@@ -2407,13 +2408,27 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].die.index = k;
+              // Only overwrite if not already set to custom sound (negative value)
+              if (game.conf.crtr_conf.creature_sounds[crtr_model].die.index >= 0)
+              {
+                  game.conf.crtr_conf.creature_sounds[crtr_model].die.index = k;
+                  SYNCDBG(8, "Set %s die sound index to %d", creature_code_name(crtr_model), k);
+              }
+              else
+              {
+                  SYNCDBG(0, "Preserving custom die sound (index %d) for %s, ignoring Die=%d from %s",
+                      game.conf.crtr_conf.creature_sounds[crtr_model].die.index,
+                      creature_code_name(crtr_model), k, config_textname);
+              }
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].die.count = k;
+              if (game.conf.crtr_conf.creature_sounds[crtr_model].die.index >= 0)
+              {
+                  game.conf.crtr_conf.creature_sounds[crtr_model].die.count = k;
+              }
               n++;
             }
             if (n < 1)
@@ -2477,6 +2492,41 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_name, config_textname);
+            }
+            break;
+        case CrSnd_CustomSound:
+            {
+                // Parse: CustomSound = <sound_type> <wav_file_path>
+                char sound_type[COMMAND_WORD_LEN];
+                char wav_path[512];
+                
+                if (get_conf_parameter_single(buf,&pos,len,sound_type,sizeof(sound_type)) > 0)
+                {
+                    n++;
+                }
+                if (get_conf_parameter_single(buf,&pos,len,wav_path,sizeof(wav_path)) > 0)
+                {
+                    n++;
+                }
+                
+                if (n >= 2)
+                {
+                    // Call C++ SoundManager to load custom sound
+                    #ifdef __cplusplus
+                    extern "C" {
+                    #endif
+                    extern int load_creature_custom_sound(long crtr_model, const char* sound_type, const char* wav_path, const char* config_textname);
+                    #ifdef __cplusplus
+                    }
+                    #endif
+                    
+                    load_creature_custom_sound(crtr_model, sound_type, wav_path, config_textname);
+                }
+                else
+                {
+                    CONFWRNLOG("Incorrect CustomSound syntax in [%s] block of %s file. Expected: CustomSound = <type> <file>",
+                        block_name, config_textname);
+                }
             }
             break;
         case ccr_comment:

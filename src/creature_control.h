@@ -69,6 +69,7 @@ enum CreatureSoundTypes {
     CrSnd_Foot      = 10,
     CrSnd_Fight     = 11,
     CrSnd_Piss      = 12,
+    CrSnd_CustomSound = 13,
 };
 
 enum CreatureControlFlags {

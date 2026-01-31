@@ -297,16 +297,23 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
       return;
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
-    if (crsound->index <= 0) {
+    if (crsound->index == 0) {
         SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
     long i = SOUND_RANDOM(crsound->count);
-    SYNCDBG(18,"Playing sample %ld (index %ld) for creature %d",snd_idx,crsound->index+i,thing->model);
+    SoundSmplTblID sample_idx = crsound->index + i;
+    
+    ("play_creature_sound: creature=%s, snd_idx=%ld, crsound->index=%d, random_offset=%ld, final_sample_idx=%d", 
+            creature_code_name(thing->model), snd_idx, crsound->index, i, sample_idx);
+    
+    SYNCDBG(18,"Playing sample %ld (sound type %ld, index %ld) for creature %d",
+            sample_idx, snd_idx, crsound->index, thing->model);
+    
     if ( use_flags ) {
-        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 8, priority, FULL_LOUDNESS);
+        thing_play_sample(thing, sample_idx, NORMAL_PITCH, 0, 3, 8, priority, FULL_LOUDNESS);
     } else {
-        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 0, priority, FULL_LOUDNESS);
+        thing_play_sample(thing, sample_idx, NORMAL_PITCH, 0, 3, 0, priority, FULL_LOUDNESS);
     }
 }
 

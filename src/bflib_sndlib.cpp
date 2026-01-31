@@ -16,6 +16,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <algorithm>
 #include <utility>
 #include <array>
 #include <deque>
@@ -408,12 +409,13 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 		stream.seekg(directory.first_data_offset + sample.data_offset, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
-	JUSTLOG("Loaded %d sound samples from %s", (int) buffers.size(), filename);
+	("Loaded %d sound samples from %s", (int) buffers.size(), filename);
 	return buffers;
 }
 
 std::vector<openal_source> g_sources;
 std::array<std::vector<sound_sample>, 2> g_banks;
+std::vector<sound_sample> g_custom_bank;  // Third bank for custom sounds loaded at runtime
 
 void load_sound_banks() {
 	char snd_fname[2048];
@@ -435,26 +437,26 @@ void load_sound_banks() {
 void print_device_info() {
 	if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT")) {
 		const auto devices = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
-		JUSTLOG("Available audio devices:");
+		("Available audio devices:");
 		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			JUSTLOG("  %s", device);
+			("  %s", device);
 		}
 		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-		JUSTLOG("Default audio device: %s", default_device);
+		("Default audio device: %s", default_device);
 	} else if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
 		const auto devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
-		JUSTLOG("Available audio devices:");
+		("Available audio devices:");
 		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			JUSTLOG("  %s", device);
+			("  %s", device);
 		}
 		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-		JUSTLOG("Default audio device: %s", default_device);
+		("Default audio device: %s", default_device);
 	} else {
 		// Cannot enumerate devices :(
 	}
 }
 
-Mix_Chunk * g_streamed_sample = nullptr;
+__attribute__((unused)) Mix_Chunk * g_streamed_sample = nullptr;
 std::mutex g_mix_mutex;
 
 struct queued_sample {
@@ -462,7 +464,7 @@ struct queued_sample {
 	SoundVolume volume;
 };
 
-void SDLCALL on_music_finished() {
+__attribute__((unused)) static void SDLCALL on_music_finished() {
 	// don't grab mutex or we'll deadlock, just free memory
 	Mix_FreeMusic(g_mix_music.exchange(nullptr));
 }
@@ -473,6 +475,7 @@ extern "C" void FreeAudio() {
 	g_sources.clear();
 	g_banks[0].clear();
 	g_banks[1].clear();
+	g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
 	g_openal_context = nullptr;
 	g_openal_device = nullptr;
 }
@@ -515,7 +518,7 @@ extern "C" TbBool play_music(const char * fname) {
 	}
 	// g_mix_music will be null here as Mix_PlayMusic ends up calling on_music_finished
 	g_mix_music = music;
-	JUSTLOG("Playing %s", game.music_fname);
+	("Playing %s", game.music_fname);
 	return true;
 }
 
@@ -529,7 +532,7 @@ extern "C" TbBool play_music_track(int track) {
 		return play_music(prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", track));
 	} else {
 		if (PlayRedbookTrack(track)) {
-			JUSTLOG("Playing track %d", game.music_track);
+			("Playing track %d", game.music_track);
 			return true;
 		} else {
 			WARNLOG("Cannot play track %d", game.music_track);
@@ -539,7 +542,7 @@ extern "C" TbBool play_music_track(int track) {
 }
 
 extern "C" void pause_music() {
-	JUSTLOG("Pausing music");
+	("Pausing music");
 	if (features_enabled & Ft_NoCdMusic) {
 		Mix_PauseMusic();
 	} else {
@@ -548,7 +551,7 @@ extern "C" void pause_music() {
 }
 
 extern "C" void resume_music() {
-	JUSTLOG("Resuming music");
+	("Resuming music");
 	if (features_enabled & Ft_NoCdMusic) {
 		Mix_ResumeMusic();
 	} else {
@@ -557,7 +560,7 @@ extern "C" void resume_music() {
 }
 
 extern "C" void stop_music() {
-	JUSTLOG("Stopping music");
+	("Stopping music");
 	game.music_track = 0;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
 	if (features_enabled & Ft_NoCdMusic) {
@@ -713,17 +716,33 @@ extern "C" SoundMilesID play_sample(
 	unsigned char ctype, // possible values: 2, 3
 	SoundBankID bank_id
 ) {
+	JUSTMSG("play_sample called: emit_id=%ld, smptbl_id=%d, bank_id=%d, volume=%ld", emit_id, smptbl_id, bank_id, volume);
+	
 	if (emit_id <= 0) {
 		ERRORLOG("Can't play sample %d from bank %u, invalid emitter ID", smptbl_id, bank_id);
 		return 0;
-	} else if (bank_id > g_banks.size()) {
+	} else if (bank_id > 2) {  // Support banks 0, 1, and 2 (custom)
 		ERRORLOG("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
 		return 0;
-	} else if (smptbl_id == 0) {
+	} else if (smptbl_id == 0 && bank_id != 2) {
+		// Sample 0 is valid for custom bank (bank 2), but not for regular banks
 		return 0; // silently ignore
-	} else if (smptbl_id <= 0 || smptbl_id >= g_banks[bank_id].size()) {
-		ERRORLOG("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
-		return 0;
+	}
+	
+	// Validate sample ID based on bank
+	if (bank_id == 2) {
+		// Custom bank
+		JUSTMSG("Validating custom bank: smptbl_id=%d, g_custom_bank.size()=%d", smptbl_id, (int)g_custom_bank.size());
+		if (smptbl_id < 0 || smptbl_id >= g_custom_bank.size()) {
+			ERRORLOG("Can't play sample %d from custom bank, invalid sample ID", smptbl_id);
+			return 0;
+		}
+	} else {
+		// Regular banks 0 and 1
+		if (smptbl_id <= 0 || smptbl_id >= g_banks[bank_id].size()) {
+			ERRORLOG("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
+			return 0;
+		}
 	}
 	// (ab)use the fact that bank_id and smptbl_id are currently 8- and 16-bits wide respectively.
 	const uint32_t tick_sample_key = (uint32_t(bank_id) << 16) | (smptbl_id & 0xffff);
@@ -749,7 +768,17 @@ extern "C" SoundMilesID play_sample(
 				} else {
 					source.pitch(pitch);
 				}
+				
+				// Play from appropriate bank
+				if (bank_id == 2) {
+					// Custom bank
+				JUSTMSG("Playing custom sound: bank=%d, sample=%d, emit=%ld, vol=%ld", bank_id, smptbl_id, emit_id, volume);
+				source.play(g_custom_bank[smptbl_id].buffer);
+			} else {
+				// Regular banks (0 and 1)
 				source.play(g_banks[bank_id][smptbl_id].buffer);
+			}
+			
 				source.emit_id = emit_id;
 				source.smptbl_id = smptbl_id;
 				source.bank_id = bank_id;
@@ -871,4 +900,61 @@ extern "C" void set_streamed_sample_volume(SoundVolume volume) {
 
 extern "C" void toggle_bbking_mode() {
 	g_bb_king_mode = !g_bb_king_mode;
+}
+
+// Bridge functions for custom sound loading from C++ sound_manager
+extern "C" int custom_sound_bank_size() {
+	return g_custom_bank.size();
+}
+
+// Helper: Normalize path for cross-platform file access
+// Handles ./ prefix and converts forward slashes to platform-specific separators
+static std::string normalize_file_path(const char* filepath) {
+	if (!filepath) return "";
+	
+	std::string path(filepath);
+	
+	// Remove ./ prefix if present
+	if (path.size() >= 2 && path[0] == '.' && path[1] == '/') {
+		path = path.substr(2);
+	}
+	
+#ifdef _WIN32
+	// On Windows, convert forward slashes to backslashes for better compatibility
+	// Note: Most Windows APIs accept forward slashes, but std::ifstream may not
+	std::replace(path.begin(), path.end(), '/', '\\');
+#endif
+	
+	return path;
+}
+
+extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id) {
+	try {
+		("Attempting to load WAV file: %s", filepath);
+		
+		// Normalize path for cross-platform compatibility
+		std::string normalized_path = normalize_file_path(filepath);
+		if (normalized_path != filepath) {
+			("Normalized path to: %s", normalized_path.c_str());
+		}
+		
+		std::ifstream stream(normalized_path, std::ios::binary);
+		if (!stream.is_open()) {
+			// Fallback: try original path
+			WARNLOG("Failed to open WAV with normalized path, trying original: %s", filepath);
+			stream.open(filepath, std::ios::binary);
+			if (!stream.is_open()) {
+				WARNLOG("Failed to open WAV file stream: %s (normalized: %s)", filepath, normalized_path.c_str());
+				return false;
+			}
+		}
+		
+		wave_file wav(stream);
+		g_custom_bank.emplace_back(filepath, sample_id, wav);
+		("Successfully loaded WAV into custom bank: %s (sample_id=%d)", filepath, sample_id);
+		return true;
+	} catch (const std::exception& e) {
+		ERRORLOG("Failed to load WAV %s: %s", filepath, e.what());
+		return false;
+	}
 }

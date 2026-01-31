@@ -172,6 +172,7 @@
             "xloctime": "c",
             "format": "c",
             "xstring": "c"
-        }
+        },
+        "powershell.cwd": "keeperfx"
     }
 }

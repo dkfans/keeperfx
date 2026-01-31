@@ -88,3 +88,13 @@ else
     exit 1;
 }
 Copy-Item -Path "${workspaceFolder}\\bin\\*" -Destination $gameDir -Force;
+
+# Copy campaign mod files from .local to game directory
+if (Test-Path "${workspaceFolder}\\.local\\campaign_data") {
+    Write-Host 'Copying campaign mod files...' -ForegroundColor Cyan;
+    $campaignDest = "$gameDir\\campgns";
+    Copy-Item -Path "${workspaceFolder}\\.local\\campaign_data\\examplemaiden.cfg" -Destination "$campaignDest\\examplemaiden.cfg" -Force -ErrorAction SilentlyContinue;
+    Copy-Item -Path "${workspaceFolder}\\.local\\campaign_data\\examplemaiden" -Destination "$campaignDest\\examplemaiden" -Recurse -Force -ErrorAction SilentlyContinue;
+    Copy-Item -Path "${workspaceFolder}\\.local\\campaign_data\\examplemaiden_crtr" -Destination "$campaignDest\\examplemaiden_crtr" -Recurse -Force -ErrorAction SilentlyContinue;
+    Write-Host 'Campaign mod files copied successfully!' -ForegroundColor Green;
+}
