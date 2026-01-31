@@ -1408,11 +1408,9 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
                                              int *out_width, int *out_height, 
                                              unz_file_info64 *zip_info, TbBool use_palette_conversion)
 {
-    JUSTLOG("decode_png_to_indexed_internal: file='%s', size=%d, use_palette=%d", file, (int)zip_info->uncompressed_size, use_palette_conversion);
     // Only load RGB to palette conversion table if needed for color images
     if (use_palette_conversion) {
         load_rgb_to_pal_table();
-        JUSTLOG("Loaded RGB to palette table");
     }
     
     if (zip_info->uncompressed_size > 1024 * 1024 * 4)
@@ -1434,7 +1432,6 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
         free(png_buffer);
         return NULL;
     }
-    JUSTLOG("Read PNG data from ZIP (%d bytes)", (int)zip_info->uncompressed_size);
 
     // Decode PNG using spng
     spng_ctx *ctx = spng_ctx_new(0);
@@ -1466,7 +1463,6 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
         free(png_buffer);
         return NULL;
     }
-    JUSTLOG("Got PNG IHDR: %dx%d, bit_depth=%d, color_type=%d", (int)ihdr.width, (int)ihdr.height, ihdr.bit_depth, ihdr.color_type);
 
     if (ihdr.width <= 0 || ihdr.height <= 0 || ihdr.width > 4096 || ihdr.height > 4096)
     {
@@ -1504,7 +1500,6 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
         free(png_buffer);
         return NULL;
     }
-    JUSTLOG("Decoded PNG to RGBA8 format (%d bytes)", (int)out_size);
 
     spng_ctx_free(ctx);
     free(png_buffer);
@@ -1561,47 +1556,23 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
 
     *out_width = ihdr.width;
     *out_height = ihdr.height;
-    JUSTLOG("Successfully converted PNG to indexed format: %dx%d", *out_width, *out_height);
     return indexed_data;
 }
 
 static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx, VALUE *root)
 {
     VALUE *val;
-    JUSTLOG("process_lens_overlay_from_list called for %s item %d, root type: %d", path, idx, value_type(root));
-    
-    // If it's a dict, log its keys
-    if (value_type(root) == VALUE_DICT)
-    {
-        size_t dict_size = value_dict_size(root);
-        JUSTLOG("Dict has %d keys", (int)dict_size);
-        
-        // Get all keys
-        const VALUE *keys[20];  // Should be enough for lens overlay dict
-        size_t num_keys = value_dict_keys_ordered(root, keys, 20);
-        JUSTLOG("Retrieved %d keys:", (int)num_keys);
-        for (size_t i = 0; i < num_keys; i++)
-        {
-            if (value_type(keys[i]) == VALUE_STRING)
-            {
-                JUSTLOG("  Key %d: '%s'", (int)i, value_string(keys[i]));
-            }
-        }
-    }
 
     val = value_dict_get(root, "name");
-    JUSTLOG("value_dict_get for 'name' returned: %p", val);
     if (val == NULL)
     {
         WARNLOG("Invalid lens overlay %s/lenses.json[%d]: no \"name\" key", path, idx);
         return 0;
     }
     const char *name = value_string(val);
-    JUSTLOG("found lens overlay: '%s/%s' (name=%s)", path, name, name);
     SYNCDBG(2, "found lens overlay: '%s/%s'", path, name);
 
     VALUE *file_value = value_dict_get(root, "file");
-    JUSTLOG("value_dict_get for 'file' returned: %p", file_value);
     if (file_value == NULL)
     {
         WARNLOG("Invalid lens overlay %s/lenses.json[%d]: no \"file\" key", path, idx);
@@ -1612,12 +1583,10 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
     if (value_type(file_value) == VALUE_STRING)
     {
         file = value_string(file_value);
-        JUSTLOG("File is STRING type: '%s'", file);
     }
     else if (value_type(file_value) == VALUE_ARRAY && value_array_size(file_value) > 0)
     {
         file = value_string(value_array_get(file_value, 0));
-        JUSTLOG("File is ARRAY type, first element: '%s'", file);
     }
     else
     {
@@ -1625,13 +1594,11 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
         return 0;
     }
 
-    JUSTLOG("Attempting to locate file '%s' in ZIP", file);
     if (fastUnzLocateFile(zip, file, 0))
     {
         WARNLOG("File '%s' not found in '%s'", file, path);
         return 0;
     }
-    JUSTLOG("File located successfully, getting file info");
 
     unz_file_info64 zip_info = {0};
     if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0))
@@ -1689,7 +1656,6 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
             existing->data = indexed_data;
             existing->width = 256;
             existing->height = 256;
-            JUSTLOG("Overriding lens overlay '%s/%s'", path, name);
         }
         else
         {
@@ -1713,10 +1679,8 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
     }
 
     // PNG format handling - use shared helper
-    JUSTLOG("Calling decode_png_to_indexed for '%s'", file);
     int width, height;
     unsigned char *indexed_data = decode_png_to_indexed(zip, file, path, &width, &height, &zip_info);
-    JUSTLOG("decode_png_to_indexed returned: %p (width=%d, height=%d)", indexed_data, width, height);
     if (indexed_data == NULL)
     {
         WARNLOG("Failed to decode PNG '%s' from '%s'", file, path);
@@ -1748,7 +1712,6 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
         existing->data = indexed_data;
         existing->width = width;
         existing->height = height;
-        JUSTLOG("Overriding lens overlay '%s/%s'", path, name);
     }
     else
     {
@@ -1868,13 +1831,10 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
 static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root)
 {
     int array_size = value_array_size(root);
-    JUSTLOG("Processing lens overlays from %s (array size: %d)", path, array_size);
     TbBool ret_ok = true;
     for (int i = 0; i < array_size; i++)
     {
-        JUSTLOG("Processing lens overlay item %d from %s", i, path);
         VALUE *val = value_array_get(root, i);
-        JUSTLOG("Got value for item %d, calling process_lens_overlay_from_list", i);
         if (!process_lens_overlay_from_list(path, zip, i, val))
         {
             ret_ok = false;
