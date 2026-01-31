@@ -1728,7 +1728,6 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
         added_lens_overlays[num_added_lens_overlays].width = width;
         added_lens_overlays[num_added_lens_overlays].height = height;
         num_added_lens_overlays++;
-        JUSTLOG("Added PNG lens overlay '%s' (%dx%d), total count now: %d", name, width, height, num_added_lens_overlays);
         SYNCDBG(8, "Added PNG lens overlay '%s' (%dx%d)", name, width, height);
     }
 

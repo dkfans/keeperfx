@@ -396,7 +396,6 @@ void check_and_auto_fix_stats(void)
 /* Initialize all creature model stats, called only once when first loading a map. */
 void init_creature_model_stats(void)
 {
-
     struct CreatureModelConfig *crconf;
     int n;
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
