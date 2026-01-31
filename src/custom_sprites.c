@@ -1382,6 +1382,11 @@ end:
     return 0;
 }
 
+// Forward declaration for internal PNG decoder
+static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *file, const char *path,
+                                                      int *out_width, int *out_height,
+                                                      unz_file_info64 *zip_info, TbBool use_palette_conversion);
+
 // Helper function to decode PNG from ZIP file to indexed palette format
 // Returns indexed data on success, NULL on failure
 // Caller must free the returned data
@@ -1389,6 +1394,27 @@ static unsigned char* decode_png_to_indexed(unzFile zip, const char *file, const
                                              int *out_width, int *out_height, 
                                              unz_file_info64 *zip_info)
 {
+    return decode_png_to_indexed_internal(zip, file, path, out_width, out_height, zip_info, true);
+}
+
+static unsigned char* decode_png_to_indexed_no_palette(unzFile zip, const char *file, const char *path,
+                                                        int *out_width, int *out_height,
+                                                        unz_file_info64 *zip_info)
+{
+    return decode_png_to_indexed_internal(zip, file, path, out_width, out_height, zip_info, false);
+}
+
+static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *file, const char *path, 
+                                             int *out_width, int *out_height, 
+                                             unz_file_info64 *zip_info, TbBool use_palette_conversion)
+{
+    JUSTLOG("decode_png_to_indexed_internal: file='%s', size=%d, use_palette=%d", file, (int)zip_info->uncompressed_size, use_palette_conversion);
+    // Only load RGB to palette conversion table if needed for color images
+    if (use_palette_conversion) {
+        load_rgb_to_pal_table();
+        JUSTLOG("Loaded RGB to palette table");
+    }
+    
     if (zip_info->uncompressed_size > 1024 * 1024 * 4)
     {
         WARNLOG("PNG file too large: '%s' in '%s'", file, path);
@@ -1408,6 +1434,7 @@ static unsigned char* decode_png_to_indexed(unzFile zip, const char *file, const
         free(png_buffer);
         return NULL;
     }
+    JUSTLOG("Read PNG data from ZIP (%d bytes)", (int)zip_info->uncompressed_size);
 
     // Decode PNG using spng
     spng_ctx *ctx = spng_ctx_new(0);
@@ -1439,6 +1466,7 @@ static unsigned char* decode_png_to_indexed(unzFile zip, const char *file, const
         free(png_buffer);
         return NULL;
     }
+    JUSTLOG("Got PNG IHDR: %dx%d, bit_depth=%d, color_type=%d", (int)ihdr.width, (int)ihdr.height, ihdr.bit_depth, ihdr.color_type);
 
     if (ihdr.width <= 0 || ihdr.height <= 0 || ihdr.width > 4096 || ihdr.height > 4096)
     {
@@ -1476,6 +1504,7 @@ static unsigned char* decode_png_to_indexed(unzFile zip, const char *file, const
         free(png_buffer);
         return NULL;
     }
+    JUSTLOG("Decoded PNG to RGBA8 format (%d bytes)", (int)out_size);
 
     spng_ctx_free(ctx);
     free(png_buffer);
@@ -1490,7 +1519,19 @@ static unsigned char* decode_png_to_indexed(unzFile zip, const char *file, const
         return NULL;
     }
 
+    // Complete RGBA data dump - filtered for Knight overlays only
+    TbBool is_knight = (strstr(file, "Knight") != NULL || strstr(file, "knight") != NULL);
+    if (use_palette_conversion && is_knight) {
+        JUSTLOG("=== COMPLETE RGBA DATA DUMP FOR '%s' (ALL %d PIXELS) ===", file, (int)indexed_size);
+        for (size_t i = 0; i < indexed_size; i++) {
+            JUSTLOG("Pixel[%d]: R=%3d G=%3d B=%3d A=%3d", (int)i,
+                    rgba_buffer[i * 4 + 0], rgba_buffer[i * 4 + 1],
+                    rgba_buffer[i * 4 + 2], rgba_buffer[i * 4 + 3]);
+        }
+    }
+
     // Convert RGBA to palette indices using rgb_to_pal_table
+    int transparent_count = 0, opaque_count = 0;
     for (size_t i = 0; i < indexed_size; i++)
     {
         unsigned char red = rgba_buffer[i * 4 + 0];
@@ -1498,41 +1539,91 @@ static unsigned char* decode_png_to_indexed(unzFile zip, const char *file, const
         unsigned char blue = rgba_buffer[i * 4 + 2];
         unsigned char alpha = rgba_buffer[i * 4 + 3];
         
-        if (alpha < 128) {
-            // Transparent pixel - use color 0 (typically transparent/black)
-            indexed_data[i] = 0;
-        } else if (rgb_to_pal_table != NULL) {
-            // Use lookup table for color conversion
-            indexed_data[i] = rgb_to_pal_table[
-                ((red >> 2) << 12) | ((green >> 2) << 6) | (blue >> 2)
-            ];
-        } else {
-            // Fallback: simple grayscale conversion
-            indexed_data[i] = (red + green + blue) / 3;
+        if (use_palette_conversion)
+        {
+            // Color image - convert RGB to palette index
+            if (alpha < 128) {
+                // Transparent pixel - use palette index 255 as transparency marker
+                indexed_data[i] = 255;
+                transparent_count++;
+            } else if (rgb_to_pal_table != NULL) {
+                // Use lookup table for color conversion
+                indexed_data[i] = rgb_to_pal_table[
+                    ((red >> 2) << 12) | ((green >> 2) << 6) | (blue >> 2)
+                ];
+                opaque_count++;
+            } else {
+                // Fallback: simple grayscale conversion
+                indexed_data[i] = (red + green + blue) / 3;
+                opaque_count++;
+            }
+        }
+        else
+        {
+            // Data image (mist/displacement) - preserve grayscale values as-is
+            // Use the red channel as the index value (assuming grayscale PNG)
+            indexed_data[i] = red;
         }
     }
 
     free(rgba_buffer);
 
+    if (use_palette_conversion) {
+        JUSTLOG("Conversion complete: %d transparent pixels, %d opaque pixels (total %d)", 
+                transparent_count, opaque_count, (int)indexed_size);
+        
+        // Dump complete indexed buffer - filtered for Knight overlays only
+        if (is_knight) {
+            JUSTLOG("=== COMPLETE INDEXED BUFFER DUMP FOR '%s' (ALL %d PIXELS) ===", file, (int)indexed_size);
+            for (size_t i = 0; i < indexed_size; i++) {
+                JUSTLOG("IndexedPixel[%d]: %3d", (int)i, indexed_data[i]);
+            }
+        }
+    }
+
     *out_width = ihdr.width;
     *out_height = ihdr.height;
+    JUSTLOG("Successfully converted PNG to indexed format: %dx%d", *out_width, *out_height);
     return indexed_data;
 }
 
 static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx, VALUE *root)
 {
     VALUE *val;
+    JUSTLOG("process_lens_overlay_from_list called for %s item %d, root type: %d", path, idx, value_type(root));
+    
+    // If it's a dict, log its keys
+    if (value_type(root) == VALUE_DICT)
+    {
+        size_t dict_size = value_dict_size(root);
+        JUSTLOG("Dict has %d keys", (int)dict_size);
+        
+        // Get all keys
+        const VALUE *keys[20];  // Should be enough for lens overlay dict
+        size_t num_keys = value_dict_keys_ordered(root, keys, 20);
+        JUSTLOG("Retrieved %d keys:", (int)num_keys);
+        for (size_t i = 0; i < num_keys; i++)
+        {
+            if (value_type(keys[i]) == VALUE_STRING)
+            {
+                JUSTLOG("  Key %d: '%s'", (int)i, value_string(keys[i]));
+            }
+        }
+    }
 
     val = value_dict_get(root, "name");
+    JUSTLOG("value_dict_get for 'name' returned: %p", val);
     if (val == NULL)
     {
         WARNLOG("Invalid lens overlay %s/lenses.json[%d]: no \"name\" key", path, idx);
         return 0;
     }
     const char *name = value_string(val);
+    JUSTLOG("found lens overlay: '%s/%s' (name=%s)", path, name, name);
     SYNCDBG(2, "found lens overlay: '%s/%s'", path, name);
 
     VALUE *file_value = value_dict_get(root, "file");
+    JUSTLOG("value_dict_get for 'file' returned: %p", file_value);
     if (file_value == NULL)
     {
         WARNLOG("Invalid lens overlay %s/lenses.json[%d]: no \"file\" key", path, idx);
@@ -1543,10 +1634,12 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
     if (value_type(file_value) == VALUE_STRING)
     {
         file = value_string(file_value);
+        JUSTLOG("File is STRING type: '%s'", file);
     }
     else if (value_type(file_value) == VALUE_ARRAY && value_array_size(file_value) > 0)
     {
         file = value_string(value_array_get(file_value, 0));
+        JUSTLOG("File is ARRAY type, first element: '%s'", file);
     }
     else
     {
@@ -1554,11 +1647,13 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
         return 0;
     }
 
+    JUSTLOG("Attempting to locate file '%s' in ZIP", file);
     if (fastUnzLocateFile(zip, file, 0))
     {
         WARNLOG("File '%s' not found in '%s'", file, path);
         return 0;
     }
+    JUSTLOG("File located successfully, getting file info");
 
     unz_file_info64 zip_info = {0};
     if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0))
@@ -1640,10 +1735,13 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
     }
 
     // PNG format handling - use shared helper
+    JUSTLOG("Calling decode_png_to_indexed for '%s'", file);
     int width, height;
     unsigned char *indexed_data = decode_png_to_indexed(zip, file, path, &width, &height, &zip_info);
+    JUSTLOG("decode_png_to_indexed returned: %p (width=%d, height=%d)", indexed_data, width, height);
     if (indexed_data == NULL)
     {
+        WARNLOG("Failed to decode PNG '%s' from '%s'", file, path);
         return 0;
     }
 
@@ -1689,6 +1787,7 @@ static int process_lens_overlay_from_list(const char *path, unzFile zip, int idx
         added_lens_overlays[num_added_lens_overlays].width = width;
         added_lens_overlays[num_added_lens_overlays].height = height;
         num_added_lens_overlays++;
+        JUSTLOG("Added PNG lens overlay '%s' (%dx%d), total count now: %d", name, width, height, num_added_lens_overlays);
         SYNCDBG(8, "Added PNG lens overlay '%s' (%dx%d)", name, width, height);
     }
 
@@ -1790,10 +1889,14 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
 
 static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root)
 {
+    int array_size = value_array_size(root);
+    JUSTLOG("Processing lens overlays from %s (array size: %d)", path, array_size);
     TbBool ret_ok = true;
-    for (int i = 0; i < value_array_size(root); i++)
+    for (int i = 0; i < array_size; i++)
     {
+        JUSTLOG("Processing lens overlay item %d from %s", i, path);
         VALUE *val = value_array_get(root, i);
+        JUSTLOG("Got value for item %d, calling process_lens_overlay_from_list", i);
         if (!process_lens_overlay_from_list(path, zip, i, val))
         {
             ret_ok = false;
@@ -1864,7 +1967,7 @@ static int process_lens_mist_from_list(const char *path, unzFile zip, int idx, V
     {
         // Not RAW format, try PNG
         int width, height;
-        mist_data = decode_png_to_indexed(zip, file, path, &width, &height, &zip_info);
+        mist_data = decode_png_to_indexed_no_palette(zip, file, path, &width, &height, &zip_info);
         if (mist_data == NULL)
         {
             // Already closed by decode function on failure

@@ -113,7 +113,7 @@ static int64_t value_pallete(const struct NamedField* named_field, const char* v
 
 static int64_t value_overlay(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    SYNCLOG("value_overlay called: argnum=%d, value='%s', lens=%d", named_field->argnum, value_text, idx);
+    SYNCDBG (9, "value_overlay called: argnum=%d, value='%s', lens=%d", named_field->argnum, value_text, idx);
     
     if (value_text == NULL || value_text[0] == '\0') {
         CONFWRNLOG("Empty overlay name for \"%s\" parameter in [%s%d] block of lens.cfg file.",

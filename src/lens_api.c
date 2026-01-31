@@ -26,9 +26,6 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-
 #include "config_lenses.h"
 #include "lens_mist.h"
 #include "lens_flyeye.h"
@@ -248,6 +245,7 @@ static TbBool load_overlay_image(long lens_idx)
     }
     
     struct LensConfig* lenscfg = &lenses_conf.lenses[lens_idx];
+    JUSTLOG("load_overlay_image: lens_idx=%ld, overlay_file='%s'", lens_idx, lenscfg->overlay_file);
     if (lenscfg->overlay_file[0] == '\0') {
         WARNLOG("Empty overlay name");
         return false;
@@ -284,7 +282,9 @@ static TbBool load_overlay_image(long lens_idx)
     }
     
     // Look up overlay by name in the custom sprites registry
+    JUSTLOG("Looking up overlay '%s' in registry", lenscfg->overlay_file);
     const struct LensOverlayData* overlay = get_lens_overlay_data(lenscfg->overlay_file);
+    JUSTLOG("Registry lookup result: %p", overlay);
     
     // If not found in registry, try loading from /data directory as RAW file fallback
     if (overlay == NULL) {
@@ -340,6 +340,7 @@ static TbBool load_overlay_image(long lens_idx)
     cache->width = overlay->width;
     cache->height = overlay->height;
     
+    JUSTLOG("Successfully loaded overlay '%s' (%dx%d) from registry", lenscfg->overlay_file, cache->width, cache->height);
     SYNCDBG(7, "Loaded overlay '%s' (%dx%d) from registry", lenscfg->overlay_file, cache->width, cache->height);
     return true;
 }
@@ -380,7 +381,7 @@ TbBool clear_lens_palette(void)
 static void set_lens_palette(unsigned char *palette)
 {
     struct PlayerInfo* player = get_my_player();
-    WARNLOG("CONFIG_DEBUG: set_lens_palette called, palette[0-4]: %02x %02x %02x %02x %02x",
+    SYNCDBG(9,"CONFIG_DEBUG: set_lens_palette called, palette[0-4]: %02x %02x %02x %02x %02x",
         palette[0], palette[1], palette[2], palette[3], palette[4]);
     player->main_palette = palette;
     player->lens_palette = palette;
@@ -588,6 +589,9 @@ static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long 
     struct LensOverlayCache* cache = &overlay_cache[lens_idx];
     struct LensConfig* lenscfg = &lenses_conf.lenses[lens_idx];
     
+    JUSTLOG("draw_overlay called: lens_idx=%ld, screen=%ldx%ld, cache->data=%p, cache->width=%d, cache->height=%d, alpha=%d",
+            lens_idx, width, height, cache->data, cache->width, cache->height, lenscfg->overlay_alpha);
+    
     if (cache->data == NULL) {
         WARNLOG("Overlay data is NULL, cannot draw");
         return;
@@ -600,6 +604,21 @@ static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long 
     }
     
     SYNCDBG(8, "Drawing overlay: screen=%ldx%ld, overlay=%dx%d, alpha=%d", width, height, cache->width, cache->height, lenscfg->overlay_alpha);
+    
+    // Log sample of overlay data to verify conversion
+    JUSTLOG("Overlay buffer sample (first 20 pixels): [%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d]",
+            cache->data[0], cache->data[1], cache->data[2], cache->data[3], cache->data[4],
+            cache->data[5], cache->data[6], cache->data[7], cache->data[8], cache->data[9],
+            cache->data[10], cache->data[11], cache->data[12], cache->data[13], cache->data[14],
+            cache->data[15], cache->data[16], cache->data[17], cache->data[18], cache->data[19]);
+    
+    // Count non-zero pixels in first row to verify we have actual data
+    int non_zero_count = 0;
+    int sample_size = (cache->width < 100) ? cache->width : 100;
+    for (int i = 0; i < sample_size; i++) {
+        if (cache->data[i] != 0) non_zero_count++;
+    }
+    JUSTLOG("First %d pixels: %d are non-zero (%d%% opaque)", sample_size, non_zero_count, (non_zero_count * 100) / sample_size);
     
     // Calculate scale factors to stretch/fit overlay to fill entire viewport
     float scale_x = (float)cache->width / width;
@@ -629,7 +648,7 @@ static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long 
             
             unsigned char overlay_pixel = src_row[src_x];
             
-            // Color 255 (magenta) is treated as transparent - skip it completely
+            // Palette index 255 is used as transparency marker - skip it completely
             if (overlay_pixel != 255)
             {
                 // Apply alpha dithering using checkerboard pattern

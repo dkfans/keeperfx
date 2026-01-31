@@ -1047,10 +1047,15 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
         parse_named_field_block(buf, len, config_textname, flags, blockname_null, named_fields_set->named_fields, named_fields_set, i);
     }
 
-    // Set the terminator at the actual count position (not at max_count-1)
+    // Set the terminator safely within the allocated range
     if (named_fields_set->names != NULL && named_fields_set->count_field != NULL)
     {
-        named_fields_set->names[*named_fields_set->count_field].name = NULL;
+        int terminator_index = *named_fields_set->count_field;
+        if (terminator_index >= named_fields_set->max_count)
+        {
+            terminator_index = named_fields_set->max_count - 1;
+        }
+        named_fields_set->names[terminator_index].name = NULL;
     }
 
     return true;
