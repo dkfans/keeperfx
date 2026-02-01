@@ -409,7 +409,6 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 		stream.seekg(directory.first_data_offset + sample.data_offset, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
-	("Loaded %d sound samples from %s", (int) buffers.size(), filename);
 	return buffers;
 }
 
@@ -437,20 +436,14 @@ void load_sound_banks() {
 void print_device_info() {
 	if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT")) {
 		const auto devices = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
-		("Available audio devices:");
 		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			("  %s", device);
+			// Device enumeration
 		}
-		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-		("Default audio device: %s", default_device);
 	} else if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
 		const auto devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
-		("Available audio devices:");
 		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			("  %s", device);
+			// Device enumeration
 		}
-		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-		("Default audio device: %s", default_device);
 	} else {
 		// Cannot enumerate devices :(
 	}
@@ -478,6 +471,10 @@ extern "C" void FreeAudio() {
 	g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
 	g_openal_context = nullptr;
 	g_openal_device = nullptr;
+}
+
+extern "C" void custom_sound_bank_clear() {
+	g_custom_bank.clear();
 }
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
@@ -518,7 +515,6 @@ extern "C" TbBool play_music(const char * fname) {
 	}
 	// g_mix_music will be null here as Mix_PlayMusic ends up calling on_music_finished
 	g_mix_music = music;
-	("Playing %s", game.music_fname);
 	return true;
 }
 
@@ -532,7 +528,6 @@ extern "C" TbBool play_music_track(int track) {
 		return play_music(prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", track));
 	} else {
 		if (PlayRedbookTrack(track)) {
-			("Playing track %d", game.music_track);
 			return true;
 		} else {
 			WARNLOG("Cannot play track %d", game.music_track);
@@ -542,7 +537,6 @@ extern "C" TbBool play_music_track(int track) {
 }
 
 extern "C" void pause_music() {
-	("Pausing music");
 	if (features_enabled & Ft_NoCdMusic) {
 		Mix_PauseMusic();
 	} else {
@@ -551,7 +545,6 @@ extern "C" void pause_music() {
 }
 
 extern "C" void resume_music() {
-	("Resuming music");
 	if (features_enabled & Ft_NoCdMusic) {
 		Mix_ResumeMusic();
 	} else {
@@ -926,13 +919,8 @@ static std::string normalize_file_path(const char* filepath) {
 
 extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id) {
 	try {
-		("Attempting to load WAV file: %s", filepath);
-		
 		// Normalize path for cross-platform compatibility
 		std::string normalized_path = normalize_file_path(filepath);
-		if (normalized_path != filepath) {
-			("Normalized path to: %s", normalized_path.c_str());
-		}
 		
 		std::ifstream stream(normalized_path, std::ios::binary);
 		if (!stream.is_open()) {
@@ -947,7 +935,6 @@ extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id) {
 		
 		wave_file wav(stream);
 		g_custom_bank.emplace_back(filepath, sample_id, wav);
-		("Successfully loaded WAV into custom bank: %s (sample_id=%d)", filepath, sample_id);
 		return true;
 	} catch (const std::exception& e) {
 		ERRORLOG("Failed to load WAV %s: %s", filepath, e.what());

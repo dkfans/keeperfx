@@ -316,6 +316,19 @@ void SoundManager::printStats() const {
     printf("=====================================\n\n");
 }
 
+// Forward declaration for C function in bflib_sndlib.cpp
+extern "C" void custom_sound_bank_clear();
+
+// Clear all custom sounds - used during save/load to rebuild fresh bank
+void SoundManager::clearCustomSounds() {
+    custom_sounds_.clear();
+    creature_sound_overrides_.clear();
+    total_custom_sounds_ = 0;
+    next_custom_sample_id_ = 0;
+    // Also clear the C++ sound bank
+    custom_sound_bank_clear();
+}
+
 } // namespace KeeperFX
 
 // C API wrappers
@@ -364,6 +377,10 @@ TbBool sound_manager_minimal_is_custom_sound_loaded(const char* name) {
 
 void sound_manager_minimal_print_stats(void) {
     KeeperFX::SoundManager::getInstance().printStats();
+}
+
+void sound_manager_clear_custom_sounds(void) {
+    KeeperFX::SoundManager::getInstance().clearCustomSounds();
 }
 
 // Config parser bridge: load custom sound from creature cfg file

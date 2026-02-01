@@ -28,6 +28,7 @@
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_compp.h"
+#include "sound_manager.h"
 #include "custom_sprites.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -197,9 +198,6 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 // Load configs which may have per-campaign part, and even be modified within a level
                 recheck_all_mod_exist();
                 init_custom_sprites(centry->level_num);
-                load_stats_files();
-                check_and_auto_fix_stats();
-                init_creature_scores();
                 snprintf(high_score_entry, PLAYER_NAME_LENGTH, "%s", centry->player_name);
             }
             break;
@@ -213,6 +211,23 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             }
             if (LbFileRead(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game)) {
                 chunks_done |= SGF_GameOrig;
+                // After loading game data from save, reload configs to apply current custom sounds
+                // Save research data before reload (load_stats_files clears it)
+                short saved_research_num[DUNGEONS_COUNT];
+                short saved_research_override[DUNGEONS_COUNT];
+                for (int i = 0; i < DUNGEONS_COUNT; i++) {
+                    saved_research_num[i] = game.dungeon[i].research_num;
+                    saved_research_override[i] = game.dungeon[i].research_override;
+                }
+                sound_manager_clear_custom_sounds();
+                load_stats_files();
+                check_and_auto_fix_stats();
+                init_creature_scores();
+                // Restore research data after reload
+                for (int i = 0; i < DUNGEONS_COUNT; i++) {
+                    game.dungeon[i].research_num = saved_research_num[i];
+                    game.dungeon[i].research_override = saved_research_override[i];
+                }
             } else {
                 WARNLOG("Could not read GameOrig chunk");
             }
