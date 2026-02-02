@@ -615,7 +615,7 @@ void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
     map_info.screen_shift_aimed_x = map_info.screen_shift_x;
     map_info.screen_shift_aimed_y = map_info.screen_shift_y;
     // Set working parameters for zooming
-    map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
+    map_info.fade_pos = FRONTMAP_ZOOM_LENGTH - 1;
     map_info.fade_step = -FRONTMAP_ZOOM_STEP;
     map_info.fadeflags |= MLInfoFlg_SpeechAfterZoom;
     map_info.fadeflags |= MLInfoFlg_Zooming;
@@ -643,7 +643,7 @@ void frontmap_zoom_in_init(LevelNumber lvnum)
     SYNCDBG(8,"Level %ld hotspot (%d,%d) zoom (%d,%d)",(long)lvnum,(int)map_info.hotspot_shift_x,(int)map_info.hotspot_shift_y,(int)map_info.hotspot_imgpos_x,(int)map_info.hotspot_imgpos_y);
     // Set working parameters for zooming
     map_info.fade_step = FRONTMAP_ZOOM_STEP;
-    map_info.fade_pos = 1;
+    map_info.fade_pos = 0;
     map_info.fadeflags |= MLInfoFlg_SpeechAfterZoom;
     map_info.fadeflags |= MLInfoFlg_Zooming;
 }
@@ -1114,7 +1114,7 @@ TbBool frontmap_update_zoom(void)
         process_map_zoom_out();
     }
     map_info.fade_pos += map_info.fade_step * game.delta_time * (33.0f / game_num_fps);
-    if ((map_info.fade_pos <= 1) || (map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH-1))
+    if (map_info.fade_pos < 0 || map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH)
     {
         SYNCDBG(8,"Stopping fade");
         LbPaletteStopOpenFade();
