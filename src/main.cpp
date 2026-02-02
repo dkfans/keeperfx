@@ -2280,19 +2280,16 @@ int set_players_creatures_to_get_paid(PlayerNumber plyr_idx)
                     if (!creature_is_kept_in_custody_by_enemy(thing))
                     {
                         cctrl->paydays_owed++;
+                        if (cctrl->paydays_owed > game.conf.rules[plyr_idx].game.max_paydays_owed)
+                        {
+                            cctrl->paydays_owed = game.conf.rules[plyr_idx].game.max_paydays_owed;
+                        }
                         count++;
                     }
                     else
                     {
                         cctrl->paydays_advanced--;
                     }
-                    /*cctrl->paydays_owed++;
-                    if (cctrl->paydays_owed > game.conf.rules.game.max_paydays_owed)
-                    {
-                        cctrl->paydays_owed = game.conf.rules.game.max_paydays_owed;
-                    }
-                    creatures_count[thing->owner]++;
-                    */
                 }
             }
         }

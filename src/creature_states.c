@@ -5227,12 +5227,10 @@ TbBool process_custom_salary(struct Thing *creatng)
     return 0;
 }
 
-//long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureModelConfig *crconf)
-long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureStats *crstat)
+long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    //if ((crconf->pay == 0) || (cctrl->paydays_owed == 0)) {
-    if ((crstat->pay == 0) || (cctrl->paydays_owed == 0)) {
+    if ((crconf->pay == 0) || (cctrl->paydays_owed == 0)) {
 
       return 0;
     }
