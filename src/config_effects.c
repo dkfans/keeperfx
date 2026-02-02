@@ -48,21 +48,21 @@ const struct ConfigFileData keeper_effects_file_data = {
 
 
 const struct NamedField effects_effectgenerator_named_fields[] = {
-    {"NAME",                   0, field(game.conf.effects_conf.effectgen_cfgstats[0].code_name),            0,    LONG_MIN, ULONG_MAX, effectgen_desc,  value_name,      assign_null},
-    {"GENERATIONDELAYMIN",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_min), 0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"GENERATIONDELAYMAX",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_max), 0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"GENERATIONAMOUNT",       0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_amount),    0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"EFFECTMODEL",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].effect_model),         0,    LONG_MIN, ULONG_MAX, NULL,            value_effOrEffEl,assign_default},
-    {"IGNORETERRAIN",          0, field(game.conf.effects_conf.effectgen_cfgstats[0].ignore_terrain),       0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"SPAWNHEIGHT",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].spawn_height),         1,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMIN",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_min),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMIN",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_min),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMIN",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_min),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMAX",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_max),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMAX",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_max),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"ACCELERATIONMAX",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_max),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"SOUND",                  0, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_idx),     0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
-    {"SOUND",                  1, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_rng),     0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"NAME",                   0, field(game.conf.effects_conf.effectgen_cfgstats[0].code_name),            0,    INT32_MIN, UINT32_MAX, effectgen_desc,  value_name,      assign_null},
+    {"GENERATIONDELAYMIN",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_min), 0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"GENERATIONDELAYMAX",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_max), 0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"GENERATIONAMOUNT",       0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_amount),    0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"EFFECTMODEL",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].effect_model),         0,    INT32_MIN, UINT32_MAX, NULL,            value_effOrEffEl,assign_default},
+    {"IGNORETERRAIN",          0, field(game.conf.effects_conf.effectgen_cfgstats[0].ignore_terrain),       0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SPAWNHEIGHT",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].spawn_height),         1,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_min),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_min),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_min),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_max),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_max),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_max),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SOUND",                  0, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_idx),     0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SOUND",                  1, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_rng),     0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
     {NULL},
 };
 
@@ -77,13 +77,13 @@ const struct NamedFieldSet effects_effectgenerator_named_fields_set = {
     game.conf.effects_conf.effectgen_cfgstats,
 };
 
-long const imp_spangle_effects[] = {
-    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite, 
+int32_t const imp_spangle_effects[] = {
+    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite,
     TngEff_None, TngEff_ImpSpanglePurple, TngEff_ImpSpangleBlack, TngEff_ImpSpangleOrange
 };
 
-long const ball_puff_effects[] = {
-    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, 
+int32_t const ball_puff_effects[] = {
+    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite,
     TngEff_BallPuffWhite, TngEff_BallPuffPurple, TngEff_BallPuffBlack, TngEff_BallPuffOrange
 };
 
@@ -95,12 +95,12 @@ struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];
 
 static void load_effects(VALUE *value, unsigned short flags)
 {
-    char key[64];
+    char key[64] = "";
     VALUE *section;
     for (int id = 0; id < EFFECTS_TYPES_MAX; id++)
     {
         {
-            sprintf(key, "effect%d", id);
+            snprintf(key, sizeof(key), "effect%d", id);
             section = value_dict_get(value, key);
         }
         if (value_type(section) == VALUE_DICT)
@@ -109,9 +109,9 @@ static void load_effects(VALUE *value, unsigned short flags)
 
             SET_NAME(section,effect_desc,effcst->code_name);
 
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationAccelXYRange",effcst->accel_xy_min,effcst->accel_xy_max);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationAccelZRange", effcst->accel_z_min, effcst->accel_z_max);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationKindRange",   effcst->kind_min,    effcst->kind_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelXYRange",effcst->accel_xy_min,effcst->accel_xy_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelZRange", effcst->accel_z_min, effcst->accel_z_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationKindRange",   effcst->kind_min,    effcst->kind_max);
             CONDITIONAL_ASSIGN_INT(section,"Health",        effcst->start_health);
             CONDITIONAL_ASSIGN_INT(section,"GenerationType",effcst->generation_type);
             CONDITIONAL_ASSIGN_INT(section,"AreaAffectType",effcst->area_affect_type);
@@ -180,10 +180,10 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"Unanimated",effelcst->unanimated);
             CONDITIONAL_ASSIGN_ARR2_INT(section,"Lifespan",effelcst->lifespan,effelcst->lifespan_random);
             CONDITIONAL_ASSIGN_ANIMID(section,"AnimationId",effelcst->sprite_idx);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSize",effelcst->sprite_size_min,effelcst->sprite_size_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"SpriteSize",effelcst->sprite_size_min,effelcst->sprite_size_max);
             CONDITIONAL_ASSIGN_INT(section,"RenderFlags",effelcst->animate_once); //todo Remove after people have had time to handle the rename
             CONDITIONAL_ASSIGN_INT(section, "AnimateOnce", effelcst->animate_once);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSpeed",effelcst->sprite_speed_min,effelcst->sprite_speed_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"SpriteSpeed",effelcst->sprite_speed_min,effelcst->sprite_speed_max);
 
             CONDITIONAL_ASSIGN_BOOL(section,"AnimateOnFloor",  effelcst->animate_on_floor);
             CONDITIONAL_ASSIGN_BOOL(section,"Unshaded",        effelcst->unshaded);
@@ -232,7 +232,7 @@ static TbBool load_effects_config_file(const char *fname, unsigned short flags)
     load_effectelements(&file_root,flags);
 
     value_fini(&file_root);
-    
+
     return true;
 }
 

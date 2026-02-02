@@ -29,7 +29,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct GameAdd gameadd;
 struct IntralevelData intralvl;
 unsigned long game_flags2 = 0;
 /******************************************************************************/
@@ -42,7 +41,7 @@ unsigned long game_flags2 = 0;
 TbBool emulate_integer_overflow(unsigned short nbits)
 {
     if (nbits == 8)
-        return (game.conf.rules.game.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
+        return (game.conf.rules[0].game.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
     return false;
 }
 
@@ -192,22 +191,6 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
         break;
     }
     return LvSt_Hidden;
-}
-
-/**
- * Returns if the given extra level is visible in land view screen.
- */
-short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
-{
-    int i = array_index_for_extra_level(ex_lvnum);
-    switch (i + 1)
-    {
-    case ExLv_FullMoon:
-        return is_full_moon;
-    case ExLv_NewMoon:
-        return is_new_moon;
-    }
-    return false;
 }
 
 void update_extra_levels_visibility(void)

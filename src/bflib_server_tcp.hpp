@@ -45,7 +45,6 @@ class TCP_NetServer : public TCP_NetBase
 	static void recvThreadFunc(RecvThreadArg * arg);
 	void haltRecvThreads();
 
-	void addRemoteSocket(int index, TCPsocket);
 	TCPsocket getRemoteSocketByIndex(int index, ulong & playerId);
 	TCPsocket getRemoteSocketByPlayer(int playerId);
 	void removeRemoteSocket(TCPsocket sock);
@@ -55,7 +54,6 @@ public:
 	virtual ~TCP_NetServer() override;
 
 	virtual void update() override;
-	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen) override;
 };
 
 #endif //!BFLIB_SERVER_TCP_HPP

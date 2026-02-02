@@ -38,8 +38,8 @@ void panel_map_update(long x, long y, long w, long h);
 void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom);
 void panel_map_draw_overlay_things(long units_per_px, long zoom, long basic_zoom);
 
-short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
-short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
+short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom);
+short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
 
 void update_panel_colors(void);

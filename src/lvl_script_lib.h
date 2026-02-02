@@ -41,7 +41,6 @@ enum TbScriptCommands {
     Cmd_MESSAGE                            =  5, // from beta
     Cmd_IF                                 =  6,
     Cmd_ENDIF                              =  7,
-    Cmd_SET_HATE                           =  8,
     Cmd_SET_GENERATE_SPEED                 =  9,
     Cmd_REM                                = 10,
     Cmd_START_MONEY                        = 11,
@@ -140,7 +139,7 @@ enum TbScriptCommands {
     Cmd_CREATE_EFFECTS_LINE                = 127,
     Cmd_DISPLAY_MESSAGE                    = 128,
     Cmd_QUICK_MESSAGE                      = 129,
-    Cmd_USE_SPELL_ON_CREATURE              = 130,
+    Cmd_CLEAR_MESSAGE                      = 130,
     Cmd_SET_HEART_HEALTH                   = 131,
     Cmd_ADD_HEART_HEALTH                   = 132,
     Cmd_CREATURE_ENTRANCE_LEVEL            = 133,
@@ -159,14 +158,14 @@ enum TbScriptCommands {
     Cmd_HEART_LOST_QUICK_OBJECTIVE         = 146,
     Cmd_HEART_LOST_OBJECTIVE               = 147,
     Cmd_SET_DOOR                           = 148,
-    Cmd_SET_CREATURE_INSTANCE              = 149,    
+    Cmd_SET_CREATURE_INSTANCE              = 149,
     Cmd_TRANSFER_CREATURE                  = 150,
     Cmd_SET_HAND_RULE                      = 151,
     Cmd_MOVE_CREATURE                      = 152,
     Cmd_COUNT_CREATURES_AT_ACTION_POINT    = 153,
     Cmd_IF_ALLIED                          = 154,
     Cmd_SET_TEXTURE                        = 155,
-    Cmd_HIDE_HERO_GATE                     = 156,
+    Cmd_USE_SPELL_ON_CREATURE              = 156,
     Cmd_USE_SPELL_ON_PLAYERS_CREATURES     = 157,
     Cmd_SET_ROOM_CONFIGURATION             = 158,
     Cmd_NEW_TRAP_TYPE                      = 159,
@@ -191,6 +190,13 @@ enum TbScriptCommands {
     Cmd_PLACE_TRAP                         = 178,
     Cmd_LOCK_POSSESSION                    = 179,
     Cmd_SET_DIGGER                         = 180,
+    Cmd_RUN_LUA_CODE                       = 181,
+    Cmd_TAG_MAP_RECT                       = 182,
+    Cmd_UNTAG_MAP_RECT                     = 183,
+    Cmd_SET_NEXT_LEVEL                     = 184,
+    Cmd_SHOW_BONUS_LEVEL                   = 185,
+    Cmd_HIDE_BONUS_LEVEL                   = 186,
+    Cmd_HIDE_HERO_GATE                     = 187,
 };
 
 struct ScriptLine {
@@ -292,6 +298,9 @@ enum ScriptVariables {
   SVar_AVAILABLE_TOTAL_CREATURES       = 84,
   SVar_DESTROYED_KEEPER                = 85,
   SVar_TOTAL_SLAPS                     = 87,
+  SVar_SCORE                           = 88,
+  SVar_PLAYER_SCORE                    = 89,
+  SVar_MANAGE_SCORE                    = 90,
  };
 
 
@@ -307,7 +316,6 @@ extern const struct NamedCommand hero_objective_desc[];
 extern const struct NamedCommand msgtype_desc[];
 extern const struct NamedCommand tendency_desc[];
 extern const struct NamedCommand creature_select_criteria_desc[];
-extern const struct NamedCommand trap_config_desc[];
 extern const struct NamedCommand gui_button_group_desc[];
 extern const struct NamedCommand campaign_flag_desc[];
 extern const struct NamedCommand script_operator_desc[];
@@ -318,27 +326,24 @@ extern const struct NamedCommand set_door_desc[];
 extern const struct NamedCommand texture_pack_desc[];
 extern const struct NamedCommand locked_desc[];
 
-// 1/4 turn minimal
-#define FX_LINE_TIME_PARTS 4
-
-
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle);
 struct Thing* script_process_new_effectgen(ThingModel crmodel, TbMapLocation location, long range);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
-void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
+void command_add_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3);
 void set_variable(int player_idx, long var_type, long var_idx, long new_val);
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
 long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const char *func_name, long ln_num);
-TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type);
+TbBool parse_set_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type);
 long parse_criteria(const char *criteria);
 #define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num);
-TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
+TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type, long level_file_version);
 void get_chat_icon_from_value(const char* txt, char* id, char* type);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
-TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
+TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *func_name, long ln_num);
+PlayerNumber get_objective_id_with_potential_target(const char* locname, PlayerNumber* target);
 TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwrLevel power_level, PlayerNumber caster, TbBool is_free);
 const char * script_strval(long offset);
 long script_strdup(const char *src);
@@ -366,10 +371,10 @@ long script_strdup(const char *src);
     if (value != &tmp_value) \
     {                           \
         value->flags = TrgF_DISABLED; \
-        gameadd.script.values_num--; \
+        game.script.values_num--; \
     }
 
-    void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value);
+    void script_process_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3, struct ScriptValue *value);
 
 #define PROCESS_SCRIPT_VALUE(cmd) \
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0)) \

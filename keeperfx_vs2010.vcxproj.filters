@@ -48,9 +48,6 @@
     <ClCompile Include="src\bflib_basics.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_bufrw.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_cpu.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,9 +82,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_netsession.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_netsync.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_planar.c">
@@ -163,6 +157,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_objects.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config_mods.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_players.c">
@@ -411,9 +408,6 @@
     <ClCompile Include="src\net_game.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\net_sync.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\packets.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -576,9 +570,6 @@
     <ClCompile Include="src\bflib_netsp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_netsp_ipx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_netsp_tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -586,9 +577,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_server_tcp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_threadcond.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_magic_data.cpp">
@@ -744,6 +732,42 @@
     <ClCompile Include="src\config_keeperfx.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\lua_api.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_player.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_slabs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_things.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_base.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_cfg_funcs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_params.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_triggers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\local_camera.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_portforward.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_resync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -780,9 +804,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_basics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_bufrw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_client_tcp.hpp">
@@ -851,13 +872,7 @@
     <ClInclude Include="src\bflib_netsp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\bflib_netsp_ipx.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\bflib_netsp_tcp.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_netsync.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_network.h">
@@ -885,9 +900,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_string.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_threadcond.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_video.h">
@@ -1196,9 +1208,6 @@
     <ClInclude Include="src\net_game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\net_sync.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\packets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1407,6 +1416,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\highscores.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_cfg_funcs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_params.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_triggers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\local_camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_portforward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_resync.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

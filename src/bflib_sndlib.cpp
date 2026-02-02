@@ -349,8 +349,8 @@ struct sound_sample {
 
 #pragma pack(1)
 struct SoundBankHead { // sizeof = 18
-	uint8_t field_0[14];
-	uint32_t field_E;
+	uint8_t signature[14];
+	uint32_t version;
 };
 #pragma pack()
 
@@ -359,12 +359,12 @@ struct SoundBankSample { // sizeof = 32
 	/** Name of the sound file the sample comes from. */
 	char filename[18];
 	/** Offset of the sample data. */
-	uint32_t field_12;
-	uint32_t field_16;
+	uint32_t data_offset;
+	uint32_t sample_rate;
 	/** Size of the sample file. */
 	uint32_t data_size;
 	SoundSFXID sfxid;
-	uint8_t field_1F;
+	uint8_t format_flags;
 };
 #pragma pack()
 
@@ -373,7 +373,7 @@ struct SoundBankEntry { // sizeof = 16
 	uint32_t first_sample_offset;
 	uint32_t first_data_offset;
 	uint32_t total_samples_size;
-	uint32_t field_C;
+	uint32_t entries_count;
 };
 #pragma pack()
 
@@ -405,10 +405,10 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 	for (int i = 0; i < sample_count; ++i) {
 		stream.seekg(directory.first_sample_offset + (sizeof(sample) * i), std::ios::beg);
 		stream.read(reinterpret_cast<char *>(&sample), sizeof(sample));
-		stream.seekg(directory.first_data_offset + sample.field_12, std::ios::beg);
+		stream.seekg(directory.first_data_offset + sample.data_offset, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
-	JUSTLOG("Loaded %d sound samples from %s", buffers.size(), filename);
+	JUSTLOG("Loaded %d sound samples from %s", (int) buffers.size(), filename);
 	return buffers;
 }
 
@@ -417,7 +417,7 @@ std::array<std::vector<sound_sample>, 2> g_banks;
 
 void load_sound_banks() {
 	char snd_fname[2048];
-	prepare_file_path_buf(snd_fname, FGrp_LrgSound, "sound.dat");
+	prepare_file_path_buf(snd_fname, sizeof(snd_fname), FGrp_LrgSound, "sound.dat");
 	// language-specific speech file
 	char * spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
 	// default speech file
@@ -479,7 +479,8 @@ extern "C" void FreeAudio() {
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 	try {
-		alListenerf(AL_GAIN, float(volume) / 64);
+		// Set OpenAL listener gain to maximum so we can split up the mentor speech volume slider from the sound effects volume slider
+		alListenerf(AL_GAIN, 1.0f);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set master volume", errcode);
@@ -606,7 +607,7 @@ extern "C" void StopAllSamples() {
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
-		if (game.flags_font & FFlg_AlexCheat) {
+		if (game.easter_eggs_enabled == true) {
 			TbDate date;
 			LbDate(&date);
 			g_bb_king_mode |= ((date.Day == 1) && (date.Month == 2));
@@ -738,9 +739,9 @@ extern "C" SoundMilesID play_sample(
 				source.repeat(repeats == -1);
 				if (g_bb_king_mode) {
 					// ben enjoyed dofi's stream so much I made random pitch an easter egg
-					if (UNSYNC_RANDOM(10) > 7) { // ~30% of the time
+					if (SOUND_RANDOM(10) > 7) { // ~30% of the time
 						source.flags |= bb_king_mode;
-						source.pitch((NORMAL_PITCH / 2) + UNSYNC_RANDOM(NORMAL_PITCH));
+						source.pitch((NORMAL_PITCH / 2) + SOUND_RANDOM(NORMAL_PITCH));
 					} else {
 						source.flags &= ~bb_king_mode;
 						source.pitch(pitch);
@@ -755,7 +756,10 @@ extern "C" SoundMilesID play_sample(
 				return source.mss_id;
 			}
 		}
-		ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
+        if (game.frame_skip < 2)
+        {
+            ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
+        }
 		return 0;
 	} catch (const std::exception & e) {
 		ERRORLOG("%s", e.what());

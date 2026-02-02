@@ -48,7 +48,7 @@ struct PlayerInfo bad_player;
 /** The current player's number. */
 unsigned char my_player_number;
 /******************************************************************************/
-struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
+struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
     {
@@ -121,7 +121,7 @@ TbBool player_is_neutral(PlayerNumber plyr_num)
  * @param check_plyr_idx Index of the player who could be enemy.
  * @return True if the players are enemies; false otherwise.
  */
-TbBool players_are_enemies(long origin_plyr_idx, long check_plyr_idx)
+TbBool players_are_enemies(PlayerNumber origin_plyr_idx, PlayerNumber check_plyr_idx)
 {
     // Player can't be his own enemy
     if (origin_plyr_idx == check_plyr_idx)
@@ -299,7 +299,7 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
         clear_flag(player->players_with_locked_ally_status, to_flag(ally_idx)); // unlock ally player's ally status with player plyridx
 }
 
-void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
+void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chosen_kind)
 {
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
@@ -434,11 +434,11 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   if (player->view_type == nview)
     return;
   player->view_type = nview;
-  player->allocflags &= ~PlaF_Unknown8;
+  player->allocflags &= ~PlaF_CreaturePassengerMode;
   if (is_my_player(player))
   {
-    game.numfield_D &= ~GNFldD_CreaturePasngr;
-    game.numfield_D |= GNFldD_Unkn01;
+    game.view_mode_flags &= ~GNFldD_CreaturePasngr;
+    game.view_mode_flags |= GNFldD_CreatureViewMode;
     if (is_my_player(player))
       stop_all_things_playing_samples();
   }
@@ -465,7 +465,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   case PVT_CreaturePasngr:
       set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
-        game.numfield_D &= ~GNFldD_Unkn01;
+        game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
   case PVT_MapScreen:
@@ -496,20 +496,20 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
         set_engine_view(player, PVM_IsoWibbleView);
       }
       if (is_my_player(player))
-        game.numfield_D &= ~GNFldD_Unkn01;
+        game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
       player->work_state = player->continue_work_state;
       set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
-        game.numfield_D |= GNFldD_Unkn01;
+        game.view_mode_flags |= GNFldD_CreatureViewMode;
       break;
     case PVT_MapScreen:
       player->work_state = player->continue_work_state;
       set_engine_view(player, PVM_ParchmentView);
       if (is_my_player(player))
-        game.numfield_D &= ~GNFldD_Unkn01;
+        game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       break;
     default:
       break;

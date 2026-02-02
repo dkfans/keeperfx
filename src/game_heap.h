@@ -28,14 +28,10 @@ extern "C" {
 
 /******************************************************************************/
 TbBool setup_heap_manager(void);
-TbBool setup_heap_memory(void);
 void reset_heap_manager(void);
-void reset_heap_memory(void);
-TbBool setup_heaps(void);
 
 /******************************************************************************/
 void *he_alloc(size_t size);
-void he_free(void *data);
 
 #ifdef __cplusplus
 }

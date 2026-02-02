@@ -40,23 +40,23 @@ enum GameKeys {
     Gkey_RotateCCW,
     Gkey_ZoomIn,
     Gkey_ZoomOut,
-    Gkey_ZoomRoom00, // 10
-    Gkey_ZoomRoom01,
-    Gkey_ZoomRoom02,
-    Gkey_ZoomRoom03,
-    Gkey_ZoomRoom04,
-    Gkey_ZoomRoom05, // 15
-    Gkey_ZoomRoom06,
-    Gkey_ZoomRoom07,
-    Gkey_ZoomRoom08,
-    Gkey_ZoomRoom09,
-    Gkey_ZoomRoom10, // 20
-    Gkey_ZoomRoom11,
-    Gkey_ZoomRoom12,
-    Gkey_ZoomRoom13,
-    Gkey_ZoomRoom14,
-    Gkey_ZoomRoom15, // 25
-    Gkey_ZoomToFight, 
+    Gkey_ZoomRoomTreasure, // 10
+    Gkey_ZoomRoomLibrary,
+    Gkey_ZoomRoomLair,
+    Gkey_ZoomRoomPrison,
+    Gkey_ZoomRoomTorture,
+    Gkey_ZoomRoomTraining, // 15
+    Gkey_ZoomRoomHeart,
+    Gkey_ZoomRoomWorkshop,
+    Gkey_ZoomRoomScavenger,
+    Gkey_ZoomRoomTemple,
+    Gkey_ZoomRoomGraveyard, // 20
+    Gkey_ZoomRoomBarracks,
+    Gkey_ZoomRoomHatchery,
+    Gkey_ZoomRoomGuardPost,
+    Gkey_ZoomRoomBridge,
+    Gkey_ZoomRoomPortal, // 25
+    Gkey_ZoomToFight,
     Gkey_ZoomCrAnnoyed,
     Gkey_CrtrContrlMod,
     Gkey_CrtrQueryMod,
@@ -74,7 +74,7 @@ enum GameKeys {
     Gkey_TiltDown,
     Gkey_TiltReset,
     Gkey_Ascend,
-    Gkey_Descend
+    Gkey_Descend,
 };
 
 enum TbButtonFrontendFlags {
@@ -104,11 +104,13 @@ struct GuiButton;
 /******************************************************************************/
 extern long old_mx;
 extern long old_my;
+extern int synthetic_left;
+extern int synthetic_right;
 /******************************************************************************/
 void input(void);
 short get_inputs(void);
 short get_screen_capture_inputs(void);
-int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods);
+int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);
 short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];

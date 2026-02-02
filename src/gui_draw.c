@@ -46,29 +46,9 @@ char gui_textbuf[TEXT_BUFFER_LENGTH];
 unsigned char *gui_slab;
 unsigned char *frontend_background;
 struct TbSpriteSheet * frontend_sprite = NULL;
+int gui_blink_rate = 1; // Number of frames before menu/map effects flash. Default value, overwritten by cfg setting.
+int neutral_flash_rate = 1; // Number of frames before neutral rooms/creatures cycle colours. Default value, overwritten by cfg setting.
 /******************************************************************************/
-
-int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
-{
-    int m;
-    int w = 0;
-    int h = 0;
-    for (m=0; m < 5; m++)
-    {
-        w += img_w;
-        h += img_h;
-        if (w > rect_w) break;
-        if (h > rect_h) break;
-    }
-    // The image width can't be larger than video resolution
-    if (m < 1)
-    {
-        if (w > lbDisplay.PhysicalScreenWidth)
-          return 0;
-        m = 1;
-    }
-    return m;
-}
 
 void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 {
@@ -743,13 +723,6 @@ void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long 
     spridx = get_player_colored_icon_idx(spridx, plyr_idx);
     const struct TbSprite* spr = get_panel_sprite(spridx);
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
-}
-
-void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color)
-{
-    spridx = get_player_colored_icon_idx(spridx,my_player_number);
-    const struct TbSprite* spr = get_panel_sprite(spridx);
-    LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
 }
 
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx)

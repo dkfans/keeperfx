@@ -59,7 +59,7 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            i = dungeon->room_kind[rkind];
+            i = dungeon->room_list_start[rkind];
             while (i != 0)
             {
                 struct Room* room = room_get(i);
@@ -99,8 +99,8 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
         // Thing list loop body
         if (cctrl->lair_room_id == 0)
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            cap_required += crstat->lair_size;
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            cap_required += crconf->lair_size;
         }
         // Thing list loop body ends
         k++;
@@ -187,7 +187,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     struct Room *room;
     char best_score = 0;
 
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
 
     short *room_scores = (short *)big_scratch;
@@ -198,7 +198,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            room = room_get(dungeon->room_kind[rkind]);
+            room = room_get(dungeon->room_list_start[rkind]);
             while (!room_is_invalid(room))
             {
                 if ( room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP) && creature_can_head_for_room(creatng, room, 0) )
@@ -210,7 +210,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                     {
                         if ( room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy )
                             break;
-                        if ( room->content_per_model[model] > 0) 
+                        if ( room->content_per_model[model] > 0)
                         {
                             if ( creatng->model == model )
                             {
@@ -220,8 +220,8 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                             {
                                 room_has_units_of_different_kind = true;
                             }
-                            if (creature_model_is_lair_enemy(crstat->lair_enemy, model)
-                            || creature_model_is_hostile_towards(crstat->hostile_towards, model))
+                            if (creature_model_is_lair_enemy(crconf->lair_enemy, model)
+                            || creature_model_is_hostile_towards(crconf->hostile_towards, model))
                             {
                                 room_has_lair_enemy = true;
                             }
@@ -236,7 +236,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
             }
         }
     }
-        
+
     if (best_score == 0)
     {
         return INVALID_ROOM;
@@ -251,7 +251,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            room = room_get(dungeon->room_kind[rkind]);
+            room = room_get(dungeon->room_list_start[rkind]);
             while (!room_is_invalid(room))
             {
                 if ( room_scores[room->index] == best_score )
@@ -322,7 +322,7 @@ void count_lair_occupants(struct Room *room)
         count_lair_occupants_on_slab(room, slb_x, slb_y);
         // Per slab code ends
         k++;
-        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
+        if (k > game.map_tiles_x * game.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;

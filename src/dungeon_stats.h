@@ -100,6 +100,7 @@ struct LevelStats {
 #pragma pack()
 /******************************************************************************/
 long update_dungeons_scores(void);
+TbBool update_dungeon_scores_for_player(struct PlayerInfo *player);
 TbBool load_stats_files(void);
 
 /******************************************************************************/

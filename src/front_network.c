@@ -48,6 +48,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern char autostart_multiplayer_campaign[80];
+extern int autostart_multiplayer_level;
+
 /******************************************************************************/
 const char *keeper_netconf_file = "fxconfig.net";
 
@@ -59,6 +63,8 @@ const struct ConfigInfo default_net_config_info = {
 int fe_network_active;
 int net_service_index_selected;
 char tmp_net_player_name[24];
+static TbClockMSec frontnet_ping_stabilization_end_time = 0;
+static int previous_player_count_for_ping_wait = -1;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -100,7 +106,6 @@ void process_network_error(long errcode)
       ERRORLOG("Unknown modem error code %ld",errcode);
       return;
   }
-  //display_centered_message(3000, text);
   create_frontend_error_box(3000, text);
 }
 
@@ -325,6 +330,61 @@ void frontnet_rewite_net_messages(void)
       memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
 }
 
+TbBool frontnet_is_waiting_for_ping_stabilization(void)
+{
+    TbClockMSec now;
+    if (net_number_of_enum_players != previous_player_count_for_ping_wait) {
+        frontnet_ping_stabilization_end_time = LbTimerClock() + FRONTNET_PING_STABILIZATION_DELAY_MS;
+        previous_player_count_for_ping_wait = net_number_of_enum_players;
+    }
+    if (net_number_of_enum_players < 2) {
+        return true;
+    }
+    if (frontnet_ping_stabilization_end_time == 0) {
+        return false;
+    }
+    now = LbTimerClock();
+    if (now >= frontnet_ping_stabilization_end_time) {
+        frontnet_ping_stabilization_end_time = 0;
+        return false;
+    }
+    return true;
+}
+
+void frontnet_reset_ping_stabilization(void)
+{
+    frontnet_ping_stabilization_end_time = 0;
+    previous_player_count_for_ping_wait = -1;
+}
+
+void handle_autostart_multiplayer_messaging(void)
+{
+    static TbBool send_pending = false;
+
+    if (net_number_of_enum_players < 2) {
+        send_pending = false;
+        return;
+    }
+    if (!send_pending && my_player_number == get_host_player_id() &&
+        (autostart_multiplayer_campaign[0] != '\0' || autostart_multiplayer_level > 0)) {
+        send_pending = true;
+    }
+    if (send_pending && !frontnet_is_waiting_for_ping_stabilization()) {
+        struct PlayerInfo *player = get_my_player();
+        const char* camp = "keeporig";
+        int level = 1;
+        if (autostart_multiplayer_campaign[0]) {
+            camp = autostart_multiplayer_campaign;
+        }
+        if (autostart_multiplayer_level > 0) {
+            level = autostart_multiplayer_level;
+        }
+        snprintf(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:%d", camp, level);
+        lbInkey = KC_RETURN;
+        send_pending = false;
+    }
+}
+
 void frontnet_start_update(void)
 {
     static TbClockMSec player_last_time = 0;
@@ -340,6 +400,9 @@ void frontnet_start_update(void)
       }
       player_last_time = LbTimerClock();
     }
+
+    handle_autostart_multiplayer_messaging();
+
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {
       net_message_scroll_offset = 0;
@@ -350,6 +413,8 @@ void frontnet_start_update(void)
     }
     process_frontend_packets();
     frontnet_rewite_net_messages();
+
+    LbNetwork_UpdateInputLagIfHost();
 }
 
 void display_attempting_to_join_message(void)
@@ -425,6 +490,7 @@ void frontnet_session_setup(void)
 
 void frontnet_start_setup(void)
 {
+    frontnet_reset_ping_stabilization();
     frontend_alliances = -1;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;

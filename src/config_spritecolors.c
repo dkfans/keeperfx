@@ -21,13 +21,14 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "config_strings.h"
+#include "custom_sprites.h"
+#include "gui_draw.h"
+#include "game_legacy.h"
+#include "player_instances.h"
 #include "value_util.h"
 
 #include <toml.h>
-#include "config_strings.h"
-#include "custom_sprites.h"
-#include "player_instances.h"
-#include "game_legacy.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -58,19 +59,19 @@ static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsign
 {
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        memset(arr,0,sizeof(short) * MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT );
+        memset(arr,0,sizeof(int16_t) * MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT );
     }
     VALUE *toml_arr = value_dict_get(file_root, arr_name);
     if (value_array_size(toml_arr) > MAX_COLORED_SPRITES)
     {
-        WARNLOG("too many colored frames, max %d got %d",MAX_COLORED_SPRITES,value_array_size(toml_arr));
+        WARNLOG("too many colored frames, max %d got %d",MAX_COLORED_SPRITES, (int) value_array_size(toml_arr));
     }
     for (size_t sprite_no = 0; sprite_no < value_array_size(toml_arr); sprite_no++)
     {
         VALUE *col_arr = value_array_get(toml_arr, sprite_no);
         if (value_array_size(col_arr) > PLAYER_COLORS_COUNT)
         {
-            WARNLOG("too many colors for %s, max %d got %d",arr_name,PLAYER_COLORS_COUNT,value_array_size(col_arr));
+            WARNLOG("too many colors for %s, max %d got %d",arr_name,PLAYER_COLORS_COUNT, (int) value_array_size(col_arr));
             continue;
         }
         for (size_t plr_idx = 0; plr_idx < value_array_size(col_arr); plr_idx++)
@@ -102,7 +103,6 @@ static TbBool load_spritecolors_config_file(const char *fname, unsigned short fl
     load_array(&file_root,"gui_panel_sprites",gui_panel_sprites_eq,flags,get_icon_id);
     load_array(&file_root,"pointer_sprites",pointer_sprites_eq,flags,get_icon_id);
     load_array(&file_root,"button_sprite",button_sprite_eq,flags,get_icon_id);
-    load_array(&file_root,"button_sprite",button_sprite_eq,flags,get_icon_id);
     load_array(&file_root,"animationIds",animationIds_eq,flags,get_anim_id_);
     load_array(&file_root,"objects",objects_eq,flags,get_anim_id_);
 
@@ -113,10 +113,10 @@ static TbBool load_spritecolors_config_file(const char *fname, unsigned short fl
         call_to_arms_graphics[plr_idx].alive_anim_idx = get_player_colored_idx(868,plr_idx + 1,animationIds_eq);
         call_to_arms_graphics[plr_idx].leave_anim_idx = get_player_colored_idx(869,plr_idx + 1,animationIds_eq);
     }
-    
+
 
     value_fini(&file_root);
-    
+
     return true;
 }
 
@@ -154,7 +154,7 @@ short get_player_colored_button_sprite_idx(const short base_icon_idx,const Playe
     unsigned char color_idx;
     if (plyr_idx == PLAYER_NEUTRAL)
     {
-        color_idx = game.play_gameturn & 3;
+        color_idx = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
     }
     else
     {

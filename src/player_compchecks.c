@@ -187,7 +187,7 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
             oprel->hate_amount += 5;
         }
         // If no reason to hate the player - hate him randomly for just surviving that long
-        if ((hate_reasons <= 0) && (check->param1 < game.play_gameturn))
+        if ((hate_reasons <= 0) && (check->primary_parameter < game.play_gameturn))
         {
             if (PLAYER_RANDOM(compdngn->owner, 100) < 20) {
                 oprel->hate_amount++;
@@ -216,8 +216,8 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
 
         if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary) || (cctrl->job_assigned == 0))
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            if ((cctrl->job_assigned == crconf->job_primary) || (cctrl->job_assigned == crconf->job_secondary) || (cctrl->job_assigned == 0))
             {
                 creatures_doing_primary_or_secondary_job += 1;
             } else {
@@ -232,7 +232,7 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
     if (work_capable_creatures == 0) {
         return 0;
     }
-    
+
     int percent_doing_other_jobs = (creatures_doing_other_jobs * 100) / work_capable_creatures;
     int num_to_move = work_capable_creatures * (percent_to_reassign - percent_doing_other_jobs) / 100;
     if (num_to_move <= 0) {return 0;}
@@ -251,12 +251,12 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
 {
     struct Dungeon* dungeon = comp->dungeon;
     SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
-    
-    int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->param1);
-    
+
+    int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->primary_parameter);
+
     if (num_to_move <= 0) {
         SYNCDBG(8,"No player %d creatures to move, active %d percentage %d",
-            (int)dungeon->owner,(int)dungeon->num_active_creatrs,(int)check->param1);
+            (int)dungeon->owner,(int)dungeon->num_active_creatrs,(int)check->primary_parameter);
         return CTaskRet_Unk4;
     }
 
@@ -278,10 +278,10 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
 long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    SYNCDBG(8,"Checking player %d for move to %s", (int)dungeon->owner, room_code_name(check->param2));
-    int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->param1);
+    SYNCDBG(8,"Checking player %d for move to %s", (int)dungeon->owner, room_code_name(check->secondary_parameter));
+    int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->primary_parameter);
     if (num_to_move <= 0) {
-        SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
+        SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->primary_parameter);
         return CTaskRet_Unk4;
     }
     if (!computer_able_to_use_power(comp, PwrK_HAND, 1, num_to_move)) {
@@ -293,7 +293,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
         return CTaskRet_Unk4;
     }
     unsigned long k = 0;
-    long i = dungeon->room_kind[check->param2];
+    long i = dungeon->room_list_start[check->secondary_parameter];
     while (i != 0)
     {
         struct Room* room = room_get(i);
@@ -413,7 +413,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
 
-    if ((cctrl->combat_flags == 0) && (param->num2 || thing->creature.gold_carried == 0)) //no gold carried if no gem access
+    if ((cctrl->combat_flags == 0) && (param->secondary_number || thing->creature.gold_carried == 0)) //no gold carried if no gem access
     {
         if (creature_is_being_unconscious(thing) || creature_under_spell_effect(thing, CSAfF_Chicken))
             return -1;
@@ -425,10 +425,10 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
             return -1;
         if ((param->class_id > 0) && (thing->class_id != param->class_id))
             return -1;
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         // Let us estimate value of the creature in gold
         long priority = thing->creature.gold_carried;             // base value
-        priority += param->num1 * thing->health / crstat->health; // full health valued at this many gold
+        priority += param->primary_number * thing->health / crconf->health; // full health valued at this many gold
         priority += 10000 * cctrl->exp_level; // experience earned by the creature has a big value
         if (get_creature_state_type(thing) == CrStTyp_Work)
             priority += 500; // aborted work valued at this many gold
@@ -437,7 +437,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
         if (anger_is_creature_livid(thing))
             priority /= 3; // livid creatures have minimal value
          // Return maximizer based on our evaluated gold value
-        return LONG_MAX - priority;
+        return INT32_MAX - priority;
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -451,8 +451,8 @@ static struct Thing *find_creature_for_sacrifice(struct Computer2 *comp, ThingMo
     param.plyr_idx = dungeon->owner;
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
-    param.num1 = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    param.num2 = any_digger_is_digging_indestructible_valuables(dungeon);
+    param.primary_number = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+    param.secondary_number = any_digger_is_digging_indestructible_valuables(dungeon);
     Thing_Maximizer_Filter filter = player_list_creature_filter_best_for_sacrifice;
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
     struct Thing* thing = INVALID_THING;
@@ -480,18 +480,18 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    if (game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model == 0) {
+    if (game.conf.rules[dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model == 0) {
         return CTaskRet_Unk0;
     }
 
     GoldAmount power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    SYNCDBG(18, "Digger creation power price: %ld, lowest: %ld", power_price, lowest_price);
+    SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
 
     if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
         && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
     {
-        struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model);
+        struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules[dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         if (!thing_is_invalid(creatng) && (cctrl->exp_level < 2))
         {
@@ -538,15 +538,15 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     int preferred_imps;
     int minimal_imps;
     // Compute additional imps from gem faces
-    preferred_imps = minimal_imps = check->param3 * count_faces_of_indestructible_valuables_marked_for_dig(dungeon);
+    preferred_imps = minimal_imps = check->tertiary_parameter * count_faces_of_indestructible_valuables_marked_for_dig(dungeon);
     // The additional imps can double the limits, but no more
-    if (preferred_imps > check->param1)
-        preferred_imps = check->param1;
-    if (minimal_imps > check->param2)
-        minimal_imps = check->param2;
+    if (preferred_imps > check->primary_parameter)
+        preferred_imps = check->primary_parameter;
+    if (minimal_imps > check->secondary_parameter)
+        minimal_imps = check->secondary_parameter;
     // Add the base limits
-    preferred_imps += check->param1;
-    minimal_imps += check->param2;
+    preferred_imps += check->primary_parameter;
+    minimal_imps += check->secondary_parameter;
     SYNCDBG(8,"Starting for player %d, digger amounts minimal=%d preferred=%d controlled=%d",(int)dungeon->owner,(int)minimal_imps,(int)preferred_imps,(int)controlled_diggers);
     if (controlled_diggers >= preferred_imps) {
         return CTaskRet_Unk4;
@@ -570,7 +570,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         MapSubtlCoord stl_y = heartng->mappos.y.stl.num;
         if (xy_walkable(stl_x, stl_y, dungeon->owner))
         {
-            if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+            if ((game.computer_chat_flags & CChat_TasksScarce) != 0) {
                 struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
                 struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
                 message_add_fmt(MsgType_Player, comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
@@ -660,7 +660,7 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     }
     {
         long stack_len = dungeon->digger_stack_length;
-        if (stack_len <= check->param1 * dungeon->total_area / 100) {
+        if (stack_len <= check->primary_parameter * dungeon->total_area / 100) {
             return CTaskRet_Unk4;
         }
         long n = find_in_imp_stack_starting_at(DigTsk_ImproveDungeon, PLAYER_RANDOM(compdngn->owner, stack_len), dungeon);
@@ -691,7 +691,7 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
     int n = opponent_room_kinds[PLAYER_RANDOM(comp->dungeon->owner, sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
     for (int i = 0; i < game.conf.slab_conf.room_types_count; i++)
     {
-        struct Room* room = room_get(dungeon->room_kind[n]);
+        struct Room* room = room_get(dungeon->room_list_start[n]);
         if (room_exists(room)) {
             return room;
         }
@@ -733,9 +733,9 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
-    long attack_percentage = check->param1;
-    long cta_duration = check->param2;
-    long min_creatures_to_attack = check->param3;
+    long attack_percentage = check->primary_parameter;
+    long cta_duration = check->secondary_parameter;
+    long min_creatures_to_attack = check->tertiary_parameter;
     int max_attack_amount = attack_percentage * dungeon->num_active_creatrs / 100;
     unsigned long creatures_to_fight_amount;
 
@@ -767,7 +767,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
-    output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DURATION_KEEPR_TAUNT);
+    output_message(SMsg_EnemyHarassments + SOUND_RANDOM(8), MESSAGE_DURATION_KEEPR_TAUNT);
     return CTaskRet_Unk1;
 }
 
@@ -791,7 +791,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
         && !creature_is_immune_to_spell_effect(thing, CSAfF_Speed))
         {
             long n = get_creature_state_besides_move(thing);
-            struct StateInfo* stati = get_thing_state_info_num(n);
+            struct CreatureStateConfig* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -831,7 +831,7 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
         && !creature_is_immune_to_spell_effect(thing, CSAfF_Flying))
         {
             long n = get_creature_state_besides_move(thing);
-            struct StateInfo* stati = get_thing_state_info_num(n);
+            struct CreatureStateConfig* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -871,7 +871,7 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
         && !creature_is_immune_to_spell_effect(thing, CSAfF_Sight))
         {
             long n = get_creature_state_besides_move(thing);
-            struct StateInfo* stati = get_thing_state_info_num(n);
+            struct CreatureStateConfig* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -904,7 +904,7 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(s
         ERRORLOG("Invalid computer players dungeon");
         return INVALID_THING;
     }
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -943,7 +943,7 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_flight(struc
         ERRORLOG("Invalid computer players dungeon");
         return INVALID_THING;
     }
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -982,7 +982,7 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_vision(struc
         ERRORLOG("Invalid computer players dungeon");
         return INVALID_THING;
     }
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -1012,13 +1012,13 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
 {
     static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
     SYNCDBG(8,"Starting");
-    int power_level = check->param2;
-    int amount = check->param3;
+    int power_level = check->secondary_parameter;
+    int amount = check->tertiary_parameter;
     if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, power_level, amount))
     {
         return CTaskRet_Unk4;
     }
-    long n = check->param1 % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
+    long n = check->primary_parameter % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
     if (n <= 0)
         n = PLAYER_RANDOM(comp->dungeon->owner, sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
     for (long i = 0; i < sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]); i++)
@@ -1038,13 +1038,13 @@ long computer_check_for_flight(struct Computer2 *comp, struct ComputerCheck * ch
 {
     static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
     SYNCDBG(8,"Starting");
-    int power_level = check->param2;
-    int amount = check->param3;
+    int power_level = check->secondary_parameter;
+    int amount = check->tertiary_parameter;
     if (!computer_able_to_use_power(comp, PwrK_FLIGHT, power_level, amount))
     {
         return CTaskRet_Unk4;
     }
-    long n = check->param1 % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
+    long n = check->primary_parameter % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
     if (n <= 0)
         n = PLAYER_RANDOM(comp->dungeon->owner, sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
     for (long i = 0; i < sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]); i++)
@@ -1064,13 +1064,13 @@ long computer_check_for_vision(struct Computer2 *comp, struct ComputerCheck * ch
 {
     static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
     SYNCDBG(8,"Starting");
-    int power_level = check->param2;
-    int amount = check->param3;
+    int power_level = check->secondary_parameter;
+    int amount = check->tertiary_parameter;
     if (!computer_able_to_use_power(comp, PwrK_VISION, power_level, amount))
     {
         return CTaskRet_Unk4;
     }
-    long n = check->param1 % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
+    long n = check->primary_parameter % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
     if (n <= 0)
         n = PLAYER_RANDOM(comp->dungeon->owner, sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
     for (long i = 0; i < sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]); i++)
@@ -1089,14 +1089,16 @@ long computer_check_for_vision(struct Computer2 *comp, struct ComputerCheck * ch
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
+    long slap_percentage = check->primary_parameter;
+    TbBool skip_imps_with_speed = check->secondary_parameter;
     struct Dungeon* dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, PwrK_SLAP)) {
         return CTaskRet_Unk4;
     }
-    long creatrs_num = check->param1 * dungeon->num_active_diggers / 100;
+    long creatrs_num = slap_percentage * dungeon->num_active_diggers / 100;
     if (!is_task_in_progress(comp, CTT_SlapDiggers))
     {
-        if (create_task_slap_imps(comp, creatrs_num)) {
+        if (create_task_slap_imps(comp, creatrs_num, skip_imps_with_speed)) {
             return CTaskRet_Unk1;
         }
     }
@@ -1116,7 +1118,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             continue;
         }
         struct Dungeon* dungeon = get_dungeon(plyr_idx);
-        long i = dungeon->room_kind[RoK_ENTRANCE];
+        long i = dungeon->room_list_start[RoK_ENTRANCE];
         unsigned long k = 0;
         while (i != 0)
         {
@@ -1141,7 +1143,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             {
                 n = oprel->next_idx;
                 oprel->next_idx = (n + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
-                oprel->field_0 = game.play_gameturn;
+                oprel->last_interaction_turn = game.play_gameturn;
                 struct Coord3d* pos = &oprel->pos_A[n];
                 pos->x.val = subtile_coord(room->central_stl_x,0);
                 pos->y.val = subtile_coord(room->central_stl_y,0);
@@ -1227,14 +1229,14 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
         if (dungeon->mnfct_info.door_amount_stored[doorkind] <= 0) {
             continue;
         }
-        long rkind = check->param1;
+        long rkind = check->primary_parameter;
         if (rkind == 0)
         {
-            rkind = (check->param2 + 1) % game.conf.slab_conf.room_types_count;
-            check->param2 = rkind;
+            rkind = (check->secondary_parameter + 1) % game.conf.slab_conf.room_types_count;
+            check->secondary_parameter = rkind;
         }
         unsigned long k = 0;
-        long i = dungeon->room_kind[rkind];
+        long i = dungeon->room_list_start[rkind];
         while (i != 0)
         {
             struct Room* room = room_get(i);
@@ -1420,7 +1422,7 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
     }
     // Don't allow the room to be made into long, narrow shape
     MapSubtlCoord max_radius = 3 * slab_subtile(LbSqrL(max_slabs), 2) / 4;
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -1488,9 +1490,9 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
     struct PlayerInfo* player = get_player(comp->dungeon->owner);
     RoomRole rrole = get_room_role_for_job(Job_CAPTIVITY);
 
-    int status = check->param1;
-    int min_capacity = check->param2;
-    int max_units = check->param3;
+    int status = check->primary_parameter;
+    int min_capacity = check->secondary_parameter;
+    int max_units = check->tertiary_parameter;
 
     if (status == 0)
     {
@@ -1501,7 +1503,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
     // Enough prison capacity to enable imprisonment
     if ((total_capacity >= min_capacity) && (dungeon->num_active_creatrs < max_units))
     {
-        if ((dungeon->creature_tendencies & 0x01) != 0)
+        if ((dungeon->creature_tendencies & CrTend_Imprison) != 0)
         {
             SYNCDBG(8, "Prison tendency already enabled");
             return CTaskRet_Unk1;
@@ -1512,8 +1514,8 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
             {
                 if (is_my_player(player)) {
                     dungeon = get_players_dungeon(player);
-                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
                 }
                 SYNCDBG(18, "Player %d has enabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;
@@ -1533,7 +1535,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
     // Not enough prison capacity to keep imprisonment enabled, or too many units
     else
     {
-        if ((dungeon->creature_tendencies & 0x01) == 0)
+        if ((dungeon->creature_tendencies & CrTend_Imprison) == 0)
         {
             SYNCDBG(8, "Prison tendency already disabled");
             return CTaskRet_Unk1;
@@ -1544,8 +1546,8 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
             {
                 if (is_my_player(player)) {
                     dungeon = get_players_dungeon(player);
-                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
                 }
                 SYNCDBG(18, "Player %d has disabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;

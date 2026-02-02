@@ -24,12 +24,14 @@
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "player_instances.h"
+#include "gui_soundmsgs.h"
+#include "bflib_inputctrl.h"
 #include "post_inc.h"
 
 /******************************************************************************/
 struct Dungeon bad_dungeon;
 /******************************************************************************/
-struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name)
+struct Dungeon *get_players_num_dungeon_f(PlayerNumber plyr_idx,const char *func_name)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     PlayerNumber plyr_num = player->id_number;
@@ -85,7 +87,7 @@ void clear_dungeons(void)
   bad_dungeon.owner = PLAYERS_COUNT;
 }
 
-void decrease_dungeon_area(PlayerNumber plyr_idx, long value)
+void decrease_dungeon_area(PlayerNumber plyr_idx, int32_t value)
 {
     if (plyr_idx == game.neutral_player_num)
         return;
@@ -96,7 +98,7 @@ void decrease_dungeon_area(PlayerNumber plyr_idx, long value)
       dungeon->total_area -= value;
 }
 
-void increase_room_area(PlayerNumber plyr_idx, long value)
+void increase_room_area(PlayerNumber plyr_idx, int32_t value)
 {
     if (plyr_idx == game.neutral_player_num)
         return;
@@ -105,7 +107,7 @@ void increase_room_area(PlayerNumber plyr_idx, long value)
     dungeon->total_area += value;
 }
 
-void decrease_room_area(PlayerNumber plyr_idx, long value)
+void decrease_room_area(PlayerNumber plyr_idx, int32_t value)
 {
     if (plyr_idx == game.neutral_player_num)
         return;
@@ -122,7 +124,7 @@ void decrease_room_area(PlayerNumber plyr_idx, long value)
       dungeon->total_area -= value;
 }
 
-void increase_dungeon_area(PlayerNumber plyr_idx, long value)
+void increase_dungeon_area(PlayerNumber plyr_idx, int32_t value)
 {
     if (plyr_idx == game.neutral_player_num)
         return;
@@ -162,20 +164,20 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
     {
         if (room_role_matches(rkind, rrole))
         {
-            if (dungeon->room_kind[rkind] > 0)
+            if (dungeon->room_list_start[rkind] > 0)
                 return true;
         }
     }
     return false;
 }
 
-/** counts all slabs of any room with the given role.
+/** counts all discrete rooms with the given role.
  *
  * @param plyr_idx Player index being checked.
  * @param rrole Room role being checked.
  * @return
  */
-long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
+int32_t count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
     if (plyr_idx == game.neutral_player_num)
         return 0;
@@ -185,7 +187,7 @@ long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole
     {
         if (room_role_matches(rkind, rrole))
         {
-            count += dungeon->room_slabs_count[rkind];
+            count += dungeon->room_discrete_count[rkind];
         }
     }
     return count;
@@ -205,6 +207,36 @@ TbBool player_has_heart(PlayerNumber plyr_idx)
     return thing_exists(get_player_soul_container(plyr_idx));
 }
 
+void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on_damage)
+{
+    struct Thing* heartng = get_player_soul_container(plyr_idx);
+    if (thing_exists(heartng))
+    {
+        struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
+        long old_health = heartng->health;
+        long long new_health = heartng->health + healthdelta;
+        if (new_health > objst->health)
+        {
+            SCRIPTDBG(7,"Player %u's calculated heart health (%I64d) is greater than maximum: %d", heartng->owner, new_health, objst->health);
+            new_health = objst->health;
+        }
+        heartng->health = new_health;
+        if (warn_on_damage)
+        {
+            if (heartng->health < old_health)
+            {
+                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
+                if (is_my_player_number(heartng->owner))
+                {
+                    output_message(SMsg_HeartUnderAttack, 400);
+                    controller_rumble(50);
+                }
+            }
+        }
+    }
+}
+
+
 /** Returns if given dungeon contains a room of given kind.
  *
  * @param dungeon Target dungeon.
@@ -219,7 +251,7 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
     if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
         return false;
     }
-    return (dungeon->room_kind[rkind] > 0);
+    return (dungeon->room_list_start[rkind] > 0);
 }
 
 /** Returns if given dungeon contains a room of given kind.
@@ -241,15 +273,15 @@ TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole)
             if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
                 return false;
             }
-            if (dungeon->room_kind[rkind] > 0)
+            if (dungeon->room_list_start[rkind] > 0)
             {
                 return true;
             }
         }
     }
-    
+
     return false;
-        
+
 }
 
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
@@ -260,9 +292,9 @@ TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
     switch (tend_type)
     {
     case CrTend_Imprison:
-        return ((dungeon->creature_tendencies & 0x01) != 0);
+        return ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
     case CrTend_Flee:
-        return ((dungeon->creature_tendencies & 0x02) != 0);
+        return ((dungeon->creature_tendencies & CrTend_Flee) != 0);
     default:
         ERRORLOG("Bad tendency type %d",(int)tend_type);
         return false;
@@ -275,10 +307,14 @@ TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend
     switch (tend_type)
     {
     case CrTend_Imprison:
-        dungeon->creature_tendencies ^= 0x01;
+        dungeon->creature_tendencies ^= CrTend_Imprison;
         return true;
     case CrTend_Flee:
-        dungeon->creature_tendencies ^= 0x02;
+        dungeon->creature_tendencies ^= CrTend_Flee;
+        return true;
+    case CrTend_Imprison | CrTend_Flee:
+        // Toggle both tendencies when combined value is passed
+        dungeon->creature_tendencies ^= (CrTend_Imprison | CrTend_Flee);
         return true;
     default:
         ERRORLOG("Can't toggle tendency; bad tendency type %d",(int)tend_type);
@@ -296,10 +332,10 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
     switch (tend_type)
     {
     case CrTend_Imprison:
-        set_flag_value(dungeon->creature_tendencies, 0x01, val);
+        set_flag_value(dungeon->creature_tendencies, CrTend_Imprison, val);
         return true;
     case CrTend_Flee:
-        set_flag_value(dungeon->creature_tendencies, 0x02, val);
+        set_flag_value(dungeon->creature_tendencies, CrTend_Flee, val);
         return true;
     default:
         ERRORLOG("Can't set tendency; bad tendency type %d",(int)tend_type);
@@ -307,7 +343,7 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
     }
 }
 
-TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
+TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, int32_t buildable, int32_t amount)
 {
     if ( (tngmodel <= 0) || (tngmodel >= game.conf.trapdoor_conf.trap_types_count) ) {
         ERRORDBG(1,"Can't set trap availability; invalid trap kind %d.",(int)tngmodel);
@@ -336,7 +372,7 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
     return true;
 }
 
-TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
+TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, int32_t buildable, int32_t amount)
 {
     if ( (tngmodel <= 0) || (tngmodel >= game.conf.trapdoor_conf.door_types_count) ) {
         ERRORDBG(1,"Can't set door availability; invalid door kind %d.",(int)tngmodel);
@@ -392,7 +428,7 @@ TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon)
     return false;
 }
 
-TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
+TbBool restart_script_timer(PlayerNumber plyr_idx, int32_t timer_id)
 {
     if ( (timer_id < 0) || (timer_id >= TURN_TIMERS_COUNT) ) {
         ERRORLOG("Can't restart timer; invalid timer id %d.",(int)timer_id);
@@ -408,7 +444,7 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
     return true;
 }
 
-void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long value)
+void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, int32_t value)
 {
     if (timer_id >= TURN_TIMERS_COUNT) {
         ERRORLOG("Can't manipulate timer; invalid timer id %d.",(int)timer_id);
@@ -422,7 +458,7 @@ void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long val
     dungeon->turn_timers[timer_id].count -= value;
 }
 
-TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
+TbBool set_script_flag(PlayerNumber plyr_idx, int32_t flag_id, int32_t value)
 {
     if ( (flag_id < 0) || (flag_id >= SCRIPT_FLAGS_COUNT) ) {
         ERRORLOG("Can't set flag; invalid flag id %d.",(int)flag_id);
@@ -461,16 +497,16 @@ TbBool mark_creature_joined_dungeon(struct Thing *creatng)
 
 void init_dungeon_essential_position(struct Dungeon *dungeon)
 {
-    struct Room* room = room_get(dungeon->room_kind[RoK_DUNGHEART]);
+    struct Room* room = room_get(dungeon->room_list_start[RoK_DUNGHEART]);
     for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (!room_is_invalid(room))
             break;
-        room = room_get(dungeon->room_kind[rkind]);
+        room = room_get(dungeon->room_list_start[rkind]);
     }
     if (room_is_invalid(room)) {
-        dungeon->essential_pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        dungeon->essential_pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        dungeon->essential_pos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+        dungeon->essential_pos.y.val = subtile_coord_center(game.map_subtiles_y/2);
         dungeon->essential_pos.z.val = subtile_coord(0,1);
         return;
     }
@@ -504,25 +540,15 @@ void init_dungeons(void)
 {
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        struct Dungeon* dungeon = get_dungeon(PLAYER_GOOD);
-        dungeon->hates_player[i] = game.conf.rules.creature.fight_max_hate;
-        dungeon = get_dungeon(i);
-        dungeon->hates_player[PLAYER_GOOD] = game.conf.rules.creature.fight_max_hate;
+        struct Dungeon* dungeon = get_dungeon(i);
         dungeon->num_active_diggers = 0;
         dungeon->num_active_creatrs = 0;
         dungeon->creatr_list_start = 0;
         dungeon->digger_list_start = 0;
         dungeon->owner = i;
-        dungeon->max_creatures_attracted = game.conf.rules.rooms.default_max_crtrs_gen_entrance;
+        dungeon->max_creatures_attracted = game.conf.rules[i].rooms.default_max_crtrs_gen_entrance;
         dungeon->dead_creatures_count = 0;
         dungeon->dead_creature_idx = 0;
-        for (int k = 0; k < DUNGEONS_COUNT; k++)
-        {
-          if (k == i)
-            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_love;
-          else
-            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_hate;
-        }
         /** Player modifier default value is set to 100. */
         dungeon->modifier.health = 100;
         dungeon->modifier.strength = 100;

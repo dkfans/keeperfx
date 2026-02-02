@@ -23,6 +23,8 @@
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
 #include "bflib_network.h"
+#include "bflib_network_exchange.h"
+#include "net_resync.h"
 
 #include "player_data.h"
 #include "front_landview.h"
@@ -30,9 +32,10 @@
 #include "packets.h"
 #include "frontend.h"
 #include "front_network.h"
-#include "net_sync.h"
 #include "config_settings.h"
 #include "game_legacy.h"
+#include "net_input_lag.h"
+#include "net_checksums.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -52,7 +55,6 @@ char net_player_name[20];
 short setup_network_service(int srvidx)
 {
   struct ServiceInitData *init_data = NULL;
-  clear_flag(game.flags_font, FFlg_unk10);
   SYNCMSG("Initializing 4-players type %d network",srvidx);
   memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
   if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
@@ -62,10 +64,12 @@ short setup_network_service(int srvidx)
     return 0;
   }
   net_service_index_selected = srvidx;
-  if ((game.flags_font & FFlg_unk10) != 0)
-    LbNetwork_ChangeExchangeTimeout(10);
   frontend_set_state(FeSt_NET_SESSION);
   return 1;
+}
+
+unsigned long get_host_player_id(void) {
+    return 0;
 }
 
 int setup_old_network_service(void)
@@ -80,12 +84,17 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet_direct(my_player_number);
   set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
-  if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
+  if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet)))
       ERRORLOG("Network Exchange failed");
   int k = 0;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++)
   {
       pckt = get_packet_direct(i);
+      if (is_packet_empty(pckt))
+      {
+          MULTIPLAYER_LOG("setup_network_multiplayer_game: packet[%d] is EMPTY, skipping", i);
+          continue;
+      }
       if ((net_player_info[i].active) && (pckt->action == PckA_InitPlayerNum))
       {
           player = get_player(k);
@@ -176,18 +185,9 @@ const char *network_player_name(int plyr_idx)
     return net_player[plyr_idx].name;
 }
 
-void set_network_player_name(int plyr_idx, const char *name)
-{
-    if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT)) {
-        ERRORLOG("Outranged network player %d",plyr_idx);
-        return;
-    }
-    snprintf(net_player[plyr_idx].name, sizeof(net_player[0].name), "%s", name);
-}
-
 long network_session_join(void)
 {
-    long plyr_num;
+    int32_t plyr_num;
     display_attempting_to_join_message();
     if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
     {
@@ -197,10 +197,29 @@ long network_session_join(void)
     return plyr_num;
 }
 
-void init_network_seed()
+void sync_various_data()
 {
-   if (!LbNetwork_Resync(&game.action_rand_seed, 4))
-      ERRORLOG("Action seed initialisation failed"); 
+   if ((game.system_flags & GSF_NetworkActive) == 0) {
+      return;
+   }
+
+   struct {
+      uint32_t action_random_seed;
+      int input_lag_turns;
+   } initial_sync_data;
+
+   initial_sync_data.action_random_seed = game.action_random_seed;
+   initial_sync_data.input_lag_turns = game.input_lag_turns;
+   if (!LbNetwork_Resync(&initial_sync_data, sizeof(initial_sync_data))) {
+      ERRORLOG("Initial sync failed");
+      return;
+   }
+   game.action_random_seed = initial_sync_data.action_random_seed;
+   game.ai_random_seed = game.action_random_seed * 9377 + 9391;
+   game.player_random_seed = game.action_random_seed * 9473 + 9479;
+   game.input_lag_turns = initial_sync_data.input_lag_turns;
+   game.skip_initial_input_turns = calculate_skip_input();
+   NETLOG("Initial network state synced: action_seed=%u, input_lag=%d", game.action_random_seed, game.input_lag_turns);
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -243,6 +243,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"BLOCKS_REBIRTH",      19},
   {"PENETRATING",         20},
   {"NEVER_BLOCK",         21},
+  {"WALL_PIERCE",         22},
   {NULL,                   0},
   };
 
@@ -285,6 +286,10 @@ const struct LongNamedCommand powermodel_castability_commands[] = {
   {"ALL_GROUND",       PwCast_AllGround},
   {"NOT_ENEMY_GROUND", PwCast_NotEnemyGround},
   {"ALL_TALL",         PwCast_AllTall},
+  {"ALL_OBJECTS",      PwCast_AllObjects},
+  {"OWNED_OBJECTS",    PwCast_OwnedObjects},
+  {"NEUTRL_OBJECTS",   PwCast_NeutrlObjects},
+  {"ENEMY_OBJECTS",    PwCast_EnemyObjects},
   {NULL,                0},
   };
 
@@ -360,47 +365,47 @@ static void assign_strength_before_last(const struct NamedField* named_field, in
 
 static const struct NamedField magic_powers_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
-    {"NAME",           0, field(game.conf.magic_conf.power_cfgstats[0].code_name),              0, LONG_MIN,ULONG_MAX, power_desc,                          value_name,      assign_null},
-    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          1, field(game.conf.magic_conf.power_cfgstats[0].strength[1]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          2, field(game.conf.magic_conf.power_cfgstats[0].strength[2]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          3, field(game.conf.magic_conf.power_cfgstats[0].strength[3]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          4, field(game.conf.magic_conf.power_cfgstats[0].strength[4]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          5, field(game.conf.magic_conf.power_cfgstats[0].strength[5]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          6, field(game.conf.magic_conf.power_cfgstats[0].strength[6]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          7, field(game.conf.magic_conf.power_cfgstats[0].strength[7]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[8]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_strength_before_last},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[9]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           1, field(game.conf.magic_conf.power_cfgstats[0].cost[1]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           2, field(game.conf.magic_conf.power_cfgstats[0].cost[2]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           3, field(game.conf.magic_conf.power_cfgstats[0].cost[3]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           4, field(game.conf.magic_conf.power_cfgstats[0].cost[4]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           5, field(game.conf.magic_conf.power_cfgstats[0].cost[5]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           6, field(game.conf.magic_conf.power_cfgstats[0].cost[6]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0, LONG_MIN,ULONG_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
-    {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, LONG_MIN,ULONG_MAX, object_desc,                         value_default,   assign_artifact},
-    {"NAMETEXTID",     0, field(game.conf.magic_conf.power_cfgstats[0].name_stridx),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"TOOLTIPTEXTID",  0, field(game.conf.magic_conf.power_cfgstats[0].tooltip_stridx),         0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"SYMBOLSPRITES",  0, field(game.conf.magic_conf.power_cfgstats[0].bigsym_sprite_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
-    {"SYMBOLSPRITES",  1, field(game.conf.magic_conf.power_cfgstats[0].medsym_sprite_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
-    {"POINTERSPRITES", 0, field(game.conf.magic_conf.power_cfgstats[0].pointer_sprite_idx),     0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
-    {"PANELTABINDEX",  0, field(game.conf.magic_conf.power_cfgstats[0].panel_tab_idx),          0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"SOUNDSAMPLES",   0, field(game.conf.magic_conf.power_cfgstats[0].select_sample_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"PROPERTIES",     0, field(game.conf.magic_conf.power_cfgstats[0].config_flags),           0, LONG_MIN,ULONG_MAX, powermodel_properties_commands,      value_flagsfield,assign_default},
-    {"CASTEXPANDFUNC", 0, field(game.conf.magic_conf.power_cfgstats[0].overcharge_check_idx),   0, LONG_MIN,ULONG_MAX, powermodel_expand_check_func_type,   value_default,   assign_default},
-    {"PLAYERSTATE",    0, field(game.conf.magic_conf.power_cfgstats[0].work_state),             0, LONG_MIN,ULONG_MAX, player_state_commands,               value_default,   assign_default},
-    {"PARENTPOWER",    0, field(game.conf.magic_conf.power_cfgstats[0].parent_power),           0, LONG_MIN,ULONG_MAX, power_desc,                          value_default,   assign_default},
-    {"SOUNDPLAYED",    0, field(game.conf.magic_conf.power_cfgstats[0].select_sound_idx),       0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COOLDOWN",       0, field(game.conf.magic_conf.power_cfgstats[0].cast_cooldown),          0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"SPELL",          0, field(game.conf.magic_conf.power_cfgstats[0].spell_idx),              0, LONG_MIN,ULONG_MAX, spell_desc,                          value_default,   assign_default},
-    {"EFFECT",         0, field(game.conf.magic_conf.power_cfgstats[0].effect_id),              0, LONG_MIN,ULONG_MAX, NULL,                                value_effOrEffEl,assign_default},
-    {"USEFUNCTION",    0, field(game.conf.magic_conf.power_cfgstats[0].magic_use_func_idx),     0, LONG_MIN,ULONG_MAX, magic_use_func_commands,             value_default,   assign_default},
-    {"CREATURETYPE",   0, field(game.conf.magic_conf.power_cfgstats[0].creature_model),         0, LONG_MIN,ULONG_MAX, creature_desc,                       value_default,   assign_default},
-    {"COSTFORMULA",    0, field(game.conf.magic_conf.power_cfgstats[0].cost_formula),           0, LONG_MIN,ULONG_MAX, magic_cost_formula_commands,         value_default,   assign_default},
+    {"NAME",           0, field(game.conf.magic_conf.power_cfgstats[0].code_name),              0, INT32_MIN,UINT32_MAX, power_desc,                          value_name,      assign_null},
+    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          1, field(game.conf.magic_conf.power_cfgstats[0].strength[1]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          2, field(game.conf.magic_conf.power_cfgstats[0].strength[2]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          3, field(game.conf.magic_conf.power_cfgstats[0].strength[3]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          4, field(game.conf.magic_conf.power_cfgstats[0].strength[4]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          5, field(game.conf.magic_conf.power_cfgstats[0].strength[5]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          6, field(game.conf.magic_conf.power_cfgstats[0].strength[6]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          7, field(game.conf.magic_conf.power_cfgstats[0].strength[7]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[8]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_strength_before_last},
+    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[9]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           1, field(game.conf.magic_conf.power_cfgstats[0].cost[1]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           2, field(game.conf.magic_conf.power_cfgstats[0].cost[2]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           3, field(game.conf.magic_conf.power_cfgstats[0].cost[3]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           4, field(game.conf.magic_conf.power_cfgstats[0].cost[4]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           5, field(game.conf.magic_conf.power_cfgstats[0].cost[5]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           6, field(game.conf.magic_conf.power_cfgstats[0].cost[6]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0,         0,UINT64_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
+    {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, INT32_MIN,UINT32_MAX, object_desc,                         value_default,   assign_artifact},
+    {"NAMETEXTID",     0, field(game.conf.magic_conf.power_cfgstats[0].name_stridx),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"TOOLTIPTEXTID",  0, field(game.conf.magic_conf.power_cfgstats[0].tooltip_stridx),         0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"SYMBOLSPRITES",  0, field(game.conf.magic_conf.power_cfgstats[0].bigsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
+    {"SYMBOLSPRITES",  1, field(game.conf.magic_conf.power_cfgstats[0].medsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
+    {"POINTERSPRITES", 0, field(game.conf.magic_conf.power_cfgstats[0].pointer_sprite_idx),     0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
+    {"PANELTABINDEX",  0, field(game.conf.magic_conf.power_cfgstats[0].panel_tab_idx),          0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"SOUNDSAMPLES",   0, field(game.conf.magic_conf.power_cfgstats[0].select_sample_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"PROPERTIES",     0, field(game.conf.magic_conf.power_cfgstats[0].config_flags),           0, INT32_MIN,UINT32_MAX, powermodel_properties_commands,      value_flagsfield,assign_default},
+    {"CASTEXPANDFUNC", 0, field(game.conf.magic_conf.power_cfgstats[0].overcharge_check_idx),   0, INT32_MIN,UINT32_MAX, powermodel_expand_check_func_type,   value_default,   assign_default},
+    {"PLAYERSTATE",    0, field(game.conf.magic_conf.power_cfgstats[0].work_state),             0, INT32_MIN,UINT32_MAX, player_state_commands,               value_default,   assign_default},
+    {"PARENTPOWER",    0, field(game.conf.magic_conf.power_cfgstats[0].parent_power),           0, INT32_MIN,UINT32_MAX, power_desc,                          value_default,   assign_default},
+    {"SOUNDPLAYED",    0, field(game.conf.magic_conf.power_cfgstats[0].select_sound_idx),       0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COOLDOWN",       0, field(game.conf.magic_conf.power_cfgstats[0].cast_cooldown),          0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"SPELL",          0, field(game.conf.magic_conf.power_cfgstats[0].spell_idx),              0, INT32_MIN,UINT32_MAX, spell_desc,                          value_default,   assign_default},
+    {"EFFECT",         0, field(game.conf.magic_conf.power_cfgstats[0].effect_id),              0, INT32_MIN,UINT32_MAX, NULL,                                value_effOrEffEl,assign_default},
+    {"USEFUNCTION",    0, field(game.conf.magic_conf.power_cfgstats[0].magic_use_func_idx),     0, INT32_MIN,UINT32_MAX, magic_use_func_commands,             value_function,  assign_default},
+    {"CREATURETYPE",   0, field(game.conf.magic_conf.power_cfgstats[0].creature_model),         0, INT32_MIN,UINT32_MAX, creature_desc,                       value_default,   assign_default},
+    {"COSTFORMULA",    0, field(game.conf.magic_conf.power_cfgstats[0].cost_formula),           0, INT32_MIN,UINT32_MAX, magic_cost_formula_commands,         value_default,   assign_default},
     {NULL},
 };
 
@@ -450,16 +455,16 @@ TextStringId get_power_description_strindex(PowerKind pwkind)
   return game.conf.magic_conf.power_cfgstats[pwkind].tooltip_stridx;
 }
 
-long get_special_description_strindex(int spckind)
+int32_t get_special_description_strindex(int spckind)
 {
   if ((spckind < 0) || (spckind >= game.conf.magic_conf.power_types_count))
     return game.conf.magic_conf.special_cfgstats[0].tooltip_stridx;
   return game.conf.magic_conf.special_cfgstats[spckind].tooltip_stridx;
 }
 
-long get_power_index_for_work_state(long work_state)
+int32_t get_power_index_for_work_state(int32_t work_state)
 {
-    for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
+    for (int32_t i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         if (game.conf.magic_conf.power_cfgstats[i].work_state == work_state) {
             return i;
@@ -563,7 +568,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   // Load the file
   const char * blockname = NULL;
   int blocknamelen = 0;
-  long pos = 0;
+  int32_t pos = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "spell", followed by one or more digits
@@ -1034,7 +1039,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       shotst->sound_priority = 0;
       shotst->light_radius = 0;
       shotst->light_intensity = 0;
-      shotst->lightf_53 = 0;
+      shotst->light_flags = 0;
       shotst->inertia_air = 0;
       shotst->inertia_floor = 0;
       shotst->target_hitstop_turns = 0;
@@ -1046,7 +1051,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   // Load the file
   const char * blockname = NULL;
   int blocknamelen = 0;
-  long pos = 0;
+  int32_t pos = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "shot", followed by one or more digits
@@ -1264,16 +1269,20 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Disarming;
                 n++;
                 break;
-            case 19: // BlocksRebirth
+            case 19: // BLOCKS_REBIRTH
                 shotst->model_flags |= ShMF_BlocksRebirth;
                 n++;
                 break;
-            case 20: // Penetrating
+            case 20: // PENETRATING
                 shotst->model_flags |= ShMF_Penetrating;
                 n++;
                 break;
-            case 21: // NeverBlock
+            case 21: // NEVER_BLOCK
                 shotst->model_flags |= ShMF_NeverBlock;
+                n++;
+                break;
+            case 22: // WALL_PIERCE
+                shotst->model_flags |= ShMF_WallPierce;
                 n++;
                 break;
             default:
@@ -1841,7 +1850,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->lightf_53 = k;
+              shotst->light_flags = k;
               n++;
           }
           if (n < 3)
@@ -1925,6 +1934,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
+              if (k <= 0)
+              {
+                  //lua function
+                  k = get_function_idx(word_buf, NULL);
+              }
               shotst->update_logic = k;
               n++;
           }
@@ -2107,7 +2121,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
   // Load the file
   const char * blockname = NULL;
   int blocknamelen = 0;
-  long pos = 0;
+  int32_t pos = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "special", followed by one or more digits

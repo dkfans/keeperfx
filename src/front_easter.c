@@ -152,7 +152,7 @@ void input_eastegg(void)
       play_non_3d_sample(60);
     }
     // Maintain the JLW cheat
-    if ((game.flags_font & FFlg_AlexCheat) != 0)
+    if (game.easter_eggs_enabled == true)
     {
       allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
       state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
@@ -161,7 +161,7 @@ void input_eastegg(void)
       }
     }
     // Maintain the BBKING cheat
-    if ((game.flags_font & FFlg_AlexCheat) != 0)
+    if (game.easter_eggs_enabled == true)
     {
       allow = lbKeyOn[KC_RSHIFT];
       static unsigned char length = 0;
@@ -185,7 +185,6 @@ void input_eastegg(void)
  */
 void draw_eastegg(void)
 {
-  char *text;
   static long px[2] = {0, 0};
   static long py[2] = {0, 0};
   static long vx[2] = {4, 4};
@@ -211,7 +210,7 @@ void draw_eastegg(void)
   {
       eastegg_skeksis_cntr++;
       LbTextSetFont(winfont);
-      text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
+      const char * text = "Dene says a big 'Hello' to Goth Buns, Tarts and Barbies";
       lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
       unsigned char pos;
       for (i = 0; i < 30; i += 2)
@@ -235,7 +234,7 @@ void draw_eastegg(void)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetFont(winfont);
     i = 0;
-    text = buf_sprintf("Simon says Hi to everyone he knows...");
+    const char * text = "Simon says Hi to everyone he knows...";
     px[i] += vx[i];
     if (px[i] < 0)
     {
@@ -266,7 +265,7 @@ void draw_eastegg(void)
     }
     play_non_3d_sample_no_overlap(90);
   }
-  if ((game.flags_font & FFlg_AlexCheat) == 0)
+  if (game.easter_eggs_enabled == false)
     return;
 
   if (game.eastegg02_cntr >= eastegg_jlw_codes.length)
@@ -275,7 +274,7 @@ void draw_eastegg(void)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetFont(winfont);
     i = 1;
-    text = buf_sprintf("Alex, hopefully lying on a beach with Jo, says Hi");
+    const char * text = "Alex, hopefully lying on a beach with Jo, says Hi";
     px[i] += vx[i];
     if (px[i] < 0)
     {

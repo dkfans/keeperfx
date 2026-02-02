@@ -53,16 +53,16 @@ enum TbButtonType {
     LbBtnT_RadioBtn,
     LbBtnT_HorizSlider,
     LbBtnT_EditBox,
-    LbBtnT_Unknown6,
+    LbBtnT_Hotspot,
 };
 
 enum TbButtonFlags {
     LbBtnF_Active     =  0x01,  // Created, slot occupied
-    LbBtnF_Unknown02  =  0x02,
+    LbBtnF_Clickable  =  0x02,
     LbBtnF_Visible    =  0x04,  /**< Informs if the button is visible and uses its drawing callback. If not set, the button is not being displayed. */
     LbBtnF_Enabled    =  0x08,  /**< Informs if the button is enabled and can be clicked, or disabled and grayed out with no reaction to input. */
     LbBtnF_MouseOver  =  0x10,
-    LbBtnF_Unknown20  =  0x20,
+    LbBtnF_Toggle     =  0x20,
 };
 
 enum GBoxFlags {
@@ -72,34 +72,34 @@ enum GBoxFlags {
 
 union GuiVariant {
     long lval;
-    long *lptr;
+    int32_t *lptr;
     void *ptr;
     char *str;
 };
 
-typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, long *);
-typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, long *);
+typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, int32_t *);
+typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, int32_t *);
 typedef void (*Gf_Btn_Callback)(struct GuiButton *gbtn);
 typedef void (*Gf_Mnu_Callback)(struct GuiMenu *gmnu);
 
 struct GuiBoxOption {
        const char *label;
-       unsigned char numfield_4;
+       unsigned char is_enabled;
        Gf_OptnBox_3Callback active_cb;
        Gf_OptnBox_4Callback callback;
-       long acb_param1;
-       long field_11;
-       long field_15;
-       long cb_param1;
-       long field_1D;
-       long field_21;
+       int32_t acb_param1;
+       long max_count;
+       long unused_param1;
+       int32_t cb_param1;
+       long option_index;
+       long unused_param2;
        TbBool active;
        TbBool enabled;
 };
 
 struct GuiBox {
     char flags;
-    short field_1;
+    short box_index;
     long pos_x;
     long pos_y;
     long width;
@@ -118,8 +118,8 @@ struct DraggingBox {
 struct GuiButtonInit {
     char gbtype; /**< GUI Button Type, directly copied to button instance. */
     short id_num; /**< GUI Button ID, directly copied to button instance. If there is no need of identifying the button within game code, it should be set to BID_DEFAULT.*/
-    short gbifield_3; // unused
-    unsigned short gbifield_5; // two bool values; maybe convert it to flags?
+    short unused_field; // unused
+    unsigned short button_flags; // two bool values; maybe convert it to flags?
     Gf_Btn_Callback click_event;
     Gf_Btn_Callback rclick_event;
     Gf_Btn_Callback ptover_event;
@@ -141,8 +141,8 @@ struct GuiButtonInit {
 
 struct GuiButton {
        unsigned char flags;
-       unsigned char gbactn_1;
-       unsigned char gbactn_2;
+       unsigned char button_state_left_pressed;
+       unsigned char button_state_right_pressed;
        char gmenu_idx;
        short id_num; /**< GUI Button ID, identifying the button designation within game code.*/
        unsigned char gbtype; /**< GUI Button Type, from LbBtnF_* enumeration. */
@@ -184,7 +184,7 @@ struct GuiMenu {
       Gf_Mnu_Callback create_cb;
       unsigned char is_turned_on; /**< Whether the menu is turned on or is current active tab. */
       unsigned char is_monopoly_menu;
-      char field_1F;
+      char is_active_panel;
 };
 
 struct ToolTipBox {

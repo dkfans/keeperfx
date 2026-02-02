@@ -24,7 +24,6 @@
     <ClCompile Include="src\ariadne_wallhug.c" />
     <ClCompile Include="src\bflib_base_tcp.cpp" />
     <ClCompile Include="src\bflib_basics.c" />
-    <ClCompile Include="src\bflib_bufrw.c" />
     <ClCompile Include="src\bflib_client_tcp.cpp" />
     <ClCompile Include="src\bflib_coroutine.c" />
     <ClCompile Include="src\bflib_cpu.c" />
@@ -48,9 +47,7 @@
     <ClCompile Include="src\bflib_netlisten_udp.cpp" />
     <ClCompile Include="src\bflib_netsession.c" />
     <ClCompile Include="src\bflib_netsp.cpp" />
-    <ClCompile Include="src\bflib_netsp_ipx.cpp" />
     <ClCompile Include="src\bflib_netsp_tcp.cpp" />
-    <ClCompile Include="src\bflib_netsync.c" />
     <ClCompile Include="src\bflib_network.cpp" />
     <ClCompile Include="src\bflib_planar.c" />
     <ClCompile Include="src\bflib_render.c" />
@@ -62,7 +59,6 @@
     <ClCompile Include="src\bflib_sprfnt.c" />
     <ClCompile Include="src\bflib_string.c" />
     <ClCompile Include="src\bflib_tcpsp.c" />
-    <ClCompile Include="src\bflib_threadcond.cpp" />
     <ClCompile Include="src\bflib_video.c" />
     <ClCompile Include="src\bflib_vidraw.c" />
     <ClCompile Include="src\bflib_vidraw_spr_norm.c" />
@@ -83,6 +79,7 @@
     <ClCompile Include="src\config_magic.c" />
     <ClCompile Include="src\config_magic_data.cpp" />
     <ClCompile Include="src\config_objects.c" />
+    <ClCompile Include="src\config_mods.c" />
     <ClCompile Include="src\config_players.c" />
     <ClCompile Include="src\config_rules.c" />
     <ClCompile Include="src\config_settings.c" />
@@ -180,6 +177,16 @@
     <ClCompile Include="src\lens_flyeye.cpp" />
     <ClCompile Include="src\lens_mist.cpp" />
     <ClCompile Include="src\light_data.c" />
+    <ClCompile Include="src\local_camera.c" />
+    <ClCompile Include="src\lua_api.c" />
+    <ClCompile Include="src\lua_api_player.c" />
+    <ClCompile Include="src\lua_api_slabs.c" />
+    <ClCompile Include="src\lua_api_things.c" />
+    <ClCompile Include="src\lua_base.c" />
+    <ClCompile Include="src\lua_cfg_funcs.c" />
+    <ClCompile Include="src\lua_params.c" />
+    <ClCompile Include="src\lua_triggers.c" />
+    <ClCompile Include="src\lua_utils.c" />
     <ClCompile Include="src\lvl_filesdk1.c" />
     <ClCompile Include="src\lvl_script.c" />
     <ClCompile Include="src\lvl_script_commands_old.c" />
@@ -199,7 +206,8 @@
     <ClCompile Include="src\map_utils.c" />
     <ClCompile Include="src\moonphase.c" />
     <ClCompile Include="src\net_game.c" />
-    <ClCompile Include="src\net_sync.c" />
+    <ClCompile Include="src\net_portforward.cpp" />
+    <ClCompile Include="src\net_resync.cpp" />
     <ClCompile Include="src\packets.c" />
     <ClCompile Include="src\packets_cheats.c" />
     <ClCompile Include="src\packets_input.c" />
@@ -269,7 +277,6 @@
     <ClInclude Include="src\ariadne_wallhug.h" />
     <ClInclude Include="src\bflib_base_tcp.hpp" />
     <ClInclude Include="src\bflib_basics.h" />
-    <ClInclude Include="src\bflib_bufrw.h" />
     <ClInclude Include="src\bflib_client_tcp.hpp" />
     <ClInclude Include="src\bflib_coroutine.h" />
     <ClInclude Include="src\bflib_cpu.h" />
@@ -294,9 +301,7 @@
     <ClInclude Include="src\bflib_netlisten_udp.hpp" />
     <ClInclude Include="src\bflib_netsession.h" />
     <ClInclude Include="src\bflib_netsp.hpp" />
-    <ClInclude Include="src\bflib_netsp_ipx.hpp" />
     <ClInclude Include="src\bflib_netsp_tcp.hpp" />
-    <ClInclude Include="src\bflib_netsync.h" />
     <ClInclude Include="src\bflib_network.h" />
     <ClInclude Include="src\bflib_planar.h" />
     <ClInclude Include="src\bflib_render.h" />
@@ -306,7 +311,6 @@
     <ClInclude Include="src\bflib_sprfnt.h" />
     <ClInclude Include="src\bflib_sprite.h" />
     <ClInclude Include="src\bflib_string.h" />
-    <ClInclude Include="src\bflib_threadcond.hpp" />
     <ClInclude Include="src\bflib_video.h" />
     <ClInclude Include="src\bflib_vidraw.h" />
     <ClInclude Include="src\bflib_vidsurface.h" />
@@ -412,6 +416,13 @@
     <ClInclude Include="src\lens_flyeye.h" />
     <ClInclude Include="src\lens_mist.h" />
     <ClInclude Include="src\light_data.h" />
+    <ClInclude Include="src\local_camera.h" />
+    <ClInclude Include="src\lua_api.h" />
+    <ClInclude Include="src\lua_base.h" />
+    <ClInclude Include="src\lua_cfg_funcs.h" />
+    <ClInclude Include="src\lua_params.h" />
+    <ClInclude Include="src\lua_triggers.h" />
+    <ClInclude Include="src\lua_utils.h" />
     <ClInclude Include="src\lvl_filesdk1.h" />
     <ClInclude Include="src\lvl_script.h" />
     <ClInclude Include="src\lvl_script_commands.h" />
@@ -430,7 +441,8 @@
     <ClInclude Include="src\moonphase.h" />
     <ClInclude Include="src\mutex.hpp" />
     <ClInclude Include="src\net_game.h" />
-    <ClInclude Include="src\net_sync.h" />
+    <ClInclude Include="src\net_portforward.h" />
+    <ClInclude Include="src\net_resync.h" />
     <ClInclude Include="src\packets.h" />
     <ClInclude Include="src\player_complookup.h" />
     <ClInclude Include="src\player_computer.h" />

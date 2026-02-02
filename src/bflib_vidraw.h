@@ -57,9 +57,9 @@ struct EnginePoint {
         long TMapX;
         long TMapY;
         long Shade;
-        long X3d;
-        long Y3d;
-        long Z3d;
+        long coordinate_x_3d;
+        long coordinate_y_3d;
+        long coordinate_z_3d;
         long DistSqr;
         unsigned short padw;
         unsigned char Flags;
@@ -97,20 +97,20 @@ struct TbDItmSprite {
 };
 
 struct TbDItmTrig {
-        short X2;
-        short Y2;
-        short X3;
-        short Y3;
+        short vertex_2_x;
+        short vertex_2_y;
+        short vertex_3_x;
+        short vertex_3_y;
         TbPixel Colour;
 };
 
 struct TbDItmTriangle {
-        short X1;
-        short Y1;
-        short X2;
-        short Y2;
-        short X3;
-        short Y3;
+        short vertex_1_x;
+        short vertex_1_y;
+        short vertex_2_x;
+        short vertex_2_y;
+        short vertex_3_x;
+        short vertex_3_y;
         TbPixel Colour;
 };
 
@@ -123,10 +123,10 @@ struct TbDItmBox {
 };
 
 struct TbDItmLine {
-        short X1;
-        short Y1;
-        short X2;
-        short Y2;
+        short vertex_1_x;
+        short vertex_1_y;
+        short vertex_2_x;
+        short vertex_2_y;
         TbPixel Colour;
 };
 
@@ -168,6 +168,8 @@ extern unsigned char *dither_map;
 extern unsigned char *dither_end;
 extern unsigned char *lbSpriteReMapPtr;
 extern long scale_up;
+extern int32_t xsteps_array[2*SPRITE_SCALING_XSTEPS];
+extern int32_t ysteps_array[2*SPRITE_SCALING_YSTEPS];
 
 #pragma pack()
 
@@ -180,21 +182,20 @@ void LbDrawCircle(long x, long y, long radius, TbPixel colour);
 
 void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height);
-void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, long **xstep, long **ystep, int *scanline);
-void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, int *outheight);
+void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, int32_t **xstep, int32_t **ystep, int *scanline);
+void setup_outbuf(const int32_t *xstep, const int32_t *ystep, uchar **outbuf, int *outheight);
 TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSourceBuffer *);
 TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct TbSourceBuffer *, const TbPixel *cmap);
 TbResult LbSpriteDrawOneColourUsingScalingData(long posx, long posy, const struct TbSprite *sprite, TbPixel colour);
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, const struct TbSourceBuffer *);
-void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, long dwidth);
-void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth, long dwidth, long gwidth);
-void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight, long dheight);
-void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheight, long dheight, long gheight);
+void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, long x, long swidth, long dwidth);
+void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swidth, long dwidth, long gwidth);
+void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, long y, long sheight, long dheight);
+void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long sheight, long dheight, long gheight);
 
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
-int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,const unsigned char *cmap);
 
 TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height);
 TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour);
@@ -209,7 +210,7 @@ void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bi
 int LbTiledSpriteHeight(struct TiledSprite *bigspr);
 
 // mspointer needs this for some reason
-TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSourceBuffer * src_buf);
+TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, int32_t *xstep, int32_t *ystep, const struct TbSourceBuffer * src_buf);
 
 /******************************************************************************/
 #ifdef __cplusplus

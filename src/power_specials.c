@@ -42,6 +42,7 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -112,7 +113,6 @@ TbBool script_locate_hidden_world()
 TbBool activate_bonus_level(struct PlayerInfo *player)
 {
   SYNCDBG(5,"Starting");
-  set_flag(game.flags_font, FFlg_unk02);
   LevelNumber sp_lvnum = get_loaded_level_number();
   TbBool result = set_bonus_level_visibility_for_singleplayer_level(player, sp_lvnum, true);
   if (!result)
@@ -237,7 +237,7 @@ void increase_level(struct PlayerInfo *player, int count)
     {
         struct Thing* famlrtng = thing_get(dungeon->summon_list[i]);
         cctrl = creature_control_get_from_thing(famlrtng);
-        if (thing_is_invalid(famlrtng))
+        if (!thing_exists(famlrtng))
         {
           ERRORLOG("Jump to invalid creature detected");
           continue;
@@ -336,9 +336,9 @@ void make_safe(struct PlayerInfo *player)
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     // Prepare the array to remember which slabs were already taken care of
-    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
@@ -358,7 +358,7 @@ void make_safe(struct PlayerInfo *player)
     }
 
     PlayerNumber plyr_idx = player->id_number;
-    SlabCodedCoords* slblist = (SlabCodedCoords*)(big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y);
+    SlabCodedCoords* slblist = (SlabCodedCoords*)(big_scratch + game.map_tiles_x * game.map_tiles_y);
     unsigned int list_len = 0;
     unsigned int list_cur = 0;
     while (list_cur <= list_len)
@@ -388,7 +388,7 @@ void make_safe(struct PlayerInfo *player)
                 list_len++;
             }
         }
-        if (slb_x < gameadd.map_tiles_x-1)
+        if (slb_x < game.map_tiles_x-1)
         {
             slb_num = get_slab_number(slb_x+1, slb_y);
             if ((areamap[slb_num] & 0x01) != 0)
@@ -434,7 +434,7 @@ void make_safe(struct PlayerInfo *player)
                 list_len++;
             }
         }
-        if (slb_y < gameadd.map_tiles_y-1)
+        if (slb_y < game.map_tiles_y-1)
         {
             slb_num = get_slab_number(slb_x, slb_y+1);
             if ((areamap[slb_num] & 0x01) != 0)
@@ -462,7 +462,7 @@ void make_safe(struct PlayerInfo *player)
         slb_y = slb_num_decode_y(slblist[list_cur]);
         list_cur++;
     }
-    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
 }
 
 void make_unsafe(PlayerNumber plyr_idx)
@@ -475,9 +475,9 @@ void make_unsafe(PlayerNumber plyr_idx)
     struct PowerConfigStats* powerst;
     struct Dungeon* dungeon;
     struct Coord3d pos;
-    for (slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (slb_y = 0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x = 0; slb_x < game.map_tiles_x; slb_x++)
         {
             slb_num = get_slab_number(slb_x, slb_y);
             slb = get_slabmap_direct(slb_num);
@@ -500,13 +500,15 @@ void make_unsafe(PlayerNumber plyr_idx)
             }
         }
     }
-    panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+    panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
 }
 
 void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
     struct Coord3d pos;
+
+    lua_on_special_box_activate(player->id_number,cratetng);
 
     // Gathering data which we'll need if the special is used and disposed.
     struct Dungeon* dungeon = get_dungeon(player->id_number);
@@ -603,15 +605,15 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
         default:
             if (thing_is_custom_special_box(cratetng))
             {
-                if (gameadd.current_player_turn == game.play_gameturn)
+                if (game.current_player_turn == game.play_gameturn)
                 {
-                    WARNLOG("box activation rejected turn:%lu", gameadd.current_player_turn);
+                    WARNLOG("box activation rejected turn:%u", game.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }
-                gameadd.current_player_turn = game.play_gameturn;
-                gameadd.script_current_player = player->id_number;
-                memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
+                game.current_player_turn = game.play_gameturn;
+                game.script_current_player = player->id_number;
+                memcpy(&game.triggered_object_location, &pos, sizeof(struct Coord3d));
                 dungeon->box_info.activated[cratetng->custom_box.box_kind]++;
                 no_speech = true;
                 remove_events_thing_is_attached_to(cratetng);
@@ -658,7 +660,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
     create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner, boxtng->index);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
-    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
+    if ((game.conf.rules[owner].game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
         remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, exp_level);
     }
     delete_thing_structure(boxtng, 0);
@@ -756,9 +758,9 @@ long create_transferred_creatures_on_level(void)
                 if (player_is_roaming(p))
                 {
                     plyr_idx = p;
-                    if (thing_is_invalid(srcetng))
+                    if (!thing_exists(srcetng))
                     {
-                        for (long n = 1; n < 16; n++)
+                        for (long n = 1; n < HERO_GATES_COUNT; n++)
                         {
                             srcetng = find_hero_gate_of_number(n);
                             if (!thing_is_invalid(srcetng))

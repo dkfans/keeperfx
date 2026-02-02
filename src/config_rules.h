@@ -65,12 +65,11 @@ enum SacrificeReturn {
 
 struct SacrificeRecipe {
     ThingModel victims[MAX_SACRIFICE_VICTIMS];
-    long action;
-    long param;
+    int32_t action;
+    int32_t param;
 };
 
 struct GameRulesConfig {
-    GoldAmount gold_per_gold_block;
     GoldAmount pot_of_gold_holds;
     GoldAmount chest_gold_hold;
     GoldAmount gold_pile_value;
@@ -82,15 +81,14 @@ struct GameRulesConfig {
     HitPoints boulder_reduce_health_slap;
     HitPoints boulder_reduce_health_room;
     GameTurnDelta pay_day_gap;
-    unsigned long dungeon_heart_heal_time;
+    uint32_t dungeon_heart_heal_time;
     HitPoints dungeon_heart_heal_health;
-    unsigned long hero_door_wait_time;
-    unsigned long classic_bugs_flags;
-    unsigned long gem_effectiveness;
-    long door_sale_percent;
-    long room_sale_percent;
-    long trap_sale_percent;
-    unsigned long pay_day_speed;
+    uint32_t hero_door_wait_time;
+    uint32_t classic_bugs_flags;
+    int32_t door_sale_percent;
+    int32_t room_sale_percent;
+    int32_t trap_sale_percent;
+    uint32_t pay_day_speed;
     TbBool allies_share_vision;
     TbBool allies_share_drop;
     TbBool allies_share_cta;
@@ -99,9 +97,10 @@ struct GameRulesConfig {
     unsigned short torture_payday;
     short torture_training_cost;
     short torture_scavenging_cost;
-    unsigned long easter_egg_speech_chance;
-    unsigned long easter_egg_speech_interval;
-    long global_ambient_light;
+    uint32_t easter_egg_speech_chance;
+    uint32_t easter_egg_speech_interval;
+    int32_t global_ambient_light;
+    int32_t thing_minimum_illumination;
     TbBool light_enabled;
     unsigned short creatures_count;
     unsigned char max_paydays_advanced;
@@ -117,42 +116,42 @@ struct ComputerRulesConfig {
 
 struct CreatureRulesConfig {
     unsigned char recovery_frequency;
-    short fight_max_hate;
-    short fight_borderline;
-    short fight_max_love;
     unsigned short body_remains_for;
-    short fight_hate_kill_value;
-    unsigned long flee_zone_radius;
+    uint32_t flee_zone_radius;
     GameTurnDelta game_turns_in_flee;
     unsigned short game_turns_unconscious;
     HitPoints critical_health_permil;
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
+    unsigned char stun_without_prison_chance;
 };
 
 struct MagicRulesConfig {
     GameTurnDelta hold_audience_time;
-    unsigned long armageddon_teleport_your_time_gap;
-    unsigned long armageddon_teleport_enemy_time_gap;
+    GameTurnDelta armageddon_teleport_your_time_gap;
+    GameTurnDelta armageddon_teleport_enemy_time_gap;
+    GameTurnDelta armageddon_count_down;
+    GameTurnDelta armageddon_duration;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
     MapSubtlDelta min_distance_for_teleport;
-    long collapse_dungeon_damage;
+    int32_t collapse_dungeon_damage;
     GameTurnDelta turns_per_collapse_dngn_dmg;
-    long friendly_fight_area_damage_percent;
-    long friendly_fight_area_range_percent;
+    int32_t friendly_fight_area_damage_percent;
+    int32_t friendly_fight_area_range_percent;
     TbBool armageddon_teleport_neutrals;
     short weight_calculate_push;
+    TbBool allow_instant_charge_up;
 };
 
 struct RoomRulesConfig {
     GameTurnDelta scavenge_cost_frequency;
-    unsigned long temple_scavenge_protection_turns;
+    uint32_t temple_scavenge_protection_turns;
     GameTurnDelta train_cost_frequency;
     unsigned char ghost_convert_chance;
     unsigned short default_generate_speed;
-    unsigned long default_max_crtrs_gen_entrance;
+    uint32_t default_max_crtrs_gen_entrance;
     GameTurnDelta food_generation_speed;
     unsigned char prison_skeleton_chance;
     unsigned char bodies_for_vampire;
@@ -161,17 +160,21 @@ struct RoomRulesConfig {
     CrtrExpLevel training_room_max_level;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
-    unsigned long time_between_prison_break;
+    uint32_t time_between_prison_break;
     unsigned char prison_break_chance;
     unsigned char torture_death_chance;
     unsigned char torture_convert_chance;
-    unsigned long time_in_prison_without_break;
+    uint32_t time_in_prison_without_break;
+    unsigned short train_efficiency;
+    unsigned short work_efficiency;
+    unsigned short scavenge_efficiency;
+    unsigned short research_efficiency;
 };
 struct WorkersRulesConfig {
     unsigned char hits_per_slab;
-    unsigned long default_imp_dig_damage;
-    unsigned long default_imp_dig_own_damage;
-    long digger_work_experience;
+    uint32_t default_imp_dig_damage;
+    uint32_t default_imp_dig_own_damage;
+    int32_t digger_work_experience;
     unsigned short drag_to_lair;
 };
 
@@ -207,6 +210,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
 struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void);
 
 const char *player_code_name(PlayerNumber plyr_idx);
+int sac_compare_fn(const void* ptr_a, const void* ptr_b);
 
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];

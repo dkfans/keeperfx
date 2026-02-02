@@ -57,8 +57,8 @@ enum PlayerInstanceNum {
     PI_MapFadeTo,
     PI_MapFadeFrom,
     PI_ZoomToPos,
-    PI_Unknown17,
-    PI_Unknown18,
+    PI_UnusedSlot17,
+    PI_UnusedSlot18,
 };
 /******************************************************************************/
 #pragma pack(1)
@@ -66,18 +66,18 @@ enum PlayerInstanceNum {
 struct Thing;
 struct PlayerInfo;
 
-typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);
+typedef long (*InstncInfo_Func)(struct PlayerInfo *player, int32_t *n);
 
 struct PlayerInstanceInfo { // sizeof = 44
   long length_turns;
-  long field_4;
+  long instance_state;
   InstncInfo_Func start_cb;
   InstncInfo_Func maintain_cb;
   InstncInfo_Func end_cb;
-  long field_14[2];
-  unsigned char field_1C[8];
-  long field_24;
-  long field_28;
+  int32_t start_callback_parameters[2];
+  unsigned char extra_callback_data[8];
+  int32_t maintain_end_callback_parameter;
+  int32_t reserved_callback_parameter;
 };
 
 #define PLAYER_INSTANCES_COUNT 19
@@ -103,7 +103,6 @@ TbBool clear_selected_thing(struct PlayerInfo *player);
 
 TbBool is_thing_directly_controlled(const struct Thing *thing);
 TbBool is_thing_passenger_controlled(const struct Thing *thing);
-TbBool is_thing_query_controlled(const struct Thing *thing);
 TbBool is_thing_some_way_controlled(const struct Thing *thing);
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);

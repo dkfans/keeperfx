@@ -33,6 +33,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "game_loop.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -53,12 +54,14 @@ static void powerful_magic_breaking_sparks(struct Thing* breaktng)
     pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, objst->effect.spacing, objst->effect.beam);
     if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, objst->effect.sound_idx, 0)) {
-        thing_play_sample(breaktng, objst->effect.sound_idx + UNSYNC_RANDOM(objst->effect.sound_range), NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
+        thing_play_sample(breaktng, objst->effect.sound_idx + SOUND_RANDOM(objst->effect.sound_range), NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
 }
 
 void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
 {
+    lua_on_dungeon_destroyed(plyr_idx);
+
     struct Dungeon* dungeon;
     dungeon = get_dungeon(plyr_idx);
     if (dungeon->devastation_turn == 0)
@@ -72,8 +75,8 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
         }
         else {
             dungeon->devastation_turn = 1;
-            dungeon->devastation_centr_x = gameadd.map_subtiles_x / 2;
-            dungeon->devastation_centr_y = gameadd.map_subtiles_y / 2;
+            dungeon->devastation_centr_x = game.map_subtiles_x / 2;
+            dungeon->devastation_centr_y = game.map_subtiles_y / 2;
         }
     }
 }
@@ -109,7 +112,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         {
             if ((dungeon->heart_destroy_turn == 10) && (dungeon->free_soul_idx == 0))
             {
-                if (thing_is_invalid(soultng))
+                if (!thing_exists(soultng))
                 {
                     soultng = create_creature(central_pos, get_players_spectator_model(plyr_idx), plyr_idx);
                 }
@@ -118,7 +121,7 @@ void process_dungeon_destroy(struct Thing* heartng)
                     dungeon->num_active_creatrs--;
                     dungeon->owned_creatures_of_model[soultng->model]--;
                     sctrl = creature_control_get_from_thing(soultng);
-                    set_flag(sctrl->flgfield_2,TF2_Spectator);
+                    set_flag(sctrl->creature_state_flags,TF2_Spectator);
                     dungeon->free_soul_idx = soultng->index;
                     short xplevel = 0;
                     if (dungeon->lvstats.player_score > 1000)
@@ -186,7 +189,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         break;
     case 3:
         // Drop all held things, by keeper
-        if ((dungeon->num_things_in_hand > 0) && ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
+        if ((dungeon->num_things_in_hand > 0) && ((game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
         {
             if (no_backup)
                 dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
@@ -225,12 +228,12 @@ void process_dungeon_destroy(struct Thing* heartng)
         }
         else
         {
-            if (gameadd.heart_lost_display_message)
+            if (game.heart_lost_display_message)
             {
                 if (is_my_player_number(dungeon->owner))
                 {
-                    const char* objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
-                    process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
+                    const char* objective = (game.heart_lost_quick_message) ? game.quick_messages[game.heart_lost_message_id] : get_string(game.heart_lost_message_id);
+                    process_objective(objective, game.heart_lost_message_target, 0, 0);
                 }
             }
             // If this is the last heart the player had, finish him
@@ -251,7 +254,7 @@ void update_research(void)
     int i;
     struct PlayerInfo *player;
     SYNCDBG(6,"Starting");
-    for (i=0; i<PLAYERS_COUNT; i++)
+    for (i = 0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
         if (player_exists(player) && (player->is_active == 1))

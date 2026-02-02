@@ -42,6 +42,3 @@ menu.
 
 TCP/IP is less suitable for multiplayer as a protocol, and there's no known 
 reason to use this over ENET/UDP as you will have significantly more lag.
-However, this protocal has been around for longer and is no longer being 
-developed or tested on, there's a chance that new bugs on ENET/UDP have
-not ended up in this protocol.

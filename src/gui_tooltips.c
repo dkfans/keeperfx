@@ -41,6 +41,7 @@
 #include "config_players.h"
 #include "config_settings.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 #include <math.h>
@@ -157,19 +158,23 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     SYNCDBG(18,"Starting");
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = thing_get(player->thing_under_hand);
-    if (thing_is_invalid(thing))
+    if (!thing_is_object(thing))
     {
-        thing = get_nearest_object_at_position(pos->x.stl.num, pos->y.stl.num);
+        thing = get_nearest_object_with_tooltip_at_position(pos->x.stl.num, pos->y.stl.num,0);
     }
     struct ObjectConfigStats* objst;
+    if (thing_is_invalid(thing))
+    {
+        if (!settings.tooltips_on)
+        {
+            return false;
+        }
+        thing = get_nearest_object_with_tooltip_at_position(pos->x.stl.num, pos->y.stl.num, 1);
+    }
     if (!thing_is_invalid(thing))
     {
         update_gui_tooltip_target(thing);
         objst = get_object_model_stats(thing->model);
-        if ((!settings.tooltips_on) && (objst->tooltip_optional))
-        {
-            return false;
-        }
         if ((objst->tooltip_stridx >= 0) && (objst->tooltip_stridx != GUIStr_Empty))
         {
             if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
@@ -196,10 +201,10 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                 if (thing_is_custom_special_box(thing))
                 {
                     // TODO: get it from Map script
-                    if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
+                    if (game.box_tooltip[thing->custom_box.box_kind][0] == 0)
                     {
                         i = box_thing_to_special(thing);
-                        long strngindex = get_special_description_strindex(i);
+                        int32_t strngindex = get_special_description_strindex(i);
                         if (strngindex != GUIStr_Empty)
                         {
                             set_gui_tooltip_box_fmt(5, "%s", get_string(strngindex));
@@ -207,7 +212,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                     }
                     else
                     {
-                        set_gui_tooltip_box_fmt(5, "%s", gameadd.box_tooltip[thing->custom_box.box_kind]);
+                        set_gui_tooltip_box_fmt(5, "%s", game.box_tooltip[thing->custom_box.box_kind]);
                     }
                 }
                 else
@@ -270,7 +275,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   struct Thing *handthing = thing_get(player->thing_under_hand);
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
           return false;
       }
       if (help_tip_time <= 50) {
@@ -297,10 +302,10 @@ short setup_room_tooltips(struct Coord3d *pos)
   update_gui_tooltip_target(room);
   struct PlayerInfo* player = get_my_player();
   struct Thing *handthing = thing_get(player->thing_under_hand);
-  
+
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
           return false;
       }
       if (help_tip_time <= 50) {
@@ -399,6 +404,16 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
         } else {
             tooltip_delay = 10;
         }
+
+        struct GuiMenu* gmnu = get_active_menu(gbtn->gmenu_idx);
+        if (gmnu) {
+            long menu_id = gmnu->ident;
+            if (menu_id == GMnu_OPTIONS || menu_id == GMnu_VIDEO || menu_id == GMnu_SOUND ||
+                menu_id == GMnu_AUTOPILOT) {
+                tooltip_delay = 0;
+            }
+        }
+
         if ( (tool_tip_time > tooltip_delay) || (player->work_state == PSt_CreatrQuery) )
         {
           if (gbtn->has_shown_before == 0) {
@@ -439,7 +454,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
             return false;
         }
         struct Coord3d mappos;
-        if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &mappos))
+        if (screen_to_map(get_local_camera(player->acamera), GetMouseX(), GetMouseY(), &mappos))
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {
@@ -480,10 +495,10 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             if (-ttwidth >= render_tooltip_scroll_offset)
               render_tooltip_scroll_offset = viswidth;
             else
-              render_tooltip_scroll_offset -= ((MyScreenHeight >= 400) ? 4.0 : 2.0) * gameadd.delta_time;
+              render_tooltip_scroll_offset -= ((MyScreenHeight >= 400) ? 4.0 : 2.0) * game.delta_time;
         } else
         {
-            render_tooltip_scroll_timer -= 1.0 * gameadd.delta_time;
+            render_tooltip_scroll_timer -= 1.0 * game.delta_time;
             if (render_tooltip_scroll_timer < 0)
               render_tooltip_scroll_offset = 0;
         }

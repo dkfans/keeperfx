@@ -36,13 +36,20 @@ extern "C" {
 #endif
 
 #define LARGE_DELAY_TIME 20
+long double sleep_precision_ns = 20000000; // 20ms
 /******************************************************************************/
 struct TbTime global_time;
 struct TbDate global_date;
 TbClockMSec (* LbTimerClock)(void);
+int slowdown_current = 0;
+int slowdown_average = 0;
+int slowdown_max = 0;
 /******************************************************************************/
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
+#define TimeTickNs std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count()
+
+
 TimePoint initialized_time_point;
 struct FrametimeMeasurements frametime_measurements;
 TimePoint delta_time_previous_timepoint;
@@ -51,8 +58,46 @@ int debug_display_frametime = 0;
 void initial_time_point()
 {
   initialized_time_point = TimeNow;
-  gameadd.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
+  game.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
 }
+
+long double get_time_tick_ns()
+{
+  return TimeTickNs;
+}
+
+void trigger_time_measurement_capture(struct TriggerTimeMeasurement *trigger)
+{
+  long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+  long double current_milliseconds = current_nanoseconds/1000000.0;
+  if (trigger->trigger_cnt >= MAX_TRIGGER_TIME_CNT)
+  {
+    int keep_cnt = MAX_TRIGGER_TIME_CNT/2;
+    memmove(trigger->trigger_time, trigger->trigger_time+trigger->trigger_cnt-keep_cnt, sizeof(trigger->trigger_time[0])*keep_cnt);
+    trigger->trigger_cnt=keep_cnt;
+  }
+  trigger->trigger_time[trigger->trigger_cnt] = (float)current_milliseconds;
+  trigger->trigger_cnt++;
+}
+
+int get_trigger_time_measurement_fps(struct TriggerTimeMeasurement *trigger)
+{
+  int cnt = 0;
+  if (trigger->trigger_cnt > 0)
+  {
+    const float measurement_duration = 1000;
+    const float last_time = trigger->trigger_time[trigger->trigger_cnt-1];
+    cnt++;
+    for (int i=trigger->trigger_cnt-2; i>=0; i--)
+    {
+      if (last_time - trigger->trigger_time[i] >= measurement_duration)
+        break;
+      cnt++;
+    }
+  }
+  return cnt;
+}
+
 
 float get_delta_time()
 {
@@ -77,7 +122,7 @@ void frametime_set_all_measurements_to_be_displayed()
     if (debug_display_frametime == 2)
     {
         // Once per half-second set the display text to highest frametime of the past half-second
-        frametime_measurements.max_timer += gameadd.delta_time;
+        frametime_measurements.max_timer += game.delta_time;
         if (frametime_measurements.max_timer > (game_num_fps/2)) {
             frametime_measurements.max_timer = 0;
             once_per_half_second = true;
@@ -91,18 +136,48 @@ void frametime_set_all_measurements_to_be_displayed()
             case 1: // Frametime (show constantly)
                 frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
                 break;
-            case 2: // Frametime max (shown once per half-second)
-                // Always get highest frametime
-                if (frametime_measurements.frametime_current[i] > frametime_measurements.frametime_get_max[i]) {
-                    frametime_measurements.frametime_get_max[i] = frametime_measurements.frametime_current[i];
-                }
-                // Display once per half-second
+            case 2: // Frametime min/max (shown once per half-second)
+                frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
+                 // Display once per half-second
                 if (once_per_half_second == true)
                 {
-                    frametime_measurements.frametime_display[i] = frametime_measurements.frametime_get_max[i];
+                    frametime_measurements.frametime_get_min[i] = 99999;
                     frametime_measurements.frametime_get_max[i] = 0;
                 }
+                if (frametime_measurements.frametime_get_min[i] > frametime_measurements.frametime_display[i]) {
+                    frametime_measurements.frametime_get_min[i] = frametime_measurements.frametime_display[i];
+                }
+                if (frametime_measurements.frametime_get_max[i] < frametime_measurements.frametime_display[i]) {
+                    frametime_measurements.frametime_get_max[i] = frametime_measurements.frametime_display[i];
+                }
                 break;
+        }
+    }
+
+    for (int i = 0; i < TOTAL_FRAMERATE_KINDS; i++)
+    {
+        switch (debug_display_frametime)
+        {
+            case 1: // Framerate (show constantly)
+            case 2: // Framerate min/max (shown once per half-second)
+              {
+                int cur_fps = get_trigger_time_measurement_fps(frametime_measurements.framerate_measurement+i);
+                frametime_measurements.framerate_display[i] = cur_fps;
+                if (debug_display_frametime == 2) {
+                  // Display once per half-second
+                  if (once_per_half_second == true) {
+                      frametime_measurements.framerate_min[i] = 99999;
+                      frametime_measurements.framerate_max[i] = 0;
+                  }
+                  if (frametime_measurements.framerate_min[i] > cur_fps) {
+                      frametime_measurements.framerate_min[i] = cur_fps;
+                  }
+                  if (frametime_measurements.framerate_max[i] < cur_fps) {
+                      frametime_measurements.framerate_max[i] = cur_fps;
+                  }
+                }
+              }
+              break;
         }
     }
 }
@@ -126,42 +201,25 @@ void frametime_end_measurement(int frametime_kind)
         frametime_set_all_measurements_to_be_displayed();
     }
 }
-/******************************************************************************/
-/**
- * Returns the number of milliseconds elapsed since the program was launched.
- * A version for (CLOCKS_PER_SEC == 1000).
- */
-TbClockMSec LbTimerClock_1000(void)
+
+void framerate_measurement_capture(int framerate_kind)
 {
-  return clock();
+  if (framerate_kind < 0 || framerate_kind >= TOTAL_FRAMERATE_KINDS)
+    return;
+  trigger_time_measurement_capture(frametime_measurements.framerate_measurement + framerate_kind);
 }
 
 /**
  * Returns the number of milliseconds elapsed since the program was launched.
- * A version for (CLOCKS_PER_SEC == 1024).
+ * Uses std::chrono for consistent wall-clock time across platforms.
  */
-TbClockMSec LbTimerClock_1024(void)
+static TimePoint program_start_time;
+static TbClockMSec LbTimerClock_chrono(void)
 {
-    clock_t cclk = clock();
-    return cclk - (cclk >> 6) - (cclk >> 7);
-}
-
-/**
- * Returns the number of milliseconds elapsed since the program was launched.
- * Version for any CLOCKS_PER_SEC, but unsafe.
- */
-TbClockMSec LbTimerClock_any(void)
-{
-  clock_t cclk = clock();
-  if (CLOCKS_PER_SEC > 1000) {
-    return cclk / (CLOCKS_PER_SEC / 1000);
-  } else if (CLOCKS_PER_SEC > 100) {
-    return (cclk / (CLOCKS_PER_SEC / 100)) * 10;
-  } else if (CLOCKS_PER_SEC > 10) {
-    return (cclk / (CLOCKS_PER_SEC / 10)) * 100;
-  } else {
-    return (cclk / CLOCKS_PER_SEC) * 1000;
-  }
+  auto now = std::chrono::high_resolution_clock::now();
+  auto duration = now - program_start_time;
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+  return static_cast<TbClockMSec>(millis);
 }
 
 /** Fills structure with current time.
@@ -187,6 +245,14 @@ TbTimeSec LbTimeSec(void)
   return dtime;
 }
 
+extern "C" uint64_t LbSystemClockMilliseconds(void)
+{
+  auto now = std::chrono::system_clock::now();
+  auto duration = now.time_since_epoch();
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+  return static_cast<uint64_t>(millis);
+}
+
 //Fills structure with current date
 TbResult LbDate(struct TbDate *curr_date)
 {
@@ -205,6 +271,18 @@ TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time)
 
 TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct TbTime *curr_time)
 {
+  if (curr_date) {
+    curr_date->Day = 0;
+    curr_date->Month = 0;
+    curr_date->Year = 0;
+    curr_date->DayOfWeek = 0;
+  }
+  if (curr_time) {
+    curr_time->Hour = 0;
+    curr_time->Minute = 0;
+    curr_time->Second = 0;
+    curr_time->HSecond = 0;
+  }
   struct tm *ltime = localtime(datetime);
   if (ltime == NULL)
   {
@@ -261,22 +339,95 @@ TbBool LbSleepUntil(TbClockMSec endtime)
   return true;
 }
 
+// Ext(Extend): High Precision Sleep Version
+void LbSleepExtInit()
+{
+  // Test and obtain accurate precision values
+  long double tick_ns_begin = TimeTickNs;
+  long double tick_ns_end = 0;
+  const long double tick_ns_max_test = 100000000; // 100m
+  const int max_test_cnt = 30; // for 1ms precision, need 30ms
+  int cur_cnt_test = 0;
+  for (int i=0; i<max_test_cnt; i++)
+  {
+    SDL_Delay(1);
+    tick_ns_end = TimeTickNs;
+    cur_cnt_test++;
+    if (tick_ns_end - tick_ns_begin > tick_ns_max_test)
+       break;
+  }
+  sleep_precision_ns = (tick_ns_end - tick_ns_begin)/cur_cnt_test;
+}
+
+/* @comment for precision
+ *   Windows Platform, this function, the precision is more affected by std::chrono than SDL_Delay.
+ *   After deeper testing, it should be a compiler issue, at least MinGW has precision issue, std::chrono can only reach 1ms level.
+ *   For more information, please refer to
+ *   https://stackoverflow.com/questions/67584437/stdchrono-nanosecond-timer-works-on-msvc-but-not-gcc
+ *   https://github.com/msys2/MINGW-packages/issues/5086
+ */
+TbBool LbSleepUntilExt(long double tick_ns_end)
+{
+  while(1)
+  {
+    long double tick_ns_cur = TimeTickNs;
+    if (tick_ns_cur >= tick_ns_end)
+      break;
+    long double tick_ns_delay = tick_ns_end - tick_ns_cur;
+    if (tick_ns_delay > sleep_precision_ns) {
+      int ms_delay = (int)(tick_ns_delay/1000000);
+      SDL_Delay(ms_delay);
+    }
+  }
+  return true;
+}
+
+TbBool LbSleepDelayExt(long double tick_ns_delay)
+{
+    long double tick_ns_cur = TimeTickNs;
+    long double tick_ns_end = tick_ns_cur + tick_ns_delay;
+    return LbSleepUntilExt(tick_ns_end);
+}
+
 TbResult LbTimerInit(void)
 {
-  switch (CLOCKS_PER_SEC)
-  {
-  case 1000:
-    LbTimerClock = LbTimerClock_1000;
-    break;
-  case 1024:
-    LbTimerClock = LbTimerClock_1024;
-    break;
-  default:
-    LbTimerClock = LbTimerClock_any;
-    WARNMSG("Timer uses unsafe clock multiplication!");
-    break;
-  }
+  // Initialize program start time for chrono-based timer
+  program_start_time = std::chrono::high_resolution_clock::now();
+  // Use std::chrono-based timer for consistent wall-clock time on all platforms
+  LbTimerClock = LbTimerClock_chrono;
   return Lb_SUCCESS;
+}
+
+int get_current_slowdown_percentage() {
+    static TbClockMSec last_frame_timestamp = 0;
+    static int slowdown_history[50] = {0};
+    static int history_index = 0;
+    TbClockMSec current_timestamp = LbTimerClock();
+    TbClockMSec frame_time_ms = 0;
+    int slowdown_pct = 0;
+    if (last_frame_timestamp != 0) {
+        frame_time_ms = current_timestamp - last_frame_timestamp;
+        int expected_frame_time = 1000 / game_num_fps;
+        if (frame_time_ms > expected_frame_time) {
+            slowdown_pct = ((frame_time_ms - expected_frame_time) * 100) / expected_frame_time;
+        }
+    }
+    last_frame_timestamp = current_timestamp;
+    slowdown_current = slowdown_pct;
+    slowdown_history[history_index] = slowdown_pct;
+    history_index = (history_index + 1) % 50;
+    int sum = 0;
+    int max = 0;
+    int i;
+    for (i = 0; i < 50; i++) {
+        sum += slowdown_history[i];
+        if (slowdown_history[i] > max) {
+            max = slowdown_history[i];
+        }
+    }
+    slowdown_average = sum / 50;
+    slowdown_max = max;
+    return slowdown_pct;
 }
 
 /******************************************************************************/

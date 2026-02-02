@@ -152,10 +152,16 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_MOUSE3,          GUIStr_MouseButton},
   {KC_MOUSEWHEEL_UP,   GUIStr_MouseScrollWheelUp},
   {KC_MOUSEWHEEL_DOWN, GUIStr_MouseScrollWheelDown},
+  {KC_MOUSE4,          GUIStr_MouseButton},
+  {KC_MOUSE5,          GUIStr_MouseButton},
+  {KC_MOUSE6,          GUIStr_MouseButton},
+  {KC_MOUSE7,          GUIStr_MouseButton},
+  {KC_MOUSE8,          GUIStr_MouseButton},
+  {KC_MOUSE9,          GUIStr_MouseButton},
   {  0,     0},
 };
 
-// An array of the defined keys, when an indexed key is true in this array, 
+// An array of the defined keys, when an indexed key is true in this array,
 // it should be highlighted in font color #3 in the list, to show that it was swapped
 TbBool defined_keys_that_have_been_swapped[GAME_KEYS_COUNT] = { false };
 /******************************************************************************/
@@ -175,16 +181,6 @@ long GetMouseY(void)
 {
     long result = lbDisplay.MMouseY * (long)pixel_size;
     return result;
-}
-
-short is_mouse_pressed_leftbutton(void)
-{
-  return lbDisplay.LeftButton;
-}
-
-short is_mouse_pressed_rightbutton(void)
-{
-  return lbDisplay.RightButton;
 }
 
 short is_mouse_pressed_lrbutton(void)
@@ -226,7 +222,7 @@ void update_left_button_released(void)
     }
   } else
   {
-    if (left_button_click_space_count < LONG_MAX)
+    if (left_button_click_space_count < INT32_MAX)
       left_button_click_space_count++;
   }
 }
@@ -259,7 +255,7 @@ void update_right_button_released(void)
     }
   } else
   {
-    if (right_button_click_space_count < LONG_MAX)
+    if (right_button_click_space_count < INT32_MAX)
       right_button_click_space_count++;
   }
 }

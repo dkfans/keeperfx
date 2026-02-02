@@ -69,7 +69,7 @@ TbBool packets_process_cheats(
     struct SlabMap *slb;
     struct PlayerInfo* player = get_player(plyr_idx);
     TbBool allowed;
-    char str[255] = {'\0'};
+    char str[255] = "";
     switch (player->work_state)
     {
         case PSt_MkDigger:
@@ -99,12 +99,12 @@ TbBool packets_process_cheats(
         clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         if (player->cheatselection.chosen_hero_kind == 0)
         {
-            sprintf(str, "?");
+            snprintf(str, sizeof(str), "?");
         }
         else
         {
             struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_hero_kind];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
+            snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -209,6 +209,7 @@ TbBool packets_process_cheats(
             if (player->controlled_thing_idx != player->thing_under_hand)
             {
                 player->influenced_thing_idx = player->thing_under_hand;
+                player->influenced_thing_creation = thing->creation_turn;
             }
           }
           if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
@@ -255,12 +256,12 @@ TbBool packets_process_cheats(
         clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         if (player->cheatselection.chosen_creature_kind == 0)
         {
-            sprintf(str, "?");
+            snprintf(str, sizeof(str), "?");
         }
         else
         {
             struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_creature_kind];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
+            snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -531,7 +532,7 @@ TbBool packets_process_cheats(
         clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         thing = get_player_soul_container(player->cheatselection.chosen_player);
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-        if (!thing_is_invalid(thing))
+        if (thing_exists(thing))
         {
             targeted_message_add(MsgType_Player, thing->owner, plyr_idx, 1, "%d/%d", thing->health, objst->health);
         }
@@ -658,11 +659,9 @@ TbBool packets_process_cheats(
                 char* dis_msg = strtok(str, ":");
                 if (dis_msg == NULL)
                 {
-                    dis_msg = malloc(strlen(str) + 1);
-                    strcpy(dis_msg, str);
+                    dis_msg = str;
                 }
                 targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
-                free(dis_msg);
             }
             else
             {

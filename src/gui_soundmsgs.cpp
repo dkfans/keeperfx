@@ -306,3 +306,41 @@ extern "C" TbBool output_room_message(
 	}
 	return false;
 }
+
+void script_play_message(TbBool param_is_string, const char msgtype_id, const short msg_id, const char *filename)
+{
+
+    if (!param_is_string)
+    {
+        switch (msgtype_id)
+        {
+            case 1: // speech message
+            {
+                output_message(msg_id, 0);
+                break;
+            }
+            case 2: // sound effect
+            {
+                play_non_3d_sample(msg_id);
+                break;
+            }
+        }
+    }
+    else
+    {
+        const char * filepath = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", filename);
+        switch (msgtype_id)
+        {
+            case 1: // speech message
+            {
+                output_custom_message(filepath, settings.mentor_volume);
+                break;
+            }
+            case 2: // sound effect
+            {
+                play_streamed_sample(filepath, settings.sound_volume);
+                break;
+            }
+        }
+    }
+}

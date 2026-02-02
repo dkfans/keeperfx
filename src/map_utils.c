@@ -108,7 +108,7 @@ void init_spiral_steps(void)
     struct MapOffset* sstep = &spiral_step[0];
     sstep->h = y;
     sstep->v = x;
-    sstep->both = (short)y + ((short)x * gameadd.map_subtiles_y);
+    sstep->both = (short)y + ((short)x * game.map_subtiles_y);
     y = -1;
     x = -1;
     for (long i = 1; i < SPIRAL_STEPS_COUNT; i++)
@@ -116,7 +116,7 @@ void init_spiral_steps(void)
       sstep = &spiral_step[i];
       sstep->h = y;
       sstep->v = x;
-      sstep->both = (short)y + ((short)x * gameadd.map_subtiles_y);
+      sstep->both = (short)y + ((short)x * game.map_subtiles_y);
       if ((y < 0) && (x-y == 1))
       {
           y--;
@@ -185,7 +185,7 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
         if (!is_dangerous_drop_subtile(pos->x.stl.num, pos->y.stl.num))
         {
             // This function should return max value when the place is good for dropping.
-            return LONG_MAX;
+            return INT32_MAX;
         }
     }
     // If conditions are not met, return -1 to be sure the position will not be returned.
@@ -194,8 +194,8 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
 
 void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param)
 {
-    long max_slb_dim_x = (gameadd.map_subtiles_x / STL_PER_SLB);
-    long max_slb_dim_y = (gameadd.map_subtiles_y / STL_PER_SLB);
+    long max_slb_dim_x = (game.map_subtiles_x / STL_PER_SLB);
+    long max_slb_dim_y = (game.map_subtiles_y / STL_PER_SLB);
     MapSlabCoord* stack_x = malloc(max_slb_dim_x * max_slb_dim_y);
     MapSlabCoord* stack_y = malloc(max_slb_dim_x * max_slb_dim_y);
     char* visited = malloc(max_slb_dim_x * max_slb_dim_y);
@@ -263,14 +263,14 @@ SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y
     if ((i & 0xFF) != 0)
     {
         // Just compute the index
-        n = (i + LbFPMath_PI/4) >> 9;
+        n = (i + DEGREES_45) / DEGREES_90;
     } else
     {
         //Special case - the angle is exact multiplication of pi/4
         // Add some variant factor to make it little off this value.
         // this should give better results because tangens values are rounded up or down.
         //TODO: maybe it would be even better to get previous around_index as parameter - this way we could avoid taking same path without random factors.
-        n = (i + LbFPMath_PI/4 + 2*(((dest_x+dest_y)>>1)%2) - 1) >> 9;
+        n = (i + DEGREES_45 + 2*(((dest_x+dest_y)>>1)%2) - 1) / DEGREES_90;
     }
     SYNCDBG(18,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
     return n & 3;
@@ -286,8 +286,8 @@ SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y
  */
 SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
 {
-    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
-    return (i >> 9) & 3;
+    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & ANGLE_MASK) + DEGREES_45);
+    return (i / DEGREES_90) & 3;
 }
 
 /**
@@ -295,7 +295,7 @@ SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, l
  * Uses "spiral" checking of surrounding subtiles, up to given number of subtiles.
  * The position which will return highest nonnegative value from given filter function
  * will be returned.
- * If the filter function will return LONG_MAX, the current position will be returned
+ * If the filter function will return INT32_MAX, the current position will be returned
  * immediately and no further subtiles will be checked.
  * @return Returns true if coordinates were found, false otherwise.
  */
@@ -323,7 +323,7 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
                 retpos->y.val = newpos.y.val;
                 retpos->z.val = newpos.z.val;
                 maximizer = n;
-                if (maximizer == LONG_MAX)
+                if (maximizer == INT32_MAX)
                     break;
             }
       }
@@ -354,7 +354,7 @@ TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoo
                 retpos->y.val = newpos.y.val;
                 retpos->z.val = newpos.z.val;
                 maximizer = n;
-                if (maximizer == LONG_MAX)
+                if (maximizer == INT32_MAX)
                 {
                     break;
                 }
@@ -370,12 +370,12 @@ long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbki
     for (long dy = -rad; dy <= rad; dy++)
     {
         long y = ty + dy;
-        if ((y < 0) || (y >= gameadd.map_tiles_y))
+        if ((y < 0) || (y >= game.map_tiles_y))
             continue;
         for (long dx = -rad; dx <= rad; dx++)
         {
             long x = tx + dx;
-            if ((x < 0) || (x >= gameadd.map_tiles_x))
+            if ((x < 0) || (x >= game.map_tiles_x))
                 continue;
             struct SlabMap* slb = get_slabmap_block(x, y);
             if (slb->kind == slbkind)

@@ -78,8 +78,6 @@ extern TbBool wheel_scrolled_down;
 
 long GetMouseX(void);
 long GetMouseY(void);
-short is_mouse_pressed_leftbutton(void);
-short is_mouse_pressed_rightbutton(void);
 short is_mouse_pressed_lrbutton(void);
 void clear_mouse_pressed_lrbutton(void);
 void update_mouse(void);

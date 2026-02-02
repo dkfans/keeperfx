@@ -90,6 +90,9 @@ enum SlabTypes {
     SlbT_DOORSECRET1        =  55,
     SlbT_DOORSECRET2        =  56,
     SlbT_ROCK_FLOOR         =  57,
+    SlbT_DOORMIDAS1         =  58,
+    SlbT_DOORMIDAS2         =  59,
+    SlbT_DENSEGOLD          =  60,
 };
 
 enum WlbType {
@@ -126,7 +129,7 @@ struct SlabObj {
   short offset_y;
   short offset_z;
   ThingClass class_id;
-  unsigned char model; //for lights this is intencity
+  ThingModel model; //for lights this is intencity
   unsigned char range; //radius for lights / range for effect generators
 };
 
@@ -187,6 +190,8 @@ TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
 TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+
+void set_player_texture(PlayerNumber plyr_idx, long texture_id);
 
 /******************************************************************************/
 #include "roomspace.h"

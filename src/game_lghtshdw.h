@@ -30,7 +30,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define SHADOW_LIMITS_COUNT  2048
-#define SHADOW_CACHE_COUNT    160
+#define SHADOW_CACHE_COUNT    512
 
 /******************************************************************************/
 #pragma pack(1)
@@ -40,12 +40,12 @@ struct LightingTable { // sizeof = 8
   unsigned char distance; // 2 - 15
   char delta_x; // signed
   char delta_y; // signed
-  unsigned long diagonal_length;
+  uint32_t diagonal_length;
 };
 
 struct ShadowCache { // sizeof = 129
   unsigned char flags;
-  unsigned int field_1[32];
+  unsigned int lighting_bitmask[32];
 };
 
 /**
@@ -57,10 +57,9 @@ struct LightsShadows {
     struct Light lights[LIGHTS_COUNT];
     struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
     unsigned short stat_light_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
-    long global_ambient_light;
+    int32_t global_ambient_light;
     TbBool light_enabled;
     TbBool lighting_tables_initialised;
-    unsigned long light_rand_seed;
     int lighting_tables_count; // number of entries in lighting_tables
     unsigned short subtile_lightness[MAX_SUBTILES_X*MAX_SUBTILES_Y];
 };

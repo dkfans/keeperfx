@@ -55,11 +55,13 @@ const struct NamedCommand objects_properties_commands[] = {
   {"BUOYANT",                 OMF_Buoyant             },
   {"BEATING",                 OMF_Beating             },
   {"HEART",                   OMF_Heart               },
+  {"HOLD_IN_HAND",            OMF_HoldInHand          },
+  {"IGNORED_BY_IMPS",         OMF_IgnoredByImps       },
   {NULL,                      0},
   };
 
 const struct NamedCommand objects_genres_desc[] = {
-  {"NONE",            OCtg_Unknown},
+  {"NONE",            OCtg_None},
   {"DECORATION",      OCtg_Decoration},
   {"FURNITURE",       OCtg_Furniture},
   {"VALUABLE",        OCtg_Valuable},
@@ -77,51 +79,55 @@ const struct NamedCommand objects_genres_desc[] = {
 
 static const struct NamedField objects_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
-    {"NAME",                     0, field(game.conf.object_conf.object_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, object_desc,                 value_name,      assign_null},
-    {"GENRE",                    0, field(game.conf.object_conf.object_cfgstats[0].genre),                         0, LONG_MIN,ULONG_MAX, objects_genres_desc,         value_default,   assign_default},
-    {"RELATEDCREATURE",          0, field(game.conf.object_conf.object_cfgstats[0].related_creatr_model),          0, LONG_MIN,ULONG_MAX, creature_desc,               value_default,   assign_default},
-    {"PROPERTIES",              -1, field(game.conf.object_conf.object_cfgstats[0].model_flags),                   0, LONG_MIN,ULONG_MAX, objects_properties_commands, value_flagsfield,assign_default},
-    {"ANIMATIONID",              0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx),               0, LONG_MIN,ULONG_MAX, NULL,                        value_animid,    assign_animid},
-    {"ANIMATIONSPEED",           0, field(game.conf.object_conf.object_cfgstats[0].anim_speed),                    0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"SIZE_XY",                  0, field(game.conf.object_conf.object_cfgstats[0].size_xy),                       0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"SIZE_YZ",                  0, field(game.conf.object_conf.object_cfgstats[0].size_z),                        0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"SIZE_Z",                   0, field(game.conf.object_conf.object_cfgstats[0].size_z),                        0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"MAXIMUMSIZE",              0, field(game.conf.object_conf.object_cfgstats[0].sprite_size_max),               0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"DESTROYONLIQUID",          0, field(game.conf.object_conf.object_cfgstats[0].destroy_on_liquid),             0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"DESTROYONLAVA",            0, field(game.conf.object_conf.object_cfgstats[0].destroy_on_lava),               0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"HEALTH",                   0, field(game.conf.object_conf.object_cfgstats[0].health),                        0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"FALLACCELERATION",         0, field(game.conf.object_conf.object_cfgstats[0].fall_acceleration),             0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"LIGHTUNAFFECTED",          0, field(game.conf.object_conf.object_cfgstats[0].light_unaffected),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"LIGHTINTENSITY",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.intensity),               0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"LIGHTRADIUS",              0, field(game.conf.object_conf.object_cfgstats[0].ilght.radius),                  0, LONG_MIN,ULONG_MAX, NULL,                        value_stltocoord,assign_default},
-    {"LIGHTISDYNAMIC",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.is_dynamic),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"MAPICON",                  0, field(game.conf.object_conf.object_cfgstats[0].map_icon),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_icon,      assign_icon},
-    {"TOOLTIPTEXTID",            0, field(game.conf.object_conf.object_cfgstats[0].tooltip_stridx),               -1, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"NAME",                     0, field(game.conf.object_conf.object_cfgstats[0].code_name),                     0, INT32_MIN,UINT32_MAX, object_desc,                 value_name,      assign_null},
+    {"GENRE",                    0, field(game.conf.object_conf.object_cfgstats[0].genre),                         0, INT32_MIN,UINT32_MAX, objects_genres_desc,         value_default,   assign_default},
+    {"RELATEDCREATURE",          0, field(game.conf.object_conf.object_cfgstats[0].related_creatr_model),          0, INT32_MIN,UINT32_MAX, creature_desc,               value_default,   assign_default},
+    {"PROPERTIES",              -1, field(game.conf.object_conf.object_cfgstats[0].model_flags),                   0, INT32_MIN,UINT32_MAX, objects_properties_commands, value_flagsfield,assign_default},
+    {"ANIMATIONID",              0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx),               0, INT32_MIN,UINT32_MAX, NULL,                        value_animid,    assign_animid},
+    {"HANDANIMATIONID",          0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx_in_hand),       0, INT32_MIN,UINT32_MAX, NULL,                        value_animid,    assign_animid},
+    {"ANIMATIONSPEED",           0, field(game.conf.object_conf.object_cfgstats[0].anim_speed),                    0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"SIZE_XY",                  0, field(game.conf.object_conf.object_cfgstats[0].size_xy),                       0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"SIZE_YZ",                  0, field(game.conf.object_conf.object_cfgstats[0].size_z),                        0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"SIZE_Z",                   0, field(game.conf.object_conf.object_cfgstats[0].size_z),                        0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"MAXIMUMSIZE",              0, field(game.conf.object_conf.object_cfgstats[0].sprite_size_max),               0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"DESTROYONLIQUID",          0, field(game.conf.object_conf.object_cfgstats[0].destroy_on_liquid),             0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"DESTROYONLAVA",            0, field(game.conf.object_conf.object_cfgstats[0].destroy_on_lava),               0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"HEALTH",                   0, field(game.conf.object_conf.object_cfgstats[0].health),                        0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"FALLACCELERATION",         0, field(game.conf.object_conf.object_cfgstats[0].fall_acceleration),             0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"LIGHTUNAFFECTED",          0, field(game.conf.object_conf.object_cfgstats[0].light_unaffected),              0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"LIGHTINTENSITY",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.intensity),               0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"LIGHTRADIUS",              0, field(game.conf.object_conf.object_cfgstats[0].ilght.radius),                  0, INT32_MIN,UINT32_MAX, NULL,                        value_stltocoord,assign_default},
+    {"LIGHTISDYNAMIC",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.is_dynamic),              0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"MAPICON",                  0, field(game.conf.object_conf.object_cfgstats[0].map_icon),                      0, INT32_MIN,UINT32_MAX, NULL,                        value_icon,      assign_icon},
+    {"HANDICON",                 0, field(game.conf.object_conf.object_cfgstats[0].hand_icon),                     0, INT32_MIN,UINT32_MAX, NULL,                        value_icon,      assign_icon},
+    {"PICKUPOFFSET",             0, field(game.conf.object_conf.object_cfgstats[0].object_picked_up_offset.delta_x), 0,SHRT_MIN,SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"PICKUPOFFSET",             1, field(game.conf.object_conf.object_cfgstats[0].object_picked_up_offset.delta_y), 0,SHRT_MIN,SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"TOOLTIPTEXTID",            0, field(game.conf.object_conf.object_cfgstats[0].tooltip_stridx),     GUIStr_Empty, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
     {"TOOLTIPTEXTID",            1, field(game.conf.object_conf.object_cfgstats[0].tooltip_optional),              0,        0,        1, NULL,                        value_default,   assign_default},
-    {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0,        0,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"UPDATEFUNCTION",           0, field(game.conf.object_conf.object_cfgstats[0].updatefn_idx),                  0, LONG_MIN,ULONG_MAX, object_update_functions_desc,value_default,   assign_default},
-    {"DRAWCLASS",                0, field(game.conf.object_conf.object_cfgstats[0].draw_class),          ODC_Default, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"PERSISTENCE",              0, field(game.conf.object_conf.object_cfgstats[0].persistence),                   0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"IMMOBILE",                 0, field(game.conf.object_conf.object_cfgstats[0].immobile),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"INITIALSTATE",             0, field(game.conf.object_conf.object_cfgstats[0].initial_state),                 0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"RANDOMSTARTFRAME",         0, field(game.conf.object_conf.object_cfgstats[0].random_start_frame),            0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"TRANSPARENCYFLAGS",        0, field(game.conf.object_conf.object_cfgstats[0].transparency_flags),            0, LONG_MIN,ULONG_MAX, NULL,                        value_transpflg, assign_default},
-    {"EFFECTBEAM",               0, field(game.conf.object_conf.object_cfgstats[0].effect.beam),                   0, LONG_MIN,ULONG_MAX, NULL,                        value_effOrEffEl,assign_default},
-    {"EFFECTPARTICLE",           0, field(game.conf.object_conf.object_cfgstats[0].effect.particle),               0, LONG_MIN,ULONG_MAX, NULL,                        value_effOrEffEl,assign_default},
-    {"EFFECTEXPLOSION1",         0, field(game.conf.object_conf.object_cfgstats[0].effect.explosion1),             0, LONG_MIN,ULONG_MAX, NULL,                        value_effOrEffEl,assign_default},
-    {"EFFECTEXPLOSION2",         0, field(game.conf.object_conf.object_cfgstats[0].effect.explosion2),             0, LONG_MIN,ULONG_MAX, NULL,                        value_effOrEffEl,assign_default},
-    {"EFFECTSPACING",            0, field(game.conf.object_conf.object_cfgstats[0].effect.spacing),                0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"EFFECTSOUND",              0, field(game.conf.object_conf.object_cfgstats[0].effect.sound_idx),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"EFFECTSOUND",              1, field(game.conf.object_conf.object_cfgstats[0].effect.sound_range),            0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"FLAMEANIMATIONID",         0, field(game.conf.object_conf.object_cfgstats[0].flame.animation_id),            0, LONG_MIN,ULONG_MAX, NULL,                        value_animid,    assign_animid},
-    {"FLAMEANIMATIONSPEED",      0, field(game.conf.object_conf.object_cfgstats[0].flame.anim_speed),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"FLAMEANIMATIONSIZE",       0, field(game.conf.object_conf.object_cfgstats[0].flame.sprite_size),             0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"FLAMEANIMATIONOFFSET",     0, field(game.conf.object_conf.object_cfgstats[0].flame.fp_add_x),                0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"FLAMEANIMATIONOFFSET",     1, field(game.conf.object_conf.object_cfgstats[0].flame.fp_add_y),                0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"FLAMEANIMATIONOFFSET",     2, field(game.conf.object_conf.object_cfgstats[0].flame.td_add_x),                0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"FLAMEANIMATIONOFFSET",     3, field(game.conf.object_conf.object_cfgstats[0].flame.td_add_y),                0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"FLAMETRANSPARENCYFLAGS",   0, field(game.conf.object_conf.object_cfgstats[0].flame.transparency_flags),      0, LONG_MIN,ULONG_MAX, NULL,                        value_transpflg, assign_default},
-    {"LIGHTFLAGS",               0, field(game.conf.object_conf.object_cfgstats[0].ilght.flags),                   0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
+    {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0,        0,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"UPDATEFUNCTION",           0, field(game.conf.object_conf.object_cfgstats[0].updatefn_idx),                  0, INT32_MIN,UINT32_MAX, object_update_functions_desc,value_function,  assign_default},
+    {"DRAWCLASS",                0, field(game.conf.object_conf.object_cfgstats[0].draw_class),          ODC_Default, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"PERSISTENCE",              0, field(game.conf.object_conf.object_cfgstats[0].persistence),                   0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"IMMOBILE",                 0, field(game.conf.object_conf.object_cfgstats[0].immobile),                      0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"INITIALSTATE",             0, field(game.conf.object_conf.object_cfgstats[0].initial_state),                 0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"RANDOMSTARTFRAME",         0, field(game.conf.object_conf.object_cfgstats[0].random_start_frame),            0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"TRANSPARENCYFLAGS",        0, field(game.conf.object_conf.object_cfgstats[0].transparency_flags),            0, INT32_MIN,UINT32_MAX, NULL,                        value_transpflg, assign_default},
+    {"EFFECTBEAM",               0, field(game.conf.object_conf.object_cfgstats[0].effect.beam),                   0, INT32_MIN,UINT32_MAX, NULL,                        value_effOrEffEl,assign_default},
+    {"EFFECTPARTICLE",           0, field(game.conf.object_conf.object_cfgstats[0].effect.particle),               0, INT32_MIN,UINT32_MAX, NULL,                        value_effOrEffEl,assign_default},
+    {"EFFECTEXPLOSION1",         0, field(game.conf.object_conf.object_cfgstats[0].effect.explosion1),             0, INT32_MIN,UINT32_MAX, NULL,                        value_effOrEffEl,assign_default},
+    {"EFFECTEXPLOSION2",         0, field(game.conf.object_conf.object_cfgstats[0].effect.explosion2),             0, INT32_MIN,UINT32_MAX, NULL,                        value_effOrEffEl,assign_default},
+    {"EFFECTSPACING",            0, field(game.conf.object_conf.object_cfgstats[0].effect.spacing),                0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"EFFECTSOUND",              0, field(game.conf.object_conf.object_cfgstats[0].effect.sound_idx),              0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"EFFECTSOUND",              1, field(game.conf.object_conf.object_cfgstats[0].effect.sound_range),            0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"FLAMEANIMATIONID",         0, field(game.conf.object_conf.object_cfgstats[0].flame.animation_id),            0, INT32_MIN,UINT32_MAX, NULL,                        value_animid,    assign_animid},
+    {"FLAMEANIMATIONSPEED",      0, field(game.conf.object_conf.object_cfgstats[0].flame.anim_speed),              0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"FLAMEANIMATIONSIZE",       0, field(game.conf.object_conf.object_cfgstats[0].flame.sprite_size),             0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"FLAMEANIMATIONOFFSET",     0, field(game.conf.object_conf.object_cfgstats[0].flame.fp_add_x),                0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"FLAMEANIMATIONOFFSET",     1, field(game.conf.object_conf.object_cfgstats[0].flame.fp_add_y),                0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"FLAMEANIMATIONOFFSET",     2, field(game.conf.object_conf.object_cfgstats[0].flame.td_add_x),                0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"FLAMEANIMATIONOFFSET",     3, field(game.conf.object_conf.object_cfgstats[0].flame.td_add_y),                0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"FLAMETRANSPARENCYFLAGS",   0, field(game.conf.object_conf.object_cfgstats[0].flame.transparency_flags),      0, INT32_MIN,UINT32_MAX, NULL,                        value_transpflg, assign_default},
+    {"LIGHTFLAGS",               0, field(game.conf.object_conf.object_cfgstats[0].ilght.flags),                   0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {NULL},
 };
 
@@ -192,7 +198,7 @@ static TbBool load_objects_config_file(const char *fname, unsigned short flags)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    
+
     parse_named_field_blocks(buf, len, fname, flags, &objects_named_fields_set);
     //Freeing and exiting
     free(buf);
@@ -235,7 +241,7 @@ void update_all_objects_of_model(ThingModel model)
             }
         }
 
-        
+
         if (thing->light_id != 0)
         {
             light_delete_light(thing->light_id);
@@ -293,16 +299,16 @@ ThingModel object_model_id(const char * code_name)
  */
 int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmodel, ThingModel relmodel)
 {
-    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
     struct ObjectConfigStats *objst;
     switch (room_role)
     {
     case RoRoF_LairStorage:
-        crstat = creature_stats_get(relmodel);
-        return crstat->lair_size;
+        crconf = creature_stats_get(relmodel);
+        return crconf->lair_size;
     case RoRoF_DeadStorage:
-        crstat = creature_stats_get(relmodel);
-        if (!creature_stats_invalid(crstat))
+        crconf = creature_stats_get(relmodel);
+        if (!creature_stats_invalid(crconf))
             return 1;
         break;
     case RoRoF_KeeperStorage:
