@@ -495,9 +495,9 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
     char *dot = strrchr(base_name, '.');
     if (dot != NULL) *dot = '\0';
     
-    struct PlayerInfo *player = get_my_player();
-    snprintf(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:_", base_name);
-    lbInkey = KC_RETURN;
+    static char msg[64];
+    snprintf(msg, sizeof(msg), "%s:_", base_name);
+    set_auto_message(msg);
     
     if (!change_campaign(campgn->fname))
         return;
