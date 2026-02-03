@@ -127,6 +127,7 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_target_non_idle",                                11},
     {"validate_target_takes_gas_damage",                        12},
     {"validate_target_requires_cleansing",                      13},
+    {"validate_source_even_while_frozen",                       14},
     {NULL, 0},
 };
 
@@ -145,6 +146,7 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_target_non_idle,
     validate_target_takes_gas_damage,
     validate_target_requires_cleansing,
+    validate_source_even_while_frozen,
     NULL,
 };
 
@@ -1148,17 +1150,13 @@ TbBool validate_source_basic
 
     if (!creature_instance_is_available(source, inst_idx) ||
         !creature_instance_has_reset(source, inst_idx) ||
+        creature_under_spell_effect(source, CSAfF_Freeze) ||
         creature_is_fleeing_combat(source) || creature_under_spell_effect(source, CSAfF_Chicken) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
         creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
     {
         return false;
-    }
-    if (creature_under_spell_effect(source, CSAfF_Freeze))
-    {
-        struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-        return flag_is_set(inst_inf->instance_property_flags, InstPF_AllowWhileFrozen);
     }
 
     return true;
@@ -1859,6 +1857,51 @@ TbBool validate_target_requires_cleansing
         {
             return false;
         }
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can cast spell when frozen.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_source_even_while_frozen
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if ((source->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        // If this creature is under player's control (Possession).
+        return false;
+    }
+    // We assume we usually don't want to overwrite the original instance.
+    struct CreatureControl* cctrl = creature_control_get_from_thing(source);
+    if (cctrl->instance_id != CrInst_NULL) {
+        SYNCDBG(15, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
+            creature_instance_code_name(cctrl->instance_id));
+        return false;
+    }
+
+    if (!creature_instance_is_available(source, inst_idx) ||
+        !creature_instance_has_reset(source, inst_idx) ||
+        creature_is_fleeing_combat(source) || creature_under_spell_effect(source, CSAfF_Chicken) ||
+        creature_is_being_unconscious(source) || creature_is_dying(source) ||
+        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
+        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
+    {
+        return false;
     }
 
     return true;
