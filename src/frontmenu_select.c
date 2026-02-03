@@ -488,14 +488,16 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
     if (campgn == NULL)
         return;
 
-    static char msg[64];
+    // Send campaign change message to other players
     char base_name[64];
     strncpy(base_name, campgn->fname, sizeof(base_name)-1);
     base_name[sizeof(base_name)-1] = '\0';
     char *dot = strrchr(base_name, '.');
     if (dot != NULL) *dot = '\0';
-    snprintf(msg, sizeof(msg), "%s:_", base_name);
-    set_auto_message(msg);
+    
+    struct PlayerInfo *player = get_my_player();
+    snprintf(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:_", base_name);
+    lbInkey = KC_RETURN;
     
     if (!change_campaign(campgn->fname))
         return;
