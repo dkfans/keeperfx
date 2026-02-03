@@ -48,6 +48,7 @@
 #include "sounds.h"
 #include "creature_states_pray.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "game_loop.h"
 #include "config_spritecolors.h"
@@ -789,6 +790,10 @@ static long food_moves(struct Thing *objtng)
         if (dangle > 62)
             dangle = 62;
         objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & ANGLE_MASK;
+        struct PlayerInfo* my_player = get_my_player();
+        if (my_player->controlled_thing_idx == objtng->index && my_player->view_mode == PVM_CreatureView) {
+            set_local_camera_destination(my_player);
+        }
         if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < DEGREES_50)
         {
             struct ComponentVector cvec;
@@ -1251,12 +1256,15 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner, heartng->index);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-            destroy_dungeon_heart_room(heartng->owner, heartng);
             if (!dungeon_invalid(dungeon) && heartng->index == dungeon->backup_heart_idx)
             {
                 dungeon->backup_heart_idx = 0;
             }
-            delete_thing_structure(heartng, 0);
+            destroy_dungeon_heart_room(heartng->owner, heartng);
+            if (!thing_is_invalid(heartng))
+            {
+                delete_thing_structure(heartng, 0);
+            }
         }
         return TUFRet_Unchanged;
     }
@@ -1720,7 +1728,7 @@ TngUpdateRet move_object(struct Thing *thing)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {
-                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %ld. Move to valid position.",
+                        SYNCDBG(7, "Found no free position next to (%d,%d) due to blocked flag %ld. Move to valid position.",
                             pos.x.val, pos.y.val, blocked_flags);
                         move_creature_to_nearest_valid_position(thing);
                     }

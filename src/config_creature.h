@@ -369,7 +369,7 @@ struct CreatureModelConfig {
     ThingModel prison_kind;
     ThingModel torture_kind;
     ThingModel hostile_towards[CREATURE_TYPES_MAX];
-    unsigned long immunity_flags;
+    uint32_t immunity_flags;
     struct PickedUpOffset creature_picked_up_offset;
 };
 
@@ -377,41 +377,41 @@ struct CreatureModelConfig {
  * Structure which stores levelling up stats.
  */
 struct CreatureExperience {
-    long size_increase_on_exp;
-    long pay_increase_on_exp;
-    long spell_damage_increase_on_exp;
-    long range_increase_on_exp;
-    long job_value_increase_on_exp;
-    long health_increase_on_exp;
-    long strength_increase_on_exp;
-    long dexterity_increase_on_exp;
-    long defense_increase_on_exp;
-    long loyalty_increase_on_exp;
-    long armour_increase_on_exp;
-    long exp_on_hitting_increase_on_exp;
-    long training_cost_increase_on_exp;
-    long scavenging_cost_increase_on_exp;
+    int32_t size_increase_on_exp;
+    int32_t pay_increase_on_exp;
+    int32_t spell_damage_increase_on_exp;
+    int32_t range_increase_on_exp;
+    int32_t job_value_increase_on_exp;
+    int32_t health_increase_on_exp;
+    int32_t strength_increase_on_exp;
+    int32_t dexterity_increase_on_exp;
+    int32_t defense_increase_on_exp;
+    int32_t loyalty_increase_on_exp;
+    int32_t armour_increase_on_exp;
+    int32_t exp_on_hitting_increase_on_exp;
+    int32_t training_cost_increase_on_exp;
+    int32_t scavenging_cost_increase_on_exp;
 };
 
 struct CreatureConfig {
-    long model_count;
+    int32_t model_count;
     struct CreatureModelConfig model[CREATURE_TYPES_MAX];
     int32_t states_count;
     struct CreatureStateConfig states[CREATURE_STATES_MAX];
-    long instances_count;
+    int32_t instances_count;
     struct CreatureInstanceConfig instances[INSTANCE_TYPES_MAX];
-    long jobs_count;
+    int32_t jobs_count;
     struct CreatureJobConfig jobs[INSTANCE_TYPES_MAX];
-    long angerjobs_count;
+    int32_t angerjobs_count;
     struct CreatureAngerJobConfig angerjobs[INSTANCE_TYPES_MAX];
-    long attacktypes_count;
+    int32_t attacktypes_count;
     struct CommandWord attacktypes[INSTANCE_TYPES_MAX];
     struct CreatureExperience exp;
     ThingModel special_digger_good;
     ThingModel special_digger_evil;
     ThingModel spectator_breed;
     short creature_graphics[CREATURE_TYPES_MAX][CREATURE_GRAPHICS_INSTANCES];
-    long sprite_size;
+    int32_t sprite_size;
     struct CreatureSounds creature_sounds[CREATURE_TYPES_MAX];
 };
 

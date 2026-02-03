@@ -50,6 +50,7 @@
 #include "frontend.h"
 #include "magic_powers.h"
 #include "engine_redraw.h"
+#include "local_camera.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
 #include "gui_frontbtns.h"
@@ -112,7 +113,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
             show_real_time_taken();
         }
         struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game_num_fps);
-        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
             game.loaded_level_number, dungeon->lvstats.hopes_dashed,
             GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps,
             Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
@@ -331,11 +332,11 @@ void recalculate_total_gold(struct Dungeon* dungeon, const char* func_name)
     }
     if (gold_before == dungeon->total_money_owned)
     {
-        SYNCDBG(7, "%s: Dungeon %d did not need gold recalculation. Correct at %ld.", func_name, dungeon->owner, dungeon->total_money_owned);
+        SYNCDBG(7, "%s: Dungeon %d did not need gold recalculation. Correct at %d.", func_name, dungeon->owner, dungeon->total_money_owned);
     }
     else
     {
-        ERRORLOG("%s: Gold recalculation found an error, Dungeon %d correct gold amount %ld not %ld.", func_name, dungeon->owner, dungeon->total_money_owned, gold_before);
+        ERRORLOG("%s: Gold recalculation found an error, Dungeon %d correct gold amount %d not %d.", func_name, dungeon->owner, dungeon->total_money_owned, gold_before);
     }
 }
 
@@ -349,7 +350,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
     GoldAmount take_remain = amount_take;
     GoldAmount total_money = dungeon->total_money_owned;
     if (take_remain <= 0) {
-        WARNLOG("%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
+        SYNCDBG(7, "%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
         return 0;
     }
     if (take_remain > total_money)
@@ -1132,6 +1133,7 @@ void process_player_states(void)
                 if ((cam != NULL) && thing_exists(thing)) {
                     cam->mappos.x.val = thing->mappos.x.val;
                     cam->mappos.y.val = thing->mappos.y.val;
+                    set_local_camera_destination(player);
                 }
             }
         }

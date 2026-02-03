@@ -607,7 +607,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 if (game.current_player_turn == game.play_gameturn)
                 {
-                    WARNLOG("box activation rejected turn:%lu", game.current_player_turn);
+                    WARNLOG("box activation rejected turn:%u", game.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }

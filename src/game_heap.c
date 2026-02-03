@@ -38,58 +38,13 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-static unsigned char *heap;
-static long heap_size;
-/******************************************************************************/
-long get_smaller_memory_amount(long amount)
-{
-    if (amount > 64)
-      return 64;
-    if (amount > 48)
-      return 48;
-    if (amount > 32)
-      return 32;
-    if (amount > 24)
-      return 24;
-    if (amount > 16)
-      return 16;
-    if (amount >  8)
-      return  8;
-    return 6;
-}
-
-long get_best_heap_size(long sh_mem_size)
-{
-    if (sh_mem_size < 8)
-    {
-      ERRORLOG("Unhandled PhysicalMemory");
-      return 0;
-    }
-    if (sh_mem_size <= 8)
-      return 0x0100000; // 1MB
-    if (sh_mem_size <= 16)
-      return 0x0200000; // 2MB
-    if (sh_mem_size <= 24)
-      return 0x0500000; // 5MB
-    if (sh_mem_size <= 32)
-      return 0x0800000; // 8MB
-    if (sh_mem_size <= 48)
-        return 0x0c00000; // 12MB
-
-    return 0x3000000; // 50MB
-}
 
 TbBool setup_heap_manager(void)
 {
     SYNCDBG(8,"Starting");
-    if (heap == NULL)
-    {
-        ERRORLOG("Graphics Heap not allocated");
-        return false;
-    }
     long i;
 #ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
+    const char* fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
 #else
     const char* fname = prepare_file_path(FGrp_StdData, "creature.jty");
 #endif
@@ -105,44 +60,6 @@ TbBool setup_heap_manager(void)
     return true;
 }
 
-/**
- * Allocates graphics heap.
- */
-TbBool setup_heap_memory(void)
-{
-  SYNCDBG(8,"Starting");
-  if (heap != NULL)
-  {
-    SYNCDBG(0,"Freeing old Graphics heap");
-    free(heap);
-    heap = NULL;
-  }
-  long i = 64;
-  heap_size = get_best_heap_size(i);
-  while ( 1 )
-  {
-    heap = calloc(heap_size, 1);
-    if (heap != NULL)
-      break;
-    i = get_smaller_memory_amount(i);
-    if (i > 8)
-    {
-      heap_size = get_best_heap_size(i);
-    } else
-    {
-      if (heap_size < 524288)
-      {
-        ERRORLOG("Unable to allocate Graphic Heap");
-        heap_size = 0;
-        return false;
-      }
-      heap_size -= 16384;
-    }
-  }
-  SYNCMSG("GraphicsHeap Size %ld", heap_size);
-  return true;
-}
-
 void reset_heap_manager(void)
 {
     long i;
@@ -153,68 +70,6 @@ void reset_heap_manager(void)
         keepsprite[i] = NULL;
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
         sprite_heap_handle[i] = NULL;
-}
-
-void reset_heap_memory(void)
-{
-  SYNCDBG(8,"Starting");
-  free(heap);
-  heap = NULL;
-}
-
-TbBool setup_heaps(void)
-{
-    long i;
-    SYNCDBG(8,"Starting");
-    TbBool low_memory = false;
-    if (!SoundDisabled)
-    {
-      StopAllSamples();
-    }
-    if (heap != NULL)
-    {
-      ERRORLOG("Graphics heap already allocated");
-      free(heap);
-      heap = NULL;
-    }
-    // Allocate graphics heap
-    i = 64;
-    while (heap == NULL)
-    {
-      heap_size = get_best_heap_size(i);
-      i = get_smaller_memory_amount(i);
-      heap = calloc(heap_size, 1);
-      if ((i <= 8) && (heap == NULL))
-      {
-        low_memory = true;
-        break;
-      }
-    }
-    SYNCMSG("GraphicsHeap Size %ld", heap_size);
-
-    if (low_memory)
-    {
-      SYNCDBG(8,"Low memory mode entered on heap allocation.");
-      while (heap != NULL)
-      {
-        if (SoundDisabled)
-        {
-          heap_size -= 16384;
-        }
-        if (heap_size < 524288)
-        {
-          ERRORLOG("Unable to allocate heaps (small_mem)");
-          return false;
-          }
-        }
-        if (heap != NULL)
-        {
-          free(heap);
-          heap = NULL;
-        }
-        heap = calloc(heap_size, 1);
-    }
-    return true;
 }
 
 void *he_alloc(size_t size)

@@ -77,12 +77,12 @@ const struct NamedFieldSet effects_effectgenerator_named_fields_set = {
     game.conf.effects_conf.effectgen_cfgstats,
 };
 
-long const imp_spangle_effects[] = {
+int32_t const imp_spangle_effects[] = {
     TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite,
     TngEff_None, TngEff_ImpSpanglePurple, TngEff_ImpSpangleBlack, TngEff_ImpSpangleOrange
 };
 
-long const ball_puff_effects[] = {
+int32_t const ball_puff_effects[] = {
     TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite,
     TngEff_BallPuffWhite, TngEff_BallPuffPurple, TngEff_BallPuffBlack, TngEff_BallPuffOrange
 };

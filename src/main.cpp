@@ -32,6 +32,7 @@
 #include "bflib_guibtns.h"
 #include "bflib_sound.h"
 #include "bflib_mouse.h"
+#include "bflib_mshandler.hpp"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
 #include "net_resync.h"
@@ -129,6 +130,7 @@
 #include "net_input_lag.h"
 #include "moonphase.h"
 #include "frontmenu_ingame_map.h"
+#include <stdint.h>
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -145,11 +147,11 @@ short default_loc_player = 0;
 struct StartupParameters start_params;
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
-long game_num_fps;
+int32_t game_num_fps;
 
-long game_num_fps_draw_current = 0;
-long game_num_fps_draw_main = 0; // -1 if auto
-long game_num_fps_draw_secondary = 0;
+int32_t game_num_fps_draw_current = 0;
+int32_t game_num_fps_draw_main = 0; // -1 if auto
+int32_t game_num_fps_draw_secondary = 0;
 
 
 unsigned char *blue_palette;
@@ -160,36 +162,36 @@ unsigned char exit_keeper;
 unsigned char quit_game;
 unsigned char is_running_under_wine = false;
 int continue_game_option_available;
-long last_mouse_x;
-long last_mouse_y;
+int32_t last_mouse_x;
+int32_t last_mouse_y;
 int FatalError;
-long define_key_scroll_offset;
-unsigned long time_last_played_demo;
+int32_t define_key_scroll_offset;
+uint32_t time_last_played_demo;
 short drag_menu_x;
 short drag_menu_y;
 unsigned short tool_tip_time;
 unsigned short help_tip_time;
-long pointer_x;
-long pointer_y;
-long block_pointed_at_x;
-long block_pointed_at_y;
-long pointed_at_frac_x;
-long pointed_at_frac_y;
-long top_pointed_at_x;
-long top_pointed_at_y;
-long top_pointed_at_frac_x;
-long top_pointed_at_frac_y;
+int32_t pointer_x;
+int32_t pointer_y;
+int32_t block_pointed_at_x;
+int32_t block_pointed_at_y;
+int32_t pointed_at_frac_x;
+int32_t pointed_at_frac_y;
+int32_t top_pointed_at_x;
+int32_t top_pointed_at_y;
+int32_t top_pointed_at_frac_x;
+int32_t top_pointed_at_frac_y;
 char level_name[88];
 char top_of_breed_list;
 /** Amount of different creature kinds the local player has. Used for creatures tab in panel menu. */
 char no_of_breeds_owned;
-long optimised_lights;
-long total_lights;
+int32_t optimised_lights;
+int32_t total_lights;
 unsigned char do_lights;
 struct Thing *thing_pointed_at;
 struct Map *me_pointed_at;
-long my_mouse_x;
-long my_mouse_y;
+int32_t my_mouse_x;
+int32_t my_mouse_y;
 char *level_names_data;
 char *end_level_names_data;
 unsigned char *frontend_backup_palette;
@@ -250,6 +252,9 @@ TbBool should_use_delta_time_on_menu()
         case FeSt_CAMPAIGN_SELECT:
         case FeSt_MAPPACK_SELECT:
         case FeSt_MP_MAPPACK_SELECT:
+        case FeSt_LAND_VIEW:
+        case FeSt_NETLAND_VIEW:
+        case FeSt_TORTURE:
             return true;
         default:
             return false;
@@ -1156,12 +1161,6 @@ short setup_game(void)
 
   if (result == 1)
   {
-    if ( !setup_heaps() )
-      result = 0;
-  }
-
-  if (result == 1)
-  {
       init_keeper();
       set_gamma(settings.gamma_correction, 0);
       set_music_volume(settings.music_volume);
@@ -1245,7 +1244,7 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
     return false;
 }
 
-TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos)
+TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, struct Coord3d *mappos)
 {
     TbBool result;
     int32_t x;
@@ -1549,6 +1548,7 @@ void reinit_level_after_load(void)
     // Reinit structures from within the game
     player = get_my_player();
     player->lens_palette = 0;
+    player->main_palette = engine_palette;
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
@@ -1907,7 +1907,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, TbMapLocation target, int32_t x, int32_t y)
+void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1924,7 +1924,7 @@ void set_general_information(long msg_id, TbMapLocation target, int32_t x, int32
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, TbMapLocation target, int32_t x, int32_t y)
+void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1946,11 +1946,11 @@ void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
     process_objective(get_string(msg_id), target, x, y);
 }
 
-void process_objective(const char *msg_text, TbMapLocation target, int32_t x, int32_t y)
+void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player;
-    int32_t pos_x;
-    int32_t pos_y;
+    MapSubtlCoord pos_x;
+    MapSubtlCoord pos_y;
     player = get_my_player();
     find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_y = y;
@@ -2746,29 +2746,23 @@ void update(void)
 }
 
 void intentional_desync() {
-    if (game.play_gameturn == 30 && my_player_number == 0) {
-        int k = 0;
-        int i = game.thing_lists[TngList_Creatures].index;
-        while (i != 0) {
-            struct Thing* thing = thing_get(i);
-            if (thing_is_invalid(thing)) {
-                ERRORLOG("Jump to invalid thing detected");
-                break;
-            }
-            i = thing->next_of_class;
-
-            struct Coord3d new_pos;
-            new_pos.x.val = thing->mappos.x.val - 256;
-            new_pos.y.val = thing->mappos.y.val;
-            new_pos.z.val = thing->mappos.z.val;
-            move_thing_in_map(thing, &new_pos);
-
-            k++;
-            if (k > THINGS_COUNT) {
-                break;
-            }
+    if (game.play_gameturn != 50 || !is_my_player_number(0)) {
+        return;
+    }
+    for (struct Room* room = start_rooms; room < end_rooms; room += 1) {
+        if (room_exists(room)) {
+            room->slabs_count += 1;
+            break;
         }
     }
+    int i = game.thing_lists[TngList_Creatures].index;
+    if (i != 0) {
+        struct Thing* thing = thing_get(i);
+        if (!thing_is_invalid(thing)) {
+            thing->health += 1;
+        }
+    }
+    get_player(0)->instance_remain_turns += 1;
 }
 
 void first_gameturn_actions() {
@@ -2776,7 +2770,7 @@ void first_gameturn_actions() {
         apply_default_flee_and_imprison_setting();
         send_sprite_zip_count_to_other_players();
     }
-    //intentional_desync(); //Move all creatures left by 1 subtile after turn 30
+    //intentional_desync();
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
@@ -2799,7 +2793,7 @@ long near_map_block_thing_filter_queryable_object(const struct Thing *thing, Max
     return -1;
 }
 
-struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
@@ -2811,7 +2805,7 @@ struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long ply
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
+void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y)
 {
     player->cameras[CamIV_Parchment].mappos.x.val = pos_x;
     player->cameras[CamIV_FrontView].mappos.x.val = pos_x;
@@ -3056,7 +3050,7 @@ void scale_tmap2(long texture_block_index, long flags, long fade_level, long scr
     }
 }
 
-void draw_texture(long texture_x, long texture_y, long texture_width, long texture_height, long texture_block_index, long flags, long fade_level)
+void draw_texture(int32_t texture_x, int32_t texture_y, int32_t texture_width, int32_t texture_height, int32_t texture_block_index, int32_t flags, int32_t fade_level)
 {
     scale_tmap2(texture_block_index, flags, fade_level, texture_x / pixel_size, texture_y / pixel_size, texture_width / pixel_size, texture_height / pixel_size);
 }
@@ -3496,13 +3490,29 @@ void gameplay_loop_draw()
     last_draw_completed_time = get_time_tick_ns();
 }
 
-void gameplay_loop_timestep();
- 
-extern "C" void network_yield_draw()
+extern "C" void network_yield_draw_gameplay()
 {
     game.delta_time = get_delta_time();
     game.process_turn_time += game.delta_time;
     gameplay_loop_draw();
+}
+
+extern "C" void update_velocity(void);
+extern "C" void check_mouse_scroll(void);
+extern "C" void fronttorture_update(void);
+
+extern "C" void network_yield_draw_frontend()
+{
+    game.delta_time = get_delta_time();
+    if (frontend_menu_state == FeSt_NETLAND_VIEW) {
+        check_mouse_scroll();
+        update_velocity();
+    }
+    if (frontend_menu_state == FeSt_TORTURE) {
+        fronttorture_update();
+    }
+    frontend_draw();
+    LbScreenSwap();
 }
 
 void gameplay_loop_timestep()
@@ -3704,7 +3714,7 @@ static TbBool wait_at_frontend(void)
                 WARNMSG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
             }
             else {
-                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%lu).", start_params.selected_level_number);
+                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%u).", start_params.selected_level_number);
             }
         }
         set_selected_level_number(start_params.selected_level_number);
@@ -3823,10 +3833,10 @@ static TbBool wait_at_frontend(void)
         fade_in();
         fade_palette_in = 0;
       } else {
-        // Frontend delta time for smooth mouse, disable delta time for states with zoom/scroll issues
         if (is_feature_on(Ft_DeltaTime) == true && should_use_delta_time_on_menu()) {
-          // No sleep needed as delta time handles frame timing
+          game.delta_time = get_delta_time();
         } else {
+          game.delta_time = 1;
           LbSleepUntil(fe_last_loop_time + 30);
         }
       }
@@ -4465,7 +4475,7 @@ int kfxmain(int argc, char *argv[])
 
 void update_time(void)
 {
-    unsigned long time = ((unsigned long)clock()) - timerstarttime;
+    unsigned long time = ((unsigned long)LbTimerClock()) - timerstarttime;
     Timer.MSeconds = time % 1000;
     time /= 1000;
     Timer.Seconds = time % 60;

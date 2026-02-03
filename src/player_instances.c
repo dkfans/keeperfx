@@ -61,6 +61,7 @@
 #include "bflib_inputctrl.h"
 #include "map_blocks.h"
 #include "lua_triggers.h"
+#include "lens_api.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -973,6 +974,9 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     }
     clear_selected_thing(player);
     set_player_mode(player, PVT_DungeonTop);
+    if (is_my_player(player)) {
+        setup_eye_lens(0);
+    }
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->rendering_flags &= ~TRF_Invisible;
     player->allocflags &= ~PlaF_CreaturePassengerMode;

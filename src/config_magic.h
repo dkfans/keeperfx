@@ -249,7 +249,7 @@ struct ShotVisualConfig {
  */
 struct ShotConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    unsigned long model_flags;
+    uint32_t model_flags;
     /** Health of a shot decreases by 1 on every turn, so it works also as lifespan. */
     HitPoints health;
     /** Range of area damage, if the spell causes area damage. */
@@ -322,10 +322,10 @@ typedef unsigned char (*Expand_Check_Func)(void);
 struct PowerConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
-    unsigned long long can_cast_flags;
-    unsigned long config_flags;
+    uint64_t can_cast_flags;
+    uint32_t config_flags;
     unsigned char overcharge_check_idx;
-    long work_state;
+    uint32_t work_state;
     PowerKind parent_power;
     /** Sprite index of big symbol icon representing the power. */
     short bigsym_sprite_idx;
@@ -335,7 +335,7 @@ struct PowerConfigStats {
     unsigned short tooltip_stridx;
     short select_sample_idx;
     short pointer_sprite_idx;
-    long panel_tab_idx;
+    uint32_t panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
     unsigned char cost_formula;
@@ -343,9 +343,9 @@ struct PowerConfigStats {
     EffectOrEffElModel effect_id;
     FuncIdx magic_use_func_idx;
     ThingModel creature_model;
-    long cost[MAGIC_OVERCHARGE_LEVELS];
-    long duration;
-    long strength[MAGIC_OVERCHARGE_LEVELS+1];
+    GoldAmount cost[MAGIC_OVERCHARGE_LEVELS];
+    GameTurnDelta duration;
+    int32_t strength[MAGIC_OVERCHARGE_LEVELS+1];
 };
 
 /**
@@ -394,20 +394,20 @@ struct SpellConfig {
     HitPoints healing_recovery;
     HitPoints damage;
     GameTurnDelta damage_frequency;
-    unsigned long spell_flags;
-    unsigned long cleanse_flags;
+    uint32_t spell_flags;
+    uint32_t cleanse_flags;
     unsigned char properties_flags;
 };
 
 struct MagicConfig {
-    long spell_types_count;
+    int32_t spell_types_count;
     struct SpellConfig spell_config[MAGIC_ITEMS_MAX];// should get merged into SpellConfigStats
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
-    long shot_types_count;
+    int32_t shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
     int32_t power_types_count;
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
-    long special_types_count;
+    int32_t special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
     struct InstanceInfo instance_info[INSTANCE_TYPES_MAX]; //count in crtr_conf
 };
@@ -432,8 +432,8 @@ TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo);
 TextStringId get_power_description_strindex(PowerKind pwkind);
 TextStringId get_power_name_strindex(PowerKind pwkind);
 TbBool power_is_instinctive(int pwkind);
-long get_power_index_for_work_state(long work_state);
-long get_special_description_strindex(int spckind);
+int32_t get_power_index_for_work_state(int32_t work_state);
+int32_t get_special_description_strindex(int spckind);
 struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel);
 struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel);
 struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel);

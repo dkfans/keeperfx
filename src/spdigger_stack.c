@@ -821,8 +821,8 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
     int next_direction;
     int current_iteration;
     const struct Around *ar;
-    int32_t stl_y;
-    int32_t stl_x;
+    MapSubtlCoord stl_y;
+    MapSubtlCoord stl_x;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     current_iteration = 0;
@@ -879,8 +879,8 @@ static long check_out_unreinforced_place(struct Thing *thing)
     SubtlCodedCoords stl_num;
     struct CreatureControl *cctrl;
     int direction_attempt_count;
-    int32_t stl_y;
-    int32_t stl_x;
+    MapSubtlCoord stl_y;
+    MapSubtlCoord stl_x;
 
     const char around_indexes[16] =
         {0, 1, 1, 0,
@@ -1104,8 +1104,8 @@ long check_out_undug_place(struct Thing *creatng)
         task_idx = find_dig_from_task_list(creatng->owner, task_pos);
         if (task_idx != -1)
         {
-            int32_t mv_x;
-            int32_t mv_y;
+            MapSubtlCoord mv_x;
+            MapSubtlCoord mv_y;
             mv_x = 0; mv_y = 0;
             if (check_place_to_dig_and_get_position(creatng, task_pos, &mv_x, &mv_y)
                 && setup_person_move_to_position(creatng, mv_x, mv_y, NavRtF_Default))
@@ -2287,7 +2287,7 @@ int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, 
     return 0;
 }
 
-long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, int32_t *retstl_x, int32_t *retstl_y)
+long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
 {
     MapSubtlCoord basestl_x;
     MapSubtlCoord basestl_y;

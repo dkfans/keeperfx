@@ -386,7 +386,7 @@ static const struct NamedField magic_powers_named_fields[] = {
     {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
     {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
     {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0, INT32_MIN,UINT32_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
+    {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0,         0,UINT64_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
     {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, INT32_MIN,UINT32_MAX, object_desc,                         value_default,   assign_artifact},
     {"NAMETEXTID",     0, field(game.conf.magic_conf.power_cfgstats[0].name_stridx),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
     {"TOOLTIPTEXTID",  0, field(game.conf.magic_conf.power_cfgstats[0].tooltip_stridx),         0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
@@ -455,16 +455,16 @@ TextStringId get_power_description_strindex(PowerKind pwkind)
   return game.conf.magic_conf.power_cfgstats[pwkind].tooltip_stridx;
 }
 
-long get_special_description_strindex(int spckind)
+int32_t get_special_description_strindex(int spckind)
 {
   if ((spckind < 0) || (spckind >= game.conf.magic_conf.power_types_count))
     return game.conf.magic_conf.special_cfgstats[0].tooltip_stridx;
   return game.conf.magic_conf.special_cfgstats[spckind].tooltip_stridx;
 }
 
-long get_power_index_for_work_state(long work_state)
+int32_t get_power_index_for_work_state(int32_t work_state)
 {
-    for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
+    for (int32_t i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         if (game.conf.magic_conf.power_cfgstats[i].work_state == work_state) {
             return i;

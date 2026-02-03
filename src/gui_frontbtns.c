@@ -717,7 +717,7 @@ void frontend_over_button(struct GuiButton *gbtn)
     else
       i = gbtn->content.lval;
     if (old_mouse_over_button != i)
-      frontend_mouse_over_button_start_time = LbTimerClock_1000();
+      frontend_mouse_over_button_start_time = LbTimerClock();
     frontend_mouse_over_button = i;
 }
 
@@ -749,7 +749,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     {
         fntidx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
         if ((febtn_idx > 0) && (frontend_mouse_over_button == febtn_idx)) {
-            spridx = large_button_sprite_anims[((LbTimerClock_1000()-frontend_mouse_over_button_start_time)/100) & 7];
+            spridx = large_button_sprite_anims[((LbTimerClock()-frontend_mouse_over_button_start_time)/100) & 7];
         } else {
             spridx = GFS_hugebutton_a05l;
         }

@@ -893,7 +893,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // Do some wandering also if can't find any task to do
-    if ((long)cctrl->wait_to_turn > (long)game.play_gameturn)
+    if (cctrl->wait_to_turn > game.play_gameturn)
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_GoodDoingNothing;
