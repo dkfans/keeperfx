@@ -449,11 +449,8 @@ void handle_autostart_multiplayer_messaging(void)
             message_char_index = 0;
           }
         }
-      }
-
-      if (net_number_of_enum_players < 2) {
-        if (message_char_index < 0) {
-          message_char_index = -1;
+        if (autostart_multiplayer_level > 0) {
+            level = autostart_multiplayer_level;
         }
       }
 

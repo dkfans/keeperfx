@@ -280,10 +280,6 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
 
 long PaletteFadePlayer(struct PlayerInfo *player)
 {
-    if (player->main_palette != engine_palette && player->main_palette != player->lens_palette) {
-        ERRORLOG("main_palette (%p) is invalid (engine: %p, lens: %p), resetting", player->main_palette, engine_palette, player->lens_palette);
-        player->main_palette = engine_palette;
-    }
     long i;
     unsigned char palette[PALETTE_SIZE];
     // Find the fade step

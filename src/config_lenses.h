@@ -29,12 +29,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define LENS_ITEMS_MAX 32
+#define LENS_ITEMS_MAX 256
 
 enum LensConfigFlags {
     LCF_HasMist     = 0x01,
     LCF_HasDisplace = 0x02,
     LCF_HasPalette  = 0x04,
+    LCF_HasOverlay  = 0x08,
 };
 
 struct LensConfig {
@@ -47,6 +48,8 @@ struct LensConfig {
     short displace_kind;
     short displace_magnitude;
     short displace_period;
+    char overlay_file[DISKPATH_SIZE];
+    short overlay_alpha;
 };
 
 struct LensesConfig {

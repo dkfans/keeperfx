@@ -110,9 +110,9 @@ long get_camera_zoom(struct Camera *cam);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 
-void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
-void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
-void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit);
+void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit);
+void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit);
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
 void view_process_camera_inertia(struct Camera *cam);
 

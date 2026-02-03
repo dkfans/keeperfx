@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "thing_doors.h"
+#include "custom_sprites.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -49,6 +50,7 @@ const struct ConfigFileData keeper_lenses_file_data = {
 static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static int64_t value_overlay(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
 const struct NamedField lenses_data_named_fields[] = {
     //name           //pos    //field                                           //default //min     //max    //NamedCommand
@@ -60,6 +62,8 @@ const struct NamedField lenses_data_named_fields[] = {
     {"DISPLACEMENT",      1, field(lenses_conf.lenses[0].displace_magnitude),       0,        0,      511, NULL,         value_default,   assign_default},
     {"DISPLACEMENT",      2, field(lenses_conf.lenses[0].displace_period),          1,        0,      511, NULL,         value_displace,  assign_default},
     {"PALETTE",           0, field(lenses_conf.lenses[0].palette),                  0,        0,        0, NULL,         value_pallete,   assign_null},
+    {"OVERLAY",           0, field(lenses_conf.lenses[0].overlay_file),             0,        0,        0, NULL,         value_overlay,   assign_null},
+    {"OVERLAY",           1, field(lenses_conf.lenses[0].overlay_alpha),          128,        0,      255, NULL,         value_default,   assign_default},
     {NULL},
 };
 
@@ -104,6 +108,42 @@ static int64_t value_pallete(const struct NamedField* named_field, const char* v
         CONFWRNLOG("Couldn't load \"%s\" file for \"%s\" parameter in [%s%d] block of lens.cfg file.",
             value_text, named_field->name, named_fields_set->block_basename, idx);
     }
+    return 0;
+}
+
+static int64_t value_overlay(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    SYNCDBG (9, "value_overlay called: argnum=%d, value='%s', lens=%d", named_field->argnum, value_text, idx);
+    
+    if (value_text == NULL || value_text[0] == '\0') {
+        CONFWRNLOG("Empty overlay name for \"%s\" parameter in [%s%d] block of lens.cfg file.",
+            named_field->name, named_fields_set->block_basename, idx);
+        return 0;
+    }
+    
+    lenses_conf.lenses[idx].flags |= LCF_HasOverlay;
+    struct LensConfig* lenscfg = &lenses_conf.lenses[idx];
+    
+    // Clear mist flag and mist_file if this lens only has an overlay
+    // This prevents garbage mist data from previous lens configurations
+    lenscfg->flags &= ~LCF_HasMist;
+    lenscfg->mist_file[0] = '\0';
+    
+    // Only store the overlay name when processing position 0 (the name field)
+    // Position 1 is the alpha value, handled by value_default
+    if (named_field->argnum == 0)
+    {
+        // Store the overlay name (a reference name from JSON)
+        strncpy(lenscfg->overlay_file, value_text, DISKPATH_SIZE - 1);
+        lenscfg->overlay_file[DISKPATH_SIZE - 1] = '\0';
+        
+        SYNCDBG(9, "Registered overlay name '%s' for lens %d", value_text, idx);
+    }
+    else
+    {
+        SYNCLOG("Skipping overlay name storage for argnum=%d (alpha value)", named_field->argnum);
+    }
+    
     return 0;
 }
 

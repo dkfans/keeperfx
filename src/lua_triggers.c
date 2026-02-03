@@ -58,6 +58,17 @@ void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg)
 void lua_on_game_start()
 {
 	SYNCDBG(6,"Starting");
+
+	lua_getglobal(Lvl_script, "OnCampaignGameStart");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0),"OnCampaignGameStart");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+
     lua_getglobal(Lvl_script, "OnGameStart");
 	if (lua_isfunction(Lvl_script, -1))
 	{

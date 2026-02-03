@@ -1051,8 +1051,8 @@ static int lua_Set_hand_rule(lua_State *L)
     long crtr_id = luaL_checkNamedCommand(L,2,creature_desc);
     long rule_slot = luaL_checkinteger(L, 3);
     long rule_action = luaL_checkNamedCommand(L,4,rule_action_desc);
-    long rule = luaL_checkNamedCommand(L,4,rule_action_desc);
-    long param = luaL_checkinteger(L, 5);
+    long rule = luaL_checkNamedCommand(L,5,hand_rule_desc);
+    long param = luaL_checkinteger(L, 6);
 
     script_set_hand_rule(player_idx, crtr_id, rule_action, rule_slot, rule, param);
     return 0;
@@ -1179,8 +1179,8 @@ static int lua_Set_creature_tendencies(lua_State *L)
         if (is_my_player(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
-            game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-            game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+            game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+            game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
         }
     }
     return 0;
