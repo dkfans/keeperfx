@@ -449,9 +449,6 @@ void handle_autostart_multiplayer_messaging(void)
             message_char_index = 0;
           }
         }
-        if (autostart_multiplayer_level > 0) {
-            level = autostart_multiplayer_level;
-        }
       }
 
       if (message_char_index == -2 && !frontnet_is_waiting_for_ping_stabilization()) {
