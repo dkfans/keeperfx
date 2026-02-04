@@ -33,9 +33,8 @@
 #include "config_keeperfx.h"
 #include "config_settings.h"
 #include "front_input.h"
-#include "sounds.h"
-#include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
-#include "keeperfx.hpp" // for start_params
+#include "game_legacy.h"
+#include "keeperfx.hpp"
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 

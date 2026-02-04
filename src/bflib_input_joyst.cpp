@@ -20,22 +20,18 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include <math.h>
-#include <map>
+#include <chrono>
 #include "bflib_inputctrl.h"
 #include "bflib_basics.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
 #include "bflib_video.h"
 #include "bflib_planar.h"
-#include "bflib_sndlib.h"
-#include "bflib_mshandler.hpp"
 #include "frontmenu_ingame_tabs.h"
 #include "config_keeperfx.h"
 #include "config_settings.h"
 #include "front_input.h"
-#include "sounds.h"
-#include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
-#include "keeperfx.hpp" // for start_params
+#include "game_legacy.h"
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
@@ -161,8 +157,6 @@ static TbKeyCode joystickbutton_to_keycode(const Uint8 button)
 
 void JEvent(const SDL_Event *ev)
 {
-    struct TbPoint mouseDelta;
-    int x;
     SYNCDBG(10, "Starting");
 
     switch (ev->type)

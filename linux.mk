@@ -34,6 +34,7 @@ src/bflib_fileio.c \
 src/bflib_filelst.c \
 src/bflib_fmvids.cpp \
 src/bflib_guibtns.c \
+src/bflib_input_joyst.cpp \
 src/bflib_inputctrl.cpp \
 src/bflib_keybrd.c \
 src/bflib_main.cpp \
