@@ -1337,6 +1337,10 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyr_idx, lon
     }
     init_keeper_map_exploration_by_terrain(player);
     init_keeper_map_exploration_by_creatures(player);
+    if (game.play_gameturn > 0)
+    {
+        check_map_for_gold();
+    }
     return true;
 }
 
@@ -1546,9 +1550,6 @@ TbBool computer_player_demands_gold_check(PlayerNumber plyr_idx)
 void process_computer_players2(void)
 {
     TbBool needs_gold_check = false;
-#ifdef PETTER_AI
-    SAI_run_shared();
-#endif
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
@@ -1559,27 +1560,18 @@ void process_computer_players2(void)
         {
           if (player->is_active == 1)
           {
-#ifdef PETTER_AI
-            SAI_run_for_player(i);
-#else
             process_computer_player2(i);
             if (computer_player_demands_gold_check(i))
             {
                 needs_gold_check = true;
             }
-#endif
           }
         }
     }
     if (needs_gold_check)
     {
-      SYNCDBG(0,"Computer players demand gold check.");
-      game.turn_last_checked_for_gold = game.play_gameturn;
-      check_map_for_gold();
-    } else
-    if (game.turn_last_checked_for_gold > game.play_gameturn)
-    {
-      game.turn_last_checked_for_gold = 0;
+        SYNCDBG(0,"Computer players demand gold check.");
+        check_map_for_gold();
     }
 }
 
@@ -1592,9 +1584,6 @@ void setup_computer_players2(void)
   {
     memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
   }
-#ifdef PETTER_AI
-  SAI_init_for_map();
-#endif
 
   // Using a seed for rand() based on the current time, so that the same
   // random results aren't used in the same order every time.
@@ -1603,17 +1592,12 @@ void setup_computer_players2(void)
 #ifdef FUNCTESTING
   ftest_srand();
 #endif
-
+  struct PlayerInfo* player = INVALID_PLAYER;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-      struct PlayerInfo* player = get_player(i);
-      if (player_exists(player))
+      player = get_player(i);
+      if (player_exists(player) && (player->is_active == 1))
       {
-          if (player->is_active == 1)
-          {
-#ifdef PETTER_AI
-        SAI_init_for_player(i);
-#else
         // The range from which the computer model is selected
         // is between minSkirmishAI and maxSkirmishAI, inclusive of both. User defined in keepcompp.cfg
         int minSkirmishAI = comp_player_conf.skirmish_first;
@@ -1633,9 +1617,7 @@ void setup_computer_players2(void)
         {
             JUSTMSG("No model defined for Player %d, assigned computer model %d", i, skirmish_AI_type);
         }
-#endif
       }
-    }
   }
 }
 
