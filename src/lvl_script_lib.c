@@ -117,6 +117,20 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
         case ObjMdl_GoldBag:
             thing->valuable.gold_stored = arg;
             break;
+        default:
+            struct ObjectConfigStats* objst = get_object_model_stats(tngmodel);
+            if (objst->genre == OCtg_GoldHoard)
+            {
+                if (arg > 0)
+                {
+                    thing->valuable.gold_stored = arg;
+                }
+                else
+                {
+                    int size = get_wealth_size_of_gold_hoard_model(tngmodel);
+                    thing->valuable.gold_stored = size * game.conf.rules[thing->owner].game.gold_per_hoard / get_wealth_size_types_count();
+                }
+            }
     }
     return thing;
 }
