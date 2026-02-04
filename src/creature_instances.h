@@ -169,7 +169,6 @@ void script_set_creature_instance(ThingModel crmodel, short slot, int instance, 
 TbBool validate_source_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_source_even_in_prison(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
-TbBool validate_source_even_while_frozen(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 
 TbBool validate_target_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
