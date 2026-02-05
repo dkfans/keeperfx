@@ -406,7 +406,7 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
  * @note Used capacity of the room don't have to be updated here, as it is re-computed later.
  * @return True if the thing was either assimilated or left intact, false if it was deleted.
  */
-short check_and_asimilate_thing_by_room(struct Thing *thing)
+TbBool check_and_asimilate_thing_by_room(struct Thing *thing)
 {
     struct Room *room;
     if (thing_is_dragged_or_pulled(thing))
