@@ -1844,14 +1844,14 @@ TbBool validate_target_requires_cleansing
 
     if (source->index == target->index)
     {
-        // Special case. The creature is always allowed to cleanse itself even if
-        // it's being tortured or imprisoned.
+        // Special case. The creature is always allowed to cleanse itself.
         return true;
     }
     else
     {
         if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
-            creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+            creature_is_being_tortured(source) || creature_is_kept_in_prison(source) ||
+            creature_under_spell_effect(source, CSAfF_Freeze)) // not allowed to cleanse others (only itself) even if param1 is set
         {
             return false;
         }
