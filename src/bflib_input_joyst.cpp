@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_inputctrl.c
+/** @file bflib_input_joyst.cpp
  *     Input devices control and polling.
  * @par Purpose:
  *     Routines for accepting and processing of events from mouse,
