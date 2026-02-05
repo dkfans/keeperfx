@@ -158,9 +158,12 @@ void set_all_ensigns_state(unsigned short nstate)
     struct LevelInformation* lvinfo = get_first_level_info();
     while (lvinfo != NULL)
     {
-        lvinfo->state = nstate;
+        if (lvinfo->lvnum != 0)
+        {
+            lvinfo->state = nstate;
+        }
         lvinfo = get_next_level_info(lvinfo);
-  }
+    }
 }
 
 void update_ensigns_visibility(void)
@@ -651,7 +654,7 @@ void frontmap_zoom_in_init(LevelNumber lvnum)
 TbBool frontmap_input_active_ensign(long curr_mx, long curr_my)
 {
     struct LevelInformation* lvinfo = get_first_level_info();
-    while (lvinfo != NULL)
+    while (lvinfo != NULL && lvinfo->lvnum != 0)
     {
       if (lvinfo->state == LvSt_Visible)
         if (is_over_ensign(lvinfo, curr_mx, curr_my))
