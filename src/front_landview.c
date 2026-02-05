@@ -158,7 +158,10 @@ void set_all_ensigns_state(unsigned short nstate)
     struct LevelInformation* lvinfo = get_first_level_info();
     while (lvinfo != NULL)
     {
-        lvinfo->state = nstate;
+        if (lvinfo->lvnum != 0)
+        {
+            lvinfo->state = nstate;
+        }
         lvinfo = get_next_level_info(lvinfo);
     }
 }
