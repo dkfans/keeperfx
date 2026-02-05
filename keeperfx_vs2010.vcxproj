@@ -36,6 +36,7 @@
     <ClCompile Include="src\bflib_fmvids.c" />
     <ClCompile Include="src\bflib_guibtns.c" />
     <ClCompile Include="src\bflib_inputctrl.cpp" />
+    <ClCompile Include="src\bflib_input_joyst.cpp" />
     <ClCompile Include="src\bflib_keybrd.c" />
     <ClCompile Include="src\bflib_main.cpp" />
     <ClCompile Include="src\bflib_math.c" />
