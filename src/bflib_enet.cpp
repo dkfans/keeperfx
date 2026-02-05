@@ -67,15 +67,20 @@ namespace
             newest_packet = nullptr;
             incoming_queue_size = 0;
         }
-        if (client_peer)
-        {
-            client_peer = nullptr;
-        }
         if (host)
         {
+            for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; ++peer)
+            {
+                if (peer->state == ENET_PEER_STATE_CONNECTED)
+                {
+                    enet_peer_disconnect_now(peer, 0);
+                }
+            }
+            enet_host_flush(host);
             enet_host_destroy(host);
             host = nullptr;
         }
+        client_peer = nullptr;
     }
 
     void bf_enet_exit()
@@ -142,43 +147,45 @@ namespace
         const char *P;
         char *E;
         ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
+        SYNCMSG("bf_enet_join: Creating client host for session='%s'", session);
         host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
-        if (!host)
-        {
+        if (!host) {
+            SYNCMSG("bf_enet_join: Failed to create enet host");
             return Lb_FAIL;
         }
         enet_host_compress_with_range_coder(host);
         P = strchr(session,':');
-        if (P)
-        {
+        if (P) {
             strncpy(buf, session, P-session);
             address.port = strtoul(P+1, &E, 10);
-            if (address.port == 0)
-            {
+            if (address.port == 0) {
+                SYNCMSG("bf_enet_join: Invalid port in session string");
                 host_destroy();
                 return Lb_FAIL;
             }
-        }
-        else
-        {
+        } else {
             strncpy(buf, session, sizeof(buf) - 1);
             address.port = DEFAULT_PORT;
         }
-        if (enet_address_set_host(&address, buf) < 0)
-        {
+        SYNCMSG("bf_enet_join: Resolving host='%s' port=%u", buf, address.port);
+        if (enet_address_set_host(&address, buf) < 0) {
+            SYNCMSG("bf_enet_join: Failed to resolve host '%s'", buf);
             host_destroy();
             return Lb_FAIL;
         }
+        SYNCMSG("bf_enet_join: Connecting to resolved address");
         client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
-        if (!client_peer)
-        {
+        if (!client_peer) {
+            SYNCMSG("bf_enet_join: enet_host_connect returned null");
             return Lb_FAIL;
         }
-        if (wait_for_connect(TIMEOUT_ENET_CONNECT))
-        {
+        SYNCMSG("bf_enet_join: Waiting for connection...");
+        if (wait_for_connect(TIMEOUT_ENET_CONNECT)) {
+            SYNCMSG("bf_enet_join: Connection timeout or error");
             host_destroy();
             return Lb_FAIL;
         }
+        SYNCMSG("bf_enet_join: Connected successfully");
         return Lb_OK;
     }
 

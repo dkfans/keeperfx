@@ -42,6 +42,7 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "bflib_enet.h"
+#include "bflib_netsession.h"
 #include "bflib_network_exchange.h"
 #include "packets.h"
 #include "post_inc.h"
@@ -249,8 +250,11 @@ void frontnet_session_add(struct GuiButton *gbtn)
 void frontnet_session_join(struct GuiButton *gbtn)
 {
     long plyr_num;
-    if (net_session[net_session_index_active] == NULL)
+    if (net_session[net_session_index_active] == NULL) {
+        SYNCMSG("frontnet_session_join: No active session selected (index=%ld)", net_session_index_active);
         return;
+    }
+    SYNCMSG("frontnet_session_join: Attempting to join session index=%ld name='%s'", net_session_index_active, net_session[net_session_index_active]->text);
     plyr_num = network_session_join();
     if (plyr_num < 0)
         return;

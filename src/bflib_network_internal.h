@@ -60,6 +60,7 @@ struct NetState {
     char msg_buffer[NET_MSG_BUFFER_SIZE];
     char msg_buffer_null;
     TbBool locked;
+    TbBool pending_host_disconnect;
 };
 
 extern struct NetState netstate;

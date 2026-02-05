@@ -28,6 +28,7 @@
 #include "globals.h"
 #include "frontend.h"
 #include "net_game.h"
+#include "net_matchmaking.h"
 #include "front_landview.h"
 #include "front_network.h"
 #include "net_received_packets.h"
@@ -79,6 +80,13 @@ void SendUserUpdate(NetUserId dest, NetUserId updated_user) {
 
 void LbNetwork_SetServerPort(int port) {
     ServerPort = port;
+}
+
+int LbNetwork_GetServerPort(void) {
+    if (ServerPort != 0) {
+        return ServerPort;
+    }
+    return DEFAULT_SERVER_PORT;
 }
 
 static void AddSessionSegment(const char* start, const char* end) {
@@ -136,7 +144,9 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    const char *port = ":5555";
+    char default_port[8];
+    snprintf(default_port, sizeof(default_port), ":%d", DEFAULT_SERVER_PORT);
+    const char *port = default_port;
     char buf[16] = "";
     if (ServerPort != 0) {
         snprintf(buf, sizeof(buf), "%d", ServerPort);
@@ -159,13 +169,22 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    if (netstate.sp->join(nsname->text, optns) == Lb_FAIL) {
+    const char *address = nsname->text;
+    if (nsname->ip[0] != '\0') {
+        address = nsname->ip;
+    }
+    SYNCMSG("LbNetwork_Join: Connecting to address='%s' as player='%s'", address, plyr_name);
+    if (netstate.sp->join(address, optns) == Lb_FAIL) {
+        SYNCMSG("LbNetwork_Join: sp->join failed for address='%s'", address);
         return Lb_FAIL;
     }
+    SYNCMSG("LbNetwork_Join: Connection established, exchanging login");
     netstate.my_id = INVALID_USER_ID;
     if (LbNetwork_ExchangeLogin(plyr_name) == Lb_FAIL) {
+        SYNCMSG("LbNetwork_Join: Login exchange failed");
         return Lb_FAIL;
     }
+    SYNCMSG("LbNetwork_Join: Login successful, assigned player ID %d", netstate.my_id);
     *plyr_num = netstate.my_id;
     return Lb_OK;
 }
@@ -189,6 +208,7 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow) {
 }
 
 TbError LbNetwork_Stop(void) {
+    matchmaking_unregister_lobby();
     if (netstate.sp) {
         netstate.sp->exit();
     }
@@ -226,13 +246,13 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
     } else if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }
-    if (netstate.my_id != SERVER_ID) {
-        NETMSG("Quitting after connection loss");
-        LbNetwork_Stop();
-        return;
-    }
     memset(&netstate.users[id], 0, sizeof(netstate.users[id]));
     netstate.users[id].id = id;
+    if (netstate.my_id != SERVER_ID) {
+        NETMSG("Host disconnected, will return to lobby");
+        netstate.pending_host_disconnect = true;
+        return;
+    }
     NetUserId uid;
     for (uid = 0; uid < netstate.max_players; uid += 1) {
         if (uid == netstate.my_id) { continue; }
@@ -269,6 +289,30 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr) {
         callback((TbNetworkCallbackData *) &sessions[i], ptr);
     }
     return Lb_OK;
+}
+
+void LbNetwork_FetchMatchmakingLobbies(void) {
+    memset(sessions, 0, sizeof(sessions));
+    struct MatchmakingLobby lobbies[MATCHMAKING_MAX_LOBBIES];
+    int count = matchmaking_list_lobbies(lobbies, MATCHMAKING_MAX_LOBBIES);
+    unsigned slot = 0;
+    for (int i = 0; i < count && slot < SESSION_COUNT; i++) {
+        while (slot < SESSION_COUNT && sessions[slot].in_use) {
+            slot++;
+        }
+        if (slot >= SESSION_COUNT) {
+            break;
+        }
+        sessions[slot].in_use = 1;
+        sessions[slot].joinable = 1;
+        snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s's lobby", lobbies[i].name);
+        if (lobbies[i].port != 0 && lobbies[i].port != DEFAULT_SERVER_PORT) {
+            snprintf(sessions[slot].ip, sizeof(sessions[slot].ip), "%s:%u", lobbies[i].ip, lobbies[i].port);
+        } else {
+            snprintf(sessions[slot].ip, sizeof(sessions[slot].ip), "%s", lobbies[i].ip);
+        }
+        slot++;
+    }
 }
 
 /******************************************************************************/
