@@ -2274,20 +2274,35 @@ int set_players_creatures_to_get_paid(PlayerNumber plyr_idx)
                 cctrl = creature_control_get_from_thing(thing);
                 if (cctrl->paydays_advanced > 0)
                 {
+                    JUSTLOG("Payday: %s index %d (owner %d) - Decrementing paydays_advanced from %d to %d (had advance, no owed increment)",
+                        thing_model_name(thing), (int)thing->index, (int)thing->owner,
+                        (int)cctrl->paydays_advanced, (int)(cctrl->paydays_advanced - 1));
                     cctrl->paydays_advanced--;
                 } else
                 {
                     if (!creature_is_kept_in_custody_by_enemy(thing))
                     {
+                        int old_owed = cctrl->paydays_owed;
                         cctrl->paydays_owed++;
                         if (cctrl->paydays_owed > game.conf.rules[plyr_idx].game.max_paydays_owed)
                         {
+                            JUSTLOG("Payday: %s index %d (owner %d) - Capping paydays_owed at max %d (was %d, would be %d)",
+                                thing_model_name(thing), (int)thing->index, (int)thing->owner,
+                                (int)game.conf.rules[plyr_idx].game.max_paydays_owed, old_owed, (int)cctrl->paydays_owed);
                             cctrl->paydays_owed = game.conf.rules[plyr_idx].game.max_paydays_owed;
+                        }
+                        else
+                        {
+                            JUSTLOG("Payday: %s index %d (owner %d) - Incremented paydays_owed from %d to %d (no advance, not in custody)",
+                                thing_model_name(thing), (int)thing->index, (int)thing->owner, old_owed, (int)cctrl->paydays_owed);
                         }
                         count++;
                     }
                     else
                     {
+                        JUSTLOG("Payday: %s index %d (owner %d) - Decrementing paydays_advanced from %d to %d (in enemy custody)",
+                            thing_model_name(thing), (int)thing->index, (int)thing->owner,
+                            (int)cctrl->paydays_advanced, (int)(cctrl->paydays_advanced - 1));
                         cctrl->paydays_advanced--;
                     }
                 }
@@ -2301,6 +2316,7 @@ int set_players_creatures_to_get_paid(PlayerNumber plyr_idx)
             break;
         }
     }
+    JUSTLOG("Payday: Player %d - Total %d creatures need to get paid this payday", (int)plyr_idx, count);
     return count;
 }
 
@@ -2326,6 +2342,8 @@ void process_payday(void)
     {
         if (game.conf.rules[plyr_idx].game.pay_day_gap <= game.pay_day_progress[plyr_idx])
         {
+            JUSTLOG("=== PAYDAY TRIGGERED === Player %d - Progress %d reached gap %d, resetting to 0",
+                (int)plyr_idx, (int)game.pay_day_progress[plyr_idx], (int)game.conf.rules[plyr_idx].game.pay_day_gap);
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_Payday, 0);
             game.pay_day_progress[plyr_idx] = 0;
@@ -2333,7 +2351,13 @@ void process_payday(void)
             if (player_paid_creatures_count > 0)
             {
                 struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
+                JUSTLOG("Payday Event: Player %d - Creating/updating payday event for %d creatures, total_pay=%d",
+                    (int)plyr_idx, player_paid_creatures_count, (int)dungeon->creatures_total_pay);
                 event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreaturePayday, plyr_idx, dungeon->creatures_total_pay);
+            }
+            else
+            {
+                JUSTLOG("Payday Event: Player %d - No creatures need payment, skipping event creation", (int)plyr_idx);
             }
         }
     }
