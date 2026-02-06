@@ -71,7 +71,12 @@ struct NetMapPlayersState {
 /******************************************************************************/
 #define WINDOW_X_SIZE 960
 #define WINDOW_Y_SIZE 720
-#define LANDVIEW_DELTA_TIME (game.delta_time * (33.0f / game_num_fps))
+#define LANDVIEW_BASE_FPS 33.0f
+static float get_landview_delta_time(void) {
+    if (is_feature_on(Ft_DeltaTime))
+        return game.delta_time * (LANDVIEW_BASE_FPS / game_num_fps);
+    return 1.0f;
+}
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
 const long hand_limp_yoffset[] = {-11, -10,  -9,  -8,  -7,  -6,  -5,  -4,  -3,  -2,  -1,  0, };
@@ -1116,7 +1121,7 @@ TbBool frontmap_update_zoom(void)
     {
         process_map_zoom_out();
     }
-    map_info.fade_pos += map_info.fade_step * game.delta_time * (33.0f / game_num_fps);
+    map_info.fade_pos += map_info.fade_step * get_landview_delta_time();
     if (map_info.fade_pos < 0 || map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH)
     {
         SYNCDBG(8,"Stopping fade");
@@ -1288,7 +1293,7 @@ void check_mouse_scroll(void)
     long mx = GetMouseX();
     if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, NULL, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
     {
-        map_info.velocity_x -= 8 * LANDVIEW_DELTA_TIME;
+        map_info.velocity_x -= 8 * get_landview_delta_time();
         if (map_info.velocity_x < -48)
             map_info.velocity_x = -48;
         if (map_info.velocity_x > 48)
@@ -1296,7 +1301,7 @@ void check_mouse_scroll(void)
   } else
   if ( (mx >= lbDisplay.PhysicalScreenWidth-8) || ( (is_game_key_pressed(Gkey_MoveRight, NULL, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_x += 8 * LANDVIEW_DELTA_TIME;
+    map_info.velocity_x += 8 * get_landview_delta_time();
     if (map_info.velocity_x < -48)
       map_info.velocity_x = -48;
     if (map_info.velocity_x > 48)
@@ -1305,7 +1310,7 @@ void check_mouse_scroll(void)
   long my = GetMouseY();
   if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, NULL, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_y -= 8 * LANDVIEW_DELTA_TIME;
+    map_info.velocity_y -= 8 * get_landview_delta_time();
     if (map_info.velocity_y < -48)
       map_info.velocity_y = -48;
     if (map_info.velocity_y > 48)
@@ -1313,7 +1318,7 @@ void check_mouse_scroll(void)
   } else
   if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, NULL, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_y += 8 * LANDVIEW_DELTA_TIME;
+    map_info.velocity_y += 8 * get_landview_delta_time();
     if (map_info.velocity_y < -48)
       map_info.velocity_y = -48;
     if (map_info.velocity_y > 48)
@@ -1325,27 +1330,37 @@ void update_velocity(void)
 {
     if (map_info.velocity_x != 0)
     {
-      map_info.screen_shift_x += (map_info.velocity_x / 4) * LANDVIEW_DELTA_TIME;
+      map_info.screen_shift_x += (map_info.velocity_x / 4) * get_landview_delta_time();
       if (map_info.screen_shift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview)
         map_info.screen_shift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview;
       if (map_info.screen_shift_x < 0)
         map_info.screen_shift_x = 0;
-      if (map_info.velocity_x < 0)
-        map_info.velocity_x += 2 * LANDVIEW_DELTA_TIME;
-      else
-        map_info.velocity_x -= 2 * LANDVIEW_DELTA_TIME;
+      if (map_info.velocity_x < 0) {
+        map_info.velocity_x += 2 * get_landview_delta_time();
+        if (map_info.velocity_x > 0)
+          map_info.velocity_x = 0;
+      } else {
+        map_info.velocity_x -= 2 * get_landview_delta_time();
+        if (map_info.velocity_x < 0)
+          map_info.velocity_x = 0;
+      }
     }
     if (map_info.velocity_y != 0)
     {
-      map_info.screen_shift_y += (map_info.velocity_y / 4) * LANDVIEW_DELTA_TIME;
+      map_info.screen_shift_y += (map_info.velocity_y / 4) * get_landview_delta_time();
       if (map_info.screen_shift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview)
         map_info.screen_shift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview;
       if (map_info.screen_shift_y < 0)
         map_info.screen_shift_y = 0;
-      if (map_info.velocity_y < 0)
-        map_info.velocity_y += 2 * LANDVIEW_DELTA_TIME;
-      else
-        map_info.velocity_y -= 2 * LANDVIEW_DELTA_TIME;
+      if (map_info.velocity_y < 0) {
+        map_info.velocity_y += 2 * get_landview_delta_time();
+        if (map_info.velocity_y > 0)
+          map_info.velocity_y = 0;
+      } else {
+        map_info.velocity_y -= 2 * get_landview_delta_time();
+        if (map_info.velocity_y < 0)
+          map_info.velocity_y = 0;
+      }
     }
     map_info.precise_scrshift_x = map_info.screen_shift_x * 256;
     map_info.precise_scrshift_y = map_info.screen_shift_y * 256;
