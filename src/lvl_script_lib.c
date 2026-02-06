@@ -23,6 +23,7 @@
 #include "lvl_script_conditions.h"
 #include "lvl_script_commands.h"
 #include "magic_powers.h"
+#include "room_util.h"
 #include "thing_factory.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
@@ -131,6 +132,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
                     int size = get_wealth_size_of_gold_hoard_model(tngmodel);
                     thing->valuable.gold_stored = size * game.conf.rules[thing->owner].game.gold_per_hoard / get_wealth_size_types_count();
                 }
+                check_and_asimilate_thing_by_room(thing);
             }
     }
     return thing;

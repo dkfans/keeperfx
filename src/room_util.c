@@ -418,10 +418,18 @@ TbBool check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_gold_hoard(thing))
     {
         room = get_room_thing_is_on(thing);
-        long wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
-        unsigned long gold_value = wealth_size_holds * max(1, get_wealth_size_of_gold_hoard_object(thing));
-        unsigned long value_left;
-        unsigned long value_added;
+        GoldAmount wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
+        GoldAmount gold_value = thing->valuable.gold_stored;
+        if (gold_value == 0)
+        {
+            gold_value = wealth_size_holds* max(1, get_wealth_size_of_gold_hoard_object(thing));
+        }
+        else
+        {
+            thing->valuable.gold_stored = 0;
+        }
+        GoldAmount value_left;
+        GoldAmount value_added;
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
         {
             // No room - delete it, hoard cannot exist outside treasure room
