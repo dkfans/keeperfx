@@ -127,11 +127,6 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
                 {
                     thing->valuable.gold_stored = arg;
                 }
-                else
-                {
-                    int size = get_wealth_size_of_gold_hoard_model(tngmodel);
-                    thing->valuable.gold_stored = size * game.conf.rules[thing->owner].game.gold_per_hoard / get_wealth_size_types_count();
-                }
                 check_and_asimilate_thing_by_room(thing);
             }
     }
