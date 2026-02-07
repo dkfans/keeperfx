@@ -1441,9 +1441,11 @@ void process_players_creature_control_packet_control(long idx)
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        if (!creature_under_spell_effect(cctng, CSAfF_Chicken))
+                        inst_inf = creature_instance_info_get(i);
+                        struct SpellConfig* spconf = get_spell_config(inst_inf->func_params[0]);
+                        allowed = (creature_under_spell_effect(cctng, CSAfF_Chicken)) ? flag_is_set(spconf->cleanse_flags, CSAfF_Chicken) : true;
+                        if (allowed)
                         {
-                            inst_inf = creature_instance_info_get(i);
                             allowed = (creature_under_spell_effect(cctng, CSAfF_Freeze)) ? inst_inf->fp_allow_while_frozen : true;
                             if (allowed)
                             {
