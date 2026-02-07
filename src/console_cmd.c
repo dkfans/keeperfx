@@ -2197,7 +2197,7 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
     struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CHICKEN);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
-    apply_spell_effect_to_thing(thing, 27, 8, plyr_idx); // 3 was 'SplK_Chicken' in the enum.
+    apply_spell_effect_to_thing(thing, 27, 8, plyr_idx); // 27 was 'SplK_Chicken' in the enum.
     return true;
 }
 
