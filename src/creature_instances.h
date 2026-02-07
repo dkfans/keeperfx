@@ -126,6 +126,7 @@ struct InstanceInfo {
     // Refer to creature_instances_search_targets_func_list
     uint8_t search_func;
     int32_t search_func_params[2];
+    TbBool fp_allow_while_frozen;
 };
 
 /******************************************************************************/

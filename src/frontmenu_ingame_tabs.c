@@ -1873,7 +1873,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
     // Show disabled icon if instance is on cooldown or creature is frozen.
-    if ((!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || (creature_under_spell_effect(ctrltng, CSAfF_Freeze) && (!inst_inf->instant)))
+    if ((!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || (creature_under_spell_effect(ctrltng, CSAfF_Freeze) && (!inst_inf->fp_allow_while_frozen)))
     {
         spr_idx++;
     }

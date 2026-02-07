@@ -166,7 +166,7 @@ void update_local_first_person_camera(struct Thing *ctrltng)
     int eye_height = get_creature_eye_height(ctrltng);
     update_first_person_position(cam, ctrltng, eye_height);
 
-    if (!can_process_creature_input(ctrltng)) {
+    if (!can_process_creature_input(ctrltng, true)) {
         return;
     }
     long current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
