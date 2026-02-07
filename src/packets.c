@@ -1441,12 +1441,27 @@ void process_players_creature_control_packet_control(long idx)
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        inst_inf = creature_instance_info_get(i);
-                        struct SpellConfig* spconf = get_spell_config(inst_inf->func_params[0]);
-                        allowed = (creature_under_spell_effect(cctng, CSAfF_Chicken)) ? flag_is_set(spconf->cleanse_flags, CSAfF_Chicken) : true;
+                        if (creature_under_spell_effect(cctng, CSAfF_Chicken))
+                        {
+                            inst_inf = creature_instance_info_get(i);
+                            struct SpellConfig* spconf = get_spell_config(inst_inf->func_params[0]);
+                            allowed = flag_is_set(spconf->cleanse_flags, CSAfF_Chicken);
+                        }
+                        else
+                        {
+                            allowed = true;
+                        }
                         if (allowed)
                         {
-                            allowed = (creature_under_spell_effect(cctng, CSAfF_Freeze)) ? inst_inf->fp_allow_while_frozen : true;
+                            if (creature_under_spell_effect(cctng, CSAfF_Freeze))
+                            {
+                                inst_inf = creature_instance_info_get(i);
+                                allowed = inst_inf->fp_allow_while_frozen;
+                            }
+                            else
+                            {
+                                allowed = true;
+                            }
                             if (allowed)
                             {
                                 process_player_use_instance(cctng, i, pckt);
@@ -1475,7 +1490,14 @@ void process_players_creature_control_packet_control(long idx)
                     {
                         if (creature_instance_has_reset(cctng, i))
                         {
-                            allowed = (creature_under_spell_effect(cctng, CSAfF_Freeze)) ? inst_inf->fp_allow_while_frozen : true;
+                            if (creature_under_spell_effect(cctng, CSAfF_Freeze))
+                            {
+                                allowed = inst_inf->fp_allow_while_frozen;
+                            }
+                            else
+                            {
+                                allowed = true;
+                            }
                             if (allowed)
                             {
                                 process_player_use_instance(cctng, i, pckt);
