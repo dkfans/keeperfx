@@ -1301,7 +1301,7 @@ void process_first_person_look(struct Thing *thing, struct Packet *pckt, long cu
     *out_roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
 }
 
-TbBool can_process_creature_input(struct Thing *thing, TbBool stateblock_flags)
+TbBool can_process_creature_input(struct Thing *thing)
 {
     if (thing->class_id != TCls_Creature) {
         return false;
@@ -1309,31 +1309,25 @@ TbBool can_process_creature_input(struct Thing *thing, TbBool stateblock_flags)
     if (creature_is_dying(thing)) {
         return false;
     }
-    if (stateblock_flags)
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        return ((cctrl->stateblock_flags == 0) && (thing->active_state != CrSt_CreatureUnconscious));
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->stateblock_flags != 0) || (thing->active_state == CrSt_CreatureUnconscious)) {
+        return false;
     }
-    else
-    {
-        return (thing->active_state != CrSt_CreatureUnconscious);
-    }
+    return true;
 }
 
 void process_players_creature_control_packet_control(long idx)
 {
     SYNCDBG(6,"Starting");
-    struct PlayerInfo* player = get_player(idx);
-    struct Thing* cctng = thing_get(player->controlled_thing_idx);
-    if (!can_process_creature_input(cctng, false))
-        return;
     struct InstanceInfo *inst_inf;
     long i;
+    struct PlayerInfo* player = get_player(idx);
+    struct Thing* cctng = thing_get(player->controlled_thing_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
-    long speed_limit = get_creature_speed(cctng);
-    if (ccctrl->stateblock_flags == 0)
+    if (can_process_creature_input(cctng))
     {
+        long speed_limit = get_creature_speed(cctng);
         if ((pckt->control_flags & PCtr_MoveUp) != 0)
         {
             if (!creature_control_invalid(ccctrl))
@@ -1435,59 +1429,62 @@ void process_players_creature_control_packet_control(long idx)
         cctng->move_angle_z = new_vertical;
         ccctrl->roll = new_roll;
     }
-    TbBool allowed;
-    if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+    if ((!creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
     {
-        i = ccctrl->active_instance_id;
-        if (ccctrl->instance_id == CrInst_NULL)
+        TbBool allowed;
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-            if (creature_instance_is_available(cctng, i))
-            {
-                if (creature_instance_has_reset(cctng, i))
-                {
-                    if (!creature_under_spell_effect(cctng, CSAfF_Chicken))
-                    {
-                        inst_inf = creature_instance_info_get(i);
-                        allowed = (creature_under_spell_effect(cctng, CSAfF_Freeze)) ? inst_inf->fp_allow_while_frozen : true;
-                        if (allowed)
-                        {
-                            process_player_use_instance(cctng, i, pckt);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // cheat mode
-                inst_inf = creature_instance_info_get(i);
-                process_player_use_instance(cctng, i, pckt);
-            }
-        }
-    }
-    if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
-    {
-        // Button is held down - check whether the instance has auto-repeat
-        i = ccctrl->active_instance_id;
-        inst_inf = creature_instance_info_get(i);
-        if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
-        {
+            i = ccctrl->active_instance_id;
             if (ccctrl->instance_id == CrInst_NULL)
             {
                 if (creature_instance_is_available(cctng, i))
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        allowed = (creature_under_spell_effect(cctng, CSAfF_Freeze)) ? inst_inf->fp_allow_while_frozen : true;
-                        if (allowed)
+                        if (!creature_under_spell_effect(cctng, CSAfF_Chicken))
                         {
-                            process_player_use_instance(cctng, i, pckt);
+                            inst_inf = creature_instance_info_get(i);
+                            allowed = (creature_under_spell_effect(cctng, CSAfF_Freeze)) ? inst_inf->fp_allow_while_frozen : true;
+                            if (allowed)
+                            {
+                                process_player_use_instance(cctng, i, pckt);
+                            }
                         }
                     }
                 }
                 else
                 {
                     // cheat mode
+                    inst_inf = creature_instance_info_get(i);
                     process_player_use_instance(cctng, i, pckt);
+                }
+            }
+        }
+        if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
+        {
+            // Button is held down - check whether the instance has auto-repeat
+            i = ccctrl->active_instance_id;
+            inst_inf = creature_instance_info_get(i);
+            if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
+            {
+                if (ccctrl->instance_id == CrInst_NULL)
+                {
+                    if (creature_instance_is_available(cctng, i))
+                    {
+                        if (creature_instance_has_reset(cctng, i))
+                        {
+                            allowed = (creature_under_spell_effect(cctng, CSAfF_Freeze)) ? inst_inf->fp_allow_while_frozen : true;
+                            if (allowed)
+                            {
+                                process_player_use_instance(cctng, i, pckt);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // cheat mode
+                        process_player_use_instance(cctng, i, pckt);
+                    }
                 }
             }
         }
