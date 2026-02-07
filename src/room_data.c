@@ -2938,7 +2938,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
         {
             struct Thing *gldtng;
             gldtng = find_gold_hoard_at(stl_x, stl_y);
-            if (!thing_is_invalid(gldtng))
+            while (!thing_is_invalid(gldtng)) //Normally there is just a single hoard at a slab, but mapmakers may place more.
             {
                 room->capacity_used_for_storage -= gldtng->valuable.gold_stored;
                 dungeon = get_dungeon(plyr_idx);
@@ -2947,6 +2947,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 }
                 drop_gold_pile(gldtng->valuable.gold_stored, &gldtng->mappos);
                 delete_thing_structure(gldtng, 0);
+                gldtng = find_gold_hoard_at(stl_x, stl_y);
             }
         }
     }
