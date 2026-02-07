@@ -880,7 +880,7 @@ TbBool creature_is_called_to_arms(const struct Thing *thing)
 TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 {
     CrtrStateId crstate = get_creature_state_besides_move(thing);
-    if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary))
+    if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary) || (crstate == CrSt_CreatureWaitAtTreasureRoomDoor))
         return true;
     return false;
 }
@@ -3122,50 +3122,100 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
 
 short creature_take_salary(struct Thing *creatng)
 {
+    GoldAmount salary = calculate_correct_creature_pay(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     TRACE_THING(creatng);
     SYNCDBG(18,"Starting");
+
+    JUSTLOG("\n########## creature_take_salary START ##########");
+    JUSTLOG("CREATURE: %s (index=%d, owner=%d)", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
+    JUSTLOG("INITIAL STATE: salary=%d, paydays_owed=%d, paydays_advanced=%d, paid_wage=%d",
+            salary, cctrl->paydays_owed, cctrl->paydays_advanced, cctrl->paid_wage);
+
     if (!thing_is_on_own_room_tile(creatng))
     {
+        JUSTLOG("NOT on own room tile, switching to CrSt_CreatureWantsSalary");
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
+        JUSTLOG("########## creature_take_salary END (not on tile) ##########\n");
         return 1;
     }
     struct Room* room = get_room_thing_is_on(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
+
+    JUSTLOG("TREASURY INFO: room_valid=%d, used_capacity=%d, offmap_money=%d",
+            !room_is_invalid(room), room_is_invalid(room) ? 0 : (int)room->used_capacity, (int)dungeon->offmap_money_owned);
+
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage) ||
       ((room->used_capacity == 0) && (dungeon->offmap_money_owned <= 0)))
     {
+        JUSTLOG("Treasury invalid or empty, switching to CrSt_CreatureWantsSalary");
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
+        JUSTLOG("########## creature_take_salary END (no gold) ##########\n");
         return 1;
     }
-    GoldAmount salary = calculate_correct_creature_pay(creatng);
+
+    // Creature take salary first out of her own pocket
+    JUSTLOG("RULES: take_pay_from_pocket=%d, accept_partial_payday=%d",
+            game.conf.rules[creatng->owner].game.take_pay_from_pocket,
+            game.conf.rules[creatng->owner].game.accept_partial_payday);
+
+    if(game.conf.rules[creatng->owner].game.take_pay_from_pocket || !game.conf.rules[creatng->owner].game.accept_partial_payday){
+        JUSTLOG("Adjusting salary: %d - paid_wage(%d) = %d", salary, cctrl->paid_wage, salary - cctrl->paid_wage);
+        salary -= cctrl->paid_wage;
+        cctrl->paid_wage = 0;
+    }
+
+    JUSTLOG("REQUESTING from treasury: %d gold", salary);
     GoldAmount received = take_money_from_dungeon(creatng->owner, salary, 0);
+    JUSTLOG("RECEIVED from treasury: %d gold", received);
+
     if (received < 1) {
         ERRORLOG("The %s index %d has used capacity %d but no gold for %s salary",room_code_name(room->kind),
             (int)room->index,(int)room->used_capacity,thing_model_name(creatng));
+        JUSTLOG("Failed to receive gold, switching to CrSt_CreatureWantsSalary");
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
+        JUSTLOG("########## creature_take_salary END (receive failed) ##########\n");
         return 1;
     } else
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        JUSTLOG("--- Processing payday completion ---");
         if (cctrl->paydays_owed > 0)
         {
+            JUSTLOG("  paydays_owed: %d -> %d", cctrl->paydays_owed, cctrl->paydays_owed - 1);
             cctrl->paydays_owed--;
         }
         if ((dungeon->total_money_owned >= salary) && (cctrl->paydays_advanced < 0)) //If the creature has missed payday, and there is money again, time to pay up.
         {
-            cctrl->paydays_owed++;
-            cctrl->paydays_advanced++;
+            JUSTLOG("  Creature has missed payday (paydays_advanced=%d < 0), adjusting...", cctrl->paydays_advanced);
+            if (cctrl->paydays_owed < game.conf.rules[creatng->owner].game.max_paydays_owed)
+            {
+                JUSTLOG("    paydays_owed: %d -> %d (incrementing, max=%d)",
+                        cctrl->paydays_owed, cctrl->paydays_owed + 1,
+                        game.conf.rules[creatng->owner].game.max_paydays_owed);
+                cctrl->paydays_owed++;
+            }
+            if (cctrl->paydays_advanced < game.conf.rules[creatng->owner].game.max_paydays_advanced)
+            {
+                JUSTLOG("    paydays_advanced: %d -> %d (incrementing, max=%d)",
+                        cctrl->paydays_advanced, cctrl->paydays_advanced + 1,
+                        game.conf.rules[creatng->owner].game.max_paydays_advanced);
+                cctrl->paydays_advanced++;
+            }
         }
+        JUSTLOG("FINAL STATE: paydays_owed=%d, paydays_advanced=%d", cctrl->paydays_owed, cctrl->paydays_advanced);
     }
     set_start_state(creatng);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, received);
     if (!(game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_FullyHappyWithGold))
     {
+        JUSTLOG("Applying happiness: annoy_got_wage=%d", crconf->annoy_got_wage);
         anger_apply_anger_to_creature_all_types(creatng, crconf->annoy_got_wage);
     }
     thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     dungeon->lvstats.salary_cost += salary;
+    JUSTLOG("Total salary cost for dungeon: %d (+%d)", (int)dungeon->lvstats.salary_cost, salary);
+    JUSTLOG("########## creature_take_salary END (success) ##########\n");
     return 1;
 }
 
@@ -5137,14 +5187,176 @@ long creature_setup_head_for_treasure_room_door(struct Thing *creatng, struct Ro
     return 0;
 }
 
+/**
+ * @brief
+ * Used if take_pay_from_pocket rule is activated
+ *
+ * Attempts to deduct the creature's salary from its carried gold.
+ *
+ * - If partial paydays are allowed, the function subtracts as much as possible
+ * from the creature's pocket.
+ *
+ * - Otherwise, it tries to cover the full salary
+ * from the pocket and, if not enough, from the dungeon.
+ * @param creatng
+ * @return TbBool Returns true if enough gold is taken from the creature to handle the entaire payday
+ */
+TbBool process_custom_salary(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    // Calculate the correct salary for the creature.
+    GoldAmount salary = calculate_correct_creature_pay(creatng);
+
+    // Check if we have any gold to work with (either in pocket or paid_wage)
+    // If not, skip detailed logging to avoid log spam while creature walks to treasury
+    TbBool has_any_gold = (creatng->creature.gold_carried > 0) || (cctrl->paid_wage > 0);
+
+    if (has_any_gold)
+    {
+        JUSTLOG("\n########## process_custom_salary START ##########");
+        JUSTLOG("CREATURE: %s (index=%d, owner=%d)", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
+        JUSTLOG("INITIAL STATE: calculated_salary=%d, paydays_owed=%d, paid_wage=%d, gold_carried=%d",
+                salary, cctrl->paydays_owed, cctrl->paid_wage, creatng->creature.gold_carried);
+        JUSTLOG("RULES: accept_partial_payday=%d",
+                game.conf.rules[creatng->owner].game.accept_partial_payday);
+    }
+
+    // Subtract any already given gold from the salary
+    if (cctrl->paid_wage < salary)
+    {
+        if (has_any_gold) {
+            JUSTLOG("Adjusting salary: %d - paid_wage(%d) = %d", salary, cctrl->paid_wage, salary - cctrl->paid_wage);
+        }
+        salary -= cctrl->paid_wage;
+    }
+    else
+    {
+        if (has_any_gold) {
+            JUSTLOG("paid_wage >= salary: paid_wage(%d) - salary(%d) = %d", cctrl->paid_wage, salary, cctrl->paid_wage - salary);
+        }
+        cctrl->paid_wage -= salary;
+    }
+
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+        if(creatng->creature.gold_carried > 0)
+        {
+            JUSTLOG("Creature has gold in pocket: gold_carried=%d, needed_salary=%d",
+                    creatng->creature.gold_carried, salary);
+
+            //Creature has enough gold to cover the salary or partial paydays are allowed.
+            if((creatng->creature.gold_carried >= salary) || (game.conf.rules[creatng->owner].game.accept_partial_payday))
+            {
+                JUSTLOG("PATH: Taking salary from pocket");
+                JUSTLOG("  Condition: gold_carried(%d) >= salary(%d)? %s | accept_partial=%d",
+                        creatng->creature.gold_carried, salary,
+                        creatng->creature.gold_carried >= salary ? "YES" : "NO",
+                        game.conf.rules[creatng->owner].game.accept_partial_payday);
+
+                //Reduce the number of paydays owed
+                JUSTLOG("  Reducing paydays_owed: %d -> %d", cctrl->paydays_owed, cctrl->paydays_owed - 1);
+                cctrl->paydays_owed--;
+
+                //Reset already given gold
+                JUSTLOG("  Resetting paid_wage: %d -> 0", cctrl->paid_wage);
+                cctrl->paid_wage = 0;
+
+                //Visual effect
+                struct Thing* efftng;
+                GoldAmount gold_amount_used;
+                if(game.conf.rules[creatng->owner].game.accept_partial_payday && (salary > creatng->creature.gold_carried))
+                {
+                    gold_amount_used = creatng->creature.gold_carried;
+                    JUSTLOG("  Partial payment: using all pocket gold (%d of %d needed)", gold_amount_used, salary);
+                    efftng = create_price_effect(&creatng->mappos, creatng->owner, gold_amount_used);
+                }
+                else
+                {
+                    gold_amount_used = salary;
+                    JUSTLOG("  Full payment: using %d gold from pocket", gold_amount_used);
+                    efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
+                }
+
+                //Take the salary from the creature pocket
+                JUSTLOG("  Taking gold from pocket: gold_carried %d -> %d",
+                        creatng->creature.gold_carried, creatng->creature.gold_carried - salary);
+                creatng->creature.gold_carried -= salary;
+
+                //Ensure that the creature's gold carried does not drop below zero.
+                if (creatng->creature.gold_carried < 0)
+                {
+                    JUSTLOG("  Correcting negative gold_carried: %d -> 0", creatng->creature.gold_carried);
+                    creatng->creature.gold_carried = 0;
+                }
+
+                set_start_state(creatng);
+                //Play sound effect
+                thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+
+                JUSTLOG("  Adding to dungeon salary cost: +%d (total now: %lu)",
+                        salary, dungeon->lvstats.salary_cost + salary);
+                dungeon->lvstats.salary_cost += salary;
+
+                JUSTLOG("FINAL STATE: paydays_owed=%d, paid_wage=%d, gold_carried=%d",
+                        cctrl->paydays_owed, cctrl->paid_wage, creatng->creature.gold_carried);
+                JUSTLOG("########## process_custom_salary END (payday complete from pocket) ##########\n");
+                return 1;
+            }
+            //Continue to take the remaining salary from the dungeon
+            else
+            {
+                JUSTLOG("PATH: Insufficient pocket gold, adding to paid_wage for treasury withdrawal");
+                JUSTLOG("  Condition: gold_carried(%d) < salary(%d) AND accept_partial=0",
+                        creatng->creature.gold_carried, salary);
+
+                //Add carried gold to already paid gold
+                JUSTLOG("  Adding pocket gold to paid_wage: %d + %d = %d",
+                        cctrl->paid_wage, creatng->creature.gold_carried,
+                        cctrl->paid_wage + creatng->creature.gold_carried);
+                cctrl->paid_wage += creatng->creature.gold_carried;
+
+                //Visual effect
+                struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, creatng->creature.gold_carried);
+                //Sound effect
+                thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+
+                //Reset carried gold
+                JUSTLOG("  Emptying pocket: gold_carried %d -> 0", creatng->creature.gold_carried);
+                creatng->creature.gold_carried = 0;
+
+                JUSTLOG("FINAL STATE: paydays_owed=%d, paid_wage=%d, gold_carried=%d",
+                        cctrl->paydays_owed, cctrl->paid_wage, creatng->creature.gold_carried);
+                JUSTLOG("########## process_custom_salary END (continuing to treasury) ##########\n");
+                //Creature continues to try to take the salary from the dungeon
+                return 0;
+            }
+        }
+
+    // No gold in pocket - silently return 0 to avoid log spam while creature walks to treasury
+    return 0;
+}
+
 long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((crconf->pay == 0) || (cctrl->paydays_owed == 0)) {
+
       return 0;
     }
     if (creature_is_taking_salary_activity(creatng)) {
         return 1;
+    }
+    // rule activated
+    if(game.conf.rules[creatng->owner].game.take_pay_from_pocket)
+    {
+        // Only call process_custom_salary if creature has gold in pocket (not yet transferred to paid_wage)
+        // Once gold is transferred to paid_wage, let the creature go to treasury
+        if(creatng->creature.gold_carried > 0)
+        {
+            if(process_custom_salary(creatng))
+            {
+                return 1;
+            }
+        }
     }
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureWantsSalary)) {
         return 0;
@@ -5316,10 +5528,17 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureMo
             {
                 if ((dungeon->total_money_owned >= dungeon->creatures_total_backpay) && !room_is_invalid(room))
                 {
-                    cctrl->paydays_advanced++;
+                    if (cctrl->paydays_advanced < game.conf.rules[creatng->owner].game.max_paydays_advanced)
+                    {
+                        cctrl->paydays_advanced++;
+                    }
                     if (cctrl->paydays_owed < SCHAR_MAX)
                     {
-                        cctrl->paydays_owed++; // if there's enough money to pay, go to treasure room now, instead of complaining
+                        // if there's enough money to pay, go to treasure room now, instead of complaining
+                        if (cctrl->paydays_owed < game.conf.rules[creatng->owner].game.max_paydays_owed)
+                        {
+                            cctrl->paydays_owed++;
+                        }
                     }
                 }
                 else

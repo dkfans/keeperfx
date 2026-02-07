@@ -2375,6 +2375,8 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
     if (object_is_gold_laying_on_ground(tgthing))
     {
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+        GoldAmount salary = crconf->pay;
+        GoldAmount gold = tgthing->valuable.gold_stored;
         if (tgthing->valuable.gold_stored > 0)
         {
             if (creatng->creature.gold_carried < crconf->gold_hold)
@@ -2383,14 +2385,14 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
                 {
                     long k = crconf->gold_hold - creatng->creature.gold_carried;
                     creatng->creature.gold_carried += k;
-                    tgthing->valuable.gold_stored -= k;
+                    gold -= k;
                 } else
                 {
                     creatng->creature.gold_carried += tgthing->valuable.gold_stored;
                     delete_thing_structure(tgthing, 0);
                 }
-                thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-            }
+                thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);           }
+                anger_apply_anger_to_creature(creatng, crconf->annoy_got_wage * gold / salary, AngR_NotPaid, 1);
         } else
         {
             ERRORLOG("GoldPile with no gold!");
@@ -4286,7 +4288,7 @@ void draw_creature_view(struct Thing *thing)
   // Draw the buffer on real screen using actual viewport dimensions
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   // Apply lens effect to the viewport area only (not including sidebar)
-  draw_lens_effect(lbDisplay.WScreen + view_x, lbDisplay.GraphicsScreenWidth, 
+  draw_lens_effect(lbDisplay.WScreen + view_x, lbDisplay.GraphicsScreenWidth,
       scrmem + view_x, eye_lens_width, view_width, view_height, game.applied_lens_type);
 }
 
@@ -4807,6 +4809,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->exp_level = 1;
     cctrl->max_health = calculate_correct_creature_max_health(crtng);
     crtng->health = cctrl->max_health;
+    cctrl->paid_wage = 0;
     crtng->owner = owner;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;

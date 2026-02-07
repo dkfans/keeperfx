@@ -163,6 +163,7 @@ struct CreatureControl {
     TbBool force_health_flower_hidden;
     unsigned char paydays_owed;
     char paydays_advanced;
+    GoldAmount paid_wage;
     int32_t annoy_untrained_turn;
     uint32_t last_roar_turn;
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.

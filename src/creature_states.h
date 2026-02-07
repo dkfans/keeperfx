@@ -333,6 +333,7 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerN
 void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints delta);
 
 TbBool process_creature_hunger(struct Thing *thing);
+TbBool process_custom_salary(struct Thing *creatng);
 void process_person_moods_and_needs(struct Thing *thing);
 TbBool restore_creature_flight_flag(struct Thing *creatng);
 TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
