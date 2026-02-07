@@ -1429,6 +1429,11 @@ void process_players_creature_control_packet_control(long idx)
                 }
             }
         }
+        long new_horizontal, new_vertical, new_roll;
+        process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
+        cctng->move_angle_xy = new_horizontal;
+        cctng->move_angle_z = new_vertical;
+        ccctrl->roll = new_roll;
     }
     TbBool allowed;
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
@@ -1487,12 +1492,6 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-
-    long new_horizontal, new_vertical, new_roll;
-    process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
-    cctng->move_angle_xy = new_horizontal;
-    cctng->move_angle_z = new_vertical;
-    ccctrl->roll = new_roll;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
