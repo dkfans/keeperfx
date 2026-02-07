@@ -911,7 +911,7 @@ GoldAmount add_gold_to_treasure_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y
     return gold_store;
 }
 
-long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
+GoldAmount gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
 {
     GoldAmount gold_store = thing->valuable.gold_stored;
     {
@@ -1967,7 +1967,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
  * @param amount Amount of gold to be added.
  * @return Gives amount really added to the hoard.
  */
-long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
+GoldAmount add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
     GoldAmount wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
@@ -2019,7 +2019,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
  * @param amount Amount of gold to be taken.
  * @return Gives amount really taken from the hoard.
  */
-long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
+GoldAmount remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
     if (amount <= 0) {
         return 0;
