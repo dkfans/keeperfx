@@ -538,6 +538,36 @@ TbBool initialise_load_game_slots(void)
     return (count_valid_saved_games() > 0);
 }
 
+/**
+ * @brief Get the safe campaign name object
+ * Removes characters which are not suitable for file names, as campaign name is used in continue game file name. 
+ * It is not perfect, but should be good enough for most cases. If the name becomes empty after removing invalid characters, "default" is used instead.
+ * 
+ * @return const char* safe campaign name
+ */
+static const char* get_safe_campaign_name(void) {
+    static char safe_name[CAMPAIGN_FNAME_LEN];
+    int j = 0;
+
+    for (int i = 0; i < sizeof(safe_name) - 1 && campaign.name[i] != '\0'; i++) {
+        char c = campaign.name[i];
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || 
+            (c >= '0' && c <= '9') || c == '_' || c == '-') {
+            safe_name[j++] = c;
+        }
+    }
+    safe_name[j] = '\0';
+
+    // Default to default if name is empty after sanitization, probably should not happen, but just in case
+    if (j == 0) {
+        strncpy(safe_name, "default", sizeof(safe_name) -1);
+        safe_name[sizeof(safe_name) - 1] = '\0';
+        WARNLOG("Campaign name \"%s\" is not suitable for file name, using default instead", campaign.name);
+    }
+
+    return safe_name;
+}
+
 short save_continue_game(LevelNumber lvnum)
 {
     // Update continue level number
