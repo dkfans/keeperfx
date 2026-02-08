@@ -1444,8 +1444,7 @@ void process_players_creature_control_packet_control(long idx)
                         if (creature_under_spell_effect(cctng, CSAfF_Chicken))
                         {
                             inst_inf = creature_instance_info_get(i);
-                            struct SpellConfig* spconf = get_spell_config(inst_inf->func_params[0]);
-                            allowed = flag_is_set(spconf->cleanse_flags, CSAfF_Chicken);
+                            allowed = inst_inf->fp_allow_when_chicken;
                         }
                         else
                         {
@@ -1553,7 +1552,25 @@ void process_players_creature_control_packet_action(long plyr_idx)
       {
         if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->actn_par1))
         {
-            TbBool allowed = (creature_under_spell_effect(thing, CSAfF_Freeze)) ? inst_inf->fp_allow_while_frozen : true;
+            TbBool allowed;
+            TbBool frozen = creature_under_spell_effect(thing, CSAfF_Freeze);
+            TbBool chicken = creature_under_spell_effect(thing, CSAfF_Chicken);
+            if (frozen && chicken)
+            {
+                allowed = (inst_inf->fp_allow_while_frozen && inst_inf->fp_allow_when_chicken);
+            }
+            else if (frozen)
+            {
+                allowed = inst_inf->fp_allow_while_frozen;
+            }
+            else if (chicken)
+            {
+                allowed = inst_inf->fp_allow_when_chicken;
+            }
+            else
+            {
+                allowed = true;
+            }
             if (allowed)
             {
               i = pckt->actn_par1;
