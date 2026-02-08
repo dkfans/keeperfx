@@ -452,6 +452,8 @@ void setup_eye_lens(long nlens)
     }
     if (nlens == 0)
     {
+        // Switching to no lens - free mist to reset state
+        free_mist();
         game.active_lens_type = 0;
         game.applied_lens_type = 0;
         return;
@@ -461,6 +463,13 @@ void setup_eye_lens(long nlens)
         game.applied_lens_type = nlens;
         return;
     }
+    
+    // Clear the spare screen buffer when switching lenses to prevent corruption
+    // This ensures we don't have stale data from previous lens renders
+    if (eye_lens_spare_screen_memory != NULL) {
+        memset(eye_lens_spare_screen_memory, 0, (eye_lens_width * eye_lens_height) * sizeof(TbPixel));
+    }
+    
     struct LensConfig* lenscfg = get_lens_config(nlens);
     if ((lenscfg->flags & LCF_HasMist) != 0)
     {        
