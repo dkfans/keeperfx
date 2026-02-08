@@ -1148,8 +1148,9 @@ TbBool validate_source_basic
 
     if (!creature_instance_is_available(source, inst_idx) ||
         !creature_instance_has_reset(source, inst_idx) ||
-        (creature_under_spell_effect(source, CSAfF_Freeze) && (param1 == 0)) ||
-        creature_is_fleeing_combat(source) || creature_under_spell_effect(source, CSAfF_Chicken) ||
+        ((creature_under_spell_effect(source, CSAfF_Freeze)) && (!flag_is_set(param1, CSAfF_Freeze))) ||
+        creature_is_fleeing_combat(source) || 
+        ((creature_under_spell_effect(source, CSAfF_Chicken)) && (!flag_is_set(param1, CSAfF_Chicken))) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
         creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
