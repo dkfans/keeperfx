@@ -4313,8 +4313,9 @@ void draw_creature_view(struct Thing *thing)
   // Draw the buffer on real screen using actual viewport dimensions
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   // Apply lens effect to the viewport area only (not including sidebar)
+  // Pass full srcbuf so displacement map lookups work correctly
   draw_lens_effect(lbDisplay.WScreen + view_x, lbDisplay.GraphicsScreenWidth, 
-      scrmem + view_x, eye_lens_width, view_width, view_height, game.applied_lens_type);
+      scrmem, eye_lens_width, view_width, view_height, view_x, game.applied_lens_type);
 }
 
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)

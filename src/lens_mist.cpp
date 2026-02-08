@@ -30,7 +30,9 @@ class CMistFade {
   public:
     CMistFade(void);
     virtual ~CMistFade(void);
-    void setup(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost);
+    void setup(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost, 
+               unsigned char pos_x_step, unsigned char pos_y_step, 
+               unsigned char sec_x_step, unsigned char sec_y_step);
     void animset(long a1, long a2);
     void mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height);
     void animate(void);
@@ -56,7 +58,9 @@ class CMistFade {
 CMistFade *mist = NULL;
 /******************************************************************************/
 
-void CMistFade::setup(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost)
+void CMistFade::setup(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost, 
+                      unsigned char pos_x_step, unsigned char pos_y_step, 
+                      unsigned char sec_x_step, unsigned char sec_y_step)
 {
   this->lens_data = lens_mem;
   this->fade_data = fade;
@@ -68,10 +72,10 @@ void CMistFade::setup(unsigned char *lens_mem, unsigned char *fade, unsigned cha
   this->secondary_offset_y = 128;
   this->animation_speed = 1024;
   this->animation_counter = 0;
-  this->position_x_step = 2;
-  this->position_y_step = 1;
-  this->secondary_x_step = 253;
-  this->secondary_y_step = 3;
+  this->position_x_step = pos_x_step;
+  this->position_y_step = pos_y_step;
+  this->secondary_x_step = sec_x_step;
+  this->secondary_y_step = sec_y_step;
 }
 
 void CMistFade::animset(long a1, long a2)
@@ -161,7 +165,7 @@ void CMistFade::mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf
 
 CMistFade::CMistFade(void)
 {
-  setup(NULL, NULL, NULL);
+  setup(NULL, NULL, NULL, 2, 1, 253, 3);
 }
 
 CMistFade::~CMistFade(void)
@@ -181,12 +185,14 @@ TbBool draw_mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, lo
     return true;
 }
 
-void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost)
+void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost,
+                unsigned char pos_x_step, unsigned char pos_y_step, 
+                unsigned char sec_x_step, unsigned char sec_y_step)
 {
     SYNCDBG(8,"Starting");
     if (mist == NULL)
         mist = new CMistFade();
-    mist->setup(lens_mem, fade, ghost);
+    mist->setup(lens_mem, fade, ghost, pos_x_step, pos_y_step, sec_x_step, sec_y_step);
     mist->animset(0, 1024);
 }
 

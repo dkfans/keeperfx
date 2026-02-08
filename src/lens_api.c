@@ -452,6 +452,8 @@ void setup_eye_lens(long nlens)
     }
     if (nlens == 0)
     {
+        // Switching to no lens - free mist to reset state
+        free_mist();
         game.active_lens_type = 0;
         game.applied_lens_type = 0;
         return;
@@ -461,6 +463,13 @@ void setup_eye_lens(long nlens)
         game.applied_lens_type = nlens;
         return;
     }
+    
+    // Clear the spare screen buffer when switching lenses to prevent corruption
+    // This ensures we don't have stale data from previous lens renders
+    if (eye_lens_spare_screen_memory != NULL) {
+        memset(eye_lens_spare_screen_memory, 0, (eye_lens_width * eye_lens_height) * sizeof(TbPixel));
+    }
+    
     struct LensConfig* lenscfg = get_lens_config(nlens);
     if ((lenscfg->flags & LCF_HasMist) != 0)
     {        
@@ -494,7 +503,11 @@ void setup_eye_lens(long nlens)
         
         setup_mist((unsigned char *)eye_lens_memory,
             &pixmap.fade_tables[(lenscfg->mist_lightness)*256],
-            &pixmap.ghost[(lenscfg->mist_ghost)*256]);
+            &pixmap.ghost[(lenscfg->mist_ghost)*256],
+            (unsigned char)lenscfg->mist_pos_x_step,
+            (unsigned char)lenscfg->mist_pos_y_step,
+            (unsigned char)lenscfg->mist_sec_x_step,
+            (unsigned char)lenscfg->mist_sec_y_step);
     }
     if ((lenscfg->flags & LCF_HasDisplace) != 0)
     {
@@ -544,11 +557,13 @@ void reinitialise_eye_lens(long nlens)
   SYNCDBG(18,"Finished");
 }
 
-static void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, uint32_t *lens_mem, int width, int height, int dstpitch)
+static void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, uint32_t *lens_mem, int width, int height, int dstpitch, int lens_pitch)
 {
     SYNCDBG(16,"Starting");
     unsigned char* dst = dstbuf;
     uint32_t* mem = lens_mem;
+    // srcbuf is the full screen buffer - pos_map indexes into it correctly
+    // lens_pitch is the width of the displacement map (full screen width)
     for (int h = 0; h < height; h++)
     {
         for (int w = 0; w < width; w++)
@@ -558,6 +573,8 @@ static void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf,
             mem++;
         }
         dst += dstpitch;
+        // Skip to the next row in the displacement map if it's wider than our render width
+        mem += (lens_pitch - width);
     }
 }
 
@@ -650,7 +667,7 @@ static void draw_overlay(unsigned char *dstbuf, long dstpitch, long width, long 
     }
 }
 
-void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long effect)
+void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long viewport_x, long effect)
 {
     long copied = 0;
     if ((effect < 1) || (effect > lenses_conf.lenses_count))
@@ -660,9 +677,13 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
         effect = 0;
     }
     struct LensConfig* lenscfg = &lenses_conf.lenses[effect];
+    
+    // For sequential operations (mist, copy), offset srcbuf by viewport_x
+    unsigned char* viewport_srcbuf = srcbuf + viewport_x;
+    
     if ((lenscfg->flags & LCF_HasMist) != 0)
     {
-        draw_mist(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
+        draw_mist(dstbuf, dstpitch, viewport_srcbuf, srcpitch, width, height);
         copied = true;
     }
     if ((lenscfg->flags & LCF_HasDisplace) != 0)
@@ -671,12 +692,18 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
         {
         case 1:
         case 2:
-            draw_displacement_lens(dstbuf, srcbuf, eye_lens_memory,
-                width, height, dstpitch);
+            // For displacement, use full srcbuf (not offset) because displacement map contains absolute positions
+            // Offset the displacement map to start at the viewport position
+            long full_width = eye_lens_width;
+            uint32_t* viewport_lens_mem = eye_lens_memory + viewport_x;
+            draw_displacement_lens(dstbuf, srcbuf, viewport_lens_mem,
+                width, height, dstpitch, full_width);
             copied = true;
             break;
         case 3:
-            flyeye_blitsec(srcbuf, srcpitch, dstbuf, dstpitch, 1, height);
+            // Flyeye effect uses its own optimized blitting function that handles displacement internally
+            // It also expects the full srcbuf and uses the viewport_x internally for lookups, so we pass the full srcbuf
+            flyeye_blitsec(viewport_srcbuf, srcpitch, dstbuf, dstpitch, 1, height);
             copied = true;
             break;
         }
@@ -691,7 +718,7 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
         // First, copy the source buffer to destination if not already done
         if (!copied)
         {
-            draw_copy(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
+            draw_copy(dstbuf, dstpitch, viewport_srcbuf, srcpitch, width, height);
         }
         // Load overlay if not already loaded
         if (load_overlay_image(effect)) {
@@ -704,7 +731,7 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
     // If we haven't copied the buffer to screen yet, do so now
     if (!copied)
     {
-        draw_copy(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
+        draw_copy(dstbuf, dstpitch, viewport_srcbuf, srcpitch, width, height);
     }
 }
 
