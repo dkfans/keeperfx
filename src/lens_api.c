@@ -494,7 +494,11 @@ void setup_eye_lens(long nlens)
         
         setup_mist((unsigned char *)eye_lens_memory,
             &pixmap.fade_tables[(lenscfg->mist_lightness)*256],
-            &pixmap.ghost[(lenscfg->mist_ghost)*256]);
+            &pixmap.ghost[(lenscfg->mist_ghost)*256],
+            (unsigned char)lenscfg->mist_pos_x_step,
+            (unsigned char)lenscfg->mist_pos_y_step,
+            (unsigned char)lenscfg->mist_sec_x_step,
+            (unsigned char)lenscfg->mist_sec_y_step);
     }
     if ((lenscfg->flags & LCF_HasDisplace) != 0)
     {
