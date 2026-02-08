@@ -58,6 +58,10 @@ const struct NamedField lenses_data_named_fields[] = {
     {"MIST",              0, field(lenses_conf.lenses[0].mist_file),                0,        0,        0, NULL,         value_mist,      assign_null},
     {"MIST",              1, field(lenses_conf.lenses[0].mist_lightness),           0,        0,       63, NULL,         value_default,   assign_default},
     {"MIST",              2, field(lenses_conf.lenses[0].mist_ghost),               0,        0,      255, NULL,         value_default,   assign_default},
+    {"MIST",              3, field(lenses_conf.lenses[0].mist_pos_x_step),          2,        0,      255, NULL,         value_default,   assign_default},
+    {"MIST",              4, field(lenses_conf.lenses[0].mist_pos_y_step),          1,        0,      255, NULL,         value_default,   assign_default},
+    {"MIST",              5, field(lenses_conf.lenses[0].mist_sec_x_step),        253,        0,      255, NULL,         value_default,   assign_default},
+    {"MIST",              6, field(lenses_conf.lenses[0].mist_sec_y_step),          3,        0,      255, NULL,         value_default,   assign_default},
     {"DISPLACEMENT",      0, field(lenses_conf.lenses[0].displace_kind),            0,        0,      255, NULL,         value_default,   assign_default},
     {"DISPLACEMENT",      1, field(lenses_conf.lenses[0].displace_magnitude),       0,        0,      511, NULL,         value_default,   assign_default},
     {"DISPLACEMENT",      2, field(lenses_conf.lenses[0].displace_period),          1,        0,      511, NULL,         value_displace,  assign_default},
@@ -123,11 +127,6 @@ static int64_t value_overlay(const struct NamedField* named_field, const char* v
     
     lenses_conf.lenses[idx].flags |= LCF_HasOverlay;
     struct LensConfig* lenscfg = &lenses_conf.lenses[idx];
-    
-    // Clear mist flag and mist_file if this lens only has an overlay
-    // This prevents garbage mist data from previous lens configurations
-    lenscfg->flags &= ~LCF_HasMist;
-    lenscfg->mist_file[0] = '\0';
     
     // Only store the overlay name when processing position 0 (the name field)
     // Position 1 is the alpha value, handled by value_default

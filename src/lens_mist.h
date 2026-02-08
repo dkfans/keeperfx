@@ -26,7 +26,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost);
+void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost,
+                unsigned char pos_x_step, unsigned char pos_y_step, 
+                unsigned char sec_x_step, unsigned char sec_y_step);
 TbBool draw_mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height);
 void free_mist(void);
 /******************************************************************************/
