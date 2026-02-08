@@ -1458,10 +1458,6 @@ void process_players_creature_control_packet_control(long idx)
                                 inst_inf = creature_instance_info_get(i);
                                 allowed = inst_inf->fp_allow_while_frozen;
                             }
-                            else
-                            {
-                                allowed = true;
-                            }
                             if (allowed)
                             {
                                 process_player_use_instance(cctng, i, pckt);
