@@ -123,7 +123,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         }
     }
 
-    ERRORLOG("Cannot find valid position near %d, %d to place thing", pos->x.stl.num, pos->y.stl.num);
+    ERRORLOG("Cannot find valid position near %d, %d to place %s", pos->x.stl.num, pos->y.stl.num, thing_model_name(thing));
     return false;
 
 }
