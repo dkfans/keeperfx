@@ -466,8 +466,11 @@ void update_creature_graphic_anim(struct Thing *thing)
           {
               thing->rendering_flags &= ~(TRF_Transpar_Flags);
           }
-          struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
-          update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
+          if (!creature_under_spell_effect(thing, CSAfF_Freeze))
+          {
+              struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
+              update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
+          }
         } else
         if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_under_spell_effect(thing, CSAfF_Freeze))
         {
