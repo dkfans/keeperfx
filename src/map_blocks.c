@@ -238,7 +238,7 @@ TbBool untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y
     x = STL_PER_SLB * (stl_x/STL_PER_SLB);
     y = STL_PER_SLB * (stl_y/STL_PER_SLB);
     if ( (x < 0) || (x > game.map_subtiles_x) || (y < 0) || (y > game.map_subtiles_y) ) {
-        ERRORLOG("Attempt to tag (%ld,%ld), which is outside of map",x,y);
+        ERRORLOG("Attempt to tag (%d,%d), which is outside of map",x,y);
         return 0;
     }
     i = get_subtile_number(x+1,y+1);
@@ -2628,7 +2628,7 @@ SlabKind choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
     struct Coord3d pos, pos2;
     struct Thing *heartng = get_player_soul_container(plyr_idx);
     // this function calculates distance in slabs, not subtiles
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         pos.x.val = 42;
         pos.y.val = 42;

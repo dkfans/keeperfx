@@ -119,7 +119,7 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flags, long s
 
 static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *current_position_x, MapSubtlCoord *current_position_y,
                             const MapSubtlCoord target_position_x, const MapSubtlCoord target_position_y, char *hug_state_flag,
-                            MapSubtlDelta *delta, struct Coord3d *pos1, long *hug_val, unsigned short *i,
+                            MapSubtlDelta *delta, struct Coord3d *pos1, int32_t *hug_val, unsigned short *i,
                             int *next_round_index_1, const int arr_offset_1, const int arr_offset_2)
 {
     if (*hug_state_flag == 2)
@@ -180,7 +180,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *current_position_
     return -1;
 }
 
-static int hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
+static int hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, int32_t *hug_val)
 {
     MapSubtlCoord target_position_x = pos2->x.stl.num;
     MapSubtlCoord target_position_y = pos2->y.stl.num;
@@ -264,7 +264,7 @@ long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
             curr_pos.y.stl.num += STL_PER_SLB * (int)small_around[round_idx].delta_y;
         } else
         {
-            long hug_val = max_val - i;
+            int32_t hug_val = max_val - i;
             int hug_ret = hug_round(thing, &next_pos, &target_centered_position, round_idx, &hug_val);
             if (hug_ret == -1) {
                 return -1;
@@ -1046,7 +1046,7 @@ static int get_starting_angle_and_side_of_hug_sub1(
 static signed char get_starting_angle_and_side_of_hug(
     struct Thing *creatng,
     struct Coord3d *pos,
-    long *angle,
+    int32_t *angle,
     unsigned char *side,
     long slab_flags,
     PlayerBitFlags crt_owner_flags)
@@ -1421,7 +1421,7 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     targetpos.x.val = subtile_coord_center(stl_x);
     targetpos.y.val = subtile_coord_center(stl_y);
     targetpos.z.val = 0;
-    long min_dist = LONG_MAX;
+    long min_dist = INT32_MAX;
     for (SmallAroundIndex n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         long dx = spacing * (long)small_around[n].delta_x;
@@ -1443,7 +1443,7 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
             }
         }
     }
-    return (min_dist < LONG_MAX);
+    return (min_dist < INT32_MAX);
 }
 
 static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long slab_flags, PlayerBitFlags crt_owner_flags)

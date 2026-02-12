@@ -62,7 +62,7 @@ BIN      = bin/keeperfx$(EXEEXT)
 TEST_BIN = bin/tests$(EXEEXT)
 HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
-GENSRC   = obj/ver_defs.h
+GENSRC   = src/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 
 DEPS = \
@@ -104,10 +104,12 @@ obj/bflib_crash.o \
 obj/bflib_datetm.o \
 obj/bflib_dernc.o \
 obj/bflib_enet.o \
+obj/net_portforward.o \
 obj/bflib_fileio.o \
 obj/bflib_filelst.o \
 obj/bflib_fmvids.o \
 obj/bflib_guibtns.o \
+obj/bflib_input_joyst.o \
 obj/bflib_inputctrl.o \
 obj/bflib_keybrd.o \
 obj/bflib_main.o \
@@ -118,6 +120,8 @@ obj/bflib_mspointer.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/bflib_network.o \
+obj/bflib_network_exchange.o \
+obj/net_resync.o \
 obj/bflib_planar.o \
 obj/bflib_render.o \
 obj/bflib_render_gpoly.o \
@@ -187,6 +191,7 @@ obj/dungeon_data.o \
 obj/dungeon_stats.o \
 obj/engine_arrays.o \
 obj/engine_camera.o \
+obj/local_camera.o \
 obj/engine_lenses.o \
 obj/engine_redraw.o \
 obj/engine_render.o \
@@ -272,7 +277,10 @@ obj/map_locations.o \
 obj/map_utils.o \
 obj/moonphase.o \
 obj/net_game.o \
-obj/net_sync.o \
+obj/net_input_lag.o \
+obj/net_received_packets.o \
+obj/net_redundant_packets.o \
+obj/net_checksums.o \
 obj/packets.o \
 obj/packets_cheats.o \
 obj/packets_input.o \
@@ -330,6 +338,7 @@ obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
 obj/spritesheet.o \
+obj/windows.o \
 $(FTEST_OBJS) \
 $(RES)
 
@@ -359,7 +368,9 @@ LINKLIB = -mwindows \
 	-L"deps/ffmpeg/libavutil" -lavutil \
 	-L"deps/openal" -lOpenAL32 \
 	-L"deps/astronomy" -lastronomy \
-	-L"deps/enet" -lenet \
+	-L"deps/enet6/lib" -lenet6 \
+	-L"deps/miniupnpc" -lminiupnpc \
+	-L"deps/libnatpmp" -lnatpmp -liphlpapi \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
@@ -370,14 +381,15 @@ INCS = \
 	-I"deps/spng/include" \
 	-I"sdl/include" \
 	-I"sdl/include/SDL2" \
-	-I"deps/enet/include" \
+	-I"deps/enet6/include" \
 	-I"deps/centijson/include" \
 	-I"deps/centitoml" \
 	-I"deps/astronomy/include" \
 	-I"deps/ffmpeg" \
 	-I"deps/openal/include" \
 	-I"deps/luajit/include" \
-	-I"obj" # To find ver_defs.h
+	-I"deps/miniupnpc/include" \
+	-I"deps/libnatpmp/include"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -414,7 +426,7 @@ endif
 STLOGFLAGS = -DBFDEBUG_LEVEL=0
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
-WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror
+WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-sign-compare -Wno-strict-aliasing -Wno-unknown-pragmas -Werror
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
@@ -609,7 +621,7 @@ res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08b
 	$(PNGTOICO) "$@" $(word 8,$^) $(word 7,$^) $(word 6,$^) --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
 	-$(ECHO) ' '
 
-obj/ver_defs.h: version.mk Makefile
+src/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
 	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
@@ -626,28 +638,29 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit
+	-$(RM) -rf deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp
 	-$(RM) libexterns
 
-deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit:
+deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp:
 	$(MKDIR) $@
 
 src/api.c: deps/centijson/include/json.h
-src/bflib_enet.cpp: deps/enet/include/enet/enet.h
+src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h deps/centijson/include/json.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
 src/bflib_sndlib.cpp: deps/openal/include/AL/al.h
-src/bflib_network.cpp: deps/zlib/include/zlib.h
+src/net_resync.cpp: deps/zlib/include/zlib.h
 src/console_cmd.c: deps/luajit/include/lua.h
+src/net_portforward.cpp: deps/miniupnpc/include/miniupnpc/miniupnpc.h deps/libnatpmp/include/natpmp/natpmp.h
 
-deps/enet-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
+deps/enet6-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260212/enet6-mingw32.tar.gz"
 
-deps/enet/include/enet/enet.h: deps/enet-mingw32.tar.gz | deps/enet
-	tar xzmf $< -C deps/enet
+deps/enet6/include/enet6/enet.h: deps/enet6-mingw32.tar.gz | deps/enet6
+	tar xzmf $< -C deps/enet6
 
 deps/zlib-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/zlib-mingw32.tar.gz"
@@ -693,12 +706,24 @@ deps/luajit/lib/libluajit.a: | deps/luajit/include/lua.h
 deps/luajit/include/lua.h: deps/luajit-mingw32.tar.gz | deps/luajit
 	tar xzmf $< -C deps/luajit
 
-cppcheck: | obj/ver_defs.h
+deps/miniupnpc-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260102/miniupnpc-mingw32.tar.gz"
+
+deps/miniupnpc/include/miniupnpc/miniupnpc.h: deps/miniupnpc-mingw32.tar.gz | deps/miniupnpc
+	tar xzmf $< -C deps/miniupnpc
+
+deps/libnatpmp-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260102/libnatpmp-mingw32.tar.gz"
+
+deps/libnatpmp/include/natpmp/natpmp.h: deps/libnatpmp-mingw32.tar.gz | deps/libnatpmp
+	tar xzmf $< -C deps/libnatpmp
+
+cppcheck: | src/ver_defs.h
 cppcheck: | deps/zlib/include/zlib.h
 cppcheck: | deps/spng/include/spng.h
 cppcheck: | deps/astronomy/include/astronomy.h
 cppcheck: | deps/centijson/include/json.h
-cppcheck: | deps/enet/include/enet/enet.h
+cppcheck: | deps/enet6/include/enet6/enet.h
 cppcheck: | deps/luajit/include/lua.h
 cppcheck: | deps/openal/include/AL/al.h
 cppcheck: | deps/ffmpeg/libavformat/avformat.h
@@ -718,7 +743,7 @@ cppcheck:
 		-I deps/spng/include \
 		-I sdl/include \
 		-I sdl/include/SDL2 \
-		-I deps/enet/include \
+		-I deps/enet6/include \
 		-I deps/centijson/include \
 		-I deps/centitoml \
 		-I deps/astronomy/include \

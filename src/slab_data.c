@@ -205,7 +205,7 @@ SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num)
 {
     if (slab_num >= game.map_tiles_x * game.map_tiles_y)
     {
-        ERRORLOG("Slabnumber %lu exceeds map dimensions %d*%d", slab_num, game.map_tiles_x, game.map_tiles_y);
+        ERRORLOG("Slabnumber %u exceeds map dimensions %d*%d", slab_num, game.map_tiles_x, game.map_tiles_y);
         return 0;
     }
     return game.slabmap[slab_num].next_in_room;

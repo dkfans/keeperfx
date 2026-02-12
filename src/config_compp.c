@@ -89,24 +89,24 @@ const struct NamedFieldSet compp_common_named_fields_set = {
 
 static const struct NamedField compp_process_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",        -1, field(comp_player_conf.process_types[0].name),          0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mnemonic),      0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
-  {"VALUES",       0, field(comp_player_conf.process_types[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       1, field(comp_player_conf.process_types[0].process_configuration_value_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       2, field(comp_player_conf.process_types[0].process_configuration_value_3    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       3, field(comp_player_conf.process_types[0].process_configuration_value_4    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       4, field(comp_player_conf.process_types[0].process_configuration_value_5    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"FUNCTIONS",    0, field(comp_player_conf.process_types[0].func_check   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
-  {"FUNCTIONS",    1, field(comp_player_conf.process_types[0].func_setup   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
-  {"FUNCTIONS",    2, field(comp_player_conf.process_types[0].func_task    ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
-  {"FUNCTIONS",    3, field(comp_player_conf.process_types[0].func_complete), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
-  {"FUNCTIONS",    4, field(comp_player_conf.process_types[0].func_pause   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
-  {"PARAMS",       0, field(comp_player_conf.process_types[0].process_parameter_1      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       1, field(comp_player_conf.process_types[0].process_parameter_2      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       2, field(comp_player_conf.process_types[0].process_parameter_3      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       3, field(comp_player_conf.process_types[0].last_run_turn), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       4, field(comp_player_conf.process_types[0].process_parameter_5      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       5, field(comp_player_conf.process_types[0].flags        ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"NAME",        -1, field(comp_player_conf.process_types[0].name),          0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mnemonic),      0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field(comp_player_conf.process_types[0].priority     ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field(comp_player_conf.process_types[0].process_configuration_value_2    ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       2, field(comp_player_conf.process_types[0].process_configuration_value_3    ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       3, field(comp_player_conf.process_types[0].process_configuration_value_4    ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       4, field(comp_player_conf.process_types[0].process_configuration_value_5    ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field(comp_player_conf.process_types[0].func_check   ), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    1, field(comp_player_conf.process_types[0].func_setup   ), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    2, field(comp_player_conf.process_types[0].func_task    ), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    3, field(comp_player_conf.process_types[0].func_complete), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    4, field(comp_player_conf.process_types[0].func_pause   ), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"PARAMS",       0, field(comp_player_conf.process_types[0].process_parameter_1      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       1, field(comp_player_conf.process_types[0].process_parameter_2      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       2, field(comp_player_conf.process_types[0].process_parameter_3      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       3, field(comp_player_conf.process_types[0].last_run_turn), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       4, field(comp_player_conf.process_types[0].process_parameter_5      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       5, field(comp_player_conf.process_types[0].flags        ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
   {NULL},
 };
 
@@ -122,15 +122,15 @@ const struct NamedFieldSet compp_process_named_fields_set = {
 
 static const struct NamedField compp_check_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",        -1, field(comp_player_conf.check_types[0].name          ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.check_types[0].mnemonic      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
-  {"VALUES",       0, field(comp_player_conf.check_types[0].flags         ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       1, field(comp_player_conf.check_types[0].turns_interval), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"FUNCTIONS",    0, field(comp_player_conf.check_types[0].func          ), 0, LONG_MIN,ULONG_MAX, computer_check_func_type,   value_default, assign_default},
-  {"PARAMS",       0, field(comp_player_conf.check_types[0].primary_parameter        ), 0, LONG_MIN,ULONG_MAX, NULL,            value_default, assign_default},
-  {"PARAMS",       1, field(comp_player_conf.check_types[0].secondary_parameter        ), 0, LONG_MIN,ULONG_MAX, NULL,          value_default, assign_default},
-  {"PARAMS",       2, field(comp_player_conf.check_types[0].tertiary_parameter        ), 0, LONG_MIN,ULONG_MAX, NULL,           value_default, assign_default},
-  {"PARAMS",       3, field(comp_player_conf.check_types[0].last_run_turn ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"NAME",        -1, field(comp_player_conf.check_types[0].name          ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.check_types[0].mnemonic      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field(comp_player_conf.check_types[0].flags         ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field(comp_player_conf.check_types[0].turns_interval), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field(comp_player_conf.check_types[0].func          ), 0, INT32_MIN,UINT32_MAX, computer_check_func_type,   value_default, assign_default},
+  {"PARAMS",       0, field(comp_player_conf.check_types[0].primary_parameter        ), 0, INT32_MIN,UINT32_MAX, NULL,            value_default, assign_default},
+  {"PARAMS",       1, field(comp_player_conf.check_types[0].secondary_parameter        ), 0, INT32_MIN,UINT32_MAX, NULL,          value_default, assign_default},
+  {"PARAMS",       2, field(comp_player_conf.check_types[0].tertiary_parameter        ), 0, INT32_MIN,UINT32_MAX, NULL,           value_default, assign_default},
+  {"PARAMS",       3, field(comp_player_conf.check_types[0].last_run_turn ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
   {NULL},
 };
 
@@ -147,18 +147,18 @@ const struct NamedFieldSet compp_check_named_fields_set = {
 
 static const struct NamedField compp_event_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",        -1, field(comp_player_conf.event_types[0].name               ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.event_types[0].mnemonic           ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
-  {"VALUES",       0, field(comp_player_conf.event_types[0].cetype             ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       1, field(comp_player_conf.event_types[0].mevent_kind        ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       2, field(comp_player_conf.event_types[0].test_interval      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"FUNCTIONS",    0, field(comp_player_conf.event_types[0].func_event         ), 0, LONG_MIN,ULONG_MAX, computer_event_func_type,   value_default, assign_default},
-  {"FUNCTIONS",    0, field(comp_player_conf.event_types[0].func_test          ), 0, LONG_MIN,ULONG_MAX, computer_event_test_func_type,   value_default, assign_default},
-  {"PROCESS",      0, field(comp_player_conf.event_types[0].process            ), 0, LONG_MIN,ULONG_MAX, NULL,              value_process_mnemonic, assign_default},
-  {"PARAMS",       0, field(comp_player_conf.event_types[0].primary_parameter             ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       1, field(comp_player_conf.event_types[0].secondary_parameter             ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       2, field(comp_player_conf.event_types[0].tertiary_parameter             ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       3, field(comp_player_conf.event_types[0].last_test_gameturn ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"NAME",        -1, field(comp_player_conf.event_types[0].name               ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.event_types[0].mnemonic           ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field(comp_player_conf.event_types[0].cetype             ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field(comp_player_conf.event_types[0].mevent_kind        ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       2, field(comp_player_conf.event_types[0].test_interval      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field(comp_player_conf.event_types[0].func_event         ), 0, INT32_MIN,UINT32_MAX, computer_event_func_type,   value_default, assign_default},
+  {"FUNCTIONS",    0, field(comp_player_conf.event_types[0].func_test          ), 0, INT32_MIN,UINT32_MAX, computer_event_test_func_type,   value_default, assign_default},
+  {"PROCESS",      0, field(comp_player_conf.event_types[0].process            ), 0, INT32_MIN,UINT32_MAX, NULL,              value_process_mnemonic, assign_default},
+  {"PARAMS",       0, field(comp_player_conf.event_types[0].primary_parameter             ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       1, field(comp_player_conf.event_types[0].secondary_parameter             ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       2, field(comp_player_conf.event_types[0].tertiary_parameter             ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       3, field(comp_player_conf.event_types[0].last_test_gameturn ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
   {NULL},
 };
 
@@ -177,19 +177,19 @@ const struct NamedFieldSet compp_event_named_fields_set = {
 
 static const struct NamedField compp_computer_named_fields[] = {
   //name           //pos    //field                                                    //default //min     //max    //NamedCommand
-  {"NAME",             -1, field(comp_player_conf.computer_types[0].name),                     0, LONG_MIN,ULONG_MAX, NULL,         value_name,    assign_null},
-  {"TOOLTIPTEXTID",     0, field(comp_player_conf.computer_types[0].tooltip_stridx),GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"ASSISTANTICON",     0, field(comp_player_conf.computer_types[0].sprite_idx),               0, LONG_MIN,ULONG_MAX, NULL,         value_icon,    assign_icon},
-  {"VALUES",            0, field(comp_player_conf.computer_types[0].dig_stack_size ),          0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            1, field(comp_player_conf.computer_types[0].processes_time ),          0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            2, field(comp_player_conf.computer_types[0].click_rate),               0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            3, field(comp_player_conf.computer_types[0].max_room_build_tasks),     0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            4, field(comp_player_conf.computer_types[0].turn_begin         ),      0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            5, field(comp_player_conf.computer_types[0].sim_before_dig     ),      0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            5, field(comp_player_conf.computer_types[0].drop_delay         ),      0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"PROCESSES",        -1, field(comp_player_conf.computer_types[0].processes          ),      0, LONG_MIN,ULONG_MAX, NULL,         value_processes, assign_null},
-  {"CHECKS",           -1, field(comp_player_conf.computer_types[0].checks             ),      0, LONG_MIN,ULONG_MAX, NULL,         value_checks, assign_null},
-  {"EVENTS",           -1, field(comp_player_conf.computer_types[0].events             ),      0, LONG_MIN,ULONG_MAX, NULL,         value_events, assign_null},
+  {"NAME",             -1, field(comp_player_conf.computer_types[0].name),                     0, INT32_MIN,UINT32_MAX, NULL,         value_name,    assign_null},
+  {"TOOLTIPTEXTID",     0, field(comp_player_conf.computer_types[0].tooltip_stridx),GUIStr_Empty, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"ASSISTANTICON",     0, field(comp_player_conf.computer_types[0].sprite_idx),               0, INT32_MIN,UINT32_MAX, NULL,         value_icon,    assign_icon},
+  {"VALUES",            0, field(comp_player_conf.computer_types[0].dig_stack_size ),          0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            1, field(comp_player_conf.computer_types[0].processes_time ),          0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            2, field(comp_player_conf.computer_types[0].click_rate),               0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            3, field(comp_player_conf.computer_types[0].max_room_build_tasks),     0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            4, field(comp_player_conf.computer_types[0].turn_begin         ),      0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            5, field(comp_player_conf.computer_types[0].sim_before_dig     ),      0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            5, field(comp_player_conf.computer_types[0].drop_delay         ),      0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"PROCESSES",        -1, field(comp_player_conf.computer_types[0].processes          ),      0, INT32_MIN,UINT32_MAX, NULL,         value_processes, assign_null},
+  {"CHECKS",           -1, field(comp_player_conf.computer_types[0].checks             ),      0, INT32_MIN,UINT32_MAX, NULL,         value_checks, assign_null},
+  {"EVENTS",           -1, field(comp_player_conf.computer_types[0].events             ),      0, INT32_MIN,UINT32_MAX, NULL,         value_events, assign_null},
   {NULL},
 };
 
@@ -211,7 +211,7 @@ int64_t value_processes(const struct NamedField* named_field, const char* value_
   struct ComputerType* cpt = get_computer_type_template(idx);
   computer_type_clear_processes(cpt);
 
-  long pos = 0;
+  int32_t pos = 0;
   long len = strlen(value_text);
   while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
   {
@@ -235,7 +235,7 @@ int64_t value_checks(const struct NamedField* named_field, const char* value_tex
     struct ComputerType* cpt = get_computer_type_template(idx);
     computer_type_clear_checks(cpt);
 
-    long pos = 0;
+    int32_t pos = 0;
     long len = strlen(value_text);
     while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
     {
@@ -259,7 +259,7 @@ int64_t value_events(const struct NamedField* named_field, const char* value_tex
   struct ComputerType* cpt = get_computer_type_template(idx);
   computer_type_clear_events(cpt);
 
-  long pos = 0;
+  int32_t pos = 0;
   long len = strlen(value_text);
   while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
   {

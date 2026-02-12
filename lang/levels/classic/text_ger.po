@@ -437,42 +437,7 @@ msgctxt "In-game message"
 msgid "An impressive victory Keeper! I'm sure you will enjoy plundering this land in your own time, but your remaining minions must need a rest?!"
 msgstr "Ein eindrucksvoller Sieg, Keeper! Ich bin mir sicher, dass Ihr es genießen werdet, dieses Land in Eurer kostbaren Zeit zu plündern, aber Eure verbleibenden Untergebenen müssen sich ausruhen?!"
 
-#. Skybird's Other Side (lv920)
-#: guitext:68
-msgctxt "In-game message"
-msgid "You're in Skybird Trill again! What dark forces compel you to return to this realm? It seems the gods seek proof that you can achieve victory no matter which side of the realm your quest begins? Prove that your victory versus the Avatar is unavoidable, no matter where your dungeon must be built!"
-msgstr "Du bist wieder in Vogelsang! Welche dunklen Mächte treiben Euch dazu, in dieses Reich zurückzukehren? Es scheint, als wollten die Götter den Beweis, dass Ihr siegen könnt, egal auf welcher Seite des Reiches Eure Herausforderung beginnt? Zeige, dass Euer Sieg über den Avatar unvermeidbar ist, ganz gleich, wo Euer Dungeon gebaut wird!"
-
-#. Skybird's Other Side (lv920)
-#: guitext:69
-msgctxt "In-game message"
-msgid "You have destroyed the Avatar's castle but your rival has already taken the Avatar prisoner. Be that as it may, only the Keeper with the blackest heart can destroy this legendary hero, so ransack your rival's dungeon and take the prize. Hmm, getting a sense of deja-vu Master?"
-msgstr "Ihr habt zwar die Burg des Avatars zerstört, der andere Keeper hat ihn aber gefangen genommen. Sei es, wie es sei, nur der Keeper mit der schwärzesten Seele kann den legendären Helden zur Strecke bringen, also plündert den Dungeon Eures Rivalen und nehmt die Trophäe entgegen. Hmm, bekommt Ihr etwa ein Déjà-vu, Meister?"
-
-#. Skybird's Other Side (lv920)
-#: guitext:70
-msgctxt "In-game message"
-msgid "You have once more proved yourself to be the ruler of Skybird Trill! The latest Avatar lies amongst your defeated foes; you can put him with his predecessors! Your authority in this realm is unchallenged. For now, anyway........ "
-msgstr "Ihr habt einmal mehr bewiesen, dass Ihr der Herrscher von Vogelsang seid! Der nächste Avatar liegt inmitten Eurer besiegten Feinde; Er kann sich zu seinen Vorgängern gesellen! Eure Vorherrschaft in diesem Reich ist unanfechtbar. Für den Augenblick jedenfalls........ "
-
-#. Skybird's Other Side (lv920)
-#: guitext:71
-msgctxt "In-game message"
-msgid "Prepare yourself for a plague of angry dwarves! You must deal with these irritating minions robustly Keeper. They are the advance Heroes for a forthcoming attack it seems? "
-msgstr "Macht Euch auf eine Flut von wütenden Zwergen gefasst! Ihr müsst diesen lästigen Lakaien entschieden entgegentreten, Keeper. Sie sind die Vorhut für einen bevorstehenden Angriff, wie es scheint?"
-
-#. Skybird's Other Side (lv920)
-#: guitext:72
-msgctxt "In-game message"
-msgid "You have defeated the Avatar! However, you are familiar with this realm, and will know it's never safe to assume victory? "
-msgstr "Ihr habt den Avatar geschlagen! Aber Ihr kennt Euch in diesem Reich aus und wisst, dass man sich niemals auf den Sieg verlassen kann? "
-
-#. Skybird's Other Side (lv920)
-#: guitext:73
-msgctxt "In-game message"
-msgid "And so the Avatar has returned with a formidable army! Prepare for the final battle Keeper. The fate of this realm must be decided very soon. "
-msgstr "Und so ist der Avatar mit einer beachtlichen Armee zurückgekehrt! Die letzte Schlacht steht bevor, Keeper. Das Schicksal dieses Reiches entscheidet sich schon bald."
-
+#: guitext:68 guitext:69 guitext:70 guitext:71 guitext:72 guitext:73
 #: guitext:74 guitext:75 guitext:76 guitext:77 guitext:78 guitext:79 guitext:80 guitext:81 guitext:82 guitext:83 guitext:84 guitext:85 guitext:86 guitext:87 guitext:88 guitext:89 guitext:90 guitext:91 guitext:92 guitext:93 guitext:94 guitext:95 guitext:96 guitext:97 guitext:98 guitext:99 guitext:100 guitext:101 guitext:102 guitext:103 guitext:104 guitext:105 guitext:106 guitext:107 guitext:108 guitext:109 guitext:110 guitext:111 guitext:112 guitext:113 guitext:114 guitext:115 guitext:116 guitext:117 guitext:118
 #: guitext:119 guitext:120 guitext:121 guitext:122 guitext:123 guitext:124 guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140 guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 guitext:149 guitext:150 guitext:151 guitext:152 guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160 guitext:161
 #: guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168 guitext:169 guitext:170 guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200

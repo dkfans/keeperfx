@@ -395,7 +395,7 @@ TbBool creature_will_go_postal_on_victim_during_job(const struct Thing *creatng,
     return false;
 }
 
-TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long *found_dist, struct Thing **found_thing)
+TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, uint32_t *found_dist, struct Thing **found_thing)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
@@ -452,7 +452,7 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
  * @return True if a target with combat sight was found. False if closest creature was found, or no creature met the conditions.
  * @note If no creature met the conditions, output variables are not initialized. Therefore, they should be initialized before calling this function.
  */
-TbBool find_combat_target_passing_by_slab_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned long *found_dist, struct Thing **found_thing)
+TbBool find_combat_target_passing_by_slab_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, MapSlabCoord slb_x, MapSlabCoord slb_y, uint32_t *found_dist, struct Thing **found_thing)
 {
     MapSubtlCoord endstl_x = 3 * slb_x + 3;
     MapSubtlCoord endstl_y = 3 * slb_y + 3;
@@ -479,7 +479,7 @@ TbBool find_combat_target_passing_by_slab_but_having_unrelated_job(const struct 
  * @return True if a target with combat sight was found. False if closest creature was found, or no creature met the conditions.
  * @note If no creature met the conditions, output variables are not initialized. Therefore, they should be initialized before calling this function.
  */
-TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, const struct Room *room, unsigned long *found_dist, struct Thing **found_thing)
+TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, const struct Room *room, uint32_t *found_dist, struct Thing **found_thing)
 {
     unsigned long k = 0;
     unsigned long i = room->slabs_list;
@@ -508,7 +508,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     // Find a target
-    unsigned long combt_dist = LONG_MAX;
+    uint32_t combt_dist = INT32_MAX;
     struct Thing* combt_thing = INVALID_THING;
     if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, going_postal_job, room, &combt_dist, &combt_thing))
     {

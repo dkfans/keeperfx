@@ -115,7 +115,7 @@ TbBool creature_move_to_home_lair(struct Thing *creatng)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
-    if (thing_is_invalid(lairtng)) {
+    if (!thing_exists(lairtng)) {
         return false;
     }
     return setup_person_move_to_coord(creatng, &lairtng->mappos, NavRtF_Default);
@@ -128,7 +128,7 @@ long creature_will_sleep(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
     TRACE_THING(lairtng);
-    if (thing_is_invalid(lairtng))
+    if (!thing_exists(lairtng))
         return false;
     long dist_x = (long)thing->mappos.x.stl.num - (long)lairtng->mappos.x.stl.num;
     long dist_y = (long)thing->mappos.y.stl.num - (long)lairtng->mappos.y.stl.num;
@@ -431,7 +431,7 @@ short at_lair_to_sleep(struct Thing *thing)
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
     TRACE_THING(lairtng);
     cctrl->target_room_id = 0;
-    if (thing_is_invalid(lairtng) || creature_affected_by_slap(thing))
+    if (!thing_exists(lairtng) || creature_affected_by_slap(thing))
     {
         set_start_state(thing);
         return 0;
@@ -552,11 +552,22 @@ short creature_sleep(struct Thing *thing)
             dungeon->lvstats.backs_stabbed++;
         }
     }
-    if (crconf->sleep_exp_slab != SlbT_ROCK)
-    { // To think about: Should SlbT_ROCK be ignored? Settings the experience gain to 0 is enough to disable the feature.
-        if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crconf->sleep_exp_slab))
+    long XP = 0;
+    for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
+    {
+        if (crconf->sleep_experience[i] > XP)
         {
-            cctrl->exp_points += crconf->sleep_experience;
+            if (room_has_slab_adjacent(room, crconf->sleep_exp_slab[i]))
+            {
+                XP = crconf->sleep_experience[i];
+            }
+        }
+    }
+    if (XP != 0)
+    {
+        if (creature_can_gain_experience(thing))
+        {
+            cctrl->exp_points += XP;
             check_experience_upgrade(thing);
         }
     }

@@ -175,8 +175,8 @@ struct Ariadne { // sizeof = 102
 };
 
 struct PathWayPoint { // sizeof = 8
-    long x;
-    long y;
+    int32_t x;
+    int32_t y;
 };
 
 struct Path { // sizeof = 2068
@@ -210,7 +210,7 @@ struct WayPoints {
   long edge2_start_index;
   long edge1_current_index;
   long edge2_current_index;
-  long waypoint_index_array[ARID_PATH_WAYPOINTS_COUNT];
+  int32_t waypoint_index_array[ARID_PATH_WAYPOINTS_COUNT];
 };
 
 struct Navigation {
@@ -221,7 +221,7 @@ struct Navigation {
   unsigned char push_counter;
   long dist_to_final_pos;
   long distance_to_next_pos;
-  long angle;
+  int32_t angle;
   SubtlCodedCoords first_colliding_block;
   SubtlCodedCoords second_colliding_block;
   PlayerBitFlags owner_flags[2];
@@ -267,7 +267,7 @@ AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing);
 
 TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long subroute, unsigned char nav_size, const char *func_name);
-void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name);
+void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, int32_t *px, int32_t *py, const char *func_name);
 #define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
 NavColour get_navigation_colour(long stl_x, long stl_y);
 TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, long start_y, long end_y);
@@ -278,13 +278,13 @@ TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, c
 TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
 void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y);
 TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour);
-long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, NavColour *oval);
+long fringe_get_rectangle(int32_t *outfri_x1, int32_t *outfri_y1, int32_t *outfri_x2, int32_t *outfri_y2, NavColour *oval);
 long delaunay_seeded(long start_x, long start_y, long end_x, long end_y);
 void border_unlock(long start_x, long start_y, long end_x, long end_y);
-TbBool triangulation_border_start(long *border_a, long *border_b);
+TbBool triangulation_border_start(int32_t *border_a, int32_t *border_b);
 void triangulation_init(void);
 void triangulation_initxy(long sx, long sy, long ex, long ey);
-long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
+long pointed_at8(long pos_x, long pos_y, int32_t *ret_tri, int32_t *ret_pt);
 long angle_to_quadrant(long angle);
 
 long thing_nav_block_sizexy(const struct Thing *thing);

@@ -22,31 +22,32 @@
 
 #include <limits.h>
 
-#include "globals.h"
+#include "ariadne_wallhug.h"
 #include "bflib_basics.h"
-#include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_fileio.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-
 #include "config.h"
 #include "config_compp.h"
-#include "config_terrain.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "creature_states.h"
-#include "ariadne_wallhug.h"
-#include "spdigger_stack.h"
-#include "magic_powers.h"
-#include "map_utils.h"
-#include "thing_traps.h"
-#include "thing_navigate.h"
-#include "player_complookup.h"
-#include "power_hand.h"
-#include "room_data.h"
 #include "game_legacy.h"
 #include "game_merge.h"
-#include "keeperfx.hpp"
+#include "globals.h"
 #include "gui_msgs.h"
+#include "keeperfx.hpp"
+#include "magic_powers.h"
+#include "map_utils.h"
+#include "player_complookup.h"
+#include "player_utils.h"
+#include "power_hand.h"
+#include "room_data.h"
+#include "spdigger_stack.h"
+#include "thing_navigate.h"
+#include "thing_traps.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -248,7 +249,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
  * @param dungeon
  * @param gldlook
  * @param nearroom
- * @return Distance to the selected room in subtiles, or LONG_MAX if no room was found.
+ * @return Distance to the selected room in subtiles, or INT32_MAX if no room was found.
  */
 long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, const struct GoldLookup *gldlook, struct Room **nearroom)
 {
@@ -259,8 +260,8 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
     gold_pos.z.val = 0;
     gold_pos.x.stl.num = gldlook->stl_x;
     gold_pos.y.stl.num = gldlook->stl_y;
-    long min_distance = LONG_MAX;
-    long distance = LONG_MAX;
+    long min_distance = INT32_MAX;
+    int32_t distance = INT32_MAX;
     for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         struct Room* room = find_room_nearest_to_position(dungeon->owner, rkind, &gold_pos, &distance);
@@ -272,7 +273,7 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
             distance -= LbSqrL(gldlook->num_gold_slabs * STL_PER_SLB);
             distance -= LbSqrL(gldlook->num_gem_slabs * STL_PER_SLB * 4);
             // We can accept longer distances if digging directly to treasure room
-            
+
             if (room_role_matches(room->kind,RoRoF_GoldStorage))
                 distance -= TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD;
             if (min_distance > distance)
@@ -293,7 +294,7 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
     task_pos.z.val = 0;
     task_pos.x.stl.num = gldlook->stl_x;
     task_pos.y.stl.num = gldlook->stl_y;
-    long min_distance = LONG_MAX;
+    long min_distance = INT32_MAX;
     long i = comp->task_idx;
     unsigned long k = 0;
     while (i != 0)
@@ -353,7 +354,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
     locpos.z.val = 0;
     struct Coord3d* spos = &locpos;
     long lookups_checked = 0;
-    long dig_distance = LONG_MAX;
+    long dig_distance = INT32_MAX;
     for (long i = 0; i < GOLD_LOOKUP_COUNT; i++)
     {
         struct GoldLookup* gldlook = get_gold_lookup(i);
@@ -404,8 +405,8 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
     pos->z.val = spos->z.val;
     if (dig_distance < 1)
         dig_distance = 1;
-    if (dig_distance > LONG_MAX)
-        dig_distance = LONG_MAX;
+    if (dig_distance > INT32_MAX)
+        dig_distance = INT32_MAX;
     return dig_distance;
 }
 
@@ -482,7 +483,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
         hate->amount = oprel->hate_amount;
         hate->plyr_idx = i;
         hate->pos_near = NULL;
-        hate->distance_near = LONG_MAX;
+        hate->distance_near = INT32_MAX;
     }
     // Sort the hates, using basic sorting algorithm
     for (i=0; i < PLAYERS_COUNT; i++)
@@ -540,14 +541,14 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
 }
 
 TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos){
-    long nearest_distance = LONG_MAX;
+    long nearest_distance = INT32_MAX;
     struct Dungeon* dungeon = comp->dungeon;
     *retroom = NULL;
 
     for (RoomKind i = 0; i < game.conf.slab_conf.room_types_count; i++)
     {
         struct Room* room = room_get(dungeon->room_list_start[i]);
-        
+
         while (!room_is_invalid(room))
         {
             struct Coord3d room_center_pos;
@@ -563,9 +564,9 @@ TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **
             }
             room = room_get(room->next_of_owner);
         }
-        
+
     }
-    if (nearest_distance == LONG_MAX)
+    if (nearest_distance == INT32_MAX)
         return false;
     return true;
 }
@@ -1049,7 +1050,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
         i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx) )
     {
         if ( can_thing_be_picked_up_by_player(i, dungeon->owner) )
-        {   
+        {
             struct CreatureControl* cctrl = creature_control_get_from_thing(i);
             if ( !cctrl->combat_flags )
             {
@@ -1257,7 +1258,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         oprel->last_interaction_turn = 0;
         oprel->next_idx = 0;
         if (i == plyr_idx) {
-            oprel->hate_amount = LONG_MIN;
+            oprel->hate_amount = INT32_MIN;
         } else {
             oprel->hate_amount = 0;
         }
@@ -1333,6 +1334,12 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyr_idx, lon
         player->allocflags &= ~PlaF_CompCtrl;
         player->allocflags &= ~PlaF_Allocated;
         return false;
+    }
+    init_keeper_map_exploration_by_terrain(player);
+    init_keeper_map_exploration_by_creatures(player);
+    if (game.play_gameturn > 0)
+    {
+        check_map_for_gold();
     }
     return true;
 }
@@ -1543,9 +1550,6 @@ TbBool computer_player_demands_gold_check(PlayerNumber plyr_idx)
 void process_computer_players2(void)
 {
     TbBool needs_gold_check = false;
-#ifdef PETTER_AI
-    SAI_run_shared();
-#endif
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
@@ -1556,27 +1560,18 @@ void process_computer_players2(void)
         {
           if (player->is_active == 1)
           {
-#ifdef PETTER_AI
-            SAI_run_for_player(i);
-#else
             process_computer_player2(i);
             if (computer_player_demands_gold_check(i))
             {
                 needs_gold_check = true;
             }
-#endif
           }
         }
     }
     if (needs_gold_check)
     {
-      SYNCDBG(0,"Computer players demand gold check.");
-      game.turn_last_checked_for_gold = game.play_gameturn;
-      check_map_for_gold();
-    } else
-    if (game.turn_last_checked_for_gold > game.play_gameturn)
-    {
-      game.turn_last_checked_for_gold = 0;
+        SYNCDBG(0,"Computer players demand gold check.");
+        check_map_for_gold();
     }
 }
 
@@ -1589,9 +1584,6 @@ void setup_computer_players2(void)
   {
     memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
   }
-#ifdef PETTER_AI
-  SAI_init_for_map();
-#endif
 
   // Using a seed for rand() based on the current time, so that the same
   // random results aren't used in the same order every time.
@@ -1600,17 +1592,12 @@ void setup_computer_players2(void)
 #ifdef FUNCTESTING
   ftest_srand();
 #endif
-
+  struct PlayerInfo* player = INVALID_PLAYER;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-      struct PlayerInfo* player = get_player(i);
-      if (player_exists(player))
+      player = get_player(i);
+      if (player_exists(player) && (player->is_active == 1))
       {
-          if (player->is_active == 1)
-          {
-#ifdef PETTER_AI
-        SAI_init_for_player(i);
-#else
         // The range from which the computer model is selected
         // is between minSkirmishAI and maxSkirmishAI, inclusive of both. User defined in keepcompp.cfg
         int minSkirmishAI = comp_player_conf.skirmish_first;
@@ -1630,9 +1617,7 @@ void setup_computer_players2(void)
         {
             JUSTMSG("No model defined for Player %d, assigned computer model %d", i, skirmish_AI_type);
         }
-#endif
       }
-    }
   }
 }
 

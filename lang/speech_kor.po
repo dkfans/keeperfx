@@ -1,10 +1,10 @@
 # ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # ******************************************************************************
-#   @file gtext_kor.po
+#   @file speech_kor.po
 #      KeeperFX Speeches translation file
 #  @par Purpose:
-#      Contains translation of the national strings in the game.
+#      Contains translation of the national speeches in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
@@ -21,654 +21,654 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2020-04-20 14:57+0900\n"
+"PO-Revision-Date: 2026-01-05 01:54+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ko_KR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3\n"
-"X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.8\n"
+"X-Poedit-Basepath: .\n"
 
-#: speech:0
+#: speech:1
 msgctxt "In-game mentor"
 msgid "Your creatures are becoming angry."
 msgstr "피조물이 배가 고파졌어요."
 
-#: speech:1
+#: speech:2
 msgctxt "In-game mentor"
 msgid "Your creatures are angry - they have nowhere to live."
 msgstr "피조물이 화가났어요 - 살곳이 없다는 군요."
 
-#: speech:2
+#: speech:3
 msgctxt "In-game mentor"
 msgid "Your minions are annoyed - you cannot pay them."
 msgstr "하수인이 짜증났어요 - 급여를 주지 않았군요."
 
-#: speech:3
+#: speech:4
 msgctxt "In-game mentor"
 msgid "Your creatures are upset because they are hungry."
 msgstr "피조물이 배가고파 기분이 안좋네요."
 
-#: speech:4
+#: speech:5
 msgctxt "In-game mentor"
-msgid "Your minions are vandalizing your dungeon!"
+msgid "Your minions are vandalising your dungeon!"
 msgstr "하수인들이 던전을 파괴하고 있어요!"
 
-#: speech:5
+#: speech:6
 msgctxt "In-game mentor"
 msgid "Creatures are deserting!"
 msgstr "피조물들이 떠나고 있어요!"
 
-#: speech:6
+#: speech:7
 msgctxt "In-game mentor"
 msgid "The enemy has broken through your walls!"
 msgstr "적이 당신의 벽을 뚫고 들어왔어요!"
 
-#: speech:7
+#: speech:8
 msgctxt "In-game mentor"
 msgid "Your Dungeon Heart is being attacked!"
 msgstr "던전 하트가 공격당하고 있어요!"
 
-#: speech:8
+#: speech:9
 msgctxt "In-game mentor"
 msgid "Your minions have lost a battle."
 msgstr "하수인이 전투에서 패배했어요."
 
-#: speech:9
+#: speech:10
 msgctxt "In-game mentor"
 msgid "Your creatures have won a battle!"
 msgstr "피조물이 전투에서 승리했어요!"
 
-#: speech:10
+#: speech:11
 msgctxt "In-game mentor"
 msgid "Your creatures are falling in battle!"
 msgstr "피조물이 전투에서 패배했어요!"
 
-#: speech:11
+#: speech:12
 msgctxt "In-game mentor"
-msgid "Your minions are winning the battle."
+msgid "Your minions are winning a battle."
 msgstr "하수인이 전투에서 승리했어요."
 
-#: speech:12
+#: speech:13
 msgctxt "In-game mentor"
 msgid "Your creatures are under attack."
 msgstr "피조물이 공격 당하고 있어요."
 
-#: speech:13
+#: speech:14
 msgctxt "In-game mentor"
 msgid "Your creatures are attacking the enemy!"
 msgstr "피조물이 적에게 공격당하고 있어요!"
 
-#: speech:14
+#: speech:15
 msgctxt "In-game mentor"
 msgid "The enemy is destroying your rooms!"
 msgstr "적이 방들을 파괴하고 있어요!"
 
-#: speech:15
+#: speech:16
 msgctxt "In-game mentor"
-msgid "You are losing teritory."
+msgid "You are losing territory."
 msgstr "영토를 잃고 있어요."
 
-#: speech:16
+#: speech:17
 msgctxt "In-game mentor"
 msgid "You have claimed an enemy room."
 msgstr "적의 방을 점령했어요."
 
-#: speech:17
+#: speech:18
 msgctxt "In-game mentor"
 msgid "You have taken control of a new room."
 msgstr "새로운 방의 제어권을 가졌어요."
 
-#: speech:18
+#: speech:19
 msgctxt "In-game mentor"
-msgid "Beware, the lord of the land approaches!"
+msgid "Beware, the Lord of the Land approaches!"
 msgstr "조심하세요. 이땅의 군주가 코앞에 왔어요!"
 
-#: speech:19
+#: speech:20
 msgctxt "In-game mentor"
 msgid "Your creatures are fighting amongst themselves."
 msgstr "피조물이 서로 싸우고 있어요."
 
-#: speech:20
+#: speech:21
 msgctxt "In-game mentor"
 msgid "The battle is over."
 msgstr "전투가 종료되였어요."
 
-#: speech:21
+#: speech:22
 msgctxt "In-game mentor"
-msgid "Food is scarse, enlarge your Hatchery."
+msgid "Food is scarce; enlarge your Hatchery."
 msgstr "식량이 부족해요. 부화장을 늘리세요."
 
-#: speech:22
+#: speech:23
 msgctxt "In-game mentor"
 msgid "Your creatures need a bigger Lair."
 msgstr "피조물이 더 큰 보금자리를 원해요."
 
-#: speech:23
+#: speech:24
 msgctxt "In-game mentor"
 msgid "You need a bigger Treasure Room."
 msgstr "더 큰 보물 창고가 필요해요."
 
-#: speech:24
+#: speech:25
 msgctxt "In-game mentor"
 msgid "Your Library is too small."
 msgstr "도서관이 너무 작아요."
 
-#: speech:25
+#: speech:26
 msgctxt "In-game mentor"
 msgid "Your Prison is too small."
 msgstr "감옥이 너무 작아요."
 
-#: speech:26
+#: speech:27
 msgctxt "In-game mentor"
 msgid "Your Torture Chamber is not big enough."
 msgstr "고문실이 충분하지 않아요."
 
-#: speech:27
+#: speech:28
 msgctxt "In-game mentor"
 msgid "You need a bigger Training Room."
 msgstr "보다큰 훈련실이 필요해요."
 
-#: speech:28
+#: speech:29
 msgctxt "In-game mentor"
 msgid "Your Workshop is not big enough."
 msgstr "공방이 충분하지 않아요."
 
-#: speech:29
+#: speech:30
 msgctxt "In-game mentor"
-msgid "Your Scavenge Room is too small."
+msgid "Your Scavenger Room is too small."
 msgstr "탐색실이 너무 작아요."
 
-#: speech:30
+#: speech:31
 msgctxt "In-game mentor"
 msgid "You need a bigger Temple."
 msgstr "보다 큰 사원이 필요해요."
 
-#: speech:31
+#: speech:32
 msgctxt "In-game mentor"
 msgid "Your Graveyard is not big enough."
 msgstr "무덤이 충분하지 않아요."
 
-#: speech:32
+#: speech:33
 msgctxt "In-game mentor"
 msgid "Your Barracks require expansion."
 msgstr "병영 확장이 필요해요."
 
-#: speech:33
+#: speech:34
 msgctxt "In-game mentor"
 msgid "Hungry creatures cannot get to a Hatchery."
 msgstr "배고픈 피조물이 부화장에 갈수 없어요."
 
-#: speech:34
+#: speech:35
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach the Treasure Room."
 msgstr "일부 하수인들이 보물 창고에 갈수 없어요."
 
-#: speech:35
+#: speech:36
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach their lairs."
 msgstr "일부 하수인이 보금자리에 갈수 없어요."
 
-#: speech:36
+#: speech:37
 msgctxt "In-game mentor"
-msgid "An Entrance have been claimed."
+msgid "An Entrance has been claimed."
 msgstr "포털을 점령했어요."
 
-#: speech:37
+#: speech:38
 msgctxt "In-game mentor"
 msgid "You have lost an entrance."
 msgstr "포털을 빼앗겼어요."
 
-#: speech:38
+#: speech:39
 msgctxt "In-game mentor"
 msgid "You must build a Treasure Room, to store gold."
 msgstr "금을 보관하려면 보물 창고를 지어야 해요."
 
-#: speech:39
+#: speech:40
 msgctxt "In-game mentor"
 msgid "You need to build a Lair for your creatures."
 msgstr "피조물을 위해 보금자리를 만들어야해요."
 
-#: speech:40
+#: speech:41
 msgctxt "In-game mentor"
 msgid "You should build a Hatchery, to feed your minions."
 msgstr "하수인들을 먹이기 위해 부화장을 만들어야해요."
 
-#: speech:41
+#: speech:42
 msgctxt "In-game mentor"
 msgid "A new room has been researched."
 msgstr "새로운 방을 연구했어요."
 
-#: speech:42
+#: speech:43
 msgctxt "In-game mentor"
 msgid "A new spell has been researched."
 msgstr "새로운 주문을 연구했어요."
 
-#: speech:43
+#: speech:44
 msgctxt "In-game mentor"
 msgid "A door has been manufactured."
 msgstr "문을 만들었어요."
 
-#: speech:44
+#: speech:45
 msgctxt "In-game mentor"
 msgid "A trap has been manufactured."
 msgstr "함정을 만들었어요."
 
-#: speech:45
+#: speech:46
 msgctxt "In-game mentor"
-msgid "There is nothing new to research."
+msgid "There is nothing left to research."
 msgstr "더 이상 연구할게 없어요."
 
-#: speech:46
+#: speech:47
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's spellbook."
 msgstr "적의 주문서를 빼앗았어요."
 
-#: speech:47
+#: speech:48
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's trap design."
 msgstr "적의 함정 디자인을 입수했어요."
 
-#: speech:48
+#: speech:49
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's door design."
 msgstr "적의 문 디자인을 입수했어요."
 
-#: speech:49
+#: speech:50
 msgctxt "In-game mentor"
 msgid "The enemy has stolen a spellbook!"
 msgstr "적이 주문서를 훔쳐갔어요!"
 
-#: speech:50
+#: speech:51
 msgctxt "In-game mentor"
 msgid "A trap design has been taken from you."
 msgstr "함정 디자인이 유출되었어요."
 
-#: speech:51
+#: speech:52
 msgctxt "In-game mentor"
 msgid "The enemy has taken a door design."
 msgstr "적이 문 디자인을 가져갔어요."
 
-#: speech:52
+#: speech:53
 msgctxt "In-game mentor"
 msgid "Information has been tortured from the enemy."
 msgstr "적을 고문하여 정보를 얻어냈어요."
 
-#: speech:53
+#: speech:54
 msgctxt "In-game mentor"
 msgid "An enemy has been converted to your cause."
 msgstr "적이 전향했어요."
 
-#: speech:54
+#: speech:55
 msgctxt "In-game mentor"
-msgid "A prisonner have died and returned as a Skeleton."
+msgid "A prisoner has died and risen as a Skeleton."
 msgstr "죄수가 죽어 스켈레톤이 되었어요."
 
-#: speech:55
+#: speech:56
 msgctxt "In-game mentor"
 msgid "A torture victim has died and returned as a Ghost."
 msgstr "고문당해 죽은 희생가자 고스트가 되었어요."
 
-#: speech:56
-msgctxt "In-game mentor"
-msgid "Your prisonners are escaping!"
-msgstr "죄수가 도망쳤어요!"
-
 #: speech:57
 msgctxt "In-game mentor"
-msgid "A Vampire has risen on your Graveyard."
-msgstr "뱀퍼이어가 무덤에서 나왔어요."
+msgid "Your prisoners are escaping!"
+msgstr "죄수가 도망쳤어요!"
 
 #: speech:58
+msgctxt "In-game mentor"
+msgid "A Vampire has risen in your Graveyard."
+msgstr "뱀퍼이어가 무덤에서 나왔어요."
+
+#: speech:59
 msgctxt "In-game mentor"
 msgid "You have freed your creatures from prison!"
 msgstr "피조물을 감옥에서 해방했어요!"
 
-#: speech:59
+#: speech:60
 msgctxt "In-game mentor"
-msgid "Your prisonners are starving to death."
+msgid "Your prisoners are starving to death."
 msgstr "죄수들이 굶어 죽기 전이에요."
 
-#: speech:60
+#: speech:61
 msgctxt "In-game mentor"
 msgid "One of your creatures is being scavenged!"
 msgstr "피조물이 탐색에 성공했어요!"
 
-#: speech:61
+#: speech:62
 msgctxt "In-game mentor"
-msgid "One of your minions is being scavenged!"
+msgid "One of your minions has been scavenged!"
 msgstr "하수인이 탐색에 성공했어요!"
 
-#: speech:62
+#: speech:63
 msgctxt "In-game mentor"
 msgid "One of your creatures has joined the enemy."
 msgstr "당신의 피조물중 하나가 적에게 투항했어요."
 
-#: speech:63
+#: speech:64
 msgctxt "In-game mentor"
 msgid "Secrets have been tortured from your creatures!"
 msgstr "크리쳐를 고문하자 비밀이 튀어나왔어!"
 
 #. Message when good sacrifice recipe progressed
-#: speech:64
+#: speech:65
 msgctxt "In-game mentor"
 msgid "The Gods are pleased with your sacrifice."
 msgstr "신이 당신의 희생에 기뻐하시네요."
 
 #. Message when good sacrifice recipe finished
-#: speech:65
+#: speech:66
 msgctxt "In-game mentor"
 msgid "The Gods have rewarded your offering."
 msgstr "신이 제물에대한 보상을 내리시네요."
 
 #. Message when sacrifice didn't progressed any recipe
-#: speech:66
+#: speech:67
 msgctxt "In-game mentor"
 msgid "The Gods do not care for your sacrifice."
 msgstr "신이 당신의 희생을 신경쓰지 않아요."
 
 #. Message when bad sacrifice recipe progressed
-#: speech:67
+#: speech:68
 msgctxt "In-game mentor"
 msgid "Your offering has made the Gods angry!"
 msgstr "당신의 제물이 신의 진노를 샀어!"
 
 #. Message when bad sacrifice recipe finished
-#: speech:68
+#: speech:69
 msgctxt "In-game mentor"
-msgid "The Gods have punished your unwothy offering."
+msgid "The Gods have punished your unworthy offering."
 msgstr "신이 자격없는 제물에대해 벌을 내리시네요."
 
 #. Message when dropping gold into Temple water
-#: speech:69
+#: speech:70
 msgctxt "In-game mentor"
-msgid "This is no wishing well, keeper."
+msgid "This is no wishing well, Keeper."
 msgstr "이건 소원을 비는 우물이 아니라구요. 키퍼."
 
 #. Message when Dungeon Special found on level
-#: speech:70
+#: speech:71
 msgctxt "In-game mentor"
-msgid "Your creatures have discovered a misterious magic box."
+msgid "Your creatures have discovered a mysterious magic box."
 msgstr "피조물이 신비스런 마법상자를 발견했어요."
 
 #. Message when spellbook found on level
-#: speech:71
+#: speech:72
 msgctxt "In-game mentor"
 msgid "Your creatures have found a spell."
 msgstr "피조물이 주문을 배웠어요."
 
 #. Message when door crate found on level
-#: speech:72
+#: speech:73
 msgctxt "In-game mentor"
 msgid "A door design has been discovered."
 msgstr "새로운 문 디자인을 발견했어요."
 
 #. Message when trap crate found on level
-#: speech:73
+#: speech:74
 msgctxt "In-game mentor"
 msgid "A trap design has been discovered."
 msgstr "새로운 함정 디자인을 발견했어요."
 
-#: speech:74
+#: speech:75
 msgctxt "In-game mentor"
 msgid "New creatures have joined your dungeon."
 msgstr "새로운 피조물이 던전에 합류했어요."
 
 #. Message when digging has revealed a cavern
-#: speech:75
+#: speech:76
 msgctxt "In-game mentor"
-msgid "You have thalowed into a new area."
+msgid "You have tunnelled into a new area."
 msgstr "새로운 지역에 진출했어요."
 
-#: speech:76
+#: speech:77
 msgctxt "In-game mentor"
 msgid "The entire realm has been revealed to you."
 msgstr "모든 지역이 밝혀졌어요."
 
-#: speech:77
+#: speech:78
 msgctxt "In-game mentor"
 msgid "You may resurrect one creature."
 msgstr "하나의 피조물을 부활시킬수 있어요."
 
-#: speech:78
+#: speech:79
 msgctxt "In-game mentor"
 msgid "Select a creature to take with you to the next realm."
 msgstr "다음 지역으로 대려갈 피조물을 고르세요."
 
-#: speech:79
+#: speech:80
 msgctxt "In-game mentor"
 msgid "So be it."
 msgstr "그렇게 하세요."
 
-#: speech:80
+#: speech:81
 msgctxt "In-game mentor"
 msgid "You have bewitched a hero."
 msgstr "당신은 영웅을 홀렸어요."
 
-#: speech:81
+#: speech:82
 msgctxt "In-game mentor"
 msgid "Your creatures have been doubled in number."
 msgstr "피조물이 두 배로 늘어났어요."
 
-#: speech:82
+#: speech:83
 msgctxt "In-game mentor"
 msgid "Your creatures have been blessed with experience."
 msgstr "피조물이 경험의 축복을 받았어요."
 
-#: speech:83
+#: speech:84
 msgctxt "In-game mentor"
 msgid "Your dungeon has been fortified."
 msgstr "던전이 요새화되었어요."
 
-#: speech:84
+#: speech:85
 msgctxt "In-game mentor"
 msgid ""
 "You have found a hidden realm. Go there when you've conquered this land."
 msgstr "숨겨진 영역을 찾았어요. 이 땅을 정복한 후에 그곳으로 가세요."
 
-#: speech:85
+#: speech:86
 msgctxt "In-game mentor"
 msgid "Your gold reserves are running low."
 msgstr "금 보유고가 바닥나고 있어요."
 
-#: speech:86
+#: speech:87
 msgctxt "In-game mentor"
 msgid "You do not have enough gold."
 msgstr "충분한 금이 없어요."
 
-#: speech:87
+#: speech:88
 msgctxt "In-game mentor"
 msgid "You are too poor to scavenge creatures."
 msgstr "당신은 피조물을 털어야 할만큼 가난해요."
 
-#: speech:88
+#: speech:89
 msgctxt "In-game mentor"
 msgid "You cannot afford to train creatures."
 msgstr "피조물를 훈련시킬 여유가 없어요."
 
-#: speech:89
+#: speech:90
 msgctxt "In-game mentor"
 msgid "It is payday."
 msgstr "월급날이얌."
 
-#: speech:90
+#: speech:91
 msgctxt "In-game mentor random funny message"
 msgid "My god, it's full of pies."
 msgstr "어머나 세상에~ 파이가 가득해요."
 
-#: speech:91
+#: speech:92
 msgctxt "In-game mentor random funny message"
 msgid "Something surreal is happening."
 msgstr "초현실적인 일이 벌어지고 있어요."
 
-#: speech:92
+#: speech:93
 msgctxt "In-game mentor random funny message"
 msgid "Your creatures are developing a strange accent."
 msgstr "피조물들이 이상한 억양을 발달시키고 있어요."
 
-#: speech:93
+#: speech:94
 msgctxt "In-game mentor random funny message"
 msgid "Your pants are definitely too tight."
 msgstr "당신의 바지는 확실히 너무 꽉 끼네요."
 
-#: speech:94
+#: speech:95
 msgctxt "In-game mentor random funny message"
 msgid "Your minions have a craving for chocolate."
 msgstr "하수인들이 초콜릿을 갈망해요."
 
-#: speech:95
+#: speech:96
 msgctxt "In-game mentor random funny message"
 msgid "There's that smell again."
 msgstr "또 그런 냄새가 나요."
 
-#: speech:96
+#: speech:97
 msgctxt "In-game mentor random funny message"
-msgid "Hello."
+msgid "Hello?"
 msgstr "안녕."
 
-#: speech:97
+#: speech:98
 msgctxt "In-game mentor random funny message"
 msgid "Blech."
 msgstr "우~웩."
 
-#: speech:98
+#: speech:99
 msgctxt "In-game mentor random funny message"
 msgid "Achoo"
 msgstr "에취"
 
-#: speech:99
+#: speech:100
 msgctxt "In-game mentor random funny message"
 msgid "Cough"
 msgstr "콜록"
 
-#: speech:100
+#: speech:101
 msgctxt "In-game mentor"
 msgid "You cannot give your Imps any more jobs."
 msgstr "더 이상 임프에게 일을 줄수 없어요."
 
-#: speech:101
+#: speech:102
 msgctxt "In-game mentor"
 msgid "Game loaded."
 msgstr "게임을 불러왔어요."
 
-#: speech:102
+#: speech:103
 msgctxt "In-game mentor"
 msgid "Game saved."
 msgstr "게임을 저장했어요."
 
-#: speech:103
+#: speech:104
 msgctxt "In-game mentor"
 msgid "You have defeated an enemy Keeper."
 msgstr "적 키퍼를 물리쳤어요."
 
-#: speech:104
+#: speech:105
 msgctxt "In-game mentor"
 msgid "You have been defeated."
 msgstr "패배했어요."
 
-#: speech:105
+#: speech:106
 msgctxt "In-game mentor"
 msgid "You have conquered this realm!"
 msgstr "이 지역을 점령했어요!"
 
-#: speech:106
-msgctxt "In-game mentor"
-msgid "Master, I sence the presence of the Avatar!"
-msgstr "주인님, 저는 아바타의 존재를 느꼈어요!"
-
 #: speech:107
 msgctxt "In-game mentor"
-msgid "What trickery is this? The Avatar's body has vanished."
-msgstr "뭐임? 뭐임? 아바타의 시체가 사라졌어요."
+msgid "Master, I sense the presence of the Avatar!"
+msgstr "주인님, 저는 아바타의 존재를 느꼈어요!"
 
 #: speech:108
 msgctxt "In-game mentor"
-msgid ""
-"You are victorious, your darkness pervades througout the kingdom. All hail "
-"the new lord of shadows."
-msgstr ""
-"승리했네요! 당신의 어둠은 왕국을 지배하고 있어요. 모든 사람이 새로운 어둠"
-"의 영주를 맞이해요."
+msgid "What trickery is this? The Avatar's body has vanished!"
+msgstr "뭐임? 뭐임? 아바타의 시체가 사라졌어요."
 
 #: speech:109
+msgctxt "In-game mentor"
+msgid ""
+"You are victorious! Your darkness pervades throughout the kingdom. All hail "
+"the new lord of shadows!"
+msgstr ""
+"승리했네요! 당신의 어둠은 왕국을 지배하고 있어요. 모든 사람이 새로운 어둠의 "
+"영주를 맞이해요."
+
+#: speech:110
 msgctxt "Enemy Keeper Harassment"
 msgid "Your efforts are futile!"
 msgstr "애써봐야 소용없다!"
 
-#: speech:110
+#: speech:111
 msgctxt "Enemy Keeper Harassment"
-msgid "My dungeon is the finest You shall ever see!"
+msgid "My dungeon is the finest you shall ever see!"
 msgstr "내 던전은 네놈이 본적 없을 정도로 좋다!"
 
-#: speech:111
+#: speech:112
 msgctxt "Enemy Keeper Harassment"
 msgid "My minions will leave your dungeon a crumbling ruin!"
 msgstr "내 하수인들이 네놈의 던전을 페허로 만들 것이다!"
 
-#: speech:112
-msgctxt "Enemy Keeper Harassment"
-msgid "You entrails will decorate the darkest alchow of my domain!"
-msgstr "네놈의 내장이 내 영역의 가장 어두운 곳을 장식할 것이다!"
-
 #: speech:113
 msgctxt "Enemy Keeper Harassment"
-msgid "Your corpse shall se my minions yet, keeper!"
-msgstr "내 하수인들이 너의 시체를 볼 것이다. 키퍼!"
+msgid "You entrails will decorate the darkest alchove of my domain!"
+msgstr "네놈의 내장이 내 영역의 가장 어두운 곳을 장식할 것이다!"
 
 #: speech:114
+msgctxt "Enemy Keeper Harassment"
+msgid "Your corpse shall feed my minions yet, Keeper!"
+msgstr "내 하수인들이 너의 시체를 볼 것이다. 키퍼!"
+
+#: speech:115
 msgctxt "Enemy Keeper Harassment"
 msgid "Prepare for oblivion, Keeper!"
 msgstr "사라질 준비를 해라. 키퍼!"
 
-#: speech:115
+#: speech:116
 msgctxt "Enemy Keeper Harassment"
 msgid "Pathetic creature, I shall crush you in an instant!"
 msgstr "한심한 피조물이여, 금방 때려부숴주마!"
 
-#: speech:116
+#: speech:117
 msgctxt "Enemy Keeper Harassment"
-msgid "Ho ho ho ho!"
+msgid "Pah ha ha ha ha ha!"
 msgstr "호 호 호 호!"
 
-#: speech:117
+#: speech:118
 msgctxt "Hero Talk Upon Entering"
 msgid "Your dark days are numbered, evil one!"
 msgstr "너의 어두운 시절은 얼마 남지 않았다, 사악한 것이여!"
 
-#: speech:118
+#: speech:119
 msgctxt "Hero Talk Upon Entering"
 msgid "We come to rid the world of your evil!"
 msgstr "우리는 너의 악을 없애기 위해 왔도다!"
 
-#: speech:119
+#: speech:120
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall send you back to the pits, vile one!"
+msgid "We shall send you back to the pits, foul one!"
 msgstr "우리가 널 구덩이로 돌려보내겠다, 비열한 놈!"
 
-#: speech:120
+#: speech:121
 msgctxt "Hero Talk Upon Entering"
 msgid "Your reign shall end before this day is done!"
 msgstr "이 날이 끝나기 전에 너의 통치가 끝날 것이다!"
 
-#: speech:121
+#: speech:122
 msgctxt "Hero Talk Upon Entering"
-msgid "We shall cast you back into the shadows, keeper!"
+msgid "We shall cast you back into the shadows, Keeper!"
 msgstr "우리가 널 다시 어둠 속으로 던질것이다, 키퍼!"
 
-#: speech:122
+#: speech:123
 msgctxt "Hero Talk Upon Entering"
 msgid "Leave us to live our lives in peace!"
 msgstr "우리의 삶이 평화롭게 내버려다오!"
 
-#: speech:123
+#: speech:124
 msgctxt "Hero Talk Upon Entering"
 msgid "In the name of all that is good, we shall defeat you!"
 msgstr "모든 선한 것의 이름으로, 우리는 네놈을 물리칠 것이다!"
 
-#: speech:124
+#: speech:125
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
 msgstr "우리는 더 이상 너의 악한 존재를 용납하지 않을 것이다!"

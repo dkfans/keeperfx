@@ -18,9 +18,15 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
+#include "net_received_packets.h"
+#include "net_input_lag.h"
+#include "net_checksums.h"
+
+#include <math.h>
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 #include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
@@ -29,10 +35,12 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_network.h"
+#include "bflib_network_exchange.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
 #include "bflib_planar.h"
+#include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
 #include "front_input.h"
@@ -53,6 +61,9 @@
 #include "player_data.h"
 #include "config_players.h"
 #include "player_utils.h"
+#include "engine_camera.h"
+#include "engine_render.h"
+#include "local_camera.h"
 #include "thing_physics.h"
 #include "thing_doors.h"
 #include "thing_effects.h"
@@ -83,7 +94,7 @@
 #include "gui_parchment.h"
 #include "gui_msgs.h"
 #include "net_game.h"
-#include "net_sync.h"
+#include "net_resync.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
@@ -108,6 +119,8 @@ extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber 
 extern TbBool change_campaign(const char *cmpgn_fname);
 extern int total_sprite_zip_count;
 /******************************************************************************/
+TbBool unpausing_in_progress = 0;
+/******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
@@ -115,6 +128,23 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, lo
     pckt->actn_par3 = par3;
     pckt->actn_par4 = par4;
     pckt->action = pcktype;
+}
+
+TbBool is_packet_empty(const struct Packet *pckt) {
+    if (pckt->turn != 0 ||
+        pckt->checksum != 0 ||
+        pckt->action != 0 ||
+        pckt->actn_par1 != 0 ||
+        pckt->actn_par2 != 0 ||
+        pckt->pos_x != 0 ||
+        pckt->pos_y != 0 ||
+        pckt->control_flags != 0 ||
+        pckt->additional_packet_values != 0 ||
+        pckt->actn_par3 != 0 ||
+        pckt->actn_par4 != 0) {
+        return false;
+    }
+    return true;
 }
 
 void update_double_click_detection(long plyr_idx)
@@ -128,7 +158,7 @@ void update_double_click_detection(long plyr_idx)
   }
   if ((pckt->control_flags & (PCtr_LBtnClick|PCtr_LBtnHeld)) == 0)
   {
-    if (packet_left_button_click_space_count[plyr_idx] < LONG_MAX)
+    if (packet_left_button_click_space_count[plyr_idx] < INT32_MAX)
       packet_left_button_click_space_count[plyr_idx]++;
   }
 }
@@ -276,10 +306,10 @@ void process_pause_packet(long curr_pause, long new_pause)
   {
       player = get_my_player();
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
-      if ((game.operation_flags & GOF_Paused) != 0)
+      if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
-      else
-          clear_flag(game.operation_flags, GOF_Paused);
+          game.skip_initial_input_turns = game.input_lag_turns + 1;
+      }
       if ( !SoundDisabled )
       {
         if ((game.operation_flags & GOF_Paused) != 0)
@@ -303,15 +333,9 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-void process_players_dungeon_control_packet_control(long plyr_idx)
+void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera)
 {
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
-    struct Camera* cam = player->acamera;
-    if (cam == NULL)
-    {
-        ERRORLOG("No active camera");
+    if (cam == NULL) {
         return;
     }
     long inter_val;
@@ -348,14 +372,43 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     if (pckt->additional_packet_values & PCAdV_SpeedupPressed)
       inter_val *= 3;
 
-    if ((pckt->control_flags & PCtr_MoveUp) != 0)
-        view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
-    if ((pckt->control_flags & PCtr_MoveDown) != 0)
-        view_set_camera_y_inertia(cam, inter_val/4, inter_val);
-    if ((pckt->control_flags & PCtr_MoveLeft) != 0)
-        view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
-    if ((pckt->control_flags & PCtr_MoveRight) != 0)
-        view_set_camera_x_inertia(cam, inter_val/4, inter_val);
+    if (is_local_camera && !game.packet_load_enable)
+    {
+        movement_accum_x = clamp(movement_accum_x, -1.0f, 1.0f);
+        movement_accum_y = clamp(movement_accum_y, -1.0f, 1.0f);
+        
+        // Apply same scaling as packet-based movement for consistency
+        if (movement_accum_y != 0.0f) {
+            long delta = (long)(movement_accum_y * inter_val / 4.0f);
+            long limit = (long)(movement_accum_y * inter_val);
+            view_set_camera_y_inertia(cam, delta, limit);
+        }
+        if (movement_accum_x != 0.0f) {
+            long delta = (long)(movement_accum_x * inter_val / 4.0f);
+            long limit = (long)(movement_accum_x * inter_val);
+            view_set_camera_x_inertia(cam, delta, limit);
+        }
+        movement_accum_x = 0.0f;
+        movement_accum_y = 0.0f;
+    }
+    else
+    {
+        // Packet-based movement for non-local cameras or when local camera is disabled
+        if ((pckt->control_flags & PCtr_MoveUp) != 0) {
+            view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
+        }
+        if ((pckt->control_flags & PCtr_MoveDown) != 0) {
+            view_set_camera_y_inertia(cam, inter_val/4, inter_val);
+        }
+        if ((pckt->control_flags & PCtr_MoveLeft) != 0) {
+            view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
+        }
+        if ((pckt->control_flags & PCtr_MoveRight) != 0) {
+            view_set_camera_x_inertia(cam, inter_val/4, inter_val);
+        }
+    }
+
+
     if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
     {
         switch (cam->view_mode)
@@ -389,11 +442,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_set_camera_tilt(cam, 1);
-            if (is_my_player(player))
-            {
-                settings.isometric_tilt = cam->rotation_angle_y;
-                save_settings();
-            }
             break;
         }
     }
@@ -404,11 +452,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_set_camera_tilt(cam, 2);
-            if (is_my_player(player))
-            {
-                settings.isometric_tilt = cam->rotation_angle_y;
-                save_settings();
-            }
             break;
         }
     }
@@ -419,11 +462,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_set_camera_tilt(cam, 0);
-            if (is_my_player(player))
-            {
-                settings.isometric_tilt = cam->rotation_angle_y;
-                save_settings();
-            }
             break;
         }
     }
@@ -437,20 +475,10 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoStraightView:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
-            if (is_my_player(player))
-            {
-                settings.isometric_view_zoom_level = cam->zoom;
-                save_settings();
-            }
             break;
         default:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             break;
-        }
-        if (is_my_player(player))
-        {
-            settings.frontview_zoom_level = cam->zoom;
-            save_settings();
         }
     }
     if (pckt->control_flags & PCtr_ViewZoomOut)
@@ -461,103 +489,105 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsoStraightView:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
-            if (is_my_player(player))
-            {
-                settings.isometric_view_zoom_level = cam->zoom;
-                save_settings();
-            }
             break;
         default:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
-            if (is_my_player(player))
-            {
-                settings.frontview_zoom_level = cam->zoom;
-                save_settings();
-            }
             break;
         }
+    }
+}
+
+void update_box_lag_compensation(struct PlayerInfo* player) {
+    box_lag_compensation_x = 0;
+    box_lag_compensation_y = 0;
+    if (is_my_player(player)) {
+        struct Packet* auth_pckt = get_packet_direct(player->packet_num);
+        struct Packet* visual_pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+        if (visual_pckt != NULL) {
+            box_lag_compensation_x = coord_slab(auth_pckt->pos_x) - coord_slab(visual_pckt->pos_x);
+            box_lag_compensation_y = coord_slab(auth_pckt->pos_y) - coord_slab(visual_pckt->pos_y);
+            box_lag_compensation_x = slab_coord(box_lag_compensation_x);
+            box_lag_compensation_y = slab_coord(box_lag_compensation_y);
+        }
+    }
+}
+
+void process_players_dungeon_control_packet_control(long plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
+    struct Camera* cam = player->acamera;
+    if (cam == NULL) {
+        ERRORLOG("No active camera");
+        return;
+    }
+    process_camera_controls(cam, pckt, player, false);
+    if (is_my_player(player)) {
+        TbBool settings_changed = false;
+        if ((pckt->control_flags & (PCtr_ViewTiltUp | PCtr_ViewTiltDown | PCtr_ViewTiltReset)) != 0) {
+            settings.isometric_tilt = cam->rotation_angle_y;
+            settings_changed = true;
+        }
+        if ((pckt->control_flags & (PCtr_ViewZoomIn | PCtr_ViewZoomOut)) != 0) {
+            if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
+                settings.isometric_view_zoom_level = cam->zoom;
+            } else {
+                settings.frontview_zoom_level = cam->zoom;
+            }
+            settings_changed = true;
+        }
+        if (settings_changed) {
+            save_settings();
+        }
+    }
+    if (is_my_player(player)) {
+        update_box_lag_compensation(player);
     }
     process_dungeon_control_packet_clicks(plyr_idx);
     set_mouse_light(player);
 }
 
-/**
- * Modifies a message string according to a key pressed.
- * @param message The message buffer.
- * @param maxlen Max length of the string (message buffer size - 1).
- * @param key The key which will affect the message.
- * @param kmodif Modifier keys pressed with the key.
- * @return Gives true if the message was modified by that key, false if it stayed without change.
- * @note We shouldn't use regional settings in this function, otherwise players playing different language
- * versions may get different messages from each other.
- */
-TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMods kmodif)
+void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif)
 {
-    char chr = key_to_ascii(key, kmodif);
     int chpos = strlen(message);
-    if (key == KC_BACK)
-    {
-      if (chpos>0) {
-          message[chpos-1] = '\0';
-          return true;
-      }
-    } else
-    {
-        switch(chr)
-        {
-            case 'a'...'z':
-            case 'A'...'Z':
-            case '0'...'9':
-            case ' ':
-            case '!':
-            case ':':
-            case ';':
-            case '(':
-            case ')':
-            case '.': 
-            case '_': 
-            case '\'':
-            case '+':
-            case '=':
-            case '-':
-            case '"':
-            case '?':
-            case '/':
-            case '#':
-            case '<':
-            case '>':
-            case '^':
-            case ',':
-            {
-                if (chpos < maxlen)
-                {
-                    message[chpos] = chr;
-                    message[chpos+1] = '\0';
-                    return true;
-                }
-            }
-            // fall through
-            default:
-                return false;
+    if (key == KC_BACK && chpos > 0) {
+        message[chpos-1] = '\0';
+    } else if (chpos < PLAYER_MP_MESSAGE_LEN - 1) {
+        char chr = key_to_ascii(key, kmodif);
+        if (isalnum(chr) || strchr(" !:;()._'+=\\\"?/#<>^,-", chr)) {
+            message[chpos] = chr;
+            message[chpos+1] = '\0';
         }
     }
-    return false;
 }
 
-void process_players_message_character(struct PlayerInfo *player)
+void process_chat_message_end(int player_id, const char *message)
 {
-    struct Packet* pcktd = get_packet(player->id_number);
-    if (pcktd->actn_par1 > 0)
-    {
-        message_text_key_add(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, pcktd->actn_par1, pcktd->actn_par2);
+    struct PlayerInfo *player = get_player(player_id);
+    player->allocflags &= ~PlaF_NewMPMessage;
+    if (message[0] != '\0') {
+        memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
+        memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
+        if (frontend_menu_state == FeSt_NET_START) {
+            if (!try_starting_level_from_chat(player->mp_message_text, player_id)) {
+                add_message(player_id, player->mp_message_text);
+            }
+        } else {
+            lua_on_chatmsg(player_id, player->mp_message_text);
+            if (message[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || (game.system_flags & GSF_NetworkActive) != 0) {
+                message_add(MsgType_Player, player_id, player->mp_message_text);
+            }
+        }
     }
+    memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
 }
 
 void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 {
     struct PlayerInfo *swplyr;
     struct PlayerInfo* myplyr = get_my_player();
-    long plyr_count;
+    int32_t plyr_count;
     plyr_count = 0;
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
@@ -717,35 +747,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         frontend_save_continue_game(false);
       }
       return 0;
-  case PckA_PlyrMsgBegin:
-      player->allocflags |= PlaF_NewMPMessage;
-      return 0;
   case PckA_PlyrMsgEnd:
-      player->allocflags &= ~PlaF_NewMPMessage;
-      lua_on_chatmsg(player->id_number,player->mp_message_text);
-      if (player->mp_message_text[0] != 0)
-          memcpy(player->mp_message_text_last, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
-      if (player->mp_message_text[0] == cmd_char)
-      {
-          if ( (!cmd_exec(player->id_number, player->mp_message_text + 1)) || ((game.system_flags & GSF_NetworkActive) != 0) )
-              message_add(MsgType_Player, player->id_number, player->mp_message_text);
-      }
-      else if (player->mp_message_text[0] != '\0')
-          message_add(MsgType_Player, player->id_number, player->mp_message_text);
-      memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+      process_chat_message_end(player->id_number, player->mp_pending_message);
+      player->mp_pending_message[0] = '\0';
       return 0;
   case PckA_PlyrMsgClear:
       player->allocflags &= ~PlaF_NewMPMessage;
       memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
-      return 0;
-  case PckA_PlyrMsgLast:
-      memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
-      return 0;
-  case PckA_PlyrMsgCmdAutoCompletion:
-      if (player->mp_message_text[0] == cmd_char)
-      {
-          cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
-      }
       return 0;
   case PckA_ToggleLights:
       if (is_my_player(player))
@@ -760,7 +768,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 1;
   case PckA_TogglePause:
-      process_pause_packet((game.operation_flags & GOF_Paused) == 0, pckt->actn_par1);
+      process_pause_packet(pckt->actn_par1, 0);
       return 1;
   case PckA_SetCluedo:
       player->video_cluedo_mode = pckt->actn_par1;
@@ -799,11 +807,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].rotation_angle_x = pckt->actn_par1;
       player->cameras[CamIV_FrontView].rotation_angle_x = pckt->actn_par1;
       player->cameras[CamIV_Isometric].rotation_angle_x = pckt->actn_par1;
-
-      if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
-        // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
-          reset_interpolation_of_camera(player);
-      }
+      set_local_camera_destination(player);
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
@@ -815,8 +819,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       toggle_creature_tendencies(player, pckt->actn_par1);
       if (is_my_player(player)) {
           dungeon = get_players_dungeon(player);
-          game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-          game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+          game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+          game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
       }
       return 0;
   case PckA_CheatUnusedPlaceholder065:
@@ -857,6 +861,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_ZoomToRoom:
   {
+      if (player->instance_num == PI_ZoomToPos) {
+          return 0;
+      }
       if (player->work_state == PSt_CreatrInfo)
           turn_off_query(plyr_idx);
       struct Room* room = room_get(pckt->actn_par1);
@@ -869,6 +876,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   }
   case PckA_ZoomToTrap:
+      if (player->instance_num == PI_ZoomToPos) {
+          return 0;
+      }
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->actn_par1);
@@ -880,6 +890,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_ZoomToDoor:
+      if (player->instance_num == PI_ZoomToPos) {
+          return 0;
+      }
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->actn_par1);
@@ -891,6 +904,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_ZoomToPosition:
+      if (player->instance_num == PI_ZoomToPos) {
+          return 0;
+      }
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       player->zoom_to_pos_x = pckt->actn_par1;
@@ -1114,13 +1130,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
                 }
                 break;
             }
-            case 2:
-            {
-                player->user_defined_roomspace_width = pckt->actn_par2;
-                player->roomspace_width = pckt->actn_par2;
-                player->roomspace_height = pckt->actn_par2;
-                break;
-            }
         }
         player->roomspace_no_default = true;
         return false;
@@ -1173,12 +1182,17 @@ void process_players_packet(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
+    if (is_packet_empty(pckt))
+    {
+        MULTIPLAYER_LOG("process_players_packet: Skipping empty packet for player %ld", plyr_idx);
+        return;
+    }
     SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
-    if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
+    if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar) && (pckt->actn_par1 > 0))
     {
-        process_players_message_character(player);
+        message_text_key_add(player->mp_message_text, pckt->actn_par1, pckt->actn_par2);
   } else
   if (!process_players_global_packet_action(plyr_idx))
   {
@@ -1218,6 +1232,7 @@ void process_players_creature_passenger_packet_action(long plyr_idx)
     if (pckt->action == PckA_PasngrCtrlExit)
     {
         player->influenced_thing_idx = pckt->actn_par1;
+        player->influenced_thing_creation = pckt->actn_par2;
         set_player_instance(player, PI_PsngrCtLeave, 0);
     }
     SYNCDBG(8,"Finished");
@@ -1252,6 +1267,55 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     return true;
 }
 
+void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll)
+{
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    long maxTurnSpeed = crconf->max_turning_speed;
+    if (maxTurnSpeed < 1) {
+        maxTurnSpeed = 1;
+    }
+    long horizontalTurnSpeed = pckt->pos_x;
+    if (horizontalTurnSpeed < -maxTurnSpeed) {
+        horizontalTurnSpeed = -maxTurnSpeed;
+    } else if (horizontalTurnSpeed > maxTurnSpeed) {
+        horizontalTurnSpeed = maxTurnSpeed;
+    }
+    long verticalTurnSpeed = pckt->pos_y;
+    if (verticalTurnSpeed < -maxTurnSpeed) {
+        verticalTurnSpeed = -maxTurnSpeed;
+    } else if (verticalTurnSpeed > maxTurnSpeed) {
+        verticalTurnSpeed = maxTurnSpeed;
+    }
+    long verticalPos = (current_vertical + verticalTurnSpeed) & ANGLE_MASK;
+    long lowerLimit = ANGLE_MASK - 227;
+    long upperLimit = 227;
+    if (verticalPos > upperLimit && verticalPos < lowerLimit) {
+        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
+            verticalPos = upperLimit;
+        } else {
+            verticalPos = lowerLimit;
+        }
+    }
+    *out_vertical = verticalPos;
+    *out_horizontal = (current_horizontal + horizontalTurnSpeed) & ANGLE_MASK;
+    *out_roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
+}
+
+TbBool can_process_creature_input(struct Thing *thing)
+{
+    if (thing->class_id != TCls_Creature) {
+        return false;
+    }
+    if (creature_is_dying(thing)) {
+        return false;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->stateblock_flags != 0) || (thing->active_state == CrSt_CreatureUnconscious)) {
+        return false;
+    }
+    return true;
+}
+
 void process_players_creature_control_packet_control(long idx)
 {
     struct InstanceInfo *inst_inf;
@@ -1261,13 +1325,9 @@ void process_players_creature_control_packet_control(long idx)
     struct PlayerInfo* player = get_player(idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     struct Thing* cctng = thing_get(player->controlled_thing_idx);
-    if (cctng->class_id != TCls_Creature)
+    if (!can_process_creature_input(cctng))
         return;
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
-    if (creature_is_dying(cctng))
-        return;
-    if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
-        return;
     long speed_limit = get_creature_speed(cctng);
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
     {
@@ -1413,48 +1473,12 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    
-    // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
-    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cctng);
-    long maxTurnSpeed = crconf->max_turning_speed;
-    if (maxTurnSpeed < 1) {
-        maxTurnSpeed = 1;
-    }
 
-    // Horizontal look
-    long horizontalTurnSpeed = pckt->pos_x;
-    if (horizontalTurnSpeed < -maxTurnSpeed) {
-        horizontalTurnSpeed = -maxTurnSpeed;
-    } else if (horizontalTurnSpeed > maxTurnSpeed) {
-        horizontalTurnSpeed = maxTurnSpeed;
-    }
-    
-    // Vertical look
-    long verticalTurnSpeed = pckt->pos_y;
-    if (verticalTurnSpeed < -maxTurnSpeed) {
-        verticalTurnSpeed = -maxTurnSpeed;
-    } else if (verticalTurnSpeed > maxTurnSpeed) {
-        verticalTurnSpeed = maxTurnSpeed;
-    }
-
-    // Limits the vertical view.
-    // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
-    // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
-    #define viewable_angle 227;
-    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & ANGLE_MASK;
-
-    long lowerLimit = ANGLE_MASK - viewable_angle;
-    long upperLimit = viewable_angle;
-    if (verticalPos > upperLimit && verticalPos < lowerLimit) {
-        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
-            verticalPos = upperLimit;
-        } else {
-            verticalPos = lowerLimit;
-        }
-    }
-    cctng->move_angle_z = verticalPos; // Sets the vertical look
-    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & ANGLE_MASK; // Sets the horizontal look
-    ccctrl->roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
+    long new_horizontal, new_vertical, new_roll;
+    process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
+    cctng->move_angle_xy = new_horizontal;
+    cctng->move_angle_z = new_vertical;
+    ccctrl->roll = new_roll;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
@@ -1472,6 +1496,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   {
   case PckA_DirectCtrlExit:
       player->influenced_thing_idx = pckt->actn_par1;
+      player->influenced_thing_creation = pckt->actn_par2;
       thing = thing_get(player->controlled_thing_idx);
       cctrl = creature_control_get_from_thing(thing);
       struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
@@ -1483,14 +1508,14 @@ void process_players_creature_control_packet_action(long plyr_idx)
       break;
   case PckA_CtrlCrtrSetInstnc:
       thing = thing_get(player->controlled_thing_idx);
-      if (thing_is_invalid(thing))
+      if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
       if (creature_control_invalid(cctrl))
         break;
       i = pckt->actn_par1;
       inst_inf = creature_instance_info_get(i);
-      if (!inst_inf->instant)
+      if (!inst_inf->instant || pckt->actn_par2)
       {
         cctrl->active_instance_id = i;
       } else
@@ -1508,7 +1533,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       break;
   case PckA_CheatCtrlCrtrSetInstnc:
       thing = thing_get(player->controlled_thing_idx);
-      if (thing_is_invalid(thing))
+      if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
       if (creature_control_invalid(cctrl))
@@ -1571,84 +1596,147 @@ static void replace_with_ai(int old_active_players)
     }
 }
 
+static void load_old_packets(PlayerNumber my_packet_num) {
+    GameTurn historical_turn = game.play_gameturn - game.input_lag_turns;
+    const struct Packet* received_packets = get_received_packets_for_turn(historical_turn);
+    const char* received_packets_status;
+    if (received_packets != NULL) {
+        received_packets_status = "found";
+    } else {
+        received_packets_status = "NULL";
+    }
+    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%lu historical_turn=%lu received_packets=%s", (unsigned long)game.play_gameturn, (unsigned long)historical_turn, received_packets_status);
+
+    for (int i = 0; i < PACKETS_COUNT; i++) {
+        const char* player_name;
+        if (i == 0) {player_name = "Host";} else {player_name = "Client";}
+
+        if (i == my_packet_num) {
+            struct Packet* local_packet = get_local_input_lag_packet_for_turn(historical_turn);
+            if (local_packet != NULL) {
+                game.packets[i] = *local_packet;
+            } else {
+                MULTIPLAYER_LOG("load_input_lag_packets: NOT FOUND - no local packet for historical_turn=%lu", (unsigned long)historical_turn);
+            }
+            if (i <= 1) {
+                if (is_packet_empty(&game.packets[i])) {
+                    MULTIPLAYER_LOG("load_input_lag_packets: loaded local packet[%s] is EMPTY", player_name);
+                } else {
+                    MULTIPLAYER_LOG("load_input_lag_packets: loaded local packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
+                }
+            }
+        } else {
+            if (received_packets != NULL) {
+                game.packets[i] = received_packets[i];
+                if (i <= 1) {
+                    if (is_packet_empty(&game.packets[i])) {
+                        MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] is EMPTY", player_name);
+                    } else {
+                        MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
+                    }
+                }
+            } else {
+                memset(&game.packets[i], 0, sizeof(struct Packet));
+                if (i <= 1) {
+                    MULTIPLAYER_LOG("load_input_lag_packets: cleared packet[%s] (no received packets)", player_name);
+                }
+            }
+        }
+    }
+}
+
+void set_local_packet_turn(void) {
+    struct Packet* pckt = get_packet(my_player_number);
+    pckt->turn = game.play_gameturn;
+    MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)game.play_gameturn, (unsigned long)pckt->checksum);
+}
+
+
 /**
  * Exchange packets if MP game, then process all packets influencing local game state.
  */
 void process_packets(void)
 {
     int i;
-    struct PlayerInfo* player;
+    struct PlayerInfo* player = get_my_player();
     SYNCDBG(5, "Starting");
-    // Do the network data exchange
-    lbDisplay.DrawColour = colours[15][15][15];
-    // Exchange packets with the network
+
+    MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)game.play_gameturn);
+    set_local_packet_turn();
+    update_turn_checksums();
+    store_local_packet_in_input_lag_queue(player->packet_num);
+
     if (game.game_kind != GKind_LocalGame)
     {
-        player = get_my_player();
         int old_active_players = 0;
         for (i = 0; i < NET_PLAYERS_COUNT; i++)
         {
             if (network_player_active(i))
                 old_active_players++;
         }
+        MULTIPLAYER_LOG("process_packets: About to send/receive packets, active_players=%d", old_active_players);
+
         if (!game.packet_load_enable || game.packet_load_initialized)
         {
-            struct Packet* pckt = get_packet_direct(player->packet_num);
-            if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)) != 0)
-            {
+            struct Packet* my_pckt = get_packet_direct(player->packet_num);
+            const char* player_name;
+            if (player->packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
+            MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_pckt->turn, (unsigned long)my_pckt->checksum);
+            TbError exchange_result = LbNetwork_Exchange(NETMSG_GAMEPLAY, my_pckt, game.packets, sizeof(struct Packet));
+            if (exchange_result != Lb_OK) {
                 ERRORLOG("LbNetwork_Exchange failed");
             }
+            LbNetwork_WaitForMissingPackets(game.packets, sizeof(struct Packet));
         }
         replace_with_ai(old_active_players);
     }
-  // Setting checksum problem flags
-  switch (checksums_different())
-  {
-  case 1:
-      set_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  case 2:
-      clear_flag(game.system_flags, GSF_NetGameNoSync);
-      set_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  case 3:
-      set_flag(game.system_flags, GSF_NetGameNoSync);
-      set_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  default:
-      clear_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  }
-  // Write packets into file, if requested
-  if ((game.packet_save_enable) && (game.packet_fopened))
-    save_packets();
-//Debug code, to find packet errors
-#if DEBUG_NETWORK_PACKETS
-  write_debug_packets();
-#endif
-  // Process the packets
-  for (i=0; i<PACKETS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-      process_players_packet(i);
-  }
-  // Clear all packets
-  clear_packets();
-  if (((game.system_flags & GSF_NetGameNoSync) != 0)
-   || ((game.system_flags & GSF_NetSeedNoSync) != 0))
-  {
-    // Store current checksums before resync for later analysis
-    store_checksums_for_desync_analysis();
-    SYNCDBG(0,"Resyncing");
-    resync_game();
-  }
-  SYNCDBG(7,"Finished");
+
+    MULTIPLAYER_LOG("process_packets: Loading packets from input lag queue");
+    load_old_packets(player->packet_num);
+
+    if (input_lag_skips_initial_processing())
+    {
+        clear_packets();
+        return;
+    }
+
+    if (checksums_different()) { //Should be called directly after LbNetwork_Exchange, to see if there's anything wrong with the received packet
+        // Setting checksum problem flags
+        set_flag(game.system_flags, GSF_NetGameNoSync);
+        clear_flag(game.system_flags, GSF_NetSeedNoSync);
+    } else {
+        clear_flag(game.system_flags, GSF_NetGameNoSync);
+        clear_flag(game.system_flags, GSF_NetSeedNoSync);
+    }
+
+    // Write packets into file, if requested
+    if ((game.packet_save_enable) && (game.packet_fopened))
+        save_packets();
+    //Debug code, to find packet errors
+    #if DEBUG_NETWORK_PACKETS
+    write_debug_packets();
+    #endif
+    // Process the packets
+    for (i=0; i<PACKETS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        process_players_packet(i);
+    }
+    // Clear all packets
+    clear_packets();
+    if (((game.system_flags & GSF_NetGameNoSync) != 0)
+    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+    {
+        SYNCDBG(0,"Resyncing");
+        resync_game();
+    }
+    get_current_slowdown_percentage();
+    MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)game.play_gameturn);
+    SYNCDBG(7,"Finished");
 }
 
-static TbBool try_starting_level_from_chat(char* message, long player_id)
+TbBool try_starting_level_from_chat(char* message, long player_id)
 {
     char *separator_pos = strchr(message, ':');
     if (!separator_pos) {
@@ -1667,38 +1755,23 @@ static TbBool try_starting_level_from_chat(char* message, long player_id)
     if (!isdigit(level_str[0])) {
         return false;
     }
-    
+
     LevelNumber level_num = atoi(level_str);
     if (level_num <= 0) {
         return false;
     }
-    
+
     char campaign_filename[80];
     snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
-    
+
     if (!change_campaign(campaign_filename)) {
         ERRORLOG("Unable to load campaign '%.*s' for level %d", campaign_len, message, (int)level_num);
         return false;
     }
-    
+
     set_selected_level_number(level_num);
     frontend_set_state(FeSt_START_MPLEVEL);
     return true;
-}
-
-static void handle_chat_message(char* message, long player_id, TbBool clear_text, char* text_to_clear)
-{
-    if (try_starting_level_from_chat(message, player_id)) {
-        if (clear_text) {
-            text_to_clear[0] = '\0';
-        }
-        return;
-    }
-    
-    add_message(player_id, message);
-    if (clear_text) {
-        text_to_clear[0] = '\0';
-    }
 }
 
 void process_frontend_packets(void)
@@ -1715,10 +1788,10 @@ void process_frontend_packets(void)
   nspckt->networkstatus_flags ^= ((nspckt->networkstatus_flags ^ (fe_computer_players << 1)) & 0x06);
   nspckt->stored_data1 = VersionRelease;
   nspckt->stored_data2 = VersionBuild;
-  if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
+  if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
   {
       ERRORLOG("LbNetwork_Exchange failed");
-      net_service_index_selected = -1; // going to quit
+      net_service_index_selected = -1;
   }
   if (frontend_should_all_players_quit())
   {
@@ -1764,12 +1837,8 @@ void process_frontend_packets(void)
     struct PlayerInfo* player = get_player(i);
     if ((nspckt->networkstatus_flags & 0x01) != 0)
     {
-        long k;
         switch (nspckt->networkstatus_flags >> 3)
         {
-        case 2:
-            handle_chat_message((char*)&nspckt->param1, i, false, NULL);
-            break;
         case 3:
             if (!validate_versions())
             {
@@ -1792,48 +1861,9 @@ void process_frontend_packets(void)
         case 7:
             fe_computer_players = nspckt->param1;
             break;
-        case 8:
-        {
-            k = strlen(player->mp_message_text);
-            unsigned short c;
-            if (nspckt->param1 == KC_BACK)
-            {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            else if (nspckt->param1 == KC_RETURN)
-            {
-                if (k > 0)
-                {
-                    handle_chat_message(player->mp_message_text, i, true, player->mp_message_text);
-                }
-            }
-            else
-            {
-                c = key_to_ascii(nspckt->param1, nspckt->param2);
-                if ((c != 0) && (frontend_font_char_width(1, c) > 1) && (k < 62))
-                {
-                    player->mp_message_text[k] = c;
-                    k++;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            if (frontend_font_string_width(1, player->mp_message_text) >= 420)
-            {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
+        default:
             break;
         }
-      default:
-        break;
-      }
       if (frontend_alliances == -1)
       {
         if (nspckt->frontend_alliances != -1)
@@ -1841,7 +1871,7 @@ void process_frontend_packets(void)
       }
       if (fe_computer_players == 2)
       {
-        k = ((nspckt->networkstatus_flags & 0x06) >> 1);
+        long k = ((nspckt->networkstatus_flags & 0x06) >> 1);
         if (k != 2)
           fe_computer_players = k;
       }
@@ -1868,20 +1898,20 @@ void apply_default_flee_and_imprison_setting(void)
     if (!player_exists(player) || game.packet_load_enable) {
         return;
     }
-    
+
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     unsigned short tendencies_to_toggle = 0;
-    
-    TbBool current_imprison_state = (dungeon->creature_tendencies & 0x01) != 0;
+
+    TbBool current_imprison_state = (dungeon->creature_tendencies & CrTend_Imprison) != 0;
     if (IMPRISON_BUTTON_DEFAULT != current_imprison_state) {
         tendencies_to_toggle |= CrTend_Imprison;
     }
-    
-    TbBool current_flee_state = (dungeon->creature_tendencies & 0x02) != 0;
+
+    TbBool current_flee_state = (dungeon->creature_tendencies & CrTend_Flee) != 0;
     if (FLEE_BUTTON_DEFAULT != current_flee_state) {
         tendencies_to_toggle |= CrTend_Flee;
     }
-    
+
     if (tendencies_to_toggle) {
         set_players_packet_action(player, PckA_ToggleTendency, tendencies_to_toggle, 0, 0, 0);
     }
@@ -1892,7 +1922,7 @@ void force_application_close()
 {
     extern unsigned char exit_keeper;
     extern int frontend_menu_state;
-    
+
     // Check if we're in gameplay vs frontend
     if (frontend_menu_state == 0)
     {

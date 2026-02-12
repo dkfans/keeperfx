@@ -44,7 +44,7 @@ extern "C" {
 /**
  * Returns CreatureControl of given index.
  */
-struct CreatureControl *creature_control_get(long cctrl_idx)
+struct CreatureControl *creature_control_get(CctrlIndex cctrl_idx)
 {
   if ((cctrl_idx < 1) || (cctrl_idx >= CREATURES_COUNT))
     return INVALID_CRTR_CONTROL;
@@ -79,9 +79,9 @@ TbBool creature_control_exists(const struct CreatureControl *cctrl)
   return true;
 }
 
-long i_can_allocate_free_control_structure(void)
+CctrlIndex i_can_allocate_free_control_structure(void)
 {
-    for (long i = 1; i < CREATURES_COUNT; i++)
+    for (CctrlIndex i = 1; i < CREATURES_COUNT; i++)
     {
         struct CreatureControl* cctrl = game.persons.cctrl_lookup[i];
         if (!creature_control_invalid(cctrl))
@@ -179,6 +179,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
         if (thing->class_id == TCls_Creature)
         {
             struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            SYNCDBG(7,"Possessing creature '%s', eye_effect=%d", crconf->name, crconf->eye_effect);
             setup_eye_lens(crconf->eye_effect);
         }
     }

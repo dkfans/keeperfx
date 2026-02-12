@@ -90,7 +90,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
     PlayerNumber backup_plyr_idx = -1;
     struct PlayerInfo* player;
     struct Dungeon* dungeon;
-    long best_score = LONG_MIN;
+    long best_score = INT32_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
@@ -621,7 +621,7 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         SYNCDBG(3,"The %s index %d cannot move to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -666,7 +666,7 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -698,7 +698,7 @@ TbBool good_setup_rush_to_dungeon_heart(struct Thing* creatng, PlayerNumber plyr
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
         return false;
@@ -712,7 +712,7 @@ TbBool good_setup_wander_to_own_heart(struct Thing* creatng)
     SYNCDBG(7, "Starting");
     struct Thing* heartng = get_player_soul_container(creatng->owner);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, creatng->owner);
         return false;
@@ -893,7 +893,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // Do some wandering also if can't find any task to do
-    if ((long)cctrl->wait_to_turn > (long)game.play_gameturn)
+    if (cctrl->wait_to_turn > game.play_gameturn)
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_GoodDoingNothing;
@@ -1155,7 +1155,7 @@ short creature_hero_entering(struct Thing *thing)
 long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
 {
     PlayerNumber best_plyr_idx = -1;
-    long best_score = LONG_MIN;
+    long best_score = INT32_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
@@ -1221,7 +1221,7 @@ TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNum
     SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
@@ -1244,7 +1244,7 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
     SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng)) {
+    if (!thing_exists(heartng)) {
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
@@ -1388,7 +1388,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         return 1;
     }
     long i = cctrl->party.tunnel_steps_counter;
-    if ((i > 0) && (i < LONG_MAX))
+    if ((i > 0) && (i < INT32_MAX))
     {
         cctrl->party.tunnel_steps_counter++;
     }

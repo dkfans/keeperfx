@@ -20,7 +20,6 @@
 #ifndef BFLIB_NETWRK_H
 #define BFLIB_NETWRK_H
 
-#include <basetyps.h>
 #include "bflib_basics.h"
 #include "globals.h"
 
@@ -30,6 +29,11 @@ extern "C" {
 /******************************************************************************/
 
 #define CLIENT_TABLE_LEN 32
+
+#define TIMEOUT_ENET_CONNECT 2000
+#define TIMEOUT_JOIN_LOBBY 2000
+#define TIMEOUT_LOBBY_EXCHANGE 3000
+#define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
 /******************************************************************************/
 #pragma pack(1)
 
@@ -45,6 +49,21 @@ enum NetDropReason
 {
     NETDROP_MANUAL, // via drop_user()
     NETDROP_ERROR // connection error
+};
+
+enum NetMessageType {
+    NETMSG_LOGIN,
+    NETMSG_USERUPDATE,
+    NETMSG_FRONTEND,
+    NETMSG_SMALLDATA,
+    NETMSG_GAMEPLAY,
+    NETMSG_RESYNC_DATA,
+    NETMSG_RESYNC_RESUME,
+    NETMSG_TIMESYNC_REQUEST,
+    NETMSG_TIMESYNC_REPLY,
+    NETMSG_TIMESYNC_COMPLETE,
+    NETMSG_UNPAUSE,
+    NETMSG_CHATMESSAGE,
 };
 
 typedef TbBool  (*NetNewUserCallback)(NetUserId * assigned_id);
@@ -94,6 +113,14 @@ struct NetSP // new version
      * @param size Must be > 0
      */
     void    (*sendmsg_single)(NetUserId destination, const char * buffer, size_t size);
+
+    /**
+     * Sends a message buffer to a certain user using unsequenced delivery.
+     * @param destination Destination user.
+     * @param buffer
+     * @param size Must be > 0
+     */
+    void    (*sendmsg_single_unsequenced)(NetUserId destination, const char * buffer, size_t size);
 
     /**
      * Sends a message buffer to all remote users.
@@ -223,18 +250,14 @@ long service_flags;
 void    LbNetwork_SetServerPort(int port);
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
-TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
-TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
-TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
-TbBool  LbNetwork_Resync(void * buf, size_t len);
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, int32_t *playr_num, void *optns);
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
-unsigned long get_host_player_id(void);
+void    LbNetwork_UpdateInputLagIfHost(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

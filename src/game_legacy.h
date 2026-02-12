@@ -45,6 +45,7 @@
 #include "thing_doors.h"
 #include "thing_objects.h"
 #include "thing_creature.h"
+#include "thing_list.h"
 #include "room_data.h"
 #include "slab_data.h"
 #include "map_data.h"
@@ -103,7 +104,7 @@ enum GameNumfieldDFlags {
 #pragma pack(1)
 
 struct CreaturePool {
-  long crtr_kind[CREATURE_TYPES_MAX];
+  int32_t crtr_kind[CREATURE_TYPES_MAX];
   unsigned char is_empty;
 };
 
@@ -126,35 +127,60 @@ struct Configs {
     struct LuaFuncsConf lua;
 };
 
-// Structure to store detailed thing information for desync analysis
 struct LogThingDesyncInfo {
-    ThingIndex index;             // Thing's index
-    ThingClass class_id;          // Type of thing (creature, object, etc.)
-    ThingModel model;             // Model within the class
-    PlayerNumber owner;           // Owner player of the thing
-    GameTurn creation_turn;       // Turn when thing was created
-    TbBigChecksum random_seed;    // Thing's random seed
-    long pos_x;                   // Position X coordinate (full .val)
-    long pos_y;                   // Position Y coordinate (full .val)
-    long pos_z;                   // Position Z coordinate (full .val)
-    HitPoints health;             // Thing's health
-    unsigned short current_frame; // Current animation frame
-    unsigned short max_frames;    // Maximum frames in animation
-    unsigned long spell_flags;
-    TbBigChecksum checksum;       // Thing's computed checksum
+    ThingIndex index;
+    ThingClass class_id;
+    ThingModel model;
+    PlayerNumber owner;
+    struct Coord3d mappos;
+    HitPoints health;
+    GameTurn creation_turn;
+    uint32_t random_seed;
+    TbBigChecksum checksum;
 };
 
-// Structure to store detailed room information for desync analysis
+struct LogPlayerDesyncInfo {
+    PlayerNumber id;
+    unsigned char instance_num;
+    uint32_t instance_remain_turns;
+    struct Coord3d mappos;
+    TbBigChecksum checksum;
+};
+
 struct LogRoomDesyncInfo {
-    RoomKind kind;                // Type of room (temple, lair, etc.)
-    PlayerNumber owner;           // Owner player of the room
-    MapSubtlCoord central_stl_x;  // Central position X coordinate
-    MapSubtlCoord central_stl_y;  // Central position Y coordinate
-    SlabCodedCoords slabs_count;  // Number of slabs in the room
-    long efficiency;              // Room efficiency value
-    long used_capacity;           // Current capacity usage
-    RoomIndex index;              // Room's index
-    TbBigChecksum checksum;       // Room's computed checksum
+    RoomIndex index;
+    unsigned short slabs_count;
+    MapSubtlCoord central_stl_x;
+    MapSubtlCoord central_stl_y;
+    unsigned short efficiency;
+    unsigned short used_capacity;
+    TbBigChecksum checksum;
+};
+
+struct DesyncChecksums {
+    TbBigChecksum creatures;
+    TbBigChecksum traps;
+    TbBigChecksum shots;
+    TbBigChecksum objects;
+    TbBigChecksum effects;
+    TbBigChecksum dead_creatures;
+    TbBigChecksum effect_gens;
+    TbBigChecksum doors;
+    TbBigChecksum rooms;
+    TbBigChecksum players;
+    TbBigChecksum action_seed;
+    TbBigChecksum ai_seed;
+    TbBigChecksum player_seed;
+    GameTurn game_turn;
+};
+
+struct LogDetailedSnapshot {
+    struct LogThingDesyncInfo things[SYNCED_THINGS_COUNT];
+    int thing_count;
+    struct LogPlayerDesyncInfo players[PLAYERS_COUNT];
+    int player_count;
+    struct LogRoomDesyncInfo rooms[ROOMS_COUNT];
+    int room_count;
 };
 
 struct Game {
@@ -163,10 +189,10 @@ struct Game {
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
     unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
-    unsigned char flags_font;
     unsigned char flags_gui;
-    unsigned char eastegg01_cntr;
     unsigned char mode_flags;
+    TbBool easter_eggs_enabled;
+    unsigned char eastegg01_cntr;
     unsigned char eastegg02_cntr;
     char music_track; // cdrom / default music track to resume after load
     char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
@@ -204,23 +230,23 @@ struct Game {
     TbFileHandle packet_save_fp;
     unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
-    unsigned long turns_stored;
-    unsigned long turns_fastforward;
+    uint32_t turns_stored;
+    uint32_t turns_fastforward;
     unsigned char packet_loading_in_progress;
     unsigned char packet_checksum_verify;
-    unsigned long log_things_start_turn;
-    unsigned long log_things_end_turn;
-    unsigned long turns_packetoff;
+    uint32_t log_things_start_turn;
+    uint32_t log_things_end_turn;
+    uint32_t turns_packetoff;
     PlayerNumber local_plyr_idx;
     unsigned char packet_load_initialized; // something with packetload
     // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];
-    unsigned long ceiling_height_max;
-    unsigned long ceiling_height_min;
-    unsigned long ceiling_dist;
-    unsigned long ceiling_search_dist;
-    unsigned long ceiling_step;
+    uint32_t ceiling_height_max;
+    uint32_t ceiling_height_min;
+    uint32_t ceiling_dist;
+    uint32_t ceiling_search_dist;
+    uint32_t ceiling_step;
     short col_static_entries[18];
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
@@ -236,20 +262,21 @@ struct Game {
     GameTurn play_gameturn;
     GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
-    unsigned long action_random_seed;
-    unsigned long ai_random_seed;
-    unsigned long player_random_seed;
+    uint32_t action_random_seed;
+    uint32_t ai_random_seed;
+    uint32_t player_random_seed;
     /** Local (unsynced) random seed for visual effects that don't affect game state */
-    unsigned long unsync_random_seed;
+    uint32_t unsync_random_seed;
     /** Sound-specific random seed for audio effects and sound variations */
-    unsigned long sound_random_seed;
+    uint32_t sound_random_seed;
     int something_light_x;
     int something_light_y;
-    unsigned long time_delta;
+    uint32_t time_delta;
     short top_cube[TEXTURE_BLOCKS_COUNT];// if you ask for top cube on a column without cubes, it'll return the first cube it finds with said texture at the top
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
+    int input_lag_turns;
     char active_players_count;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
@@ -263,7 +290,7 @@ struct Game {
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
-    long frame_skip;
+    int32_t frame_skip;
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress[PLAYERS_COUNT];
@@ -272,10 +299,10 @@ struct Game {
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
-    long flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
+    int32_t flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
     char loaded_swipe_idx;
     unsigned char active_messages_count;
-    long bonus_time;
+    int32_t bonus_time;
     struct Coord3d armageddon_mappos;
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
@@ -301,13 +328,13 @@ struct Game {
     int manufactr_spridx;
     int manufactr_tooltip;
     struct Configs conf;
-    unsigned long turn_last_checked_for_gold;
+    GameTurn turn_last_checked_for_gold;
     unsigned short computer_chat_flags;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct GuiMessage messages[GUI_MESSAGES_COUNT];
     struct LightSystemState lightst;
     uint8_t               max_custom_box_kind;
-    unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
+    GameTurn         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
     char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
@@ -318,17 +345,17 @@ struct Game {
     struct LevelScript script;
     PlayerNumber script_timer_player;
     unsigned char script_timer_id;
-    unsigned long script_timer_limit;
+    uint32_t script_timer_limit;
     TbBool timer_real;
     unsigned char script_value_type;
     unsigned char script_value_id;
     PlayerNumber script_variable_player;
-    long script_variable_target;
+    int32_t script_variable_target;
     unsigned char script_variable_target_type;
     TbBool heart_lost_display_message;
     TbBool heart_lost_quick_message;
-    unsigned long heart_lost_message_id;
-    long heart_lost_message_target;
+    uint32_t heart_lost_message_id;
+    int32_t heart_lost_message_target;
     unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
     unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
     float delta_time;
@@ -338,50 +365,28 @@ struct Game {
     MapSubtlCoord map_subtiles_y;
     MapSlabCoord map_tiles_x;
     MapSlabCoord map_tiles_y;
-    long navigation_map_size_x;
-    long navigation_map_size_y;
+    int32_t navigation_map_size_x;
+    int32_t navigation_map_size_y;
     short around_map[AROUND_MAP_LENGTH];
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
 
-    // Diagnostic checksums for desync analysis (sent by host during resync)
-    struct {
-        GameTurn desync_turn;                    // Turn when desync was detected
-        TbBigChecksum host_things_sum;           // Host's things checksum at desync
-        TbBigChecksum host_rooms_sum;            // Host's rooms checksum at desync
+    unsigned short skip_initial_input_turns;
 
-        // Detailed thing category checksums for deeper analysis
-        TbBigChecksum host_creatures_sum;        // Host's creatures checksum
-        TbBigChecksum host_traps_sum;            // Host's traps checksum
-        TbBigChecksum host_shots_sum;            // Host's shots checksum
-        TbBigChecksum host_objects_sum;          // Host's objects checksum
-        TbBigChecksum host_effects_sum;          // Host's effects checksum
-        TbBigChecksum host_dead_creatures_sum;   // Host's dead creatures checksum
-        TbBigChecksum host_effect_gens_sum;      // Host's effect generators checksum
-        TbBigChecksum host_doors_sum;            // Host's doors checksum
-
-        // Individual player checksums for detailed player analysis
-        TbBigChecksum host_player_checksums[PLAYERS_COUNT];  // Host's individual player checksums
-        TbBigChecksum host_action_random_seed;     // Host's action random seed
-        TbBigChecksum host_ai_random_seed;         // Host's AI random seed
-        TbBigChecksum host_player_random_seed;     // Host's player random seed
-
-        // Individual Thing detailed info for per-Thing desync analysis
-        struct LogThingDesyncInfo host_thing_info[THINGS_COUNT];  // Host's detailed Thing information
-
-        // Individual Room detailed info for per-Room desync analysis
-        struct LogRoomDesyncInfo host_room_info[ROOMS_COUNT + 1];     // Host's detailed Room information
-
-        TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
-    } desync_diagnostics;
+    struct DesyncChecksums host_checksums;
+    struct LogDetailedSnapshot log_snapshot;
 };
 
 #pragma pack()
 /******************************************************************************/
 extern struct Game game;
-extern long game_num_fps;
-extern long game_num_fps_draw;
+extern int32_t game_num_fps;
+
+extern int32_t game_num_fps_draw_current;
+extern int32_t game_num_fps_draw_main;
+extern int32_t game_num_fps_draw_secondary;
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

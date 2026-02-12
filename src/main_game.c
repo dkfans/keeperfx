@@ -38,7 +38,7 @@
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
-#include "net_sync.h"
+#include "net_resync.h"
 #include "room_library.h"
 #include "room_list.h"
 #include "power_specials.h"
@@ -51,6 +51,7 @@
 #include "gui_boxmenu.h"
 #include "sounds.h"
 #include "api.h"
+#include "net_resync.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -192,13 +193,15 @@ static void init_level(void)
     init_map_size(get_selected_level_number());
     clear_messages();
     init_seeds();
+    
+    sync_various_data();
+    
     // Load the actual level files
-
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
-        JUSTMSG("Unable to load level %lu from %s", get_selected_level_number(), campaign.name);
+        JUSTMSG("Unable to load level %u from %s", get_selected_level_number(), campaign.name);
         return;
     }
     else
@@ -206,7 +209,7 @@ static void init_level(void)
         if (script_preloaded == false && luascript_loaded == false)
         {
             show_onscreen_msg(200,"%s: No Script %lu", get_string(GUIStr_Error), get_selected_level_number());
-            JUSTMSG("Unable to load script level %lu from %s", get_selected_level_number(), campaign.name);
+            JUSTMSG("Unable to load script level %u from %s", get_selected_level_number(), campaign.name);
         }
     }
     init_navigation();
@@ -244,7 +247,7 @@ static void init_level(void)
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
     reset_postal_instance_cache();
-    JUSTMSG("Started level %lu from %s", get_selected_level_number(), campaign.name);
+    JUSTMSG("Started level %u from %s", get_selected_level_number(), campaign.name);
 
     api_event("GAME_STARTED");
 }
@@ -291,15 +294,15 @@ void startup_saved_packet_game(void)
     game.pckt_gameturn = 0;
 #if (BFDEBUG_LEVEL > 0)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
-    SYNCMSG("Packet Loading Active (File contains %lu turns)", game.turns_stored);
+    SYNCMSG("Packet Loading Active (File contains %u turns)", game.turns_stored);
     SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
-    SYNCMSG("Fast Forward through %lu game turns", game.turns_fastforward);
+    SYNCMSG("Fast Forward through %u game turns", game.turns_fastforward);
     if (game.turns_packetoff != -1)
-        SYNCMSG("Packet Quit at %lu", game.turns_packetoff);
+        SYNCMSG("Packet Quit at %u", game.turns_packetoff);
     if (game.packet_load_enable)
     {
       if (game.log_things_end_turn != game.log_things_start_turn)
-        SYNCMSG("Logging things, game turns %lu -> %lu", game.log_things_start_turn, game.log_things_end_turn);
+        SYNCMSG("Logging things, game turns %u -> %u", game.log_things_start_turn, game.log_things_end_turn);
     }
     SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
         (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);
@@ -456,7 +459,6 @@ void clear_complete_game(void)
     game.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
-    game.flags_font = start_params.flags_font;
     game.packet_load_initialized = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
     set_continue_level_number(first_singleplayer_level());
@@ -465,8 +467,11 @@ void clear_complete_game(void)
     else
         set_selected_level_number(first_singleplayer_level());
     game_num_fps = start_params.num_fps;
-    game_num_fps_draw = start_params.num_fps_draw;
+    game_num_fps_draw_current = 0;
+    game_num_fps_draw_main = start_params.num_fps_draw_main;
+    game_num_fps_draw_secondary = start_params.num_fps_draw_secondary;
     game.mode_flags = start_params.mode_flags;
+    game.easter_eggs_enabled = start_params.easter_egg;
     set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
     game.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
@@ -498,12 +503,6 @@ void init_seeds()
             game.action_random_seed = calender_time * 9311 + 9319;
         }
 
-        // Network seed must be synchronized for multiplayer before setting derived seeds
-        if ((game.system_flags & GSF_NetworkActive) != 0) {
-            init_network_seed();
-        }
-
-        // AI and Player systems get their own derived seeds
         game.ai_random_seed = game.action_random_seed * 9377 + 9391;
         game.player_random_seed = game.action_random_seed * 9473 + 9479;
         

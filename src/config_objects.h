@@ -85,10 +85,10 @@ struct FlameProperties {
 
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    unsigned long model_flags;
-    long genre;
-    long map_icon;
-    long hand_icon;
+    uint32_t model_flags;
+    int32_t genre;
+    int32_t map_icon;
+    int32_t hand_icon;
     struct PickedUpOffset object_picked_up_offset;
     short tooltip_stridx;
     TbBool tooltip_optional;
@@ -102,7 +102,7 @@ struct ObjectConfigStats {
     short anim_speed;
     short size_xy;
     short size_z;
-    short sprite_size_max;    
+    short sprite_size_max;
     unsigned short fp_smpl_idx;
     unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char destroy_on_lava;
@@ -120,7 +120,7 @@ struct ObjectConfigStats {
 };
 
 struct ObjectsConfig {
-    long object_types_count;
+    int32_t object_types_count;
     struct ObjectConfigStats object_cfgstats[OBJECT_TYPES_MAX];
     ThingModel object_to_door_or_trap[OBJECT_TYPES_MAX];
     ThingModel object_to_power_artifact[OBJECT_TYPES_MAX];

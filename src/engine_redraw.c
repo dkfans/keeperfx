@@ -42,6 +42,7 @@
 #include "power_process.h"
 #include "engine_render.h"
 #include "engine_lenses.h"
+#include "local_camera.h"
 #include "front_simple.h"
 #include "front_easter.h"
 #include "frontend.h"
@@ -77,8 +78,8 @@ extern "C" {
 void redraw_isometric_view(void);
 void redraw_frontview(void);
 /******************************************************************************/
-long xtab[640][2];
-long ytab[480][2];
+int32_t xtab[640][2];
+int32_t ytab[480][2];
 
 unsigned char smooth_on;
 static unsigned char * map_fade_ghost_table;
@@ -128,7 +129,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
             lbDisplay.DrawColour = LbTextGetFontFaceColor();
             lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
             char text[16];
-            snprintf(text, sizeof(text), "%lu", (cctrl->timebomb_countdown / game_num_fps));
+            snprintf(text, sizeof(text), "%u", (cctrl->timebomb_countdown / game_num_fps));
             LbTextDrawResized(0, 0, tx_units_per_px, text);
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
@@ -260,7 +261,7 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
     long iy;
     long x1base = 4 * a6;
     long x0base = 4 * (32 - a6);
-    long* xt = xtab[0];
+    int32_t * xt = xtab[0];
     int vx0 = 0;
     int vx1 = 0;
     for (ix = xmax; ix > 0; ix--)
@@ -290,7 +291,7 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
 
     long y1base = 8 * ymax / xmax * x1base / 8;
     long y0base = 8 * ymax / xmax * x0base / 8;
-    long* yt = ytab[0];
+    int32_t * yt = ytab[0];
     int vy1 = 0;
     int vy0 = 0;
     for (iy = ymax; iy > 0; iy--)
@@ -525,6 +526,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         // fall through
     case PVM_CreatureView:
         player->acamera = &player->cameras[CamIV_FirstPerson];
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         lens_mode = 2;
@@ -537,6 +539,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
     case PVM_IsoStraightView:
         player->acamera = &player->cameras[CamIV_Isometric];
         player->acamera->view_mode = val;
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -547,6 +550,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         break;
     case PVM_ParchmentView:
         player->acamera = &player->cameras[CamIV_Parchment];
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -558,6 +562,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         break;
     case PVM_FrontView:
         player->acamera = &player->cameras[CamIV_FrontView];
+        sync_local_camera(player);
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -572,6 +577,8 @@ void set_engine_view(struct PlayerInfo *player, long val)
 
 void draw_overlay_compass(long base_x, long base_y)
 {
+    struct PlayerInfo* player = get_my_player();
+    struct Camera* cam = get_local_camera(player->acamera);
     unsigned short flg_mem = lbDisplay.DrawFlags;
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
@@ -582,23 +589,23 @@ void draw_overlay_compass(long base_x, long base_y)
     int h = (LbSprFontCharHeight(lbFontPtr, '/') * tx_units_per_px / 16) / 2 + 2 * units_per_px / 16;
     int center_x = base_x * units_per_px / 16 + MapDiagonalLength / 2;
     int center_y = base_y * units_per_px / 16 + MapDiagonalLength / 2;
-    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
-    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapN));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbSinL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbCosL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapS));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbCosL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = (-(MapDiagonalLength*7/16) * LbSinL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapE));
     }
-    shift_x = (-(MapDiagonalLength*7/16) * LbCosL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbSinL((long)interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
     }
@@ -612,7 +619,7 @@ void redraw_creature_view(void)
     update_explored_flags_for_power_sight(player);
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     TRACE_THING(thing);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
       draw_creature_view(thing);
     if (smooth_on)
     {
@@ -622,7 +629,6 @@ void redraw_creature_view(void)
             ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     }
     remove_explored_flags_for_power_sight(player);
-    draw_swipe_graphic();
     if ((game.operation_flags & GOF_ShowGui) != 0) {
         draw_whole_status_panel();
     }
@@ -667,45 +673,6 @@ void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, l
     }
 }
 
-void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
-{
-    long x = player->acamera->mappos.x.val;
-    long y = player->acamera->mappos.y.val;
-    if (dungeon->camera_deviate_quake != 0)
-    {
-      x += UNSYNC_RANDOM(80) - 40;
-      y += UNSYNC_RANDOM(80) - 40;
-    }
-    if (dungeon->camera_deviate_jump != 0)
-    {
-      x += ( (dungeon->camera_deviate_jump * LbSinL(player->acamera->rotation_angle_x) >> 8) >> 8);
-      y += (-(dungeon->camera_deviate_jump * LbCosL(player->acamera->rotation_angle_x) >> 8) >> 8);
-    }
-    if ((dungeon->camera_deviate_quake != 0) || (dungeon->camera_deviate_jump != 0))
-    {
-      // bounding position
-      if (x < 0)
-      {
-        x = 0;
-      } else
-      if (x > (game.map_subtiles_x + 1) * COORD_PER_STL -1)
-      {
-        x = (game.map_subtiles_x + 1) * COORD_PER_STL -1;
-      }
-      if (y < 0)
-      {
-        y = 0;
-      } else
-      if (y > (game.map_subtiles_y + 1) * COORD_PER_STL -1)
-      {
-        y = (game.map_subtiles_y + 1) * COORD_PER_STL -1;
-      }
-      // setting deviated position
-      player->acamera->mappos.x.val = x;
-      player->acamera->mappos.y.val = y;
-    }
-}
-
 void redraw_isometric_view(void)
 {
     SYNCDBG(6,"Starting");
@@ -713,24 +680,11 @@ void redraw_isometric_view(void)
     struct PlayerInfo* player = get_my_player();
     if (player->acamera == NULL)
         return;
-    struct Coord3d pos;
-    memcpy(&pos, &player->acamera->mappos, sizeof(struct Coord3d));
     TbGraphicsWindow ewnd;
     memset(&ewnd, 0, sizeof(TbGraphicsWindow));
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    // Camera position modifications
-    make_camera_deviations(player,dungeon);
+    struct Camera* render_cam = get_local_camera(&player->cameras[CamIV_Isometric]);
     update_explored_flags_for_power_sight(player);
-    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
-    {
-        store_engine_window(&ewnd,1);
-        setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
-    }
-    engine(player,&player->cameras[CamIV_Isometric]);
-    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
-    {
-        load_engine_window(&ewnd);
-    }
+    engine(player,render_cam);
     if (smooth_on)
     {
         store_engine_window(&ewnd,pixel_size);
@@ -749,36 +703,22 @@ void redraw_isometric_view(void)
     gui_draw_all_boxes();
     draw_power_hand();
     draw_tooltip();
-    memcpy(&player->acamera->mappos,&pos,sizeof(struct Coord3d));
     SYNCDBG(8,"Finished");
 }
 
 void redraw_frontview(void)
 {
     SYNCDBG(6,"Starting");
-    long w;
-    long h;
     struct PlayerInfo* player = get_my_player();
+    struct Camera* render_cam = get_local_camera(&player->cameras[CamIV_FrontView]);
     update_explored_flags_for_power_sight(player);
-    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
-    {
-      w = player->engine_window_width;
-      h = player->engine_window_height;
-      setup_engine_window(player->engine_window_x, player->engine_window_y, w, h >> 1);
-    } else
-    {
-      w = 0;
-      h = 0;
-    }
-    draw_frontview_engine(&player->cameras[CamIV_FrontView]);
-    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
-      setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
-    remove_explored_flags_for_power_sight(player);
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
+    draw_frontview_engine(render_cam);
+     remove_explored_flags_for_power_sight(player);
+    if (flag_is_set(game.operation_flags,GOF_ShowGui)) {
         draw_whole_status_panel();
     }
     draw_gui();
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
+    if (flag_is_set(game.operation_flags,GOF_ShowGui)) {
         draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();
@@ -922,7 +862,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             thing = thing_get(player->thing_under_hand);
             TRACE_THING(thing);
             TbBool can_cast = false;
-            if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
+            if ((player->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
                 PowerKind pwkind = PwrK_POSSESS;
                 if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
@@ -1068,6 +1008,7 @@ void redraw_display(void)
       set_pointer_graphic_none();
     else
       process_pointer_graphic();
+    interpolate_local_cameras();
     switch (player->view_mode)
     {
     case PVM_EmptyView:
@@ -1161,12 +1102,16 @@ void redraw_display(void)
     {
         draw_frametime();
     }
+    if (network_stats_enabled())
+    {
+        draw_network_stats();
+    }
     if (consolelog_enabled())
     {
         draw_consolelog();
     }
 
-    if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
+    if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0) && !unpausing_in_progress)
     {
           LbTextSetFont(winfont);
           const char * text = get_string(GUIStr_PausedMsg);

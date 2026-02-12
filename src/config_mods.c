@@ -19,9 +19,9 @@ extern "C" {
 
 struct ModsConfig mods_conf = {0};
 
-static TbBool parse_block_mods(char *buf, long len, const char *block_name, struct ModConfigItem* mod_items, long *mod_cnt, long mod_max)
+static TbBool parse_block_mods(char *buf, long len, const char *block_name, struct ModConfigItem* mod_items, int32_t *mod_cnt, long mod_max)
 {
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -145,17 +145,17 @@ static void recheck_block_mod_list_exist(struct ModConfigItem *mod_items, long m
         if (config_dirs[0] == 0)
             WARNMSG("The '%s' mod configured in '%s' section exists but has no configuration.", mod_item->name, block_name);
         else
-            WARNMSG("The '%s' mod configured in '%s' section exists and contains configuration: %s", mod_item->name, block_name, config_dirs);
+            SYNCLOG("The '%s' mod configured in '%s' section exists and contains configuration: %s", mod_item->name, block_name, config_dirs);
     }
 }
 
 void recheck_all_mod_exist()
 {
-    WARNMSG("Check mods starts");
+    SYNCDBG(8,"Check mods starts");
     recheck_block_mod_list_exist(mods_conf.after_base_item, mods_conf.after_base_cnt, MODS_AFTER_BASE_BLOCK_NAME);
     recheck_block_mod_list_exist(mods_conf.after_campaign_item, mods_conf.after_campaign_cnt, MODS_AFTER_CAMPAIGN_BLOCK_NAME);
     recheck_block_mod_list_exist(mods_conf.after_map_item, mods_conf.after_map_cnt, MODS_AFTER_CAMPAIGN_BLOCK_NAME);
-    WARNMSG("Check mods end");
+    SYNCDBG(8,"Check mods end");
 }
 
 TbBool load_mods_order_config_file()
@@ -199,4 +199,3 @@ TbBool load_mods_order_config_file()
 #ifdef __cplusplus
 }
 #endif
-

@@ -408,7 +408,7 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 		stream.seekg(directory.first_data_offset + sample.data_offset, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
-	JUSTLOG("Loaded %d sound samples from %s", buffers.size(), filename);
+	JUSTLOG("Loaded %d sound samples from %s", (int) buffers.size(), filename);
 	return buffers;
 }
 
@@ -607,7 +607,7 @@ extern "C" void StopAllSamples() {
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
-		if (game.flags_font & FFlg_AlexCheat) {
+		if (game.easter_eggs_enabled == true) {
 			TbDate date;
 			LbDate(&date);
 			g_bb_king_mode |= ((date.Day == 1) && (date.Month == 2));
@@ -739,7 +739,7 @@ extern "C" SoundMilesID play_sample(
 				source.repeat(repeats == -1);
 				if (g_bb_king_mode) {
 					// ben enjoyed dofi's stream so much I made random pitch an easter egg
-					if (SOUND_RANDOM(10) > 7) { // ~30% of the time
+                    if (SOUND_RANDOM(10000) <= 3) { // ~0.03% of the time
 						source.flags |= bb_king_mode;
 						source.pitch((NORMAL_PITCH / 2) + SOUND_RANDOM(NORMAL_PITCH));
 					} else {

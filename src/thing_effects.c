@@ -48,6 +48,7 @@
 #include "thing_shots.h"
 #include "thing_stats.h"
 #include <math.h>
+#include "bflib_inputctrl.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -933,7 +934,7 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
     if (parent_idx > 0 && !thing_is_invalid(efftng))
     {
         efftng->parent_idx = parent_idx;
-        struct Thing* parent = thing_get(parent_idx);
+        struct Thing* parent = get_parent_thing(efftng);
         efftng->shot_effect.parent_class_id = parent->class_id;
         efftng->shot_effect.parent_model = parent->model;
     }
@@ -1006,16 +1007,16 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
         {
             if (tngdst->class_id == TCls_Creature)
             {
-                struct Thing* origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
+                struct Thing* origtng = get_parent_thing(tngsrc);
                 if (max_damage > 0)
                 {
                     HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
                     SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                    apply_damage_to_thing_and_display_health(tngdst, damage, owner);
                     if (flag_is_set(shotst->model_flags,ShMF_LifeDrain))
                     {
                         give_shooter_drained_health(origtng, damage / 2);
                     }
-                    apply_damage_to_thing_and_display_health(tngdst, damage, owner);
                     if (flag_is_set(shotst->model_flags,ShMF_GroupUp))
                     {
                         if (thing_is_creature(origtng))
@@ -1071,6 +1072,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 if (is_my_player_number(tngdst->owner))
                 {
                     output_message(SMsg_HeartUnderAttack, 400);
+                    controller_rumble(50);
                 }
             } else // Explosions move creatures and other things
             {
@@ -1154,11 +1156,10 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, struct ShotConfigStats* shotst)
 {
-    PlayerNumber owner;
-    if (!thing_is_invalid(tngsrc))
-        owner = tngsrc->owner;
-    else
-        owner = -1;
+    if (!thing_exists(tngsrc)) //Shooter may already be dead
+    {
+        tngsrc = efftng;
+    }
     long num_affected = 0;
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
@@ -1175,7 +1176,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         // Per thing processing block
         if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != THit_CrtrsOnlyNotOwn)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
-            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, owner))
+            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, tngsrc->owner))
             {
                 num_affected++;
             }
@@ -1314,7 +1315,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
     MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets)
 {
     PlayerNumber owner;
-    if (!thing_is_invalid(tngsrc))
+    if (thing_exists(tngsrc))
         owner = tngsrc->owner;
     else
         owner = -1;
@@ -1340,9 +1341,17 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
-                num_affected++;
+            if (thing_is_shot(tngsrc))
+            {
+                struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
+                if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
+                    num_affected++;
+            }
+            else
+            {
+                ERRORLOG("Exploding thing %s is not a shot", thing_model_name(tngsrc));
+                break;
+            }
         }
         // Per thing processing block ends
         k++;
@@ -1359,7 +1368,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
 /**
  * Affects things on an area with explosion effect, if only they should be affected with given hit type.
  *
- * @param tngsrc The thing which caused the effect, usually spell caster.
+ * @param tngsrc The thing which caused the effect, the spell caster or exploding shot.
  * @param pos Position of the effect epicenter.
  * @param max_dist Range of the effect.
  * @param max_damage Damage at epicenter of the effect.
@@ -1478,7 +1487,7 @@ long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *ma
     MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, unsigned char area_affect_type, SpellKind spell_idx)
 {
     PlayerNumber owner;
-    if (!thing_is_invalid(tngsrc))
+    if (thing_exists(tngsrc))
         owner = tngsrc->owner;
     else
         owner = -1;
@@ -1571,12 +1580,10 @@ TngUpdateRet update_effect(struct Thing *efftng)
 {
     SYNCDBG(18,"Starting for %s",thing_model_name(efftng));
     TRACE_THING(efftng);
-    struct Thing* subtng = NULL;
     const struct EffectConfigStats* effcst = get_effect_model_stats(efftng->model);
-    if (efftng->parent_idx > 0) {
-        subtng = thing_get(efftng->parent_idx);
-        TRACE_THING(subtng);
-    }
+    struct Thing* subtng = get_parent_thing(efftng);
+    TRACE_THING(subtng);
+
     if (efftng->health <= 0) {
         destroy_effect_thing(efftng);
         return TUFRet_Deleted;

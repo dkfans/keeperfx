@@ -29,7 +29,7 @@
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
 #endif
-
+#include <math.h>
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -608,11 +608,11 @@ long LbCosL(long x)
  * @param y
  * @return
  */
-long LbArcTanAngle(long x,long y)
+int32_t LbArcTanAngle(int32_t x,int32_t y)
 {
-    long ux;
-    long uy;
-    unsigned long index;
+    int32_t ux;
+    int32_t uy;
+    uint32_t index;
     if ((x == 0) && (y == 0))
         return 0;
     if (x < 0)
@@ -625,10 +625,10 @@ long LbArcTanAngle(long x,long y)
             // This way we won't exceed factors array bounds (which is 256 elements).
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return DEGREES_360   - (long)lbArcTanFactors[index];
+                return DEGREES_360   - (int32_t)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return ANGLE_WEST + (long)lbArcTanFactors[index];
+                return ANGLE_WEST + (int32_t)lbArcTanFactors[index];
             }
         } else
         {
@@ -636,10 +636,10 @@ long LbArcTanAngle(long x,long y)
             // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return   DEGREES_180   + (long)lbArcTanFactors[index];
+                return   DEGREES_180   + (int32_t)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return ANGLE_WEST - (long)lbArcTanFactors[index];
+                return ANGLE_WEST - (int32_t)lbArcTanFactors[index];
             }
         }
     } else
@@ -651,10 +651,10 @@ long LbArcTanAngle(long x,long y)
             // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return                 (long)lbArcTanFactors[index];
+                return                 (int32_t)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return ANGLE_EAST - (long)lbArcTanFactors[index];
+                return ANGLE_EAST - (int32_t)lbArcTanFactors[index];
             }
         } else
         {
@@ -662,10 +662,10 @@ long LbArcTanAngle(long x,long y)
             // Make sure we'll have smaller value * 256 / greater value.
             if (ux < uy) {
                 index = (ux << 8)/uy;
-                return DEGREES_180   - (long)lbArcTanFactors[index];
+                return DEGREES_180   - (int32_t)lbArcTanFactors[index];
             } else {
                 index = (uy << 8)/ux;
-                return ANGLE_EAST + (long)lbArcTanFactors[index];
+                return ANGLE_EAST + (int32_t)lbArcTanFactors[index];
             }
         }
     }
@@ -752,13 +752,13 @@ long LbMathOperation(unsigned char opkind, long first_operand, long second_opera
   }
 }
 
-unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place)
+unsigned long LbRandomSeries(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place)
 {
   if (range == 0)
     return 0;
   unsigned long i = 9377 * (*seed) + 9439;
 #ifndef FUNCTESTING // don't modify seeds when functional testing is enabled
-  *seed = (i >> 13) | (i << ((sizeof(long) * 8) - 13));
+  *seed = (i >> 13) | (i << ((sizeof(int32_t) * 8) - 13));
 #endif // FUNCTESTING
   i = (*seed) % range;
   return i;
@@ -823,7 +823,7 @@ float LbLerp(float low, float high, float interval)
     return (low * (1.0 - interval)) + (high * interval);
 }
 
-float fmodf(float x, float y)
+float LbFmodf(float x, float y)
 {
     float result = x - ((int)(x / y)) * y;
     if (result < 0) {
@@ -834,10 +834,10 @@ float fmodf(float x, float y)
 
 float lerp_angle(float from, float to, float weight) {
     float angle_difference = to - from;
-    float wrapped_difference = fmodf(angle_difference + DEGREES_180, DEGREES_360);
+    float wrapped_difference = LbFmodf(angle_difference + DEGREES_180, DEGREES_360);
     float shortest_distance = wrapped_difference - DEGREES_180;
     float step = shortest_distance * weight;
-    float result = fmodf(from + step, DEGREES_360);
+    float result = LbFmodf(from + step, DEGREES_360);
     return result;
 }
 

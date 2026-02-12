@@ -821,8 +821,8 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
     int next_direction;
     int current_iteration;
     const struct Around *ar;
-    long stl_y;
-    long stl_x;
+    MapSubtlCoord stl_y;
+    MapSubtlCoord stl_x;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     current_iteration = 0;
@@ -879,8 +879,8 @@ static long check_out_unreinforced_place(struct Thing *thing)
     SubtlCodedCoords stl_num;
     struct CreatureControl *cctrl;
     int direction_attempt_count;
-    long stl_y;
-    long stl_x;
+    MapSubtlCoord stl_y;
+    MapSubtlCoord stl_x;
 
     const char around_indexes[16] =
         {0, 1, 1, 0,
@@ -1104,8 +1104,8 @@ long check_out_undug_place(struct Thing *creatng)
         task_idx = find_dig_from_task_list(creatng->owner, task_pos);
         if (task_idx != -1)
         {
-            long mv_x;
-            long mv_y;
+            MapSubtlCoord mv_x;
+            MapSubtlCoord mv_y;
             mv_x = 0; mv_y = 0;
             if (check_place_to_dig_and_get_position(creatng, task_pos, &mv_x, &mv_y)
                 && setup_person_move_to_position(creatng, mv_x, mv_y, NavRtF_Default))
@@ -1589,7 +1589,7 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     struct Thing *heartng;
     heartng = get_player_soul_container(dungeon->owner);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng)) {
+    if (!thing_exists(heartng)) {
         WARNLOG("The player %d has no heart, no dungeon position available",(int)dungeon->owner);
         return 0;
     }
@@ -1613,10 +1613,6 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
  * If either thing owner or ground owner doesn't match, we can't pick that thing.
  * Additionally, we have a special condition in case our thing + our ground, because
  * in that case the thing may already be on a correct position.
- *
- * @param thing
- * @param dungeon
- * @param rkind
  * @return
  */
 TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned short flags)
@@ -2291,7 +2287,7 @@ int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, 
     return 0;
 }
 
-long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
+long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
 {
     MapSubtlCoord basestl_x;
     MapSubtlCoord basestl_y;
@@ -3232,7 +3228,7 @@ long check_out_worker_pickup_crate_to_arm(struct Thing *creatng, struct DiggerSt
         }
     }
     // Either the crate or thing to arm is gone - remove the task
-    if (thing_is_invalid(cratng))
+    if (!thing_exists(cratng))
     {
         dstack->task_type = DigTsk_None;
         return -1;

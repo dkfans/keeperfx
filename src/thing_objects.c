@@ -48,6 +48,7 @@
 #include "sounds.h"
 #include "creature_states_pray.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "game_loop.h"
 #include "config_spritecolors.h"
@@ -290,9 +291,7 @@ TbBool object_can_be_damaged (const struct Thing* thing)
 
 TbBool thing_is_object_with_tooltip(const struct Thing* thing, TbBool is_optional)
 {
-    if (thing_is_invalid(thing))
-        return false;
-    if (thing->class_id != TCls_Object)
+    if (!thing_is_object(thing))
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return ((objst->tooltip_stridx != GUIStr_Empty) && (objst->tooltip_optional == is_optional));
@@ -666,7 +665,7 @@ static long food_moves(struct Thing *objtng)
     if (objtng->food.some_chicken_was_sacrificed)
     {
         destroy_food(objtng);
-        return -1;
+        return TUFRet_Deleted;
     }
     TbBool dirct_ctrl = is_thing_directly_controlled(objtng);
     if (dirct_ctrl)
@@ -674,7 +673,7 @@ static long food_moves(struct Thing *objtng)
         if (objtng->food.possession_startup_timer > 0)
         {
             objtng->food.possession_startup_timer--;
-            return 1;
+            return TUFRet_Modified;
         }
     }
     struct Room* room = get_room_thing_is_on(objtng);
@@ -721,7 +720,7 @@ static long food_moves(struct Thing *objtng)
             create_effect(&objtng->mappos, TngEff_FeatherPuff, objtng->owner);
             create_effect(&objtng->mappos, TngEff_ChickenBlood, objtng->owner);
             delete_thing_structure(objtng, 0);
-            return -1;
+            return TUFRet_Deleted;
         }
       }
     }
@@ -791,6 +790,10 @@ static long food_moves(struct Thing *objtng)
         if (dangle > 62)
             dangle = 62;
         objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & ANGLE_MASK;
+        struct PlayerInfo* my_player = get_my_player();
+        if (my_player->controlled_thing_idx == objtng->index && my_player->view_mode == PVM_CreatureView) {
+            set_local_camera_destination(my_player);
+        }
         if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < DEGREES_50)
         {
             struct ComponentVector cvec;
@@ -803,10 +806,10 @@ static long food_moves(struct Thing *objtng)
         if (objtng->snd_emitter_id == 0)
         {
             if (snd_smplidx > 0) {
-              thing_play_sample(objtng, snd_smplidx, 100, 0, 3u, 0, 1, 256);
-              return 1;
+              thing_play_sample(objtng, snd_smplidx, 100, 0, 3, 0, 1, 256);
+              return TUFRet_Modified;
             }
-            if (SOUND_RANDOM(0x50) == 0)
+            if (SOUND_RANDOM(80) == 0)
             {
               snd_smplidx = 100 + SOUND_RANDOM(9);
             }
@@ -814,9 +817,8 @@ static long food_moves(struct Thing *objtng)
     }
     if (snd_smplidx > 0) {
         thing_play_sample(objtng, snd_smplidx, 100, 0, 3u, 0, 1, 256);
-        return 1;
     }
-    return 1;
+    return TUFRet_Modified;
 }
 
 static long food_grows(struct Thing *objtng)
@@ -824,13 +826,13 @@ static long food_grows(struct Thing *objtng)
     if (objtng->food.life_remaining > 0)
     {
         objtng->food.life_remaining--;
-        return 1;
+        return TUFRet_Modified;
     }
     struct Coord3d pos;
     pos.x.val = objtng->mappos.x.val;
     pos.y.val = objtng->mappos.y.val;
     pos.z.val = objtng->mappos.z.val;
-    long ret = 0;
+    long ret = TUFRet_Unchanged;
     PlayerNumber tngowner = objtng->owner;
     struct Thing* nobjtng;
     struct Room* room = subtile_room_get(pos.x.stl.num, pos.y.stl.num);
@@ -844,7 +846,7 @@ static long food_grows(struct Thing *objtng)
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->food.life_remaining = (nobjtng->max_frames << 8) / nobjtng->anim_speed - 1;
         }
-        ret = -1;
+        ret = TUFRet_Deleted;
         break;
       case 894:
       case 898:
@@ -853,7 +855,7 @@ static long food_grows(struct Thing *objtng)
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->food.life_remaining = 3 * ((nobjtng->max_frames << 8) / nobjtng->anim_speed - 1);
         }
-        ret = -1;
+        ret = TUFRet_Deleted;
         break;
       case 895:
       case 899:
@@ -862,7 +864,7 @@ static long food_grows(struct Thing *objtng)
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->food.life_remaining = (nobjtng->max_frames << 8) / nobjtng->anim_speed - 1;
         }
-        ret = -1;
+        ret = TUFRet_Deleted;
         break;
       case 896:
       case 900:
@@ -880,7 +882,7 @@ static long food_grows(struct Thing *objtng)
           }
           nobjtng->food.life_remaining = -1;
         }
-        ret = -1;
+        ret = TUFRet_Deleted;
         break;
       default:
         break;
@@ -909,7 +911,7 @@ GoldAmount add_gold_to_treasure_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y
     return gold_store;
 }
 
-long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
+GoldAmount gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
 {
     GoldAmount gold_store = thing->valuable.gold_stored;
     {
@@ -989,7 +991,7 @@ long process_temple_special(struct Thing *thing, long sacowner)
     if (object_is_mature_food(thing))
     {
         dungeon->chickens_sacrificed++;
-        if (temple_check_for_arachnid_join_dungeon(dungeon) && (game.flags_font & FFlg_AlexCheat))
+        if (temple_check_for_arachnid_join_dungeon(dungeon) && (game.easter_eggs_enabled == true))
             return true;
     } else
     {
@@ -1086,21 +1088,21 @@ struct Thing *find_base_thing_on_mapwho_excluding_self(struct Thing *thing)
 static long object_being_dropped(struct Thing *thing)
 {
     if (!thing_touching_floor(thing)) {
-        return 1;
+        return TUFRet_Modified;
     }
     if (subtile_has_sacrificial_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
         struct Room* room = get_room_thing_is_on(thing);
         process_object_sacrifice(thing, room->owner);
         delete_thing_structure(thing, 0);
-        return -1;
+        return TUFRet_Deleted;
     }
     if (object_is_gold_pile(thing))
     {
         if (thing->valuable.gold_stored <= 0)
         {
             delete_thing_structure(thing, 0);
-            return -1;
+            return TUFRet_Deleted;
         }
         struct Room* room = get_room_thing_is_on(thing);
         if (!room_is_invalid(room) && room_role_matches(room->kind, RoRoF_GoldStorage))
@@ -1108,7 +1110,7 @@ static long object_being_dropped(struct Thing *thing)
             if ((thing->owner == room->owner) || is_neutral_thing(thing))
             {
                 if (gold_being_dropped_at_treasury(thing, room) == -1) {
-                    return -1;
+                    return TUFRet_Deleted;
                 }
             }
         }
@@ -1116,23 +1118,23 @@ static long object_being_dropped(struct Thing *thing)
         {
             drop_gold_pile(thing->valuable.gold_stored, &thing->mappos);
             delete_thing_structure(thing, 0);
-            return -1;
+            return TUFRet_Deleted;
         }
         struct Thing* gldtng = find_base_thing_on_mapwho_excluding_self(thing);
         if (!thing_is_invalid(gldtng))
         {
             add_gold_to_pile(gldtng, thing->valuable.gold_stored);
             delete_thing_structure(thing, 0);
-            return -1;
+            return TUFRet_Deleted;
         }
     }
     thing->active_state = thing->continue_state;
-    return 1;
+    return TUFRet_Modified;
 }
 
 void update_dungeon_heart_beat(struct Thing *heartng)
 {
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         ERRORLOG("Trying to beat non-existing heart");
         return;
@@ -1253,14 +1255,17 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner, heartng->index);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-            destroy_dungeon_heart_room(heartng->owner, heartng);
             if (!dungeon_invalid(dungeon) && heartng->index == dungeon->backup_heart_idx)
             {
                 dungeon->backup_heart_idx = 0;
             }
-            delete_thing_structure(heartng, 0);
+            destroy_dungeon_heart_room(heartng->owner, heartng);
+            if (!thing_is_invalid(heartng))
+            {
+                delete_thing_structure(heartng, 0);
+            }
         }
-        return TUFRet_Unchanged;
+        return TUFRet_Deleted; //Also when it is not deleted, to stop the heart from flashing
     }
     else
     {
@@ -1272,7 +1277,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
                 dungeon->backup_heart_idx = 0;
                 struct Thing* scndthing = find_players_backup_dungeon_heart(heartng->owner);
                 {
-                    if (!thing_is_invalid(scndthing))
+                    if (thing_exists(scndthing))
                     {
                         dungeon->backup_heart_idx = scndthing->index;
                     }
@@ -1380,7 +1385,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     if (thing->index != player->cta_flag_idx)
     {
         delete_thing_structure(thing, 0);
-        return -1;
+        return TUFRet_Deleted;
     }
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[dungeon->color_idx];
@@ -1427,7 +1432,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     default:
         break;
     }
-    return 1;
+    return TUFRet_Modified;
 }
 
 static TngUpdateRet object_update_armour(struct Thing *objtng)
@@ -1436,7 +1441,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     if (thing_is_picked_up(thing))
     {
         objtng->rendering_flags |= TRF_Invisible;
-        return 1;
+        return TUFRet_Modified;
     }
     struct Coord3d pos;
     struct ComponentVector cvect;
@@ -1478,7 +1483,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
     objtng->rendering_flags &= ~TRF_Invisible;
-    return 1;
+    return TUFRet_Modified;
 }
 
 static TngUpdateRet object_update_object_scale(struct Thing *objtng)
@@ -1514,7 +1519,7 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
         i = objst->sprite_anim_idx;
     }
     set_thing_draw(objtng, i, objst->anim_speed, objtng->lair.cssize, 0, start_frame, objst->draw_class);
-    return 1;
+    return TUFRet_Modified;
 }
 
 static TngUpdateRet object_update_power_sight(struct Thing *objtng)
@@ -1525,7 +1530,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     {
         ERRORLOG("Neutral %s index %d cannot be power sight.", thing_model_name(objtng), (int)objtng->index);
         delete_thing_structure(objtng, 0);
-        return 0;
+        return TUFRet_Deleted;
     }
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
@@ -1575,7 +1580,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
                 dungeon->sight_casted_thing_idx = 0;
                 memset(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
                 delete_thing_structure(objtng, 0);
-                return 0;
+                return TUFRet_Deleted;
             }
         }
         else
@@ -1596,7 +1601,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
                 pos.z.val = 1408;
                 create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
             }
-            return 1;
+            return TUFRet_Modified;
         }
     }
     else
@@ -1623,7 +1628,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
                 dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < game.map_subtiles_x * COORD_PER_STL && pos.y.val < game.map_subtiles_y * COORD_PER_STL;
             }
         }
-        return 1;
+        return TUFRet_Modified;
     }
     return result;
 }
@@ -1722,7 +1727,7 @@ TngUpdateRet move_object(struct Thing *thing)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {
-                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %ld. Move to valid position.",
+                        SYNCDBG(7, "Found no free position next to (%d,%d) due to blocked flag %ld. Move to valid position.",
                             pos.x.val, pos.y.val, blocked_flags);
                         move_creature_to_nearest_valid_position(thing);
                     }
@@ -1766,14 +1771,14 @@ TngUpdateRet update_object(struct Thing *thing)
         upcallback = object_update_functions[objst->updatefn_idx];
         if (upcallback != NULL)
         {
-            if (upcallback(thing) <= 0) {
+            if (upcallback(thing) < 0) {
                 return TUFRet_Deleted;
             }
         }
     }
     else if (objst->updatefn_idx < 0)
     {
-        if (luafunc_thing_update_func(objst->updatefn_idx, thing) <= 0) {
+        if (luafunc_thing_update_func(objst->updatefn_idx, thing) < 0) {
             return TUFRet_Deleted;
         }
     }
@@ -1787,7 +1792,7 @@ TngUpdateRet update_object(struct Thing *thing)
     if (stcallback != NULL)
     {
         SYNCDBG(18,"Updating state");
-        if (stcallback(thing) <= 0) {
+        if (stcallback(thing) < 0) {
             return TUFRet_Deleted;
         }
     }
@@ -1962,7 +1967,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
  * @param amount Amount of gold to be added.
  * @return Gives amount really added to the hoard.
  */
-long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
+GoldAmount add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
     GoldAmount wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
@@ -2014,7 +2019,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
  * @param amount Amount of gold to be taken.
  * @return Gives amount really taken from the hoard.
  */
-long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
+GoldAmount remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
     if (amount <= 0) {
         return 0;
@@ -2066,10 +2071,8 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
  */
 TbBool thing_is_gold_hoard(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
+    if (!thing_is_object(thing))
         return false;
-    if (thing->class_id != TCls_Object)
-      return false;
     return object_is_gold_hoard(thing);
 }
 
@@ -2146,7 +2149,7 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
         return false;
     }
     if (thing->valuable.gold_stored < 0)
-        thing->valuable.gold_stored = LONG_MAX;
+        thing->valuable.gold_stored = INT32_MAX;
     if (thing->valuable.gold_stored < typical_value)
         scaled_val = 196 * thing->valuable.gold_stored / typical_value + 128;
     else

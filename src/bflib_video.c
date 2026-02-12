@@ -26,6 +26,8 @@
 #include "bflib_sprfnt.h"
 #include "bflib_vidsurface.h"
 
+#include "keeperfx.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <math.h>
@@ -504,7 +506,7 @@ TbResult LbScreenInitialize(void)
         LbRegisterModernVideoModes(); // register modern and flexible custom modes
     }
     // Initialize SDL library
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) < 0) {
         ERRORLOG("SDL init: %s",SDL_GetError());
         return Lb_FAIL;
     }
@@ -517,8 +519,8 @@ TbResult LbScreenInitialize(void)
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
-    long hot_x;
-    long hot_y;
+    int32_t hot_x;
+    int32_t hot_y;
     const struct TbSprite* msspr = NULL;
     LbExeReferenceNumber();
     if (lbDisplay.MouseSprite != NULL)
@@ -644,6 +646,9 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     }
 
     reset_bflib_render();
+
+    redetect_screen_refresh_rate_for_draw();
+
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }
@@ -939,7 +944,7 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
 #endif
         return Lb_SCREEN_MODE_INVALID;
     }
-    if (lbScreenModeInfoNum >= sizeof(lbScreenModeInfo)/sizeof(lbScreenModeInfo[0]))
+    if ((size_t) lbScreenModeInfoNum >= sizeof(lbScreenModeInfo)/sizeof(lbScreenModeInfo[0]))
     {
         // No free mode slots
         return Lb_SCREEN_MODE_INVALID;

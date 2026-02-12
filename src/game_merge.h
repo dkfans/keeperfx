@@ -150,7 +150,7 @@ LevelNumber set_continue_level_number(LevelNumber lvnum);
 LevelNumber get_selected_level_number(void);
 LevelNumber set_selected_level_number(LevelNumber lvnum);
 TbBool activate_bonus_level(struct PlayerInfo *player);
-TbBool is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum);
+TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum);
 void hide_all_bonus_levels(struct PlayerInfo *player);
 unsigned short get_extra_level_kind_visibility(unsigned short elv_kind);
 void update_extra_levels_visibility(void);

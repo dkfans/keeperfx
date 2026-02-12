@@ -82,16 +82,16 @@ struct ComputerCheck {
 struct ComputerEvent {
   char name[COMMAND_WORD_LEN];
   char mnemonic[COMMAND_WORD_LEN];
-  unsigned long cetype;
-  unsigned long mevent_kind;
+  uint32_t cetype;
+  uint32_t mevent_kind;
   FuncIdx func_event;
   FuncIdx func_test;
-  long test_interval;
+  int32_t test_interval;
   unsigned char process;
-  long primary_parameter;
-  long secondary_parameter;
-  long tertiary_parameter;
-  long last_test_gameturn; /**< event last checked time */
+  int32_t primary_parameter;
+  int32_t secondary_parameter;
+  int32_t tertiary_parameter;
+  int32_t last_test_gameturn; /**< event last checked time */
 };
 
 struct ComputerType {
@@ -111,13 +111,13 @@ struct ComputerType {
 };
 
 struct ComputerPlayerConfig {
-  long processes_count;
+  int32_t processes_count;
   struct ComputerProcess process_types[COMPUTER_PROCESS_TYPES_COUNT];
-  long checks_count;
+  int32_t checks_count;
   struct ComputerCheck check_types[COMPUTER_CHECKS_TYPES_COUNT];
-  long events_count;
+  int32_t events_count;
   struct ComputerEvent event_types[COMPUTER_EVENTS_TYPES_COUNT];
-  long computers_count;
+  int32_t computers_count;
   struct ComputerType computer_types[COMPUTER_MODELS_COUNT];
   long skirmish_first;
   long skirmish_last;

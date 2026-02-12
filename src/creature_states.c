@@ -709,13 +709,16 @@ TbBool creature_can_be_set_unconscious(const struct Thing *creatng, const struct
     {
         return false;
     }
-    if (!player_has_room_of_role(killertng->owner, RoRoF_Prison))
+    if (THING_RANDOM(creatng, 100) >= game.conf.rules[creatng->owner].creature.stun_without_prison_chance)
     {
-        return false;
-    }
-    if (!player_creature_tends_to(killertng->owner, CrTend_Imprison))
-    {
-        return false;
+        if (!player_has_room_of_role(killertng->owner, RoRoF_Prison))
+        {
+            return false;
+        }
+        if (!player_creature_tends_to(killertng->owner, CrTend_Imprison))
+        {
+            return false;
+        }
     }
     if (flag_is_set(get_creature_model_flags(creatng), CMF_IsEvil) && (THING_RANDOM(creatng, 100) >= game.conf.rules[creatng->owner].creature.stun_enemy_chance_evil))
     {
@@ -1111,13 +1114,13 @@ short arrive_at_call_to_arms(struct Thing *creatng)
         return 1;
     }
     struct Thing* cmbttng = check_for_door_to_fight(creatng);
-    if (!thing_is_invalid(cmbttng))
+    if (thing_exists(cmbttng))
     {
         set_creature_door_combat(creatng, cmbttng);
         return 2;
     }
     cmbttng = check_for_object_to_fight(creatng);
-    if (!thing_is_invalid(cmbttng))
+    if (thing_exists(cmbttng))
     {
         set_creature_object_combat(creatng, cmbttng);
         return 2;
@@ -1492,7 +1495,6 @@ short cleanup_timebomb(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
     cctrl->timebomb_target_id = 0;
-    cctrl->timebomb_death = false;
     return 0;
 }
 
@@ -1559,7 +1561,7 @@ short creature_being_dropped(struct Thing *creatng)
         check_map_explored(creatng, stl_x, stl_y);
         // Creatures dropped far from group are removed from it
         struct Thing* leadtng = get_group_leader(creatng);
-        if (!thing_is_invalid(leadtng))
+        if (thing_is_creature(leadtng))
         {
             if (leadtng->index != creatng->index)
             {
@@ -3096,7 +3098,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if ( thing_is_invalid(picktng) || ((picktng->state_flags & TF1_IsDragged1) != 0)
+    if ( !thing_exists(picktng) || ((picktng->state_flags & TF1_IsDragged1) != 0)
       || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(creatng);
@@ -3619,7 +3621,7 @@ CrCheckRet move_check_attack_any_door(struct Thing *creatng)
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->collided_door_subtile);
     SYNCDBG(8,"Door at (%d,%d) collided with %s",(int)stl_x,(int)stl_y,thing_model_name(creatng));
     struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-    if (thing_is_invalid(doortng)) {
+    if (!thing_exists(doortng)) {
         SYNCDBG(8,"Door collided with %s not found",thing_model_name(creatng));
         return 0;
     }
@@ -3910,7 +3912,7 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
           }
       }
       doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
-      if (!thing_is_invalid(doortng))
+      if (thing_exists(doortng))
       {
         internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
         cctrl->blocking_door_id = doortng->index;
@@ -4190,8 +4192,8 @@ TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, Creatu
     RoomRole rrole = get_room_role_for_job(jobpref);
     if (!room_exists(room))
     {
-        SYNCLOG("%s: The %s owned by player %d can no longer work in %s because former work room doesn't exist",
-            func_name,thing_model_name(thing),(int)thing->owner,room_role_code_name(rrole));
+        SYNCLOG("%s: The %s(%d) owned by player %d can no longer work in %s because former work room doesn't exist",
+            func_name,thing_model_name(thing),thing->index,(int)thing->owner,room_role_code_name(rrole));
         // Note that if given room doesn't exist, it do not mean this
         return true;
     }
@@ -4633,7 +4635,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
 
     int distance = 0;
     if (!path.waypoints_num)
-        return LONG_MAX;
+        return INT32_MAX;
 
     if (path.waypoints_num <= 0)
         return distance;
@@ -4808,7 +4810,6 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 
 TbBool check_experience_upgrade(struct Thing *thing)
 {
-    struct Dungeon *dungeon = get_dungeon(thing->owner);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct CreatureModelConfig *crconf = creature_stats_get_from_thing(thing);
     long i = crconf->to_level[cctrl->exp_level] << 8;
@@ -4817,6 +4818,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
         return false;
     }
     cctrl->exp_points -= i;
+    struct Dungeon *dungeon = get_dungeon(thing->owner);
     if (cctrl->exp_level < dungeon->creature_max_level[thing->model])
     {
         if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crconf->grow_up != 0))

@@ -809,13 +809,13 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     long chosen_priority;
     CreatureJob chosen_job;
     struct Room *room;
-    long total_spare_cap;
+    int32_t total_spare_cap;
     long k;
 
     const struct Dungeon *dungeon = comp->dungeon;
 
     chosen_job = Job_NULL;
-    chosen_priority = LONG_MIN;
+    chosen_priority = INT32_MIN;
     for (k=0; move_to_best_job[k].job_kind != Job_NULL; k++)
     {
         const struct MoveToBestJob * mvto;
@@ -1028,7 +1028,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
 /**
  * Counts the slabs which are supposed to be used for room building, and which cannot be used for the building.
  */
-void count_slabs_where_room_cannot_be_built(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, RoomKind rkind, long slabs_num, long *waiting_slabs, long *wrong_slabs)
+void count_slabs_where_room_cannot_be_built(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, RoomKind rkind, long slabs_num, int32_t *waiting_slabs, int32_t *wrong_slabs)
 {
     SlabKind room_slbkind;
     room_slbkind = room_corresponding_slab(rkind);
@@ -1094,8 +1094,8 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
         restart_task_process(comp, ctask);
         return CTaskRet_Unk0;
     }
-    long waiting_slabs;
-    long wrong_slabs;
+    int32_t waiting_slabs;
+    int32_t wrong_slabs;
     waiting_slabs = 0; wrong_slabs = 0;
     count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->new_room_pos.x.stl.num, ctask->new_room_pos.y.stl.num,
         ctask->create_room.kind, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
@@ -1779,7 +1779,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
     }
     gldstl_x = stl_slab_center_subtile(cdig->pos_begin.x.stl.num);
     gldstl_y = stl_slab_center_subtile(cdig->pos_begin.y.stl.num);
-    SYNCDBG(4,"%s: Dig slabs from (%ld,%ld) to (%d,%d)",
+    SYNCDBG(4,"%s: Dig slabs from (%d,%d) to (%d,%d)",
         func_name,
         subtile_slab(gldstl_x),subtile_slab(gldstl_y),
         subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
@@ -2075,7 +2075,7 @@ TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     }
 
     memcpy(&ctask->dig.pos_begin, &ctask->dig.pos_next, sizeof(struct Coord3d));
-    ctask->dig.distance = LONG_MAX;
+    ctask->dig.distance = INT32_MAX;
     ctask->dig.calls_count = 0;
     // Make local copy of the dig structure
     struct ComputerDig cdig;
@@ -2158,7 +2158,10 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
                             TbResult res = game_action(dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1);
                             if (res <= Lb_OK)
                             {
-                                WARNLOG("Game action GA_MarkDig returned code %d - location %d,%d around gem not marked for digging", res, slb_x + x, slb_y + y);
+                                if ((find_from_task_list(dungeon->owner, get_subtile_number(stl_x, stl_y)) == -1))
+                                {
+                                    WARNLOG("Game action GA_MarkDig returned code %d - location %d,%d (%s) around gem not marked for digging", res, slb_x + x, slb_y + y, slabst->code_name);
+                                }
                             }
                         }
                     }
@@ -2499,7 +2502,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
     }
     struct Thing *pick_thing;
     long pick_score;
-    pick_score = LONG_MIN;
+    pick_score = INT32_MIN;
     pick_thing = INVALID_THING;
 
     unsigned long k;
@@ -2543,7 +2546,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                             score = get_creature_thing_score(thing);
                             break;
                         default:
-                            score = 0; // Still more than LONG_MIN
+                            score = 0; // Still more than INT32_MIN
                             break;
                         }
                         if (score >= pick_score)
@@ -2560,7 +2563,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                         if (best_score) {
                             score = get_creature_thing_score(thing);
                         } else {
-                            score = 0; // Still more than LONG_MIN
+                            score = 0; // Still more than INT32_MIN
                         }
                         if (score >= pick_score)
                         {
@@ -2705,7 +2708,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     dungeon = comp->dungeon;
     room = room_get(ctask->move_to_room.room_idx1);
     thing = thing_get(comp->held_thing_idx);
-    if (!thing_is_invalid(thing)) // We have no unit in hand
+    if (thing_exists(thing)) // We have no unit in hand
     {
         // 2nd phase - we have specific creature and specific room index, and creature is picked up already
         SYNCDBG(9,"Starting player %d drop",(int)dungeon->owner);
@@ -2735,11 +2738,11 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
                         return CTaskRet_Unk2;
                     }
                 }
-                ERRORLOG("Could not find valid position in player %d %s for %s to be dropped", (int)dungeon->owner, room_code_name(room->kind), thing_model_name(thing));
+                ERRORLOG("Could not find valid position in %s %s for %s to be dropped", player_code_name(dungeon->owner), room_code_name(room->kind), thing_model_name(thing));
             }
         } else
         {
-            WARNLOG("Could not move player %d creature by dropping %s into %s",(int)dungeon->owner,thing_model_name(thing),room_code_name(room->kind));
+            WARNLOG("Could not move %s creature by dropping %s into %s",player_code_name(dungeon->owner),thing_model_name(thing),room_code_name(room->kind));
         }
         computer_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
         remove_task(comp, ctask);
@@ -2784,7 +2787,7 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     dungeon = comp->dungeon;
     struct Thing *thing;
     thing = thing_get(comp->held_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         if (ctask->move_to_pos.target_thing_idx == comp->held_thing_idx)
         {
@@ -2829,7 +2832,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
     long best_factor;
     struct Thing *best_creatng;
     best_creatng = INVALID_THING;
-    best_factor = LONG_MIN;
+    best_factor = INT32_MIN;
     k = 0;
     i = dungeon->creatr_list_start;
     while (i != 0)
@@ -2903,7 +2906,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
         return CTaskRet_Unk0;
     }
     // If everything is fine and we're keeping the thing to move in "fake hand"
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         if (thing_is_creature(thing))
         {
@@ -2918,7 +2921,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
                 thing_model_name(thing),(int)ctask->move_to_defend.target_pos.x.stl.num,(int)ctask->move_to_defend.target_pos.y.stl.num);
         } else
         {
-            WARNLOG("Player %d computer hand holds %s instead of creature",(int)dungeon->owner, thing_model_name(thing));
+            WARNLOG("%s computer hand holds %s instead of creature",player_code_name(dungeon->owner), thing_model_name(thing));
         }
         computer_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
         remove_task(comp, ctask);
@@ -3120,7 +3123,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
     creatng = thing_get(ctask->attack_magic.target_thing_idx);
-    if (thing_is_invalid(creatng))
+    if (!thing_exists(creatng))
     {
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
@@ -3244,7 +3247,7 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
     thing = thing_get(ctask->attack_magic.target_thing_idx);
-    if (thing_is_invalid(thing)) {
+    if (!thing_exists(thing)) {
         return CTaskRet_Unk1;
     }
     i = ctask->attack_magic.repeat_num;
@@ -3275,7 +3278,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     struct DoorConfigStats *doorst;
     struct TrapConfigStats *trapst;
     TbBool item_sold;
-    long value;
+    int32_t value;
     ThingModel model;
     long i;
 
@@ -3354,7 +3357,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].game.trap_sale_percent);
                         dungeon->traps_sold++;
                         dungeon->manufacture_gold += value;
-                        SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
+                        SYNCDBG(9,"Offmap trap %s crate sold for %d gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
@@ -3495,7 +3498,7 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
     cdig->pos_next.x.val = 0;
     cdig->pos_next.y.val = 0;
     cdig->pos_next.z.val = 0;
-    cdig->distance = LONG_MAX;
+    cdig->distance = INT32_MAX;
     cdig->action_success_flag = 1;
     cdig->calls_count = 0;
 }
@@ -3972,14 +3975,14 @@ long process_tasks(struct Computer2 *comp)
 TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination)
 {
     struct Computer2* comp = get_computer_player(plyr_idx);
-    long orig_x = 0, orig_y = 0;
-    long dest_x = 0, dest_y = 0;
+    MapSubtlCoord orig_x = 0, orig_y = 0;
+    MapSubtlCoord dest_x = 0, dest_y = 0;
 
     //dig origin
     find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
     if ((orig_x == 0) && (orig_y == 0))
     {
-        WARNLOG("Can't decode origin location %ld", origin);
+        WARNLOG("Can't decode origin location %d", origin);
         return Lb_FAIL;
     }
     struct Coord3d startpos;
@@ -3991,7 +3994,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, Tb
     find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
     if ((dest_x == 0) && (dest_y == 0))
     {
-        WARNLOG("Can't decode destination location %ld", destination);
+        WARNLOG("Can't decode destination location %d", destination);
         return Lb_FAIL;
     }
     struct Coord3d endpos;

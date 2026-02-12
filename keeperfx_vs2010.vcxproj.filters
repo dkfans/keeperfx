@@ -408,9 +408,6 @@
     <ClCompile Include="src\net_game.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\net_sync.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\packets.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -762,7 +759,19 @@
     <ClCompile Include="src\lua_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lua_api_camera.c">
+    <ClCompile Include="src\lua_api_camera.c">      
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\local_camera.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_portforward.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_resync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_input_joyst.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1205,9 +1214,6 @@
     <ClInclude Include="src\net_game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\net_sync.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\packets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1434,6 +1440,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\lua_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\local_camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_portforward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_resync.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

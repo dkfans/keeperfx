@@ -96,6 +96,8 @@ extern "C" {
 #endif
 
 extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern long double last_draw_completed_time;
+long double get_time_tick_ns();
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -558,7 +560,7 @@ void get_player_gui_clicks(void)
               }
           }
         // do NOT do right_button_clicked = 0 here: it breaks dropping creatures!
-      }          
+      }
       if (right_button_released)
       {
         if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
@@ -2646,7 +2648,7 @@ void initialise_tab_tags_and_menu(MenuID menu_id)
 
 void init_gui(void)
 {
-  memset(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(unsigned short));
+  memset(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(uint16_t));
   memset(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
   memset(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
   memset(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));
@@ -2982,7 +2984,7 @@ TbBool frontmainmnu_input(void)
     }
     if (lbKeyOn[KC_T] && lbKeyOn[KC_LSHIFT])
     {
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if (game.easter_eggs_enabled == true)
         {
             lbKeyOn[KC_T] = 0;
             set_player_as_won_level(get_my_player());
@@ -2993,7 +2995,7 @@ TbBool frontmainmnu_input(void)
 #if (BFDEBUG_LEVEL > 0)
     if (lbKeyOn[KC_F] && lbKeyOn[KC_LSHIFT])
     {
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if (game.easter_eggs_enabled == true)
         {
             lbKeyOn[KC_F] = 0;
             frontend_set_state(FeSt_FONT_TEST);
@@ -3400,6 +3402,7 @@ void draw_debug_messages() {
  */
 short frontend_draw(void)
 {
+    LbWindowsControl();
     short result;
     switch (frontend_menu_state)
     {
@@ -3476,6 +3479,7 @@ short frontend_draw(void)
     draw_debug_messages();
     perform_any_screen_capturing();
     LbScreenUnlock();
+    last_draw_completed_time = get_time_tick_ns();
     return result;
 }
 
@@ -3558,10 +3562,10 @@ void update_player_objectives(PlayerNumber plyr_idx)
     }
 }
 
-void display_objectives(PlayerNumber plyr_idx, long x, long y)
+void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
 {
-    long cor_x;
-    long cor_y;
+    MapCoord cor_x;
+    MapCoord cor_y;
     cor_y = 0;
     cor_x = 0;
     if ((x > 0) || (y > 0))
@@ -3586,9 +3590,8 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
     }
     if ((x == 255) && (y == 255))
     {
-        struct Thing *creatng;
-        creatng = lord_of_the_land_find();
-        if (!thing_is_invalid(creatng))
+        struct Thing *creatng = lord_of_the_land_find();
+        if (thing_exists(creatng))
         {
             cor_x = creatng->mappos.x.val;
             cor_y = creatng->mappos.y.val;

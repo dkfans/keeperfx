@@ -259,7 +259,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
   const char * block_name = "attributes";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -972,7 +972,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
   struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
   const char * block_name = "attraction";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -1084,7 +1084,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "annoyance";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1461,7 +1461,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "senses";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1572,7 +1572,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "appearance";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1776,7 +1776,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "experience";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1874,23 +1874,45 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             }
             break;
         case 5: // SLEEPEXPERIENCE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+        {
+            for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
             {
-              k = get_id(slab_desc, word_buf);
-              if (k >= 0)
-              {
-                crconf->sleep_exp_slab = k;
-                n++;
-              } else
-              {
-                crconf->sleep_exp_slab = 0;
-              }
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->sleep_experience = k;
-              n++;
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                  k = get_id(slab_desc, word_buf);
+                  if (k >= 0)
+                  {
+                    crconf->sleep_exp_slab[i] = k;
+                    n++;
+                  } else
+                  {
+                    crconf->sleep_exp_slab[i] = 0;
+                  }
+                }
+                else
+                {
+                    for (unsigned int j = i; j < SLEEP_XP_COUNT; j++)
+                    {
+                        crconf->sleep_exp_slab[j] = 0;
+                        crconf->sleep_experience[j] = 0;
+                    }
+                    break;
+                }
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                  k = atoi(word_buf);
+                  if (k < 0)
+                  {
+                      ERRORLOG("Slab sleep experience value (%s %d) must be 0 or greater.", slab_code_name(crconf->sleep_exp_slab[i]), k);
+                      k = 0;
+                  }
+                  crconf->sleep_experience[i] = k;
+                  n++;
+                }
+                else
+                {
+                    crconf->sleep_experience[i] = 0;
+                }
             }
             if (n < 2)
             {
@@ -1898,6 +1920,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
+        }
         case 6: // EXPERIENCEFORHITTING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
@@ -1945,7 +1968,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "jobs";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -2139,7 +2162,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   int n;
   // Find the block
   const char * block_name = "sprites";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -2209,7 +2232,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
 {
     // Find the block
     const char * block_name = "sounds";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -2615,15 +2638,16 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     if (strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
     }
 
     if (mods_conf.after_map_cnt > 0)
     {
         result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_map_item, mods_conf.after_map_cnt);
-        if (result)
-        {
-            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
-        }
+        // last one does not need to set (CnfLd_AcceptPartial | CnfLd_IgnoreErrors)
     }
 
     if (!result)

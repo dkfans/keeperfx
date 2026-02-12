@@ -41,6 +41,9 @@ long double sleep_precision_ns = 20000000; // 20ms
 struct TbTime global_time;
 struct TbDate global_date;
 TbClockMSec (* LbTimerClock)(void);
+int slowdown_current = 0;
+int slowdown_average = 0;
+int slowdown_max = 0;
 /******************************************************************************/
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
@@ -206,42 +209,17 @@ void framerate_measurement_capture(int framerate_kind)
   trigger_time_measurement_capture(frametime_measurements.framerate_measurement + framerate_kind);
 }
 
-/******************************************************************************/
 /**
  * Returns the number of milliseconds elapsed since the program was launched.
- * A version for (CLOCKS_PER_SEC == 1000).
+ * Uses std::chrono for consistent wall-clock time across platforms.
  */
-TbClockMSec LbTimerClock_1000(void)
+static TimePoint program_start_time;
+static TbClockMSec LbTimerClock_chrono(void)
 {
-  return clock();
-}
-
-/**
- * Returns the number of milliseconds elapsed since the program was launched.
- * A version for (CLOCKS_PER_SEC == 1024).
- */
-TbClockMSec LbTimerClock_1024(void)
-{
-    clock_t cclk = clock();
-    return cclk - (cclk >> 6) - (cclk >> 7);
-}
-
-/**
- * Returns the number of milliseconds elapsed since the program was launched.
- * Version for any CLOCKS_PER_SEC, but unsafe.
- */
-TbClockMSec LbTimerClock_any(void)
-{
-  clock_t cclk = clock();
-  if (CLOCKS_PER_SEC > 1000) {
-    return cclk / (CLOCKS_PER_SEC / 1000);
-  } else if (CLOCKS_PER_SEC > 100) {
-    return (cclk / (CLOCKS_PER_SEC / 100)) * 10;
-  } else if (CLOCKS_PER_SEC > 10) {
-    return (cclk / (CLOCKS_PER_SEC / 10)) * 100;
-  } else {
-    return (cclk / CLOCKS_PER_SEC) * 1000;
-  }
+  auto now = std::chrono::high_resolution_clock::now();
+  auto duration = now - program_start_time;
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+  return static_cast<TbClockMSec>(millis);
 }
 
 /** Fills structure with current time.
@@ -265,6 +243,14 @@ TbTimeSec LbTimeSec(void)
   time_t dtime;
   time(&dtime);
   return dtime;
+}
+
+extern "C" uint64_t LbSystemClockMilliseconds(void)
+{
+  auto now = std::chrono::system_clock::now();
+  auto duration = now.time_since_epoch();
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+  return static_cast<uint64_t>(millis);
 }
 
 //Fills structure with current date
@@ -405,20 +391,43 @@ TbBool LbSleepDelayExt(long double tick_ns_delay)
 
 TbResult LbTimerInit(void)
 {
-  switch (CLOCKS_PER_SEC)
-  {
-  case 1000:
-    LbTimerClock = LbTimerClock_1000;
-    break;
-  case 1024:
-    LbTimerClock = LbTimerClock_1024;
-    break;
-  default:
-    LbTimerClock = LbTimerClock_any;
-    WARNMSG("Timer uses unsafe clock multiplication!");
-    break;
-  }
+  // Initialize program start time for chrono-based timer
+  program_start_time = std::chrono::high_resolution_clock::now();
+  // Use std::chrono-based timer for consistent wall-clock time on all platforms
+  LbTimerClock = LbTimerClock_chrono;
   return Lb_SUCCESS;
+}
+
+int get_current_slowdown_percentage() {
+    static TbClockMSec last_frame_timestamp = 0;
+    static int slowdown_history[50] = {0};
+    static int history_index = 0;
+    TbClockMSec current_timestamp = LbTimerClock();
+    TbClockMSec frame_time_ms = 0;
+    int slowdown_pct = 0;
+    if (last_frame_timestamp != 0) {
+        frame_time_ms = current_timestamp - last_frame_timestamp;
+        int expected_frame_time = 1000 / game_num_fps;
+        if (frame_time_ms > expected_frame_time) {
+            slowdown_pct = ((frame_time_ms - expected_frame_time) * 100) / expected_frame_time;
+        }
+    }
+    last_frame_timestamp = current_timestamp;
+    slowdown_current = slowdown_pct;
+    slowdown_history[history_index] = slowdown_pct;
+    history_index = (history_index + 1) % 50;
+    int sum = 0;
+    int max = 0;
+    int i;
+    for (i = 0; i < 50; i++) {
+        sum += slowdown_history[i];
+        if (slowdown_history[i] > max) {
+            max = slowdown_history[i];
+        }
+    }
+    slowdown_average = sum / 50;
+    slowdown_max = max;
+    return slowdown_pct;
 }
 
 /******************************************************************************/
