@@ -2565,7 +2565,7 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             if (point_y > vec_window_width)
                 point_y = vec_window_width;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -2588,7 +2588,7 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             rfactB = (factorB & 0xFFFF0000) | (factorA & 0xFF);
             rfactA = (factorA & 0xFFFF0000) | (colL & 0xFFFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         o = o_ln;
