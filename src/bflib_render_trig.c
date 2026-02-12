@@ -2565,7 +2565,7 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             if (point_y > vec_window_width)
                 point_y = vec_window_width;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -2588,7 +2588,7 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             rfactB = (factorB & 0xFFFF0000) | (factorA & 0xFF);
             rfactA = (factorA & 0xFFFF0000) | (colL & 0xFFFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         o = o_ln;
@@ -2611,7 +2611,7 @@ void trig_render_md05(struct TrigLocalRend *tlr)
 
             colH = texture_v_lower_byte + rfactB_carry + (colM >> 8);
             colL = colM;
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
 
             *o = f[colS];
         }
@@ -2673,7 +2673,7 @@ void trig_render_md06(struct TrigLocalRend *tlr)
             point_x_a = multiplier_x >> 8;
             colL = (point_x_a >> 8);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
 
             factorB = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
             point_x_a = (point_x_a & 0xFFFF00FF) | ((factorB & 0xFF) << 8);
@@ -2704,7 +2704,7 @@ void trig_render_md06(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) | (polygon_point->U & 0xFFFF);
             point_x_a = (point_x_a & 0xFFFF00FF) | ((factorB & 0xFF) << 8);
             factorB = (factorB & 0xFFFF0000) | (pLa & 0xFFFF);
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
             point_y = factorB & 0xFFFF;
         }
 
@@ -2724,7 +2724,7 @@ void trig_render_md06(struct TrigLocalRend *tlr)
             factorA += texture_v_step_fixed;
             colH = (tlr->v_step >> 16) + fct_carry + (colM >> 8);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
 
             factorB = (factorB & 0xFFFF0000) | (point_y & 0xFFFF);
             fct_carry = __CFADDL__(shade_step_fixed, factorB);
@@ -2782,7 +2782,7 @@ void trig_render_md07(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             point_x_a = (ushort)factorB;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -2801,7 +2801,7 @@ void trig_render_md07(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) | (polygon_point->U & 0xFFFF);
             colL = ((polygon_point->U >> 16) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -2819,7 +2819,7 @@ void trig_render_md07(struct TrigLocalRend *tlr)
             *o = f[colS];
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -2871,7 +2871,7 @@ void trig_render_md08(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             point_x_a = (ushort)factorC;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -2890,7 +2890,7 @@ void trig_render_md08(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
             colL = ((polygon_point->U >> 16) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -2909,7 +2909,7 @@ void trig_render_md08(struct TrigLocalRend *tlr)
             factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -2960,7 +2960,7 @@ void trig_render_md09(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             point_x_a = (ushort)factorC;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -2979,7 +2979,7 @@ void trig_render_md09(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
             colL = ((polygon_point->U >> 16) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3000,7 +3000,7 @@ void trig_render_md09(struct TrigLocalRend *tlr)
             factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -3057,7 +3057,7 @@ void trig_render_md10(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             point_x_a = (ushort)factorC;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3076,7 +3076,7 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
             colL = ((polygon_point->U >> 16) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3096,7 +3096,7 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -3148,7 +3148,7 @@ void trig_render_md12(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             point_x_a = (ushort)factorB;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3167,7 +3167,7 @@ void trig_render_md12(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
             colL = ((polygon_point->U >> 16) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3185,7 +3185,7 @@ void trig_render_md12(struct TrigLocalRend *tlr)
             *o = g[colS];
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -3236,7 +3236,7 @@ void trig_render_md13(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             point_x_a = (ushort)factorC;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3255,7 +3255,7 @@ void trig_render_md13(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
             colL = ((polygon_point->U >> 16) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3273,7 +3273,7 @@ void trig_render_md13(struct TrigLocalRend *tlr)
             *o = g[colS];
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -3422,7 +3422,7 @@ void trig_render_md16(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             colL = vec_colour;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3440,7 +3440,7 @@ void trig_render_md16(struct TrigLocalRend *tlr)
             factorA = polygon_point->S;
             colH = (polygon_point->S >> 16);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3456,7 +3456,7 @@ void trig_render_md16(struct TrigLocalRend *tlr)
             colH = (colM >> 8) + (tlr->shade_step >> 16) + factorA_carry;
             colL = colM;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -3584,7 +3584,7 @@ void trig_render_md18(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             point_x_a = (ushort)factorC;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3603,7 +3603,7 @@ void trig_render_md18(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
             colL = (polygon_point->U >> 16);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3623,7 +3623,7 @@ void trig_render_md18(struct TrigLocalRend *tlr)
             *o = g[colS];
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -3669,7 +3669,7 @@ void trig_render_md19(struct TrigLocalRend *tlr)
             if (point_y_a > vec_window_width)
               point_y_a = vec_window_width;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3688,7 +3688,7 @@ void trig_render_md19(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
             colL = ((polygon_point->U >> 16) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3706,7 +3706,7 @@ void trig_render_md19(struct TrigLocalRend *tlr)
             *o = g[colS];
             colH = (colM >> 8) + (tlr->v_step >> 16) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -3760,7 +3760,7 @@ void trig_render_md20(struct TrigLocalRend *tlr)
             colL = ((point_x_a >> 8) & 0xFF);
             factorC = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3780,7 +3780,7 @@ void trig_render_md20(struct TrigLocalRend *tlr)
             colL = ((polygon_point->U >> 16) & 0xFF);
             factorC = __ROL4__(polygon_point->S, 16);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3802,7 +3802,7 @@ void trig_render_md20(struct TrigLocalRend *tlr)
             *o = g[colS];
             factorC = (factorC & 0xFFFFFF00) | (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -3856,7 +3856,7 @@ void trig_render_md21(struct TrigLocalRend *tlr)
             factorC = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
             point_x_a = (point_x_a & 0xFFFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3876,7 +3876,7 @@ void trig_render_md21(struct TrigLocalRend *tlr)
             colL = ((polygon_point->U >> 16) & 0xFF);
             factorC = __ROL4__(polygon_point->S, 16);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3898,7 +3898,7 @@ void trig_render_md21(struct TrigLocalRend *tlr)
             *o = g[colS];
             factorC = (factorC & 0xFFFFFF00) | (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -3946,7 +3946,7 @@ void trig_render_md22(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             point_x_a = factorC & 0xFFFF;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3965,7 +3965,7 @@ void trig_render_md22(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
             colL = ((polygon_point->U >> 16) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -3985,7 +3985,7 @@ void trig_render_md22(struct TrigLocalRend *tlr)
             factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -4034,7 +4034,7 @@ void trig_render_md23(struct TrigLocalRend *tlr)
               point_y_a = vec_window_width;
             point_x_a = (ushort)factorC;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -4053,7 +4053,7 @@ void trig_render_md23(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
             colL = ((polygon_point->U >> 16) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -4072,7 +4072,7 @@ void trig_render_md23(struct TrigLocalRend *tlr)
             factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -4128,7 +4128,7 @@ void trig_render_md24(struct TrigLocalRend *tlr)
             factorC = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
             point_x_a = (ushort)point_x_a;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -4148,7 +4148,7 @@ void trig_render_md24(struct TrigLocalRend *tlr)
             colL = ((polygon_point->U >> 16) & 0xFF);
             factorC = __ROL4__(polygon_point->S, 16);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -4173,7 +4173,7 @@ void trig_render_md24(struct TrigLocalRend *tlr)
             factorC += shade_step_fixed;
             factorC = (factorC & 0xFFFFFF00) + (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
@@ -4229,7 +4229,7 @@ void trig_render_md25(struct TrigLocalRend *tlr)
             factorC = __ROL4__(polygon_point->S + tlr->shade_step * pXMb, 16);
             point_x_a = (ushort)point_x_a;
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -4249,7 +4249,7 @@ void trig_render_md25(struct TrigLocalRend *tlr)
             colL = ((polygon_point->U >> 16) & 0xFF);
             factorC = __ROL4__(polygon_point->S, 16);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
 
         for (; point_y_a > 0; point_y_a--, o++)
@@ -4274,7 +4274,7 @@ void trig_render_md25(struct TrigLocalRend *tlr)
             factorC += shade_step_fixed;
             factorC = (factorC & 0xFFFFFF00) | (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
-            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
+            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
         }
     }
 }
