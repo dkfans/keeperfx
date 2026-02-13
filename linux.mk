@@ -360,7 +360,7 @@ deps/centijson/include/json.h: deps/centijson-lin64.tar.gz | deps/centijson
 	tar xzmf $< -C deps/centijson
 
 deps/enet6-lin64.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260213/enet6-lin64.tar.gz"
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260212/enet6-lin64.tar.gz"
 
 deps/enet6/include/enet6/enet.h: deps/enet6-lin64.tar.gz | deps/enet6
 	tar xzmf $< -C deps/enet6
