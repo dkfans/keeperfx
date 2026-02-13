@@ -367,7 +367,7 @@ LINKLIB = -mwindows \
 	-L"deps/ffmpeg/libavutil" -lavutil \
 	-L"deps/openal" -lOpenAL32 \
 	-L"deps/astronomy" -lastronomy \
-	-L"deps/enet" -lenet \
+	-L"deps/enet6/lib" -lenet6 \
 	-L"deps/miniupnpc" -lminiupnpc \
 	-L"deps/libnatpmp" -lnatpmp -liphlpapi \
 	-L"deps/spng" -lspng \
@@ -380,7 +380,7 @@ INCS = \
 	-I"deps/spng/include" \
 	-I"sdl/include" \
 	-I"sdl/include/SDL2" \
-	-I"deps/enet/include" \
+	-I"deps/enet6/include" \
 	-I"deps/centijson/include" \
 	-I"deps/centitoml" \
 	-I"deps/astronomy/include" \
@@ -637,14 +637,14 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp
+	-$(RM) -rf deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp
 	-$(RM) libexterns
 
-deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp:
+deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp:
 	$(MKDIR) $@
 
 src/api.c: deps/centijson/include/json.h
-src/bflib_enet.cpp: deps/enet/include/enet/enet.h
+src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h deps/centijson/include/json.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
@@ -655,11 +655,11 @@ src/net_resync.cpp: deps/zlib/include/zlib.h
 src/console_cmd.c: deps/luajit/include/lua.h
 src/net_portforward.cpp: deps/miniupnpc/include/miniupnpc/miniupnpc.h deps/libnatpmp/include/natpmp/natpmp.h
 
-deps/enet-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
+deps/enet6-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260212/enet6-mingw32.tar.gz"
 
-deps/enet/include/enet/enet.h: deps/enet-mingw32.tar.gz | deps/enet
-	tar xzmf $< -C deps/enet
+deps/enet6/include/enet6/enet.h: deps/enet6-mingw32.tar.gz | deps/enet6
+	tar xzmf $< -C deps/enet6
 
 deps/zlib-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/zlib-mingw32.tar.gz"
@@ -722,7 +722,7 @@ cppcheck: | deps/zlib/include/zlib.h
 cppcheck: | deps/spng/include/spng.h
 cppcheck: | deps/astronomy/include/astronomy.h
 cppcheck: | deps/centijson/include/json.h
-cppcheck: | deps/enet/include/enet/enet.h
+cppcheck: | deps/enet6/include/enet6/enet.h
 cppcheck: | deps/luajit/include/lua.h
 cppcheck: | deps/openal/include/AL/al.h
 cppcheck: | deps/ffmpeg/libavformat/avformat.h
@@ -742,7 +742,7 @@ cppcheck:
 		-I deps/spng/include \
 		-I sdl/include \
 		-I sdl/include/SDL2 \
-		-I deps/enet/include \
+		-I deps/enet6/include \
 		-I deps/centijson/include \
 		-I deps/centitoml \
 		-I deps/astronomy/include \

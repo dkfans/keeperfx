@@ -27,6 +27,7 @@ docs/latex
 res/keeperfx_icon.ico
 .header_checksum
 /deps/enet
+/deps/enet6
 /deps/zlib
 /deps/spng
 /deps/astronomy
