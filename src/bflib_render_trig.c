@@ -2132,6 +2132,10 @@ static inline ulong __ROL4__(ulong value, int count)
     return value;
 }
 
+/**
+ * Flat color fill - renders solid colored triangles with no shading or texturing.
+ * Used for simple UI elements and solid geometry.
+ */
 void trig_render_md00(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
@@ -2177,6 +2181,10 @@ void trig_render_md00(struct TrigLocalRend *tlr)
     }
 }
 
+/**
+ * Gouraud shading - renders smooth color gradients across triangle vertices.
+ * No texture mapping, just interpolated vertex colors.
+ */
 void trig_render_md01(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
@@ -2249,6 +2257,10 @@ void trig_render_md01(struct TrigLocalRend *tlr)
     }
 }
 
+/**
+ * 256x256 texture mapping - renders sprite textures without shading.
+ * Uses full 8-bit texture coordinates (0-255) for both U and V axes.
+ */
 void trig_render_md02(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
@@ -2502,6 +2514,10 @@ void trig_render_md04(struct TrigLocalRend *tlr)
     }
 }
 
+/**
+ * 32x256 terrain texture with shading - renders terrain using 5-bit V (32 rows)
+ * and 8-bit U (256 columns) texture coordinates, with fade table shading.
+ */
 void trig_render_md05(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
@@ -3005,11 +3021,22 @@ void trig_render_md09(struct TrigLocalRend *tlr)
     }
 }
 
+/**
+ * Translucent sprite rendering - used for creature shadows.
+ * Samples from 256x256 sprite texture (big_scratch buffer) and blends with
+ * screen using fade table for shadow transparency effect.
+ * 
+ * Texture coordinate packing:
+ *   colM = (V_row << 8) | U_column
+ *   - High byte (colH & 0xFF): V coordinate (0-255 rows) - uses 8 bits for sprites
+ *   - Low byte (colL & 0xFF): U coordinate (0-255 columns)
+ *   - Total: 16-bit index into 256x256 = 65536 byte texture
+ */
 void trig_render_md10(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
-    unsigned char *m;
-    unsigned char *f;
+    unsigned char *m;  // texture map (256x256 sprite in big_scratch)
+    unsigned char *f;  // fade/transparency table
     long texture_v_step_fixed;
 
     m = vec_map;
@@ -3023,6 +3050,7 @@ void trig_render_md10(struct TrigLocalRend *tlr)
         ERRORLOG("screen buffer not set");
         return;
     }
+    // Convert v_step to 16.16 fixed-point for sub-pixel precision
     texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
@@ -3046,18 +3074,23 @@ void trig_render_md10(struct TrigLocalRend *tlr)
 
             if (point_y_a <= 0)
                 continue;
+            // Clipping: point starts off-screen left, advance UV to screen edge
             pXm = (ushort)-(short)point_x_a;
+            // __ROL4__ rotates 32-bit value left by 16, swapping high/low 16-bit halves
+            // This extracts the integer part of the fixed-point V coordinate
             factorA = __ROL4__(polygon_point->V + tlr->v_step * pXm, 16);
-            colH = factorA;
+            colH = factorA;  // V texture row (integer part)
             factorB = polygon_point->U + tlr->u_step * pXm;
             factorA = (factorA & 0xFFFF0000) + (factorB & 0xFFFF);
             factorC = factorB >> 8;
-            colL = ((factorC >> 8) & 0xFF);
+            colL = ((factorC >> 8) & 0xFF);  // U texture column (integer part)
             if (point_y_a > vec_window_width)
               point_y_a = vec_window_width;
             point_x_a = (ushort)factorC;
 
-            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
+            // Pack V row and U column into 16-bit texture index
+            // 0xFF mask allows full 256 rows (sprite textures), not 0x1F (32 rows for terrain)
+            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
         else
         {
@@ -3071,32 +3104,46 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             if ( (unsigned char)(((point_y_a & 0x8000u) != 0) ^ pY_overflow) | ((ushort)point_y_a == 0) )
                 continue;
             o += point_x_a;
+            // Extract integer part of V coordinate via rotate-left-16
             factorA = __ROL4__(polygon_point->V, 16);
-            colH = factorA;
+            colH = factorA;  // V row
             factorA = (factorA & 0xFFFF0000) + (polygon_point->U & 0xFFFF);
-            colL = ((polygon_point->U >> 16) & 0xFF);
+            colL = ((polygon_point->U >> 16) & 0xFF);  // U column
 
-            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
+            // Pack into texture index: (V_row << 8) | U_column
+            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
+        // Per-pixel scanline loop
         for (; point_y_a > 0; point_y_a--, o++)
         {
             ushort colL, colH;
             ushort colS;
             unsigned char factorA_carry;
 
+            // Sample texture; if non-zero (inside shadow), apply fade
             if (m[colM]) {
+                // Fade table lookup: high byte = shadow intensity, low byte = screen pixel
+                // Result is blended shadow color
                 colS = (vec_colour << 8) | (*o);
                 *o = f[colS];
             }
+
+            // Step U coordinate with carry propagation for fixed-point precision
+            // __CFADDS__ returns 1 if 16-bit addition overflows (carry flag)
             factorA_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
+            // Add integer part of u_step plus any carry overflow to U column
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
+
+            // Step V coordinate with carry propagation
             factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
             factorA += texture_v_step_fixed;
+            // Add integer part of v_step plus any carry overflow to V row
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
-            colM = ((colH & 0x1F) << 8) + (colL & 0xFF);
+            // Repack texture index for next pixel
+            colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
     }
 }
