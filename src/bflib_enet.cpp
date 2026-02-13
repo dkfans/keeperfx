@@ -211,33 +211,9 @@ namespace
         }
         enet_host_compress_with_range_coder(host);
         client_peer = enet_host_connect(host, &connect_address, NUM_CHANNELS, 0);
-        if (!client_peer)
-        {
-        P = strchr(session,':');
-        if (P) {
-            strncpy(buf, session, P-session);
-            address.port = strtoul(P+1, &E, 10);
-            if (address.port == 0) {
-                SYNCMSG("bf_enet_join: Invalid port in session string");
-                host_destroy();
-                return Lb_FAIL;
-            }
-        } else {
-            strncpy(buf, session, sizeof(buf) - 1);
-            address.port = DEFAULT_PORT;
-        }
-        SYNCMSG("bf_enet_join: Resolving host='%s' port=%u", buf, address.port);
-        if (enet_address_set_host(&address, buf) < 0) {
-            SYNCMSG("bf_enet_join: Failed to resolve host '%s'", buf);
-            host_destroy();
-            return Lb_FAIL;
-        }
-        if (wait_for_connect(TIMEOUT_ENET_CONNECT))
-        {
-        SYNCMSG("bf_enet_join: Connecting to resolved address");
-        client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
         if (!client_peer) {
             SYNCMSG("bf_enet_join: enet_host_connect returned null");
+            host_destroy();
             return Lb_FAIL;
         }
         SYNCMSG("bf_enet_join: Waiting for connection...");
