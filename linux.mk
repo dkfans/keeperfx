@@ -273,6 +273,7 @@ KFX_INCLUDES = \
 	-Ideps/centijson/include \
 	-Ideps/centitoml \
 	-Ideps/astronomy/include \
+	-Ideps/enet6/include \
 	$(shell pkg-config --cflags-only-I luajit)
 
 KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
@@ -283,11 +284,11 @@ KFX_LDFLAGS += \
 	-Wall -Wextra -Werror \
 	-Ldeps/astronomy -lastronomy \
 	-Ldeps/centijson -ljson \
+	-Ldeps/enet6 -lenet6 \
 	$(shell pkg-config --libs-only-l sdl2) \
 	$(shell pkg-config --libs-only-l SDL2_mixer) \
 	$(shell pkg-config --libs-only-l SDL2_net) \
 	$(shell pkg-config --libs-only-l SDL2_image) \
-	$(shell pkg-config --libs-only-l libenet) \
 	$(shell pkg-config --libs-only-l libavformat) \
 	$(shell pkg-config --libs-only-l libavcodec) \
 	$(shell pkg-config --libs-only-l libswresample) \
@@ -320,7 +321,7 @@ endif
 all: bin/keeperfx
 
 clean:
-	rm -rf obj bin src/ver_defs.h deps/astronomy deps/centijson
+	rm -rf obj bin src/ver_defs.h deps/astronomy deps/centijson deps/enet6
 
 .PHONY: all clean
 
@@ -336,11 +337,12 @@ $(KFX_CXX_OBJECTS): obj/%.o: src/%.cpp src/ver_defs.h | obj
 $(TOML_OBJECTS): obj/centitoml/%.o: deps/centitoml/%.c | obj/centitoml
 	$(CC) $(TOML_CFLAGS) -c $< -o $@
 
-bin obj deps/astronomy deps/centijson obj/centitoml:
+bin obj deps/astronomy deps/centijson deps/enet6 obj/centitoml:
 	$(MKDIR) $@
 
 src/actionpt.c: deps/centijson/include/json.h
 src/api.c: deps/centijson/include/json.h
+src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
@@ -356,6 +358,12 @@ deps/centijson-lin64.tar.gz:
 
 deps/centijson/include/json.h: deps/centijson-lin64.tar.gz | deps/centijson
 	tar xzmf $< -C deps/centijson
+
+deps/enet6-lin64.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260213/enet6-lin64.tar.gz"
+
+deps/enet6/include/enet6/enet.h: deps/enet6-lin64.tar.gz | deps/enet6
+	tar xzmf $< -C deps/enet6
 
 src/ver_defs.h: version.mk
 	$(ECHO) "#define VER_MAJOR   $(VER_MAJOR)" > $@.swp
