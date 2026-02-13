@@ -89,6 +89,7 @@ static void AddSessionSegment(const char* start, const char* end) {
         if (sessions[i].in_use) { continue; }
         sessions[i].in_use = 1;
         sessions[i].joinable = 1;
+        sessions[i].from_cmdline = 1;
         size_t seglen = (size_t)(end - start);
         net_copy_name_string(sessions[i].text, start, min((size_t)SESSION_NAME_MAX_LEN, seglen + 1));
         return;
@@ -278,7 +279,11 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr) {
 }
 
 void LbNetwork_RefreshLobbies(void) {
-    memset(sessions, 0, sizeof(sessions));
+    for (int i = 0; i < SESSION_COUNT; i += 1) {
+        if (!sessions[i].from_cmdline) {
+            memset(&sessions[i], 0, sizeof(sessions[i]));
+        }
+    }
     matchmaking_fetch_lobbies(sessions, SESSION_COUNT);
 }
 

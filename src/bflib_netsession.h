@@ -20,6 +20,7 @@
 #ifndef BFLIB_NETSESSION_H
 #define BFLIB_NETSESSION_H
 
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,6 +29,7 @@ extern "C" {
 #define NETSP_PLAYERS_COUNT 32
 #define SESSION_ENTRIES_COUNT 32
 #define SESSION_NAME_MAX_LEN  128
+#define SESSION_IP_MAX_LEN 64
 #define NETSP_PLAYER_NAME_MAX_LEN 32
 
 enum NetMsgType
@@ -44,11 +46,12 @@ enum NetMsgType
 };
 
 struct TbNetworkSessionNameEntry {
-    unsigned char joinable; //possibly active or selected is better name
-    unsigned long id;
-    unsigned long in_use;
     char text[SESSION_NAME_MAX_LEN];
-    char ip[64];
+    char ip[SESSION_IP_MAX_LEN];
+    unsigned long id;
+    TbBool joinable;
+    TbBool in_use;
+    TbBool from_cmdline;
 };
 
 struct TbNetworkPlayerEntry {

@@ -235,6 +235,12 @@ int matchmaking_fetch_lobbies(struct TbNetworkSessionNameEntry *sessions, int ma
         if (value_type(item) != VALUE_DICT) {
             continue;
         }
+        while (count < max_sessions && sessions[count].in_use) {
+            count += 1;
+        }
+        if (count >= max_sessions) {
+            break;
+        }
         struct TbNetworkSessionNameEntry *s = &sessions[count++];
         memset(s, 0, sizeof(*s));
         s->in_use = 1;
