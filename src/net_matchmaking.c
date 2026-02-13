@@ -18,6 +18,7 @@
 #include "pre_inc.h"
 #include "net_matchmaking.h"
 #include "bflib_basics.h"
+#include "bflib_network.h"
 #include "globals.h"
 
 #ifdef __WIN32__
@@ -39,7 +40,7 @@
 #define MATCHMAKING_HTTP_TIMEOUT_MS 5000
 #define MATCHMAKING_RESPONSE_BUFFER_SIZE 4096
 
-static char current_lobby_id[MATCHMAKING_LOBBY_ID_LEN] = "";
+static char current_lobby_id[64] = "";
 static TbBool lobby_registered = 0;
 static char response_buffer[MATCHMAKING_RESPONSE_BUFFER_SIZE];
 
@@ -65,16 +66,17 @@ static int http_request(const char *method, const char *path, const char *body) 
             return 0;
         }
     }
-    wchar_t wmethod[16];
-    wchar_t wpath[128];
-    mbstowcs(wmethod, method, 16);
-    mbstowcs(wpath, path, 128);
+    wchar_t wmethod[16] = {0};
+    wchar_t wpath[128] = {0};
+    mbstowcs(wmethod, method, 15);
+    mbstowcs(wpath, path, 127);
     HINTERNET request = WinHttpOpenRequest(http_connection, wmethod, wpath, NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
     if (request == NULL) {
         return 0;
     }
-    DWORD body_len = body ? (DWORD)strlen(body) : 0;
+    DWORD body_len = 0;
     if (body) {
+        body_len = (DWORD)strlen(body);
         WinHttpAddRequestHeaders(request, L"Content-Type: application/json", -1, WINHTTP_ADDREQ_FLAG_ADD);
     }
     if (!WinHttpSendRequest(request, WINHTTP_NO_ADDITIONAL_HEADERS, 0, (LPVOID)body, body_len, body_len, 0) || !WinHttpReceiveResponse(request, NULL)) {
@@ -89,8 +91,11 @@ static int http_request(const char *method, const char *path, const char *body) 
     }
     DWORD total = 0, avail, read;
     while (WinHttpQueryDataAvailable(request, &avail) && avail > 0 && total < MATCHMAKING_RESPONSE_BUFFER_SIZE - 1) {
-        DWORD to_read = MATCHMAKING_RESPONSE_BUFFER_SIZE - 1 - total;
-        if (!WinHttpReadData(request, response_buffer + total, avail < to_read ? avail : to_read, &read)) {
+        DWORD remaining = MATCHMAKING_RESPONSE_BUFFER_SIZE - 1 - total;
+        if (avail > remaining) {
+            avail = remaining;
+        }
+        if (!WinHttpReadData(request, response_buffer + total, avail, &read)) {
             break;
         }
         total += read;
@@ -163,8 +168,17 @@ TbBool matchmaking_register_lobby(const char *name, uint16_t port) {
     if (lobby_registered) {
         matchmaking_unregister_lobby();
     }
+    char escaped_name[128];
+    int j = 0;
+    for (int i = 0; name[i] && j < (int)sizeof(escaped_name) - 2; i++) {
+        if (name[i] == '"' || name[i] == '\\') {
+            escaped_name[j++] = '\\';
+        }
+        escaped_name[j++] = name[i];
+    }
+    escaped_name[j] = '\0';
     char body[256];
-    snprintf(body, sizeof(body), "{\"name\":\"%s\",\"port\":%u}", name, port);
+    snprintf(body, sizeof(body), "{\"name\":\"%s\",\"port\":%u}", escaped_name, port);
     if (!http_request("POST", "/lobbies", body) || sscanf(response_buffer, "{\"id\":\"%63[^\"]\"}", current_lobby_id) != 1) {
         ERRORLOG("Failed to register lobby: %s", response_buffer);
         return 0;
@@ -196,33 +210,54 @@ void matchmaking_ping_lobby(void) {
     }
 }
 
-int matchmaking_list_lobbies(struct MatchmakingLobby *lobbies, int max_lobbies) {
+int matchmaking_fetch_lobbies(struct TbNetworkSessionNameEntry *sessions, int max_sessions) {
     int len = http_request("GET", "/lobbies", NULL);
     if (!len) {
         return 0;
     }
     VALUE json;
-    if (json_dom_parse(response_buffer, len, NULL, 0, &json, NULL) != 0 || value_type(&json) != VALUE_ARRAY) {
+    if (json_dom_parse(response_buffer, len, NULL, 0, &json, NULL) != 0) {
+        return 0;
+    }
+    if (value_type(&json) != VALUE_ARRAY) {
+        value_fini(&json);
         return 0;
     }
     int count = 0;
-    for (size_t i = 0; i < value_array_size(&json) && count < max_lobbies; i++) {
+    for (size_t i = 0; i < value_array_size(&json) && count < max_sessions; i++) {
         VALUE *item = value_array_get(&json, i);
         if (value_type(item) != VALUE_DICT) {
             continue;
         }
-        struct MatchmakingLobby *lobby = &lobbies[count++];
-        memset(lobby, 0, sizeof(*lobby));
+        struct TbNetworkSessionNameEntry *s = &sessions[count++];
+        memset(s, 0, sizeof(*s));
+        s->in_use = 1;
+        s->joinable = 1;
         VALUE *v;
-        if ((v = value_dict_get(item, "id")) && value_type(v) == VALUE_STRING) snprintf(lobby->id, sizeof(lobby->id), "%s", value_string(v));
-        if ((v = value_dict_get(item, "name")) && value_type(v) == VALUE_STRING) snprintf(lobby->name, sizeof(lobby->name), "%s", value_string(v));
-        if ((v = value_dict_get(item, "ip")) && value_type(v) == VALUE_STRING) snprintf(lobby->ip, sizeof(lobby->ip), "%s", value_string(v));
-        if ((v = value_dict_get(item, "port")) && value_is_compatible(v, VALUE_INT32)) lobby->port = (uint16_t)value_int32(v);
+        const char *name = "Unknown";
+        if ((v = value_dict_get(item, "name")) && value_type(v) == VALUE_STRING) {
+            name = value_string(v);
+        }
+        snprintf(s->text, SESSION_NAME_MAX_LEN, "%s's lobby", name);
+        const char *ip = "";
+        uint16_t port = 0;
+        if ((v = value_dict_get(item, "ip")) && value_type(v) == VALUE_STRING) {
+            ip = value_string(v);
+        }
+        if ((v = value_dict_get(item, "port")) && value_is_compatible(v, VALUE_INT32)) {
+            port = (uint16_t)value_int32(v);
+        }
+        if (port != 0 && port != DEFAULT_SERVER_PORT) {
+            TbBool is_ipv6 = (strchr(ip, ':') != NULL);
+            if (is_ipv6) {
+                snprintf(s->ip, sizeof(s->ip), "[%s]:%u", ip, port);
+            } else {
+                snprintf(s->ip, sizeof(s->ip), "%s:%u", ip, port);
+            }
+        } else {
+            snprintf(s->ip, sizeof(s->ip), "%s", ip);
+        }
     }
     value_fini(&json);
     return count;
-}
-
-TbBool matchmaking_is_registered(void) {
-    return lobby_registered;
 }

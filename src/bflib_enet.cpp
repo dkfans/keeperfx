@@ -203,26 +203,20 @@ namespace
             return Lb_FAIL;
         }
         connect_address.port = port;
-        SYNCMSG("bf_enet_join: Creating client host for session='%s'", session);
         host = enet_host_create(connect_address.type, NULL, 4, NUM_CHANNELS, 0, 0);
         if (!host) {
-            SYNCMSG("bf_enet_join: Failed to create enet host");
             return Lb_FAIL;
         }
         enet_host_compress_with_range_coder(host);
         client_peer = enet_host_connect(host, &connect_address, NUM_CHANNELS, 0);
         if (!client_peer) {
-            SYNCMSG("bf_enet_join: enet_host_connect returned null");
             host_destroy();
             return Lb_FAIL;
         }
-        SYNCMSG("bf_enet_join: Waiting for connection...");
         if (wait_for_connect(TIMEOUT_ENET_CONNECT)) {
-            SYNCMSG("bf_enet_join: Connection timeout or error");
             host_destroy();
             return Lb_FAIL;
         }
-        SYNCMSG("bf_enet_join: Connected successfully");
         return Lb_OK;
     }
 

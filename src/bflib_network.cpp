@@ -82,13 +82,6 @@ void LbNetwork_SetServerPort(int port) {
     ServerPort = port;
 }
 
-int LbNetwork_GetServerPort(void) {
-    if (ServerPort != 0) {
-        return ServerPort;
-    }
-    return DEFAULT_SERVER_PORT;
-}
-
 static void AddSessionSegment(const char* start, const char* end) {
     if (start == end) { return; }
     unsigned i;
@@ -144,13 +137,11 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    char default_port[8];
-    snprintf(default_port, sizeof(default_port), ":%d", DEFAULT_SERVER_PORT);
-    const char *port = default_port;
-    char buf[16] = "";
+    char port[16];
     if (ServerPort != 0) {
-        snprintf(buf, sizeof(buf), "%d", ServerPort);
-        port = buf;
+        snprintf(port, sizeof(port), "%d", ServerPort);
+    } else {
+        snprintf(port, sizeof(port), ":%d", DEFAULT_SERVER_PORT);
     }
     if (netstate.sp->host(port, optns) == Lb_FAIL) {
         return Lb_FAIL;
@@ -161,6 +152,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
     *plyr_num = netstate.my_id;
     UpdateLocalPlayerInfo(netstate.my_id);
     LbNetwork_EnableNewPlayers(true);
+    matchmaking_register_lobby(plyr_name, ServerPort ? ServerPort : DEFAULT_SERVER_PORT);
     return Lb_OK;
 }
 
@@ -173,18 +165,13 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     if (nsname->ip[0] != '\0') {
         address = nsname->ip;
     }
-    SYNCMSG("LbNetwork_Join: Connecting to address='%s' as player='%s'", address, plyr_name);
     if (netstate.sp->join(address, optns) == Lb_FAIL) {
-        SYNCMSG("LbNetwork_Join: sp->join failed for address='%s'", address);
         return Lb_FAIL;
     }
-    SYNCMSG("LbNetwork_Join: Connection established, exchanging login");
     netstate.my_id = INVALID_USER_ID;
     if (LbNetwork_ExchangeLogin(plyr_name) == Lb_FAIL) {
-        SYNCMSG("LbNetwork_Join: Login exchange failed");
         return Lb_FAIL;
     }
-    SYNCMSG("LbNetwork_Join: Login successful, assigned player ID %d", netstate.my_id);
     *plyr_num = netstate.my_id;
     return Lb_OK;
 }
@@ -291,28 +278,9 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr) {
     return Lb_OK;
 }
 
-void LbNetwork_FetchMatchmakingLobbies(void) {
+void LbNetwork_RefreshLobbies(void) {
     memset(sessions, 0, sizeof(sessions));
-    struct MatchmakingLobby lobbies[MATCHMAKING_MAX_LOBBIES];
-    int count = matchmaking_list_lobbies(lobbies, MATCHMAKING_MAX_LOBBIES);
-    unsigned slot = 0;
-    for (int i = 0; i < count && slot < SESSION_COUNT; i++) {
-        while (slot < SESSION_COUNT && sessions[slot].in_use) {
-            slot++;
-        }
-        if (slot >= SESSION_COUNT) {
-            break;
-        }
-        sessions[slot].in_use = 1;
-        sessions[slot].joinable = 1;
-        snprintf(sessions[slot].text, SESSION_NAME_MAX_LEN, "%s's lobby", lobbies[i].name);
-        if (lobbies[i].port != 0 && lobbies[i].port != DEFAULT_SERVER_PORT) {
-            snprintf(sessions[slot].ip, sizeof(sessions[slot].ip), "%s:%u", lobbies[i].ip, lobbies[i].port);
-        } else {
-            snprintf(sessions[slot].ip, sizeof(sessions[slot].ip), "%s", lobbies[i].ip);
-        }
-        slot++;
-    }
+    matchmaking_fetch_lobbies(sessions, SESSION_COUNT);
 }
 
 /******************************************************************************/

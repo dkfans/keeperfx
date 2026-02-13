@@ -1795,6 +1795,7 @@ void process_frontend_packets(void)
       net_service_index_selected = -1;
   }
   if (netstate.pending_host_disconnect) {
+      netstate.pending_host_disconnect = false;
       LbNetwork_Stop();
       if (setup_network_service(net_service_index_selected)) {
           frontend_set_state(FeSt_NET_SESSION);

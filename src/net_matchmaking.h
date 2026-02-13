@@ -19,29 +19,17 @@
 #define NET_MATCHMAKING_H
 
 #include "bflib_basics.h"
+#include "bflib_netsession.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MATCHMAKING_MAX_LOBBIES 32
-#define MATCHMAKING_LOBBY_NAME_LEN 64
-#define MATCHMAKING_LOBBY_ID_LEN 64
-#define MATCHMAKING_IP_LEN 64
-
-struct MatchmakingLobby {
-    char id[MATCHMAKING_LOBBY_ID_LEN];
-    char name[MATCHMAKING_LOBBY_NAME_LEN];
-    char ip[MATCHMAKING_IP_LEN];
-    uint16_t port;
-};
-
 TbBool matchmaking_register_lobby(const char *name, uint16_t port);
 void matchmaking_unregister_lobby(void);
 void matchmaking_ping_lobby(void);
-int matchmaking_list_lobbies(struct MatchmakingLobby *lobbies, int max_lobbies);
-TbBool matchmaking_is_registered(void);
+int matchmaking_fetch_lobbies(struct TbNetworkSessionNameEntry *sessions, int max_sessions);
 
 #ifdef __cplusplus
 }
