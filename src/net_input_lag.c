@@ -80,7 +80,7 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     netstate.sp->update(OnNewUser);
     int active_player_count = 0;
     NetUserId id;
-    for (id = 0; id < netstate.max_players; id += 1) {
+    for (id = 0; id < NET_PLAYERS_COUNT; id += 1) {
         if (id == netstate.my_id) { continue; }
         if (netstate.users[id].progress == USER_LOGGEDIN) {
             active_player_count += 1;
@@ -105,7 +105,7 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     if (last_update_ms != 0 && now - last_update_ms < AVERAGE_PING_UPDATE_RATE) { return; }
     last_update_ms = now;
     int max_ping = 0;
-    for (id = 0; id < netstate.max_players; id += 1) {
+    for (id = 0; id < NET_PLAYERS_COUNT; id += 1) {
         if (id == netstate.my_id) { continue; }
         if (!(netstate.users[id].progress == USER_LOGGEDIN)) { continue; }
         unsigned long ping = GetPing(id);

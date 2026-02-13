@@ -76,7 +76,7 @@ void SendFrameToPeers(NetUserId source_id, const void * send_buf, size_t buf_siz
         ptr += buf_size;
     }
     NetUserId id;
-    for (id = 0; id < netstate.max_players; id += 1) {
+    for (id = 0; id < NET_PLAYERS_COUNT; id += 1) {
         if (id == source_id) { continue; }
         if (!IsUserActive(id)) { continue; }
         if (msg_type == NETMSG_GAMEPLAY) {
@@ -142,7 +142,7 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         msg_ptr += 1;
         SendMessage(source, msg_ptr);
         NetUserId uid;
-        for (uid = 0; uid < netstate.max_players; uid += 1) {
+        for (uid = 0; uid < NET_PLAYERS_COUNT; uid += 1) {
             if (netstate.users[uid].progress == USER_UNUSED) {
                 continue;
             }
@@ -160,7 +160,7 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
             return Lb_OK;
         }
         NetUserId id = (NetUserId)*ptr;
-        if (id < 0 || id >= netstate.max_players) {
+        if (id < 0 || id >= NET_PLAYERS_COUNT) {
             ERRORLOG("Critical error: Out of range user ID %i received from server, could be used for buffer overflow attack", id);
             abort();
         }
@@ -177,7 +177,7 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
     }
     if (type == NETMSG_FRONTEND || type == NETMSG_SMALLDATA || type == NETMSG_GAMEPLAY) {
         NetUserId peer_id = (NetUserId)*ptr;
-        if (peer_id < 0 || peer_id >= netstate.max_players) {
+        if (peer_id < 0 || peer_id >= NET_PLAYERS_COUNT) {
             ERRORLOG("Critical error: Out of range peer ID %i received, could be used for buffer overflow attack", peer_id);
             abort();
         }
@@ -284,7 +284,7 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
             }
 
             NetUserId id;
-            for (id = 0; id < netstate.max_players; id += 1) {
+            for (id = 0; id < NET_PLAYERS_COUNT; id += 1) {
                 if (id == netstate.my_id) { continue; }
                 if (netstate.users[id].progress == USER_UNUSED) { continue; }
                 if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
@@ -309,7 +309,7 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
 }
 
 TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t client_frame_size) {
-    if (netstate.my_id < 0 || netstate.my_id >= netstate.max_players) {
+    if (netstate.my_id < 0 || netstate.my_id >= NET_PLAYERS_COUNT) {
         ERRORLOG("Invalid my_id %i in LbNetwork_Exchange (disconnected?)", netstate.my_id);
         return Lb_FAIL;
     }
@@ -327,7 +327,7 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     }
 
     NetUserId id;
-    for (id = 0; id < netstate.max_players; id += 1) {
+    for (id = 0; id < NET_PLAYERS_COUNT; id += 1) {
         if (id == netstate.my_id) { continue; }
         if (netstate.users[id].progress == USER_UNUSED) { continue; }
         if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
@@ -344,6 +344,9 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
             if (remaining_time_until_draw < 0) {remaining_time_until_draw = 0;}
             int wait = min(timeout_max - elapsed, remaining_time_until_draw);
 
+            if (msg_type == NETMSG_FRONTEND && netstate.users[id].progress == USER_UNUSED) {
+                break;
+            }
             if (netstate.sp->msgready(id, wait)) {
                 ProcessMessage(id, server_buf, client_frame_size);
                 if (msg_type != NETMSG_GAMEPLAY) {
@@ -379,7 +382,7 @@ void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
     *ptr = player_id;
     ptr += 1;
     strcpy(ptr, message);
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+    for (NetUserId id = 0; id < NET_PLAYERS_COUNT; id += 1) {
         if (id != netstate.my_id && IsUserActive(id)) {
             netstate.sp->sendmsg_single(id, netstate.msg_buffer, 3 + strlen(message));
         }
@@ -389,7 +392,7 @@ void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
 void LbNetwork_BroadcastUnpauseTimesync(void) {
     MULTIPLAYER_LOG("LbNetwork_BroadcastUnpauseTimesync");
     InitMessageBuffer(NETMSG_UNPAUSE);
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+    for (NetUserId id = 0; id < NET_PLAYERS_COUNT; id += 1) {
         if (id != netstate.my_id && IsUserActive(id)) {
             netstate.sp->sendmsg_single(id, netstate.msg_buffer, 1);
         }

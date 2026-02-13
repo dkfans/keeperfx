@@ -28,6 +28,7 @@
 #include "globals.h"
 #include "frontend.h"
 #include "net_game.h"
+#include "net_matchmaking.h"
 #include "front_landview.h"
 #include "front_network.h"
 #include "net_received_packets.h"
@@ -88,6 +89,7 @@ static void AddSessionSegment(const char* start, const char* end) {
         if (sessions[i].in_use) { continue; }
         sessions[i].in_use = 1;
         sessions[i].joinable = 1;
+        sessions[i].from_cmdline = 1;
         size_t seglen = (size_t)(end - start);
         net_copy_name_string(sessions[i].text, start, min((size_t)SESSION_NAME_MAX_LEN, seglen + 1));
         return;
@@ -108,12 +110,11 @@ void LbNetwork_InitSessionsFromCmdLine(const char * str) {
     AddSessionSegment(start, end);
 }
 
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data) {
+TbError LbNetwork_Init(unsigned long srvcindex, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data) {
     localPlayerInfoPtr = locplayr;
     memset(&netstate, 0, sizeof(netstate));
-    netstate.max_players = maxplayrs;
     NetUserId usr;
-    for (usr = 0; usr < netstate.max_players; usr += 1) {
+    for (usr = 0; usr < NET_PLAYERS_COUNT; usr += 1) {
         netstate.users[usr].id = usr;
     }
     if (srvcindex == NS_TCP_IP) {
@@ -136,11 +137,11 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    const char *port = ":5555";
-    char buf[16] = "";
+    char port[16];
     if (ServerPort != 0) {
-        snprintf(buf, sizeof(buf), "%d", ServerPort);
-        port = buf;
+        snprintf(port, sizeof(port), "%d", ServerPort);
+    } else {
+        snprintf(port, sizeof(port), ":%d", DEFAULT_SERVER_PORT);
     }
     if (netstate.sp->host(port, optns) == Lb_FAIL) {
         return Lb_FAIL;
@@ -151,6 +152,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
     *plyr_num = netstate.my_id;
     UpdateLocalPlayerInfo(netstate.my_id);
     LbNetwork_EnableNewPlayers(true);
+    matchmaking_register_lobby(plyr_name, ServerPort ? ServerPort : DEFAULT_SERVER_PORT);
     return Lb_OK;
 }
 
@@ -159,7 +161,11 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    if (netstate.sp->join(nsname->text, optns) == Lb_FAIL) {
+    const char *address = nsname->text;
+    if (nsname->ip[0] != '\0') {
+        address = nsname->ip;
+    }
+    if (netstate.sp->join(address, optns) == Lb_FAIL) {
         return Lb_FAIL;
     }
     netstate.my_id = INVALID_USER_ID;
@@ -173,7 +179,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 TbError LbNetwork_EnableNewPlayers(TbBool allow) {
     if (!netstate.locked && !allow) {
         NetUserId i;
-        for (i = 0; i < netstate.max_players; i += 1) {
+        for (i = 0; i < NET_PLAYERS_COUNT; i += 1) {
             if (netstate.users[i].progress == USER_CONNECTED) {
                 netstate.sp->drop_user(i);
             }
@@ -189,6 +195,7 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow) {
 }
 
 TbError LbNetwork_Stop(void) {
+    matchmaking_unregister_lobby();
     if (netstate.sp) {
         netstate.sp->exit();
     }
@@ -202,7 +209,7 @@ TbBool OnNewUser(NetUserId * assigned_id) {
         return 0;
     }
     NetUserId i;
-    for (i = 0; i < netstate.max_players; i += 1) {
+    for (i = 0; i < NET_PLAYERS_COUNT; i += 1) {
         if (netstate.users[i].progress == USER_UNUSED) {
             *assigned_id = i;
             netstate.users[i].progress = USER_CONNECTED;
@@ -216,7 +223,7 @@ TbBool OnNewUser(NetUserId * assigned_id) {
 
 void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
     assert(id >= 0);
-    assert(id < (int)netstate.max_players);
+    assert(id < (int)NET_PLAYERS_COUNT);
     if (netstate.my_id == id) {
         NETMSG("Warning: Trying to drop local user. There's a bug in code somewhere, probably server trying to send message to itself.");
         return;
@@ -226,15 +233,15 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
     } else if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }
-    if (netstate.my_id != SERVER_ID) {
-        NETMSG("Quitting after connection loss");
-        LbNetwork_Stop();
-        return;
-    }
     memset(&netstate.users[id], 0, sizeof(netstate.users[id]));
     netstate.users[id].id = id;
+    if (id == SERVER_ID) {
+        NETMSG("Host disconnected, will return to lobby");
+        netstate.pending_host_disconnect = true;
+        return;
+    }
     NetUserId uid;
-    for (uid = 0; uid < netstate.max_players; uid += 1) {
+    for (uid = 0; uid < NET_PLAYERS_COUNT; uid += 1) {
         if (uid == netstate.my_id) { continue; }
         SendUserUpdate(uid, id);
     }
@@ -253,7 +260,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr) {
 
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc callback, void *buf) {
     TbNetworkCallbackData data;
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+    for (NetUserId id = 0; id < NET_PLAYERS_COUNT; id += 1) {
         if (!IsUserActive(id)) { continue; }
         memset(&data, 0, sizeof(data));
         snprintf(data.plyr_name, sizeof(data.plyr_name), "%s", netstate.users[id].name);
@@ -269,6 +276,15 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr) {
         callback((TbNetworkCallbackData *) &sessions[i], ptr);
     }
     return Lb_OK;
+}
+
+void LbNetwork_RefreshLobbies(void) {
+    for (int i = 0; i < SESSION_COUNT; i += 1) {
+        if (!sessions[i].from_cmdline) {
+            memset(&sessions[i], 0, sizeof(sessions[i]));
+        }
+    }
+    matchmaking_fetch_lobbies(sessions, SESSION_COUNT);
 }
 
 /******************************************************************************/

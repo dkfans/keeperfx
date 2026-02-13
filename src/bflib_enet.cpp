@@ -67,15 +67,20 @@ namespace
             newest_packet = nullptr;
             incoming_queue_size = 0;
         }
-        if (client_peer)
-        {
-            client_peer = nullptr;
-        }
         if (host)
         {
+            for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; ++peer)
+            {
+                if (peer->state == ENET_PEER_STATE_CONNECTED)
+                {
+                    enet_peer_disconnect_now(peer, 0);
+                }
+            }
+            enet_host_flush(host);
             enet_host_destroy(host);
             host = nullptr;
         }
+        client_peer = nullptr;
     }
 
     void bf_enet_exit()
@@ -103,7 +108,7 @@ namespace
         int port = atoi(session);
         if (port > 0)
             address.port = port;
-        host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, 4, NUM_CHANNELS, 0, 0);
+        host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, MAX_N_PEERS, NUM_CHANNELS, 0, 0);
         if (!host) {
             return Lb_FAIL;
         }
@@ -198,20 +203,17 @@ namespace
             return Lb_FAIL;
         }
         connect_address.port = port;
-        host = enet_host_create(connect_address.type, NULL, 4, NUM_CHANNELS, 0, 0);
-        if (!host)
-        {
+        host = enet_host_create(connect_address.type, NULL, MAX_N_PEERS, NUM_CHANNELS, 0, 0);
+        if (!host) {
             return Lb_FAIL;
         }
         enet_host_compress_with_range_coder(host);
         client_peer = enet_host_connect(host, &connect_address, NUM_CHANNELS, 0);
-        if (!client_peer)
-        {
+        if (!client_peer) {
             host_destroy();
             return Lb_FAIL;
         }
-        if (wait_for_connect(TIMEOUT_ENET_CONNECT))
-        {
+        if (wait_for_connect(TIMEOUT_ENET_CONNECT)) {
             host_destroy();
             return Lb_FAIL;
         }

@@ -37,7 +37,7 @@ struct PacketHistory {
     unsigned char valid_count;
 };
 
-static struct PacketHistory packet_history[MAX_N_USERS];
+static struct PacketHistory packet_history[NET_PLAYERS_COUNT];
 
 /******************************************************************************/
 
@@ -50,7 +50,7 @@ void clear_redundant_packets(void) {
 }
 
 void store_sent_packet(PlayerNumber player, const struct Packet* packet) {
-    if (player < 0 || player >= MAX_N_USERS) {
+    if (player < 0 || player >= NET_PLAYERS_COUNT) {
         return;
     }
     struct PacketHistory* history = &packet_history[player];
@@ -62,7 +62,7 @@ void store_sent_packet(PlayerNumber player, const struct Packet* packet) {
 }
 
 size_t bundle_packets(PlayerNumber player, const struct Packet* current_packet, char* out_buffer) {
-    if (player < 0 || player >= MAX_N_USERS) {
+    if (player < 0 || player >= NET_PLAYERS_COUNT) {
         return 0;
     }
     struct PacketHistory* history = &packet_history[player];
@@ -84,7 +84,7 @@ size_t bundle_packets(PlayerNumber player, const struct Packet* current_packet, 
 }
 
 void unbundle_packets(const char* bundled_buffer, PlayerNumber source_player) {
-    if (source_player < 0 || source_player >= MAX_N_USERS) {
+    if (source_player < 0 || source_player >= NET_PLAYERS_COUNT) {
         return;
     }
     struct BundledPacket bundled;

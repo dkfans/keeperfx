@@ -28,6 +28,7 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 
+#include "bflib_network.h"
 #include "config_strings.h"
 #include "front_network.h"
 #include "gui_frontbtns.h"
@@ -220,19 +221,17 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
 
 void frontnet_session_create(struct GuiButton *gbtn)
 {
-    // Create a new session using the player name as the session name.
-    // Append a number to the session name if it already exists.
     long idx = 0;
-    for (int i = 0; i < net_number_of_sessions; i++)
-    {
-        const auto nsname = net_session[i];
-        if (nsname == nullptr) continue;
-        const char * backslash = strchr(nsname->text, '\'');
-        if (backslash) {
-            if (strlen(net_player_name) == backslash - nsname->text) {
-                if (strncmp(nsname->text, net_player_name, backslash - nsname->text) == 0) {
-                    idx++;
-                }
+    for (int i = 0; i < net_number_of_sessions; i++) {
+        struct TbNetworkSessionNameEntry *nsname = net_session[i];
+        if (nsname == nullptr) {
+            continue;
+        }
+        const char *quote = strchr(nsname->text, '\'');
+        size_t namelen = strlen(net_player_name);
+        if (quote) {
+            if (namelen == (size_t)(quote - nsname->text) && strncmp(nsname->text, net_player_name, namelen) == 0) {
+                idx++;
             }
         } else if (strcmp(nsname->text, net_player_name) == 0) {
             idx++;
@@ -245,8 +244,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
         snprintf(text, sizeof(text), "%s", net_player_name);
     }
     uint32_t plyr_num;
-    if (LbNetwork_Create(text, net_player_name, &plyr_num, nullptr))
-    {
+    if (LbNetwork_Create(text, net_player_name, &plyr_num, nullptr)) {
         process_network_error(-801);
         return;
     }

@@ -34,13 +34,15 @@ extern "C" {
 #define TIMEOUT_JOIN_LOBBY 2000
 #define TIMEOUT_LOBBY_EXCHANGE 3000
 #define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
+
+#define DEFAULT_SERVER_PORT 5556
 /******************************************************************************/
 #pragma pack(1)
 
 // New Declarations Here ======================================================
 
-#define MAX_N_USERS 4
-#define MAX_N_PEERS (MAX_N_USERS - 1)
+#define NET_PLAYERS_COUNT 2
+#define MAX_N_PEERS (NET_PLAYERS_COUNT - 1)
 #define SERVER_ID   0
 
 typedef int NetUserId;
@@ -249,7 +251,8 @@ long service_flags;
 /******************************************************************************/
 void    LbNetwork_SetServerPort(int port);
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
+void    LbNetwork_RefreshLobbies(void);
+TbError LbNetwork_Init(unsigned long srvcindex, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, int32_t *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);

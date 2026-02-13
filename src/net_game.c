@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
 #include "bflib_network.h"
+#include "bflib_netsession.h"
 #include "bflib_network_exchange.h"
 #include "net_resync.h"
 
@@ -55,9 +56,9 @@ char net_player_name[20];
 short setup_network_service(int srvidx)
 {
   struct ServiceInitData *init_data = NULL;
-  SYNCMSG("Initializing 4-players type %d network",srvidx);
+  SYNCMSG("Initializing %d-players type %d network",NET_PLAYERS_COUNT,srvidx);
   memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, &net_player_info[0], init_data) )
   {
     if (srvidx > NS_ENET_UDP)
       process_network_error(-800);
@@ -189,10 +190,9 @@ long network_session_join(void)
 {
     int32_t plyr_num;
     display_attempting_to_join_message();
-    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
-    {
-      process_network_error(-802);
-      return -1;
+    if (LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL)) {
+        process_network_error(-802);
+        return -1;
     }
     return plyr_num;
 }

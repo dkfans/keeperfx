@@ -35,6 +35,7 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_network.h"
+#include "bflib_network_internal.h"
 #include "bflib_network_exchange.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -1793,6 +1794,16 @@ void process_frontend_packets(void)
       ERRORLOG("LbNetwork_Exchange failed");
       net_service_index_selected = -1;
   }
+  if (netstate.pending_host_disconnect) {
+      netstate.pending_host_disconnect = false;
+      LbNetwork_Stop();
+      if (setup_network_service(net_service_index_selected)) {
+          frontend_set_state(FeSt_NET_SESSION);
+      } else {
+          frontend_set_state(FeSt_MAIN_MENU);
+      }
+      return;
+  }
   if (frontend_should_all_players_quit())
   {
     i = frontnet_number_of_players_in_session();
@@ -1800,31 +1811,26 @@ void process_frontend_packets(void)
     {
       players_currently_in_session = i;
     }
-    if (players_currently_in_session > i)
-    {
-      if (frontend_menu_state == FeSt_NET_SESSION)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          frontend_set_state(FeSt_MAIN_MENU);
-      } else if (frontend_menu_state == FeSt_NET_START)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          if (setup_network_service(net_service_index_selected))
-          {
-            frontend_set_state(FeSt_NET_SESSION);
-          }
-          else
-          {
+    if (players_currently_in_session > i) {
+      players_currently_in_session = i;
+      if (netstate.my_id != SERVER_ID) {
+        if (frontend_menu_state == FeSt_NET_SESSION) {
+            if (LbNetwork_Stop()) {
+              ERRORLOG("LbNetwork_Stop() failed");
+              return;
+            }
             frontend_set_state(FeSt_MAIN_MENU);
-          }
+        } else if (frontend_menu_state == FeSt_NET_START) {
+            if (LbNetwork_Stop()) {
+              ERRORLOG("LbNetwork_Stop() failed");
+              return;
+            }
+            if (setup_network_service(net_service_index_selected)) {
+              frontend_set_state(FeSt_NET_SESSION);
+            } else {
+              frontend_set_state(FeSt_MAIN_MENU);
+            }
+        }
       }
     }
   }
