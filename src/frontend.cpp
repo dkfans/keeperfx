@@ -1948,6 +1948,38 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
     }
 }
 
+static void autofill_savegame_name(struct GuiButton *gbtn)
+{
+    const char* lv_name = NULL;
+    LevelNumber lvnum = get_loaded_level_number();
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
+    if (lvinfo != NULL)
+    {
+      if (lvinfo->name_stridx > 0)
+          lv_name = get_string(lvinfo->name_stridx);
+      else
+          lv_name = lvinfo->name;
+    } else
+      lv_name = level_name;
+    
+    
+    int max_len = gbtn->maxval;
+    if ((max_len <= 0) || (max_len > SAVE_TEXTNAME_LEN))
+        max_len = SAVE_TEXTNAME_LEN;
+    snprintf(gbtn->content.str, max_len, "%s-%s", campaign.display_name, lv_name);
+
+    gbtn->content.str[max_len - 1] = '\0';
+
+    gbtn->button_state_left_pressed = 0;
+    (gbtn->click_event)(gbtn);
+    if ((gbtn->flags & LbBtnF_Clickable) != 0)
+    {
+        struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
+        gmnu->visual_state = 3;
+        remove_from_menu_stack(gmnu->ident);
+    }
+}
+
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
   SYNCDBG(17,"Starting");
@@ -1983,6 +2015,11 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
         return;
       break;
   case LbBtnT_EditBox:
+      if ((last_used_input_device == ID_Controller)  && (gbtn->content.str != NULL))
+      {
+            autofill_savegame_name(gbtn);
+            break;
+      }
       input_button = gbtn;
       setup_input_field(input_button, get_string(GUIStr_MnuUnused));
       break;
