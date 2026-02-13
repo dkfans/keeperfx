@@ -39,8 +39,14 @@
 #define MATCHMAKING_SERVER_URL "https://matchmaking.keeperfx.workers.dev"
 #define MATCHMAKING_HTTP_TIMEOUT_MS 5000
 #define MATCHMAKING_RESPONSE_BUFFER_SIZE 4096
+#define MATCHMAKING_LOBBY_ID_LEN 64
+#define MATCHMAKING_URL_PATH_LEN 80
+#define MATCHMAKING_BODY_LEN 256
+#define MATCHMAKING_ESCAPED_NAME_LEN 128
+#define MATCHMAKING_URL_LEN 256
+#define HTTP_STATUS_ERROR 400
 
-static char current_lobby_id[64] = "";
+static char current_lobby_id[MATCHMAKING_LOBBY_ID_LEN] = "";
 static TbBool lobby_registered = 0;
 static char response_buffer[MATCHMAKING_RESPONSE_BUFFER_SIZE];
 
@@ -85,7 +91,7 @@ static int http_request(const char *method, const char *path, const char *body) 
     }
     DWORD status_code = 0, size = sizeof(status_code);
     WinHttpQueryHeaders(request, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, WINHTTP_HEADER_NAME_BY_INDEX, &status_code, &size, WINHTTP_NO_HEADER_INDEX);
-    if (status_code >= 400) {
+    if (status_code >= HTTP_STATUS_ERROR) {
         WinHttpCloseHandle(request);
         return 0;
     }
@@ -131,7 +137,7 @@ static int http_request(const char *method, const char *path, const char *body) 
     }
     curl_response_pos = 0;
     response_buffer[0] = '\0';
-    char url[256];
+    char url[MATCHMAKING_URL_LEN];
     snprintf(url, sizeof(url), "%s%s", MATCHMAKING_SERVER_URL, path);
     curl_easy_reset(curl_handle);
     curl_easy_setopt(curl_handle, CURLOPT_URL, url);
@@ -156,7 +162,7 @@ static int http_request(const char *method, const char *path, const char *body) 
     }
     long http_code = 0;
     curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &http_code);
-    if (http_code >= 400) {
+    if (http_code >= HTTP_STATUS_ERROR) {
         return 0;
     }
     return (int)curl_response_pos;
@@ -168,7 +174,7 @@ TbBool matchmaking_register_lobby(const char *name, uint16_t port) {
     if (lobby_registered) {
         matchmaking_unregister_lobby();
     }
-    char escaped_name[128];
+    char escaped_name[MATCHMAKING_ESCAPED_NAME_LEN];
     int j = 0;
     for (int i = 0; name[i] && j < (int)sizeof(escaped_name) - 2; i++) {
         if (name[i] == '"' || name[i] == '\\') {
@@ -177,7 +183,7 @@ TbBool matchmaking_register_lobby(const char *name, uint16_t port) {
         escaped_name[j++] = name[i];
     }
     escaped_name[j] = '\0';
-    char body[256];
+    char body[MATCHMAKING_BODY_LEN];
     snprintf(body, sizeof(body), "{\"name\":\"%s\",\"port\":%u}", escaped_name, port);
     if (!http_request("POST", "/lobbies", body) || sscanf(response_buffer, "{\"id\":\"%63[^\"]\"}", current_lobby_id) != 1) {
         ERRORLOG("Failed to register lobby: %s", response_buffer);
@@ -192,7 +198,7 @@ void matchmaking_unregister_lobby(void) {
     if (!lobby_registered) {
         return;
     }
-    char path[80];
+    char path[MATCHMAKING_URL_PATH_LEN];
     snprintf(path, sizeof(path), "/lobby/%s", current_lobby_id);
     http_request("DELETE", path, NULL);
     lobby_registered = 0;
@@ -202,7 +208,7 @@ void matchmaking_ping_lobby(void) {
     if (!lobby_registered) {
         return;
     }
-    char path[80];
+    char path[MATCHMAKING_URL_PATH_LEN];
     snprintf(path, sizeof(path), "/lobby/%s/ping", current_lobby_id);
     if (!http_request("POST", path, NULL) || strstr(response_buffer, "\"success\":true") == NULL) {
         WARNLOG("Lobby ping failed, lobby may have expired");

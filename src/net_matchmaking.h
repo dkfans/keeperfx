@@ -22,6 +22,9 @@
 #include "bflib_netsession.h"
 #include <stdint.h>
 
+#define MATCHMAKING_FETCH_INTERVAL_MS 5000
+#define MATCHMAKING_PING_INTERVAL_MS 30000
+
 #ifdef __cplusplus
 extern "C" {
 #endif

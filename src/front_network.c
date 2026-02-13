@@ -239,7 +239,7 @@ void frontnet_session_update(void)
     static long last_enum_sessions = 0;
     static TbClockMSec last_matchmaking_fetch = 0;
 
-    if (lbAppActive && LbTimerClock() >= last_matchmaking_fetch + 5000) {
+    if (lbAppActive && LbTimerClock() >= last_matchmaking_fetch + MATCHMAKING_FETCH_INTERVAL_MS) {
         LbNetwork_RefreshLobbies();
         last_matchmaking_fetch = LbTimerClock();
     }
@@ -410,7 +410,7 @@ void frontnet_start_update(void)
       player_last_time = LbTimerClock();
     }
 
-    if (LbTimerClock() >= matchmaking_last_ping + 30000) {
+    if (LbTimerClock() >= matchmaking_last_ping + MATCHMAKING_PING_INTERVAL_MS) {
         matchmaking_ping_lobby();
         matchmaking_last_ping = LbTimerClock();
     }
