@@ -197,7 +197,7 @@ static TbBool send_resync_data(const void * buffer, size_t total_length) {
     memcpy(message_buffer + sizeof(ResyncHeader), compressed_buffer, compressed_size);
 
     NETLOG("Host: Sending resync data to all clients");
-    for (NetUserId user_index = 0; user_index < MAX_N_USERS; ++user_index) {
+    for (NetUserId user_index = 0; user_index < NET_PLAYERS_COUNT; ++user_index) {
         if (netstate.users[user_index].progress != USER_LOGGEDIN) {
             continue;
         }
@@ -375,8 +375,8 @@ void LbNetwork_TimesyncBarrier(void) {
     const TbBool is_host = (my_player_number == get_host_player_id());
     if (is_host) {
         MULTIPLAYER_LOG("Host: Handling any pending timesync requests");
-        TbBool timesynced[MAX_N_USERS];
-        for (NetUserId i = 0; i < MAX_N_USERS; ++i) {
+        TbBool timesynced[NET_PLAYERS_COUNT];
+        for (NetUserId i = 0; i < NET_PLAYERS_COUNT; ++i) {
             if (i == netstate.my_id) {
                 timesynced[i] = 1;
             } else if (netstate.users[i].progress == USER_LOGGEDIN) {
@@ -390,7 +390,7 @@ void LbNetwork_TimesyncBarrier(void) {
         TbClockMSec last_anim_time = wait_start;
         while (LbTimerClock() - wait_start < RESYNC_TIMESYNC_TIMEOUT_MS) {
             netstate.sp->update(OnNewUser);
-            for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
+            for (NetUserId id = 0; id < NET_PLAYERS_COUNT; ++id) {
                 if (id == netstate.my_id) continue;
                 if (netstate.users[id].progress != USER_LOGGEDIN) continue;
                 while (netstate.sp->msgready(id, 0)) {
@@ -415,7 +415,7 @@ void LbNetwork_TimesyncBarrier(void) {
                 }
             }
             TbBool all_done = 1;
-            for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
+            for (NetUserId id = 0; id < NET_PLAYERS_COUNT; ++id) {
                 if (!timesynced[id]) {
                     all_done = 0;
                     break;
@@ -431,7 +431,7 @@ void LbNetwork_TimesyncBarrier(void) {
             }
         }
         LbSleepFor(100);
-        for (NetUserId id = 0; id < MAX_N_USERS; ++id) {
+        for (NetUserId id = 0; id < NET_PLAYERS_COUNT; ++id) {
             if (id == netstate.my_id) continue;
             if (netstate.users[id].progress != USER_LOGGEDIN) continue;
             if (!timesynced[id]) {
@@ -455,7 +455,7 @@ void LbNetwork_TimesyncBarrier(void) {
         message.message_type = NETMSG_RESYNC_RESUME;
         message.resume_time = resume_time;
         MULTIPLAYER_LOG("Host: Broadcasting RESUME to all clients (current=%lu, resume=%lu, delay=%lu, client_rtt=%lu)", (unsigned long)current_time, (unsigned long)resume_time, (unsigned long)delay, (unsigned long)g_client_rtt_ms);
-        for (NetUserId user_index = 0; user_index < MAX_N_USERS; ++user_index) {
+        for (NetUserId user_index = 0; user_index < NET_PLAYERS_COUNT; ++user_index) {
             if (netstate.users[user_index].progress != USER_LOGGEDIN) {
                 continue;
             }

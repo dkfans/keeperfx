@@ -56,9 +56,9 @@ char net_player_name[20];
 short setup_network_service(int srvidx)
 {
   struct ServiceInitData *init_data = NULL;
-  SYNCMSG("Initializing 4-players type %d network",srvidx);
+  SYNCMSG("Initializing %d-players type %d network",NET_PLAYERS_COUNT,srvidx);
   memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, &net_player_info[0], init_data) )
   {
     if (srvidx > NS_ENET_UDP)
       process_network_error(-800);

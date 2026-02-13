@@ -51,12 +51,12 @@ struct NetFrame {
 
 struct NetState {
     const struct NetSP *sp;
-    struct NetUser users[MAX_N_USERS];
+    struct NetUser users[NET_PLAYERS_COUNT];
     struct NetFrame *exchg_queue;
     char password[32];
     NetUserId my_id;
     int seq_nbr;
-    unsigned max_players;
+
     char msg_buffer[NET_MSG_BUFFER_SIZE];
     char msg_buffer_null;
     TbBool locked;

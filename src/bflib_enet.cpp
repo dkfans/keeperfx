@@ -108,7 +108,7 @@ namespace
         int port = atoi(session);
         if (port > 0)
             address.port = port;
-        host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, 4, NUM_CHANNELS, 0, 0);
+        host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, MAX_N_PEERS, NUM_CHANNELS, 0, 0);
         if (!host) {
             return Lb_FAIL;
         }
@@ -203,7 +203,7 @@ namespace
             return Lb_FAIL;
         }
         connect_address.port = port;
-        host = enet_host_create(connect_address.type, NULL, 4, NUM_CHANNELS, 0, 0);
+        host = enet_host_create(connect_address.type, NULL, MAX_N_PEERS, NUM_CHANNELS, 0, 0);
         if (!host) {
             return Lb_FAIL;
         }

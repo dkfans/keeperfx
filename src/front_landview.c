@@ -1070,7 +1070,7 @@ TbBool frontnetmap_load(void)
     if (fe_network_active)
     {
         net_number_of_players = 0;
-        for (long i = 0; i < 4; i++)
+        for (long i = 0; i < NET_PLAYERS_COUNT; i++)
         {
             struct ScreenPacket* nspck = &net_screen_packet[i];
             if ((nspck->networkstatus_flags & 0x01) != 0)

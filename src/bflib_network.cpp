@@ -109,12 +109,11 @@ void LbNetwork_InitSessionsFromCmdLine(const char * str) {
     AddSessionSegment(start, end);
 }
 
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data) {
+TbError LbNetwork_Init(unsigned long srvcindex, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data) {
     localPlayerInfoPtr = locplayr;
     memset(&netstate, 0, sizeof(netstate));
-    netstate.max_players = maxplayrs;
     NetUserId usr;
-    for (usr = 0; usr < netstate.max_players; usr += 1) {
+    for (usr = 0; usr < NET_PLAYERS_COUNT; usr += 1) {
         netstate.users[usr].id = usr;
     }
     if (srvcindex == NS_TCP_IP) {
@@ -179,7 +178,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 TbError LbNetwork_EnableNewPlayers(TbBool allow) {
     if (!netstate.locked && !allow) {
         NetUserId i;
-        for (i = 0; i < netstate.max_players; i += 1) {
+        for (i = 0; i < NET_PLAYERS_COUNT; i += 1) {
             if (netstate.users[i].progress == USER_CONNECTED) {
                 netstate.sp->drop_user(i);
             }
@@ -209,7 +208,7 @@ TbBool OnNewUser(NetUserId * assigned_id) {
         return 0;
     }
     NetUserId i;
-    for (i = 0; i < netstate.max_players; i += 1) {
+    for (i = 0; i < NET_PLAYERS_COUNT; i += 1) {
         if (netstate.users[i].progress == USER_UNUSED) {
             *assigned_id = i;
             netstate.users[i].progress = USER_CONNECTED;
@@ -223,7 +222,7 @@ TbBool OnNewUser(NetUserId * assigned_id) {
 
 void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
     assert(id >= 0);
-    assert(id < (int)netstate.max_players);
+    assert(id < (int)NET_PLAYERS_COUNT);
     if (netstate.my_id == id) {
         NETMSG("Warning: Trying to drop local user. There's a bug in code somewhere, probably server trying to send message to itself.");
         return;
@@ -241,7 +240,7 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
         return;
     }
     NetUserId uid;
-    for (uid = 0; uid < netstate.max_players; uid += 1) {
+    for (uid = 0; uid < NET_PLAYERS_COUNT; uid += 1) {
         if (uid == netstate.my_id) { continue; }
         SendUserUpdate(uid, id);
     }
@@ -260,7 +259,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr) {
 
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc callback, void *buf) {
     TbNetworkCallbackData data;
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+    for (NetUserId id = 0; id < NET_PLAYERS_COUNT; id += 1) {
         if (!IsUserActive(id)) { continue; }
         memset(&data, 0, sizeof(data));
         snprintf(data.plyr_name, sizeof(data.plyr_name), "%s", netstate.users[id].name);
