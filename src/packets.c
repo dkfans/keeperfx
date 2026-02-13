@@ -1811,31 +1811,26 @@ void process_frontend_packets(void)
     {
       players_currently_in_session = i;
     }
-    if (players_currently_in_session > i)
-    {
-      if (frontend_menu_state == FeSt_NET_SESSION)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          frontend_set_state(FeSt_MAIN_MENU);
-      } else if (frontend_menu_state == FeSt_NET_START)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          if (setup_network_service(net_service_index_selected))
-          {
-            frontend_set_state(FeSt_NET_SESSION);
-          }
-          else
-          {
+    if (players_currently_in_session > i) {
+      players_currently_in_session = i;
+      if (netstate.my_id != SERVER_ID) {
+        if (frontend_menu_state == FeSt_NET_SESSION) {
+            if (LbNetwork_Stop()) {
+              ERRORLOG("LbNetwork_Stop() failed");
+              return;
+            }
             frontend_set_state(FeSt_MAIN_MENU);
-          }
+        } else if (frontend_menu_state == FeSt_NET_START) {
+            if (LbNetwork_Stop()) {
+              ERRORLOG("LbNetwork_Stop() failed");
+              return;
+            }
+            if (setup_network_service(net_service_index_selected)) {
+              frontend_set_state(FeSt_NET_SESSION);
+            } else {
+              frontend_set_state(FeSt_MAIN_MENU);
+            }
+        }
       }
     }
   }
