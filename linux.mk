@@ -180,6 +180,7 @@ src/kfx/lense/PaletteEffect.cpp \
 src/light_data.c \
 src/linux.cpp \
 src/lua_api.c \
+src/lua_api_lens.c \
 src/lua_api_player.c \
 src/lua_api_room.c \
 src/lua_api_things.c \
@@ -335,9 +336,11 @@ bin/keeperfx: $(KFX_OBJECTS) $(TOML_OBJECTS) | bin
 	$(CXX) -o $@ $(KFX_OBJECTS) $(TOML_OBJECTS) $(KFX_LDFLAGS)
 
 $(KFX_C_OBJECTS): obj/%.o: src/%.c src/ver_defs.h | obj
+	$(MKDIR) $(dir $@)
 	$(CC) $(KFX_CFLAGS) -c $< -o $@
 
 $(KFX_CXX_OBJECTS): obj/%.o: src/%.cpp src/ver_defs.h | obj
+	$(MKDIR) $(dir $@)
 	$(CXX) $(KFX_CXXFLAGS) -c $< -o $@
 
 $(TOML_OBJECTS): obj/centitoml/%.o: deps/centitoml/%.c | obj/centitoml
