@@ -3896,6 +3896,12 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     short dim_th;
     short dim_tw;
     get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    if (dim_ow <= 0 || dim_oh <= 0 || dim_ow > 256 || dim_oh > 256)
+    {
+        WARNLOG("[md10 crash investigation] Invalid shadow dimensions dim_ow=%d dim_oh=%d for thing %d (anim=%d frame=%d)",
+                dim_ow, dim_oh, thing->index, thing->anim_sprite, thing->current_frame);
+        return;
+    }
     {
         int sh_angle_sin = LbSinL(sh_angle);
         int sh_angle_cos = LbCosL(sh_angle);
