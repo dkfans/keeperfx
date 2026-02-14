@@ -79,7 +79,7 @@ jobs:
         BUILD_NUMBER=$(git rev-list --count origin/master)
         GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
         PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX -f linux.mk
+        make BUILD_NUMBER=$BUILD_NUMBER VER_SUFFIX=$PACKAGE_SUFFIX -f linux.mk
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
