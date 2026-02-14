@@ -50,7 +50,7 @@ int LuaLensEffect::LuaGetPixel(lua_State* L)
     // Get buffer info
     LuaBufferInfo* buf = (LuaBufferInfo*)lua_touserdata(L, 1);
     if (buf == NULL || buf->data == NULL) {
-        return luaL_error(L, "Invalid buffer");
+        return luaL_argerror(L, 1, "Invalid buffer");
     }
     
     // Get coordinates
@@ -78,7 +78,7 @@ int LuaLensEffect::LuaSetPixel(lua_State* L)
     // Get buffer info
     LuaBufferInfo* buf = (LuaBufferInfo*)lua_touserdata(L, 1);
     if (buf == NULL || buf->data == NULL) {
-        return luaL_error(L, "Invalid buffer");
+        return luaL_argerror(L, 1, "Invalid buffer");
     }
     
     // Get coordinates and color
@@ -107,7 +107,7 @@ int LuaLensEffect::LuaCopyPixel(lua_State* L)
     LuaBufferInfo* dst = (LuaBufferInfo*)lua_touserdata(L, 2);
     
     if (src == NULL || src->data == NULL || dst == NULL || dst->data == NULL) {
-        return luaL_error(L, "Invalid buffer");
+        return luaL_argerror(L, 1, "Invalid buffer");
     }
     
     // Get coordinates
