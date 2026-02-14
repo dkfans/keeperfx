@@ -1950,6 +1950,10 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
 
 static void autofill_savegame_name(struct GuiButton *gbtn)
 {
+    int max_len = gbtn->maxval;
+    if ((max_len <= 0) || (max_len > SAVE_TEXTNAME_LEN))
+        max_len = SAVE_TEXTNAME_LEN;
+        
     const char* lv_name = NULL;
     LevelNumber lvnum = get_loaded_level_number();
     struct LevelInformation* lvinfo = get_level_info(lvnum);
@@ -1962,11 +1966,27 @@ static void autofill_savegame_name(struct GuiButton *gbtn)
     } else
       lv_name = level_name;
     
-    
-    int max_len = gbtn->maxval;
-    if ((max_len <= 0) || (max_len > SAVE_TEXTNAME_LEN))
-        max_len = SAVE_TEXTNAME_LEN;
-    snprintf(gbtn->content.str, max_len, "%s-%s", campaign.display_name, lv_name);
+
+    if (gbtn->content.str != NULL)
+        memset(gbtn->content.str, 0, max_len);
+
+    size_t lv_name_len = 0;
+    if ((lv_name != NULL) && (lv_name[0] != '\0'))
+        lv_name_len = strnlen(lv_name, (size_t)max_len - 1);
+
+    if (lv_name_len == 0)
+    {
+        snprintf(gbtn->content.str, max_len, "%s", campaign.display_name);
+    }
+    else
+    {
+        size_t campaign_len = strnlen(campaign.display_name, (size_t)max_len - 1);
+        if ((campaign_len > 0) && (campaign_len + 1 + lv_name_len < (size_t)max_len))
+            snprintf(gbtn->content.str, max_len, "%.*s-%.*s", (int)campaign_len, campaign.display_name,
+                (int)lv_name_len, lv_name);
+        else
+            snprintf(gbtn->content.str, max_len, "%.*s", (int)lv_name_len, lv_name);
+    }
 
     gbtn->content.str[max_len - 1] = '\0';
 
