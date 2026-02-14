@@ -2035,7 +2035,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
         return;
       break;
   case LbBtnT_EditBox:
-      if ((last_used_input_device == ID_Controller)  && (gbtn->content.str != NULL))
+      if ((last_used_input_device == ID_Controller)  && (gbtn->content.str != NULL) && menu_is_active(GMnu_SAVE))
       {
             autofill_savegame_name(gbtn);
             break;
