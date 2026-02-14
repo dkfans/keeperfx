@@ -245,10 +245,17 @@ obj/highscores.o \
 obj/kjm_input.o \
 obj/lens_api.o \
 obj/config_effects.o \
-obj/lens_flyeye.o \
-obj/lens_mist.o \
+obj/LensEffect.o \
+obj/LensManager.o \
+obj/MistEffect.o \
+obj/FlyeyeEffect.o \
+obj/DisplacementEffect.o \
+obj/OverlayEffect.o \
+obj/PaletteEffect.o \
+obj/LuaLensEffect.o \
 obj/light_data.o \
 obj/lua_api.o \
+obj/lua_api_lens.o \
 obj/lua_api_player.o \
 obj/lua_api_room.o \
 obj/lua_api_things.o \
@@ -559,7 +566,7 @@ obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/tests/%.o: tests/%.cpp $(GENSRC)
+obj/tests/%.o: src/tests/%.cpp $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
 	-$(ECHO) ' '
@@ -577,6 +584,13 @@ define BUILD_CPP_FILES_CMD
 	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 endef
+
+# Pattern rules for src/kfx/lense (must come before general src/%.cpp rule)
+obj/std/%.o: src/kfx/lense/%.cpp libexterns $(GENSRC)
+	$(BUILD_CPP_FILES_CMD)
+
+obj/hvlog/%.o: src/kfx/lense/%.cpp libexterns $(GENSRC)
+	$(BUILD_CPP_FILES_CMD)
 
 obj/std/%.o: src/%.cpp libexterns $(GENSRC)
 	$(BUILD_CPP_FILES_CMD)

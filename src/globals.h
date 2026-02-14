@@ -100,6 +100,11 @@ extern "C" {
 
 uint64_t LbSystemClockMilliseconds(void);
 
+// Portable size_t formatting for printf-style macros
+// Usage: ERRORLOG("size is %" PRIuSIZE " bytes", SZCAST(my_size))
+#define PRIuSIZE "lu"
+#define SZCAST(x) ((unsigned long)(x))
+
 // Debug fuction-like macros - for free messages
 #define ERRORMSG(format, ...) LbErrorLog(format "\n", ##__VA_ARGS__)
 #define WARNMSG(format, ...) LbWarnLog(format "\n", ##__VA_ARGS__)

@@ -612,10 +612,28 @@
     <ClCompile Include="src\frontmenu_select_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lens_flyeye.cpp">
+    <ClCompile Include="src\kfx\lense\DisplacementEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lens_mist.cpp">
+    <ClCompile Include="src\kfx\lense\FlyeyeEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\LensEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\LensManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\LuaLensEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\MistEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\OverlayEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\PaletteEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
@@ -1178,10 +1196,28 @@
     <ClInclude Include="src\lens_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lens_flyeye.h">
+    <ClInclude Include="src\kfx\lense\DisplacementEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lens_mist.h">
+    <ClInclude Include="src\kfx\lense\FlyeyeEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\LensEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\LensManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\LuaLensEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\MistEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\OverlayEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\PaletteEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\light_data.h">
