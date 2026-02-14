@@ -157,6 +157,7 @@ obj/config_cubes.o \
 obj/config_textures.o \
 obj/config_trapdoor.o \
 obj/config_spritecolors.o \
+obj/config_sounds.o \
 obj/console_cmd.o \
 obj/custom_sprites.o \
 obj/creature_battle.o \

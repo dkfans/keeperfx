@@ -285,16 +285,128 @@ SoundSmplTblID SoundManager::getCustomSoundId(const std::string& name) const {
     return it->second.sample_id;
 }
 
+// === Named Sound Registry ===
+
+// Get sample ID for a named sound (built-in or custom)
+SoundSmplTblID SoundManager::getSoundId(const char* name) const {
+    if (name == nullptr || name[0] == '\0') {
+        return 0;
+    }
+    
+    std::string name_str(name);
+    
+    // First check the built-in sound registry
+    auto it = sound_registry_.find(name_str);
+    if (it != sound_registry_.end()) {
+        SoundSmplTblID id = it->second.sample_id;
+        // If count > 1, pick a random sample from consecutive IDs
+        if (it->second.count > 1) {
+            id = it->second.sample_id + (UNSYNC_RANDOM(it->second.count));
+        }
+        return id;
+    }
+    
+    // Fall back to custom sounds
+    auto cit = custom_sounds_.find(name_str);
+    if (cit != custom_sounds_.end() && cit->second.loaded) {
+        return cit->second.sample_id;
+    }
+    
+    printf("[SoundManager] Sound '%s' not found in registry\n", name);
+    return 0;
+}
+
+// Register a sound name → ID mapping
+bool SoundManager::registerSound(const char* name, SoundSmplTblID id, int count) {
+    if (name == nullptr || name[0] == '\0') {
+        printf("[SoundManager] Cannot register sound with empty name\n");
+        return false;
+    }
+    
+    std::string name_str(name);
+    
+    SoundEntry entry;
+    entry.sample_id = id;
+    entry.count = count > 0 ? count : 1;
+    
+    sound_registry_[name_str] = entry;
+    
+    printf("[SoundManager] Registered sound '%s' -> ID %d (count %d)\n",
+           name, id, entry.count);
+    return true;
+}
+
+// Check if a sound name is registered
+bool SoundManager::isSoundRegistered(const char* name) const {
+    if (name == nullptr || name[0] == '\0') {
+        return false;
+    }
+    
+    std::string name_str(name);
+    
+    // Check both registries
+    if (sound_registry_.find(name_str) != sound_registry_.end()) {
+        return true;
+    }
+    
+    auto cit = custom_sounds_.find(name_str);
+    return cit != custom_sounds_.end() && cit->second.loaded;
+}
+
+// Get count for a named sound
+int SoundManager::getSoundCount(const char* name) const {
+    if (name == nullptr || name[0] == '\0') {
+        return 0;
+    }
+    
+    std::string name_str(name);
+    
+    auto it = sound_registry_.find(name_str);
+    if (it != sound_registry_.end()) {
+        return it->second.count;
+    }
+    
+    // Custom sounds default to count 1
+    auto cit = custom_sounds_.find(name_str);
+    if (cit != custom_sounds_.end() && cit->second.loaded) {
+        return 1;
+    }
+    
+    return 0;
+}
+
+// Play a named sound effect
+SoundEmitterID SoundManager::playEffectNamed(const char* name, long priority, SoundVolume volume) {
+    SoundSmplTblID id = getSoundId(name);
+    if (id == 0) {
+        printf("[SoundManager] Cannot play unknown sound '%s'\n", name);
+        return 0;
+    }
+    
+    return playEffect(id, priority, volume);
+}
+
 // Print statistics
 void SoundManager::printStats() const {
     printf("\n=== SoundManager Statistics ===\n");
     printf("Initialized: %s\n", initialized_ ? "YES" : "NO");
     printf("Total sounds played: %d\n", total_plays_);
-    printf("Custom sounds registered: %d\n", total_custom_sounds_);
+    printf("Named sounds registered: %zu\n", sound_registry_.size());
+    printf("Custom sounds loaded: %zu\n", total_custom_sounds_);
     printf("Next custom sample ID: %d\n", next_custom_sample_id_);
     
+    if (!sound_registry_.empty()) {
+        printf("\nNamed sound registry:\n");
+        for (const auto& pair : sound_registry_) {
+            printf("  - '%s' -> ID %d (count %d)\n",
+                   pair.first.c_str(),
+                   pair.second.sample_id,
+                   pair.second.count);
+        }
+    }
+    
     if (!custom_sounds_.empty()) {
-        printf("\nRegistered custom sounds:\n");
+        printf("\nCustom sounds:\n");
         for (const auto& pair : custom_sounds_) {
             printf("  - '%s' -> sample %d (path: %s) [%s]\n",
                    pair.first.c_str(),
@@ -381,6 +493,27 @@ void sound_manager_minimal_print_stats(void) {
 
 void sound_manager_clear_custom_sounds(void) {
     KeeperFX::SoundManager::getInstance().clearCustomSounds();
+}
+
+// Named sound registry C API wrappers
+SoundSmplTblID sound_manager_get_id(const char* name) {
+    return KeeperFX::SoundManager::getInstance().getSoundId(name);
+}
+
+TbBool sound_manager_register(const char* name, SoundSmplTblID id, int count) {
+    return KeeperFX::SoundManager::getInstance().registerSound(name, id, count);
+}
+
+TbBool sound_manager_is_registered(const char* name) {
+    return KeeperFX::SoundManager::getInstance().isSoundRegistered(name);
+}
+
+int sound_manager_get_count(const char* name) {
+    return KeeperFX::SoundManager::getInstance().getSoundCount(name);
+}
+
+SoundEmitterID sound_manager_play_effect_named(const char* name, long priority, SoundVolume volume) {
+    return KeeperFX::SoundManager::getInstance().playEffectNamed(name, priority, volume);
 }
 
 // Config parser bridge: load custom sound from creature cfg file

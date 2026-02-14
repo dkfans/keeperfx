@@ -21,12 +21,45 @@ namespace KeeperFX {
  * - Singleton pattern
  * - Basic sound playback
  * - Simple runtime loading
+ * - Named sound registry (name → ID mapping)
  * - C wrapper functions
  */
 class SoundManager {
 public:
     // Singleton access
     static SoundManager& getInstance();
+    
+    // === Named Sound Registry ===
+    
+    /**
+     * @brief Get sample ID for a named sound (built-in or custom)
+     * @param name Sound name (e.g., "FIREBALL", "REFUSAL")
+     * @return Sample ID, or 0 if not found
+     */
+    SoundSmplTblID getSoundId(const char* name) const;
+    
+    /**
+     * @brief Register a sound name → ID mapping
+     * @param name Sound name
+     * @param id Sample ID
+     * @param count Number of consecutive samples (for random selection)
+     * @return true if registered successfully
+     */
+    bool registerSound(const char* name, SoundSmplTblID id, int count = 1);
+    
+    /**
+     * @brief Check if a sound name is registered
+     * @param name Sound name
+     * @return true if registered
+     */
+    bool isSoundRegistered(const char* name) const;
+    
+    /**
+     * @brief Get count for a named sound (for random selection)
+     * @param name Sound name
+     * @return Count, or 0 if not found
+     */
+    int getSoundCount(const char* name) const;
     
     // === Core Sound Functions ===
     
@@ -40,6 +73,17 @@ public:
     SoundEmitterID playEffect(SoundSmplTblID sample_id, 
                               long priority = 3, 
                               SoundVolume volume = 256);
+    
+    /**
+     * @brief Play a named sound effect
+     * @param name Sound name (e.g., "FIREBALL")
+     * @param priority Priority (1-6, default 3)
+     * @param volume Volume (0-256, default 256)
+     * @return Sound emitter ID, or 0 if failed/not found
+     */
+    SoundEmitterID playEffectNamed(const char* name,
+                                   long priority = 3,
+                                   SoundVolume volume = 256);
     
     /**
      * @brief Play creature sound (uses existing system)
@@ -162,7 +206,14 @@ private:
         std::string custom_sound_name;
     };
     
+    // Named sound registry entry (for built-in sounds)
+    struct SoundEntry {
+        SoundSmplTblID sample_id;
+        int count;  // For random selection from consecutive IDs
+    };
+    
     std::unordered_map<std::string, CustomSoundEntry> custom_sounds_;
+    std::unordered_map<std::string, SoundEntry> sound_registry_;  // Named sound registry
     std::vector<CreatureSoundOverride> creature_sound_overrides_;
     SoundSmplTblID next_custom_sample_id_;
     bool initialized_;
@@ -191,6 +242,13 @@ TbBool sound_manager_set_creature_sound(const char* creature_model, const char* 
 TbBool sound_manager_is_custom_sound_loaded(const char* name);
 void sound_manager_print_stats(void);
 void sound_manager_clear_custom_sounds(void);
+
+// Named sound registry C API
+SoundSmplTblID sound_manager_get_id(const char* name);
+TbBool sound_manager_register(const char* name, SoundSmplTblID id, int count);
+TbBool sound_manager_is_registered(const char* name);
+int sound_manager_get_count(const char* name);
+SoundEmitterID sound_manager_play_effect_named(const char* name, long priority, SoundVolume volume);
 
 // Config parser bridge for loading custom sounds from creature cfg files
 int load_creature_custom_sound(long crtr_model, const char* sound_type, const char* wav_path, const char* config_textname);
