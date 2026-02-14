@@ -114,8 +114,6 @@ static int find_case_insensitive_file(const char *fname, char *actual_fname, siz
     return found;
 }
 #endif
-/******************************************************************************/
-
 
 short LbFileExists(const char *fname)
 {
