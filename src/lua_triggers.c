@@ -103,7 +103,7 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
 	{
 		lua_pushstring(Lvl_script,get_conf_parameter_text(power_desc,pwkind));
 		lua_pushPlayer(Lvl_script, plyr_idx);
-		lua_pushThing(Lvl_script, thing); 
+		lua_pushThing(Lvl_script, thing);
 		lua_pushinteger(Lvl_script, stl_x);
 		lua_pushinteger(Lvl_script, stl_y);
 		lua_pushinteger(Lvl_script, splevel + 1); // Lua is 1-based, so we add 1 to the level
@@ -182,7 +182,7 @@ void lua_on_creature_rebirth(struct Thing* crtng)
 }
 
 
-void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
+void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx, struct Thing *tngsrc, DamageSourceKind source_kind)
 {
 	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "OnApplyDamage");
@@ -191,8 +191,10 @@ void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumb
 		lua_pushThing(Lvl_script, thing);
 		lua_pushinteger(Lvl_script, dmg);
 		lua_pushPlayer(Lvl_script, dealing_plyr_idx);
+		lua_pushThing(Lvl_script, tngsrc);
+		lua_pushinteger(Lvl_script, source_kind);
 
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0),"OnApplyDamage");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 5, 0, 0),"OnApplyDamage");
 	}
 	else
 	{

@@ -38,6 +38,7 @@
 #include "player_utils.h"
 #include "thing_effects.h"
 #include "thing_list.h"
+#include "thing_data.h"
 #include "thing_physics.h"
 #include "thing_stats.h"
 #include "vidfade.h"
@@ -1067,6 +1068,74 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     return dmg;
 }
 
+static struct Thing* resolve_damage_source_thing(struct Thing* scrtng)
+{
+    if ((scrtng == NULL) || thing_is_invalid(scrtng))
+        return INVALID_THING;
+
+    struct Thing* source_tng = scrtng;
+    switch (source_tng->class_id)
+    {
+    case TCls_Shot:
+    case TCls_Effect:
+    case TCls_EffectElem:
+        {
+            struct Thing* parent_tng = get_parent_thing(source_tng);
+            if (thing_exists(parent_tng))
+                source_tng = parent_tng;
+        }
+        break;
+    default:
+        break;
+    }
+    return source_tng;
+}
+
+DamageSourceKind check_dmg_src_kind(struct Thing* scrtng, DamageSourceKind source_kind)
+{
+    if (source_kind != DSK_NONE)
+        return source_kind;
+
+    struct Thing* source_tng = resolve_damage_source_thing(scrtng);
+    if (!thing_exists(source_tng))
+        return DSK_NONE;
+
+    switch (source_tng->class_id)
+    {
+    case TCls_Creature:
+        return DSK_Creature;
+    case TCls_Trap:
+        return DSK_Trap;
+    case TCls_Object:
+        return DSK_Object;
+    case TCls_Door:
+        return DSK_Door;
+    default:
+        return DSK_NONE;
+    }
+}
+
+const char *damage_source_kind_name(DamageSourceKind kind)
+{
+    switch (kind)
+    {
+    case DSK_Lava: return "LAVA";
+    case DSK_PowerSlap: return "POWER_SLAP";
+    case DSK_PowerDisease: return "POWER_DISEASE";
+    case DSK_PowerLightning: return "POWER_LIGHTNING";
+    case DSK_PhysicalForce: return "PHYSICAL_FORCE";
+    case DSK_CommandFreeze: return "COMMAND_FREEZE";
+    case DSK_CommandSlow: return "COMMAND_SLOW";
+    case DSK_ScriptSpell: return "SCRIPT_SPELL";
+    case DSK_DOTSpell: return "UNKNOWN_DOT";
+    case DSK_Creature: return "CREATURE";
+    case DSK_Trap: return "TRAP";
+    case DSK_Object: return "OBJECT";
+    case DSK_Door: return "DOOR";
+    default: return NULL;
+    }
+}
+
 /**
  * Applies given damage points to a thing.
  * In case of targeting creature, uses its defense values to compute the actual damage.
@@ -1076,16 +1145,28 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
  * @param inflicting_plyr_idx
  * @return Amount of damage really inflicted.
  */
-HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
+HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx, struct Thing* scrtng, DamageSourceKind source_kind)
 {
     // We're here to damage, not to heal.
     SYNCDBG(19, "Dealing %d damage to %s by player %d", (int)dmg, thing_model_name(thing), (int)dealing_plyr_idx);
+    if ((scrtng != NULL) && !thing_is_invalid(scrtng)) {
+        SYNCDBG(8, "ApplyDamage: incoming kind=%d src=%s", (int)source_kind, thing_model_name(scrtng));
+    } else {
+        SYNCDBG(8, "ApplyDamage: incoming kind=%d src=<none>", (int)source_kind);
+    }
     if (dmg <= 0)
         return 0;
     // If it's already dead, then don't interfere.
     if (thing->health < 0)
         return 0;
-    lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx);
+    struct Thing* src_tng = resolve_damage_source_thing(scrtng);
+    DamageSourceKind damagesource = check_dmg_src_kind(src_tng, source_kind);
+    if (thing_exists(src_tng)) {
+        SYNCDBG(8, "ApplyDamage: resolved kind=%d src=%s", (int)damagesource, thing_model_name(src_tng));
+    } else {
+        SYNCDBG(8, "ApplyDamage: resolved kind=%d src=<none>", (int)damagesource);
+    }
+    lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx, src_tng, damagesource);
 
     HitPoints cdamage;
     switch (thing->class_id)
@@ -1102,6 +1183,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
         }
         break;
     case TCls_Trap:
+        cdamage = apply_damage_to_object(thing, dmg);
+        break;
     case TCls_Object:
         cdamage = apply_damage_to_object(thing, dmg);
         break;

@@ -56,6 +56,20 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
+static TbBool effect_model_is_gas(EffectOrEffElModel eff_kind)
+{
+    return (eff_kind == TngEff_Gas1) || (eff_kind == TngEff_Gas2) || (eff_kind == TngEff_Gas3);
+}
+
+static ThingIndex get_shot_hit_effect_parent(const struct Thing *shotng, EffectOrEffElModel eff_kind)
+{
+    if (effect_model_is_gas(eff_kind) && (shotng->parent_idx > 0) && (shotng->parent_idx != shotng->index))
+    {
+        return shotng->parent_idx;
+    }
+    return shotng->index;
+}
+
 TbBool thing_is_shot(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
@@ -429,6 +443,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool destroy_shot = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
+    struct Thing* damage_source = get_parent_thing(shotng);
     TbBool digging = (shotst->model_flags & ShMF_Digging);
     HitPoints old_health = 0;
     EffectOrEffElModel eff_kind;
@@ -538,7 +553,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             if (!shotst->hit_door.withstand)
               destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
-            apply_damage_to_thing(doortng, i, -1);
+            apply_damage_to_thing(doortng, i, -1, damage_source, DSK_NONE);
             reveal_secret_door_to_player(doortng,shotng->owner);
         } else
         if (cube_is_water(cube_id))
@@ -599,7 +614,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 if (!shotst->hit_door.withstand)
                     destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
-                apply_damage_to_thing(doortng, i, -1);
+                apply_damage_to_thing(doortng, i, -1, damage_source, DSK_NONE);
                 reveal_secret_door_to_player(doortng,shotng->owner);
             } else
             {
@@ -626,8 +641,28 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if (!thing_is_invalid(efftng)) {
         efftng->shot_effect.hit_type = shotst->area_hit_type;
-        efftng->shot_effect.parent_class_id = TCls_Shot;
-        efftng->shot_effect.parent_model = shotng->model;
+        if (effect_model_is_gas(efftng->model))
+        {
+            ThingIndex parent_idx = get_shot_hit_effect_parent(shotng, efftng->model);
+            struct Thing* parent_tng = (parent_idx > 0) ? thing_get(parent_idx) : INVALID_THING;
+            if (thing_exists(parent_tng))
+            {
+                efftng->shot_effect.parent_class_id = parent_tng->class_id;
+                efftng->shot_effect.parent_model = parent_tng->model;
+                efftng->parent_idx = parent_tng->index;
+            }
+            else
+            {
+                efftng->shot_effect.parent_class_id = TCls_Shot;
+                efftng->shot_effect.parent_model = shotng->model;
+                efftng->parent_idx = parent_idx;
+            }
+        }
+        else
+        {
+            efftng->shot_effect.parent_class_id = TCls_Shot;
+            efftng->shot_effect.parent_model = shotng->model;
+        }
     }
     if ( destroy_shot )
     {
@@ -662,6 +697,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool shot_explodes = false;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     struct Thing* efftng = INVALID_THING;
+    struct Thing* damage_source = get_parent_thing(shotng);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (blocked_flags != 0)
     {
@@ -672,7 +708,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             // If the shot hit is supposed to create effect thing
             if (shotst->hit_door.effect_model != 0)
             {
-                efftng = create_used_effect_or_element(&shotng->mappos, shotst->hit_door.effect_model, shotng->owner, shotng->index);
+                efftng = create_used_effect_or_element(&shotng->mappos, shotst->hit_door.effect_model, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->hit_door.effect_model));
             }
             // If the shot hit is supposed to create sound
             int n = shotst->hit_door.sndsample_idx;
@@ -692,7 +728,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             }
             // Apply damage to the door
             i = calculate_shot_real_damage_to_door(doortng, shotng);
-            apply_damage_to_thing(doortng, i, -1);
+            apply_damage_to_thing(doortng, i, -1, damage_source, DSK_NONE);
             reveal_secret_door_to_player(doortng,shotng->owner);
       }
     }
@@ -791,6 +827,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (shotng->parent_idx != shotng->index) {
         shootertng = thing_get(shotng->parent_idx);
     }
+    struct Thing* damage_source = shootertng;
     int i = shotst->hit_generic.sndsample_idx;
     if (i > 0) {
         thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
@@ -802,7 +839,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
 
         if ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming)))
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1, damage_source, DSK_NONE);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
@@ -860,7 +897,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (shotst->hit_heart.effect_model != 0)
         {
-            create_used_effect_or_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner, shotng->index);
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->hit_heart.effect_model));
         }
         if (shotst->hit_heart.sndsample_idx > 0)
         {
@@ -887,7 +924,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1, shootertng, DSK_NONE);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
@@ -941,18 +978,18 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
     {
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (shotst->hit_creature.effect_model != 0) {
-            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner, shotng->index);
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->hit_creature.effect_model));
         }
         if (creature_under_spell_effect(target, CSAfF_Freeze))
         {
             if (shotst->effect_frozen != 0) {
-                create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner, shotng->index);
+                create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->effect_frozen));
             }
         } else
         if (creature_model_bleeds(target->model))
         {
             if (shotst->effect_bleeding != 0) {
-                create_used_effect_or_element(&shotng->mappos, shotst->effect_bleeding, shotng->owner, shotng->index);
+                create_used_effect_or_element(&shotng->mappos, shotst->effect_bleeding, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->effect_bleeding));
             }
         }
     }
@@ -961,7 +998,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         // TODO for a later PR: introduces trap/object hit, for now it uses the on hit creature sound and effect.
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (shotst->hit_creature.effect_model != 0) {
-            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner, shotng->index);
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner, get_shot_hit_effect_parent(shotng, shotst->hit_creature.effect_model));
         }
     }
 }
@@ -1068,9 +1105,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         }
         create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
         if (!thing_is_invalid(shooter)) {
-            damage = apply_damage_to_thing_and_display_health(trgtng, damage, shooter->owner);
+            damage = apply_damage_to_thing_and_display_health(trgtng, damage, shooter->owner, shooter, DSK_NONE);
         } else {
-            damage = apply_damage_to_thing_and_display_health(trgtng, damage, -1);
+            damage = apply_damage_to_thing_and_display_health(trgtng, damage, -1, shooter, DSK_NONE);
         }
         if (shotst->model_flags & ShMF_LifeDrain)
         {
@@ -1084,7 +1121,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
             {
                 spell_level = scctrl->exp_level;
             }
-            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner);
+            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner, shooter, DSK_NONE);
             struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
             if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
             {
@@ -1252,9 +1289,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         HitPoints damage_done;
         if (thing_exists(shooter)) {
-            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner, shooter, DSK_NONE);
         } else {
-            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1);
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1, shooter, DSK_NONE);
         }
         if (shotst->model_flags & ShMF_LifeDrain)
         {
@@ -1276,7 +1313,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             spell_level = scctrl->exp_level;
         }
-        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner);
+        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner, shooter, DSK_NONE);
         struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
@@ -1740,7 +1777,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                   {
                       shotst = get_shot_model_stats(ShM_GodLightBall);
                       draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
-                      apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner);
+                      apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner, thing, DSK_NONE);
                   }
                 }
                 break;
