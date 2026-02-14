@@ -47,6 +47,8 @@ extern "C" {
 volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
 
+unsigned char last_used_input_device = 0;
+
 static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
@@ -304,6 +306,7 @@ static void process_event(const SDL_Event *ev)
             
             keyboardControl(KActn_KEYDOWN,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
         }
+        last_used_input_device = ID_Keyboard_Mouse;
         break;
 
     case SDL_KEYUP:
@@ -314,6 +317,7 @@ static void process_event(const SDL_Event *ev)
                 num_keys_down--;
             keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
         }
+        last_used_input_device = ID_Keyboard_Mouse;
         break;
 
     case SDL_MOUSEMOTION:
@@ -344,6 +348,7 @@ static void process_event(const SDL_Event *ev)
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
+        last_used_input_device = ID_Keyboard_Mouse;
 
         if(ev->button.button == SDL_BUTTON_LEFT || ev->button.button == SDL_BUTTON_RIGHT || ev->button.button == SDL_BUTTON_MIDDLE)
         {
@@ -372,6 +377,7 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEWHEEL:
+        last_used_input_device = ID_Keyboard_Mouse;
         mouseDelta.x = 0;
         mouseDelta.y = 0;
         mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mouseDelta);
@@ -452,6 +458,7 @@ static void process_event(const SDL_Event *ev)
     case SDL_JOYHATMOTION:
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
+        last_used_input_device = ID_Controller;
         JEvent(ev);
         break;
 
