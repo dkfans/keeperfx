@@ -391,7 +391,7 @@ char room_tag;
 char spell_tag;
 char trap_tag;
 char creature_tag;
-char input_string[8][16];
+char input_string[8][SAVE_TEXTNAME_LEN + 1];
 char gui_error_text[256];
 long net_service_scroll_offset;
 long net_number_of_services;
@@ -1970,24 +1970,24 @@ static void autofill_savegame_name(struct GuiButton *gbtn)
     if (gbtn->content.str != NULL)
         memset(gbtn->content.str, 0, max_len);
 
+
+    struct TbDate curr_date;
+    struct TbTime curr_time;
+    char datetime_buf[12];
+    if (LbDateTime(&curr_date, &curr_time) >= Lb_OK)
+    {
+        unsigned int year2 = (unsigned int)(curr_date.Year % 100);
+        snprintf(datetime_buf, sizeof(datetime_buf), "%02u%02u%02u-%02u%02u",
+            year2, (unsigned int)curr_date.Month, (unsigned int)curr_date.Day,
+            (unsigned int)curr_time.Hour, (unsigned int)curr_time.Minute);
+    }
+
     size_t lv_name_len = 0;
     if ((lv_name != NULL) && (lv_name[0] != '\0'))
-        lv_name_len = strnlen(lv_name, (size_t)max_len - 1);
+        lv_name_len = strnlen(lv_name, (size_t)max_len - strlen(datetime_buf) - 1);
 
-    if (lv_name_len == 0)
-    {
-        snprintf(gbtn->content.str, max_len, "%s", campaign.display_name);
-    }
-    else
-    {
-        size_t campaign_len = strnlen(campaign.display_name, (size_t)max_len - 1);
-        if ((campaign_len > 0) && (campaign_len + 1 + lv_name_len < (size_t)max_len))
-            snprintf(gbtn->content.str, max_len, "%.*s-%.*s", (int)campaign_len, campaign.display_name,
-                (int)lv_name_len, lv_name);
-        else
-            snprintf(gbtn->content.str, max_len, "%.*s", (int)lv_name_len, lv_name);
-    }
-
+    snprintf(gbtn->content.str, max_len, "%.*s-%s", (int)lv_name_len, lv_name, datetime_buf);
+    
     gbtn->content.str[max_len - 1] = '\0';
 
     gbtn->button_state_left_pressed = 0;
