@@ -168,13 +168,20 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
   const char *open_fname = fname;
 #if !defined(_WIN32)
   char actual_fname[PATH_MAX];
+  int access_rc = access(fname, F_OK);
   // Try to find the file case-insensitively on Unix-like systems
-  if (access(fname, F_OK) != 0 && find_case_insensitive_file(fname, actual_fname, sizeof(actual_fname))) {
+  if (access_rc != 0 && find_case_insensitive_file(fname, actual_fname, sizeof(actual_fname))) {
     open_fname = actual_fname;
   }
 #endif
 
-  if ( !LbFileExists(fname) )
+#if !defined(_WIN32)
+  int file_exists = (access_rc == 0) || (open_fname != fname);
+#else
+  int file_exists = LbFileExists(fname);
+#endif
+
+  if ( !file_exists )
   {
 #ifdef __DEBUG
     LbSyncLog("LbFileOpen: file doesn't exist\n");
