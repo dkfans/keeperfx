@@ -382,21 +382,29 @@ KFX_LDFLAGS += \
 	-Ldeps/astronomy -lastronomy \
 	-Ldeps/centijson -ljson \
 	-Ldeps/enet6 -lenet6 \
-	$(shell pkg-config --libs-only-l sdl2) \
-	$(shell pkg-config --libs-only-l SDL2_mixer) \
-	$(shell pkg-config --libs-only-l SDL2_net) \
-	$(shell pkg-config --libs-only-l SDL2_image) \
-	$(shell pkg-config --libs-only-l libavformat) \
-	$(shell pkg-config --libs-only-l libavcodec) \
-	$(shell pkg-config --libs-only-l libswresample) \
-	$(shell pkg-config --libs-only-l libavutil) \
-	$(shell pkg-config --libs-only-l openal) \
-	$(shell pkg-config --libs-only-l luajit) \
-	$(shell pkg-config --libs-only-l spng) \
-	$(shell pkg-config --libs-only-l minizip) \
-	$(shell pkg-config --libs-only-l zlib) \
+	$(shell pkg-config --libs sdl2) \
+	$(shell pkg-config --libs SDL2_mixer) \
+	$(shell pkg-config --libs SDL2_net) \
+	$(shell pkg-config --libs SDL2_image) \
+	$(shell pkg-config --libs libavformat) \
+	$(shell pkg-config --libs libavcodec) \
+	$(shell pkg-config --libs libswresample) \
+	$(shell pkg-config --libs libavutil) \
+	$(shell pkg-config --libs openal) \
+	$(shell pkg-config --libs openal-soft) \
+	$(shell pkg-config --libs luajit) \
+	$(shell pkg-config --libs spng) \
+	$(shell pkg-config --libs minizip) \
+	$(shell pkg-config --libs zlib) \
 	-lminiupnpc \
 	-lnatpmp
+
+ifeq ($(PLATFORM),mac)
+KFX_LDFLAGS += \
+	-L/opt/homebrew/opt/openal-soft/lib \
+	-L/usr/local/opt/openal-soft/lib \
+	-lopenal
+endif
 
 TOML_SOURCES = \
 	deps/centitoml/toml_api.c
