@@ -466,10 +466,11 @@ deps/centijson/include/json.h: | deps/centijson
 	cmake -S "$(DEPS_BUILD_DIR)/centijson" -B "$(DEPS_BUILD_DIR)/centijson/build" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release; \
 	cmake --build "$(DEPS_BUILD_DIR)/centijson/build"; \
 	$(MKDIR) deps/centijson/include; \
-	header_path=$$(find "$(DEPS_BUILD_DIR)/centijson" -name json.h | head -n 1); \
+	header_path=$$(find "$(DEPS_BUILD_DIR)/centijson" \( -name value.h -o -name json.h \) | head -n 1); \
+	header_dir=$$(dirname "$$header_path"); \
 	lib_path=$$(find "$(DEPS_BUILD_DIR)/centijson" \( -name libjson.a -o -name libcentijson.a \) | head -n 1); \
 	if [ -z "$$header_path" ] || [ -z "$$lib_path" ]; then echo "centijson build output not found"; exit 1; fi; \
-	cp "$$header_path" deps/centijson/include/; \
+	cp "$$header_dir"/*.h deps/centijson/include/; \
 	cp "$$lib_path" deps/centijson/libjson.a
 
 deps/enet6/include/enet6/enet.h: | deps/enet6

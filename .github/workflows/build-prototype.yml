@@ -110,7 +110,7 @@ jobs:
           ffmpeg \
           openal-soft \
           luajit \
-          spng \
+          libspng \
           minizip \
           zlib \
           miniupnpc \
