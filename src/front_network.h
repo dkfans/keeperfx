@@ -57,6 +57,8 @@ void frontnet_reset_ping_stabilization(void);
 
 void net_load_config_file(void);
 void net_write_config_file(void);
+
+void set_auto_message(const char* msg);
 /******************************************************************************/
 #ifdef __cplusplus
 }

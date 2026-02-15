@@ -31,7 +31,7 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        86
-#define MENU_LIST_ITEMS_COUNT       51
+#define MENU_LIST_ITEMS_COUNT       52
 #define FRONTEND_BUTTON_INFO_COUNT 113
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
@@ -86,6 +86,7 @@ enum FrontendMenuStates {
   FeSt_DRAG,
   FeSt_CAMPAIGN_INTRO,
   FeSt_MAPPACK_SELECT,
+  FeSt_MP_MAPPACK_SELECT,
   // Special testing states
   FeSt_FONT_TEST          = 255,
 };
@@ -362,6 +363,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn);
 void frontend_draw_small_menu_button(struct GuiButton *gbtn);
 void frontend_toggle_computer_players(struct GuiButton *gbtn);
 void frontend_draw_computer_players(struct GuiButton *gbtn);
+void frontend_draw_mp_mappack(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
 void gui_go_to_event(struct GuiButton *gbtn);
@@ -376,6 +378,7 @@ void frontend_ldcampaign_change_state(struct GuiButton *gbtn);
 void frontend_netservice_change_state(struct GuiButton *gbtn);
 void frontend_start_new_game(struct GuiButton *gbtn);
 void frontend_load_mappacks(struct GuiButton *gbtn);
+void frontend_load_mp_mappacks(struct GuiButton *gbtn);
 void frontend_load_continue_game(struct GuiButton *gbtn);
 short frontend_save_continue_game(short allow_lvnum_grow);
 void frontend_continue_game_maintain(struct GuiButton *gbtn);
