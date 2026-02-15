@@ -718,6 +718,17 @@ TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned 
     {
         return false;
     }
+    if (creature_under_spell_effect(thing, CSAfF_SpellBlocks))
+    {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_invalid(cctrl))
+        {
+            if (flag_is_set(cctrl->cleanse_flags, spell_flags))
+            {
+                return true;
+            }
+        }
+    }
     return flag_is_set(crconf->immunity_flags, spell_flags);
 }
 
@@ -1178,6 +1189,14 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // Spell Blocks.
+    if (flag_is_set(spconf->spell_flags, CSAfF_SpellBlocks)
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_SpellBlocks)))
+    {
+        set_flag(cctrl->spell_flags, CSAfF_SpellBlocks);
+        cctrl->cleanse_flags = spconf->cleanse_flags;
+        affected = true;
+    }
     if (!affected)
     {
         SYNCDBG(7, "%s: No spell flags %d to set on %s index %d", func_name, (uint)spconf->spell_flags, thing_model_name(thing), (int)thing->index);
@@ -1359,6 +1378,14 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         // 'CSAfF_Heal' is never set but we still want to mark it cleared to free the spell slot.
         cleared = true;
     }
+    // Spell Blocks.
+    if (flag_is_set(spell_flags, CSAfF_SpellBlocks)
+    && (creature_under_spell_effect(thing, CSAfF_SpellBlocks)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_SpellBlocks);
+        cctrl->cleanse_flags = 0;
+        cleared = true;
+    }
     if (!cleared)
     {
         SYNCDBG(7, "%s: No spell flags %d to clear on %s index %d", func_name, (uint)spell_flags, thing_model_name(thing), (int)thing->index);
@@ -1483,12 +1510,12 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_level);
     // Check for cleansing one-time effect.
-    if (spconf->cleanse_flags > 0
-    && any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags))
+    if ((spconf->cleanse_flags > 0)
+    && (any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags)))
     {
         clean_spell_effect(thing, spconf->cleanse_flags);
-        if (spconf->spell_flags == 0
-        && !spell_is_continuous(spell_idx, duration))
+        if ((spconf->spell_flags == 0)
+        && (!spell_is_continuous(spell_idx, duration)))
         {
             update_aura_effect_to_thing(thing, spell_idx);
             return; // Exit the function, no continuous effect to apply.
@@ -1875,7 +1902,7 @@ void process_thing_spell_effects(struct Thing *thing)
         struct SpellConfig *spconf = get_spell_config(cspell->spkind);
         // Terminate the spell if its duration expires, or if the spell flags are cleared and no other continuous effects are active.
         if ((cspell->duration <= 0)
-            || ((spconf->spell_flags > 0) && !flag_is_set(cctrl->spell_flags, spconf->spell_flags) && !spell_is_continuous(cspell->spkind, cspell->duration)))
+            || ((spconf->spell_flags > 0) && !any_flag_is_set(cctrl->spell_flags, spconf->spell_flags) && !spell_is_continuous(cspell->spkind, cspell->duration)))
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
             continue;
@@ -6343,7 +6370,13 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
     } else
     {
-        if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
+        if (creature_under_spell_effect(thing, CSAfF_Freeze))
+        {
+            if (creature_instance_is_available(thing, CrInst_CLEANSE) && creature_instance_has_reset(thing, CrInst_CLEANSE)) { 
+                cctrl->stopped_for_hand_turns = 0;
+            }
+        }
+        else if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
             if (cctrl->stopped_for_hand_turns > 0)
             {

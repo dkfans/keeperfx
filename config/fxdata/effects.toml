@@ -1514,6 +1514,24 @@ LightFlags = 1
 ElementsCount = 3
 AlwaysGenerate = 0
 
+[effect83]
+Name = "EFFECT_CLEANSE"
+Health = 8
+GenerationType = 1
+GenerationAccelXYRange = [16,16]
+GenerationAccelZRange = [64,256]
+GenerationKindRange = [124,124]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 1
+AlwaysGenerate = 0
+
 # EffectGenerators.
 
 [effectGenerator0]
@@ -5302,3 +5320,31 @@ LightRadius = 1
 LightIntensity = 0
 LightFlags = 0
 AffectedByWind = 1
+
+[effectElement124]
+Name = "EFFECTELEMENT_CLEANSE"
+DrawClass = 2
+MoveType = 2
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = 119
+SpriteSize = [96,150]
+AnimateOnce = 0
+SpriteSpeed = [384,512]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 3
+ThroughWalls = 0
+SizeChange = 0
+FallAcceleration = 0
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 0

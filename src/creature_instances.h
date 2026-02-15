@@ -84,6 +84,9 @@ enum CreatureInstances {
     CrInst_RANGED_SPEED,
     CrInst_RANGED_ARMOUR,
     CrInst_RANGED_REBOUND,
+    CrInst_CRIPPLE,
+    CrInst_CLEANSE,
+    CrInst_RANGED_CLEANSE,
     CrInst_LISTEND,
 };
 
@@ -124,6 +127,8 @@ struct InstanceInfo {
     // Refer to creature_instances_search_targets_func_list
     uint8_t search_func;
     int32_t search_func_params[2];
+    TbBool fp_allow_while_frozen;
+    TbBool fp_allow_when_chicken;
 };
 
 /******************************************************************************/
@@ -179,6 +184,7 @@ TbBool validate_target_benefits_from_wind(struct Thing *source, struct Thing *ta
 TbBool validate_target_benefits_from_healing(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_takes_gas_damage(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1, int32_t param2);
+TbBool validate_target_requires_cleansing(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1, int32_t param2);
 
 TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, uint16_t *found_count, int32_t param1, int32_t param2);
 TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, uint16_t *found_count, int32_t param1, int32_t param2);

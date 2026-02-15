@@ -126,6 +126,7 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_target_benefits_from_wind",                      10},
     {"validate_target_non_idle",                                11},
     {"validate_target_takes_gas_damage",                        12},
+    {"validate_target_requires_cleansing",                      13},
     {NULL, 0},
 };
 
@@ -143,6 +144,7 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_target_benefits_from_wind,
     validate_target_non_idle,
     validate_target_takes_gas_damage,
+    validate_target_requires_cleansing,
     NULL,
 };
 
@@ -512,7 +514,8 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
         // instead of creature_cast_spell_at_thing.
         target = thing_get(cctrl->targtng_idx);
     }
-
+    // Start cooldown after spell effect activates
+    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     if (!thing_is_invalid(target))
     {
         creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->exp_level);
@@ -521,9 +524,6 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
     {
         creature_cast_spell(creatng, spl_idx, cctrl->exp_level, cctrl->targtstl_x, cctrl->targtstl_y);
     }
-
-    // Start cooldown after spell effect activates
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
 }
 
@@ -1146,8 +1146,9 @@ TbBool validate_source_basic
 
     if (!creature_instance_is_available(source, inst_idx) ||
         !creature_instance_has_reset(source, inst_idx) ||
-        creature_under_spell_effect(source, CSAfF_Freeze) ||
-        creature_is_fleeing_combat(source) || creature_under_spell_effect(source, CSAfF_Chicken) ||
+        ((creature_under_spell_effect(source, CSAfF_Freeze)) && (!flag_is_set(param1, CSAfF_Freeze))) ||
+        creature_is_fleeing_combat(source) || 
+        ((creature_under_spell_effect(source, CSAfF_Chicken)) && (!flag_is_set(param1, CSAfF_Chicken))) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
         creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
@@ -1823,6 +1824,39 @@ void script_set_creature_instance(ThingModel crmodel, short slot, int instance, 
 
 
     }
+}
+
+TbBool validate_target_requires_cleansing
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target) ||
+        !creature_requires_cleansing(target, param1))
+    {
+        return false;
+    }
+
+    if (source->index == target->index)
+    {
+        // Special case. The creature is always allowed to cleanse itself.
+        return true;
+    }
+    else
+    {
+        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured(source) || creature_is_kept_in_prison(source) ||
+            creature_under_spell_effect(source, CSAfF_Freeze) || creature_under_spell_effect(source, CSAfF_Chicken)) // not allowed to cleanse others (only itself) even if source param1 is set
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /******************************************************************************/
