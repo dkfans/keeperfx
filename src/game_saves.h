@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define CAMPAIGN_SAVE_SLOTS_COUNT 8
 #define TOTAL_SAVE_SLOTS_COUNT    8
-#define SAVE_TEXTNAME_LEN        15
+#define SAVE_TEXTNAME_LEN        30
 #define PLAYER_NAME_LENGTH       64
 
 enum SaveGameChunks {
