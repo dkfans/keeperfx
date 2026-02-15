@@ -514,7 +514,8 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
         // instead of creature_cast_spell_at_thing.
         target = thing_get(cctrl->targtng_idx);
     }
-
+    // Start cooldown after spell effect activates
+    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     if (!thing_is_invalid(target))
     {
         creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->exp_level);
@@ -523,9 +524,6 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
     {
         creature_cast_spell(creatng, spl_idx, cctrl->exp_level, cctrl->targtstl_x, cctrl->targtstl_y);
     }
-
-    // Start cooldown after spell effect activates
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
 }
 
