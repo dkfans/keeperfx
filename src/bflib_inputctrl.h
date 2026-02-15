@@ -38,11 +38,17 @@ enum MouseGrabEvents {
     MG_OnPossessionLeave = 0x200,
     MG_InPossessionMode  = 0x400,
 };
+
+enum InputDevices {
+    ID_Keyboard_Mouse = 1,
+    ID_Controller = 2,
+};
 /******************************************************************************/
 extern volatile int lbUserQuit;
 extern volatile TbBool lbMouseGrab;
 extern volatile TbBool lbMouseGrabbed;
 extern volatile TbBool lbAppActive;
+extern unsigned char last_used_input_device;
 
 extern float movement_accum_x;
 extern float movement_accum_y;

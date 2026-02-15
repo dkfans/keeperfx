@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_guibtns.h"
 #include "gui_frontmenu.h"
+#include "game_saves.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -250,7 +251,7 @@ extern char room_tag;
 extern char spell_tag;
 extern char trap_tag;
 extern char creature_tag;
-extern char input_string[8][16];
+extern char input_string[8][SAVE_TEXTNAME_LEN + 1];
 extern char gui_error_text[256];
 extern long net_service_scroll_offset;
 extern long net_number_of_services;
