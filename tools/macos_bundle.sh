@@ -45,16 +45,17 @@ install_name_tool -add_rpath "@executable_path/../Frameworks" "${MACOS_DIR}/keep
 declare -a queue
 queue=("${MACOS_DIR}/keeperfx")
 
-declare -A seen
+seen_file=$(mktemp)
+trap 'rm -f "${seen_file}"' EXIT
 
 while [ ${#queue[@]} -gt 0 ]; do
   file="${queue[0]}"
   queue=("${queue[@]:1}")
 
-  if [ -n "${seen[${file}]:-}" ]; then
+  if grep -Fxq "${file}" "${seen_file}"; then
     continue
   fi
-  seen["${file}"]=1
+  echo "${file}" >> "${seen_file}"
 
   deps=$(otool -L "${file}" | tail -n +2 | awk '{print $1}')
   for dep in ${deps}; do
