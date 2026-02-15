@@ -102,6 +102,7 @@ jobs:
         brew update
         brew install \
           cmake \
+          gcc \
           pkg-config \
           sdl2 \
           sdl2_image \
@@ -119,10 +120,11 @@ jobs:
     - name: Build
       run: |
         set -eux
+        GCC_MAJOR=$(brew list --versions gcc | awk '{print $2}' | cut -d. -f1)
         BUILD_NUMBER=$(git rev-list --count origin/master)
         GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
         PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
-        make BUILD_NUMBER=$BUILD_NUMBER VER_SUFFIX=$PACKAGE_SUFFIX PLATFORM=mac ARCH=arm64 -f linux.mk
+        make BUILD_NUMBER=$BUILD_NUMBER VER_SUFFIX=$PACKAGE_SUFFIX PLATFORM=mac ARCH=arm64 CC=gcc-$GCC_MAJOR CXX=g++-$GCC_MAJOR -f linux.mk
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
