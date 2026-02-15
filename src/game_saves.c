@@ -310,6 +310,8 @@ TbBool save_game(long slot_num)
         ERRORLOG("Outranged slot index %d",(int)slot_num);
         return false;
     }
+
+    SYNCMSG("Saving game to slot %d",(int)slot_num);
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (!handle)
