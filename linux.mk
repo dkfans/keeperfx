@@ -530,7 +530,8 @@ deps/enet6/include/enet6/enet.h: | deps/enet6
 	header_path=$$(find "$(DEPS_BUILD_DIR)/enet6" -path "*/enet6/enet.h" | head -n 1); \
 	lib_path=$$(find "$(DEPS_BUILD_DIR)/enet6" \( -name libenet6.a -o -name libenet.a \) | head -n 1); \
 	if [ -z "$$header_path" ] || [ -z "$$lib_path" ]; then echo "enet6 build output not found"; exit 1; fi; \
-	cp "$$header_path" deps/enet6/include/enet6/; \
+	header_dir=$$(dirname "$$header_path"); \
+	cp "$$header_dir"/*.h deps/enet6/include/enet6/; \
 	cp "$$lib_path" deps/enet6/libenet6.a
 
 src/ver_defs.h: version.mk
