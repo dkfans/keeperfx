@@ -360,6 +360,7 @@ KFX_INCLUDES = \
 	$(shell pkg-config --cflags-only-I libswresample) \
 	$(shell pkg-config --cflags-only-I libavutil) \
 	$(shell pkg-config --cflags-only-I openal) \
+	$(shell pkg-config --cflags-only-I openal-soft) \
 	$(shell pkg-config --cflags-only-I spng) \
 	$(shell pkg-config --cflags-only-I minizip) \
 	$(shell pkg-config --cflags-only-I zlib) \
