@@ -21,7 +21,6 @@
 
 #include <stdarg.h>
 #include <inttypes.h>
-#include <strings.h>
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
@@ -45,9 +44,6 @@
 #include "vidmode.h"
 #include "post_inc.h"
 
-#ifndef strnicmp
-#define strnicmp strncasecmp
-#endif
 
 #ifdef __cplusplus
 extern "C" {
