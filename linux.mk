@@ -72,6 +72,11 @@ else
 	$(error Unsupported PLATFORM: $(PLATFORM))
 endif
 
+WARN_NO_FORMAT_TRUNCATION :=
+ifeq ($(PLATFORM),linux)
+WARN_NO_FORMAT_TRUNCATION := -Wno-format-truncation
+endif
+
 KFX_SOURCES = \
 src/actionpt.c \
 src/api.c \
@@ -346,8 +351,8 @@ KFX_INCLUDES = \
 	-Ideps/enet6/include \
 	$(shell pkg-config --cflags-only-I luajit)
 
-KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare -fsigned-char
-KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare -fsigned-char
+KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
+KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
 
 KFX_LDFLAGS += \
 	-g \
@@ -441,10 +446,11 @@ deps/astronomy/include/astronomy.h: | deps/astronomy
 		cmake -S "$(DEPS_BUILD_DIR)/astronomy" -B "$(DEPS_BUILD_DIR)/astronomy/build" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release; \
 		cmake --build "$(DEPS_BUILD_DIR)/astronomy/build"; \
 	else \
-		astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/src/astronomy.c" | head -n 1); \
-		if [ -z "$$astro_src" ]; then astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -name astronomy.c | head -n 1); fi; \
+		astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/source/astronomy.c" | head -n 1); \
+		if [ -z "$$astro_src" ]; then astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/src/astronomy.c" | head -n 1); fi; \
 		if [ -z "$$astro_src" ]; then echo "astronomy.c not found"; exit 1; fi; \
-		astro_inc=$$(find "$(DEPS_BUILD_DIR)/astronomy" -name astronomy.h -exec dirname {} \; | head -n 1); \
+		astro_inc=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/source/astronomy.h" -exec dirname {} \; | head -n 1); \
+		if [ -z "$$astro_inc" ]; then astro_inc=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/src/astronomy.h" -exec dirname {} \; | head -n 1); fi; \
 		if [ -z "$$astro_inc" ]; then echo "astronomy.h not found"; exit 1; fi; \
 		$(MKDIR) "$(DEPS_BUILD_DIR)/astronomy/build"; \
 		$(CC) -O3 -I"$$astro_inc" -c "$$astro_src" -o "$(DEPS_BUILD_DIR)/astronomy/build/astronomy.o"; \
