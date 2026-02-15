@@ -441,10 +441,13 @@ deps/astronomy/include/astronomy.h: | deps/astronomy
 		cmake -S "$(DEPS_BUILD_DIR)/astronomy" -B "$(DEPS_BUILD_DIR)/astronomy/build" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release; \
 		cmake --build "$(DEPS_BUILD_DIR)/astronomy/build"; \
 	else \
-		astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -name astronomy.c | head -n 1); \
+		astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/src/astronomy.c" | head -n 1); \
+		if [ -z "$$astro_src" ]; then astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -name astronomy.c | head -n 1); fi; \
 		if [ -z "$$astro_src" ]; then echo "astronomy.c not found"; exit 1; fi; \
+		astro_inc=$$(find "$(DEPS_BUILD_DIR)/astronomy" -name astronomy.h -exec dirname {} \; | head -n 1); \
+		if [ -z "$$astro_inc" ]; then echo "astronomy.h not found"; exit 1; fi; \
 		$(MKDIR) "$(DEPS_BUILD_DIR)/astronomy/build"; \
-		$(CC) -O3 -c "$$astro_src" -o "$(DEPS_BUILD_DIR)/astronomy/build/astronomy.o"; \
+		$(CC) -O3 -I"$$astro_inc" -c "$$astro_src" -o "$(DEPS_BUILD_DIR)/astronomy/build/astronomy.o"; \
 		ar rcs "$(DEPS_BUILD_DIR)/astronomy/build/libastronomy.a" "$(DEPS_BUILD_DIR)/astronomy/build/astronomy.o"; \
 	fi; \
 	$(MKDIR) deps/astronomy/include; \
@@ -472,7 +475,7 @@ deps/centijson/include/json.h: | deps/centijson
 	git clone --depth "$(DEPS_CLONE_DEPTH)" "$(DEPS_CENTIJSON_REPO)" "$(DEPS_BUILD_DIR)/centijson"; \
 	if [ -n "$(DEPS_CENTIJSON_REF)" ]; then git -C "$(DEPS_BUILD_DIR)/centijson" checkout "$(DEPS_CENTIJSON_REF)"; fi; \
 	if [ "$(PLATFORM)" = "mac" ]; then \
-		perl -pi -e 's@#include <malloc.h>@#include <stdlib.h>@' "$$(find "$(DEPS_BUILD_DIR)/centijson" -name json.c | head -n 1)"; \
+		find "$(DEPS_BUILD_DIR)/centijson" -name "*.c" -print0 | xargs -0 perl -pi -e 's@#include <malloc.h>@#include <stdlib.h>@'; \
 	fi; \
 	cmake -S "$(DEPS_BUILD_DIR)/centijson" -B "$(DEPS_BUILD_DIR)/centijson/build" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release; \
 	cmake --build "$(DEPS_BUILD_DIR)/centijson/build"; \
