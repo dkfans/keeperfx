@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-prototype:
-    name: "Build Prototype"
+    name: "Build Prototype Windows x86"
     runs-on: ubuntu-24.04
 
     steps:
@@ -39,3 +39,93 @@ jobs:
       with:
         name: ${{ env.ZIP_NAME }}
         path: pkg/**
+
+  build-prototype-linux:
+    name: "Build Prototype Linux x86_64"
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Update system
+      run: |
+        set -eux
+        sudo apt update
+        sudo apt install -y \
+          build-essential \
+          pkg-config \
+          curl \
+          libavcodec-dev \
+          libavformat-dev \
+          libavutil-dev \
+          libopenal-dev \
+          libluajit-5.1-dev \
+          libminizip-dev \
+          libnatpmp-dev \
+          libspng-dev \
+          libsdl2-dev \
+          libsdl2-image-dev \
+          libsdl2-mixer-dev \
+          libsdl2-net-dev \
+          libswresample-dev \
+          libminiupnpc-dev \
+          zlib1g-dev
+
+    - name: Build
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count origin/master)
+        GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+        PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
+        make BUILD_NUMBER=$BUILD_NUMBER VER_SUFFIX=$PACKAGE_SUFFIX -f linux.mk
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: keeperfx-linux
+        path: bin/keeperfx
+
+  build-prototype-macos:
+    name: "Build Prototype macOS arm64"
+    runs-on: macos-14
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Update system
+      run: |
+        set -eux
+        brew update
+        brew install \
+          cmake \
+          pkg-config \
+          sdl2 \
+          sdl2_image \
+          sdl2_mixer \
+          sdl2_net \
+          ffmpeg \
+          openal-soft \
+          luajit \
+          spng \
+          minizip \
+          zlib \
+          miniupnpc \
+          libnatpmp
+
+    - name: Build
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count origin/master)
+        GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+        PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
+        make BUILD_NUMBER=$BUILD_NUMBER VER_SUFFIX=$PACKAGE_SUFFIX PLATFORM=mac ARCH=arm64 -f linux.mk
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: keeperfx-macos
+        path: bin/keeperfx

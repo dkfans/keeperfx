@@ -9,6 +9,69 @@ STRIP ?= strip
 ECHO ?= echo
 MV ?= mv -f
 
+PLATFORM ?= $(shell uname -s)
+ARCH ?= $(shell uname -m)
+
+ifeq ($(PLATFORM),Linux)
+PLATFORM := linux
+endif
+ifeq ($(PLATFORM),Darwin)
+PLATFORM := mac
+endif
+ifeq ($(PLATFORM),macos)
+PLATFORM := mac
+endif
+
+ifeq ($(ARCH),amd64)
+ARCH := x86_64
+endif
+ifeq ($(ARCH),aarch64)
+ARCH := arm64
+endif
+
+DEPS_ASTRONOMY_TAG ?= 20250418
+DEPS_CENTIJSON_TAG ?= 20250418
+DEPS_ENET6_TAG ?= 20260213
+DEPS_ASTRONOMY_REPO ?= https://github.com/cosinekitty/astronomy.git
+DEPS_CENTIJSON_REPO ?= https://github.com/mity/centijson.git
+DEPS_ENET6_REPO ?= https://github.com/SirLynix/enet6.git
+DEPS_ASTRONOMY_REF ?=
+DEPS_CENTIJSON_REF ?=
+DEPS_ENET6_REF ?=
+DEPS_CLONE_DEPTH ?= 1
+DEPS_BUILD_DIR ?= deps/_build
+DEPS_SUFFIX ?=
+DEPS_DOWNLOAD ?= 1
+
+ifeq ($(PLATFORM),linux)
+DEPS_SUFFIX ?= lin64
+endif
+ifeq ($(PLATFORM),mac)
+DEPS_DOWNLOAD ?= 0
+endif
+
+ifeq ($(PLATFORM),linux)
+	ifeq ($(ARCH),x86_64)
+		ARCH_CFLAGS := -march=x86-64
+	else ifeq ($(ARCH),arm64)
+		ARCH_CFLAGS := -march=armv8-a
+	else
+		$(error Unsupported ARCH for linux: $(ARCH))
+	endif
+	ARCH_LDFLAGS :=
+else ifeq ($(PLATFORM),mac)
+	ifeq ($(ARCH),x86_64)
+		ARCH_CFLAGS := -arch x86_64
+	else ifeq ($(ARCH),arm64)
+		ARCH_CFLAGS := -arch arm64
+	else
+		$(error Unsupported ARCH for mac: $(ARCH))
+	endif
+	ARCH_LDFLAGS := $(ARCH_CFLAGS)
+else
+	$(error Unsupported PLATFORM: $(PLATFORM))
+endif
+
 KFX_SOURCES = \
 src/actionpt.c \
 src/api.c \
@@ -283,12 +346,13 @@ KFX_INCLUDES = \
 	-Ideps/enet6/include \
 	$(shell pkg-config --cflags-only-I luajit)
 
-KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
-KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
+KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare -fsigned-char
+KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare -fsigned-char
 
 KFX_LDFLAGS += \
 	-g \
 	-Wall -Wextra -Werror \
+	$(ARCH_LDFLAGS) \
 	-Ldeps/astronomy -lastronomy \
 	-Ldeps/centijson -ljson \
 	-Ldeps/enet6 -lenet6 \
@@ -316,7 +380,7 @@ TOML_OBJECTS = $(patsubst deps/centitoml/%.c,obj/centitoml/%.o,$(TOML_SOURCES))
 TOML_INCLUDES = \
 	-Ideps/centijson/include
 
-TOML_CFLAGS += -O3 -march=x86-64 $(TOML_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter
+TOML_CFLAGS += -O3 $(ARCH_CFLAGS) $(TOML_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter
 
 ifeq ($(ENABLE_LTO), 1)
 KFX_CFLAGS += -flto
@@ -356,23 +420,83 @@ src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 
-deps/astronomy-lin64.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20250418/astronomy-lin64.tar.gz"
+deps/astronomy/include/astronomy.h: | deps/astronomy
+	@set -eux; \
+	if [ -f "$@" ]; then exit 0; fi; \
+	if [ "$(DEPS_DOWNLOAD)" = "1" ] && [ -n "$(DEPS_SUFFIX)" ]; then \
+		if [ ! -f "deps/astronomy-$(DEPS_SUFFIX).tar.gz" ]; then \
+			curl -Lfso "deps/astronomy-$(DEPS_SUFFIX).tar.gz" \
+				"https://github.com/dkfans/kfx-deps/releases/download/$(DEPS_ASTRONOMY_TAG)/astronomy-$(DEPS_SUFFIX).tar.gz"; \
+		fi; \
+		if [ -f "deps/astronomy-$(DEPS_SUFFIX).tar.gz" ]; then \
+			tar xzmf "deps/astronomy-$(DEPS_SUFFIX).tar.gz" -C deps/astronomy; \
+			exit 0; \
+		fi; \
+	fi; \
+	rm -rf "$(DEPS_BUILD_DIR)/astronomy"; \
+	$(MKDIR) "$(DEPS_BUILD_DIR)"; \
+	git clone --depth "$(DEPS_CLONE_DEPTH)" "$(DEPS_ASTRONOMY_REPO)" "$(DEPS_BUILD_DIR)/astronomy"; \
+	if [ -n "$(DEPS_ASTRONOMY_REF)" ]; then git -C "$(DEPS_BUILD_DIR)/astronomy" checkout "$(DEPS_ASTRONOMY_REF)"; fi; \
+	cmake -S "$(DEPS_BUILD_DIR)/astronomy" -B "$(DEPS_BUILD_DIR)/astronomy/build" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release; \
+	cmake --build "$(DEPS_BUILD_DIR)/astronomy/build"; \
+	$(MKDIR) deps/astronomy/include; \
+	header_path=$$(find "$(DEPS_BUILD_DIR)/astronomy" -name astronomy.h | head -n 1); \
+	lib_path=$$(find "$(DEPS_BUILD_DIR)/astronomy" -name libastronomy.a | head -n 1); \
+	if [ -z "$$header_path" ] || [ -z "$$lib_path" ]; then echo "astronomy build output not found"; exit 1; fi; \
+	cp "$$header_path" deps/astronomy/include/; \
+	cp "$$lib_path" deps/astronomy/libastronomy.a
 
-deps/astronomy/include/astronomy.h: deps/astronomy-lin64.tar.gz | deps/astronomy
-	tar xzmf $< -C deps/astronomy
+deps/centijson/include/json.h: | deps/centijson
+	@set -eux; \
+	if [ -f "$@" ]; then exit 0; fi; \
+	if [ "$(DEPS_DOWNLOAD)" = "1" ] && [ -n "$(DEPS_SUFFIX)" ]; then \
+		if [ ! -f "deps/centijson-$(DEPS_SUFFIX).tar.gz" ]; then \
+			curl -Lfso "deps/centijson-$(DEPS_SUFFIX).tar.gz" \
+				"https://github.com/dkfans/kfx-deps/releases/download/$(DEPS_CENTIJSON_TAG)/centijson-$(DEPS_SUFFIX).tar.gz"; \
+		fi; \
+		if [ -f "deps/centijson-$(DEPS_SUFFIX).tar.gz" ]; then \
+			tar xzmf "deps/centijson-$(DEPS_SUFFIX).tar.gz" -C deps/centijson; \
+			exit 0; \
+		fi; \
+	fi; \
+	rm -rf "$(DEPS_BUILD_DIR)/centijson"; \
+	$(MKDIR) "$(DEPS_BUILD_DIR)"; \
+	git clone --depth "$(DEPS_CLONE_DEPTH)" "$(DEPS_CENTIJSON_REPO)" "$(DEPS_BUILD_DIR)/centijson"; \
+	if [ -n "$(DEPS_CENTIJSON_REF)" ]; then git -C "$(DEPS_BUILD_DIR)/centijson" checkout "$(DEPS_CENTIJSON_REF)"; fi; \
+	cmake -S "$(DEPS_BUILD_DIR)/centijson" -B "$(DEPS_BUILD_DIR)/centijson/build" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release; \
+	cmake --build "$(DEPS_BUILD_DIR)/centijson/build"; \
+	$(MKDIR) deps/centijson/include; \
+	header_path=$$(find "$(DEPS_BUILD_DIR)/centijson" -name json.h | head -n 1); \
+	lib_path=$$(find "$(DEPS_BUILD_DIR)/centijson" \( -name libjson.a -o -name libcentijson.a \) | head -n 1); \
+	if [ -z "$$header_path" ] || [ -z "$$lib_path" ]; then echo "centijson build output not found"; exit 1; fi; \
+	cp "$$header_path" deps/centijson/include/; \
+	cp "$$lib_path" deps/centijson/libjson.a
 
-deps/centijson-lin64.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20250418/centijson-lin64.tar.gz"
-
-deps/centijson/include/json.h: deps/centijson-lin64.tar.gz | deps/centijson
-	tar xzmf $< -C deps/centijson
-
-deps/enet6-lin64.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260213/enet6-lin64.tar.gz"
-
-deps/enet6/include/enet6/enet.h: deps/enet6-lin64.tar.gz | deps/enet6
-	tar xzmf $< -C deps/enet6
+deps/enet6/include/enet6/enet.h: | deps/enet6
+	@set -eux; \
+	if [ -f "$@" ]; then exit 0; fi; \
+	if [ "$(DEPS_DOWNLOAD)" = "1" ] && [ -n "$(DEPS_SUFFIX)" ]; then \
+		if [ ! -f "deps/enet6-$(DEPS_SUFFIX).tar.gz" ]; then \
+			curl -Lfso "deps/enet6-$(DEPS_SUFFIX).tar.gz" \
+				"https://github.com/dkfans/kfx-deps/releases/download/$(DEPS_ENET6_TAG)/enet6-$(DEPS_SUFFIX).tar.gz"; \
+		fi; \
+		if [ -f "deps/enet6-$(DEPS_SUFFIX).tar.gz" ]; then \
+			tar xzmf "deps/enet6-$(DEPS_SUFFIX).tar.gz" -C deps/enet6; \
+			exit 0; \
+		fi; \
+	fi; \
+	rm -rf "$(DEPS_BUILD_DIR)/enet6"; \
+	$(MKDIR) "$(DEPS_BUILD_DIR)"; \
+	git clone --depth "$(DEPS_CLONE_DEPTH)" "$(DEPS_ENET6_REPO)" "$(DEPS_BUILD_DIR)/enet6"; \
+	if [ -n "$(DEPS_ENET6_REF)" ]; then git -C "$(DEPS_BUILD_DIR)/enet6" checkout "$(DEPS_ENET6_REF)"; fi; \
+	cmake -S "$(DEPS_BUILD_DIR)/enet6" -B "$(DEPS_BUILD_DIR)/enet6/build" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release; \
+	cmake --build "$(DEPS_BUILD_DIR)/enet6/build"; \
+	$(MKDIR) deps/enet6/include/enet6; \
+	header_path=$$(find "$(DEPS_BUILD_DIR)/enet6" -path "*/enet6/enet.h" | head -n 1); \
+	lib_path=$$(find "$(DEPS_BUILD_DIR)/enet6" \( -name libenet6.a -o -name libenet.a \) | head -n 1); \
+	if [ -z "$$header_path" ] || [ -z "$$lib_path" ]; then echo "enet6 build output not found"; exit 1; fi; \
+	cp "$$header_path" deps/enet6/include/enet6/; \
+	cp "$$lib_path" deps/enet6/libenet6.a
 
 src/ver_defs.h: version.mk
 	$(ECHO) "#define VER_MAJOR   $(VER_MAJOR)" > $@.swp
