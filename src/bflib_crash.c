@@ -50,7 +50,7 @@ static const char* sigstr(int s)
     case SIGFPE : return "Floating-point exception (ANSI)";
     case SIGSEGV : return "Segmentation violation (ANSI)";
     case SIGTERM : return "Termination (ANSI)";
-#if !defined(_WIN32)
+#ifndef _WIN32
     case SIGHUP : return "Hangup (POSIX)";
     case SIGQUIT : return "Quit (POSIX)";
     case SIGTRAP : return "Trace trap (POSIX)";
@@ -74,8 +74,12 @@ static const char* sigstr(int s)
     case SIGWINCH : return "Window size change (4.3 BSD, Sun)";
     case SIGIO : return "I/O now possible (4.2 BSD)";
     case SIGSYS : return "Bad system call";
+#ifdef SIGSTKFLT
     case SIGSTKFLT : return "Stack fault";
+#endif
+#ifdef SIGPWR
     case SIGPWR : return "Power failure restart (System V)";
+#endif
 #else
     case SIGBREAK : return "Ctrl-Break (Win32)";
 #endif
