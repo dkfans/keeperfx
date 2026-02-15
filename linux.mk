@@ -77,6 +77,8 @@ ifeq ($(PLATFORM),linux)
 WARN_NO_FORMAT_TRUNCATION := -Wno-format-truncation
 endif
 
+CXX_STD ?= -std=c++11
+
 KFX_SOURCES = \
 src/actionpt.c \
 src/api.c \
@@ -364,7 +366,7 @@ KFX_INCLUDES = \
 	$(shell pkg-config --cflags-only-I luajit)
 
 KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
-KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Wno-unused-parameter -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
+KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(CXX_STD) $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Wno-unused-parameter -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
 
 KFX_LDFLAGS += \
 	-g \
