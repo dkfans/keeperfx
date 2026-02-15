@@ -28,8 +28,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#pragma pack(1)
-
 typedef long (*StatGetValueCallback)(void *ptr);
 
 struct StatsData { // sizeof = 12
@@ -38,7 +36,6 @@ struct StatsData { // sizeof = 12
   void *get_arg;
 };
 
-#pragma pack()
 /******************************************************************************/
 void frontstats_draw_main_stats(struct GuiButton *gbtn);
 void frontstats_draw_scrolling_stats(struct GuiButton *gbtn);

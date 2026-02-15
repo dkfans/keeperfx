@@ -115,9 +115,6 @@ enum TbConfigLoadFlags {
     CnfLd_IgnoreErrors  =  0x04, /**< Do not log error message on failures (still, return with error). */
 };
 
-#pragma pack(1)
-
-
 /******************************************************************************/
 
 enum confCommandResults
@@ -235,8 +232,6 @@ struct ConfigFileData{
 
 /******************************************************************************/
 extern char keeper_runtime_directory[152];
-
-#pragma pack()
 /******************************************************************************/
 extern unsigned long text_line_number;
 /******************************************************************************/
