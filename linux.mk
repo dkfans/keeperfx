@@ -366,6 +366,12 @@ KFX_INCLUDES = \
 	$(shell pkg-config --cflags-only-I zlib) \
 	$(shell pkg-config --cflags-only-I luajit)
 
+ifeq ($(PLATFORM),mac)
+KFX_INCLUDES += \
+	-I/opt/homebrew/opt/openal-soft/include \
+	-I/usr/local/opt/openal-soft/include
+endif
+
 KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
 KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(CXX_STD) $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Wno-unused-parameter -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
 
