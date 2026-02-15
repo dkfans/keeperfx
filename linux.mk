@@ -77,7 +77,7 @@ ifeq ($(PLATFORM),linux)
 WARN_NO_FORMAT_TRUNCATION := -Wno-format-truncation
 endif
 
-CXX_STD ?= -std=c++11
+CXX_STD ?= -std=c++17
 
 KFX_SOURCES = \
 src/actionpt.c \
