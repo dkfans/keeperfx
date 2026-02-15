@@ -189,10 +189,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
 void clear_creature_instance(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((thing->alloc_flags & TAlF_IsControlled) == 0)
-    {
-        cctrl->instance_id = CrInst_NULL;
-    }
+    cctrl->instance_id = CrInst_NULL;
     cctrl->inst_turn = 0;
 }
 
