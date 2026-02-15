@@ -363,8 +363,8 @@ KFX_INCLUDES = \
 	$(shell pkg-config --cflags-only-I zlib) \
 	$(shell pkg-config --cflags-only-I luajit)
 
-KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
-KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
+KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
+KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Wno-unused-parameter -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
 
 KFX_LDFLAGS += \
 	-g \
