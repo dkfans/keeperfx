@@ -349,6 +349,18 @@ KFX_INCLUDES = \
 	-Ideps/centitoml \
 	-Ideps/astronomy/include \
 	-Ideps/enet6/include \
+	$(shell pkg-config --cflags-only-I sdl2) \
+	$(shell pkg-config --cflags-only-I SDL2_image) \
+	$(shell pkg-config --cflags-only-I SDL2_mixer) \
+	$(shell pkg-config --cflags-only-I SDL2_net) \
+	$(shell pkg-config --cflags-only-I libavformat) \
+	$(shell pkg-config --cflags-only-I libavcodec) \
+	$(shell pkg-config --cflags-only-I libswresample) \
+	$(shell pkg-config --cflags-only-I libavutil) \
+	$(shell pkg-config --cflags-only-I openal) \
+	$(shell pkg-config --cflags-only-I spng) \
+	$(shell pkg-config --cflags-only-I minizip) \
+	$(shell pkg-config --cflags-only-I zlib) \
 	$(shell pkg-config --cflags-only-I luajit)
 
 KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(ARCH_CFLAGS) $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas $(WARN_NO_FORMAT_TRUNCATION) -Wno-sign-compare -fsigned-char
@@ -446,10 +458,12 @@ deps/astronomy/include/astronomy.h: | deps/astronomy
 		cmake -S "$(DEPS_BUILD_DIR)/astronomy" -B "$(DEPS_BUILD_DIR)/astronomy/build" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release; \
 		cmake --build "$(DEPS_BUILD_DIR)/astronomy/build"; \
 	else \
-		astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/source/astronomy.c" | head -n 1); \
+		astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/source/c/astronomy.c" | head -n 1); \
+		if [ -z "$$astro_src" ]; then astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/source/astronomy.c" | head -n 1); fi; \
 		if [ -z "$$astro_src" ]; then astro_src=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/src/astronomy.c" | head -n 1); fi; \
 		if [ -z "$$astro_src" ]; then echo "astronomy.c not found"; exit 1; fi; \
-		astro_inc=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/source/astronomy.h" -exec dirname {} \; | head -n 1); \
+		astro_inc=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/source/c/astronomy.h" -exec dirname {} \; | head -n 1); \
+		if [ -z "$$astro_inc" ]; then astro_inc=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/source/astronomy.h" -exec dirname {} \; | head -n 1); fi; \
 		if [ -z "$$astro_inc" ]; then astro_inc=$$(find "$(DEPS_BUILD_DIR)/astronomy" -path "*/src/astronomy.h" -exec dirname {} \; | head -n 1); fi; \
 		if [ -z "$$astro_inc" ]; then echo "astronomy.h not found"; exit 1; fi; \
 		$(MKDIR) "$(DEPS_BUILD_DIR)/astronomy/build"; \
