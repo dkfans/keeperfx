@@ -1614,9 +1614,7 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
         ERRORLOG("invalid triangle received");
         return false;
     }
-    long n;
     long nskipped;
-    n = 0;
     nskipped = 0;
     long i;
     long k;
@@ -1644,7 +1642,6 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
                 }
             }
         }
-        n++;
     }
     if (nskipped != 0) {
         NAVIDBG(6,"navigate heap full, %ld points ignored",nskipped);
