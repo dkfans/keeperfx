@@ -126,8 +126,14 @@ jobs:
         PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
         make BUILD_NUMBER=$BUILD_NUMBER VER_SUFFIX=$PACKAGE_SUFFIX PLATFORM=mac ARCH=arm64 CC=gcc-$GCC_MAJOR CXX=g++-$GCC_MAJOR -f linux.mk
 
+    - name: Bundle app
+      run: |
+        set -eux
+        chmod +x tools/macos_bundle.sh
+        APP_NAME=KeeperFX.app OUTPUT_DIR=dist BIN_PATH=bin/keeperfx tools/macos_bundle.sh
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: keeperfx-macos
-        path: bin/keeperfx
+        name: keeperfx-macos-app
+        path: dist/keeperfx.app
