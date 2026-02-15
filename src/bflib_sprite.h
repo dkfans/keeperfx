@@ -27,8 +27,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#pragma pack(1)
-
 /**
  * Type which contains buffer of a sprite, with RLE-encoded alpha channel.
  */
@@ -65,7 +63,6 @@ struct TiledSprite {
     unsigned char y_num;
     unsigned short spr_idx[10][10];
 };
-#pragma pack()
 
 struct TbSpriteSheet * create_spritesheet(void);
 struct TbSpriteSheet * load_spritesheet(const char * data_fname, const char * index_fname);
