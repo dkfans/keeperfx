@@ -1,0 +1,400 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file levels/lostlvls/text_rus.po
+#      KeeperFX GUI Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Lost levels for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: KeeperFX Team\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext: 1
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext:2 guitext:3 guitext:4 guitext:5 guitext:6 guitext:7
+#: guitext:8 guitext:9 guitext:10 guitext:11 guitext:12 guitext:13
+#: guitext:14 guitext:15 guitext:16 guitext:17 guitext:18 guitext:19
+#: guitext:20 guitext:21 guitext:22 guitext:23 guitext:24 guitext:25
+#: guitext:26 guitext:27 guitext:28 guitext:29 guitext:30 guitext:31
+#: guitext:32 guitext:33 guitext:34 guitext:35 guitext:36 guitext:37
+#: guitext:38 guitext:39 guitext:40 guitext:41 guitext:42 guitext:43
+#: guitext:44 guitext:45 guitext:46 guitext:47 guitext:48 guitext:49
+#: guitext:50 guitext:51 guitext:52 guitext:53 guitext:54 guitext:55
+#: guitext:56 guitext:57 guitext:58 guitext:59 guitext:60 guitext:61
+#: guitext:62
+msgctxt "In-game message"
+msgid "Moo"
+msgstr "Му"
+
+#: guitext:63
+msgctxt "In-game message"
+msgid "Money sits at the root of all Evil, and so it is appropriate that you start your Empire by building a Treasure Room. Select the Treasure Room Icon with the Left Mouse Button (LMB) and build a 3X3 Treasure Room in an empty space in your Dungeon."
+msgstr "Деньги - источник зла, так что начните строительство Вашей империи с постройки сокровищницы. Выберите сокровищницу, щелкнув левой кнопкой мыши (ЛКМ) по иконке сокровищницы, и постройте комнату площадью 3x3 в незастроенной части Вашего подземелья."
+
+#: guitext:64
+msgctxt "In-game message"
+msgid "You may see a map of the entire realm by pressing 'M' or clicking on the scroll at the top-left of your panel."
+msgstr "Вы можете посмотреть карту королевства нажатием кнопки <M> или щелчком по свитку в левой верхней части панели."
+
+#: guitext:65
+msgctxt "In-game message"
+msgid "A Treasure Room is used to store any gold mined by your imps."
+msgstr "В сокровищнице хранится золото, добытое Вашими бесами."
+
+#: guitext:66
+msgctxt "In-game message"
+msgid "Your gold reserves are running low. Tag the gold seam to the South. Your imps will mine it out and replenish your coffers."
+msgstr "В Вашей казне заканчивается золото. Выделите золотую жилу на юге. Ваши бесы будут добывать из неё руду и пополнят Ваши сундуки."
+
+#: guitext:67
+msgctxt "In-game message"
+msgid "Click with the right mouse button to stop building rooms. Now tunnel to the Portal in the East by tagging the rock with your left mouse button. Your Imps will then claim it for you."
+msgstr "Нажмите правую кнопку мыши, чтобы выйти из режима строительства. Теперь прокопайте туннель к порталу на востоке, выделив землю под него левой кнопкой мыши. Ваши бесы впоследствии присоединят портал к Вашим владениям."
+
+#: guitext:68
+msgctxt "In-game message"
+msgid "Using the right mouse button (RMB), you may slap your creatures, thus making them work more quickly. Be careful not to beat them too frequently! This will make them angry, or at worst you will beat them to death!"
+msgstr "Правой кнопкой мыши (ПКМ) Вы можете влепить пощечину своим созданиям, тем самым заставляя их работать быстрее. Не стоит бить их слишком часто - это делает их несчастными. А еще Вы можете просто забить их до смерти."
+
+#: guitext:69
+msgctxt "In-game message"
+msgid "Clicking with the LMB whilst over a minion will pick that creature up. Any eight of the creatures you own can be carried in your hand like this. Use this method to place Imps next to the tasks that you wish them to carry out. Drop them on your own, or Neutral territory with the RMB."
+msgstr "Щелчок ЛКМ, когда Рука зла находится над созданием, позволяет схватить создание. Рукой можно одновременно переносить не более восьми созданий. Таким образом Вы можете переносить бесов туда, где Вы желаете, чтобы они выполняли работу. Чтобы сбросить их на Вашей или нейтральной территории, нажимайте ПКМ."
+
+#: guitext:70
+msgctxt "In-game message"
+msgid "Now you have claimed a portal creatures will enter your dungeon seeking employment. You must build a 3X3 Lair to house your creatures. Larger Lairs hold more creatures."
+msgstr "Теперь, когда Вы захватили портал, создания будут приходить в Ваше подземелье, ища нового хозяина. Нужно построить логово площадью 3x3, чтобы им было где жить. Чем больше логово, тем больше созданий оно может вместить."
+
+#: guitext:71
+msgctxt "In-game message"
+msgid "Now you have built a small lair, await the arrival of your first minion."
+msgstr "Теперь, когда Вы построили небольшое логово, ждите появления в подземелье первого прислужника."
+
+#: guitext:72
+msgctxt "In-game message"
+msgid "Rooms become more efficient as they increase in size. Build neat, rectangular rooms to ensure maximum efficiency."
+msgstr "Чем больше помещение, тем оно эффективнее. Стройте геометрически правильные прямоугольные помещения, чтобы они были максимально эффективны."
+
+#: guitext:73
+msgctxt "In-game message"
+msgid "A humble Fly has become the first of your troops. More powerful creatures require a source of sustenance. Build a 3X3 Hatchery to feed your creatures."
+msgstr "Неказистая муха стала первым бойцом в Вашем войске. Более сильным существам нужен источник пищи. Постройте питомник площадью 3x3, чтобы Вашим созданиям было чем питаться."
+
+#: guitext:74
+msgctxt "In-game message"
+msgid "A Beetle has settled in your Lair. To make your dungeon more appealing to the creatures of this world you can build bigger rooms."
+msgstr "В Вашем логове поселился жук. Чтобы сделать подземелье более привлекательным для созданий, обитающих в этом мире, Вы должны строить более просторные помещения."
+
+#: guitext:75
+msgctxt "In-game message"
+msgid "While you are waiting for your ranks to grow, try possessing a creature. Select the icon from the spell menu and choose your creature, right clicking to release it from its bond."
+msgstr "Пока Вы ждете улучшения навыков созданий, попробуйте вселиться в создание. Щелкните по иконке заклинания на панели заклинаний и выберите Свое создание. Нажмите правую кнопку мыши, чтобы вернуть ему свободу воли."
+
+#: guitext:76
+msgctxt "In-game message"
+msgid "Left Click on a creature in the creature panel to place it in your Hand of Evil. Clicking on the creature icon itself will select the most experienced specimen of the breed."
+msgstr "Щелкните левой кнопкой мыши по иконке создания на панели созданий, чтобы схватить их Рукой зла. Щелчок по иконке создания позволяет выбрать самых опытных созданий конкретного вида."
+
+#: guitext:77
+msgctxt "In-game message"
+msgid "Now dig out a 3X3 area and, once your imps have claimed the floor, build a Training Room in the space you have excavated."
+msgstr "Теперь прокопайте комнату площадью 3x3, и когда бесы присоединят выкопанное пространство к Вашим владениям, постройте в ней тренировочный зал."
+
+#: guitext:78
+msgctxt "In-game message"
+msgid "Creatures in the training room will improve their fighting prowess."
+msgstr "В тренировочном зале создания будут развивать свои боевые навыки."
+
+#: guitext:79
+msgctxt "In-game message"
+msgid "Now that you have built the training room, you can tell your creatures to train by picking them up with the LMB and dropping them in it."
+msgstr "Теперь, когда у вас есть тренировочный зал, Вы можете отправить созданий на тренировку, собирая их ЛКМ и бросая в это помещение."
+
+#: guitext:80 guitext:91
+msgctxt "In-game message"
+msgid "You may create more imps by choosing the Create Imp spell in the spell panel and then clicking with the left mouse button on a section of your dungeon floor."
+msgstr "Вы можете материализовать новых бесов, щелкнув по иконке заклинания "Призвать беса" на панели заклинаний и затем ЛКМ на любом тайле пола подземелья."
+
+#: guitext:81
+msgctxt "In-game message"
+msgid "Your mission here is to use your power to rid this land of all good. Forge a path North!"
+msgstr "Ваша задача здесь - использовать Вашу мощь, чтобы очистить эти земли от всякого добра. Проложите путь на север!"
+
+#: guitext:82
+msgctxt "In-game message"
+msgid "You have found a spell of acceleration. When cast on your creatures this will allow them to move at a greatly increased rate for a time. Holding down the LMB will increase the power and cost of the spell."
+msgstr "Вы нашли свиток ускорения. При применении заклинания на создании оно некоторое время будет двигаться со значительно более высокой, чем обычно, скоростью. Если удерживать ЛКМ, эффективность и стоимость заклинания возрастает."
+
+#: guitext:83
+msgctxt "In-game message"
+msgid "The Heroes' castle lies out of reach on the far bank of the lava flow. Use bridges to connect your land to the north bank and seek out this nest of virtue."
+msgstr "Крепость героев расположена на другом берегу лавовой реки, так что до неё просто так не добраться. Стройте мосты, чтобы соединить принадлежащие Вам земли с северным берегом и осадить это гнездо добродетели."
+
+#: guitext:84
+msgctxt "In-game message"
+msgid "You now have the ability to cast Heal on your creatures. Hold down the LMB for more power. The hero forces are sure to retaliate."
+msgstr "Теперь Вы можете использовать заклинание "Исцелить" на Своих созданиях. Удерживайте ЛКМ, чтобы усилить его эффект. Войско героев несомненно нанесет ответный удар."
+
+#: guitext:85
+msgctxt "In-game message"
+msgid "A goblin has entered your dungeon. While not as intelligent as the average human, goblins make excellent soldiers."
+msgstr "Гоблин пришел в Ваше подземелье. Хотя они и не столь умны, сколь обычные люди, из гоблинов получаются отличные солдаты."
+
+#: guitext:86
+msgctxt "In-game message"
+msgid "You have found a new Bile Demon ally. The aggression and tenacity of these beasts is matched only by their appetites."
+msgstr "Вы обнаружили нового союзника - желчного демона. С агрессивностью и выносливостью этих тварей может сравниться только их аппетит."
+
+#: guitext:87
+msgctxt "In-game message"
+msgid "From the markings, you have broken into an old dungeon. Claim any assets remaining, but be on your guard!"
+msgstr "Судя по меткам, Вы прокопали туннель в древнее подземелье. Заберите Себе всё, что сможете добыть, но берегитесь!"
+
+#: guitext:88
+msgctxt "In-game message"
+msgid "Danger! Your untidy exploration of this realm has left you exposed to the Lord's troops."
+msgstr "Берегитесь! Чересчур активное исследование королевства привлекло внимание войска лорда этой земли."
+
+#: guitext:89
+msgctxt "In-game message"
+msgid "You've discovered the Heroes' castle. Break down the doors and wreak havoc upon the enemy!"
+msgstr "Вы обнаружили замок героев. Снесите ворота и посейте хаос в рядах врага!"
+
+#: guitext:90
+msgctxt "In-game message"
+msgid "Congratulations. You have defeated the Lord of the Land and completed the Dungeon Keeper demo."
+msgstr "Поздравляем! Вы одолели лорда этой страны и прошли демо-версию игры "Хранитель подземелий"."
+
+#: guitext:92
+msgctxt "In-game message"
+msgid "This will be your most difficult battle to date; you must use all of your skills to defeat your distant enemy."
+msgstr "Это будет самое тяжелое сражение для Вас. Используйте все, чему научились, чтобы одолеть дальнего врага."
+
+#: guitext:93
+msgctxt "In-game message"
+msgid "You are but one of four Dungeon Keepers in the land and all are as evil as yourself. Can you defeat them all?"
+msgstr "Вы лишь один из четырех Хранителей подземелья, претендующих на эти земли, и у всех у них такая же черная душа, как у Вас. Сможете ли Вы одолеть их?"
+
+#: guitext:94
+msgctxt "In-game message"
+msgid "This realm is ruled by a noble Knight, whom another Keeper also seeks to destroy. His land has already been besieged, so make haste."
+msgstr "Этим королевством правит благородный рыцарь, с которым уже пытается расправиться другой Хранитель. И он прямо сейчас осаждает земли этого лорда, так что поторопитесь."
+
+#: guitext:95
+msgctxt "In-game message"
+msgid "Your rival has already prevailed over the heroes of this realm. There is room for only one ultimate evil here though, so find out which one of you is worthy."
+msgstr "Ваш соперник уже одолел героев в этом королевстве. Однако на троне абсолютного зла есть лишь одно место, так что пришло время выяснить, чье оно по праву."
+
+#: guitext:96
+msgctxt "In-game message"
+msgid "This level will test your ability to travel through these underground caverns at great speed. Indeed, speed is your only ally here. Make it to the end of the course in the time allowed to win."
+msgstr "Этот уровень покажет, насколько быстро Вы способны двигаться по этим подземным пещерам. Тут скорость и в самом деле Ваш единственный союзник. Нужно дойти до конца за время, отведенное на выполнение задания."
+
+#: guitext:97
+msgctxt "In-game message"
+msgid "Make haste to subjugate your adversaries here, the Dungeon Keeper cake-boys."
+msgstr "Поскорее подчините Своей воле своих местных соперников, хранителей-пирожочков."
+
+#: guitext:98
+msgctxt "In-game message"
+msgid "Build a Treasure Room and fill it with 2000 gold."
+msgstr "Постройте сокровищницу и соберите в ней 2000 золота."
+
+#: guitext:99
+msgctxt "In-game message"
+msgid "Well done. Now build a Lair and Hatchery and attract five creatures into your dungeon."
+msgstr "Хорошо сработано. Теперь постройте логово и питомник, а затем привлеките пять созданий в Свое подземелье."
+
+#: guitext:100
+msgctxt "In-game message"
+msgid "Excellent. Now continue to mine the area for gold, but beware, your success will have attracted the unwanted attentions of local heroes. Defend your dungeon from these do-gooders."
+msgstr "Превосходно. Продолжайте добывать золото из золотых жил, расположенных вокруг, но будьте осторожны. Ваш успех неизбежно привлечет ненужное внимание местных героев. Защищайте подземелье от этих добрячков."
+
+#: guitext:101
+msgctxt "In-game message"
+msgid "Your continued success has attracted the attentions of the local lord. He must be defeated so you can claim this realm as your own."
+msgstr "Ваши неизменные успехи привлекли внимание местного лорда. Вы должны одолеть его, чтобы захватить это королевство."
+
+#: guitext:102
+msgctxt "In-game message"
+msgid "Great work. By defeating the lord, you have claimed this realm as your own."
+msgstr "Отличная работа. Одолев лорда этой страны, Вы покорили это королевство."
+
+#: guitext:103
+msgctxt "In-game message"
+msgid "You have been defeated. Better luck next time."
+msgstr "Вас одолели. Удачи в следующей попытке."
+
+#: guitext:104
+msgctxt "In-game message"
+msgid "This is a holy place, and the most powerful magic will become available to you here from research. Subordinate your competition and then raise the electric church to reveal its powers."
+msgstr "Это священное место. Здесь исследования Вам помогут обрести мощные заклинания. Отодвиньте конкуретнтную борьбу на второй план и займитесь возведением электроцеркви, чтобы раскрыть сокрытые здесь силы."
+
+#: guitext:105
+msgctxt "In-game message"
+msgid "You have researched the evil audience; if you are powerful enough, victory is now yours for the taking."
+msgstr "Вы исследовали заклинание "Собрать публику". Если Ваша мощь достаточно велика, победа скоро будет за Вами."
+
+#: guitext:106
+msgctxt "In-game message"
+msgid "You have discovered an evil Temple, a source of great power, the uses of which will only be revealed to you in the worlds to come."
+msgstr "Вы обнаружили храм Зла - источник огромной силы. Для чего он служит, откроется Вам в последующих мирах."
+
+#: guitext:107
+msgctxt "In-game message"
+msgid "Your competition has been put in its rightful place; take what is now yours. You will find the electric church to the south. You will require the ultimate weapon."
+msgstr "Ваш соперник был поставлен на место. Теперь возьмите то, что принадлежит Вам по праву. Электроцерковь лежит на юге. Вам понадобится сверхоружие."
+
+#: guitext:108
+msgctxt "In-game message"
+msgid "Build up your dungeon, build a research room, and see what it has to offer you."
+msgstr "Постройте Свое подземелье, затем пристройте зал для исследований и увидите, что Вам это даст."
+
+#: guitext:109
+msgctxt "In-game message"
+msgid "You have discovered a lost cave, home of the Tentacles. Take them into your dungeon; others are sure to follow them to you."
+msgstr "Вы нашли затерянную пещеру, в которой жили щупальца. Приведите их в Ваше подземелье, и новые щупальца наверняка не заставят себя ждать."
+
+#: guitext:110
+msgctxt "In-game message"
+msgid "You have researched a Workshop; with it, doors and traps will become available to you."
+msgstr "Вы закончили исследование мастерской. Её постройка позволит Вам производить двери и ловушки."
+
+#: guitext:111
+msgctxt "In-game message"
+msgid "Dispense with the particularly obnoxious Dwarves which wander this region while you build a well defended Dungeon."
+msgstr "Избавьтесь от особенно назойливых гномов, которые бродят неподалеку, пока идет строительство хорошо укрепленного подземелья."
+
+#: guitext:112
+msgctxt "In-game message"
+msgid "The final battle is at hand. Find and destroy the heroic stronghold."
+msgstr "Последняя битва уже не за горами. Найдите и разрушьте крепость героев."
+
+#: guitext:113
+msgctxt "In-game message"
+msgid "In the caves of Savactor, a rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and them proceed to conquer the rival Keeper to gain dominance over this land."
+msgstr "В пещерах Савактора другой Хранитель бьется не на жизнь, а на смерть с неутомимыми силами добра. Разгромите жалких героев, а затем отвоюйте земли у соперника и станьте безраздельным повелителем этой страны."
+
+#: guitext:114
+msgctxt "In-game message"
+msgid "The corpses of the good lie strewn around you. Now go, and conquer your rival on this land. Dominion awaits ..."
+msgstr "Телами мертвых героев устлано все пространство вокруг Вас. Теперь ступайте и одолейте Вашего соперника за обладание этими землями. Безраздельное господство ждет..."
+
+#: guitext:122 guitext:123 guitext:124 guitext:149 guitext:150 guitext:151 guitext:152 guitext:170
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext:115 guitext:116 guitext:117 guitext:118 guitext:119 guitext:120
+#: guitext:121 guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130
+#: guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140
+#: guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148
+#: guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160
+#: guitext:161 guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168 guitext:169
+#: guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179 guitext:180
+#: guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
+#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr "Му"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Dungeon Keeper Demo"
+msgstr "Карта из демо-версии "Хранителя подземелья""
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Skybird Trill 30"
+msgstr "Скайбёрд-Трилл 30"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Skybird Trill 32"
+msgstr "Скайбёрд-Трилл 32"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Watercreek Drip"
+msgstr "Уотеркрик-Дрип"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Bonus Level - Crush the Imp"
+msgstr "Бонусный уровень - Раздави беса"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Bonus Level - Time flies"
+msgstr "Бонусный уровень - Время летит"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Bonus Level - Cake Boy"
+msgstr "Бонусный уровень - Пирожочки"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Othersmile"
+msgstr "Отерсмайл"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Krowalocar"
+msgstr "Кровалёцар"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Electric Church"
+msgstr "Электроцерковь"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Staging Point"
+msgstr "Плацдарм"
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Quick Death in Chaos"
+msgstr "Быстрая смерть посреди хаоса"
+
+#: guitext:214
+msgctxt "Level name"
+msgid "Single Example"
+msgstr "Единичный пример"
+
+#: guitext:215
+msgctxt "Level name"
+msgid "Mirthhold"
+msgstr "Миртхолд"
+
