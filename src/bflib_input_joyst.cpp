@@ -32,6 +32,8 @@
 #include "config_settings.h"
 #include "front_input.h"
 #include "game_legacy.h"
+#include "kjm_input.h"
+#include "frontend.h"
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
@@ -61,14 +63,97 @@ static float mouse_accum_y = 0.0f;
 float movement_accum_x = 0.0f;
 float movement_accum_y = 0.0f;
 
+// Button snapping state
+static TbBool snap_mode_active = false;
+static Sint16 last_snap_rx = 0;
+static Sint16 last_snap_ry = 0;
+#define SNAP_THRESHOLD 0.5f
+#define SNAP_COOLDOWN_FRAMES 10
+static int snap_cooldown = 0;
+
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
 
 static TimePoint delta_time_previous_timepoint = TimeNow;
 static float input_delta_time = 0.0f;
 
+// Forward declarations
+struct GuiButton* find_nearest_button_in_direction(long mouse_x, long mouse_y, float dx, float dy);
+void snap_cursor_to_button(struct GuiButton* gbtn);
 
 /******************************************************************************/
+
+struct GuiButton* find_nearest_button_in_direction(long mouse_x, long mouse_y, float dx, float dy)
+{
+    struct GuiButton* best_button = NULL;
+    float best_score = -1.0f;
+    const float MIN_DOT = 0.3f; // Minimum alignment required
+    
+    // Normalize direction
+    float mag = sqrtf(dx * dx + dy * dy);
+    if (mag < 0.01f) return NULL;
+    dx /= mag;
+    dy /= mag;
+    
+    for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++) {
+        struct GuiButton* gbtn = &active_buttons[i];
+        
+        // Skip inactive, invisible, or disabled buttons
+        if (!(gbtn->flags & LbBtnF_Active)) continue; 
+        if (!(gbtn->flags & LbBtnF_Visible)) continue;
+        if (!(gbtn->flags & LbBtnF_Enabled)) continue;
+        
+        // Calculate button center
+        long btn_center_x = gbtn->scr_pos_x + gbtn->width / 2;
+        long btn_center_y = gbtn->scr_pos_y + gbtn->height / 2;
+        
+        // Vector from mouse to button
+        float to_btn_x = (float)(btn_center_x - mouse_x);
+        float to_btn_y = (float)(btn_center_y - mouse_y);
+        float dist = sqrtf(to_btn_x * to_btn_x + to_btn_y * to_btn_y);
+        
+        if (dist < 5.0f) continue; // Skip if already on button
+        
+        // Normalize
+        to_btn_x /= dist;
+        to_btn_y /= dist;
+        
+        // Check alignment with desired direction
+        float dot = dx * to_btn_x + dy * to_btn_y;
+        if (dot < MIN_DOT) continue;
+        
+        // Score based on alignment and distance (prefer close + aligned)
+        float score = dot / (1.0f + dist / 200.0f);
+        
+        if (score > best_score) {
+            best_score = score;
+            best_button = gbtn;
+        }
+    }
+    JUSTLOG("Best button score: %f", best_score);
+    return best_button;
+}
+
+void snap_cursor_to_button(struct GuiButton* gbtn)
+{
+    if (gbtn == NULL) return;
+    
+    // Calculate button center
+    long btn_center_x = gbtn->scr_pos_x + gbtn->width / 2;
+    long btn_center_y = gbtn->scr_pos_y + gbtn->height / 2;
+    
+    // Calculate delta needed
+    struct TbPoint delta;
+    delta.x = btn_center_x - GetMouseX();
+    delta.y = btn_center_y - GetMouseY();
+    
+    // Move mouse to button center
+    mouseControl(MActn_MOUSEMOVE, &delta);
+    
+    // Clear accumulated mouse movement
+    mouse_accum_x = 0.0f;
+    mouse_accum_y = 0.0f;
+}
 
 static void open_controller(int device_index)
 {
@@ -287,6 +372,41 @@ static void poll_controller_mouse(Sint16 rx, Sint16 ry)
     float ny = ry / 32768.0f;
     float mag = sqrtf(nx * nx + ny * ny);
 
+    // Cooldown for snap mode
+    if (snap_cooldown > 0) {
+        snap_cooldown--;
+    }
+
+    // Check for snap gesture - flick from center
+    if (!snap_mode_active && mag > SNAP_THRESHOLD && snap_cooldown == 0) {
+        // Check if stick was recently near center
+        float last_mag = sqrtf((last_snap_rx / 32768.0f) * (last_snap_rx / 32768.0f) + 
+                              (last_snap_ry / 32768.0f) * (last_snap_ry / 32768.0f));
+        
+        if (last_mag < STICK_DEADZONE) {
+            JUSTLOG("Snap gesture detected! Stick moved from center to (%f, %f)", nx, ny);
+            // Snap gesture detected! Find nearest button
+            struct GuiButton* target = find_nearest_button_in_direction(
+                GetMouseX(), GetMouseY(), nx, ny);
+            
+            if (target != NULL) {
+                snap_cursor_to_button(target);
+                snap_mode_active = true;
+                snap_cooldown = SNAP_COOLDOWN_FRAMES;
+            }
+        }
+    }
+    
+    // Exit snap mode when stick returns to center
+    if (snap_mode_active && mag < STICK_DEADZONE) {
+        snap_mode_active = false;
+    }
+    
+    // Store last stick state for next frame
+    last_snap_rx = rx;
+    last_snap_ry = ry;
+return;
+    // Normal smooth cursor movement
     if (mag < STICK_DEADZONE)
         return;
 
