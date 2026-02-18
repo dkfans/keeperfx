@@ -21,13 +21,13 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_sprite.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // note - this is temporary value; not correct
-#define CREATURE_FRAMELIST_LENGTH    982
 #define CREATURE_GRAPHICS_INSTANCES   25
 
 enum CreatureGraphicsInstances {
@@ -90,28 +90,35 @@ struct KeeperSprite { // sizeof = 16
 
 struct KeeperSpriteDisk {
     uint32_t DataOffset;
-    unsigned char SWidth;
-    unsigned char SHeight;
-    unsigned char FrameWidth;
-    unsigned char FrameHeight;
-    unsigned char Rotable;
-    unsigned char FramesCount;
-    unsigned char FrameOffsW;
-    unsigned char FrameOffsH;
-    short offset_x;
-    short offset_y;
+    uint8_t SWidth;
+    uint8_t SHeight;
+    uint8_t FrameWidth;
+    uint8_t FrameHeight;
+    uint8_t Rotable;
+    uint8_t FramesCount;
+    int8_t FrameOffsW;
+    int8_t FrameOffsH;
+    int16_t offset_x;
+    int16_t offset_y;
 };
 
 /******************************************************************************/
 //extern unsigned short creature_graphics[][22];
-extern struct KeeperSprite *creature_table;
+extern unsigned short * creature_list; // Frame index of first frame of each animation group
+extern struct KeeperSprite * creature_table; // Metadata of each frame
 extern struct KeeperSprite creature_table_add[];
+extern TbSpriteData * keepsprite; // Sprite data of each frame loaded on-demand
+extern TbFileHandle jty_file_handle;
+extern int total_keepersprites;
+extern int total_keepersprite_animations;
+
 /******************************************************************************/
 
 #pragma pack()
 /******************************************************************************/
 struct PickedUpOffset *get_creature_picked_up_offset(struct Thing *thing);
-
+void prepare_keepersprites(void);
+void unload_keepersprites(void);
 unsigned long keepersprite_index(unsigned short n);
 struct KeeperSprite * keepersprite_array(unsigned short n);
 unsigned char keepersprite_frames(unsigned short n); // This returns number of frames in animation
@@ -123,9 +130,7 @@ short get_creature_model_graphics(long crmodel, unsigned short frame);
 void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned long val);
 void set_creature_graphic(struct Thing *thing);
 void update_creature_rendering_flags(struct Thing *thing);
-
-size_t creature_table_load_get_size(size_t disk_size);
-void creature_table_load_unpack(unsigned char *src, size_t disk_size);
+TbBool heap_manage_keepersprite(unsigned short kspr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

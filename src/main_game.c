@@ -29,7 +29,6 @@
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
-#include "game_heap.h"
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
@@ -164,9 +163,9 @@ static void init_level(void)
     game.paused_at_gameturn = false;
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
-    reset_heap_manager();
+    unload_keepersprites();
     lens_mode = 0;
-    setup_heap_manager();
+    prepare_keepersprites();
 
     luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
@@ -193,9 +192,9 @@ static void init_level(void)
     init_map_size(get_selected_level_number());
     clear_messages();
     init_seeds();
-    
+
     sync_various_data();
-    
+
     // Load the actual level files
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
@@ -505,7 +504,7 @@ void init_seeds()
 
         game.ai_random_seed = game.action_random_seed * 9377 + 9391;
         game.player_random_seed = game.action_random_seed * 9473 + 9479;
-        
+
         initial_replay_seed = game.action_random_seed;
         lua_set_random_seed(game.action_random_seed);
     }

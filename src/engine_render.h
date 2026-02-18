@@ -35,7 +35,6 @@ extern "C" {
 #define BUCKETS_COUNT 4098 // Originally 704, adjusted for view distance. (65536/16)+2
 #define BUCKETS_STEP 16 // Bucket size in Z steps
 
-#define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
 #define KEEPERSPRITE_ADD_NUM 16383
 
@@ -121,11 +120,6 @@ extern long box_lag_compensation_y;
 extern Offset vert_offset[3];
 extern Offset hori_offset[3];
 extern Offset high_offset[3];
-
-extern TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
-extern TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
-extern struct HeapMgrHeader *graphics_heap;
-extern TbFileHandle jty_file_handle;
 
 extern long x_init_off;
 extern long y_init_off;

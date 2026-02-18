@@ -49,7 +49,6 @@
 #include "lvl_script_commands.h"
 
 #include "keeperfx.hpp"
-#include "game_heap.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

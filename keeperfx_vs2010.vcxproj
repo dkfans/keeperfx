@@ -156,7 +156,6 @@
     <ClCompile Include="src\front_torture.c" />
     <ClCompile Include="src\front_torture_data.cpp" />
     <ClCompile Include="src\ftests\ftest.c" />
-    <ClCompile Include="src\game_heap.c" />
     <ClCompile Include="src\game_legacy.c" />
     <ClCompile Include="src\game_lghtshdw.c" />
     <ClCompile Include="src\game_loop.c" />
@@ -399,7 +398,6 @@
     <ClInclude Include="src\front_simple.h" />
     <ClInclude Include="src\front_torture.h" />
     <ClInclude Include="src\ftests\ftest.h" />
-    <ClInclude Include="src\game_heap.h" />
     <ClInclude Include="src\game_legacy.h" />
     <ClInclude Include="src\game_lghtshdw.h" />
     <ClInclude Include="src\game_loop.h" />
