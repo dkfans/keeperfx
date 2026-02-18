@@ -3580,6 +3580,10 @@ void keeper_gameplay_loop(void)
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
+
+    // Reset the game kind because we are not in a game anymore at this point
+    game.game_kind = GKind_Unset;
+
     api_event("GAME_ENDED");
 }
 
