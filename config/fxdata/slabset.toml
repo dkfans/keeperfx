@@ -2755,26 +2755,18 @@ Columns = [2, 2, 2, 2, 817, 2, 524, 525, 526]
 [[slab19.S_LAVA_objects]]
 IsLight = 1
 Subtile = 7
-RelativePosition = [193, 425, 704]
+RelativePosition = [128, 343, 576]
 ThingType = 0
-Subtype = 32
-EffectRange = 16
+Subtype = 38
+EffectRange = 9
 
 [slab19.W_LAVA]
 Columns = [524, 2, 2, 525, 817, 2, 526, 2, 2]
 
 [[slab19.W_LAVA_objects]]
 IsLight = 1
-Subtile = 0
-RelativePosition = [-192, -128, 960]
-ThingType = 0
-Subtype = 32
-EffectRange = 11
-
-[[slab19.W_LAVA_objects]]
-IsLight = 1
 Subtile = 3
-RelativePosition = [-128, 192, 576]
+RelativePosition = [-87, 128, 576]
 ThingType = 0
 Subtype = 38
 EffectRange = 9
@@ -2785,7 +2777,7 @@ Columns = [524, 525, 526, 2, 817, 2, 2, 2, 2]
 [[slab19.N_LAVA_objects]]
 IsLight = 1
 Subtile = 1
-RelativePosition = [0, -256, 576]
+RelativePosition = [128, -87, 576]
 ThingType = 0
 Subtype = 38
 EffectRange = 9
@@ -2796,7 +2788,7 @@ Columns = [2, 2, 524, 2, 817, 525, 2, 2, 526]
 [[slab19.E_LAVA_objects]]
 IsLight = 1
 Subtile = 5
-RelativePosition = [448, 0, 576]
+RelativePosition = [343, 128, 576]
 ThingType = 0
 Subtype = 38
 EffectRange = 9
