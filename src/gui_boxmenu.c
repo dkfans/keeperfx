@@ -124,6 +124,7 @@ struct GuiBoxOption gui_instance_option_list[] = {
  {"Lightning",1,NULL,gf_change_creature_instance,CrInst_LIGHTNING, 0, 0,  CrInst_LIGHTNING, 0, 0, 0, true},
  {"Rebound",1,NULL, gf_change_creature_instance,CrInst_REBOUND, 0, 0, CrInst_REBOUND, 0, 0, 0, true},
  {"Heal",1,   NULL, gf_change_creature_instance,CrInst_HEAL, 0, 0, CrInst_HEAL, 0, 0, 0, true},
+ {"Cleanse", 1, NULL, gf_change_creature_instance, CrInst_CLEANSE, 0, 0, CrInst_CLEANSE, 0, 0, 0, true},
  {"Poison Cloud",1,NULL,gf_change_creature_instance,CrInst_POISON_CLOUD,0,0,CrInst_POISON_CLOUD,0, 0, 0, true},
  {"Invisibility",1,NULL,gf_change_creature_instance,CrInst_INVISIBILITY,0,0,CrInst_INVISIBILITY,0, 0, 0, true},
  {"Teleport",1,NULL,gf_change_creature_instance,CrInst_TELEPORT, 0, 0, CrInst_TELEPORT, 0, 0, 0, true},

@@ -84,6 +84,7 @@ enum CreatureInstances {
     CrInst_RANGED_SPEED,
     CrInst_RANGED_ARMOUR,
     CrInst_RANGED_REBOUND,
+    CrInst_CLEANSE,
     CrInst_LISTEND,
 };
 

@@ -84,6 +84,9 @@ TbBool load_stats_files(void)
         if (!load_creaturemodel_config(i,0))
             result = false;
     }
+
+    load_debuffs();
+
     SYNCDBG(3,"Finished");
     return result;
 }

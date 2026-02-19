@@ -1907,6 +1907,11 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             clean_spell_effect(thing, spconf->cleanse_flags);
         } TODO: Implements CSAfF_SpellBlocks. */
+        // Investigate.
+        /* if (creature_under_spell_effect(thing, CSAfF_SpellBlocks))
+        {
+            process_cleanse_effect(thing);
+        } */
         cspell->duration--;
     }
     // Slap is not in spell array, it is so common that has its own dedicated duration.
@@ -6343,7 +6348,13 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
     } else
     {
-        if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
+        if (creature_under_spell_effect(thing, SplK_Freeze))
+        {
+            if (creature_instance_is_available(thing, CrInst_CLEANSE) && creature_instance_has_reset(thing, CrInst_CLEANSE)) { 
+                cctrl->stopped_for_hand_turns = 0;
+            }
+        }
+        else if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
             if (cctrl->stopped_for_hand_turns > 0)
             {
@@ -6740,6 +6751,25 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         break;
     }
     return thing;
+}
+
+void cleanse_creature(struct Thing* creatng) 
+{
+    if (!creature_is_debuffed(creatng))
+    {
+        return;
+    }
+
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; ++i)
+    {
+        struct CastedSpellData *cspell = &cctrl->casted_spells[i];
+        struct SpellConfig* spconf = get_spell_config(cspell->spkind);
+        if (spconf->debuff == 1)
+        {
+            cspell->duration = 0;
+        }
+    }
 }
 
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel exp_level, char spawn_type)
