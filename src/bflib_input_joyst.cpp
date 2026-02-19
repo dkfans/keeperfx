@@ -439,11 +439,6 @@ void poll_controller()
                     struct GuiButton* target = find_nearest_button_in_direction(GetMouseX(), GetMouseY(), 1.0f, 0.0f);
                     if (target) snap_cursor_to_button(target);
                 }
-                // Store for next frame
-                prev_dpad_up = dpad_up;
-                prev_dpad_down = dpad_down;
-                prev_dpad_left = dpad_left;
-                prev_dpad_right = dpad_right;
             }
             else {
                 lbKeyOn[KC_UP] = dpad_up;
@@ -451,6 +446,11 @@ void poll_controller()
                 lbKeyOn[KC_RIGHT] = dpad_left;
                 lbKeyOn[KC_LEFT] = dpad_right;
             }
+            
+            prev_dpad_up = dpad_up;
+            prev_dpad_down = dpad_down;
+            prev_dpad_left = dpad_left;
+            prev_dpad_right = dpad_right;
             
             Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
             Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
