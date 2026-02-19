@@ -57,19 +57,16 @@ static Uint8 prev_rightshoulder = 0;
 static Uint8 prev_joy_left = 0;
 //static Uint8 prev_joy_right = 0;
 
+static Uint8 prev_dpad_up    = 0;
+static Uint8 prev_dpad_down  = 0;
+static Uint8 prev_dpad_left  = 0;
+static Uint8 prev_dpad_right = 0;
+
 static float mouse_accum_x = 0.0f;
 static float mouse_accum_y = 0.0f;
 
 float movement_accum_x = 0.0f;
 float movement_accum_y = 0.0f;
-
-// Button snapping state
-static TbBool snap_mode_active = false;
-static Sint16 last_snap_rx = 0;
-static Sint16 last_snap_ry = 0;
-#define SNAP_THRESHOLD 0.5f
-#define SNAP_COOLDOWN_FRAMES 10
-static int snap_cooldown = 0;
 
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
@@ -372,41 +369,6 @@ static void poll_controller_mouse(Sint16 rx, Sint16 ry)
     float ny = ry / 32768.0f;
     float mag = sqrtf(nx * nx + ny * ny);
 
-    // Cooldown for snap mode
-    if (snap_cooldown > 0) {
-        snap_cooldown--;
-    }
-
-    // Check for snap gesture - flick from center
-    if (!snap_mode_active && mag > SNAP_THRESHOLD && snap_cooldown == 0) {
-        // Check if stick was recently near center
-        float last_mag = sqrtf((last_snap_rx / 32768.0f) * (last_snap_rx / 32768.0f) + 
-                              (last_snap_ry / 32768.0f) * (last_snap_ry / 32768.0f));
-        
-        if (last_mag < STICK_DEADZONE) {
-            JUSTLOG("Snap gesture detected! Stick moved from center to (%f, %f)", nx, ny);
-            // Snap gesture detected! Find nearest button
-            struct GuiButton* target = find_nearest_button_in_direction(
-                GetMouseX(), GetMouseY(), nx, ny);
-            
-            if (target != NULL) {
-                snap_cursor_to_button(target);
-                snap_mode_active = true;
-                snap_cooldown = SNAP_COOLDOWN_FRAMES;
-            }
-        }
-    }
-    
-    // Exit snap mode when stick returns to center
-    if (snap_mode_active && mag < STICK_DEADZONE) {
-        snap_mode_active = false;
-    }
-    
-    // Store last stick state for next frame
-    last_snap_rx = rx;
-    last_snap_ry = ry;
-return;
-    // Normal smooth cursor movement
     if (mag < STICK_DEADZONE)
         return;
 
@@ -456,11 +418,44 @@ void poll_controller()
         //analog sticks and dpad, layout based on what's available, with mouse being most important, then movement, then cam rotation/zoom
 
         if (has_right_stick && has_left_stick) {
-            lbKeyOn[KC_HOME] =   SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
-            lbKeyOn[KC_END] =    SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-            lbKeyOn[KC_PGDOWN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-            lbKeyOn[KC_DELETE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-
+            // D-pad for button snapping
+            Uint8 dpad_up =    SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+            Uint8 dpad_down =  SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+            Uint8 dpad_left =  SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+            Uint8 dpad_right = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+            Uint8 btn_B = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+            
+            if (!btn_B) {
+            
+                // Check for button press (edge detection)
+                if (dpad_up && !prev_dpad_up) {
+                    struct GuiButton* target = find_nearest_button_in_direction(GetMouseX(), GetMouseY(), 0.0f, -1.0f);
+                    if (target) snap_cursor_to_button(target);
+                }
+                if (dpad_down && !prev_dpad_down) {
+                    struct GuiButton* target = find_nearest_button_in_direction(GetMouseX(), GetMouseY(), 0.0f, 1.0f);
+                    if (target) snap_cursor_to_button(target);
+                }
+                if (dpad_left && !prev_dpad_left) {
+                    struct GuiButton* target = find_nearest_button_in_direction(GetMouseX(), GetMouseY(), -1.0f, 0.0f);
+                    if (target) snap_cursor_to_button(target);
+                }
+                if (dpad_right && !prev_dpad_right) {
+                    struct GuiButton* target = find_nearest_button_in_direction(GetMouseX(), GetMouseY(), 1.0f, 0.0f);
+                    if (target) snap_cursor_to_button(target);
+                }
+                // Store for next frame
+                prev_dpad_up = dpad_up;
+                prev_dpad_down = dpad_down;
+                prev_dpad_left = dpad_left;
+                prev_dpad_right = dpad_right;
+            }
+            else {
+                lbKeyOn[KC_UP] = dpad_up;
+                lbKeyOn[KC_DOWN] = dpad_down;
+                lbKeyOn[KC_RIGHT] = dpad_left;
+                lbKeyOn[KC_LEFT] = dpad_right;
+            }
             
             Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
             Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
@@ -590,8 +585,8 @@ void poll_controller()
 
     } else if (joystick != NULL) {
         // Map joystick buttons to keyboard keys (assuming standard layout)
-        lbKeyOn[KC_HOME] = SDL_JoystickGetButton(joystick, 10); // D-pad up
-        lbKeyOn[KC_END] = SDL_JoystickGetButton(joystick, 12); // D-pad down
+        lbKeyOn[KC_HOME] =   SDL_JoystickGetButton(joystick, 10); // D-pad up
+        lbKeyOn[KC_END] =    SDL_JoystickGetButton(joystick, 12); // D-pad down
         lbKeyOn[KC_PGDOWN] = SDL_JoystickGetButton(joystick, 13); // D-pad left
         lbKeyOn[KC_DELETE] = SDL_JoystickGetButton(joystick, 11); // D-pad right
 
