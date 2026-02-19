@@ -127,7 +127,6 @@ struct GuiButton* find_nearest_button_in_direction(long mouse_x, long mouse_y, f
             best_button = gbtn;
         }
     }
-    JUSTLOG("Best button score: %f", best_score);
     return best_button;
 }
 
@@ -135,19 +134,15 @@ void snap_cursor_to_button(struct GuiButton* gbtn)
 {
     if (gbtn == NULL) return;
     
-    // Calculate button center
     long btn_center_x = gbtn->scr_pos_x + gbtn->width / 2;
     long btn_center_y = gbtn->scr_pos_y + gbtn->height / 2;
     
-    // Calculate delta needed
     struct TbPoint delta;
     delta.x = btn_center_x - GetMouseX();
     delta.y = btn_center_y - GetMouseY();
     
-    // Move mouse to button center
     mouseControl(MActn_MOUSEMOVE, &delta);
-    
-    // Clear accumulated mouse movement
+
     mouse_accum_x = 0.0f;
     mouse_accum_y = 0.0f;
 }
