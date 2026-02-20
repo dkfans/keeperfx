@@ -1863,45 +1863,42 @@ short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
         }
-        if (!creature_under_spell_effect(thing, CSAfF_Chicken))
+        if (numkey != -1)
         {
-            if (numkey != -1)
-            {
-                int num_avail = 0;
-                for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
-                {
-                    struct Thing* cthing = thing_get(player->controlled_thing_idx);
-                    TRACE_THING(cthing);
-                    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cthing);
-                    int inst_id = crconf->learned_instance_id[idx];
-                    if (creature_instance_is_available(cthing, inst_id))
-                    {
-                        if (numkey == num_avail)
-                        {
-                            set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id, 0, 0, 0);
-                            break;
-                        }
-                        num_avail++;
-                    }
-                }
-            }
-            
-            // Next/Previous instance switching
-            if (menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2))
+            int num_avail = 0;
+            for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
             {
                 struct Thing* cthing = thing_get(player->controlled_thing_idx);
+                TRACE_THING(cthing);
+                struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cthing);
+                int inst_id = crconf->learned_instance_id[idx];
+                if (creature_instance_is_available(cthing, inst_id))
+                {
+                    if (numkey == num_avail)
+                    {
+                        set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id, 0, 0, 0);
+                        break;
+                    }
+                    num_avail++;
+                }
+            }
+        }
+        
+        // Next/Previous instance switching
+        if (menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2))
+        {
+            struct Thing* cthing = thing_get(player->controlled_thing_idx);
+            
+            if (is_key_pressed(KC_GAMEPAD_RIGHTSHOULDER, KMod_DONTCARE))
+            {
+                clear_key_pressed(KC_GAMEPAD_RIGHTSHOULDER);
+                set_possession_instance(player, cthing, 1);
                 
-                if (is_key_pressed(KC_GAMEPAD_RIGHTSHOULDER, KMod_DONTCARE))
-                {
-                    clear_key_pressed(KC_GAMEPAD_RIGHTSHOULDER);
-                    set_possession_instance(player, cthing, 1);
-                    
-                }
-                else if (is_key_pressed(KC_GAMEPAD_LEFTSHOULDER, KMod_DONTCARE))
-                {
-                    clear_key_pressed(KC_GAMEPAD_LEFTSHOULDER);
-                    set_possession_instance(player, cthing, -1);
-                }
+            }
+            else if (is_key_pressed(KC_GAMEPAD_LEFTSHOULDER, KMod_DONTCARE))
+            {
+                clear_key_pressed(KC_GAMEPAD_LEFTSHOULDER);
+                set_possession_instance(player, cthing, -1);
             }
         }
     return false;

@@ -2182,6 +2182,25 @@ TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
+{
+    if (game.easter_eggs_enabled == false) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
+    }
+    struct PlayerInfo * player = get_player(plyr_idx);
+    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    if (!thing_is_creature(thing)) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
+        return false;
+    }
+    struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CHICKEN);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 27, 8, plyr_idx); // 27 was 'SplK_Chicken' in the enum.
+    return true;
+}
+
 
 struct ConsoleCommand {
     const char * name;
@@ -2293,6 +2312,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "lua", cmd_lua},
     { "luatypedump", cmd_luatypedump},
     { "cheat.menu", cmd_cheat_menu},
+    { "creature.chicken", cmd_chicken_creature},
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 

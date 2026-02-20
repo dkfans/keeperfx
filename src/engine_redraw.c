@@ -100,10 +100,14 @@ static void draw_creature_view_icons(struct Thing* creatng)
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    struct SpellConfig *spconf;
     for (SpellKind spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
     {
-        spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
+        struct CastedSpellData* cspell = &cctrl->casted_spells[spell_idx];
+        if (cspell->spkind == 0)
+        {
+            continue;
+        }
+        struct SpellConfig *spconf = get_spell_config(cspell->spkind);
         long spridx = spconf->medsym_sprite_idx;
         if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))
         {

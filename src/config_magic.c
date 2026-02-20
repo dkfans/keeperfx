@@ -98,6 +98,7 @@ const struct NamedCommand spell_effect_flags[] = {
     {"TELEPORT",      CSAfF_Teleport},
     {"TIMEBOMB",      CSAfF_Timebomb},
     {"WIND",          CSAfF_Wind},
+    {"SPELL_BLOCKS",  CSAfF_SpellBlocks},
     {NULL,            0},
 };
 
