@@ -75,20 +75,22 @@ static TimePoint delta_time_previous_timepoint = TimeNow;
 static float input_delta_time = 0.0f;
 
 // Forward declarations
-struct GuiButton* find_nearest_button_in_direction(long mouse_x, long mouse_y, float dx, float dy);
-void snap_cursor_to_button(struct GuiButton* gbtn);
-
+static void snap_cursor_to_button(long *snap_to_x, long *snap_to_y);
+extern void gui_get_creature_in_battle(struct GuiButton *gbtn);
 /******************************************************************************/
 
-struct GuiButton* find_nearest_button_in_direction(long mouse_x, long mouse_y, float dx, float dy)
+static TbBool find_nearest_button_in_direction(long mouse_x, long mouse_y, float dx, float dy, long *snap_to_x, long *snap_to_y)
 {
-    struct GuiButton* best_button = NULL;
     float best_score = -1.0f;
     const float MIN_DOT = 0.3f; // Minimum alignment required
+    *snap_to_x = 0;
+    *snap_to_y = 0;
+
+    TbBool btn_found = false;
     
     // Normalize direction
     float mag = sqrtf(dx * dx + dy * dy);
-    if (mag < 0.01f) return NULL;
+    if (mag < 0.01f) return false;
     dx /= mag;
     dy /= mag;
     
@@ -100,6 +102,9 @@ struct GuiButton* find_nearest_button_in_direction(long mouse_x, long mouse_y, f
         if (!(gbtn->flags & LbBtnF_Visible)) continue;
         if (!(gbtn->flags & LbBtnF_Enabled)) continue;
         if (gbtn->click_event == NULL) continue;
+        if (gbtn->click_event == gui_get_creature_in_battle) continue;
+
+        
         
         // Calculate button center
         long btn_center_x = gbtn->scr_pos_x + gbtn->width / 2;
@@ -124,19 +129,24 @@ struct GuiButton* find_nearest_button_in_direction(long mouse_x, long mouse_y, f
         float score = dot / (1.0f + dist / 200.0f);
         
         if (score > best_score) {
+            *snap_to_x = btn_center_x;
+            *snap_to_y = btn_center_y;
+            
             best_score = score;
-            best_button = gbtn;
+            btn_found = true;
         }
     }
-    return best_button;
+
+
+    return btn_found;
 }
 
-void snap_cursor_to_button(struct GuiButton* gbtn)
+static void snap_cursor_to_button(long *snap_to_x, long *snap_to_y)
 {
-    if (gbtn == NULL) return;
+    if (snap_to_x == NULL || snap_to_y == NULL) return;
     
-    long btn_center_x = gbtn->scr_pos_x + gbtn->width / 2;
-    long btn_center_y = gbtn->scr_pos_y + gbtn->height / 2;
+    long btn_center_x = *snap_to_x;
+    long btn_center_y = *snap_to_y;
     
     struct TbPoint delta;
     delta.x = btn_center_x - GetMouseX();
@@ -146,6 +156,15 @@ void snap_cursor_to_button(struct GuiButton* gbtn)
 
     mouse_accum_x = 0.0f;
     mouse_accum_y = 0.0f;
+}
+
+static void snap_to_direction(long mouse_x, long mouse_y, float dx, float dy)
+{
+    long snap_to_x, snap_to_y;
+    TbBool found = find_nearest_button_in_direction(mouse_x, mouse_y, dx, dy, &snap_to_x, &snap_to_y);
+
+    if (found)
+        snap_cursor_to_button(&snap_to_x, &snap_to_y);
 }
 
 static void open_controller(int device_index)
@@ -425,20 +444,16 @@ void poll_controller()
             
                 // Check for button press (edge detection)
                 if (dpad_up && !prev_dpad_up) {
-                    struct GuiButton* target = find_nearest_button_in_direction(GetMouseX(), GetMouseY(), 0.0f, -1.0f);
-                    if (target) snap_cursor_to_button(target);
+                    snap_to_direction(GetMouseX(), GetMouseY(), 0.0f, -1.0f);
                 }
                 if (dpad_down && !prev_dpad_down) {
-                    struct GuiButton* target = find_nearest_button_in_direction(GetMouseX(), GetMouseY(), 0.0f, 1.0f);
-                    if (target) snap_cursor_to_button(target);
+                    snap_to_direction(GetMouseX(), GetMouseY(), 0.0f, 1.0f);
                 }
                 if (dpad_left && !prev_dpad_left) {
-                    struct GuiButton* target = find_nearest_button_in_direction(GetMouseX(), GetMouseY(), -1.0f, 0.0f);
-                    if (target) snap_cursor_to_button(target);
+                    snap_to_direction(GetMouseX(), GetMouseY(), -1.0f, 0.0f);
                 }
                 if (dpad_right && !prev_dpad_right) {
-                    struct GuiButton* target = find_nearest_button_in_direction(GetMouseX(), GetMouseY(), 1.0f, 0.0f);
-                    if (target) snap_cursor_to_button(target);
+                    snap_to_direction(GetMouseX(), GetMouseY(), 1.0f, 0.0f);
                 }
             }
             else {
