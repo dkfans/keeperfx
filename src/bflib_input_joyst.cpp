@@ -77,7 +77,68 @@ static float input_delta_time = 0.0f;
 // Forward declarations
 static void snap_cursor_to_button(long *snap_to_x, long *snap_to_y);
 extern void gui_get_creature_in_battle(struct GuiButton *gbtn);
+extern void gui_setup_friend_over(struct GuiButton *gbtn);
 /******************************************************************************/
+
+static float get_button_score(long mouse_x, long mouse_y, long btn_center_x, long btn_center_y, float dx, float dy, float MIN_DOT)
+{
+    // Vector from mouse to button
+    float to_btn_x = (float)(btn_center_x - mouse_x);
+    float to_btn_y = (float)(btn_center_y - mouse_y);
+    float dist = sqrtf(to_btn_x * to_btn_x + to_btn_y * to_btn_y);
+    
+    if (dist < 5.0f) return -1.0f; // Skip if already on button
+    
+    // Normalize
+    to_btn_x /= dist;
+    to_btn_y /= dist;
+    
+    // Check alignment with desired direction
+    float dot = dx * to_btn_x + dy * to_btn_y;
+    if (dot < MIN_DOT) return -1.0f;
+    
+    // Score based on alignment and distance (prefer close + aligned)
+    float score = dot / (1.0f + dist / 200.0f);
+    return score;
+}
+
+static float get_battle_buttons_top_score(const struct GuiButton* gbtn, long *btn_center_x, long *btn_center_y, long mouse_x, long mouse_y, float dx, float dy, float MIN_DOT)
+{
+
+    int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;// the row of buttons 0 1 
+    long btn_y = gbtn->scr_pos_y + gbtn->height / 2;
+    float best_score = -1.0f;
+
+    TbBool friendly = (gbtn->ptover_event == gui_setup_friend_over);
+
+    for (int i = 0; i < MESSAGE_BATTLERS_COUNT; i++) {
+        struct Thing* thing;
+        if (friendly)
+            thing = thing_get(friendly_battler_list[(MESSAGE_BATTLERS_COUNT * visbtl_id) + i]);
+        else
+            thing = thing_get(enemy_battler_list[(MESSAGE_BATTLERS_COUNT * visbtl_id) + i]);
+        
+        if (thing_exists(thing) && thing_revealed(thing, my_player_number))
+        {
+            const int slot_w = gbtn->width / 7;
+            int btn_x;
+            if (friendly)
+                btn_x = gbtn->scr_pos_x + (6 - i) * slot_w + slot_w / 2;
+            else
+                btn_x = gbtn->scr_pos_x + i * slot_w + slot_w / 2;
+            
+            float score = get_button_score(mouse_x, mouse_y, btn_x, btn_y, dx, dy, MIN_DOT);
+            if (score > best_score) {
+                *btn_center_x = btn_x;
+                *btn_center_y = btn_y;
+                
+                best_score = score;
+            }
+        }
+    }
+
+    return best_score;
+}
 
 static TbBool find_nearest_button_in_direction(long mouse_x, long mouse_y, float dx, float dy, long *snap_to_x, long *snap_to_y)
 {
@@ -102,31 +163,22 @@ static TbBool find_nearest_button_in_direction(long mouse_x, long mouse_y, float
         if (!(gbtn->flags & LbBtnF_Visible)) continue;
         if (!(gbtn->flags & LbBtnF_Enabled)) continue;
         if (gbtn->click_event == NULL) continue;
-        if (gbtn->click_event == gui_get_creature_in_battle) continue;
 
-        
         
         // Calculate button center
         long btn_center_x = gbtn->scr_pos_x + gbtn->width / 2;
         long btn_center_y = gbtn->scr_pos_y + gbtn->height / 2;
-        
-        // Vector from mouse to button
-        float to_btn_x = (float)(btn_center_x - mouse_x);
-        float to_btn_y = (float)(btn_center_y - mouse_y);
-        float dist = sqrtf(to_btn_x * to_btn_x + to_btn_y * to_btn_y);
-        
-        if (dist < 5.0f) continue; // Skip if already on button
-        
-        // Normalize
-        to_btn_x /= dist;
-        to_btn_y /= dist;
-        
-        // Check alignment with desired direction
-        float dot = dx * to_btn_x + dy * to_btn_y;
-        if (dot < MIN_DOT) continue;
-        
-        // Score based on alignment and distance (prefer close + aligned)
-        float score = dot / (1.0f + dist / 200.0f);
+
+        float score;
+
+        if (gbtn->click_event == gui_get_creature_in_battle)
+        {
+            score = get_battle_buttons_top_score(gbtn,&btn_center_x,&btn_center_y, mouse_x, mouse_y, dx, dy, MIN_DOT);
+        }
+        else
+        {
+            score = get_button_score(mouse_x, mouse_y, btn_center_x, btn_center_y, dx, dy, MIN_DOT);
+        }
         
         if (score > best_score) {
             *snap_to_x = btn_center_x;
@@ -136,7 +188,6 @@ static TbBool find_nearest_button_in_direction(long mouse_x, long mouse_y, float
             btn_found = true;
         }
     }
-
 
     return btn_found;
 }
