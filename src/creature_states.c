@@ -551,21 +551,21 @@ long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
 /******************************************************************************/
 struct CreatureStateConfig *get_thing_active_state_info(struct Thing *thing)
 {
-  if (thing->active_state >= CREATURE_STATES_COUNT)
+  if (thing->active_state >= game.conf.crtr_conf.states_count)
     return &game.conf.crtr_conf.states[0];
   return &game.conf.crtr_conf.states[thing->active_state];
 }
 
 struct CreatureStateConfig *get_thing_continue_state_info(struct Thing *thing)
 {
-    if (thing->continue_state >= CREATURE_STATES_COUNT)
+    if (thing->continue_state >= game.conf.crtr_conf.states_count)
         return &game.conf.crtr_conf.states[0];
     return &game.conf.crtr_conf.states[thing->continue_state];
 }
 
 struct CreatureStateConfig *get_thing_state_info_num(CrtrStateId state_id)
 {
-    if (state_id >= CREATURE_STATES_COUNT)
+    if (state_id >= game.conf.crtr_conf.states_count)
         return &game.conf.crtr_conf.states[0];
     return &game.conf.crtr_conf.states[state_id];
 }
@@ -630,7 +630,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
   long state_type;
   unsigned long state = thing->active_state;
-  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
+  if ( (state > 0) && (state < game.conf.crtr_conf.states_count) )
   {
       state_type = game.conf.crtr_conf.states[state].state_type;
   } else
@@ -642,7 +642,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
   if (state_type == CrStTyp_Move)
   {
       state = thing->continue_state;
-      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
+      if ( (state > 0) && (state < game.conf.crtr_conf.states_count) )
       {
           state_type = game.conf.crtr_conf.states[state].state_type;
       } else
