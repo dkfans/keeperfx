@@ -99,6 +99,7 @@ struct GuiButton* find_nearest_button_in_direction(long mouse_x, long mouse_y, f
         if (!(gbtn->flags & LbBtnF_Active)) continue; 
         if (!(gbtn->flags & LbBtnF_Visible)) continue;
         if (!(gbtn->flags & LbBtnF_Enabled)) continue;
+        if (gbtn->click_event == NULL) continue;
         
         // Calculate button center
         long btn_center_x = gbtn->scr_pos_x + gbtn->width / 2;
