@@ -166,8 +166,8 @@ static TbBool find_nearest_button_in_direction(long mouse_x, long mouse_y, float
 
         
         // Calculate button center
-        long btn_center_x = gbtn->scr_pos_x + gbtn->width / 2;
-        long btn_center_y = gbtn->scr_pos_y + gbtn->height / 2;
+        long btn_center_x = gbtn->pos_x + gbtn->width / 2;
+        long btn_center_y = gbtn->pos_y + gbtn->height / 2;
 
         float score;
 
