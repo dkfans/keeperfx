@@ -217,15 +217,12 @@ const char* lua_get_serialised_data(size_t *len)
     lua_getglobal(Lvl_script, "GetSerializedData");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-        JUSTLOG("calling GetSerializedData");
         int result = lua_pcall(Lvl_script, 0, 1, 0);
-        JUSTLOG("lua_pcall result: %d", result);
         if (!CheckLua(Lvl_script, result, "GetSerializedData")) {
             ERRORLOG("Failed to call GetSerializedData");
             return NULL;
         }
 
-        JUSTLOG("called GetSerializedData");
         if (!lua_isstring(Lvl_script, -1)) {
             ERRORLOG("Expected 'GetSerializedData' to return a string");
             lua_pop(Lvl_script, 1);

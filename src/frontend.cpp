@@ -2366,7 +2366,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     update_radio_button_data(amnu);
     init_slider_bars(amnu);
     init_menu_buttons(amnu);
-    SYNCMSG("Created menu ID %d at slot %d, pos (%d,%d) size (%d,%d)",(int)gmnu->ident,
+    SYNCDBG(8,"Created menu ID %d at slot %d, pos (%d,%d) size (%d,%d)",(int)gmnu->ident,
         (int)mnu_num,(int)amnu->pos_x,(int)amnu->pos_y,(int)amnu->width,(int)amnu->height);
     return mnu_num;
 }
