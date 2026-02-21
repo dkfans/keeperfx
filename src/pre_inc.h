@@ -9,4 +9,10 @@
 #include "pre_file.h"
 #endif
 
+#include <strings.h>
+
+#ifndef strnicmp
+#define strnicmp strncasecmp
+#endif
+
 #endif //GIT_PRE_INC_H

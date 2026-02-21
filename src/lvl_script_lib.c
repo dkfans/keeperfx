@@ -120,6 +120,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
             thing->valuable.gold_stored = arg;
             break;
         default:
+        {
             struct ObjectConfigStats* objst = get_object_model_stats(tngmodel);
             if (objst->genre == OCtg_GoldHoard)
             {
@@ -129,6 +130,8 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
                 }
                 check_and_asimilate_thing_by_room(thing);
             }
+            break;
+        }
     }
     return thing;
 }

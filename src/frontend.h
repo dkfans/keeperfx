@@ -41,7 +41,6 @@ extern "C" {
 // After that much milliseconds in main menu, demo is started
 #define MNU_DEMO_IDLE_TIME 30000
 /******************************************************************************/
-#pragma pack(1)
 
 enum DemoItem_Kind {
     DIK_PlaySmkVideo,

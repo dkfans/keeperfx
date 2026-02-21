@@ -28,26 +28,24 @@ extern "C" {
 #endif
 /******************************************************************************/
 
+#if defined(__i386__) || defined(__x86_64__)
 /** Issue a single request to CPUID.
  *  Fits 'intel features', for instance note that even if only "eax" and "edx"
  *  are of interest, other registers will be modified by the operation,
  *  so we need to tell the compiler about it.
  */
 static inline void cpuid(int code, uint32_t *a, uint32_t *d) {
-  #if defined(__i386__) || defined(__x86_64__)
     asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
-  #endif
 }
 
 /** Issue a complete request, storing general registers output in an array.
  */
 static inline void cpuid_string(int code, void * destination) {
-  #if defined(__i386__) || defined(__x86_64__)
   uint32_t * where = (uint32_t *) destination;
   asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
       "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
-  #endif
 }
+#endif
 /******************************************************************************/
 
 void cpu_detect(struct CPU_INFO *cpu)

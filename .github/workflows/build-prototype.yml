@@ -91,3 +91,59 @@ jobs:
       with:
         name: ${{ env.LINUX_ARTIFACT_NAME }}
         path: bin/keeperfx
+
+  build-prototype-macos:
+    name: "Build Prototype macOS arm64"
+    runs-on: macos-14
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Update system
+      run: |
+        set -eux
+        brew update
+        brew install \
+          cmake \
+          gcc \
+          pkg-config \
+          sdl2 \
+          sdl2_image \
+          sdl2_mixer \
+          sdl2_net \
+          ffmpeg \
+          openal-soft \
+          luajit \
+          libspng \
+          minizip \
+          zlib \
+          miniupnpc \
+          libnatpmp
+
+    - name: Build
+      run: |
+        set -eux
+        GCC_MAJOR=$(brew list --versions gcc | awk '{print $2}' | cut -d. -f1)
+        BUILD_NUMBER=$(git rev-list --count origin/master)
+        GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+        PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
+        make BUILD_NUMBER=$BUILD_NUMBER VER_SUFFIX=$PACKAGE_SUFFIX PLATFORM=mac ARCH=arm64 CC=gcc-$GCC_MAJOR CXX=g++-$GCC_MAJOR -f linux.mk
+
+    - name: Bundle app
+      run: |
+        set -eux
+        chmod +x tools/macos_bundle.sh
+        APP_NAME=KeeperFX.app OUTPUT_DIR=dist BIN_PATH=bin/keeperfx tools/macos_bundle.sh
+
+    - name: Package app
+      run: |
+        set -eux
+        ditto -c -k --keepParent dist/KeeperFX.app dist/KeeperFX.app.zip
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: keeperfx-macos-app
+        path: dist/KeeperFX.app.zip

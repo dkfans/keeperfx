@@ -50,7 +50,7 @@ static const char* sigstr(int s)
     case SIGFPE : return "Floating-point exception (ANSI)";
     case SIGSEGV : return "Segmentation violation (ANSI)";
     case SIGTERM : return "Termination (ANSI)";
-#if defined(__linux__)
+#ifndef _WIN32
     case SIGHUP : return "Hangup (POSIX)";
     case SIGQUIT : return "Quit (POSIX)";
     case SIGTRAP : return "Trace trap (POSIX)";
@@ -74,8 +74,12 @@ static const char* sigstr(int s)
     case SIGWINCH : return "Window size change (4.3 BSD, Sun)";
     case SIGIO : return "I/O now possible (4.2 BSD)";
     case SIGSYS : return "Bad system call";
+#ifdef SIGSTKFLT
     case SIGSTKFLT : return "Stack fault";
+#endif
+#ifdef SIGPWR
     case SIGPWR : return "Power failure restart (System V)";
+#endif
 #else
     case SIGBREAK : return "Ctrl-Break (Win32)";
 #endif
@@ -334,7 +338,7 @@ void LbErrorParachuteInstall(void)
     signal(SIGFPE,ctrl_handler);
     signal(SIGSEGV,ctrl_handler);
     signal(SIGTERM,ctrl_handler);
-#if defined(__linux__)
+#if !defined(_WIN32)
     signal(SIGHUP,ctrl_handler);
     signal(SIGQUIT,ctrl_handler);
     signal(SIGSYS,ctrl_handler);
