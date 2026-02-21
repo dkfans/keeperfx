@@ -139,6 +139,7 @@ obj/bflib_vidraw_spr_onec.o \
 obj/bflib_vidraw_spr_remp.o \
 obj/bflib_vidsurface.o \
 obj/cdrom.o \
+obj/certificate.o \
 obj/config.o \
 obj/config_campaigns.o \
 obj/config_creature.o \
@@ -381,7 +382,7 @@ LINKLIB = -mwindows \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
 	deps/luajit/lib/libluajit.a \
-	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
+	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid -lwintrust -lcrypt32
 INCS = \
 	-I"deps/zlib/include" \
 	-I"deps/spng/include" \

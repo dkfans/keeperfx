@@ -20,6 +20,7 @@
  */
 #include "pre_inc.h"
 #include "steam_api.hpp"
+#include "certificate.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -58,26 +59,24 @@ SteamApiShutdownFunc SteamAPI_Shutdown;
 /**
  * @brief Initializes the Steam API in KeeperFX.
  *
- * This function loads the necessary Steam API library and initializes it.
- * It also performs checks for required files and compatibility.
- *
- * @return Returns 0 on success, -1 when not on Windows, and 1 (or higher) on failure.
+ * This function loads the Steam API library and initializes it.
+ * It performs checks for required files and compatibility and verifies the certificate of the dll file.
  */
-int steam_api_init()
+void steam_api_init()
 {
 #ifndef _WIN32
-    // Windows only
-    return -1;
+    // On anything but Windows we just return because the API is not supposed to get loaded
+    return;
 #else
 
     // Make sure the steam API is not initialized multiple times
     if (steam_lib != NULL || SteamAPI_Init != NULL)
     {
         WARNLOG("Steam API already initialized");
-        return 1;
+        return;
     }
 
-    // Make sure both files are present
+    // Check if both files are present
     if (LbFileExists("steam_api.dll") == false || LbFileExists("steam_appid.txt") == false)
     {
 
@@ -89,28 +88,37 @@ int steam_api_init()
             ERRORLOG("The Steam API requires both the 'steam_api.dll' and 'steam_appid.txt' files to be present");
         }
 
-        return 1;
+        return;
     }
 
     JUSTLOG("'steam_api.dll' and 'steam_appid.txt' found");
 
-    // Make sure we're not running KeeperFX under Wine.
+    // Check if we are running KeeperFX under Wine.
+    // The .dll can not connect to Steam running on the Host machine so we'll log a notice.
+    // Maybe there's cases where a person would also run Steam under Wine.
     // Even if we instead load 'libsteam_api.so' while in a Wine environment,
     // it will be unable to determine a Steam binary running on the Linux host.
-    // We do this check after looking for the files so there's only something in
-    // the log when the user is trying to enable the Steam API.
     if (is_running_under_wine == true)
     {
-        WARNLOG("Using the Steam API under Wine is not supported");
-        return -1;
+        JUSTLOG("The Steam API under Wine will not be able to connect to Steam on the host machine");
+    }
+
+    // Verify certificate
+    int verify_status = verify_certificate("steam_api.dll");
+    if(verify_status == 1){
+        JUSTLOG("'steam_api.dll' certificate successfully verified");
+    } else if (verify_status == -1){
+        JUSTLOG("'steam_api.dll' certificate verification is disabled");
+    } else {
+        ERRORLOG("Failed to verify certificate of 'steam_api.dll'");
+        return;
     }
 
     // Load the Steam API library
     steam_lib = LoadLibraryA("steam_api.dll");
-    if (!steam_lib)
-    {
+    if (!steam_lib) {
         ERRORLOG("Unable to load 'steam_api.dll' library");
-        return 1;
+        return;
     }
 
     JUSTLOG("'steam_api.dll' library loaded");
@@ -123,7 +131,7 @@ int steam_api_init()
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_InitFlat' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
-        return 1;
+        return;
     }
 
     // Unionize the Init function address type to our local function type
@@ -135,7 +143,7 @@ int steam_api_init()
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_Shutdown' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
-        return 1;
+        return;
     }
 
     // Initialize the Steam API
@@ -148,11 +156,10 @@ int steam_api_init()
     {
         JUSTLOG("Steam API Failure: %s", error);
         FreeLibrary(steam_lib);
-        return 1;
+        return;
     }
 
     FreeLibrary(steam_lib);
-    return 0;
 
 #endif
 }

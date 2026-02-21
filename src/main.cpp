@@ -52,6 +52,7 @@
 #include "vidmode.h"
 #include "kjm_input.h"
 #include "packets.h"
+#include "certificate.h"
 #include "config.h"
 #include "config_slabsets.h"
 #include "config_strings.h"
@@ -4124,6 +4125,10 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
           smooth_on = true;
+      } else
+      if (strcasecmp(parstr, "nocertverify") == 0)
+      {
+          verify_certificates = 0;
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {

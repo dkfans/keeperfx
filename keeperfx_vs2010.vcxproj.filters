@@ -129,6 +129,9 @@
     <ClCompile Include="src\config.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\certificate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\config_campaigns.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -933,6 +936,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\certificate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\config_campaigns.h">
