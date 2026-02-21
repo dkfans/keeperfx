@@ -89,7 +89,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: keeperfx-linux
+        name: ${{ env.LINUX_ARTIFACT_NAME }}
         path: bin/keeperfx
 
   build-prototype-macos:
