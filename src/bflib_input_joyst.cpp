@@ -32,6 +32,8 @@
 #include "config_settings.h"
 #include "front_input.h"
 #include "game_legacy.h"
+#include "kjm_input.h"
+#include "frontend.h"
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
@@ -55,6 +57,11 @@ static Uint8 prev_rightshoulder = 0;
 static Uint8 prev_joy_left = 0;
 //static Uint8 prev_joy_right = 0;
 
+static Uint8 prev_dpad_up    = 0;
+static Uint8 prev_dpad_down  = 0;
+static Uint8 prev_dpad_left  = 0;
+static Uint8 prev_dpad_right = 0;
+
 static float mouse_accum_x = 0.0f;
 static float mouse_accum_y = 0.0f;
 
@@ -67,8 +74,149 @@ float movement_accum_y = 0.0f;
 static TimePoint delta_time_previous_timepoint = TimeNow;
 static float input_delta_time = 0.0f;
 
-
+// Forward declarations
+static void snap_cursor_to_button(long *snap_to_x, long *snap_to_y);
+extern void gui_get_creature_in_battle(struct GuiButton *gbtn);
+extern void gui_setup_friend_over(struct GuiButton *gbtn);
 /******************************************************************************/
+
+static float get_button_score(long mouse_x, long mouse_y, long btn_center_x, long btn_center_y, float dx, float dy, float MIN_DOT)
+{
+    // Vector from mouse to button
+    float to_btn_x = (float)(btn_center_x - mouse_x);
+    float to_btn_y = (float)(btn_center_y - mouse_y);
+    float dist = sqrtf(to_btn_x * to_btn_x + to_btn_y * to_btn_y);
+    
+    if (dist < 5.0f) return -1.0f; // Skip if already on button
+    
+    // Normalize
+    to_btn_x /= dist;
+    to_btn_y /= dist;
+    
+    // Check alignment with desired direction
+    float dot = dx * to_btn_x + dy * to_btn_y;
+    if (dot < MIN_DOT) return -1.0f;
+    
+    // Score based on alignment and distance (prefer close + aligned)
+    float score = dot / (1.0f + dist / 200.0f);
+    return score;
+}
+
+static float get_battle_buttons_top_score(const struct GuiButton* gbtn, long *btn_center_x, long *btn_center_y, long mouse_x, long mouse_y, float dx, float dy, float MIN_DOT)
+{
+
+    int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;// the row of buttons 0 1 
+    long btn_y = gbtn->scr_pos_y + gbtn->height / 2;
+    float best_score = -1.0f;
+
+    TbBool friendly = (gbtn->ptover_event == gui_setup_friend_over);
+
+    for (int i = 0; i < MESSAGE_BATTLERS_COUNT; i++) {
+        struct Thing* thing;
+        if (friendly)
+            thing = thing_get(friendly_battler_list[(MESSAGE_BATTLERS_COUNT * visbtl_id) + i]);
+        else
+            thing = thing_get(enemy_battler_list[(MESSAGE_BATTLERS_COUNT * visbtl_id) + i]);
+        
+        if (thing_exists(thing) && thing_revealed(thing, my_player_number))
+        {
+            const int slot_w = gbtn->width / 7;
+            int btn_x;
+            if (friendly)
+                btn_x = gbtn->scr_pos_x + (6 - i) * slot_w + slot_w / 2;
+            else
+                btn_x = gbtn->scr_pos_x + i * slot_w + slot_w / 2;
+            
+            float score = get_button_score(mouse_x, mouse_y, btn_x, btn_y, dx, dy, MIN_DOT);
+            if (score > best_score) {
+                *btn_center_x = btn_x;
+                *btn_center_y = btn_y;
+                
+                best_score = score;
+            }
+        }
+    }
+
+    return best_score;
+}
+
+static TbBool find_nearest_button_in_direction(long mouse_x, long mouse_y, float dx, float dy, long *snap_to_x, long *snap_to_y)
+{
+    float best_score = -1.0f;
+    const float MIN_DOT = 0.3f; // Minimum alignment required
+    *snap_to_x = 0;
+    *snap_to_y = 0;
+
+    TbBool btn_found = false;
+    
+    // Normalize direction
+    float mag = sqrtf(dx * dx + dy * dy);
+    if (mag < 0.01f) return false;
+    dx /= mag;
+    dy /= mag;
+    
+    for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++) {
+        struct GuiButton* gbtn = &active_buttons[i];
+        
+        // Skip inactive, invisible, or disabled buttons
+        if (!(gbtn->flags & LbBtnF_Active)) continue; 
+        if (!(gbtn->flags & LbBtnF_Visible)) continue;
+        if (!(gbtn->flags & LbBtnF_Enabled)) continue;
+        if (gbtn->click_event == NULL) continue;
+
+        
+        // Calculate button center
+        long btn_center_x = gbtn->pos_x + gbtn->width / 2;
+        long btn_center_y = gbtn->pos_y + gbtn->height / 2;
+
+        float score;
+
+        if (gbtn->click_event == gui_get_creature_in_battle)
+        {
+            score = get_battle_buttons_top_score(gbtn,&btn_center_x,&btn_center_y, mouse_x, mouse_y, dx, dy, MIN_DOT);
+        }
+        else
+        {
+            score = get_button_score(mouse_x, mouse_y, btn_center_x, btn_center_y, dx, dy, MIN_DOT);
+        }
+        
+        if (score > best_score) {
+            *snap_to_x = btn_center_x;
+            *snap_to_y = btn_center_y;
+            
+            best_score = score;
+            btn_found = true;
+        }
+    }
+
+    return btn_found;
+}
+
+static void snap_cursor_to_button(long *snap_to_x, long *snap_to_y)
+{
+    if (snap_to_x == NULL || snap_to_y == NULL) return;
+    
+    long btn_center_x = *snap_to_x;
+    long btn_center_y = *snap_to_y;
+    
+    struct TbPoint delta;
+    delta.x = btn_center_x - GetMouseX();
+    delta.y = btn_center_y - GetMouseY();
+    
+    mouseControl(MActn_MOUSEMOVE, &delta);
+
+    mouse_accum_x = 0.0f;
+    mouse_accum_y = 0.0f;
+}
+
+static void snap_to_direction(long mouse_x, long mouse_y, float dx, float dy)
+{
+    long snap_to_x, snap_to_y;
+    TbBool found = find_nearest_button_in_direction(mouse_x, mouse_y, dx, dy, &snap_to_x, &snap_to_y);
+
+    if (found)
+        snap_cursor_to_button(&snap_to_x, &snap_to_y);
+}
 
 static void open_controller(int device_index)
 {
@@ -336,11 +484,40 @@ void poll_controller()
         //analog sticks and dpad, layout based on what's available, with mouse being most important, then movement, then cam rotation/zoom
 
         if (has_right_stick && has_left_stick) {
-            lbKeyOn[KC_HOME] =   SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
-            lbKeyOn[KC_END] =    SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-            lbKeyOn[KC_PGDOWN] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-            lbKeyOn[KC_DELETE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-
+            // D-pad for button snapping
+            Uint8 dpad_up =    SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+            Uint8 dpad_down =  SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+            Uint8 dpad_left =  SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+            Uint8 dpad_right = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+            Uint8 btn_B = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+            
+            if (!btn_B) {
+            
+                // Check for button press (edge detection)
+                if (dpad_up && !prev_dpad_up) {
+                    snap_to_direction(GetMouseX(), GetMouseY(), 0.0f, -1.0f);
+                }
+                if (dpad_down && !prev_dpad_down) {
+                    snap_to_direction(GetMouseX(), GetMouseY(), 0.0f, 1.0f);
+                }
+                if (dpad_left && !prev_dpad_left) {
+                    snap_to_direction(GetMouseX(), GetMouseY(), -1.0f, 0.0f);
+                }
+                if (dpad_right && !prev_dpad_right) {
+                    snap_to_direction(GetMouseX(), GetMouseY(), 1.0f, 0.0f);
+                }
+            }
+            else {
+                lbKeyOn[KC_UP] = dpad_up;
+                lbKeyOn[KC_DOWN] = dpad_down;
+                lbKeyOn[KC_RIGHT] = dpad_left;
+                lbKeyOn[KC_LEFT] = dpad_right;
+            }
+            
+            prev_dpad_up = dpad_up;
+            prev_dpad_down = dpad_down;
+            prev_dpad_left = dpad_left;
+            prev_dpad_right = dpad_right;
             
             Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
             Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
@@ -470,8 +647,8 @@ void poll_controller()
 
     } else if (joystick != NULL) {
         // Map joystick buttons to keyboard keys (assuming standard layout)
-        lbKeyOn[KC_HOME] = SDL_JoystickGetButton(joystick, 10); // D-pad up
-        lbKeyOn[KC_END] = SDL_JoystickGetButton(joystick, 12); // D-pad down
+        lbKeyOn[KC_HOME] =   SDL_JoystickGetButton(joystick, 10); // D-pad up
+        lbKeyOn[KC_END] =    SDL_JoystickGetButton(joystick, 12); // D-pad down
         lbKeyOn[KC_PGDOWN] = SDL_JoystickGetButton(joystick, 13); // D-pad left
         lbKeyOn[KC_DELETE] = SDL_JoystickGetButton(joystick, 11); // D-pad right
 
