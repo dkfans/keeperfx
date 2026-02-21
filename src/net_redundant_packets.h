@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lens_mist.h
- *     Header file for lens_mist.cpp.
+/** @file redundant_packets.h
+ *     Header file for redundant_packets.c.
  * @par Purpose:
- *     Mist lens effect functions.
+ *     Redundant packet bundling for network game packet loss prevention.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     05 Jan 2009 - 12 Aug 2009
+ * @author   KeeperFX Team
+ * @date     11 Nov 2025
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,22 +16,37 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_LENSMIST_H
-#define DK_LENSMIST_H
+#ifndef DK_REDUNDANT_PACKETS_H
+#define DK_REDUNDANT_PACKETS_H
 
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
+#include "packets.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
-void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost);
-TbBool draw_mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height);
-void free_mist(void);
+#pragma pack(1)
+
+#define REDUNDANT_PACKET_COUNT 3
+
+struct BundledPacket {
+    unsigned char valid_count;
+    struct Packet packets[REDUNDANT_PACKET_COUNT];
+};
+
+#pragma pack()
+/******************************************************************************/
+void initialize_redundant_packets(void);
+void clear_redundant_packets(void);
+void store_sent_packet(PlayerNumber player, const struct Packet* packet);
+size_t bundle_packets(PlayerNumber player, const struct Packet* current_packet, char* out_buffer);
+void unbundle_packets(const char* bundled_buffer, PlayerNumber source_player);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
-
 #endif

@@ -20,6 +20,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_inputctrl.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"
@@ -378,7 +379,7 @@ long compute_creature_max_strength(long base_param, CrtrExpLevel exp_level)
         exp_level = CREATURE_MAX_LEVEL-1;
     }
     long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)exp_level) / 100;
-    if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
+    if (flag_is_set(game.conf.rules[0].game.classic_bugs_flags, ClscBug_Overflow8bitVal))
     {
         return min(max_param, UCHAR_MAX+1); // DK1 limited shot damage to 256, not 255.
     }
@@ -525,22 +526,21 @@ long compute_creature_attack_melee_damage(long base_param, long luck, CrtrExpLev
  * @param luck Creature luck, scaled 0..100.
  * @param exp_level Creature level, 0..9.
  */
-long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, struct Thing* thing)
+long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (exp_level >= CREATURE_MAX_LEVEL)
         exp_level = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)exp_level) / 100;
     // Apply modifier.
-    if (!is_neutral_thing(thing))
+    if (!dungeon_invalid(dungeon))
     {
-        dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
         max_param = (max_param * modifier) / 100;
     }
     if (luck > 0)
     {
-        if (THING_RANDOM(thing, 100) < luck)
+        if (PLAYER_RANDOM(plyr_idx,100) < luck)
             max_param *= 2;
     }
     return max_param;
@@ -611,20 +611,20 @@ long compute_creature_work_value_for_room_role(const struct Thing *creatng, Room
     long i = 256;
     if ((rrole & RoRoF_Research) != 0)
     {
-        i = compute_creature_work_value(crconf->research_value* game.conf.rules.rooms.research_efficiency, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->research_value* game.conf.rules[creatng->owner].rooms.research_efficiency, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CratesManufctr) != 0)
     {
-        i = compute_creature_work_value(crconf->manufacture_value* game.conf.rules.rooms.work_efficiency, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->manufacture_value* game.conf.rules[creatng->owner].rooms.work_efficiency, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CrTrainExp) != 0)
     {
         // Training speed does not grow with experience - otherwise it would be too fast.
-        i = compute_creature_work_value(crconf->training_value* game.conf.rules.rooms.train_efficiency, efficiency, 0);
+        i = compute_creature_work_value(crconf->training_value* game.conf.rules[creatng->owner].rooms.train_efficiency, efficiency, 0);
     }
     if ((rrole & RoRoF_CrScavenge) != 0)
     {
-        i = compute_creature_work_value(crconf->scavenge_value* game.conf.rules.rooms.scavenge_efficiency, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->scavenge_value* game.conf.rules[creatng->owner].rooms.scavenge_efficiency, efficiency, cctrl->exp_level);
     }
     return process_work_speed_on_work_value(creatng, i);
 }
@@ -796,7 +796,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
         pay = (pay * modifier) / 100;
         // If torturing creature of that model, change the salary with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            pay = (pay * game.conf.rules.game.torture_payday) / 100;
+            pay = (pay * game.conf.rules[dungeon->owner].game.torture_payday) / 100;
     }
     return pay;
 }
@@ -815,7 +815,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
         training_cost = (training_cost * modifier) / 100;
         // If torturing creature of that model, change the training cost with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            training_cost = (training_cost * game.conf.rules.game.torture_training_cost) / 100;
+            training_cost = (training_cost * game.conf.rules[dungeon->owner].game.torture_training_cost) / 100;
     }
     return training_cost;
 }
@@ -834,7 +834,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
         scavenger_cost = (scavenger_cost * modifier) / 100;
         // If torturing creature of that model, change the scavenging cost with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            scavenger_cost = (scavenger_cost * game.conf.rules.game.torture_scavenging_cost) / 100;
+            scavenger_cost = (scavenger_cost * game.conf.rules[dungeon->owner].game.torture_scavenging_cost) / 100;
     }
     return scavenger_cost;
 }
@@ -866,13 +866,13 @@ long compute_value_percentage(long base_val, short npercent)
 {
     if (base_val > 0)
     {
-        if (base_val > LONG_MAX/(abs(npercent)+1))
-            base_val = LONG_MAX/(abs(npercent)+1);
+        if (base_val > INT32_MAX/(abs(npercent)+1))
+            base_val = INT32_MAX/(abs(npercent)+1);
     } else
     if (base_val < 0)
     {
-        if (base_val < LONG_MIN/(abs(npercent)+1))
-            base_val = LONG_MIN/(abs(npercent)+1);
+        if (base_val < INT32_MIN/(abs(npercent)+1))
+            base_val = INT32_MIN/(abs(npercent)+1);
     }
     return (base_val*(long)npercent+49)/100;
 }
@@ -1004,6 +1004,11 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
             i = 1;
         }
         PaletteApplyPainToPlayer(player, i);
+
+        if (is_my_player(player))
+        {
+            controller_rumble(100);
+        }
     }
     return cdamage;
 }
@@ -1114,9 +1119,9 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
 {
     long dig_damage;
     if (slabmap_owner(slb) == diggertng->owner)
-        dig_damage = game.conf.rules.workers.default_imp_dig_own_damage;
+        dig_damage = game.conf.rules[diggertng->owner].workers.default_imp_dig_own_damage;
     else
-        dig_damage = game.conf.rules.workers.default_imp_dig_damage;
+        dig_damage = game.conf.rules[diggertng->owner].workers.default_imp_dig_damage;
     return dig_damage;
 }
 

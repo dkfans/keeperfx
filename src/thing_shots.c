@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
+#include "bflib_inputctrl.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "thing_data.h"
@@ -92,23 +93,26 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
-    struct Thing* castng = INVALID_THING;
+    struct Thing* castng = get_parent_thing(shotng);
+    TRACE_THING(castng);
     struct PlayerInfo* myplyr = get_my_player();
     KeepPwrLevel power_level;
     long damage;
-    // Identify the creator of the shot
-    if (shotng->index != shotng->parent_idx) {
-        castng = thing_get(shotng->parent_idx);
-        TRACE_THING(castng);
-    }
     // If the shot has area_range, then make area damage
     if (shotst->area_range != 0) {
-        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(castng);
-        //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
-        // Caster may have leveled up, or even may be already dead
-        // But currently shot do not store its level, so we don't really have a choice
-        struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
-        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crconf->luck, cctrl->exp_level);
+        unsigned char luck = 0;
+        CrtrExpLevel exp_level = 0;
+        if (thing_is_creature(castng))
+        {
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(castng);
+            //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
+            // Caster may have leveled up, or even may be already dead
+            // But currently shot do not store its level, so we don't really have a choice
+            struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
+            luck = crconf->luck;
+            exp_level = cctrl->exp_level;
+        }
+        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, exp_level);
         if (flag_is_set(shotst->model_flags, ShMF_StrengthBased))
         {
             if (shotst->area_damage == 0)
@@ -122,13 +126,13 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         else
         {
-            damage = compute_creature_attack_spell_damage(shotst->area_damage, crconf->luck, cctrl->exp_level, castng);
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, luck, exp_level, shotng->owner);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets);
     }
-    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner, shotng->index);
-    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner, shotng->index);
+    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner, shotng->parent_idx); //Parent of explosion is set to caster creature/trap
+    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner, shotng->parent_idx);
     if (shotst->explode.around_effect1_model != 0)
     {
         create_effect_around_thing(shotng, shotst->explode.around_effect1_model);
@@ -200,9 +204,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     unsigned short k;
-    struct Thing* diggertng = INVALID_THING;
-    if (thing->index != thing->parent_idx)
-      diggertng = thing_get(thing->parent_idx);
+    struct Thing* diggertng = get_parent_thing(thing);
     if (!thing_exists(diggertng))
     {
         ERRORLOG("Digging shot hit wall, but there's no digger creature index %d.",thing->parent_idx);
@@ -297,7 +299,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     *health = slb->health;
     // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
     // If you're not the tile owner, unless the classic bug mode is enabled.
-    if (!(game.conf.rules.game.classic_bugs_flags & ClscBug_BreakNeutralWalls))
+    if (!(game.conf.rules[diggertng->owner].game.classic_bugs_flags & ClscBug_BreakNeutralWalls))
     {
         if (slabmap_owner(slb) != diggertng->owner)
         {
@@ -853,10 +855,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     if (target->health < 0) {
         return false;
     }
-    struct Thing* shootertng = INVALID_THING;
-    if (shotng->parent_idx != shotng->index) {
-        shootertng = thing_get(shotng->parent_idx);
-    }
+    struct Thing* shootertng = get_parent_thing(shotng);
     if (thing_is_dungeon_heart(target))
     {
         if (shotst->hit_heart.effect_model != 0)
@@ -872,6 +871,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
             event_create_event_or_update_nearby_existing_event(shootertng->mappos.x.val, shootertng->mappos.y.val, EvKind_HeartAttacked, target->owner, shootertng->index);
             if (is_my_player_number(target->owner)) {
                 output_message(SMsg_HeartUnderAttack, 400);
+                controller_rumble(50);
             }
         }
     } else
@@ -1008,7 +1008,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0) | ((shotst->model_flags & ShMF_BlocksRebirth)? CrDed_NoRebirth : 0);
     }
     // Friendly fire should kill the creature, not knock out
-    if (players_creatures_tolerate_each_other(shotng->owner,creatng->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint))
+    if (players_creatures_tolerate_each_other(shotng->owner,creatng->owner) &! (game.conf.rules[shotng->owner].game.classic_bugs_flags & ClscBug_FriendlyFaint))
     {
         dieflags |= CrDed_NoUnconscious;
     }
@@ -1024,7 +1024,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 int weight_calculated_push_strenght(int weight, int push_strength)
 {
     const int min_weight = 6; // Minimum weight threshold for the creature.
-    const int max_weight = game.conf.rules.magic.weight_calculate_push; // Maximum weight threshold for the creature.
+    const int max_weight = game.conf.rules[0].magic.weight_calculate_push; // Maximum weight threshold for the creature.
     const int percent_factor = 1000; // Factor used to scale the weight factor to a percentage.
 
     // Ensure that the weight is within the valid range of min_weight to max_weight.
@@ -1057,9 +1057,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     int adjusted_throw_strength;
     if (trgtng->health < 0)
         return 0;
-    struct Thing* shooter = INVALID_THING;
-    if (shotng->parent_idx != shotng->index)
-        shooter = thing_get(shotng->parent_idx);
+    struct Thing* shooter = get_parent_thing(shotng);
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
     long damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
     if (damage > 0)
@@ -1115,7 +1113,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         adjusted_throw_strength = throw_strength;
 
 
-        if (game.conf.rules.magic.weight_calculate_push > 0)
+        if (game.conf.rules[trgtng->owner].magic.weight_calculate_push > 0)
         {
             int weight = compute_creature_weight(trgtng);
             adjusted_throw_strength = weight_calculated_push_strenght(weight, throw_strength);
@@ -1179,10 +1177,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     int adjusted_push_strength;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long push_strength = shotst->push_on_hit;
-    struct Thing* shooter = INVALID_THING;
-    if (shotng->parent_idx != shotng->index) {
-        shooter = thing_get(shotng->parent_idx);
-    }
+    struct Thing* shooter = get_parent_thing(shotng);
     // Two fighting creatures gives experience
     if (thing_is_creature(shooter) && thing_is_creature(trgtng))
     {
@@ -1197,10 +1192,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (creature_under_spell_effect(trgtng, CSAfF_Rebound) && !flag_is_set(shotst->model_flags, ShMF_ReboundImmune))
     {
-        struct Thing* killertng = INVALID_THING;
-        if (shotng->index != shotng->parent_idx) {
-            killertng = thing_get(shotng->parent_idx);
-        }
+        struct Thing* killertng = get_parent_thing(shotng);
         if (!thing_is_invalid(killertng))
         {
             if (shot_model_is_navigable(shotng->model))
@@ -1259,7 +1251,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (shotng->shot.damage != 0)
     {
         HitPoints damage_done;
-        if (!thing_is_invalid(shooter)) {
+        if (thing_exists(shooter)) {
             damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
         } else {
             damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1);
@@ -1305,7 +1297,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
 
     adjusted_push_strength = push_strength;
-    if (game.conf.rules.magic.weight_calculate_push > 0)
+    if (game.conf.rules[trgtng->owner].magic.weight_calculate_push > 0)
     {
         int weight = compute_creature_weight(trgtng);
         adjusted_push_strength = weight_calculated_push_strenght(weight, push_strength);
@@ -1324,7 +1316,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         if (push_strength == 0)
             push_strength++;
-        if (game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
+        if (game.conf.rules[trgtng->owner].game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
         push_strength *= 5;
         int move_x = push_strength * shotng->velocity.x.val / 16.0;
@@ -1382,7 +1374,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
+        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules[trgtng->owner].game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
         {
             return 0;
         }
@@ -1452,10 +1444,7 @@ HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, cons
 
 struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags param1, long param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Thing* parntng = INVALID_THING;
-    if (shotng->parent_idx > 0) {
-        parntng = thing_get(shotng->parent_idx);
-    }
+    struct Thing* parntng = get_parent_thing(shotng);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
@@ -1691,7 +1680,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                   if (is_my_player_number(thing->owner))
                   {
                       player = get_player(thing->owner);
-                      if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
+                      if ((thing->parent_idx > 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
                       {
                           PaletteSetPlayerPalette(player, lightning_palette);
                           myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
@@ -1848,7 +1837,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     long blow_distance = param->primary_number;
     // calculate max distance
     int maxdistance = shotst->health * shotst->speed;
-    MapCoordDelta creature_distance = LONG_MAX;
+    MapCoordDelta creature_distance = INT32_MAX;
     TbBool apply_velocity = false;
     switch (thing->class_id)
     {
@@ -1863,7 +1852,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
 
                 // if weight-affect-push-rule is on
-                if (game.conf.rules.magic.weight_calculate_push > 0)
+                if (game.conf.rules[thing->owner].magic.weight_calculate_push > 0)
                 {
                     long weight = compute_creature_weight(thing);
                     //max push distance
@@ -1890,7 +1879,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                     apply_velocity = true;
                     set_flag(cctrl->spell_flags, CSAfF_Wind);
                 } // If weight_affect_push_rule is on.
-                else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected)
+                else if (game.conf.rules[thing->owner].magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected)
                 {
                     // Add creature index to wind_affected_creature array.
                     shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;

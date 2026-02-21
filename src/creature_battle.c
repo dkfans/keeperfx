@@ -147,7 +147,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     // Heroes should flee to their gate
     if (is_hero_thing(creatng))
     {
-        struct Thing* gatetng = find_hero_door_hero_can_navigate_to(creatng);
+        struct Thing* gatetng = find_best_hero_gate_to_navigate_to(creatng);
         if ( !thing_is_invalid(gatetng) )
         {
             pos->x.val = gatetng->mappos.x.val;

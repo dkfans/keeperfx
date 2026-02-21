@@ -27,6 +27,7 @@
 
 #include "lua_base.h"
 #include "lua_params.h"
+#include "lua_api_lens.h"
 
 
 #include "post_inc.h"
@@ -379,7 +380,7 @@ static int lua_Set_next_level(lua_State *L)
     {
         return luaL_argerror(L, 1, lua_pushfstring(L, "Level '%d' not part of current campaign", lvnum));
     }
-    
+
     intralvl.next_level = lvnum;
     return 0;
 }
@@ -454,7 +455,7 @@ static int lua_Add_to_party(lua_State *L)
       return 0;
     }
 
-    add_member_to_party(party_id, crtr_id, experience, gold, objective_id, countdown);
+    add_member_to_party(party_id, crtr_id, experience, gold, objective_id, countdown, -1);
     return 0;
 }
 
@@ -628,6 +629,20 @@ static int lua_Quick_message(lua_State *L)
     return 0;
 }
 
+static int lua_Clear_message(lua_State* L)
+{
+    char count = luaL_optCheckinteger(L, 1);
+    if ((count <= 0) || (count > GUI_MESSAGES_COUNT))
+    {
+        count = GUI_MESSAGES_COUNT;
+    }
+    for (int k = game.active_messages_count - 1; k >= (game.active_messages_count - count); k--)
+    {
+        game.messages[k].expiration_turn = game.play_gameturn;
+    }
+    return 0;
+}
+
 static int lua_Heart_lost_objective(lua_State *L)
 {
     long message_id = luaL_checkinteger(L, 1);
@@ -681,7 +696,7 @@ static int lua_Play_message(lua_State *L)
 static int lua_Tutorial_flash_button(lua_State *L)
 {
     long button = -1;
-    
+
     if (lua_isnumber(L, 1))
     {
         button = luaL_checkinteger(L, 1);
@@ -752,15 +767,15 @@ static int lua_Reveal_map_location(lua_State *L)
     MapSubtlDelta range = luaL_checkinteger(L, 3);
 
 
-    SYNCDBG(0, "Revealing location type %lu", target);
+    SYNCDBG(0, "Revealing location type %u", target);
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
-        long x = 0;
-        long y = 0;
+        MapSubtlCoord x = 0;
+        MapSubtlCoord y = 0;
         find_map_location_coords(target, &x, &y, i, __func__);
         if ((x == 0) && (y == 0))
         {
-            WARNLOG("Can't decode location %lu", target);
+            WARNLOG("Can't decode location %u", target);
             return 0;
         }
         if (range == -1)
@@ -1037,8 +1052,8 @@ static int lua_Set_hand_rule(lua_State *L)
     long crtr_id = luaL_checkNamedCommand(L,2,creature_desc);
     long rule_slot = luaL_checkinteger(L, 3);
     long rule_action = luaL_checkNamedCommand(L,4,rule_action_desc);
-    long rule = luaL_checkNamedCommand(L,4,rule_action_desc);
-    long param = luaL_checkinteger(L, 5);
+    long rule = luaL_checkNamedCommand(L,5,hand_rule_desc);
+    long param = luaL_checkinteger(L, 6);
 
     script_set_hand_rule(player_idx, crtr_id, rule_action, rule_slot, rule, param);
     return 0;
@@ -1165,8 +1180,8 @@ static int lua_Set_creature_tendencies(lua_State *L)
         if (is_my_player(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
-            game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-            game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+            game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+            game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
         }
     }
     return 0;
@@ -1746,9 +1761,7 @@ static int lua_Use_spell_on_creature(lua_State *L)
     long spell_id = luaL_checkNamedCommand(L,2,spell_desc);
     int spell_level = luaL_checkinteger(L, 3);
 
-    unsigned long fmcl_bytes = (spell_id << 8) | spell_level;
-
-    script_use_spell_on_creature(thing->owner, thing, fmcl_bytes);
+    script_use_spell_on_creature(thing->owner, thing, spell_id, spell_level);
     return 0;
 }
 
@@ -1929,7 +1942,7 @@ static int lua_get_things_of_class(lua_State *L)
     return 1; // return value is the amount of args you push back
 }
 
-static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, unsigned long *k)
+static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, uint32_t *k)
 {
     int ri = dungeon->room_list_start[rkind];
 
@@ -1960,7 +1973,7 @@ static int lua_get_rooms_of_player_and_kind(lua_State *L)
     const char* room_name = luaL_checkstring(L, 2);
 
     lua_newtable(L);
-    unsigned long k = 0;
+    uint32_t k = 0;
 
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
@@ -2104,6 +2117,7 @@ static const luaL_Reg global_methods[] = {
    {"QuickInformationWithPos"               ,lua_Quick_information_with_pos      },
    {"DisplayMessage"                        ,lua_Display_message                 },
    {"QuickMessage"                          ,lua_Quick_message                   },
+   {"ClearMessage"                          ,lua_Clear_message                   },
    {"HeartLostObjective"                    ,lua_Heart_lost_objective            },
    {"HeartLostQuickObjective"               ,lua_Heart_lost_quick_objective      },
    {"PlayMessage"                           ,lua_Play_message                    },
@@ -2235,6 +2249,7 @@ void Player_register(lua_State *L);
 void Thing_register(lua_State *L);
 void Slab_register(lua_State *L);
 void room_register(lua_State *L);
+void Lens_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
@@ -2243,4 +2258,5 @@ void reg_host_functions(lua_State *L)
     Thing_register(L);
     Slab_register(L);
     room_register(L);
+    Lens_register(L);
 }

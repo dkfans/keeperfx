@@ -12,20 +12,22 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+
+#include "globals.h"
+#include "config_creature.h"
+#include "creature_states_pray.h"
+#include "dungeon_data.h"
+#include "gui_msgs.h"
+#include "lvl_filesdk1.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_commands.h"
-
-#include "globals.h"
-#include "thing_factory.h"
-#include "thing_physics.h"
-#include "thing_navigate.h"
-#include "dungeon_data.h"
-#include "lvl_filesdk1.h"
-#include "creature_states_pray.h"
 #include "magic_powers.h"
-#include "config_creature.h"
-#include "gui_msgs.h"
+#include "room_util.h"
+#include "thing_factory.h"
+#include "thing_navigate.h"
+#include "thing_physics.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -84,7 +86,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
     struct Thing* thing = create_object(&pos, tngmodel, plyr_idx, -1);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %ld, %ld",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
+        ERRORLOG("Couldn't create %s at location %d, %d",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
         return INVALID_THING;
     }
     thing->move_angle_xy = move_angle;
@@ -117,6 +119,16 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
         case ObjMdl_GoldBag:
             thing->valuable.gold_stored = arg;
             break;
+        default:
+            struct ObjectConfigStats* objst = get_object_model_stats(tngmodel);
+            if (objst->genre == OCtg_GoldHoard)
+            {
+                if (arg > 0)
+                {
+                    thing->valuable.gold_stored = arg;
+                }
+                check_and_asimilate_thing_by_room(thing);
+            }
     }
     return thing;
 }
@@ -359,7 +371,7 @@ void get_chat_icon_from_value(const char* txt, char* id, char* type)
 }
 
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
-TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num)
+TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *func_name, long ln_num)
 {
     *plr_range_id = get_rid(player_desc, plrname);
     if (*plr_range_id == -1)
@@ -372,6 +384,45 @@ TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func
       }
     }
     return true;
+}
+
+/**
+ * Returns hero objective, and also optionally checks the player name between brackets.
+ * @param target gets filled with player number, or -1.
+ * @return Hero Objective ID
+ */
+PlayerNumber get_objective_id_with_potential_target(const char* locname, PlayerNumber* target)
+{
+    char before_bracket[COMMAND_WORD_LEN];
+    char player_string[COMMAND_WORD_LEN];
+    const char* bracket = strchr(locname, '[');
+
+    if (bracket == NULL) {
+        strncpy(before_bracket, locname, sizeof(before_bracket) - 1);
+        before_bracket[sizeof(before_bracket) - 1] = '\0';
+        return get_rid(hero_objective_desc, before_bracket);
+    }
+
+    // Extract text before '['
+    size_t len = min((size_t)(bracket - locname), sizeof(before_bracket) - 1);
+    strncpy(before_bracket, locname, len);
+    before_bracket[len] = '\0';
+
+    // Extract text inside the brackets
+    const char* start = bracket + 1;
+    const char* end = strchr(start, ']');
+
+    if (end != NULL) {
+        size_t string_length = min((size_t)(end - start), sizeof(player_string) - 1);
+        strncpy(player_string, start, string_length);
+        player_string[string_length] = '\0';
+
+        PlayerNumber plyr_idx = get_rid(player_desc, player_string);
+        if (plyr_idx < 0)
+            plyr_idx = get_rid(cmpgn_human_player_options, player_string);
+        *target = plyr_idx;
+    }
+    return get_rid(hero_objective_desc, before_bracket);
 }
 
 #ifdef __cplusplus

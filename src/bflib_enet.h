@@ -15,7 +15,29 @@
 #ifndef GIT_BFLIB_ENET_H
 #define GIT_BFLIB_ENET_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+enum {
+    ENET_CHANNEL_RELIABLE = 0,
+    ENET_CHANNEL_UNSEQUENCED = 1
+};
+
 struct NetSP;
 struct NetSP* InitEnetSP();
+unsigned long GetPing(int id);
+unsigned long GetPingVariance(int id);
+unsigned int GetPacketLoss(int id);
+unsigned int GetClientDataInTransit();
+unsigned int GetIncomingPacketQueueSize();
+unsigned int GetClientPacketsLost();
+unsigned int GetClientOutgoingDataTotal();
+unsigned int GetClientIncomingDataTotal();
+unsigned int GetClientReliableCommandsInFlight();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //GIT_BFLIB_ENET_H

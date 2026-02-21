@@ -68,6 +68,7 @@ extern "C" {
 #define ZOOM_KEY_ROOMS_COUNT   15
 
 #define CMDLINE_OVERRIDES      4
+
 /** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
     Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
@@ -85,17 +86,6 @@ enum ModeFlags {
     MFlg_Unusedparam20      =  0x20,
     MFlg_DemoMode           =  0x40,
     MFlg_NoHeroHealthFlower =  0x80,
-};
-
-enum FFlags {
-    FFlg_Unusedparam01      =  0x01,
-    FFlg_ShowLevelIntroText =  0x02,
-    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
-    FFlg_HalfSizeRender     =  0x08,
-    FFlg_NetworkTimeout     =  0x10,
-    FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40, // now unused
-    FFlg_MainMenuReturn     =  0x80,
 };
 
 enum DebugFlags {
@@ -133,13 +123,16 @@ struct StartupParameters {
     LevelNumber selected_level_number;
     TbBool no_intro;
     TbBool one_player;
+    TbBool easter_egg;
+    TbBool ignore_mods;
     unsigned char operation_flags;
     unsigned char flags_font;
     unsigned char mode_flags;
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
     long num_fps;
-    long num_fps_draw;
+    int32_t num_fps_draw_main; // -1 if auto
+    int32_t num_fps_draw_secondary;
     TbBool packet_save_enable;
     TbBool packet_load_enable;
     char packet_fname[150];
@@ -168,36 +161,36 @@ extern unsigned char exit_keeper;
 extern unsigned char quit_game;
 extern unsigned char is_running_under_wine;
 extern int continue_game_option_available;
-extern long last_mouse_x;
-extern long last_mouse_y;
+extern int32_t last_mouse_x;
+extern int32_t last_mouse_y;
 extern int FatalError;
-extern long define_key_scroll_offset;
-extern unsigned long time_last_played_demo;
+extern int32_t define_key_scroll_offset;
+extern uint32_t time_last_played_demo;
 extern short drag_menu_x;
 extern short drag_menu_y;
 extern unsigned short tool_tip_time;
 extern unsigned short help_tip_time;
-extern long pointer_x;
-extern long pointer_y;
-extern long block_pointed_at_x;
-extern long block_pointed_at_y;
-extern long pointed_at_frac_x;
-extern long pointed_at_frac_y;
-extern long top_pointed_at_x;
-extern long top_pointed_at_y;
-extern long top_pointed_at_frac_x;
-extern long top_pointed_at_frac_y;
+extern int32_t pointer_x;
+extern int32_t pointer_y;
+extern int32_t block_pointed_at_x;
+extern int32_t block_pointed_at_y;
+extern int32_t pointed_at_frac_x;
+extern int32_t pointed_at_frac_y;
+extern int32_t top_pointed_at_x;
+extern int32_t top_pointed_at_y;
+extern int32_t top_pointed_at_frac_x;
+extern int32_t top_pointed_at_frac_y;
 extern char level_name[88];
 extern char top_of_breed_list;
 /** Amount of different creature kinds the local player has. Used for creatures tab in panel menu. */
 extern char no_of_breeds_owned;
-extern long optimised_lights;
-extern long total_lights;
+extern int32_t optimised_lights;
+extern int32_t total_lights;
 extern unsigned char do_lights;
 extern struct Thing *thing_pointed_at;
 extern struct Map *me_pointed_at;
-extern long my_mouse_x;
-extern long my_mouse_y;
+extern int32_t my_mouse_x;
+extern int32_t my_mouse_y;
 extern char *level_names_data;
 extern char *end_level_names_data;
 extern unsigned char *frontend_backup_palette;
@@ -222,7 +215,7 @@ short reset_game(void);
 void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
-struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
+struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, TbBool allowed);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
@@ -237,14 +230,14 @@ void process_payday(void);
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
-void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y);
+void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y);
 void init_player_types();
 void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
-void add_creature_to_pool(ThingModel kind, long amount);
-void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
+void add_creature_to_pool(ThingModel kind, int32_t amount);
+void draw_texture(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7);
 
 short zoom_to_next_annoyed_creature(void);
 
@@ -259,9 +252,9 @@ void clear_complete_game(void);
 void clear_things_and_persons_data(void);
 void clear_computer(void);
 void engine(struct PlayerInfo *player, struct Camera *cam);
-void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value);
+void draw_gold_total(PlayerNumber plyr_idx, int32_t scr_x, int32_t scr_y, int32_t units_per_px, long long value);
 void draw_mini_things_in_hand(long x, long y);
-TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
+TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(TbBool forced);
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
@@ -271,19 +264,19 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
 void lightning_modify_palette(struct Thing *thing);
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
-unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
+unsigned long seed_check_random(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
 void init_lookups(void);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 void turn_off_query(PlayerNumber plyr_idx);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
-short winning_player_quitting(struct PlayerInfo *player, long *plyr_count);
+short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count);
 short lose_level(struct PlayerInfo *player);
 short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
-void set_general_information(long msg_id, TbMapLocation target, long x, long y);
-void set_quick_information(long msg_id, TbMapLocation target, long x, long y);
-void process_objective(const char *msg_text, TbMapLocation target, long x, long y);
+void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
 void set_general_objective(long msg_id, TbMapLocation target, long x, long y);
 void turn_off_power_sight_of_evil(PlayerNumber plridx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
@@ -306,11 +299,13 @@ long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_aura(struct Thing *thing);
 void init_seeds();
 
+
 TbPixel get_player_path_colour(unsigned short owner);
 
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
+void redetect_screen_refresh_rate_for_draw();
 void update_time(void);
 extern TbClockMSec timerstarttime;
 struct TimerTime {

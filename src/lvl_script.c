@@ -252,7 +252,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         case 'P': //Player
         {
-            long plr_range_id;
+            int32_t plr_range_id;
             if (!get_player_id(scline->tp[idx], &plr_range_id))
             {
                 return false;
@@ -425,7 +425,7 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
 static TbBool process_subfunc(char **line, struct ScriptLine *scline, const struct CommandDesc *cmd_desc, const struct CommandDesc *funcmd_desc, int *para_level, int src, int dst, long file_version)
 {
     struct CommandToken token;
-    struct ScriptLine* funscline = (struct ScriptLine*)calloc(sizeof(struct ScriptLine), 1);
+    struct ScriptLine* funscline = (struct ScriptLine*)calloc(1, sizeof(struct ScriptLine));
     if (funscline == NULL) {
         SCRPTERRLOG("Can't allocate buffer to recognize line");
         return false;
@@ -721,7 +721,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     const char *line_start = line;
     struct CommandToken token = { 0 };
     SCRIPTDBG(12,"Starting");
-    struct ScriptLine* scline = (struct ScriptLine*)calloc(sizeof(struct ScriptLine), 1);
+    struct ScriptLine* scline = (struct ScriptLine*)calloc(1, sizeof(struct ScriptLine));
     if (scline == NULL)
     {
       SCRPTERRLOG("Can't allocate buffer to recognize line");
@@ -908,7 +908,7 @@ TbBool preload_script(long lvnum)
   level_file_version = DEFAULT_LEVEL_VERSION;
   clear_quick_messages();
   // Load the file
-  long script_len = 1;
+  int32_t script_len = 1;
   char* script_data = (char*)load_single_map_file_to_buffer(lvnum, "txt", &script_len, LMFF_None);
   if (script_data == NULL)
   {
@@ -937,7 +937,7 @@ short load_script(long lvnum)
     reset_script_timers_and_flags();
     reset_hand_rules();
     // Load the file
-    long script_len = 1;
+    int32_t script_len = 1;
     char* script_data = (char*)load_single_map_file_to_buffer(lvnum, "txt", &script_len, LMFF_None);
     if (script_data == NULL)
       return false;
@@ -985,7 +985,7 @@ short load_script(long lvnum)
 static void add_to_party_process(struct ScriptContext *context)
 {
     struct PartyTrigger* pr_trig = context->pr_trig;
-    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
+    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown,pr_trig->target);
 }
 
 static void process_party(struct PartyTrigger* pr_trig)
@@ -1019,10 +1019,12 @@ static void process_party(struct PartyTrigger* pr_trig)
     }
 }
 
-void process_check_new_creature_partys(void)
+void process_check_new_creature_parties(void)
 {
     for (long i = 0; i < game.script.party_triggers_num; i++)
     {
+        if (i >= PARTY_TRIGGERS_COUNT)
+            break;
         struct PartyTrigger* pr_trig = &game.script.party_triggers[i];
         if ((pr_trig->flags & TrgF_DISABLED) == 0)
         {
@@ -1036,7 +1038,7 @@ void process_check_new_creature_partys(void)
     }
 }
 
-void process_check_new_tunneller_partys(void)
+void process_check_new_tunneller_parties(void)
 {
     for (long i = 0; i < game.script.tunneller_triggers_num; i++)
     {
@@ -1131,9 +1133,9 @@ void process_level_script(void)
   if ((player->victory_state == VicS_Undecided) || (game.system_flags & GSF_RunAfterVictory))
   {
       process_conditions();
-      process_check_new_creature_partys();
+      process_check_new_creature_parties();
     //script_process_messages(); is not here, but it is in beta - check why
-      process_check_new_tunneller_partys();
+      process_check_new_tunneller_parties();
       process_values();
       process_win_and_lose_conditions(my_player_number); //player->id_number may be uninitialized yet
     //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],

@@ -2,13 +2,14 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file lens_api.c
- *     Eye lenses support functions.
+ *     Eye lenses C API wrapper.
  * @par Purpose:
- *     Functions to support and draw creature eye lens effects.
+ *     C API wrapper around the C++ LensManager system.
  * @par Comment:
- *     None.
- * @author   Tomasz Lis
- * @date     11 Mar 2010 - 12 May 2010
+ *     All lens effect implementations are now in kfx/lenses/.
+ *     This file only provides C function wrappers for existing C code.
+ * @author   Tomasz Lis, KeeperFX Team
+ * @date     11 Mar 2010 - 09 Feb 2026
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -19,349 +20,264 @@
 #include "pre_inc.h"
 #include "lens_api.h"
 
-#include <math.h>
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_fileio.h"
-#include "bflib_dernc.h"
-
-#include "config_lenses.h"
-#include "lens_mist.h"
-#include "lens_flyeye.h"
 #include "vidmode.h"
 #include "game_legacy.h"
+#include "bflib_vidraw.h"
 #include "config_keeperfx.h"
 
 #include "keeperfx.hpp"
+
 #include "post_inc.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /******************************************************************************/
-unsigned long *eye_lens_memory;
-TbPixel *eye_lens_spare_screen_memory;
-/******************************************************************************/
-void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period);
+// C API WRAPPERS
 /******************************************************************************/
 
-void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period)
-{
-    long w;
-    long h;
-    long shift_w;
-    long shift_h;
-    unsigned long *mem;
-    double flwidth;
-    double flheight;
-    double center_w;
-    double center_h;
-    double flpos_w;
-    double flpos_h;
-    double flmag;
-    switch (nlens)
-    {
-    case 0:
-        mem = lens_mem;
-        for (h=0; h < height; h++)
-        {
-            for (w = 0; w < width; w++)
-            {
-                *mem = ((h+(height>>1))/2) * pitch + ((w+(width>>1))/2);
-                mem++;
-            }
-        }
-        break;
-    case 1:
-    {
-        flmag = mag;
-        double flperiod = period;
-        flwidth = width;
-        flheight = height;
-        center_h = flheight * 0.5;
-        center_w = flwidth * 0.5;
-        flpos_h = -center_h;
-        mem = lens_mem;
-        for (h=0; h < height; h++)
-        {
-            flpos_w = -center_w;
-            for (w = 0; w < width; w++)
-            {
-              shift_w = (long)(sin(flpos_h / flwidth  * flperiod) * flmag + flpos_w + center_w);
-              shift_h = (long)(sin(flpos_w / flheight * flperiod) * flmag + flpos_h + center_h);
-              if (shift_w >= width)
-                  shift_w = width - 1;
-              if (shift_w < 0)
-                  shift_w = 0;
-              if (shift_h >= height)
-                shift_h = height - 1;
-              if (shift_h < 0)
-                  shift_h = 0;
-              *mem = shift_w + shift_h * pitch;
-              flpos_w += 1.0;
-              mem++;
-            }
-            flpos_h += 1.0;
-        }
-        break;
-    }
-    case 2:
-    {
-        {
-            flmag = mag * (double)mag;
-            flwidth = width;
-            flheight = height;
-            center_h = flheight * 0.5;
-            center_w = flwidth * 0.5;
-            double fldivs = sqrt(center_h * center_h + center_w * center_w + flmag);
-            flpos_h = -center_h;
-            mem = lens_mem;
-            for (h = 0; h < height; h++)
-            {
-                flpos_w = -center_w;
-                for (w = 0; w < width; w++)
-                {
-                    double fldist = sqrt(flpos_w * flpos_w + flpos_h * flpos_h + flmag) / fldivs;
-                    shift_w = (long)(fldist * flpos_w + center_w);
-                    shift_h = (long)(fldist * flpos_h + center_h);
-                    if (shift_w >= width)
-                        shift_w = width - 1;
-                    if ((shift_w < 0) || ((period & 1) == 0))
-                        shift_w = 0;
-                    if (shift_h >= height)
-                        shift_h = height - 1;
-                    if ((shift_h < 0) || ((period & 2) == 0))
-                        shift_h = 0;
-                    *mem = shift_w + shift_h * pitch;
-                    flpos_w += 1.0;
-                    mem++;
-                }
-                flpos_h += 1.0;
-            }
-            break;
-        }
-    }
-    }
-}
-
-TbBool clear_lens_palette(void)
-{
-    SYNCDBG(7,"Staring");
-    struct PlayerInfo* player = get_my_player();
-    // Get lens config and check if it has palette entry
-    struct LensConfig* lenscfg = get_lens_config(game.applied_lens_type);
-    if ((lenscfg->flags & LCF_HasPalette) != 0)
-    {
-        // If there is a palette entry, then clear it
-        player->lens_palette = NULL;
-        SYNCDBG(9,"Clear done");
-        return true;
-    }
-    SYNCDBG(9,"Clear not needed");
-    return false;
-}
-
-static void set_lens_palette(unsigned char *palette)
-{
-    struct PlayerInfo* player = get_my_player();
-    player->main_palette = palette;
-    player->lens_palette = palette;
-}
-
-void reset_eye_lenses(void)
-{
-    SYNCDBG(7,"Starting");
-    free_mist();
-    clear_lens_palette();
-    if (eye_lens_memory != NULL)
-    {
-        free(eye_lens_memory);
-        eye_lens_memory = NULL;
-    }
-    if (eye_lens_spare_screen_memory != NULL)
-    {
-        free(eye_lens_spare_screen_memory);
-        eye_lens_spare_screen_memory = NULL;
-    }
-    clear_flag(game.mode_flags, MFlg_EyeLensReady);
-    game.active_lens_type = 0;
-    game.applied_lens_type = 0;
-    SYNCDBG(9,"Done");
-}
-
+/**
+ * Initialize the lens system.
+ * Sets up the LensManager and allocates required resources.
+ */
 void initialise_eye_lenses(void)
 {
-  SYNCDBG(7,"Starting");
-  if ((eye_lens_memory != NULL) || (eye_lens_spare_screen_memory != NULL))
-  {
-    //ERRORLOG("EyeLens Memory already allocated");
-    reset_eye_lenses();
-  }
-  if ((features_enabled & Ft_EyeLens) == 0)
-  {
-    clear_flag(game.mode_flags, MFlg_EyeLensReady);
-    return;
-  }
-
-  eye_lens_height = lbDisplay.GraphicsScreenHeight;
-  eye_lens_width = lbDisplay.GraphicsScreenWidth;
-  unsigned long screen_size = eye_lens_width * eye_lens_height + 2;
-  if (screen_size < 256*256) screen_size = 256*256 + 2;
-  eye_lens_memory = (unsigned long *)calloc(screen_size, sizeof(unsigned long));
-  eye_lens_spare_screen_memory = (unsigned char *)calloc(screen_size, sizeof(TbPixel));
-  if ((eye_lens_memory == NULL) || (eye_lens_spare_screen_memory == NULL))
-  {
-    reset_eye_lenses();
-    ERRORLOG("Cannot allocate EyeLens memory");
-    return;
-  }
-  SYNCDBG(9,"Buffer dimensions (%d,%d)",eye_lens_width,eye_lens_height);
-  set_flag(game.mode_flags, MFlg_EyeLensReady);
+    SYNCDBG(7, "Starting");
+    
+    // Check if lens feature is enabled
+    if ((features_enabled & Ft_EyeLens) == 0)
+    {
+        SYNCDBG(7, "Eye lens feature disabled");
+        clear_flag(game.mode_flags, MFlg_EyeLensReady);
+        return;
+    }
+    
+    // Get LensManager instance and initialize
+    void* mgr = LensManager_GetInstance();
+    if (mgr == NULL)
+    {
+        ERRORLOG("Failed to get LensManager instance");
+        clear_flag(game.mode_flags, MFlg_EyeLensReady);
+        return;
+    }
+    
+    if (!LensManager_Init(mgr))
+    {
+        ERRORLOG("Failed to initialize LensManager");
+        clear_flag(game.mode_flags, MFlg_EyeLensReady);
+        return;
+    }
+    
+    // Note: eye_lens_width, eye_lens_height, eye_lens_memory, and eye_lens_spare_screen_memory
+    // are set automatically by LensManager::AllocateBuffers()
+    
+    // Mark system as ready
+    set_flag(game.mode_flags, MFlg_EyeLensReady);
+    
+    SYNCDBG(9, "Lens system initialized");
 }
 
+/**
+ * Setup a specific lens effect.
+ * 
+ * @param nlens Lens index (0 = no lens, >0 = specific lens type)
+ */
 void setup_eye_lens(long nlens)
 {
+    // Check if lens system is initialized
     if ((game.mode_flags & MFlg_EyeLensReady) == 0)
     {
-        WARNLOG("Can't setup lens - not initialized");
+        WARNLOG("Can't setup lens - system not initialized");
         return;
     }
-    SYNCDBG(7,"Starting for lens %ld",nlens);
-    if (clear_lens_palette()) {
-        game.active_lens_type = 0;
-    }
-    if (nlens == 0)
+    
+    SYNCDBG(7, "Setting up lens %ld", nlens);
+    
+    // Get LensManager and set the lens
+    void* mgr = LensManager_GetInstance();
+    if (mgr == NULL)
     {
-        game.active_lens_type = 0;
-        game.applied_lens_type = 0;
+        ERRORLOG("Failed to get LensManager instance");
         return;
     }
-    if (game.active_lens_type == nlens)
+    
+    if (!LensManager_SetLens(mgr, nlens))
     {
-        game.applied_lens_type = nlens;
+        WARNLOG("Failed to set lens %ld", nlens);
         return;
     }
-    struct LensConfig* lenscfg = get_lens_config(nlens);
-    if ((lenscfg->flags & LCF_HasMist) != 0)
-    {
-        SYNCDBG(9,"Mist config entered");
-        char* fname = prepare_file_path(FGrp_StdData, lenscfg->mist_file);
-        LbFileLoadAt(fname, eye_lens_memory);
-        setup_mist((unsigned char *)eye_lens_memory,
-            &pixmap.fade_tables[(lenscfg->mist_lightness)*256],
-            &pixmap.ghost[(lenscfg->mist_ghost)*256]);
-    }
-    if ((lenscfg->flags & LCF_HasDisplace) != 0)
-    {
-        SYNCDBG(9,"Displace config %d entered",(int)lenscfg->displace_kind);
-        switch (lenscfg->displace_kind)
-        {
-        case 1:
-            init_lens(eye_lens_memory, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size,
-                eye_lens_width, 1, lenscfg->displace_magnitude, lenscfg->displace_period);
-            break;
-        case 2:
-            init_lens(eye_lens_memory, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size,
-                eye_lens_width, 2, lenscfg->displace_magnitude, lenscfg->displace_period);
-            break;
-        case 3:
-            flyeye_setup(MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-            break;
-        }
-    }
-    if ((lenscfg->flags & LCF_HasPalette) != 0)
-    {
-        SYNCDBG(9,"Palette config entered");
-        set_lens_palette(lenscfg->palette);
-    }
-    game.applied_lens_type = nlens;
-    game.active_lens_type = nlens;
+    
+    // Note: LensManager updates game.active_lens_type and game.applied_lens_type internally
+    SYNCDBG(8, "Lens %ld setup complete", nlens);
 }
 
+/**
+ * Reinitialize with a specific lens.
+ * Clears and reinitializes the entire system with the given lens active.
+ * 
+ * @param nlens Lens index to activate after reinit
+ */
 void reinitialise_eye_lens(long nlens)
 {
-  initialise_eye_lenses();
-  if ((game.mode_flags & MFlg_EyeLensReady) && (nlens>0))
-  {
-      game.applied_lens_type = 0;
-      setup_eye_lens(nlens);
-  }
-  SYNCDBG(18,"Finished");
+    SYNCDBG(7, "Reinitializing with lens %ld", nlens);
+    
+    // Reset and reinitialize
+    reset_eye_lenses();
+    initialise_eye_lenses();
+    
+    // Apply the requested lens
+    if ((game.mode_flags & MFlg_EyeLensReady) != 0)
+    {
+        setup_eye_lens(nlens);
+    }
 }
 
-static void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int dstpitch)
+/**
+ * Reset the lens system.
+ * Clears all lens effects and frees resources.
+ */
+void reset_eye_lenses(void)
 {
-    SYNCDBG(16,"Starting");
-    unsigned char* dst = dstbuf;
-    unsigned long* mem = lens_mem;
-    for (int h = 0; h < height; h++)
+    SYNCDBG(7, "Starting");
+    
+    // Get LensManager and reset
+    void* mgr = LensManager_GetInstance();
+    if (mgr != NULL)
     {
-        for (int w = 0; w < width; w++)
-        {
-            long pos_map = *mem;
-            dst[w] = srcbuf[pos_map];
-            mem++;
+        LensManager_Reset(mgr);
+    }
+    
+    // Note: LensManager owns eye_lens_memory and eye_lens_spare_screen_memory
+    // They are cleared automatically by LensManager::FreeBuffers()
+    
+    // Clear game state (LensManager already cleared active_lens_type/applied_lens_type)
+    clear_flag(game.mode_flags, MFlg_EyeLensReady);
+    
+    SYNCDBG(9, "Done");
+}
+
+/**
+ * Draw the active lens effect.
+ * 
+ * @param dstbuf Destination buffer (viewport area on screen)
+ * @param dstpitch Destination pitch
+ * @param srcbuf Source buffer (full screen width, unclipped)
+ * @param srcpitch Source pitch (full screen width)
+ * @param width Viewport width
+ * @param height Viewport height
+ * @param viewport_x X offset of viewport in source buffer
+ * @param effect Lens effect index (0 = no effect)
+ */
+void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, 
+                     long width, long height, long viewport_x, long effect)
+{
+    void* mgr = LensManager_GetInstance();
+    if (mgr == NULL) {
+        ERRORLOG("LensManager not available");
+        return;
+    }
+    
+    // If effect doesn't match active lens, set it now (Manager updates game state internally)
+    long active_lens = LensManager_GetActiveLens(mgr);
+    
+    // Special handling for custom lenses (effect=255): don't override them with standard lenses
+    // Custom lenses return active_lens=-1, but effect will be 255 if custom lens is active
+    if (effect == 255) {
+        // Custom lens should be active - don't change it
+        SYNCDBG(9, "Custom lens active (effect=255), skipping SetLens");
+    } else if (active_lens == -1) {
+        // Custom lens is active but caller wants standard lens - switch to it
+        SYNCDBG(8, "Switching from custom lens to standard lens %ld", effect);
+        if (!LensManager_SetLens(mgr, effect)) {
+            WARNLOG("Failed to set lens %ld during draw", effect);
         }
-        dst += dstpitch;
-    }
-}
-
-void draw_copy(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height)
-{
-    unsigned char* dst = dstbuf;
-    unsigned char* src = srcbuf;
-    for (long i = 0; i < height; i++)
-    {
-        memcpy(dst,src,width*sizeof(TbPixel));
-        dst += dstpitch;
-        src += srcpitch;
-    }
-}
-
-void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long effect)
-{
-    long copied = 0;
-    if ((effect < 1) || (effect > lenses_conf.lenses_count))
-    {
-        if (effect != 0)
-            ERRORLOG("Invalid lens effect %ld",effect);
-        effect = 0;
-    }
-    struct LensConfig* lenscfg = &lenses_conf.lenses[effect];
-    if ((lenscfg->flags & LCF_HasMist) != 0)
-    {
-        draw_mist(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
-        copied = true;
-    }
-    if ((lenscfg->flags & LCF_HasDisplace) != 0)
-    {
-        switch (lenscfg->displace_kind)
-        {
-        case 1:
-        case 2:
-            draw_displacement_lens(dstbuf, srcbuf, eye_lens_memory,
-                width, height, dstpitch);
-            copied = true;
-            break;
-        case 3:
-            flyeye_blitsec(srcbuf, srcpitch, dstbuf, dstpitch, 1, height);
-            copied = true;
-            break;
+    } else if (active_lens != effect) {
+        // Standard lens mismatch - update to requested lens
+        SYNCDBG(8, "Switching lens from %ld to %ld", active_lens, effect);
+        if (!LensManager_SetLens(mgr, effect)) {
+            WARNLOG("Failed to set lens %ld during draw", effect);
         }
     }
-    if ((lenscfg->flags & LCF_HasPalette) != 0)
-    {
-        // Nothing to do - palette is just set and don't have to be drawn
-    }
-    // If we haven't copied the buffer to screen yet, do so now
-    if (!copied)
-    {
-        draw_copy(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
-    }
+    
+    // Draw via LensManager (handles all fallbacks internally)
+    LensManager_Draw(mgr, srcbuf, dstbuf, srcpitch, dstpitch, width, height, viewport_x);
+}
+
+/**
+ * Check if the lens system is ready for use.
+ * This is the proper way to check lens readiness from C code.
+ */
+TbBool lens_is_ready(void)
+{
+    // Check feature flag
+    if ((features_enabled & Ft_EyeLens) == 0)
+        return false;
+    
+    // Check mode flag
+    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
+        return false;
+    
+    // Check manager is initialized
+    void* mgr = LensManager_GetInstance();
+    if (mgr == NULL)
+        return false;
+    
+    if (!LensManager_IsReady(mgr))
+        return false;
+    
+    // Check if a lens is actually applied
+    if (game.applied_lens_type == 0)
+        return false;
+    
+    return true;
 }
 
 /******************************************************************************/
+// BUFFER ACCESSORS (for external code needing render target)
+/******************************************************************************/
+
+/**
+ * Get the lens render target buffer.
+ * This is the off-screen buffer where the 3D view should be rendered
+ * before lens effects are applied.
+ * 
+ * @return Pointer to render target buffer, or NULL if lens system not ready
+ */
+unsigned char* lens_get_render_target(void)
+{
+    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
+        return NULL;
+    
+    return eye_lens_spare_screen_memory;
+}
+
+/**
+ * Get the render target width.
+ * 
+ * @return Width in pixels, or 0 if lens system not ready
+ */
+unsigned int lens_get_render_target_width(void)
+{
+    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
+        return 0;
+    
+    return eye_lens_width;
+}
+
+/**
+ * Get the render target height.
+ * 
+ * @return Height in pixels, or 0 if lens system not ready
+ */
+unsigned int lens_get_render_target_height(void)
+{
+    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
+        return 0;
+    
+    return eye_lens_height;
+}
+
+/******************************************************************************/
+
 #ifdef __cplusplus
 }
 #endif

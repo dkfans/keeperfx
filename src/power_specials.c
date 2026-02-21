@@ -113,7 +113,6 @@ TbBool script_locate_hidden_world()
 TbBool activate_bonus_level(struct PlayerInfo *player)
 {
   SYNCDBG(5,"Starting");
-  set_flag(game.flags_font, FFlg_ShowLevelIntroText);
   LevelNumber sp_lvnum = get_loaded_level_number();
   TbBool result = set_bonus_level_visibility_for_singleplayer_level(player, sp_lvnum, true);
   if (!result)
@@ -238,7 +237,7 @@ void increase_level(struct PlayerInfo *player, int count)
     {
         struct Thing* famlrtng = thing_get(dungeon->summon_list[i]);
         cctrl = creature_control_get_from_thing(famlrtng);
-        if (thing_is_invalid(famlrtng))
+        if (!thing_exists(famlrtng))
         {
           ERRORLOG("Jump to invalid creature detected");
           continue;
@@ -608,7 +607,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 if (game.current_player_turn == game.play_gameturn)
                 {
-                    WARNLOG("box activation rejected turn:%lu", game.current_player_turn);
+                    WARNLOG("box activation rejected turn:%u", game.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }
@@ -661,7 +660,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
     create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner, boxtng->index);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
-    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
+    if ((game.conf.rules[owner].game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
         remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, exp_level);
     }
     delete_thing_structure(boxtng, 0);
@@ -759,9 +758,9 @@ long create_transferred_creatures_on_level(void)
                 if (player_is_roaming(p))
                 {
                     plyr_idx = p;
-                    if (thing_is_invalid(srcetng))
+                    if (!thing_exists(srcetng))
                     {
-                        for (long n = 1; n < 16; n++)
+                        for (long n = 1; n < HERO_GATES_COUNT; n++)
                         {
                             srcetng = find_hero_gate_of_number(n);
                             if (!thing_is_invalid(srcetng))

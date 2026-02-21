@@ -58,6 +58,17 @@ void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg)
 void lua_on_game_start()
 {
 	SYNCDBG(6,"Starting");
+
+	lua_getglobal(Lvl_script, "OnCampaignGameStart");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0),"OnCampaignGameStart");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+
     lua_getglobal(Lvl_script, "OnGameStart");
 	if (lua_isfunction(Lvl_script, -1))
 	{
@@ -153,6 +164,21 @@ void lua_on_creature_death(struct Thing *crtng)
 	{
 		lua_pop(Lvl_script, 1);
 	}
+}
+
+void lua_on_creature_rebirth(struct Thing* crtng)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnCreatureRebirth");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushThing(Lvl_script, crtng);
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnCreatureRebirth");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
 }
 
 

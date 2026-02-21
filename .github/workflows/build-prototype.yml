@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-prototype:
-    name: "Build Prototype"
+    name: "Build Prototype Windows x86"
     runs-on: ubuntu-24.04
 
     steps:
@@ -39,3 +39,55 @@ jobs:
       with:
         name: ${{ env.ZIP_NAME }}
         path: pkg/**
+
+  build-prototype-linux:
+    name: "Build Prototype Linux x86_64"
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Update system
+      run: |
+        set -eux
+        sudo apt update
+        sudo apt install -y \
+          build-essential \
+          pkg-config \
+          curl \
+          libavcodec-dev \
+          libavformat-dev \
+          libavutil-dev \
+          libopenal-dev \
+          libluajit-5.1-dev \
+          libminizip-dev \
+          libnatpmp-dev \
+          libspng-dev \
+          libsdl2-dev \
+          libsdl2-image-dev \
+          libsdl2-mixer-dev \
+          libsdl2-net-dev \
+          libswresample-dev \
+          libminiupnpc-dev \
+          zlib1g-dev
+
+    - name: Build
+      run: |
+        set -eux
+        VER_MAJOR=$(grep -E '^VER_MAJOR=' version.mk | cut -d= -f2)
+        VER_MINOR=$(grep -E '^VER_MINOR=' version.mk | cut -d= -f2)
+        VER_RELEASE=$(grep -E '^VER_RELEASE=' version.mk | cut -d= -f2)
+        BUILD_NUMBER=$(git rev-list --count origin/master)
+        GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+        PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
+        LINUX_ARTIFACT_NAME=keeperfx-linux_x86_64-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}_${PACKAGE_SUFFIX}-patch
+        echo "LINUX_ARTIFACT_NAME=$LINUX_ARTIFACT_NAME" >> $GITHUB_ENV
+        make BUILD_NUMBER=$BUILD_NUMBER VER_SUFFIX=$PACKAGE_SUFFIX -f linux.mk
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.LINUX_ARTIFACT_NAME }}
+        path: bin/keeperfx

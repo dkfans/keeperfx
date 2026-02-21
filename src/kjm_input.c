@@ -152,6 +152,12 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_MOUSE3,          GUIStr_MouseButton},
   {KC_MOUSEWHEEL_UP,   GUIStr_MouseScrollWheelUp},
   {KC_MOUSEWHEEL_DOWN, GUIStr_MouseScrollWheelDown},
+  {KC_MOUSE4,          GUIStr_MouseButton},
+  {KC_MOUSE5,          GUIStr_MouseButton},
+  {KC_MOUSE6,          GUIStr_MouseButton},
+  {KC_MOUSE7,          GUIStr_MouseButton},
+  {KC_MOUSE8,          GUIStr_MouseButton},
+  {KC_MOUSE9,          GUIStr_MouseButton},
   {  0,     0},
 };
 
@@ -216,7 +222,7 @@ void update_left_button_released(void)
     }
   } else
   {
-    if (left_button_click_space_count < LONG_MAX)
+    if (left_button_click_space_count < INT32_MAX)
       left_button_click_space_count++;
   }
 }
@@ -249,7 +255,7 @@ void update_right_button_released(void)
     }
   } else
   {
-    if (right_button_click_space_count < LONG_MAX)
+    if (right_button_click_space_count < INT32_MAX)
       right_button_click_space_count++;
   }
 }

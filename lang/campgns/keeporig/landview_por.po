@@ -19,6 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Original Campaign for KeeperFX\n"
 "Language: pt_BR\n"
+"Language-Team: KeeperFX Team"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,7 +42,7 @@ msgstr "Brana Hauk. A guerra e o antraz tomaram esta terra como pulgas a um rato
 #: landview:20
 msgctxt "Level introduction"
 msgid ""
-"Cozyton. A hideous sham of a town, in which the prosperous citizens have no "
+"Cosyton. A hideous sham of a town, in which the prosperous citizens have no "
 "gripes or moans. Sadly, even the children are happy and secure. This is "
 "because they aren't punished for non-existent crimes.."
 msgstr "Vilaconchego. Uma farsa horrenda de cidade, na qual os cidadãos prósperos não têm queixas nem lamentos. Infelizmente, até as crianças são felizes e seguras. Isso porque não são punidas por crimes inexistentes..."
@@ -49,15 +50,15 @@ msgstr "Vilaconchego. Uma farsa horrenda de cidade, na qual os cidadãos próspe
 #: landview:21
 msgctxt "Level summary"
 msgid ""
-"Darkhana. The surviving citizens have more on their plates than a Demonspawn "
+"Darkanna. The surviving citizens have more on their plates than a Demon Spawn "
 "with three dead adventurers to munch. Not that many citizens have survived, "
 "as such."
-msgstr "Darkhana. Os cidadãos sobreviventes têm mais problemas do que uma Cria Demoníaca com três aventureiros mortos para devorar. Não que muitos cidadãos tenham sobrevivido, de fato."
+msgstr "Darkanna. Os cidadãos sobreviventes têm mais problemas do que uma Cria Demoníaca com três aventureiros mortos para devorar. Não que muitos cidadãos tenham sobrevivido, de fato."
 
 #: landview:30
 msgctxt "Level introduction"
 msgid ""
-"WaterDream Warm. A region of pointless frolicking and endless pleasure. No "
+"Waterdream Warm. A region of pointless frolicking and endless pleasure. No "
 "one here understands the true meaning of suffering and RANDOM SHOCKING "
 "VIOLENCE METED OUT ARBITRARILY."
 msgstr "Sonhod'água Morno. Uma região de brincadeiras inúteis e prazer sem fim. Ninguém aqui entende o verdadeiro significado do sofrimento e da VIOLÊNCIA CHOCANTE E ALEATÓRIA APLICADA ARBITRARIAMENTE."
@@ -65,7 +66,7 @@ msgstr "Sonhod'água Morno. Uma região de brincadeiras inúteis e prazer sem fi
 #: landview:31
 msgctxt "Level summary"
 msgid ""
-"Wither's Tread. This place now has a proper name, because of what you did "
+"Withersdread. This place now has a proper name, because of what you did "
 "here. There is a healthy disrespect for life, and you will be amused to hear "
 "that cannibalism has gained a strong foothold amongst the ragged inhabitants."
 msgstr "Passo da Ruína. Este lugar agora tem um nome adequado, por causa do que você fez aqui. Há um saudável desrespeito pela vida, e você se divertirá ao saber que o canibalismo ganhou força entre os habitantes esfarrapados."
@@ -73,7 +74,7 @@ msgstr "Passo da Ruína. Este lugar agora tem um nome adequado, por causa do que
 #: landview:40
 msgctxt "Level introduction"
 msgid ""
-"Flowerhat. Polite bartering has lead to extreme compassion and a servative "
+"Flowerhat. Polite bartering has lead to extreme compassion and a surfeit of "
 "contentment in this area. Not even a thick skinned troll could survive the "
 "understanding and help these scummy people could provide."
 msgstr "Chapéu-de-flor. A troca educada levou a uma compaixão extrema e a um contentamento servil nesta área. Nem mesmo um troll de pele grossa poderia sobreviver à compreensão e ajuda que essa gente desprezível poderia oferecer."
@@ -81,7 +82,7 @@ msgstr "Chapéu-de-flor. A troca educada levou a uma compaixão extrema e a um c
 #: landview:41
 msgctxt "Level summary"
 msgid ""
-"Firemore. There's a burning mess where once a pretty village stood. Truly "
+"Firemoor. There's a burning mess where once a pretty village stood. Truly "
 "you have achieved a significant improvement in the area. Even the poisonous "
 "smoke smells sweet."
 msgstr "Fogaréu. Há uma bagunça em chamas onde antes havia uma vila bonita. Verdadeiramente, você alcançou uma melhoria significativa na área. Até a fumaça venenosa tem um cheiro doce."
@@ -89,7 +90,7 @@ msgstr "Fogaréu. Há uma bagunça em chamas onde antes havia uma vila bonita. V
 #: landview:50
 msgctxt "Level introduction"
 msgid ""
-"Lushmeadow-on-down. The bloody axes of war and famine have so far bypassed "
+"Lushmeadow-on-Down. The bloody axes of war and famine have so far bypassed "
 "this quiet backwater, leaving the inhabitants totally unaware of the purpose "
 "of real agony and loss. Unbearably most die of old age."
 msgstr "Prado Verdejante. Os machados sangrentos da guerra e da fome até agora ignoraram este lugar tranquilo, deixando os habitantes totalmente inconscientes do propósito da agonia e perda reais. Insuportavelmente, a maioria morre de velhice."
@@ -105,7 +106,7 @@ msgstr "Faca. As ruas correm com o sangue dos mortos. Gritos de dor e uivos de a
 #: landview:60
 msgctxt "Level introduction"
 msgid ""
-"Snugglebell. The folk of snugglebell worship the common rabbit. Floppy eared "
+"Snuggledell. The folk of Snuggledell worship the common rabbit. Floppy eared "
 "bunnies are encouraged to hop around the fields surrounding the hamlet, "
 "bringing happiness, love, and more bunnies to the entire area."
 msgstr "Vale Aconchego. O povo de Vale Aconchego venera o coelho comum. Coelhinhos de orelhas caídas são encorajados a pular pelos campos ao redor da aldeia, trazendo felicidade, amor e mais coelhos para toda a área."
@@ -121,7 +122,7 @@ msgstr "Foice Íngreme. Todos foram passados a fio de espada, e fizemos um enorm
 #: landview:70
 msgctxt "Level introduction"
 msgid ""
-"Wishveil. This region of dreaming underlings is ruled by the Lady Catherine. "
+"Wishvale. This region of dreaming underlings is ruled by the Lady Catherine. "
 "She is kind, and fair, and doesn't imprison or torture her subjects, for "
 "some reason."
 msgstr "Valedesejo. Esta região de subordinados sonhadores é governada pela Dama Catherine. Ela é gentil e justa, e não aprisiona ou tortura seus súditos, por algum motivo."
@@ -129,10 +130,10 @@ msgstr "Valedesejo. Esta região de subordinados sonhadores é governada pela Da
 #: landview:71
 msgctxt "Level summary"
 msgid ""
-"Panicantrizica. A weeping, wizened crone presides over this ruined empty "
+"Panic Intrisica. A weeping, wizened crone presides over this ruined empty "
 "land now. Once she was beautiful, now she's one to make you vomit. The "
 "improvement is impressive."
-msgstr "Panicantrizica. Uma velha enrugada e chorosa preside agora esta terra vazia e arruinada. Antes ela era linda, agora ela é de fazer vomitar. A melhoria é impressionante."
+msgstr "Panic Intrisica. Uma velha enrugada e chorosa preside agora esta terra vazia e arruinada. Antes ela era linda, agora ela é de fazer vomitar. A melhoria é impressionante."
 
 #: landview:80
 msgctxt "Level introduction"
@@ -145,7 +146,7 @@ msgstr "Felizmente inconscientes do dano que uma guerra prolongada pode causar e
 #: landview:81
 msgctxt "Level summary"
 msgid ""
-"Neverdwarf. Once a flourishing homestead, now it's a stinking hole in the "
+"Neverdorf. Once a flourishing homestead, now it's a stinking hole in the "
 "ground. It will be years before even the hardiest weed grows here again. "
 "War, on the other hand, is in full blossom."
 msgstr "Nunca-anão. Antes uma propriedade florescente, agora é um buraco fedorento no chão. Levará anos até que a erva daninha mais resistente cresça aqui novamente. A guerra, por outro lado, está em pleno florescimento."
@@ -193,7 +194,7 @@ msgstr "Lareira. A vida familiar é a razão pela qual estes servos se sentem t�
 #: landview:111
 msgctxt "Level summary"
 msgid ""
-"Dragontine. We've set fire to this place. It's still burning with a fierce "
+"Dragon Tyne. We've set fire to this place. It's still burning with a fierce "
 "unnatural intensity, so we can't get anywhere near it. But we're sure you'll "
 "love it... Once it's cooled down a bit."
 msgstr "Dragontino. Nós incendiamos este lugar. Ainda está queimando com uma intensidade feroz e sobrenatural, então não podemos chegar perto. Mas temos certeza de que você vai adorar... Assim que esfriar um pouco."
@@ -209,7 +210,7 @@ msgstr "Dança dos Elfos. Uma aldeia situada dentro de um anel de fadas gigante.
 #: landview:121
 msgctxt "Level summary"
 msgid ""
-"Carn Forge. The Fairy ring lies smashed, and the folk have fled to the "
+"Carnforge. The Fairy ring lies smashed, and the folk have fled to the "
 "hills. Our vampires are out hunting them down as we speak. Rest assured, we "
 "will be dragging them back soon, my lord."
 msgstr "Forja da Carnificina. O anel de fadas jaz esmagado, e o povo fugiu para as colinas. Nossos vampiros estão caçando-os enquanto falamos. Fique tranquilo, nós os arrastaremos de volta em breve, meu senhor."
@@ -226,15 +227,15 @@ msgstr "Carvalho Forte. Um lugar pequeno, onde as pessoas apenas sentam o dia to
 #: landview:131
 msgctxt "Level summary"
 msgid ""
-"Arilyns Down. The people enjoyed each other's company so much, that they'll "
+"Herelyn's Down. The people enjoyed each other's company so much, that they'll "
 "be together forever now. We've thrown them all into a big pit and piled tons "
 "of rocks onto them. A fitting end, we trust you'll agree."
-msgstr "Queda de Arilyn. As pessoas gostavam tanto da companhia umas das outras que agora ficarão juntas para sempre. Nós as jogamos todas em um grande poço e empilhamos toneladas de pedras sobre elas. Um final apropriado, confiamos que você concordará."
+msgstr "Queda de Herelyn. As pessoas gostavam tanto da companhia umas das outras que agora ficarão juntas para sempre. Nós as jogamos todas em um grande poço e empilhamos toneladas de pedras sobre elas. Um final apropriado, confiamos que você concordará."
 
 #: landview:140
 msgctxt "Level introduction"
 msgid ""
-"Sleepiborough. A settlement in the fertile farmland near the mountains. "
+"Sleepiburgh. A settlement in the fertile farmland near the mountains. "
 "Nothing ever happens here, apart from some good deeds and the odd exchange "
 "of kind-hearted greetings. A disgusting pit of Hades in other words."
 msgstr "Vilasono. Um assentamento nas terras férteis perto das montanhas. Nada nunca acontece aqui, exceto algumas boas ações e a troca ocasional de saudações bondosas. Um poço nojento do Hades, em outras palavras."
@@ -242,10 +243,10 @@ msgstr "Vilasono. Um assentamento nas terras férteis perto das montanhas. Nada 
 #: landview:141
 msgctxt "Level summary"
 msgid ""
-"Mormonflak. We have developed this area. It is now a breeding ground for our "
+"Mormondflach. We have developed this area. It is now a breeding ground for our "
 "legions of beetles and flies. To think it was once pointless farmland, "
 "providing food for the weak population that lived there in so-called peace..."
-msgstr "Mormonflak. Nós desenvolvemos esta área. Agora é um criadouro para nossas legiões de besouros e moscas. E pensar que antes era uma terra agrícola inútil, fornecendo comida para a população fraca que vivia lá em suposta paz..."
+msgstr "Mormondflach. Nós desenvolvemos esta área. Agora é um criadouro para nossas legiões de besouros e moscas. E pensar que antes era uma terra agrícola inútil, fornecendo comida para a população fraca que vivia lá em suposta paz..."
 
 #: landview:150
 msgctxt "Level introduction"
@@ -258,10 +259,10 @@ msgstr "Rima da Mata. Um lugar de contentamento tão obsceno que é criminoso qu
 #: landview:151
 msgctxt "Level summary"
 msgid ""
-"Hasimlock. Vampires have sucked the life out of everyone here. They’ve "
+"Hassomloch. Vampires have sucked the life out of everyone here. They’ve "
 "poisoned the well, and smeared dung on all the door handles, as a joke. Not "
 "a sophisticated sense of humour, these undead blood suckers..."
-msgstr "Hasimlock. Vampiros sugaram a vida de todos aqui. Eles envenenaram o poço e lambuzaram esterco em todas as maçanetas, como uma piada. Não é um senso de humor sofisticado, esses sugadores de sangue mortos-vivos..."
+msgstr "Hassomloch. Vampiros sugaram a vida de todos aqui. Eles envenenaram o poço e lambuzaram esterco em todas as maçanetas, como uma piada. Não é um senso de humor sofisticado, esses sugadores de sangue mortos-vivos..."
 
 #: landview:160
 msgctxt "Level introduction"
@@ -274,7 +275,7 @@ msgstr "Aroma de Tulipa. Flores estão em exibição em todos os edifícios dest
 #: landview:161
 msgctxt "Level summary"
 msgid ""
-"Demonsdirth. The flowers lie trampled in the dirt. Their disgusting pong has "
+"Demon's Dearth. The flowers lie trampled in the dirt. Their disgusting pong has "
 "been replaced by the smell of soiled armour, and the internal juices of "
 "those sliced to pieces by your servants. Quite an improvement, you'll agree."
 msgstr "Imundície Demoníaca. As flores jazem pisoteadas na terra. Seu fedor repugnante foi substituído pelo cheiro de armaduras sujas e pelos sucos internos daqueles fatiados em pedaços por seus servos. Uma grande melhoria, você concordará."
@@ -290,10 +291,10 @@ msgstr "Condado Feliz. Cidadãos industriosos realizam seus afazeres diários co
 #: landview:171
 msgctxt "Level summary"
 msgid ""
-"Valynore. Nothing is left of this settlement apart from a stubborn stain on "
-"the ground. Our trolls are hard at work trying to erase this at the moment. "
-"Then we'll spray acid over the entire locale."
-msgstr "Valynore. Nada resta deste assentamento, exceto uma mancha teimosa no chão. Nossos trolls estão trabalhando duro para apagá-la neste momento. Depois, vamos borrifar ácido por todo o local."
+"Mirthshire. Industrious citizens go about their daily business with care, "
+"enthusiasm, and diligence. There is no crime, and everybody is working for "
+"the common good. It's a disaster of a place and deserves razing."
+msgstr "Condado Feliz. Cidadãos industriosos realizam seus afazeres diários com cuidado, entusiasmo e diligência. Não há crime, e todos trabalham para o bem comum. É um desastre de lugar e merece ser arrasado."
 
 #: landview:180
 msgctxt "Level introduction"
@@ -306,10 +307,10 @@ msgstr "Fim da Chama. Um lugar de alegria e amor. Nada, dizem as lendas, jamais 
 #: landview:181
 msgctxt "Level summary"
 msgid ""
-"Ruiniena. Not a soul stirs here now, even the rats are afraid to come out of "
+"Ruiniana. Not a soul stirs here now, even the rats are afraid to come out of "
 "the drains to feast on the dead. You really outdid yourself here master, "
 "it's a pity the destruction was so easy."
-msgstr "Ruiniena. Nenhuma alma se move aqui agora, até os ratos têm medo de sair dos esgotos para se banquetear com os mortos. Você realmente se superou aqui, mestre, é uma pena que a destruição tenha sido tão fácil."
+msgstr "Ruiniana. Nenhuma alma se move aqui agora, até os ratos têm medo de sair dos esgotos para se banquetear com os mortos. Você realmente se superou aqui, mestre, é uma pena que a destruição tenha sido tão fácil."
 
 #: landview:190
 msgctxt "Level introduction"
@@ -339,7 +340,7 @@ msgstr "Canto do Pássaro-do-céu. O máximo em fofura. Uma carranca em Canto do
 #: landview:201
 msgctxt "Level summary"
 msgid ""
-"Donterror. The world of Skybird Trill is nothing more than a charred wreck "
+"Longterror. The world of Skybird Trill is nothing more than a charred wreck "
 "of a nightmare. We have won a furious, vital victory, and you are ruler "
 "supreme over the whole world! What next, Master?"
-msgstr "Terrorsemfim. O mundo de Canto do Pássaro-do-céu não passa de um destroço carbonizado de um pesadelo. Nós conquistamos uma vitória furiosa e vital, e você é o governante supremo de todo o mundo! O que vem a seguir, Mestre?"
+msgstr "Terrorprolongado. O mundo de Canto do Pássaro-do-céu não passa de um destroço carbonizado de um pesadelo. Nós conquistamos uma vitória furiosa e vital, e você é o governante supremo de todo o mundo! O que vem a seguir, Mestre?"

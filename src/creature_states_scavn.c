@@ -143,7 +143,7 @@ short creature_being_scavenged(struct Thing *creatng)
     if (thing_is_invalid(fellowtng)) {
         fellowtng = get_player_soul_container(creatng->owner);
     }
-    if (thing_is_invalid(fellowtng)) {
+    if (!thing_exists(fellowtng)) {
         SYNCDBG(19,"Cannot get thing to follow");
         return 0;
     }
@@ -267,14 +267,14 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     if (is_thing_directly_controlled(scavtng) || creature_is_kept_in_custody(scavtng) || creature_is_leaving_and_cannot_be_stopped(scavtng)) {
         return false;
     }
-    if (is_hero_thing(scavtng) && (!game.conf.rules.rooms.scavenge_good_allowed)) {
+    if (is_hero_thing(scavtng) && (!game.conf.rules[calltng->owner].rooms.scavenge_good_allowed)) {
         return false;
     }
-    if (is_neutral_thing(scavtng) && (!game.conf.rules.rooms.scavenge_neutral_allowed)) {
+    if (is_neutral_thing(scavtng) && (!game.conf.rules[calltng->owner].rooms.scavenge_neutral_allowed)) {
         return false;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(scavtng);
-    if (game.play_gameturn - cctrl->temple_cure_gameturn > game.conf.rules.rooms.temple_scavenge_protection_turns)
+    if (game.play_gameturn - cctrl->temple_cure_gameturn > game.conf.rules[calltng->owner].rooms.temple_scavenge_protection_turns)
     {
         return true;
     }
@@ -284,7 +284,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
 struct Thing *select_scavenger_target(const struct Thing *calltng)
 {
     struct Thing* weaktng = INVALID_THING;
-    long weakpts = LONG_MAX;
+    long weakpts = INT32_MAX;
     SYNCDBG(18,"Starting");
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
     unsigned long k = 0;
@@ -305,7 +305,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
                 thing_model_name(thing),(int)thing->index,(int)thing->owner,
                 thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if (game.play_gameturn - cctrl->temple_cure_gameturn > game.conf.rules.rooms.temple_scavenge_protection_turns)
+            if (game.play_gameturn - cctrl->temple_cure_gameturn > game.conf.rules[calltng->owner].rooms.temple_scavenge_protection_turns)
             {
                 long thingpts = calculate_correct_creature_scavenge_required(thing, calltng->owner);
                 if (weakpts > thingpts)
@@ -549,9 +549,9 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         return 0;
     }
     callctrl->turns_at_job++;
-    if (callctrl->turns_at_job > game.conf.rules.rooms.scavenge_cost_frequency)
+    if (callctrl->turns_at_job > game.conf.rules[calltng->owner].rooms.scavenge_cost_frequency)
     {
-        callctrl->turns_at_job -= game.conf.rules.rooms.scavenge_cost_frequency;
+        callctrl->turns_at_job -= game.conf.rules[calltng->owner].rooms.scavenge_cost_frequency;
         GoldAmount scavenger_cost = calculate_correct_creature_scavenging_cost(calltng);
         if (take_money_from_dungeon(calltng->owner, scavenger_cost, 1) < 0) {
             ERRORLOG("Cannot take %d gold from dungeon %d",(int)scavenger_cost,(int)calltng->owner);

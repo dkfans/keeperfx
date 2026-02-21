@@ -821,8 +821,8 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
     int next_direction;
     int current_iteration;
     const struct Around *ar;
-    long stl_y;
-    long stl_x;
+    MapSubtlCoord stl_y;
+    MapSubtlCoord stl_x;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     current_iteration = 0;
@@ -879,8 +879,8 @@ static long check_out_unreinforced_place(struct Thing *thing)
     SubtlCodedCoords stl_num;
     struct CreatureControl *cctrl;
     int direction_attempt_count;
-    long stl_y;
-    long stl_x;
+    MapSubtlCoord stl_y;
+    MapSubtlCoord stl_x;
 
     const char around_indexes[16] =
         {0, 1, 1, 0,
@@ -1104,8 +1104,8 @@ long check_out_undug_place(struct Thing *creatng)
         task_idx = find_dig_from_task_list(creatng->owner, task_pos);
         if (task_idx != -1)
         {
-            long mv_x;
-            long mv_y;
+            MapSubtlCoord mv_x;
+            MapSubtlCoord mv_y;
             mv_x = 0; mv_y = 0;
             if (check_place_to_dig_and_get_position(creatng, task_pos, &mv_x, &mv_y)
                 && setup_person_move_to_position(creatng, mv_x, mv_y, NavRtF_Default))
@@ -1489,7 +1489,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
         around_flags = 0;
         long i;
         long n;
-        n = PLAYER_RANDOM(dugneon->owner, 4);
+        n = PLAYER_RANDOM(dungeon->owner, 4);
         for (i=0; i < SMALL_AROUND_LENGTH; i++)
         {
             slb_x = base_slb_x + (long)small_around[n].delta_x;
@@ -1589,7 +1589,7 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     struct Thing *heartng;
     heartng = get_player_soul_container(dungeon->owner);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng)) {
+    if (!thing_exists(heartng)) {
         WARNLOG("The player %d has no heart, no dungeon position available",(int)dungeon->owner);
         return 0;
     }
@@ -1613,10 +1613,6 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
  * If either thing owner or ground owner doesn't match, we can't pick that thing.
  * Additionally, we have a special condition in case our thing + our ground, because
  * in that case the thing may already be on a correct position.
- *
- * @param thing
- * @param dungeon
- * @param rkind
  * @return
  */
 TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned short flags)
@@ -1860,7 +1856,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
     int remain_num;
     unsigned long k;
     int i;
-    if(!game.conf.rules.workers.drag_to_lair)
+    if(!game.conf.rules[dungeon->owner].workers.drag_to_lair)
     {
         return 0;
     }
@@ -1889,7 +1885,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
             {
                 room = get_creature_lair_room(thing);
 
-                if (game.conf.rules.workers.drag_to_lair == 1)
+                if (game.conf.rules[dungeon->owner].workers.drag_to_lair == 1)
                 {
                     // if the creature doesn't have a lair
                     if (room_is_invalid(room))
@@ -1898,7 +1894,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
                         continue;
                     }
                 }
-                else if (game.conf.rules.workers.drag_to_lair == 2)
+                else if (game.conf.rules[dungeon->owner].workers.drag_to_lair == 2)
                 {
                     // if the creature doesn't have and doesn't need a lair
                     if (room_is_invalid(room) && !creature_can_do_healing_sleep(thing))
@@ -2291,7 +2287,7 @@ int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, 
     return 0;
 }
 
-long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
+long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
 {
     MapSubtlCoord basestl_x;
     MapSubtlCoord basestl_y;
@@ -3052,7 +3048,7 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
-    if(!game.conf.rules.workers.drag_to_lair)
+    if(!game.conf.rules[thing->owner].workers.drag_to_lair)
     {
         return 0;
     }
@@ -3075,7 +3071,7 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     struct Room * room;
     room = get_creature_lair_room(sectng);
     // if no lair exist check if the creature can place one and look for best lair
-    if (room_is_invalid(room) && creature_can_do_healing_sleep(sectng) && game.conf.rules.workers.drag_to_lair == 2)
+    if (room_is_invalid(room) && creature_can_do_healing_sleep(sectng) && game.conf.rules[thing->owner].workers.drag_to_lair == 2)
     {
         room = get_best_new_lair_for_creature(thing);
         if (room_is_invalid(room)){
@@ -3232,7 +3228,7 @@ long check_out_worker_pickup_crate_to_arm(struct Thing *creatng, struct DiggerSt
         }
     }
     // Either the crate or thing to arm is gone - remove the task
-    if (thing_is_invalid(cratng))
+    if (!thing_exists(cratng))
     {
         dstack->task_type = DigTsk_None;
         return -1;

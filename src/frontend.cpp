@@ -96,6 +96,8 @@ extern "C" {
 #endif
 
 extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern long double last_draw_completed_time;
+long double get_time_tick_ns();
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -389,7 +391,7 @@ char room_tag;
 char spell_tag;
 char trap_tag;
 char creature_tag;
-char input_string[8][16];
+char input_string[8][SAVE_TEXTNAME_LEN + 1];
 char gui_error_text[256];
 long net_service_scroll_offset;
 long net_number_of_services;
@@ -473,19 +475,15 @@ int frontend_font_string_width(int fnt_idx, const char *str)
 
 void get_player_gui_clicks(void)
 {
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  player = get_my_player();
-
   if ( ((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     return;
-
+  struct PlayerInfo *player = get_my_player();
   switch (player->view_type)
   {
   case PVT_CreaturePasngr:
       if (right_button_released)
       {
-        thing = thing_get(player->controlled_thing_idx);
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
         if (thing->class_id == TCls_Creature)
         {
           if (a_menu_window_is_active())
@@ -540,33 +538,29 @@ void get_player_gui_clicks(void)
                          {
                              if (!a_menu_window_is_active())
                              {
-                                struct Coord3d mappos;
-                                if (screen_to_map(player->acamera, right_button_clicked_x, right_button_clicked_y, &mappos))
+                                if (flag_is_set(player->additional_flags, PlaAF_ChosenSubTileIsHigh))
                                 {
-                                    if (subtile_is_diggable_for_player(player->id_number, mappos.x.stl.num, mappos.y.stl.num, false))
+                                    if (!left_button_held)
                                     {
-                                        if (!left_button_held)
-                                        {
-                                            long mode = settings.highlight_mode;
-                                            mode ^= 1;
-                                            set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
-                                        }
-                                        else
-                                        {
-                                            set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
-                                        }
-                                        right_button_clicked = 0;
+                                        long mode = settings.highlight_mode;
+                                        mode ^= 1;
+                                        set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
                                     }
+                                    else
+                                    {
+                                        set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                    }
+                                    right_button_clicked = 0;
                                 }
                              }
                           }
                          break;
                        } 
-                }
+                  }
               }
           }
         // do NOT do right_button_clicked = 0 here: it breaks dropping creatures!
-      }          
+      }
       if (right_button_released)
       {
         if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
@@ -1954,6 +1948,58 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
     }
 }
 
+static void autofill_savegame_name(struct GuiButton *gbtn)
+{
+    int max_len = gbtn->maxval;
+    if ((max_len <= 0) || (max_len > SAVE_TEXTNAME_LEN))
+        max_len = SAVE_TEXTNAME_LEN;
+        
+    const char* lv_name = NULL;
+    LevelNumber lvnum = get_loaded_level_number();
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
+    if (lvinfo != NULL)
+    {
+      if (lvinfo->name_stridx > 0)
+          lv_name = get_string(lvinfo->name_stridx);
+      else
+          lv_name = lvinfo->name;
+    } else
+      lv_name = level_name;
+    
+
+    if (gbtn->content.str != NULL)
+        memset(gbtn->content.str, 0, max_len);
+
+
+    struct TbDate curr_date;
+    struct TbTime curr_time;
+    char datetime_buf[12];
+    if (LbDateTime(&curr_date, &curr_time) >= Lb_OK)
+    {
+        unsigned int year2 = (unsigned int)(curr_date.Year % 100);
+        snprintf(datetime_buf, sizeof(datetime_buf), "%02u%02u%02u-%02u%02u",
+            year2, (unsigned int)curr_date.Month, (unsigned int)curr_date.Day,
+            (unsigned int)curr_time.Hour, (unsigned int)curr_time.Minute);
+    }
+
+    size_t lv_name_len = 0;
+    if ((lv_name != NULL) && (lv_name[0] != '\0'))
+        lv_name_len = strnlen(lv_name, (size_t)max_len - strlen(datetime_buf) - 1);
+
+    snprintf(gbtn->content.str, max_len, "%.*s-%s", (int)lv_name_len, lv_name, datetime_buf);
+    
+    gbtn->content.str[max_len - 1] = '\0';
+
+    gbtn->button_state_left_pressed = 0;
+    (gbtn->click_event)(gbtn);
+    if ((gbtn->flags & LbBtnF_Clickable) != 0)
+    {
+        struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
+        gmnu->visual_state = 3;
+        remove_from_menu_stack(gmnu->ident);
+    }
+}
+
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
   SYNCDBG(17,"Starting");
@@ -1989,6 +2035,11 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
         return;
       break;
   case LbBtnT_EditBox:
+      if ((last_used_input_device == ID_Controller)  && (gbtn->content.str != NULL) && menu_is_active(GMnu_SAVE))
+      {
+            autofill_savegame_name(gbtn);
+            break;
+      }
       input_button = gbtn;
       setup_input_field(input_button, get_string(GUIStr_MnuUnused));
       break;
@@ -2654,7 +2705,7 @@ void initialise_tab_tags_and_menu(MenuID menu_id)
 
 void init_gui(void)
 {
-  memset(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(unsigned short));
+  memset(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(uint16_t));
   memset(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
   memset(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
   memset(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));
@@ -2990,7 +3041,7 @@ TbBool frontmainmnu_input(void)
     }
     if (lbKeyOn[KC_T] && lbKeyOn[KC_LSHIFT])
     {
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if (game.easter_eggs_enabled == true)
         {
             lbKeyOn[KC_T] = 0;
             set_player_as_won_level(get_my_player());
@@ -3001,7 +3052,7 @@ TbBool frontmainmnu_input(void)
 #if (BFDEBUG_LEVEL > 0)
     if (lbKeyOn[KC_F] && lbKeyOn[KC_LSHIFT])
     {
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if (game.easter_eggs_enabled == true)
         {
             lbKeyOn[KC_F] = 0;
             frontend_set_state(FeSt_FONT_TEST);
@@ -3408,6 +3459,7 @@ void draw_debug_messages() {
  */
 short frontend_draw(void)
 {
+    LbWindowsControl();
     short result;
     switch (frontend_menu_state)
     {
@@ -3484,6 +3536,7 @@ short frontend_draw(void)
     draw_debug_messages();
     perform_any_screen_capturing();
     LbScreenUnlock();
+    last_draw_completed_time = get_time_tick_ns();
     return result;
 }
 
@@ -3566,10 +3619,10 @@ void update_player_objectives(PlayerNumber plyr_idx)
     }
 }
 
-void display_objectives(PlayerNumber plyr_idx, long x, long y)
+void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
 {
-    long cor_x;
-    long cor_y;
+    MapCoord cor_x;
+    MapCoord cor_y;
     cor_y = 0;
     cor_x = 0;
     if ((x > 0) || (y > 0))
@@ -3594,9 +3647,8 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
     }
     if ((x == 255) && (y == 255))
     {
-        struct Thing *creatng;
-        creatng = lord_of_the_land_find();
-        if (!thing_is_invalid(creatng))
+        struct Thing *creatng = lord_of_the_land_find();
+        if (thing_exists(creatng))
         {
             cor_x = creatng->mappos.x.val;
             cor_y = creatng->mappos.y.val;

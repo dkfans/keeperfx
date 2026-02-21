@@ -31,9 +31,9 @@ namespace {
 void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
 {
 	const auto s = dst_shift >> 2;
-	auto w = ((unsigned long)width) >> 2;
-	auto * src = reinterpret_cast<unsigned long *>(srcbuf);
-	auto * dst = reinterpret_cast<unsigned long *>(dstbuf);
+	auto w = ((uint32_t)width) >> 2;
+	auto * src = reinterpret_cast<uint32_t *>(srcbuf);
+	auto * dst = reinterpret_cast<uint32_t *>(dstbuf);
 	do {
 		const auto c = *src++;
 		const auto first_pixel_low_byte = c & 0xFF;
@@ -56,8 +56,8 @@ void copy_to_screen_pxdblh(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 {
 	const auto s = dst_shift >> 2;
 	auto w = ((unsigned long)width) >> 2;
-	auto src = (unsigned long *)srcbuf;
-	auto dst = (unsigned long *)dstbuf;
+	auto src = (uint32_t *)srcbuf;
+	auto dst = (uint32_t *)dstbuf;
 	do {
 		const auto n = *src++;
 		dst[0] = n;
@@ -71,8 +71,8 @@ void copy_to_screen_pxdblh(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 void copy_to_screen_pxdblw(unsigned char *srcbuf, unsigned char *dstbuf, long width)
 {
 	auto w = ((unsigned long)width) >> 2;
-	auto src = (unsigned long *)srcbuf;
-	auto dst = (unsigned long *)dstbuf;
+	auto src = (uint32_t *)srcbuf;
+	auto dst = (uint32_t *)dstbuf;
 	do {
 		const auto c = *src++;
 		const auto first_pixel_low_byte = c & 0xFF;

@@ -58,7 +58,7 @@ TbBool creature_can_be_trained(const struct Thing *thing)
     // Creatures without training value can't be trained
     if (crconf->training_value <= 0)
         return false;
-    if ((cctrl->exp_level >= game.conf.rules.rooms.training_room_max_level-1) &! (game.conf.rules.rooms.training_room_max_level == 0))
+    if ((cctrl->exp_level >= game.conf.rules[thing->owner].rooms.training_room_max_level-1) &! (game.conf.rules[thing->owner].rooms.training_room_max_level == 0))
         return false;
     // If its model can train, check if this one can gain more experience
     return creature_can_gain_experience(thing);
@@ -208,7 +208,7 @@ void setup_training_search_for_post(struct Thing *creatng)
     // Let's start from a random slab
     long slb_x = -1;
     long slb_y = -1;
-    long min_distance = LONG_MAX;
+    long min_distance = INT32_MAX;
     struct Thing* traintng = INVALID_THING;
     long start_slab = THING_RANDOM(creatng, room->slabs_count);
     long k = start_slab;
@@ -576,9 +576,9 @@ CrStateRet training(struct Thing *thing)
     GoldAmount training_cost = calculate_correct_creature_training_cost(thing);
     // Pay for the training
     cctrl->turns_at_job++;
-    if (cctrl->turns_at_job >= game.conf.rules.rooms.train_cost_frequency)
+    if (cctrl->turns_at_job >= game.conf.rules[thing->owner].rooms.train_cost_frequency)
     {
-        cctrl->turns_at_job -= game.conf.rules.rooms.train_cost_frequency;
+        cctrl->turns_at_job -= game.conf.rules[thing->owner].rooms.train_cost_frequency;
         if (take_money_from_dungeon(thing->owner, training_cost, 1) < 0) {
             ERRORLOG("Cannot take %d gold from dungeon %d",(int)training_cost,(int)thing->owner);
         }

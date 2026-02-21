@@ -11,6 +11,8 @@
 ---@field state string
 ---@field continue_state string
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
+---@field flee_pos Pos3d The position the creature will flee too. For keeper creatures this is their lair
+---@field max_speed integer the movement speed of the creature after spell modifications
 ---@field gold_held integer gold carried by the creature
 ---@field opponents_count integer number of creatures it is in battle with, combined ranged and melee
 ---@field opponents_melee_count integer number of creatures it is in melee battle with
@@ -28,7 +30,8 @@
 ---@field party_original_objective string The originally assigned Hero party objective, returns to this when failing an alternative objective.
 ---@field party_target_player integer The player the hero party is targetting
 ---@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
----@field patrol_countdown integer when this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
+---@field patrol_countdown integer When this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
+---@field conscious_back_turns integer Turns until the creature wakes up from stun.
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
@@ -44,7 +47,12 @@ end
 function Creature:teleport(location,effect) end
 
 ---Kills the creature
-function Creature:kill() end
+--- @param killer? Creature that gets credited with the kill of the creature
+function Creature:kill(killer) end
+
+---Stuns the creature
+---@param turns ? Sets conscious_back_turns; the duration of the stun.
+function Creature:stun(turns) end
 
 ---increases creatures level by a given amount
 ---@param levels integer

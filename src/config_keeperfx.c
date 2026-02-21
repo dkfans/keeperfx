@@ -186,12 +186,13 @@ const struct NamedCommand conf_commands[] = {
   {"INTRO",                   5},
   {NULL,                      0},
   };
-  
+
   const struct NamedCommand tag_modes[] = {
-  {"SINGLE",  1},
-  {"DRAG",    2},
-  {"PRESET",  3},
-  {NULL,      0},
+  {"SINGLE",   1},
+  {"DRAG",     2},
+  {"PRESET",   3}, //legacy
+  {"REMEMBER", 3},
+  {NULL,       0},
   };
 
 unsigned int vid_scale_flags = SMK_FullscreenFit;
@@ -350,7 +351,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
     buf[len] = '\0';
     // Set text line number - we don't have blocks so we need to initialize it manually
     text_line_number = 1;
-    long pos = 0;
+    int32_t pos = 0;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(conf_commands,cmd_num)
     while (pos<len)
     {
@@ -835,7 +836,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           {
               i = atoi(word_buf);
           }
-          if ((i >= 0) && (i < ULONG_MAX))
+          if ((i >= 0) && (i <= INT32_MAX))
           {
               if (!start_params.overrides[Clo_GameTurns])
               {
@@ -875,19 +876,11 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
       case 39: // FRAMES_PER_SECOND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          if (!start_params.overrides[Clo_FramesPerSecond] && get_conf_parameter_whole(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              i = atoi(word_buf);
-          }
-          if ((i >= 0) && (i < ULONG_MAX))
-          {
-              if (!start_params.overrides[Clo_FramesPerSecond])
-              {
-                  start_params.num_fps_draw = i;
-              }
-          }
-          else {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              i = parse_draw_fps_config_val(word_buf, &start_params.num_fps_draw_main, &start_params.num_fps_draw_secondary);
+              if (i <= 0)
+                  CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
       case 40: // TAG_MODE_TOGGLING
@@ -935,7 +928,7 @@ static void load_configuration_for_mod_one(const struct ModConfigItem *mod_item)
     sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
     sprintf(config_textname, "Mod config '%s'", mod_item->name);
 
-    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_Main, keeper_config_file);
+    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_Main, "%s", keeper_config_file);
     load_file_configuration(fname, keeper_config_file, config_textname, CnfLd_IgnoreErrors);
 }
 
@@ -981,8 +974,15 @@ short load_configuration(void)
   const char* sname; // Filename
   const char* fname; // Filepath
 
-  load_mods_order_config_file();
-  recheck_all_mod_exist();
+  if (start_params.ignore_mods == false)
+  {
+      load_mods_order_config_file();
+      recheck_all_mod_exist();
+  }
+  else
+  {
+      SYNCMSG("Mod loading skipped");
+  }
 
   // Check if custom config file is set '-config <file>'
   if (start_params.overrides[Clo_ConfigFile])
@@ -1060,5 +1060,55 @@ void process_cmdline_overrides(void)
     features_enabled &= ~Ft_NoCdMusic;
   }
 }
+
+int parse_draw_fps_config_val(const char *arg, int32_t *fps_draw_main, int32_t *fps_draw_secondary)
+{
+  int cnt = 0, val1 = 0, val2 = 0;
+  long len = strlen(arg);
+  int32_t pos = 0;
+  char word_buf[32];
+  for (int i=0; i<2; i++)
+  {
+    if (get_conf_parameter_single(arg,&pos,len,word_buf,sizeof(word_buf)) <= 0)
+      break;
+
+    switch (i)
+    {
+    case 0:
+      if (strcasecmp(word_buf, "auto") == 0) {
+        val1=-1;
+        cnt++;
+      } else {
+        val1 = atoi(word_buf);
+        if (val1 >= 0){
+          cnt++;
+        } else {
+          i=2; // jump out for loop
+          break;
+        }
+      }
+      break;
+    case 1:
+        val2 = atoi(word_buf);
+        if (val2 >= 0){
+          cnt++;
+        } else {
+          i=2; // jump out for loop
+          break;
+        }
+      break;
+    }
+  }
+
+  if (cnt > 0) {
+    *fps_draw_main = val1;
+  }
+  if (cnt > 1) {
+    *fps_draw_secondary = val2;
+  }
+
+  return cnt;
+}
+
 
 /******************************************************************************/

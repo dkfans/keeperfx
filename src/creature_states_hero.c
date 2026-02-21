@@ -90,14 +90,14 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
     PlayerNumber backup_plyr_idx = -1;
     struct PlayerInfo* player;
     struct Dungeon* dungeon;
-    long best_score = LONG_MIN;
+    long best_score = INT32_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
             continue;
         }
         player = get_player(plyr_idx);
-        if (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_AlwaysTunnelToRed))
+        if (flag_is_set(game.conf.rules[creatng->owner].game.classic_bugs_flags,ClscBug_AlwaysTunnelToRed))
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
@@ -214,7 +214,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
         }
     }
 
-    struct Thing* gatetng = find_hero_door_hero_can_navigate_to(creatng);
+    struct Thing* gatetng = find_best_hero_gate_to_navigate_to(creatng);
     if (thing_is_invalid(gatetng))
     {
         SYNCLOG("Can't find any exit gate for hero %s index %d",thing_model_name(creatng),(int)creatng->index);
@@ -621,7 +621,7 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         SYNCDBG(3,"The %s index %d cannot move to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -666,7 +666,7 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -698,7 +698,7 @@ TbBool good_setup_rush_to_dungeon_heart(struct Thing* creatng, PlayerNumber plyr
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
         return false;
@@ -712,7 +712,7 @@ TbBool good_setup_wander_to_own_heart(struct Thing* creatng)
     SYNCDBG(7, "Starting");
     struct Thing* heartng = get_player_soul_container(creatng->owner);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, creatng->owner);
         return false;
@@ -893,7 +893,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // Do some wandering also if can't find any task to do
-    if ((long)cctrl->wait_to_turn > (long)game.play_gameturn)
+    if (cctrl->wait_to_turn > game.play_gameturn)
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_GoodDoingNothing;
@@ -1017,8 +1017,8 @@ short good_drops_gold(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    GoldAmount amount = game.conf.rules.game.pot_of_gold_holds;
-    if (thing->creature.gold_carried <= game.conf.rules.game.pot_of_gold_holds)
+    GoldAmount amount = game.conf.rules[thing->owner].game.pot_of_gold_holds;
+    if (thing->creature.gold_carried <= game.conf.rules[thing->owner].game.pot_of_gold_holds)
         amount = thing->creature.gold_carried;
     struct Thing* gldtng = create_object(&thing->mappos, ObjMdl_GoldPot, thing->owner, -1);
     if (thing_is_invalid(gldtng)) {
@@ -1049,7 +1049,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     thing->creature.gold_carried = 0;
-    cctrl->countdown = game.conf.rules.game.hero_door_wait_time;
+    cctrl->countdown = game.conf.rules[thing->owner].game.hero_door_wait_time;
     cctrl->hero.hero_gate_creation_turn = tmptng->creation_turn;
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
     if (cctrl->dragtng_idx != 0)
@@ -1155,7 +1155,7 @@ short creature_hero_entering(struct Thing *thing)
 long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
 {
     PlayerNumber best_plyr_idx = -1;
-    long best_score = LONG_MIN;
+    long best_score = INT32_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
@@ -1163,7 +1163,7 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
         if (player_exists(player) && !dungeon_invalid(dungeon) && players_are_enemies(creatng->owner,plyr_idx))
         {
             long score = dungeon->total_score; //Original code: = dungeon->total_score -20 * dungeon->total_score * dungeon->field_F7D / 100;
-            if ((score <= 0) || (game.conf.rules.game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
+            if ((score <= 0) || (game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
             {
                 score = 0;
             }
@@ -1221,7 +1221,7 @@ TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNum
     SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
@@ -1244,7 +1244,7 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
     SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng)) {
+    if (!thing_exists(heartng)) {
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
@@ -1388,7 +1388,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         return 1;
     }
     long i = cctrl->party.tunnel_steps_counter;
-    if ((i > 0) && (i < LONG_MAX))
+    if ((i > 0) && (i < INT32_MAX))
     {
         cctrl->party.tunnel_steps_counter++;
     }

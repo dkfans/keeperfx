@@ -48,6 +48,7 @@
 #include "engine_lenses.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
+#include "local_camera.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "game_heap.h"
@@ -420,6 +421,8 @@ long x_init_off;
 long y_init_off;
 long floor_pointed_at_x;
 long floor_pointed_at_y;
+long box_lag_compensation_x;
+long box_lag_compensation_y;
 
 static long fade_scaler;
 static long fade_way_out;
@@ -520,7 +523,7 @@ static void calculate_hud_scale(struct Camera *cam) {
     hud_scale = ((range_input - range_min)) / (range_max - range_min);
 }
 
-long interpolate(long variable_to_interpolate, long previous, long current)
+float interpolate(float variable_to_interpolate, long previous, long current)
 {
     if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
@@ -528,18 +531,23 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
     long future = current + (current - previous);
     // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
-    long desired_value = LbLerp(current, future, 0.5);
+    float desired_value = LbLerp(current, future, 0.5);
     return LbLerp(variable_to_interpolate, desired_value, game.delta_time);
 }
 
-long interpolate_angle(long variable_to_interpolate, long previous, long current)
+float interpolate_angle(float variable_to_interpolate, float previous, float current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false) {
+    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
-    long future = current + (current - previous);
-    long desired_value = lerp_angle(current, future, 0.5);
-    return lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
+    float future = current + (current - previous);
+    float desired_value = lerp_angle(current, future, 0.5);
+    float result = lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
+    float result_change = LbFmodf((result - current) + DEGREES_180, DEGREES_360) - DEGREES_180;
+    if (result_change > -0.5f && result_change < 0.5f) {
+        return current;
+    }
+    return result;
 }
 
 void interpolate_thing(struct Thing *thing)
@@ -573,21 +581,8 @@ void interpolate_thing(struct Thing *thing)
         }
     }
 }
-void interpolate_camera(struct Camera *cam)
-{
-    // Smooth zoom
-    interpolated_camera_zoom = interpolate(interpolated_camera_zoom, previous_camera_zoom, camera_zoom);
-    // Smooth rotation, including possessed creature mouselook
-    interpolated_cam_rotation_angle_x = interpolate_angle(interpolated_cam_rotation_angle_x, previous_cam_rotation_angle_x, cam->rotation_angle_x);
-    interpolated_cam_rotation_angle_y = interpolate_angle(interpolated_cam_rotation_angle_y, previous_cam_rotation_angle_y, cam->rotation_angle_y);
-    interpolated_cam_rotation_angle_z = interpolate_angle(interpolated_cam_rotation_angle_z, previous_cam_rotation_angle_z, cam->rotation_angle_z);
-    // Smooth camera position, including possessed creature position
-    interpolated_cam_mappos_x = interpolate(interpolated_cam_mappos_x, previous_cam_mappos_x, cam->mappos.x.val);
-    interpolated_cam_mappos_y = interpolate(interpolated_cam_mappos_y, previous_cam_mappos_y, cam->mappos.y.val);
-    interpolated_cam_mappos_z = interpolate(interpolated_cam_mappos_z, previous_cam_mappos_z, cam->mappos.z.val);
-}
 
-static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
+static void get_floor_pointed_at(long x, long y, int32_t *floor_x, int32_t *floor_y)
 {
     long long ofs_x;
     long long ofs_y;
@@ -634,12 +629,12 @@ static long compute_cells_away(void) // For overhead view, not for 1st person vi
 {
     long half_width;
     long half_height;
-    long xmin;
-    long ymin;
-    long xmax;
-    long ymax;
-    long xcell;
-    long ycell;
+    int32_t xmin;
+    int32_t ymin;
+    int32_t xmax;
+    int32_t ymax;
+    int32_t xcell;
+    int32_t ycell;
     struct PlayerInfo *player;
     long ncells_a;
     player = get_my_player();
@@ -1262,7 +1257,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
         wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
-        long *randmis;
+        int32_t *randmis;
         randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff];
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
@@ -1420,7 +1415,7 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
     long eview_h;
     long eview_z;
     long hview_y;
-    long *randmis;
+    int32_t *randmis;
     int dview_w;
     int dview_h;
     int dview_z;
@@ -2093,7 +2088,7 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
     }
 }
 
-static void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth, long ewheight, long ewzoom)
+static void fiddle_gamut_find_limits(int32_t *floor_x, int32_t *floor_y, long ewwidth, long ewheight, long ewzoom)
 {
     long edge_length_01;
     long edge_length_02;
@@ -2179,7 +2174,7 @@ static void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth,
     }
 }
 
-static void fiddle_gamut_set_base(long *floor_x, long *floor_y, long pos_x, long pos_y)
+static void fiddle_gamut_set_base(int32_t *floor_x, int32_t *floor_y, long pos_x, long pos_y)
 {
     floor_x[0] -= pos_x;
     floor_x[1] -= pos_x;
@@ -2191,7 +2186,7 @@ static void fiddle_gamut_set_base(long *floor_x, long *floor_y, long pos_x, long
     floor_y[3] += (MINMAX_LENGTH/2) - pos_y;
 }
 
-static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_tiles)
+static void fiddle_gamut_set_minmaxes(int32_t *floor_x, int32_t *floor_y, long max_tiles)
 {
     struct MinMax *mm;
     long mlimit;
@@ -2318,8 +2313,8 @@ static void fiddle_gamut(long pos_x, long pos_y)
     long ewwidth;
     long ewheight;
     long ewzoom;
-    long floor_x[4];
-    long floor_y[4];
+    int32_t floor_x[4];
+    int32_t floor_y[4];
     switch (player->view_mode)
     {
     case PVM_CreatureView:
@@ -2836,20 +2831,20 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
         if (current_player->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
-            create_map_volume_box(x, y, z, line_color);
+            create_map_volume_box(x + box_lag_compensation_x, y + box_lag_compensation_y, z, line_color);
         }
         else
         {
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_map_volume_box(current_player->render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, line_color, false);
+        create_fancy_map_volume_box(current_player->render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, line_color, false);
     }
     map_volume_box.color = default_color;
 }
@@ -3793,7 +3788,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
     }
 }
 
-static TbBool add_light_to_nearest_list(struct NearestLights* nlgt, long* nlgt_dist, const struct Light* lgt, long dist)
+static TbBool add_light_to_nearest_list(struct NearestLights* nlgt, int32_t * nlgt_dist, const struct Light* lgt, long dist)
 {
     int i;
     for (i = settings.video_shadows-1; i > 0; i--)
@@ -3806,7 +3801,7 @@ static TbBool add_light_to_nearest_list(struct NearestLights* nlgt, long* nlgt_d
     return true;
 }
 
-static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_dist, const struct Coord3d *pos, ThingIndex list_start_idx)
+static void find_closest_lights_on_list(struct NearestLights *nlgt, int32_t *nlgt_dist, const struct Coord3d *pos, ThingIndex list_start_idx)
 {
     long i;
     unsigned long k;
@@ -3843,10 +3838,10 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
 static long find_closest_lights(const struct Coord3d* pos, struct NearestLights* nlgt)
 {
     long count;
-    long nlgt_dist[SHADOW_SOURCES_MAX_COUNT];
+    int32_t nlgt_dist[SHADOW_SOURCES_MAX_COUNT];
     long i;
     for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++) {
-        nlgt_dist[i] = LONG_MAX;
+        nlgt_dist[i] = INT32_MAX;
     }
     i = game.thing_lists[TngList_StaticLights].index;
     find_closest_lights_on_list(nlgt, nlgt_dist, pos, i);
@@ -3854,7 +3849,7 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
     find_closest_lights_on_list(nlgt, nlgt_dist, pos, i);
     count = 0;
     for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++) {
-        if (nlgt_dist[i] == LONG_MAX)
+        if (nlgt_dist[i] == INT32_MAX)
             break;
         count++;
     }
@@ -3901,6 +3896,12 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     short dim_th;
     short dim_tw;
     get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    if (dim_ow <= 0 || dim_oh <= 0 || dim_ow > 256 || dim_oh > 256)
+    {
+        WARNLOG("[md10 crash investigation] Invalid shadow dimensions dim_ow=%d dim_oh=%d for thing %d (anim=%d frame=%d)",
+                dim_ow, dim_oh, thing->index, thing->anim_sprite, thing->current_frame);
+        return;
+    }
     {
         int sh_angle_sin = LbSinL(sh_angle);
         int sh_angle_cos = LbCosL(sh_angle);
@@ -5087,7 +5088,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = player->acamera;
+    const struct Camera *cam = get_local_camera(player->acamera);
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -5102,8 +5103,8 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = 4094*scale_by_zoom;
-                deltay = (zoom_factor << 7 >> 13) * units_per_pixel / 16;
-                height = ((2 * (71 * zoom_factor) >> 13) * units_per_pixel + 8) / 16;
+                deltay = (zoom_factor << 7 >> 13) * units_per_pixel_ui / 16;
+                height = ((2 * (71 * zoom_factor) >> 13) * units_per_pixel_ui + 8) / 16;
             } else {
                 zoom_factor = camera_zoom;
                 deltay = (zoom_factor << 7 >> 13);
@@ -5112,12 +5113,12 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 
             LbDrawBox(rflg->x,
                       rflg->y - deltay,
-                      ((4*scale_by_zoom) * units_per_pixel + 8) / 16,
+                      ((4*scale_by_zoom) * units_per_pixel_ui + 8) / 16,
                       height,
                       colours[3][1][0]);
-            LbDrawBox(rflg->x + (2*scale_by_zoom) * (units_per_pixel) / 16,
+            LbDrawBox(rflg->x + (2*scale_by_zoom) * (units_per_pixel_ui) / 16,
                       rflg->y - deltay,
-                      ((2*scale_by_zoom) * units_per_pixel + 8) / 16,
+                      ((2*scale_by_zoom) * units_per_pixel_ui + 8) / 16,
                       height,
                       colours[1][0][0]);
         }
@@ -5246,7 +5247,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = player->acamera;
+    const struct Camera *cam = get_local_camera(player->acamera);
     if (cam == NULL)
     {
         return;
@@ -5381,9 +5382,9 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             is_allied = players_are_mutual_allies(player->id_number, thing->owner) && (player->id_number != thing->owner);
             should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner)
             // Check if the creature has a lair room or can heal in a lair.
-            && ((game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing)))
+            && ((game.conf.rules[thing->owner].workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing)))
             // Or check if the creature can have lair and heal in it.
-            || (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
+            || (game.conf.rules[thing->owner].workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
         }
         // Check if the creature is in combat.
         TbBool is_in_combat = (cctrl->combat_flags != 0);
@@ -5485,7 +5486,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = player->acamera;
+    const struct Camera *cam = get_local_camera(player->acamera);
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -5500,12 +5501,12 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
 
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = (4094*scale_by_zoom);
-                top_of_pole_offset = (zoom_factor << 7 >> 13) * (units_per_pixel)/16;
+                top_of_pole_offset = (zoom_factor << 7 >> 13) * (units_per_pixel_ui)/16;
             } else {
                 zoom_factor = camera_zoom;
                 top_of_pole_offset = (zoom_factor << 7 >> 13);
             }
-            draw_room_flag_top(rflg->x, rflg->y - top_of_pole_offset, (units_per_pixel*scale_by_zoom), room);
+            draw_room_flag_top(rflg->x, rflg->y - top_of_pole_offset, (units_per_pixel_ui *scale_by_zoom), room);
         }
     }
 }
@@ -5526,8 +5527,8 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     // A and B are relative, and are set to be either X (shallow curves) or Y (steep curves).
     // A1 and A2, and B1 and B2, are swapped when the line is directed towards -1 X/Y.
     // A and B are incremented, apart from when the slope of the lines goes from 0 to -1 in A, where B will decrement instead
-    long distance_a, distance_b, a, b, a1, b1, a2, b2, relative_window_a, relative_window_b, remainder, remainder_limit;
-    long *x_coord, *y_coord; // Maintain a reference to the actual X/Y coordinates, even after swapping A and B
+    int32_t distance_a, distance_b, a, b, a1, b1, a2, b2, relative_window_a, relative_window_b, remainder, remainder_limit;
+    int32_t *x_coord, *y_coord; // Maintain a reference to the actual X/Y coordinates, even after swapping A and B
 
     if (abs(y2 - y1) < abs(x2 - x1))
     {
@@ -6709,7 +6710,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
-                cam = player->acamera;
+                cam = get_local_camera(player->acamera);
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
@@ -6836,11 +6837,9 @@ void draw_view(struct Camera *cam, unsigned char a2)
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    interpolate_camera(cam);
-    camera_zoom = interpolated_camera_zoom;
-    long x = interpolated_cam_mappos_x;
-    long y = interpolated_cam_mappos_y;
-    long z = interpolated_cam_mappos_z;
+    long x = cam->mappos.x.val;
+    long y = cam->mappos.y.val;
+    long z = cam->mappos.z.val;
 
     getpoly = poly_pool;
     memset(buckets, 0, sizeof(buckets));
@@ -6863,13 +6862,13 @@ void draw_view(struct Camera *cam, unsigned char a2)
     rotpers = rotpers_routines[i];
     update_fade_limits(cells_away);
     init_coords_and_rotation(&object_origin,&camera_matrix);
-    rotate_base_axis(&camera_matrix, interpolated_cam_rotation_angle_x, 2);
+    rotate_base_axis(&camera_matrix, cam->rotation_angle_x, 2);
     update_normal_shade(&camera_matrix);
-    rotate_base_axis(&camera_matrix, -interpolated_cam_rotation_angle_y, 1);
-    rotate_base_axis(&camera_matrix, -interpolated_cam_rotation_angle_z, 3);
-    cam_map_angle = interpolated_cam_rotation_angle_x;
-    map_roll = interpolated_cam_rotation_angle_z;
-    map_tilt = -interpolated_cam_rotation_angle_y;
+    rotate_base_axis(&camera_matrix, -cam->rotation_angle_y, 1);
+    rotate_base_axis(&camera_matrix, -cam->rotation_angle_z, 3);
+    cam_map_angle = cam->rotation_angle_x;
+    map_roll = cam->rotation_angle_z;
+    map_tilt = -cam->rotation_angle_y;
 
     frame_wibble_generate();
     view_alt = z;
@@ -7049,7 +7048,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
  */
 
 #define PPH_EVEN_ALIGN_MASK 0xFFFE
-static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, long *x_out, long *y_out, long *z_out)
+static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, int32_t *x_out, int32_t *y_out, int32_t *z_out)
 {
     int vertical_shift;
     int64_t new_zoom;
@@ -7077,7 +7076,7 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
  * @param z_out The z position of the object relative to the camera
  * @return true if projected point is withing player's window, false otherwise
  */
-static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
+static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, int32_t * x_out, int32_t * y_out, int32_t * z_out)
 {
     int zoom;
     unsigned int orientation;
@@ -7086,31 +7085,31 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     struct PlayerInfo* player = get_my_player();
 
     zoom = 32 * camera_zoom / 256;
-    orientation = ((unsigned int)(interpolated_cam_rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
+    orientation = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
 
     switch ( orientation )
     {
         case 0:
-            vertical_delta = pos->y.val - interpolated_cam_mappos_y;
-            horizontal_delta = pos->x.val - interpolated_cam_mappos_x;
+            vertical_delta = pos->y.val - cam->mappos.y.val;
+            horizontal_delta = pos->x.val - cam->mappos.x.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 1:
-            vertical_delta = interpolated_cam_mappos_x - pos->x.val;
-            horizontal_delta = pos->y.val - interpolated_cam_mappos_y;
+            vertical_delta = cam->mappos.x.val - pos->x.val;
+            horizontal_delta = pos->y.val - cam->mappos.y.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 2:
-            vertical_delta = interpolated_cam_mappos_y - pos->y.val;
-            horizontal_delta = interpolated_cam_mappos_x - pos->x.val;
+            vertical_delta = cam->mappos.y.val - pos->y.val;
+            horizontal_delta = cam->mappos.x.val - pos->x.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 3:
-            vertical_delta = pos->x.val - interpolated_cam_mappos_x;
-            horizontal_delta = interpolated_cam_mappos_y - pos->y.val;
+            vertical_delta = pos->x.val - cam->mappos.x.val;
+            horizontal_delta = cam->mappos.y.val - pos->y.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
     }
@@ -7303,7 +7302,7 @@ static void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bc
     poly->lvl = room_idx;
 }
 
-static void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp, long base_lightness)
+static void prepare_lightness_intensity_array(long stl_x, long stl_y, int32_t *arrp, long base_lightness)
 {
     long i;
     long n;
@@ -7326,13 +7325,13 @@ static void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp
     }
 }
 
-static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long pos_x, long pos_y, long zoom, unsigned char qdrant, long *ymax)
+static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long pos_x, long pos_y, long zoom, unsigned char qdrant, int32_t *ymax)
 {
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
     struct CubeConfigStats *cube_config_stats;
     struct Map *mapblk;
-    long lightness_arr[4][9];
+    int32_t lightness_arr[4][9];
     long bckt_idx;
     long cube_itm;
     long delta_y;
@@ -7489,7 +7488,7 @@ static unsigned short get_thing_shade(struct Thing* thing)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    long minimum_lightness = game.conf.rules.game.thing_minimum_illumination << 8;
+    long minimum_lightness = game.conf.rules[thing->owner].game.thing_minimum_illumination << 8;
     long lgh[2][2]; // the dimensions are lgh[y][x]
     long shval;
     long fract_x;
@@ -7828,15 +7827,15 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     }
 }
 
-static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
+static void prepare_jonty_remap_and_scale(int32_t *scale, const struct BucketKindJontySprite *jspr)
 {
     long i;
     struct Thing *thing;
     long shade;
     long shade_factor;
     long fade;
-    long minimum_lightness = game.conf.rules.game.thing_minimum_illumination << 8;
     thing = jspr->thing;
+    long minimum_lightness = game.conf.rules[thing->owner].game.thing_minimum_illumination << 8;
     if (lens_mode == 0)
     {
         fade = 65536;
@@ -7928,7 +7927,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
     long angle;
-    long scaled_size;
+    int32_t scaled_size;
     struct ObjectConfigStats* objst;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
@@ -7972,7 +7971,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                   struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
-                  if (thing_is_invalid(dragtng))
+                  if (!thing_exists(dragtng))
                   {
                     lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                     lbSpriteReMapPtr = white_pal;
@@ -7980,7 +7979,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   else if (thing_is_trap_crate(dragtng))
                   {
                       struct Thing *handthing = thing_get(player->thing_under_hand);
-                      if (!thing_is_invalid(handthing))
+                      if (thing_exists(handthing))
                       {
                           if (handthing->class_id == TCls_Trap)
                           {
@@ -8105,7 +8104,7 @@ static void sprite_to_sbuff(const TbSpriteData sprdata, unsigned char *outbuf, i
           // Now fill the area faster - by writing 32-bit values
           for (i = (cval >> 2); i > 0; i--)
           {
-              *(unsigned long *)out = 0xFFFFFFFF;
+              *(uint32_t *)out = 0xFFFFFFFF;
               out += 4;
           }
           // Fill the last unaligned bytes
@@ -8172,7 +8171,7 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
           for (i = (cval >> 2); i > 0; i--)
           {
               out -= 4;
-              *(unsigned long *)out = 0xFFFFFFFF;
+              *(uint32_t *)out = 0xFFFFFFFF;
           }
           out--;
           // Fill the last unaligned bytes
@@ -8381,18 +8380,18 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     long depth = ((5 - map_volume_box.floor_height_z) * ((long)stl_width << 7) / 256);
     long breadth = depth / (single_subtile ? STL_PER_SLB : 1);
     struct Coord3d pos;
-    long coord_x;
-    long coord_y;
-    long coord_z;
+    int32_t coord_x;
+    int32_t coord_y;
+    int32_t coord_z;
     long box_width, box_height;
-    pos.y.val = map_volume_box.end_y;
-    pos.x.val = map_volume_box.end_x;
+    pos.y.val = map_volume_box.end_y - box_lag_compensation_y;
+    pos.x.val = map_volume_box.end_x - box_lag_compensation_x;
     pos.z.val = subtile_coord(5,0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
-    pos.y.val = map_volume_box.beg_y;
-    pos.x.val = map_volume_box.beg_x;
+    pos.y.val = map_volume_box.beg_y - box_lag_compensation_y;
+    pos.x.val = map_volume_box.beg_x - box_lag_compensation_x;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width -= coord_x;
     box_height -= coord_y;
@@ -8437,9 +8436,9 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
     long depth = ((5 - floor_height_z) * ((long)stl_width << 7) / 256);
     struct Coord3d pos;
-    long coord_x;
-    long coord_y;
-    long coord_z;
+    int32_t coord_x;
+    int32_t coord_y;
+    int32_t coord_z;
     long box_width, box_height;
     struct MapVolumeBox valid_slabs = map_volume_box;
     // get the 'accurate' roomspace shape instead of the outer box
@@ -8447,14 +8446,14 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
     valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
     valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
-    pos.y.val = valid_slabs.end_y;
-    pos.x.val = valid_slabs.end_x;
+    pos.y.val = valid_slabs.end_y - box_lag_compensation_y;
+    pos.x.val = valid_slabs.end_x - box_lag_compensation_x;
     pos.z.val = subtile_coord(5,0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
-    pos.y.val = valid_slabs.beg_y;
-    pos.x.val = valid_slabs.beg_x;
+    pos.y.val = valid_slabs.beg_y - box_lag_compensation_y;
+    pos.x.val = valid_slabs.beg_x - box_lag_compensation_x;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width -= coord_x;
     box_height -= coord_y;
@@ -8849,9 +8848,9 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     // The draw_frontview_thing_on_element() function is the FrontView equivalent of do_map_who_for_thing()
     interpolate_thing(thing);
 
-    long cx;
-    long cy;
-    long cz;
+    int32_t cx;
+    int32_t cy;
+    int32_t cz;
     if ((thing->rendering_flags & TRF_Invisible) != 0)
         return;
     switch (thing->draw_class)
@@ -8973,7 +8972,7 @@ void draw_frontview_engine(struct Camera *cam)
     long cam_y;
     long long zoom;
     long long lbbb;
-    long i;
+    int32_t i;
     SYNCDBG(9,"Starting");
     player = get_my_player();
     if (cam->zoom > FRONTVIEW_CAMERA_ZOOM_MAX)
@@ -8982,10 +8981,8 @@ void draw_frontview_engine(struct Camera *cam)
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    interpolate_camera(cam);
-    camera_zoom = interpolated_camera_zoom;
-    cam_x = interpolated_cam_mappos_x;
-    cam_y = interpolated_cam_mappos_y;
+    cam_x = cam->mappos.x.val;
+    cam_y = cam->mappos.y.val;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
     LbScreenStoreGraphicsWindow(&grwnd);

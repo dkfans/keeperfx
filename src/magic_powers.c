@@ -588,9 +588,8 @@ TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     if (dungeon->sight_casted_thing_idx <= 0) {
         return false;
     }
-    struct Thing *thing;
-    thing = thing_get(dungeon->sight_casted_thing_idx);
-    if (thing_is_invalid(thing)) {
+    struct Thing *thing = thing_get(dungeon->sight_casted_thing_idx);
+    if (!thing_exists(thing)) {
         return false;
     }
     long soe_x;
@@ -946,8 +945,8 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
     SYNCDBG(6,"Starting");
     unsigned long your_time_gap;
     unsigned long enemy_time_gap;
-    your_time_gap = game.armageddon.count_down + game.play_gameturn;
-    enemy_time_gap = game.armageddon.count_down + game.play_gameturn;
+    your_time_gap = game.conf.rules[plyr_idx].magic.armageddon_count_down + game.play_gameturn;
+    enemy_time_gap = game.conf.rules[plyr_idx].magic.armageddon_count_down + game.play_gameturn;
     if (game.armageddon_cast_turn != 0) {
         return Lb_OK;
     }
@@ -964,9 +963,9 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
     game.armageddon_caster_idx = plyr_idx;
     struct Thing *heartng;
     heartng = get_player_soul_container(plyr_idx);
-    game.armageddon.mappos.x.val = heartng->mappos.x.val;
-    game.armageddon.mappos.y.val = heartng->mappos.y.val;
-    game.armageddon.mappos.z.val = heartng->mappos.z.val;
+    game.armageddon_mappos.x.val = heartng->mappos.x.val;
+    game.armageddon_mappos.y.val = heartng->mappos.y.val;
+    game.armageddon_mappos.z.val = heartng->mappos.z.val;
 
     int i;
     int k;
@@ -986,7 +985,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
         // Per-thing code
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if (is_neutral_thing(thing) && !game.conf.rules.magic.armageddon_teleport_neutrals) // Creatures unaffected by Armageddon.
+        if (is_neutral_thing(thing) && !game.conf.rules[plyr_idx].magic.armageddon_teleport_neutrals) // Creatures unaffected by Armageddon.
         {
             cctrl->armageddon_teleport_turn = 0;
         }
@@ -998,9 +997,9 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
         {
             cctrl->armageddon_teleport_turn = your_time_gap;
             if (thing->owner == plyr_idx) {
-                your_time_gap += game.conf.rules.magic.armageddon_teleport_your_time_gap;
+                your_time_gap += game.conf.rules[plyr_idx].magic.armageddon_teleport_your_time_gap;
             } else {
-                enemy_time_gap += game.conf.rules.magic.armageddon_teleport_enemy_time_gap;
+                enemy_time_gap += game.conf.rules[plyr_idx].magic.armageddon_teleport_enemy_time_gap;
             }
         }
         // Per-thing code ends
@@ -1013,7 +1012,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
     }
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
-    game.armageddon_over_turn = game.armageddon.duration + enemy_time_gap;
+    game.armageddon_over_turn = game.conf.rules[plyr_idx].magic.armageddon_duration + enemy_time_gap;
     if (plyr_idx == my_player_number)
     {
         struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
@@ -1768,6 +1767,7 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
+    player->influenced_thing_creation = thing->creation_turn;
     player->first_person_dig_claim_mode = false;
     player->teleport_destination = 19; // reset to default behaviour
     player->battleid = 1;
@@ -1784,7 +1784,7 @@ static void magic_power_hold_audience_update(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     SYNCDBG(8,"Starting");
-    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.conf.rules.magic.hold_audience_time) {
+    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.conf.rules[plyr_idx].magic.hold_audience_time) {
         return;
     }
     // Dispose hold audience effect
@@ -1896,7 +1896,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     TbBool free = ((slabmap_owner(slb) == plyr_idx) || dungeon->cta_free);
     if (!free)
     {
-        if ((game.conf.rules.game.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
+        if ((game.conf.rules[plyr_idx].game.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
         {
             free = true;
         }
@@ -2296,13 +2296,13 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
  */
 TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
 {
-    SYNCDBG(0, "Using power at location of type %lu", target);
-    long x = 0;
-    long y = 0;
+    SYNCDBG(0, "Using power at location of type %u", target);
+    MapSubtlCoord x = 0;
+    MapSubtlCoord y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
-        WARNLOG("Can't decode location %lu", target);
+        WARNLOG("Can't decode location %u", target);
         return Lb_FAIL;
     }
     return script_use_power_at_pos(plyr_idx, x, y, fml_bytes);

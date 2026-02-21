@@ -41,6 +41,9 @@
 #include "sprites.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
+#include "bflib_enet.h"
+#include "bflib_network_exchange.h"
+#include "packets.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -111,34 +114,29 @@ void frontnet_messages_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_start_game_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players > 1)) & LbBtnF_Enabled;
+    TbBool enabled;
+    enabled = (net_number_of_enum_players > 1) && !frontnet_is_waiting_for_ping_stabilization();
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * enabled) & LbBtnF_Enabled;
 }
 
 TbBool frontnet_start_input(void)
 {
-    if (lbInkey != KC_UNASSIGNED)
-    {
-        unsigned short asckey;
-        asckey = key_to_ascii(lbInkey, KMod_NONE);
-        if ((lbInkey == KC_BACK) || (lbInkey == KC_RETURN) || (frontend_font_char_width(1,asckey) > 0))
-        {
-            struct ScreenPacket *nspck;
-            nspck = &net_screen_packet[my_player_number];
-            if ((nspck->networkstatus_flags & 0xF8) == 0)
-            {
-                nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
-                nspck->param1 = lbInkey;
-                nspck->param2 = key_modifiers;
-                if (key_modifiers)
-                {
-                    lbInkey = KC_UNASSIGNED;
-                    return true;
-                }
-            }
-        }
-        lbInkey = KC_UNASSIGNED;
+    struct PlayerInfo *player = get_my_player();
+    if (lbInkey == KC_UNASSIGNED) {
+        return false;
     }
-    return false;
+    if (lbInkey == KC_RETURN) {
+        if (player->mp_message_text[0] != '\0') {
+            LbNetwork_SendChatMessageImmediate(my_player_number, player->mp_message_text);
+        }
+        process_chat_message_end(my_player_number, player->mp_message_text);
+    } else if (lbInkey == KC_ESCAPE) {
+        player->mp_message_text[0] = '\0';
+    } else if (lbInkey == KC_BACK || frontend_font_string_width(1, player->mp_message_text) < 420) {
+        message_text_key_add(player->mp_message_text, lbInkey, key_modifiers);
+    }
+    lbInkey = KC_UNASSIGNED;
+    return true;
 }
 
 void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn)
@@ -372,8 +370,20 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         spr = get_frontend_sprite(GFS_bullfrog_red_med+netplyr_idx);
         i = height - spr->SHeight * fs_units_per_px / 16;
         LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i)/2, fs_units_per_px, spr);
+
+        char player_text[128];
+        unsigned long ping = 0;
+        if (netplyr_idx != my_player_number) {
+            ping = GetPing(netplyr_idx);
+        }
+        if (ping > 0) {
+            snprintf(player_text, sizeof(player_text), "%s - %lums", text, ping);
+        } else {
+            snprintf(player_text, sizeof(player_text), "%s", text);
+        }
+
         LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + shift_y, gbtn->width - spr->SWidth * fs_units_per_px / 16, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, text);
+        LbTextDrawResized(0, 0, tx_units_per_px, player_text);
     }
 }
 
@@ -699,6 +709,26 @@ void frontnet_service_select(struct GuiButton *gbtn)
   {
       setup_network_service(srvidx);
   }
+}
+
+void frontnet_draw_start_game_button(struct GuiButton *gbtn)
+{
+    static TbClockMSec last_anim_time = 0;
+    static int anim_frame = 0;
+    static const char *dot_frames[] = {"...", "..", ".", "..", "..."};
+    const char *text;
+
+    if (net_number_of_enum_players >= 2 && frontnet_is_waiting_for_ping_stabilization()) {
+        if (LbTimerClock() >= last_anim_time + 125) {
+            anim_frame = (anim_frame + 1) % 5;
+            last_anim_time = LbTimerClock();
+        }
+        text = dot_frames[anim_frame];
+    } else {
+        text = frontend_button_caption_text(gbtn);
+    }
+
+    frontend_draw_button(gbtn, 0, text, Lb_TEXT_HALIGN_CENTER);
 }
 
 /******************************************************************************/

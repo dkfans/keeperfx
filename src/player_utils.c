@@ -50,6 +50,7 @@
 #include "frontend.h"
 #include "magic_powers.h"
 #include "engine_redraw.h"
+#include "local_camera.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
 #include "gui_frontbtns.h"
@@ -112,7 +113,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
             show_real_time_taken();
         }
         struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game_num_fps);
-        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
             game.loaded_level_number, dungeon->lvstats.hopes_dashed,
             GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps,
             Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
@@ -163,7 +164,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         turn_off_all_menus();
         clear_transfered_creatures();
     }
-    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
+    if ((game.conf.rules[player->id_number].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
         dungeon->num_things_in_hand = 0;
     }
@@ -331,11 +332,11 @@ void recalculate_total_gold(struct Dungeon* dungeon, const char* func_name)
     }
     if (gold_before == dungeon->total_money_owned)
     {
-        SYNCDBG(7, "%s: Dungeon %d did not need gold recalculation. Correct at %ld.", func_name, dungeon->owner, dungeon->total_money_owned);
+        SYNCDBG(7, "%s: Dungeon %d did not need gold recalculation. Correct at %d.", func_name, dungeon->owner, dungeon->total_money_owned);
     }
     else
     {
-        ERRORLOG("%s: Gold recalculation found an error, Dungeon %d correct gold amount %ld not %ld.", func_name, dungeon->owner, dungeon->total_money_owned, gold_before);
+        ERRORLOG("%s: Gold recalculation found an error, Dungeon %d correct gold amount %d not %d.", func_name, dungeon->owner, dungeon->total_money_owned, gold_before);
     }
 }
 
@@ -349,7 +350,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
     GoldAmount take_remain = amount_take;
     GoldAmount total_money = dungeon->total_money_owned;
     if (take_remain <= 0) {
-        WARNLOG("%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
+        SYNCDBG(7, "%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
         return 0;
     }
     if (take_remain > total_money)
@@ -845,7 +846,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->allied_players = to_flag(player->id_number);
     player->hand_busy_until_turn = 0;
     if (player->generate_speed == 0)
-      player->generate_speed = game.conf.rules.rooms.default_generate_speed;
+      player->generate_speed = game.conf.rules[player->id_number].rooms.default_generate_speed;
     if (is_my_player(player)) {
         // new game, play one of the default tracks
         LevelNumber lvnum = get_loaded_level_number();
@@ -900,7 +901,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
              && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
                 heartng = get_player_soul_container(wandr->plyr_idx);
-                if (!thing_is_invalid(heartng))
+                if (thing_exists(heartng))
                 {
 
                     dstpos.x.val = subtile_coord_center(stl_x);
@@ -922,7 +923,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
                 heartng = get_player_soul_container(wandr->plyr_idx);
-                if (!thing_is_invalid(heartng))
+                if (thing_exists(heartng))
                 {
                     dstpos.x.val = subtile_coord_center(stl_x);
                     dstpos.y.val = subtile_coord_center(stl_y);
@@ -1132,6 +1133,7 @@ void process_player_states(void)
                 if ((cam != NULL) && thing_exists(thing)) {
                     cam->mappos.x.val = thing->mappos.x.val;
                     cam->mappos.y.val = thing->mappos.y.val;
+                    set_local_camera_destination(player);
                 }
             }
         }
@@ -1165,7 +1167,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Coord3d pos;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    long sell_value = 0;
+    int32_t sell_value = 0;
     unsigned long traps_sold;
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player->full_slab_cursor == false)
@@ -1227,7 +1229,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct DoorConfigStats *doorst = get_door_model_stats(thing->model);
     struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
     dungeon->camera_deviate_jump = 192;
-    GoldAmount sell_value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+    GoldAmount sell_value = compute_value_percentage(doorst->selling_value, game.conf.rules[plyr_idx].game.door_sale_percent);
     dungeon->doors_sold++;
     dungeon->manufacture_gold += sell_value;
     destroy_door(thing);
@@ -1332,6 +1334,12 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
             }
         }
     }
+}
+
+void set_player_roomspace_size(struct PlayerInfo *player, long size) {
+    player->user_defined_roomspace_width = size;
+    player->roomspace_width = size;
+    player->roomspace_height = size;
 }
 
 /******************************************************************************/

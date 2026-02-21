@@ -437,7 +437,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
         if (anger_is_creature_livid(thing))
             priority /= 3; // livid creatures have minimal value
          // Return maximizer based on our evaluated gold value
-        return LONG_MAX - priority;
+        return INT32_MAX - priority;
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -480,18 +480,18 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    if (game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model == 0) {
+    if (game.conf.rules[dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model == 0) {
         return CTaskRet_Unk0;
     }
 
     GoldAmount power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    SYNCDBG(18, "Digger creation power price: %ld, lowest: %ld", power_price, lowest_price);
+    SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
 
     if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
         && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
     {
-        struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model);
+        struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules[dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         if (!thing_is_invalid(creatng) && (cctrl->exp_level < 2))
         {
@@ -1503,7 +1503,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
     // Enough prison capacity to enable imprisonment
     if ((total_capacity >= min_capacity) && (dungeon->num_active_creatrs < max_units))
     {
-        if ((dungeon->creature_tendencies & 0x01) != 0)
+        if ((dungeon->creature_tendencies & CrTend_Imprison) != 0)
         {
             SYNCDBG(8, "Prison tendency already enabled");
             return CTaskRet_Unk1;
@@ -1514,8 +1514,8 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
             {
                 if (is_my_player(player)) {
                     dungeon = get_players_dungeon(player);
-                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
                 }
                 SYNCDBG(18, "Player %d has enabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;
@@ -1535,7 +1535,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
     // Not enough prison capacity to keep imprisonment enabled, or too many units
     else
     {
-        if ((dungeon->creature_tendencies & 0x01) == 0)
+        if ((dungeon->creature_tendencies & CrTend_Imprison) == 0)
         {
             SYNCDBG(8, "Prison tendency already disabled");
             return CTaskRet_Unk1;
@@ -1546,8 +1546,8 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
             {
                 if (is_my_player(player)) {
                     dungeon = get_players_dungeon(player);
-                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
                 }
                 SYNCDBG(18, "Player %d has disabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;

@@ -17,25 +17,27 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_data.h"
-#include "thing_list.h"
+#include "lvl_script_lib.h"
+
+#include "bflib_sound.h"
+#include "creature_states_pray.h"
+#include "frontmenu_ingame_map.h"
+#include "gui_soundmsgs.h"
+#include "keeperfx.hpp"
+#include "lvl_filesdk1.h"
+#include "magic_powers.h"
+#include "map_blocks.h"
 #include "map_data.h"
 #include "map_locations.h"
 #include "player_data.h"
-#include "magic_powers.h"
-#include "keeperfx.hpp"
-#include "lvl_filesdk1.h"
+#include "player_utils.h"
 #include "power_hand.h"
 #include "power_specials.h"
-#include "creature_states_pray.h"
-#include "player_utils.h"
 #include "room_library.h"
-#include "gui_soundmsgs.h"
-#include "bflib_sound.h"
-#include "map_blocks.h"
 #include "room_util.h"
+#include "thing_data.h"
+#include "thing_list.h"
 
-#include "lvl_script_lib.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -589,6 +591,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           set_ally_with_player(param1, i, (param2 & 1) ? true : false);
           set_player_ally_locked(i, param1, (param2 & 2) ? true : false);
           set_player_ally_locked(param1, i, (param2 & 2) ? true : false);
+          if (game.conf.rules[i].game.allies_share_vision)
+          {
+              panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
+          }
       }
       break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
@@ -644,8 +650,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           set_creature_tendencies(player, param1, param2);
           if (is_my_player(player)) {
               dungeon = get_players_dungeon(player);
-              game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-              game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+              game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
+              game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
           }
       }
       break;
@@ -672,9 +678,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       {
           script_use_power_on_creature_matching_criterion(i, param1, param2, param3);
       }
-      break;
-    case Cmd_USE_SPELL_ON_CREATURE:
-      script_use_spell_on_creature_with_criteria(plr_range_id, param1, param2, param3);
       break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         for (i = plr_start; i < plr_end; i++)

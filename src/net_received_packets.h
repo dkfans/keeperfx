@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lens_flyeye.h
- *     Header file for lens_flyeye.cpp.
+/** @file received_packets.h
+ *     Header file for received_packets.c.
  * @par Purpose:
- *     lens_flyeye functions.
+ *     Received packets list tracking for network game synchronization.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     11 Mar 2010 - 12 May 2010
+ * @author   KeeperFX Team
+ * @date     24 Oct 2025
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,18 +16,29 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_LENSFLYEYE_H
-#define DK_LENSFLYEYE_H
+#ifndef DK_RECEIVED_PACKETS_H
+#define DK_RECEIVED_PACKETS_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /******************************************************************************/
-void flyeye_blitsec(unsigned char *srcbuf, long srcpitch, unsigned char *dstbuf, long dstpitch, long start_h, long end_h);
-void flyeye_setup(long width, long height);
+#pragma pack(1)
+
+struct Packet;
+
+#pragma pack()
+/******************************************************************************/
+void initialize_packet_tracking(void);
+void clear_packet_tracking(void);
+void store_received_packets(void);
+void store_received_packet(GameTurn turn, PlayerNumber player, const struct Packet* packet);
+const struct Packet* get_received_packets_for_turn(GameTurn turn);
+const struct Packet* get_received_packet_for_player(GameTurn turn, PlayerNumber player);
 
 /******************************************************************************/
 #ifdef __cplusplus

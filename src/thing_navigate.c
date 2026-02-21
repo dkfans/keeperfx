@@ -37,6 +37,8 @@
 #include "dungeon_data.h"
 #include "ariadne.h"
 #include "game_legacy.h"
+#include "player_data.h"
+#include "local_camera.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -121,7 +123,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         }
     }
 
-    ERRORLOG("Cannot find valid position near %d, %d to place thing", pos->x.stl.num, pos->y.stl.num);
+    ERRORLOG("Cannot find valid position near %d, %d to place %s", pos->x.stl.num, pos->y.stl.num, thing_model_name(thing));
     return false;
 
 }
@@ -129,8 +131,8 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
 static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, NaviRouteFlags flags)
 {
     long nav_sizexy;
-    long px;
-    long py;
+    int32_t px;
+    int32_t py;
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
@@ -247,17 +249,46 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Co
     return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, flags);
 }
 
+struct ClosestGate
+{
+    ThingIndex index;
+    TbBool friendly;
+    MapCoordDelta distance;
+};
+int sortgates(const void* a, const void* b) 
+{
+    const struct ClosestGate* ga = (const struct ClosestGate*)a;
+    const struct ClosestGate* gb = (const struct ClosestGate*)b;
+    // Primary: friendly first (friendly == 1)
+    if (ga->friendly != gb->friendly)
+        return (gb->friendly - ga->friendly); // friendly ones first
+
+    // Secondary: smaller distance first
+    if (ga->distance < gb->distance) return -1;
+    if (ga->distance > gb->distance) return 1;
+
+    return 0;
+}
+
 /**
- * Returns a hero gate object to which given hero can navigate.
- * @todo CREATURE_AI It returns first hero door found, not the best one.
- *     Maybe it should find the one he will reach faster, or at least a random one?
+ * Returns Hero gate object from list to which given hero can navigate.
+ * Avoids gates on enemy land if possible. Only checks 10 close ones if can be navigated to, otherwise uses fallback.
  * @param herotng The hero to be able to make it to gate.
  * @return The gate thing, or invalid thing.
  */
-struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
+struct Thing *find_best_hero_gate_to_navigate_to(struct Thing *herotng)
 {
-    unsigned long k = 0;
+    struct ClosestGate hero_gates[HERO_GATES_COUNT];
+    for (int g = 0; g < HERO_GATES_COUNT; g++)
+    {
+        hero_gates[g].index = 0;
+        hero_gates[g].distance = INT32_MAX;
+    }
+
+    //Go through all objects to find gates and record distance
     int i = game.thing_lists[TngList_Objects].index;
+    int32_t k = 0;
+    short found_gates = 0;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -268,12 +299,18 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         }
         i = thing->next_of_class;
         // Per thing code
-        if (object_is_hero_gate(thing) && !thing_is_picked_up(thing))
+        if (!object_is_hero_gate(thing) || thing_is_picked_up(thing))
         {
-            if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, NavRtF_Default)) {
-                return thing;
-            }
+            continue;
         }
+
+        hero_gates[found_gates].index = thing->index;
+        hero_gates[found_gates].distance = get_chessboard_distance(&thing->mappos, &herotng->mappos);;
+        hero_gates[found_gates].friendly = (players_are_enemies(herotng->owner, get_slab_owner_thing_is_on(thing)) == false);
+        found_gates++;
+        if (found_gates > HERO_GATES_COUNT)
+            break;
+
         // Per thing code ends
         k++;
         if (k > THINGS_COUNT)
@@ -282,7 +319,26 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
             break;
         }
     }
-    return NULL;
+
+    //sort them by friendly first, distance second
+    qsort(hero_gates, found_gates, sizeof(hero_gates[0]),&sortgates);
+
+    // Return the closest one the hero can navigate to.
+    struct Thing* gatetng = INVALID_THING;
+    for (int g = 0; g < HERO_GATES_COUNT; g++)
+    {
+        if (hero_gates[g].index == 0)
+            continue;
+        gatetng = thing_get(hero_gates[g].index);
+        if (thing_exists(gatetng))
+        {
+            if (creature_can_navigate_to_with_storage(herotng, &gatetng->mappos, NavRtF_Default))
+            {
+                return gatetng;
+            }
+        }
+    }
+    return INVALID_THING;
 }
 
 void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const char *func_name)
@@ -389,13 +445,13 @@ TbBool creature_can_get_to_dungeon_heart(struct Thing *creatng, PlayerNumber ply
 {
     SYNCDBG(18,"Starting");
     struct PlayerInfo* player = get_player(plyr_idx);
-    if (!player_exists(player) || (player->is_active != 1))
+    if (!player_exists(player) || ((player->is_active != 1) && !player_is_roaming(plyr_idx)))
     {
         SYNCDBG(18,"The %s index %d cannot get to inactive player %d",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
     struct Thing* heartng = get_player_soul_container(player->id_number);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         SYNCDBG(18,"The %s index %d cannot get to player %d without heart",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -453,6 +509,11 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
     }
 
     thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & ANGLE_MASK;
+
+    struct PlayerInfo* my_player = get_my_player();
+    if (my_player->controlled_thing_idx == thing->index && my_player->view_mode == PVM_CreatureView) {
+        set_local_camera_destination(my_player);
+    }
 
     return get_angle_difference(thing->move_angle_xy, angle);
 }
@@ -565,7 +626,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
         if (destination_valid)
          {
              // Use teleport only over large enough distances
-             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.conf.rules.magic.min_distance_for_teleport)
+             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.conf.rules[thing->owner].magic.min_distance_for_teleport)
              {
                  set_creature_instance(thing, CrInst_TELEPORT, 0, pos);
                  return true;

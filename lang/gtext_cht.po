@@ -27,7 +27,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.7\n"
+"X-Generator: Poedit 3.8\n"
 
 #. Generic victory message
 #: guitext:0
@@ -240,7 +240,7 @@ msgstr ""
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
-"The Lord of the Land has arrived. I can smell his fear. Defeat him and the "
+"The Lord of the Land has arrived. I can smell his fear. Defeat him, and the "
 "realm is yours."
 msgstr ""
 "这块土地的领主已经到达这里了。我可以感觉得到他的恐惧。打败他，这块土地就是你"
@@ -316,7 +316,7 @@ msgstr ""
 #: guitext:26
 msgctxt "In-game message"
 msgid ""
-"Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the "
+"Your plan proceeds smoothly, Keeper. Allow your Imps time to fortify the "
 "walls of your dungeon. This increases the efficiency of rooms and repels "
 "would-be invaders."
 msgstr ""
@@ -328,7 +328,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The Training Room attracts ever more ferocious creatures, such as Demon "
-"Spawn. Build it and they will come."
+"Spawn. Build it, and they will come."
 msgstr "训练室可以吸引更凶猛的怪物，如邪魔子。建造它，它们就会出现。"
 
 #. Level Cosyton information after attracting Demon Spawn
@@ -365,7 +365,7 @@ msgstr ""
 #: guitext:31
 msgctxt "In-game message"
 msgid ""
-"Harder the heroes may have been but they were obviously no match for your "
+"Harder the heroes may have been, but they were obviously no match for your "
 "forces."
 msgstr "这些英雄或许是比较难对付，但是他们显然不是你的部队的对手。"
 
@@ -421,7 +421,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "That's a fine collection of parchments and tomes you've assembled. Most "
-"creatures can engage in research but Warlocks make the best and keenest "
+"creatures can engage in research, but Warlocks make the best and keenest "
 "researchers. Stupid Trolls have trouble holding books the right way up and "
 "sometimes even chew the pages."
 msgstr ""
@@ -444,7 +444,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The first wave of attackers lie hacked to pieces on the floor and give your "
-"domain that lived in feeling but it surely won't be long before their kin "
+"domain that lived in feeling, but it surely won't be long before their kin "
 "launch another assault."
 msgstr ""
 "第一波的入侵者被消灭，倒在地上，为你的领土增添不少风味，但是不需等候多久，他"
@@ -500,7 +500,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Build up your dungeon with the rooms available to you and claim the Portal "
-"nearby but do not yet venture north. Powerful adversaries lurk there. It "
+"nearby, but do not yet venture north. Powerful adversaries lurk there. It "
 "would be wiser not to disturb them until you are prepared."
 msgstr ""
 "利用可以兴建的房间，以及占领附近传送门的方式来建立你的地下城，但是先不要向北"
@@ -563,14 +563,14 @@ msgstr "你必须找个方法，跨越阻挡你去路的熔岩河。"
 msgctxt "In-game message"
 msgid ""
 "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
-"and administer the coup de grace."
+"and administer the coup de grâce."
 msgstr "敌人的地城之心就在你的面前跳动著。聚集你在附近的手下，并发动奇袭。"
 
 #. Level Flowerhat information
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
-"A Troll has joined you. Skilled in the craft of manufacturing, trolls are "
+"A Troll has joined you. Skilled in the craft of manufacturing, Trolls are "
 "best employed doing dark deeds in your Workshop. They don't complain about "
 "the hours, because their labours keep them away from combat."
 msgstr ""
@@ -659,7 +659,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
-"unexplored area and it will be revealed to you for a moment."
+"unexplored area, and it will be revealed to you for a moment."
 msgstr ""
 "你的忠诚研究者已经完成了恶魔之眼法术。朝著未探索的区域施法，它就会展现在你的"
 "眼前一段时间。"
@@ -702,7 +702,7 @@ msgstr ""
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
-"It's time to mete out the ultimate punishment to a keeper who dares to "
+"It's time to mete out the ultimate punishment to a Keeper who dares to "
 "challenge you for this corner of your subterranean empire. The price of "
 "failure shall be oblivion."
 msgstr ""
@@ -790,7 +790,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "An Orc warlord joins you and brings with him the plans for building a "
-"Barracks. In this room you can form creatures into teams."
+"Barracks. In this room, you can form creatures into teams."
 msgstr ""
 "有一只半兽人加入你的阵营，并且带来建造军营的计划。在这个房间中，你可以将怪物"
 "组成小队。"
@@ -902,7 +902,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll "
-"fail, because everything makes a Horned Reaper angry but at least try to "
+"fail, because everything makes a Horned Reaper angry, but at least try to "
 "make sure that everything near it is an enemy creature when it finally goes "
 "ballistic."
 msgstr ""
@@ -936,7 +936,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have researched the Graveyard. Your Imps will drag corpses here to "
-"rot... And possibly to rise again as Vampires, ready to do your bidding. "
+"rot... and possibly to rise again as Vampires, ready to do your bidding. "
 "That's style."
 msgstr ""
 "你研究出墓园了。你的小恶魔会将尸骸拖到此处任其腐烂....而且它们有可能再度复"
@@ -954,8 +954,8 @@ msgstr "你制造了一扇铁门。它是一道难以对付的栅栏。善加利
 msgctxt "In-game message"
 msgid ""
 "Powerful creatures inhabit a cave south of here. There's a party of heroes "
-"between you and them but, if you reach them and convert them to your side "
-"before they join the other keepers, you will be unstoppable, unless you do "
+"between you and them, but, if you reach them and convert them to your side "
+"before they join the other Keepers, you will be unstoppable, unless you do "
 "something stupid."
 msgstr ""
 "在此地南方的一个洞穴里居住著强大的怪物。在你和它们之间有一群英雄，但是如果你"
@@ -1121,7 +1121,7 @@ msgstr ""
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
-"If lands had legs this one would be on its knees. Its desperate inhabitants "
+"If lands had legs, this one would be on its knees. Its desperate inhabitants "
 "are preparing a full scale attack on your dungeon. It will be an ideal "
 "opportunity to practise unspeakable evil on a massive scale. Go for it, "
 "master."
@@ -1132,7 +1132,6 @@ msgstr ""
 
 #. Level Woodly Rhyme information
 #: guitext:106
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
@@ -1278,7 +1277,6 @@ msgstr ""
 
 #. Level Elf's Dance information
 #: guitext:121
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
@@ -1348,7 +1346,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "If you should encounter hero patrols, ensure that none of their number "
-"escape. Otherwise your presence will be revealed and then you will be in "
+"escape. Otherwise, your presence will be revealed, and then you will be in "
 "trouble."
 msgstr ""
 "如果你遇上英雄的巡逻队伍，务必确保他们没有任何人逃脱。否则你的存在就会被泄露"
@@ -1415,7 +1413,7 @@ msgstr ""
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
-"You have destroyed the Avatar's castle but your rival has already taken the "
+"You have destroyed the Avatar's castle, but your rival has already taken the "
 "Avatar prisoner. Be that as it may, only the Keeper with the blackest heart "
 "can destroy this legendary hero, so ransack your rival's dungeon and take "
 "the prize."
@@ -1451,7 +1449,7 @@ msgstr ""
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
-"Possess this Dragon to help you negotiate the fiery pits but be prepared to "
+"Possess this Dragon to help you negotiate the fiery pits, but be prepared to "
 "transfer your soul to a more appropriate creature when the situation demands "
 "it."
 msgstr ""
@@ -1495,7 +1493,6 @@ msgstr "你失败了。也许你并非黑暗力量所期待的毁灭先锋。"
 
 #. Level Bonus 2 objective
 #: guitext:143
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "You are indeed a twisted soul, master. You made the Imps extinct with such "
@@ -1527,7 +1524,6 @@ msgstr "你的时间用完了。你的表现真是惊人。"
 
 #. Level Bonus 3 objective
 #: guitext:147
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You "
@@ -1571,10 +1567,9 @@ msgstr "你的时间用完了。你失败了。跟你来自同一个次元间虚
 
 #. Level Bonus 4 objective
 #: guitext:152
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
-"Well done. You have excelled in your use of large balls of stone for which "
+"Well done. You have excelled in your use of large balls of stone, for which "
 "the dark gods will repay you, by allowing you to use the warrior you found "
 "when you reach the next realm."
 msgstr ""
@@ -1583,11 +1578,10 @@ msgstr ""
 
 #. Level Bonus 4 objective
 #: guitext:153
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "This region of the underworld will test your ability to traverse the network "
-"of caverns. Indeed, time is your enemy here. Defeat it and you will find "
+"of caverns. Indeed, time is your enemy here. Defeat it, and you will find "
 "where a legendary warrior is imprisoned. That warrior will serve you well in "
 "the future."
 msgstr ""
@@ -1622,8 +1616,8 @@ msgstr ""
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
-"Your evil has corrupted a Samurai Warrior, he has forsaken honour to join "
-"your cause. Should your minions suffer heavy casualties, this Warrior will "
+"Your evil has corrupted a Samurai warrior; he has forsaken honour to join "
+"your cause. Should your minions suffer heavy casualties, this warrior will "
 "even call upon his brothers in arms to offer assistance. How kind. How "
 "stupid!"
 msgstr ""
@@ -1704,7 +1698,7 @@ msgstr ""
 #: guitext:165
 msgctxt "In-game message"
 msgid ""
-"Take more care of your Bile Demons or you will never make it beyond this "
+"Take more care of your Bile Demons, or you will never make it beyond this "
 "realm."
 msgstr "多注意一下你的暴躁恶魔，否则你永远也无法征服这个王国。"
 
@@ -1794,9 +1788,9 @@ msgstr ""
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
-"Your researchers have discovered the Heal Creature spell that allows to "
-"replenish the health of your creatures and keep them from dying for a while "
-"longer."
+"Your researchers have discovered the Heal Creature spell, which allows you "
+"to replenish the health of your creatures and keep them from dying for a "
+"while longer."
 msgstr ""
 
 #. Level Tulipscent information
@@ -1813,7 +1807,7 @@ msgstr ""
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
-"A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
+"A Tentacle has joined your dungeon. These rare little creatures enjoy being "
 "in water and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
 msgstr ""
@@ -1936,7 +1930,6 @@ msgid "Skybird Trill"
 msgstr "鸟鸣国"
 
 #: guitext:222
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Name and Health: Each creature has its own name. Behind is the creature "
@@ -1944,7 +1937,6 @@ msgid ""
 msgstr "名称及健康: [23.4]"
 
 #: guitext:223
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Experience: The creature's experience level. Behind the level number is a "
@@ -1962,13 +1954,11 @@ msgid "Cancel"
 msgstr "取消"
 
 #: guitext:226
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
 msgstr "箭只: [25.4]"
 
 #: guitext:227
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
@@ -1976,7 +1966,6 @@ msgid ""
 msgstr "冻结术: [26.8]"
 
 #: guitext:228
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
@@ -1984,7 +1973,6 @@ msgid ""
 msgstr "装甲术: [26.1]"
 
 #: guitext:229
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
@@ -1992,13 +1980,11 @@ msgid ""
 msgstr "闪电术: [26.13]"
 
 #: guitext:230
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
 msgstr "反弹术: [26.18]"
 
 #: guitext:231
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fear: Causes the opponent to be terrified and wanting to skip engaging into "
@@ -2006,7 +1992,6 @@ msgid ""
 msgstr "恐惧术: 未使用"
 
 #: guitext:232
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Sight: Allows the creature to temporarily increase its awareness and notice "
@@ -2014,7 +1999,6 @@ msgid ""
 msgstr "恶魔之眼: 未使用"
 
 #: guitext:233
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
@@ -2022,7 +2006,6 @@ msgid ""
 msgstr "魔法飞弹: [26.15]"
 
 #: guitext:234
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
@@ -2030,7 +2013,6 @@ msgid ""
 msgstr "爆炸术: [26.9]"
 
 #: guitext:235
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Navigating Missile: A spell that sends a screaming magic reptile homing in "
@@ -2038,7 +2020,6 @@ msgid ""
 msgstr "导向魔法飞弹: [26.16]"
 
 #: guitext:236
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
@@ -2046,7 +2027,6 @@ msgid ""
 msgstr "加速术: [26.20]"
 
 #: guitext:237
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -2059,38 +2039,33 @@ msgid "Group: Not used"
 msgstr "集结术: 未使用"
 
 #: guitext:239
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Invisibility: Makes the creature invisible to all enemies. Unless they "
-"possess a subnatural Sight."
+"possess a subnatural sight."
 msgstr "隐形术: [26.12]"
 
 #: guitext:240
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
-"you are Possessing a creature, then it teleports to its Lair or to the "
+"you are possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
 msgstr "传送术: [26.21]"
 
 #: guitext:241
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr "火焰气息: [26.6]"
 
 #: guitext:242
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Illumination: Brings light onto darkness, allowing the creature to see but "
-"also be seen by others."
+"Illumination: Brings light onto darkness, allowing the creature to see, but "
+"also to be seen by others."
 msgstr "照明术: 未使用"
 
 #: guitext:243
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
@@ -2098,13 +2073,11 @@ msgid ""
 msgstr "飞行术: [26.7]"
 
 #: guitext:244
-#, fuzzy
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "冰雹术: [26.10]"
 
 #: guitext:245
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Slow: Slows down the target creature, making its attacks and movement "
@@ -2112,7 +2085,6 @@ msgid ""
 msgstr "缓慢术: [26.19]"
 
 #: guitext:246
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Drain: This spell drains the target creature a part of its health and gives "
@@ -2120,22 +2092,19 @@ msgid ""
 msgstr "榨乾术: [26.4]"
 
 #: guitext:247
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's "
 "body and inflicts massive damage on the vicinity. Very effective against "
-"crowded hordes of enemies, also pushes them back."
+"crowded hordes of enemies. Also pushes them back."
 msgstr "真言术: [26.23]"
 
 #: guitext:248
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Heal: When this is cast, the creature is massively healed."
 msgstr "复原术: [26.11]"
 
 #: guitext:249
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your dungeon blowing every creature "
@@ -2143,7 +2112,6 @@ msgid ""
 msgstr "飓风术: [26.22]"
 
 #: guitext:250
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Meteor: More powerful than the fireball, this spell throws out a solid ball "
@@ -2151,7 +2119,6 @@ msgid ""
 msgstr "殒石术: [26.14]"
 
 #: guitext:251
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
@@ -2159,29 +2126,25 @@ msgid ""
 msgstr "火球术: [26.5]"
 
 #: guitext:252
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Hand to Hand: The basic battle ability that allows to attack the enemy with "
-"either bare hands or a sword."
+"Hand to Hand: The basic battle ability that allows the creature to attack "
+"the enemy with either bare hands or a sword."
 msgstr "肉搏术: [25.3]"
 
 #: guitext:253
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Fart: A close range gas attack that only damages enemy creatures."
 msgstr "毒气云: [26.17]"
 
 #: guitext:254
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"Dig: This is the basic ability of the Imp, and allows it to tunnel through "
 "earth."
 msgstr "挖掘: [25.2]"
 
 #: guitext:255
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Disease: Fired at a foe, gives them a disease which is then spread to other "
@@ -2190,16 +2153,14 @@ msgid ""
 msgstr "疾病: [26.3]"
 
 #: guitext:256
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
-"attack but has the same strength and thus won't be as easy to kill as a "
+"attack, but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
 msgstr "弱鸡术: [26.2]"
 
 #: guitext:257
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr "定时炸弹"
@@ -2350,7 +2311,6 @@ msgid "Monk"
 msgstr "僧侣"
 
 #: guitext:287
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Query: Select this and left click on a creature to view information on that "
@@ -2375,13 +2335,11 @@ msgid "Main Menu"
 msgstr "主选单"
 
 #: guitext:343
-#, fuzzy
 msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
 msgstr "主选单"
 
 #: guitext:291
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Anger: How angry the creature is. The higher the bar is, the angrier the "
@@ -2389,13 +2347,11 @@ msgid ""
 msgstr "愤怒: 怪物愤怒的程度。[23.2]"
 
 #: guitext:292
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Creature Kills: The total number of enemies the creature has slain."
 msgstr "杀死怪物数: 该怪物杀死的敌人数目。[23.7]"
 
 #: guitext:293
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Strength: The amount of damage the creature inflicts upon its enemies with "
@@ -2403,19 +2359,16 @@ msgid ""
 msgstr "力量: 怪物对敌人造成的伤害度。[23.12]"
 
 #: guitext:294
-#, fuzzy
 msgctxt "In-game interface description"
-msgid "Wage: The creature's salary in gold which it takes on each payday."
+msgid "Wage: The creature's salary in gold, which it takes on each payday."
 msgstr "薪资: 怪物的薪资。[23.13]"
 
 #: guitext:295
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "黄金持有数: 该怪物携带之黄金数量。[23.8]"
 
 #: guitext:296
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Defence: The chance a creature will avoid a blow. The higher the number, the "
@@ -2423,21 +2376,18 @@ msgid ""
 msgstr "防御: 该怪物避开攻击的机会。[23.9]"
 
 #: guitext:297
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Skill: The creature's ability to perform tasks. The higher the Skill level, "
+"Skill: The creature's ability to perform tasks. The higher the skill level, "
 "the better the creature's performance."
 msgstr "技巧: 该怪物执行工作的能力。[23.14]"
 
 #: guitext:298
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Age/Time In Dungeon: The length of time you have employed the creature."
 msgstr "年龄／在地城中的时间: 你已雇用该怪物的时间。[23.10]"
 
 #: guitext:299
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Dexterity: The chance of a successful attack. Used to break enemy defence. "
@@ -2445,7 +2395,6 @@ msgid ""
 msgstr "灵活度: 怪物避开陷阱或敌人武器的机会高低。[23.15]"
 
 #: guitext:300
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Luck: The chance that a creature will do a double attack or a double defence "
@@ -2453,13 +2402,11 @@ msgid ""
 msgstr "运气: 怪物在战斗中进行双倍攻击或双倍防御的机会。[23.11]"
 
 #: guitext:301
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Blood type: As if you care. Blood is blood, right?"
 msgstr "血型。你在乎吗？血就是血，对不对？[23.16]"
 
 #: guitext:302
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Idle: The creature is either sleeping or not working. It's not involved in "
@@ -2469,7 +2416,6 @@ msgstr ""
 "缩放视野。[10.1 and 22.3]"
 
 #: guitext:303
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Working: The creature is performing tasks and doing work for you. LMB pick "
@@ -2479,7 +2425,6 @@ msgstr ""
 "22.3]"
 
 #: guitext:304
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
 msgstr ""
@@ -2487,7 +2432,6 @@ msgstr ""
 "22.3]"
 
 #: guitext:305
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Fight: Your creatures always attack and will not avoid any combat. LMB "
@@ -2495,7 +2439,6 @@ msgid ""
 msgstr "战斗: 你的怪物必然会攻击。按滑鼠左键选择。[6.5.1]"
 
 #: guitext:306
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Flee: Your creatures attempt to preserve their lives, running away if they "
@@ -2503,7 +2446,6 @@ msgid ""
 msgstr "逃亡: 你的怪物会试图保留自己的生命。按滑鼠左键选择。[6.5.3]"
 
 #: guitext:307
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Imprison: Your creatures stun their enemies in battle and imprison those "
@@ -2537,13 +2479,11 @@ msgid "For"
 msgstr "为"
 
 #: guitext:313
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
 msgstr "阴影: 每个怪物投射出来的阴影数量。按滑鼠左键切换。[3.2.2]"
 
 #: guitext:314
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "View Type: Swap between perspective views. Default view has warped walls and "
@@ -2552,7 +2492,6 @@ msgid ""
 msgstr "视野型态: 切换预设视野及强迫透视观点。按滑鼠左键切换。[3.2.2]"
 
 #: guitext:315
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Wall Height: Swap between high or low walls. If you make the walls one block "
@@ -2560,7 +2499,6 @@ msgid ""
 msgstr "墙壁高度: 切换使用高墙或矮墙。按滑鼠左键切换。[3.2.2]"
 
 #: guitext:316
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "View Distance: The amount of dungeon drawn. This directly affects the speed "
@@ -2569,7 +2507,6 @@ msgstr ""
 "视野距离: 绘出之地城数量。这项设定直接影响游戏的速度。按滑鼠左键切换。[3.2.2]"
 
 #: guitext:317
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
 msgstr "明暗度: 调整游戏的明亮程度。按滑鼠左键切换。[3.2.2]"
@@ -2581,7 +2518,7 @@ msgstr "的"
 
 #: guitext:319
 msgctxt "Slab description"
-msgid "Empty Lair: Would suit itinerant creature."
+msgid "Empty Lair: Would suit itinerant creatures."
 msgstr "空巢穴: 适合游荡的怪物。"
 
 #: guitext:320
@@ -2590,7 +2527,6 @@ msgid "Paused"
 msgstr "暂停"
 
 #: guitext:321
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
@@ -2598,7 +2534,6 @@ msgid ""
 msgstr "放大视野: 放大动态地图。按滑鼠左键选择。[4.1]"
 
 #: guitext:322
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
@@ -2606,23 +2541,20 @@ msgid ""
 msgstr "缩小视野: 缩小动态地图。按滑鼠左键选择。[4.1]"
 
 #: guitext:323
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Full Screen Map: Takes you to the Map Screen which displays your entire "
-"Dungeon and the surrounding area. LMB select."
+"Full Screen Map: Takes you to the Map Screen, which displays your entire "
+"dungeon and the surrounding area. LMB select."
 msgstr "全萤幕地图: 让你进入地图画面。按滑鼠左键选择。[4.1.1]"
 
 #: guitext:324
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
-"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"Impenetrable Rock: Your Imps cannot dig through this; the only solution is "
 "to go round. It is visible even if far from your territory."
 msgstr "无法穿透的岩石: 你的小恶魔无法凿穿此处。[12.4]"
 
 #: guitext:325
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Earth: You can excavate this. To dig out some new caverns, choose a location "
@@ -2630,7 +2562,6 @@ msgid ""
 msgstr "土壤: 你可以挖掘此处。[12.1]"
 
 #: guitext:326
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
@@ -2640,14 +2571,12 @@ msgstr ""
 "金矿: 你的财富来源。挖出这些东西，你的小恶魔会将它带到你的宝藏室。[12.2]"
 
 #: guitext:327
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr "岩浆: 可烧死任何踩上去的怪物。[14.2]"
 
 #: guitext:328
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Water: Creatures move more slowly through water. Build the Bridge to make "
@@ -2655,7 +2584,6 @@ msgid ""
 msgstr "水面: 怪物在水中移动的速度慢多了。[14.1]"
 
 #: guitext:329
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Wall: A reinforced stone wall that enemies cannot break through. At least "
@@ -2668,7 +2596,6 @@ msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
 msgstr "受损的墙: 除非经过修复，否则这面墙迟早会塌下来。"
 
 #: guitext:331
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Path: Unclaimed earth floor. You can claim it if it is connected to already "
@@ -2676,7 +2603,6 @@ msgid ""
 msgstr "通道: 无人占有的地面。[12.1]"
 
 #: guitext:332
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Claimed area: Your dungeon territory. You can build rooms and drop your "
@@ -3255,7 +3181,6 @@ msgid "Type"
 msgstr "种类"
 
 #: guitext:447
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Information Panel: Miscellaneous information. Shows your and enemy progress "
@@ -3263,7 +3188,6 @@ msgid ""
 msgstr "讯息面板: 杂项资料。[5.0]"
 
 #: guitext:448
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Room Panel: The rooms available for you to build. Here you can centre the "
@@ -3271,7 +3195,6 @@ msgid ""
 msgstr "房间面板: 你可以建造的房间。[6.0]"
 
 #: guitext:449
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Research Panel: The spells available to you. Here you can cast or cancel "
@@ -3279,7 +3202,6 @@ msgid ""
 msgstr "研发面板: 你可以使用的法术。[7.0]"
 
 #: guitext:450
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Workshop Panel: The traps and doors available to you. You can centre the map "
@@ -3287,7 +3209,6 @@ msgid ""
 msgstr "工作室面板: 你可以使用的陷阱和门。[8.0]"
 
 #: guitext:451
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Creature Panel: Information on your creatures. Shows activity of your "
@@ -3295,7 +3216,6 @@ msgid ""
 msgstr "怪物面板: 有关怪物的资料。[9.0]"
 
 #: guitext:452
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Research Time: The time until a new spell is researched. Scholars in your "
@@ -3303,7 +3223,6 @@ msgid ""
 msgstr "研发时间: 研发出新法术的时间。[5.5]"
 
 #: guitext:453
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Workshop Time: The time until a new trap is manufactured. Workers in your "
@@ -3311,7 +3230,6 @@ msgid ""
 msgstr "工作室时间: 完成新陷阱制造的时间。[5.6]"
 
 #: guitext:454
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Payday Time: The time until the next Creature Payday. This bar increases "
@@ -3320,7 +3238,6 @@ msgid ""
 msgstr "支薪时间: 距离下次怪物支薪的时间。[5.4]"
 
 #: guitext:455
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Number of Rooms: The number of rooms held by this Keeper. Allows you to "
@@ -3328,7 +3245,6 @@ msgid ""
 msgstr "房间数目: 这位守护者拥有的房间数目。[5.8]"
 
 #: guitext:456
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Number of Creatures: The number of creatures owned by this Keeper. Allows "
@@ -3361,13 +3277,11 @@ msgid "Deathmatch"
 msgstr "死亡对决"
 
 #: guitext:462
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr "出售房间: 以造价的一半出售房间。按滑鼠左键选择。[6.4]"
 
 #: guitext:463
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
@@ -3779,11 +3693,10 @@ msgstr "无法加入游戏"
 msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
-"takes longer to mine than Gold."
+"takes longer to mine than gold."
 msgstr "宝石: 供你的小恶魔开采的无穷财富。[12.3]"
 
 #: guitext:545
-#, fuzzy
 msgctxt "Object description"
 msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
@@ -3801,25 +3714,21 @@ msgid "Avatar"
 msgstr "圣者"
 
 #: guitext:548
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr "切换电脑辅助: 目前为－侵略性。按滑鼠左键切换。[3.2.4]"
 
 #: guitext:549
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr "切换电脑辅助: 目前为－防御性。按滑鼠左键切换。[3.2.4]"
 
 #: guitext:550
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr "切换电脑辅助: 目前为－仅负责建筑。按滑鼠左键切换。[3.2.4]"
 
 #: guitext:551
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr "切换电脑辅助: 目前为－仅负责移动。按滑鼠左键切换。[3.2.4]"
@@ -3983,18 +3892,16 @@ msgid "Lava Trap"
 msgstr "岩浆陷阱"
 
 #: guitext:584
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
-"when enemy creature is close and within line of sight, or when slapped by a "
-"Keeper. LMB select. RMB zoom."
+"when an enemy creature is close and within line of sight, or when slapped by "
+"a Keeper. LMB select. RMB zoom."
 msgstr ""
 "滚石陷阱: 一颗滚动的岩石，破坏任何位于其路径上的东西。按滑鼠左键选择。按滑鼠"
 "右键缩放视野。[20.1]"
 
 #: guitext:585
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
@@ -4006,7 +3913,7 @@ msgstr "警报陷阱: 启动战斗呼叫法术。按滑鼠左键选择。按滑�
 msgctxt "Trap description"
 msgid ""
 "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
-"hurt owner creatures if they inhale it. LMB select. RMB zoom."
+"hurt the owner's creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
 "毒气陷阱: 由敌人触动的毒气云。按滑鼠左键选择。按滑鼠右键缩放视野。[20.3]"
 
@@ -4015,7 +3922,7 @@ msgstr ""
 msgctxt "Trap description"
 msgid ""
 "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
-"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
+"tripped. Does no harm to the owner's creatures. LMB select. RMB zoom."
 msgstr ""
 "闪电陷阱: 以闪电攻击附近的敌人生物。按滑鼠左键选择。按滑鼠右键缩放视野。"
 "[20.4]"
@@ -4035,8 +3942,8 @@ msgstr ""
 msgctxt "Trap description"
 msgid ""
 "Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
-"are irreversible, so Bridge is needed to be able to step on affected area "
-"again. LMB select. RMB zoom."
+"are irreversible, so a Bridge is needed to be able to step on the affected "
+"area again. LMB select. RMB zoom."
 msgstr ""
 "岩浆陷阱: 这块土地会消失，露出一个岩浆池。按滑鼠左键选择。按滑鼠右键缩放视"
 "野。[20.6]"
@@ -4292,7 +4199,7 @@ msgstr ""
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "祭坛: 敬拜黑暗诸神可以让怪物快乐一点。你可以把怪物丢进洗礼盆中，用它们来献"
 "祭。按滑鼠左键选择。按滑鼠右键缩放视野。[17.12]"
@@ -4413,7 +4320,7 @@ msgstr ""
 msgctxt "Keeper spell description"
 msgid ""
 "Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
-"in range of creatures to gather, cast again for destination.RMB zoom. LMB "
+"in range of creatures to gather, cast again for destination. RMB zoom. LMB "
 "Cancel. [18.6]"
 msgstr ""
 "战斗呼叫: 将手下的所有怪物召集到地下城的某个地区。按滑鼠左键选择，再按一次滑"
@@ -4450,7 +4357,7 @@ msgstr "加速术: 提高怪物的速度。"
 #| msgctxt "Keeper spell description"
 #| msgid "Protect Monster: Shields your creatures from attack."
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select."
+msgid "Protect Monster: Shields your creatures from attack. LMB select."
 msgstr "保护术: 保护你的怪物不受攻击。"
 
 #: guitext:656
@@ -4883,7 +4790,7 @@ msgstr "抓取战斗中之怪物: 按滑鼠左键抓取怪物。按滑鼠右键�
 #: guitext:737
 msgctxt "In-game interface description"
 msgid ""
-"Invert Mouse: Inverts the vertical mouse movements while Possessing a "
+"Invert Mouse: Inverts the vertical mouse movements while possessing a "
 "creature. LMB toggle."
 msgstr ""
 "翻转滑鼠方向: 在附身于怪物身上时，使滑鼠的垂直移动方向颠倒。按滑鼠左键切换。"
@@ -5221,7 +5128,7 @@ msgstr "创造的吸血鬼数目"
 msgctxt "Easter egg"
 msgid ""
 "When night does not give way to day, And children are too scared to play, "
-"Abandon hope, embrace despair, You're destined for my Dragon's lair"
+"Abandon hope, embrace despair, You're destined for my Dragon's lair."
 msgstr ""
 "当夜晚不肯为白天让路，孩子恐惧得不能游戏，放弃希望，拥抱绝望，你注定要成为我"
 "的龙穴。"
@@ -5706,7 +5613,7 @@ msgstr ""
 #: guitext:893
 msgctxt "In-game message"
 msgid ""
-"Another Keeper has already claimed this realm. He is unfit to rule so "
+"Another Keeper has already claimed this realm. He is unfit to rule, so "
 "destroy him and take what is rightfully yours. Great riches lie in the "
 "caverns around the land; explore to gain more power."
 msgstr ""
@@ -5717,7 +5624,7 @@ msgstr ""
 #: guitext:894
 msgctxt "In-game message"
 msgid ""
-"This land is highly coveted amongst the evil and there are three enemy "
+"This land is highly coveted amongst the evil, and there are three enemy "
 "Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for "
 "any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr ""
@@ -5739,7 +5646,7 @@ msgstr ""
 #: guitext:896
 msgctxt "In-game message"
 msgid ""
-"You and a rival Dungeon Keeper are vying for control of this realm but the "
+"You and a rival Dungeon Keeper are vying for control of this realm, but the "
 "Lord of the Land has constructed his own dungeon between you to halt your "
 "conquest. Destroy him and the enemy Keeper to reign supreme."
 msgstr ""
@@ -5750,8 +5657,8 @@ msgstr ""
 #: guitext:897
 msgctxt "In-game message"
 msgid ""
-"You have done well to come this far but further hardships await. Search the "
-"map carefully and you may find many secrets to aid your conquest."
+"You have done well to come this far, but further hardships await. Search the "
+"map carefully, and you may find many secrets to aid your conquest."
 msgstr ""
 "你已经做的不错了但是你必须做的更好。仔细搜索这个区域会有相当多的密秘物品帮你"
 "来争服这块区域。"
@@ -5760,8 +5667,8 @@ msgstr ""
 #: guitext:898
 msgctxt "In-game message"
 msgid ""
-"You have come to this realm with little to assist you so you must explore to "
-"gain more power. Keep an eye out for any loathsome heroes who may try to "
+"You have come to this realm with little to assist you, so you must explore "
+"to gain more power. Keep an eye out for any loathsome heroes who may try to "
 "thwart your progress."
 msgstr ""
 "你到达此区域时你得到的帮助并不多，你必须探索来获得力量，注意一群忠实的英雄可"
@@ -5782,7 +5689,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your opponent for this realm has foolishly challenged your superior skill. "
-"Such disrespect should be punished so make an example of his insolence."
+"Such disrespect should be punished, so make an example of his insolence."
 msgstr ""
 "你的对手市是如此愚笨居然敢挑战你的超级技巧。这种人应该好好教训他，为这种无知"
 "的挑战者做一个榜样。"
@@ -5836,7 +5743,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Congratulations Keeper. This vial has given your researchers a much needed "
-"boost. You can now construct Bridges that enable you to traverse water and "
+"boost. You can now construct Bridges, which enable you to traverse water and "
 "fire."
 msgstr "恭喜你守护者。你已经完成新的研发。你现在可以透过桥梁通过水面和火。"
 
@@ -5908,7 +5815,7 @@ msgstr "选择，选择守护者。聪明选择你的道路。有些路比其它
 msgctxt "In-game message"
 msgid ""
 "Congratulations Keeper, you have a powerful army indeed. Do not grow "
-"complacent though, you still have another challenger to the north ..."
+"complacent, though; you still have another challenger to the north ..."
 msgstr "恭喜你守护者，你有强大的军队。别想的太多，在北边还有挑战著你。"
 
 #. DD Level Caddis Fell objective after player1 destroyed
@@ -5916,7 +5823,7 @@ msgstr "恭喜你守护者，你有强大的军队。别想的太多，在北边
 msgctxt "In-game message"
 msgid ""
 "Congratulations Keeper, you have a powerful army indeed. Do not grow "
-"complacent though, you still have another challenger to the south ..."
+"complacent, though; you still have another challenger to the south ..."
 msgstr "恭喜你守护者，你有强大的军队。别想的太多，在北边还有挑战著你。"
 
 #. DD Level Caddis Fell objective after entrance claimed
@@ -5935,7 +5842,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Make haste Keeper. The heroes of this realm are many and strong. Prepare "
-"your forces well or face a humiliating defeat ..."
+"your forces well, or face a humiliating defeat ..."
 msgstr ""
 "快一点守护者，此王国的英雄数目众多而且骁勇。准备好你的武力否则就是羞耻的灭"
 "亡。"
@@ -6055,13 +5962,12 @@ msgstr "你做的太好了能持续到现在。千万别自满，更大的奋战
 #: guitext:931
 msgctxt "In-game message"
 msgid ""
-"Before you lies the Wizard's domain. Defeat him and you will regain your "
+"Before you lies the Wizard's domain. Defeat him, and you will regain your "
 "powers."
 msgstr "在你面前的是魔法师所在区域。击败他和你能重新获得魔法力。"
 
 #. DD Level Dixaroc objective after wizard is dead
 #: guitext:932
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your magical powers are restored Keeper. You can finally show these fools "
@@ -6083,7 +5989,7 @@ msgstr ""
 #: guitext:934
 msgctxt "In-game message"
 msgid ""
-"Your achievements are legendary Keeper. Tales of your evil and cunning will "
+"Your achievements are legendary, Keeper. Tales of your evil and cunning will "
 "become the horror stories of generations."
 msgstr ""
 "你的丰功伟业让你成为传奇地城守护者。你邪恶与狡猾的恐怖故事会流传在下一代的人"
@@ -6128,7 +6034,6 @@ msgid "Enemy spotted your secret door"
 msgstr "敵人發現了你的秘密門"
 
 #: guitext:941
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
 msgstr "地城守护者"
@@ -6190,32 +6095,29 @@ msgstr ""
 #: guitext:952
 msgctxt "In-game interface description"
 msgid ""
-"Research Skill: How fast the creature works in Library. The higher the Skill "
+"Research Skill: How fast the creature works in Library. The higher the skill "
 "level, the better the creature's performance."
-msgstr ""
+msgstr "技巧: 该怪物执行工作的能力。[23.14]"
 
 #: guitext:953
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
-"Skill level, the better the creature's performance."
+"skill level, the better the creature's performance."
 msgstr "技巧: 该怪物执行工作的能力。[23.14]"
 
 #: guitext:954
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
-"Skill level, the better the creature's performance."
+"skill level, the better the creature's performance."
 msgstr "技巧: 该怪物执行工作的能力。[23.14]"
 
 #: guitext:955
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
-"Skill level, the better the creature's performance."
+"skill level, the better the creature's performance."
 msgstr "技巧: 该怪物执行工作的能力。[23.14]"
 
 #: guitext:956
@@ -6238,8 +6140,8 @@ msgstr ""
 #: guitext:959
 msgctxt "In-game interface description"
 msgid ""
-"Weight: Mass of the creature. Some people say overweight can lead to heart "
-"attack."
+"Weight: Mass of the creature. Some people say that being overweight can lead "
+"to heart attacks."
 msgstr ""
 
 #: guitext:960
@@ -6263,7 +6165,7 @@ msgstr "拍击次数"
 msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
-"Just don't hold them forever or they may get irritated."
+"Just don't hold them forever, or they may get irritated."
 msgstr ""
 
 #: guitext:964
@@ -6277,12 +6179,12 @@ msgstr ""
 
 #: guitext:965
 msgctxt "In-game interface description"
-msgid "Health: How much health points the creature has left to lose."
+msgid "Health: How many health points the creature has left to lose."
 msgstr ""
 
 #: guitext:966
 msgctxt "In-game interface description"
-msgid "Health: The maximum amount of health points for this creature."
+msgid "Health: The maximum number of health points for this creature."
 msgstr ""
 
 #: guitext:967
@@ -6614,7 +6516,7 @@ msgstr ""
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid "Demolition Trap: An explosive with unrivaled destructive power."
+msgid "Demolition Trap: An explosive with unrivalled destructive power."
 msgstr ""
 
 #: guitext:1038

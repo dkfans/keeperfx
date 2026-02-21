@@ -140,7 +140,11 @@ TbBool free_campaign(struct GameCampaign *campgn)
 {
   free(campgn->lvinfos);
   free(campgn->hiscore_table);
-  free(campgn->strings_data);
+  for (int i=0; i<campgn->strings_data_count; i++)
+  {
+    free(campgn->strings_data_list[i]);
+  }
+  campgn->strings_data_count = 0;
   free(campgn->credits_data);
   return true;
 }
@@ -218,7 +222,8 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   memset(campgn->movie_intro_fname,0,DISKPATH_SIZE);
   memset(campgn->movie_outro_fname,0,DISKPATH_SIZE);
   memset(campgn->strings_fname,0,DISKPATH_SIZE);
-  campgn->strings_data = NULL;
+  memset(campgn->strings_data_list, 0, sizeof(campgn->strings_data_list));
+  campgn->strings_data_count = 0;
   reset_strings(campgn->strings, STRINGS_MAX);
   memset(campgn->hiscore_fname,0,DISKPATH_SIZE);
   campgn->hiscore_table = NULL;
@@ -294,7 +299,7 @@ long add_freeplay_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnu
 {
   if (lvnum <= 0) return LEVELNUMBER_ERROR;
   // check if already in list
-  long i = 0;
+  unsigned long i = 0;
   while (i < campgn->freeplay_levels_count)
   {
     if (campgn->freeplay_levels[i] == lvnum)
@@ -319,7 +324,7 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
   {
     init_level_info_entries(campgn,0);
   }
-  for (long i = 0; i < campgn->lvinfos_count; i++)
+  for (unsigned long i = 0; i < campgn->lvinfos_count; i++)
   {
       if (campgn->lvinfos[i].lvnum == lvnum)
       {
@@ -331,7 +336,7 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
 
 struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, LevelNumber lvnum)
 {
-  long i;
+  unsigned long i;
   if (lvnum <= 0)
     return NULL;
   if (campgn->lvinfos == NULL)
@@ -401,7 +406,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   campgn->human_player = 0;
   // Find the block
   const char * block_name = "common";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -717,7 +722,7 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
 {
   // Find the block
   const char * block_name = "strings";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -739,14 +744,32 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
       {
         if ((cmd_num != 0) && (cmd_num != -1))
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of '%s' file.", cmd_num, block_name, config_textname);
-      } else
-      if ((cmd_num == install_info.lang_id) || (n == 0))
-      {
-          int i = get_conf_parameter_whole(buf, &pos, len, campgn->strings_fname, LINEMSG_SIZE);
-          if (i <= 0)
+      } else {
+
+        if ((cmd_num == Lang_English) || (cmd_num == install_info.lang_id) || (n == 0))
+        {
+          char strings_fname[DISKPATH_SIZE] = {0};
+          int i = get_conf_parameter_whole(buf, &pos, len, strings_fname, DISKPATH_SIZE);
+
+          if ((cmd_num == Lang_English) || (n == 0))
+          {
+            if (i > 0)
+            {
+              strcpy(campgn->strings_fname_eng, strings_fname);
+            }
+          }
+
+          if ((cmd_num == install_info.lang_id) || (n == 0))
+          {
+            if (i <= 0)
               CONFWRNLOG("Couldn't read file name in [%s] block parameter of %s file.", block_name, config_textname);
-          else
-            n++;
+            else
+            {
+              strcpy(campgn->strings_fname, strings_fname);
+              n++;
+            }
+          }
+        }
       }
       skip_conf_to_next_line(buf,&pos,len);
   }
@@ -760,7 +783,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
 {
   const char * block_name = "speech";
   // Find the block
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -778,13 +801,13 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
       {
         if ((cmd_num != 0) && (cmd_num != -1))
         {
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file, starting on byte %ld.",
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file, starting on byte %d.",
               cmd_num, block_name, config_textname,pos);
         }
       } else
       if ((cmd_num == install_info.lang_id) || (n == 0))
       {
-          int i = get_conf_parameter_whole(buf, &pos, len, campgn->speech_location, LINEMSG_SIZE);
+          int i = get_conf_parameter_whole(buf, &pos, len, campgn->speech_location, DISKPATH_SIZE);
           if (i <= 0)
           {
               CONFWRNLOG("Couldn't read folder name in [%s] block parameter of %s file.",
@@ -820,7 +843,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
     lvinfo->location = LvLc_Campaign;
     char block_buf[32];
     snprintf(block_buf, sizeof(block_buf), "map%05lu", lvnum);
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
@@ -1249,7 +1272,7 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
 
 TbBool swap_campaigns_in_list(struct CampaignsList *clist, int idx1, int idx2)
 {
-    if ((idx1 < 0) || (idx1 >= clist->items_num) || (idx2 < 0) || (idx2 >= clist->items_num))
+    if ((idx1 < 0) || (idx1 >= (int) clist->items_num) || (idx2 < 0) || (idx2 >= (int) clist->items_num))
       return false;
     struct GameCampaign campbuf;
     memcpy(&campbuf, &clist->items[idx1], sizeof(struct GameCampaign));
@@ -1298,7 +1321,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
         ERRORLOG("failed to read %s",sort_fname);
         return;
     }
-    int beg = 0;
+    unsigned long beg = 0;
 
     char line[DISKPATH_SIZE];
     while(fgets(line, DISKPATH_SIZE, fp)) {
@@ -1306,7 +1329,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
         //cut off trailing \n
         line[strlen(line)-1] = 0;
 
-        for (int i = 0; i < clist->items_num; i++)
+        for (unsigned long i = 0; i < clist->items_num; i++)
         {
             if (strcasecmp(clist->items[i].fname,line) == 0)
             {
@@ -1387,7 +1410,7 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
     {
         return false;
     }
-    for (int i = 0; i < clist->items_num; i++)
+    for (unsigned long i = 0; i < clist->items_num; i++)
     {
         if (strcasecmp(clist->items[i].fname,cmpgn_fname) == 0)
         {

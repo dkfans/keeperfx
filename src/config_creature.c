@@ -352,11 +352,6 @@ void check_and_auto_fix_stats(void)
             ERRORLOG("Creature model %d (%s) HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model, creature_code_name(model));
             crconf->hunger_fill = 1;
         }
-        if ( (crconf->sleep_exp_slab != 0) && (crconf->sleep_experience == 0) )
-        {
-            ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
-            crconf->sleep_exp_slab = 0;
-        }
         if ((crconf->grow_up >= game.conf.crtr_conf.model_count) && !(crconf->grow_up == CREATURE_NOT_A_DIGGER))
         {
             ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
@@ -517,8 +512,11 @@ void init_creature_model_stats(void)
         }
         crconf->grow_up = 0;
         crconf->grow_up_level = 0;
-        crconf->sleep_exp_slab = 0;
-        crconf->sleep_experience = 0;
+        for (n = 0; n < SLEEP_XP_COUNT; n++)
+        {
+            crconf->sleep_exp_slab[n] = 0;
+            crconf->sleep_experience[n] = 0;
+        }
         crconf->exp_for_hitting = 0;
         crconf->rebirth = 0;
         // Jobs block.
@@ -611,7 +609,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     snprintf(game.conf.crtr_conf.model[0].name, COMMAND_WORD_LEN, "%s", "NOCREATURE");
     // Find the block
     const char * block_name = "common";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -752,7 +750,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
     }
     // Find the block
     const char * block_name = "experience";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1017,7 +1015,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
     // Load the file blocks
     const char * blockname = NULL;
     int blocknamelen = 0;
-    long pos = 0;
+    int32_t pos = 0;
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
         // look for blocks starting with "instance", followed by one or more digits
@@ -1449,7 +1447,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
     // Load the file blocks
     const char * blockname = NULL;
     int blocknamelen = 0;
-    long pos = 0;
+    int32_t pos = 0;
     TbBool seen[INSTANCE_TYPES_MAX];
     memset(seen, 0, sizeof(seen));
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
@@ -1701,7 +1699,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
     // Load the file blocks
     const char * blockname = NULL;
     int blocknamelen = 0;
-    long pos = 0;
+    int32_t pos = 0;
     TbBool seen[INSTANCE_TYPES_MAX];
     memset(seen, 0, sizeof(seen));
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
@@ -1789,7 +1787,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     // Load the file blocks
     const char * blockname = NULL;
     int blocknamelen = 0;
-    long pos = 0;
+    int32_t pos = 0;
     TbBool seen[INSTANCE_TYPES_MAX];
     memset(seen, 0, sizeof(seen));
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
@@ -2112,7 +2110,7 @@ const char *creature_own_name(const struct Thing *creatng)
         end_consonants_len = sizeof(name_consonants)/sizeof(name_consonants[0]);
     }
     {
-        unsigned long seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
+        uint32_t seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
         int name_len = 0;
         {

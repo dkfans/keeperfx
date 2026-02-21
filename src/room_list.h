@@ -74,9 +74,9 @@ long count_player_rooms_entrances(PlayerNumber plyr_idx);
 long calculate_player_num_rooms_built(PlayerNumber plyr_idx);
 
 struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind rkind,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist);
+    MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *retdist);
 struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist);
+    MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *retdist);
 
 struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long max_distance);
 

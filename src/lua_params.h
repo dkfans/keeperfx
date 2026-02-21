@@ -36,6 +36,7 @@ TbBool luaL_isThing(lua_State *L, int index);
 TbBool luaL_isPlayer(lua_State *L, int index);
 
 /****   Inputs  *******/
+long luaL_optCheckinteger(lua_State* L, int index);
 long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
 long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
 TbMapLocation luaL_checkLocation(lua_State *L, int index);
@@ -61,6 +62,7 @@ struct Room* luaL_checkRoom(lua_State *L, int idx);
 struct Thing *luaL_checkThing(lua_State *L, int index);
 struct Thing *luaL_checkCreature(lua_State *L, int index);
 void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos);
+long luaL_checkAnimationId(lua_State* L, int index);
 
 /****   Outputs  *******/
 void lua_pushThing(lua_State *L, struct Thing* thing);

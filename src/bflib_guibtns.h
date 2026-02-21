@@ -72,13 +72,13 @@ enum GBoxFlags {
 
 union GuiVariant {
     long lval;
-    long *lptr;
+    int32_t *lptr;
     void *ptr;
     char *str;
 };
 
-typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, long *);
-typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, long *);
+typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, int32_t *);
+typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, int32_t *);
 typedef void (*Gf_Btn_Callback)(struct GuiButton *gbtn);
 typedef void (*Gf_Mnu_Callback)(struct GuiMenu *gmnu);
 
@@ -87,10 +87,10 @@ struct GuiBoxOption {
        unsigned char is_enabled;
        Gf_OptnBox_3Callback active_cb;
        Gf_OptnBox_4Callback callback;
-       long acb_param1;
+       int32_t acb_param1;
        long max_count;
        long unused_param1;
-       long cb_param1;
+       int32_t cb_param1;
        long option_index;
        long unused_param2;
        TbBool active;
