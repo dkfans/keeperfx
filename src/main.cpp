@@ -252,6 +252,7 @@ TbBool should_use_delta_time_on_menu()
         case FeSt_LEVEL_SELECT:
         case FeSt_CAMPAIGN_SELECT:
         case FeSt_MAPPACK_SELECT:
+        case FeSt_MP_MAPPACK_SELECT:
         case FeSt_LAND_VIEW:
         case FeSt_NETLAND_VIEW:
         case FeSt_TORTURE:
@@ -3689,17 +3690,22 @@ static TbBool wait_at_frontend(void)
     }
     game.save_game_slot = -1;
     // Make sure campaigns are loaded
-    if (!load_campaigns_list())
+    if (!load_campaigns_list(&campaigns_list ,FGrp_Campgn ,"campaigns","campgn_order.txt"))
     {
       ERRORLOG("No valid campaign files found");
       exit_keeper = 1;
       return true;
     }
     // Make sure mappacks are loaded
-    if (!load_mappacks_list())
+    if (!load_campaigns_list(&mappacks_list,FGrp_VarLevels,"mappacks","mappck_order.txt"))
     {
       WARNMSG("No valid mappack files found");
     }
+    if (!load_campaigns_list(&mp_mappacks_list,FGrp_MpLevels,"multiplayer mappacks","mp_mappck_order.txt"))
+    {
+      WARNMSG("No valid multiplayer mappack files found");
+    }
+    set_default_mp_mappack();
     //Set level number and campaign (for single level mode: GOF_SingleLevel)
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)
     {
