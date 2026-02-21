@@ -7756,8 +7756,6 @@ void script_move_creature(struct Thing* thing, TbMapLocation location, ThingMode
         SYNCDBG(5,"No valid coords for location %d",(int)location);
         return;
     }
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
 
     if (effect_id > 0)
     {
@@ -7766,12 +7764,17 @@ void script_move_creature(struct Thing* thing, TbMapLocation location, ThingMode
     }
     move_thing_in_map(thing, &pos);
     reset_interpolation_of_thing(thing);
-    if (!is_thing_some_way_controlled(thing))
+    if (thing_is_creature(thing))
     {
-        initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (!is_thing_some_way_controlled(thing))
+        {
+            initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+        }
+        cctrl->turns_at_job = -1;
+        check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     }
-    cctrl->turns_at_job = -1;
-    check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
 void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long select_id, TbMapLocation location, ThingModel effect_id, long count)
