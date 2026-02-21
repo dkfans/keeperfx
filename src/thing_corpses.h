@@ -33,12 +33,6 @@ extern "C" {
 struct Thing;
 struct Dungeon;
 
-enum DeadCreatureStates {
-    DCrSt_Unused = 0,
-    DCrSt_Dying,
-    DCrSt_Dead,
-};
-
 #pragma pack()
 /******************************************************************************/
 TbBool corpse_is_rottable(const struct Thing *thing);

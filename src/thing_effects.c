@@ -1045,7 +1045,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                         cctrl->disease_caster_plyridx = tngsrc->owner;
                     }
                 }
-                if (tngdst->health < 0)
+                if (!creature_is_dying(tngdst))
                 {
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
