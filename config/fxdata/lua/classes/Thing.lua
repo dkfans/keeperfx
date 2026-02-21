@@ -39,3 +39,9 @@ end
 function Thing:isValid() return false end
 
 function Thing:delete() end
+
+---sets the velocity of the thing
+---@param angle_xy integer 0-2047, the angle to move in the X/Y plane
+---@param angle_z integer 0-2047, the angle to move in the Z plane
+---@param dist integer speed/ how far to move every tick
+function Thing:set_velocity(angle_xy,angle_z,dist) end
