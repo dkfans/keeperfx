@@ -360,6 +360,17 @@ TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
         if (map_block_revealed(mapblk, plyr_idx) && !map_pos_is_lava(stl_x, stl_y))
             return true;
     }
+    else
+    {
+        if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
+        {
+            struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+            if (!thing_is_invalid(doortng) && !doortng->door.is_locked && players_are_mutual_allies(doortng->owner, plyr_idx))
+            {
+                return map_block_revealed(mapblk, plyr_idx);
+            }
+        }
+    }
     return false;
 }
 /******************************************************************************/
