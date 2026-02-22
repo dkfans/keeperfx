@@ -1957,7 +1957,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
         cdig->pos_next.y.stl.num = digstl_y;
         cdig->pos_next.x.stl.num = digstl_x;
         SYNCDBG(5, "%s: Player %d has bridge, so is going through liquid subtile (%d,%d)", func_name, (int)dungeon->owner, (int)gldstl_x, (int)gldstl_y);
-        return -5;
+        return TDR_BuildBridgeOnSlab;
     }
     cdig->pos_begin.x.stl.num = digstl_x;
     cdig->pos_begin.y.stl.num = digstl_y;
@@ -2097,8 +2097,7 @@ TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     do
     {
         dig_result = tool_dig_to_pos2(comp, &cdig, true, ToolDig_AllowLiquidWBridge); // actions are simulated
-        SYNCDBG(5,"retval=%d, dig.distance=%ld, dig.calls_count=%ld",
-            dig_result, cdig.distance, cdig.calls_count);
+        SYNCDBG(5,"retval=%d, dig.distance=%ld, dig.calls_count=%ld", dig_result, cdig.distance, cdig.calls_count);
     } while (dig_result == TDR_DigSlab); // loop until we have reached our destination, or an error has occurred
 
     SYNCDBG(6,"Finished");
