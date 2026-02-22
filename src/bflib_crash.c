@@ -35,6 +35,7 @@
 #endif
 #if defined(BF_POSIX_CRASH)
 #include <execinfo.h>
+#include <ucontext.h>
 #include <unistd.h>
 #endif
 #include <stdlib.h>
@@ -344,29 +345,117 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
 #endif
 
 #if defined(BF_POSIX_CRASH)
+static const char *posix_sigcode_str(int sig_id, int si_code)
+{
+    switch (sig_id)
+    {
+    case SIGSEGV:
+        switch (si_code)
+        {
+        case SEGV_MAPERR: return "address not mapped to object";
+        case SEGV_ACCERR: return "invalid permissions for mapped object";
+        default: return "unknown segv code";
+        }
+    case SIGFPE:
+        switch (si_code)
+        {
+        case FPE_INTDIV: return "integer divide by zero";
+        case FPE_INTOVF: return "integer overflow";
+        case FPE_FLTDIV: return "floating-point divide by zero";
+        case FPE_FLTOVF: return "floating-point overflow";
+        case FPE_FLTUND: return "floating-point underflow";
+        case FPE_FLTRES: return "floating-point inexact result";
+        case FPE_FLTINV: return "floating-point invalid operation";
+        case FPE_FLTSUB: return "subscript out of range";
+        default: return "unknown fpe code";
+        }
+    case SIGILL:
+        switch (si_code)
+        {
+        case ILL_ILLOPC: return "illegal opcode";
+        case ILL_ILLOPN: return "illegal operand";
+        case ILL_ILLADR: return "illegal addressing mode";
+        case ILL_ILLTRP: return "illegal trap";
+        case ILL_PRVOPC: return "privileged opcode";
+        case ILL_PRVREG: return "privileged register";
+        case ILL_COPROC: return "coprocessor error";
+        case ILL_BADSTK: return "internal stack error";
+        default: return "unknown ill code";
+        }
+#ifdef SIGBUS
+    case SIGBUS:
+        switch (si_code)
+        {
+        case BUS_ADRALN: return "invalid address alignment";
+        case BUS_ADRERR: return "nonexistent physical address";
+        case BUS_OBJERR: return "object-specific hardware error";
+        default: return "unknown bus code";
+        }
+#endif
+    default:
+        return "unknown signal code";
+    }
+}
+
+static void log_posix_context(void *context)
+{
+#if defined(__linux__) && defined(__x86_64__)
+    ucontext_t *uctx = (ucontext_t *)context;
+#if defined(REG_RIP) && defined(REG_RSP)
+    LbErrorLog("Context RIP=%p RSP=%p.\n",
+        (void *)uctx->uc_mcontext.gregs[REG_RIP],
+        (void *)uctx->uc_mcontext.gregs[REG_RSP]);
+#else
+    (void)uctx;
+#endif
+#elif defined(__linux__) && defined(__i386__)
+    ucontext_t *uctx = (ucontext_t *)context;
+    LbErrorLog("Context EIP=%p ESP=%p.\n",
+        (void *)uctx->uc_mcontext.gregs[REG_EIP],
+        (void *)uctx->uc_mcontext.gregs[REG_ESP]);
+#elif defined(__linux__) && defined(__aarch64__)
+    ucontext_t *uctx = (ucontext_t *)context;
+    LbErrorLog("Context PC=%p SP=%p.\n",
+        (void *)uctx->uc_mcontext.pc,
+        (void *)uctx->uc_mcontext.sp);
+#else
+    (void)context;
+#endif
+}
+
 static void write_stderr_line(const char *line, size_t line_len)
 {
     ssize_t written = write(STDERR_FILENO, line, line_len);
     (void)written;
 }
 
-static void _backtrace_posix_fd(int depth)
+static void _backtrace_posix(int depth)
 {
     void *frames[64];
     int max_frames = (depth > (int)(sizeof(frames) / sizeof(frames[0])))
         ? (int)(sizeof(frames) / sizeof(frames[0]))
         : depth;
     int count = backtrace(frames, max_frames);
+
     if (count > 0)
     {
         backtrace_symbols_fd(frames, count, STDERR_FILENO);
+
+        char **symbols = backtrace_symbols(frames, count);
+        if (symbols != NULL)
+        {
+            for (int idx = 0; idx < count; idx++)
+            {
+                LbJustLog("[#%-2d] %s\n", idx, symbols[idx]);
+            }
+            free(symbols);
+        }
     }
 }
 
 static void ctrl_handler_posix(int sig_id, siginfo_t *info, void *context)
 {
     const void *fault_addr = (info != NULL) ? info->si_addr : NULL;
-    (void)context;
 
     {
         static const char crash_msg[] = "KeeperFX fatal signal received\n";
@@ -390,11 +479,13 @@ static void ctrl_handler_posix(int sig_id, siginfo_t *info, void *context)
     }
 
     LbErrorLog("Failure signal: %s (%d).\n", sigstr(sig_id), sig_id);
-    if (fault_addr != NULL)
+    if (info != NULL)
     {
-        LbErrorLog("Fault address: %p.\n", fault_addr);
+        LbErrorLog("Signal code: %d (%s).\n", info->si_code, posix_sigcode_str(sig_id, info->si_code));
     }
-    _backtrace_posix_fd(16);
+    LbErrorLog("Fault address: %p.\n", fault_addr);
+    log_posix_context(context);
+    _backtrace_posix(16);
 
     LbScreenReset(true);
     LbErrorLogClose();
