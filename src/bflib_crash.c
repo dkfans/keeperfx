@@ -21,6 +21,10 @@
 #include "bflib_crash.h"
 #include <signal.h>
 #include <stdarg.h>
+#if !defined(_WIN32)
+#define BF_POSIX_CRASH 1
+#endif
+#if defined(_WIN32)
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -28,6 +32,11 @@
 #include <imagehlp.h>
 #include <dbghelp.h>
 #include <psapi.h>
+#endif
+#if defined(BF_POSIX_CRASH)
+#include <execinfo.h>
+#include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -50,7 +59,7 @@ static const char* sigstr(int s)
     case SIGFPE : return "Floating-point exception (ANSI)";
     case SIGSEGV : return "Segmentation violation (ANSI)";
     case SIGTERM : return "Termination (ANSI)";
-#if defined(__linux__)
+#if defined(BF_POSIX_CRASH)
     case SIGHUP : return "Hangup (POSIX)";
     case SIGQUIT : return "Quit (POSIX)";
     case SIGTRAP : return "Trace trap (POSIX)";
@@ -73,9 +82,15 @@ static const char* sigstr(int s)
     case SIGPROF : return "Profiling alarm clock (4.2 BSD)";
     case SIGWINCH : return "Window size change (4.3 BSD, Sun)";
     case SIGIO : return "I/O now possible (4.2 BSD)";
+#ifdef SIGSYS
     case SIGSYS : return "Bad system call";
+#endif
+#ifdef SIGSTKFLT
     case SIGSTKFLT : return "Stack fault";
+#endif
+#ifdef SIGPWR
     case SIGPWR : return "Power failure restart (System V)";
+#endif
 #else
     case SIGBREAK : return "Ctrl-Break (Win32)";
 #endif
@@ -97,6 +112,7 @@ void ctrl_handler(int sig_id)
     raise(sig_id);
 }
 
+#if defined(_WIN32)
 static void
 _backtrace(int depth , LPCONTEXT context)
 {
@@ -325,28 +341,126 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
     LbErrorLogClose();
     return EXCEPTION_EXECUTE_HANDLER;
 }
+#endif
+
+#if defined(BF_POSIX_CRASH)
+static void write_stderr_line(const char *line, size_t line_len)
+{
+    ssize_t written = write(STDERR_FILENO, line, line_len);
+    (void)written;
+}
+
+static void _backtrace_posix_fd(int depth)
+{
+    void *frames[64];
+    int max_frames = (depth > (int)(sizeof(frames) / sizeof(frames[0])))
+        ? (int)(sizeof(frames) / sizeof(frames[0]))
+        : depth;
+    int count = backtrace(frames, max_frames);
+    if (count > 0)
+    {
+        backtrace_symbols_fd(frames, count, STDERR_FILENO);
+    }
+}
+
+static void ctrl_handler_posix(int sig_id, siginfo_t *info, void *context)
+{
+    const void *fault_addr = (info != NULL) ? info->si_addr : NULL;
+    (void)context;
+
+    {
+        static const char crash_msg[] = "KeeperFX fatal signal received\n";
+        write_stderr_line(crash_msg, sizeof(crash_msg) - 1);
+    }
+
+    if (sig_id == SIGSEGV)
+    {
+        static const char segv_msg[] = "Signal: SIGSEGV\n";
+        write_stderr_line(segv_msg, sizeof(segv_msg) - 1);
+    }
+    else if (sig_id == SIGABRT)
+    {
+        static const char abrt_msg[] = "Signal: SIGABRT\n";
+        write_stderr_line(abrt_msg, sizeof(abrt_msg) - 1);
+    }
+    else if (sig_id == SIGFPE)
+    {
+        static const char fpe_msg[] = "Signal: SIGFPE\n";
+        write_stderr_line(fpe_msg, sizeof(fpe_msg) - 1);
+    }
+
+    LbErrorLog("Failure signal: %s (%d).\n", sigstr(sig_id), sig_id);
+    if (fault_addr != NULL)
+    {
+        LbErrorLog("Fault address: %p.\n", fault_addr);
+    }
+    _backtrace_posix_fd(16);
+
+    LbScreenReset(true);
+    LbErrorLogClose();
+
+    signal(sig_id, SIG_DFL);
+    raise(sig_id);
+}
+
+static void install_posix_handler(int sig_id)
+{
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = ctrl_handler_posix;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
+    sigaction(sig_id, &sa, NULL);
+}
+#endif
 
 void LbErrorParachuteInstall(void)
 {
+#if defined(BF_POSIX_CRASH)
+    install_posix_handler(SIGINT);
+    install_posix_handler(SIGILL);
+    install_posix_handler(SIGABRT);
+    install_posix_handler(SIGFPE);
+    install_posix_handler(SIGSEGV);
+    install_posix_handler(SIGTERM);
+    install_posix_handler(SIGHUP);
+    install_posix_handler(SIGQUIT);
+#ifdef SIGSYS
+    install_posix_handler(SIGSYS);
+#endif
+#ifdef SIGBUS
+    install_posix_handler(SIGBUS);
+#endif
+#ifdef SIGTRAP
+    install_posix_handler(SIGTRAP);
+#endif
+#else
     signal(SIGINT,ctrl_handler);
     signal(SIGILL,ctrl_handler);
     signal(SIGABRT,ctrl_handler);
     signal(SIGFPE,ctrl_handler);
     signal(SIGSEGV,ctrl_handler);
     signal(SIGTERM,ctrl_handler);
-#if defined(__linux__)
+#if defined(BF_POSIX_CRASH)
     signal(SIGHUP,ctrl_handler);
     signal(SIGQUIT,ctrl_handler);
+#ifdef SIGSYS
     signal(SIGSYS,ctrl_handler);
+#endif
 #else
     signal(SIGBREAK,ctrl_handler);
 #endif
+#endif
     atexit(exit_handler);
+#if defined(_WIN32)
     SetUnhandledExceptionFilter(ctrl_handler_w32);
+#endif
 }
 
 void LbErrorParachuteUpdate(void)
 {
+#if defined(_WIN32)
     SetUnhandledExceptionFilter(ctrl_handler_w32);
+#endif
 }
 /******************************************************************************/

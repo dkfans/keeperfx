@@ -32,7 +32,7 @@ extern "C" const char * get_wine_host()
 
 extern "C" void install_exception_handler()
 {
-    // TODO: install signal handler?
+	LbErrorParachuteInstall();
 }
 
 extern "C" int steam_api_init()
@@ -44,16 +44,6 @@ extern "C" int steam_api_init()
 extern "C" void steam_api_shutdown()
 {
     // Steam not supported on Linux
-}
-
-extern "C" void LbErrorParachuteInstall()
-{
-    // TODO: implement logging a backtrace on crash
-}
-
-extern "C" void LbErrorParachuteUpdate()
-{
-    // TODO: implement logging a backtrace on crash
 }
 
 extern "C" void SetRedbookVolume(SoundVolume)
