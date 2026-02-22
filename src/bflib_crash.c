@@ -17,6 +17,10 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#if !defined(_GNU_SOURCE)
+#define _GNU_SOURCE
+#endif
+
 #include "pre_inc.h"
 #include "bflib_crash.h"
 #include <signal.h>
@@ -37,6 +41,7 @@
 #include <execinfo.h>
 #include <ucontext.h>
 #include <unistd.h>
+#include <dlfcn.h>
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -444,9 +449,46 @@ static void _backtrace_posix(int depth)
         char **symbols = backtrace_symbols(frames, count);
         if (symbols != NULL)
         {
+            int printed_idx = 0;
             for (int idx = 0; idx < count; idx++)
             {
-                LbJustLog("[#%-2d] %s\n", idx, symbols[idx]);
+                Dl_info info;
+                if (dladdr(frames[idx], &info) != 0)
+                {
+                    if (info.dli_sname != NULL)
+                    {
+                        if ((strcmp(info.dli_sname, "_backtrace_posix") == 0)
+                         || (strcmp(info.dli_sname, "ctrl_handler_posix") == 0)
+                         || (strcmp(info.dli_sname, "write_stderr_line") == 0)
+                         || (strcmp(info.dli_sname, "log_posix_context") == 0))
+                        {
+                            continue;
+                        }
+                    }
+
+                    const char *module_name = (info.dli_fname != NULL) ? info.dli_fname : "[unknown module]";
+                    const char *symbol_name = (info.dli_sname != NULL) ? info.dli_sname : "[unknown symbol]";
+                    if ((info.dli_sname == NULL) && (symbols[idx] != NULL))
+                    {
+                        symbol_name = symbols[idx];
+                    }
+                    uintptr_t symbol_addr = (uintptr_t)info.dli_saddr;
+                    uintptr_t frame_addr = (uintptr_t)frames[idx];
+                    uintptr_t displacement = 0;
+                    if (symbol_addr != 0 && frame_addr >= symbol_addr)
+                    {
+                        displacement = frame_addr - symbol_addr;
+                    }
+
+                    LbJustLog("[#%-2d] %-20s : %-36s [%p+0x%" PRIxPTR "]\n",
+                        printed_idx, module_name, symbol_name, frames[idx], displacement);
+                    printed_idx++;
+                }
+                else
+                {
+                    LbJustLog("[#%-2d] %s\n", printed_idx, symbols[idx]);
+                    printed_idx++;
+                }
             }
             free(symbols);
         }
