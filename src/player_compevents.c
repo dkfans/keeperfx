@@ -572,16 +572,17 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         return CTaskRet_Unk0;
     }
 
+    int32_t creatrs_def = count_creatures_for_defend_pickup(comp);
+    if (creatrs_def < cevent->primary_parameter)
+    {
+        SYNCDBG(18, "Not enough creatures for event %s", cevent->name);
+        return CTaskRet_Unk4;
+    }
+
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, 1))
     {
         if (!is_task_in_progress_using_hand(comp))
         {
-            long creatrs_def = count_creatures_for_defend_pickup(comp);
-            if (creatrs_def < cevent->primary_parameter)
-            {
-                SYNCDBG(18, "Not enough creatures to drop for event %s", cevent->name);
-                return CTaskRet_Unk4;
-            }
             struct Thing* creatng = find_creature_for_defend_pickup(comp);
             if (thing_is_invalid(creatng))
             {
