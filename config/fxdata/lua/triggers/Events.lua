@@ -116,14 +116,14 @@ end
 
 ---Triggers when an object is destroyed
 ---@param action function|string the function to call when the event happens
----@param thing? Object the object that triggers the event
+---@param object? Object the object that triggers the event
 ---@return table
 function RegisterObjectDestroyedEvent(action, object)
     local trigData = {thing = object}
 
     local trigger = CreateTrigger("Destroyed",action,trigData)
     if unit then
-        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.thing == triggerData.thing end)
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.object == triggerData.object end)
     end
     return trigger
 end
