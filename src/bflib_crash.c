@@ -543,7 +543,19 @@ static void install_posix_handler(int sig_id)
     sa.sa_sigaction = ctrl_handler_posix;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
-    sigaction(sig_id, &sa, NULL);
+    {
+        int rc = sigaction(sig_id, &sa, NULL);
+        if (rc != 0)
+        {
+            fprintf(stderr,
+                "LbErrorParachuteInstall: sigaction failed for signal %d (%s); "
+                "crash handler not installed for this signal.\n",
+                sig_id, sigstr(sig_id));
+#ifndef NDEBUG
+            assert(rc == 0);
+#endif
+        }
+    }
 }
 #endif
 
