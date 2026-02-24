@@ -60,6 +60,7 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry);
+static void build_save_dir_for(const char *cmpgn_fname, char *out, size_t out_size);
 /******************************************************************************/
 const short VersionMajor    = VER_MAJOR;
 const short VersionMinor    = VER_MINOR;
@@ -73,6 +74,14 @@ const char *packet_filename="fx1rp%04d.pck";
 struct CatalogueEntry save_game_catalogue[TOTAL_SAVE_SLOTS_COUNT];
 
 int number_of_saved_games;
+
+struct GlobalSaveEntry global_save_entries[MAX_GLOBAL_SAVES];
+int global_save_count;
+int global_load_scroll_offset;
+TbBool global_load_is_all_campaigns;
+
+static const char* get_safe_campaign_name(void);
+
 /******************************************************************************/
 TbBool is_primitive_save_version(long filesize)
 {
@@ -447,7 +456,7 @@ TbBool save_game(long slot_num)
         ERRORLOG("Outranged slot index %d",(int)slot_num);
         return false;
     }
-    char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
+    char* fname = prepare_campaign_save_fmtpath(saved_game_filename, slot_num);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (!handle)
     {
@@ -468,7 +477,7 @@ TbBool save_game(long slot_num)
 TbBool is_save_game_loadable(long slot_num)
 {
     // Prepare filename and open the file
-    char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
+    char* fname = prepare_campaign_save_fmtpath(saved_game_filename, slot_num);
     TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (fh)
     {
@@ -498,7 +507,7 @@ TbBool load_game(long slot_num)
     reset_eye_lenses();
     {
         // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
-        char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
+        char* fname = prepare_campaign_save_fmtpath(saved_game_filename, slot_num);
         fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
         if (!fh)
         {
@@ -654,7 +663,7 @@ TbBool load_game_save_catalogue(void)
     {
         struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
         memset(centry, 0, sizeof(struct CatalogueEntry));
-        char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
+        char* fname = prepare_campaign_save_fmtpath(saved_game_filename, slot_num);
         TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
         if (!fh)
             continue;
@@ -667,6 +676,521 @@ TbBool load_game_save_catalogue(void)
         LbFileClose(fh);
     }
     return (saves_found > 0);
+}
+
+static TbBool migrate_file(const char *src, const char *dst)
+{
+    create_directory_for_file(dst);
+    if (rename(src, dst) == 0) {
+        SYNCLOG("Migrated save: %s -> %s", src, dst);
+        return true;
+    } else {
+        WARNLOG("Failed to migrate save: %s -> %s (errno %d)", src, dst, errno);
+        return false;
+    }
+}
+
+/**
+ * @brief One-time migration of saves from flat save/ to per-campaign subdirectories.
+ * Scans for old-format slot saves (fx1g*.sav) in the flat save/ directory,
+ * reads their InfoBlock to determine campaign_fname, and moves them to save/{campaign}/.
+ * Also migrates old continue saves (fx1_*_contn_.sav) and high score files.
+ * Writes a .migrated sentinel file when complete to prevent re-running.
+ */
+void migrate_saves_to_campaign_dirs(void)
+{
+    char *sentinel = prepare_file_path(FGrp_Save, ".migrated");
+    if (LbFileExists(sentinel)) {
+        return;
+    }
+    SYNCLOG("Migrating saves to per-campaign directories...");
+
+    TbBool migrated = false;
+
+    // Migrate slot saves (fx1g0000.sav .. fx1g0007.sav)
+    for (int slot = 0; slot < TOTAL_SAVE_SLOTS_COUNT; slot++)
+    {
+        char *old_path = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot);
+        if (!LbFileExists(old_path))
+            continue;
+
+        // Read the InfoBlock to find campaign_fname
+        TbFileHandle fh = LbFileOpen(old_path, Lb_FILE_MODE_READ_ONLY);
+        if (!fh)
+            continue;
+        struct FileChunkHeader hdr;
+        struct CatalogueEntry centry;
+        memset(&centry, 0, sizeof(centry));
+        TbBool got_info = false;
+        if (LbFileRead(fh, &hdr, sizeof(hdr)) == sizeof(hdr)) {
+            got_info = load_catalogue_entry(fh, &hdr, &centry);
+        }
+        LbFileClose(fh);
+
+        char safe_dir[CAMPAIGN_FNAME_LEN];
+        if (got_info && centry.campaign_fname[0] != '\0') {
+            snprintf(safe_dir, sizeof(safe_dir), "%s", centry.campaign_fname);
+            // Strip .cfg extension if present
+            char *dot = strrchr(safe_dir, '.');
+            if (dot != NULL && strcasecmp(dot, ".cfg") == 0)
+                *dot = '\0';
+        } else {
+            snprintf(safe_dir, sizeof(safe_dir), "unknown");
+        }
+
+        // Build destination path: save/{campaign}/fx1g{slot}.sav
+        char dest_fname[DISKPATH_SIZE];
+        char slot_name[32];
+        snprintf(slot_name, sizeof(slot_name), saved_game_filename, slot);
+        path_join(dest_fname, sizeof(dest_fname), safe_dir, slot_name);
+        char *new_path = prepare_file_path(FGrp_Save, dest_fname);
+
+        // Copy new_path to a local buffer since prepare_file_path uses a static buffer
+        char new_path_buf[2048];
+        snprintf(new_path_buf, sizeof(new_path_buf), "%s", new_path);
+
+        // Re-resolve old_path since prepare_file_path overwrote the static buffer
+        old_path = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot);
+
+        if (!LbFileExists(new_path_buf)) {
+            migrated |= migrate_file(old_path, new_path_buf);
+        }
+    }
+
+    // Migrate old continue saves: fx1_*_contn_.sav and fx1contn.sav
+    {
+        char *search_path = prepare_file_path(FGrp_Save, "fx1*contn*.sav");
+        struct TbFileEntry fe;
+        struct TbFileFind *ff = LbFileFindFirst(search_path, &fe);
+        if (ff) {
+            do {
+                // Try to extract campaign name from filename pattern "fx1_{name}_contn_.sav"
+                const char *fn = fe.Filename;
+                char safe_dir[CAMPAIGN_FNAME_LEN];
+                snprintf(safe_dir, sizeof(safe_dir), "unknown");
+
+                if (strncmp(fn, "fx1_", 4) == 0) {
+                    const char *end = strstr(fn + 4, "_contn_");
+                    if (end && end > fn + 4) {
+                        int len = (int)(end - (fn + 4));
+                        if (len >= (int)sizeof(safe_dir)) len = sizeof(safe_dir) - 1;
+                        memcpy(safe_dir, fn + 4, len);
+                        safe_dir[len] = '\0';
+                    }
+                }
+
+                char *old_path = prepare_file_path(FGrp_Save, fn);
+                char old_buf[2048];
+                snprintf(old_buf, sizeof(old_buf), "%s", old_path);
+
+                char dest_fname[DISKPATH_SIZE];
+                path_join(dest_fname, sizeof(dest_fname), safe_dir, continue_game_filename);
+                char *new_path = prepare_file_path(FGrp_Save, dest_fname);
+                char new_buf[2048];
+                snprintf(new_buf, sizeof(new_buf), "%s", new_path);
+
+                if (!LbFileExists(new_buf)) {
+                    migrated |= migrate_file(old_buf, new_buf);
+                }
+            } while (LbFileFindNext(ff, &fe) >= 0);
+            LbFileFindEnd(ff);
+        }
+    }
+
+    // Migrate high score files (scr_*.dat)
+    {
+        char *search_path = prepare_file_path(FGrp_Save, "scr_*.dat");
+        struct TbFileEntry fe;
+        struct TbFileFind *ff = LbFileFindFirst(search_path, &fe);
+        if (ff) {
+            do {
+                // High score filenames like "scr_dkpr.dat" - we need to find which campaign owns this file.
+                // We scan all known campaigns to match hiscore_fname.
+                const char *fn = fe.Filename;
+                char safe_dir[CAMPAIGN_FNAME_LEN];
+                snprintf(safe_dir, sizeof(safe_dir), "unknown");
+
+                for (long i = 0; i < (long)campaigns_list.items_num; i++) {
+                    struct GameCampaign *cmpgn = &campaigns_list.items[i];
+                    if (strcmp(cmpgn->hiscore_fname, fn) == 0) {
+                        snprintf(safe_dir, sizeof(safe_dir), "%s", cmpgn->fname);
+                        char *dot = strrchr(safe_dir, '.');
+                        if (dot != NULL && strcasecmp(dot, ".cfg") == 0)
+                            *dot = '\0';
+                        break;
+                    }
+                }
+
+                char *old_path = prepare_file_path(FGrp_Save, fn);
+                char old_buf[2048];
+                snprintf(old_buf, sizeof(old_buf), "%s", old_path);
+
+                char dest_fname[DISKPATH_SIZE];
+                path_join(dest_fname, sizeof(dest_fname), safe_dir, fn);
+                char *new_path = prepare_file_path(FGrp_Save, dest_fname);
+                char new_buf[2048];
+                snprintf(new_buf, sizeof(new_buf), "%s", new_path);
+
+                if (!LbFileExists(new_buf)) {
+                    migrated |= migrate_file(old_buf, new_buf);
+                }
+            } while (LbFileFindNext(ff, &fe) >= 0);
+            LbFileFindEnd(ff);
+        }
+    }
+
+    SYNCLOG("Save migration complete: %d files moved.", migrated);
+
+    // Write sentinel file
+    TbFileHandle sfh = LbFileOpen(sentinel, Lb_FILE_MODE_NEW);
+    if (sfh) {
+        const char marker[] = "migrated";
+        LbFileWrite(sfh, marker, sizeof(marker));
+        LbFileClose(sfh);
+    }
+}
+
+/**
+ * @brief Migrate mappack saves from save/<pack>/ to save/freeplay/<pack>/.
+ * Uses a separate sentinel (.freeplay_migrated) to run once.
+ */
+void migrate_freeplay_saves(void)
+{
+    char *sentinel = prepare_file_path(FGrp_Save, ".freeplay_migrated");
+    if (LbFileExists(sentinel))
+        return;
+
+    TbBool migrated = false;
+    for (unsigned long ci = 0; ci < mappacks_list.items_num; ci++)
+    {
+        struct GameCampaign *cmpgn = &mappacks_list.items[ci];
+        if (cmpgn->fname[0] == '\0')
+            continue;
+
+        // Build old dir name (without freeplay/ prefix)
+        char old_dir[CAMPAIGN_FNAME_LEN];
+        snprintf(old_dir, sizeof(old_dir), "%s", cmpgn->fname);
+        char *dot = strrchr(old_dir, '.');
+        if (dot != NULL && strcasecmp(dot, ".cfg") == 0)
+            *dot = '\0';
+
+        // Build new dir name (with freeplay/ prefix)
+        char new_dir[DISKPATH_SIZE];
+        snprintf(new_dir, sizeof(new_dir), "freeplay/%s", old_dir);
+
+        // Migrate slot saves
+        for (int slot = 0; slot < TOTAL_SAVE_SLOTS_COUNT; slot++)
+        {
+            char slot_name[32];
+            snprintf(slot_name, sizeof(slot_name), saved_game_filename, slot);
+
+            char old_subpath[DISKPATH_SIZE];
+            path_join(old_subpath, sizeof(old_subpath), old_dir, slot_name);
+            char *old_full = prepare_file_path(FGrp_Save, old_subpath);
+            char old_buf[2048];
+            snprintf(old_buf, sizeof(old_buf), "%s", old_full);
+
+            if (!LbFileExists(old_buf))
+                continue;
+
+            char new_subpath[DISKPATH_SIZE];
+            path_join(new_subpath, sizeof(new_subpath), new_dir, slot_name);
+            char *new_full = prepare_file_path(FGrp_Save, new_subpath);
+            char new_buf[2048];
+            snprintf(new_buf, sizeof(new_buf), "%s", new_full);
+
+            if (!LbFileExists(new_buf))
+                migrated |= migrate_file(old_buf, new_buf);
+        }
+
+        // Migrate continue save
+        {
+            char old_subpath[DISKPATH_SIZE];
+            path_join(old_subpath, sizeof(old_subpath), old_dir, continue_game_filename);
+            char *old_full = prepare_file_path(FGrp_Save, old_subpath);
+            char old_buf[2048];
+            snprintf(old_buf, sizeof(old_buf), "%s", old_full);
+
+            if (LbFileExists(old_buf))
+            {
+                char new_subpath[DISKPATH_SIZE];
+                path_join(new_subpath, sizeof(new_subpath), new_dir, continue_game_filename);
+                char *new_full = prepare_file_path(FGrp_Save, new_subpath);
+                char new_buf[2048];
+                snprintf(new_buf, sizeof(new_buf), "%s", new_full);
+
+                if (!LbFileExists(new_buf))
+                    migrated |= migrate_file(old_buf, new_buf);
+            }
+        }
+
+        // Migrate progress.json
+        {
+            char old_subpath[DISKPATH_SIZE];
+            path_join(old_subpath, sizeof(old_subpath), old_dir, "progress.json");
+            char *old_full = prepare_file_path(FGrp_Save, old_subpath);
+            char old_buf[2048];
+            snprintf(old_buf, sizeof(old_buf), "%s", old_full);
+
+            if (LbFileExists(old_buf))
+            {
+                char new_subpath[DISKPATH_SIZE];
+                path_join(new_subpath, sizeof(new_subpath), new_dir, "progress.json");
+                char *new_full = prepare_file_path(FGrp_Save, new_subpath);
+                char new_buf[2048];
+                snprintf(new_buf, sizeof(new_buf), "%s", new_full);
+
+                if (!LbFileExists(new_buf))
+                    migrated |= migrate_file(old_buf, new_buf);
+            }
+        }
+
+        // Migrate high score file
+        if (cmpgn->hiscore_fname[0] != '\0')
+        {
+            char old_subpath[DISKPATH_SIZE];
+            path_join(old_subpath, sizeof(old_subpath), old_dir, cmpgn->hiscore_fname);
+            char *old_full = prepare_file_path(FGrp_Save, old_subpath);
+            char old_buf[2048];
+            snprintf(old_buf, sizeof(old_buf), "%s", old_full);
+
+            if (LbFileExists(old_buf))
+            {
+                char new_subpath[DISKPATH_SIZE];
+                path_join(new_subpath, sizeof(new_subpath), new_dir, cmpgn->hiscore_fname);
+                char *new_full = prepare_file_path(FGrp_Save, new_subpath);
+                char new_buf[2048];
+                snprintf(new_buf, sizeof(new_buf), "%s", new_full);
+
+                if (!LbFileExists(new_buf))
+                    migrated |= migrate_file(old_buf, new_buf);
+            }
+        }
+    }
+
+    if (migrated)
+        SYNCLOG("Freeplay save migration complete: %d files moved.", migrated);
+
+    TbFileHandle sfh = LbFileOpen(sentinel, Lb_FILE_MODE_NEW);
+    if (sfh) {
+        const char marker[] = "freeplay_migrated";
+        LbFileWrite(sfh, marker, sizeof(marker));
+        LbFileClose(sfh);
+    }
+}
+
+static int compare_global_saves_by_date(const void *a, const void *b)
+{
+    const struct GlobalSaveEntry *ea = (const struct GlobalSaveEntry *)a;
+    const struct GlobalSaveEntry *eb = (const struct GlobalSaveEntry *)b;
+    if (eb->modified_time > ea->modified_time) return 1;
+    if (eb->modified_time < ea->modified_time) return -1;
+    return 0;
+}
+
+/**
+ * @brief Scan all campaign subdirectories for save files.
+ * Populates global_save_entries[] with all saves across all campaigns,
+ * sorted by modification time (most recent first).
+ */
+void scan_all_campaign_saves(void)
+{
+    global_save_count = 0;
+    global_load_scroll_offset = 0;
+    memset(global_save_entries, 0, sizeof(global_save_entries));
+
+    // Scan both campaigns and mappacks
+    struct CampaignsList *lists[] = { &campaigns_list, &mappacks_list };
+    for (int li = 0; li < 2; li++)
+    {
+        struct CampaignsList *clist = lists[li];
+        for (unsigned long ci = 0; ci < clist->items_num; ci++)
+        {
+            struct GameCampaign *cmpgn = &clist->items[ci];
+            char safe_dir[DISKPATH_SIZE];
+            build_save_dir_for(cmpgn->fname, safe_dir, sizeof(safe_dir));
+
+            for (int slot = 0; slot < TOTAL_SAVE_SLOTS_COUNT; slot++)
+            {
+                if (global_save_count >= MAX_GLOBAL_SAVES)
+                    break;
+
+                char slot_fname[32];
+                snprintf(slot_fname, sizeof(slot_fname), saved_game_filename, slot);
+                char subpath[DISKPATH_SIZE];
+                path_join(subpath, sizeof(subpath), safe_dir, slot_fname);
+                char *fullpath = prepare_file_path(FGrp_Save, subpath);
+
+                if (!LbFileExists(fullpath))
+                    continue;
+
+                TbFileHandle fh = LbFileOpen(fullpath, Lb_FILE_MODE_READ_ONLY);
+                if (!fh)
+                    continue;
+                struct FileChunkHeader hdr;
+                struct CatalogueEntry centry;
+                memset(&centry, 0, sizeof(centry));
+                TbBool got_info = false;
+                if (LbFileRead(fh, &hdr, sizeof(hdr)) == sizeof(hdr)) {
+                    got_info = load_catalogue_entry(fh, &hdr, &centry);
+                }
+                LbFileClose(fh);
+
+                if (!got_info)
+                    continue;
+
+                struct GlobalSaveEntry *entry = &global_save_entries[global_save_count];
+                snprintf(entry->campaign_name, sizeof(entry->campaign_name), "%s", cmpgn->name);
+                snprintf(entry->campaign_fname, sizeof(entry->campaign_fname), "%s", cmpgn->fname);
+                snprintf(entry->save_textname, sizeof(entry->save_textname), "%s", centry.textname);
+                snprintf(entry->save_dir, sizeof(entry->save_dir), "%s", safe_dir);
+                entry->slot_num = slot;
+                entry->in_use = true;
+
+                // Get file modification time
+                path_join(subpath, sizeof(subpath), safe_dir, slot_fname);
+                fullpath = prepare_file_path(FGrp_Save, subpath);
+                struct stat st;
+                if (stat(fullpath, &st) == 0) {
+                    entry->modified_time = (long)st.st_mtime;
+                } else {
+                    entry->modified_time = 0;
+                }
+
+                global_save_count++;
+            }
+            if (global_save_count >= MAX_GLOBAL_SAVES)
+                break;
+        }
+    }
+
+    // Sort by modification time (most recent first)
+    if (global_save_count > 1) {
+        qsort(global_save_entries, global_save_count, sizeof(struct GlobalSaveEntry),
+              compare_global_saves_by_date);
+    }
+
+    SYNCLOG("Found %d saves across all campaigns", global_save_count);
+}
+
+/**
+ * @brief Scan only the current campaign's save directory for save files.
+ * Populates global_save_entries[] with saves for the active campaign only.
+ */
+void scan_current_campaign_saves(void)
+{
+    global_save_count = 0;
+    global_load_scroll_offset = 0;
+    memset(global_save_entries, 0, sizeof(global_save_entries));
+
+    const char *safe_dir = get_safe_campaign_name();
+
+    for (int slot = 0; slot < TOTAL_SAVE_SLOTS_COUNT; slot++)
+    {
+        if (global_save_count >= MAX_GLOBAL_SAVES)
+            break;
+
+        char slot_fname[32];
+        snprintf(slot_fname, sizeof(slot_fname), saved_game_filename, slot);
+        char subpath[DISKPATH_SIZE];
+        path_join(subpath, sizeof(subpath), safe_dir, slot_fname);
+        char *fullpath = prepare_file_path(FGrp_Save, subpath);
+
+        if (!LbFileExists(fullpath))
+            continue;
+
+        TbFileHandle fh = LbFileOpen(fullpath, Lb_FILE_MODE_READ_ONLY);
+        if (!fh)
+            continue;
+        struct FileChunkHeader hdr;
+        struct CatalogueEntry centry;
+        memset(&centry, 0, sizeof(centry));
+        TbBool got_info = false;
+        if (LbFileRead(fh, &hdr, sizeof(hdr)) == sizeof(hdr)) {
+            got_info = load_catalogue_entry(fh, &hdr, &centry);
+        }
+        LbFileClose(fh);
+
+        if (!got_info)
+            continue;
+
+        struct GlobalSaveEntry *entry = &global_save_entries[global_save_count];
+        snprintf(entry->campaign_name, sizeof(entry->campaign_name), "%s", campaign.name);
+        snprintf(entry->campaign_fname, sizeof(entry->campaign_fname), "%s", campaign.fname);
+        snprintf(entry->save_textname, sizeof(entry->save_textname), "%s", centry.textname);
+        snprintf(entry->save_dir, sizeof(entry->save_dir), "%s", safe_dir);
+        entry->slot_num = slot;
+        entry->in_use = true;
+
+        path_join(subpath, sizeof(subpath), safe_dir, slot_fname);
+        fullpath = prepare_file_path(FGrp_Save, subpath);
+        struct stat st;
+        if (stat(fullpath, &st) == 0) {
+            entry->modified_time = (long)st.st_mtime;
+        } else {
+            entry->modified_time = 0;
+        }
+
+        global_save_count++;
+    }
+
+    if (global_save_count > 1) {
+        qsort(global_save_entries, global_save_count, sizeof(struct GlobalSaveEntry),
+              compare_global_saves_by_date);
+    }
+
+    SYNCLOG("Found %d saves for campaign %s", global_save_count, campaign.fname);
+}
+
+/**
+ * @brief Find the campaign with the most recent continue file and switch to it.
+ * Scans all campaign directories for fx1contn.sav, picks the newest, and calls change_campaign().
+ * This ensures continue_game_available() checks the right directory at startup.
+ * @return true if a continue file was found and campaign was loaded
+ */
+TbBool find_and_set_continue_campaign(void)
+{
+    const char *continue_fname = continue_game_filename;
+    long best_mtime = 0;
+    char best_campaign_fname[CAMPAIGN_FNAME_LEN] = {0};
+
+    const struct CampaignsList *lists[] = { &campaigns_list, &mappacks_list };
+    for (int li = 0; li < 2; li++)
+    {
+        const struct CampaignsList *list = lists[li];
+        for (int ci = 0; ci < list->items_num; ci++)
+        {
+            const struct GameCampaign *cmpgn = &list->items[ci];
+            if (cmpgn->fname[0] == '\0')
+                continue;
+
+            char safe_dir[DISKPATH_SIZE];
+            build_save_dir_for(cmpgn->fname, safe_dir, sizeof(safe_dir));
+
+            char subpath[DISKPATH_SIZE];
+            path_join(subpath, sizeof(subpath), safe_dir, continue_fname);
+            char *fullpath = prepare_file_path(FGrp_Save, subpath);
+
+            struct stat st;
+            if (stat(fullpath, &st) == 0)
+            {
+                if ((long)st.st_mtime > best_mtime)
+                {
+                    best_mtime = (long)st.st_mtime;
+                    snprintf(best_campaign_fname, sizeof(best_campaign_fname), "%s", cmpgn->fname);
+                }
+            }
+        }
+    }
+
+    if (best_campaign_fname[0] != '\0')
+    {
+        SYNCLOG("Most recent continue file found for campaign %s", best_campaign_fname);
+        return change_campaign(best_campaign_fname);
+    }
+
+    SYNCLOG("No continue files found in any campaign directory");
+    return false;
 }
 
 TbBool initialise_load_game_slots(void)
@@ -682,27 +1206,71 @@ TbBool initialise_load_game_slots(void)
  * 
  * @return const char* safe campaign name
  */
+/**
+ * @brief Build the save subdirectory name for a given campaign filename.
+ * Strips the .cfg extension and prefixes with "freeplay/" for mappacks.
+ *
+ * @param cmpgn_fname  Campaign/mappack config filename (e.g. "keeporig.cfg")
+ * @param out          Output buffer
+ * @param out_size     Size of output buffer
+ */
+static void build_save_dir_for(const char *cmpgn_fname, char *out, size_t out_size)
+{
+    char base[CAMPAIGN_FNAME_LEN];
+    snprintf(base, sizeof(base), "%s", cmpgn_fname);
+    char *dot = strrchr(base, '.');
+    if (dot != NULL && strcasecmp(dot, ".cfg") == 0)
+        *dot = '\0';
+
+    if (is_campaign_in_list(cmpgn_fname, &mappacks_list))
+        snprintf(out, out_size, "freeplay/%s", base);
+    else
+        snprintf(out, out_size, "%s", base);
+}
+
 static const char* get_safe_campaign_name(void) {
-    static char safe_name[CAMPAIGN_FNAME_LEN];
-    int j = 0;
-
-    for (int i = 0; i < sizeof(safe_name) - 1 && campaign.name[i] != '\0'; i++) {
-        char c = campaign.name[i];
-        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || 
-            (c >= '0' && c <= '9') || c == '_' || c == '-') {
-            safe_name[j++] = c;
-        }
-    }
-    safe_name[j] = '\0';
-
-    // Default to default if name is empty after sanitization, probably should not happen, but just in case
-    if (j == 0) {
-        strncpy(safe_name, "default", sizeof(safe_name) -1);
+    static char safe_name[DISKPATH_SIZE];
+    if (campaign.fname[0] != '\0') {
+        build_save_dir_for(campaign.fname, safe_name, sizeof(safe_name));
+    } else {
+        strncpy(safe_name, "default", sizeof(safe_name) - 1);
         safe_name[sizeof(safe_name) - 1] = '\0';
-        WARNLOG("Campaign name \"%s\" is not suitable for file name, using default instead", campaign.name);
+        WARNLOG("Campaign fname is empty, using default instead");
     }
-
     return safe_name;
+}
+
+/**
+ * @brief Build a full path to a file within the current campaign's save directory.
+ * Creates the campaign subdirectory (save/{campaign}/) if it does not yet exist.
+ *
+ * @param fname  The filename (e.g. "fx1g0000.sav")
+ * @return char* Full path in a static buffer (same semantics as prepare_file_path)
+ */
+char *prepare_campaign_save_path(const char *fname)
+{
+    static char subpath[DISKPATH_SIZE];
+    path_join(subpath, sizeof(subpath), get_safe_campaign_name(), fname);
+    char *fullpath = prepare_file_path(FGrp_Save, subpath);
+    create_directory_for_file(fullpath);
+    return fullpath;
+}
+
+/**
+ * @brief Build a full path with printf-style filename within the campaign's save directory.
+ *
+ * @param fmt  Format string for the filename (e.g. "fx1g%04d.sav")
+ * @param ...  Format arguments
+ * @return char* Full path in a static buffer
+ */
+char *prepare_campaign_save_fmtpath(const char *fmt, ...)
+{
+    char fname[256];
+    va_list val;
+    va_start(val, fmt);
+    vsnprintf(fname, sizeof(fname), fmt, val);
+    va_end(val);
+    return prepare_campaign_save_path(fname);
 }
 
 short save_continue_game(LevelNumber lvnum)
@@ -711,7 +1279,10 @@ short save_continue_game(LevelNumber lvnum)
     if (is_singleplayer_like_level(lvnum))
       set_continue_level_number(lvnum);
     SYNCDBG(6,"Continue set to level %d (loaded is %d)",(int)get_continue_level_number(),(int)get_loaded_level_number());
-    char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+
+    char* fname = prepare_campaign_save_path(continue_game_filename);
+
+
     long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
     // Appending IntralevelData
     TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_OLD);
@@ -723,7 +1294,8 @@ short save_continue_game(LevelNumber lvnum)
 
 short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
 {
-    char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+    char* fname = prepare_campaign_save_path(continue_game_filename);
+    
     if (LbFileLength(fname) != sizeof(struct Game) + sizeof(struct IntralevelData))
     {
         SYNCDBG(7, "No correct .SAV file; there's no continue");

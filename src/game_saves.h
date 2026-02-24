@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include <stdarg.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -92,6 +94,24 @@ extern int number_of_saved_games;
 extern const char* continue_game_filename;
 
 #pragma pack()
+
+/******************************************************************************/
+#define MAX_GLOBAL_SAVES 64
+
+struct GlobalSaveEntry {
+    char campaign_name[LINEMSG_SIZE];
+    char campaign_fname[DISKPATH_SIZE];
+    char save_textname[SAVE_TEXTNAME_LEN];
+    char save_dir[64];
+    int  slot_num;
+    long modified_time;
+    TbBool in_use;
+};
+
+extern struct GlobalSaveEntry global_save_entries[];
+extern int global_save_count;
+extern int global_load_scroll_offset;
+extern TbBool global_load_is_all_campaigns;
 /******************************************************************************/
 extern const short VersionMajor;
 extern const short VersionMinor;
@@ -124,6 +144,14 @@ TbBool continue_game_available(void);
 short load_continue_game(void);
 short save_continue_game(LevelNumber lv_num);
 short read_continue_game_part(unsigned char *buf,long pos,long buf_len);
+/******************************************************************************/
+char *prepare_campaign_save_path(const char *fname);
+char *prepare_campaign_save_fmtpath(const char *fmt, ...);
+void migrate_saves_to_campaign_dirs(void);
+void migrate_freeplay_saves(void);
+void scan_all_campaign_saves(void);
+void scan_current_campaign_saves(void);
+TbBool find_and_set_continue_campaign(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

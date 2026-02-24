@@ -3683,6 +3683,9 @@ static TbBool wait_at_frontend(void)
     {
       WARNMSG("No valid mappack files found");
     }
+    // Migrate old flat saves to per-campaign directories (one-time)
+    migrate_saves_to_campaign_dirs();
+    migrate_freeplay_saves();
     //Set level number and campaign (for single level mode: GOF_SingleLevel)
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)
     {
