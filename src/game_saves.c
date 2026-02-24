@@ -50,6 +50,10 @@
 #include "moonphase.h"
 #include "post_inc.h"
 
+#include <sys/stat.h>
+#include <time.h>
+#include <zlib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -93,13 +97,68 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
         if (LbFileWrite(fhandle, centry, sizeof(struct CatalogueEntry)) == sizeof(struct CatalogueEntry))
             chunks_done |= SGF_InfoBlock;
     }
-    { // Game data chunk
+    { // Game data chunk — zero wasteful fields, compress with zlib
+        // Back up fields we'll zero (they're rebuilt on load)
+        struct Configs *conf_backup = (struct Configs *)malloc(sizeof(struct Configs));
+        void *nav_backup = malloc(sizeof(game.navigation_map));
+        if (!conf_backup || !nav_backup) {
+            ERRORLOG("Failed to allocate backup buffers for save compression");
+            free(conf_backup);
+            free(nav_backup);
+            return false;
+        }
+        memcpy(conf_backup, &game.conf, sizeof(struct Configs));
+        memcpy(nav_backup, game.navigation_map, sizeof(game.navigation_map));
+
+        // Zero wasteful fields (~5.5 MB of data that's rebuilt on load)
+        memset(&game.conf, 0, sizeof(struct Configs));
+        memset(game.navigation_map, 0, sizeof(game.navigation_map));
+        memset(&game.log_snapshot, 0, sizeof(game.log_snapshot));
+        memset(&game.host_checksums, 0, sizeof(game.host_checksums));
+
+        // Compress the game struct
+        uLongf compressed_bound = compressBound(sizeof(struct Game));
+        unsigned char *compressed = (unsigned char *)malloc(compressed_bound);
+        if (!compressed) {
+            ERRORLOG("Failed to allocate compression buffer");
+            memcpy(&game.conf, conf_backup, sizeof(struct Configs));
+            memcpy(game.navigation_map, nav_backup, sizeof(game.navigation_map));
+            free(conf_backup);
+            free(nav_backup);
+            return false;
+        }
+
+        uLongf compressed_size = compressed_bound;
+        int zret = compress2(compressed, &compressed_size,
+                             (const Bytef *)&game, sizeof(struct Game), Z_DEFAULT_COMPRESSION);
+
+        // Restore zeroed fields immediately
+        memcpy(&game.conf, conf_backup, sizeof(struct Configs));
+        memcpy(game.navigation_map, nav_backup, sizeof(game.navigation_map));
+        free(conf_backup);
+        free(nav_backup);
+
+        if (zret != Z_OK) {
+            ERRORLOG("zlib compress failed: %d", zret);
+            free(compressed);
+            return false;
+        }
+
+        SYNCLOG("Save compressed: %lu -> %lu bytes (%.1f%%)",
+                (unsigned long)sizeof(struct Game), (unsigned long)compressed_size,
+                100.0f * compressed_size / sizeof(struct Game));
+
+        // Write header: ver=1 means compressed, len=decompressed size
         hdr.id = SGC_GameOrig;
-        hdr.ver = 0;
+        hdr.ver = 1;
         hdr.len = sizeof(struct Game);
+        unsigned long comp_len = (unsigned long)compressed_size;
         if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-        if (LbFileWrite(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
+        if (LbFileWrite(fhandle, &comp_len, sizeof(unsigned long)) == sizeof(unsigned long))
+        if (LbFileWrite(fhandle, compressed, compressed_size) == compressed_size)
             chunks_done |= SGF_GameOrig;
+
+        free(compressed);
     }
     { // IntralevelData data chunk
         hdr.id = SGC_IntralevelData;
@@ -152,13 +211,40 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     // If it's not start of a level, save progress data too
     if (game.play_gameturn != 0)
     {
-        { // Game data chunk
-            hdr.id = SGC_GameOrig;
-            hdr.ver = 0;
-            hdr.len = sizeof(struct Game);
-            if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-            if (LbFileWrite(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
-                chunks_done |= SGF_GameOrig;
+        { // Game data chunk — compressed
+            // Zero wasteful fields
+            struct Configs *conf_backup = (struct Configs *)malloc(sizeof(struct Configs));
+            void *nav_backup = malloc(sizeof(game.navigation_map));
+            if (conf_backup && nav_backup) {
+                memcpy(conf_backup, &game.conf, sizeof(struct Configs));
+                memcpy(nav_backup, game.navigation_map, sizeof(game.navigation_map));
+                memset(&game.conf, 0, sizeof(struct Configs));
+                memset(game.navigation_map, 0, sizeof(game.navigation_map));
+                memset(&game.log_snapshot, 0, sizeof(game.log_snapshot));
+                memset(&game.host_checksums, 0, sizeof(game.host_checksums));
+
+                uLongf compressed_bound = compressBound(sizeof(struct Game));
+                unsigned char *compressed = (unsigned char *)malloc(compressed_bound);
+                if (compressed) {
+                    uLongf compressed_size = compressed_bound;
+                    if (compress2(compressed, &compressed_size,
+                                  (const Bytef *)&game, sizeof(struct Game), Z_DEFAULT_COMPRESSION) == Z_OK) {
+                        hdr.id = SGC_GameOrig;
+                        hdr.ver = 1;
+                        hdr.len = sizeof(struct Game);
+                        unsigned long comp_len = (unsigned long)compressed_size;
+                        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+                        if (LbFileWrite(fhandle, &comp_len, sizeof(unsigned long)) == sizeof(unsigned long))
+                        if (LbFileWrite(fhandle, compressed, compressed_size) == compressed_size)
+                            chunks_done |= SGF_GameOrig;
+                    }
+                    free(compressed);
+                }
+                memcpy(&game.conf, conf_backup, sizeof(struct Configs));
+                memcpy(game.navigation_map, nav_backup, sizeof(game.navigation_map));
+            }
+            free(conf_backup);
+            free(nav_backup);
         }
     }
     { // Packet file data start indicator
@@ -206,15 +292,66 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
         case SGC_GameOrig:
             if (hdr.len != sizeof(struct Game))
             {
-                if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
-                    LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
-                WARNLOG("Incompatible GameOrig chunk");
+                if (hdr.ver == 1)
+                {
+                    // Compressed: skip 4-byte comp_len + compressed data
+                    unsigned long skip_comp_len = 0;
+                    if (LbFileRead(fhandle, &skip_comp_len, sizeof(unsigned long)) == sizeof(unsigned long))
+                    {
+                        if (LbFileSeek(fhandle, skip_comp_len, Lb_FILE_SEEK_CURRENT) < 0)
+                            LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
+                    }
+                }
+                else
+                {
+                    if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
+                        LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
+                }
+                WARNLOG("Incompatible GameOrig chunk (expected %lu, got %lu)",
+                        (unsigned long)sizeof(struct Game), (unsigned long)hdr.len);
                 break;
             }
-            if (LbFileRead(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game)) {
+            if (hdr.ver == 1)
+            {
+                // Compressed format: read 4-byte compressed_size, then compressed data
+                unsigned long comp_len = 0;
+                if (LbFileRead(fhandle, &comp_len, sizeof(unsigned long)) != sizeof(unsigned long))
+                {
+                    WARNLOG("Could not read compressed size");
+                    break;
+                }
+                unsigned char *comp_data = (unsigned char *)malloc(comp_len);
+                if (!comp_data)
+                {
+                    WARNLOG("Failed to allocate decompression buffer (%lu bytes)", comp_len);
+                    break;
+                }
+                if (LbFileRead(fhandle, comp_data, comp_len) != (long)comp_len)
+                {
+                    WARNLOG("Could not read compressed GameOrig data");
+                    free(comp_data);
+                    break;
+                }
+                uLongf decomp_size = sizeof(struct Game);
+                int zret = uncompress((Bytef *)&game, &decomp_size, comp_data, comp_len);
+                free(comp_data);
+                if (zret != Z_OK || decomp_size != sizeof(struct Game))
+                {
+                    WARNLOG("Decompression failed: zlib=%d, got %lu expected %lu",
+                            zret, (unsigned long)decomp_size, (unsigned long)sizeof(struct Game));
+                    break;
+                }
+                SYNCLOG("Save decompressed: %lu -> %lu bytes", comp_len, (unsigned long)decomp_size);
                 chunks_done |= SGF_GameOrig;
-            } else {
-                WARNLOG("Could not read GameOrig chunk");
+            }
+            else
+            {
+                // Legacy uncompressed format (ver=0)
+                if (LbFileRead(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game)) {
+                    chunks_done |= SGF_GameOrig;
+                } else {
+                    WARNLOG("Could not read GameOrig chunk");
+                }
             }
             break;
         case SGC_PacketHeader:
