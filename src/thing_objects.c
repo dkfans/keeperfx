@@ -17,42 +17,44 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_objects.h"
 
+#include "thing_objects.h"
 #include "globals.h"
+
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_sound.h"
 #include "bflib_planar.h"
-
-#include "config_strings.h"
-#include "config_objects.h"
-#include "config_terrain.h"
+#include "bflib_sound.h"
 #include "config_creature.h"
 #include "config_effects.h"
 #include "config_magic.h"
-#include "thing_stats.h"
+#include "config_objects.h"
+#include "config_spritecolors.h"
+#include "config_strings.h"
+#include "config_terrain.h"
+#include "creature_states_pray.h"
+#include "engine_arrays.h"
+#include "game_legacy.h"
+#include "game_loop.h"
+#include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
+#include "keeperfx.hpp"
+#include "local_camera.h"
+#include "lua_cfg_funcs.h"
+#include "lua_triggers.h"
+#include "magic_powers.h"
+#include "map_columns.h"
+#include "map_data.h"
+#include "map_utils.h"
+#include "player_instances.h"
+#include "power_hand.h"
+#include "room_entrance.h"
+#include "sounds.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
-#include "power_hand.h"
-#include "player_instances.h"
-#include "map_data.h"
-#include "map_columns.h"
-#include "map_utils.h"
-#include "magic_powers.h"
-#include "room_entrance.h"
-#include "gui_topmsg.h"
-#include "gui_soundmsgs.h"
-#include "engine_arrays.h"
-#include "sounds.h"
-#include "creature_states_pray.h"
-#include "game_legacy.h"
-#include "local_camera.h"
-#include "keeperfx.hpp"
-#include "game_loop.h"
-#include "config_spritecolors.h"
-#include "lua_cfg_funcs.h"
+#include "thing_stats.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -270,6 +272,7 @@ void destroy_food(struct Thing *foodtng)
 
 void destroy_object(struct Thing *thing)
 {
+    lua_on_object_destroyed(thing);
     if (object_is_mature_food(thing) || object_is_growing_food(thing))
     {
         destroy_food(thing);
