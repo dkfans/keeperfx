@@ -8580,7 +8580,7 @@ Height = 1
 SolidMask = 29
 FloorTexture = 177
 Orientation = 0
-Cubes = [148, 0, 362, 359, 161, 0, 0, 0]
+Cubes = [192, 0, 362, 359, 161, 0, 0, 0]
 
 [column1073]
 Lintel = 4
@@ -8588,7 +8588,7 @@ Height = 1
 SolidMask = 25
 FloorTexture = 177
 Orientation = 0
-Cubes = [148, 0, 0, 362, 161, 0, 0, 0]
+Cubes = [192, 0, 0, 362, 161, 0, 0, 0]
 
 [column1074]
 Lintel = 3
@@ -8612,7 +8612,7 @@ Height = 1
 SolidMask = 29
 FloorTexture = 177
 Orientation = 0
-Cubes = [148, 0, 371, 368, 161, 0, 0, 0]
+Cubes = [192, 0, 371, 368, 161, 0, 0, 0]
 
 [column1077]
 Lintel = 4
@@ -8620,7 +8620,7 @@ Height = 1
 SolidMask = 25
 FloorTexture = 177
 Orientation = 0
-Cubes = [148, 0, 0, 371, 161, 0, 0, 0]
+Cubes = [192, 0, 0, 371, 161, 0, 0, 0]
 
 [column1078]
 Lintel = 0
@@ -8636,7 +8636,7 @@ Height = 1
 SolidMask = 29
 FloorTexture = 177
 Orientation = 0
-Cubes = [148, 0, 380, 377, 161, 0, 0, 0]
+Cubes = [192, 0, 380, 377, 161, 0, 0, 0]
 
 [column1080]
 Lintel = 4
@@ -8644,7 +8644,7 @@ Height = 1
 SolidMask = 25
 FloorTexture = 177
 Orientation = 0
-Cubes = [148, 0, 0, 380, 161, 0, 0, 0]
+Cubes = [192, 0, 0, 380, 161, 0, 0, 0]
 
 [column1081]
 Lintel = 0
@@ -9812,7 +9812,7 @@ Height = 1
 SolidMask = 29
 FloorTexture = 179
 Orientation = 0
-Cubes = [148, 0, 300, 297, 160, 0, 0, 0]
+Cubes = [500, 0, 300, 297, 160, 0, 0, 0]
 
 [column1227]
 Lintel = 5
@@ -9820,7 +9820,7 @@ Height = 1
 SolidMask = 29
 FloorTexture = 1
 Orientation = 0
-Cubes = [148, 0, 300, 297, 162, 0, 0, 0]
+Cubes = [498, 0, 300, 297, 162, 0, 0, 0]
 
 [column1228]
 Lintel = 4
@@ -9828,7 +9828,7 @@ Height = 1
 SolidMask = 25
 FloorTexture = 179
 Orientation = 0
-Cubes = [148, 0, 0, 300, 160, 0, 0, 0]
+Cubes = [500, 0, 0, 300, 160, 0, 0, 0]
 
 [column1229]
 Lintel = 4
@@ -9836,7 +9836,7 @@ Height = 1
 SolidMask = 25
 FloorTexture = 1
 Orientation = 0
-Cubes = [148, 0, 0, 300, 162, 0, 0, 0]
+Cubes = [498, 0, 0, 300, 162, 0, 0, 0]
 
 [column1230]
 Lintel = 0
@@ -9852,7 +9852,7 @@ Height = 1
 SolidMask = 29
 FloorTexture = 177
 Orientation = 0
-Cubes = [148, 0, 301, 298, 161, 0, 0, 0]
+Cubes = [192, 0, 301, 298, 161, 0, 0, 0]
 
 [column1232]
 Lintel = 4
@@ -9860,7 +9860,7 @@ Height = 1
 SolidMask = 25
 FloorTexture = 177
 Orientation = 0
-Cubes = [148, 0, 0, 301, 161, 0, 0, 0]
+Cubes = [192, 0, 0, 301, 161, 0, 0, 0]
 
 [column1233]
 Lintel = 0
@@ -9884,7 +9884,7 @@ Height = 1
 SolidMask = 29
 FloorTexture = 1
 Orientation = 0
-Cubes = [148, 0, 302, 299, 162, 0, 0, 0]
+Cubes = [496, 0, 302, 299, 162, 0, 0, 0]
 
 [column1236]
 Lintel = 5
@@ -9892,7 +9892,7 @@ Height = 1
 SolidMask = 29
 FloorTexture = 179
 Orientation = 0
-Cubes = [148, 0, 302, 299, 160, 0, 0, 0]
+Cubes = [494, 0, 302, 299, 160, 0, 0, 0]
 
 [column1237]
 Lintel = 4
@@ -9900,7 +9900,7 @@ Height = 1
 SolidMask = 25
 FloorTexture = 1
 Orientation = 0
-Cubes = [148, 0, 0, 302, 162, 0, 0, 0]
+Cubes = [496, 0, 0, 302, 162, 0, 0, 0]
 
 [column1238]
 Lintel = 4
@@ -9908,7 +9908,7 @@ Height = 1
 SolidMask = 25
 FloorTexture = 179
 Orientation = 0
-Cubes = [148, 0, 0, 302, 160, 0, 0, 0]
+Cubes = [494, 0, 0, 302, 160, 0, 0, 0]
 
 [column1239]
 Lintel = 0
@@ -10012,7 +10012,7 @@ Height = 5
 SolidMask = 29
 FloorTexture = 27
 Orientation = 0
-Cubes = [148, 0, 2, 2, 67, 0, 0, 0]
+Cubes = [192, 0, 2, 2, 67, 0, 0, 0]
 
 [column1252]
 Lintel = 0
@@ -10020,7 +10020,7 @@ Height = 5
 SolidMask = 25
 FloorTexture = 27
 Orientation = 0
-Cubes = [148, 0, 0, 2, 67, 0, 0, 0]
+Cubes = [192, 0, 0, 2, 67, 0, 0, 0]
 
 [column1253]
 Lintel = 0
@@ -10028,7 +10028,7 @@ Height = 5
 SolidMask = 17
 FloorTexture = 27
 Orientation = 0
-Cubes = [148, 0, 0, 0, 67, 0, 0, 0]
+Cubes = [192, 0, 0, 0, 67, 0, 0, 0]
 
 [column1254]
 Lintel = 0
@@ -10188,7 +10188,7 @@ Height = 5
 SolidMask = 29
 FloorTexture = 179
 Orientation = 0
-Cubes = [148,0,479,476,160,0,0,0]
+Cubes = [500,0,479,476,160,0,0,0]
 
 [column1274]
 Lintel = 0
@@ -10196,7 +10196,7 @@ Height = 5
 SolidMask = 29
 FloorTexture = 1
 Orientation = 0
-Cubes = [148,0,479,476,162,0,0,0]
+Cubes = [498,0,479,476,162,0,0,0]
 
 [column1275]
 Lintel = 0
@@ -10204,7 +10204,7 @@ Height = 5
 SolidMask = 25
 FloorTexture = 179
 Orientation = 0
-Cubes = [148,0,0,479,160,0,0,0]
+Cubes = [500,0,0,479,160,0,0,0]
 
 [column1276]
 Lintel = 0
@@ -10212,7 +10212,7 @@ Height = 5
 SolidMask = 25
 FloorTexture = 1
 Orientation = 0
-Cubes = [148,0,0,479,162,0,0,0]
+Cubes = [498,0,0,479,162,0,0,0]
 
 [column1277]
 Lintel = 0
@@ -10260,7 +10260,7 @@ Height = 5
 SolidMask = 29
 FloorTexture = 1
 Orientation = 0
-Cubes = [148,0,481,478,162,0,0,0]
+Cubes = [496,0,481,478,162,0,0,0]
 
 [column1283]
 Lintel = 0
@@ -10268,7 +10268,7 @@ Height = 5
 SolidMask = 29
 FloorTexture = 179
 Orientation = 0
-Cubes = [148,0,481,478,160,0,0,0]
+Cubes = [494,0,481,478,160,0,0,0]
 
 [column1284]
 Lintel = 0
@@ -10276,7 +10276,7 @@ Height = 5
 SolidMask = 25
 FloorTexture = 1
 Orientation = 0
-Cubes = [148,0,0,481,162,0,0,0]
+Cubes = [496,0,0,481,162,0,0,0]
 
 [column1285]
 Lintel = 0
@@ -10284,8 +10284,7 @@ Height = 5
 SolidMask = 25
 FloorTexture = 179
 Orientation = 0
-Cubes = [148,0,0,481,160,0,0,0]
-
+Cubes = [494,0,0,481,160,0,0,0]
 
 [column1286]
 Lintel = 0
@@ -10966,3 +10965,483 @@ SolidMask = 31
 FloorTexture = 27
 Orientation = 0
 Cubes = [42, 486, 487, 487, 485, 0, 0, 0]
+
+[column1371]
+Lintel = 0
+Height = 1
+SolidMask = 1
+FloorTexture = 27
+Orientation = 0
+Cubes = [494, 0, 0, 0, 0, 0, 0, 0]
+
+[column1372]
+Lintel = 0
+Height = 1
+SolidMask = 1
+FloorTexture = 27
+Orientation = 0
+Cubes = [495, 0, 0, 0, 0, 0, 0, 0]
+
+[column1373]
+Lintel = 0
+Height = 1
+SolidMask = 1
+FloorTexture = 27
+Orientation = 0
+Cubes = [496, 0, 0, 0, 0, 0, 0, 0]
+
+[column1374]
+Lintel = 0
+Height = 1
+SolidMask = 1
+FloorTexture = 27
+Orientation = 0
+Cubes = [497, 0, 0, 0, 0, 0, 0, 0]
+
+[column1375]
+Lintel = 0
+Height = 1
+SolidMask = 1
+FloorTexture = 27
+Orientation = 0
+Cubes = [498, 0, 0, 0, 0, 0, 0, 0]
+
+[column1376]
+Lintel = 0
+Height = 1
+SolidMask = 1
+FloorTexture = 27
+Orientation = 0
+Cubes = [499, 0, 0, 0, 0, 0, 0, 0]
+
+[column1377]
+Lintel = 0
+Height = 1
+SolidMask = 1
+FloorTexture = 27
+Orientation = 0
+Cubes = [500, 0, 0, 0, 0, 0, 0, 0]
+
+[column1378]
+Lintel = 0
+Height = 1
+SolidMask = 1
+FloorTexture = 27
+Orientation = 0
+Cubes = [501, 0, 0, 0, 0, 0, 0, 0]
+
+[column1379]
+Lintel = 3
+Height = 1
+SolidMask = 17
+FloorTexture = 179
+Orientation = 0
+Cubes = [494, 0, 0, 0, 160, 0, 0, 0]
+
+[column1380]
+Lintel = 3
+Height = 1
+SolidMask = 17
+FloorTexture = 179
+Orientation = 0
+Cubes = [496, 0, 0, 0, 160, 0, 0, 0]
+
+[column1381]
+Lintel = 3
+Height = 1
+SolidMask = 17
+FloorTexture = 179
+Orientation = 0
+Cubes = [498, 0, 0, 0, 160, 0, 0, 0]
+
+[column1382]
+Lintel = 3
+Height = 1
+SolidMask = 17
+FloorTexture = 179
+Orientation = 0
+Cubes = [500, 0, 0, 0, 160, 0, 0, 0]
+
+[column1383]
+Lintel = 3
+Height = 1
+SolidMask = 17
+FloorTexture = 186
+Orientation = 0
+Cubes = [494, 0, 0, 0, 162, 0, 0, 0]
+
+[column1384]
+Lintel = 3
+Height = 1
+SolidMask = 17
+FloorTexture = 186
+Orientation = 0
+Cubes = [496, 0, 0, 0, 162, 0, 0, 0]
+
+[column1385]
+Lintel = 3
+Height = 1
+SolidMask = 17
+FloorTexture = 186
+Orientation = 0
+Cubes = [498, 0, 0, 0, 162, 0, 0, 0]
+
+[column1386]
+Lintel = 3
+Height = 1
+SolidMask = 17
+FloorTexture = 186
+Orientation = 0
+Cubes = [500, 0, 0, 0, 162, 0, 0, 0]
+
+[column1387]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 179
+Orientation = 0
+Cubes = [494, 0, 361, 358, 160, 0, 0, 0]
+
+[column1388]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 179
+Orientation = 0
+Cubes = [494, 0, 0, 361, 160, 0, 0, 0]
+
+[column1389]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 179
+Orientation = 0
+Cubes = [500, 0, 361, 358, 160, 0, 0, 0]
+
+[column1390]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 179
+Orientation = 0
+Cubes = [500, 0, 0, 361, 160, 0, 0, 0]
+
+[column1391]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 1
+Orientation = 0
+Cubes = [498, 0, 363, 360, 162, 0, 0, 0]
+
+[column1392]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 1
+Orientation = 0
+Cubes = [498, 0, 0, 363, 162, 0, 0, 0]
+
+[column1393]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 1
+Orientation = 0
+Cubes = [496, 0, 363, 360, 162, 0, 0, 0]
+
+[column1394]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 1
+Orientation = 0
+Cubes = [496, 0, 0, 363, 162, 0, 0, 0]
+
+[column1395]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 179
+Orientation = 0
+Cubes = [494, 0, 370, 367, 160, 0, 0, 0]
+
+[column1396]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 179
+Orientation = 0
+Cubes = [494, 0, 0, 370, 160, 0, 0, 0]
+
+[column1397]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 179
+Orientation = 0
+Cubes = [500, 0, 370, 367, 160, 0, 0, 0]
+
+[column1398]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 179
+Orientation = 0
+Cubes = [500, 0, 0, 370, 160, 0, 0, 0]
+
+[column1399]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 1
+Orientation = 0
+Cubes = [498, 0, 372, 369, 162, 0, 0, 0]
+
+[column1400]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 1
+Orientation = 0
+Cubes = [498, 0, 0, 372, 162, 0, 0, 0]
+
+[column1401]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 1
+Orientation = 0
+Cubes = [496, 0, 372, 369, 162, 0, 0, 0]
+
+[column1402]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 1
+Orientation = 0
+Cubes = [496, 0, 0, 372, 162, 0, 0, 0]
+
+[column1403]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 179
+Orientation = 0
+Cubes = [494, 0, 379, 376, 160, 0, 0, 0]
+
+[column1404]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 179
+Orientation = 0
+Cubes = [494, 0, 0, 379, 160, 0, 0, 0]
+
+[column1405]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 179
+Orientation = 0
+Cubes = [500, 0, 379, 376, 160, 0, 0, 0]
+
+[column1406]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 179
+Orientation = 0
+Cubes = [500, 0, 0, 379, 160, 0, 0, 0]
+
+[column1407]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 1
+Orientation = 0
+Cubes = [498, 0, 381, 378, 162, 0, 0, 0]
+
+[column1408]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 1
+Orientation = 0
+Cubes = [498, 0, 0, 381, 162, 0, 0, 0]
+
+[column1409]
+Lintel = 5
+Height = 1
+SolidMask = 29
+FloorTexture = 1
+Orientation = 0
+Cubes = [496, 0, 381, 378, 162, 0, 0, 0]
+
+[column1410]
+Lintel = 4
+Height = 1
+SolidMask = 25
+FloorTexture = 1
+Orientation = 0
+Cubes = [496, 0, 0, 381, 162, 0, 0, 0]
+
+[column1411]
+Lintel = 0
+Height = 5
+SolidMask = 29
+FloorTexture = 27
+Orientation = 0
+Cubes = [494, 0, 2, 2, 5, 0, 0, 0]
+
+[column1412]
+Lintel = 0
+Height = 5
+SolidMask = 25
+FloorTexture = 27
+Orientation = 0
+Cubes = [494, 0, 0, 2, 5, 0, 0, 0]
+
+[column1413]
+Lintel = 0
+Height = 5
+SolidMask = 17
+FloorTexture = 27
+Orientation = 0
+Cubes = [494, 0, 0, 0, 5, 0, 0, 0]
+
+[column1414]
+Lintel = 0
+Height = 5
+SolidMask = 29
+FloorTexture = 27
+Orientation = 0
+Cubes = [496, 0, 2, 2, 5, 0, 0, 0]
+
+[column1415]
+Lintel = 0
+Height = 5
+SolidMask = 25
+FloorTexture = 27
+Orientation = 0
+Cubes = [496, 0, 0, 2, 5, 0, 0, 0]
+
+[column1416]
+Lintel = 0
+Height = 5
+SolidMask = 17
+FloorTexture = 27
+Orientation = 0
+Cubes = [496, 0, 0, 0, 5, 0, 0, 0]
+
+[column1417]
+Lintel = 0
+Height = 5
+SolidMask = 29
+FloorTexture = 27
+Orientation = 0
+Cubes = [498, 0, 2, 2, 5, 0, 0, 0]
+
+[column1418]
+Lintel = 0
+Height = 5
+SolidMask = 25
+FloorTexture = 27
+Orientation = 0
+Cubes = [498, 0, 0, 2, 5, 0, 0, 0]
+
+[column1419]
+Lintel = 0
+Height = 5
+SolidMask = 17
+FloorTexture = 27
+Orientation = 0
+Cubes = [498, 0, 0, 0, 5, 0, 0, 0]
+
+[column1420]
+Lintel = 0
+Height = 5
+SolidMask = 29
+FloorTexture = 27
+Orientation = 0
+Cubes = [500, 0, 2, 2, 5, 0, 0, 0]
+
+[column1421]
+Lintel = 0
+Height = 5
+SolidMask = 25
+FloorTexture = 27
+Orientation = 0
+Cubes = [500, 0, 0, 2, 5, 0, 0, 0]
+
+[column1422]
+Lintel = 0
+Height = 5
+SolidMask = 17
+FloorTexture = 27
+Orientation = 0
+Cubes = [500, 0, 0, 0, 5, 0, 0, 0]
+
+[column1423]
+Lintel = 0
+Height = 5
+SolidMask = 29
+FloorTexture = 27
+Orientation = 0
+Cubes = [500, 0, 73, 73, 160, 0, 0, 0]
+
+[column1424]
+Lintel = 0
+Height = 5
+SolidMask = 25
+FloorTexture = 27
+Orientation = 0
+Cubes = [500, 0, 0, 73, 160, 0, 0, 0]
+
+[column1425]
+Lintel = 0
+Height = 5
+SolidMask = 29
+FloorTexture = 27
+Orientation = 0
+Cubes = [494, 0, 73, 73, 160, 0, 0, 0]
+
+[column1426]
+Lintel = 0
+Height = 5
+SolidMask = 25
+FloorTexture = 27
+Orientation = 0
+Cubes = [494, 0, 0, 73, 160, 0, 0, 0]
+
+[column1427]
+Lintel = 0
+Height = 5
+SolidMask = 29
+FloorTexture = 27
+Orientation = 0
+Cubes = [496, 0, 73, 73, 162, 0, 0, 0]
+
+[column1428]
+Lintel = 0
+Height = 5
+SolidMask = 25
+FloorTexture = 27
+Orientation = 0
+Cubes = [496, 0, 0, 73, 162, 0, 0, 0]
+
+[column1429]
+Lintel = 0
+Height = 5
+SolidMask = 29
+FloorTexture = 27
+Orientation = 0
+Cubes = [498, 0, 73, 73, 162, 0, 0, 0]
+
+[column1430]
+Lintel = 0
+Height = 5
+SolidMask = 25
+FloorTexture = 27
+Orientation = 0
+Cubes = [498, 0, 0, 73, 162, 0, 0, 0]
