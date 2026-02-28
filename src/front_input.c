@@ -2139,7 +2139,7 @@ void get_isometric_view_nonaction_inputs(void)
     TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
 
     get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, no_mods);
-    // Only pan the camera as often as normal despite frameskip
+    // Only update the camera as often as normal despite frameskip
     TbBool moveTheCamera = true;
     if (game.frame_skip > 0)
     {
@@ -2245,68 +2245,80 @@ void get_front_view_nonaction_inputs(void)
       pckt->additional_packet_values |= PCAdV_SpeedupPressed;
 
     get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,no_mods);
-
-    if ( rotate_pressed )
+    // Only update the camera as often as normal despite frameskip
+    TbBool moveTheCamera = true;
+    if (game.frame_skip > 0)
     {
-        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-        {
-          if ( LbTimerClock() > last_rotate_left_time+250 )
-          {
-            set_packet_control(pckt, PCtr_ViewRotateCW);
-            last_rotate_left_time = LbTimerClock();
-          }
-        }
-        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-        {
-          if ( LbTimerClock() > last_rotate_right_time+250 )
-          {
-            set_packet_control(pckt, PCtr_ViewRotateCCW);
-            last_rotate_right_time = LbTimerClock();
-          }
-        }
-        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_ViewZoomIn);
-        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_ViewZoomOut);
-    } else
-    {
-        if ( is_game_key_pressed(Gkey_RotateCW, NULL, false) )
-        {
-          if ( LbTimerClock() > last_rotate_left_time+250 )
-          {
-            set_packet_control(pckt, PCtr_ViewRotateCW);
-            last_rotate_left_time = LbTimerClock();
-          }
-        }
-        if ( is_game_key_pressed(Gkey_RotateCCW, NULL, false) )
-        {
-          if ( LbTimerClock() > last_rotate_right_time+250 )
-          {
-            set_packet_control(pckt, PCtr_ViewRotateCCW);
-            last_rotate_right_time = LbTimerClock();
-          }
-        }
-        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-        {
-            movement_accum_x = -1.0f;
-        }
-        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-        {
-             movement_accum_x = 1.0f;
-        }
-        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-        {
-             movement_accum_y = -1.0f;
-        }
-        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-        {
-             movement_accum_y = 1.0f;
-        }
+        moveTheCamera = (global_frameskipTurn == 0);
+        global_frameskipTurn++;
+        if (global_frameskipTurn > game.frame_skip)
+            global_frameskipTurn = 0;
     }
-    if ( is_game_key_pressed(Gkey_ZoomIn, NULL, false) )
-        set_packet_control(pckt, PCtr_ViewZoomIn);
-    if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
-        set_packet_control(pckt, PCtr_ViewZoomOut);
+    if (moveTheCamera)
+    {
+        if (rotate_pressed)
+        {
+            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            {
+                if (LbTimerClock() > last_rotate_left_time + 250)
+                {
+                    set_packet_control(pckt, PCtr_ViewRotateCW);
+                    last_rotate_left_time = LbTimerClock();
+                }
+            }
+            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            {
+                if (LbTimerClock() > last_rotate_right_time + 250)
+                {
+                    set_packet_control(pckt, PCtr_ViewRotateCCW);
+                    last_rotate_right_time = LbTimerClock();
+                }
+            }
+            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+                set_packet_control(pckt, PCtr_ViewZoomIn);
+            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+                set_packet_control(pckt, PCtr_ViewZoomOut);
+        }
+        else
+        {
+            if (is_game_key_pressed(Gkey_RotateCW, NULL, false))
+            {
+                if (LbTimerClock() > last_rotate_left_time + 250)
+                {
+                    set_packet_control(pckt, PCtr_ViewRotateCW);
+                    last_rotate_left_time = LbTimerClock();
+                }
+            }
+            if (is_game_key_pressed(Gkey_RotateCCW, NULL, false))
+            {
+                if (LbTimerClock() > last_rotate_right_time + 250)
+                {
+                    set_packet_control(pckt, PCtr_ViewRotateCCW);
+                    last_rotate_right_time = LbTimerClock();
+                }
+            }
+            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            {
+                movement_accum_x = -1.0f;
+            }
+            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            {
+                movement_accum_x = 1.0f;
+            }
+            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            {
+                movement_accum_y = -1.0f;
+            }
+            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            {
+                movement_accum_y = 1.0f;
+            }
+        }
+        if (is_game_key_pressed(Gkey_ZoomIn, NULL, false))
+            set_packet_control(pckt, PCtr_ViewZoomIn);
+        if (is_game_key_pressed(Gkey_ZoomOut, NULL, false))
+            set_packet_control(pckt, PCtr_ViewZoomOut);
+    }
 }
 
 /**
