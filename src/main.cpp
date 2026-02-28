@@ -3986,6 +3986,7 @@ void game_loop(void)
       }
       LbScreenClear(0);
       LbScreenSwap();
+      game.frame_skip = 0;
       keeper_gameplay_loop();
       set_pointer_graphic_none();
       LbScreenClear(0);

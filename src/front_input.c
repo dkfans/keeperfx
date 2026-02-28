@@ -2072,36 +2072,9 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     // Only pan the camera as often as normal despite frameskip
     if (game.frame_skip > 0)
     {
-        int frameskipMax = 1;
-        if (game.frame_skip < 4)
-        {
-            frameskipMax = game.frame_skip;
-        }
-        else if (game.frame_skip == 4)
-        {
-            frameskipMax = 3;
-        }
-        else if (game.frame_skip > 20 && game.frame_skip < 50)
-        {
-            frameskipMax = (game.frame_skip) / ( log(game.frame_skip) / log(17) );
-        }
-        else if (game.frame_skip < 200)
-        {
-            frameskipMax = game.frame_skip / ( log(game.frame_skip) / log(10) );
-        }
-        else if (game.frame_skip == 512) // max frameskip
-        {
-            frameskipMax = 60;
-        }
-        else // more than 200 but less than 512
-        {
-            frameskipMax = game.frame_skip / ( log(game.frame_skip) / log(4) );
-        }
         TbBool moveTheCamera = (global_frameskipTurn == 0);
-        //Checking for evenly distributed camera movement for the various frameskip amounts
-        //JUSTMSG("moveTheCamera: %d", moveTheCamera);
         global_frameskipTurn++;
-        if (global_frameskipTurn > frameskipMax) global_frameskipTurn = 0;
+        if (global_frameskipTurn > game.frame_skip) global_frameskipTurn = 0;
         if (!moveTheCamera) return;
     }
     // Camera Panning : mouse at window edge scrolling feature

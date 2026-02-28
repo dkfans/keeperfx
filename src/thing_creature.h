@@ -42,10 +42,6 @@ extern "C" {
 #define SWIPE_SPRITES_Y 2
 #define SWIPE_SPRITE_FRAMES 5
 
-/* Group leader index mask. Group leader is stored in every member and starts the group chain. */
-#define TngGroup_LeaderIndex 0x0FFF
-/* Group members count mask. Stored only in top of members chain (in group leader). */
-#define TngGroup_MemberCount 0xF000
 /******************************************************************************/
 #pragma pack(1)
 
