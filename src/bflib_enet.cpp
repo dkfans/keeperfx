@@ -24,7 +24,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#include <enet/enet.h>
+#include <enet6/enet.h>
 #include <cstddef>
 #include <climits>
 
@@ -95,14 +95,15 @@ namespace
      */
     TbError bf_enet_host(const char *session, void *options)
     {
-        ENetAddress address = {.host = 0,
-                            .port = DEFAULT_PORT };
+        ENetAddress address;
+        enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV6);
+        address.port = DEFAULT_PORT;
         if (!*session)
             return Lb_FAIL;
         int port = atoi(session);
         if (port > 0)
             address.port = port;
-        host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
+        host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, 4, NUM_CHANNELS, 0, 0);
         if (!host) {
             return Lb_FAIL;
         }
@@ -136,42 +137,77 @@ namespace
         return 1;
     }
 
+    enet_uint16 parse_session_address(const char *session, char *host_out, size_t host_size)
+    {
+        char *E;
+        enet_uint16 port = DEFAULT_PORT;
+        if (session[0] == '[') {
+            const char *bracket_end = strchr(session, ']');
+            if (!bracket_end) {
+                return 0;
+            }
+            size_t addr_len = bracket_end - session - 1;
+            if (addr_len >= host_size) {
+                return 0;
+            }
+            strncpy(host_out, session + 1, addr_len);
+            host_out[addr_len] = '\0';
+            if (bracket_end[1] == ':') {
+                port = strtoul(bracket_end + 2, &E, 10);
+                if (port == 0) {
+                    return 0;
+                }
+            }
+        } else {
+            const char *first_colon = strchr(session, ':');
+            const char *last_colon = strrchr(session, ':');
+            if (first_colon && first_colon != last_colon) {
+                strncpy(host_out, session, host_size - 1);
+                host_out[host_size - 1] = '\0';
+            } else if (first_colon) {
+                size_t addr_len = first_colon - session;
+                if (addr_len >= host_size) {
+                    return 0;
+                }
+                strncpy(host_out, session, addr_len);
+                host_out[addr_len] = '\0';
+                port = strtoul(first_colon + 1, &E, 10);
+                if (port == 0) {
+                    return 0;
+                }
+            } else {
+                strncpy(host_out, session, host_size - 1);
+                host_out[host_size - 1] = '\0';
+            }
+        }
+        return port;
+    }
+
     TbError bf_enet_join(const char *session, void *options)
     {
-        char buf[64] = {0};
-        const char *P;
-        char *E;
-        ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
-        host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
+        char buf[128] = {0};
+        ENetAddress connect_address;
+        enet_uint16 port = parse_session_address(session, buf, sizeof(buf));
+        if (port == 0) {
+            return Lb_FAIL;
+        }
+        if (buf[0] == '\0') {
+            return Lb_FAIL;
+        }
+        if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_ANY, buf) < 0) {
+            return Lb_FAIL;
+        }
+        connect_address.port = port;
+        host = enet_host_create(connect_address.type, NULL, 4, NUM_CHANNELS, 0, 0);
         if (!host)
         {
             return Lb_FAIL;
         }
         enet_host_compress_with_range_coder(host);
-        P = strchr(session,':');
-        if (P)
-        {
-            strncpy(buf, session, P-session);
-            address.port = strtoul(P+1, &E, 10);
-            if (address.port == 0)
-            {
-                host_destroy();
-                return Lb_FAIL;
-            }
-        }
-        else
-        {
-            strncpy(buf, session, sizeof(buf) - 1);
-            address.port = DEFAULT_PORT;
-        }
-        if (enet_address_set_host(&address, buf) < 0)
-        {
-            host_destroy();
-            return Lb_FAIL;
-        }
-        client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
+        client_peer = enet_host_connect(host, &connect_address, NUM_CHANNELS, 0);
         if (!client_peer)
         {
+            host_destroy();
             return Lb_FAIL;
         }
         if (wait_for_connect(TIMEOUT_ENET_CONNECT))
@@ -210,6 +246,7 @@ namespace
                     }
                     break;
                 case ENET_EVENT_TYPE_DISCONNECT:
+                case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
                     user_id = NetUserId(reinterpret_cast<ptrdiff_t>(ev.peer->data));
                     g_drop_callback(user_id, NETDROP_ERROR);
                     break;

@@ -179,6 +179,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
         if (thing->class_id == TCls_Creature)
         {
             struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            SYNCDBG(7,"Possessing creature '%s', eye_effect=%d", crconf->name, crconf->eye_effect);
             setup_eye_lens(crconf->eye_effect);
         }
     }

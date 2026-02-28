@@ -233,5 +233,6 @@ void check_map_for_gold(void)
         }
     }
     SYNCDBG(8,"Found %d possible digging locations",gold_next_idx);
+    game.turn_last_checked_for_gold = game.play_gameturn;
 }
 /******************************************************************************/

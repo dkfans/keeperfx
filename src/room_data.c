@@ -2938,7 +2938,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
         {
             struct Thing *gldtng;
             gldtng = find_gold_hoard_at(stl_x, stl_y);
-            if (!thing_is_invalid(gldtng))
+            while (!thing_is_invalid(gldtng)) //Normally there is just a single hoard at a slab, but mapmakers may place more.
             {
                 room->capacity_used_for_storage -= gldtng->valuable.gold_stored;
                 dungeon = get_dungeon(plyr_idx);
@@ -2947,6 +2947,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 }
                 drop_gold_pile(gldtng->valuable.gold_stored, &gldtng->mappos);
                 delete_thing_structure(gldtng, 0);
+                gldtng = find_gold_hoard_at(stl_x, stl_y);
             }
         }
     }
@@ -3294,7 +3295,11 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     SlabCodedCoords i = get_slab_number(slb_x, slb_y);
     delete_room_slabbed_objects(i);
-    if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE)) //todo Make configurable
+    if (rkind == RoK_BRIDGE) //todo Make configurable
+    {
+        place_animating_slab_type_on_map(roomst->assigned_slab, subtile_has_lava_on_top(stl_x, stl_y), stl_x, stl_y, owner);
+    }
+    else if (rkind == RoK_GUARDPOST)
     {
         place_animating_slab_type_on_map(roomst->assigned_slab, 0, stl_x, stl_y, owner);
     } else

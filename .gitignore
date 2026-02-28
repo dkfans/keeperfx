@@ -27,6 +27,7 @@ docs/latex
 res/keeperfx_icon.ico
 .header_checksum
 /deps/enet
+/deps/enet6
 /deps/zlib
 /deps/spng
 /deps/astronomy
@@ -39,3 +40,6 @@ res/keeperfx_icon.ico
 /deps/*.tar.gz
 /cppcheck.cache
 /src/ver_defs.h
+keeperfx.log
+crash_log.txt
+.local/

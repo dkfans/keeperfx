@@ -391,7 +391,7 @@ char room_tag;
 char spell_tag;
 char trap_tag;
 char creature_tag;
-char input_string[8][16];
+char input_string[8][SAVE_TEXTNAME_LEN + 1];
 char gui_error_text[256];
 long net_service_scroll_offset;
 long net_number_of_services;
@@ -1948,6 +1948,58 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
     }
 }
 
+static void autofill_savegame_name(struct GuiButton *gbtn)
+{
+    int max_len = gbtn->maxval;
+    if ((max_len <= 0) || (max_len > SAVE_TEXTNAME_LEN))
+        max_len = SAVE_TEXTNAME_LEN;
+        
+    const char* lv_name = NULL;
+    LevelNumber lvnum = get_loaded_level_number();
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
+    if (lvinfo != NULL)
+    {
+      if (lvinfo->name_stridx > 0)
+          lv_name = get_string(lvinfo->name_stridx);
+      else
+          lv_name = lvinfo->name;
+    } else
+      lv_name = level_name;
+    
+
+    if (gbtn->content.str != NULL)
+        memset(gbtn->content.str, 0, max_len);
+
+
+    struct TbDate curr_date;
+    struct TbTime curr_time;
+    char datetime_buf[12];
+    if (LbDateTime(&curr_date, &curr_time) >= Lb_OK)
+    {
+        unsigned int year2 = (unsigned int)(curr_date.Year % 100);
+        snprintf(datetime_buf, sizeof(datetime_buf), "%02u%02u%02u-%02u%02u",
+            year2, (unsigned int)curr_date.Month, (unsigned int)curr_date.Day,
+            (unsigned int)curr_time.Hour, (unsigned int)curr_time.Minute);
+    }
+
+    size_t lv_name_len = 0;
+    if ((lv_name != NULL) && (lv_name[0] != '\0'))
+        lv_name_len = strnlen(lv_name, (size_t)max_len - strlen(datetime_buf) - 1);
+
+    snprintf(gbtn->content.str, max_len, "%.*s-%s", (int)lv_name_len, lv_name, datetime_buf);
+    
+    gbtn->content.str[max_len - 1] = '\0';
+
+    gbtn->button_state_left_pressed = 0;
+    (gbtn->click_event)(gbtn);
+    if ((gbtn->flags & LbBtnF_Clickable) != 0)
+    {
+        struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
+        gmnu->visual_state = 3;
+        remove_from_menu_stack(gmnu->ident);
+    }
+}
+
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
   SYNCDBG(17,"Starting");
@@ -1983,6 +2035,11 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
         return;
       break;
   case LbBtnT_EditBox:
+      if ((last_used_input_device == ID_Controller)  && (gbtn->content.str != NULL) && menu_is_active(GMnu_SAVE))
+      {
+            autofill_savegame_name(gbtn);
+            break;
+      }
       input_button = gbtn;
       setup_input_field(input_button, get_string(GUIStr_MnuUnused));
       break;

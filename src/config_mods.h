@@ -13,6 +13,7 @@
  *
  *     hzzdev - 18 Sep 2025, Add sprite loading for mods.
  *     hzzdev - 30 Oct 2025, Add multi-lang string loading for mods.
+ *     hzzdev - 23 Feb 2026, Add texture loading for mods.
  *
  */
 /******************************************************************************/
@@ -53,15 +54,13 @@ extern "C" {
 struct ModExistState{
     int mod_dir;
 
-    // load_config
-    int fx_data;
-    int cmpg_config;
-    int cmpg_lvls;
+    int fx_data;	// FGrp_FxData: string, config, sprite
+    int std_data;	// FGrp_StdData: texture
+    int cmpg_config;	// FGrp_CmpgConfig: config, sprite, texture
+    int cmpg_lvls;	// FGrp_CmpgLvls: creaturemodel, config, sprite, texture
 
-    // load_creaturemodel_config
-    int crtr_data;
-    int cmpg_crtrs;
-    // int cmpg_lvls; // dup
+    int crtr_data;	// FGrp_CrtrData: creaturemodel
+    int cmpg_crtrs;	// FGrp_CmpgCrtrs: creaturemodel
 };
 
 struct ModConfigItem {

@@ -30,6 +30,11 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <time.h>
+#if !defined(_WIN32)
+#include <dirent.h>
+#include <strings.h>
+#include <unistd.h>
+#endif
 
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
@@ -37,13 +42,91 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-//Internal declarations
-void convert_find_info(struct TbFileFind *ffind);
-/******************************************************************************/
+
+#if !defined(_WIN32)
+/** @internal
+ *  Finds a file with case-insensitive matching on Unix-like systems.
+ *  Searches the directory for a file matching the given name case-insensitively.
+ *  @param fname The filename to search for.
+ *  @param actual_fname Buffer to store the actual filename found.
+ *  @param buflen Size of the actual_fname buffer.
+ *  @return Returns 1 if found, 0 otherwise.
+ */
+static int find_case_insensitive_file(const char *fname, char *actual_fname, size_t buflen)
+{
+    // Split fname into directory and filename
+    const char *last_slash = strrchr(fname, '/');
+    const char *filename;
+    char dir_path[PATH_MAX];
+    size_t dir_len = 0;
+    
+    if (last_slash != NULL) {
+        dir_len = last_slash - fname;
+        if (dir_len >= sizeof(dir_path)) {
+            return 0;
+        }
+        if (dir_len > 0) {
+            memcpy(dir_path, fname, dir_len);
+            dir_path[dir_len] = '\0';
+        } else {
+            strcpy(dir_path, "/");
+        }
+        filename = last_slash + 1;
+    } else {
+        strcpy(dir_path, ".");
+        filename = fname;
+    }
+    
+    DIR *dir = opendir(dir_path);
+    if (dir == NULL) {
+        return 0;
+    }
+    
+    struct dirent *entry;
+    int found = 0;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcasecmp(entry->d_name, filename) == 0) {
+            // Found a case-insensitive match
+            if (last_slash != NULL) {
+                size_t needed = dir_len + 1 + strlen(entry->d_name) + 1;
+                if (needed > buflen) {
+                    closedir(dir);
+                    return 0;
+                }
+                if (dir_len > 0) {
+                    snprintf(actual_fname, buflen, "%s/%s", dir_path, entry->d_name);
+                } else {
+                    snprintf(actual_fname, buflen, "/%s", entry->d_name);
+                }
+            } else {
+                if (strlen(entry->d_name) + 1 > buflen) {
+                    closedir(dir);
+                    return 0;
+                }
+                strcpy(actual_fname, entry->d_name);
+            }
+            found = 1;
+            break;
+        }
+    }
+    
+    closedir(dir);
+    return found;
+}
+#endif
 
 short LbFileExists(const char *fname)
 {
-  return access(fname,F_OK) == 0;
+  if (access(fname, F_OK) == 0) {
+    return 1;
+  }
+#if !defined(_WIN32)
+  char actual_fname[PATH_MAX];
+  if (find_case_insensitive_file(fname, actual_fname, sizeof(actual_fname))) {
+    return 1;
+  }
+#endif
+  return 0;
 }
 
 int LbFilePosition(TbFileHandle handle)
@@ -61,12 +144,10 @@ int create_directory_for_file(const char * fname)
   while (separator != NULL) {
     memcpy(tmp, fname, separator - fname);
     tmp[separator - fname] = 0;
-#if defined _WIN32
+#if defined(_WIN32)
     if (mkdir(tmp) != 0) {
-#elif defined (__linux__)
-    if (mkdir(tmp, 0755) != 0) {
 #else
-#error Unsupported platform
+    if (mkdir(tmp, 0755) != 0) {
 #endif
       if (errno != EEXIST) {
         free(tmp);
@@ -82,8 +163,23 @@ int create_directory_for_file(const char * fname)
 TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 {
   unsigned char mode = accmode;
+  const char *open_fname = fname;
+#if !defined(_WIN32)
+  char actual_fname[PATH_MAX];
+  int access_rc = access(fname, F_OK);
+  // Try to find the file case-insensitively on Unix-like systems
+  if (access_rc != 0 && find_case_insensitive_file(fname, actual_fname, sizeof(actual_fname))) {
+    open_fname = actual_fname;
+  }
+#endif
 
-  if ( !LbFileExists(fname) )
+#if !defined(_WIN32)
+  int file_exists = (access_rc == 0) || (open_fname != fname);
+#else
+  int file_exists = LbFileExists(fname);
+#endif
+
+  if ( !file_exists )
   {
 #ifdef __DEBUG
     LbSyncLog("LbFileOpen: file doesn't exist\n");
@@ -121,14 +217,14 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDWR mode\n");
 #endif
-        rc = fopen(fname, "r+b");
+        rc = fopen(open_fname, "r+b");
     };break;
   case Lb_FILE_MODE_READ_ONLY:
     {
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDONLY mode\n");
 #endif
-        rc = fopen(fname, "rb");
+        rc = fopen(open_fname, "rb");
     };break;
   }
 #ifdef __DEBUG
@@ -230,7 +326,15 @@ long LbFileLengthHandle(TbFileHandle handle)
 //Returns disk size of file
 long LbFileLength(const char *fname)
 {
-  TbFileHandle handle = fopen(fname, "rb");
+  const char *open_fname = fname;
+#if !defined(_WIN32)
+  char actual_fname[PATH_MAX];
+  // Try to find the file case-insensitively on Unix-like systems
+  if (access(fname, F_OK) != 0 && find_case_insensitive_file(fname, actual_fname, sizeof(actual_fname))) {
+    open_fname = actual_fname;
+  }
+#endif
+  TbFileHandle handle = fopen(open_fname, "rb");
   long result = -1;
   if (handle)
   {
@@ -244,8 +348,16 @@ long LbFileLength(const char *fname)
 //Removes a disk file
 int LbFileDelete(const char *filename)
 {
+  const char *del_fname = filename;
+#if !defined(_WIN32)
+  char actual_fname[PATH_MAX];
+  // Try to find the file case-insensitively on Unix-like systems
+  if (access(filename, F_OK) != 0 && find_case_insensitive_file(filename, actual_fname, sizeof(actual_fname))) {
+    del_fname = actual_fname;
+  }
+#endif
   int result;
-  if ( remove(filename) )
+  if ( remove(del_fname) )
     result = -1;
   else
     result = 1;

@@ -28,6 +28,7 @@
 #include "lua_api.h"
 #include "lua_base.h"
 #include "lua_params.h"
+#include "lua_api_lens.h"
 
 
 #include "post_inc.h"
@@ -2249,6 +2250,7 @@ void Player_register(lua_State *L);
 void Thing_register(lua_State *L);
 void Slab_register(lua_State *L);
 void room_register(lua_State *L);
+void Lens_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
@@ -2258,4 +2260,5 @@ void reg_host_functions(lua_State *L)
     Slab_register(L);
     room_register(L);
     DamageSourceKind_register(L);
+    Lens_register(L);
 }

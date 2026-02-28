@@ -370,6 +370,7 @@ const struct NamedCommand variable_desc[] = {
     {"SCORE",                       SVar_SCORE},
     {"PLAYER_SCORE",                SVar_PLAYER_SCORE},
     {"MANAGE_SCORE",                SVar_MANAGE_SCORE},
+    {"CONTROLLED_THING",            SVar_CONTROLLED_THING},
     {NULL,                          0},
 };
 
@@ -5354,9 +5355,9 @@ static void set_creature_max_level_process(struct ScriptContext* context)
     short crtr_id = context->value->shorts[0];
     short crtr_lvl = context->value->shorts[1];
     PlayerNumber plyr_idx = context->player_idx;
-    if (plyr_idx != game.neutral_player_num)
+    dungeon = get_dungeon(plyr_idx);
+    if (!dungeon_invalid(dungeon))
     {
-        dungeon = get_dungeon(plyr_idx);
         if (!is_creature_model_wildcard(crtr_id))
         {
             if (crtr_id < game.conf.crtr_conf.model_count) {

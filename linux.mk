@@ -26,6 +26,7 @@ src/bflib_basics.c \
 src/bflib_coroutine.c \
 src/bflib_client_tcp.cpp \
 src/bflib_cpu.c \
+src/bflib_crash.c \
 src/bflib_datetm.cpp \
 src/bflib_dernc.c \
 src/bflib_enet.cpp \
@@ -34,6 +35,7 @@ src/bflib_fileio.c \
 src/bflib_filelst.c \
 src/bflib_fmvids.cpp \
 src/bflib_guibtns.c \
+src/bflib_input_joyst.cpp \
 src/bflib_inputctrl.cpp \
 src/bflib_keybrd.c \
 src/bflib_main.cpp \
@@ -168,11 +170,18 @@ src/KeeperSpeechImp.c \
 src/kjm_input.c \
 src/lens_api.c \
 src/config_effects.c \
-src/lens_flyeye.cpp \
-src/lens_mist.cpp \
+src/kfx/lense/DisplacementEffect.cpp \
+src/kfx/lense/FlyeyeEffect.cpp \
+src/kfx/lense/LensEffect.cpp \
+src/kfx/lense/LensManager.cpp \
+src/kfx/lense/LuaLensEffect.cpp \
+src/kfx/lense/MistEffect.cpp \
+src/kfx/lense/OverlayEffect.cpp \
+src/kfx/lense/PaletteEffect.cpp \
 src/light_data.c \
 src/linux.cpp \
 src/lua_api.c \
+src/lua_api_lens.c \
 src/lua_api_player.c \
 src/lua_api_room.c \
 src/lua_api_things.c \
@@ -272,6 +281,7 @@ KFX_INCLUDES = \
 	-Ideps/centijson/include \
 	-Ideps/centitoml \
 	-Ideps/astronomy/include \
+	-Ideps/enet6/include \
 	$(shell pkg-config --cflags-only-I luajit)
 
 KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
@@ -279,14 +289,15 @@ KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -
 
 KFX_LDFLAGS += \
 	-g \
+	-rdynamic \
 	-Wall -Wextra -Werror \
 	-Ldeps/astronomy -lastronomy \
 	-Ldeps/centijson -ljson \
+	-Ldeps/enet6 -lenet6 \
 	$(shell pkg-config --libs-only-l sdl2) \
 	$(shell pkg-config --libs-only-l SDL2_mixer) \
 	$(shell pkg-config --libs-only-l SDL2_net) \
 	$(shell pkg-config --libs-only-l SDL2_image) \
-	$(shell pkg-config --libs-only-l libenet) \
 	$(shell pkg-config --libs-only-l libavformat) \
 	$(shell pkg-config --libs-only-l libavcodec) \
 	$(shell pkg-config --libs-only-l libswresample) \
@@ -297,7 +308,8 @@ KFX_LDFLAGS += \
 	$(shell pkg-config --libs-only-l minizip) \
 	$(shell pkg-config --libs-only-l zlib) \
 	-lminiupnpc \
-	-lnatpmp
+	-lnatpmp \
+	-ldl
 
 TOML_SOURCES = \
 	deps/centitoml/toml_api.c
@@ -319,7 +331,7 @@ endif
 all: bin/keeperfx
 
 clean:
-	rm -rf obj bin src/ver_defs.h deps/astronomy deps/centijson
+	rm -rf obj bin src/ver_defs.h deps/astronomy deps/centijson deps/enet6
 
 .PHONY: all clean
 
@@ -327,19 +339,22 @@ bin/keeperfx: $(KFX_OBJECTS) $(TOML_OBJECTS) | bin
 	$(CXX) -o $@ $(KFX_OBJECTS) $(TOML_OBJECTS) $(KFX_LDFLAGS)
 
 $(KFX_C_OBJECTS): obj/%.o: src/%.c src/ver_defs.h | obj
+	$(MKDIR) $(dir $@)
 	$(CC) $(KFX_CFLAGS) -c $< -o $@
 
 $(KFX_CXX_OBJECTS): obj/%.o: src/%.cpp src/ver_defs.h | obj
+	$(MKDIR) $(dir $@)
 	$(CXX) $(KFX_CXXFLAGS) -c $< -o $@
 
 $(TOML_OBJECTS): obj/centitoml/%.o: deps/centitoml/%.c | obj/centitoml
 	$(CC) $(TOML_CFLAGS) -c $< -o $@
 
-bin obj deps/astronomy deps/centijson obj/centitoml:
+bin obj deps/astronomy deps/centijson deps/enet6 obj/centitoml:
 	$(MKDIR) $@
 
 src/actionpt.c: deps/centijson/include/json.h
 src/api.c: deps/centijson/include/json.h
+src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
@@ -355,6 +370,12 @@ deps/centijson-lin64.tar.gz:
 
 deps/centijson/include/json.h: deps/centijson-lin64.tar.gz | deps/centijson
 	tar xzmf $< -C deps/centijson
+
+deps/enet6-lin64.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260213/enet6-lin64.tar.gz"
+
+deps/enet6/include/enet6/enet.h: deps/enet6-lin64.tar.gz | deps/enet6
+	tar xzmf $< -C deps/enet6
 
 src/ver_defs.h: version.mk
 	$(ECHO) "#define VER_MAJOR   $(VER_MAJOR)" > $@.swp

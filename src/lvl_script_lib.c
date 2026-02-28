@@ -12,20 +12,22 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+
+#include "globals.h"
+#include "config_creature.h"
+#include "creature_states_pray.h"
+#include "dungeon_data.h"
+#include "gui_msgs.h"
+#include "lvl_filesdk1.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_commands.h"
-
-#include "globals.h"
-#include "thing_factory.h"
-#include "thing_physics.h"
-#include "thing_navigate.h"
-#include "dungeon_data.h"
-#include "lvl_filesdk1.h"
-#include "creature_states_pray.h"
 #include "magic_powers.h"
-#include "config_creature.h"
-#include "gui_msgs.h"
+#include "room_util.h"
+#include "thing_factory.h"
+#include "thing_navigate.h"
+#include "thing_physics.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -117,6 +119,16 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
         case ObjMdl_GoldBag:
             thing->valuable.gold_stored = arg;
             break;
+        default:
+            struct ObjectConfigStats* objst = get_object_model_stats(tngmodel);
+            if (objst->genre == OCtg_GoldHoard)
+            {
+                if (arg > 0)
+                {
+                    thing->valuable.gold_stored = arg;
+                }
+                check_and_asimilate_thing_by_room(thing);
+            }
     }
     return thing;
 }
