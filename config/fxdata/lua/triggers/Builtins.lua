@@ -101,7 +101,7 @@ end
 
 --- Called when a slab changed
 ---@param slab Slab
----@param old_slab_kind string
+---@param old_slab_kind slab_type
 function OnSlabKindChange(slab, old_slab_kind)
     local eventData = {}
     eventData.Slab = slab
