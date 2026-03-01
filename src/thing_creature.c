@@ -7721,7 +7721,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing
         {
             thing_play_sample(thing, spconf->caster_affect_sound + SOUND_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
-        apply_spell_effect_to_thing(thing, spkind, spell_level, plyr_idx, INVALID_THING, DSK_ScriptSpell);
+        apply_spell_effect_to_thing(thing, spkind, spell_level, plyr_idx, INVALID_THING, DSK_Power);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
             struct CreatureControl *cctrl;

@@ -1091,7 +1091,7 @@ static struct Thing* resolve_damage_source_thing(struct Thing* scrtng)
     return source_tng;
 }
 
-DamageSourceKind check_dmg_src_kind(struct Thing* scrtng, DamageSourceKind source_kind)
+static DamageSourceKind check_dmg_src_kind(struct Thing* scrtng, DamageSourceKind source_kind)
 {
     if (source_kind != DSK_NONE)
         return source_kind;
@@ -1121,18 +1121,13 @@ const char *damage_source_kind_name(DamageSourceKind kind)
     {
     case DSK_Lava: return "LAVA";
     case DSK_PowerSlap: return "POWER_SLAP";
-    case DSK_PowerDisease: return "POWER_DISEASE";
-    case DSK_PowerLightning: return "POWER_LIGHTNING";
-    case DSK_PhysicalForce: return "PHYSICAL_FORCE";
-    case DSK_CommandFreeze: return "COMMAND_FREEZE";
-    case DSK_CommandSlow: return "COMMAND_SLOW";
-    case DSK_ScriptSpell: return "SCRIPT_SPELL";
-    case DSK_DOTSpell: return "UNKNOWN_DOT";
+    case DSK_Power: return "POWER";
+    case DSK_DOTSpell: return "DOT_SPELL";
     case DSK_Creature: return "CREATURE";
     case DSK_Trap: return "TRAP";
     case DSK_Object: return "OBJECT";
     case DSK_Door: return "DOOR";
-    default: return NULL;
+    default: return "UNKNOWN";
     }
 }
 
