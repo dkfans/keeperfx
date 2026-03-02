@@ -443,7 +443,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 {
   if ( list->count == 0 )
   {
-      ERRORLOG("List %lu has no structures", list->index);
+      ERRORLOG("List %u has no structures", list->index);
       return;
   }
   TbBool Removed = false;
