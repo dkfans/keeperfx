@@ -48,7 +48,7 @@ extern "C" {
 #define INSTANCE_TYPES_MAX 2000
 #define LAIR_ENEMY_MAX 5
 
-#define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
+#define INVALID_CRTR_CONTROL (&game.cctrl_data[0])
 /******************************************************************************/
 #pragma pack(1)
 
@@ -415,11 +415,6 @@ struct CreatureControl {
     SpellKind active_timebomb_spell;
     short vertical_speed;
     GameTurnDelta hand_blocked_turns;
-};
-
-struct Persons {
-    struct CreatureControl *cctrl_lookup[CREATURES_COUNT];
-    struct CreatureControl *cctrl_end;
 };
 
 struct CreatureSound {

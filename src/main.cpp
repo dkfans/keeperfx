@@ -2045,8 +2045,6 @@ void clear_lookups(void)
     }
     game.things.end = NULL;
 
-    memset(&game.persons, 0, sizeof(struct Persons));
-
     for (i=0; i < COLUMNS_COUNT; i++)
     {
       game.columns.lookup[i] = NULL;
