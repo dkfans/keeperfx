@@ -7240,3 +7240,8 @@ msgstr ""
 #~ msgctxt "In-game interface description"
 #~ msgid "Research Skill: unused."
 #~ msgstr "Capacità di ricerca: non utilizzato."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Keeper"

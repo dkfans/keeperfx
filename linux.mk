@@ -101,6 +101,7 @@ src/bflib_basics.c \
 src/bflib_coroutine.c \
 src/bflib_client_tcp.cpp \
 src/bflib_cpu.c \
+src/bflib_crash.c \
 src/bflib_datetm.cpp \
 src/bflib_dernc.c \
 src/bflib_enet.cpp \
@@ -382,6 +383,7 @@ KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 $(CXX_STD) $(ARCH_CFLAGS) $(KFX
 
 KFX_LDFLAGS += \
 	-g \
+	-rdynamic \
 	-Wall -Wextra -Werror \
 	$(ARCH_LDFLAGS) \
 	-Ldeps/astronomy -lastronomy \
@@ -402,7 +404,8 @@ KFX_LDFLAGS += \
 	$(shell pkg-config --libs minizip) \
 	$(shell pkg-config --libs zlib) \
 	-lminiupnpc \
-	-lnatpmp
+	-lnatpmp \
+	-ldl
 
 ifeq ($(PLATFORM),mac)
 KFX_LDFLAGS += \

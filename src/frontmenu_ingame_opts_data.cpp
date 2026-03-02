@@ -46,20 +46,23 @@ void maintain_compsetting_button(struct GuiButton* gbtn);
 /******************************************************************************/
 struct MsgBoxInfo MsgBox;
 
+// Non-NULL no-op callback so that the controller snapping logic does not ignore the button
+static void no_op(struct GuiButton* gbtn) {}
+
 struct GuiButtonInit options_menu_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_MnuOptions,          0,       {0},          0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_load, GUIStr_LoadGameDesc,     &load_menu, {0},          0, maintain_loadsave },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0,  60,  36,  60,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_save, GUIStr_SaveGameDesc,     &save_menu, {0},          0, maintain_loadsave },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 108,  36, 108,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_graphc, GUIStr_GraphicsMenuDesc, &video_menu,{0},          0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 156,  36, 156,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_sound, GUIStr_SoundMenuDesc,    &sound_menu,{0},          0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 204,  36, 204,  36, 46, 64, gui_area_compsetting_button, GPS_options_cassist_btn_black_a, GUIStr_ComputerAssistDesc,&autopilot_menu,{0},     0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 252,  36, 252,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_exit, GUIStr_QuitGameDesc,     &quit_menu, {0},          0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, no_op,               NULL,        NULL,              0,  12,  36,  12,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_load, GUIStr_LoadGameDesc,     &load_menu, {0},          0, maintain_loadsave },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, no_op,               NULL,        NULL,              0,  60,  36,  60,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_save, GUIStr_SaveGameDesc,     &save_menu, {0},          0, maintain_loadsave },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, no_op,               NULL,        NULL,              0, 108,  36, 108,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_graphc, GUIStr_GraphicsMenuDesc, &video_menu,{0},          0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, no_op,               NULL,        NULL,              0, 156,  36, 156,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_sound, GUIStr_SoundMenuDesc,    &sound_menu,{0},          0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, no_op,               NULL,        NULL,              0, 204,  36, 204,  36, 46, 64, gui_area_compsetting_button, GPS_options_cassist_btn_black_a, GUIStr_ComputerAssistDesc,&autopilot_menu,{0},     0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, no_op,               NULL,        NULL,              0, 252,  36, 252,  36, 46, 64, gui_area_no_anim_button, GBS_options_button_exit, GUIStr_QuitGameDesc,     &quit_menu, {0},          0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, 0,                       0,          {0},          0, NULL },
 };
 
 struct GuiButtonInit quit_menu_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,210, 32, gui_area_text,                     1, GUIStr_ConfirmYouSure,   0,       {0},            0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0,  70,  24,  72,  58, 46, 32, gui_area_normal_button, GBS_options_button_smd_no, GUIStr_ConfirmNo,        0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, no_op,               NULL,        NULL,              0,  70,  24,  72,  58, 46, 32, gui_area_normal_button, GBS_options_button_smd_no, GUIStr_ConfirmNo,        0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, gui_quit_game,      NULL,        NULL,               0, 136,  24, 138,  58, 46, 32, gui_area_normal_button, GBS_options_button_smd_yes, GUIStr_ConfirmYes,       0,       {0},            0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };

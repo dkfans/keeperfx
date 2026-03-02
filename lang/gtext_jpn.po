@@ -7085,3 +7085,8 @@ msgstr "使い魔: クリーチャーを守って助ける仲間を呼ぶ。"
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr "援助要請: 戦闘にクリーチャーを支援する一時的な守護者を呼び寄せる。"
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "キーパー"
