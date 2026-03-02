@@ -44,7 +44,12 @@ DEPS_SUFFIX ?=
 DEPS_DOWNLOAD ?= 1
 
 ifeq ($(PLATFORM),linux)
+ifeq ($(ARCH),x86_64)
 DEPS_SUFFIX ?= lin64
+else
+# No prebuilt dependency archive defined for this architecture; disable downloads.
+DEPS_DOWNLOAD ?= 0
+endif
 endif
 ifeq ($(PLATFORM),mac)
 DEPS_DOWNLOAD ?= 0
