@@ -54,6 +54,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "config_spritecolors.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -3838,6 +3839,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     add_room_to_players_list(room, claimtng->owner);
     change_room_map_element_ownership(room, claimtng->owner);
+    lua_on_room_owner_change(room, oldowner);
     redraw_room_map_elements(room);
     do_room_unprettying(room, claimtng->owner);
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
@@ -3869,6 +3871,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     add_room_to_players_list(room, claimtng->owner);
     change_room_map_element_ownership(room, claimtng->owner);
+    lua_on_room_owner_change(room, oldowner);
     redraw_room_map_elements(room);
     do_room_unprettying(room, claimtng->owner);
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
@@ -3900,6 +3903,7 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
         room->health = compute_room_max_health(room->slabs_count, room->efficiency);
         add_room_to_players_list(room, newowner);
         change_room_map_element_ownership(room, newowner);
+        lua_on_room_owner_change(room, oldowner);
         redraw_room_map_elements(room);
         do_room_unprettying(room, newowner);
         do_room_integration(room);

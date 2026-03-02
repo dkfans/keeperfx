@@ -25,6 +25,7 @@ extern "C" {
 #endif
 
 struct Thing;
+struct Room;
 
 void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg);
 void lua_on_game_start();
@@ -37,7 +38,9 @@ void lua_on_creature_rebirth(struct Thing* crtng);
 void lua_on_trap_placed(struct Thing *traptng);
 void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx);
 void lua_on_level_up(struct Thing *thing);
-//void lua_on_room_claimed(PlayerNumber plyr_idx, struct Room *room);
+void lua_on_slab_kind_change(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind old_slab);
+void lua_on_slab_owner_change(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber old_owner);
+void lua_on_room_owner_change(struct Room *room, PlayerNumber old_owner);
 
 
 
