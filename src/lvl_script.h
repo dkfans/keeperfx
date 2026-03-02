@@ -74,10 +74,10 @@ struct ScriptContext
 struct TunnellerTrigger {
   unsigned char flags;
   unsigned short condit_idx;
-  unsigned char plyr_idx;
-  uint32_t location;
-  uint32_t heading; // originally was 'target'
-  int32_t carried_gold;
+  PlayerNumber plyr_idx;
+  TbMapLocation location;
+  TbMapLocation heading; // originally was 'target'
+  GoldAmount carried_gold;
   CrtrExpLevel exp_level;
   char party_id;
 };
@@ -88,7 +88,7 @@ struct PartyTrigger {
   char creatr_id;
   union
   {
-      unsigned char plyr_idx;
+      PlayerNumber plyr_idx;
       char party_id; // for add_to_party
   };
   union
@@ -98,7 +98,7 @@ struct PartyTrigger {
   };
   char spawn_type;
   CrtrExpLevel exp_level;
-  unsigned short carried_gold;
+  GoldAmount carried_gold;
   union
   {
       unsigned short ncopies;

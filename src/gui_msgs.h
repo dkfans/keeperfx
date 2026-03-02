@@ -46,13 +46,13 @@ enum MessageTypes {
 struct GuiMessage_OLD { // sizeof = 0x45 (69)
     char text[64];
 PlayerNumber plyr_idx;
-uint32_t expiration_turn;
+GameTurn expiration_turn;
 };
 
 struct GuiMessage {
     char text[64];
 PlayerNumber plyr_idx;
-uint32_t expiration_turn;
+GameTurn expiration_turn;
 PlayerNumber target_idx;
 char type;
 };
