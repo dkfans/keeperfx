@@ -1190,7 +1190,7 @@ static int lua_Set_creature_tendencies(lua_State *L)
 static int lua_Creature_entrance_level(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    unsigned char level = luaL_checkinteger(L, 4);
+    unsigned char level = luaL_checkinteger(L, 2);
 
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
