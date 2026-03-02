@@ -43,12 +43,6 @@ enum MessageTypes {
 /******************************************************************************/
 #pragma pack(1)
 
-struct GuiMessage_OLD { // sizeof = 0x45 (69)
-    char text[64];
-PlayerNumber plyr_idx;
-GameTurn expiration_turn;
-};
-
 struct GuiMessage {
     char text[64];
 PlayerNumber plyr_idx;
