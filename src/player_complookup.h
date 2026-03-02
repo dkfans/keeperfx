@@ -40,7 +40,7 @@ struct GoldLookup { // sizeof = 28
 MapSubtlCoord stl_x;
 MapSubtlCoord stl_y;
 unsigned short num_gold_slabs;
-unsigned long num_gem_slabs;
+uint32_t num_gem_slabs;
 };
 
 #pragma pack()

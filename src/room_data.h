@@ -95,7 +95,7 @@ struct Room {
     /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
-      unsigned long capacity_used_for_storage;
+      uint32_t capacity_used_for_storage;
       ThingIndex cached_nearby_creature_index;
     };
     /** For rooms which are often browsed for various reasons, list of all rooms of given kind.

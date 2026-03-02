@@ -281,25 +281,25 @@ struct ComputerDig {
     struct Coord3d pos_dest; /**< used by dig to position - the destination */
     struct Coord3d pos_begin; /**< used by dig to position (the start of the path) and for room dig/place (the centre of the room) */
     struct Coord3d pos_next; /**< used by dig to position - the next position in the path to check */
-    long distance; /**< used by dig to position - the distance between a given position and the destination */
+    int32_t distance; /**< used by dig to position - the distance between a given position and the destination */
     unsigned char hug_side; /**< used by dig to position - the rule to follow when hugging the wall (left-hand rule/side or right-hand rule/side) */
     SmallAroundIndex direction_around; /**< used by dig to position - the forwards direction of the path */
-    unsigned long action_success_flag; /**< this is always set to 1... but it's value is used to create a bool test: did action fail */
-    long number_of_failed_actions; /**< used by dig to position (incremented when gold is found but digflags is 0, or a mark for digging action failed) */
+    uint32_t action_success_flag; /**< this is always set to 1... but it's value is used to create a bool test: did action fail */
+    int32_t number_of_failed_actions; /**< used by dig to position (incremented when gold is found but digflags is 0, or a mark for digging action failed) */
     MapSubtlCoord last_backwards_step_stl_x; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the X coordinate of the slab we stepped back in to */
     MapSubtlCoord last_backwards_step_stl_y; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the Y coordinate of the slab we stepped back in to */
-    long calls_count; /**< used by dig to position */
-    long valuable_slabs_tagged; /**< used by dig to position - Amount of valuable slabs tagged for digging during this dig process. */
+    int32_t calls_count; /**< used by dig to position */
+    int32_t valuable_slabs_tagged; /**< used by dig to position - Amount of valuable slabs tagged for digging during this dig process. */
     /** Variables for digging (or placing) a room. */
     struct { 
-        long area; /**< The number of slabs in the room. */
-        long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
+        int32_t area; /**< The number of slabs in the room. */
+        int32_t slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
         /** Variables for the spiral used to dig slabs/place rooms. */
         struct {
             SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
-            long turns_made; /**< The number of turns made in the spiral. */
-            long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
-            long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
+            int32_t turns_made; /**< The number of turns made in the spiral. */
+            int32_t steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
+            int32_t steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
         } spiral;
     } room;
 };
@@ -341,7 +341,7 @@ struct ComputerTask {
     } move_gold;
     struct {
         struct Coord3d target_pos;
-        long repeat_num;
+        int32_t repeat_num;
     } magic_cta;
     struct {
         KeepPwrLevel power_level;
@@ -397,7 +397,7 @@ struct ComputerTask {
         short width;
         short height;
         RoomKind kind;
-        long area;
+        int32_t area;
     } create_room;
     struct {
         TbBool skip_speed;
@@ -437,7 +437,7 @@ struct Computer2 { // sizeof = 5322
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */
-  unsigned long soe_targets[COMPUTER_SOE_GRID_SIZE];
+    uint32_t soe_targets[COMPUTER_SOE_GRID_SIZE];
   short ongoing_process;
   short task_idx;
   short held_thing_idx;
