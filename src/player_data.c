@@ -44,10 +44,38 @@ TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
 struct PlayerInfo bad_player;
+static unsigned char *player_main_palettes[PLAYERS_COUNT];
 
 /** The current player's number. */
 unsigned char my_player_number;
 /******************************************************************************/
+static int get_player_runtime_index(const struct PlayerInfo *player)
+{
+    if (player == NULL)
+        return -1;
+    if ((player < &game.players[0]) || (player >= &game.players[PLAYERS_COUNT]))
+        return -1;
+    return (int)(player - &game.players[0]);
+}
+
+unsigned char *get_player_main_palette(const struct PlayerInfo *player)
+{
+    const int idx = get_player_runtime_index(player);
+    if (idx < 0)
+        return engine_palette;
+    if (player_main_palettes[idx] == NULL)
+        return engine_palette;
+    return player_main_palettes[idx];
+}
+
+void set_player_main_palette(struct PlayerInfo *player, unsigned char *palette)
+{
+    const int idx = get_player_runtime_index(player);
+    if (idx < 0)
+        return;
+    player_main_palettes[idx] = palette;
+}
+
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
@@ -228,6 +256,7 @@ void clear_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = &game.players[i];
+        player_main_palettes[i] = NULL;
         memset(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
         switch (i)

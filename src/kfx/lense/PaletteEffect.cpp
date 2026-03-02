@@ -60,7 +60,7 @@ void PaletteEffect::Cleanup()
     if (m_current_lens >= 0) {
         struct PlayerInfo* player = get_my_player();
         player->lens_palette = NULL;
-        player->main_palette = engine_palette;
+        set_player_main_palette(player, engine_palette);
         m_current_lens = -1;
         SYNCDBG(9, "Palette effect cleaned up");
     }

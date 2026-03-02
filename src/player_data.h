@@ -216,7 +216,6 @@ struct PlayerInfo {
     int32_t palette_fade_step_map;
     int32_t palette_fade_step_pain;
     int32_t palette_fade_step_possession;
-    unsigned char *main_palette;
     /** Overcharge level while casting keeper powers. */
     int32_t cast_expand_level;
     char video_cluedo_mode;
@@ -305,6 +304,9 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview);
 void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
+
+unsigned char *get_player_main_palette(const struct PlayerInfo *player);
+void set_player_main_palette(struct PlayerInfo *player, unsigned char *palette);
 
 unsigned char rotate_mode_to_view_mode(unsigned char mode);
 
