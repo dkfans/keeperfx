@@ -1752,7 +1752,7 @@ short get_creature_control_action_inputs(void)
         {
             clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);
-            StrID = 567;
+            StrID = GUIStr_StateFight;
         }
         else if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
         {
@@ -1770,7 +1770,7 @@ short get_creature_control_action_inputs(void)
         {
             clear_key_pressed(KC_COMMA);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 19, 0, 0, 0); // default behaviour
-            StrID = 609;
+            StrID = GUIStr_Lair;
         }
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
         if ( (StrID != 0) && (creature_instance_is_available(creatng, CrInst_TELEPORT)) )

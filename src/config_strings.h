@@ -261,6 +261,7 @@ enum GUIStrings {
     GUIStr_KeyControl,
     GUIStr_KeyAlt,
     GUIStr_CreditsHead2 = STRINGS_MAX+572, // range 572..577
+    GUIStr_Lair=STRINGS_MAX+609,
     GUIStr_EventTreasureRoomFull = STRINGS_MAX+664,
     GUIStr_EventScavengingDetected,
     GUIStr_EventCreaturePayday,
