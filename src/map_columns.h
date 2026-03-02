@@ -43,11 +43,6 @@ struct Column { // sizeof=0x18
     unsigned short cubes[COLUMN_STACK_HEIGHT];
 };
 
-struct Columns {
-    struct Column *lookup[COLUMNS_COUNT];
-    struct Column *end;
-};
-
 enum ColumnFlags {
     CLF_ACTIVE = 0x01,
     CLF_CEILING_MASK = 0x0E, // Height of ceiling cube layer.
@@ -56,7 +51,7 @@ enum ColumnFlags {
 
 #pragma pack()
 /******************************************************************************/
-#define INVALID_COLUMN game.columns.lookup[0]
+#define INVALID_COLUMN (&game.columns_data[0])
 /******************************************************************************/
 struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Column *get_map_column(const struct Map *map);

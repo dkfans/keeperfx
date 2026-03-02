@@ -2044,12 +2044,6 @@ void clear_lookups(void)
       game.things.lookup[i] = NULL;
     }
     game.things.end = NULL;
-
-    for (i=0; i < COLUMNS_COUNT; i++)
-    {
-      game.columns.lookup[i] = NULL;
-    }
-    game.columns.end = NULL;
 }
 
 void interp_fix_mouse_light_off_map(struct PlayerInfo *player)

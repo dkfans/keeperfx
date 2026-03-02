@@ -31,34 +31,34 @@ extern "C" {
 /******************************************************************************/
 struct Column *get_column(long idx)
 {
-  if ((idx < 1) || (idx >= COLUMNS_COUNT))
-    return INVALID_COLUMN;
-  return game.columns.lookup[idx];
+    if ((idx < 1) || (idx >= COLUMNS_COUNT))
+        return INVALID_COLUMN;
+    return &game.columns_data[idx];
 }
 
 struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  struct Map *mapblk;
-  mapblk = get_map_block_at(stl_x, stl_y);
-  if (map_block_invalid(mapblk))
-    return INVALID_COLUMN;
-  return game.columns.lookup[get_mapblk_column_index(mapblk)];
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+        return INVALID_COLUMN;
+    return &game.columns_data[get_mapblk_column_index(mapblk)];
 }
 
 struct Column *get_map_column(const struct Map *mapblk)
 {
-  if (map_block_invalid(mapblk))
-    return INVALID_COLUMN;
-  return game.columns.lookup[get_mapblk_column_index(mapblk)];
+    if (map_block_invalid(mapblk))
+        return INVALID_COLUMN;
+    return &game.columns_data[get_mapblk_column_index(mapblk)];
 }
 
 TbBool column_invalid(const struct Column *colmn)
 {
-  if (colmn == NULL)
-    return true;
-  if (colmn == INVALID_COLUMN)
-    return true;
-  return (colmn <= game.columns.lookup[0]) || (colmn > game.columns.lookup[COLUMNS_COUNT-1]) || (colmn == NULL);
+        if (colmn == NULL)
+                return true;
+        if (colmn == INVALID_COLUMN)
+                return true;
+        return (colmn <= &game.columns_data[0]) || (colmn > &game.columns_data[COLUMNS_COUNT-1]);
 }
 
 /**

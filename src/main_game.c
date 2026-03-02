@@ -136,11 +136,6 @@ void init_lookups(void)
     }
     game.things.end = &game.things_data[THINGS_COUNT];
 
-    for (i=0; i < COLUMNS_COUNT; i++)
-    {
-        game.columns.lookup[i] = &game.columns_data[i];
-    }
-    game.columns.end = &game.columns_data[COLUMNS_COUNT];
 }
 
 static void init_level(void)
