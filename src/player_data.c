@@ -44,36 +44,49 @@ TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
 struct PlayerInfo bad_player;
-static unsigned char *player_main_palettes[PLAYERS_COUNT];
+static unsigned char *local_player_main_palette;
+static unsigned char *local_player_lens_palette;
 
 /** The current player's number. */
 unsigned char my_player_number;
 /******************************************************************************/
-static int get_player_runtime_index(const struct PlayerInfo *player)
+static TbBool is_local_player_ref(const struct PlayerInfo *player)
 {
     if (player == NULL)
-        return -1;
+        return false;
     if ((player < &game.players[0]) || (player >= &game.players[PLAYERS_COUNT]))
-        return -1;
-    return (int)(player - &game.players[0]);
+        return false;
+    return is_my_player(player);
 }
 
 unsigned char *get_player_main_palette(const struct PlayerInfo *player)
 {
-    const int idx = get_player_runtime_index(player);
-    if (idx < 0)
+    if (!is_local_player_ref(player))
         return engine_palette;
-    if (player_main_palettes[idx] == NULL)
+    if (local_player_main_palette == NULL)
         return engine_palette;
-    return player_main_palettes[idx];
+    return local_player_main_palette;
 }
 
 void set_player_main_palette(struct PlayerInfo *player, unsigned char *palette)
 {
-    const int idx = get_player_runtime_index(player);
-    if (idx < 0)
+    if (!is_local_player_ref(player))
         return;
-    player_main_palettes[idx] = palette;
+    local_player_main_palette = palette;
+}
+
+unsigned char *get_player_lens_palette(const struct PlayerInfo *player)
+{
+    if (!is_local_player_ref(player))
+        return NULL;
+    return local_player_lens_palette;
+}
+
+void set_player_lens_palette(struct PlayerInfo *player, unsigned char *palette)
+{
+    if (!is_local_player_ref(player))
+        return;
+    local_player_lens_palette = palette;
 }
 
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name)
@@ -253,10 +266,11 @@ TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber 
 
 void clear_players(void)
 {
+    local_player_main_palette = NULL;
+    local_player_lens_palette = NULL;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = &game.players[i];
-        player_main_palettes[i] = NULL;
         memset(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
         switch (i)

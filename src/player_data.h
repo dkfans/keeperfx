@@ -156,7 +156,6 @@ struct PlayerInfo {
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     unsigned char display_flags;
-    unsigned char *lens_palette;
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;
     int32_t hand_animationId;
@@ -307,6 +306,8 @@ void clear_players(void);
 
 unsigned char *get_player_main_palette(const struct PlayerInfo *player);
 void set_player_main_palette(struct PlayerInfo *player, unsigned char *palette);
+unsigned char *get_player_lens_palette(const struct PlayerInfo *player);
+void set_player_lens_palette(struct PlayerInfo *player, unsigned char *palette);
 
 unsigned char rotate_mode_to_view_mode(unsigned char mode);
 

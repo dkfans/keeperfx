@@ -1547,7 +1547,7 @@ void reinit_level_after_load(void)
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
     player = get_my_player();
-    player->lens_palette = 0;
+    set_player_lens_palette(player, NULL);
     set_player_main_palette(player, engine_palette);
     init_lookups();
     init_navigation();
@@ -1817,7 +1817,8 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     {
       player->additional_flags &= ~PlaAF_FreezePaletteIsActive; // flag Freeze palette is not active
     }
-    if ( (player->lens_palette == 0) || ((pal != get_player_main_palette(player)) && (pal == player->lens_palette)) )
+    unsigned char *lens_palette = get_player_lens_palette(player);
+    if ( (lens_palette == 0) || ((pal != get_player_main_palette(player)) && (pal == lens_palette)) )
     {
         set_player_main_palette(player, pal);
         player->palette_fade_step_pain = 0;
