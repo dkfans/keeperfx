@@ -227,7 +227,6 @@ struct Game {
     unsigned char packet_load_enable;
     char packet_fname[150];
     char packet_fopened;
-    TbFileHandle packet_save_fp;
     unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     uint32_t turns_stored;
