@@ -179,12 +179,6 @@ struct StructureList {
      uint32_t index;
 };
 
-struct Things {
-    struct Thing *lookup[THINGS_COUNT];
-    struct Thing *end;
-};
-
-
 #pragma pack()
 /******************************************************************************/
 extern Thing_Class_Func class_functions[];

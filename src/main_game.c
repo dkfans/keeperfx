@@ -126,17 +126,6 @@ void init_player_types()
 }
 
 /******************************************************************************/
-void init_lookups(void)
-{
-    long i;
-    SYNCDBG(8,"Starting");
-    for (i=0; i < THINGS_COUNT; i++)
-    {
-        game.things.lookup[i] = &game.things_data[i];
-    }
-    game.things.end = &game.things_data[THINGS_COUNT];
-
-}
 
 static void init_level(void)
 {

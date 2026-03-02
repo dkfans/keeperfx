@@ -1167,7 +1167,6 @@ short setup_game(void)
       SetSoundMasterVolume(settings.sound_volume);
       setup_mesh_randomizers();
       setup_stuff();
-      init_lookups();
   }
 
   if (result == 1)
@@ -1549,7 +1548,6 @@ void reinit_level_after_load(void)
     player = get_my_player();
     set_player_lens_palette(player, NULL);
     set_player_main_palette(player, engine_palette);
-    init_lookups();
     init_navigation();
     reinit_packets_after_load();
     game.easter_eggs_enabled = start_params.easter_egg;
@@ -2033,17 +2031,6 @@ short complete_level(struct PlayerInfo *player)
     }
     quit_game = 1;
     return true;
-}
-
-void clear_lookups(void)
-{
-    long i;
-    SYNCDBG(8,"Starting");
-    for (i=0; i < THINGS_COUNT; i++)
-    {
-      game.things.lookup[i] = NULL;
-    }
-    game.things.end = NULL;
 }
 
 void interp_fix_mouse_light_off_map(struct PlayerInfo *player)

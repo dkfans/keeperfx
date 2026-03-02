@@ -207,7 +207,7 @@ void delete_thing_structure_f(struct Thing *thing, TbBool deleting_everything, c
 struct Thing *thing_get_f(ThingIndex tng_idx, const char *func_name)
 {
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT)) {
-        return game.things.lookup[tng_idx];
+        return &game.things_data[tng_idx];
     }
     if (tng_idx >= THINGS_COUNT) {
         ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)tng_idx);
@@ -220,7 +220,7 @@ struct Thing *thing_get_f(ThingIndex tng_idx, const char *func_name)
  */
 short thing_is_invalid(const struct Thing *thing)
 {
-    return (thing <= game.things.lookup[0]) || (thing > game.things.lookup[THINGS_COUNT-1]) || (thing == NULL);
+    return (thing <= &game.things_data[0]) || (thing > &game.things_data[THINGS_COUNT-1]) || (thing == NULL);
 }
 
 /**
