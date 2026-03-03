@@ -200,7 +200,7 @@ unsigned char zoom_to_heart_palette[768];
 unsigned char EngineSpriteDrawUsingAlpha;
 unsigned char temp_pal[768];
 unsigned char *lightning_palette;
-
+long double process_turn_time;
 
 #ifdef __cplusplus
 extern "C" {
@@ -3403,10 +3403,10 @@ void gameplay_loop_logic()
     }
 
     if (is_feature_on(Ft_DeltaTime) == true) {
-        if (game.process_turn_time < 1.0) {
+        if (process_turn_time < 1.0) {
             return;
         }
-        game.process_turn_time -= 1.0;
+        process_turn_time -= 1.0;
     }
 
     frametime_start_measurement(Frametime_Logic);
@@ -3477,7 +3477,7 @@ void gameplay_loop_draw()
 extern "C" void network_yield_draw_gameplay()
 {
     game.delta_time = get_delta_time();
-    game.process_turn_time += game.delta_time;
+    process_turn_time += game.delta_time;
     gameplay_loop_draw();
 }
 
@@ -3508,11 +3508,11 @@ void gameplay_loop_timestep()
     frametime_start_measurement(Frametime_Sleep);
     if (is_feature_on(Ft_DeltaTime) == true) {
         game.delta_time = get_delta_time();
-        game.process_turn_time += game.delta_time;
+        process_turn_time += game.delta_time;
     } else {
         // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
         game.delta_time = 1;
-        game.process_turn_time = 1;
+        process_turn_time = 1;
         // Make delay if the machine is too fast
         if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
             keeper_wait_for_next_turn();
