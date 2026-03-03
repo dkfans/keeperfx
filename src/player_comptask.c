@@ -609,7 +609,7 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
         external_set_thing_state(thing, CrSt_InPowerHand);
         remove_all_traces_of_combat(thing);
     }
-    thing->holding_player = comp->dungeon->owner;
+    thing->holding_player = comp->dungeon_plyr_idx;
     place_thing_in_limbo(thing);
 }
 
@@ -652,7 +652,7 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
             return 0;
         }
     }
-    if (!can_place_thing_here(droptng, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
+    if (!can_place_thing_here(droptng, pos->x.stl.num, pos->y.stl.num, comp->dungeon_plyr_idx)) {
         return 0;
     }
     struct Coord3d locpos;
@@ -679,14 +679,14 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
     locpos.z.val += i;
     if (thing_is_object(droptng) && object_is_gold_pile(droptng))
     {
-        drop_gold_coins(pos, droptng->valuable.gold_stored, comp->dungeon->owner);
-        if (is_my_player_number(comp->dungeon->owner)) {
+        drop_gold_coins(pos, droptng->valuable.gold_stored, comp->dungeon_plyr_idx);
+        if (is_my_player_number(comp->dungeon_plyr_idx)) {
             play_non_3d_sample(88);
         }
         delete_thing_structure(droptng, 0);
     } else
     {
-        drop_held_thing_on_ground(comp->dungeon, droptng, &locpos);
+        drop_held_thing_on_ground(computer_dungeon(comp), droptng, &locpos);
     }
     comp->held_thing_idx = 0;
     comp->tasks_did--;
@@ -695,8 +695,8 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
 
 long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
 {
-    SYNCDBG(9,"Player %d picks %s index %d",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index);
-    if (!can_thing_be_picked_up_by_player(thing, comp->dungeon->owner)) {
+    SYNCDBG(9,"Player %d picks %s index %d",(int)comp->dungeon_plyr_idx,thing_model_name(thing),(int)thing->index);
+    if (!can_thing_be_picked_up_by_player(thing, comp->dungeon_plyr_idx)) {
         ERRORLOG("Computer tries to pick up %s index %d which is not pickable", thing_model_name(thing),(int)thing->index);
         return 0;
     }
@@ -708,7 +708,7 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
         SYNCDBG(7,"Computer tries to pick up %s index %d which is to be dropped on solid block", thing_model_name(thing),(int)thing->index);
         return 0;
     }
-    if (!can_place_thing_here(thing, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
+    if (!can_place_thing_here(thing, pos->x.stl.num, pos->y.stl.num, comp->dungeon_plyr_idx)) {
         SYNCDBG(7,"Computer tries to pick up %s index %d which cannot be dropped at given place", thing_model_name(thing),(int)thing->index);
         return 0;
     }
@@ -739,7 +739,7 @@ TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const stru
     locpos.x.val = subtile_coord_center(pos->x.stl.num);
     locpos.y.val = subtile_coord_center(pos->y.stl.num);
     locpos.z.val = get_thing_height_at(thing, &locpos);
-    drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
+    drop_held_thing_on_ground(computer_dungeon(comp), thing, &locpos);
     comp->held_thing_idx = 0;
     return true;
 }
@@ -754,7 +754,7 @@ TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Th
     locpos.x.val = subtile_coord_center(pos->x.stl.num);
     locpos.y.val = subtile_coord_center(pos->y.stl.num);
     locpos.z.val = get_thing_height_at(thing, &locpos);
-    drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
+    drop_held_thing_on_ground(computer_dungeon(comp), thing, &locpos);
     comp->held_thing_idx = 0;
     return true;
 }
@@ -766,7 +766,7 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
     long k;
     TbBool better_job_allowed;
     SYNCDBG(19,"Starting for %s index %d owner %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     if (thing_is_creature(thing) && creature_is_leaving_and_cannot_be_stopped(thing))
     {
         return false;
@@ -812,7 +812,7 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     int32_t total_spare_cap;
     long k;
 
-    const struct Dungeon *dungeon = comp->dungeon;
+    const struct Dungeon *dungeon = computer_dungeon(comp);
 
     chosen_job = Job_NULL;
     chosen_priority = INT32_MIN;
@@ -867,7 +867,7 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
     struct Dungeon *dungeon;
     struct Thing *thing;
     struct Room *room;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player");
         return Job_NULL;
@@ -931,7 +931,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
             {
                 SmallAroundIndex round_directn = small_around_index_towards_destination(ctask->starting_position.x.stl.num,ctask->starting_position.y.stl.num,
                     ctask->new_room_pos.x.stl.num,ctask->new_room_pos.y.stl.num);
-                pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon->owner, ctask->create_room.width+ctask->create_room.height);
+                pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon_plyr_idx, ctask->create_room.width+ctask->create_room.height);
             }
             move_imp_to_dig_here(comp, &pos, 1);
             pos.x.val = ctask->new_room_pos.x.val;
@@ -965,7 +965,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    struct Dungeon *dungeon = comp->dungeon;
+    struct Dungeon *dungeon = computer_dungeon(comp);
     {
         int digger_tasks = dungeon->digger_stack_length;
         if ((digger_tasks > 0) && (comp->dig_stack_size * dungeon->total_area / 100 <= digger_tasks)) {
@@ -1097,7 +1097,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     int32_t waiting_slabs;
     int32_t wrong_slabs;
     waiting_slabs = 0; wrong_slabs = 0;
-    count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->new_room_pos.x.stl.num, ctask->new_room_pos.y.stl.num,
+    count_slabs_where_room_cannot_be_built(comp->dungeon_plyr_idx, ctask->new_room_pos.x.stl.num, ctask->new_room_pos.y.stl.num,
         ctask->create_room.kind, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
     if (wrong_slabs > 0) {
         WARNLOG("Task %s couldn't be completed as %d wrong slabs are in destination area, reset",computer_task_code_name(ctask->ttype),(int)wrong_slabs);
@@ -1113,7 +1113,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
         roomst = &game.conf.slab_conf.room_cfgstats[ctask->rkind];
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Now I can place the %s.",get_string(roomst->name_stridx));
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Now I can place the %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_PlaceRoom;
     setup_computer_dig_room(&ctask->dig, &ctask->new_room_pos, ctask->create_room.area);
@@ -1142,7 +1142,7 @@ void shut_down_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    struct Dungeon *dungeon = comp->dungeon;
+    struct Dungeon *dungeon = computer_dungeon(comp);
     RoomKind rkind = ctask->create_room.kind;
     struct RoomConfigStats *roomst = &game.conf.slab_conf.room_cfgstats[rkind];
     // If we don't have money for the room - don't even try
@@ -1206,7 +1206,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     struct Room *room;
 
     // check the surrounding subtiles to see if they are the requested room
@@ -1265,7 +1265,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
 ItemAvailability computer_check_room_available(const struct Computer2 * comp, RoomKind rkind)
 {
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
         return IAvail_Never;
     }
@@ -1486,7 +1486,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     struct Coord3d corpos;
 
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     long area_total;
     long area_buildable;
     int i;
@@ -1516,14 +1516,14 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
                 dstpos.y.stl.num = stl_y;
                 if ( perfect )
                 {
-                    area_buildable = search_spiral(&dstpos, comp->dungeon->owner, area_total, check_for_perfect_buildable);
+                    area_buildable = search_spiral(&dstpos, comp->dungeon_plyr_idx, area_total, check_for_perfect_buildable);
                     if (area_buildable >= area_total) {
                         area_buildable = width_slabs * height_slabs;
                         break;
                     }
                 } else
                 {
-                    area_buildable = search_spiral(&dstpos, comp->dungeon->owner, area_total, check_for_buildable);
+                    area_buildable = search_spiral(&dstpos, comp->dungeon_plyr_idx, area_total, check_for_buildable);
                     if (area_buildable >= area_total - area_total / 4) {
                         break;
                     }
@@ -1542,7 +1542,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
             struct RoomConfigStats *roomst;
             roomst = &game.conf.slab_conf.room_cfgstats[rkind];
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "It is time to build %s.",get_string(roomst->name_stridx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "It is time to build %s.",get_string(roomst->name_stridx));
         }
         ctask->ttype = CTT_DigRoomPassage;
         ctask->rkind = rkind;
@@ -1597,7 +1597,7 @@ ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct
     MapSubtlCoord *nextstl_x, MapSubtlCoord *nextstl_y, const char *func_name)
 {
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     MapSlabCoord nextslb_x;
     MapSlabCoord nextslb_y;
     SmallAroundIndex around_index;
@@ -1671,7 +1671,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
     MapSubtlCoord *nextstl_x, MapSubtlCoord *nextstl_y, const char *func_name)
 {
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     MapSlabCoord nextslb_x;
     MapSlabCoord nextslb_y;
     SmallAroundIndex around_index;
@@ -1768,7 +1768,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
     ToolDigResult dig_result;
     SubtlCodedCoords stl_num;
     SYNCDBG(14,"%s: Starting",func_name);
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     // Limit amount of calls
     cdig->calls_count++;
     if (cdig->calls_count >= COMPUTER_TOOL_DIG_LIMIT) {
@@ -2069,8 +2069,8 @@ TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     memcpy(&ctask->dig.pos_dest, &ctask->dig.pos_next, sizeof(struct Coord3d));
 
     // Try to find gold tiles around current position
-    if (search_spiral(&ctask->dig.pos_dest, comp->dungeon->owner, 25, check_for_gold) == 25) {
-        SYNCDBG(5,"Player %d did not found next gold",(int)comp->dungeon->owner);
+    if (search_spiral(&ctask->dig.pos_dest, comp->dungeon_plyr_idx, 25, check_for_gold) == 25) {
+        SYNCDBG(5,"Player %d did not found next gold",(int)comp->dungeon_plyr_idx);
         return false;
     }
 
@@ -2106,7 +2106,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     long i;
     SYNCDBG(2,"Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
 
     i = dungeon->total_area * comp->dig_stack_size / 100;
     if ((dungeon->digger_stack_length > 0) && (dungeon->digger_stack_length >= i))
@@ -2258,7 +2258,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     if (ctask->dig.pos_next.x.val > 0)
     {
         struct SlabMap *slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
-        if (slabmap_owner(slb) != comp->dungeon->owner)
+        if (slabmap_owner(slb) != comp->dungeon_plyr_idx)
         {
             return CTaskRet_Unk4;
         }
@@ -2320,7 +2320,7 @@ long count_creatures_at_call_to_arms(struct Computer2 *comp)
     int num_creatures = 0;
     int k = 0;
 
-    for (i = thing_get(comp->dungeon->creatr_list_start);
+    for (i = thing_get(computer_dungeon(comp)->creatr_list_start);
          !thing_is_invalid(i);
          i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
     {
@@ -2344,7 +2344,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     thing = INVALID_THING;
     highest_score = INT_MAX;
 
-    for (struct Thing *i = thing_get(comp->dungeon->creatr_list_start);
+    for (struct Thing *i = thing_get(computer_dungeon(comp)->creatr_list_start);
         !thing_is_invalid(i);
         i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
     {
@@ -2386,7 +2386,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
 long count_creatures_in_call_to_arms(struct Computer2 *comp)
 {
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     return count_player_list_creatures_of_model_matching_bool_filter(dungeon->owner, CREATURE_ANY, creature_is_called_to_arms);
 }
 
@@ -2394,7 +2394,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     switch (ctask->task_state)
     {
     case 0:
@@ -2484,7 +2484,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
     //TODO CREATURE_JOBS This function needs major rework, to base conditions on job, not on room we're dropping into
     //TODO CREATURE_JOBS Rewrite all uses of this function before remaking it
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     SYNCDBG(8,"Starting");
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -2605,7 +2605,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
     int count;
     count = 0;
     k = 0;
-    i = comp->dungeon->creatr_list_start;
+    i = computer_dungeon(comp)->creatr_list_start;
     while (i != 0)
     {
         thing = thing_get(i);
@@ -2665,7 +2665,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    if (!xy_walkable(ctask->pickup_for_attack.target_pos.x.stl.num, ctask->pickup_for_attack.target_pos.y.stl.num, comp->dungeon->owner))
+    if (!xy_walkable(ctask->pickup_for_attack.target_pos.x.stl.num, ctask->pickup_for_attack.target_pos.y.stl.num, comp->dungeon_plyr_idx))
     {
         return CTaskRet_Unk4;
     }
@@ -2676,7 +2676,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos, ctask->pickup_for_attack.target_state)) {
             return CTaskRet_Unk2;
         }
-        computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
+        computer_force_dump_held_things_on_map(comp, &computer_dungeon(comp)->essential_pos);
         return CTaskRet_Unk4;
     }
     if (ctask->pickup_for_attack.repeat_num <= 0)
@@ -2689,7 +2689,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     if (!thing_is_invalid(thing))
     {
         if (computer_place_thing_in_power_hand(comp, thing, &ctask->pickup_for_attack.target_pos)) {
-            SYNCDBG(9,"Player %d picked %s index %d to attack position (%d,%d)",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
+            SYNCDBG(9,"Player %d picked %s index %d to attack position (%d,%d)",(int)comp->dungeon_plyr_idx,thing_model_name(thing),(int)thing->index,
                 (int)ctask->pickup_for_attack.target_pos.x.stl.num, (int)ctask->pickup_for_attack.target_pos.y.stl.num);
             return CTaskRet_Unk2;
         }
@@ -2705,7 +2705,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     struct Coord3d pos;
     long i;
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     room = room_get(ctask->move_to_room.room_idx1);
     thing = thing_get(comp->held_thing_idx);
     if (thing_exists(thing)) // We have no unit in hand
@@ -2784,7 +2784,7 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
 {
     struct Dungeon *dungeon;
     SYNCDBG(19,"Starting");
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     struct Thing *thing;
     thing = thing_get(comp->held_thing_idx);
     if (thing_exists(thing))
@@ -2803,7 +2803,7 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
             {
                 WARNLOG("Player %d computer hand holds %s instead of creature",(int)dungeon->owner, thing_model_name(thing));
             }
-            computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
+            computer_force_dump_held_things_on_map(comp, &computer_dungeon(comp)->essential_pos);
             remove_task(comp, ctask);
             return CTaskRet_Unk0;
         }
@@ -2814,7 +2814,7 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     if (can_thing_be_picked_up_by_player(thing, dungeon->owner))
     {
         if (computer_place_thing_in_power_hand(comp, thing, &ctask->move_to_pos.target_pos)) {
-            SYNCDBG(9,"Player %d picked %s index %d to move to (%d,%d)",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
+            SYNCDBG(9,"Player %d picked %s index %d to move to (%d,%d)",(int)comp->dungeon_plyr_idx,thing_model_name(thing),(int)thing->index,
                 (int)ctask->move_to_pos.target_pos.x.stl.num, (int)ctask->move_to_pos.target_pos.y.stl.num);
             return CTaskRet_Unk2;
         }
@@ -2828,7 +2828,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
     struct Dungeon *dungeon;
     unsigned long k;
     long i;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     long best_factor;
     struct Thing *best_creatng;
     best_creatng = INVALID_THING;
@@ -2892,7 +2892,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
 {
     SYNCDBG(19,"Starting");
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     struct Thing *thing;
     thing = thing_get(comp->held_thing_idx);
     // If the heart is just being destroyed - dump held thing and finish task
@@ -2955,7 +2955,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
 long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player.");
         return CTaskRet_Unk0;
@@ -2986,15 +2986,15 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
         {
             WARNLOG("Could not move player %d gold by dropping %s into %s",(int)dungeon->owner,thing_model_name(thing),room_code_name(room->kind));
         }
-        computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
+        computer_force_dump_held_things_on_map(comp, &computer_dungeon(comp)->essential_pos);
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    thing = find_gold_laying_in_dungeon(comp->dungeon);
+    thing = find_gold_laying_in_dungeon(computer_dungeon(comp));
     if (!thing_is_invalid(thing))
     {
         struct Room *room;
-        room = find_room_of_role_with_spare_capacity(comp->dungeon->owner, RoRoF_GoldStorage, 1);
+        room = find_room_of_role_with_spare_capacity(comp->dungeon_plyr_idx, RoRoF_GoldStorage, 1);
         if (!room_is_invalid(room))
         {
             ctask->move_gold.room_idx = room->index;
@@ -3004,21 +3004,21 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
             pos.z.val = subtile_coord(1,0);
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
                 ctask->move_gold.items_amount--;
-                SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon->owner,
+                SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon_plyr_idx,
                     thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->index);
                 return CTaskRet_Unk2;
             } else {
-                SYNCDBG(9,"Player %d cannot place %s index %d into power hand",(int)comp->dungeon->owner,
+                SYNCDBG(9,"Player %d cannot place %s index %d into power hand",(int)comp->dungeon_plyr_idx,
                     thing_model_name(thing),(int)thing->index);
             }
         } else
         {
-            SYNCDBG(9,"Player %d has no room to place the gold into",(int)comp->dungeon->owner);
+            SYNCDBG(9,"Player %d has no room to place the gold into",(int)comp->dungeon_plyr_idx);
             remove_task(comp, ctask);
         }
     } else
     {
-        SYNCDBG(9,"Player %d has no more gold laying around",(int)comp->dungeon->owner);
+        SYNCDBG(9,"Player %d has no more gold laying around",(int)comp->dungeon_plyr_idx);
         remove_task(comp, ctask);
     }
     return CTaskRet_Unk0;
@@ -3028,7 +3028,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Dungeon *dungeon;
     SYNCDBG(9,"Starting");
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     ctask->attack_magic.repeat_num--;
     if (ctask->attack_magic.repeat_num >= 0)
     {
@@ -3121,7 +3121,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Thing *creatng;
     int k = 0;
     SYNCDBG(9,"Starting");
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     creatng = thing_get(ctask->attack_magic.target_thing_idx);
     if (!thing_exists(creatng))
     {
@@ -3193,7 +3193,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9, "Starting");
     PlayerNumber plyr_idx;
-    plyr_idx = comp->dungeon->owner;
+    plyr_idx = comp->dungeon_plyr_idx;
     if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT)
     {
         //If the task has been active too long, restart the process to try a different approach.
@@ -3245,7 +3245,7 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Thing *thing;
     long i;
     SYNCDBG(9,"Starting");
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     thing = thing_get(ctask->attack_magic.target_thing_idx);
     if (!thing_exists(thing)) {
         return CTaskRet_Unk1;
@@ -3273,7 +3273,7 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask)
 {
-    struct Dungeon *dungeon = comp->dungeon;
+    struct Dungeon *dungeon = computer_dungeon(comp);
     const struct TrapDoorSelling *tdsell;
     struct DoorConfigStats *doorst;
     struct TrapConfigStats *trapst;
@@ -3526,35 +3526,35 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         switch (dst_state)
         {
         case CrSt_ImpImprovesDungeon:
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should go claiming.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "This %s should go claiming.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpDigsDirt:
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should go digging.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "This %s should go digging.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpMinesGold:
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should go mining.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "This %s should go mining.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoingNothing:
         case CrSt_ImpDoingNothing:
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "This %s should stop doing that.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureSacrifice:
-            if (thing->model == game.conf.rules[comp->dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model) {
+            if (thing->model == game.conf.rules[comp->dungeon_plyr_idx].sacrifices.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;
                 powerst = get_power_model_stats(PwrK_MKDIGGER);
-                message_add_fmt(MsgType_Player, comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
+                message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
                 break;
             }
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s will be sacrificed.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "This %s will be sacrificed.",get_string(crconf->namestr_idx));
             break;
         case CrSt_Torturing:
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should be tortured.", get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "This %s should be tortured.", get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoorCombat:
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should attack a door.", get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "This %s should attack a door.", get_string(crconf->namestr_idx));
             break;
         default:
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should go there.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "This %s should go there.",get_string(crconf->namestr_idx));
             break;
         }
     }
@@ -3577,7 +3577,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Minions, defend this place!");
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Minions, defend this place!");
     }
     ctask->ttype = CTT_MoveCreaturesToDefend;
     ctask->move_to_defend.target_pos.x.val = pos->x.val;
@@ -3605,10 +3605,10 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
         if (room_exists(room)) {
             struct RoomConfigStats *roomst;
             roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
-            message_add_fmt(MsgType_Player, comp->dungeon->owner, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
+            message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
         } else {
             if (flag_is_set(game.computer_chat_flags, CChat_TasksFrequent))
-                message_add_fmt(MsgType_Player, comp->dungeon->owner, "Time to put some creatures into rooms.");
+                message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Time to put some creatures into rooms.");
         }
     }
     ctask->ttype = CTT_MoveCreatureToRoom;
@@ -3628,7 +3628,7 @@ TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Minions, attack now!");
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Minions, attack now!");
     }
     ctask->ttype = CTT_PickupForAttack;
     ctask->pickup_for_attack.target_pos.x.val = pos->x.val;
@@ -3649,7 +3649,7 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Minions, call to arms! Join the battle!");
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Minions, call to arms! Join the battle!");
     }
     ctask->ttype = CTT_MagicCallToArms;
     ctask->task_state = CTaskSt_None;
@@ -3674,7 +3674,7 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Minions, call to arms! Attack!");
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Minions, call to arms! Attack!");
     }
     ctask->ttype = CTT_MagicCallToArms;
     ctask->task_state = CTaskSt_None;
@@ -3700,7 +3700,7 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell, GoldAmount gold_up_to, TbBool allow_deployed)
 {
     struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    dungeon = computer_dungeon(comp);
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting for player %d to sell %d traps up to %d gold",(int)dungeon->owner,(int)num_to_sell,(int)gold_up_to);
     ctask = get_free_task(comp, 1);
@@ -3739,7 +3739,7 @@ TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_mov
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksFrequent)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Gold should not lay around outside treasury.");
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Gold should not lay around outside treasury.");
     }
     ctask->ttype = CTT_MoveGoldToTreasury;
     ctask->created_turn = game.play_gameturn;
@@ -3761,7 +3761,7 @@ TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d st
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Player %d looks like he need a kick.",(int)victim_plyr_idx);
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Player %d looks like he need a kick.",(int)victim_plyr_idx);
     }
     ctask->ttype = CTT_DigToAttack;
     ctask->dig_somewhere.startpos.x.val = startpos.x.val;
@@ -3788,7 +3788,7 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Localized neutral place, hopefully with loot.");
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Localized neutral place, hopefully with loot.");
     }
     ctask->ttype = CTT_DigToNeutral;
     ctask->dig_somewhere.startpos.x.val = startpos.x.val;
@@ -3812,7 +3812,7 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Time to dig more gold.");
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Time to dig more gold.");
     }
     ctask->ttype = CTT_DigToGold;
     set_flag(ctask->flags, ComTsk_AddTrapLocation);
@@ -3841,7 +3841,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
         roomst = &game.conf.slab_conf.room_cfgstats[RoK_ENTRANCE];
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "I will take that %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_DigToEntrance;
     set_flag(ctask->flags, (ComTsk_AddTrapLocation|ComTsk_Urgent));
@@ -3867,7 +3867,7 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num, TbBool sk
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksFrequent)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Work harder, minions!");
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Work harder, minions!");
     }
     ctask->ttype = CTT_SlapDiggers;
     ctask->attack_magic.repeat_num = creatrs_num;
@@ -3887,7 +3887,7 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "I should speed up my fighters.");
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "I should speed up my fighters.");
     }
     ctask->ttype = CTT_MagicSpeedUp;
     ctask->attack_magic.target_thing_idx = creatng->index;
@@ -3908,7 +3908,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
-        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
+        message_add_fmt(MsgType_Player, comp->dungeon_plyr_idx, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
     }
     ctask->ttype = CTT_AttackMagic;
     ctask->attack_magic.target_thing_idx = creatng->index;

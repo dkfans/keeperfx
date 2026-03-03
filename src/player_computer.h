@@ -253,6 +253,7 @@ struct ComputerEvent;
 struct Event;
 struct Thing;
 struct Room;
+struct Dungeon;
 struct ComputerTask;
 struct GoldLookup;
 struct THate;
@@ -425,7 +426,7 @@ struct Computer2 { // sizeof = 5322
   uint32_t click_rate;
   int32_t dig_stack_size; // seems to be signed long
   uint32_t sim_before_dig;
-  struct Dungeon *dungeon;
+  PlayerNumber dungeon_plyr_idx;
   uint32_t model;
   uint32_t turn_begin;
   uint32_t max_room_build_tasks;
@@ -480,6 +481,7 @@ extern Comp_Check_Func computer_check_func_list[];
 /******************************************************************************/
 struct Computer2 *get_computer_player_f(long plyr_idx,const char *func_name);
 #define get_computer_player(plyr_idx) get_computer_player_f(plyr_idx,__func__)
+#define computer_dungeon(comp) get_players_num_dungeon((comp)->dungeon_plyr_idx)
 TbBool computer_player_invalid(const struct Computer2 *comp);
 long set_autopilot_type(PlayerNumber plridx, long aptype);
 /******************************************************************************/

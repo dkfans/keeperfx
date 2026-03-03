@@ -78,7 +78,7 @@ TbBool computer_player_invalid(const struct Computer2 *comp)
 
 TbBool computer_player_in_emergency_state(const struct Computer2 *comp)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (get_computer_money_less_cost(comp) < -1000)
         return true;
     if (dungeon->num_active_diggers < 3)
@@ -99,7 +99,7 @@ GoldAmount get_dungeon_money_less_cost(const struct Dungeon *dungeon)
 
 GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
 {
-    return get_dungeon_money_less_cost(comp->dungeon);
+    return get_dungeon_money_less_cost(computer_dungeon(comp));
 }
 
 long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
@@ -156,7 +156,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
  */
 struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long max_slabs_dist, long perfect)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     long i = dungeon->room_list_start[look_kind];
     unsigned long k = 0;
     while (i != 0)
@@ -190,7 +190,7 @@ struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomK
 
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long look_randstart)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     long i;
     if (room_role_matches(rkind,RoRoF_LairStorage))
     {
@@ -345,7 +345,7 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref)
 {
     SYNCDBG(5,"Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     struct GoldLookup* gldlooksel = NULL;
     *gldlookref = gldlooksel;
     struct Coord3d locpos;
@@ -413,7 +413,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
 unsigned long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
 {
     SYNCDBG(8,"Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     unsigned long count = 0;
     unsigned long k = 0;
     int i = dungeon->creatr_list_start;
@@ -473,7 +473,7 @@ TbBool is_there_an_attack_task(const struct Computer2 *comp)
 void get_opponent(struct Computer2 *comp, struct THate hates[])
 {
     SYNCDBG(7,"Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     long i;
     // Initialize hate struct
     for (i=0; i < PLAYERS_COUNT; i++)
@@ -542,7 +542,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
 
 TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos){
     long nearest_distance = INT32_MAX;
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     *retroom = NULL;
 
     for (RoomKind i = 0; i < game.conf.slab_conf.room_types_count; i++)
@@ -574,7 +574,7 @@ TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **
 long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc, struct Coord3d *pos, long victim_plyr_idx)
 {
     struct Room *room;
-    SYNCDBG(8,"Starting player %d attack on %d",(int)comp->dungeon->owner,(int)victim_plyr_idx);
+    SYNCDBG(8,"Starting player %d attack on %d",(int)comp->dungeon_plyr_idx,(int)victim_plyr_idx);
     if (!computer_finds_nearest_room_to_pos(comp, &room, pos)) {
         SYNCDBG(7,"Cannot find owned room near (%d,%d), giving up",(int)pos->x.stl.num,(int)pos->y.stl.num);
         return 0;
@@ -598,7 +598,7 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc
 
 long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
 {
-    const struct Dungeon* dungeon = comp->dungeon;
+    const struct Dungeon* dungeon = computer_dungeon(comp);
     long count = 0;
     long i = game.entrance_room_id;
     unsigned long k = 0;
@@ -732,7 +732,7 @@ int computer_find_more_trap_place_locations_around_room(struct Computer2 *comp, 
 int computer_find_more_trap_place_locations(struct Computer2 *comp)
 {
     SYNCDBG(8,"Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     int num_added = 0;
     RoomKind rkind = AI_RANDOM(game.conf.slab_conf.room_types_count);
     for (int m = 0; m < game.conf.slab_conf.room_types_count; m++, rkind = (rkind + 1) % game.conf.slab_conf.room_types_count)
@@ -767,7 +767,7 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
 
 TbBool computer_get_trap_place_location_and_update_locations(struct Computer2 *comp, ThingModel trapmodel, struct Coord3d *retloc)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     for (long i = 0; i < COMPUTER_TRAP_LOC_COUNT; i++)
     {
         struct Coord3d* location = &comp->trap_locations[i];
@@ -809,7 +809,7 @@ TbBool computer_get_trap_place_location_and_update_locations(struct Computer2 *c
 long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
@@ -890,7 +890,7 @@ long computer_pick_training_or_scavenging_creatures_and_place_on_room(struct Com
  */
 long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *comp, long tasks_limit)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     struct Room* room = room_get(dungeon->room_list_start[RoK_LAIR]);
     long new_tasks = 0;
     // If we don't have lair, then don't even bother
@@ -922,7 +922,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
 {
     SYNCDBG(18,"Starting");
     long ret = CTaskRet_Unk4;
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
@@ -1041,7 +1041,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
 long count_creatures_for_defend_pickup(struct Computer2 *comp)
 {
   struct Thing *i;
-  struct Dungeon *dungeon = comp->dungeon;
+  struct Dungeon *dungeon = computer_dungeon(comp);
   int count = 0;
   int k = 0;
 
@@ -1105,7 +1105,7 @@ TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3
         {
             MapSubtlCoord sstl_x = arstl_x + start_at_around[k].delta_x;
             MapSubtlCoord sstl_y = arstl_y + start_at_around[k].delta_y;
-            if (can_drop_thing_here(sstl_x, sstl_y, comp->dungeon->owner, 0))
+            if (can_drop_thing_here(sstl_x, sstl_y, comp->dungeon_plyr_idx, 0))
             {
               pos->x.val = subtile_coord_center(sstl_x);
               pos->y.val = subtile_coord_center(sstl_y);
@@ -1132,7 +1132,7 @@ TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct C
         {
             MapSubtlCoord sstl_x = arstl_x + start_at_around[k].delta_x;
             MapSubtlCoord sstl_y = arstl_y + start_at_around[k].delta_y;
-            if (can_drop_thing_here(sstl_x, sstl_y, comp->dungeon->owner, 0) && !is_dangerous_drop_subtile(sstl_x, sstl_y))
+            if (can_drop_thing_here(sstl_x, sstl_y, comp->dungeon_plyr_idx, 0) && !is_dangerous_drop_subtile(sstl_x, sstl_y))
             {
                 pos->x.val = subtile_coord_center(sstl_x);
                 pos->y.val = subtile_coord_center(sstl_y);
@@ -1154,7 +1154,7 @@ TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct C
  */
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, KeepPwrLevel power_level, long amount)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (!is_power_available(dungeon->owner, pwkind)) {
         return false;
     }
@@ -1170,9 +1170,9 @@ TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, Keep
 
 long check_call_to_arms(struct Computer2 *comp)
 {
-    SYNCDBG(8,"Starting for player %d",(int)comp->dungeon->owner);
+    SYNCDBG(8,"Starting for player %d",(int)comp->dungeon_plyr_idx);
     long ret = 1;
-    if (comp->dungeon->cta_start_turn != 0)
+    if (computer_dungeon(comp)->cta_start_turn != 0)
     {
         long i = comp->task_idx;
         unsigned long k = 0;
@@ -1235,11 +1235,11 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     memset(comp, 0, sizeof(struct Computer2));
 
     struct ComputerType* cpt = get_computer_type_template(comp_model);
-    comp->dungeon = get_players_num_dungeon(plyr_idx);
+    comp->dungeon_plyr_idx = plyr_idx;
     comp->model = comp_model;
-    if (dungeon_invalid(comp->dungeon)) {
+    if (dungeon_invalid(computer_dungeon(comp))) {
         WARNLOG("Tried to setup player %d which has no dungeon",(int)plyr_idx);
-        comp->dungeon = INVALID_DUNGEON;
+        comp->dungeon_plyr_idx = PLAYERS_COUNT;
         comp->model = 0;
         return false;
     }
@@ -1347,7 +1347,7 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyr_idx, lon
 void computer_check_events(struct Computer2 *comp)
 {
     SYNCDBG(17,"Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     for (long i = 0; i < COMPUTER_EVENTS_COUNT; i++)
     {
         struct ComputerEvent* cevent = &comp->events[i];
@@ -1483,7 +1483,7 @@ void process_computer_player2(PlayerNumber plyr_idx)
         ERRORLOG("Player %d has no computer capability",(int)plyr_idx);
         return;
     }
-    if (dungeon_invalid(comp->dungeon)) {
+    if (dungeon_invalid(computer_dungeon(comp))) {
         ERRORLOG("Computer player %d has invalid dungeon",(int)plyr_idx);
         return;
     }
@@ -1634,16 +1634,16 @@ void restore_computer_player_after_load(void)
         }
         if (!player_exists(player)) {
             memset(comp, 0, sizeof(struct Computer2));
-            comp->dungeon = INVALID_DUNGEON;
+            comp->dungeon_plyr_idx = PLAYERS_COUNT;
             continue;
         }
         if (player->is_active != 1)
         {
             memset(comp, 0, sizeof(struct Computer2));
-            comp->dungeon = get_players_dungeon(player);
+            comp->dungeon_plyr_idx = PLAYERS_COUNT;
             continue;
         }
-        comp->dungeon = get_players_dungeon(player);
+        comp->dungeon_plyr_idx = player->id_number;
     }
 }
 

@@ -124,7 +124,7 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
     struct ComputerTask* ctask = computer_setup_build_room(comp, cproc->process_configuration_value_4, cproc->process_configuration_value_2, cproc->process_configuration_value_3, cproc->process_configuration_value_5);
     if (!computer_task_invalid(ctask))
     {
-        SYNCDBG(8,"Computer %d created task for \"%s\"",(int)comp->dungeon->owner,cproc->name);
+        SYNCDBG(8,"Computer %d created task for \"%s\"",(int)comp->dungeon_plyr_idx,cproc->name);
         set_flag(cproc->flags, ComProc_Unkn0020);
         long i = (long)((char*)cproc - (char*)&comp->processes[0]) / sizeof(struct ComputerProcess);
         if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
@@ -158,7 +158,7 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
     struct ComputerTask* ctask = computer_setup_build_room(comp, cproc->process_configuration_value_4, cproc->process_configuration_value_2, cproc->process_configuration_value_3, cproc->process_configuration_value_5);
     if (!computer_task_invalid(ctask))
     {
-        SYNCDBG(8,"Computer %d created task for \"%s\"",(int)comp->dungeon->owner,cproc->name);
+        SYNCDBG(8,"Computer %d created task for \"%s\"",(int)comp->dungeon_plyr_idx,cproc->name);
         set_flag(cproc->flags, ComProc_Unkn0020);
         long i = (long)((char*)cproc - (char*)&comp->processes[0]) / sizeof(struct ComputerProcess);
         if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
@@ -285,7 +285,7 @@ struct ComputerTask *get_room_build_task_nearest_to(const struct Computer2 *comp
  */
 long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (count_no_room_build_tasks(comp) >= comp->max_room_build_tasks) {
         return CProcRet_Wait;
     }
@@ -305,7 +305,7 @@ long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProce
 
 long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrole)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     int32_t used_capacity_kind;
     int32_t total_capacity_kind;
     long total_capacity = 0;
@@ -326,7 +326,7 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
 
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (room_role_matches(room_kind, RoRoF_FoodStorage))
     {
         return 9999;
@@ -336,7 +336,7 @@ long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_
         if (!dungeon_has_room(dungeon, room_kind)) {
             return 9999;
         }
-        return calculate_free_lair_space(comp->dungeon);
+        return calculate_free_lair_space(computer_dungeon(comp));
     }
     int32_t used_capacity;
     int32_t total_capacity;
@@ -349,7 +349,7 @@ long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_
 
 long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     ItemAvailability is_avail = computer_check_room_available(comp, cproc->process_configuration_value_4);
     if (is_avail != IAvail_Now)
     {
@@ -394,7 +394,7 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
 
 static PlayerNumber get_player_with_more_entrances_than_computer(const struct Computer2 *comp, int *max_entr_count)
 {
-    const struct Dungeon* dungeon = comp->dungeon;
+    const struct Dungeon* dungeon = computer_dungeon(comp);
     PlayerNumber max_plyr_idx = -1;
     *max_entr_count = dungeon->room_discrete_count[RoK_ENTRANCE];
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
@@ -418,7 +418,7 @@ static PlayerNumber get_player_with_more_entrances_than_computer(const struct Co
  */
 TbBool there_is_virgin_entrance_for_computer(const struct Computer2 *comp)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     long i = game.entrance_room_id;
     unsigned long k = 0;
     while (i != 0)
@@ -450,7 +450,7 @@ TbBool there_is_virgin_entrance_for_computer(const struct Computer2 *comp)
 long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     SYNCDBG(18,"Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     int neutral_entrances = count_entrances(comp, game.neutral_player_num);
     if (is_task_in_progress(comp, CTT_DigToEntrance)) {
         return CProcRet_Wait;
@@ -483,7 +483,7 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
 
 long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *startpos, struct Room **retroom, short from_plyr_idx)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (from_plyr_idx < 0)
         from_plyr_idx = game.neutral_player_num;
     struct Room* near_entroom = NULL;
@@ -619,7 +619,7 @@ long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_
     long amount_did = 0;
     if (!is_task_in_progress_using_hand(comp))
     {
-        struct Dungeon* dungeon = comp->dungeon;
+        struct Dungeon* dungeon = computer_dungeon(comp);
         unsigned long k = 0;
         int i = dungeon->digger_list_start;
         while (i != 0)
@@ -660,7 +660,7 @@ long move_imp_to_mine_here(struct Computer2 *comp, struct Coord3d *pos, long max
     long amount_did = 0;
     if (!is_task_in_progress_using_hand(comp))
     {
-        struct Dungeon* dungeon = comp->dungeon;
+        struct Dungeon* dungeon = computer_dungeon(comp);
         unsigned long k = 0;
         int i = dungeon->digger_list_start;
         while (i != 0)
@@ -718,7 +718,7 @@ TbBool right_time_to_choose_target_entrance(struct ComputerProcess *cproc, long 
  */
 TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const struct Coord3d *endpos, uint32_t *dig_distance, DigFlags digflags)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     struct ComputerDig cdig;
     ToolDigResult dig_result;
     // Setup the digging on dummy ComputerDig, to compute distance and move start position near to wall
@@ -751,7 +751,7 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
 
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     // Let's find a player with highest number of entrance rooms
     PlayerNumber targplyr_idx = -1;
     long targplyr_entrances = 0;
@@ -842,7 +842,7 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
 long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     SYNCDBG(18,"Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     struct GoldLookup* gldlook = NULL;
     struct Coord3d startpos;
     long digres = computer_finds_nearest_room_to_gold(comp, &startpos, &gldlook);
@@ -912,7 +912,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
 long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     // If we have treasure room
-    if (!dungeon_has_room_of_role(comp->dungeon, RoRoF_GoldStorage))
+    if (!dungeon_has_room_of_role(computer_dungeon(comp), RoRoF_GoldStorage))
     {
         SYNCDBG(8,"Computer player model %d won't dig for gold - no treasure room.",(int)comp->model);
         return CProcRet_Wait;
@@ -935,7 +935,7 @@ long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
 
 long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (cproc->process_configuration_value_4 >= game.play_gameturn) {
         return CProcRet_Wait;
     }
@@ -955,14 +955,14 @@ long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
 
 TbBool hate_filter_any_enemy_no_matter_how_strong(const struct Computer2 *comp, const struct ComputerProcess *cproc, const struct THate *hate)
 {
-    if (!players_are_enemies(comp->dungeon->owner, hate->plyr_idx))
+    if (!players_are_enemies(comp->dungeon_plyr_idx, hate->plyr_idx))
         return false;
     return true;
 }
 
 TbBool hate_filter_enemy_with_not_many_creatures(const struct Computer2 *comp, const struct ComputerProcess *cproc, const struct THate *hate)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (!players_are_enemies(dungeon->owner, hate->plyr_idx))
         return false;
     struct Dungeon* enmdngn = get_players_num_dungeon(hate->plyr_idx);
@@ -971,7 +971,7 @@ TbBool hate_filter_enemy_with_not_many_creatures(const struct Computer2 *comp, c
 
 long computer_check_attack_with_filter(struct Computer2 *comp, struct ComputerProcess *cproc, Comp_HateTest_Func hate_filter)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
     int max_crtrs = dungeon->max_creatures_attracted;
     if (max_crtrs <= 0) {
@@ -1031,7 +1031,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     int current_idx;
     struct Coord3d *pos;
 
-    struct Dungeon *dungeon = comp->dungeon;
+    struct Dungeon *dungeon = computer_dungeon(comp);
     PlayerBitFlags potential_opponents = to_flag(dungeon->owner);
     MapSubtlDelta radius = range / 2;
 
@@ -1102,7 +1102,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
 
 long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (comp->tasks_did <= 0) {
         return CProcRet_Wait;
     }
@@ -1171,7 +1171,7 @@ long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *cpr
 
 long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     int creatrs_num = cproc->process_configuration_value_2 * dungeon->num_active_creatrs / 100;
     comp->task_state = CTaskSt_Select;
     struct ComputerTask* ctask = get_computer_task(cproc->process_parameter_5);
@@ -1283,8 +1283,8 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
     struct ComputerProcess* best_cproc = INVALID_COMPUTER_PROCESS;
     long best_prior = INT32_MIN;
     // Computer players without heart can't start any process
-    if (dungeon_invalid(comp->dungeon) || !player_has_heart(comp->dungeon->owner)) {
-        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)comp->dungeon->owner);
+    if (dungeon_invalid(computer_dungeon(comp)) || !player_has_heart(comp->dungeon_plyr_idx)) {
+        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)comp->dungeon_plyr_idx);
         return best_cproc;
     }
 
@@ -1355,7 +1355,7 @@ long set_next_process(struct Computer2 *comp)
     struct ComputerProcess* cproc = find_best_process(comp);
     if (cproc != INVALID_COMPUTER_PROCESS)
     {
-        SYNCDBG(8,"Checking \"%s\" for player %d",cproc->name,(int)comp->dungeon->owner);
+        SYNCDBG(8,"Checking \"%s\" for player %d",cproc->name,(int)comp->dungeon_plyr_idx);
         chkres = computer_process_func_list[cproc->func_check](comp, cproc);
         if (chkres == CProcRet_Continue)
         {
