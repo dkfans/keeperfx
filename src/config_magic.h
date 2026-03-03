@@ -319,10 +319,11 @@ typedef unsigned char (*Expand_Check_Func)(void);
 /**
  * Configuration parameters for powers.
  */
+#pragma pack(1)
 struct PowerConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    ThingModel artifact_model;
     uint64_t can_cast_flags;
+    ThingModel artifact_model;
     uint32_t config_flags;
     unsigned char overcharge_check_idx;
     uint32_t work_state;
@@ -347,6 +348,7 @@ struct PowerConfigStats {
     GameTurnDelta duration;
     int32_t strength[MAGIC_OVERCHARGE_LEVELS+1];
 };
+#pragma pack()
 
 /**
  * Configuration parameters for specials.

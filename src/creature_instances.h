@@ -98,12 +98,12 @@ typedef TbBool (*Creature_Target_Search_Func)(struct Thing *, CrInstance, ThingI
 
 struct InstanceInfo {
     TbBool instant;
-    long time;
-    long fp_time;
-    long action_time;
-    long fp_action_time;
-    long reset_time;
-    long fp_reset_time;
+    int32_t time;
+    int32_t fp_time;
+    int32_t action_time;
+    int32_t fp_action_time;
+    int32_t reset_time;
+    int32_t fp_reset_time;
     unsigned char graphics_idx;
     char postal_priority;
     short instance_property_flags;
@@ -111,9 +111,9 @@ struct InstanceInfo {
     unsigned char primary_target;
     unsigned char func_idx;
     int32_t func_params[2];
-    long range_min;
-    long range_max;
-    long symbol_spridx;
+    int32_t range_min;
+    int32_t range_max;
+    int32_t symbol_spridx;
     short tooltip_stridx;
     TbBool no_animation_loop;
     // Refer to creature_instances_validate_func_list
