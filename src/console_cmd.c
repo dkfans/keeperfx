@@ -142,7 +142,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
         if (cproc != NULL)
         {
             char *label = (char*)goptn[i].label;
-            sprintf(label, "%02lx", cproc->flags);
+            sprintf(label, "%02" PRIx32, cproc->flags);
             label[2] = ' ';
         }
     }
