@@ -48,7 +48,7 @@ struct CreatureControl *creature_control_get(CctrlIndex cctrl_idx)
 {
   if ((cctrl_idx < 1) || (cctrl_idx >= CREATURES_COUNT))
     return INVALID_CRTR_CONTROL;
-  return game.persons.cctrl_lookup[cctrl_idx];
+  return &game.cctrl_data[cctrl_idx];
 }
 
 /**
@@ -59,7 +59,7 @@ struct CreatureControl *creature_control_get_from_thing(const struct Thing *thin
 {
   if ((thing->ccontrol_idx < 1) || (thing->ccontrol_idx >= CREATURES_COUNT))
     return INVALID_CRTR_CONTROL;
-  return game.persons.cctrl_lookup[thing->ccontrol_idx];
+  return &game.cctrl_data[thing->ccontrol_idx];
 }
 
 /**
@@ -67,7 +67,9 @@ struct CreatureControl *creature_control_get_from_thing(const struct Thing *thin
  */
 TbBool creature_control_invalid(const struct CreatureControl *cctrl)
 {
-  return (cctrl <= game.persons.cctrl_lookup[0]) || (cctrl == NULL);
+  if (cctrl == NULL)
+    return true;
+  return (cctrl <= &game.cctrl_data[0]);
 }
 
 TbBool creature_control_exists(const struct CreatureControl *cctrl)
@@ -83,7 +85,7 @@ CctrlIndex i_can_allocate_free_control_structure(void)
 {
     for (CctrlIndex i = 1; i < CREATURES_COUNT; i++)
     {
-        struct CreatureControl* cctrl = game.persons.cctrl_lookup[i];
+        struct CreatureControl* cctrl = &game.cctrl_data[i];
         if (!creature_control_invalid(cctrl))
         {
             if ((cctrl->creature_control_flags & CCFlg_Exists) == 0)
@@ -97,7 +99,7 @@ struct CreatureControl *allocate_free_control_structure(void)
 {
     for (long i = 1; i < CREATURES_COUNT; i++)
     {
-        struct CreatureControl* cctrl = game.persons.cctrl_lookup[i];
+        struct CreatureControl* cctrl = &game.cctrl_data[i];
         if (!creature_control_invalid(cctrl))
         {
             if ((cctrl->creature_control_flags & CCFlg_Exists) == 0)
