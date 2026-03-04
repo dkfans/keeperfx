@@ -401,6 +401,7 @@ void frontnet_start_update(void)
       player_last_time = LbTimerClock();
     }
 
+    frontnet_is_waiting_for_ping_stabilization();
     handle_autostart_multiplayer_messaging();
 
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
@@ -496,7 +497,6 @@ void frontnet_start_setup(void)
     net_player_scroll_offset = 0;
     net_message_scroll_offset = 0;
     //net_old_number_of_players = 0;
-    players_currently_in_session = 0;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
