@@ -67,7 +67,9 @@ struct CreatureControl *creature_control_get_from_thing(const struct Thing *thin
  */
 TbBool creature_control_invalid(const struct CreatureControl *cctrl)
 {
-  return (cctrl <= &game.cctrl_data[0]) || (cctrl == NULL);
+  if (cctrl == NULL)
+    return true;
+  return (cctrl <= &game.cctrl_data[0]);
 }
 
 TbBool creature_control_exists(const struct CreatureControl *cctrl)
