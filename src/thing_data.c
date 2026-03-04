@@ -220,7 +220,9 @@ struct Thing *thing_get_f(ThingIndex tng_idx, const char *func_name)
  */
 short thing_is_invalid(const struct Thing *thing)
 {
-    return (thing <= &game.things_data[0]) || (thing > &game.things_data[THINGS_COUNT-1]) || (thing == NULL);
+    if (thing == NULL)
+        return true;
+    return (thing <= &game.things_data[0]) || (thing > &game.things_data[THINGS_COUNT-1]);
 }
 
 /**
