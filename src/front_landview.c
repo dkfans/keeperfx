@@ -389,11 +389,11 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             default:
                 if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign, EnsFullMoon);
+                    i = get_disabled_flag_option(lvinfo->ensign, EnsNewMoon);
                 }
                 else
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign, EnsNewMoon);
+                    i = get_disabled_flag_option(lvinfo->ensign, EnsFullMoon);
                 }
                 spr = get_map_ensign(i);
                 break;
