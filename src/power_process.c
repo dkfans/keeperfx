@@ -234,6 +234,19 @@ void process_disease(struct Thing *creatng)
     }
 }
 
+void process_bleed(struct Thing* creatng)
+{
+    SYNCDBG(18, "Starting");
+    if (!creature_under_spell_effect(creatng, CSAfF_Bleed))
+    {
+        return;
+    }
+    if ((game.play_gameturn % 10) == 0)
+    {
+        apply_damage_to_thing_and_display_health(creatng, 10, -1); //todo get bleed causing player
+    }
+}
+
 void lightning_modify_palette(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();

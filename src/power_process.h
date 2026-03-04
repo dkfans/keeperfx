@@ -37,9 +37,10 @@ struct PlayerInfo;
 void set_chosen_power(PowerKind pwkind, TextStringId sptooltip);
 void set_chosen_power_none(void);
 
-void process_disease(struct Thing *thing);
+void process_disease(struct Thing *creatng);
 void process_timebomb(struct Thing *creatng);
 void timebomb_explode(struct Thing *creatng);
+void process_bleed(struct Thing *creatng);
 
 void process_armageddon(void);
 void process_armageddon_influencing_creature(struct Thing *creatng);

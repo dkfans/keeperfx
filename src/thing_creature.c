@@ -1130,6 +1130,16 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    //Bleed
+    if (flag_is_set(spconf->spell_flags, CSAfF_Bleed)
+        && (!creature_is_immune_to_spell_effect(thing, CSAfF_Bleed)))
+    {
+        if (!creature_under_spell_effect(thing, CSAfF_Bleed))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_Bleed);
+        }
+        affected = true;
+    }
     // TELEPORT.
     if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Teleport)))
@@ -6388,6 +6398,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     process_magic_fall_effect(thing);
     process_landscape_affecting_creature(thing);
     process_disease(thing);
+    process_bleed(thing);
     move_thing_in_map(thing, &thing->mappos);
     set_creature_graphic(thing);
     if (cctrl->spell_aura)
