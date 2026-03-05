@@ -492,6 +492,7 @@ void frontnet_session_setup(void)
 void frontnet_start_setup(void)
 {
     frontnet_reset_ping_stabilization();
+    memset(&net_screen_packet[my_player_number], 0, sizeof(struct ScreenPacket));
     frontend_alliances = -1;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
