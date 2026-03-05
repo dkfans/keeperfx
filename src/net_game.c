@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "net_matchmaking.h"
 #include "net_game.h"
 
 #include "globals.h"
@@ -189,8 +190,10 @@ long network_session_join(void)
 {
     int32_t plyr_num;
     display_attempting_to_join_message();
+    snprintf(g_join_lobby_id, sizeof(g_join_lobby_id), "%s", net_session[net_session_index_active]->lobby_id);
     if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
     {
+      g_join_lobby_id[0] = '\0';
       process_network_error(-802);
       return -1;
     }

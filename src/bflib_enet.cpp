@@ -17,6 +17,8 @@
 #include "bflib_network.h"
 #include "bflib_math.h"
 #include "net_portforward.h"
+#include "net_holepunch.h"
+#include "net_matchmaking.h"
 #include "game_legacy.h"
 #include "player_data.h"
 
@@ -32,6 +34,10 @@
 
 #define NUM_CHANNELS 2
 #define DEFAULT_PORT 5556
+#define HOLEPUNCH_CONNECT_DELAY_MS 300
+
+uint16_t g_external_port = 0;
+char g_external_ip[EXTERNAL_IP_LEN] = {0};
 
 namespace
 {
@@ -112,6 +118,7 @@ namespace
         }
         enet_host_compress_with_range_coder(host);
         port_forward_add_mapping(address.port);
+        g_external_port = holepunch_stun_query(host, g_external_ip, sizeof(g_external_ip));
         return Lb_OK;
     }
 
@@ -188,33 +195,49 @@ namespace
 
     TbError bf_enet_join(const char *session, void *options)
     {
-        char buf[128] = {0};
         ENetAddress connect_address;
-        enet_uint16 port = parse_session_address(session, buf, sizeof(buf));
-        if (port == 0) {
-            return Lb_FAIL;
-        }
-        if (buf[0] == '\0') {
-            return Lb_FAIL;
-        }
-        if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_ANY, buf) < 0) {
-            return Lb_FAIL;
-        }
-        connect_address.port = port;
-        host = enet_host_create(connect_address.type, NULL, 4, NUM_CHANNELS, 0, 0);
-        if (!host)
-        {
-            return Lb_FAIL;
+        if (g_join_lobby_id[0] != '\0') {
+            host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, NULL, 4, NUM_CHANNELS, 0, 0);
+            if (!host) {
+                return Lb_FAIL;
+            }
+            uint16_t ext_port = holepunch_stun_query(host, NULL, 0);
+            char peer_ip[MATCHMAKING_IP_MAX] = {0};
+            int peer_port = 0;
+            if (matchmaking_punch(g_join_lobby_id, (int)ext_port, peer_ip, &peer_port) != 0) {
+                host_destroy();
+                return Lb_FAIL;
+            }
+            g_join_lobby_id[0] = '\0';
+            if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, peer_ip) < 0) {
+                host_destroy();
+                return Lb_FAIL;
+            }
+            connect_address.port = (enet_uint16)peer_port;
+            Sleep(HOLEPUNCH_CONNECT_DELAY_MS);
+        } else {
+            char buf[128] = {0};
+            enet_uint16 port = parse_session_address(session, buf, sizeof(buf));
+            if (port == 0 || buf[0] == '\0') {
+                return Lb_FAIL;
+            }
+            if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_ANY, buf) < 0) {
+                return Lb_FAIL;
+            }
+            connect_address.port = port;
+            host = enet_host_create(connect_address.type, NULL, 4, NUM_CHANNELS, 0, 0);
+            if (!host) {
+                return Lb_FAIL;
+            }
         }
         enet_host_compress_with_range_coder(host);
+        holepunch_punch_to(host, &connect_address);
         client_peer = enet_host_connect(host, &connect_address, NUM_CHANNELS, 0);
-        if (!client_peer)
-        {
+        if (!client_peer) {
             host_destroy();
             return Lb_FAIL;
         }
-        if (wait_for_connect(TIMEOUT_ENET_CONNECT))
-        {
+        if (wait_for_connect(TIMEOUT_ENET_CONNECT)) {
             host_destroy();
             return Lb_FAIL;
         }
@@ -701,6 +724,21 @@ unsigned int GetClientReliableCommandsInFlight() {
         }
     }
     return ClampSizeToUInt(best_value);
+}
+
+void enet_matchmaking_host_update(void)
+{
+    if (!host)
+        return;
+    char peer_ip[MATCHMAKING_IP_MAX];
+    int  peer_port = 0;
+    if (!matchmaking_poll_punch(peer_ip, &peer_port))
+        return;
+    ENetAddress target;
+    if (enet_address_set_host(&target, ENET_ADDRESS_TYPE_IPV4, peer_ip) != 0)
+        return;
+    target.port = (enet_uint16)peer_port;
+    holepunch_punch_to(host, &target);
 }
 
 struct NetSP *InitEnetSP()

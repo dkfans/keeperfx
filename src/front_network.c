@@ -43,6 +43,8 @@
 #include "config_strings.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "net_matchmaking.h"
+#include "bflib_enet.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -242,6 +244,9 @@ void frontnet_session_update(void)
       memset(net_session, 0, sizeof(net_session));
       if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
         ERRORLOG("LbNetwork_EnumerateSessions() failed");
+      matchmaking_refresh_sessions();
+      for (int i = 0; i < g_mm_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
+          net_session[net_number_of_sessions++] = &g_mm_sessions[i];
       last_enum_sessions = LbTimerClock();
 
       if (net_number_of_sessions == 0)
@@ -416,6 +421,7 @@ void frontnet_start_update(void)
     frontnet_rewite_net_messages();
 
     LbNetwork_UpdateInputLagIfHost();
+    enet_matchmaking_host_update();
 }
 
 void display_attempting_to_join_message(void)
@@ -474,6 +480,7 @@ void frontnet_service_setup(void)
         net_number_of_services++;
     }
     net_load_config_file();
+    matchmaking_init();
 }
 
 void frontnet_session_setup(void)
@@ -487,6 +494,7 @@ void frontnet_session_setup(void)
     fe_computer_players = 2;
     lbInkey = 0;
     net_session_index_active_id = -1;
+    matchmaking_connect_async();
 }
 
 void frontnet_start_setup(void)

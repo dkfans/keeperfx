@@ -31,7 +31,11 @@
 #include "front_landview.h"
 #include "front_network.h"
 #include "net_received_packets.h"
+#include "net_matchmaking.h"
+#include "bflib_enet.h"
 #include "keeperfx.hpp"
+#include <thread>
+#include <string>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -145,6 +149,16 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
     if (netstate.sp->host(port, optns) == Lb_FAIL) {
         return Lb_FAIL;
     }
+    std::string host_name(plyr_name);
+    uint16_t ext_port = g_external_port;
+    if (ext_port == 0 && ServerPort > 0)
+        ext_port = (uint16_t)ServerPort;
+    if (ext_port == 0)
+        ext_port = (uint16_t)ENET_DEFAULT_PORT;
+    std::thread([ext_port, host_name]() {
+        if (matchmaking_connect() == 0)
+            matchmaking_create(host_name.c_str(), (int)ext_port, g_external_ip);
+    }).detach();
     netstate.my_id = SERVER_ID;
     snprintf(netstate.users[netstate.my_id].name, sizeof(netstate.users[netstate.my_id].name), "%s", plyr_name);
     netstate.users[netstate.my_id].progress = USER_LOGGEDIN;
@@ -189,6 +203,7 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow) {
 }
 
 TbError LbNetwork_Stop(void) {
+    matchmaking_disconnect();
     if (netstate.sp) {
         netstate.sp->exit();
     }

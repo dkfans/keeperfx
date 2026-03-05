@@ -15,9 +15,14 @@
 #ifndef GIT_BFLIB_ENET_H
 #define GIT_BFLIB_ENET_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define ENET_DEFAULT_PORT 5556
+#define EXTERNAL_IP_LEN 64
 
 enum {
     ENET_CHANNEL_RELIABLE = 0,
@@ -35,6 +40,9 @@ unsigned int GetClientPacketsLost();
 unsigned int GetClientOutgoingDataTotal();
 unsigned int GetClientIncomingDataTotal();
 unsigned int GetClientReliableCommandsInFlight();
+void enet_matchmaking_host_update(void);
+extern uint16_t g_external_port;
+extern char g_external_ip[EXTERNAL_IP_LEN];
 
 #ifdef __cplusplus
 }
