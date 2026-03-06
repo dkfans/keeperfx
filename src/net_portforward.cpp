@@ -60,6 +60,9 @@ enum PortForwardMethod {
 static enum PortForwardMethod active_method = PORT_FORWARD_NONE;
 static uint16_t mapped_port = 0;
 
+int upnp_enabled   = 0;
+int natpmp_enabled = 0;
+
 static struct UPNPUrls upnp_urls;
 static struct IGDdatas upnp_data;
 static char upnp_lanaddr[64];
@@ -201,7 +204,10 @@ static void port_forward_add_mapping_internal(uint16_t port) {
     if (active_method != PORT_FORWARD_NONE) {
         port_forward_remove_mapping();
     }
-    if (natpmp_add_port_mapping(port)) {
+    if (natpmp_enabled && natpmp_add_port_mapping(port)) {
+        return;
+    }
+    if (!upnp_enabled) {
         return;
     }
     int error = 0;

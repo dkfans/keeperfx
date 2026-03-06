@@ -25,6 +25,9 @@
 extern "C" {
 #endif
 
+extern int upnp_enabled;
+extern int natpmp_enabled;
+
 int port_forward_add_mapping(uint16_t port);
 void port_forward_remove_mapping(void);
 
