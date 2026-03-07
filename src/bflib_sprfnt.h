@@ -58,7 +58,6 @@ enum DkcodepageLetter {
    DKChr_Modifier_OneColor,
    DKChr_Return,
    DKChr_Modifier_Colour,
-   DKChr_unused15,
    DKChr_Cyrillic_Ukrainian_Upper_Ye,
    DKChr_Cyrillic_Ukrainian_Lower_Ye,
    DKChr_Cyrillic_Ukrainian_Upper_GheWithUpturn,
@@ -299,6 +298,7 @@ enum DkcodepageLetter {
    DKChr_Lower_z_Dot,
    DKChr_Upper_Z_Dot,
    DKChr_unused39,
+   DKChr_unused40,
 };
 
 struct AsianFont {
