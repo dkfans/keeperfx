@@ -43,7 +43,7 @@ int matchmaking_connect(void);
 void matchmaking_disconnect(void);
 void matchmaking_refresh_sessions(void);
 int matchmaking_create(const char *name, int udp_port, const char *ip);
-int matchmaking_punch(const char *lobby_id, int udp_port, char *out_ip, int *out_port);
+int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, char *out_ip, int *out_port);
 int matchmaking_poll_punch(char *out_ip, int *out_port);
 
 #ifdef __cplusplus

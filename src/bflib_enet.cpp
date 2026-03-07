@@ -206,11 +206,12 @@ namespace
                 return Lb_FAIL;
             }
             LbNetLog("Join: created client host, local port=%u\n", (unsigned)host->address.port);
-            uint16_t ext_port = holepunch_stun_query(host, NULL, 0);
+            char ext_ip[MATCHMAKING_IP_MAX] = {0};
+            uint16_t ext_port = holepunch_stun_query(host, ext_ip, sizeof(ext_ip));
             LbNetLog("Join: STUN ext_port=%u\n", (unsigned)ext_port);
             char peer_ip[MATCHMAKING_IP_MAX] = {0};
             int peer_port = 0;
-            if (matchmaking_punch(g_join_lobby_id, (int)ext_port, peer_ip, &peer_port) != 0) {
+            if (matchmaking_punch(g_join_lobby_id, (int)ext_port, ext_ip, peer_ip, &peer_port) != 0) {
                 LbNetLog("Join: matchmaking_punch failed\n");
                 host_destroy();
                 return Lb_FAIL;

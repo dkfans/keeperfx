@@ -293,14 +293,20 @@ int matchmaking_create(const char *name, int udp_port, const char *ip)
     return 0;
 }
 
-int matchmaking_punch(const char *lobby_id, int udp_port, char *out_ip, int *out_port)
+int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, char *out_ip, int *out_port)
 {
     char msg[SEND_BUF_SIZE];
     char buf[WS_BUF_SIZE];
     EnterCriticalSection(&g_cs);
-    snprintf(msg, sizeof(msg),
-        "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d}",
-        lobby_id, udp_port);
+    if (udp_ip && udp_ip[0]) {
+        snprintf(msg, sizeof(msg),
+            "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d,\"udpIp\":\"%s\"}",
+            lobby_id, udp_port, udp_ip);
+    } else {
+        snprintf(msg, sizeof(msg),
+            "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d}",
+            lobby_id, udp_port);
+    }
     int punch_n = ws_exchange(msg, buf, sizeof(buf));
     LbNetLog("Matchmaking: punch response (%d bytes): %s\n", punch_n, punch_n > 0 ? buf : "(empty)");
     if (punch_n <= 0) {
