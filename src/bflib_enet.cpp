@@ -33,7 +33,6 @@
 #include "post_inc.h"
 
 #define NUM_CHANNELS 2
-#define DEFAULT_PORT 5556
 #define HOLEPUNCH_CONNECT_DELAY_MS 300
 
 uint16_t g_external_port = 0;
@@ -106,7 +105,7 @@ namespace
     {
         ENetAddress address;
         enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV4);
-        address.port = DEFAULT_PORT;
+        address.port = ENET_DEFAULT_PORT;
         if (!*session)
             return Lb_FAIL;
         const char *port_str = session;
@@ -154,7 +153,7 @@ namespace
     enet_uint16 parse_session_address(const char *session, char *host_out, size_t host_size)
     {
         char *E;
-        enet_uint16 port = DEFAULT_PORT;
+        enet_uint16 port = ENET_DEFAULT_PORT;
         if (session[0] == '[') {
             const char *bracket_end = strchr(session, ']');
             if (!bracket_end) {

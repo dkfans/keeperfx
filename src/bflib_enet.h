@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#define ENET_DEFAULT_PORT 5556
+#define ENET_DEFAULT_PORT 5765
 #define EXTERNAL_IP_LEN 64
 
 enum {

@@ -140,7 +140,9 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    const char *port = ":5555";
+    char default_port_buf[16];
+    snprintf(default_port_buf, sizeof(default_port_buf), ":%u", (unsigned)ENET_DEFAULT_PORT);
+    const char *port = default_port_buf;
     char buf[16] = "";
     if (ServerPort != 0) {
         snprintf(buf, sizeof(buf), "%d", ServerPort);
