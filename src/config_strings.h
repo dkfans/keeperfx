@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       2000
 #define DK_STRINGS_MAX     941
-#define GUI_STRINGS_COUNT 1083
+#define GUI_STRINGS_COUNT GuiStrEnd - STRINGS_MAX
 
 struct GameCampaign;
 
@@ -434,6 +434,34 @@ enum GUIStrings {
     GUIStr_CtrlAscend = STRINGS_MAX + 1078,
     GUIStr_CtrlDescend = STRINGS_MAX + 1079,
     GUIStr_Keeper = STRINGS_MAX + 1082,
+    GUIStr_ScreenRecord,
+    GUIStr_ScreenShot,
+    GUIStr_FrameSkipIncrease,
+    GUIStr_FrameSkipDecrease,
+    GUIStr_ZoomMinimapIn,
+    GUIStr_ZoomMinimapOut,
+    GUIStr_NextInstance,
+    GUIStr_PrevInstance,
+    GUIStr_CheatMenu1,
+    GUIStr_CheatMenu2,
+    GUIStr_CheatMenu3,
+    GUIStr_ToggleGui,
+    GUIStr_ToggleTooltips,
+    GUIStr_LVShowAllEnsigns,
+    GUIStr_LVNextLevel,
+    GUIStr_LVPrevLevel,
+    GUIStr_ExitGame,
+    GUIStr_DisablePacketMode,
+    GUIStr_SwitchScreenRes,
+    GUIStr_ToggleConsole,
+    GUIStr_FinishLevel,
+    GUIStr_OptionsMenu,
+    GUIStr_ToggleHeroHealthFlowers,
+    GUIStr_TeleportFight,
+    GUIStr_TeleportLastWorkroom,
+    GUIStr_TeleportCallToArms,
+    GUIStr_TeleportDefault,
+    GuiStrEnd
 };
 
 enum CampaignStrings {

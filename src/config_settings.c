@@ -104,6 +104,44 @@ void setup_default_settings(void)
           {KC_INSERT, KMod_SHIFT},           // Gkey_TiltReset
           {KC_X, KMod_NONE},                 // Gkey_Ascend
           {KC_Z, KMod_NONE},                 // Gkey_Descend
+
+          {KC_M, KMod_SHIFT},                // GKey_ScreenRecord,
+          {KC_C, KMod_SHIFT},                // GKey_ScreenShot,
+          {KC_ADD, KMod_CONTROL},            // GKey_FrameSkipIncrease,
+          {KC_SUBTRACT, KMod_CONTROL},       // GKey_FrameSkipDecrease,
+          {KC_ADD, KMod_NONE},               // GKey_ZoomMinimapIn,
+          {KC_SUBTRACT, KMod_NONE},          // GKey_ZoomMinimapOut,
+          {KC_UNASSIGNED, KMod_NONE},        // GKey_NextInstance,
+          {KC_UNASSIGNED, KMod_NONE},        // GKey_PrevInstance,
+          {KC_NUMPADENTER, KMod_DONTCARE},   // GKey_CheatMenu1,
+          {KC_F12, KMod_DONTCARE},           // GKey_CheatMenu2,
+          {KC_NUMPADENTER, KMod_NONE},       // GKey_CheatMenu3,
+          {KC_TAB, KMod_CONTROL},            // Gkey_ToggleGui,
+          {KC_F8, KMod_NONE},                // Gkey_ToggleTooltips,
+          {KC_F11, KMod_CONTROL},            // Gkey_LVShowAllEnsigns,
+          {KC_F10, KMod_CONTROL},            // Gkey_LVNextLevel,
+          {KC_F9,  KMod_CONTROL},            // Gkey_LVPrevLevel,
+          {KC_X,   KMod_ALT},                // Gkey_ExitGame,
+          {KC_T,   KMod_ALT},                // Gkey_DisablePacketMode,
+          {KC_R,   KMod_ALT},                // Gkey_SwitchScreenRes,
+          {KC_GRAVE, KMod_DONTCARE},         // Gkey_ToggleConsole,
+          {KC_SPACE, KMod_NONE},             // Gkey_FinishLevel,
+          {KC_ESCAPE, KMod_DONTCARE},        // Gkey_OptionsMenu,
+          {KC_F, KMod_ALT},                  // Gkey_ToggleHeroHealthFlowers,
+          {KC_F, KMod_NONE},                 // Gkey_TeleportFight,
+          {KC_SEMICOLON, KMod_NONE},         // Gkey_TeleportLastWorkroom,
+          {KC_SLASH, KMod_NONE},             // Gkey_TeleportCallToArms,
+          {KC_COMMA, KMod_NONE},             // Gkey_TeleportDefault,
+          
+
+
+
+
+//GKey_FrameSkipIncrease  {KC_EQUALS, KMod_CONTROL},
+//GKey_FrameSkipDecrease  {KC_MINUS, KMod_CONTROL},
+//GKey_CheatMenu1      {KC_RETURN,KMod_SHIFT},
+
+
      },                         // kbkeys
      true,                      // tooltips_on
      0,                         // first_person_move_invert
