@@ -2455,16 +2455,17 @@ short get_packet_load_game_inputs(void)
  */
 TbBool get_packet_load_demo_inputs(void)
 {
+    int32_t val;
   if (is_key_pressed(KC_SPACE,KMod_DONTCARE) ||
       is_key_pressed(KC_ESCAPE,KMod_DONTCARE) ||
       is_key_pressed(KC_RETURN,KMod_DONTCARE) ||
-      (lbKeyOn[KC_LALT] && lbKeyOn[KC_X]) ||
+      (is_game_key_pressed(Gkey_ExitGame, &val ,true)) ||
       left_button_clicked)
   {
       clear_key_pressed(KC_SPACE);
       clear_key_pressed(KC_ESCAPE);
       clear_key_pressed(KC_RETURN);
-      lbKeyOn[KC_X] = 0;
+      clear_key_pressed(val);
       left_button_clicked = 0;
       quit_game = 1;
       return true;
