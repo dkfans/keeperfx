@@ -105,14 +105,16 @@ namespace
     TbError bf_enet_host(const char *session, void *options)
     {
         ENetAddress address;
-        enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV6);
+        enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV4);
         address.port = DEFAULT_PORT;
         if (!*session)
             return Lb_FAIL;
-        int port = atoi(session);
+        const char *port_str = session;
+        if (*port_str == ':') port_str++;
+        int port = atoi(port_str);
         if (port > 0)
             address.port = port;
-        host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, 4, NUM_CHANNELS, 0, 0);
+        host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, &address, 4, NUM_CHANNELS, 0, 0);
         if (!host) {
             return Lb_FAIL;
         }
