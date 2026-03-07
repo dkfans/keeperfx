@@ -42,6 +42,7 @@
 #include "thing_navigate.h"
 #include "thing_physics.h"
 #include "config_spritecolors.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1583,6 +1584,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
         return;
     }
     struct SlabMap *slbmap = get_slabmap_block(slb_x, slb_y);
+    SlabKind old_kind = slbmap->kind;
     if (slbmap->kind != SlbT_GEMS)
     {
         all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
@@ -1595,6 +1597,10 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
     {
         remove_unwanted_things_from_wall_slab(slb_x, slb_y);
     }
+        if (slbmap->kind != old_kind)
+        {
+            lua_on_slab_kind_change(slb_x, slb_y, old_kind);
+        }
 }
 
 /**
@@ -1694,6 +1700,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
             all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
         }
     }
+    SlabKind old_kind = slb->kind;
     slb->kind = skind;
 
     set_slab_owner(slb_x, slb_y, owner);
@@ -1797,6 +1804,10 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
             break;
         default:
             break;
+    }
+    if (old_kind != nslab)
+    {
+        lua_on_slab_kind_change(slb_x, slb_y, old_kind);
     }
 }
 
