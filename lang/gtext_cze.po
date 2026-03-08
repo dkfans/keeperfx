@@ -7126,3 +7126,138 @@ msgstr "Přivolání: Přivolá dočasné ochránce, kteří pomohou stvoření 
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Strážce"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Record"
+msgstr "Nahrávání obrazovky"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screen Shot"
+msgstr "Snímek obrazovky"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Zvýšit přeskakování snímků"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Snížit přeskakování snímků"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Přiblížit minimapu"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Oddálit minimapu"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Instance"
+msgstr "Další instance"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Prev Instance"
+msgstr "Předchozí instance"
+
+#: guitext:1091
+msgctxt "Game controls"
+msgid "Cheat Menu 1"
+msgstr "Menu cheatů 1"
+
+#: guitext:1092
+msgctxt "Game controls"
+msgid "Cheat Menu 2"
+msgstr "Menu cheatů 2"
+
+#: guitext:1093
+msgctxt "Game controls"
+msgid "Cheat Menu 3"
+msgstr "Menu cheatů 3"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Přepnout rozhraní"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Přepnout nápovědy"
+
+#: guitext:1096
+msgctxt "Game controls"
+msgid "Landview Show All Ensigns"
+msgstr "Landview Zobrazit všechny odznaky"
+
+#: guitext:1097
+msgctxt "Game controls"
+msgid "Landview Next Level"
+msgstr "Landview Další úroveň"
+
+#: guitext:1098
+msgctxt "Game controls"
+msgid "Landview Prev Level"
+msgstr "Landview Předchozí úroveň"
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Ukončit hru"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Zakázat paketový režim"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Změnit rozlišení"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Přepnout konzoli"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Dokončit úroveň"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Menu možností"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Přepnout květiny zdraví hrdinů"
+
+#: guitext:1106
+msgctxt "Game controls"
+msgid "Teleport Fight"
+msgstr "Teleport do boje"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Teleport do poslední dílny"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Teleport k výzvě ke zbraním"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Teleport výchozí"

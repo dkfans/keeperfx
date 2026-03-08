@@ -7383,3 +7383,138 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Gardien"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Record"
+msgstr "Enregistrer écran"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screen Shot"
+msgstr "Capture d'écran"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Augmenter saut d'image"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Diminuer saut d'image"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Zoomer minicarte"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Dézoomer minicarte"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Instance"
+msgstr "Instance suivante"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Prev Instance"
+msgstr "Instance précédente"
+
+#: guitext:1091
+msgctxt "Game controls"
+msgid "Cheat Menu 1"
+msgstr "Menu Triche 1"
+
+#: guitext:1092
+msgctxt "Game controls"
+msgid "Cheat Menu 2"
+msgstr "Menu Triche 2"
+
+#: guitext:1093
+msgctxt "Game controls"
+msgid "Cheat Menu 3"
+msgstr "Menu Triche 3"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Basculer interface"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Basculer infobulles"
+
+#: guitext:1096
+msgctxt "Game controls"
+msgid "Landview Show All Ensigns"
+msgstr "Landview Afficher tous les drapeaux"
+
+#: guitext:1097
+msgctxt "Game controls"
+msgid "Landview Next Level"
+msgstr "Landview Niveau suivant"
+
+#: guitext:1098
+msgctxt "Game controls"
+msgid "Landview Prev Level"
+msgstr "Landview Niveau précédent"
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Quitter le jeu"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Désactiver mode paquet"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Changer résolution"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Basculer console"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Terminer niveau"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Menu Options"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Basculer fleurs santé héros"
+
+#: guitext:1106
+msgctxt "Game controls"
+msgid "Teleport Fight"
+msgstr "Téléportation Combat"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Téléportation Dernière salle"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Téléportation Appel aux armes"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Téléportation Par défaut"

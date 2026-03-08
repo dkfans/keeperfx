@@ -7156,3 +7156,138 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Custos"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Record"
+msgstr "Recordatio Scaenae"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screen Shot"
+msgstr "Imago Scaenae"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Augere Saltum Formae"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Minuere Saltum Formae"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Amplificare Mappam Parvam"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Reducere Mappam Parvam"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Instance"
+msgstr "Instantia Proxima"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Prev Instance"
+msgstr "Instantia Prior"
+
+#: guitext:1091
+msgctxt "Game controls"
+msgid "Cheat Menu 1"
+msgstr "Menu Fraudum I"
+
+#: guitext:1092
+msgctxt "Game controls"
+msgid "Cheat Menu 2"
+msgstr "Menu Fraudum II"
+
+#: guitext:1093
+msgctxt "Game controls"
+msgid "Cheat Menu 3"
+msgstr "Menu Fraudum III"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Commutare Interfaciem"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Commutare Consilia"
+
+#: guitext:1096
+msgctxt "Game controls"
+msgid "Landview Show All Ensigns"
+msgstr "Landview Monstrare Omnia Signa"
+
+#: guitext:1097
+msgctxt "Game controls"
+msgid "Landview Next Level"
+msgstr "Landview Gradus Proximus"
+
+#: guitext:1098
+msgctxt "Game controls"
+msgid "Landview Prev Level"
+msgstr "Landview Gradus Prior"
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Exire Ludum"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Prohibere Modum Fasciculorum"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Mutare Resolutionem"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Commutare Consolam"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Finire Gradum"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Menu Optionum"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Commutare Flores Salutis Heroum"
+
+#: guitext:1106
+msgctxt "Game controls"
+msgid "Teleport Fight"
+msgstr "Translatio ad Pugnam"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Translatio ad Ultimam Officinam"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Translatio ad Convocationem Armorum"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Translatio Praedefinita"

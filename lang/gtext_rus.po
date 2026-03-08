@@ -6537,3 +6537,138 @@ msgstr "Призыв создания: На время призывает хра
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Хранитель"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Record"
+msgstr "Запись экрана"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screen Shot"
+msgstr "Снимок экрана"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Увеличить пропуск кадров"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Уменьшить пропуск кадров"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Увеличить мини-карту"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Уменьшить мини-карту"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Instance"
+msgstr "Следующий экземпляр"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Prev Instance"
+msgstr "Предыдущий экземпляр"
+
+#: guitext:1091
+msgctxt "Game controls"
+msgid "Cheat Menu 1"
+msgstr "Меню читов 1"
+
+#: guitext:1092
+msgctxt "Game controls"
+msgid "Cheat Menu 2"
+msgstr "Меню читов 2"
+
+#: guitext:1093
+msgctxt "Game controls"
+msgid "Cheat Menu 3"
+msgstr "Меню читов 3"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Переключить интерфейс"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Переключить подсказки"
+
+#: guitext:1096
+msgctxt "Game controls"
+msgid "Landview Show All Ensigns"
+msgstr "Landview Показать все знаки"
+
+#: guitext:1097
+msgctxt "Game controls"
+msgid "Landview Next Level"
+msgstr "Landview Следующий уровень"
+
+#: guitext:1098
+msgctxt "Game controls"
+msgid "Landview Prev Level"
+msgstr "Landview Предыдущий уровень"
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Выход из игры"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Отключить пакетный режим"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Изменить разрешение"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Переключить консоль"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Завершить уровень"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Меню опций"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Переключить цветы здоровья героев"
+
+#: guitext:1106
+msgctxt "Game controls"
+msgid "Teleport Fight"
+msgstr "Телепорт к бою"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Телепорт к последней мастерской"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Телепорт к призыву к оружию"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Телепорт по умолчанию"
