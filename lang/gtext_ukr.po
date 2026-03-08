@@ -7202,3 +7202,8 @@ msgstr ""
 #~ msgctxt "Unused"
 #~ msgid "Moo9"
 #~ msgstr "Moo9"
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Хранитель"

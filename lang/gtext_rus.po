@@ -6532,3 +6532,8 @@ msgstr "Призыв фамильяра: Призывает спутника, з
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr "Призыв создания: На время призывает хранителей, помогающих призвавшему их созданию в битве."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Хранитель"

@@ -7408,3 +7408,8 @@ msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""
 "Beschwörung: Ruft vorübergehende Wächter herbei, die das Wesen im Kampf "
 "unterstützen."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Keeper"

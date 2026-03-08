@@ -115,7 +115,7 @@ frames = [385,394,403,412,385,394,403,412]
 
 [texture571]
 name = "sacrifice_pool_tr"
-frames = [386,395,404,413,404,395,404,413]
+frames = [386,395,404,413,386,395,404,413]
 
 [texture572]
 name = "sacrifice_pool_cl"
@@ -139,7 +139,7 @@ frames = [391,400,409,418,391,400,409,418]
 
 [texture577]
 name = "sacrifice_pool_br"
-frames = [392,401,419,401,392,401,410,419]
+frames = [392,401,410,419,392,401,410,419]
 
 [texture578]
 name = "tagged_dirt"
