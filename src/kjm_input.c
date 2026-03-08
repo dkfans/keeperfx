@@ -150,7 +150,6 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_RIGHT,  GUIStr_KeyRight},
   {KC_LALT,   GUIStr_KeyLeftAlt},
   {KC_RALT,   GUIStr_KeyRightAlt},
-// [mouse buttons as keybinds - quick fix]
   {KC_MOUSE3,          GUIStr_MouseButton},
   {KC_MOUSEWHEEL_UP,   GUIStr_MouseScrollWheelUp},
   {KC_MOUSEWHEEL_DOWN, GUIStr_MouseScrollWheelDown},
@@ -166,10 +165,11 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_SEMICOLON,       -DKChr_Semicolon},
   {KC_SLASH,           -DKChr_Slash},
   {KC_COMMA,           -DKChr_Comma},
-  {KC_UNASSIGNED,      -DKChr_Space},
-  {KC_TAB,              GUIStr_KeyTab},
-  {KC_SPACE,            GUIStr_KeySpace},
-  
+  {KC_TAB,             GUIStr_KeyTab},
+  {KC_SPACE,           GUIStr_KeySpace},
+  {KC_COLON,           -DKChr_Colon},
+  {KC_EQUALS,          -DKChr_Equals},
+  {KC_MINUS,           -DKChr_Hyphen},
   {  0,     0},
 };
 
