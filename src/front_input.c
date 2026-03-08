@@ -2054,6 +2054,10 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
                 set_packet_control(pckt, PCtr_ViewZoomOut);
             }
         }
+        else
+        {
+            update_query_menu();
+        }
     }
     if (menu_is_active(GMnu_BATTLE) && (rotate_pressed))
     {
