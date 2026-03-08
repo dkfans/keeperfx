@@ -126,7 +126,6 @@ void setup_default_settings(void)
           {KC_R,   KMod_ALT},                // Gkey_SwitchScreenRes,
           {KC_GRAVE, KMod_DONTCARE},         // Gkey_ToggleConsole,
           {KC_SPACE, KMod_NONE},             // Gkey_FinishLevel,
-          {KC_ESCAPE, KMod_DONTCARE},        // Gkey_OptionsMenu,
           {KC_F, KMod_ALT},                  // Gkey_ToggleHeroHealthFlowers,
           {KC_F, KMod_NONE},                 // Gkey_TeleportFight,
           {KC_SEMICOLON, KMod_NONE},         // Gkey_TeleportLastWorkroom,

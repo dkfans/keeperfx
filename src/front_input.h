@@ -96,7 +96,6 @@ enum GameKeys {
     Gkey_SwitchScreenRes,
     Gkey_ToggleConsole,
     Gkey_FinishLevel,
-    Gkey_OptionsMenu,
     Gkey_ToggleHeroHealthFlowers,
     Gkey_TeleportFight,
     Gkey_TeleportLastWorkroom,

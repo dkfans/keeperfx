@@ -778,9 +778,9 @@ TbBool get_level_lost_inputs(void)
         }
       }
     }
-    if (is_game_key_pressed(Gkey_OptionsMenu, &keycode, false))
+    if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE))
     {
-      clear_key_pressed(keycode);
+      clear_key_pressed(KC_ESCAPE);
       if ( a_menu_window_is_active() )
       {
         turn_off_all_window_menus();
