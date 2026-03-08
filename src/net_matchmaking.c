@@ -38,6 +38,7 @@
 #define WS_BUF_SIZE          8192
 #define WS_RECV_TIMEOUT_MS   3000
 #define SEND_BUF_SIZE        512
+#define IP_FIELD_SIZE        80
 #define CONNECT_TIMEOUT_MS   5000
 
 static CURL *g_curl = NULL;
@@ -51,9 +52,7 @@ int g_mm_session_count = 0;
 
 static void ws_cleanup(void)
 {
-    LbNetLog("Matchmaking: ws_cleanup (had curl: %s, lobby_id: %s)\n",
-        g_curl ? "yes" : "no",
-        g_hosted_lobby_id[0] ? g_hosted_lobby_id : "none");
+    LbNetLog("Matchmaking: ws_cleanup\n");
     curl_easy_cleanup(g_curl);
     g_curl = NULL;
     g_hosted_lobby_id[0] = '\0';
@@ -71,7 +70,6 @@ static int ws_send(const char *msg)
         ws_cleanup();
         return -1;
     }
-    LbNetLog("Matchmaking: ws_send ok (%d bytes)\n", (int)sent);
     return 0;
 }
 
@@ -227,7 +225,8 @@ void matchmaking_refresh_sessions(void)
     } else {
         list_n = ws_recv(buf, sizeof(buf), 0);
     }
-    LbNetLog("Matchmaking: list response (%d bytes): %s\n", list_n, list_n > 0 ? buf : "(empty)");
+    if (list_n > 0)
+        LbNetLog("Matchmaking: list response (%d bytes): %s\n", list_n, buf);
     if (list_n > 0 && strstr(buf, "\"lobbies\"")) {
         int count = 0;
         const char *p = buf;
@@ -256,7 +255,7 @@ void matchmaking_refresh_sessions(void)
 int matchmaking_create(const char *name, int udp_port, const char *ip)
 {
     char escaped_name[MATCHMAKING_NAME_MAX * 2];
-    char ip_field[80];
+    char ip_field[IP_FIELD_SIZE];
     char msg[SEND_BUF_SIZE];
     char buf[WS_BUF_SIZE];
     EnterCriticalSection(&g_cs);
@@ -278,7 +277,8 @@ int matchmaking_create(const char *name, int udp_port, const char *ip)
         "{\"action\":\"create\",\"name\":\"%s\",\"port\":%d%s,\"version\":\"%s\"}",
         escaped_name, udp_port, ip_field, MATCHMAKING_VERSION);
     int create_n = ws_exchange(msg, buf, sizeof(buf));
-    LbNetLog("Matchmaking: create response (%d bytes): %s\n", create_n, create_n > 0 ? buf : "(empty)");
+    if (create_n > 0)
+        LbNetLog("Matchmaking: create response (%d bytes): %s\n", create_n, buf);
     if (create_n <= 0) {
         LeaveCriticalSection(&g_cs);
         return -1;
@@ -298,15 +298,12 @@ int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, ch
     char msg[SEND_BUF_SIZE];
     char buf[WS_BUF_SIZE];
     EnterCriticalSection(&g_cs);
-    if (udp_ip && udp_ip[0]) {
-        snprintf(msg, sizeof(msg),
-            "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d,\"udpIp\":\"%s\"}",
-            lobby_id, udp_port, udp_ip);
-    } else {
-        snprintf(msg, sizeof(msg),
-            "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d}",
-            lobby_id, udp_port);
-    }
+    char ip_field[IP_FIELD_SIZE] = "";
+    if (udp_ip && udp_ip[0])
+        snprintf(ip_field, sizeof(ip_field), ",\"udpIp\":\"%s\"", udp_ip);
+    snprintf(msg, sizeof(msg),
+        "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d%s}",
+        lobby_id, udp_port, ip_field);
     if (ws_send(msg) != 0) {
         LeaveCriticalSection(&g_cs);
         return -1;
@@ -321,7 +318,8 @@ int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, ch
             return -1;
         }
         punch_n = ws_recv(buf, sizeof(buf), remaining);
-        LbNetLog("Matchmaking: punch response (%d bytes): %s\n", punch_n, punch_n > 0 ? buf : "(empty)");
+        if (punch_n > 0)
+            LbNetLog("Matchmaking: punch response (%d bytes): %s\n", punch_n, buf);
         if (punch_n <= 0) {
             LeaveCriticalSection(&g_cs);
             return -1;
