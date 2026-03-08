@@ -307,11 +307,30 @@ int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, ch
             "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d}",
             lobby_id, udp_port);
     }
-    int punch_n = ws_exchange(msg, buf, sizeof(buf));
-    LbNetLog("Matchmaking: punch response (%d bytes): %s\n", punch_n, punch_n > 0 ? buf : "(empty)");
-    if (punch_n <= 0) {
+    if (ws_send(msg) != 0) {
         LeaveCriticalSection(&g_cs);
         return -1;
+    }
+    int punch_n;
+    DWORD deadline = GetTickCount() + WS_RECV_TIMEOUT_MS;
+    for (;;) {
+        int remaining = (int)(deadline - GetTickCount());
+        if (remaining <= 0) {
+            LbNetLog("Matchmaking: punch failed - timeout\n");
+            LeaveCriticalSection(&g_cs);
+            return -1;
+        }
+        punch_n = ws_recv(buf, sizeof(buf), remaining);
+        LbNetLog("Matchmaking: punch response (%d bytes): %s\n", punch_n, punch_n > 0 ? buf : "(empty)");
+        if (punch_n <= 0) {
+            LeaveCriticalSection(&g_cs);
+            return -1;
+        }
+        if (strstr(buf, "\"lobbies\"")) {
+            LbNetLog("Matchmaking: punch skipping lobbies message\n");
+            continue;
+        }
+        break;
     }
     if (!strstr(buf, "\"punch\"")
         || !json_str(buf, "peerIp", out_ip, MATCHMAKING_IP_MAX)
