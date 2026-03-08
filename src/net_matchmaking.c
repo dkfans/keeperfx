@@ -219,13 +219,14 @@ void matchmaking_refresh_sessions(void)
         LeaveCriticalSection(&g_cs);
         return;
     }
-    DWORD now = GetTickCount();
-    if (g_last_refresh_tick != 0 && (now - g_last_refresh_tick) < MATCHMAKING_REFRESH_MS) {
-        LeaveCriticalSection(&g_cs);
-        return;
-    }
     char buf[WS_BUF_SIZE];
-    int list_n = ws_exchange("{\"action\":\"list\",\"version\":\"" MATCHMAKING_VERSION "\"}", buf, sizeof(buf));
+    int list_n;
+    if (g_last_refresh_tick == 0) {
+        list_n = ws_exchange("{\"action\":\"list\",\"version\":\"" MATCHMAKING_VERSION "\"}", buf, sizeof(buf));
+        g_last_refresh_tick = GetTickCount();
+    } else {
+        list_n = ws_recv(buf, sizeof(buf), 0);
+    }
     LbNetLog("Matchmaking: list response (%d bytes): %s\n", list_n, list_n > 0 ? buf : "(empty)");
     if (list_n > 0 && strstr(buf, "\"lobbies\"")) {
         int count = 0;
@@ -249,7 +250,6 @@ void matchmaking_refresh_sessions(void)
         g_mm_session_count = count;
         LbNetLog("Matchmaking: parsed %d session(s)\n", count);
     }
-    g_last_refresh_tick = GetTickCount();
     LeaveCriticalSection(&g_cs);
 }
 

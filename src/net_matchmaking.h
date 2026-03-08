@@ -31,7 +31,6 @@ extern "C" {
 #define MATCHMAKING_IP_MAX 64
 #define MATCHMAKING_NAME_MAX SESSION_NAME_MAX_LEN
 #define MATCHMAKING_SESSIONS_MAX 32
-#define MATCHMAKING_REFRESH_MS 5000
 
 extern struct TbNetworkSessionNameEntry g_mm_sessions[MATCHMAKING_SESSIONS_MAX];
 extern int g_mm_session_count;
