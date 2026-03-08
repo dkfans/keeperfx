@@ -6201,7 +6201,7 @@ Subtype = 5
 EffectRange = 4
 
 [slab34.S_LAVA]
-Columns = [1002, 1002, 1002, 1002, 1002, 1002, 1010, 1010, 1010]
+Columns = [1002, 1002, 1002, 1002, 1002, 1002, 1018, 1018, 1018]
 
 [[slab34.S_LAVA_objects]]
 IsLight = 0
@@ -6212,7 +6212,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.W_LAVA]
-Columns = [1011, 1002, 1002, 1011, 1002, 1002, 1011, 1002, 1002]
+Columns = [1019, 1002, 1002, 1019, 1002, 1002, 1019, 1002, 1002]
 
 [[slab34.W_LAVA_objects]]
 IsLight = 0
@@ -6223,7 +6223,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.N_LAVA]
-Columns = [1009, 1009, 1009, 1002, 1002, 1002, 1002, 1002, 1002]
+Columns = [1017, 1017, 1017, 1002, 1002, 1002, 1002, 1002, 1002]
 
 [[slab34.N_LAVA_objects]]
 IsLight = 0
@@ -6234,7 +6234,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.E_LAVA]
-Columns = [1002, 1002, 1008, 1002, 1002, 1008, 1002, 1002, 1008]
+Columns = [1002, 1002, 1016, 1002, 1002, 1016, 1002, 1002, 1016]
 
 [[slab34.E_LAVA_objects]]
 IsLight = 0
@@ -6245,7 +6245,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.SW_LAVA]
-Columns = [1011, 1002, 1002, 1011, 1002, 1002, 1013, 1010, 1010]
+Columns = [1019, 1002, 1002, 1019, 1002, 1002, 1021, 1018, 1018]
 
 [[slab34.SW_LAVA_objects]]
 IsLight = 0
@@ -6264,7 +6264,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.NW_LAVA]
-Columns = [1007, 1009, 1009, 1011, 1002, 1002, 1011, 1002, 1002]
+Columns = [1015, 1017, 1017, 1019, 1002, 1002, 1019, 1002, 1002]
 
 [[slab34.NW_LAVA_objects]]
 IsLight = 0
@@ -6283,7 +6283,7 @@ Subtype = 5
 EffectRange = 4
 
 [slab34.NE_LAVA]
-Columns = [1009, 1009, 1012, 1002, 1002, 1008, 1002, 1002, 1008]
+Columns = [1017, 1017, 1020, 1002, 1002, 1016, 1002, 1002, 1016]
 
 [[slab34.NE_LAVA_objects]]
 IsLight = 0
@@ -6302,7 +6302,7 @@ Subtype = 5
 EffectRange = 4
 
 [slab34.SE_LAVA]
-Columns = [1002, 1002, 1008, 1002, 1002, 1008, 1010, 1010, 1014]
+Columns = [1002, 1002, 1016, 1002, 1002, 1016, 1018, 1018, 1022]
 
 [[slab34.SE_LAVA_objects]]
 IsLight = 0
@@ -6321,7 +6321,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.ALL_LAVA]
-Columns = [1007, 1009, 1012, 1011, 1002, 1008, 1013, 1010, 1014]
+Columns = [1015, 1017, 1020, 1019, 1002, 1016, 1021, 1018, 1022]
 
 [[slab34.ALL_LAVA_objects]]
 IsLight = 0
@@ -6332,7 +6332,7 @@ Subtype = 5
 EffectRange = 4
 
 [slab34.S_WATER]
-Columns = [1002, 1002, 1002, 1002, 1002, 1002, 1010, 1010, 1010]
+Columns = [1002, 1002, 1002, 1002, 1002, 1002, 1434, 1434, 1434]
 
 [[slab34.S_WATER_objects]]
 IsLight = 0
@@ -6343,7 +6343,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.W_WATER]
-Columns = [1011, 1002, 1002, 1011, 1002, 1002, 1011, 1002, 1002]
+Columns = [1435, 1002, 1002, 1435, 1002, 1002, 1435, 1002, 1002]
 
 [[slab34.W_WATER_objects]]
 IsLight = 0
@@ -6354,7 +6354,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.N_WATER]
-Columns = [1009, 1009, 1009, 1002, 1002, 1002, 1002, 1002, 1002]
+Columns = [1433, 1433, 1433, 1002, 1002, 1002, 1002, 1002, 1002]
 
 [[slab34.N_WATER_objects]]
 IsLight = 0
@@ -6365,7 +6365,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.E_WATER]
-Columns = [1002, 1002, 1008, 1002, 1002, 1008, 1002, 1002, 1008]
+Columns = [1002, 1002, 1432, 1002, 1002, 1432, 1002, 1002, 1432]
 
 [[slab34.E_WATER_objects]]
 IsLight = 0
@@ -6376,7 +6376,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.SW_WATER]
-Columns = [1011, 1002, 1002, 1011, 1002, 1002, 1013, 1010, 1010]
+Columns = [1435, 1002, 1002, 1435, 1002, 1002, 1437, 1434, 1434]
 
 [[slab34.SW_WATER_objects]]
 IsLight = 0
@@ -6395,7 +6395,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.NW_WATER]
-Columns = [1007, 1009, 1009, 1011, 1002, 1002, 1011, 1002, 1002]
+Columns = [1431, 1433, 1433, 1435, 1002, 1002, 1435, 1002, 1002]
 
 [[slab34.NW_WATER_objects]]
 IsLight = 0
@@ -6414,7 +6414,7 @@ Subtype = 5
 EffectRange = 4
 
 [slab34.NE_WATER]
-Columns = [1009, 1009, 1012, 1002, 1002, 1008, 1002, 1002, 1008]
+Columns = [1433, 1433, 1436, 1002, 1002, 1432, 1002, 1002, 1432]
 
 [[slab34.NE_WATER_objects]]
 IsLight = 0
@@ -6433,7 +6433,7 @@ Subtype = 5
 EffectRange = 4
 
 [slab34.SE_WATER]
-Columns = [1002, 1002, 1008, 1002, 1002, 1008, 1010, 1010, 1014]
+Columns = [1002, 1002, 1432, 1002, 1002, 1432, 1434, 1434, 1438]
 
 [[slab34.SE_WATER_objects]]
 IsLight = 0
@@ -6452,7 +6452,7 @@ Subtype = 29
 EffectRange = 0
 
 [slab34.ALL_WATER]
-Columns = [1007, 1009, 1012, 1011, 1002, 1008, 1013, 1010, 1014]
+Columns = [1431, 1433, 1436, 1435, 1002, 1432, 1437, 1434, 1438]
 
 [[slab34.ALL_WATER_objects]]
 IsLight = 0
