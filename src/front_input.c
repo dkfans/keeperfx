@@ -255,7 +255,19 @@ int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
       } else {
           result = 0;
       }
+
+      //hardcoded alternative keys
+      if (!result)
+      {
+            if ((key_id == GKey_FrameSkipIncrease) && is_key_pressed(KC_EQUALS, KMod_CONTROL))
+                result = 1;
+            else if ((key_id == GKey_FrameSkipDecrease) && is_key_pressed(KC_MINUS, KMod_CONTROL))
+                result = 1;
+            else if ((key_id == GKey_CheatMenu1) && is_key_pressed(KC_RETURN, KMod_SHIFT))
+                result = 1;
+      }
   }
+
   return result;
 }
 

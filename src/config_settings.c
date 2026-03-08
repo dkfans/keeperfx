@@ -131,16 +131,6 @@ void setup_default_settings(void)
           {KC_SEMICOLON, KMod_NONE},         // Gkey_TeleportLastWorkroom,
           {KC_SLASH, KMod_NONE},             // Gkey_TeleportCallToArms,
           {KC_COMMA, KMod_NONE},             // Gkey_TeleportDefault,
-          
-
-
-
-
-//GKey_FrameSkipIncrease  {KC_EQUALS, KMod_CONTROL},
-//GKey_FrameSkipDecrease  {KC_MINUS, KMod_CONTROL},
-//GKey_CheatMenu1      {KC_RETURN,KMod_SHIFT},
-
-
      },                         // kbkeys
      true,                      // tooltips_on
      0,                         // first_person_move_invert

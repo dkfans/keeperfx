@@ -117,6 +117,7 @@ const long definable_key_string[] = {
     GUIStr_SwitchScreenRes,
     GUIStr_ToggleConsole,
     GUIStr_FinishLevel,
+    GUIStr_OptionsMenu,
     GUIStr_ToggleHeroHealthFlowers,
     GUIStr_TeleportFight,
     GUIStr_TeleportLastWorkroom,
