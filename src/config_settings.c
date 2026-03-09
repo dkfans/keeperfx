@@ -113,14 +113,8 @@ void setup_default_settings(void)
           {KC_SUBTRACT, KMod_NONE},          // GKey_ZoomMinimapOut,
           {KC_UNASSIGNED, KMod_NONE},        // GKey_NextInstance,
           {KC_UNASSIGNED, KMod_NONE},        // GKey_PrevInstance,
-          {KC_NUMPADENTER, KMod_NONE},   // GKey_CheatMenu1,
-          {KC_F12, KMod_NONE},           // GKey_CheatMenu2,
-          {KC_NUMPADENTER, KMod_NONE},       // GKey_CheatMenu3,
           {KC_TAB, KMod_CONTROL},            // Gkey_ToggleGui,
           {KC_F8, KMod_NONE},                // Gkey_ToggleTooltips,
-          {KC_F11, KMod_CONTROL},            // Gkey_LVShowAllEnsigns,
-          {KC_F10, KMod_CONTROL},            // Gkey_LVNextLevel,
-          {KC_F9,  KMod_CONTROL},            // Gkey_LVPrevLevel,
           {KC_X,   KMod_ALT},                // Gkey_ExitGame,
           {KC_T,   KMod_ALT},                // Gkey_DisablePacketMode,
           {KC_R,   KMod_ALT},                // Gkey_SwitchScreenRes,
@@ -131,6 +125,12 @@ void setup_default_settings(void)
           {KC_SEMICOLON, KMod_NONE},         // Gkey_TeleportLastWorkroom,
           {KC_SLASH, KMod_NONE},             // Gkey_TeleportCallToArms,
           {KC_COMMA, KMod_NONE},             // Gkey_TeleportDefault,
+          {KC_NUMPADENTER, KMod_NONE},   // GKey_CheatMenu1,
+          {KC_F12, KMod_NONE},           // GKey_CheatMenu2,
+          {KC_NUMPADENTER, KMod_NONE},       // GKey_CheatMenu3,
+          {KC_F11, KMod_CONTROL},            // Gkey_LVShowAllEnsigns,
+          {KC_F10, KMod_CONTROL},            // Gkey_LVNextLevel,
+          {KC_F9,  KMod_CONTROL},            // Gkey_LVPrevLevel,
      },                         // kbkeys
      true,                      // tooltips_on
      0,                         // first_person_move_invert

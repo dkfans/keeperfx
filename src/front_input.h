@@ -29,6 +29,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+#define CHEAT_GAME_KEYS 6 // number of game keys that are considered cheat keys and are only enabled when Easter Eggs are enabled
+
 enum GameKeys {
     Gkey_MoveUp = 0,
     Gkey_MoveDown,
@@ -83,14 +85,8 @@ enum GameKeys {
     GKey_ZoomMinimapOut,
     GKey_NextInstance,
     GKey_PrevInstance,
-    GKey_CheatMenu1,
-    GKey_CheatMenu2,
-    GKey_CheatMenu3,
     Gkey_ToggleGui,
     Gkey_ToggleTooltips,
-    Gkey_LVShowAllEnsigns,
-    Gkey_LVNextLevel,
-    Gkey_LVPrevLevel,
     Gkey_ExitGame,
     Gkey_DisablePacketMode,
     Gkey_SwitchScreenRes,
@@ -101,6 +97,12 @@ enum GameKeys {
     Gkey_TeleportLastWorkroom,
     Gkey_TeleportCallToArms,
     Gkey_TeleportDefault,
+    GKey_CheatMenu1,
+    GKey_CheatMenu2,
+    GKey_CheatMenu3,
+    Gkey_LVShowAllEnsigns,
+    Gkey_LVNextLevel,
+    Gkey_LVPrevLevel,
     GAME_KEYS_COUNT
 };
 
