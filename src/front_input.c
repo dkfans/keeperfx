@@ -2467,7 +2467,7 @@ short get_packet_load_game_inputs(void)
  */
 TbBool get_packet_load_demo_inputs(void)
 {
-    int32_t val;
+    int32_t val = KC_UNASSIGNED;
   if (is_key_pressed(KC_SPACE,KMod_DONTCARE) ||
       is_key_pressed(KC_ESCAPE,KMod_DONTCARE) ||
       is_key_pressed(KC_RETURN,KMod_DONTCARE) ||
