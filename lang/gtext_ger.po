@@ -7548,3 +7548,8 @@ msgstr "Teleport Aufruf zu den Waffen"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teleport Standard"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Gravis"

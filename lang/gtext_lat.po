@@ -7291,3 +7291,8 @@ msgstr "Translatio ad Convocationem Armorum"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Translatio Praedefinita"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Gravis"

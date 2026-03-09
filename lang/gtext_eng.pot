@@ -5871,3 +5871,8 @@ msgstr ""
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr ""
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr ""

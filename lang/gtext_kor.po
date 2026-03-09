@@ -7269,3 +7269,8 @@ msgstr "순간이동 소집"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "순간이동 기본"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "억음 부호"

@@ -7225,3 +7225,8 @@ msgstr "テレポート 召集"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "テレポート デフォルト"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "グレイヴ"

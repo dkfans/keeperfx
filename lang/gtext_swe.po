@@ -7287,3 +7287,8 @@ msgstr "Teleportera Uppbåd"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teleportera Standard"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Grav accent"

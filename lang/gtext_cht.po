@@ -6886,3 +6886,8 @@ msgstr "傳送到集合點"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "預設傳送"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "反引號"

@@ -7261,3 +7261,8 @@ msgstr "Teleporteer Oproep tot Wapens"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teleporteer Standaard"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Accent grave"

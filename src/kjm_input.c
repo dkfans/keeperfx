@@ -161,7 +161,7 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_MOUSE9,          GUIStr_MouseButton},
   {KC_ADD,             -DKChr_Plus},
   {KC_SUBTRACT,        -DKChr_Hyphen},
-  {KC_GRAVE,           -DKChr_Grave},
+  {KC_GRAVE,           GUIStr_KeyGrave},
   {KC_SEMICOLON,       -DKChr_Semicolon},
   {KC_SLASH,           -DKChr_Slash},
   {KC_COMMA,           -DKChr_Comma},

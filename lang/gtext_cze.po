@@ -7261,3 +7261,8 @@ msgstr "Teleport k výzvě ke zbraním"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teleport výchozí"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Zpětný apostrof"

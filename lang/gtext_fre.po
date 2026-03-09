@@ -7518,3 +7518,8 @@ msgstr "Téléportation Appel aux armes"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Téléportation Par défaut"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Accent grave"

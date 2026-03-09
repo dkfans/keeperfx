@@ -7342,3 +7342,8 @@ msgstr "Телепорт до заклику до зброї"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Телепорт за замовчуванням"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Зворотний апостроф"

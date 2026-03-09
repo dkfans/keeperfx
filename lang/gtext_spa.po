@@ -7523,3 +7523,8 @@ msgstr "Teletransporte Llamada a las Armas"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teletransporte Predeterminado"
+
+#: guitext:1110
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Acento grave"
