@@ -233,6 +233,9 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     char mouse_button_label[255] = "";
     switch (code)
     {
+      case KC_UNASSIGNED:
+        keytext = get_string(GUIStr_Empty);
+        break;
       case KC_LSHIFT:
       case KC_RSHIFT:
         keytext = get_string(GUIStr_KeyShift);
