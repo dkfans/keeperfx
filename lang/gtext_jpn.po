@@ -7204,7 +7204,7 @@ msgstr "オプションメニュー"
 #: guitext:1105
 msgctxt "Game controls"
 msgid "Toggle Hero Health Flowers"
-msgstr "勇者の体力シンボル表示切替"
+msgstr "勇者体力星：表示切替"
 
 #: guitext:1106
 msgctxt "Game controls"
