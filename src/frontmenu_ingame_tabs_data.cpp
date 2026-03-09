@@ -435,35 +435,35 @@ struct GuiButtonInit creature_query_buttons4[] = {
 };
 
 struct GuiMenu main_menu =
- {           GMnu_MAIN, 0, 1, main_menu_buttons,                           0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 0,};
+ {           GMnu_MAIN, 0, 1, main_menu_buttons,                    0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu room_menu =
- {           GMnu_ROOM, 0, 1, room_menu_buttons,                           0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ {           GMnu_ROOM, 0, 1, room_menu_buttons,                    0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu spell_menu =
- {          GMnu_SPELL, 0, 1, spell_menu_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ {          GMnu_SPELL, 0, 1, spell_menu_buttons,                   0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu spell_lost_menu =
- {     GMnu_SPELL_LOST, 0, 1, spell_lost_menu_buttons,                     0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ {     GMnu_SPELL_LOST, 0, 1, spell_lost_menu_buttons,              0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu trap_menu =
- {           GMnu_TRAP, 0, 1, trap_menu_buttons,                           0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ {           GMnu_TRAP, 0, 1, trap_menu_buttons,                    0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu creature_menu =
- {       GMnu_CREATURE, 0, 1, creature_menu_buttons,                       0,   0, 140, 400, gui_activity_background,     0, NULL,    NULL,                    0, 0, 1,};
+ {       GMnu_CREATURE, 0, 1, creature_menu_buttons,                0,   0, 140, 400, gui_activity_background,     0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu query_menu =
- {          GMnu_QUERY, 0, 1, query_menu_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ {          GMnu_QUERY, 0, 1, query_menu_buttons,                   0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu event_menu =
- {          GMnu_EVENT, 0, 1, event_menu_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 0,};
+ {          GMnu_EVENT, 0, 1, event_menu_buttons,                   0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu creature_query_menu1 =
- {GMnu_CREATURE_QUERY1, 0, 1, creature_query_buttons1,             0,          0, 140, 400, gui_creature_query_background1,0,NULL,   NULL,                    0, 0, 1,};
+ {GMnu_CREATURE_QUERY1, 0, 1, creature_query_buttons1,              0,   0, 140, 400, gui_creature_query_background1,0,NULL,   NULL,                    0, 0, 1,};
 struct GuiMenu creature_query_menu2 =
- {GMnu_CREATURE_QUERY2, 0, 1, creature_query_buttons2,             0,          0, 140, 400, gui_creature_query_background1,0,NULL,   NULL,                    0, 0, 1,};
+ {GMnu_CREATURE_QUERY2, 0, 1, creature_query_buttons2,              0,   0, 140, 400, gui_creature_query_background1,0,NULL,   NULL,                    0, 0, 1,};
 struct GuiMenu creature_query_menu3 =
- {GMnu_CREATURE_QUERY3, 0, 1, creature_query_buttons3,             0,          0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
+ {GMnu_CREATURE_QUERY3, 0, 1, creature_query_buttons3,              0,   0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
 struct GuiMenu creature_query_menu4 =
- {GMnu_CREATURE_QUERY4, 0, 1, creature_query_buttons4,             0,          0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
+ {GMnu_CREATURE_QUERY4, 0, 1, creature_query_buttons4,              0,   0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
 struct GuiMenu spell_menu2 =
- {          GMnu_SPELL2, 0, 1, spell_menu2_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ {          GMnu_SPELL2, 0, 1, spell_menu2_buttons,                 0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
  struct GuiMenu room_menu2 =
- {          GMnu_ROOM2, 0, 1, room_menu2_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ {          GMnu_ROOM2, 0, 1, room_menu2_buttons,                   0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
  struct GuiMenu trap_menu2 =
- {          GMnu_TRAP2, 0, 1, trap_menu2_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ {          GMnu_TRAP2, 0, 1, trap_menu2_buttons,                   0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 
 struct TiledSprite status_panel = {
     2, 4, {
