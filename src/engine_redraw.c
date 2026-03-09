@@ -682,7 +682,7 @@ void redraw_isometric_view(void)
     SYNCDBG(6,"Starting");
 
     struct PlayerInfo* player = get_my_player();
-    if (get_player_active_camera(player) == NULL)
+    if (player_invalid(player) || (get_player_active_camera(player) == NULL))
         return;
     TbGraphicsWindow ewnd;
     memset(&ewnd, 0, sizeof(TbGraphicsWindow));
