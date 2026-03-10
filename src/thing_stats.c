@@ -38,7 +38,6 @@
 #include "player_utils.h"
 #include "thing_effects.h"
 #include "thing_list.h"
-#include "thing_data.h"
 #include "thing_physics.h"
 #include "thing_stats.h"
 #include "vidfade.h"
@@ -1093,14 +1092,13 @@ static struct Thing* resolve_damage_source_thing(struct Thing* scrtng)
 
 static DamageSourceKind check_dmg_src_kind(struct Thing* scrtng, DamageSourceKind source_kind)
 {
-    if (source_kind != DSK_NONE)
+    if (source_kind != DSK_None)
         return source_kind;
 
-    struct Thing* source_tng = resolve_damage_source_thing(scrtng);
-    if (!thing_exists(source_tng))
-        return DSK_NONE;
+    if (!thing_exists(scrtng))
+        return DSK_None;
 
-    switch (source_tng->class_id)
+    switch (scrtng->class_id)
     {
     case TCls_Creature:
         return DSK_Creature;
@@ -1111,7 +1109,7 @@ static DamageSourceKind check_dmg_src_kind(struct Thing* scrtng, DamageSourceKin
     case TCls_Door:
         return DSK_Door;
     default:
-        return DSK_NONE;
+        return DSK_None;
     }
 }
 
@@ -1144,11 +1142,6 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
 {
     // We're here to damage, not to heal.
     SYNCDBG(19, "Dealing %d damage to %s by player %d", (int)dmg, thing_model_name(thing), (int)dealing_plyr_idx);
-    if ((scrtng != NULL) && !thing_is_invalid(scrtng)) {
-        SYNCDBG(8, "ApplyDamage: incoming kind=%d src=%s", (int)source_kind, thing_model_name(scrtng));
-    } else {
-        SYNCDBG(8, "ApplyDamage: incoming kind=%d src=<none>", (int)source_kind);
-    }
     if (dmg <= 0)
         return 0;
     // If it's already dead, then don't interfere.
@@ -1156,11 +1149,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
         return 0;
     struct Thing* src_tng = resolve_damage_source_thing(scrtng);
     DamageSourceKind damagesource = check_dmg_src_kind(src_tng, source_kind);
-    if (thing_exists(src_tng)) {
-        SYNCDBG(8, "ApplyDamage: resolved kind=%d src=%s", (int)damagesource, thing_model_name(src_tng));
-    } else {
-        SYNCDBG(8, "ApplyDamage: resolved kind=%d src=<none>", (int)damagesource);
-    }
+
     lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx, src_tng, damagesource);
 
     HitPoints cdamage;

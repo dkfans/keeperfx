@@ -2238,7 +2238,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
         {
             thing_play_sample(castng, spconf->caster_affect_sound + SOUND_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
-        apply_spell_effect_to_thing(castng, spl_idx, cctrl->exp_level, castng->owner, castng, DSK_NONE);
+        apply_spell_effect_to_thing(castng, spl_idx, cctrl->exp_level, castng->owner, castng, DSK_None);
     }
     else if (spconf->shot_model > 0)
     {
@@ -4275,7 +4275,7 @@ void draw_creature_view(struct Thing *thing)
   unsigned char* scrmem = lens_get_render_target();
   unsigned int render_width = lens_get_render_target_width();
   unsigned int render_height = lens_get_render_target_height();
-  
+
   // Store previous graphics settings
   unsigned char* wscr_cp = lbDisplay.WScreen;
   TbGraphicsWindow grwnd;
@@ -4305,7 +4305,7 @@ void draw_creature_view(struct Thing *thing)
   // Pass full srcbuf so displacement map lookups work correctly
   // Calculate 2D viewport offset for destination buffer
   long dst_offset = view_y * lbDisplay.GraphicsScreenWidth + view_x;
-  draw_lens_effect(lbDisplay.WScreen + dst_offset, lbDisplay.GraphicsScreenWidth, 
+  draw_lens_effect(lbDisplay.WScreen + dst_offset, lbDisplay.GraphicsScreenWidth,
       scrmem, render_width, view_width, view_height, view_x, game.applied_lens_type);
 }
 

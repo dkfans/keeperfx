@@ -58,7 +58,7 @@ enum CreatureLiveStatistics {
 };
 
 typedef enum DamageSourceKind {
-    DSK_NONE = 0,
+    DSK_None = 0,
     DSK_Lava,
     DSK_PowerSlap,
     DSK_Power,
