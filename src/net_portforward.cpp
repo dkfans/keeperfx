@@ -60,8 +60,8 @@ enum PortForwardMethod {
 static enum PortForwardMethod active_method = PORT_FORWARD_NONE;
 static uint16_t mapped_port = 0;
 
-int upnp_enabled   = 0;
-int natpmp_enabled = 0;
+int upnp_enabled   = 1;
+int natpmp_enabled = 1;
 
 static struct UPNPUrls upnp_urls;
 static struct IGDdatas upnp_data;
