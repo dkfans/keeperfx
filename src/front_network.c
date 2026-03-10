@@ -480,7 +480,6 @@ void frontnet_service_setup(void)
         net_number_of_services++;
     }
     net_load_config_file();
-    matchmaking_init();
 }
 
 void frontnet_session_setup(void)

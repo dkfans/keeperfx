@@ -162,6 +162,7 @@ static DWORD WINAPI connect_thread(LPVOID arg)
 
 void matchmaking_connect_async(void)
 {
+    matchmaking_init();
     HANDLE h = CreateThread(NULL, 0, connect_thread, NULL, 0, NULL);
     if (h)
         CloseHandle(h);
