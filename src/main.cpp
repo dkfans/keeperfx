@@ -351,7 +351,10 @@ void process_keeper_spell_aura(struct Thing *thing)
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    return get_chessboard_distance(&player->acamera->mappos, pos) < subtile_coord(45,0);
+    struct Camera *camera = get_player_active_camera(player);
+    if (camera == NULL)
+        return false;
+    return get_chessboard_distance(&camera->mappos, pos) < subtile_coord(45,0);
 }
 
 void affect_nearby_stuff_with_vortex(struct Thing *thing)
@@ -808,23 +811,24 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
         player = get_player(i);
         if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            if (player->acamera == NULL)
+            struct Camera *camera = get_player_active_camera(player);
+            if (camera == NULL)
                 continue;
-            if (player->acamera->view_mode != PVM_FrontView)
+            if (camera->view_mode != PVM_FrontView)
             {
-                if (player->acamera->zoom >= CAMERA_ZOOM_MIN)
+                if (camera->zoom >= CAMERA_ZOOM_MIN)
                 {
-                    limit = SHRT_MAX - (2 * player->acamera->zoom);
+                    limit = SHRT_MAX - (2 * camera->zoom);
                 }
             }
             else
             {
-                if (player->acamera->zoom >= FRONTVIEW_CAMERA_ZOOM_MIN)
+                if (camera->zoom >= FRONTVIEW_CAMERA_ZOOM_MIN)
                 {
-                    limit = SHRT_MAX - (player->acamera->zoom / 3);
+                    limit = SHRT_MAX - (camera->zoom / 3);
                 }
             }
-            if (get_chessboard_distance(&player->acamera->mappos, pos) <= limit)
+            if (get_chessboard_distance(&camera->mappos, pos) <= limit)
             {
                 return true;
             }
@@ -1692,7 +1696,7 @@ void clear_players_for_save(void)
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
       memcpy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
-      player->acamera = &player->cameras[CamIV_FirstPerson];
+      set_player_active_camera(player, CamIV_FirstPerson);
     }
 }
 
@@ -1894,7 +1898,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
         return;
     }
     spectator_breed = get_players_spectator_model(plyr_idx);
-    player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
+    player->dungeon_camera_zoom = get_camera_zoom(get_player_active_camera(player));
     thing = create_and_control_creature_as_controller(player, spectator_breed, &dungeon->mappos);
     if (thing_is_invalid(thing)) {
         ERRORLOG("Unable to create spectator creature");
@@ -2705,7 +2709,7 @@ void update(void)
             struct Thing *thing = thing_get(player->controlled_thing_idx);
             update_first_person_object_ambience(thing);
         }
-        update_footsteps_nearest_camera(player->acamera);
+        update_footsteps_nearest_camera(get_player_active_camera(player));
         PaletteFadePlayer(player);
         process_armageddon();
         update_global_lighting();
