@@ -379,7 +379,7 @@ LINKLIB = -mwindows \
 	-L"deps/enet6/lib" -lenet6 \
 	-L"deps/miniupnpc" -lminiupnpc \
 	-L"deps/libnatpmp" -lnatpmp -liphlpapi \
-	-L"deps/libcurl/lib" -lcurl -lwldap32 -lcrypt32 \
+	-L"deps/libcurl/lib" -lcurl -lwldap32 -lcrypt32 -lsecur32 -liphlpapi \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
@@ -655,7 +655,8 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp
+	-$(RM) -rf deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl
+	-$(RM) deps/libcurl-mingw32.tar.gz
 	-$(RM) libexterns
 
 deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl:
@@ -736,7 +737,10 @@ deps/libnatpmp-mingw32.tar.gz:
 deps/libnatpmp/include/natpmp/natpmp.h: deps/libnatpmp-mingw32.tar.gz | deps/libnatpmp
 	tar xzmf $< -C deps/libnatpmp
 
-deps/libcurl/include/curl/curl.h: deps/curl-mingw32.tar.gz | deps/libcurl
+deps/libcurl-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260310/libcurl-mingw32.tar.gz"
+
+deps/libcurl/include/curl/curl.h: deps/libcurl-mingw32.tar.gz | deps/libcurl
 	tar xzmf $< -C deps/libcurl
 
 cppcheck: | src/ver_defs.h
