@@ -62,7 +62,6 @@ static void ws_cleanup(void)
 
 static int ws_send(const char *msg)
 {
-    LbNetLog("Matchmaking: ws_send: %s\n", msg);
     size_t sent = 0;
     CURLcode rc = curl_ws_send(g_curl, msg, strlen(msg), &sent, 0, CURLWS_TEXT);
     if (rc != CURLE_OK) {
@@ -85,26 +84,20 @@ static int ws_recv(char *buf, size_t bufsz, int timeout_ms)
     FD_ZERO(&fds);
     FD_SET((SOCKET)sock, &fds);
     struct timeval tv = { timeout_ms / 1000, (timeout_ms % 1000) * 1000 };
-    if (select(0, &fds, NULL, NULL, &tv) <= 0) {
-        if (timeout_ms > 0)
-            LbNetLog("Matchmaking: ws_recv no data within %d ms\n", timeout_ms);
+    if (select(0, &fds, NULL, NULL, &tv) <= 0)
         return 0;
-    }
 
     size_t recvd = 0;
     const struct curl_ws_frame *frame = NULL;
     CURLcode rc = curl_ws_recv(g_curl, buf, bufsz - 1, &recvd, &frame);
-    if (rc == CURLE_AGAIN) {
-        LbNetLog("Matchmaking: ws_recv CURLE_AGAIN\n");
+    if (rc == CURLE_AGAIN)
         return 0;
-    }
     if (rc != CURLE_OK) {
         LbNetLog("Matchmaking: ws_recv failed (%s)\n", curl_easy_strerror(rc));
         ws_cleanup();
         return -1;
     }
     buf[recvd] = '\0';
-    LbNetLog("Matchmaking: ws_recv got %d bytes: %s\n", (int)recvd, buf);
     return (int)recvd;
 }
 
@@ -238,7 +231,6 @@ void matchmaking_refresh_sessions(void)
             if (!p) break;
             p = json_str(p, "name", name, sizeof(name));
             if (!p) break;
-            LbNetLog("Matchmaking: session[%d] id=%s name=%s\n", count, id, name);
             struct TbNetworkSessionNameEntry *s = &g_mm_sessions[count++];
             memset(s, 0, sizeof(*s));
             s->joinable = 1;
@@ -261,6 +253,7 @@ int matchmaking_create(const char *name, int udp_port, const char *ip)
     char buf[WS_BUF_SIZE];
     EnterCriticalSection(&g_cs);
     if (!g_curl) {
+        LbNetLog("Matchmaking: not connected to server, lobby won't be listed online\n");
         LeaveCriticalSection(&g_cs);
         return -1;
     }
@@ -299,6 +292,11 @@ int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, ch
     char msg[SEND_BUF_SIZE];
     char buf[WS_BUF_SIZE];
     EnterCriticalSection(&g_cs);
+    if (!g_curl) {
+        LbNetLog("Matchmaking: not connected to server, UDP hole punching unavailable\n");
+        LeaveCriticalSection(&g_cs);
+        return -1;
+    }
     char ip_field[IP_FIELD_SIZE] = "";
     if (udp_ip && udp_ip[0])
         snprintf(ip_field, sizeof(ip_field), ",\"udpIp\":\"%s\"", udp_ip);
@@ -325,10 +323,8 @@ int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, ch
             LeaveCriticalSection(&g_cs);
             return -1;
         }
-        if (strstr(buf, "\"lobbies\"")) {
-            LbNetLog("Matchmaking: punch skipping lobbies message\n");
+        if (strstr(buf, "\"lobbies\""))
             continue;
-        }
         break;
     }
     if (!strstr(buf, "\"punch\"")
@@ -350,18 +346,13 @@ int matchmaking_poll_punch(char *out_ip, int *out_port)
     char buf[WS_BUF_SIZE];
     int n = ws_recv(buf, sizeof(buf), 0);
     int got_punch = 0;
-    if (n > 0) {
-        LbNetLog("Matchmaking: poll_punch received %d bytes: %s\n", n, buf);
-        if (strstr(buf, "\"punch\"")) {
-            got_punch = json_str(buf, "peerIp", out_ip, MATCHMAKING_IP_MAX)
-                && json_int(buf, "peerPort", out_port);
-            if (got_punch)
-                LbNetLog("Matchmaking: poll_punch -> %s:%d\n", out_ip, *out_port);
-            else
-                LbNetLog("Matchmaking: poll_punch parse failed\n");
-        } else {
-            LbNetLog("Matchmaking: poll_punch ignored message (not a punch)\n");
-        }
+    if (n > 0 && strstr(buf, "\"punch\"")) {
+        got_punch = json_str(buf, "peerIp", out_ip, MATCHMAKING_IP_MAX)
+            && json_int(buf, "peerPort", out_port);
+        if (got_punch)
+            LbNetLog("Matchmaking: poll_punch -> %s:%d\n", out_ip, *out_port);
+        else
+            LbNetLog("Matchmaking: poll_punch parse failed\n");
     }
     LeaveCriticalSection(&g_cs);
     return got_punch;

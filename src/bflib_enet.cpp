@@ -200,15 +200,14 @@ namespace
     {
         ENetAddress connect_address;
         if (g_join_lobby_id[0] != '\0') {
+            LbNetLog("Join: connecting via UDP hole punching\n");
             host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, NULL, 4, NUM_CHANNELS, 0, 0);
             if (!host) {
                 LbNetLog("Join: failed to create ENet host\n");
                 return Lb_FAIL;
             }
-            LbNetLog("Join: created client host, local port=%u\n", (unsigned)host->address.port);
             char ext_ip[MATCHMAKING_IP_MAX] = {0};
             uint16_t ext_port = holepunch_stun_query(host, ext_ip, sizeof(ext_ip));
-            LbNetLog("Join: STUN ext_port=%u\n", (unsigned)ext_port);
             char peer_ip[MATCHMAKING_IP_MAX] = {0};
             int peer_port = 0;
             if (matchmaking_punch(g_join_lobby_id, (int)ext_port, ext_ip, peer_ip, &peer_port) != 0) {
@@ -217,14 +216,12 @@ namespace
                 return Lb_FAIL;
             }
             g_join_lobby_id[0] = '\0';
-            LbNetLog("Join: resolving peer address %s\n", peer_ip);
             if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, peer_ip) < 0) {
                 LbNetLog("Join: failed to resolve peer address %s\n", peer_ip);
                 host_destroy();
                 return Lb_FAIL;
             }
             connect_address.port = (enet_uint16)peer_port;
-            LbNetLog("Join: sleeping %dms before connect\n", HOLEPUNCH_CONNECT_DELAY_MS);
             Sleep(HOLEPUNCH_CONNECT_DELAY_MS);
         } else {
             char buf[128] = {0};
@@ -247,19 +244,12 @@ namespace
         }
         enet_host_compress_with_range_coder(host);
         holepunch_punch_to(host, &connect_address);
-        LbNetLog("Join: calling enet_host_connect to %u.%u.%u.%u:%u\n",
-            (unsigned)connect_address.host.v4[0],
-            (unsigned)connect_address.host.v4[1],
-            (unsigned)connect_address.host.v4[2],
-            (unsigned)connect_address.host.v4[3],
-            (unsigned)connect_address.port);
         client_peer = enet_host_connect(host, &connect_address, NUM_CHANNELS, 0);
         if (!client_peer) {
             LbNetLog("Join: enet_host_connect returned NULL\n");
             host_destroy();
             return Lb_FAIL;
         }
-        LbNetLog("Join: waiting up to %dms for connection\n", TIMEOUT_ENET_CONNECT);
         if (wait_for_connect(TIMEOUT_ENET_CONNECT)) {
             LbNetLog("Join: connection timed out or failed\n");
             host_destroy();

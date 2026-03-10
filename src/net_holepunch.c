@@ -66,19 +66,16 @@ struct StunAttrHeader {
 uint16_t holepunch_stun_query(ENetHost *host, char *ip_out, size_t ip_len)
 {
     ENetAddress stun_addr;
-    LbNetLog("STUN: resolving %s\n", STUN_SERVER);
     if (enet_address_set_host(&stun_addr, ENET_ADDRESS_TYPE_IPV4, STUN_SERVER) < 0) {
         LbNetLog("STUN: failed to resolve %s\n", STUN_SERVER);
         return 0;
     }
     stun_addr.port = STUN_PORT;
-    LbNetLog("STUN: resolved, sending binding request to port %u\n", (unsigned)STUN_PORT);
 
     static unsigned s_counter = 0;
     s_counter++;
     struct StunHeader req = {htons(STUN_BINDING_REQUEST), htons(0), htonl(STUN_MAGIC_COOKIE), {0}};
     memcpy(req.txid, &s_counter, sizeof(s_counter));
-    LbNetLog("STUN: txid counter=%u, host socket=%d\n", s_counter, (int)host->socket);
     ENetBuffer send_buf = {sizeof(req), &req};
     ENetSocket sock = host->socket;
     ENetSocket tmp_sock = ENET_SOCKET_NULL;
@@ -94,63 +91,41 @@ uint16_t holepunch_stun_query(ENetHost *host, char *ip_out, size_t ip_len)
             enet_socket_destroy(tmp_sock);
             return 0;
         }
-        LbNetLog("STUN: sent via fallback socket (port will be host port %u)\n", (unsigned)host->address.port);
         sock = tmp_sock;
-    } else {
-        LbNetLog("STUN: sent via host socket\n");
     }
 
     DWORD deadline = GetTickCount() + STUN_TIMEOUT_MS;
     uint16_t result = 0;
-    LbNetLog("STUN: waiting up to %d ms for response\n", STUN_TIMEOUT_MS);
     for (;;) {
         DWORD now = GetTickCount();
-        if (now >= deadline) {
-            LbNetLog("STUN: deadline exceeded\n");
+        if (now >= deadline)
             break;
-        }
         enet_uint32 wait_flags = ENET_SOCKET_WAIT_RECEIVE;
         if (enet_socket_wait(sock, &wait_flags, deadline - now) < 0
-            || !(wait_flags & ENET_SOCKET_WAIT_RECEIVE)) {
-            LbNetLog("STUN: no response within %d ms\n", STUN_TIMEOUT_MS);
+            || !(wait_flags & ENET_SOCKET_WAIT_RECEIVE))
             break;
-        }
         uint8_t resp[STUN_RESPONSE_BUF_SIZE];
         ENetAddress from;
         ENetBuffer recv_buf = {sizeof(resp), resp};
         int n = enet_socket_receive(sock, &from, &recv_buf, 1);
-        LbNetLog("STUN: received %d bytes\n", n);
         if (n <= 0)
             continue;
-        if (n < (int)sizeof(struct StunHeader)) {
-            LbNetLog("STUN: packet too short (%d bytes), ignoring\n", n);
+        if (n < (int)sizeof(struct StunHeader))
             break;
-        }
         const struct StunHeader *hdr = (const struct StunHeader *)resp;
-        uint16_t pkt_type = ntohs(hdr->type);
-        uint32_t pkt_magic = ntohl(hdr->magic);
-        int txid_match = (memcmp(hdr->txid, req.txid, sizeof(hdr->txid)) == 0);
-        LbNetLog("STUN: pkt type=0x%04x magic=0x%08x txid_match=%d\n",
-            (unsigned)pkt_type, (unsigned)pkt_magic, txid_match);
-        if (pkt_type != STUN_BINDING_SUCCESS
-            || pkt_magic != STUN_MAGIC_COOKIE
-            || !txid_match) {
-            LbNetLog("STUN: packet discarded (expected type=0x%04x magic=0x%08x)\n",
-                (unsigned)STUN_BINDING_SUCCESS, (unsigned)STUN_MAGIC_COOKIE);
+        if (ntohs(hdr->type) != STUN_BINDING_SUCCESS
+            || ntohl(hdr->magic) != STUN_MAGIC_COOKIE
+            || memcmp(hdr->txid, req.txid, sizeof(hdr->txid)) != 0)
             continue;
-        }
         int offset = (int)sizeof(struct StunHeader);
         int attrs_end = offset + (int)ntohs(hdr->length);
         if (attrs_end > n) attrs_end = n;
-        LbNetLog("STUN: parsing attributes (attrs_end=%d)\n", attrs_end);
         char ip[64] = {0};
         uint16_t ext_port = 0;
         while (offset + 4 <= attrs_end) {
             const struct StunAttrHeader *attr = (const struct StunAttrHeader *)(resp + offset);
             uint16_t atype = ntohs(attr->type);
             uint16_t alen = ntohs(attr->length);
-            LbNetLog("STUN: attribute type=0x%04x len=%u at offset=%d\n",
-                (unsigned)atype, (unsigned)alen, offset);
             offset += 4;
             if (atype == STUN_ATTR_XOR_MAPPED && alen >= 8
                     && offset + alen <= attrs_end && resp[offset + 1] == 0x01) {
@@ -162,21 +137,14 @@ uint16_t holepunch_stun_query(ENetHost *host, char *ip_out, size_t ip_len)
                 snprintf(ip, sizeof(ip), "%u.%u.%u.%u",
                     (addr >> 24) & 0xFFu, (addr >> 16) & 0xFFu,
                     (addr >> 8) & 0xFFu, addr & 0xFFu);
-                LbNetLog("STUN: XOR-MAPPED-ADDRESS raw xor_port=0x%04x -> ext_port=%u, ip=%s\n",
-                    (unsigned)xor_port, (unsigned)ext_port, ip);
                 break;
             }
             offset += (alen + 3) & ~3;
         }
-        if (!ext_port) {
-            LbNetLog("STUN: no XOR-MAPPED-ADDRESS found in response\n");
+        if (!ext_port)
             continue;
-        }
-        if (tmp_sock != ENET_SOCKET_NULL) {
-            LbNetLog("STUN: used fallback socket, overriding ext_port %u -> host port %u\n",
-                (unsigned)ext_port, (unsigned)host->address.port);
+        if (tmp_sock != ENET_SOCKET_NULL)
             ext_port = host->address.port;
-        }
         LbNetLog("STUN: external address %s:%u\n", ip, (unsigned)ext_port);
         if (ip_out && ip_len > 0)
             snprintf(ip_out, ip_len, "%s", ip);
@@ -192,12 +160,8 @@ uint16_t holepunch_stun_query(ENetHost *host, char *ip_out, size_t ip_len)
 
 void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
 {
-    LbNetLog("Holepunch: sending %d punch packets to port %u\n",
-        HOLE_PUNCH_COUNT, (unsigned)target->port);
     static const uint8_t payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
     ENetBuffer buf = {sizeof(payload), (void *)payload};
-    for (int i = 0; i < HOLE_PUNCH_COUNT; i++) {
-        int r = enet_socket_send(host->socket, target, &buf, 1);
-        LbNetLog("Holepunch: punch %d/%d result=%d\n", i + 1, HOLE_PUNCH_COUNT, r);
-    }
+    for (int i = 0; i < HOLE_PUNCH_COUNT; i++)
+        enet_socket_send(host->socket, target, &buf, 1);
 }
