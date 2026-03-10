@@ -232,11 +232,15 @@ namespace
             if (port == 0 || buf[0] == '\0') {
                 return Lb_FAIL;
             }
-            if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_ANY, buf) < 0) {
+            ENetAddressType addr_type = ENET_ADDRESS_TYPE_IPV4;
+            if (strchr(buf, ':') != NULL) {
+                addr_type = ENET_ADDRESS_TYPE_IPV6;
+            }
+            if (enet_address_set_host(&connect_address, addr_type, buf) < 0) {
                 return Lb_FAIL;
             }
             connect_address.port = port;
-            host = enet_host_create(connect_address.type, NULL, 4, NUM_CHANNELS, 0, 0);
+            host = enet_host_create(addr_type, NULL, 4, NUM_CHANNELS, 0, 0);
             if (!host) {
                 return Lb_FAIL;
             }
