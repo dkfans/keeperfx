@@ -361,6 +361,7 @@ src/actionpt.c: deps/centijson/include/json.h
 src/api.c: deps/centijson/include/json.h
 src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
+src/net_holepunch.c: deps/enet6/include/enet6/enet.h
 src/net_matchmaking.c: deps/libcurl/include/curl/curl.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h

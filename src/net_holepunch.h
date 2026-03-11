@@ -20,6 +20,7 @@
 #ifndef NET_HOLEPUNCH_H
 #define NET_HOLEPUNCH_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
