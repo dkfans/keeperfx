@@ -27,14 +27,7 @@
 #include "net_holepunch.h"
 #include "bflib_basics.h"
 
-#if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#else
 #include <SDL2/SDL.h>
-typedef Uint32 DWORD;
-#define GetTickCount SDL_GetTicks
-#endif
 #include <enet6/enet.h>
 #include <stdint.h>
 #include <string.h>
@@ -98,10 +91,10 @@ uint16_t holepunch_stun_query(ENetHost *host, char *ip_out, size_t ip_len)
         sock = tmp_sock;
     }
 
-    DWORD deadline = GetTickCount() + STUN_TIMEOUT_MS;
+    Uint32 deadline = SDL_GetTicks() + STUN_TIMEOUT_MS;
     uint16_t result = 0;
     for (;;) {
-        DWORD now = GetTickCount();
+        Uint32 now = SDL_GetTicks();
         if (now >= deadline)
             break;
         enet_uint32 wait_flags = ENET_SOCKET_WAIT_RECEIVE;
