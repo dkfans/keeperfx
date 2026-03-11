@@ -21,9 +21,21 @@
 #include "bflib_basics.h"
 #include "ver_defs.h"
 
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winsock2.h>
+#else
+#include <SDL2/SDL.h>
+#include <pthread.h>
+#include <sys/select.h>
+typedef Uint32 DWORD;
+#define GetTickCount SDL_GetTicks
+#define EnterCriticalSection(cs) pthread_mutex_lock(cs)
+#define LeaveCriticalSection(cs) pthread_mutex_unlock(cs)
+#define TryEnterCriticalSection(cs) (pthread_mutex_trylock(cs) == 0)
+#endif
+
 #include <curl/curl.h>
 #include <curl/websockets.h>
 #include <string.h>
@@ -45,7 +57,11 @@ static CURL *g_curl = NULL;
 static char g_hosted_lobby_id[MATCHMAKING_ID_MAX] = {0};
 static DWORD g_last_refresh_tick = 0;
 char g_join_lobby_id[MATCHMAKING_ID_MAX] = {0};
+#if defined(_WIN32)
 static CRITICAL_SECTION g_cs;
+#else
+static pthread_mutex_t g_cs = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 struct TbNetworkSessionNameEntry g_mm_sessions[MATCHMAKING_SESSIONS_MAX];
 int g_mm_session_count = 0;
@@ -82,9 +98,14 @@ static int ws_recv(char *buf, size_t bufsz, int timeout_ms)
 
     fd_set fds;
     FD_ZERO(&fds);
-    FD_SET((SOCKET)sock, &fds);
     struct timeval tv = { timeout_ms / 1000, (timeout_ms % 1000) * 1000 };
+#if defined(_WIN32)
+    FD_SET((SOCKET)sock, &fds);
     if (select(0, &fds, NULL, NULL, &tv) <= 0)
+#else
+    FD_SET((int)sock, &fds);
+    if (select((int)sock + 1, &fds, NULL, NULL, &tv) <= 0)
+#endif
         return 0;
 
     size_t recvd = 0;
@@ -139,26 +160,42 @@ static int json_int(const char *json, const char *key, int *out)
 
 void matchmaking_init(void)
 {
-    static BOOL s_done = FALSE;
+    static int s_done = 0;
     if (s_done)
         return;
-    s_done = TRUE;
+    s_done = 1;
+#if defined(_WIN32)
     InitializeCriticalSection(&g_cs);
+#endif
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
+#if defined(_WIN32)
 static DWORD WINAPI connect_thread(LPVOID arg)
 {
     matchmaking_connect();
     return 0;
 }
+#else
+static void *connect_thread(void *arg)
+{
+    matchmaking_connect();
+    return NULL;
+}
+#endif
 
 void matchmaking_connect_async(void)
 {
     matchmaking_init();
+#if defined(_WIN32)
     HANDLE h = CreateThread(NULL, 0, connect_thread, NULL, 0, NULL);
     if (h)
         CloseHandle(h);
+#else
+    pthread_t t;
+    if (pthread_create(&t, NULL, connect_thread, NULL) == 0)
+        pthread_detach(t);
+#endif
 }
 
 int matchmaking_connect(void)
