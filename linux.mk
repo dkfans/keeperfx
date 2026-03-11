@@ -211,6 +211,8 @@ src/map_utils.c \
 src/moonphase.c \
 src/net_checksums.c \
 src/net_game.c \
+src/net_holepunch.c \
+src/net_matchmaking.c \
 src/net_input_lag.c \
 src/net_received_packets.c \
 src/net_redundant_packets.c \
