@@ -32,9 +32,9 @@ extern "C" {
 #define MATCHMAKING_NAME_MAX SESSION_NAME_MAX_LEN
 #define MATCHMAKING_SESSIONS_MAX 32
 
-extern struct TbNetworkSessionNameEntry g_matchmaking_sessions[MATCHMAKING_SESSIONS_MAX];
-extern int g_matchmaking_session_count;
-extern char g_join_lobby_id[MATCHMAKING_ID_MAX];
+extern struct TbNetworkSessionNameEntry matchmaking_sessions[MATCHMAKING_SESSIONS_MAX];
+extern int matchmaking_session_count;
+extern char join_lobby_id[MATCHMAKING_ID_MAX];
 
 void matchmaking_init(void);
 void matchmaking_connect_async(void);
