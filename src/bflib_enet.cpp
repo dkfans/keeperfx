@@ -123,32 +123,6 @@ namespace
         return Lb_OK;
     }
 
-    int wait_for_connect(int timeout)
-    {
-        ENetEvent ev;
-        int ret;
-        while (
-                (ret = enet_host_service(host, &ev, timeout)) > 0
-                )
-        {
-            if (ev.type == ENET_EVENT_TYPE_CONNECT)
-            {
-                return 0;
-            }
-            else
-            {
-                LbNetLog("wait_for_connect: unexpected event type=%d\n", (int)ev.type);
-            }
-        }
-        if (ret < 0)
-        {
-            LbNetLog("wait_for_connect: enet_host_service error %d\n", ret);
-            ERRORLOG("Unable to connect: %d", ret);
-        } else {
-            LbNetLog("wait_for_connect: timed out (ret=0)\n");
-        }
-        return 1;
-    }
 
     enet_uint16 parse_session_address(const char *session, char *host_out, size_t host_size)
     {
@@ -222,7 +196,6 @@ namespace
                 return Lb_FAIL;
             }
             connect_address.port = (enet_uint16)peer_port;
-            LbSleepFor(HOLEPUNCH_CONNECT_DELAY_MS);
         } else {
             char buf[128] = {0};
             enet_uint16 port = parse_session_address(session, buf, sizeof(buf));
@@ -250,13 +223,33 @@ namespace
             host_destroy();
             return Lb_FAIL;
         }
-        if (wait_for_connect(TIMEOUT_ENET_CONNECT)) {
-            LbNetLog("Join: connection timed out or failed\n");
-            host_destroy();
-            return Lb_FAIL;
+        {
+            ENetEvent ev;
+            TbClockMSec deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
+            while (LbTimerClock() < deadline) {
+                TbClockMSec remaining = deadline - LbTimerClock();
+                enet_uint32 wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
+                if (remaining < wait_ms) {
+                    wait_ms = (enet_uint32)remaining;
+                }
+                int ret = enet_host_service(host, &ev, wait_ms);
+                if (ret > 0 && ev.type == ENET_EVENT_TYPE_CONNECT) {
+                    LbNetLog("Join: connected successfully\n");
+                    return Lb_OK;
+                }
+                if (ret > 0) {
+                    LbNetLog("Join: unexpected event type=%d\n", (int)ev.type);
+                } else if (ret < 0) {
+                    LbNetLog("Join: enet_host_service error %d\n", ret);
+                    ERRORLOG("Unable to connect: %d", ret);
+                    break;
+                }
+                holepunch_punch_to(host, &connect_address);
+            }
         }
-        LbNetLog("Join: connected successfully\n");
-        return Lb_OK;
+        LbNetLog("Join: connection timed out or failed\n");
+        host_destroy();
+        return Lb_FAIL;
     }
 
     /*
