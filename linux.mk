@@ -338,7 +338,7 @@ clean:
 
 .PHONY: all clean
 
-bin/keeperfx: $(KFX_OBJECTS) $(TOML_OBJECTS) | bin
+bin/keeperfx: $(KFX_OBJECTS) $(TOML_OBJECTS) deps/libcurl/lib/libcurl.a | bin
 	$(CXX) -o $@ $(KFX_OBJECTS) $(TOML_OBJECTS) $(KFX_LDFLAGS)
 
 $(KFX_C_OBJECTS): obj/%.o: src/%.c src/ver_defs.h | obj
@@ -384,8 +384,10 @@ deps/enet6/include/enet6/enet.h: deps/enet6-lin64.tar.gz | deps/enet6
 deps/libcurl-lin64.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260310/libcurl-lin64.tar.gz"
 
-deps/libcurl/include/curl/curl.h: deps/libcurl-lin64.tar.gz | deps/libcurl
+deps/libcurl/lib/libcurl.a: deps/libcurl-lin64.tar.gz | deps/libcurl
 	tar xzmf $< -C deps/libcurl
+
+deps/libcurl/include/curl/curl.h: deps/libcurl/lib/libcurl.a
 
 src/ver_defs.h: version.mk
 	$(ECHO) "#define VER_MAJOR   $(VER_MAJOR)" > $@.swp
