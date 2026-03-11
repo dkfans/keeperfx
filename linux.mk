@@ -313,8 +313,7 @@ KFX_LDFLAGS += \
 	-lminiupnpc \
 	-lnatpmp \
 	-Ldeps/libcurl/lib -lcurl -lssl -lcrypto \
-	-ldl \
-	-lpthread
+	-ldl
 
 TOML_SOURCES = \
 	deps/centitoml/toml_api.c

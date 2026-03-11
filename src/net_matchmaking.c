@@ -21,21 +21,10 @@
 #include "bflib_basics.h"
 #include "ver_defs.h"
 
-#if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winsock2.h>
-#else
 #include <SDL2/SDL.h>
-#include <pthread.h>
+#ifndef _WIN32
 #include <sys/select.h>
-typedef Uint32 DWORD;
-#define GetTickCount SDL_GetTicks
-#define EnterCriticalSection(cs) pthread_mutex_lock(cs)
-#define LeaveCriticalSection(cs) pthread_mutex_unlock(cs)
-#define TryEnterCriticalSection(cs) (pthread_mutex_trylock(cs) == 0)
 #endif
-
 #include <curl/curl.h>
 #include <curl/websockets.h>
 #include <string.h>
@@ -55,13 +44,9 @@ typedef Uint32 DWORD;
 
 static CURL *g_curl = NULL;
 static char g_hosted_lobby_id[MATCHMAKING_ID_MAX] = {0};
-static DWORD g_last_refresh_tick = 0;
+static Uint32 g_last_refresh_tick = 0;
 char g_join_lobby_id[MATCHMAKING_ID_MAX] = {0};
-#if defined(_WIN32)
-static CRITICAL_SECTION g_cs;
-#else
-static pthread_mutex_t g_cs = PTHREAD_MUTEX_INITIALIZER;
-#endif
+static SDL_mutex *g_cs = NULL;
 
 struct TbNetworkSessionNameEntry g_mm_sessions[MATCHMAKING_SESSIONS_MAX];
 int g_mm_session_count = 0;
@@ -98,14 +83,9 @@ static int ws_recv(char *buf, size_t bufsz, int timeout_ms)
 
     fd_set fds;
     FD_ZERO(&fds);
+    FD_SET(sock, &fds);
     struct timeval tv = { timeout_ms / 1000, (timeout_ms % 1000) * 1000 };
-#if defined(_WIN32)
-    FD_SET((SOCKET)sock, &fds);
-    if (select(0, &fds, NULL, NULL, &tv) <= 0)
-#else
-    FD_SET((int)sock, &fds);
     if (select((int)sock + 1, &fds, NULL, NULL, &tv) <= 0)
-#endif
         return 0;
 
     size_t recvd = 0;
@@ -164,50 +144,34 @@ void matchmaking_init(void)
     if (s_done)
         return;
     s_done = 1;
-#if defined(_WIN32)
-    InitializeCriticalSection(&g_cs);
-#endif
+    g_cs = SDL_CreateMutex();
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
-#if defined(_WIN32)
-static DWORD WINAPI connect_thread(LPVOID arg)
+static int connect_thread(void *arg)
 {
     matchmaking_connect();
     return 0;
 }
-#else
-static void *connect_thread(void *arg)
-{
-    matchmaking_connect();
-    return NULL;
-}
-#endif
 
 void matchmaking_connect_async(void)
 {
     matchmaking_init();
-#if defined(_WIN32)
-    HANDLE h = CreateThread(NULL, 0, connect_thread, NULL, 0, NULL);
-    if (h)
-        CloseHandle(h);
-#else
-    pthread_t t;
-    if (pthread_create(&t, NULL, connect_thread, NULL) == 0)
-        pthread_detach(t);
-#endif
+    SDL_Thread *t = SDL_CreateThread(connect_thread, "matchmaking", NULL);
+    if (t)
+        SDL_DetachThread(t);
 }
 
 int matchmaking_connect(void)
 {
-    EnterCriticalSection(&g_cs);
+    SDL_LockMutex(g_cs);
     if (g_curl) {
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return 0;
     }
     g_curl = curl_easy_init();
     if (!g_curl) {
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return -1;
     }
     LbNetLog("Matchmaking: connecting to %s\n", MATCHMAKING_URL);
@@ -218,17 +182,17 @@ int matchmaking_connect(void)
     if (rc != CURLE_OK) {
         LbNetLog("Matchmaking: connect to %s failed: %s\n", MATCHMAKING_URL, curl_easy_strerror(rc));
         ws_cleanup();
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return -1;
     }
     LbNetLog("Matchmaking: connected\n");
-    LeaveCriticalSection(&g_cs);
+    SDL_UnlockMutex(g_cs);
     return 0;
 }
 
 void matchmaking_disconnect(void)
 {
-    EnterCriticalSection(&g_cs);
+    SDL_LockMutex(g_cs);
     if (g_curl) {
         if (g_hosted_lobby_id[0] != '\0') {
             char msg[SEND_BUF_SIZE];
@@ -238,21 +202,21 @@ void matchmaking_disconnect(void)
         ws_cleanup();
         LbNetLog("Matchmaking: disconnected\n");
     }
-    LeaveCriticalSection(&g_cs);
+    SDL_UnlockMutex(g_cs);
 }
 
 void matchmaking_refresh_sessions(void)
 {
-    EnterCriticalSection(&g_cs);
+    SDL_LockMutex(g_cs);
     if (!g_curl) {
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return;
     }
     char buf[WS_BUF_SIZE];
     int list_n;
     if (g_last_refresh_tick == 0) {
         list_n = ws_exchange("{\"action\":\"list\",\"version\":\"" MATCHMAKING_VERSION "\"}", buf, sizeof(buf));
-        g_last_refresh_tick = GetTickCount();
+        g_last_refresh_tick = SDL_GetTicks();
     } else {
         list_n = ws_recv(buf, sizeof(buf), 0);
     }
@@ -279,7 +243,7 @@ void matchmaking_refresh_sessions(void)
         g_mm_session_count = count;
         LbNetLog("Matchmaking: parsed %d session(s)\n", count);
     }
-    LeaveCriticalSection(&g_cs);
+    SDL_UnlockMutex(g_cs);
 }
 
 int matchmaking_create(const char *name, int udp_port, const char *ip)
@@ -288,10 +252,10 @@ int matchmaking_create(const char *name, int udp_port, const char *ip)
     char ip_field[IP_FIELD_SIZE];
     char msg[SEND_BUF_SIZE];
     char buf[WS_BUF_SIZE];
-    EnterCriticalSection(&g_cs);
+    SDL_LockMutex(g_cs);
     if (!g_curl) {
         LbNetLog("Matchmaking: not connected to server, lobby won't be listed online\n");
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return -1;
     }
     int pos = 0;
@@ -311,16 +275,16 @@ int matchmaking_create(const char *name, int udp_port, const char *ip)
     if (create_n > 0)
         LbNetLog("Matchmaking: create response (%d bytes): %s\n", create_n, buf);
     if (create_n <= 0) {
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return -1;
     }
     if (!strstr(buf, "\"created\"") || !json_str(buf, "id", g_hosted_lobby_id, MATCHMAKING_ID_MAX)) {
         LbNetLog("Matchmaking: create failed - unexpected response\n");
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return -1;
     }
     LbNetLog("Matchmaking: created lobby id=%s\n", g_hosted_lobby_id);
-    LeaveCriticalSection(&g_cs);
+    SDL_UnlockMutex(g_cs);
     return 0;
 }
 
@@ -328,10 +292,10 @@ int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, ch
 {
     char msg[SEND_BUF_SIZE];
     char buf[WS_BUF_SIZE];
-    EnterCriticalSection(&g_cs);
+    SDL_LockMutex(g_cs);
     if (!g_curl) {
         LbNetLog("Matchmaking: not connected to server, UDP hole punching unavailable\n");
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return -1;
     }
     char ip_field[IP_FIELD_SIZE] = "";
@@ -341,23 +305,23 @@ int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, ch
         "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d%s}",
         lobby_id, udp_port, ip_field);
     if (ws_send(msg) != 0) {
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return -1;
     }
     int punch_n;
-    DWORD deadline = GetTickCount() + WS_RECV_TIMEOUT_MS;
+    Uint32 deadline = SDL_GetTicks() + WS_RECV_TIMEOUT_MS;
     for (;;) {
-        int remaining = (int)(deadline - GetTickCount());
+        int remaining = (int)(deadline - SDL_GetTicks());
         if (remaining <= 0) {
             LbNetLog("Matchmaking: punch failed - timeout\n");
-            LeaveCriticalSection(&g_cs);
+            SDL_UnlockMutex(g_cs);
             return -1;
         }
         punch_n = ws_recv(buf, sizeof(buf), remaining);
         if (punch_n > 0)
             LbNetLog("Matchmaking: punch response (%d bytes): %s\n", punch_n, buf);
         if (punch_n <= 0) {
-            LeaveCriticalSection(&g_cs);
+            SDL_UnlockMutex(g_cs);
             return -1;
         }
         if (strstr(buf, "\"lobbies\""))
@@ -368,17 +332,17 @@ int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, ch
         || !json_str(buf, "peerIp", out_ip, MATCHMAKING_IP_MAX)
         || !json_int(buf, "peerPort", out_port)) {
         LbNetLog("Matchmaking: punch failed - unexpected response\n");
-        LeaveCriticalSection(&g_cs);
+        SDL_UnlockMutex(g_cs);
         return -1;
     }
     LbNetLog("Matchmaking: punch relay -> %s:%d\n", out_ip, *out_port);
-    LeaveCriticalSection(&g_cs);
+    SDL_UnlockMutex(g_cs);
     return 0;
 }
 
 int matchmaking_poll_punch(char *out_ip, int *out_port)
 {
-    if (!g_curl || !TryEnterCriticalSection(&g_cs))
+    if (!g_curl || !g_cs || SDL_TryLockMutex(g_cs) != 0)
         return 0;
     char buf[WS_BUF_SIZE];
     int n = ws_recv(buf, sizeof(buf), 0);
@@ -391,6 +355,6 @@ int matchmaking_poll_punch(char *out_ip, int *out_port)
         else
             LbNetLog("Matchmaking: poll_punch parse failed\n");
     }
-    LeaveCriticalSection(&g_cs);
+    SDL_UnlockMutex(g_cs);
     return got_punch;
 }
