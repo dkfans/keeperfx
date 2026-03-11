@@ -108,9 +108,9 @@ namespace
         address.port = ENET_DEFAULT_PORT;
         if (!*session)
             return Lb_FAIL;
-        const char *port_str = session;
-        if (*port_str == ':') port_str++;
-        int port = atoi(port_str);
+        const char *port_string = session;
+        if (*port_string == ':') port_string++;
+        int port = atoi(port_string);
         if (port > 0)
             address.port = port;
         host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, &address, 4, NUM_CHANNELS, 0, 0);
@@ -124,23 +124,23 @@ namespace
     }
 
 
-    enet_uint16 parse_session_address(const char *session, char *host_out, size_t host_size)
+    enet_uint16 parse_session_address(const char *session, char *output_hostname, size_t hostname_buffer_size)
     {
-        char *E;
+        char *parse_end_ptr;
         enet_uint16 port = ENET_DEFAULT_PORT;
         if (session[0] == '[') {
             const char *bracket_end = strchr(session, ']');
             if (!bracket_end) {
                 return 0;
             }
-            size_t addr_len = bracket_end - session - 1;
-            if (addr_len >= host_size) {
+            size_t address_length = bracket_end - session - 1;
+            if (address_length >= hostname_buffer_size) {
                 return 0;
             }
-            strncpy(host_out, session + 1, addr_len);
-            host_out[addr_len] = '\0';
+            strncpy(output_hostname, session + 1, address_length);
+            output_hostname[address_length] = '\0';
             if (bracket_end[1] == ':') {
-                port = strtoul(bracket_end + 2, &E, 10);
+                port = strtoul(bracket_end + 2, &parse_end_ptr, 10);
                 if (port == 0) {
                     return 0;
                 }
@@ -149,22 +149,22 @@ namespace
             const char *first_colon = strchr(session, ':');
             const char *last_colon = strrchr(session, ':');
             if (first_colon && first_colon != last_colon) {
-                strncpy(host_out, session, host_size - 1);
-                host_out[host_size - 1] = '\0';
+                strncpy(output_hostname, session, hostname_buffer_size - 1);
+                output_hostname[hostname_buffer_size - 1] = '\0';
             } else if (first_colon) {
-                size_t addr_len = first_colon - session;
-                if (addr_len >= host_size) {
+                size_t address_length = first_colon - session;
+                if (address_length >= hostname_buffer_size) {
                     return 0;
                 }
-                strncpy(host_out, session, addr_len);
-                host_out[addr_len] = '\0';
-                port = strtoul(first_colon + 1, &E, 10);
+                strncpy(output_hostname, session, address_length);
+                output_hostname[address_length] = '\0';
+                port = strtoul(first_colon + 1, &parse_end_ptr, 10);
                 if (port == 0) {
                     return 0;
                 }
             } else {
-                strncpy(host_out, session, host_size - 1);
-                host_out[host_size - 1] = '\0';
+                strncpy(output_hostname, session, hostname_buffer_size - 1);
+                output_hostname[hostname_buffer_size - 1] = '\0';
             }
         }
         return port;
@@ -180,11 +180,11 @@ namespace
                 LbNetLog("Join: failed to create ENet host\n");
                 return Lb_FAIL;
             }
-            char ext_ip[MATCHMAKING_IP_MAX] = {0};
-            uint16_t ext_port = holepunch_stun_query(host, ext_ip, sizeof(ext_ip));
+            char external_ip[MATCHMAKING_IP_MAX] = {0};
+            uint16_t external_port = holepunch_stun_query(host, external_ip, sizeof(external_ip));
             char peer_ip[MATCHMAKING_IP_MAX] = {0};
             int peer_port = 0;
-            if (matchmaking_punch(g_join_lobby_id, (int)ext_port, ext_ip, peer_ip, &peer_port) != 0) {
+            if (matchmaking_punch(g_join_lobby_id, (int)external_port, external_ip, peer_ip, &peer_port) != 0) {
                 LbNetLog("Join: matchmaking_punch failed\n");
                 host_destroy();
                 return Lb_FAIL;
@@ -197,20 +197,20 @@ namespace
             }
             connect_address.port = (enet_uint16)peer_port;
         } else {
-            char buf[128] = {0};
-            enet_uint16 port = parse_session_address(session, buf, sizeof(buf));
-            if (port == 0 || buf[0] == '\0') {
+            char address_string[128] = {0};
+            enet_uint16 port = parse_session_address(session, address_string, sizeof(address_string));
+            if (port == 0 || address_string[0] == '\0') {
                 return Lb_FAIL;
             }
-            ENetAddressType addr_type = ENET_ADDRESS_TYPE_IPV4;
-            if (strchr(buf, ':') != NULL) {
-                addr_type = ENET_ADDRESS_TYPE_IPV6;
+            ENetAddressType address_type = ENET_ADDRESS_TYPE_IPV4;
+            if (strchr(address_string, ':') != NULL) {
+                address_type = ENET_ADDRESS_TYPE_IPV6;
             }
-            if (enet_address_set_host(&connect_address, addr_type, buf) < 0) {
+            if (enet_address_set_host(&connect_address, address_type, address_string) < 0) {
                 return Lb_FAIL;
             }
             connect_address.port = port;
-            host = enet_host_create(addr_type, NULL, 4, NUM_CHANNELS, 0, 0);
+            host = enet_host_create(address_type, NULL, 4, NUM_CHANNELS, 0, 0);
             if (!host) {
                 return Lb_FAIL;
             }
@@ -224,24 +224,24 @@ namespace
             return Lb_FAIL;
         }
         {
-            ENetEvent ev;
-            TbClockMSec deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
-            while (LbTimerClock() < deadline) {
-                TbClockMSec remaining = deadline - LbTimerClock();
-                enet_uint32 wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
-                if (remaining < wait_ms) {
-                    wait_ms = (enet_uint32)remaining;
+            ENetEvent enet_event;
+            TbClockMSec connection_deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
+            while (LbTimerClock() < connection_deadline) {
+                TbClockMSec time_remaining = connection_deadline - LbTimerClock();
+                enet_uint32 service_wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
+                if (time_remaining < service_wait_ms) {
+                    service_wait_ms = (enet_uint32)time_remaining;
                 }
-                int ret = enet_host_service(host, &ev, wait_ms);
-                if (ret > 0 && ev.type == ENET_EVENT_TYPE_CONNECT) {
+                int service_result = enet_host_service(host, &enet_event, service_wait_ms);
+                if (service_result > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
                     LbNetLog("Join: connected successfully\n");
                     return Lb_OK;
                 }
-                if (ret > 0) {
-                    LbNetLog("Join: unexpected event type=%d\n", (int)ev.type);
-                } else if (ret < 0) {
-                    LbNetLog("Join: enet_host_service error %d\n", ret);
-                    ERRORLOG("Unable to connect: %d", ret);
+                if (service_result > 0) {
+                    LbNetLog("Join: unexpected event type=%d\n", (int)enet_event.type);
+                } else if (service_result < 0) {
+                    LbNetLog("Join: enet_host_service error %d\n", service_result);
+                    ERRORLOG("Unable to connect: %d", service_result);
                     break;
                 }
                 holepunch_punch_to(host, &connect_address);
@@ -742,11 +742,11 @@ void enet_matchmaking_host_update(void)
     int  peer_port = 0;
     if (!matchmaking_poll_punch(peer_ip, &peer_port))
         return;
-    ENetAddress target;
-    if (enet_address_set_host(&target, ENET_ADDRESS_TYPE_IPV4, peer_ip) != 0)
+    ENetAddress peer_address;
+    if (enet_address_set_host(&peer_address, ENET_ADDRESS_TYPE_IPV4, peer_ip) != 0)
         return;
-    target.port = (enet_uint16)peer_port;
-    holepunch_punch_to(host, &target);
+    peer_address.port = (enet_uint16)peer_port;
+    holepunch_punch_to(host, &peer_address);
 }
 
 struct NetSP *InitEnetSP()

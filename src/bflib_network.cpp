@@ -143,23 +143,23 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, 
     char default_port_buf[16];
     snprintf(default_port_buf, sizeof(default_port_buf), ":%u", (unsigned)ENET_DEFAULT_PORT);
     const char *port = default_port_buf;
-    char buf[16] = "";
+    char port_string[16] = "";
     if (ServerPort != 0) {
-        snprintf(buf, sizeof(buf), "%d", ServerPort);
-        port = buf;
+        snprintf(port_string, sizeof(port_string), "%d", ServerPort);
+        port = port_string;
     }
     if (netstate.sp->host(port, optns) == Lb_FAIL) {
         return Lb_FAIL;
     }
     std::string host_name(plyr_name);
-    uint16_t ext_port = g_external_port;
-    if (ext_port == 0 && ServerPort > 0)
-        ext_port = (uint16_t)ServerPort;
-    if (ext_port == 0)
-        ext_port = (uint16_t)ENET_DEFAULT_PORT;
-    std::thread([ext_port, host_name]() {
+    uint16_t external_port = g_external_port;
+    if (external_port == 0 && ServerPort > 0)
+        external_port = (uint16_t)ServerPort;
+    if (external_port == 0)
+        external_port = (uint16_t)ENET_DEFAULT_PORT;
+    std::thread([external_port, host_name]() {
         if (matchmaking_connect() == 0)
-            matchmaking_create(host_name.c_str(), (int)ext_port, g_external_ip);
+            matchmaking_create(host_name.c_str(), (int)external_port, g_external_ip);
     }).detach();
     netstate.my_id = SERVER_ID;
     snprintf(netstate.users[netstate.my_id].name, sizeof(netstate.users[netstate.my_id].name), "%s", plyr_name);

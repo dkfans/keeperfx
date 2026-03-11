@@ -245,8 +245,8 @@ void frontnet_session_update(void)
       if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
         ERRORLOG("LbNetwork_EnumerateSessions() failed");
       matchmaking_refresh_sessions();
-      for (int i = 0; i < g_mm_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
-          net_session[net_number_of_sessions++] = &g_mm_sessions[i];
+      for (int i = 0; i < g_matchmaking_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
+          net_session[net_number_of_sessions++] = &g_matchmaking_sessions[i];
       last_enum_sessions = LbTimerClock();
 
       if (net_number_of_sessions == 0)

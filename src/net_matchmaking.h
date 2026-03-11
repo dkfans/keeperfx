@@ -32,8 +32,8 @@ extern "C" {
 #define MATCHMAKING_NAME_MAX SESSION_NAME_MAX_LEN
 #define MATCHMAKING_SESSIONS_MAX 32
 
-extern struct TbNetworkSessionNameEntry g_mm_sessions[MATCHMAKING_SESSIONS_MAX];
-extern int g_mm_session_count;
+extern struct TbNetworkSessionNameEntry g_matchmaking_sessions[MATCHMAKING_SESSIONS_MAX];
+extern int g_matchmaking_session_count;
 extern char g_join_lobby_id[MATCHMAKING_ID_MAX];
 
 void matchmaking_init(void);
@@ -42,8 +42,8 @@ int matchmaking_connect(void);
 void matchmaking_disconnect(void);
 void matchmaking_refresh_sessions(void);
 int matchmaking_create(const char *name, int udp_port, const char *ip);
-int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, char *out_ip, int *out_port);
-int matchmaking_poll_punch(char *out_ip, int *out_port);
+int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, char *output_ip, int *output_port);
+int matchmaking_poll_punch(char *output_ip, int *output_port);
 
 #ifdef __cplusplus
 }
