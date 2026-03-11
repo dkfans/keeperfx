@@ -312,7 +312,7 @@ KFX_LDFLAGS += \
 	$(shell pkg-config --libs-only-l zlib) \
 	-lminiupnpc \
 	-lnatpmp \
-	-Ldeps/libcurl/lib -lcurl -lssl -lcrypto \
+	-Ldeps/libcurl/lib -lcurl -lssl -lcrypto -lzstd \
 	-ldl
 
 TOML_SOURCES = \
