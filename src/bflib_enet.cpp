@@ -14,6 +14,7 @@
 
 #include "pre_inc.h"
 #include "bflib_enet.h"
+#include "bflib_datetm.h"
 #include "bflib_network.h"
 #include "bflib_math.h"
 #include "net_portforward.h"
@@ -222,7 +223,7 @@ namespace
                 return Lb_FAIL;
             }
             connect_address.port = (enet_uint16)peer_port;
-            Sleep(HOLEPUNCH_CONNECT_DELAY_MS);
+            LbSleepFor(HOLEPUNCH_CONNECT_DELAY_MS);
         } else {
             char buf[128] = {0};
             enet_uint16 port = parse_session_address(session, buf, sizeof(buf));
