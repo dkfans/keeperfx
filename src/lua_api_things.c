@@ -187,7 +187,7 @@ static int lua_Change_creature_owner(lua_State *L)
 static int lua_get_creature_annoyance(lua_State *L)
 {
     struct Thing *thing = luaL_checkCreature(L, 1);
-    AnnoyMotive reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
+    long reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
     if (reason < AngR_NotPaid || reason >= AngR_ListEnd)
         return luaL_argerror(L, 2, "invalid anger reason");
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -199,7 +199,7 @@ static int lua_get_creature_annoyance(lua_State *L)
 static int lua_set_creature_annoyance(lua_State *L)
 {
     struct Thing *thing = luaL_checkCreature(L, 1);
-    AnnoyMotive reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
+    long reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
     if (reason < AngR_NotPaid || reason >= AngR_ListEnd)
         return luaL_argerror(L, 2, "invalid anger reason");
     long value = luaL_checkinteger(L, 3);

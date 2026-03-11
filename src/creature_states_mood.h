@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "config.h"  
 
 #ifdef __cplusplus
 extern "C" {
