@@ -30,6 +30,10 @@
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#else
+#include <SDL2/SDL.h>
+typedef Uint32 DWORD;
+#define GetTickCount SDL_GetTicks
 #endif
 #include <enet6/enet.h>
 #include <stdint.h>
@@ -76,7 +80,7 @@ uint16_t holepunch_stun_query(ENetHost *host, char *ip_out, size_t ip_len)
     s_counter++;
     struct StunHeader req = {htons(STUN_BINDING_REQUEST), htons(0), htonl(STUN_MAGIC_COOKIE), {0}};
     memcpy(req.txid, &s_counter, sizeof(s_counter));
-    ENetBuffer send_buf = {sizeof(req), &req};
+    ENetBuffer send_buf = {.data = &req, .dataLength = sizeof(req)};
     ENetSocket sock = host->socket;
     ENetSocket tmp_sock = ENET_SOCKET_NULL;
     if (enet_socket_send(sock, &stun_addr, &send_buf, 1) < 0) {
@@ -106,7 +110,7 @@ uint16_t holepunch_stun_query(ENetHost *host, char *ip_out, size_t ip_len)
             break;
         uint8_t resp[STUN_RESPONSE_BUF_SIZE];
         ENetAddress from;
-        ENetBuffer recv_buf = {sizeof(resp), resp};
+        ENetBuffer recv_buf = {.data = resp, .dataLength = sizeof(resp)};
         int n = enet_socket_receive(sock, &from, &recv_buf, 1);
         if (n <= 0)
             continue;
@@ -161,7 +165,7 @@ uint16_t holepunch_stun_query(ENetHost *host, char *ip_out, size_t ip_len)
 void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
 {
     static const uint8_t payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
-    ENetBuffer buf = {sizeof(payload), (void *)payload};
+    ENetBuffer buf = {.data = (void *)payload, .dataLength = sizeof(payload)};
     for (int i = 0; i < HOLE_PUNCH_COUNT; i++)
         enet_socket_send(host->socket, target, &buf, 1);
 }
