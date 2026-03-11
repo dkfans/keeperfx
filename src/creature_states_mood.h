@@ -34,6 +34,8 @@ struct Room;
 
 #pragma pack()
 /******************************************************************************/
+extern const struct NamedCommand anger_reason_desc[];
+/******************************************************************************/
 TbBool creature_can_get_angry(const struct Thing *creatng);
 TbBool anger_is_creature_livid(const struct Thing *thing);
 TbBool anger_is_creature_angry(const struct Thing *thing);

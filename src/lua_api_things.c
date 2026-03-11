@@ -24,6 +24,7 @@
 #include "thing_effects.h"
 #include "magic_powers.h"
 #include "config_crtrstates.h"
+#include "creature_states_mood.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -182,6 +183,29 @@ static int lua_Change_creature_owner(lua_State *L)
     return 0;
 }
 
+// creature:get_annoyance("NOT_PAID") → integer
+static int lua_get_creature_annoyance(lua_State *L)
+{
+    struct Thing *thing = luaL_checkCreature(L, 1);
+    AnnoyMotive reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
+    if (reason < AngR_NotPaid || reason >= AngR_ListEnd)
+        return luaL_argerror(L, 2, "invalid anger reason");
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    lua_pushinteger(L, cctrl->annoyance_level[reason]);
+    return 1;
+}
+
+// creature:set_annoyance("NOT_PAID", 500)
+static int lua_set_creature_annoyance(lua_State *L)
+{
+    struct Thing *thing = luaL_checkCreature(L, 1);
+    AnnoyMotive reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
+    if (reason < AngR_NotPaid || reason >= AngR_ListEnd)
+        return luaL_argerror(L, 2, "invalid anger reason");
+    long value = luaL_checkinteger(L, 3);
+    anger_set_creature_anger(thing, value, reason);
+    return 0;
+}
 
 
 static int thing_tostring(lua_State *L)
@@ -574,6 +598,8 @@ static const struct luaL_Reg thing_methods[] = {
    {"level_up"                    ,lua_Level_up_creature               },
    {"teleport"                    ,lua_Teleport_creature               },
    {"change_owner"                ,lua_Change_creature_owner           },
+   {"get_annoyance"               ,lua_get_creature_annoyance          },
+   {"set_annoyance"               ,lua_set_creature_annoyance          },
     {NULL, NULL}
 };
 
