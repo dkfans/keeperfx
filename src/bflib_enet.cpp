@@ -34,6 +34,8 @@
 
 #define NUM_CHANNELS 2
 #define HOLEPUNCH_CONNECT_DELAY_MS 300
+#define PEER_TIMEOUT_MIN_MS 2000
+#define PEER_TIMEOUT_MAX_MS 5000
 
 uint16_t external_port = 0;
 char external_ip[EXTERNAL_IP_LEN] = {0};
@@ -235,6 +237,7 @@ namespace
                 int service_result = enet_host_service(host, &enet_event, service_wait_ms);
                 if (service_result > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
                     LbNetLog("Join: connected successfully\n");
+                    enet_peer_timeout(client_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
                     return Lb_OK;
                 }
                 if (service_result > 0) {
@@ -275,6 +278,7 @@ namespace
             {
                 case ENET_EVENT_TYPE_CONNECT:
                     LbNetLog("ENet: incoming connection accepted\n");
+                    enet_peer_timeout(ev.peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
                     if (new_user(&user_id))
                     {
                         ev.peer->data = reinterpret_cast<void *>(user_id);
