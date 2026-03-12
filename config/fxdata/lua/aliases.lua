@@ -26,5 +26,6 @@
 ---@alias actionpoint integer
 ---@alias location playersingle|actionpoint|"LAST_EVENT"|"COMBAT"|Pos3d
 ---@alias thing_class "Object"|"Shot"|"EffectElem"|"DeadCreature"|"Creature"|"Effect"|"EffectGen"|"Trap"|"Door"|"AmbientSnd"|"CaveIn"
----@alias effect_or_effelem_type integer|string|effect_type|effect_element_type -- I allow string here because there's to many entries for, the language server to handle 
+---@alias effect_or_effelem_type integer|string|effect_type|effect_element_type -- I allow string here because there's to many entries for, the language server to handle
+---@alias damage_source_kind "UNKNOWN"|"LAVA"|"POWER_SLAP"|"POWER"|"DOT_SPELL"|"CREATURE"|"TRAP"|"OBJECT"|"DOOR"
 

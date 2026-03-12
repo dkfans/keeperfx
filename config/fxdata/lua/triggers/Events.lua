@@ -117,13 +117,21 @@ end
 ---Triggers when a thing takes damage
 ---@param action function|string the function to call when the event happens
 ---@param thing? Thing the unit that triggers the event
+---@param source_thing? Thing the thing that cause the trigger
+---@param source_kind? damage_source_kind kind of damage
 ---@return table
-function RegisterThingDamageEvent(action, thing)
-    local trigData = {thing = thing}
+function RegisterThingDamageEvent(action, thing, source_thing, source_kind)
+    local trigData = {thing = thing,source_thing = source_thing, source_kind = source_kind}
 
     local trigger = CreateTrigger("ApplyDamage",action,trigData)
     if thing then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.thing == triggerData.thing end)
+    end
+    if source_thing then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.source_thing == triggerData.source_thing end)
+    end
+    if source_kind then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.source_kind == triggerData.source_kind end)
     end
     return trigger
 end

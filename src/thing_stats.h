@@ -57,6 +57,19 @@ enum CreatureLiveStatistics {
     CrLStat_Score,
 };
 
+typedef enum DamageSourceKind {
+    DSK_None = 0,
+    DSK_Lava,
+    DSK_PowerSlap,
+    DSK_Power,
+    DSK_DOTSpell,
+    DSK_Creature,
+    DSK_Trap,
+    DSK_Object,
+    DSK_Door,
+} DamageSourceKind;
+
+const char *damage_source_kind_name(DamageSourceKind kind);
 /******************************************************************************/
 #pragma pack(1)
 
@@ -130,7 +143,7 @@ TbBool update_relative_creature_health(struct Thing *creatng);
 TbBool set_creature_health_to_max_with_heal_effect(struct Thing *thing);
 TbBool apply_health_to_thing(struct Thing *thing, HitPoints amount);
 void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amount);
-HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx);
+HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx, struct Thing* scrtng, DamageSourceKind source_kind);
 HitPoints get_thing_max_health(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus

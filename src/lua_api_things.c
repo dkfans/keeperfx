@@ -213,7 +213,7 @@ static int thing_set_field(lua_State *L) {
     } else if (strcmp(key, "health") == 0)
     {
         thing->health = luaL_checkinteger(L, 3);
-    } else if (strcmp(key, "pos") == 0) 
+    } else if (strcmp(key, "pos") == 0)
     {
         struct Coord3d pos;
         luaL_checkCoord3d(L, 3, &pos);
@@ -569,7 +569,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"stun",    lua_stun_creature},
     {"delete",     lua_delete_thing},
     {"isValid",         lua_is_valid},
-    
+
    {"transfer"                    ,lua_Transfer_creature               },
    {"level_up"                    ,lua_Level_up_creature               },
    {"teleport"                    ,lua_Teleport_creature               },
@@ -615,3 +615,4 @@ void Thing_register(lua_State *L) {
     // Pop the metatable
     lua_pop(L, 1);
 }
+

@@ -2494,7 +2494,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     }
     if (thing_is_creature(thing))
     {
-        apply_damage_to_thing_and_display_health(thing, param->secondary_number, param->primary_number);
+        apply_damage_to_thing_and_display_health(thing, param->secondary_number, param->primary_number, INVALID_THING, DSK_Power);
         if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
@@ -2514,7 +2514,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     }
     else if (thing_is_destructible_trap(thing) > 0)
     {
-        apply_damage_to_thing(thing, param->secondary_number, param->primary_number);
+        apply_damage_to_thing(thing, param->secondary_number, param->primary_number, INVALID_THING, DSK_Power);
         return TUFRet_Modified;
     }
     return TUFRet_Unchanged;
@@ -3529,7 +3529,7 @@ void gameplay_loop_timestep()
             exit_keeper = 1;
         }
     }
-    
+
     frametime_end_measurement(Frametime_Sleep);
 }
 
