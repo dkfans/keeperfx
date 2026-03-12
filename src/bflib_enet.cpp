@@ -274,6 +274,7 @@ namespace
             switch (ev.type)
             {
                 case ENET_EVENT_TYPE_CONNECT:
+                    LbNetLog("ENet: incoming connection accepted\n");
                     if (new_user(&user_id))
                     {
                         ev.peer->data = reinterpret_cast<void *>(user_id);

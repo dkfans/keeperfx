@@ -231,12 +231,13 @@ static void port_forward_add_mapping_internal(uint16_t port) {
     char port_string[16];
     snprintf(port_string, sizeof(port_string), "%u", port);
     UPNP_DeletePortMapping(upnp_urls.controlURL, upnp_data.first.servicetype, port_string, "UDP", "");
+    LbNetLog("UPnP: lanaddr=%s\n", upnp_lanaddr);
     int result = UPNP_AddPortMapping(upnp_urls.controlURL, upnp_data.first.servicetype, port_string, port_string, upnp_lanaddr, "KeeperFX", "UDP", "", "0");
     if (result != UPNPCOMMAND_SUCCESS) {
-        LbNetLog("UPnP: permanent lease rejected, trying timed lease\n");
+        LbNetLog("UPnP: permanent lease rejected (error %d), trying timed lease\n", result);
         result = UPNP_AddPortMapping(upnp_urls.controlURL, upnp_data.first.servicetype, port_string, port_string, upnp_lanaddr, "KeeperFX", "UDP", "", "3600");
         if (result != UPNPCOMMAND_SUCCESS) {
-            LbNetLog("UPnP: failed to add port mapping, UDP hole punching will be used\n");
+            LbNetLog("UPnP: failed to add port mapping (error %d), UDP hole punching will be used\n", result);
             FreeUPNPUrls(&upnp_urls);
             return;
         }

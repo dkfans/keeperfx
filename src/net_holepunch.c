@@ -159,6 +159,9 @@ void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
 {
     static const uint8_t punch_payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
     ENetBuffer send_buffer = {.data = (void *)punch_payload, .dataLength = sizeof(punch_payload)};
+    int send_result = 0;
     for (int i = 0; i < HOLE_PUNCH_COUNT; i++)
-        enet_socket_send(host->socket, target, &send_buffer, 1);
+        send_result = enet_socket_send(host->socket, target, &send_buffer, 1);
+    if (send_result < 0)
+        LbNetLog("Holepunch: send failed (result=%d)\n", send_result);
 }
