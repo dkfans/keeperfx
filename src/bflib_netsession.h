@@ -49,6 +49,7 @@ struct TbNetworkSessionNameEntry {
     unsigned long id;
     unsigned long in_use;
     char text[SESSION_NAME_MAX_LEN];
+    char join_address[SESSION_LOBBY_ID_MAX_LEN];
     char lobby_id[SESSION_LOBBY_ID_MAX_LEN];
 };
 

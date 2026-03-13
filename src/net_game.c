@@ -190,7 +190,7 @@ long network_session_join(void)
 {
     int32_t plyr_num;
     display_attempting_to_join_message();
-    snprintf(join_lobby_id, sizeof(join_lobby_id), "%s", net_session[net_session_index_active]->lobby_id);
+    snprintf(join_lobby_id, sizeof(join_lobby_id), "%s", net_session[net_session_index_active]->join_address);
     if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
     {
       join_lobby_id[0] = '\0';

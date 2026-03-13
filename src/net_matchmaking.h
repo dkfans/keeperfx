@@ -41,8 +41,8 @@ void matchmaking_connect_async(void);
 int matchmaking_connect(void);
 void matchmaking_disconnect(void);
 void matchmaking_refresh_sessions(void);
-int matchmaking_create(const char *name, int udp_port, const char *ip);
-int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, char *output_ip, int *output_port);
+int matchmaking_create(const char *name, int udp_port);
+int matchmaking_punch(const char *lobby_id, int udp_port, char *output_ip, int *output_port);
 int matchmaking_poll_punch(char *output_ip, int *output_port);
 
 #ifdef __cplusplus

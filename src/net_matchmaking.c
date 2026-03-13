@@ -19,6 +19,8 @@
 #include "pre_inc.h"
 #include "net_matchmaking.h"
 #include "bflib_basics.h"
+#include "bflib_enet.h"
+#include "net_lan.h"
 #include "ver_defs.h"
 
 #include <SDL2/SDL.h>
@@ -39,7 +41,6 @@
 #define WEBSOCKET_BUFFER_SIZE         8192
 #define WEBSOCKET_RECEIVE_TIMEOUT_MS  3000
 #define SEND_BUFFER_SIZE              512
-#define IP_JSON_FIELD_SIZE       80
 #define CONNECT_TIMEOUT_MS       5000
 
 static CURL *curl_handle = NULL;
@@ -47,13 +48,14 @@ static char hosted_lobby_id[MATCHMAKING_ID_MAX] = {0};
 static Uint32 last_refresh_tick = 0;
 char join_lobby_id[MATCHMAKING_ID_MAX] = {0};
 static SDL_mutex *mutex = NULL;
+static SDL_atomic_t connect_thread_active = {0};
+static int connect_gave_up = 0;
 
 struct TbNetworkSessionNameEntry matchmaking_sessions[MATCHMAKING_SESSIONS_MAX];
 int matchmaking_session_count = 0;
 
 static void websocket_cleanup(void)
 {
-    LbNetLog("Matchmaking: websocket_cleanup\n");
     curl_easy_cleanup(curl_handle);
     curl_handle = NULL;
     hosted_lobby_id[0] = '\0';
@@ -151,23 +153,29 @@ void matchmaking_init(void)
 static int matchmaking_connect_thread(void *arg)
 {
     matchmaking_connect();
+    SDL_AtomicSet(&connect_thread_active, 0);
     return 0;
 }
 
 void matchmaking_connect_async(void)
 {
+    if (SDL_AtomicCAS(&connect_thread_active, 0, 1) == SDL_FALSE)
+        return;
     matchmaking_init();
     SDL_Thread *thread = SDL_CreateThread(matchmaking_connect_thread, "matchmaking", NULL);
-    if (thread)
+    if (thread) {
         SDL_DetachThread(thread);
+    } else {
+        SDL_AtomicSet(&connect_thread_active, 0);
+    }
 }
 
 int matchmaking_connect(void)
 {
     SDL_LockMutex(mutex);
-    if (curl_handle) {
+    if (curl_handle || connect_gave_up) {
         SDL_UnlockMutex(mutex);
-        return 0;
+        return curl_handle ? 0 : -1;
     }
     curl_handle = curl_easy_init();
     if (!curl_handle) {
@@ -178,14 +186,18 @@ int matchmaking_connect(void)
     curl_easy_setopt(curl_handle, CURLOPT_URL, MATCHMAKING_URL);
     curl_easy_setopt(curl_handle, CURLOPT_CONNECT_ONLY, 2L);
     curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT_MS, (long)CONNECT_TIMEOUT_MS);
+    curl_easy_setopt(curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     CURLcode curl_result = curl_easy_perform(curl_handle);
     if (curl_result != CURLE_OK) {
         LbNetLog("Matchmaking: connect to %s failed: %s\n", MATCHMAKING_URL, curl_easy_strerror(curl_result));
+        connect_gave_up = 1;
         websocket_cleanup();
         SDL_UnlockMutex(mutex);
         return -1;
     }
     LbNetLog("Matchmaking: connected\n");
+    websocket_send("{\"action\":\"list\",\"version\":\"" MATCHMAKING_VERSION "\"}");
+    last_refresh_tick = SDL_GetTicks();
     SDL_UnlockMutex(mutex);
     return 0;
 }
@@ -193,6 +205,7 @@ int matchmaking_connect(void)
 void matchmaking_disconnect(void)
 {
     SDL_LockMutex(mutex);
+    connect_gave_up = 0;
     if (curl_handle) {
         if (hosted_lobby_id[0] != '\0') {
             char delete_message[SEND_BUFFER_SIZE];
@@ -207,19 +220,14 @@ void matchmaking_disconnect(void)
 
 void matchmaking_refresh_sessions(void)
 {
-    SDL_LockMutex(mutex);
+    if (!curl_handle || !mutex || SDL_TryLockMutex(mutex) != 0)
+        return;
     if (!curl_handle) {
         SDL_UnlockMutex(mutex);
         return;
     }
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
-    int bytes_received;
-    if (last_refresh_tick == 0) {
-        bytes_received = websocket_exchange("{\"action\":\"list\",\"version\":\"" MATCHMAKING_VERSION "\"}", response_buffer, sizeof(response_buffer));
-        last_refresh_tick = SDL_GetTicks();
-    } else {
-        bytes_received = websocket_receive(response_buffer, sizeof(response_buffer), 0);
-    }
+    int bytes_received = websocket_receive(response_buffer, sizeof(response_buffer), 0);
     if (bytes_received > 0)
         LbNetLog("Matchmaking: list response (%d bytes): %s\n", bytes_received, response_buffer);
     if (bytes_received > 0 && strstr(response_buffer, "\"lobbies\"")) {
@@ -232,12 +240,15 @@ void matchmaking_refresh_sessions(void)
             if (!json_cursor) break;
             json_cursor = json_parse_string(json_cursor, "name", name, sizeof(name));
             if (!json_cursor) break;
+            if (hosted_lobby_id[0] != '\0' && strcmp(id, hosted_lobby_id) == 0)
+                continue;
             struct TbNetworkSessionNameEntry *session = &matchmaking_sessions[count++];
             memset(session, 0, sizeof(*session));
             session->joinable = 1;
             session->in_use = 1;
             session->id = (unsigned long)count;
             snprintf(session->text, SESSION_NAME_MAX_LEN, "%s", name);
+            snprintf(session->join_address, SESSION_LOBBY_ID_MAX_LEN, "%s", id);
             snprintf(session->lobby_id, SESSION_LOBBY_ID_MAX_LEN, "%s", id);
         }
         matchmaking_session_count = count;
@@ -246,10 +257,9 @@ void matchmaking_refresh_sessions(void)
     SDL_UnlockMutex(mutex);
 }
 
-int matchmaking_create(const char *name, int udp_port, const char *ip)
+int matchmaking_create(const char *name, int udp_port)
 {
     char escaped_lobby_name[MATCHMAKING_NAME_MAX * 2];
-    char ip_json_field[IP_JSON_FIELD_SIZE];
     char request_message[SEND_BUFFER_SIZE];
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
     SDL_LockMutex(mutex);
@@ -265,12 +275,9 @@ int matchmaking_create(const char *name, int udp_port, const char *ip)
         escaped_lobby_name[write_pos++] = name[i];
     }
     escaped_lobby_name[write_pos] = '\0';
-    ip_json_field[0] = '\0';
-    if (ip && ip[0])
-        snprintf(ip_json_field, sizeof(ip_json_field), ",\"ip\":\"%s\"", ip);
     snprintf(request_message, sizeof(request_message),
-        "{\"action\":\"create\",\"name\":\"%s\",\"port\":%d%s,\"version\":\"%s\"}",
-        escaped_lobby_name, udp_port, ip_json_field, MATCHMAKING_VERSION);
+        "{\"action\":\"create\",\"name\":\"%s\",\"port\":%d,\"version\":\"%s\"}",
+        escaped_lobby_name, udp_port, MATCHMAKING_VERSION);
     int bytes_received = websocket_exchange(request_message, response_buffer, sizeof(response_buffer));
     if (bytes_received > 0)
         LbNetLog("Matchmaking: create response (%d bytes): %s\n", bytes_received, response_buffer);
@@ -284,11 +291,12 @@ int matchmaking_create(const char *name, int udp_port, const char *ip)
         return -1;
     }
     LbNetLog("Matchmaking: created lobby id=%s\n", hosted_lobby_id);
+    lan_set_lobby_id(hosted_lobby_id);
     SDL_UnlockMutex(mutex);
     return 0;
 }
 
-int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, char *output_ip, int *output_port)
+int matchmaking_punch(const char *lobby_id, int udp_port, char *output_ip, int *output_port)
 {
     char request_message[SEND_BUFFER_SIZE];
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
@@ -298,12 +306,9 @@ int matchmaking_punch(const char *lobby_id, int udp_port, const char *udp_ip, ch
         SDL_UnlockMutex(mutex);
         return -1;
     }
-    char ip_json_field[IP_JSON_FIELD_SIZE] = "";
-    if (udp_ip && udp_ip[0])
-        snprintf(ip_json_field, sizeof(ip_json_field), ",\"udpIp\":\"%s\"", udp_ip);
     snprintf(request_message, sizeof(request_message),
-        "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d%s}",
-        lobby_id, udp_port, ip_json_field);
+        "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d}",
+        lobby_id, udp_port);
     if (websocket_send(request_message) != 0) {
         SDL_UnlockMutex(mutex);
         return -1;

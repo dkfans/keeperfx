@@ -38,7 +38,6 @@
 #define PEER_TIMEOUT_MAX_MS 5000
 
 uint16_t external_port = 0;
-char external_ip[EXTERNAL_IP_LEN] = {0};
 
 namespace
 {
@@ -121,7 +120,8 @@ namespace
         }
         enet_host_compress_with_range_coder(host);
         port_forward_add_mapping(address.port);
-        external_port = holepunch_stun_query(host, external_ip, sizeof(external_ip));
+        char stun_ip_buf[EXTERNAL_IP_LEN] = {0};
+        external_port = holepunch_stun_query(host, stun_ip_buf, sizeof(stun_ip_buf));
         return Lb_OK;
     }
 
@@ -175,18 +175,38 @@ namespace
     TbError bf_enet_join(const char *session, void *options)
     {
         ENetAddress connect_address;
-        if (join_lobby_id[0] != '\0') {
+        if (strncmp(join_lobby_id, "LAN:", 4) == 0) {
+            LbNetLog("Join: connecting via LAN\n");
+            char lan_peer_address[MATCHMAKING_IP_MAX];
+            snprintf(lan_peer_address, sizeof(lan_peer_address), "%s", join_lobby_id + 4);
+            join_lobby_id[0] = '\0';
+            char *port_separator = strrchr(lan_peer_address, ':');
+            if (!port_separator)
+                return Lb_FAIL;
+            *port_separator = '\0';
+            int lan_game_port = atoi(port_separator + 1);
+            if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, lan_peer_address) < 0) {
+                LbNetLog("Join: failed to resolve LAN peer address %s\n", lan_peer_address);
+                return Lb_FAIL;
+            }
+            connect_address.port = (enet_uint16)lan_game_port;
+            host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, NULL, 4, NUM_CHANNELS, 0, 0);
+            if (!host) {
+                LbNetLog("Join: failed to create ENet host\n");
+                return Lb_FAIL;
+            }
+        } else if (join_lobby_id[0] != '\0') {
             LbNetLog("Join: connecting via UDP hole punching\n");
             host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, NULL, 4, NUM_CHANNELS, 0, 0);
             if (!host) {
                 LbNetLog("Join: failed to create ENet host\n");
                 return Lb_FAIL;
             }
-            char external_ip[MATCHMAKING_IP_MAX] = {0};
-            uint16_t external_port = holepunch_stun_query(host, external_ip, sizeof(external_ip));
+            char stun_ip_buf[MATCHMAKING_IP_MAX] = {0};
+            uint16_t my_external_port = holepunch_stun_query(host, stun_ip_buf, sizeof(stun_ip_buf));
             char peer_ip[MATCHMAKING_IP_MAX] = {0};
             int peer_port = 0;
-            if (matchmaking_punch(join_lobby_id, (int)external_port, external_ip, peer_ip, &peer_port) != 0) {
+            if (matchmaking_punch(join_lobby_id, (int)my_external_port, peer_ip, &peer_port) != 0) {
                 LbNetLog("Join: matchmaking_punch failed\n");
                 host_destroy();
                 return Lb_FAIL;
