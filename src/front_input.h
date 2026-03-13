@@ -97,9 +97,6 @@ struct GuiLayer {
     long current_gui_layer;
 };
 
-struct GuiMenu;
-struct GuiButton;
-
 #pragma pack()
 /******************************************************************************/
 extern long old_mx;
@@ -108,16 +105,12 @@ extern int synthetic_left;
 extern int synthetic_right;
 /******************************************************************************/
 void input(void);
-short get_inputs(void);
 short get_screen_capture_inputs(void);
 int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);
 short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];
-TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn);
-long get_current_gui_layer();
 TbBool check_current_gui_layer(long layer_id);
-void process_cheat_mode_selection_inputs();
 TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health);
 void disable_packet_mode();
 /******************************************************************************/

@@ -104,21 +104,22 @@ int synthetic_left = 0;
 int synthetic_right = 0;
 
 /******************************************************************************/
-void get_dungeon_control_nonaction_inputs(void);
-void get_creature_control_nonaction_inputs(void);
-short zoom_shortcuts(void);
-short get_bookmark_inputs(void);
+static void get_dungeon_control_nonaction_inputs(void);
+static void get_creature_control_nonaction_inputs(void);
+static short zoom_shortcuts(void);
+static short get_bookmark_inputs(void);
+static void process_cheat_mode_selection_inputs(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
-long get_current_gui_layer()
+static long get_current_gui_layer()
 {
     return gui_layer.current_gui_layer;
 }
 
-TbBool set_current_gui_layer(long layer_id)
+static TbBool set_current_gui_layer(long layer_id)
 {
     gui_layer.current_gui_layer = layer_id;
     return true;
@@ -155,7 +156,7 @@ TbBool check_current_gui_layer(long layer_id)
     }
 }
 
-void update_gui_layer()
+static void update_gui_layer(void)
 {
     // Determine the current/correct GUI Layer to use at this moment
 
@@ -262,7 +263,7 @@ int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
 /**
  *  Reacts on a keystoke by sending text message packets.
  */
-short get_players_message_inputs(void)
+static short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
@@ -322,14 +323,14 @@ short get_screen_capture_inputs(void)
  * @param gbtn The button which position is to be verified.
  * @return Returns true it mouse is over the button.
  */
-TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
+static TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 {
     if ((gbtn->flags & LbBtnF_Visible) == 0)
         return false;
     return check_if_pos_is_over_button(gbtn, GetMouseX(), GetMouseY());
 }
 
-void clip_frame_skip(void)
+static void clip_frame_skip(void)
 {
   if (game.frame_skip > 512)
     game.frame_skip = 512;
@@ -337,7 +338,7 @@ void clip_frame_skip(void)
     game.frame_skip = 0;
 }
 
-void increaseFrameskip(void)
+static void increaseFrameskip(void)
 {
     // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
     int level = 16;
@@ -355,7 +356,7 @@ void increaseFrameskip(void)
     show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
 }
 
-void decreaseFrameskip(void)
+static void decreaseFrameskip(void)
 {
     // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
     int level = 16;
@@ -377,7 +378,7 @@ void decreaseFrameskip(void)
  * Handles game speed control inputs.
  * @return Returns true if packet was created, false otherwise.
  */
-short get_speed_control_inputs(void)
+static short get_speed_control_inputs(void)
 {
   if (is_key_pressed(KC_ADD,KMod_CONTROL))
   {
@@ -405,7 +406,7 @@ short get_speed_control_inputs(void)
 /**
  * Handles control inputs in PacketLoad mode.
  */
-short get_packet_load_game_control_inputs(void)
+static short get_packet_load_game_control_inputs(void)
 {
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
   {
@@ -425,7 +426,7 @@ short get_packet_load_game_control_inputs(void)
   return false;
 }
 
-long get_small_map_inputs(long x, long y, long zoom)
+static long get_small_map_inputs(long x, long y, long zoom)
 {
   SYNCDBG(7,"Starting");
   short result = 0;
@@ -460,7 +461,7 @@ long get_small_map_inputs(long x, long y, long zoom)
   return result;
 }
 
-short get_bookmark_inputs(void)
+static short get_bookmark_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     for (int i = 0; i < BOOKMARKS_COUNT; i++)
@@ -495,7 +496,7 @@ short get_bookmark_inputs(void)
   return false;
 }
 
-short zoom_shortcuts(void)
+static short zoom_shortcuts(void)
 {
     for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++)
     {
@@ -514,7 +515,7 @@ short zoom_shortcuts(void)
  * Handles minimap control inputs.
  * @return Returns true if packet was created, false otherwise.
  */
-short get_minimap_control_inputs(void)
+static short get_minimap_control_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     short packet_made = false;
@@ -554,7 +555,7 @@ short get_minimap_control_inputs(void)
  * Handles screen control inputs.
  * @return Returns true if packet was created, false otherwise.
  */
-short get_screen_control_inputs(void)
+static short get_screen_control_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     short packet_made = false;
@@ -569,7 +570,7 @@ short get_screen_control_inputs(void)
   return false;
 }
 
-short get_global_inputs(void)
+static short get_global_inputs(void)
 {
   if (game_is_busy_doing_gui_string_input())
     return false;
@@ -688,7 +689,7 @@ short get_global_inputs(void)
   return false;
 }
 
-TbBool get_level_lost_inputs(void)
+static TbBool get_level_lost_inputs(void)
 {
     int32_t keycode;
     SYNCDBG(6,"Starting");
@@ -880,7 +881,7 @@ TbBool get_level_lost_inputs(void)
     return inp_done;
 }
 
-short get_status_panel_keyboard_action_inputs(void)
+static short get_status_panel_keyboard_action_inputs(void)
 {
   struct PlayerInfo* player = get_my_player();
   if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkGoodCreatr) || (player->work_state == PSt_MkBadCreatr) )
@@ -1024,7 +1025,7 @@ short get_status_panel_keyboard_action_inputs(void)
   return false;
 }
 
-TbBool get_dungeon_control_pausable_action_inputs(void)
+static TbBool get_dungeon_control_pausable_action_inputs(void)
 {
     int32_t val;
     struct PlayerInfo* player = get_my_player();
@@ -1230,7 +1231,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
     return false;
 }
 
-TbBool get_dungeon_control_action_inputs(void)
+static TbBool get_dungeon_control_action_inputs(void)
 {
     int32_t val;
     struct PlayerInfo* player = get_my_player();
@@ -1293,7 +1294,7 @@ TbBool get_dungeon_control_action_inputs(void)
     return false;
 }
 
-short get_creature_passenger_action_inputs(void)
+static short get_creature_passenger_action_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
@@ -1438,7 +1439,7 @@ static void set_possession_instance(struct PlayerInfo* player, struct Thing* thi
     }
 }
 
-short get_creature_control_action_inputs(void)
+static short get_creature_control_action_inputs(void)
 {
     int32_t keycode;
     SYNCDBG(6,"Starting");
@@ -1909,7 +1910,7 @@ short get_creature_control_action_inputs(void)
     return false;
 }
 
-void get_packet_control_mouse_clicks(void)
+static void get_packet_control_mouse_clicks(void)
 {
     SYNCDBG(8,"Starting");
 
@@ -1976,7 +1977,7 @@ void get_packet_control_mouse_clicks(void)
     }
 }
 
-short get_map_action_inputs(void)
+static short get_map_action_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     struct Camera* camera = get_player_active_camera(player);
@@ -2043,7 +2044,7 @@ short get_map_action_inputs(void)
 // rather than using this global variable. But this works.
 int global_frameskipTurn = 0;
 
-void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
+static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
     if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || rotate_pressed || mods_used) == 0)
@@ -2133,7 +2134,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     }
 }
 
-void get_isometric_view_nonaction_inputs(void)
+static void get_isometric_view_nonaction_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     struct Packet* packet = get_packet(my_player_number);
@@ -2204,7 +2205,7 @@ void get_isometric_view_nonaction_inputs(void)
     }
 }
 
-void get_overhead_view_nonaction_inputs(void)
+static void get_overhead_view_nonaction_inputs(void)
 {
     SYNCDBG(19,"Starting");
     struct PlayerInfo* player = get_my_player();
@@ -2236,7 +2237,7 @@ void get_overhead_view_nonaction_inputs(void)
     set_local_camera_destination(player);
 }
 
-void get_front_view_nonaction_inputs(void)
+static void get_front_view_nonaction_inputs(void)
 {
     static TbClockMSec last_rotate_left_time = 0;
     static TbClockMSec last_rotate_right_time = 0;
@@ -2332,7 +2333,7 @@ void get_front_view_nonaction_inputs(void)
  * Updates given position and context variables.
  * Makes no changes to the Game or Packets.
  */
-TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context)
+static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context)
 {
   unsigned long x;
   unsigned long y;
@@ -2403,7 +2404,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
 /**
  * Fill packet structure with non action user input in dungeon view.
  */
-void get_dungeon_control_nonaction_inputs(void)
+static void get_dungeon_control_nonaction_inputs(void)
 {
   struct Coord3d pos;
   my_mouse_x = GetMouseX();
@@ -2463,7 +2464,7 @@ void get_dungeon_control_nonaction_inputs(void)
   }
 }
 
-void get_map_nonaction_inputs(void)
+static void get_map_nonaction_inputs(void)
 {
     SYNCDBG(9,"Starting");
     struct Coord3d pos;
@@ -2485,7 +2486,7 @@ void get_map_nonaction_inputs(void)
     }
 }
 
-short get_packet_load_game_inputs(void)
+static short get_packet_load_game_inputs(void)
 {
     load_packets_for_turn(game.pckt_gameturn);
     game.pckt_gameturn++;
@@ -2503,7 +2504,7 @@ short get_packet_load_game_inputs(void)
  * Inputs for demo mode. In this mode, the only control keys
  * should take the game back into main menu.
  */
-TbBool get_packet_load_demo_inputs(void)
+static TbBool get_packet_load_demo_inputs(void)
 {
   if (is_key_pressed(KC_SPACE,KMod_DONTCARE) ||
       is_key_pressed(KC_ESCAPE,KMod_DONTCARE) ||
@@ -2522,7 +2523,7 @@ TbBool get_packet_load_demo_inputs(void)
   return false;
 }
 
-void get_creature_control_nonaction_inputs(void)
+static void get_creature_control_nonaction_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_CreaturePassengerMode) != 0)
@@ -2730,7 +2731,7 @@ static void get_dungeon_speech_inputs(void)
     }
 }
 
-TbBool active_menu_functions_while_paused()
+static TbBool active_menu_functions_while_paused(void)
 {
     return (menu_is_active(GMnu_QUIT) || menu_is_active(GMnu_OPTIONS) || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE)
          || menu_is_active(GMnu_VIDEO) || menu_is_active(GMnu_SOUND) || menu_is_active(GMnu_ERROR_BOX) || menu_is_active(GMnu_AUTOPILOT));
@@ -2739,7 +2740,7 @@ TbBool active_menu_functions_while_paused()
 
 /** Fill packet struct with game action information.
  */
-short get_inputs(void)
+static short get_inputs(void)
 {
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {
@@ -3018,7 +3019,7 @@ short get_gui_inputs(short gameplay_on)
   return result;
 }
 
-void process_cheat_mode_selection_inputs()
+static void process_cheat_mode_selection_inputs(void)
 {
     struct PlayerInfo *player = get_my_player();
     unsigned char new_value;
