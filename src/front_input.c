@@ -259,11 +259,11 @@ int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
       //hardcoded alternative keys
       if (!result)
       {
-            if ((key_id == GKey_FrameSkipIncrease) && is_key_pressed(KC_EQUALS, KMod_CONTROL))
+            if ((key_id == Gkey_FrameSkipIncrease) && is_key_pressed(KC_EQUALS, KMod_CONTROL))
                 result = 1;
-            else if ((key_id == GKey_FrameSkipDecrease) && is_key_pressed(KC_MINUS, KMod_CONTROL))
+            else if ((key_id == Gkey_FrameSkipDecrease) && is_key_pressed(KC_MINUS, KMod_CONTROL))
                 result = 1;
-            else if ((key_id == GKey_CheatMenu1) && is_key_pressed(KC_RETURN, KMod_SHIFT))
+            else if ((key_id == Gkey_CheatMenu1) && is_key_pressed(KC_RETURN, KMod_SHIFT))
                 result = 1;
       }
   }
@@ -314,7 +314,7 @@ short get_players_message_inputs(void)
 short get_screen_capture_inputs(void)
 {
   int32_t val;
-  if (is_game_key_pressed(GKey_ScreenRecord, &val, false))
+  if (is_game_key_pressed(Gkey_ScreenRecord, &val, false))
   {
       if ((game.system_flags & GSF_CaptureMovie) != 0)
         movie_record_stop();
@@ -322,7 +322,7 @@ short get_screen_capture_inputs(void)
         movie_record_start();
       clear_key_pressed(val);
   }
-  if (is_game_key_pressed(GKey_ScreenShot, &val, false))
+  if (is_game_key_pressed(Gkey_ScreenShot, &val, false))
   {
       set_flag(game.system_flags, GSF_CaptureSShot);
       clear_key_pressed(val);
@@ -393,12 +393,12 @@ void decreaseFrameskip(void)
 short get_speed_control_inputs(void)
 {
     int32_t val;
-  if (is_game_key_pressed(GKey_FrameSkipIncrease, &val, false))
+  if (is_game_key_pressed(Gkey_FrameSkipIncrease, &val, false))
   {
       increaseFrameskip();
       clear_key_pressed(val);
   }
-  if (is_game_key_pressed(GKey_FrameSkipDecrease, &val, false))
+  if (is_game_key_pressed(Gkey_FrameSkipDecrease, &val, false))
   {
       decreaseFrameskip();
       clear_key_pressed(val);
@@ -523,7 +523,7 @@ short get_minimap_control_inputs(void)
     struct PlayerInfo* player = get_my_player();
     short packet_made = false;
     int32_t val;
-    if (is_game_key_pressed(GKey_ZoomMinimapOut, &val, false))
+    if (is_game_key_pressed(Gkey_ZoomMinimapOut, &val, false))
     {
         if (menu_is_active(GMnu_MAIN))
         {
@@ -538,7 +538,7 @@ short get_minimap_control_inputs(void)
         if (packet_made)
             return true;
   }
-  if (is_game_key_pressed(GKey_ZoomMinimapIn, &val, false))
+  if (is_game_key_pressed(Gkey_ZoomMinimapIn, &val, false))
   {
       if (menu_is_active(GMnu_MAIN))
       {
@@ -1044,7 +1044,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
         clear_key_pressed(val);
         toggle_tooltips();
     }
-    if (is_game_key_pressed(GKey_CheatMenu3, &val, false))
+    if (is_game_key_pressed(Gkey_CheatMenu3, &val, false))
     {
         if (close_instance_cheat_menu())
         {
@@ -1057,7 +1057,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
         }
     }
 
-    if (is_game_key_pressed(GKey_CheatMenu2, &val, false))
+    if (is_game_key_pressed(Gkey_CheatMenu2, &val, false))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
         if (close_creature_cheat_menu())
@@ -1437,7 +1437,7 @@ short get_creature_control_action_inputs(void)
         return 1;
     if ( ((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
         get_gui_inputs(1);
-    if (is_game_key_pressed(GKey_CheatMenu1, &keycode, false))
+    if (is_game_key_pressed(Gkey_CheatMenu1, &keycode, false))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
         if (close_main_cheat_menu())
@@ -1449,7 +1449,7 @@ short get_creature_control_action_inputs(void)
             clear_key_pressed(keycode);
         }
     }
-    if (is_game_key_pressed(GKey_CheatMenu2, &keycode, false))
+    if (is_game_key_pressed(Gkey_CheatMenu2, &keycode, false))
     {
         toggle_creature_cheat_menu();
         clear_key_pressed(keycode);
@@ -1988,7 +1988,7 @@ short get_map_action_inputs(void)
           toggle_tooltips();
           clear_key_pressed(val);
       }
-      if (is_game_key_pressed(GKey_CheatMenu1, &val, false))
+      if (is_game_key_pressed(Gkey_CheatMenu1, &val, false))
       {
           if (toggle_main_cheat_menu())
             clear_key_pressed(val);
