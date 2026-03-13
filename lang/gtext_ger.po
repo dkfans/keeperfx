@@ -7449,7 +7449,7 @@ msgctxt "Game controls"
 msgid "Next Instance"
 msgstr "Nächste Instanz"
 
-#: guitext:10 90
+#: guitext:1090
 msgctxt "Game controls"
 msgid "Prev Instance"
 msgstr "Vorherige Instanz"
