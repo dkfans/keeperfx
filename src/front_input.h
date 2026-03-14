@@ -101,8 +101,6 @@ struct GuiLayer {
 /******************************************************************************/
 extern long old_mx;
 extern long old_my;
-extern int synthetic_left;
-extern int synthetic_right;
 /******************************************************************************/
 void input(void);
 short get_screen_capture_inputs(void);

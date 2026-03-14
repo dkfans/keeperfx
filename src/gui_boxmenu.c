@@ -741,12 +741,10 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
     if (left_button_released)
     {
       left_button_released = 0;
-      synthetic_left = 0;
       button_num = 1;
     } else
     {
       right_button_released = 0;
-      synthetic_right = 0;
       button_num = 2;
     }
     if (goptn->is_enabled == 1)
@@ -787,7 +785,6 @@ short gui_process_inputs(void)
       {
         dragging_box.gbox = NULL;
         left_button_released = 0;
-        synthetic_left = 0;
       }
       result = true;
     } else

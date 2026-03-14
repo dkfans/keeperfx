@@ -342,7 +342,6 @@ obj/value_util.o \
 obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
-obj/KeeperSpeechImp.o \
 obj/spritesheet.o \
 obj/windows.o \
 $(FTEST_OBJS) \
