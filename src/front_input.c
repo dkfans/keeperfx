@@ -3296,13 +3296,6 @@ TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health)
     return false;
 }
 
-void disable_packet_mode()
-{
-    close_packet_file();
-    game.packet_load_enable = false;
-    game.packet_save_enable = false;
-    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
-    set_gui_visible(true);
-}
+
 
 /******************************************************************************/

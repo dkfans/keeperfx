@@ -110,7 +110,7 @@ short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];
 TbBool check_current_gui_layer(long layer_id);
 TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health);
-void disable_packet_mode();
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

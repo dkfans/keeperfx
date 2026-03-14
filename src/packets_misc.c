@@ -25,6 +25,7 @@
 #include "bflib_network_exchange.h"
 #include "bflib_datetm.h"
 #include "front_landview.h"
+#include "frontend.h"
 #include "game_legacy.h"
 #include "game_saves.h"
 #include "gui_topmsg.h"
@@ -419,4 +420,13 @@ void set_packet_pause_toggle()
         return;
     }
     process_pause_packet(0, 0);
+}
+
+void disable_packet_mode()
+{
+    close_packet_file();
+    game.packet_load_enable = false;
+    game.packet_save_enable = false;
+    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
+    set_gui_visible(true);
 }

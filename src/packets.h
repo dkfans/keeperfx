@@ -358,6 +358,7 @@ TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void send_sprite_zip_count_to_other_players(void);
 void process_sprite_zip_count_sync(long plyr_idx, long zip_count);
+void disable_packet_mode();
 /******************************************************************************/
 #ifdef __cplusplus
 }
