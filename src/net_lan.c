@@ -58,7 +58,7 @@ static int receive_packet(ENetSocket socket, ENetAddress *sender, char *buffer, 
     enet_uint32 wait_flags = ENET_SOCKET_WAIT_RECEIVE;
     if (enet_socket_wait(socket, &wait_flags, 0) < 0 || !(wait_flags & ENET_SOCKET_WAIT_RECEIVE))
         return -1;
-    ENetBuffer receive_buffer = {(size_t)(buffer_size - 1), buffer};
+    ENetBuffer receive_buffer = {.data = buffer, .dataLength = (size_t)(buffer_size - 1)};
     int bytes = enet_socket_receive(socket, sender, &receive_buffer, 1);
     if (bytes <= 0)
         return -1;
@@ -102,7 +102,7 @@ void lan_host_update(void)
         char reply[LAN_MSG_MAX];
         int reply_length = snprintf(reply, sizeof(reply), LAN_HOST_REPLY_PREFIX "%s|%s:%d",
             lan_hosted_lobby_id, lan_hosted_name, (int)lan_hosted_port);
-        ENetBuffer send_buffer = {(size_t)reply_length, reply};
+        ENetBuffer send_buffer = {.data = reply, .dataLength = (size_t)reply_length};
         enet_socket_send(host_socket, &sender, &send_buffer, 1);
     }
 }
@@ -136,7 +136,7 @@ void lan_refresh_sessions(void)
         enet_address_set_host_ip(&broadcast_address, "255.255.255.255");
         broadcast_address.port = LAN_DISCOVERY_PORT;
         char message[] = LAN_DISCOVER_MSG;
-        ENetBuffer send_buffer = {sizeof(message) - 1, message};
+        ENetBuffer send_buffer = {.data = message, .dataLength = sizeof(message) - 1};
         enet_socket_send(joiner_socket, &broadcast_address, &send_buffer, 1);
         last_broadcast_milliseconds = now;
     }
