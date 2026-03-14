@@ -370,6 +370,7 @@ const struct NamedCommand variable_desc[] = {
     {"SCORE",                       SVar_SCORE},
     {"PLAYER_SCORE",                SVar_PLAYER_SCORE},
     {"MANAGE_SCORE",                SVar_MANAGE_SCORE},
+    {"CONTROLLED_THING",            SVar_CONTROLLED_THING},
     {NULL,                          0},
 };
 

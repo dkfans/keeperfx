@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lens_mist.h
- *     Header file for lens_mist.cpp.
+/** @file lua_api_lens.h
+ *     Header file for lua_api_lens.c.
  * @par Purpose:
- *     Mist lens effect functions.
+ *     LUA API for dynamic lens effect creation.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     05 Jan 2009 - 12 Aug 2009
+ *     Allows LUA scripts to create custom lens effects with callbacks.
+ * @author   KeeperFX Team
+ * @date     09 Feb 2026
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,19 +16,30 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_LENSMIST_H
-#define DK_LENSMIST_H
+#ifndef LUA_API_LENS_H
+#define LUA_API_LENS_H
 
+#include <lua.h>
 #include "bflib_basics.h"
-#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
-void setup_mist(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost);
-TbBool draw_mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height);
-void free_mist(void);
+
+/**
+ * Register lens API functions with LUA.
+ * Called during LUA initialization.
+ */
+void Lens_register(lua_State *L);
+
+/**
+ * Cleanup lens LUA state.
+ * Called during shutdown.
+ */
+void Lens_cleanup_lua(void);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

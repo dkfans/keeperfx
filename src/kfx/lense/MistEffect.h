@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lens_flyeye.h
- *     Header file for lens_flyeye.cpp.
+/** @file MistEffect.h
+ *     Mist/fog lens effect.
  * @par Purpose:
- *     lens_flyeye functions.
+ *     Fog overlay effect implementation.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     11 Mar 2010 - 12 May 2010
+ *     Wraps existing CMistFade functionality.
+ * @author   KeeperFX Team
+ * @date     09 Feb 2026
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,21 +16,27 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_LENSFLYEYE_H
-#define DK_LENSFLYEYE_H
+#ifndef KFX_MISTEFFECT_H
+#define KFX_MISTEFFECT_H
 
-#include "globals.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "LensEffect.h"
 
 /******************************************************************************/
-void flyeye_blitsec(unsigned char *srcbuf, long srcpitch, unsigned char *dstbuf, long dstpitch, long start_h, long end_h);
-void flyeye_setup(long width, long height);
+
+class MistEffect : public LensEffect {
+public:
+    MistEffect();
+    virtual ~MistEffect();
+    
+    virtual TbBool Setup(long lens_idx) override;
+    virtual void Cleanup() override;
+    virtual TbBool Draw(LensRenderContext* ctx) override;
+    
+private:
+    TbBool LoadMistTexture(const char* filename);
+    
+    long m_current_lens;
+};
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 #endif

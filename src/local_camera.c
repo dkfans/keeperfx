@@ -160,13 +160,26 @@ void process_local_minimap_click(struct Packet* packet) {
     }
 }
 
+static TbBool creature_is_frozen_in_first_person(struct Camera* cam, struct Thing *ctrltng)
+{
+    static TbBool frozen_last_turn = false;
+    TbBool frozen = !can_process_creature_input(ctrltng);
+    if (frozen || frozen_last_turn) {
+        cam->rotation_angle_x = ctrltng->move_angle_xy;
+        cam->rotation_angle_y = ctrltng->move_angle_z;
+        frozen_last_turn = frozen;
+        return true;
+    }
+    return false;
+}
+
 void update_local_first_person_camera(struct Thing *ctrltng)
 {
     struct Camera* cam = &destination_local_cameras[CamIV_FirstPerson];
     int eye_height = get_creature_eye_height(ctrltng);
     update_first_person_position(cam, ctrltng, eye_height);
 
-    if (!can_process_creature_input(ctrltng)) {
+    if (creature_is_frozen_in_first_person(cam, ctrltng)) {
         return;
     }
     long current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
@@ -296,8 +309,9 @@ void sync_local_camera(struct PlayerInfo *player)
     if (!is_my_player(player) || !local_camera_ready) {
         return;
     }
-    if (player->acamera == &player->cameras[CamIV_FirstPerson]) {
-        sync_first_person_camera(player->acamera, player);
+    struct Camera *camera = get_player_active_camera(player);
+    if (camera == &player->cameras[CamIV_FirstPerson]) {
+        sync_first_person_camera(camera, player);
         return;
     }
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {

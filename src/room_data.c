@@ -54,6 +54,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "config_spritecolors.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -2938,7 +2939,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
         {
             struct Thing *gldtng;
             gldtng = find_gold_hoard_at(stl_x, stl_y);
-            if (!thing_is_invalid(gldtng))
+            while (!thing_is_invalid(gldtng)) //Normally there is just a single hoard at a slab, but mapmakers may place more.
             {
                 room->capacity_used_for_storage -= gldtng->valuable.gold_stored;
                 dungeon = get_dungeon(plyr_idx);
@@ -2947,6 +2948,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 }
                 drop_gold_pile(gldtng->valuable.gold_stored, &gldtng->mappos);
                 delete_thing_structure(gldtng, 0);
+                gldtng = find_gold_hoard_at(stl_x, stl_y);
             }
         }
     }
@@ -3294,7 +3296,11 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     SlabCodedCoords i = get_slab_number(slb_x, slb_y);
     delete_room_slabbed_objects(i);
-    if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE)) //todo Make configurable
+    if (rkind == RoK_BRIDGE) //todo Make configurable
+    {
+        place_animating_slab_type_on_map(roomst->assigned_slab, subtile_has_lava_on_top(stl_x, stl_y), stl_x, stl_y, owner);
+    }
+    else if (rkind == RoK_GUARDPOST)
     {
         place_animating_slab_type_on_map(roomst->assigned_slab, 0, stl_x, stl_y, owner);
     } else
@@ -3833,6 +3839,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     add_room_to_players_list(room, claimtng->owner);
     change_room_map_element_ownership(room, claimtng->owner);
+    lua_on_room_owner_change(room, oldowner);
     redraw_room_map_elements(room);
     do_room_unprettying(room, claimtng->owner);
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
@@ -3864,6 +3871,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     add_room_to_players_list(room, claimtng->owner);
     change_room_map_element_ownership(room, claimtng->owner);
+    lua_on_room_owner_change(room, oldowner);
     redraw_room_map_elements(room);
     do_room_unprettying(room, claimtng->owner);
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
@@ -3895,6 +3903,7 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
         room->health = compute_room_max_health(room->slabs_count, room->efficiency);
         add_room_to_players_list(room, newowner);
         change_room_map_element_ownership(room, newowner);
+        lua_on_room_owner_change(room, oldowner);
         redraw_room_map_elements(room);
         do_room_unprettying(room, newowner);
         do_room_integration(room);

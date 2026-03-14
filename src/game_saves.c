@@ -401,7 +401,6 @@ TbBool load_game(long slot_num)
             game.loaded_level_number = centry->level_num;
         }
         WARNMSG("Couldn't correctly load saved game in slot %d.",(int)slot_num);
-        init_lookups();
         return false;
     }
     my_player_number = game.local_plyr_idx;
@@ -418,8 +417,10 @@ TbBool load_game(long slot_num)
     player->palette_fade_step_pain = 0;
     player->palette_fade_step_possession = 0;
     player->lens_palette = 0;
-    PaletteSetPlayerPalette(player, engine_palette);
+    // Reinitialize lens first (restores lens_palette pointer from config)
     reinitialise_eye_lens(game.applied_lens_type);
+    // Apply the appropriate palette (lens palette if active, otherwise engine default)
+    PaletteSetPlayerPalette(player, player->lens_palette ? player->lens_palette : engine_palette);
     init_local_cameras(player);
     // Update the lights system state
     light_import_system_state(&game.lightst);

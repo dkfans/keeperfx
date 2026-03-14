@@ -853,7 +853,6 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         {
             SYNCDBG(8, "Can't find nearest room to gold; will refresh gold map");
             check_map_for_gold();
-            game.turn_last_checked_for_gold = game.play_gameturn;
             digres = computer_finds_nearest_room_to_gold(comp, &startpos, &gldlook);
         }
     }

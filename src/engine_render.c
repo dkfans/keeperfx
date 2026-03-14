@@ -3896,6 +3896,12 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     short dim_th;
     short dim_tw;
     get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    if (dim_ow <= 0 || dim_oh <= 0 || dim_ow > 256 || dim_oh > 256)
+    {
+        WARNLOG("[md10 crash investigation] Invalid shadow dimensions dim_ow=%d dim_oh=%d for thing %d (anim=%d frame=%d)",
+                dim_ow, dim_oh, thing->index, thing->anim_sprite, thing->current_frame);
+        return;
+    }
     {
         int sh_angle_sin = LbSinL(sh_angle);
         int sh_angle_cos = LbCosL(sh_angle);
@@ -5048,10 +5054,12 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     spr = get_button_sprite(GBS_fontchars_number_dig0);
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
+    struct Camera *active_cam = get_player_active_camera(player);
     if (
-        player->acamera->view_mode == PVM_IsoWibbleView ||
-        player->acamera->view_mode == PVM_FrontView ||
-        player->acamera->view_mode == PVM_IsoStraightView
+        active_cam != NULL &&
+        (active_cam->view_mode == PVM_IsoWibbleView ||
+         active_cam->view_mode == PVM_FrontView ||
+         active_cam->view_mode == PVM_IsoStraightView)
     ) {
         // Count digits to be displayed
         ndigits=0;
@@ -5082,7 +5090,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(player->acamera);
+    const struct Camera *cam = get_local_camera(get_player_active_camera(player));
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -5241,7 +5249,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(player->acamera);
+    const struct Camera *cam = get_local_camera(get_player_active_camera(player));
     if (cam == NULL)
     {
         return;
@@ -5480,7 +5488,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(player->acamera);
+    const struct Camera *cam = get_local_camera(get_player_active_camera(player));
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -6704,7 +6712,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
-                cam = get_local_camera(player->acamera);
+                cam = get_local_camera(get_player_active_camera(player));
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
@@ -7953,12 +7961,13 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     {
         if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
-          if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
+          struct Camera *active_cam = get_player_active_camera(player);
+          if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
           {
               lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
               lbSpriteReMapPtr = white_pal;
           }
-          else if (player->acamera->view_mode == PVM_CreatureView)
+          else if ((active_cam != NULL) && (active_cam->view_mode == PVM_CreatureView))
           {
               struct Thing *creatng = thing_get(player->influenced_thing_idx);
               if (thing_is_creature(creatng))

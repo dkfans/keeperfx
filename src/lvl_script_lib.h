@@ -301,6 +301,7 @@ enum ScriptVariables {
   SVar_SCORE                           = 88,
   SVar_PLAYER_SCORE                    = 89,
   SVar_MANAGE_SCORE                    = 90,
+  SVar_CONTROLLED_THING                = 91,
  };
 
 
