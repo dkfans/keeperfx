@@ -3746,6 +3746,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             shotng->shot.damage = damage;
             shotng->health = shotst->health;
             shotng->parent_idx = firing->index;
+            shotng->shot.target_idx = target_idx;
         }
         break;
     }
