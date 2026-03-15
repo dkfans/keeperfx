@@ -103,17 +103,24 @@ namespace
      */
     TbError bf_enet_host(const char *session, void *options)
     {
-        ENetAddress address;
-        enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV4);
-        address.port = ENET_DEFAULT_PORT;
         if (!*session)
             return Lb_FAIL;
         const char *port_string = session;
         if (*port_string == ':') port_string++;
         int port = atoi(port_string);
+        ENetAddress address;
+        enet_address_build_any(&address, ENET_ADDRESS_TYPE_ANY);
+        address.port = ENET_DEFAULT_PORT;
         if (port > 0)
             address.port = port;
-        host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, &address, 4, NUM_CHANNELS, 0, 0);
+        host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, 4, NUM_CHANNELS, 0, 0);
+        if (!host) {
+            enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV4);
+            address.port = ENET_DEFAULT_PORT;
+            if (port > 0)
+                address.port = port;
+            host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, &address, 4, NUM_CHANNELS, 0, 0);
+        }
         if (!host) {
             return Lb_FAIL;
         }
