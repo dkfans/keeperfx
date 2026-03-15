@@ -30,8 +30,10 @@ extern "C" {
 
 #define CLIENT_TABLE_LEN 32
 
-#define TIMEOUT_ENET_CONNECT 5000
+#define TIMEOUT_ENET_CONNECT 2000
 #define TIMEOUT_JOIN_LOBBY 2000
+#define JOIN_MAX_ATTEMPTS 3
+#define HOLEPUNCH_CONNECT_DELAY_MS 100
 #define TIMEOUT_LOBBY_EXCHANGE 3000
 #define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
 /******************************************************************************/

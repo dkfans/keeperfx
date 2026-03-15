@@ -33,7 +33,6 @@
 #include "post_inc.h"
 
 #define NUM_CHANNELS 2
-#define HOLEPUNCH_CONNECT_DELAY_MS 300
 #define PEER_TIMEOUT_MIN_MS 2000
 #define PEER_TIMEOUT_MAX_MS 5000
 
@@ -202,18 +201,14 @@ namespace
                 LbNetLog("Join: failed to create ENet host\n");
                 return Lb_FAIL;
             }
-            char stun_ip_buf[MATCHMAKING_IP_MAX] = {0};
-            uint16_t my_external_port = holepunch_stun_query(host, stun_ip_buf, sizeof(stun_ip_buf));
+            uint16_t my_external_port = holepunch_stun_query(host, NULL, 0);
             char peer_ip[MATCHMAKING_IP_MAX] = {0};
             int peer_port = 0;
-            if (matchmaking_punch(join_lobby_id, (int)my_external_port, peer_ip, &peer_port) != 0) {
-                LbNetLog("Join: matchmaking_punch failed\n");
-                host_destroy();
-                return Lb_FAIL;
-            }
+            char saved_lobby_id[MATCHMAKING_ID_MAX];
+            snprintf(saved_lobby_id, sizeof(saved_lobby_id), "%s", join_lobby_id);
             join_lobby_id[0] = '\0';
-            if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, peer_ip) < 0) {
-                LbNetLog("Join: failed to resolve peer address %s\n", peer_ip);
+            if (matchmaking_punch(saved_lobby_id, (int)my_external_port, peer_ip, &peer_port) != 0
+                || enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, peer_ip) < 0) {
                 host_destroy();
                 return Lb_FAIL;
             }
@@ -251,9 +246,8 @@ namespace
             while (LbTimerClock() < connection_deadline) {
                 TbClockMSec time_remaining = connection_deadline - LbTimerClock();
                 enet_uint32 service_wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
-                if (time_remaining < service_wait_ms) {
+                if (time_remaining < service_wait_ms)
                     service_wait_ms = (enet_uint32)time_remaining;
-                }
                 int service_result = enet_host_service(host, &enet_event, service_wait_ms);
                 if (service_result > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
                     LbNetLog("Join: connected successfully\n");
