@@ -584,14 +584,15 @@ TbBool mouse_is_over_panel_map(ScreenCoord x, ScreenCoord y)
 }
 
 /**
- * Returns if the mouse is over the bottom part of the side menu, below the tab buttons
+ * Returns if the mouse is over the bottom part of the side menu, below the tab buttons and above the placefiller.
  * @return
  */
 TbBool mouse_is_over_side_panel_bottom()
 {
     if (!flag_is_set(game.operation_flags, GOF_ShowGui))
         return false;
-    return ((GetMouseX() < status_panel_width) && (GetMouseY() > scale_ui_value(185)));
+    struct GuiMenu* gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+    return ((GetMouseX() < status_panel_width) && (GetMouseY() > scale_ui_value(185)) && (GetMouseY() < gmnu->height));
 }
 /******************************************************************************/
 #ifdef __cplusplus
