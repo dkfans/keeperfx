@@ -81,7 +81,7 @@ TbBool load_stats_files(void)
 
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {
-        if (!load_creaturemodel_config(i,0))
+        if (!load_default_creaturemodel_config(i,0))
             result = false;
     }
     SYNCDBG(3,"Finished");
