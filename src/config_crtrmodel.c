@@ -2708,6 +2708,7 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         do_to_players_all_creatures_of_model(plyr_idx, crtr_id, update_relative_creature_health);
+        do_to_players_all_creatures_of_model(plyr_idx, crtr_id, creature_increase_available_instances);
         update_speed_of_player_creatures_of_model(plyr_idx, crtr_id);
         if (oldlair != newlair)
         {
