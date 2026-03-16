@@ -2595,7 +2595,7 @@ TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, un
 {
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        init_creature_model_stats_one(crmodel);
+        init_creature_model_stats(crmodel);
     }
     set_flag(flags, CnfLd_AcceptPartial);
 

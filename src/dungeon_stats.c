@@ -46,7 +46,7 @@ TbBool load_stats_files(void)
     TbBool result = true;
 
     clear_research_for_all_players();
-    init_creature_model_stats();
+    init_all_creature_model_stats();
     init_creature_model_graphics();
 
     //first preload some configs which contain names that are used in other cfgs in ListOnly mode

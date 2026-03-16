@@ -394,7 +394,7 @@ void check_and_auto_fix_stats(void)
 }
 
 
-void init_creature_model_stats_one(ThingModel crmodel)
+void init_creature_model_stats(ThingModel crmodel)
 {
     int n;
     struct CreatureModelConfig *crconf = creature_stats_get(crmodel);
@@ -531,11 +531,11 @@ void init_creature_model_stats_one(ThingModel crmodel)
 }
 
 /* Initialize all creature model stats, called only once when first loading a map. */
-void init_creature_model_stats(void)
+void init_all_creature_model_stats(void)
 {
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
-        init_creature_model_stats_one(i);
+        init_creature_model_stats(i);
     }
 }
 
