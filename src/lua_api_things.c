@@ -22,6 +22,7 @@
 #include "power_specials.h"
 #include "thing_creature.h"
 #include "thing_effects.h"
+#include "thing_physics.h"
 #include "magic_powers.h"
 #include "config_crtrstates.h"
 
@@ -71,13 +72,13 @@ static int lua_delete_thing(lua_State *L)
                 break;
         }
     }
-    if (thing->class_id == TCls_Creature)
+    if (thing_is_creature(thing))
     {
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
     }
     else
     {
-        delete_thing_structure(thing,0);
+        destroy_thing(thing);
     }
     return 0;
 }

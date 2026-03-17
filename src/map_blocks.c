@@ -419,7 +419,7 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
                         pos.z.val = get_floor_height_at(&pos);
                         create_effect(&pos, rmeffect, thing->owner);
                     }
-                    delete_thing_structure(thing, 0);
+                    destroy_object(thing);
                     removed_num++;
                 }
             }
@@ -612,7 +612,7 @@ static void delete_attached_things_on_slab(long slb_x, long slb_y)
                     {
                         char class_id = thing->class_id;
                         if (class_id == TCls_Object || class_id == TCls_EffectGen)
-                            delete_thing_structure(thing, 0);
+                            destroy_thing(thing);
                     }
                     thing = next_thing;
                     k++;
@@ -1423,7 +1423,7 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                     }
                     if (delete_thing)
                     {
-                        delete_thing_structure(thing, 0);
+                        destroy_thing(thing);
                     }
                 }
                 thing = next_thing;
