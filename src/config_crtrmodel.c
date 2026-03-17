@@ -2642,8 +2642,12 @@ TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, un
             set_flag(flags, CnfLd_IgnoreErrors);
         }
     }
-
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+    LevelNumber lvnum = get_selected_level_number();
+    if (lvnum <= 0)
+    {
+        lvnum = game.last_level;
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", lvnum, conf_fnstr);
     if (strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel, fname, flags);
