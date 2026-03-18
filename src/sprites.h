@@ -753,7 +753,56 @@ enum GUIPanelSprite {
     GPS_rpanel_manufacture_cant = 839,
     GPS_portrt_qmark = 840,
 
-    GUI_PANEL_SPRITES_COUNT = 900,
+    // additional colour ! icons
+    // not set up to flash, don't want to distract from heart attack message.
+    GPS_message_rpanel_msg_exclam_blue_std = 261, // default blue.
+    GPS_message_rpanel_msg_exclam_brown_std = 850,
+    GPS_message_rpanel_msg_exclam_green_std = 852, // dull green, like dragons.
+    GPS_message_rpanel_msg_exclam_grey_std = 854,
+    GPS_message_rpanel_msg_exclam_orange_std = 856,
+    GPS_message_rpanel_msg_exclam_pgreen_std = 858, // bright green, "player green".
+    GPS_message_rpanel_msg_exclam_purple_std = 860,
+    GPS_message_rpanel_msg_exclam_red_std = 834, // used already for heart attack.
+    GPS_message_rpanel_msg_exclam_white_std = 862,
+    GPS_message_rpanel_msg_exclam_yellow_std = 864,
+
+    // additional colour i icons
+    // not sure if names are weird here - usually _act refers to when clicked, but I wanted to make it clearer
+    // when distinguising between flashing and non-flashing. Maybe _lit is better?
+    GPS_message_rpanel_msg_info_blue_std = 866, // default normal message icon, but _act is new so need to be paired.
+    GPS_message_rpanel_msg_info_blue_act = 868, // blue lit icon.
+    GPS_message_rpanel_msg_info_brown_std = 870,
+    GPS_message_rpanel_msg_info_brown_act = 872,
+    GPS_message_rpanel_msg_info_green_std = 874,
+    GPS_message_rpanel_msg_info_green_act = 876,
+    GPS_message_rpanel_msg_info_grey_std = 878,
+    GPS_message_rpanel_msg_info_grey_act = 880,
+    GPS_message_rpanel_msg_info_orange_std = 882,
+    GPS_message_rpanel_msg_info_orange_act = 884,
+    GPS_message_rpanel_msg_info_pgreen_std = 269, // default INFORMATION message.
+    GPS_message_rpanel_msg_info_pgreen_act = 271, // default INFORMATION message, lit.
+    GPS_message_rpanel_msg_info_purple_std = 886,
+    GPS_message_rpanel_msg_info_purple_act = 888,
+    GPS_message_rpanel_msg_info_red_std = 890,
+    GPS_message_rpanel_msg_info_red_act = 892,
+    GPS_message_rpanel_msg_info_white_std = 894,
+    GPS_message_rpanel_msg_info_white_act = 896,
+    GPS_message_rpanel_msg_info_yellow_std = 898,
+    GPS_message_rpanel_msg_info_yellow_act = 900,
+
+    // additional colour ? icons
+    GPS_message_rpanel_msg_questn_blue_std = 902,
+    GPS_message_rpanel_msg_questn_brown_std = 904,
+    GPS_message_rpanel_msg_questn_green_std = 906,
+    GPS_message_rpanel_msg_questn_grey_std = 908,
+    GPS_message_rpanel_msg_questn_orange_std = 910,
+    GPS_message_rpanel_msg_questn_pgreen_std = 259, // default OBJECTIVE message.
+    GPS_message_rpanel_msg_questn_purple_std = 912,
+    GPS_message_rpanel_msg_questn_red_std = 914,
+    GPS_message_rpanel_msg_questn_white_std = 916,
+    GPS_message_rpanel_msg_questn_yellow_std = 918,
+
+    GUI_PANEL_SPRITES_COUNT = 1000,
     GUI_PANEL_SPRITES_NEW = 512,
 };
 
