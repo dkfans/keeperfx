@@ -68,6 +68,15 @@ enum EventKinds {
     EvKind_EnemyDoor,                      // ComputerKeeper: DoorAtck1 [event20] --> attacks enemy doors
     EvKind_SecretDoorDiscovered,
     EvKind_SecretDoorSpotted,
+    EvKind_ObjectiveBlue,
+    EvKind_ObjectiveBrown,
+    EvKind_ObjectiveGreen,
+    EvKind_ObjectiveGrey,
+    EvKind_ObjectiveOrange,
+    EvKind_ObjectivePurple,
+    EvKind_ObjectiveRed,
+    EvKind_ObjectiveWhite,
+    EvKind_ObjectiveYellow,
 };
 
 enum EventFlags {
