@@ -36,6 +36,8 @@ extern "C" {
 #define HOLEPUNCH_CONNECT_DELAY_MS 100
 #define TIMEOUT_LOBBY_EXCHANGE 3000
 #define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
+
+extern TbClockMSec net_join_start_ms;
 /******************************************************************************/
 #pragma pack(1)
 

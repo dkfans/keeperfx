@@ -16,6 +16,7 @@
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
 #include "bflib_network.h"
+#include "front_network.h"
 #include "bflib_math.h"
 #include "net_portforward.h"
 #include "net_holepunch.h"
@@ -262,6 +263,7 @@ namespace
                     break;
                 }
                 holepunch_punch_to(host, &connect_address);
+                display_attempting_to_join_message((int)((LbTimerClock() - net_join_start_ms) / 1000));
             }
         }
         LbNetLog("Join: connection timed out or failed\n");

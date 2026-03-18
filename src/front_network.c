@@ -438,14 +438,17 @@ void frontnet_start_update(void)
     lan_host_update();
 }
 
-void display_attempting_to_join_message(void)
+TbClockMSec net_join_start_ms = 0;
+
+void display_attempting_to_join_message(int elapsed_s)
 {
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    draw_text_box(get_string(GUIStr_NetAttemptingToJoin));
-    LbScreenUnlock();
-  }
-  LbScreenSwap();
+    char msg[128];
+    snprintf(msg, sizeof(msg), "%s (%ds)", get_string(GUIStr_NetAttemptingToJoin), elapsed_s);
+    if (LbScreenLock() == Lb_SUCCESS) {
+        draw_text_box(msg);
+        LbScreenUnlock();
+    }
+    LbScreenSwap();
 }
 
 void net_load_config_file(void)
