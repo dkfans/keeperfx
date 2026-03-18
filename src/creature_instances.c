@@ -212,10 +212,14 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
     return false;
 }
 
-void creature_increase_available_instances(struct Thing *thing)
+TbBool creature_increase_available_instances(struct Thing *thing)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (!creature_control_exists(cctrl))
+    {
+        return false;
+    }
     for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
         int k = crconf->learned_instance_id[i];
@@ -230,6 +234,7 @@ void creature_increase_available_instances(struct Thing *thing)
             }
         }
     }
+    return true;
 }
 
 /**

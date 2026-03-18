@@ -110,6 +110,7 @@ void update_busy_doing_gui_on_menu(void);
 
 void turn_on_menu(MenuID idx);
 void turn_off_menu(MenuID mnu_idx);
+void update_query_menu();
 void turn_off_query_menus(void);
 void turn_off_all_menus(void);
 short turn_off_all_window_menus(void);

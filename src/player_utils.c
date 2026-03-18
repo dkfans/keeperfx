@@ -1129,7 +1129,7 @@ void process_player_states(void)
             if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
             {
                 struct Thing* thing = thing_get(player->controlled_thing_idx);
-                struct Camera* cam = player->acamera;
+                struct Camera* cam = get_player_active_camera(player);
                 if ((cam != NULL) && thing_exists(thing)) {
                     cam->mappos.x.val = thing->mappos.x.val;
                     cam->mappos.y.val = thing->mappos.y.val;

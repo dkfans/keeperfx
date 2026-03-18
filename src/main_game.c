@@ -126,29 +126,6 @@ void init_player_types()
 }
 
 /******************************************************************************/
-void init_lookups(void)
-{
-    long i;
-    SYNCDBG(8,"Starting");
-    for (i=0; i < THINGS_COUNT; i++)
-    {
-        game.things.lookup[i] = &game.things_data[i];
-    }
-    game.things.end = &game.things_data[THINGS_COUNT];
-
-    memset(&game.persons, 0, sizeof(struct Persons));
-    for (i=0; i < CREATURES_COUNT; i++)
-    {
-        game.persons.cctrl_lookup[i] = &game.cctrl_data[i];
-    }
-    game.persons.cctrl_end = &game.cctrl_data[CREATURES_COUNT];
-
-    for (i=0; i < COLUMNS_COUNT; i++)
-    {
-        game.columns.lookup[i] = &game.columns_data[i];
-    }
-    game.columns.end = &game.columns_data[COLUMNS_COUNT];
-}
 
 static void init_level(void)
 {

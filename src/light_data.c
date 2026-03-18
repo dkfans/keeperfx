@@ -2275,11 +2275,12 @@ void update_light_render_area(void)
     }
     int delta_x = abs(game.something_light_x);
     int delta_y = abs(game.something_light_y);
+    struct Camera *camera = get_player_active_camera(player);
     // Prepare the area constraints
-    if (player->acamera != NULL)
+    if (camera != NULL)
     {
-      subtile_y = player->acamera->mappos.y.stl.num;
-      subtile_x = player->acamera->mappos.x.stl.num;
+      subtile_y = camera->mappos.y.stl.num;
+      subtile_x = camera->mappos.x.stl.num;
     } else
     {
       subtile_y = 0;

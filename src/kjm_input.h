@@ -91,6 +91,8 @@ void define_key_input(void);
 void init_key_to_strings(void);
 
 TbBool mouse_is_over_panel_map(ScreenCoord x, ScreenCoord y);
+TbBool mouse_is_over_side_panel_bottom();
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

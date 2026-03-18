@@ -471,10 +471,11 @@ short get_bookmark_inputs(void)
         if (is_key_pressed(kcode, KMod_CONTROL))
         {
             clear_key_pressed(kcode);
-            if (player->acamera != NULL)
+            struct Camera* camera = get_player_active_camera(player);
+            if (camera != NULL)
             {
-                bmark->x = player->acamera->mappos.x.stl.num;
-                bmark->y = player->acamera->mappos.y.stl.num;
+                bmark->x = camera->mappos.x.stl.num;
+                bmark->y = camera->mappos.y.stl.num;
                 bmark->flags |= 0x01;
                 show_onscreen_msg(game_num_fps, "Bookmark %d stored", i + 1);
             }
@@ -721,12 +722,13 @@ TbBool get_level_lost_inputs(void)
     }
     if (player->view_type == PVT_MapScreen)
     {
+        struct Camera* camera = get_player_active_camera(player);
         long mouse_x = GetMouseX();
         long mouse_y = GetMouseY();
         // Position on the parchment map on which we're doing action
         int32_t map_x;
         int32_t map_y;
-        TbBool map_valid = point_to_overhead_map(get_local_camera(player->acamera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
+        TbBool map_valid = point_to_overhead_map(get_local_camera(camera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
         if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
         {
             lbKeyOn[keycode] = 0;
@@ -1977,12 +1979,13 @@ void get_packet_control_mouse_clicks(void)
 short get_map_action_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
+    struct Camera* camera = get_player_active_camera(player);
     long mouse_x = GetMouseX();
     long mouse_y = GetMouseY();
     // Get map coordinates from mouse position on parchment screen
     int32_t map_x;
     int32_t map_y;
-    TbBool map_valid = point_to_overhead_map(get_local_camera(player->acamera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
+    TbBool map_valid = point_to_overhead_map(get_local_camera(camera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
     if  (map_valid)
     {
         MapSubtlCoord stl_x = coord_subtile(map_x);
@@ -2056,6 +2059,10 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
             {
                 set_packet_control(pckt, PCtr_ViewZoomOut);
             }
+        }
+        else
+        {
+            update_query_menu();
         }
     }
     if (menu_is_active(GMnu_BATTLE) && (rotate_pressed))
@@ -2412,7 +2419,7 @@ void get_dungeon_control_nonaction_inputs(void)
           set_players_packet_position(pckt, pos.x.val, pos.y.val, context);
     }
   } else
-  if (screen_to_map(get_local_camera(player->acamera), my_mouse_x, my_mouse_y, &pos))
+    if (screen_to_map(get_local_camera(get_player_active_camera(player)), my_mouse_x, my_mouse_y, &pos))
   {
       set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
       pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
@@ -2464,7 +2471,7 @@ void get_map_nonaction_inputs(void)
     pos.y.val = 0;
     pos.z.val = 0;
     struct PlayerInfo* player = get_my_player();
-    TbBool coords_valid = screen_to_map(get_local_camera(player->acamera), GetMouseX(), GetMouseY(), &pos);
+    TbBool coords_valid = screen_to_map(get_local_camera(get_player_active_camera(player)), GetMouseX(), GetMouseY(), &pos);
     set_players_packet_position(get_packet(my_player_number), pos.x.val, pos.y.val, 0);
     struct Packet* pckt = get_packet(my_player_number);
     if (coords_valid) {
@@ -3357,7 +3364,7 @@ void process_cheat_mode_selection_inputs()
                 if (is_key_pressed(KC_LALT, KMod_DONTCARE))
                 {
                     struct Coord3d pos;
-                    if (screen_to_map(get_local_camera(player->acamera), GetMouseX(), GetMouseY(), &pos))
+                    if (screen_to_map(get_local_camera(get_player_active_camera(player)), GetMouseX(), GetMouseY(), &pos))
                     {
                         MapSlabCoord slb_x = subtile_slab(pos.x.stl.num);
                         MapSlabCoord slb_y = subtile_slab(pos.y.stl.num);

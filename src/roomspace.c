@@ -1405,7 +1405,10 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
                 looseness = disable_tolerance_layers;
             }
         }
-        set_packet_action(pckt, PckA_SetRoomspaceAuto, looseness, 0, 0, 0);
+        if (looseness != player->roomspace_detection_looseness || player->roomspace_mode != roomspace_detection_mode)
+        {
+            set_packet_action(pckt, PckA_SetRoomspaceAuto, looseness, 0, 0, 0);
+        }
     }
     else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {

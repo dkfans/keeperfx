@@ -3966,7 +3966,8 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
             continue;
 
-        if (!creature_can_navigate_to(creatng, &game.things.lookup[dgn->dnheart_idx]->mappos, NavRtF_Default))
+        struct Thing* hearttng = thing_get(dgn->dnheart_idx);
+        if (!creature_can_navigate_to(creatng, &hearttng->mappos, NavRtF_Default))
             continue;
 
         set_flag(cctrl->party.player_broken_into_flags, to_flag(i));

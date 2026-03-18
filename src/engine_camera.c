@@ -763,7 +763,7 @@ void view_process_camera_inertia(struct Camera *cam)
 void update_player_camera(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);
-    struct Camera *cam = player->acamera;
+    struct Camera *cam = get_player_active_camera(player);
 
     view_process_camera_inertia(cam);
     switch (cam->view_mode)

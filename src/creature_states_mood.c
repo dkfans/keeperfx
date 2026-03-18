@@ -42,6 +42,14 @@
 #include "game_legacy.h"
 #include "post_inc.h"
 
+const struct NamedCommand anger_reason_desc[] = {
+    {"NOT_PAID", AngR_NotPaid},
+    {"HUNGRY",   AngR_Hungry},
+    {"NO_LAIR",  AngR_NoLair},
+    {"OTHER",    AngR_Other},
+    {NULL,       0},
+};
+
 /******************************************************************************/
 TbBool creature_can_get_angry(const struct Thing *creatng)
 {
