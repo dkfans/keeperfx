@@ -518,7 +518,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_player_active_camera(player);
     if (cam == NULL) {
         ERRORLOG("No active camera");
         return;
@@ -1018,10 +1018,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return false;
   case PckA_SaveViewType:
-      if (player->acamera != NULL)
-        player->view_mode_restore = player->acamera->view_mode;
+    {
+            struct Camera* camera = get_player_active_camera(player);
+            if (camera != NULL)
+                player->view_mode_restore = camera->view_mode;
       set_player_mode(player, pckt->actn_par1);
       return false;
+    }
   case PckA_LoadViewType:
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->view_mode_restore);
