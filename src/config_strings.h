@@ -433,6 +433,7 @@ enum GUIStrings {
     GUIStr_CtrlAscend = STRINGS_MAX + 1078,
     GUIStr_CtrlDescend = STRINGS_MAX + 1079,
     GUIStr_Keeper = STRINGS_MAX + 1082,
+    GUIStr_EventWarningDesc, //todo add string
 };
 
 enum CampaignStrings {
