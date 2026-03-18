@@ -338,6 +338,9 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
             if (elapsed >= timeout_max) {
                 break;
             }
+            if (netstate.users[id].progress == USER_UNUSED) {
+                break;
+            }
 
             long long time_since_draw_nanoseconds = get_time_tick_ns() - last_draw_completed_time;
             int remaining_time_until_draw = (int)((draw_interval_nanoseconds - time_since_draw_nanoseconds) / 1000000.0);

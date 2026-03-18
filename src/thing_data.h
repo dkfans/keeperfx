@@ -320,7 +320,7 @@ struct Thing {
     PlayerNumber holding_player;
 };
 
-#define INVALID_THING (game.things.lookup[0])
+#define INVALID_THING (&game.things_data[0])
 
 /** Macro used for debugging problems related to things.
  * Should be executed in every function which changes a thing.

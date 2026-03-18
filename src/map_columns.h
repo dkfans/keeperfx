@@ -56,7 +56,7 @@ enum ColumnFlags {
 
 #pragma pack()
 /******************************************************************************/
-#define INVALID_COLUMN game.columns.lookup[0]
+#define INVALID_COLUMN (&game.columns_data[0])
 /******************************************************************************/
 struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Column *get_map_column(const struct Map *map);

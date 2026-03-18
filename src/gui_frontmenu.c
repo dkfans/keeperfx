@@ -379,6 +379,96 @@ void turn_on_menu(MenuID mnu_idx)
     }
 }
 
+void update_query_menu()
+{
+    if(!(menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2) || menu_is_active(GMnu_CREATURE_QUERY3) || menu_is_active(GMnu_CREATURE_QUERY4)))
+        return;
+    struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
+
+    if (menu_is_active(GMnu_CREATURE_QUERY1))
+    {
+        if (wheel_scrolled_down)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            if (creature_instance_get_available_id_for_pos(thing, 6) > 0)
+            {
+                turn_on_menu(GMnu_CREATURE_QUERY2);
+            }
+            else
+            {
+                turn_on_menu(GMnu_CREATURE_QUERY3);
+            }
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+        if (wheel_scrolled_up)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+    }
+    if (menu_is_active(GMnu_CREATURE_QUERY2))
+    {
+        if (wheel_scrolled_down)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+        if (wheel_scrolled_up)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+    }
+    if (menu_is_active(GMnu_CREATURE_QUERY3))
+    {
+        if (wheel_scrolled_down)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+        if (wheel_scrolled_up)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            if (creature_instance_get_available_id_for_pos(thing, 6) > 0)
+            {
+                turn_on_menu(GMnu_CREATURE_QUERY2);
+            }
+            else
+            {
+                turn_on_menu(GMnu_CREATURE_QUERY1);
+            }
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+    }
+    if (menu_is_active(GMnu_CREATURE_QUERY4))
+    {
+        if (wheel_scrolled_down)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+        if (wheel_scrolled_up)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+    }
+}
+
 void set_menu_visible_on(MenuID menu_id)
 {
     long menu_num = menu_id_to_number(menu_id);

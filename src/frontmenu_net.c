@@ -47,19 +47,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-long frontnet_number_of_players_in_session(void)
-{
-    long i;
-    long nplyr;
-    nplyr = 0;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      if (network_player_active(i))
-        nplyr++;
-    }
-    return nplyr;
-}
-
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_scroll_offset != 0)) & LbBtnF_Enabled;

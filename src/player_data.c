@@ -48,6 +48,26 @@ struct PlayerInfo bad_player;
 /** The current player's number. */
 unsigned char my_player_number;
 /******************************************************************************/
+
+struct Camera *get_player_active_camera(const struct PlayerInfo *player)
+{
+    if (player == NULL)
+        return NULL;
+    unsigned char cam_idx = player->active_camera_idx;
+    if (cam_idx >= 4)
+        cam_idx = CamIV_Isometric;
+    return &((struct PlayerInfo *)player)->cameras[cam_idx];
+}
+
+void set_player_active_camera(struct PlayerInfo *player, unsigned char cam_idx)
+{
+    if (player == NULL)
+        return;
+    if (cam_idx >= 4)
+        cam_idx = CamIV_Isometric;
+    player->active_camera_idx = cam_idx;
+}
+
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))

@@ -238,7 +238,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
       if (!control_creature_as_passenger(player, thing))
         return false;
-      cam = player->acamera;
+            cam = get_player_active_camera(player);
       crconf = creature_stats_get(get_players_special_digger_model(player->id_number));
       cam->mappos.z.val += get_creature_eye_height(thing);
       return true;
@@ -256,7 +256,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       turn_off_roaming_menus();
     }
     set_selected_creature(player, thing);
-    cam = player->acamera;
+        cam = get_player_active_camera(player);
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
@@ -311,7 +311,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
         turn_off_roaming_menus();
     }
     set_selected_thing(player, thing);
-    struct Camera* cam = player->acamera;
+        struct Camera* cam = get_player_active_camera(player);
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
@@ -3226,7 +3226,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     player->influenced_thing_creation = 0;
     if (player->id_number == thing->owner)
         setup_eye_lens(0);
-    set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+    set_camera_zoom(get_player_active_camera(player), player->dungeon_camera_zoom);
     if (player->id_number == thing->owner)
     {
         turn_off_all_window_menus();

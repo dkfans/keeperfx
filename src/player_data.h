@@ -172,8 +172,7 @@ struct PlayerInfo {
     short thing_under_hand;
     TbBool possession_lock;
     unsigned char view_mode;
-    /** Pointer to the currently active camera. */
-    struct Camera *acamera;
+    unsigned char active_camera_idx;
     struct Camera cameras[4];
     MapCoord zoom_to_pos_x;
     MapCoord zoom_to_pos_y;
@@ -306,6 +305,8 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
 
+struct Camera *get_player_active_camera(const struct PlayerInfo *player);
+void set_player_active_camera(struct PlayerInfo *player, unsigned char cam_idx);
 unsigned char rotate_mode_to_view_mode(unsigned char mode);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);

@@ -35,6 +35,7 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_network.h"
+#include "bflib_network_internal.h"
 #include "bflib_network_exchange.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -517,7 +518,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_player_active_camera(player);
     if (cam == NULL) {
         ERRORLOG("No active camera");
         return;
@@ -1017,10 +1018,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return false;
   case PckA_SaveViewType:
-      if (player->acamera != NULL)
-        player->view_mode_restore = player->acamera->view_mode;
+    {
+            struct Camera* camera = get_player_active_camera(player);
+            if (camera != NULL)
+                player->view_mode_restore = camera->view_mode;
       set_player_mode(player, pckt->actn_par1);
       return false;
+    }
   case PckA_LoadViewType:
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->view_mode_restore);
@@ -1793,40 +1797,12 @@ void process_frontend_packets(void)
       ERRORLOG("LbNetwork_Exchange failed");
       net_service_index_selected = -1;
   }
-  if (frontend_should_all_players_quit())
-  {
-    i = frontnet_number_of_players_in_session();
-    if (players_currently_in_session < i)
-    {
-      players_currently_in_session = i;
+  if (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED) {
+    LbNetwork_Stop();
+    if (!setup_network_service(net_service_index_selected)) {
+      frontend_set_state(FeSt_MAIN_MENU);
     }
-    if (players_currently_in_session > i)
-    {
-      if (frontend_menu_state == FeSt_NET_SESSION)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          frontend_set_state(FeSt_MAIN_MENU);
-      } else if (frontend_menu_state == FeSt_NET_START)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          if (setup_network_service(net_service_index_selected))
-          {
-            frontend_set_state(FeSt_NET_SESSION);
-          }
-          else
-          {
-            frontend_set_state(FeSt_MAIN_MENU);
-          }
-      }
-    }
+    return;
   }
 #if DEBUG_NETWORK_PACKETS
   write_debug_screenpackets();

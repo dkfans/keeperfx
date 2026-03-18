@@ -1836,7 +1836,12 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->exp_level)) {
         creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
     }
-    return thing_in_field_of_view(thing, enmtng);
+    if (!thing_in_field_of_view(thing, enmtng))
+    {
+        creature_turn_to_face(thing, &enmtng->mappos);
+        return false;
+    }
+    return true;
 }
 
 TbBool creature_would_benefit_from_healing(const struct Thing* thing)

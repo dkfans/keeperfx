@@ -1343,7 +1343,7 @@ static void new_creature_type_check(const struct ScriptLine* scline)
     creature_desc[i-1].name = game.conf.crtr_conf.model[i].name;
     creature_desc[i-1].num = i;
 
-    if (load_creaturemodel_config(i, 0))
+    if (load_default_creaturemodel_config(i, 0))
     {
         SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
     }
