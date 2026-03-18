@@ -192,9 +192,10 @@ long network_session_join(void)
     int32_t plyr_num;
     net_join_start_ms = LbTimerClock();
     display_attempting_to_join_message(0);
-    for (int attempt = 0; attempt < JOIN_MAX_ATTEMPTS; attempt++) {
+    TbClockMSec join_timeouts[] = {TIMEOUT_ENET_CONNECT_INITIAL, TIMEOUT_ENET_CONNECT_RETRY};
+    for (int attempt = 0; attempt < (int)(sizeof(join_timeouts) / sizeof(*join_timeouts)); attempt++) {
         snprintf(join_lobby_id, sizeof(join_lobby_id), "%s", net_session[net_session_index_active]->join_address);
-        if (LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) == 0)
+        if (LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, &join_timeouts[attempt]) == 0)
             return plyr_num;
     }
     join_lobby_id[0] = '\0';

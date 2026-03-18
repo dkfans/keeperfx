@@ -243,7 +243,7 @@ namespace
         }
         {
             ENetEvent enet_event;
-            TbClockMSec connection_deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
+            TbClockMSec connection_deadline = LbTimerClock() + *(TbClockMSec *)options;
             while (LbTimerClock() < connection_deadline) {
                 TbClockMSec time_remaining = connection_deadline - LbTimerClock();
                 enet_uint32 service_wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
