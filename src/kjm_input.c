@@ -32,6 +32,7 @@
 #include "frontend.h"
 #include "front_input.h"
 #include "frontmenu_ingame_map.h"
+#include "game_legacy.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -580,6 +581,18 @@ TbBool mouse_is_over_panel_map(ScreenCoord x, ScreenCoord y)
     long px = (cmx - (x + PANEL_MAP_RADIUS * units_per_px / 16));
     long py = (cmy - (y + PANEL_MAP_RADIUS * units_per_px / 16));
     return (LbSqrL(px*px + py*py) < PANEL_MAP_RADIUS*units_per_px/16);
+}
+
+/**
+ * Returns if the mouse is over the bottom part of the side menu, below the tab buttons and above the placefiller.
+ * @return
+ */
+TbBool mouse_is_over_side_panel_bottom()
+{
+    if (!flag_is_set(game.operation_flags, GOF_ShowGui))
+        return false;
+    struct GuiMenu* gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+    return ((GetMouseX() < status_panel_width) && (GetMouseY() > scale_ui_value(185)) && (GetMouseY() < gmnu->height));
 }
 /******************************************************************************/
 #ifdef __cplusplus
