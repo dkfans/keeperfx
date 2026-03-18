@@ -410,6 +410,10 @@ void process_creature_instance(struct Thing *thing)
     SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
     if (cctrl->inst_turn >= cctrl->inst_total_turns)
     {
+        if (creature_under_spell_effect(thing, CSAfF_Freeze))
+        {
+            return;
+        }
         if (!cctrl->inst_repeat)
         {
             SYNCDBG(18,"Finalize %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
@@ -421,6 +425,10 @@ void process_creature_instance(struct Thing *thing)
     cctrl->inst_repeat = 0;
     if (cctrl->instance_id != CrInst_NULL)
     {
+        if (creature_under_spell_effect(thing, CSAfF_Freeze))
+        {
+            return;
+        }
         cctrl->inst_turn++;
         if (cctrl->inst_turn == cctrl->inst_action_turns)
         {
