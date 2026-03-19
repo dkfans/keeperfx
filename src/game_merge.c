@@ -87,12 +87,7 @@ LevelNumber set_continue_level_number(LevelNumber lvnum)
  */
 LevelNumber get_selected_level_number(void)
 {
-    LevelNumber lvnum = game.selected_level_number;
-    if (lvnum <= 0)
-    {
-        lvnum = game.last_level;
-    }
-    return lvnum;
+  return game.selected_level_number;
 }
 
 /**
