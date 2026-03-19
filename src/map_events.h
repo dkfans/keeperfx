@@ -27,7 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       65
+#define EVENT_KIND_COUNT       144
 #define EVENTS_COUNT          200
 #define INVALID_EVENT &game.event[0]
 
@@ -68,15 +68,13 @@ enum EventKinds {
     EvKind_EnemyDoor,                      // ComputerKeeper: DoorAtck1 [event20] --> attacks enemy doors
     EvKind_SecretDoorDiscovered,
     EvKind_SecretDoorSpotted,
-    EvKind_ObjectiveBlue,
-    EvKind_ObjectiveBrown,
-    EvKind_ObjectiveGreen,
-    EvKind_ObjectiveGrey,
-    EvKind_ObjectiveOrange,
-    EvKind_ObjectivePurple,
-    EvKind_ObjectiveRed,
-    EvKind_ObjectiveWhite,
-    EvKind_ObjectiveYellow,
+    EvKind_Objective2,
+    EvKind_Objective3,
+    EvKind_Objective4,
+    EvKind_Objective5,
+    EvKind_Objective6,
+    EvKind_Objective7,
+    EvKind_Objective8,
 };
 
 enum EventFlags {
