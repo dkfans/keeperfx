@@ -28,6 +28,9 @@ if not Thing then Thing = {} end
 ---@class Object: Thing
 if not Object then Object = {} end
 
+---Destroys the object, triggers onObjectDestroyed if applicable.
+function Object:destroy() end
+
 --- @param action function|string the function to call when the event happens
 function Thing:OnDamage(action)
     RegisterThingDamageEvent(action,self)

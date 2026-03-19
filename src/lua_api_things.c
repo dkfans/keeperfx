@@ -79,7 +79,7 @@ static int lua_delete_thing(lua_State *L)
     }
     else
     {
-        destroy_thing(thing);
+        delete_thing_structure(thing, 0);
     }
     return 0;
 }
@@ -90,6 +90,16 @@ static int lua_is_valid(lua_State *L)
     return 1;
 }
 
+static int lua_destroy_object(lua_State* L)
+{
+    struct Thing* thing = luaL_checkObject(L, 1);
+    if (!thing_is_invalid(thing))
+    {
+        destroy_object(thing);
+        return 1;
+    } else
+    return 0;
+}
 
 static int lua_creature_walk_to(lua_State *L)
 {
@@ -588,19 +598,20 @@ static int thing_eq(lua_State *L) {
 
 
 static const struct luaL_Reg thing_methods[] = {
-    {"make_thing_zombie", make_thing_zombie},
-    {"walk_to",  lua_creature_walk_to},
-    {"kill",    lua_kill_creature},
-    {"stun",    lua_stun_creature},
-    {"delete",     lua_delete_thing},
-    {"isValid",         lua_is_valid},
+    {"make_thing_zombie"            ,make_thing_zombie                  },
+    {"walk_to"                      ,lua_creature_walk_to               },
+    {"kill"                         ,lua_kill_creature                  },
+    {"stun"                         ,lua_stun_creature                  },
+    {"destroy"                      ,lua_destroy_object                 },
+    {"delete"                       ,lua_delete_thing                   },
+    {"isValid"                      ,lua_is_valid                       },
     
-   {"transfer"                    ,lua_Transfer_creature               },
-   {"level_up"                    ,lua_Level_up_creature               },
-   {"teleport"                    ,lua_Teleport_creature               },
-   {"change_owner"                ,lua_Change_creature_owner           },
-   {"get_annoyance"               ,lua_get_creature_annoyance          },
-   {"set_annoyance"               ,lua_set_creature_annoyance          },
+    {"transfer"                     ,lua_Transfer_creature              },
+    {"level_up"                     ,lua_Level_up_creature              },
+    {"teleport"                     ,lua_Teleport_creature              },
+    {"change_owner"                 ,lua_Change_creature_owner          },
+    {"get_annoyance"                ,lua_get_creature_annoyance         },
+    {"set_annoyance"                ,lua_set_creature_annoyance         },
     {NULL, NULL}
 };
 
