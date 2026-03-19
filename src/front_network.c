@@ -30,6 +30,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
+#include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
 #include "gui_draw.h"
@@ -442,6 +443,7 @@ TbClockMSec net_join_start_ms = 0;
 
 void display_attempting_to_join_message(int elapsed_s)
 {
+    LbWindowsControl();
     char msg[128];
     snprintf(msg, sizeof(msg), "%s (%ds)", get_string(GUIStr_NetAttemptingToJoin), elapsed_s);
     if (LbScreenLock() == Lb_SUCCESS) {
