@@ -83,12 +83,14 @@ static int websocket_receive(char *response_buffer, size_t buffer_size, int time
         return -1;
     }
 
-    fd_set readable_sockets;
-    FD_ZERO(&readable_sockets);
-    FD_SET(raw_socket, &readable_sockets);
-    struct timeval timeout_value = { timeout_ms / 1000, (timeout_ms % 1000) * 1000 };
-    if (select((int)raw_socket + 1, &readable_sockets, NULL, NULL, &timeout_value) <= 0)
-        return 0;
+    if (timeout_ms > 0) {
+        fd_set readable_sockets;
+        FD_ZERO(&readable_sockets);
+        FD_SET(raw_socket, &readable_sockets);
+        struct timeval timeout_value = { timeout_ms / 1000, (timeout_ms % 1000) * 1000 };
+        if (select((int)raw_socket + 1, &readable_sockets, NULL, NULL, &timeout_value) <= 0)
+            return 0;
+    }
 
     size_t bytes_received = 0;
     const struct curl_ws_frame *websocket_frame = NULL;
