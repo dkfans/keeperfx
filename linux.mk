@@ -26,6 +26,7 @@ src/bflib_basics.c \
 src/bflib_coroutine.c \
 src/bflib_client_tcp.cpp \
 src/bflib_cpu.c \
+src/bflib_crash.c \
 src/bflib_datetm.cpp \
 src/bflib_dernc.c \
 src/bflib_enet.cpp \
@@ -288,6 +289,7 @@ KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -
 
 KFX_LDFLAGS += \
 	-g \
+	-rdynamic \
 	-Wall -Wextra -Werror \
 	-Ldeps/astronomy -lastronomy \
 	-Ldeps/centijson -ljson \
@@ -306,7 +308,8 @@ KFX_LDFLAGS += \
 	$(shell pkg-config --libs-only-l minizip) \
 	$(shell pkg-config --libs-only-l zlib) \
 	-lminiupnpc \
-	-lnatpmp
+	-lnatpmp \
+	-ldl
 
 TOML_SOURCES = \
 	deps/centitoml/toml_api.c

@@ -1008,7 +1008,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set, const char *conf
           named_fields_set->names[i].name = (char*)name_NamedField->field + i * named_fields_set->struct_size;
           named_fields_set->names[i].num = i;
       }
-      // Don't set terminator here - it will be set after parsing based on actual count, lens name lookups may depend on it
+      named_fields_set->names[named_fields_set->max_count - 1].name = NULL; // must be null for get_id
   }
 }
 
@@ -1045,17 +1045,6 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
         blockname_null[blocknamelen] = '\0';
 
         parse_named_field_block(buf, len, config_textname, flags, blockname_null, named_fields_set->named_fields, named_fields_set, i);
-    }
-
-    // Set the terminator safely within the allocated range
-    if (named_fields_set->names != NULL && named_fields_set->count_field != NULL)
-    {
-        int terminator_index = *named_fields_set->count_field;
-        if (terminator_index >= named_fields_set->max_count)
-        {
-            terminator_index = named_fields_set->max_count - 1;
-        }
-        named_fields_set->names[terminator_index].name = NULL;
     }
 
     return true;

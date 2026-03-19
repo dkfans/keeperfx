@@ -3,7 +3,7 @@
 -- Shared fields and methods go here.
 
 ---@class Thing
----@field idx integer
+---@field ThingIndex integer
 ---@field creation_turn integer
 ---@field class string
 ---@field model string

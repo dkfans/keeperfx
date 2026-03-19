@@ -237,6 +237,7 @@ void process_disease(struct Thing *creatng)
 void lightning_modify_palette(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
+    struct Camera* camera = get_player_active_camera(myplyr);
 
     if (thing->health == 0)
     {
@@ -244,7 +245,7 @@ void lightning_modify_palette(struct Thing *thing)
       myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
       return;
     }
-    if (myplyr->acamera == NULL)
+    if (camera == NULL)
     {
         ERRORLOG("No active camera");
         return;
@@ -253,7 +254,7 @@ void lightning_modify_palette(struct Thing *thing)
     {
         if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
         {
-            if (get_chessboard_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+            if (get_chessboard_distance(&camera->mappos, &thing->mappos) < 11520)
             {
                 PaletteSetPlayerPalette(myplyr, engine_palette);
                 myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
@@ -265,7 +266,7 @@ void lightning_modify_palette(struct Thing *thing)
     {
         if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) == 0)
         {
-            if (get_chessboard_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+                        if (get_chessboard_distance(&camera->mappos, &thing->mappos) < 11520)
             {
               PaletteSetPlayerPalette(myplyr, lightning_palette);
               myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
@@ -372,7 +373,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 void draw_god_lightning(struct Thing *shotng)
 {
     struct PlayerInfo* player = get_player(shotng->owner);
-    const struct Camera* cam = get_local_camera(player->acamera);
+    const struct Camera* cam = get_local_camera(get_player_active_camera(player));
     if (cam == NULL) {
         return;
     }
