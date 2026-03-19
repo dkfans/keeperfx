@@ -175,6 +175,7 @@ namespace
     TbError bf_enet_join(const char *session, void *options)
     {
         ENetAddress connect_address;
+        int is_holepunch = 0;
         if (strncmp(join_lobby_id, "LAN:", 4) == 0) {
             LbNetLog("Join: connecting via LAN\n");
             char lan_peer_address[MATCHMAKING_IP_MAX];
@@ -196,6 +197,7 @@ namespace
                 return Lb_FAIL;
             }
         } else if (join_lobby_id[0] != '\0') {
+            is_holepunch = 1;
             LbNetLog("Join: connecting via UDP hole punching\n");
             host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, NULL, 4, NUM_CHANNELS, 0, 0);
             if (!host) {
@@ -235,6 +237,8 @@ namespace
         }
         enet_host_compress_with_range_coder(host);
         holepunch_punch_to(host, &connect_address);
+        if (is_holepunch)
+            SDL_Delay(HOLEPUNCH_PRE_CONNECT_DELAY_MS);
         client_peer = enet_host_connect(host, &connect_address, NUM_CHANNELS, 0);
         if (!client_peer) {
             LbNetLog("Join: enet_host_connect returned NULL\n");
@@ -759,15 +763,25 @@ void enet_matchmaking_host_update(void)
 {
     if (!host)
         return;
+    static ENetAddress pending_peer;
+    static int has_pending_peer = 0;
     char peer_ip[MATCHMAKING_IP_MAX];
-    int  peer_port = 0;
-    if (!matchmaking_poll_punch(peer_ip, &peer_port))
+    int peer_port = 0;
+    if (matchmaking_poll_punch(peer_ip, &peer_port)) {
+        if (enet_address_set_host(&pending_peer, ENET_ADDRESS_TYPE_IPV4, peer_ip) == 0) {
+            pending_peer.port = (enet_uint16)peer_port;
+            has_pending_peer = 1;
+        }
+    }
+    if (!has_pending_peer)
         return;
-    ENetAddress peer_address;
-    if (enet_address_set_host(&peer_address, ENET_ADDRESS_TYPE_IPV4, peer_ip) != 0)
-        return;
-    peer_address.port = (enet_uint16)peer_port;
-    holepunch_punch_to(host, &peer_address);
+    for (ENetPeer *p = host->peers; p < &host->peers[host->peerCount]; p++) {
+        if (p->state == ENET_PEER_STATE_CONNECTED) {
+            has_pending_peer = 0;
+            return;
+        }
+    }
+    holepunch_punch_to(host, &pending_peer);
 }
 
 struct NetSP *InitEnetSP()
