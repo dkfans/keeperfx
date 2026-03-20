@@ -208,10 +208,17 @@ namespace
                 return Lb_FAIL;
             }
             uint16_t my_external_port = holepunch_stun_query(host, NULL, 0);
+            if (my_external_port == 0)
+                LbNetLog("Join: STUN failed, proceeding with port 0\n");
             char peer_ip[MATCHMAKING_IP_MAX] = {0};
             int peer_port = 0;
-            if (matchmaking_punch(join_lobby_id, (int)my_external_port, peer_ip, &peer_port) != 0
-                || enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, peer_ip) < 0) {
+            if (matchmaking_punch(join_lobby_id, (int)my_external_port, peer_ip, &peer_port) != 0) {
+                LbNetLog("Join: matchmaking_punch failed\n");
+                host_destroy();
+                return Lb_FAIL;
+            }
+            if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, peer_ip) < 0) {
+                LbNetLog("Join: failed to resolve peer IP from punch: %s\n", peer_ip);
                 host_destroy();
                 return Lb_FAIL;
             }
