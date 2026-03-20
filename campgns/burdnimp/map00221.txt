@@ -12,6 +12,9 @@ START_MONEY(PLAYER0,1000)
 START_MONEY(PLAYER2,500000)
 COMPUTER_PLAYER(PLAYER2,2)
 
+COMPUTER_PLAYER(PLAYER5,ROAMING)
+ALLY_PLAYERS(PLAYER_GOOD,PLAYER5,1)
+
 SET_CREATURE_MAX_LEVEL(PLAYER0,THIEF,10)
 
 ADD_CREATURE_TO_POOL(FLY,20)
@@ -29,6 +32,8 @@ ADD_CREATURE_TO_POOL(TENTACLE,20)
 ADD_CREATURE_TO_POOL(SKELETON,20)
 ADD_CREATURE_TO_POOL(GHOST,20)
 ADD_CREATURE_TO_POOL(VAMPIRE,20)
+ADD_CREATURE_TO_POOL(MAIDEN,20)
+ADD_CREATURE_TO_POOL(DRUID,20)
 
 CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
 CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
@@ -42,6 +47,8 @@ CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
 CREATURE_AVAILABLE(PLAYER0,DRAGON,1,0)
 CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,0)
 CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,0)
+CREATURE_AVAILABLE(PLAYER0,MAIDEN,1,0)
+CREATURE_AVAILABLE(PLAYER0,DRUID,1,0)
 CREATURE_AVAILABLE(PLAYER0,SKELETON,0,0)
 CREATURE_AVAILABLE(PLAYER0,GHOST,0,0)
 CREATURE_AVAILABLE(PLAYER0,VAMPIRE,0,0)
@@ -64,6 +71,7 @@ ROOM_AVAILABLE(PLAYER0,SCAVENGER,3,0)
 TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
 TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
 TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+TRAP_AVAILABLE(PLAYER0,SENTRY,1,0)
 TRAP_AVAILABLE(PLAYER0,LAVA,0,0)
 TRAP_AVAILABLE(PLAYER0,BOULDER,0,0)
 TRAP_AVAILABLE(PLAYER0,WORD_OF_POWER,1,0)
@@ -211,8 +219,10 @@ CREATE_PARTY(ATTACK_FOUR)
 
 REM ----------------------- Win/Lose conditions/Objectives
 
+REM "An epic battle raged here, resulting in the defeat of a Keeper. The heroes are healing their wounds and have not yet destroyed the Keeper's dungeon."
+REM "This is the perfect time to take his place and display the power of a real Keeper. Find your way into the dungeon and find the last remaining portal, but be wary, Keeper!"
+REM "You lack resources and minions. The death of a single creature could mean instant failure!"
 DISPLAY_OBJECTIVE(20,ALL_PLAYERS)
-REM 0,"An epic battle raged here, resulting in the defeat of a Keeper. The heroes are healing their wounds and have not yet destroyed the Keeper's dungeon. This is the perfect time to take his place and display the power of a real Keeper. Find your way into the dungeon and find the last remaining portal, but be wary, Keeper! You lack resources and minions. The death of a single creature could mean instant failure!",PLAYER0)
 
 IF(PLAYER0,DUNGEON_DESTROYED == 1)
     LOSE_GAME
