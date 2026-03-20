@@ -331,12 +331,15 @@ int matchmaking_punch(const char *lobby_id, int udp_port, char *output_ip, int *
             SDL_UnlockMutex(mutex);
             return -1;
         }
-        if (strstr(response_buffer, "\"lobbies\""))
-            continue;
-        break;
+        if (strstr(response_buffer, "\"punch\""))
+            break;
+        if (!strstr(response_buffer, "\"lobbies\"")) {
+            LbNetLog("Matchmaking: punch failed - server error response\n");
+            SDL_UnlockMutex(mutex);
+            return -1;
+        }
     }
-    if (!strstr(response_buffer, "\"punch\"")
-        || !json_parse_string(response_buffer, "peerIp", output_ip, MATCHMAKING_IP_MAX)
+    if (!json_parse_string(response_buffer, "peerIp", output_ip, MATCHMAKING_IP_MAX)
         || !json_parse_int(response_buffer, "peerPort", output_port)) {
         LbNetLog("Matchmaking: punch failed - unexpected response\n");
         SDL_UnlockMutex(mutex);

@@ -768,18 +768,21 @@ void enet_matchmaking_host_update(void)
     static int has_pending_peer = 0;
     char peer_ip[MATCHMAKING_IP_MAX];
     int peer_port = 0;
+    int new_punch = 0;
     if (matchmaking_poll_punch(peer_ip, &peer_port)) {
         if (enet_address_set_host(&pending_peer, ENET_ADDRESS_TYPE_IPV4, peer_ip) == 0) {
+            LbNetLog("Host: received punch from %s:%d\n", peer_ip, peer_port);
             pending_peer.port = (enet_uint16)peer_port;
             has_pending_peer = 1;
+            new_punch = 1;
         }
     }
     if (!has_pending_peer)
         return;
-    for (ENetPeer *p = host->peers; p < &host->peers[host->peerCount]; p++) {
-        if (p->state == ENET_PEER_STATE_CONNECTED) {
-            has_pending_peer = 0;
-            return;
+    if (!new_punch) {
+        for (ENetPeer *p = host->peers; p < &host->peers[host->peerCount]; p++) {
+            if (p->state == ENET_PEER_STATE_CONNECTED)
+                return;
         }
     }
     holepunch_punch_to(host, &pending_peer);
