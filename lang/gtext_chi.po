@@ -6750,3 +6750,8 @@ msgstr "魔宠：召唤一个伙伴，来保护和协助怪物。"
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr "召唤术：在战斗中召唤出暂时存在的卫兵与怪物协同作战。"
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "守护者"

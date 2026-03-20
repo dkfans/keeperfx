@@ -7121,3 +7121,8 @@ msgstr "Znamení: Přivolá společníka, který hlídá a pomáhá stvoření."
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr "Přivolání: Přivolá dočasné ochránce, kteří pomohou stvoření v boji."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Strážce"

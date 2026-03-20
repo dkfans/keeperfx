@@ -68,3 +68,14 @@ function Creature:transfer() end
 ---@param stl_x integer
 ---@param stl_y integer
 function Creature:walk_to(stl_x,stl_y) end
+
+---Returns the annoyance value for a specific reason
+---@param reason anger_reason The reason to query
+---@return integer annoyance The current annoyance value for that reason
+---@nodiscard
+function Creature:get_annoyance(reason) end
+
+---Sets the annoyance value for a specific reason
+---@param reason anger_reason The reason to set
+---@param value integer The annoyance value to set
+function Creature:set_annoyance(reason, value) end

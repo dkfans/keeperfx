@@ -139,7 +139,7 @@ function RegisterOnActionPointEvent(action, actionPoint, player)
     local trigData = {Player = player,actionPoint = actionPoint, triggered = false}
 
     local trigger = CreateTrigger("GameTick",action,trigData)
-    TriggerAddCondition(trigger, function(eventData,triggerData)  
+    TriggerAddCondition(trigger, function(eventData,triggerData)
                                         if triggerData.triggered == false then
                                             triggerData.triggered = IsActionpointActivatedByPlayer(triggerData.Player,triggerData.actionPoint)
                                             return triggerData.triggered
@@ -165,6 +165,64 @@ function RegisterLevelUpEvent(action, creature)
     local trigger = CreateTrigger("LevelUp",action,trigData)
     if creature then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.creature == triggerData.creature end)
+    end
+    return trigger
+end
+
+---Triggers when a slab changes
+---eventData.Slab contains the changed slab and the new kind
+---@param action function|string the function to call when the event happens
+---@param old_slab_kind? slab_type the old slab kind to filter on (nil for any)
+---@param slab_kind? slab_type the new slab kind to filter on (nil for any)
+---@return table
+function RegisterSlabKindChangeEvent(action, old_slab_kind, slab_kind)
+    local trigData = {slab_kind = slab_kind, old_slab_kind = old_slab_kind}
+    local trigger = CreateTrigger("SlabKindChange", action, trigData)
+    if old_slab_kind then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.old_slab_kind == triggerData.old_slab_kind end)
+    end
+    if slab_kind then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Slab.kind == triggerData.slab_kind end)
+    end
+    return trigger
+end
+
+---Triggers when a slab owner changes
+---eventData.Slab contains the changed slab and its new owner
+---@param action function|string the function to call when the event happens
+---@param old_owner? Player the old owner to filter on (nil for any)
+---@param owner? Player the new owner to filter on (nil for any)
+---@return table
+function RegisterSlabOwnerChangeEvent(action, old_owner, owner)
+    local trigData = {owner = owner, old_owner = old_owner}
+    local trigger = CreateTrigger("SlabOwnerChange", action, trigData)
+    if old_owner then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.old_owner.playerId == triggerData.old_owner.playerId end)
+    end
+    if owner then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Slab.owner.playerId == triggerData.owner.playerId end)
+    end
+    return trigger
+end
+
+---Triggers when a room changes owner
+---eventData.Room contains the changed room and its new owner
+---@param action function|string the function to call when the event happens
+---@param room_type? room_type a roomtype (nil for any)
+---@param old_owner? Player the old owner to filter on (nil for any)
+---@param owner? Player the new owner to filter on (nil for any)
+---@return table
+function RegisterRoomOwnerChangeEvent(action, room_type, old_owner, owner)
+    local trigData = {room_type = room_type,owner = owner, old_owner = old_owner}
+    local trigger = CreateTrigger("RoomOwnerChange", action, trigData)
+    if room_type then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Room.type == triggerData.room_type end)
+    end
+    if old_owner then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.old_owner.playerId == triggerData.old_owner.playerId end)
+    end
+    if owner then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Room.owner.playerId == triggerData.owner.playerId end)
     end
     return trigger
 end

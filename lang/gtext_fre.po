@@ -7378,3 +7378,8 @@ msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""
 "Invoquer: Convoquez des gardiens temporaires pour aider la créature en "
 "combat."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Gardien"

@@ -7121,3 +7121,8 @@ msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""
 "Oproepen: Roept tijdelijke bewakers op om het wezen in gevecht te helpen."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Keeper"

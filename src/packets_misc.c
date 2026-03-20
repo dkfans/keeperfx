@@ -347,8 +347,6 @@ void load_packets_for_turn(GameTurn nturn)
     SYNCDBG(19,"Starting");
     const int turn_data_size = PACKET_TURN_SIZE;
     unsigned char pckt_buf[PACKET_TURN_SIZE+4];
-    struct Packet* pckt = get_packet(my_player_number);
-    TbBigChecksum pckt_chksum = pckt->checksum;
     if (nturn >= game.turns_stored)
     {
         ERRORDBG(18,"Out of turns to load from Packet File");
@@ -379,16 +377,9 @@ void load_packets_for_turn(GameTurn nturn)
         game.turns_fastforward--;
     if (game.packet_checksum_verify)
     {
-        pckt = get_packet(my_player_number);
         if (compute_replay_integrity() != tot_chksum)
         {
             ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", game.play_gameturn);
-            if (!is_onscreen_msg_visible())
-                show_onscreen_msg(game_num_fps, "Out of sync");
-        } else
-        if (pckt->checksum != pckt_chksum)
-        {
-            ERRORLOG("Oops we are really Out Of Sync (GameTurn %u)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         }

@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_sprite.h"
+#include "config_campaigns.h"
 #include "net_game.h"
 
 #ifdef __cplusplus
@@ -83,7 +84,6 @@ extern unsigned char *map_screen;
 extern long fe_net_level_selected;
 extern long net_map_limp_time;
 extern struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
-extern long players_currently_in_session;
 
 #pragma pack()
 /******************************************************************************/
@@ -104,6 +104,7 @@ long frontmap_update(void);
 void frontzoom_to_point(long a1, long a2, long a3);
 void compressed_window_draw(void);
 void frontnet_init_level_descriptions(void);
+const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame);
 
 TbBool initialize_description_speech(void);
 TbBool play_current_description_speech(short play_good);

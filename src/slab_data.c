@@ -32,6 +32,7 @@
 #include "creature_states.h"
 #include "map_data.h"
 #include "post_inc.h"
+#include "lua_triggers.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -166,6 +167,7 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
     {
         return;
     }
+    PlayerNumber old_owner = slb->owner;
     struct Dungeon *dungeon = get_dungeon(owner);
     if (dungeon->texture_pack == 0)
     {
@@ -176,6 +178,10 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
         game.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
     }
     slb->owner = owner;
+    if(old_owner != owner)
+    {
+        lua_on_slab_owner_change(slb_x, slb_y, old_owner);
+    }
 }
 
 /**
