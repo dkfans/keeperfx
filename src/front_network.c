@@ -439,8 +439,6 @@ void frontnet_start_update(void)
     lan_host_update();
 }
 
-TbClockMSec net_join_start_ms = 0;
-
 void display_attempting_to_join_message(int elapsed_s)
 {
     char msg[128];

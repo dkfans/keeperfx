@@ -32,12 +32,8 @@ extern "C" {
 
 #define TIMEOUT_ENET_CONNECT 10000
 #define TIMEOUT_JOIN_LOBBY 2000
-#define HOLEPUNCH_CONNECT_DELAY_MS 500
-#define HOLEPUNCH_PRE_CONNECT_DELAY_MS 500
 #define TIMEOUT_LOBBY_EXCHANGE 3000
 #define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
-
-extern TbClockMSec net_join_start_ms;
 /******************************************************************************/
 #pragma pack(1)
 

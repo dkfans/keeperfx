@@ -24,7 +24,6 @@
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
 #include "bflib_network.h"
-#include "bflib_datetm.h"
 #include "bflib_network_exchange.h"
 #include "net_resync.h"
 
@@ -190,7 +189,6 @@ const char *network_player_name(int plyr_idx)
 long network_session_join(void)
 {
     int32_t plyr_num;
-    net_join_start_ms = LbTimerClock();
     display_attempting_to_join_message(0);
     snprintf(join_lobby_id, sizeof(join_lobby_id), "%s", net_session[net_session_index_active]->join_address);
     if (LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) == 0)

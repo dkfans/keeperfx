@@ -36,6 +36,8 @@
 #define NUM_CHANNELS 2
 #define PEER_TIMEOUT_MIN_MS 2000
 #define PEER_TIMEOUT_MAX_MS 5000
+#define HOLEPUNCH_CONNECT_DELAY_MS 500
+#define HOLEPUNCH_PRE_CONNECT_DELAY_MS 500
 
 uint16_t external_port = 0;
 
@@ -176,6 +178,7 @@ namespace
     {
         ENetAddress connect_address;
         int is_holepunch = 0;
+        TbClockMSec join_start_ms = LbTimerClock();
         if (strncmp(join_lobby_id, "LAN:", 4) == 0) {
             LbNetLog("Join: connecting via LAN\n");
             char lan_peer_address[MATCHMAKING_IP_MAX];
@@ -207,14 +210,12 @@ namespace
             uint16_t my_external_port = holepunch_stun_query(host, NULL, 0);
             char peer_ip[MATCHMAKING_IP_MAX] = {0};
             int peer_port = 0;
-            char saved_lobby_id[MATCHMAKING_ID_MAX];
-            snprintf(saved_lobby_id, sizeof(saved_lobby_id), "%s", join_lobby_id);
-            join_lobby_id[0] = '\0';
-            if (matchmaking_punch(saved_lobby_id, (int)my_external_port, peer_ip, &peer_port) != 0
+            if (matchmaking_punch(join_lobby_id, (int)my_external_port, peer_ip, &peer_port) != 0
                 || enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, peer_ip) < 0) {
                 host_destroy();
                 return Lb_FAIL;
             }
+            join_lobby_id[0] = '\0';
             connect_address.port = (enet_uint16)peer_port;
         } else {
             char address_string[128] = {0};
@@ -267,7 +268,7 @@ namespace
                     break;
                 }
                 holepunch_punch_to(host, &connect_address);
-                display_attempting_to_join_message((int)((LbTimerClock() - net_join_start_ms) / 1000));
+                display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
             }
         }
         LbNetLog("Join: connection timed out or failed\n");
