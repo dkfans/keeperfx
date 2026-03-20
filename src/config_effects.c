@@ -97,6 +97,7 @@ static void load_effects(VALUE *value, unsigned short flags)
 {
     char key[64] = "";
     VALUE *section;
+    int max_effect_id = -1;
     for (int id = 0; id < EFFECTS_TYPES_MAX; id++)
     {
         {
@@ -108,6 +109,7 @@ static void load_effects(VALUE *value, unsigned short flags)
             struct EffectConfigStats *effcst = &game.conf.effects_conf.effect_cfgstats[id];
 
             SET_NAME(section,effect_desc,effcst->code_name);
+            max_effect_id = id;
 
             CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelXYRange",effcst->accel_xy_min,effcst->accel_xy_max);
             CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelZRange", effcst->accel_z_min, effcst->accel_z_max);
@@ -126,12 +128,18 @@ static void load_effects(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_SPELL(section,"SpellEffect",effcst->spell_effect);
         }
     }
+    
+    if (max_effect_id >= 0 && max_effect_id + 1 < EFFECTS_TYPES_MAX)
+    {
+        effect_desc[max_effect_id + 1].name = NULL;
+    }
 }
 
 static void load_effectsgenerators(VALUE *value, unsigned short flags)
 {
     char key[KEY_SIZE];
     VALUE *section;
+    int max_effectgen_id = -1;
     for (int id = 0; id < EFFECTSGEN_TYPES_MAX; id++)
     {
         {
@@ -143,6 +151,7 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
             struct EffectGeneratorConfigStats *effgencst = &game.conf.effects_conf.effectgen_cfgstats[id];
 
             SET_NAME(section,effectgen_desc,effgencst->code_name);
+            max_effectgen_id = id;
 
             CONDITIONAL_ASSIGN_INT(section,"GenerationDelayMin",effgencst->generation_delay_min);
             CONDITIONAL_ASSIGN_INT(section,"GenerationDelayMax",effgencst->generation_delay_max);
@@ -157,12 +166,18 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_ARR2_INT(section,"Sound",effgencst->sound_sample_idx,effgencst->sound_sample_rng);
         }
     }
+    
+    if (max_effectgen_id >= 0 && max_effectgen_id + 1 < EFFECTSGEN_TYPES_MAX)
+    {
+        effectgen_desc[max_effectgen_id + 1].name = NULL;
+    }
 }
 
 static void load_effectelements(VALUE *value, unsigned short flags)
 {
     char key[KEY_SIZE];
     VALUE *section;
+    int max_effectelement_id = -1;
     for (int id = 0; id < EFFECTSELLEMENTS_TYPES_MAX; id++)
     {
         {
@@ -174,6 +189,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             struct EffectElementConfigStats *effelcst = &game.conf.effects_conf.effectelement_cfgstats[id];
 
             SET_NAME(section,effectelem_desc,effelcst->code_name);
+            max_effectelement_id = id;
 
             CONDITIONAL_ASSIGN_INT(section,"DrawClass", effelcst->draw_class);
             CONDITIONAL_ASSIGN_INT(section,"MoveType",  effelcst->move_type);
@@ -219,6 +235,11 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"LightFlags",     effelcst->light_flags   );
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind", effelcst->affected_by_wind );
         }
+    }
+    
+    if (max_effectelement_id >= 0 && max_effectelement_id + 1 < EFFECTSELLEMENTS_TYPES_MAX)
+    {
+        effectelem_desc[max_effectelement_id + 1].name = NULL;
     }
 }
 
