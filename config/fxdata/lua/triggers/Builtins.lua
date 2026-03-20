@@ -30,6 +30,14 @@ function OnCreatureDeath(unit)
     ProcessEvent("Death",eventData)
 end
 
+--- Called when an object is destroyed
+--- @param unit Object The unit that dies
+function OnObjectDestroyed(unit)
+    local eventData = {}
+    eventData.unit = unit
+    ProcessEvent("Destroyed",eventData)
+end
+
 --- Called on each game tick to process timer events
 function OnGameTick()
     local eventData = {}

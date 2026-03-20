@@ -22,10 +22,11 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "thing_shots.h"
-#include "thing_data.h"
-#include "thing_stats.h"
 #include "thing_creature.h"
+#include "thing_effects.h"
+#include "thing_data.h"
+#include "thing_shots.h"
+#include "thing_stats.h"
 #include "thing_list.h"
 #include "thing_navigate.h"
 #include "creature_control.h"
@@ -46,6 +47,33 @@ extern "C" {
 
 
 /******************************************************************************/
+
+void destroy_thing(struct Thing* thing)
+{
+    switch (thing->class_id)
+    {
+        case TCls_Door:
+        {
+            destroy_door(thing);
+            break;
+        }
+        case TCls_Effect:
+        {
+            destroy_effect_thing(thing);
+            break;
+        }
+        case TCls_Object:
+        {
+            destroy_object(thing);
+            break;
+        }
+        default:
+        {
+            delete_thing_structure(thing, 0);
+        }
+    }
+}
+
 TbBool thing_touching_floor(const struct Thing *thing)
 {
     return (thing->floor_height == thing->mappos.z.val);
