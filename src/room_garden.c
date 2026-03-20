@@ -181,7 +181,7 @@ void reposition_all_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl
                 if (!store_reposition_entry(rrepos, objkind)) {
                     WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
                 }
-                delete_thing_structure(thing, 0);
+                destroy_object(thing);
             }
         }
         // Per thing code ends
