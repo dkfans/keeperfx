@@ -243,7 +243,7 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
         return;
     }
     if (reason == NETDROP_ERROR) {
-        NETMSG("Connection error with user %i %s", id, netstate.users[id].name);
+        NETMSG("User left (or connection error): %i %s", id, netstate.users[id].name);
     } else if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }

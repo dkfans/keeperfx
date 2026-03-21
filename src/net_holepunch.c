@@ -76,7 +76,13 @@ uint16_t holepunch_stun_query(ENetHost *host, char *output_ip, size_t output_ip_
     ENetBuffer send_buffer = {.data = &stun_request, .dataLength = sizeof(stun_request)};
     ENetSocket send_socket = host->socket;
     ENetSocket fallback_socket = ENET_SOCKET_NULL;
-    if (enet_socket_send(send_socket, &stun_server_address, &send_buffer, 1) < 0) {
+    int send_ok = (enet_socket_send(send_socket, &stun_server_address, &send_buffer, 1) >= 0);
+    if (!send_ok) {
+        ENetAddress mapped_stun_address = stun_server_address;
+        enet_address_convert_ipv6(&mapped_stun_address);
+        send_ok = (enet_socket_send(send_socket, &mapped_stun_address, &send_buffer, 1) >= 0);
+    }
+    if (!send_ok) {
         LbNetLog("STUN: host socket send failed, falling back to fresh IPv4 socket\n");
         fallback_socket = enet_socket_create(ENET_ADDRESS_TYPE_IPV4, ENET_SOCKET_TYPE_DATAGRAM);
         if (fallback_socket == ENET_SOCKET_NULL) {
@@ -155,13 +161,26 @@ uint16_t holepunch_stun_query(ENetHost *host, char *output_ip, size_t output_ip_
     return external_port_result;
 }
 
+static int send_and_burst(ENetSocket socket_handle, const ENetAddress *address, ENetBuffer *buffer)
+{
+    if (enet_socket_send(socket_handle, address, buffer, 1) < 0)
+        return 0;
+    for (int i = 1; i < HOLE_PUNCH_COUNT; i++)
+        enet_socket_send(socket_handle, address, buffer, 1);
+    return 1;
+}
+
 void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
 {
     static const uint8_t punch_payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
     ENetBuffer send_buffer = {.data = (void *)punch_payload, .dataLength = sizeof(punch_payload)};
-    int send_result = 0;
-    for (int i = 0; i < HOLE_PUNCH_COUNT; i++)
-        send_result = enet_socket_send(host->socket, target, &send_buffer, 1);
-    if (send_result < 0)
-        LbNetLog("Holepunch: send failed (result=%d)\n", send_result);
+    if (send_and_burst(host->socket, target, &send_buffer))
+        return;
+    if (target->type == ENET_ADDRESS_TYPE_IPV4) {
+        ENetAddress mapped_target = *target;
+        enet_address_convert_ipv6(&mapped_target);
+        if (send_and_burst(host->socket, &mapped_target, &send_buffer))
+            return;
+    }
+    LbNetLog("Holepunch: send failed\n");
 }
