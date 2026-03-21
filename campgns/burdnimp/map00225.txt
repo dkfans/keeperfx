@@ -4,6 +4,7 @@ REM  Script for Level 225, Waterspring River
 REM  Version 1.00
 REM ********************************************
 
+LEVEL_VERSION(1)
 SET_GENERATE_SPEED(500)
 MAX_CREATURES(PLAYER0,30)
 START_MONEY(PLAYER0,25000)
@@ -27,18 +28,18 @@ ADD_CREATURE_TO_POOL(SKELETON,20)
 ADD_CREATURE_TO_POOL(GHOST,20)
 ADD_CREATURE_TO_POOL(VAMPIRE,20)
 
-CREATURE_AVAILABLE(PLAYER0,FLY,1,1)
-CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
-CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
-CREATURE_AVAILABLE(PLAYER0,SPIDER,1,1)
-CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,1)
-CREATURE_AVAILABLE(PLAYER0,TROLL,1,1)
-CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,1)
-CREATURE_AVAILABLE(PLAYER0,ORC,1,1)
-CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(PLAYER0,DRAGON,1,1)
-CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,1)
-CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,1)
+CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(PLAYER0,SPIDER,1,0)
+CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(PLAYER0,ORC,1,0)
+CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(PLAYER0,DRAGON,1,0)
+CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,0)
+CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,0)
 CREATURE_AVAILABLE(PLAYER0,SKELETON,0,0)
 CREATURE_AVAILABLE(PLAYER0,GHOST,0,0)
 CREATURE_AVAILABLE(PLAYER0,VAMPIRE,0,0)
@@ -164,24 +165,24 @@ IF(PLAYER_GOOD,KNIGHT == 0)
     ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
     ROOM_AVAILABLE(PLAYER0,PRISON,1,1)
     SET_TIMER(PLAYER0,TIMER1)
-    DISPLAY_OBJECTIVE(70,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(1,"Well done, Keeper. All knights have been dealt with. The river seems to have calmed down a bit too. You can now build a bridge to the other side, but beware, I sense something is coming for you.",PLAYER0)
+    REM "Well done, Keeper. All knights have been dealt with. The river seems to have calmed down a bit too. You can now build a bridge to the other side, but beware, I sense something is coming for you."
+    DISPLAY_OBJECTIVE(70)
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 10000)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THE_AVATAR,-3,1)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,AVATAR_TWO,-3,1)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,AVATAR_THREE,-3,1)
-    DISPLAY_INFORMATION(73,ALL_PLAYERS)
-    REM QUICK_INFORMATION(9,"The Avatar himself has come to defeat the corrupted knights. Ofcourse, he will not find them, but WILL find you instead. Be ready.")
+    REM "The Avatar himself has come to defeat the corrupted knights. Ofcourse, he will not find them, but WILL find you instead. Be ready."
+    DISPLAY_INFORMATION(73)
 ENDIF
 
 IF(PLAYER_GOOD,FLAG1 == 1)
     IF(PLAYER_GOOD,AVATAR == 0)
         IF(PLAYER0,AVATAR == 0)
             IF(PLAYER0,TIMER1 >= 11500)
-                DISPLAY_OBJECTIVE(71,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(2,"Well done. Let's hope the Avatar will not be resurrected this time, although I fear that it will be the case. For today you are done here.",PLAYER0)
+                DISPLAY_OBJECTIVE(71)
+                REM "Well done. Let's hope the Avatar will not be resurrected this time, although I fear that it will be the case. For today you are done here."
                 WIN_GAME
             ENDIF
         ENDIF
@@ -192,8 +193,8 @@ IF(PLAYER_GOOD,FLAG1 == 1)
     IF(PLAYER_GOOD,AVATAR == 0)
         IF(PLAYER0,AVATAR == 1)
             IF(PLAYER0,TIMER1 >= 3500)
-                DISPLAY_OBJECTIVE(72,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(3,"Well done. Let's hope the Avatar will not escape from your grasp this time, although I fear that it will be the case. For today you are done here.",PLAYER0)
+                REM "Well done. Let's hope the Avatar will not escape from your grasp this time, although I fear that it will be the case. For today you are done here."
+                DISPLAY_OBJECTIVE(72)
                 WIN_GAME
             ENDIF
         ENDIF
@@ -204,17 +205,18 @@ IF(PLAYER0,TOTAL_CREATURES >= 20)
     SET_TIMER(PLAYER0,TIMER0)
 ENDIF
 
-DISPLAY_INFORMATION(74,ALL_PLAYERS)
-REM QUICK_INFORMATION(4,"The shallow river running through this area has a strong current at the moment. Building bridges would result in failure. You will have to do without for now.")
+REM "The shallow river running through this area has a strong current at the moment. Building bridges would result in failure. You will have to do without for now."
+DISPLAY_INFORMATION(74)
 
-DISPLAY_OBJECTIVE(75,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(0,"Six knights occupy this realm, but they are no ordinary knights. These knights have abandoned their virtues. Lord Angelus the Unjust, Lord Donahan the Greedy, Lord Espardio the Cowardly, Lord Vladavir the Betrayer, Lord Demunus the Vile, and Lord Gustavo the Unliving all hide here from their brethren's vengeance. Spineless cowards. Flush them out.",PLAYER0)
+
+REM "Six knights occupy this realm, but they are no ordinary knights. These knights have abandoned their virtues. Lord Angelus the Unjust, Lord Donahan the Greedy, Lord Espardio the Cowardly, Lord Vladavir the Betrayer, Lord Demunus the Vile, and Lord Gustavo the Unliving all hide here from their brethren's vengeance. Spineless cowards. Flush them out."
+DISPLAY_OBJECTIVE(75)
 
 IF(PLAYER0,TIMER0 >= 1000)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ATTACK_ONE,-1,1)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ATTACK_ONE,-2,1)
-    DISPLAY_INFORMATION(76,ALL_PLAYERS)
-    REM QUICK_INFORMATION(5,"How nice. A welcoming party is coming your way. Be sure to accept their invitation. And be sure to expect more of them.")
+    REM "How nice. A welcoming party is coming your way. Be sure to accept their invitation. And be sure to expect more of them."
+    DISPLAY_INFORMATION(76)
 ENDIF
 
 IF(PLAYER0,TIMER0 >= 5000)
@@ -235,8 +237,8 @@ ENDIF
 IF(PLAYER0,TIMER0 >= 25000)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ATTACK_FIVE,-1,1)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ATTACK_FIVE,-2,1)
-    DISPLAY_INFORMATION(77,ALL_PLAYERS)
-    REM QUICK_INFORMATION(6,"More incoming heroes. Do they annoy you yet, Keeper?")
+    REM "More incoming heroes. Do they annoy you yet, Keeper?"
+    DISPLAY_INFORMATION(77)
 ENDIF
 
 IF(PLAYER0,TIMER0 >= 30000)
@@ -252,12 +254,12 @@ ENDIF
 IF(PLAYER0,TIMER0 >= 45000)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ATTACK_EIGHT,-1,1)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ATTACK_EIGHT,-2,1)
-    DISPLAY_INFORMATION(78,ALL_PLAYERS)
-    REM QUICK_INFORMATION(7,"More heroes have come to invade your home. This looks like their last try to destroy your dungeon. It is about time they gave up.")
+    REM "More heroes have come to invade your home. This looks like their last try to destroy your dungeon. It is about time they gave up."
+    DISPLAY_INFORMATION(78)
 ENDIF
 
 IF(PLAYER0,TIMER0 >= 47500)
     ROOM_AVAILABLE(PLAYER0,PRISON,1,1)
-    DISPLAY_INFORMATION(79,ALL_PLAYERS)
-    REM QUICK_INFORMATION(8,"A prison is now available to you, in case you feel like giving some heroes a new home.")
+    REM "A prison is now available to you, in case you feel like giving some heroes a new home."
+    DISPLAY_INFORMATION(79)
 ENDIF
