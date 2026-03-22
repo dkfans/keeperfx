@@ -224,10 +224,6 @@ REM "This is the perfect time to take his place and display the power of a real 
 REM "You lack resources and minions. The death of a single creature could mean instant failure!"
 DISPLAY_OBJECTIVE(20,ALL_PLAYERS)
 
-IF(PLAYER0,DUNGEON_DESTROYED == 1)
-    LOSE_GAME
-ENDIF
-
 REM IF(PLAYER0,IMP==0)
 REM IF(PLAYER0,TOTAL_CREATURES==0)
 REM IF(PLAYER0,MONEY<750)
@@ -290,7 +286,7 @@ ENDIF
 
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
-    IF(PLAYER_GOOD,KNIGHT == 0)
+    IF_CONTROLS(PLAYER_GOOD,KNIGHT == 0)
 REM "The lord of the land lies defeated in his stinking pool of corrupted undead minions and his dungeon heart is shattered like the bones of the skeletons that protected it. Excellent work, Keeper."
         DISPLAY_OBJECTIVE(28)
         WIN_GAME
@@ -298,12 +294,12 @@ REM "The lord of the land lies defeated in his stinking pool of corrupted undead
 ENDIF
 
 IF_ACTION_POINT(12,PLAYER0)
-REM "There doesn't seem to be a library available. There is another Keeper who can provide what you seek. Find him in the south-west and steal his magic. This Keeper is old and weak and lost his portal during a fight. He should not be a threat to you."
+    REM "There doesn't seem to be a library available. There is another Keeper who can provide what you seek. Find him in the south-west and steal his magic. This Keeper is old and weak and lost his portal during a fight. He should not be a threat to you."
     DISPLAY_INFORMATION(29)
 ENDIF
 
 IF_ACTION_POINT(16,PLAYER0)
-REM "This hallway reeks of death and decay. While the smell is very soothing, it does not belong here. These so-called heroes might have had outside help to overthrow their enemies. Proceed with caution, Keeper."
+    REM "This hallway reeks of death and decay. While the smell is very soothing, it does not belong here. These so-called heroes might have had outside help to overthrow their enemies. Proceed with caution, Keeper."
     DISPLAY_INFORMATION(30)
 ENDIF
 
