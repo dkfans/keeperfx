@@ -7,7 +7,7 @@ REM ********************************************
 LEVEL_VERSION(1)
 SET_GENERATE_SPEED(400)
 MAX_CREATURES(PLAYER0,20)
-START_MONEY(PLAYER0,20000)
+START_MONEY(PLAYER0,10000)
 
 SET_CREATURE_MAX_LEVEL(PLAYER0,THIEF,10)
 
@@ -175,6 +175,16 @@ IF(PLAYER0,IMP >= 8)
     REM "An imp was carrying your Create Imp spell in its backpack. You are back in business. Pay the wizards a little visit, one that they will not survive, and level their dungeon for good measure.")
     DISPLAY_OBJECTIVE(91,PLAYER_GOOD)
     MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_IMP == 0)
+    NEXT_COMMAND_REUSABLE
+    COMPUTE_FLAG(PLAYER0,FLAG1,SET,PLAYER0,IMP,0)
+    NEXT_COMMAND_REUSABLE
+    COMPUTE_FLAG(PLAYER0,FLAG1,INCREASE,PLAYER_NEUTRAL,IMP,0)
+    IF(PLAYER0,FLAG1 < 8)
+        LOSE_GAME
+    ENDIF
 ENDIF
 
 IF_CONTROLS(PLAYER_GOOD,WIZARD == 0)
