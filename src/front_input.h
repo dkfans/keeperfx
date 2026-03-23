@@ -83,8 +83,6 @@ enum GameKeys {
     Gkey_FrameSkipDecrease,
     Gkey_ZoomMinimapIn,
     Gkey_ZoomMinimapOut,
-    Gkey_NextInstance,
-    Gkey_PrevInstance,
     Gkey_ToggleGui,
     Gkey_ToggleTooltips,
     Gkey_ExitGame,
@@ -103,6 +101,13 @@ enum GameKeys {
     Gkey_LVShowAllEnsigns,
     Gkey_LVNextLevel,
     Gkey_LVPrevLevel,
+    Gkey_NextInstance,
+    Gkey_PrevInstance,
+    Gkey_ButtonSnapLeft,
+    Gkey_ButtonSnapRight,
+    Gkey_ButtonSnapUp,
+    Gkey_ButtonSnapDown,
+    Gkey_Pause_Menu,
     GAME_KEYS_COUNT
 };
 
@@ -128,6 +133,16 @@ struct GuiLayer {
 
 struct GuiMenu;
 struct GuiButton;
+
+struct GamekeySettings {
+    const char* toml_name;
+    TextStringId string_id; // For display in the key binding menu
+    uint8_t default_code;
+    uint8_t default_mods;
+
+};
+
+extern const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT];
 
 #pragma pack()
 /******************************************************************************/

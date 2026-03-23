@@ -50,79 +50,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-const long definable_key_string[] = {
-    GUIStr_CtrlUp,
-    GUIStr_CtrlDown,
-    GUIStr_CtrlLeft,
-    GUIStr_CtrlRight,
-    GUIStr_CtrlRotate,
-    GUIStr_CtrlSpeed,
-    GUIStr_CtrlRotateLeft,
-    GUIStr_CtrlRotateRight,
-    GUIStr_CtrlZoomIn,
-    GUIStr_CtrlZoomOut,
-    CpgStr_RoomKind1+0,//TODO not GUI strings
-    CpgStr_RoomKind1+1,
-    CpgStr_RoomKind1+2,
-    CpgStr_RoomKind1+3,
-    CpgStr_RoomKind1+4,
-    CpgStr_RoomKind1+5,
-    CpgStr_RoomKind1+6,
-    CpgStr_RoomKind1+7,
-    CpgStr_RoomKind1+8,
-    CpgStr_RoomKind1+9,
-    CpgStr_RoomKind1+10,
-    CpgStr_RoomKind1+11,
-    CpgStr_RoomKind1+12,
-    CpgStr_RoomKind1+13,
-    CpgStr_RoomKind1+14,
-    CpgStr_RoomKind2,
-    GUIStr_StateFight,
-    GUIStr_StateAnnoyed,
-    CpgStr_PowerKind1,//TODO not GUI string
-    GUIStr_Query,
-    GUIStr_UndoPickup,
-    GUIStr_Pause,
-    GUIStr_Map,
-    GUIStr_ToggleMessage,
-    GUIStr_SnapCamera,
-    GUIStr_BestRoomSpace,
-    GUIStr_SquareRoomSpace,
-    GUIStr_RoomSpaceIncrease,
-    GUIStr_RoomSpaceDecrease,
-    GUIStr_SellTrapOnSubtile,
-    GUIStr_CtrlTiltUp,
-    GUIStr_CtrlTiltDown,
-    GUIStr_CtrlTiltReset,
-    GUIStr_CtrlAscend,
-    GUIStr_CtrlDescend,
-    GUIStr_ScreenRecord,
-    GUIStr_ScreenShot,
-    GUIStr_FrameSkipIncrease,
-    GUIStr_FrameSkipDecrease,
-    GUIStr_ZoomMinimapIn,
-    GUIStr_ZoomMinimapOut,
-    GUIStr_NextInstance,
-    GUIStr_PrevInstance,
-    GUIStr_ToggleGui,
-    GUIStr_ToggleTooltips,
-    GUIStr_ExitGame,
-    GUIStr_DisablePacketMode,
-    GUIStr_SwitchScreenRes,
-    GUIStr_ToggleConsole,
-    GUIStr_FinishLevel,
-    GUIStr_ToggleHeroHealthFlowers,
-    GUIStr_TeleportFight,
-    GUIStr_TeleportLastWorkroom,
-    GUIStr_TeleportCallToArms,
-    GUIStr_TeleportDefault,
-    GUIStr_CheatMenu1,
-    GUIStr_CheatMenu2,
-    GUIStr_CheatMenu3,
-    GUIStr_LVShowAllEnsigns,
-    GUIStr_LVNextLevel,
-    GUIStr_LVPrevLevel,
-};
 
 char video_cluedo_mode;
 char video_shadows;
@@ -208,7 +135,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     int tx_units_per_px = ((MyScreenHeight < 400) && (dbc_language > 0)) ? scale_value_menu(32) : scale_value_menu(16);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     int height = LbTextLineHeight() * tx_units_per_px / 14;
-    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(definable_key_string[key_id]));
+    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(game_key_settings[key_id].string_id));
     unsigned char mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
 
