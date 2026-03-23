@@ -16,7 +16,6 @@
 .vs/
 /out/*
 *.cache
-.vscode
 /libexterns
 docs/html
 docs/latex
@@ -30,7 +29,6 @@ res/keeperfx_icon.ico
 /deps/zlib
 /deps/spng
 /deps/astronomy
-/deps/centijson
 /deps/ffmpeg
 /deps/openal
 /deps/luajit
@@ -38,7 +36,26 @@ res/keeperfx_icon.ico
 /deps/libnatpmp
 /deps/*.tar.gz
 /cppcheck.cache
+
+# vcpkg installed packages — build output, never committed.
+# Placed one level up (../vcpkg_installed) so all worktrees share one copy.
+vcpkg_installed/
+
 /src/ver_defs.h
 keeperfx.log
 crash_log.txt
 .local/
+.deploy/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Generated documentation/audit reports
+*_AUDIT_REPORT.md
+*_DEPENDENCIES_*.md
+*_SECURITY_AUDIT.md
+.vscode/.sonar-token
