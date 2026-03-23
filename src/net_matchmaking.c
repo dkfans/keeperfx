@@ -65,20 +65,20 @@ int matchmaking_has_public_ipv6(void)
     return local_ipv6[0] != '\0';
 }
 
-static size_t write_to_buffer(char *ptr, size_t size, size_t nmemb, void *userdata)
+static size_t write_to_buffer(char *data, size_t size, size_t nmemb, void *userdata)
 {
     char *buffer = userdata;
     if (nmemb != 0 && (size * nmemb) / nmemb != size)
         return 0;
-    size_t incoming = size * nmemb;
-    size_t existing = strlen(buffer);
-    if (existing + incoming >= MATCHMAKING_IP_MAX - 1) {
+    size_t incoming_size = size * nmemb;
+    size_t existing_size = strlen(buffer);
+    if (existing_size + incoming_size >= MATCHMAKING_IP_MAX - 1) {
         LbNetLog("Matchmaking: write_to_buffer response too large, aborting\n");
         return 0;
     }
-    memcpy(buffer + existing, ptr, incoming);
-    buffer[existing + incoming] = '\0';
-    return incoming;
+    memcpy(buffer + existing_size, data, incoming_size);
+    buffer[existing_size + incoming_size] = '\0';
+    return incoming_size;
 }
 
 static void resolve_public_address(long address_family, char *output)

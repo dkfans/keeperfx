@@ -68,11 +68,11 @@ namespace
     {
         if (oldest_packet)
         {
-            for (ENetPacket *p = oldest_packet; p != nullptr;)
+            for (ENetPacket *packet = oldest_packet; packet != nullptr;)
             {
-                ENetPacket *pp = p;
-                p = static_cast<ENetPacket *>(p->userData);
-                enet_packet_destroy(pp);
+                ENetPacket *current_packet = packet;
+                packet = static_cast<ENetPacket *>(packet->userData);
+                enet_packet_destroy(current_packet);
             }
 
             oldest_packet = nullptr;
@@ -254,7 +254,13 @@ namespace
         if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
         if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
         SDL_Delay(HOLEPUNCH_PRE_CONNECT_DELAY_MS);
-        struct { ENetHost *network_host; ENetPeer *peer; const ENetAddress *address; const char *name; } slot[SLOT_COUNT] = {
+        struct ConnectionSlot {
+            ENetHost *network_host;
+            ENetPeer *peer;
+            const ENetAddress *address;
+            const char *name;
+        };
+        struct ConnectionSlot slot[SLOT_COUNT] = {
             { host,      nullptr, &ipv4_address, "IPv4" },
             { ipv6_host, nullptr, &ipv6_address, "IPv6" },
         };
@@ -263,20 +269,21 @@ namespace
         TbClockMSec deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
         while (LbTimerClock() < deadline) {
             ENetEvent enet_event;
-            for (int index = 0; index < SLOT_COUNT; index++) {
-                if (!slot[index].peer) continue;
-                if (enet_host_service(slot[index].network_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
-                    if (index == SLOT_IPV4 && has_ipv6)
+            for (int slot_index = 0; slot_index < SLOT_COUNT; slot_index++) {
+                if (!slot[slot_index].peer) continue;
+                if (enet_host_service(slot[slot_index].network_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
+                    if (slot_index == SLOT_IPV4 && has_ipv6)
                         LbNetLog("Join: IPv6 failed, likely due to a firewall on the host. Falling back to IPv4.\n");
-                    LbNetLog("Join: connected via %s\n", slot[index].name);
-                    enet_peer_timeout(slot[index].peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
-                    destroy_host_and_peer(slot[1 - index].network_host, slot[1 - index].peer);
-                    if (index == SLOT_IPV6)
+                    LbNetLog("Join: connected via %s\n", slot[slot_index].name);
+                    enet_peer_timeout(slot[slot_index].peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
+                    int other_slot = 1 - slot_index;
+                    destroy_host_and_peer(slot[other_slot].network_host, slot[other_slot].peer);
+                    if (slot_index == SLOT_IPV6)
                         host = ipv6_host;
-                    client_peer = slot[index].peer;
+                    client_peer = slot[slot_index].peer;
                     return Lb_OK;
                 }
-                holepunch_punch_to(slot[index].network_host, slot[index].address);
+                holepunch_punch_to(slot[slot_index].network_host, slot[slot_index].address);
             }
             TbClockMSec remaining = deadline - LbTimerClock();
             enet_uint32 wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
@@ -371,65 +378,62 @@ namespace
      */
     int bf_enet_read_event(NetNewUserCallback new_user, uint timeout)
     {
-        ENetEvent ev;
-        int ret;
-        NetUserId user_id;
         if (!host)
-        {
             return -1;
-        }
-        if ((ret = enet_host_service(host, &ev, timeout)) != 0)
+        ENetEvent enet_event;
+        NetUserId user_id;
+        int service_result = enet_host_service(host, &enet_event, timeout);
+        if (service_result == 0)
+            return 0;
+        if (service_result < 0)
         {
-            if (ret < 0)
-            {
-                NETDBG(1, "enet_host -> %d", ret);
-                return ret;
-            }
-            switch (ev.type)
-            {
-                case ENET_EVENT_TYPE_CONNECT:
-                    LbNetLog("ENet: incoming connection accepted\n");
-                    if (new_user(&user_id)) {
-                        enet_peer_timeout(ev.peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
-                        ev.peer->data = reinterpret_cast<void *>(user_id);
-                    } else {
-                        LbNetLog("ENet: rejecting peer, no user slot available\n");
-                        enet_peer_disconnect_now(ev.peer, 0);
-                    }
-                    break;
-                case ENET_EVENT_TYPE_DISCONNECT:
-                case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
-                    user_id = NetUserId(reinterpret_cast<ptrdiff_t>(ev.peer->data));
-                    const char *disconnect_reason = "timed out";
-                    if (ev.type == ENET_EVENT_TYPE_DISCONNECT)
-                        disconnect_reason = "disconnected (clean)";
-                    LbNetLog("ENet: peer %d %s\n", (int)user_id, disconnect_reason);
-                    g_drop_callback(user_id, NETDROP_ERROR);
-                    break;
+            NETDBG(1, "enet_host -> %d", service_result);
+            return service_result;
+        }
+        switch (enet_event.type)
+        {
+            case ENET_EVENT_TYPE_CONNECT:
+                LbNetLog("ENet: incoming connection accepted\n");
+                if (new_user(&user_id)) {
+                    enet_peer_timeout(enet_event.peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
+                    enet_event.peer->data = reinterpret_cast<void *>(user_id);
+                } else {
+                    LbNetLog("ENet: rejecting peer, no user slot available\n");
+                    enet_peer_disconnect_now(enet_event.peer, 0);
                 }
-                case ENET_EVENT_TYPE_RECEIVE:
-                    if (oldest_packet == nullptr)
-                    {
-                        newest_packet = ev.packet;
-                        oldest_packet = newest_packet;
-                        incoming_queue_size = 1;
-                    }
-                    else
-                    {
-                        newest_packet->userData = ev.packet;
-                        newest_packet = ev.packet;
-                        newest_packet->userData = nullptr;
-                        incoming_queue_size +=1;
-                        if (incoming_queue_size > 50)
-                        {
-                            fprintf(stderr, "Too many packets %d\n", incoming_queue_size);
-                            WARNLOG("Too many packets %d", incoming_queue_size);
-                        }
-                    }
-                    return 1;
-                case ENET_EVENT_TYPE_NONE:
-                    break;
+                break;
+            case ENET_EVENT_TYPE_DISCONNECT:
+            case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
+                user_id = NetUserId(reinterpret_cast<ptrdiff_t>(enet_event.peer->data));
+                const char *disconnect_reason = "timed out";
+                if (enet_event.type == ENET_EVENT_TYPE_DISCONNECT)
+                    disconnect_reason = "disconnected (clean)";
+                LbNetLog("ENet: peer %d %s\n", (int)user_id, disconnect_reason);
+                g_drop_callback(user_id, NETDROP_ERROR);
+                break;
             }
+            case ENET_EVENT_TYPE_RECEIVE:
+                if (oldest_packet == nullptr)
+                {
+                    newest_packet = enet_event.packet;
+                    oldest_packet = newest_packet;
+                    incoming_queue_size = 1;
+                }
+                else
+                {
+                    newest_packet->userData = enet_event.packet;
+                    newest_packet = enet_event.packet;
+                    newest_packet->userData = nullptr;
+                    incoming_queue_size += 1;
+                    if (incoming_queue_size > 50)
+                    {
+                        fprintf(stderr, "Too many packets %d\n", incoming_queue_size);
+                        WARNLOG("Too many packets %d", incoming_queue_size);
+                    }
+                }
+                return 1;
+            case ENET_EVENT_TYPE_NONE:
+                break;
         }
         return 0;
     }
@@ -533,7 +537,6 @@ namespace
      */
     size_t bf_enet_readmsg(NetUserId source, char *buffer, size_t max_size)
     {
-        size_t sz;
         while (!oldest_packet)
         {
             bf_enet_read_event(not_expected_user, 0);
@@ -542,10 +545,10 @@ namespace
         oldest_packet = static_cast<ENetPacket *>(oldest_packet->userData);
         incoming_queue_size--;
 
-        sz = min(packet->dataLength, max_size);
-        memcpy(buffer, packet->data, sz);
+        size_t copy_size = min(packet->dataLength, max_size);
+        memcpy(buffer, packet->data, copy_size);
         enet_packet_destroy(packet);
-        return sz;
+        return copy_size;
     }
 
     /**
@@ -565,7 +568,9 @@ namespace
         {
             bf_enet_read_event(not_expected_user, timeout);
         }
-        return oldest_packet? oldest_packet->dataLength : 0;
+        if (oldest_packet)
+            return oldest_packet->dataLength;
+        return 0;
     }
 
     /**
@@ -877,8 +882,8 @@ void enet_matchmaking_host_update(void)
     if (!has_pending_ipv4 && !has_pending_ipv6)
         return;
     if (!new_punch) {
-        for (ENetPeer *p = host->peers; p < &host->peers[host->peerCount]; p++) {
-            if (p->state == ENET_PEER_STATE_CONNECTED)
+        for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
+            if (peer->state == ENET_PEER_STATE_CONNECTED)
                 return;
         }
     }
