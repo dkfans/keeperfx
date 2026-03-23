@@ -206,6 +206,7 @@ namespace
 
     TbError create_join_host(ENetAddressType address_type)
     {
+        host_destroy();
         host = enet_host_create(address_type, NULL, MAX_PEERS, NUM_CHANNELS, 0, 0);
         if (!host) {
             LbNetLog("Join: failed to create ENet host\n");
@@ -347,6 +348,10 @@ namespace
                 enet_peer_timeout(client_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
                 return Lb_OK;
             }
+            if (service_result > 0 && (enet_event.type == ENET_EVENT_TYPE_DISCONNECT || enet_event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT)) {
+                LbNetLog("Join: connection rejected by host\n");
+                break;
+            }
             if (service_result > 0) {
                 LbNetLog("Join: unexpected event type=%d\n", (int)enet_event.type);
             } else if (service_result < 0) {
@@ -384,10 +389,12 @@ namespace
             {
                 case ENET_EVENT_TYPE_CONNECT:
                     LbNetLog("ENet: incoming connection accepted\n");
-                    enet_peer_timeout(ev.peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
-                    if (new_user(&user_id))
-                    {
+                    if (new_user(&user_id)) {
+                        enet_peer_timeout(ev.peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
                         ev.peer->data = reinterpret_cast<void *>(user_id);
+                    } else {
+                        LbNetLog("ENet: rejecting peer, no user slot available\n");
+                        enet_peer_disconnect_now(ev.peer, 0);
                     }
                     break;
                 case ENET_EVENT_TYPE_DISCONNECT:

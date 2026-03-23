@@ -262,7 +262,9 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name) {
         NETMSG("ExchangeLogin: login rejected (msg_buffer[0]=%d)", (int)netstate.msg_buffer[0]);
         return Lb_FAIL;
     }
-    ProcessMessage(SERVER_ID, &net_screen_packet, sizeof (struct ScreenPacket));
+    if (netstate.sp->msgready(SERVER_ID, TIMEOUT_JOIN_LOBBY)) {
+        ProcessMessage(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket));
+    }
     if (netstate.my_id == INVALID_USER_ID) {
         NETMSG("ExchangeLogin: login unsuccessful, still INVALID_USER_ID");
         return Lb_FAIL;
