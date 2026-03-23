@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
 #include "pre_inc.h"
 #include "config_crtrstates.h"
 #include "globals.h"
@@ -115,33 +116,40 @@ int64_t value_overrides(const struct NamedField* named_field, const char* value_
     return 0;
 }
 
+#pragma push_macro("game")
+#undef game
 const struct NamedField crstates_states_named_fields[] = {
-    {"NAME",                   0, field(game.conf.crtr_conf.states[0].name),                        0,        0,      0,              creatrstate_desc,  value_name,      assign_null},
-    {"PROCESSFUNCTION",        0, field(game.conf.crtr_conf.states[0].process_state),               0,        0,      0,         process_func_commands,  value_function,  assign_default},
-    {"CLEANUPFUNCTION",        0, field(game.conf.crtr_conf.states[0].cleanup_state),               0,        0,      0,         cleanup_func_commands,  value_function,  assign_default},
-    {"MOVEFROMSLABFUNCTION",   0, field(game.conf.crtr_conf.states[0].move_from_slab),              0,        0,      0,  move_from_slab_func_commands,  value_function,  assign_default},
-    {"MOVECHECKFUNCTION",      0, field(game.conf.crtr_conf.states[0].move_check),                  0,        0,      0,      move_check_func_commands,  value_function,  assign_default},
+    {"NAME",                   0, field_t(struct CreatureStateConfig, name),                        0,        0,      0,              creatrstate_desc,  value_name,      assign_null},
+    {"PROCESSFUNCTION",        0, field_t(struct CreatureStateConfig, process_state),               0,        0,      0,         process_func_commands,  value_function,  assign_default},
+    {"CLEANUPFUNCTION",        0, field_t(struct CreatureStateConfig, cleanup_state),               0,        0,      0,         cleanup_func_commands,  value_function,  assign_default},
+    {"MOVEFROMSLABFUNCTION",   0, field_t(struct CreatureStateConfig, move_from_slab),              0,        0,      0,  move_from_slab_func_commands,  value_function,  assign_default},
+    {"MOVECHECKFUNCTION",      0, field_t(struct CreatureStateConfig, move_check),                  0,        0,      0,      move_check_func_commands,  value_function,  assign_default},
     {"OVERRIDES",             -1, NULL,0,                                                           0,        0,      0,                          NULL,  value_overrides, assign_null},
-    {"STATETYPE",              0, field(game.conf.crtr_conf.states[0].state_type),                  0,        0,      0, creature_state_types_commands,  value_default,   assign_default},
-    {"CAPTIVE",                0, field(game.conf.crtr_conf.states[0].captive),                     0,        0,      1,                          NULL,  value_default,   assign_default},
-    {"TRANSITION",             0, field(game.conf.crtr_conf.states[0].transition),                  0,        0,      1,                          NULL,  value_default,   assign_default},
-    {"FOLLOWBEHAVIOR",         0, field(game.conf.crtr_conf.states[0].follow_behavior),             0,        0,      0,      follow_behavior_commands,  value_default,   assign_default},
-    {"BLOCKSALLSTATECHANGES",  0, field(game.conf.crtr_conf.states[0].blocks_all_state_changes),    0,        0,      1,                          NULL,  value_default,   assign_default},
-    {"SPRITEIDX",              0, field(game.conf.crtr_conf.states[0].sprite_idx),                  0,        0,      0,                          NULL,  value_icon,      assign_icon},
-    {"DISPLAYTHOUGHTBUBBLE",   0, field(game.conf.crtr_conf.states[0].display_thought_bubble),      0,        0,      1,                          NULL,  value_default,   assign_default},
-    {"SNEAKY",                 0, field(game.conf.crtr_conf.states[0].sneaky),                      0,        0,      1,                          NULL,  value_default,   assign_default},
-    {"REACTTOCTA",             0, field(game.conf.crtr_conf.states[0].react_to_cta),                0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"STATETYPE",              0, field_t(struct CreatureStateConfig, state_type),                  0,        0,      0, creature_state_types_commands,  value_default,   assign_default},
+    {"CAPTIVE",                0, field_t(struct CreatureStateConfig, captive),                     0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"TRANSITION",             0, field_t(struct CreatureStateConfig, transition),                  0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"FOLLOWBEHAVIOR",         0, field_t(struct CreatureStateConfig, follow_behavior),             0,        0,      0,      follow_behavior_commands,  value_default,   assign_default},
+    {"BLOCKSALLSTATECHANGES",  0, field_t(struct CreatureStateConfig, blocks_all_state_changes),    0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"SPRITEIDX",              0, field_t(struct CreatureStateConfig, sprite_idx),                  0,        0,      0,                          NULL,  value_icon,      assign_icon},
+    {"DISPLAYTHOUGHTBUBBLE",   0, field_t(struct CreatureStateConfig, display_thought_bubble),      0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"SNEAKY",                 0, field_t(struct CreatureStateConfig, sneaky),                      0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"REACTTOCTA",             0, field_t(struct CreatureStateConfig, react_to_cta),                0,        0,      1,                          NULL,  value_default,   assign_default},
     {NULL},
 };
+#pragma pop_macro("game")
+
+static int32_t* get_crstates_count(void) { return &game.conf.crtr_conf.states_count; }
+static void* get_crstates_base(void) { return game.conf.crtr_conf.states; }
+
 
 const struct NamedFieldSet crstates_states_named_fields_set = {
-    &game.conf.crtr_conf.states_count,
+    get_crstates_count,
     "state",
     crstates_states_named_fields,
     creatrstate_desc,
     CREATURE_STATES_MAX,
     sizeof(game.conf.crtr_conf.states[0]),
-    game.conf.crtr_conf.states,
+    get_crstates_base,
 };
 
 static TbBool load_creaturestates_config_file(const char *fname, unsigned short flags);

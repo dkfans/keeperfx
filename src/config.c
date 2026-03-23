@@ -980,7 +980,7 @@ TbBool parse_named_field_block(const char *buf, long len, const char *config_tex
 
 void set_defaults(const struct NamedFieldSet* named_fields_set, const char *config_textname)
 {
-  memset((void *)named_fields_set->struct_base, 0, named_fields_set->struct_size * named_fields_set->max_count);
+  memset((void *)named_fields_set->get_struct_base(), 0, named_fields_set->struct_size * named_fields_set->max_count);
 
   const struct NamedField* name_NamedField = NULL;
 
@@ -1037,8 +1037,8 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
         const int i = natoi(&blockname[basename_len], blocknamelen - basename_len);
         if (i < 0 || i >= named_fields_set->max_count) {
             continue;
-        } else if (i >= *named_fields_set->count_field) {
-            *named_fields_set->count_field = i + 1;
+        } else if (i >= *named_fields_set->get_count()) {
+            *named_fields_set->get_count() = i + 1;
         }
         char blockname_null[COMMAND_WORD_LEN];
         strncpy(blockname_null, blockname, blocknamelen);

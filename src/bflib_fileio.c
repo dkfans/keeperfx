@@ -145,7 +145,7 @@ int create_directory_for_file(const char * fname)
     memcpy(tmp, fname, separator - fname);
     tmp[separator - fname] = 0;
 #if defined(_WIN32)
-    if (mkdir(tmp) != 0) {
+    if (_mkdir(tmp) != 0) {
 #else
     if (mkdir(tmp, 0755) != 0) {
 #endif
