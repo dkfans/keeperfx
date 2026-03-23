@@ -209,6 +209,50 @@
             }
         },
         {
+            "name": "x86-windows-static-debug-asan",
+            "displayName": "MSVC x86 Debug + ASan (static)",
+            "description": "Windows x86 Debug with AddressSanitizer for catching OOB/UAF bugs",
+            "inherits": [ "MSVC-x86-Base", "Debug" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "KEEPERFX_SANITIZERS": "ON"
+            }
+        },
+
+        {
+            "name": "x86-windows-static-reldebug-asan",
+            "displayName": "MSVC x86 RelDebug + ASan (static)",
+            "description": "Windows x86 RelWithDebInfo with AddressSanitizer (better perf than Debug)",
+            "inherits": [ "MSVC-x86-Base", "Release" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "KEEPERFX_SANITIZERS": "ON"
+            }
+        },
+
+        {
+            "name": "x64-windows-static-debug-asan",
+            "displayName": "MSVC x64 Debug + ASan (static)",
+            "description": "Windows x64 Debug with AddressSanitizer for catching OOB/UAF bugs",
+            "inherits": [ "MSVC-x64-Base", "Debug" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "KEEPERFX_SANITIZERS": "ON"
+            }
+        },
+
+        {
+            "name": "x64-windows-static-reldebug-asan",
+            "displayName": "MSVC x64 RelDebug + ASan (static)",
+            "description": "Windows x64 RelWithDebInfo with AddressSanitizer (better perf than Debug)",
+            "inherits": [ "MSVC-x64-Base", "Release" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "KEEPERFX_SANITIZERS": "ON"
+            }
+        },
+
+        {
             "name": "cross-base",
             "displayName": "Cross-Compile Base",
             "description": "Base for Docker/Linux cross-compile builds (no vcpkg; toolchain set per-preset)",
@@ -490,6 +534,31 @@
             "inherits": "StandardLog",
             "configurePreset": "x64-windows-static-release"
         },
+        {
+            "name": "x86-windows-static-debug-asan",
+            "displayName": "MSVC x86 Debug + ASan (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x86-windows-static-debug-asan"
+        },
+        {
+            "name": "x86-windows-static-reldebug-asan",
+            "displayName": "MSVC x86 RelDebug + ASan (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x86-windows-static-reldebug-asan"
+        },
+        {
+            "name": "x64-windows-static-debug-asan",
+            "displayName": "MSVC x64 Debug + ASan (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x64-windows-static-debug-asan"
+        },
+        {
+            "name": "x64-windows-static-reldebug-asan",
+            "displayName": "MSVC x64 RelDebug + ASan (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x64-windows-static-reldebug-asan"
+        },
+
         {
             "name": "windows-x64-release",
             "displayName": "Windows x64 Release",
