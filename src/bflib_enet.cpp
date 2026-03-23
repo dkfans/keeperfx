@@ -40,7 +40,6 @@
 #define HOLEPUNCH_CONNECT_DELAY_MS 500
 #define HOLEPUNCH_PRE_CONNECT_DELAY_MS 500
 #define ENET_ADDRESS_BUFFER_SIZE 128
-enum { SLOT_IPV4, SLOT_IPV6, SLOT_COUNT };
 
 uint16_t external_port = 0;
 
@@ -259,31 +258,33 @@ namespace
             ENetPeer *peer;
             const ENetAddress *address;
             const char *name;
+            bool is_ipv6;
         };
-        struct ConnectionSlot slot[SLOT_COUNT] = {
-            { host,      nullptr, &ipv4_address, "IPv4" },
-            { ipv6_host, nullptr, &ipv6_address, "IPv6" },
-        };
-        if (has_ipv4) slot[SLOT_IPV4].peer = enet_host_connect(slot[SLOT_IPV4].network_host, slot[SLOT_IPV4].address, NUM_CHANNELS, 0);
-        if (has_ipv6) slot[SLOT_IPV6].peer = enet_host_connect(slot[SLOT_IPV6].network_host, slot[SLOT_IPV6].address, NUM_CHANNELS, 0);
+        ConnectionSlot ipv4_slot = { host,      nullptr, &ipv4_address, "IPv4", false };
+        ConnectionSlot ipv6_slot = { ipv6_host, nullptr, &ipv6_address, "IPv6", true  };
+        ConnectionSlot *slots[] = { &ipv4_slot, &ipv6_slot };
+        if (has_ipv4) ipv4_slot.peer = enet_host_connect(ipv4_slot.network_host, ipv4_slot.address, NUM_CHANNELS, 0);
+        if (has_ipv6) ipv6_slot.peer = enet_host_connect(ipv6_slot.network_host, ipv6_slot.address, NUM_CHANNELS, 0);
         TbClockMSec deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
         while (LbTimerClock() < deadline) {
             ENetEvent enet_event;
-            for (int slot_index = 0; slot_index < SLOT_COUNT; slot_index++) {
-                if (!slot[slot_index].peer) continue;
-                if (enet_host_service(slot[slot_index].network_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
-                    if (slot_index == SLOT_IPV4 && has_ipv6)
+            for (ConnectionSlot *slot : slots) {
+                if (!slot->peer) continue;
+                if (enet_host_service(slot->network_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
+                    if (!slot->is_ipv6 && has_ipv6)
                         LbNetLog("Join: IPv6 failed, likely due to a firewall on the host. Falling back to IPv4.\n");
-                    LbNetLog("Join: connected via %s\n", slot[slot_index].name);
-                    enet_peer_timeout(slot[slot_index].peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
-                    int other_slot = 1 - slot_index;
-                    destroy_host_and_peer(slot[other_slot].network_host, slot[other_slot].peer);
-                    if (slot_index == SLOT_IPV6)
+                    LbNetLog("Join: connected via %s\n", slot->name);
+                    enet_peer_timeout(slot->peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
+                    for (ConnectionSlot *other : slots) {
+                        if (other != slot)
+                            destroy_host_and_peer(other->network_host, other->peer);
+                    }
+                    if (slot->is_ipv6)
                         host = ipv6_host;
-                    client_peer = slot[slot_index].peer;
+                    client_peer = slot->peer;
                     return Lb_OK;
                 }
-                holepunch_punch_to(slot[slot_index].network_host, slot[slot_index].address);
+                holepunch_punch_to(slot->network_host, slot->address);
             }
             TbClockMSec remaining = deadline - LbTimerClock();
             enet_uint32 wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
@@ -293,7 +294,7 @@ namespace
             display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
         }
         LbNetLog("Join: connection timed out or failed\n");
-        destroy_host_and_peer(slot[SLOT_IPV6].network_host, slot[SLOT_IPV6].peer);
+        destroy_host_and_peer(ipv6_slot.network_host, ipv6_slot.peer);
         host_destroy();
         return Lb_FAIL;
     }
