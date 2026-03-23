@@ -146,8 +146,11 @@
 short do_draw;
 short default_loc_player = 0;
 struct StartupParameters start_params;
-extern "C" char autostart_multiplayer_campaign[80] = "";
-extern "C" int autostart_multiplayer_level = 0;
+// Defined with C linkage so .c translation units can reference them without name mangling
+extern "C" {
+    char autostart_multiplayer_campaign[80] = "";
+    int  autostart_multiplayer_level = 0;
+}
 int32_t game_num_fps;
 
 int32_t game_num_fps_draw_current = 0;
