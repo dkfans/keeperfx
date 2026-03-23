@@ -144,9 +144,9 @@ int create_directory_for_file(const char * fname)
   while (separator != NULL) {
     memcpy(tmp, fname, separator - fname);
     tmp[separator - fname] = 0;
-#if defined(_WIN32)
+#if defined(KFX_COMPILER_MSVC)
     if (_mkdir(tmp) != 0) {
-#else
+#elif defined(KFX_COMPILER_GCC)
     if (mkdir(tmp, 0755) != 0) {
 #endif
       if (errno != EEXIST) {
