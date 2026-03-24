@@ -253,48 +253,39 @@ namespace
         if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
         if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
         SDL_Delay(HOLEPUNCH_PRE_CONNECT_DELAY_MS);
-        struct ConnectionSlot {
-            ENetHost *network_host;
-            ENetPeer *peer;
-            const ENetAddress *address;
-            const char *name;
-            bool is_ipv6;
-        };
-        ConnectionSlot ipv4_slot = { host,      nullptr, &ipv4_address, "IPv4", false };
-        ConnectionSlot ipv6_slot = { ipv6_host, nullptr, &ipv6_address, "IPv6", true  };
-        ConnectionSlot *slots[] = { &ipv4_slot, &ipv6_slot };
-        if (has_ipv4) ipv4_slot.peer = enet_host_connect(ipv4_slot.network_host, ipv4_slot.address, NUM_CHANNELS, 0);
-        if (has_ipv6) ipv6_slot.peer = enet_host_connect(ipv6_slot.network_host, ipv6_slot.address, NUM_CHANNELS, 0);
+        ENetPeer *ipv4_peer = nullptr;
+        ENetPeer *ipv6_peer = nullptr;
+        if (has_ipv4) { ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0); }
+        if (has_ipv6) { ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, 0); }
         TbClockMSec deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
+        ENetEvent enet_event;
         while (LbTimerClock() < deadline) {
-            ENetEvent enet_event;
-            for (ConnectionSlot *slot : slots) {
-                if (!slot->peer) continue;
-                if (enet_host_service(slot->network_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
-                    if (!slot->is_ipv6 && has_ipv6)
-                        LbNetLog("Join: IPv6 failed, likely due to a firewall on the host. Falling back to IPv4.\n");
-                    LbNetLog("Join: connected successfully via matchmaking server (%s)\n", slot->name);
-                    enet_peer_timeout(slot->peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
-                    for (ConnectionSlot *other : slots) {
-                        if (other != slot)
-                            destroy_host_and_peer(other->network_host, other->peer);
-                    }
-                    if (slot->is_ipv6)
-                        host = ipv6_host;
-                    client_peer = slot->peer;
-                    return Lb_OK;
-                }
-                holepunch_punch_to(slot->network_host, slot->address);
+            if (ipv4_peer && enet_host_service(host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
+                if (has_ipv6) { LbNetLog("Join: IPv6 failed, likely due to a firewall on the host. Falling back to IPv4.\n"); }
+                LbNetLog("Join: connected successfully via matchmaking server (IPv4)\n");
+                enet_peer_timeout(ipv4_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
+                destroy_host_and_peer(ipv6_host, ipv6_peer);
+                client_peer = ipv4_peer;
+                return Lb_OK;
             }
+            if (ipv6_peer && enet_host_service(ipv6_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
+                LbNetLog("Join: connected successfully via matchmaking server (IPv6)\n");
+                enet_peer_timeout(ipv6_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
+                host_destroy();
+                host = ipv6_host;
+                client_peer = ipv6_peer;
+                return Lb_OK;
+            }
+            if (ipv4_peer) { holepunch_punch_to(host, &ipv4_address); }
+            if (ipv6_peer) { holepunch_punch_to(ipv6_host, &ipv6_address); }
             TbClockMSec remaining = deadline - LbTimerClock();
             enet_uint32 wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
-            if (remaining < (TbClockMSec)wait_ms)
-                wait_ms = (enet_uint32)remaining;
+            if (remaining < (TbClockMSec)wait_ms) { wait_ms = (enet_uint32)remaining; }
             SDL_Delay(wait_ms);
             display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
         }
         LbNetLog("Join: connection timed out or failed\n");
-        destroy_host_and_peer(ipv6_slot.network_host, ipv6_slot.peer);
+        destroy_host_and_peer(ipv6_host, ipv6_peer);
         host_destroy();
         return Lb_FAIL;
     }
