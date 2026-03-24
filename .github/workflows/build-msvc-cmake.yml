@@ -2,14 +2,18 @@ name: Build MSVC (CMake)
 
 on:
   push:
-    branches: [master]
+    branches: [master, develop]
   pull_request:
-    branches: [master]
+    branches: [master, develop]
 
 jobs:
   build-msvc-x86:
     name: "MSVC x86 Release"
     runs-on: windows-latest
+
+    permissions:
+      contents: read
+      packages: write
 
     env:
       VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
@@ -25,6 +29,18 @@ jobs:
         script: |
           core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+    - name: Setup vcpkg binary caching via GitHub Packages
+      shell: pwsh
+      env:
+        GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        $owner = "${{ github.repository_owner }}"
+        $source = "https://nuget.pkg.github.com/${owner}/index.json"
+        nuget sources add -Name "GitHub" -Source $source -Username $owner -Password $env:GH_PACKAGES_TOKEN -StorePasswordInClearText
+        nuget setapikey $env:GH_PACKAGES_TOKEN -Source "GitHub"
+        $mode = if ("${{ github.event_name }}" -eq "push") { "readwrite" } else { "read" }
+        echo "VCPKG_BINARY_SOURCES=clear;x-gha,readwrite;nuget,GitHub,${mode}" >> $env:GITHUB_ENV
 
     - name: Init vcpkg submodule
       run: git submodule update --init external/vcpkg
