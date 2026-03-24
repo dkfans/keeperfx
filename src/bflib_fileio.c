@@ -30,6 +30,9 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <time.h>
+#if defined(_WIN32)
+#include <direct.h>
+#endif
 #if !defined(_WIN32)
 #include <dirent.h>
 #include <strings.h>
@@ -144,9 +147,9 @@ int create_directory_for_file(const char * fname)
   while (separator != NULL) {
     memcpy(tmp, fname, separator - fname);
     tmp[separator - fname] = 0;
-#if defined(KFX_COMPILER_MSVC)
+#if defined(_WIN32)
     if (_mkdir(tmp) != 0) {
-#elif defined(KFX_COMPILER_GCC)
+#else
     if (mkdir(tmp, 0755) != 0) {
 #endif
       if (errno != EEXIST) {
