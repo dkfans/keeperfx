@@ -216,7 +216,7 @@ namespace
 
     TbError join_via_holepunch(TbClockMSec join_start_ms)
     {
-        LbNetLog("Join: connecting via UDP hole punching\n");
+        LbNetLog("Join: connecting via matchmaking server (UDP hole punching)\n");
         if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
             return Lb_FAIL;
         uint16_t my_external_port = holepunch_stun_query(host, NULL, 0);
@@ -273,7 +273,7 @@ namespace
                 if (enet_host_service(slot->network_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
                     if (!slot->is_ipv6 && has_ipv6)
                         LbNetLog("Join: IPv6 failed, likely due to a firewall on the host. Falling back to IPv4.\n");
-                    LbNetLog("Join: connected via %s\n", slot->name);
+                    LbNetLog("Join: connected successfully via matchmaking server (%s)\n", slot->name);
                     enet_peer_timeout(slot->peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
                     for (ConnectionSlot *other : slots) {
                         if (other != slot)
@@ -303,8 +303,10 @@ namespace
     {
         ENetAddress connect_address;
         TbClockMSec join_start_ms = LbTimerClock();
+        const char *join_type = nullptr;
         if (strncmp(join_lobby_id, "LAN:", 4) == 0) {
             LbNetLog("Join: connecting via LAN\n");
+            join_type = "LAN";
             char lan_peer_address[MATCHMAKING_IP_MAX];
             snprintf(lan_peer_address, sizeof(lan_peer_address), "%s", join_lobby_id + 4);
             join_lobby_id[0] = '\0';
@@ -328,8 +330,13 @@ namespace
             if (port == 0 || address_string[0] == '\0')
                 return Lb_FAIL;
             ENetAddressType connect_type = ENET_ADDRESS_TYPE_IPV4;
-            if (strchr(address_string, ':') != NULL)
+            if (strchr(address_string, ':') != NULL) {
                 connect_type = ENET_ADDRESS_TYPE_IPV6;
+                join_type = "direct connect (IPv6)";
+            } else {
+                join_type = "direct connect (IPv4)";
+            }
+            LbNetLog("Join: connecting via %s\n", join_type);
             if (enet_address_set_host(&connect_address, connect_type, address_string) < 0)
                 return Lb_FAIL;
             connect_address.port = port;
@@ -352,7 +359,7 @@ namespace
                 service_wait_ms = (enet_uint32)time_remaining;
             int service_result = enet_host_service(host, &enet_event, service_wait_ms);
             if (service_result > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
-                LbNetLog("Join: connected successfully\n");
+                LbNetLog("Join: connected successfully via %s\n", join_type);
                 enet_peer_timeout(client_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
                 return Lb_OK;
             }
