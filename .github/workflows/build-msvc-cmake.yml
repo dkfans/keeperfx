@@ -1,4 +1,4 @@
-name: Build MSVC (CMake)
+name: CI Build
 
 on:
   push:
@@ -7,6 +7,68 @@ on:
     branches: [master, develop]
 
 jobs:
+  build-mingw-x86:
+    name: "MinGW Windows x86"
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - uses: dkfans/setup-cpp@master
+
+    - name: Update system
+      run: |
+        set -eux
+        sudo apt update
+        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64
+
+    - name: Build
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        make BUILD_NUMBER=$BUILD_NUMBER standard
+
+  build-linux-x86_64:
+    name: "Linux x86_64"
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Update system
+      run: |
+        set -eux
+        sudo apt update
+        sudo apt install -y \
+          build-essential \
+          pkg-config \
+          curl \
+          libavcodec-dev \
+          libavformat-dev \
+          libavutil-dev \
+          libopenal-dev \
+          libluajit-5.1-dev \
+          libminizip-dev \
+          libnatpmp-dev \
+          libspng-dev \
+          libsdl2-dev \
+          libsdl2-image-dev \
+          libsdl2-mixer-dev \
+          libsdl2-net-dev \
+          libswresample-dev \
+          libminiupnpc-dev \
+          zlib1g-dev
+
+    - name: Build
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        make BUILD_NUMBER=$BUILD_NUMBER -f linux.mk
+
   build-msvc-x86:
     name: "MSVC x86 Release"
     runs-on: windows-latest
