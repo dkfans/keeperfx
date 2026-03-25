@@ -60,6 +60,20 @@ char video_view_distance_level;
 }
 #endif
 /******************************************************************************/
+
+static uint8_t num_definable_keys()
+{
+    uint8_t num = 0;
+
+    for (int i = 0; i < GAME_KEYS_COUNT; i++)
+    {
+        if (game_key_settings[i].visibility == 1) {
+            num++;
+        }
+    }
+    return num;
+}
+
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset != 0)) & LbBtnF_Enabled;
@@ -71,8 +85,8 @@ void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < (game.easter_eggs_enabled ? GAME_KEYS_COUNT : GAME_KEYS_COUNT - CHEAT_GAME_KEYS)-1)) & LbBtnF_Enabled;
-    if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < (game.easter_eggs_enabled ? GAME_KEYS_COUNT : GAME_KEYS_COUNT - CHEAT_GAME_KEYS)-(frontend_define_keys_menu_items_visible-1)))
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < num_definable_keys()-1)) & LbBtnF_Enabled;
+    if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < num_definable_keys()-(frontend_define_keys_menu_items_visible-1)))
     {
         define_key_scroll_offset++;
     }
@@ -81,7 +95,7 @@ void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
     long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < (game.easter_eggs_enabled ? GAME_KEYS_COUNT : GAME_KEYS_COUNT - CHEAT_GAME_KEYS))) & LbBtnF_Enabled;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < num_definable_keys())) & LbBtnF_Enabled;
 }
 
 void frontend_define_key_up(struct GuiButton *gbtn)
@@ -93,14 +107,14 @@ void frontend_define_key_up(struct GuiButton *gbtn)
 
 void frontend_define_key_down(struct GuiButton *gbtn)
 {
-    if (define_key_scroll_offset < (game.easter_eggs_enabled ? GAME_KEYS_COUNT : GAME_KEYS_COUNT - CHEAT_GAME_KEYS)-(frontend_define_keys_menu_items_visible-1)) {
+    if (define_key_scroll_offset < num_definable_keys()-(frontend_define_keys_menu_items_visible-1)) {
         define_key_scroll_offset++;
     }
 }
 
 void frontend_define_key_scroll(struct GuiButton *gbtn)
 {
-    define_key_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_define_keys_menu_items_visible-2, (game.easter_eggs_enabled ? GAME_KEYS_COUNT : GAME_KEYS_COUNT - CHEAT_GAME_KEYS));
+    define_key_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_define_keys_menu_items_visible-2, num_definable_keys());
 }
 
 void frontend_define_key(struct GuiButton *gbtn)
@@ -113,14 +127,14 @@ void frontend_define_key(struct GuiButton *gbtn)
 
 void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 {
-    frontend_draw_scroll_tab(gbtn, define_key_scroll_offset, frontend_define_keys_menu_items_visible-2, game.easter_eggs_enabled ? GAME_KEYS_COUNT : GAME_KEYS_COUNT - CHEAT_GAME_KEYS);
+    frontend_draw_scroll_tab(gbtn, define_key_scroll_offset, frontend_define_keys_menu_items_visible-2, num_definable_keys());
 }
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
 {
     long content = gbtn->content.lval;
     long key_id = define_key_scroll_offset - content - 1;
-    if (key_id >= (game.easter_eggs_enabled ? GAME_KEYS_COUNT : GAME_KEYS_COUNT - CHEAT_GAME_KEYS)) {
+    if (key_id >= num_definable_keys()) {
         return;
     }
     if (frontend_mouse_over_button == content) {

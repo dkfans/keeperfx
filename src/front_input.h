@@ -29,8 +29,6 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-#define CHEAT_GAME_KEYS 6 // number of game keys that are considered cheat keys and are only enabled when Easter Eggs are enabled
-
 enum GameKeys {
     Gkey_MoveUp = 0,
     Gkey_MoveDown,
