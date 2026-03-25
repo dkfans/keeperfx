@@ -7189,12 +7189,12 @@ msgstr "Reducere Mappam Parvam"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "Instantia Proxima"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "Instantia Prior"
 
 #: guitext:1091

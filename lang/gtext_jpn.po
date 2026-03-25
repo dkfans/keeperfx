@@ -7123,12 +7123,12 @@ msgstr "ミニマップ縮小"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "次術"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "前術"
 
 #: guitext:1091

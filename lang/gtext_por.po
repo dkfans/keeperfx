@@ -7391,12 +7391,12 @@ msgstr "Reduzir Minimapa"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "Próxima Instância"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "Instância Anterior"
 
 #: guitext:1091

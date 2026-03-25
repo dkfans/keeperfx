@@ -7159,12 +7159,12 @@ msgstr "Minikaart uitzoomen"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "Volgende instantie"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "Vorige instantie"
 
 #: guitext:1091

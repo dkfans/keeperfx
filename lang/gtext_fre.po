@@ -7416,12 +7416,12 @@ msgstr "Dézoomer minicarte"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "Instance suivante"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "Instance précédente"
 
 #: guitext:1091

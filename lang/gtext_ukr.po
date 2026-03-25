@@ -7240,12 +7240,12 @@ msgstr "Зменшити міні-карту"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "Наступний екземпляр"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "Попередній екземпляр"
 
 #: guitext:1091

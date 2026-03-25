@@ -6784,12 +6784,12 @@ msgstr "縮小小地圖"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "下一個實例"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "上一個實例"
 
 #: guitext:1091

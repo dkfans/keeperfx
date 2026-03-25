@@ -7167,12 +7167,12 @@ msgstr "미니맵 축소"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "다음 인스턴스"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "이전 인스턴스"
 
 #: guitext:1091

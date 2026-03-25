@@ -7446,12 +7446,12 @@ msgstr "Minikarte verkleinern"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "Nächste Instanz"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "Vorherige Instanz"
 
 #: guitext:1091

@@ -6570,12 +6570,12 @@ msgstr "Уменьшить мини-карту"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "Следующий экземпляр"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "Предыдущий экземпляр"
 
 #: guitext:1091

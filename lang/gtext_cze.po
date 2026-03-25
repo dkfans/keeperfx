@@ -7159,12 +7159,12 @@ msgstr "Oddálit minimapu"
 
 #: guitext:1089
 msgctxt "Game controls"
-msgid "Next Instance"
+msgid "Next Ability"
 msgstr "Další instance"
 
 #: guitext:1090
 msgctxt "Game controls"
-msgid "Prev Instance"
+msgid "Previous Ability"
 msgstr "Předchozí instance"
 
 #: guitext:1091
