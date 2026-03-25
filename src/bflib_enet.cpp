@@ -39,6 +39,7 @@
 #define PEER_TIMEOUT_MAX_MS 5000
 #define HOLEPUNCH_CONNECT_DELAY_MS 500
 #define HOLEPUNCH_PRE_CONNECT_DELAY_MS 500
+#define HAPPY_EYEBALLS_DELAY_MS 250
 #define ENET_ADDRESS_BUFFER_SIZE 128
 
 uint16_t external_ipv4_port = 0;
@@ -124,7 +125,9 @@ namespace
         host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, MAX_PEERS, NUM_CHANNELS, 0, 0);
         if (host) {
             host_is_dual_stack = 1;
+            LbNetLog("ENet: host created (dual-stack IPv4+IPv6) on port %d\n", (int)address.port);
         } else {
+            LbNetLog("ENet: dual-stack host creation failed, falling back to IPv4-only\n");
             enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV4);
             address.port = actual_port;
             host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, &address, MAX_PEERS, NUM_CHANNELS, 0, 0);
@@ -250,23 +253,22 @@ namespace
         }
         join_lobby_id[0] = '\0';
         enet_host_compress_with_range_coder(host);
-        if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
         if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
+        if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
         SDL_Delay(HOLEPUNCH_PRE_CONNECT_DELAY_MS);
         ENetPeer *ipv4_peer = nullptr;
         ENetPeer *ipv6_peer = nullptr;
-        if (has_ipv4) { ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0); }
-        if (has_ipv6) { ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, 0); }
+        if (has_ipv6) {
+            ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, 0);
+        } else if (has_ipv4) {
+            ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
+        }
         TbClockMSec deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
+        TbClockMSec ipv4_delay_end = LbTimerClock() + HAPPY_EYEBALLS_DELAY_MS;
         ENetEvent enet_event;
         while (LbTimerClock() < deadline) {
-            if (ipv4_peer && enet_host_service(host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
-                if (has_ipv6) { LbNetLog("Join: IPv6 failed, likely due to a firewall on the host. Falling back to IPv4.\n"); }
-                LbNetLog("Join: connected successfully via matchmaking server (IPv4)\n");
-                enet_peer_timeout(ipv4_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
-                destroy_host_and_peer(ipv6_host, ipv6_peer);
-                client_peer = ipv4_peer;
-                return Lb_OK;
+            if (has_ipv4 && ipv4_peer == nullptr && LbTimerClock() >= ipv4_delay_end) {
+                ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
             }
             if (ipv6_peer && enet_host_service(ipv6_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
                 LbNetLog("Join: connected successfully via matchmaking server (IPv6)\n");
@@ -276,11 +278,25 @@ namespace
                 client_peer = ipv6_peer;
                 return Lb_OK;
             }
-            if (ipv4_peer) { holepunch_punch_to(host, &ipv4_address); }
+            if (ipv4_peer && enet_host_service(host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
+                if (ipv6_peer) { LbNetLog("Join: IPv4 connected before IPv6 did, so IPv6 will not be used.\n"); }
+                LbNetLog("Join: connected successfully via matchmaking server (IPv4)\n");
+                enet_peer_timeout(ipv4_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
+                destroy_host_and_peer(ipv6_host, ipv6_peer);
+                client_peer = ipv4_peer;
+                return Lb_OK;
+            }
             if (ipv6_peer) { holepunch_punch_to(ipv6_host, &ipv6_address); }
+            if (ipv4_peer) { holepunch_punch_to(host, &ipv4_address); }
             TbClockMSec remaining = deadline - LbTimerClock();
             enet_uint32 wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
             if (remaining < (TbClockMSec)wait_ms) { wait_ms = (enet_uint32)remaining; }
+            if (has_ipv4 && ipv4_peer == nullptr) {
+                TbClockMSec time_to_ipv4 = ipv4_delay_end - LbTimerClock();
+                if (time_to_ipv4 > 0 && (TbClockMSec)wait_ms > time_to_ipv4) {
+                    wait_ms = (enet_uint32)time_to_ipv4;
+                }
+            }
             SDL_Delay(wait_ms);
             display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
         }
@@ -877,6 +893,8 @@ void enet_matchmaking_host_update(void)
         has_pending_ipv6 = host_is_dual_stack && resolve_punch_address(punch_addresses.ipv6, ENET_ADDRESS_TYPE_IPV6, punch_addresses.ipv6_port, &pending_ipv6);
         if (has_pending_ipv4 || has_pending_ipv6)
             LbNetLog("Host: received punch ipv4=%s ipv6=%s ipv4_port=%d ipv6_port=%d\n", punch_addresses.ipv4, punch_addresses.ipv6, punch_addresses.ipv4_port, punch_addresses.ipv6_port);
+        if (!has_pending_ipv6 && punch_addresses.ipv6[0] != '\0')
+            LbNetLog("Host: IPv6 punch skipped (host is not dual-stack)\n");
     }
     if (!has_pending_ipv4 && !has_pending_ipv6)
         return;
@@ -886,10 +904,10 @@ void enet_matchmaking_host_update(void)
                 return;
         }
     }
-    if (has_pending_ipv4)
-        holepunch_punch_to(host, &pending_ipv4);
     if (has_pending_ipv6)
         holepunch_punch_to(host, &pending_ipv6);
+    if (has_pending_ipv4)
+        holepunch_punch_to(host, &pending_ipv4);
 }
 
 struct NetSP *InitEnetSP()
