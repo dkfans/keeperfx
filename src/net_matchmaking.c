@@ -195,7 +195,7 @@ static void parse_punch_addresses(const char *json, PunchAddresses *output)
     *output = (PunchAddresses){0};
     json_parse_string(json, "peerIpv4", output->ipv4, MATCHMAKING_IP_MAX);
     json_parse_string(json, "peerIpv6", output->ipv6, MATCHMAKING_IP_MAX);
-    json_parse_int(json, "peerPort", &output->ipv4_port);
+    json_parse_int(json, "peerIpv4Port", &output->ipv4_port);
     output->ipv6_port = output->ipv4_port;
     json_parse_int(json, "peerIpv6Port", &output->ipv6_port);
 }
@@ -333,7 +333,7 @@ void matchmaking_refresh_sessions(void)
     SDL_UnlockMutex(mutex);
 }
 
-int matchmaking_create(const char *name, int udp_port)
+int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
 {
     char escaped_lobby_name[MATCHMAKING_NAME_MAX * 2];
     char request_message[SEND_BUFFER_SIZE];
@@ -356,8 +356,8 @@ int matchmaking_create(const char *name, int udp_port)
     }
     escaped_lobby_name[write_pos] = '\0';
     snprintf(request_message, sizeof(request_message),
-        "{\"action\":\"create\",\"name\":\"%s\",\"port\":%d,\"version\":\"%s\",\"ipv4\":\"%s\",\"ipv6\":\"%s\"}",
-        escaped_lobby_name, udp_port, MATCHMAKING_VERSION, local_ipv4, local_ipv6);
+        "{\"action\":\"create\",\"name\":\"%s\",\"ipv4Port\":%d,\"ipv6Port\":%d,\"version\":\"%s\",\"ipv4\":\"%s\",\"ipv6\":\"%s\"}",
+        escaped_lobby_name, udp_ipv4_port, udp_ipv6_port, MATCHMAKING_VERSION, local_ipv4, local_ipv6);
     int bytes_received = websocket_exchange(request_message, response_buffer, sizeof(response_buffer));
     if (bytes_received > 0)
         LbNetLog("Matchmaking: create response (%d bytes): %s\n", bytes_received, response_buffer);
@@ -387,7 +387,7 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
         return -1;
     }
     snprintf(request_message, sizeof(request_message),
-        "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"udpPort\":%d,\"udpIpv6Port\":%d,\"udpIpv4\":\"%s\",\"udpIpv6\":\"%s\"}",
+        "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"myIpv4Port\":%d,\"myIpv6Port\":%d,\"myIpv4\":\"%s\",\"myIpv6\":\"%s\"}",
         lobby_id, udp_ipv4_port, udp_ipv6_port, local_ipv4, local_ipv6);
     if (websocket_send(request_message) != 0) {
         SDL_UnlockMutex(mutex);

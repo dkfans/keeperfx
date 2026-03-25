@@ -41,7 +41,7 @@ unsigned int GetClientOutgoingDataTotal();
 unsigned int GetClientIncomingDataTotal();
 unsigned int GetClientReliableCommandsInFlight();
 void enet_matchmaking_host_update(void);
-extern uint16_t external_port;
+extern uint16_t external_ipv4_port;
 
 #ifdef __cplusplus
 }

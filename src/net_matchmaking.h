@@ -49,7 +49,7 @@ void matchmaking_connect_async(void);
 int matchmaking_connect(void);
 void matchmaking_disconnect(void);
 void matchmaking_refresh_sessions(void);
-int matchmaking_create(const char *name, int udp_port);
+int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port);
 int matchmaking_has_public_ipv6(void);
 int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output);
 int matchmaking_poll_punch(PunchAddresses *output);

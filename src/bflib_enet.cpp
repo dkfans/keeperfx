@@ -41,7 +41,7 @@
 #define HOLEPUNCH_PRE_CONNECT_DELAY_MS 500
 #define ENET_ADDRESS_BUFFER_SIZE 128
 
-uint16_t external_port = 0;
+uint16_t external_ipv4_port = 0;
 
 namespace
 {
@@ -134,7 +134,7 @@ namespace
         }
         enet_host_compress_with_range_coder(host);
         port_forward_add_mapping(address.port);
-        external_port = holepunch_stun_query(host, NULL, 0);
+        external_ipv4_port = holepunch_stun_query(host, NULL, 0);
         return Lb_OK;
     }
 
@@ -219,8 +219,8 @@ namespace
         LbNetLog("Join: connecting via matchmaking server (UDP hole punching)\n");
         if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
             return Lb_FAIL;
-        uint16_t my_external_port = holepunch_stun_query(host, NULL, 0);
-        if (my_external_port == 0)
+        uint16_t my_external_ipv4_port = holepunch_stun_query(host, NULL, 0);
+        if (my_external_ipv4_port == 0)
             LbNetLog("Join: STUN failed, proceeding with port 0\n");
         ENetHost *ipv6_host = nullptr;
         int my_ipv6_port = 0;
@@ -232,7 +232,7 @@ namespace
             }
         }
         PunchAddresses punch_addresses;
-        if (matchmaking_punch(join_lobby_id, (int)my_external_port, my_ipv6_port, &punch_addresses) != 0) {
+        if (matchmaking_punch(join_lobby_id, (int)my_external_ipv4_port, my_ipv6_port, &punch_addresses) != 0) {
             LbNetLog("Join: matchmaking_punch failed\n");
             destroy_host_and_peer(ipv6_host, nullptr);
             host_destroy();
