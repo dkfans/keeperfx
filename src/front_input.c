@@ -336,11 +336,20 @@ int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
       if (!result)
       {
             if ((key_id == Gkey_FrameSkipIncrease) && is_key_pressed(KC_EQUALS, KMod_CONTROL))
+            {
                 result = 1;
+                *val = KC_EQUALS;
+            }
             else if ((key_id == Gkey_FrameSkipDecrease) && is_key_pressed(KC_MINUS, KMod_CONTROL))
+            {
                 result = 1;
+                *val = KC_MINUS;
+            }
             else if ((key_id == Gkey_CheatMenu1) && is_key_pressed(KC_RETURN, KMod_SHIFT))
+            {
                 result = 1;
+                *val = KC_RETURN;
+            }
       }
   }
 
