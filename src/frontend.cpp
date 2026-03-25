@@ -3115,7 +3115,7 @@ TbBool frontscreen_end_input(TbBool force)
 short get_frontend_global_inputs(void)
 {
     int32_t val;
-    if (is_game_key_pressed(Gkey_ExitGame, &val ,true))
+    if (is_game_key_pressed(Gkey_ExitGame, &val ,false))
     {
         clear_key_pressed(val);
         exit_keeper = true;

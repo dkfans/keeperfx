@@ -2563,7 +2563,7 @@ TbBool get_packet_load_demo_inputs(void)
   if (is_key_pressed(KC_SPACE,KMod_DONTCARE) ||
       is_key_pressed(KC_ESCAPE,KMod_DONTCARE) ||
       is_key_pressed(KC_RETURN,KMod_DONTCARE) ||
-      (is_game_key_pressed(Gkey_ExitGame, &val ,true)) ||
+      (is_game_key_pressed(Gkey_ExitGame, &val ,false)) ||
       left_button_clicked)
   {
       clear_key_pressed(KC_SPACE);
