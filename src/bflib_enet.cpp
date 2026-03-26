@@ -56,6 +56,14 @@ namespace
     ENetPacket *newest_packet = nullptr;
     int incoming_queue_size = 0;
 
+    ENetHost *create_ipv6_host(enet_uint16 port)
+    {
+        ENetAddress bind_address;
+        enet_address_build_any(&bind_address, ENET_ADDRESS_TYPE_IPV6);
+        bind_address.port = port;
+        return enet_host_create(ENET_ADDRESS_TYPE_IPV6, &bind_address, MAX_PEERS, NUM_CHANNELS, 0, 0);
+    }
+
     TbError bf_enet_init(NetDropCallback drop_callback)
     {
         if (enet_initialize())
@@ -91,6 +99,7 @@ namespace
             enet_host_destroy(host);
             host = nullptr;
         }
+        external_ipv4_port = 0;
         host_is_dual_stack = 0;
     }
 
@@ -125,6 +134,7 @@ namespace
         host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, MAX_PEERS, NUM_CHANNELS, 0, 0);
         if (host) {
             host_is_dual_stack = 1;
+            address = host->address;
             LbNetLog("ENet: host created (dual-stack IPv4+IPv6) on port %d\n", (int)address.port);
         } else {
             LbNetLog("ENet: dual-stack host creation failed, falling back to IPv4-only\n");
@@ -134,6 +144,8 @@ namespace
             if (!host)
                 return Lb_FAIL;
             host_is_dual_stack = 0;
+            address = host->address;
+            LbNetLog("ENet: host created (IPv4) on port %d\n", (int)address.port);
         }
         enet_host_compress_with_range_coder(host);
         port_forward_add_mapping(address.port);
@@ -225,14 +237,11 @@ namespace
         uint16_t my_external_ipv4_port = holepunch_stun_query(host, NULL, 0);
         if (my_external_ipv4_port == 0)
             LbNetLog("Join: STUN failed, proceeding with port 0\n");
-        ENetHost *ipv6_host = nullptr;
+        ENetHost *ipv6_host = create_ipv6_host(ENET_PORT_ANY);
         int my_ipv6_port = 0;
-        if (matchmaking_has_public_ipv6()) {
-            ipv6_host = enet_host_create(ENET_ADDRESS_TYPE_IPV6, NULL, MAX_PEERS, NUM_CHANNELS, 0, 0);
-            if (ipv6_host) {
-                enet_host_compress_with_range_coder(ipv6_host);
-                my_ipv6_port = (int)ipv6_host->address.port;
-            }
+        if (ipv6_host) {
+            enet_host_compress_with_range_coder(ipv6_host);
+            my_ipv6_port = (int)ipv6_host->address.port;
         }
         PunchAddresses punch_addresses;
         if (matchmaking_punch(join_lobby_id, (int)my_external_ipv4_port, my_ipv6_port, &punch_addresses) != 0) {
@@ -279,18 +288,26 @@ namespace
                 return Lb_OK;
             }
             if (ipv4_peer && enet_host_service(host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
-                if (ipv6_peer) { LbNetLog("Join: IPv4 connected before IPv6 did, so IPv6 will not be used.\n"); }
+                if (ipv6_peer) {
+                    LbNetLog("Join: IPv4 connected first, continuing over IPv4.\n");
+                }
                 LbNetLog("Join: connected successfully via matchmaking server (IPv4)\n");
                 enet_peer_timeout(ipv4_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
                 destroy_host_and_peer(ipv6_host, ipv6_peer);
                 client_peer = ipv4_peer;
                 return Lb_OK;
             }
-            if (ipv6_peer) { holepunch_punch_to(ipv6_host, &ipv6_address); }
-            if (ipv4_peer) { holepunch_punch_to(host, &ipv4_address); }
+            if (ipv6_peer) {
+                holepunch_punch_to(ipv6_host, &ipv6_address);
+            }
+            if (ipv4_peer) {
+                holepunch_punch_to(host, &ipv4_address);
+            }
             TbClockMSec remaining = deadline - LbTimerClock();
             enet_uint32 wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
-            if (remaining < (TbClockMSec)wait_ms) { wait_ms = (enet_uint32)remaining; }
+            if (remaining < (TbClockMSec)wait_ms) {
+                wait_ms = (enet_uint32)remaining;
+            }
             if (has_ipv4 && ipv4_peer == nullptr) {
                 TbClockMSec time_to_ipv4 = ipv4_delay_end - LbTimerClock();
                 if (time_to_ipv4 > 0 && (TbClockMSec)wait_ms > time_to_ipv4) {
@@ -875,6 +892,14 @@ unsigned int GetClientReliableCommandsInFlight() {
         }
     }
     return ClampSizeToUInt(best_value);
+}
+
+uint16_t enet_get_bound_ipv6_port(void)
+{
+    if (!host_is_dual_stack || !host) {
+        return 0;
+    }
+    return host->address.port;
 }
 
 void enet_matchmaking_host_update(void)

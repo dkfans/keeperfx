@@ -51,19 +51,13 @@ char join_lobby_id[MATCHMAKING_ID_MAX] = {0};
 static SDL_mutex *mutex = NULL;
 static SDL_atomic_t connect_thread_active = {0};
 static SDL_atomic_t ips_resolved = {0};
+static SDL_atomic_t ips_resolving = {0};
 static int connect_gave_up = 0;
 static char local_ipv4[MATCHMAKING_IP_MAX] = {0};
 static char local_ipv6[MATCHMAKING_IP_MAX] = {0};
 
 struct TbNetworkSessionNameEntry matchmaking_sessions[MATCHMAKING_SESSIONS_MAX];
 int matchmaking_session_count = 0;
-
-int matchmaking_has_public_ipv6(void)
-{
-    if (!SDL_AtomicGet(&ips_resolved))
-        return 0;
-    return local_ipv6[0] != '\0';
-}
 
 static size_t write_to_buffer(char *data, size_t element_size, size_t element_count, void *userdata)
 {
@@ -96,10 +90,71 @@ static void resolve_public_address(long address_family, char *output)
     curl_easy_cleanup(handle);
 }
 
-static int resolve_ipv6_thread(void *unused)
+typedef struct {
+    long address_family;
+    char *output;
+} PublicAddressResolveTask;
+
+static int resolve_public_address_thread(void *userdata)
 {
-    resolve_public_address(CURL_IPRESOLVE_V6, local_ipv6);
+    PublicAddressResolveTask *task = userdata;
+    resolve_public_address(task->address_family, task->output);
     return 0;
+}
+
+static void wait_for_public_ip_resolution(void)
+{
+    while (SDL_AtomicGet(&ips_resolving)) {
+        SDL_Delay(10);
+    }
+}
+
+static void resolve_public_ips(void)
+{
+    char resolved_ipv4[MATCHMAKING_IP_MAX] = {0};
+    char resolved_ipv6[MATCHMAKING_IP_MAX] = {0};
+    PublicAddressResolveTask ipv6_task = { CURL_IPRESOLVE_V6, resolved_ipv6 };
+    matchmaking_init();
+    if (SDL_AtomicCAS(&ips_resolving, 0, 1) == SDL_FALSE) {
+        wait_for_public_ip_resolution();
+        return;
+    }
+    SDL_Thread *ipv6_thread = SDL_CreateThread(resolve_public_address_thread, "resolve_ipv6", &ipv6_task);
+    resolve_public_address(CURL_IPRESOLVE_V4, resolved_ipv4);
+    if (ipv6_thread) {
+        SDL_WaitThread(ipv6_thread, NULL);
+    } else {
+        resolve_public_address(CURL_IPRESOLVE_V6, resolved_ipv6);
+    }
+    SDL_LockMutex(mutex);
+    if (resolved_ipv4[0] != '\0') {
+        snprintf(local_ipv4, sizeof(local_ipv4), "%s", resolved_ipv4);
+    }
+    if (resolved_ipv6[0] != '\0') {
+        snprintf(local_ipv6, sizeof(local_ipv6), "%s", resolved_ipv6);
+    }
+    SDL_AtomicSet(&ips_resolved, 1);
+    snprintf(resolved_ipv4, sizeof(resolved_ipv4), "%s", local_ipv4);
+    snprintf(resolved_ipv6, sizeof(resolved_ipv6), "%s", local_ipv6);
+    SDL_UnlockMutex(mutex);
+    LbNetLog("Matchmaking: public IPs: ipv4=%s ipv6=%s\n", resolved_ipv4, resolved_ipv6);
+    SDL_AtomicSet(&ips_resolving, 0);
+}
+
+static int copy_public_ip(int ipv6, char *output, int output_buffer_size)
+{
+    const char *source = local_ipv4;
+    if (ipv6) {
+        source = local_ipv6;
+    }
+    if (output == NULL || output_buffer_size <= 0) {
+        return 0;
+    }
+    output[0] = '\0';
+    SDL_LockMutex(mutex);
+    snprintf(output, output_buffer_size, "%s", source);
+    SDL_UnlockMutex(mutex);
+    return output[0] != '\0';
 }
 
 static void websocket_cleanup(void)
@@ -215,6 +270,34 @@ void matchmaking_init(void)
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
+static int get_public_ip(int ipv6, char *output, int output_buffer_size, int resolve_if_missing)
+{
+    int found_public_ip;
+    matchmaking_init();
+    found_public_ip = copy_public_ip(ipv6, output, output_buffer_size);
+    if (found_public_ip || !resolve_if_missing) {
+        return found_public_ip;
+    }
+    resolve_public_ips();
+    return copy_public_ip(ipv6, output, output_buffer_size);
+}
+
+int matchmaking_get_cached_public_ip(int ipv6, char *output, int output_buffer_size)
+{
+    return get_public_ip(ipv6, output, output_buffer_size, 0);
+}
+
+static void load_published_public_ips(int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *published_addresses)
+{
+    *published_addresses = (PunchAddresses){0};
+    if (udp_ipv4_port > 0) {
+        get_public_ip(0, published_addresses->ipv4, sizeof(published_addresses->ipv4), 1);
+    }
+    if (udp_ipv6_port > 0) {
+        get_public_ip(1, published_addresses->ipv6, sizeof(published_addresses->ipv6), 1);
+    }
+}
+
 static int matchmaking_connect_thread(void *arg)
 {
     matchmaking_connect();
@@ -265,15 +348,9 @@ int matchmaking_connect(void)
     websocket_send("{\"action\":\"list\",\"version\":\"" MATCHMAKING_VERSION "\"}");
     last_refresh_tick = SDL_GetTicks();
     SDL_UnlockMutex(mutex);
-    SDL_Thread *ipv6_thread = SDL_CreateThread(resolve_ipv6_thread, "resolve_ipv6", NULL);
-    resolve_public_address(CURL_IPRESOLVE_V4, local_ipv4);
-    if (ipv6_thread) {
-        SDL_WaitThread(ipv6_thread, NULL);
-    } else {
-        resolve_public_address(CURL_IPRESOLVE_V6, local_ipv6);
+    if (!SDL_AtomicGet(&ips_resolved)) {
+        resolve_public_ips();
     }
-    LbNetLog("Matchmaking: public IPs: ipv4=%s ipv6=%s\n", local_ipv4, local_ipv6);
-    SDL_AtomicSet(&ips_resolved, 1);
     return 0;
 }
 
@@ -283,6 +360,7 @@ void matchmaking_disconnect(void)
     while (SDL_AtomicGet(&connect_thread_active) && SDL_GetTicks() < wait_deadline) {
         SDL_Delay(10);
     }
+    wait_for_public_ip_resolution();
     SDL_LockMutex(mutex);
     connect_gave_up = 0;
     SDL_AtomicSet(&ips_resolved, 0);
@@ -338,10 +416,8 @@ int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
     char escaped_lobby_name[MATCHMAKING_NAME_MAX * 2];
     char request_message[SEND_BUFFER_SIZE];
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
-    Uint32 resolve_deadline = SDL_GetTicks() + CONNECT_TIMEOUT_MS * 2;
-    while (!SDL_AtomicGet(&ips_resolved) && SDL_AtomicGet(&connect_thread_active) && SDL_GetTicks() < resolve_deadline) {
-        SDL_Delay(50);
-    }
+    PunchAddresses published_addresses;
+    load_published_public_ips(udp_ipv4_port, udp_ipv6_port, &published_addresses);
     SDL_LockMutex(mutex);
     if (!curl_handle) {
         LbNetLog("Matchmaking: not connected to server, lobby won't be listed online\n");
@@ -357,7 +433,8 @@ int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
     escaped_lobby_name[write_pos] = '\0';
     snprintf(request_message, sizeof(request_message),
         "{\"action\":\"create\",\"name\":\"%s\",\"ipv4Port\":%d,\"ipv6Port\":%d,\"version\":\"%s\",\"ipv4\":\"%s\",\"ipv6\":\"%s\"}",
-        escaped_lobby_name, udp_ipv4_port, udp_ipv6_port, MATCHMAKING_VERSION, local_ipv4, local_ipv6);
+        escaped_lobby_name, udp_ipv4_port, udp_ipv6_port, MATCHMAKING_VERSION,
+        published_addresses.ipv4, published_addresses.ipv6);
     int bytes_received = websocket_exchange(request_message, response_buffer, sizeof(response_buffer));
     if (bytes_received > 0)
         LbNetLog("Matchmaking: create response (%d bytes): %s\n", bytes_received, response_buffer);
@@ -380,6 +457,8 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
 {
     char request_message[SEND_BUFFER_SIZE];
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
+    PunchAddresses published_addresses;
+    load_published_public_ips(udp_ipv4_port, udp_ipv6_port, &published_addresses);
     SDL_LockMutex(mutex);
     if (!curl_handle) {
         LbNetLog("Matchmaking: not connected to server, UDP hole punching unavailable\n");
@@ -388,7 +467,7 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
     }
     snprintf(request_message, sizeof(request_message),
         "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"myIpv4Port\":%d,\"myIpv6Port\":%d,\"myIpv4\":\"%s\",\"myIpv6\":\"%s\"}",
-        lobby_id, udp_ipv4_port, udp_ipv6_port, local_ipv4, local_ipv6);
+        lobby_id, udp_ipv4_port, udp_ipv6_port, published_addresses.ipv4, published_addresses.ipv6);
     if (websocket_send(request_message) != 0) {
         SDL_UnlockMutex(mutex);
         return -1;

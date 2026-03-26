@@ -45,6 +45,7 @@
 #define STUN_RESPONSE_BUFFER_SIZE 512
 #define HOLE_PUNCH_COUNT 10
 #define HOLE_PUNCH_PAYLOAD_SIZE 8
+#define HOLE_PUNCH_LOG_INTERVAL_MS 1000
 
 #pragma pack(push, 1)
 struct StunHeader {
@@ -173,6 +174,7 @@ static int send_and_burst(ENetSocket socket_handle, const ENetAddress *address, 
 void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
 {
     static const uint8_t punch_payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
+    static Uint32 last_failure_log_time = 0;
     ENetBuffer send_buffer = {.data = (void *)punch_payload, .dataLength = sizeof(punch_payload)};
     if (send_and_burst(host->socket, target, &send_buffer))
         return;
@@ -182,5 +184,9 @@ void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
         if (send_and_burst(host->socket, &mapped_target, &send_buffer))
             return;
     }
-    LbNetLog("Holepunch: send failed\n");
+    Uint32 current_time = SDL_GetTicks();
+    if (last_failure_log_time == 0 || SDL_TICKS_PASSED(current_time, last_failure_log_time + HOLE_PUNCH_LOG_INTERVAL_MS)) {
+        last_failure_log_time = current_time;
+        LbNetLog("Holepunch: send failed\n");
+    }
 }
