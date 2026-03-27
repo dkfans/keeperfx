@@ -484,6 +484,63 @@ const unsigned long alliance_grid[4][4] = {
   {0x04, 0x10, 0x20, 0x00,},
 };
 
+typedef enum {
+    MSG_COLOUR_DEFAULT,
+    MSG_COLOUR_BLUE,
+    MSG_COLOUR_BROWN,
+    MSG_COLOUR_GREEN,
+    MSG_COLOUR_GREY,
+    MSG_COLOUR_ORANGE,
+    MSG_COLOUR_PGREEN,
+    MSG_COLOUR_PURPLE,
+    MSG_COLOUR_RED,
+    MSG_COLOUR_WHITE,
+    MSG_COLOUR_YELLOW,
+    MSG_COLOUR_COUNT
+} MsgColour;
+
+int rpanel_msg_info_colour[MSG_COLOUR_COUNT] = {
+    GPS_message_rpanel_msg_inforg_act, // pgreen is default
+    GPS_message_rpanel_msg_info_blue_act, // like blue icon but flashes
+    GPS_message_rpanel_msg_info_brown_act,
+    GPS_message_rpanel_msg_info_green_act,
+    GPS_message_rpanel_msg_info_grey_act,
+    GPS_message_rpanel_msg_info_orange_act,
+    GPS_message_rpanel_msg_inforg_act, // pgreen is default
+    GPS_message_rpanel_msg_info_purple_act,
+    GPS_message_rpanel_msg_info_red_act,
+    GPS_message_rpanel_msg_info_white_act,
+    GPS_message_rpanel_msg_info_yellow_act
+};
+
+int rpanel_msg_exclam_colour[MSG_COLOUR_COUNT] = {
+    GPS_message_rpanel_msg_exclam_act, // blue is default
+    GPS_message_rpanel_msg_exclam_act, // blue is default
+    GPS_message_rpanel_msg_exclam_brown_act,
+    GPS_message_rpanel_msg_exclam_green_act,
+    GPS_message_rpanel_msg_exclam_grey_act,
+    GPS_message_rpanel_msg_exclam_orange_act,
+    GPS_message_rpanel_msg_exclam_pgreen_act,
+    GPS_message_rpanel_msg_exclam_purple_act,
+    GPS_message_rpanel_msg_exclam_red_act, // used for heart attack, probably best to avoid
+    GPS_message_rpanel_msg_exclam_white_act,
+    GPS_message_rpanel_msg_exclam_yellow_act
+};
+
+int rpanel_msg_questn_colour[MSG_COLOUR_COUNT] = {
+    GPS_message_rpanel_msg_questn_act, // pgreen is default
+    GPS_message_rpanel_msg_questn_blue_act,
+    GPS_message_rpanel_msg_questn_brown_act,
+    GPS_message_rpanel_msg_questn_green_act,
+    GPS_message_rpanel_msg_questn_grey_act,
+    GPS_message_rpanel_msg_questn_orange_act,
+    GPS_message_rpanel_msg_questn_act, // pgreen is default
+    GPS_message_rpanel_msg_questn_purple_act,
+    GPS_message_rpanel_msg_questn_red_act,
+    GPS_message_rpanel_msg_questn_white_act,
+    GPS_message_rpanel_msg_questn_yellow_act
+};
+
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
 struct TbSpriteSheet *testfont[TESTFONTS_COUNT];

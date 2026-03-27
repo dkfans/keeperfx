@@ -1940,7 +1940,8 @@ void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, M
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
+    struct Event *event = event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
+    event->icon = 268; //GPS_message_rpanel_msg_inforg_act;
 }
 
 void set_general_objective(long msg_id, TbMapLocation target, long x, long y)

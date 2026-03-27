@@ -197,8 +197,10 @@ enum TbScriptCommands {
     Cmd_SHOW_BONUS_LEVEL                   = 185,
     Cmd_HIDE_BONUS_LEVEL                   = 186,
     Cmd_HIDE_HERO_GATE                     = 187,
-    Cmd_QUICK_WARNING                      = 188,
-    Cmd_QUICK_WARNING_WITH_POS             = 189,
+    Cmd_DISPLAY_WARNING                    = 188,
+    Cmd_DISPLAY_WARNING_WITH_POS           = 189,
+    Cmd_QUICK_WARNING                      = 190,
+    Cmd_QUICK_WARNING_WITH_POS             = 191,
 };
 
 struct ScriptLine {
@@ -328,6 +330,7 @@ extern const struct NamedCommand fill_desc[];
 extern const struct NamedCommand set_door_desc[];
 extern const struct NamedCommand texture_pack_desc[];
 extern const struct NamedCommand locked_desc[];
+extern const struct NamedCommand message_colour_desc[];
 
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
