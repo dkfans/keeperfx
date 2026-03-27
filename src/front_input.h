@@ -99,14 +99,14 @@ enum GameKeys {
     Gkey_LVShowAllEnsigns,
     Gkey_LVNextLevel,
     Gkey_LVPrevLevel,
-    Gkey_NextInstance,
-    Gkey_PrevInstance,
-    Gkey_ButtonSnapLeft,
-    Gkey_ButtonSnapRight,
-    Gkey_ButtonSnapUp,
-    Gkey_ButtonSnapDown,
-    Gkey_Pause_Menu,
     GAME_KEYS_COUNT
+};
+
+enum BindingMenuVisibility {
+    BMV_Hidden,
+    BMV_KeyMouseOnly,
+    BMV_ControllerOnly,
+    BMV_Visible,
 };
 
 enum TbButtonFrontendFlags {
@@ -137,6 +137,7 @@ struct GamekeySettings {
     TextStringId string_id; // For display in the key binding menu
     uint8_t default_code;
     uint8_t default_mods;
+    uint8_t binding_menu_visibility;
 
 };
 
