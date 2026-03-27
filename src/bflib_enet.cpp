@@ -37,7 +37,7 @@
 #define MAX_PEERS 2
 #define PEER_TIMEOUT_MIN_MS 2000
 #define PEER_TIMEOUT_MAX_MS 5000
-#define HOLEPUNCH_CONNECT_DELAY_MS 500
+#define HOLEPUNCH_CONNECT_DELAY_MS 1000
 #define HOLEPUNCH_PRE_CONNECT_DELAY_MS 500
 #define HAPPY_EYEBALLS_DELAY_MS 250
 #define ENET_ADDRESS_BUFFER_SIZE 128
@@ -714,29 +714,37 @@ void enet_matchmaking_host_update(void)
     static ENetAddress pending_ipv6;
     static int has_pending_ipv4 = 0;
     static int has_pending_ipv6 = 0;
+    static TbClockMSec next_punch_time = 0;
     PunchAddresses punch_addresses;
     int new_punch = 0;
     if (matchmaking_poll_punch(&punch_addresses)) {
         new_punch = 1;
         has_pending_ipv4 = resolve_punch_address(punch_addresses.ipv4, ENET_ADDRESS_TYPE_IPV4, punch_addresses.ipv4_port, &pending_ipv4);
         has_pending_ipv6 = host_is_dual_stack && resolve_punch_address(punch_addresses.ipv6, ENET_ADDRESS_TYPE_IPV6, punch_addresses.ipv6_port, &pending_ipv6);
+        next_punch_time = 0;
         if (has_pending_ipv4 || has_pending_ipv6)
             LbNetLog("Host: received punch ipv4=%s ipv6=%s ipv4_port=%d ipv6_port=%d\n", punch_addresses.ipv4, punch_addresses.ipv6, punch_addresses.ipv4_port, punch_addresses.ipv6_port);
         if (!has_pending_ipv6 && punch_addresses.ipv6[0] != '\0')
             LbNetLog("Host: IPv6 punch skipped (host is not dual-stack)\n");
     }
-    if (!has_pending_ipv4 && !has_pending_ipv6)
+    if (!has_pending_ipv4 && !has_pending_ipv6) {
+        next_punch_time = 0;
         return;
+    }
     if (!new_punch) {
         for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
             if (peer->state == ENET_PEER_STATE_CONNECTED)
                 return;
         }
     }
+    TbClockMSec now = LbTimerClock();
+    if (!new_punch && now < next_punch_time)
+        return;
     if (has_pending_ipv6)
         holepunch_punch_to(host, &pending_ipv6);
     if (has_pending_ipv4)
         holepunch_punch_to(host, &pending_ipv4);
+    next_punch_time = now + HOLEPUNCH_CONNECT_DELAY_MS;
 }
 
 struct NetSP *InitEnetSP()
