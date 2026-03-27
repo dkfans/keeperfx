@@ -35,7 +35,6 @@ extern "C" {
 #define TIMEOUT_LOBBY_EXCHANGE 3000
 #define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
 /******************************************************************************/
-#pragma pack(1)
 
 // New Declarations Here ======================================================
 
@@ -164,6 +163,8 @@ extern const struct NetSP tcpSP;
 
 // New Declarations End Here ==================================================
 
+#pragma pack(push, 1)
+
 struct TbNetworkSessionNameEntry;
 
 typedef long (*Net_Callback_Func)(void);
@@ -245,7 +246,7 @@ long service_flags;
 
 /******************************************************************************/
 
-#pragma pack()
+#pragma pack(pop)
 /******************************************************************************/
 void    LbNetwork_SetServerPort(int port);
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);

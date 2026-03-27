@@ -244,8 +244,6 @@ enum computer_process_func_list
 #define INVALID_COMPUTER_PROCESS NULL
 #define INVALID_COMPUTER_TASK &game.computer_task[0]
 /******************************************************************************/
-#pragma pack(1)
-
 struct Computer2;
 struct ComputerProcess;
 struct ComputerCheck;
@@ -458,9 +456,6 @@ struct ExpandRooms {
     short max_slabs;
 };
 
-/******************************************************************************/
-
-#pragma pack()
 /******************************************************************************/
 
 /******************************************************************************/

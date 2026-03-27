@@ -17,6 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE 1
+#endif
 #if !defined(_GNU_SOURCE)
 #define _GNU_SOURCE
 #endif
@@ -39,7 +42,11 @@
 #endif
 #if defined(BF_POSIX_CRASH)
 #include <execinfo.h>
+#if defined(__APPLE__)
+#include <sys/ucontext.h>
+#else
 #include <ucontext.h>
+#endif
 #include <unistd.h>
 #include <dlfcn.h>
 #endif
@@ -86,8 +93,12 @@ static const char* sigstr(int s)
     case SIGXFSZ : return "File size limit exceeded (4.2 BSD)";
     case SIGVTALRM : return "Virtual alarm clock (4.2 BSD)";
     case SIGPROF : return "Profiling alarm clock (4.2 BSD)";
+#ifdef SIGWINCH
     case SIGWINCH : return "Window size change (4.3 BSD, Sun)";
+#endif
+#ifdef SIGIO
     case SIGIO : return "I/O now possible (4.2 BSD)";
+#endif
 #ifdef SIGSYS
     case SIGSYS : return "Bad system call";
 #endif

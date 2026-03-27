@@ -61,8 +61,6 @@ enum PlayerInstanceNum {
     PI_UnusedSlot18,
 };
 /******************************************************************************/
-#pragma pack(1)
-
 struct Thing;
 struct PlayerInfo;
 
@@ -83,9 +81,6 @@ struct PlayerInstanceInfo { // sizeof = 44
 #define PLAYER_INSTANCES_COUNT 19
 #define PLAYER_INSTANCES_COUNT_OLD 17
 
-/******************************************************************************/
-
-#pragma pack()
 /******************************************************************************/
 extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
