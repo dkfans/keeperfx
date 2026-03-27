@@ -2171,7 +2171,15 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         activate_event_box(evidx);
     }
-    gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
+    // Override with chosen colour if set via script command.
+    if (((event->kind == EvKind_Objective) || (event->kind == EvKind_Information) || (event->kind == EvKind_QuickInformation)) && (event->icon != 0))
+    {
+        gbtn->sprite_idx = event->icon;
+    }
+    else
+    {
+        gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
+    }
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate))
     {

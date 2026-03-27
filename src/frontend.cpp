@@ -334,7 +334,7 @@ struct EventTypeInfo event_button_info[] = {
   {GPS_message_rpanel_msg_exclam_act,            GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
   {GPS_message_rpanel_msg_exclam2_act,           GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
   {GPS_message_rpanel_msg_battle_act,            GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
-  {rpanel_msg_questn_colour[MSG_COLOUR_DEFAULT], GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
   {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_room_act,              GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_creatr_act,            GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
@@ -352,7 +352,7 @@ struct EventTypeInfo event_button_info[] = {
   {GPS_message_rpanel_msg_alarm_act,             GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
   {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
   {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
-  {rpanel_msg_info_colour[MSG_COLOUR_DEFAULT],   GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforg_act,            GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
   {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
@@ -367,123 +367,17 @@ struct EventTypeInfo event_button_info[] = {
   {0,                                            GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
   {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
   {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
-  {rpanel_msg_info_colour[MSG_COLOUR_BLUE],      GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // looks like default but flashes
-  {rpanel_msg_info_colour[MSG_COLOUR_BROWN],     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_info_colour[MSG_COLOUR_GREEN],     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_info_colour[MSG_COLOUR_GREY],      GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_info_colour[MSG_COLOUR_ORANGE],    GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_info_colour[MSG_COLOUR_PGREEN],    GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_info_colour[MSG_COLOUR_PURPLE],    GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_info_colour[MSG_COLOUR_RED],       GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_info_colour[MSG_COLOUR_WHITE],     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_info_colour[MSG_COLOUR_YELLOW],    GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_DEFAULT], GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_BLUE],    GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_BROWN],   GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_GREEN],   GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_GREY],    GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_ORANGE],  GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_PGREEN],  GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_PURPLE],  GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_RED],     GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_WHITE],   GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_exclam_colour[MSG_COLOUR_YELLOW],  GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {rpanel_msg_questn_colour[MSG_COLOUR_BLUE],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective}, // surely there's a better way than listing every combination
-  {rpanel_msg_questn_colour[MSG_COLOUR_BROWN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective}, // of colour and objective number?
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREEN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREY],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective}, // 60
-  {rpanel_msg_questn_colour[MSG_COLOUR_ORANGE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PGREEN],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PURPLE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {rpanel_msg_questn_colour[MSG_COLOUR_RED],     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {rpanel_msg_questn_colour[MSG_COLOUR_WHITE],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {rpanel_msg_questn_colour[MSG_COLOUR_YELLOW],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {rpanel_msg_questn_colour[MSG_COLOUR_DEFAULT], GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2}, // Objective slot 2
-  {rpanel_msg_questn_colour[MSG_COLOUR_BLUE],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_BROWN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREEN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREY],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_ORANGE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PGREEN],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PURPLE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_RED],     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_WHITE],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_YELLOW],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2},
-  {rpanel_msg_questn_colour[MSG_COLOUR_DEFAULT], GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3}, // Objective slot 3
-  {rpanel_msg_questn_colour[MSG_COLOUR_BLUE],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_BROWN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREEN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREY],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_ORANGE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PGREEN],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PURPLE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_RED],     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_WHITE],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_YELLOW],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3},
-  {rpanel_msg_questn_colour[MSG_COLOUR_DEFAULT], GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4}, // Objective slot 4
-  {rpanel_msg_questn_colour[MSG_COLOUR_BLUE],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_BROWN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREEN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREY],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_ORANGE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PGREEN],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PURPLE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_RED],     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_WHITE],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_YELLOW],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4},
-  {rpanel_msg_questn_colour[MSG_COLOUR_DEFAULT], GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5}, // Objective slot 5
-  {rpanel_msg_questn_colour[MSG_COLOUR_BLUE],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_BROWN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREEN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREY],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_ORANGE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PGREEN],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PURPLE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_RED],     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_WHITE],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_YELLOW],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5},
-  {rpanel_msg_questn_colour[MSG_COLOUR_DEFAULT], GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6}, // Objective slot 6
-  {rpanel_msg_questn_colour[MSG_COLOUR_BLUE],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_BROWN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREEN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREY],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_ORANGE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PGREEN],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PURPLE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_RED],     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_WHITE],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_YELLOW],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6},
-  {rpanel_msg_questn_colour[MSG_COLOUR_DEFAULT], GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7}, // Objective slot 7
-  {rpanel_msg_questn_colour[MSG_COLOUR_BLUE],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_BROWN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREEN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREY],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_ORANGE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PGREEN],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PURPLE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_RED],     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_WHITE],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_YELLOW],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7},
-  {rpanel_msg_questn_colour[MSG_COLOUR_DEFAULT], GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8}, // Objective slot 8
-  {rpanel_msg_questn_colour[MSG_COLOUR_BLUE],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
-  {rpanel_msg_questn_colour[MSG_COLOUR_BROWN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREEN],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
-  {rpanel_msg_questn_colour[MSG_COLOUR_GREY],    GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
-  {rpanel_msg_questn_colour[MSG_COLOUR_ORANGE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PGREEN],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
-  {rpanel_msg_questn_colour[MSG_COLOUR_PURPLE],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
-  {rpanel_msg_questn_colour[MSG_COLOUR_RED],     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
-  {rpanel_msg_questn_colour[MSG_COLOUR_WHITE],   GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
-  {rpanel_msg_questn_colour[MSG_COLOUR_YELLOW],  GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_Warning - Information but with a !
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2}, // Objective slot 2
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3}, // Objective slot 3
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4}, // Objective slot 4
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5}, // Objective slot 5
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6}, // Objective slot 6
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7}, // Objective slot 7
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8}, // Objective slot 8
 };
 
-const unsigned long alliance_grid[4][4] = {
-  {0x00, 0x01, 0x02, 0x04,},
-  {0x01, 0x00, 0x08, 0x10,},
-  {0x02, 0x08, 0x00, 0x20,},
-  {0x04, 0x10, 0x20, 0x00,},
-};
-
+// setup of message colours for i,!,? (icons and default vary)
 typedef enum {
     MSG_COLOUR_DEFAULT,
     MSG_COLOUR_BLUE,
@@ -498,47 +392,93 @@ typedef enum {
     MSG_COLOUR_YELLOW,
     MSG_COLOUR_COUNT
 } MsgColour;
+typedef enum {
+    MSG_ICON_INFO,
+    MSG_ICON_EXCLAM,
+    MSG_ICON_QUESTN,
+    MSG_ICON_COUNT
+} MsgIconType;
 
-int rpanel_msg_info_colour[MSG_COLOUR_COUNT] = {
-    GPS_message_rpanel_msg_inforg_act, // pgreen is default
-    GPS_message_rpanel_msg_info_blue_act, // like blue icon but flashes
-    GPS_message_rpanel_msg_info_brown_act,
-    GPS_message_rpanel_msg_info_green_act,
-    GPS_message_rpanel_msg_info_grey_act,
-    GPS_message_rpanel_msg_info_orange_act,
-    GPS_message_rpanel_msg_inforg_act, // pgreen is default
-    GPS_message_rpanel_msg_info_purple_act,
-    GPS_message_rpanel_msg_info_red_act,
-    GPS_message_rpanel_msg_info_white_act,
-    GPS_message_rpanel_msg_info_yellow_act
+// might need to move to somewhere else (i.e. where script command goes)
+// interpret possible colour strings, otherwise fallback to default if not recognised.
+const struct NamedCommand message_colour_desc[] = {
+  {"DEFAULT",    MSG_COLOUR_DEFAULT},
+  {"BLUE",       MSG_COLOUR_BLUE},
+  {"BROWN",      MSG_COLOUR_BROWN},
+  {"GREEN",      MSG_COLOUR_GREEN},
+  {"GREY",       MSG_COLOUR_GREY},
+  {"GRAY",       MSG_COLOUR_GREY},
+  {"ORANGE",     MSG_COLOUR_ORANGE},
+  {"PGREEN",     MSG_COLOUR_PGREEN},
+  {"PLAYERGREEN",MSG_COLOUR_PGREEN},
+  {"GREEN2",     MSG_COLOUR_PGREEN},
+  {"PURPLE",     MSG_COLOUR_PURPLE},
+  {"RED",        MSG_COLOUR_RED},
+  {"WHITE",      MSG_COLOUR_WHITE},
+  {"YELLOW",     MSG_COLOUR_YELLOW},
+  {NULL,         0},
+};
+MsgColour get_colour(const char *input)
+{
+    if (!input) return MSG_COLOUR_DEFAULT;
+    for (int i = 0; message_colour_desc[i].name; i++) {
+        if (strcmp(input, message_colour_desc[i].name) == 0) {
+            return message_colour_desc[i].value;
+        }
+    }
+    return MSG_COLOUR_DEFAULT;
+}
+
+int rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT] = {
+    // MSG_ICON_INFO (i)
+    {
+        GPS_message_rpanel_msg_inforg_act, // pgreen is default
+        GPS_message_rpanel_msg_info_blue_act, // like blue icon but flashes
+        GPS_message_rpanel_msg_info_brown_act,
+        GPS_message_rpanel_msg_info_green_act,
+        GPS_message_rpanel_msg_info_grey_act,
+        GPS_message_rpanel_msg_info_orange_act,
+        GPS_message_rpanel_msg_inforg_act, // pgreen is default
+        GPS_message_rpanel_msg_info_purple_act,
+        GPS_message_rpanel_msg_info_red_act,
+        GPS_message_rpanel_msg_info_white_act,
+        GPS_message_rpanel_msg_info_yellow_act
+    },
+    //MSG_ICON_EXCLAM (!)
+    {
+        GPS_message_rpanel_msg_exclam_act, // blue is default
+        GPS_message_rpanel_msg_exclam_act, // blue is default
+        GPS_message_rpanel_msg_exclam_brown_act,
+        GPS_message_rpanel_msg_exclam_green_act,
+        GPS_message_rpanel_msg_exclam_grey_act,
+        GPS_message_rpanel_msg_exclam_orange_act,
+        GPS_message_rpanel_msg_exclam_pgreen_act,
+        GPS_message_rpanel_msg_exclam_purple_act,
+        GPS_message_rpanel_msg_exclam_red_act, // used for heart attack, probably best to avoid
+        GPS_message_rpanel_msg_exclam_white_act,
+        GPS_message_rpanel_msg_exclam_yellow_act
+    },
+    //MSG_ICON_QUESTN (?)
+    {
+        GPS_message_rpanel_msg_questn_act, // pgreen is default
+        GPS_message_rpanel_msg_questn_blue_act,
+        GPS_message_rpanel_msg_questn_brown_act,
+        GPS_message_rpanel_msg_questn_green_act,
+        GPS_message_rpanel_msg_questn_grey_act,
+        GPS_message_rpanel_msg_questn_orange_act,
+        GPS_message_rpanel_msg_questn_act, // pgreen is default
+        GPS_message_rpanel_msg_questn_purple_act,
+        GPS_message_rpanel_msg_questn_red_act,
+        GPS_message_rpanel_msg_questn_white_act,
+        GPS_message_rpanel_msg_questn_yellow_act
+    }
 };
 
-int rpanel_msg_exclam_colour[MSG_COLOUR_COUNT] = {
-    GPS_message_rpanel_msg_exclam_act, // blue is default
-    GPS_message_rpanel_msg_exclam_act, // blue is default
-    GPS_message_rpanel_msg_exclam_brown_act,
-    GPS_message_rpanel_msg_exclam_green_act,
-    GPS_message_rpanel_msg_exclam_grey_act,
-    GPS_message_rpanel_msg_exclam_orange_act,
-    GPS_message_rpanel_msg_exclam_pgreen_act,
-    GPS_message_rpanel_msg_exclam_purple_act,
-    GPS_message_rpanel_msg_exclam_red_act, // used for heart attack, probably best to avoid
-    GPS_message_rpanel_msg_exclam_white_act,
-    GPS_message_rpanel_msg_exclam_yellow_act
-};
-
-int rpanel_msg_questn_colour[MSG_COLOUR_COUNT] = {
-    GPS_message_rpanel_msg_questn_act, // pgreen is default
-    GPS_message_rpanel_msg_questn_blue_act,
-    GPS_message_rpanel_msg_questn_brown_act,
-    GPS_message_rpanel_msg_questn_green_act,
-    GPS_message_rpanel_msg_questn_grey_act,
-    GPS_message_rpanel_msg_questn_orange_act,
-    GPS_message_rpanel_msg_questn_act, // pgreen is default
-    GPS_message_rpanel_msg_questn_purple_act,
-    GPS_message_rpanel_msg_questn_red_act,
-    GPS_message_rpanel_msg_questn_white_act,
-    GPS_message_rpanel_msg_questn_yellow_act
+const unsigned long alliance_grid[4][4] = {
+  {0x00, 0x01, 0x02, 0x04,},
+  {0x01, 0x00, 0x08, 0x10,},
+  {0x02, 0x08, 0x00, 0x20,},
+  {0x04, 0x10, 0x20, 0x00,},
 };
 
 #if (BFDEBUG_LEVEL > 0)
