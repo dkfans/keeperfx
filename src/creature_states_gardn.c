@@ -95,6 +95,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
     } else
     {
         int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
+        lua_on_object_destroyed(foodtng);
         if (room->used_capacity >= required_cap)
         {
             room->used_capacity -= required_cap;
@@ -106,7 +107,6 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
             update_room_contents(room);
         }
     }
-    lua_on_object_destroyed(foodtng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     dungeon->lvstats.chickens_eaten++;
 }
