@@ -19,7 +19,6 @@
 #include "pre_inc.h"
 #include "net_matchmaking.h"
 #include "bflib_basics.h"
-#include "bflib_enet.h"
 #include "net_lan.h"
 #include "ver_defs.h"
 
@@ -291,7 +290,7 @@ static void load_published_public_ips(int udp_ipv4_port, int udp_ipv6_port, Punc
     }
 }
 
-static int matchmaking_connect_thread(void *arg)
+static int matchmaking_connect_thread(void *)
 {
     matchmaking_connect();
     SDL_AtomicSet(&connect_thread_active, 0);

@@ -33,15 +33,12 @@
 #include "net_received_packets.h"
 #include "net_matchmaking.h"
 #include "net_lan.h"
-#include "bflib_enet.h"
 #include "keeperfx.hpp"
 #include <thread>
 #include <string>
 #include "post_inc.h"
 
 #ifdef __cplusplus
-void gameplay_loop_draw();
-extern "C" void network_yield_draw_gameplay();
 #endif
 
 #ifdef __cplusplus
@@ -113,7 +110,7 @@ void LbNetwork_InitSessionsFromCmdLine(const char * str) {
     AddSessionSegment(start, end);
 }
 
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data) {
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *) {
     localPlayerInfoPtr = locplayr;
     memset(&netstate, 0, sizeof(netstate));
     netstate.max_players = maxplayrs;
@@ -136,7 +133,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
     return netstate.sp->init(OnDroppedUser);
 }
 
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns) {
+TbError LbNetwork_Create(char *, char *plyr_name, uint32_t *plyr_num, void *optns) {
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
         return Lb_FAIL;

@@ -60,9 +60,6 @@ enum PortForwardMethod {
 static enum PortForwardMethod active_method = PORT_FORWARD_NONE;
 static uint16_t mapped_port = 0;
 
-static int upnp_enabled   = 1;
-static int natpmp_enabled = 1;
-
 static struct UPNPUrls upnp_urls;
 static struct IGDdatas upnp_data;
 static char upnp_lanaddr[64];
@@ -204,11 +201,7 @@ static void port_forward_add_mapping_internal(uint16_t port) {
     if (active_method != PORT_FORWARD_NONE) {
         port_forward_remove_mapping();
     }
-    if (natpmp_enabled && natpmp_add_port_mapping(port)) {
-        return;
-    }
-    if (!upnp_enabled) {
-        LbNetLog("Port forwarding unavailable (NAT-PMP failed or disabled, UPnP disabled), UDP hole punching will be used\n");
+    if (natpmp_add_port_mapping(port)) {
         return;
     }
     int error = 0;

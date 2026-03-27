@@ -66,6 +66,15 @@ static int receive_packet(ENetSocket socket, ENetAddress *sender, char *buffer, 
     return bytes;
 }
 
+static void strip_port_from_lan_sender_ipv4_address(const ENetAddress *sender, char *address)
+{
+    if (sender->type != ENET_ADDRESS_TYPE_IPV4)
+        return;
+    char *port_separator = strrchr(address, ':');
+    if (port_separator == NULL)
+        return;
+    *port_separator = '\0';
+}
 
 void lan_host_start(const char *name, uint16_t port)
 {
@@ -165,9 +174,7 @@ void lan_refresh_sessions(void)
         char sender_ip[LAN_IP_MAX];
         if (enet_address_get_host_ip(&sender, sender_ip, sizeof(sender_ip)) < 0)
             continue;
-        char *embedded_port_separator = strrchr(sender_ip, ':');
-        if (embedded_port_separator)
-            *embedded_port_separator = '\0';
+        strip_port_from_lan_sender_ipv4_address(&sender, sender_ip);
         if (host_socket != ENET_SOCKET_NULL && game_port == lan_hosted_port && strcmp(payload, lan_hosted_name) == 0)
             continue;
         struct LanSessionCache *entry = NULL;

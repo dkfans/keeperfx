@@ -119,7 +119,7 @@ namespace
      * @param options
      * @return Lb_FAIL or Lb_OK
      */
-    TbError bf_enet_host(const char *session, void *options)
+    TbError bf_enet_host(const char *session, void *)
     {
         if (!*session)
             return Lb_FAIL;
@@ -319,11 +319,11 @@ namespace
         return Lb_FAIL;
     }
 
-    TbError bf_enet_join(const char *session, void *options)
+    TbError bf_enet_join(const char *session, void *)
     {
         ENetAddress connect_address;
         TbClockMSec join_start_ms = LbTimerClock();
-        const char *join_type = nullptr;
+        const char *join_type;
         if (strncmp(join_lobby_id, "LAN:", 4) == 0) {
             LbNetLog("Join: connecting via LAN\n");
             join_type = "LAN";
@@ -527,7 +527,7 @@ namespace
         enet_host_flush(host);
     }
 
-    TbBool not_expected_user(NetUserId *user_id)
+    TbBool not_expected_user(NetUserId *)
     {
         ERRORLOG("Unexpected connected user\n");
         fprintf(stderr, "Unexpected connected user\n");
@@ -542,7 +542,7 @@ namespace
      * @return The actual size of the message received, <= max_size. If 0, an
      *  error occurred.
      */
-    size_t bf_enet_readmsg(NetUserId source, char *buffer, size_t max_size)
+    size_t bf_enet_readmsg(NetUserId, char *buffer, size_t max_size)
     {
         while (!oldest_packet)
         {
@@ -569,7 +569,7 @@ namespace
      *  for a message to arrive before returning.
      * @return The size of the message waiting if there is a message, otherwise 0.
      */
-    size_t bf_enet_msgready(NetUserId source, unsigned timeout)
+    size_t bf_enet_msgready(NetUserId, unsigned timeout)
     {
         if (!oldest_packet)
         {
@@ -584,7 +584,7 @@ namespace
      * Disconnects a user.
      * @param id User to be dropped.
      */
-    void bf_enet_drop_user(NetUserId id)
+    void bf_enet_drop_user(NetUserId)
     {
         fprintf(stderr, "enet_drop_user not implemented\n");
         ERRORLOG("enet_drop_user not implemented");

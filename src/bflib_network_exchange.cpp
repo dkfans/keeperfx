@@ -34,10 +34,8 @@
 #include "post_inc.h"
 
 #ifdef __cplusplus
-void gameplay_loop_draw();
 extern "C" void network_yield_draw_gameplay();
 extern "C" void network_yield_draw_frontend();
-extern "C" short frontend_draw();
 extern "C" long double last_draw_completed_time;
 extern "C" void LbNetwork_TimesyncBarrier(void);
 extern "C" TbBool keeper_screen_redraw(void);

@@ -109,9 +109,8 @@ uint16_t holepunch_stun_query(ENetHost *host, char *output_ip, size_t output_ip_
             || !(socket_wait_flags & ENET_SOCKET_WAIT_RECEIVE))
             break;
         uint8_t response_buffer[STUN_RESPONSE_BUFFER_SIZE];
-        ENetAddress sender_address;
         ENetBuffer receive_buffer = {.data = response_buffer, .dataLength = sizeof(response_buffer)};
-        int bytes_received = enet_socket_receive(send_socket, &sender_address, &receive_buffer, 1);
+        int bytes_received = enet_socket_receive(send_socket, NULL, &receive_buffer, 1);
         if (bytes_received <= 0)
             continue;
         if (bytes_received < (int)sizeof(struct StunHeader))
