@@ -77,13 +77,13 @@ uint16_t holepunch_stun_query(ENetHost *host, char *output_ip, size_t output_ip_
     ENetBuffer send_buffer = {.data = &stun_request, .dataLength = sizeof(stun_request)};
     ENetSocket send_socket = host->socket;
     ENetSocket fallback_socket = ENET_SOCKET_NULL;
-    int send_ok = (enet_socket_send(send_socket, &stun_server_address, &send_buffer, 1) >= 0);
-    if (!send_ok) {
+    int send_succeeded = (enet_socket_send(send_socket, &stun_server_address, &send_buffer, 1) >= 0);
+    if (!send_succeeded) {
         ENetAddress mapped_stun_address = stun_server_address;
         enet_address_convert_ipv6(&mapped_stun_address);
-        send_ok = (enet_socket_send(send_socket, &mapped_stun_address, &send_buffer, 1) >= 0);
+        send_succeeded = (enet_socket_send(send_socket, &mapped_stun_address, &send_buffer, 1) >= 0);
     }
-    if (!send_ok) {
+    if (!send_succeeded) {
         LbNetLog("STUN: host socket send failed, falling back to fresh IPv4 socket\n");
         fallback_socket = enet_socket_create(ENET_ADDRESS_TYPE_IPV4, ENET_SOCKET_TYPE_DATAGRAM);
         if (fallback_socket == ENET_SOCKET_NULL) {

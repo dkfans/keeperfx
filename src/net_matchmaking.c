@@ -416,13 +416,13 @@ int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
         SDL_UnlockMutex(mutex);
         return -1;
     }
-    int write_pos = 0;
-    for (int i = 0; name[i] && write_pos < (int)sizeof(escaped_lobby_name) - 2; i++) {
+    int write_position = 0;
+    for (int i = 0; name[i] && write_position < (int)sizeof(escaped_lobby_name) - 2; i++) {
         if (name[i] == '"' || name[i] == '\\')
-            escaped_lobby_name[write_pos++] = '\\';
-        escaped_lobby_name[write_pos++] = name[i];
+            escaped_lobby_name[write_position++] = '\\';
+        escaped_lobby_name[write_position++] = name[i];
     }
-    escaped_lobby_name[write_pos] = '\0';
+    escaped_lobby_name[write_position] = '\0';
     snprintf(request_message, sizeof(request_message),
         "{\"action\":\"create\",\"name\":\"%s\",\"ipv4Port\":%d,\"ipv6Port\":%d,\"version\":\"%s\",\"ipv4\":\"%s\",\"ipv6\":\"%s\"}",
         escaped_lobby_name, udp_ipv4_port, udp_ipv6_port, MATCHMAKING_VERSION,
