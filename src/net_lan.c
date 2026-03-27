@@ -147,13 +147,13 @@ void lan_refresh_sessions(void)
             continue;
         char *payload = buffer + sizeof(LAN_HOST_REPLY_PREFIX) - 1;
         char parsed_lobby_id[SESSION_LOBBY_ID_MAX_LEN] = {0};
-        char *bar = strchr(payload, '|');
-        if (bar) {
-            int id_len = (int)(bar - payload);
-            if (id_len >= SESSION_LOBBY_ID_MAX_LEN)
-                id_len = SESSION_LOBBY_ID_MAX_LEN - 1;
-            snprintf(parsed_lobby_id, sizeof(parsed_lobby_id), "%.*s", id_len, payload);
-            payload = bar + 1;
+        char *pipe_separator = strchr(payload, '|');
+        if (pipe_separator) {
+            int id_length = (int)(pipe_separator - payload);
+            if (id_length >= SESSION_LOBBY_ID_MAX_LEN)
+                id_length = SESSION_LOBBY_ID_MAX_LEN - 1;
+            snprintf(parsed_lobby_id, sizeof(parsed_lobby_id), "%.*s", id_length, payload);
+            payload = pipe_separator + 1;
         }
         char *port_separator = strrchr(payload, ':');
         if (!port_separator)

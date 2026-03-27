@@ -30,7 +30,6 @@
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
-#include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
 #include "gui_draw.h"

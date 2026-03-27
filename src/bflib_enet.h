@@ -22,7 +22,6 @@ extern "C" {
 #endif
 
 #define ENET_DEFAULT_PORT 5556
-#define EXTERNAL_IP_LEN 64
 
 enum {
     ENET_CHANNEL_RELIABLE = 0,

@@ -44,13 +44,11 @@ extern struct TbNetworkSessionNameEntry matchmaking_sessions[MATCHMAKING_SESSION
 extern int matchmaking_session_count;
 extern char join_lobby_id[MATCHMAKING_ID_MAX];
 
-void matchmaking_init(void);
 void matchmaking_connect_async(void);
 int matchmaking_connect(void);
 void matchmaking_disconnect(void);
 void matchmaking_refresh_sessions(void);
 int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port);
-int matchmaking_get_cached_public_ip(int ipv6, char *output, int output_buffer_size);
 int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output);
 int matchmaking_poll_punch(PunchAddresses *output);
 

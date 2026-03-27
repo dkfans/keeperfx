@@ -156,7 +156,6 @@ namespace
 
     enet_uint16 parse_session_address(const char *session, char *output_hostname, size_t hostname_buffer_size)
     {
-        char *parse_end_ptr;
         enet_uint16 port = ENET_DEFAULT_PORT;
         if (session[0] == '[') {
             const char *bracket_end = strchr(session, ']');
@@ -170,7 +169,7 @@ namespace
             strncpy(output_hostname, session + 1, address_length);
             output_hostname[address_length] = '\0';
             if (bracket_end[1] == ':') {
-                port = strtoul(bracket_end + 2, &parse_end_ptr, 10);
+                port = strtoul(bracket_end + 2, NULL, 10);
                 if (port == 0) {
                     return 0;
                 }
@@ -188,7 +187,7 @@ namespace
                 }
                 strncpy(output_hostname, session, address_length);
                 output_hostname[address_length] = '\0';
-                port = strtoul(first_colon + 1, &parse_end_ptr, 10);
+                port = strtoul(first_colon + 1, NULL, 10);
                 if (port == 0) {
                     return 0;
                 }
@@ -304,15 +303,11 @@ namespace
                 holepunch_punch_to(host, &ipv4_address);
             }
             TbClockMSec remaining = deadline - LbTimerClock();
-            enet_uint32 wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
-            if (remaining < (TbClockMSec)wait_ms) {
-                wait_ms = (enet_uint32)remaining;
-            }
+            enet_uint32 wait_ms = (enet_uint32)min((TbClockMSec)HOLEPUNCH_CONNECT_DELAY_MS, remaining);
             if (has_ipv4 && ipv4_peer == nullptr) {
                 TbClockMSec time_to_ipv4 = ipv4_delay_end - LbTimerClock();
-                if (time_to_ipv4 > 0 && (TbClockMSec)wait_ms > time_to_ipv4) {
-                    wait_ms = (enet_uint32)time_to_ipv4;
-                }
+                if (time_to_ipv4 > 0)
+                    wait_ms = (enet_uint32)min((TbClockMSec)wait_ms, time_to_ipv4);
             }
             SDL_Delay(wait_ms);
             display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
@@ -378,9 +373,7 @@ namespace
         TbClockMSec connection_deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
         while (LbTimerClock() < connection_deadline) {
             TbClockMSec time_remaining = connection_deadline - LbTimerClock();
-            enet_uint32 service_wait_ms = HOLEPUNCH_CONNECT_DELAY_MS;
-            if (time_remaining < service_wait_ms)
-                service_wait_ms = (enet_uint32)time_remaining;
+            enet_uint32 service_wait_ms = (enet_uint32)min((TbClockMSec)HOLEPUNCH_CONNECT_DELAY_MS, time_remaining);
             int service_result = enet_host_service(host, &enet_event, service_wait_ms);
             if (service_result > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
                 LbNetLog("Join: connected successfully via %s\n", join_type);
