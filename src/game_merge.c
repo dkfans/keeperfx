@@ -91,6 +91,19 @@ LevelNumber get_selected_level_number(void)
 }
 
 /**
+ * Returns the selected level number. Checks both selected and loaded number for best guess.
+ */
+LevelNumber get_level_number(void)
+{
+    LevelNumber lvnum = get_selected_level_number();
+    if (lvnum <= 0)
+    {
+        lvnum = get_loaded_level_number();
+    }
+    return lvnum;
+}
+
+/**
  * Sets the selected level number. Selected level is loaded when staring game.
  */
 LevelNumber set_selected_level_number(LevelNumber lvnum)

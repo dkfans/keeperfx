@@ -2075,9 +2075,9 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
 
 
 /* @comment
- *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ *     The loading items of load_config and load_config_for_mod need to be consistent.
  */
-static void load_config_for_mod_one(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
+static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
 {
     set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
 
@@ -2123,12 +2123,12 @@ static void load_config_for_mod_list(const struct ConfigFileData* file_data, uns
         if (mod_item->state.mod_dir == 0)
             continue;
 
-        load_config_for_mod_one(file_data, flags, mod_item);
+        load_config_for_mod(file_data, flags, mod_item);
     }
 }
 
 /* @comment
- *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ *     The loading items of load_config and load_config_for_mod need to be consistent.
  */
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
