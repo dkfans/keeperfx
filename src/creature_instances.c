@@ -409,10 +409,15 @@ void process_creature_instance(struct Thing *thing)
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
+    struct InstanceInfo* inst_inf;
     SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
     if (cctrl->instance_id != CrInst_NULL && creature_under_spell_effect(thing, CSAfF_Freeze))
     {
-        return;
+        inst_inf = creature_instance_info_get(cctrl->instance_id);
+        if (!inst_inf->fp_allow_while_frozen)
+        {
+            return;
+        }
     }
     if (cctrl->inst_turn >= cctrl->inst_total_turns)
     {
@@ -430,7 +435,7 @@ void process_creature_instance(struct Thing *thing)
         cctrl->inst_turn++;
         if (cctrl->inst_turn == cctrl->inst_action_turns)
         {
-            struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
+            inst_inf = creature_instance_info_get(cctrl->instance_id);
             if (creature_instances_func_list[inst_inf->func_idx] != NULL)
             {
                 SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
