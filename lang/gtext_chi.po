@@ -5512,18 +5512,18 @@ msgstr "４个玩家"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "串口线"
+msgid "Online"
+msgstr "在线"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "调制解调器"
+msgid "LAN"
+msgstr "局域网"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "遭遇战"
 
 #: guitext:877
 msgctxt "World direction"

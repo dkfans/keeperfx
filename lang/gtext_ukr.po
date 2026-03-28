@@ -5881,18 +5881,18 @@ msgstr "4 Гравців"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Серійний"
+msgid "Online"
+msgstr "Онлайн"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Модем"
+msgid "LAN"
+msgstr "Локальна мережа"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "Мережевий протокол"
+msgid "Skirmish"
+msgstr "Сутичка"
 
 #: guitext:877
 msgctxt "World direction"

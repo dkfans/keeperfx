@@ -5328,18 +5328,18 @@ msgstr "4 игрока"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Нуль-модем"
+msgid "Online"
+msgstr "Онлайн"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Модем"
+msgid "LAN"
+msgstr "Локальная сеть"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Схватка"
 
 #: guitext:877
 msgctxt "World direction"

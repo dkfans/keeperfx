@@ -5847,18 +5847,18 @@ msgstr "4 ludii"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Serialis"
+msgid "Online"
+msgstr "Interretialis"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Modisum"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "EFI"
+msgid "Skirmish"
+msgstr "Velitatio"
 
 #: guitext:877
 msgctxt "World direction"

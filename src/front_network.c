@@ -211,7 +211,7 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
     if (net_number_of_sessions == 0)
     {
         net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-        strcpy(&netcdat->svc_name[8],get_string(GUIStr_NetModem));
+        strcpy(&netcdat->svc_name[8],get_string(GUIStr_NetLan));
         net_number_of_sessions++;
     }
 }
@@ -468,12 +468,12 @@ void frontnet_service_setup(void)
 {
     net_number_of_services = 0;
     memset(net_service, 0, sizeof(net_service));
-    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", "Online"); //TODO TRANSLATION put this in GUI strings
-    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", "LAN"); //TODO TRANSLATION put this in GUI strings
+    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetOnline));
+    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetLan));
     // Create skirmish option if it should be enabled
     if ((game.system_flags & GSF_AllowOnePlayer) != 0)
     {
-        snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_Net1Player));
+        snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetServiceSkirmish));
         net_number_of_services++;
     }
     net_load_config_file();

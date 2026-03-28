@@ -5793,18 +5793,18 @@ msgstr "４人プレイ"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "シリアル"
+msgid "Online"
+msgstr "オンライン"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "モデム"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "ＩＰＸ"
+msgid "Skirmish"
+msgstr "遭遇戦"
 
 #: guitext:877
 msgctxt "World direction"

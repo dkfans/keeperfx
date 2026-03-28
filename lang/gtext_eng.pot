@@ -4654,18 +4654,18 @@ msgstr ""
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr ""
+msgid "Online"
+msgstr "Online"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr ""
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr ""
+msgid "Skirmish"
+msgstr "Skirmish"
 
 #: guitext:877
 msgctxt "World direction"

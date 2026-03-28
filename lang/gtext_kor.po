@@ -5837,18 +5837,18 @@ msgstr "4 플레이어"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "시리얼"
+msgid "Online"
+msgstr "온라인"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "모뎀"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "교전"
 
 #: guitext:877
 msgctxt "World direction"
