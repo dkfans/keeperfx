@@ -160,8 +160,6 @@ struct NetSP // new version
     void (*drop_user)(NetUserId id);
 };
 
-extern const struct NetSP tcpSP;
-
 // New Declarations End Here ==================================================
 
 struct TbNetworkSessionNameEntry;
@@ -169,7 +167,6 @@ struct TbNetworkSessionNameEntry;
 typedef long (*Net_Callback_Func)(void);
 
 enum TbNetworkService {
-    NS_TCP_IP,
     NS_ENET_UDP,
 };
 

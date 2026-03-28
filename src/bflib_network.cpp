@@ -118,10 +118,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
     for (usr = 0; usr < netstate.max_players; usr += 1) {
         netstate.users[usr].id = usr;
     }
-    if (srvcindex == NS_TCP_IP) {
-        NETMSG("Selecting TCP/IP SP");
-        netstate.sp = &tcpSP;
-    } else if (srvcindex == NS_ENET_UDP) {
+    if (srvcindex == NS_ENET_UDP) {
         netstate.sp = InitEnetSP();
         NETMSG("Selecting UDP");
     } else {
@@ -260,8 +257,6 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
 
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr) {
     struct TbNetworkCallbackData netcdat = {};
-    strcpy(netcdat.svc_name, "TCP");
-    callback(&netcdat, ptr);
     strcpy(netcdat.svc_name, "ENET/UDP");
     callback(&netcdat, ptr);
     NETMSG("Enumerate Services called");

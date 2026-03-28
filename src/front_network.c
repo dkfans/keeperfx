@@ -219,14 +219,9 @@ static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *
       ERRORLOG("Too many services in enumeration");
       return;
     }
-    if (strcasecmp("TCP", netcdat->svc_name) == 0)
+    if (strcasecmp("ENET/UDP", netcdat->svc_name) == 0)
     {
-        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", "TCP/IP");//TODO TRANSLATION put this in GUI strings
-        net_number_of_services++;
-    }
-    else if (strcasecmp("ENET/UDP", netcdat->svc_name) == 0)
-    {
-        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", netcdat->svc_name);//TODO TRANSLATION put this in GUI strings
+        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", "Online/LAN");//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
     } else
     {
