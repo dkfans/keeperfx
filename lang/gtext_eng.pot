@@ -4655,17 +4655,17 @@ msgstr ""
 #: guitext:874
 msgctxt "Menu interface, Network service item"
 msgid "Online"
-msgstr "Online"
+msgstr ""
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
-msgstr "LAN"
+msgstr ""
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
-msgstr "Skirmish"
+msgstr ""
 
 #: guitext:877
 msgctxt "World direction"
