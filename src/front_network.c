@@ -73,6 +73,11 @@ static int previous_player_count_for_ping_wait = -1;
 }
 #endif
 /******************************************************************************/
+TbBool frontnet_service_selected(enum FrontendNetService service)
+{
+    return (net_service_index_selected == service);
+}
+
 void process_network_error(long errcode)
 {
   const char *text;
@@ -211,24 +216,6 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
     }
 }
 
-// TODO: remove all this weird stuff
-static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
-{
-    if (net_number_of_services >= NET_SERVICES_COUNT)
-    {
-      ERRORLOG("Too many services in enumeration");
-      return;
-    }
-    if (strcasecmp("ENET/UDP", netcdat->svc_name) == 0)
-    {
-        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", "Online/LAN");//TODO TRANSLATION put this in GUI strings
-        net_number_of_services++;
-    } else
-    {
-        ERRORLOG("Unrecognized Network Service");
-    }
-}
-
 void frontnet_session_update(void)
 {
     static long last_enum_players = 0;
@@ -240,19 +227,16 @@ void frontnet_session_update(void)
       memset(net_session, 0, sizeof(net_session));
       if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
         ERRORLOG("LbNetwork_EnumerateSessions() failed");
-      lan_refresh_sessions();
-      for (int i = 0; i < lan_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
-          net_session[net_number_of_sessions++] = &lan_sessions[i];
-      matchmaking_refresh_sessions();
-      for (int i = 0; i < matchmaking_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++) {
-          int duplicate = 0;
-          for (int j = 0; j < lan_session_count; j++) {
-              if (matchmaking_sessions[i].lobby_id[0] != '\0' && strcmp(matchmaking_sessions[i].lobby_id, lan_sessions[j].lobby_id) == 0) {
-                  duplicate = 1;
-                  break;
-              }
-          }
-          if (!duplicate)
+      if (frontnet_service_selected(FrontendNetSvc_LAN))
+      {
+          lan_refresh_sessions();
+          for (int i = 0; i < lan_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
+              net_session[net_number_of_sessions++] = &lan_sessions[i];
+      }
+      if (frontnet_service_selected(FrontendNetSvc_Online))
+      {
+          matchmaking_refresh_sessions();
+          for (int i = 0; i < matchmaking_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
               net_session[net_number_of_sessions++] = &matchmaking_sessions[i];
       }
       last_enum_sessions = LbTimerClock();
@@ -429,8 +413,12 @@ void frontnet_start_update(void)
     frontnet_rewite_net_messages();
 
     LbNetwork_UpdateInputLagIfHost();
-    enet_matchmaking_host_update();
-    lan_host_update();
+    if (frontnet_service_selected(FrontendNetSvc_Online)) {
+        enet_matchmaking_host_update();
+    }
+    if (frontnet_service_selected(FrontendNetSvc_LAN)) {
+        lan_host_update();
+    }
 }
 
 void display_attempting_to_join_message(int elapsed_s)
@@ -480,10 +468,8 @@ void frontnet_service_setup(void)
 {
     net_number_of_services = 0;
     memset(net_service, 0, sizeof(net_service));
-    // Create list of available services
-    if (LbNetwork_EnumerateServices(enum_services_callback, NULL)) {
-        ERRORLOG("LbNetwork_EnumerateServices() failed");
-    }
+    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", "Online"); //TODO TRANSLATION put this in GUI strings
+    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", "LAN"); //TODO TRANSLATION put this in GUI strings
     // Create skirmish option if it should be enabled
     if ((game.system_flags & GSF_AllowOnePlayer) != 0)
     {
@@ -504,7 +490,9 @@ void frontnet_session_setup(void)
     fe_computer_players = 2;
     lbInkey = 0;
     net_session_index_active_id = -1;
-    matchmaking_connect_async();
+    if (frontnet_service_selected(FrontendNetSvc_Online)) {
+        matchmaking_connect_async();
+    }
 }
 
 void frontnet_start_setup(void)

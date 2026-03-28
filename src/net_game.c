@@ -53,18 +53,21 @@ struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 /******************************************************************************/
-short setup_network_service(int srvidx)
+short setup_network_service(enum FrontendNetService service)
 {
   struct ServiceInitData *init_data = NULL;
-  SYNCMSG("Initializing 4-players type %d network",srvidx);
+  SYNCMSG("Initializing 4-players type %d network", service);
   memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
-  {
-    if (srvidx > NS_ENET_UDP)
-      process_network_error(-800);
+  if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
+    process_network_error(-800);
     return 0;
   }
-  net_service_index_selected = srvidx;
+  if ( LbNetwork_Init(NS_ENET_UDP, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
+  {
+    process_network_error(-800);
+    return 0;
+  }
+  net_service_index_selected = service;
   frontend_set_state(FeSt_NET_SESSION);
   return 1;
 }

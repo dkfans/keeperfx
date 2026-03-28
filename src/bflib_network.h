@@ -250,7 +250,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, int32_t *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
-TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
