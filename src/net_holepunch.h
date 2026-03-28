@@ -2,8 +2,14 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /**
+ * @file net_holepunch.h
+ *     UDP hole punching via STUN.
+ * @par Purpose:
+ *     Sends a STUN Binding Request from the ENet host socket to discover the
+ *     external address and create a NAT mapping.  Also provides a helper to
+ *     send pre-connect punch packets when joining.
  * @author   KeeperFX Team
- * @date     18 Oct 2022
+ * @date     06 Mar 2026
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -11,40 +17,24 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#ifndef NET_HOLEPUNCH_H
+#define NET_HOLEPUNCH_H
 
-#ifndef GIT_BFLIB_ENET_H
-#define GIT_BFLIB_ENET_H
-
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define ENET_DEFAULT_PORT 5556
+struct _ENetHost;
+struct _ENetAddress;
 
-enum {
-    ENET_CHANNEL_RELIABLE = 0,
-    ENET_CHANNEL_UNSEQUENCED = 1
-};
-
-struct NetSP;
-struct NetSP* InitEnetSP();
-unsigned long GetPing(int id);
-unsigned long GetPingVariance(int id);
-unsigned int GetPacketLoss(int id);
-unsigned int GetClientDataInTransit();
-unsigned int GetIncomingPacketQueueSize();
-unsigned int GetClientPacketsLost();
-unsigned int GetClientOutgoingDataTotal();
-unsigned int GetClientIncomingDataTotal();
-unsigned int GetClientReliableCommandsInFlight();
-void enet_matchmaking_host_update(void);
-extern uint16_t external_ipv4_port;
-uint16_t enet_get_bound_ipv6_port(void);
+uint16_t holepunch_stun_query(struct _ENetHost *host, char *output_ip, size_t output_ip_buffer_size);
+void holepunch_punch_to(struct _ENetHost *host, const struct _ENetAddress *target);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //GIT_BFLIB_ENET_H
+#endif

@@ -16,15 +16,22 @@ you are over a couple hundred kilometer away from each other.
 Multiplayer over ENET/UDP
 ------------------------------
 
+KeeperFX includes an online matchmaking server. Hosted games are listed there
+automatically, allowing others to browse and join without exchanging IP addresses.
+
 To host a ENET/UDP game:
 Make sure the port 5556 is open for traffic and is forwarded to port 5556 on
 your computer. When you have started the game, click Multiplayer -> ENET/UDP ->
-Create Game.
+Create Game. Your game will appear in the matchmaking list for others to join.
 
 To join a ENET/UDP game:
-Specify a command line option -sessions [ip_address]:5556 when starting game.
-For instance, if the host's IP address is 55.83.54.187, the appropriate command
-line option is -sessions 55.83.54.187:5556
+Click Multiplayer -> ENET/UDP to browse available games from the matchmaking
+server, then select one and click Join Game.
+
+Alternatively, join directly by specifying a command line option
+-sessions [ip_address]:5556 when starting game. For instance, if the host's IP
+address is 55.83.54.187, the appropriate command line option is
+-sessions 55.83.54.187:5556
 The launcher can be used to set this.
 
 Several sessions can be added to command line by prepending a semicolon before

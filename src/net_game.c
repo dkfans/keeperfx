@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "net_matchmaking.h"
 #include "net_game.h"
 
 #include "globals.h"
@@ -188,13 +189,13 @@ const char *network_player_name(int plyr_idx)
 long network_session_join(void)
 {
     int32_t plyr_num;
-    display_attempting_to_join_message();
-    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
-    {
-      process_network_error(-802);
-      return -1;
-    }
-    return plyr_num;
+    display_attempting_to_join_message(0);
+    snprintf(join_lobby_id, sizeof(join_lobby_id), "%s", net_session[net_session_index_active]->join_address);
+    if (LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) == 0)
+        return plyr_num;
+    join_lobby_id[0] = '\0';
+    process_network_error(-802);
+    return -1;
 }
 
 void sync_various_data()
