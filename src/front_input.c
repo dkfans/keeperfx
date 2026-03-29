@@ -163,7 +163,6 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"ToggleConsole",         GUIStr_ToggleConsole,           KC_GRAVE, KMod_NONE,           BMV_Visible,        },       // Gkey_ToggleConsole,
     {"FinishLevel",           GUIStr_FinishLevel,             KC_SPACE, KMod_NONE,           BMV_Visible,        },       // Gkey_FinishLevel,
     {"ToggleHeroHealthFlower",GUIStr_ToggleHeroHealthFlowers, KC_F, KMod_ALT,                BMV_Visible,        },       // Gkey_ToggleHeroHealthFlowers,
-    {"TeleportFight",         GUIStr_TeleportFight,           KC_F, KMod_NONE,               BMV_Visible,        },       // Gkey_TeleportFight,
     {"TeleportLastWorkroom",  GUIStr_TeleportLastWorkroom,    KC_SEMICOLON, KMod_NONE,       BMV_Visible,        },       // Gkey_TeleportLastWorkroom,
     {"TeleportCallToArms",    GUIStr_TeleportCallToArms,      KC_SLASH, KMod_NONE,           BMV_Visible,        },       // Gkey_TeleportCallToArms,
     {"TeleportDefault",       GUIStr_TeleportDefault,         KC_COMMA, KMod_NONE,           BMV_Visible,        },       // Gkey_TeleportDefault,
@@ -1796,7 +1795,7 @@ short get_creature_control_action_inputs(void)
             }
 
         }
-        if (is_game_key_pressed(Gkey_TeleportFight, &val, false))
+        if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
         {
             clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);
