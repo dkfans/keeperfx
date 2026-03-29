@@ -2803,8 +2803,8 @@ msgstr "Тестировщики"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Сеансы"
+msgid "Game Lobbies"
+msgstr "Игровые лобби"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -2823,13 +2823,13 @@ msgstr "Сообщения"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Создать игру"
+msgid "Create Lobby"
+msgstr "Создать лобби"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Присоединиться к игре"
+msgid "Join Lobby"
+msgstr "Присоединиться к лобби"
 
 #: guitext:401
 msgctxt "Menu interface item"

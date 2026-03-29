@@ -3133,8 +3133,8 @@ msgstr "Testers"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "세션들"
+msgid "Game Lobbies"
+msgstr "게임 로비"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3153,13 +3153,13 @@ msgstr "메시지"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "게임 만들기"
+msgid "Create Lobby"
+msgstr "로비 만들기"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "게임에 참여"
+msgid "Join Lobby"
+msgstr "로비 참가"
 
 #: guitext:401
 msgctxt "Menu interface item"

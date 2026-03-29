@@ -3115,8 +3115,8 @@ msgstr "Testeři"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sezení"
+msgid "Game Lobbies"
+msgstr "Herní lobby"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3135,13 +3135,13 @@ msgstr "Zprávy"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Založit hru"
+msgid "Create Lobby"
+msgstr "Vytvořit lobby"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Připojit se ke hře"
+msgid "Join Lobby"
+msgstr "Připojit se do lobby"
 
 #: guitext:401
 msgctxt "Menu interface item"

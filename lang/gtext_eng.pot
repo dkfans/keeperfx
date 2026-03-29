@@ -2259,7 +2259,7 @@ msgstr ""
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
+msgid "Game Lobbies"
 msgstr ""
 
 #: guitext:396
@@ -2279,12 +2279,12 @@ msgstr ""
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
+msgid "Create Lobby"
 msgstr ""
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
+msgid "Join Lobby"
 msgstr ""
 
 #: guitext:401

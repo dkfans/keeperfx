@@ -3182,8 +3182,8 @@ msgstr "Тестувальники"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Сесії"
+msgid "Game Lobbies"
+msgstr "Ігрові лобі"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3202,13 +3202,13 @@ msgstr "Повідомлення"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Створити гру"
+msgid "Create Lobby"
+msgstr "Створити лобі"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Приєднатися до гри"
+msgid "Join Lobby"
+msgstr "Приєднатися до лобі"
 
 #: guitext:401
 msgctxt "Menu interface item"

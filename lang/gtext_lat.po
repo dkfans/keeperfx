@@ -3171,8 +3171,8 @@ msgstr "Probatores"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessiones"
+msgid "Game Lobbies"
+msgstr "Vestibula ludorum"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3191,13 +3191,13 @@ msgstr "Nuntia"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Crea ludum"
+msgid "Create Lobby"
+msgstr "Crea vestibulum"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Iunge te ad ludum"
+msgid "Join Lobby"
+msgstr "Iunge te ad vestibulum"
 
 #: guitext:401
 msgctxt "Menu interface item"

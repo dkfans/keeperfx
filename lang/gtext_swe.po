@@ -3161,8 +3161,8 @@ msgstr "Testare"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessioner"
+msgid "Game Lobbies"
+msgstr "Spellobbyer"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3181,13 +3181,13 @@ msgstr "Meddelanden"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Skapa Spel"
+msgid "Create Lobby"
+msgstr "Skapa lobby"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Gå Med I Spel"
+msgid "Join Lobby"
+msgstr "Gå med i lobby"
 
 #: guitext:401
 msgctxt "Menu interface item"

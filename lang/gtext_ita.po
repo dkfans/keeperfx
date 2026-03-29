@@ -3186,8 +3186,8 @@ msgstr "Collaudatori"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessioni"
+msgid "Game Lobbies"
+msgstr "Lobby di gioco"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3206,13 +3206,13 @@ msgstr "Messaggi"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Crea Partita"
+msgid "Create Lobby"
+msgstr "Crea lobby"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Entra in Partita"
+msgid "Join Lobby"
+msgstr "Entra nella lobby"
 
 #: guitext:401
 msgctxt "Menu interface item"

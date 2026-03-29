@@ -3247,8 +3247,8 @@ msgstr "Testadores"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessões"
+msgid "Game Lobbies"
+msgstr "Lobbies de jogo"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3267,13 +3267,13 @@ msgstr "Mensagens"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Criar Jogo"
+msgid "Create Lobby"
+msgstr "Criar lobby"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Entrar no Jogo"
+msgid "Join Lobby"
+msgstr "Entrar no lobby"
 
 #: guitext:401
 msgctxt "Menu interface item"

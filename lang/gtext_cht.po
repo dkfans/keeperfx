@@ -2916,8 +2916,8 @@ msgstr "测试员"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "连线作业"
+msgid "Game Lobbies"
+msgstr "遊戲大廳"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -2936,13 +2936,13 @@ msgstr "讯息"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "建立游戏"
+msgid "Create Lobby"
+msgstr "建立大廳"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "加入游戏"
+msgid "Join Lobby"
+msgstr "加入大廳"
 
 #: guitext:401
 msgctxt "Menu interface item"

@@ -3108,8 +3108,8 @@ msgstr "テスター"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "セッション"
+msgid "Game Lobbies"
+msgstr "ゲームロビー"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3128,13 +3128,13 @@ msgstr "チャットメッセージ"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "ゲームを作成する"
+msgid "Create Lobby"
+msgstr "ロビーを作成"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "ゲームに参加する"
+msgid "Join Lobby"
+msgstr "ロビーに参加"
 
 #: guitext:401
 msgctxt "Menu interface item"
