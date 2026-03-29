@@ -21,10 +21,8 @@ src/ariadne_points.c \
 src/ariadne_regions.c \
 src/ariadne_tringls.c \
 src/ariadne_wallhug.c \
-src/bflib_base_tcp.cpp \
 src/bflib_basics.c \
 src/bflib_coroutine.c \
-src/bflib_client_tcp.cpp \
 src/bflib_cpu.c \
 src/bflib_crash.c \
 src/bflib_datetm.cpp \
@@ -51,12 +49,10 @@ src/bflib_planar.c \
 src/bflib_render.c \
 src/bflib_render_gpoly.c \
 src/bflib_render_trig.c \
-src/bflib_server_tcp.cpp \
 src/bflib_sndlib.cpp \
 src/bflib_sound.c \
 src/bflib_sprfnt.c \
 src/bflib_string.c \
-src/bflib_tcpsp.c \
 src/bflib_video.c \
 src/bflib_vidraw.c \
 src/bflib_vidraw_spr_norm.c \

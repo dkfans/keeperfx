@@ -118,10 +118,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
     for (usr = 0; usr < netstate.max_players; usr += 1) {
         netstate.users[usr].id = usr;
     }
-    if (srvcindex == NS_TCP_IP) {
-        NETMSG("Selecting TCP/IP SP");
-        netstate.sp = &tcpSP;
-    } else if (srvcindex == NS_ENET_UDP) {
+    if (srvcindex == NS_ENET_UDP) {
         netstate.sp = InitEnetSP();
         NETMSG("Selecting UDP");
     } else {
@@ -157,12 +154,16 @@ TbError LbNetwork_Create(char *, char *plyr_name, uint32_t *plyr_num, void *optn
     if (external_ipv4_port != 0)
         ipv4_port = external_ipv4_port;
     const uint16_t ipv6_port = enet_get_bound_ipv6_port();
-    lan_host_start(host_name.c_str(), local_port);
-    std::thread([ipv4_port, ipv6_port, host_name]() {
-        if (matchmaking_connect() == 0) {
-            matchmaking_create(host_name.c_str(), (int)ipv4_port, (int)ipv6_port);
-        }
-    }).detach();
+    if (frontnet_service_selected(FrontendNetSvc_LAN)) {
+        lan_host_start(host_name.c_str(), local_port);
+    }
+    if (frontnet_service_selected(FrontendNetSvc_Online)) {
+        std::thread([ipv4_port, ipv6_port, host_name]() {
+            if (matchmaking_connect() == 0) {
+                matchmaking_create(host_name.c_str(), (int)ipv4_port, (int)ipv6_port);
+            }
+        }).detach();
+    }
     netstate.my_id = SERVER_ID;
     snprintf(netstate.users[netstate.my_id].name, sizeof(netstate.users[netstate.my_id].name), "%s", plyr_name);
     netstate.users[netstate.my_id].progress = USER_LOGGEDIN;
@@ -256,16 +257,6 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
         }
     }
     UpdateLocalPlayerInfo(id);
-}
-
-TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr) {
-    struct TbNetworkCallbackData netcdat = {};
-    strcpy(netcdat.svc_name, "TCP");
-    callback(&netcdat, ptr);
-    strcpy(netcdat.svc_name, "ENET/UDP");
-    callback(&netcdat, ptr);
-    NETMSG("Enumerate Services called");
-    return Lb_OK;
 }
 
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc callback, void *buf) {
