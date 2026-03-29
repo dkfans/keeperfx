@@ -6813,7 +6813,7 @@ msgstr "Retour au menu Jeu Libre"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Collection de Cartes"
 
 #: guitext:970

@@ -6563,7 +6563,7 @@ msgstr "Terug naar selectiescherm"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Level pakketten"
 
 #: guitext:970

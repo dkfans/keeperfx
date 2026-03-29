@@ -6589,7 +6589,7 @@ msgstr "Tillbaka till Fria Spel-världar"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Banpaket"
 
 #: guitext:970

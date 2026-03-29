@@ -6582,8 +6582,8 @@ msgstr "레벨 자유 탐험으로 돌아가기"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
-msgstr "Map packs"
+msgid "Map Packs"
+msgstr "Map Packs"
 
 #: guitext:970
 msgctxt "Menu interface item"

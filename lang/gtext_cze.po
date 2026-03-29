@@ -6566,7 +6566,7 @@ msgstr "Vrátit se na úrovně Volné hry"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Balíčky map"
 
 #: guitext:970

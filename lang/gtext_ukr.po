@@ -6638,7 +6638,7 @@ msgstr "Повернутися до рівнів вільної гри"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Набори мап"
 
 #: guitext:970

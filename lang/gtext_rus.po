@@ -5994,7 +5994,7 @@ msgstr "Вернуться к списку карт"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Наборы карт"
 
 #: guitext:970

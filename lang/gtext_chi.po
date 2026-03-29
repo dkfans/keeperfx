@@ -6202,7 +6202,7 @@ msgstr "返回更深的地下城"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "地图包"
 
 #: guitext:970

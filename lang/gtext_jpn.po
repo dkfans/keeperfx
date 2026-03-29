@@ -6532,7 +6532,7 @@ msgstr "自由遊びのレベルに戻る"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "マップパック"
 
 #: guitext:970

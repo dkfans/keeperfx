@@ -6852,7 +6852,7 @@ msgstr "Zurück zu den Freispiel-Levels"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Kartenpakete"
 
 #: guitext:970

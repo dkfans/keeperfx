@@ -6831,7 +6831,7 @@ msgstr "Volver a niveles sueltos"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Paquetes de mapas"
 
 #: guitext:970

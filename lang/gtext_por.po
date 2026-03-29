@@ -6792,7 +6792,7 @@ msgstr "Voltar aos Níveis de Jogo Livre"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Pacotes de mapas"
 
 #: guitext:970
