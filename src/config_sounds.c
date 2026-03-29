@@ -41,8 +41,76 @@ const struct ConfigFileData keeper_sounds_file_data = {
     .filename = "sounds.cfg",
     .load_func = load_sounds_config_file,
     .pre_load_func = NULL,
-    .post_load_func = NULL,
+    .post_load_func = cache_common_sound_ids,
 };
+
+/******************************************************************************/
+// Cached common sound IDs
+/******************************************************************************/
+
+SoundSmplTblID snd_refusal         = 119;
+SoundSmplTblID snd_tab_click       = 62;
+SoundSmplTblID snd_zoom            = 177;
+SoundSmplTblID snd_room_claim      = 116;
+SoundSmplTblID snd_gold_pickup     = 32;
+int            snd_gold_pickup_count = 3;
+SoundSmplTblID snd_salary_full     = 34;
+SoundSmplTblID snd_salary_partial  = 33;
+SoundSmplTblID snd_salary_none     = 32;
+SoundSmplTblID snd_heart_beat_down = 150;  // rooms/beat1.wav
+SoundSmplTblID snd_heart_beat_up   = 151;  // rooms/beat2a.wav
+SoundSmplTblID snd_door_open       = 92;   // terrain/doorup2.wav
+SoundSmplTblID snd_door_close      = 91;   // traps/alarm.wav
+SoundSmplTblID snd_door_place      = 72;   // terrain/rocks1.wav, rocks2.wav, rocks3.wav
+int            snd_door_place_count = 3;
+SoundSmplTblID snd_dig_impact      = 72;   // terrain/rocks1.wav, rocks2.wav, rocks3.wav
+int            snd_dig_impact_count = 3;
+SoundSmplTblID snd_dig_dirt        = 73;   // terrain/rocks2.wav
+
+/* Footstep variants */
+SoundSmplTblID snd_foot_spur       = 5;    // footsteps/spur1.wav
+int            snd_foot_spur_count = 4;
+SoundSmplTblID snd_foot_wet        = 21;   // footsteps/footwet1.wav
+int            snd_foot_wet_count  = 4;
+SoundSmplTblID snd_foot_snow       = 182;  // footsteps/snowft1.wav, snowft2.wav, snowft3.wav
+int            snd_foot_snow_count = 3;
+
+/* Creature ambient */
+SoundSmplTblID snd_insect_fly      = 26;   // creature_insect/fly.wav
+SoundSmplTblID snd_chicken_cluck   = 112;  // chicken/chick4a.wav
+int            snd_chicken_cluck_count = 3;
+
+/* Combat / impacts */
+SoundSmplTblID snd_splash          = 37;   // splash.wav
+SoundSmplTblID snd_explode         = 47;   // creature_spells/firepuff.wav
+SoundSmplTblID snd_strike_wall     = 128;  // strikes/swonarm3.wav, swonarm4.wav, swonarm5.wav
+int            snd_strike_wall_count = 3;
+SoundSmplTblID snd_reinforce_hit   = 1005; // impacts/slap2.wav, tap.wav, toasterstepa1-3.wav, toasterstepb1-2.wav
+int            snd_reinforce_hit_count = 7;
+
+/* Spells */
+SoundSmplTblID snd_spell_wall      = 41;   // creature_spells/wind3.wav
+SoundSmplTblID snd_spell_frozen    = 50;   // creature_spells/freeze.wav
+SoundSmplTblID snd_spell_stars     = 76;   // keeper_spells/slap.wav
+SoundSmplTblID snd_spell_armageddon = 180; // null.wav
+
+/* Digging */
+SoundSmplTblID snd_dig_spell       = 63;   // gui/button3.wav
+int            snd_dig_spell_count = 6;
+SoundSmplTblID snd_tunnel_dig      = 69;   // creature_spells/dig6.wav
+int            snd_tunnel_dig_count = 3;
+
+/* UI */
+SoundSmplTblID snd_button_click    = 60;   // spit.wav
+SoundSmplTblID snd_button_click2   = 61;   // gui/button1.wav
+SoundSmplTblID snd_buzzer          = 89;   // coindrop.wav
+SoundSmplTblID snd_tab_fall        = 947;  // null.wav
+
+/* Dungeon heart */
+SoundSmplTblID snd_heart_engine    = 93;   // terrain/doordown.wav
+
+/* Scavenging */
+SoundSmplTblID snd_scavenge        = 156;  // rooms/prayers.wav
 
 /******************************************************************************/
 
@@ -272,23 +340,43 @@ TbBool load_sounds_config(void)
     return load_config(&keeper_sounds_file_data, CnfLd_Standard);
 }
 
-TbBool load_campaign_sounds_config(const char* campaign_name)
+TbBool load_campaign_sounds_config(const char* levels_location)
 {
-    if (campaign_name == NULL || campaign_name[0] == '\0')
+    if (levels_location == NULL || levels_location[0] == '\0')
     {
         return false;
     }
-    
+
+    // levels_location is like "campgns/ami2019" — look for sounds.cfg in it
     char filepath[512];
-    snprintf(filepath, sizeof(filepath), "campgns/%s/sounds.cfg", campaign_name);
-    
+    snprintf(filepath, sizeof(filepath), "%s/sounds.cfg", levels_location);
+
     const char* fullpath = prepare_file_path(FGrp_Main, filepath);
     if (fullpath == NULL)
     {
         return false;
     }
-    
-    // Load with IgnoreErrors since campaign sounds are optional
+
+    // Optional — campaigns don't need to supply sounds
+    return load_sounds_config_file(fullpath, CnfLd_Standard | CnfLd_IgnoreErrors);
+}
+
+TbBool load_mod_sounds_config(const char* mod_name)
+{
+    if (mod_name == NULL || mod_name[0] == '\0')
+    {
+        return false;
+    }
+
+    char filepath[512];
+    snprintf(filepath, sizeof(filepath), "mods/%s/sounds.cfg", mod_name);
+
+    const char* fullpath = prepare_file_path(FGrp_Main, filepath);
+    if (fullpath == NULL)
+    {
+        return false;
+    }
+
     return load_sounds_config_file(fullpath, CnfLd_Standard | CnfLd_IgnoreErrors);
 }
 
@@ -320,6 +408,59 @@ SoundSmplTblID get_sound_id(const char* name)
 TbBool is_sound_registered(const char* name)
 {
     return sound_manager_is_registered(name);
+}
+
+TbBool cache_common_sound_ids(void)
+{
+    SoundSmplTblID id;
+    int count;
+
+    #define CACHE_SND(var, name)           id = sound_manager_get_id(name); if (id > 0) { var = id; }
+    #define CACHE_SND_COUNT(var, cvar, nm) id = sound_manager_get_id(nm);   if (id > 0) { var = id; count = sound_manager_get_count(nm); if (count > 0) cvar = count; }
+
+    CACHE_SND(snd_refusal,         "REFUSAL")
+    CACHE_SND(snd_tab_click,       "TAB_CLICK")
+    CACHE_SND(snd_zoom,            "ZOOM")
+    CACHE_SND(snd_room_claim,      "ROOM_CLAIM")
+    CACHE_SND_COUNT(snd_gold_pickup, snd_gold_pickup_count, "GOLD_PICKUP")
+    CACHE_SND(snd_salary_full,     "SALARY_FULL")
+    CACHE_SND(snd_salary_partial,  "SALARY_PARTIAL")
+    CACHE_SND(snd_salary_none,     "SALARY_NONE")
+    CACHE_SND(snd_heart_beat_down, "HEART_BEAT_DOWN")
+    CACHE_SND(snd_heart_beat_up,   "HEART_BEAT_UP")
+    CACHE_SND(snd_door_open,       "DOOR_OPEN")
+    CACHE_SND(snd_door_close,      "DOOR_CLOSE")
+    CACHE_SND_COUNT(snd_door_place,  snd_door_place_count,  "DOOR_PLACE")
+    CACHE_SND_COUNT(snd_dig_impact,  snd_dig_impact_count,  "DIG_IMPACT")
+    CACHE_SND(snd_dig_dirt,        "DIG_DIRT")
+
+    CACHE_SND_COUNT(snd_foot_spur,   snd_foot_spur_count,   "FOOT_SPUR")
+    CACHE_SND_COUNT(snd_foot_wet,    snd_foot_wet_count,    "FOOT_WET")
+    CACHE_SND_COUNT(snd_foot_snow,   snd_foot_snow_count,   "FOOT_SNOW")
+    CACHE_SND(snd_insect_fly,      "INSECT_FLY")
+    CACHE_SND_COUNT(snd_chicken_cluck, snd_chicken_cluck_count, "CHICKEN_CLUCK")
+    CACHE_SND(snd_splash,          "SPLASH")
+    CACHE_SND(snd_explode,         "EXPLODE")
+    CACHE_SND_COUNT(snd_strike_wall, snd_strike_wall_count, "STRIKE_WALL")
+    CACHE_SND_COUNT(snd_reinforce_hit, snd_reinforce_hit_count, "REINFORCE_HIT")
+    CACHE_SND(snd_spell_wall,      "SPELL_WALL")
+    CACHE_SND(snd_spell_frozen,    "SPELL_FROZEN")
+    CACHE_SND(snd_spell_stars,     "SPELL_STARS")
+    CACHE_SND(snd_spell_armageddon, "SPELL_ARMAGEDDON")
+    CACHE_SND_COUNT(snd_dig_spell,   snd_dig_spell_count,   "DIG_SPELL")
+    CACHE_SND_COUNT(snd_tunnel_dig,  snd_tunnel_dig_count,  "TUNNEL_DIG")
+    CACHE_SND(snd_button_click,    "BUTTON_CLICK")
+    CACHE_SND(snd_button_click2,   "BUTTON_CLICK2")
+    CACHE_SND(snd_buzzer,          "BUZZER")
+    CACHE_SND(snd_tab_fall,        "TAB_FALL")
+    CACHE_SND(snd_heart_engine,    "HEART_ENGINE")
+    CACHE_SND(snd_scavenge,        "SCAVENGE")
+
+    #undef CACHE_SND
+    #undef CACHE_SND_COUNT
+
+    SYNCDBG(8, "Common sound IDs cached");
+    return true;
 }
 
 /******************************************************************************/

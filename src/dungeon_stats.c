@@ -78,6 +78,7 @@ TbBool load_stats_files(void)
     load_config(&keeper_keepcomp_file_data,     CnfLd_Standard);
     load_config(&keeper_slabset_file_data,      CnfLd_Standard);
     load_config(&keeper_columns_file_data,      CnfLd_Standard);
+    load_sounds_config();
 
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {

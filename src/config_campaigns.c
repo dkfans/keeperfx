@@ -28,6 +28,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "config_keeperfx.h"
+#include "config_sounds.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
@@ -1185,6 +1186,15 @@ TbBool change_campaign(const char *cmpgn_fname)
     update_room_tab_to_config();
     update_trap_tab_to_config();
     update_powers_tab_to_config();
+    // Load campaign-specific and mod sound overrides (optional; errors are ignored)
+    if (result)
+    {
+        load_campaign_sounds_config(campaign.levels_location);
+        for (int i = 0; i < mods_conf.after_base_cnt; i++)
+            load_mod_sounds_config(mods_conf.after_base_item[i].name);
+        for (int i = 0; i < mods_conf.after_campaign_cnt; i++)
+            load_mod_sounds_config(mods_conf.after_campaign_item[i].name);
+    }
     return result;
 }
 
