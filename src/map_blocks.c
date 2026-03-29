@@ -382,7 +382,7 @@ unsigned short torch_flags_for_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return tflag;
 }
 
-unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
+unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slabkind)
 {
     SubtlCodedCoords stl_num;
     struct Thing *thing;
@@ -414,11 +414,20 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
                 struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
                 if (objst->destroy_on_liquid)
                 {
-                    if (rmeffect > 0)
+                    EffectOrEffElModel rmeffect = 0;
+                    if (slabkind == SlbT_LAVA)
+                    {
+                        rmeffect = objst->lava_burn_effect;
+                    }
+                    else
+                    {
+                        rmeffect = objst->water_splash_effect;
+                    }
+                    if (rmeffect != 0)
                     {
                         set_coords_to_slab_center(&pos,slb_x,slb_y);
                         pos.z.val = get_floor_height_at(&pos);
-                        create_effect(&pos, rmeffect, thing->owner);
+                        create_used_effect_or_element(&pos, rmeffect, thing->owner,thing->index);
                     }
                     destroy_object(thing);
                     removed_num++;
@@ -1792,10 +1801,8 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
             remove_unwanted_things_from_wall_slab(slb_x, slb_y);
             break;
         case SlbT_LAVA:
-            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, TngEff_HarmlessGas2);
-            break;
         case SlbT_WATER:
-            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, TngEff_Drip3);
+            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, nslab);
             break;
         case SlbT_PATH:
         case SlbT_CLAIMED:

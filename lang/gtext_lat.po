@@ -2946,8 +2946,8 @@ msgstr "Reproduce introductionem"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Tabula servitii"
+msgid "Multiplayer Menu"
+msgstr "Tabula lusorum plurium"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3171,8 +3171,8 @@ msgstr "Probatores"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessiones"
+msgid "Game Lobbies"
+msgstr "Vestibula ludorum"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3181,8 +3181,8 @@ msgstr "Nomen"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Servitia"
+msgid "Game Modes"
+msgstr "Modi ludi"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3191,13 +3191,13 @@ msgstr "Nuntia"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Crea ludum"
+msgid "Create Lobby"
+msgstr "Crea vestibulum"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Iunge te ad ludum"
+msgid "Join Lobby"
+msgstr "Iunge te ad vestibulum"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3206,8 +3206,8 @@ msgstr "Incipe ludum"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Tabula ludi"
+msgid "Lobbies Menu"
+msgstr "Tabula vestibulorum"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -5847,18 +5847,18 @@ msgstr "4 ludii"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Serialis"
+msgid "Online"
+msgstr "Interretialis"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Modisum"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "EFI"
+msgid "Skirmish"
+msgstr "Velitatio"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6599,7 +6599,7 @@ msgstr "Redi ad libellas independentes"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Grupus chartarum"
 
 #: guitext:970

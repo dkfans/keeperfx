@@ -33,6 +33,11 @@ extern "C" {
 #define AVERAGE_PING_UPDATE_RATE 500
 #define FRONTNET_PING_STABILIZATION_DELAY_MS 3000
 
+enum FrontendNetService {
+    FrontendNetSvc_Online = 0,
+    FrontendNetSvc_LAN = 1,
+};
+
 #pragma pack(1)
 
 /******************************************************************************/
@@ -54,6 +59,7 @@ void frontnet_session_update(void);
 void frontnet_start_update(void);
 TbBool frontnet_is_waiting_for_ping_stabilization(void);
 void frontnet_reset_ping_stabilization(void);
+TbBool frontnet_service_selected(enum FrontendNetService service);
 
 void net_load_config_file(void);
 void net_write_config_file(void);
