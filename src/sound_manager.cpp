@@ -14,6 +14,7 @@
 extern "C" {
     int custom_sound_bank_size();
     TbBool custom_sound_load_wav(const char* filepath, int sample_id);
+    SoundSmplTblID get_custom_offset(void);
 }
 
 namespace KeeperFX {
@@ -176,7 +177,7 @@ SoundSmplTblID SoundManager::loadCustomSound(const std::string& name, const std:
     printf("[SoundManager] Loaded custom sound '%s' as bank index %d (filepath: %s)\n",
            name.c_str(), bank_index, filepath.c_str());
     
-    return bank_index;
+    return get_custom_offset() + bank_index;
 }
 
 // Helper function to load WAV file into custom bank
@@ -516,6 +517,41 @@ SoundEmitterID sound_manager_play_effect_named(const char* name, long priority, 
     return KeeperFX::SoundManager::getInstance().playEffectNamed(name, priority, volume);
 }
 
+// Resolve a sound file path specified in a creature cfg.
+// Search order:
+//   1. FGrp_CmpgCrtrs/<path>   (alongside the .cfg files)
+//   2. FGrp_CmpgMedia/<path>   (campaign MEDIA_LOCATION)
+// If the path has no extension, each location is tried with .wav, .mp3, .ogg, .flac.
+// Returns true and fills out_path (size 2048) on success.
+static bool resolve_creature_sound_path(const char* path_in, char* out_path, size_t out_size)
+{
+    static const TbFileGroups groups[] = { FGrp_CmpgCrtrs, FGrp_CmpgMedia };
+    static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
+
+    // Determine whether the caller already supplied an extension.
+    const char* dot = strrchr(path_in, '.');
+    const char* slash = strrchr(path_in, '/');
+    bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
+
+    for (int gi = 0; gi < (int)(sizeof(groups)/sizeof(groups[0])); gi++) {
+        for (int ei = 0; exts[ei] != NULL; ei++) {
+            if (has_ext && ei > 0) break;
+            if (!has_ext && ei == 0) continue;
+
+            char candidate[2048];
+            snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
+            const char* resolved = prepare_file_path((TbFileGroups)groups[gi], candidate);
+            if (resolved != NULL && LbFileExists(resolved)) {
+                SYNCDBG(7, "Custom sound path resolved: '%s' -> '%s'", path_in, resolved);
+                snprintf(out_path, out_size, "%s", resolved);
+                return true;
+            }
+        }
+    }
+    SYNCDBG(5, "Custom sound path not found: '%s' (tried %d groups x extensions)", path_in, (int)(sizeof(groups)/sizeof(groups[0])));
+    return false;
+}
+
 // Config parser bridge: load custom sound from creature cfg file
 int load_creature_custom_sound(long crtr_model, const char* sound_type, const char* wav_path, const char* config_textname) {
     using namespace KeeperFX;
@@ -532,11 +568,12 @@ int load_creature_custom_sound(long crtr_model, const char* sound_type, const ch
     // Get creature name
     const char* creature_name = creature_code_name((ThingModel)crtr_model);
     
-    // Resolve full path through file group system
-    // wav_path is relative to FGrp_CmpgCrtrs directory
+    // Resolve full path - search FGrp_CmpgCrtrs then FGrp_CmpgMedia; probe extensions if none given
     char full_wav_path[2048];
-    const char* resolved_path = prepare_file_path(FGrp_CmpgCrtrs, wav_path);
-    snprintf(full_wav_path, sizeof(full_wav_path), "%s", resolved_path);
+    if (!resolve_creature_sound_path(wav_path, full_wav_path, sizeof(full_wav_path))) {
+        WARNLOG("Custom sound not found: %s (for %s.%s)", wav_path, creature_name, sound_type);
+        return 0;
+    }
     
     // Generate unique name for this custom sound
     char sound_name[256];
@@ -545,7 +582,7 @@ int load_creature_custom_sound(long crtr_model, const char* sound_type, const ch
     // Load the custom sound with resolved path
     SoundSmplTblID bank_index = sm.loadCustomSound(sound_name, full_wav_path);
     
-    if (bank_index < 0) {  // -1 indicates failure, 0+ are valid indices
+    if (bank_index < 0) {
         WARNLOG("Failed to load custom sound from %s", full_wav_path);
         return 0;
     }
@@ -575,17 +612,21 @@ int load_creature_custom_sounds(long crtr_model, const char* sound_type, const c
     
     const char (*wav_paths)[512] = (const char (*)[512])wav_paths_ptr;
     const char* creature_name = creature_code_name((ThingModel)crtr_model);
-    
+
+    SYNCDBG(5, "Loading %d custom sound(s) for %s.%s from '%s'", count, creature_name, sound_type, wav_paths[0]);
+
     int start_index = -1;
     int loaded_count = 0;
     
     // Load each WAV file
     for (int i = 0; i < count; i++) {
-        // Resolve full path
+        // Resolve full path - search FGrp_CmpgCrtrs then FGrp_CmpgMedia; probe extensions if none given
         char full_wav_path[2048];
-        const char* resolved_path = prepare_file_path(FGrp_CmpgCrtrs, wav_paths[i]);
-        snprintf(full_wav_path, sizeof(full_wav_path), "%s", resolved_path);
-        
+        if (!resolve_creature_sound_path(wav_paths[i], full_wav_path, sizeof(full_wav_path))) {
+            WARNLOG("Custom sound %d not found: %s (for %s.%s)", i, wav_paths[i], creature_name, sound_type);
+            continue;
+        }
+
         // Generate unique name
         char sound_name[256];
         snprintf(sound_name, sizeof(sound_name), "%s_%s_custom_%d", creature_name, sound_type, i);
@@ -597,6 +638,7 @@ int load_creature_custom_sounds(long crtr_model, const char* sound_type, const c
             WARNLOG("Failed to load custom sound %d from %s", i, full_wav_path);
             continue;
         }
+        SYNCDBG(6, "  Loaded sound[%d] bank_index=%d from '%s'", i, (int)bank_index, full_wav_path);
         
         if (start_index < 0) {
             start_index = bank_index;  // Remember first index
@@ -612,9 +654,11 @@ int load_creature_custom_sounds(long crtr_model, const char* sound_type, const c
     // Set the creature sound with count
     char first_sound_name[256];
     snprintf(first_sound_name, sizeof(first_sound_name), "%s_%s_custom_0", creature_name, sound_type);
-    
+
     // Set with count for multiple sounds
     if (sm.setCreatureSound(creature_name, sound_type, first_sound_name, loaded_count)) {
+        SYNCDBG(5, "Custom sound wired: %s.%s -> '%s' (%d variant(s))",
+            creature_name, sound_type, first_sound_name, loaded_count);
         return 1;
     } else {
         WARNLOG("Failed to set creature sound override");
