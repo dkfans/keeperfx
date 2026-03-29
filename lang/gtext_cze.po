@@ -2890,8 +2890,8 @@ msgstr "Přehrát intro"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menu služeb"
+msgid "Multiplayer Menu"
+msgstr "Nabídka hry pro více hráčů"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3125,8 +3125,8 @@ msgstr "jméno"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Služby"
+msgid "Game Modes"
+msgstr "Herní režimy"
 
 #: guitext:398
 msgctxt "Menu interface item"

@@ -2578,8 +2578,8 @@ msgstr "Показать вступление"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Меню протоколов"
+msgid "Multiplayer Menu"
+msgstr "Меню мультиплеера"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -2813,8 +2813,8 @@ msgstr "Имя"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Протокол"
+msgid "Game Modes"
+msgstr "Режимы игры"
 
 #: guitext:398
 msgctxt "Menu interface item"

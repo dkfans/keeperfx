@@ -3045,8 +3045,8 @@ msgstr "Reproducir video de introducción"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menú de servicio"
+msgid "Multiplayer Menu"
+msgstr "Menú multijugador"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3282,8 +3282,8 @@ msgstr "Nombre"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Servicios"
+msgid "Game Modes"
+msgstr "Modos de juego"
 
 #: guitext:398
 msgctxt "Menu interface item"

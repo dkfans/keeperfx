@@ -2908,8 +2908,8 @@ msgstr "오프닝 보기"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "서비스 매뉴"
+msgid "Multiplayer Menu"
+msgstr "멀티플레이어 메뉴"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3143,8 +3143,8 @@ msgstr "이름"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "서비스"
+msgid "Game Modes"
+msgstr "게임 모드"
 
 #: guitext:398
 msgctxt "Menu interface item"

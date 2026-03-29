@@ -2034,7 +2034,7 @@ msgstr ""
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
+msgid "Multiplayer Menu"
 msgstr ""
 
 #: guitext:351
@@ -2269,7 +2269,7 @@ msgstr ""
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
+msgid "Game Modes"
 msgstr ""
 
 #: guitext:398

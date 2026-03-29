@@ -2935,8 +2935,8 @@ msgstr "Intro"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Servicemeny"
+msgid "Multiplayer Menu"
+msgstr "Flerspelarmeny"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3171,8 +3171,8 @@ msgstr "Namn"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Uppkoppling"
+msgid "Game Modes"
+msgstr "Spellägen"
 
 #: guitext:398
 msgctxt "Menu interface item"

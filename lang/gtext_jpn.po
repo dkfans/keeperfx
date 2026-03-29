@@ -2883,8 +2883,8 @@ msgstr "ムービープレイ"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "マルチプレイメニュー"
+msgid "Multiplayer Menu"
+msgstr "マルチプレイヤーメニュー"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3118,8 +3118,8 @@ msgstr "名前"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "通信方式"
+msgid "Game Modes"
+msgstr "ゲームモード"
 
 #: guitext:398
 msgctxt "Menu interface item"

@@ -3002,8 +3002,8 @@ msgstr "Odtworzenie wstępu"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menu usług"
+msgid "Multiplayer Menu"
+msgstr "Menu gry wieloosobowej"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3238,8 +3238,8 @@ msgstr "Nazwa"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Usługi"
+msgid "Game Modes"
+msgstr "Tryby gry"
 
 #: guitext:398
 msgctxt "Menu interface item"

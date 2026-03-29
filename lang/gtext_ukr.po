@@ -2956,8 +2956,8 @@ msgstr "Відтворити вступ"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Службове меню"
+msgid "Multiplayer Menu"
+msgstr "Меню мультиплеєра"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3192,8 +3192,8 @@ msgstr "Ім'я"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Сервіси"
+msgid "Game Modes"
+msgstr "Режими гри"
 
 #: guitext:398
 msgctxt "Menu interface item"

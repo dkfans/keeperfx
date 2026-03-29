@@ -3052,7 +3052,7 @@ msgstr "Intro"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
+msgid "Multiplayer Menu"
 msgstr "Mehrspielermenü"
 
 #: guitext:351
@@ -3288,8 +3288,8 @@ msgstr "Name"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Verbindungsart"
+msgid "Game Modes"
+msgstr "Spielmodi"
 
 #: guitext:398
 msgctxt "Menu interface item"

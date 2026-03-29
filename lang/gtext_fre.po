@@ -3001,8 +3001,8 @@ msgstr "Voir L'introduction"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menu Service"
+msgid "Multiplayer Menu"
+msgstr "Menu multijoueur"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3238,8 +3238,8 @@ msgstr "Nom"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Services"
+msgid "Game Modes"
+msgstr "Modes de jeu"
 
 #: guitext:398
 msgctxt "Menu interface item"

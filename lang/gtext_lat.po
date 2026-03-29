@@ -2946,8 +2946,8 @@ msgstr "Reproduce introductionem"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Tabula servitii"
+msgid "Multiplayer Menu"
+msgstr "Tabula lusorum plurium"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3181,8 +3181,8 @@ msgstr "Nomen"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Servitia"
+msgid "Game Modes"
+msgstr "Modi ludi"
 
 #: guitext:398
 msgctxt "Menu interface item"
