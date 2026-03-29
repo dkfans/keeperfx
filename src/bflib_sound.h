@@ -34,8 +34,6 @@ extern "C" {
 
 // Type definitions
 
-/** Sound bank ID. */
-typedef unsigned char SoundBankID;
 /** Sound SFXID parameter from bank table. */
 typedef unsigned char SoundSFXID;
 /** Sound emitter ID. */
@@ -95,7 +93,6 @@ struct S3DSample { // sizeof = 37
   unsigned long priority;
   unsigned long time_turn;
   unsigned short smptbl_id;
-  unsigned char bank_id;
   unsigned short base_pitch;
   unsigned short pan;
   unsigned short volume;
@@ -107,13 +104,6 @@ struct S3DSample { // sizeof = 37
   unsigned char is_playing;
   unsigned char sfxid;
   unsigned long base_volume;
-};
-
-struct SampleTable {
-  char name[18];
-  unsigned long data_size;
-  SoundSFXID sfxid;
-  SndData snd_buf;
 };
 
 /******************************************************************************/

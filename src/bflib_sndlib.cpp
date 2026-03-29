@@ -110,7 +110,6 @@ public:
 	SoundMilesID mss_id = 0;
 	SoundEmitterID emit_id = 0;
 	SoundSmplTblID smptbl_id = 0;
-	SoundBankID bank_id = 0;
 	int flags = 0;
 
 	openal_source() {
@@ -200,15 +199,13 @@ public:
 	: id(std::exchange(other.id, 0))
 	, mss_id(std::exchange(other.mss_id, 0))
 	, emit_id(std::exchange(other.emit_id, 0))
-	, smptbl_id(std::exchange(other.smptbl_id, 0))
-	, bank_id(std::exchange(other.bank_id, 0)){}
+	, smptbl_id(std::exchange(other.smptbl_id, 0)){}
 
 	inline openal_source & operator=(openal_source && other) {
 		id = std::exchange(other.id, 0);
 		mss_id = std::exchange(other.mss_id, 0);
 		emit_id = std::exchange(other.emit_id, 0);
 		smptbl_id = std::exchange(other.smptbl_id, 0);
-		bank_id = std::exchange(other.bank_id, 0);
 		return *this;
 	}
 };
@@ -415,6 +412,8 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 std::vector<openal_source> g_sources;
 std::array<std::vector<sound_sample>, 2> g_banks;
 std::vector<sound_sample> g_custom_bank;  // Third bank for custom sounds loaded at runtime
+SoundSmplTblID g_speech_offset = 0;  // Unified ID start of speech bank
+SoundSmplTblID g_custom_offset = 0;  // Unified ID start of custom bank
 
 void load_sound_banks() {
 	char snd_fname[2048];
@@ -431,6 +430,8 @@ void load_sound_banks() {
 	}
 	g_banks[0] = load_sound_bank(snd_fname);
 	g_banks[1] = load_sound_bank(spc_fname);
+	g_speech_offset = (SoundSmplTblID)g_banks[0].size();
+	g_custom_offset = g_speech_offset + (SoundSmplTblID)g_banks[1].size();
 }
 
 void print_device_info() {
@@ -575,7 +576,6 @@ extern "C" void MonitorStreamedSoundTrack() {
 			if (source.emit_id > 0 && !source.is_playing()) {
 				source.emit_id = 0;
 				source.smptbl_id = 0;
-				source.bank_id = 0;
 			}
 		} catch (const std::exception & e) {
 			ERRORLOG("%s", e.what());
@@ -705,38 +705,41 @@ extern "C" SoundMilesID play_sample(
 	SoundPan pan,
 	SoundPitch pitch,
 	char repeats, // possible values: -1, 0
-	unsigned char ctype, // possible values: 2, 3
-	SoundBankID bank_id
+	unsigned char ctype // possible values: 2, 3
 ) {
 	if (emit_id <= 0) {
-		ERRORLOG("Can't play sample %d from bank %u, invalid emitter ID", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d, invalid emitter ID", smptbl_id);
 		return 0;
-	} else if (bank_id > 2) {  // Support banks 0, 1, and 2 (custom)
-		ERRORLOG("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
-		return 0;
-	} else if (smptbl_id == 0 && bank_id != 2) {
-		// Sample 0 is valid for custom bank (bank 2), but not for regular banks
-		return 0; // silently ignore
 	}
-	
-	// Validate sample ID based on bank
-	if (bank_id == 2) {
-		// Custom bank
-		if (smptbl_id < 0 || smptbl_id >= g_custom_bank.size()) {
-			ERRORLOG("Can't play sample %d from custom bank, invalid sample ID", smptbl_id);
+	// Resolve sample data from unified ID space
+	const openal_buffer * buf = nullptr;
+	if (smptbl_id >= g_custom_offset) {
+		const SoundSmplTblID idx = smptbl_id - g_custom_offset;
+		if (idx < 0 || idx >= (SoundSmplTblID)g_custom_bank.size()) {
+			ERRORLOG("Can't play custom sample %d, out of range", smptbl_id);
 			return 0;
 		}
+		buf = &g_custom_bank[idx].buffer;
+	} else if (smptbl_id >= g_speech_offset) {
+		const SoundSmplTblID idx = smptbl_id - g_speech_offset;
+		if (idx <= 0 || idx >= (SoundSmplTblID)g_banks[1].size()) {
+			ERRORLOG("Can't play speech sample %d, out of range", smptbl_id);
+			return 0;
+		}
+		buf = &g_banks[1][idx].buffer;
 	} else {
-		// Regular banks 0 and 1
-		if (smptbl_id <= 0 || smptbl_id >= g_banks[bank_id].size()) {
-			ERRORLOG("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
+		if (smptbl_id <= 0 || smptbl_id >= (SoundSmplTblID)g_banks[0].size()) {
+			if (smptbl_id != 0) {
+				ERRORLOG("Can't play effect sample %d, out of range", smptbl_id);
+			}
 			return 0;
 		}
+		buf = &g_banks[0][smptbl_id].buffer;
 	}
-	// (ab)use the fact that bank_id and smptbl_id are currently 8- and 16-bits wide respectively.
-	const uint32_t tick_sample_key = (uint32_t(bank_id) << 16) | (smptbl_id & 0xffff);
+	// Don't play the same unified sample twice on the same tick
+	const uint32_t tick_sample_key = (uint32_t)(uint16_t)smptbl_id;
 	if (g_tick_samples.count(tick_sample_key) > 0) {
-		return 0; // don't play the same sample multiple times on the same tick
+		return 0;
 	}
 	try {
 		g_tick_samples.emplace(tick_sample_key);
@@ -757,27 +760,15 @@ extern "C" SoundMilesID play_sample(
 				} else {
 					source.pitch(pitch);
 				}
-				
-				// Play from appropriate bank
-				if (bank_id == 2) {
-					// Custom bank
-
-				source.play(g_custom_bank[smptbl_id].buffer);
-			} else {
-				// Regular banks (0 and 1)
-				source.play(g_banks[bank_id][smptbl_id].buffer);
-			}
-			
+				source.play(*buf);
 				source.emit_id = emit_id;
 				source.smptbl_id = smptbl_id;
-				source.bank_id = bank_id;
 				return source.mss_id;
 			}
 		}
-        if (game.frame_skip < 2)
-        {
-            ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
-        }
+		if (game.frame_skip < 2) {
+			ERRORLOG("Can't play sample %d, too many samples playing at once", smptbl_id);
+		}
 		return 0;
 	} catch (const std::exception & e) {
 		ERRORLOG("%s", e.what());
@@ -785,14 +776,13 @@ extern "C" SoundMilesID play_sample(
 	return 0;
 }
 
-extern "C" void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id) {
+extern "C" void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id) {
 	for (auto & source : g_sources) {
-		if (emit_id == source.emit_id && smptbl_id == source.smptbl_id && bank_id == source.bank_id) {
+		if (emit_id == source.emit_id && smptbl_id == source.smptbl_id) {
 			try {
 				source.stop();
 				source.emit_id = 0;
 				source.smptbl_id = 0;
-				source.bank_id = 0;
 			} catch (const std::exception & e) {
 				ERRORLOG("%s", e.what());
 			}
@@ -800,14 +790,21 @@ extern "C" void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, So
 	}
 }
 
-extern "C" SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID bank_id) {
-	if (bank_id > 1) {
+extern "C" SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id) {
+	if (smptbl_id >= g_custom_offset) {
 		return 0;
-	} else if (smptbl_id < 0 || smptbl_id >= g_banks[bank_id].size()) {
-		return 0;
+	} else if (smptbl_id >= g_speech_offset) {
+		const SoundSmplTblID idx = smptbl_id - g_speech_offset;
+		if (idx <= 0 || idx >= (SoundSmplTblID)g_banks[1].size()) return 0;
+		return g_banks[1][idx].sfx_id;
+	} else {
+		if (smptbl_id <= 0 || smptbl_id >= (SoundSmplTblID)g_banks[0].size()) return 0;
+		return g_banks[0][smptbl_id].sfx_id;
 	}
-	return g_banks[bank_id][smptbl_id].sfx_id;
 }
+
+extern "C" SoundSmplTblID get_speech_offset(void) { return g_speech_offset; }
+extern "C" SoundSmplTblID get_custom_offset(void) { return g_custom_offset; }
 
 extern "C" int InitialiseSDLAudio()
 {
