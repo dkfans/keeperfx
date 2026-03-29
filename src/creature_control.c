@@ -313,7 +313,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
         sample_idx = crsound->index + i;  // Regular positive indices
     }
     
-    SYNCDBG(18,"Playing sample %ld (sound type %ld, index %ld) for creature %d",
+    SYNCDBG(18,"Playing sample %d (sound type %ld, index %d) for creature %d",
             sample_idx, snd_idx, crsound->index, thing->model);
     
     if ( use_flags ) {

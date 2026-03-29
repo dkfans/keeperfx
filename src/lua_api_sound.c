@@ -17,13 +17,13 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 #include "lua_api_sound.h"
 #include "sound_manager.h"
 #include "bflib_sound.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "post_inc.h"
 
 /******************************************************************************/
 /**
@@ -172,9 +172,8 @@ int lua_PlayMusic(lua_State* L) {
         int track = luaL_checkinteger(L, 1);
         success = sound_manager_play_music(track);
     } else {
-        // File path
-        const char* filepath = luaL_checkstring(L, 1);
-        // TODO: Implement play_music_file() wrapper
+        // File path - TODO: Implement play_music_file() wrapper
+        // const char* filepath = luaL_checkstring(L, 1);
         // success = sound_manager_play_music_file(filepath);
         success = false;
     }
@@ -238,8 +237,4 @@ void register_lua_sound_api(lua_State* L) {
     lua_pushinteger(L, 1);
     lua_setglobal(L, "SOUND_PRIORITY_LOW");
 }
-
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/

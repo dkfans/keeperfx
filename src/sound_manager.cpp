@@ -452,43 +452,43 @@ TbBool sound_manager_init(void) {
     return KeeperFX::SoundManager::getInstance().initialize();
 }
 
-SoundEmitterID sound_manager_minimal_play_effect(SoundSmplTblID sample_id, long priority, SoundVolume volume) {
+SoundEmitterID sound_manager_play_effect(SoundSmplTblID sample_id, long priority, SoundVolume volume) {
     return KeeperFX::SoundManager::getInstance().playEffect(sample_id, priority, volume);
 }
 
-void sound_manager_minimal_play_creature_sound(struct Thing* thing, long sound_type, long priority) {
+void sound_manager_play_creature_sound(struct Thing* thing, long sound_type, long priority) {
     KeeperFX::SoundManager::getInstance().playCreatureSound(thing, sound_type, priority);
 }
 
-void sound_manager_minimal_stop_effect(SoundEmitterID emitter_id) {
+void sound_manager_stop_effect(SoundEmitterID emitter_id) {
     KeeperFX::SoundManager::getInstance().stopEffect(emitter_id);
 }
 
-TbBool sound_manager_minimal_play_music(int track_number) {
+TbBool sound_manager_play_music(int track_number) {
     return KeeperFX::SoundManager::getInstance().playMusic(track_number);
 }
 
-void sound_manager_minimal_stop_music(void) {
+void sound_manager_stop_music(void) {
     KeeperFX::SoundManager::getInstance().stopMusic();
 }
 
-SoundSmplTblID sound_manager_minimal_load_custom_sound(const char* name, const char* filepath) {
+SoundSmplTblID sound_manager_load_custom_sound(const char* name, const char* filepath) {
     return KeeperFX::SoundManager::getInstance().loadCustomSound(name, filepath);
 }
 
-SoundSmplTblID sound_manager_minimal_get_custom_sound_id(const char* name) {
+SoundSmplTblID sound_manager_get_custom_sound_id(const char* name) {
     return KeeperFX::SoundManager::getInstance().getCustomSoundId(name);
 }
 
-TbBool sound_manager_minimal_set_creature_sound(const char* creature_model, const char* sound_type, const char* custom_sound_name) {
+TbBool sound_manager_set_creature_sound(const char* creature_model, const char* sound_type, const char* custom_sound_name) {
     return KeeperFX::SoundManager::getInstance().setCreatureSound(creature_model, sound_type, custom_sound_name);
 }
 
-TbBool sound_manager_minimal_is_custom_sound_loaded(const char* name) {
+TbBool sound_manager_is_custom_sound_loaded(const char* name) {
     return KeeperFX::SoundManager::getInstance().isCustomSoundLoaded(name);
 }
 
-void sound_manager_minimal_print_stats(void) {
+void sound_manager_print_stats(void) {
     KeeperFX::SoundManager::getInstance().printStats();
 }
 
