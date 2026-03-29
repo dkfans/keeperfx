@@ -1943,6 +1943,83 @@ void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, M
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id, 0);
 }
 
+void set_general_bonus_information_at_location(long msg_id, TbMapLocation target, const char *colour_value)
+{
+    struct PlayerInfo *player;
+    long pos_x;
+    long pos_y;
+    player = get_my_player();
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    MsgColour colour = get_colour(colour_value);
+    int icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id, icon);
+}
+
+void set_general_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubtlCoord y, const char *colour_value)
+{
+    struct PlayerInfo *player;
+    long pos_x;
+    long pos_y;
+    player = get_my_player();
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    MsgColour colour = get_colour(colour_value);
+    int icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id, icon);
+}
+
+void set_quick_bonus_information_at_location(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, const char *colour_value)
+{
+    struct PlayerInfo *player;
+    long pos_x;
+    long pos_y;
+    player = get_my_player();
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    MsgColour colour = get_colour(colour_value);
+    int icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id, icon);
+}
+
+
+void set_quick_bonus_information_at_coords(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, const char *colour_value)
+{
+    struct PlayerInfo *player;
+    long pos_x;
+    long pos_y;
+    player = get_my_player();
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    MsgColour colour = get_colour(colour_value);
+    int icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id, icon);
+}
+
 void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
 {
     process_objective(get_string(msg_id), target, x, y);
