@@ -22,26 +22,28 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "creature_states.h"
-#include "creature_states_spdig.h"
-#include "thing_list.h"
-#include "creature_control.h"
-#include "creature_instances.h"
-#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
-#include "thing_stats.h"
+#include "creature_control.h"
+#include "creature_instances.h"
+#include "creature_senses.h"
+#include "creature_states.h"
+#include "creature_states_spdig.h"
+#include "creature_states_combt.h"
+#include "game_legacy.h"
+#include "gui_soundmsgs.h"
+#include "lua_triggers.h"
+#include "player_instances.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
+#include "thing_list.h"
 #include "thing_navigate.h"
+#include "thing_stats.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_list.h"
-#include "gui_soundmsgs.h"
-#include "game_legacy.h"
-#include "player_instances.h"
-#include "creature_senses.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -411,7 +413,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
        if ((offsetted_gameturn % 64 == 0)
         && thing_is_invalid(get_food_at_subtile_available_to_eat_and_owned_by(cctrl->moveto_pos.x.stl.num,cctrl->moveto_pos.y.stl.num, -1)))
         {
-            foodtng = find_random_thing_in_room(TCls_Object, 10, room); //10 = mature_food
+            foodtng = find_random_thing_in_room(TCls_Object, ObjMdl_ChickenMature, room);
             if ( !thing_is_invalid(foodtng) )
             {
                 if ( !is_thing_directly_controlled(foodtng)
@@ -427,7 +429,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
                 {
                 creatng->continue_state = CrSt_CreatureInPrison;
                 food_set_wait_to_be_eaten(foodtng);
-                return 1;
+                return true;
                 }
             }
         }
@@ -440,8 +442,15 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
     if ( creatng->active_state != CrSt_CreatureInPrison )
         internal_set_thing_state(creatng, CrSt_CreatureInPrison);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
-    delete_thing_structure(foodtng, 0);
-
+    if (thing_is_creature(foodtng))
+    {
+        thing_death_flesh_explosion(foodtng);
+    }
+    else
+    {
+        lua_on_object_destroyed(foodtng);
+        delete_thing_structure(foodtng, 0);
+    }
     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
     dungeon->lvstats.chickens_eaten++;
     return true;

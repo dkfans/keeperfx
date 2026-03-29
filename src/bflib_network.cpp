@@ -31,12 +31,14 @@
 #include "front_landview.h"
 #include "front_network.h"
 #include "net_received_packets.h"
+#include "net_matchmaking.h"
+#include "net_lan.h"
 #include "keeperfx.hpp"
+#include <thread>
+#include <string>
 #include "post_inc.h"
 
 #ifdef __cplusplus
-void gameplay_loop_draw();
-extern "C" void network_yield_draw_gameplay();
 #endif
 
 #ifdef __cplusplus
@@ -108,7 +110,7 @@ void LbNetwork_InitSessionsFromCmdLine(const char * str) {
     AddSessionSegment(start, end);
 }
 
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data) {
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *) {
     localPlayerInfoPtr = locplayr;
     memset(&netstate, 0, sizeof(netstate));
     netstate.max_players = maxplayrs;
@@ -116,10 +118,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
     for (usr = 0; usr < netstate.max_players; usr += 1) {
         netstate.users[usr].id = usr;
     }
-    if (srvcindex == NS_TCP_IP) {
-        NETMSG("Selecting TCP/IP SP");
-        netstate.sp = &tcpSP;
-    } else if (srvcindex == NS_ENET_UDP) {
+    if (srvcindex == NS_ENET_UDP) {
         netstate.sp = InitEnetSP();
         NETMSG("Selecting UDP");
     } else {
@@ -131,19 +130,39 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
     return netstate.sp->init(OnDroppedUser);
 }
 
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns) {
+TbError LbNetwork_Create(char *, char *plyr_name, uint32_t *plyr_num, void *optns) {
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    const char *port = ":5555";
-    char buf[16] = "";
+    char default_port_buf[16];
+    snprintf(default_port_buf, sizeof(default_port_buf), ":%u", (unsigned)ENET_DEFAULT_PORT);
+    const char *port = default_port_buf;
+    char port_string[16] = "";
     if (ServerPort != 0) {
-        snprintf(buf, sizeof(buf), "%d", ServerPort);
-        port = buf;
+        snprintf(port_string, sizeof(port_string), "%d", ServerPort);
+        port = port_string;
     }
     if (netstate.sp->host(port, optns) == Lb_FAIL) {
         return Lb_FAIL;
+    }
+    std::string host_name(plyr_name);
+    uint16_t local_port = ENET_DEFAULT_PORT;
+    if (ServerPort > 0)
+        local_port = (uint16_t)ServerPort;
+    uint16_t ipv4_port = local_port;
+    if (external_ipv4_port != 0)
+        ipv4_port = external_ipv4_port;
+    const uint16_t ipv6_port = enet_get_bound_ipv6_port();
+    if (frontnet_service_selected(FrontendNetSvc_LAN)) {
+        lan_host_start(host_name.c_str(), local_port);
+    }
+    if (frontnet_service_selected(FrontendNetSvc_Online)) {
+        std::thread([ipv4_port, ipv6_port, host_name]() {
+            if (matchmaking_connect() == 0) {
+                matchmaking_create(host_name.c_str(), (int)ipv4_port, (int)ipv6_port);
+            }
+        }).detach();
     }
     netstate.my_id = SERVER_ID;
     snprintf(netstate.users[netstate.my_id].name, sizeof(netstate.users[netstate.my_id].name), "%s", plyr_name);
@@ -189,6 +208,8 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow) {
 }
 
 TbError LbNetwork_Stop(void) {
+    lan_shutdown();
+    matchmaking_disconnect();
     if (netstate.sp) {
         netstate.sp->exit();
     }
@@ -222,7 +243,7 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
         return;
     }
     if (reason == NETDROP_ERROR) {
-        NETMSG("Connection error with user %i %s", id, netstate.users[id].name);
+        NETMSG("User left (or connection error): %i %s", id, netstate.users[id].name);
     } else if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }
@@ -236,16 +257,6 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
         }
     }
     UpdateLocalPlayerInfo(id);
-}
-
-TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr) {
-    struct TbNetworkCallbackData netcdat = {};
-    strcpy(netcdat.svc_name, "TCP");
-    callback(&netcdat, ptr);
-    strcpy(netcdat.svc_name, "ENET/UDP");
-    callback(&netcdat, ptr);
-    NETMSG("Enumerate Services called");
-    return Lb_OK;
 }
 
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc callback, void *buf) {

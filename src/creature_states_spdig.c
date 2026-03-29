@@ -1338,13 +1338,13 @@ GoldAmount take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long li
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
+        if (object_is_gold_pile(thing))
         {
             GoldAmount pot_stored = thing->valuable.gold_stored;
             if ((limit - total_taken >= pot_stored) || (limit == -1))
             {
                 total_taken += pot_stored;
-                delete_thing_structure(thing, 0);
+                destroy_object(thing);
             } else
             {
                 thing->valuable.gold_stored += total_taken - limit;
@@ -2082,7 +2082,7 @@ short creature_arms_trap(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
-    delete_thing_structure(cratetng, 0);
+    destroy_thing(cratetng);
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     // The action of moving object is now finished
     set_start_state(thing);
@@ -2114,7 +2114,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
     }
-    delete_thing_structure(cratetng, 0);
+    destroy_thing(cratetng);
     set_start_state(creatng);
     return 1;
 }
