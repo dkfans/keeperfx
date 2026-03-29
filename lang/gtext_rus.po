@@ -2838,8 +2838,8 @@ msgstr "Начать игру"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Игровое меню"
+msgid "Lobbies Menu"
+msgstr "Меню лобби"
 
 #: guitext:403
 msgctxt "Menu interface item"

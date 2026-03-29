@@ -2951,8 +2951,8 @@ msgstr "开始游戏"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "游戏选单"
+msgid "Lobbies Menu"
+msgstr "大廳選單"
 
 #: guitext:403
 msgctxt "Menu interface item"

@@ -3263,8 +3263,8 @@ msgstr "Lancer Le Jeu"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Menu Jeu"
+msgid "Lobbies Menu"
+msgstr "Menu des salons"
 
 #: guitext:403
 msgctxt "Menu interface item"

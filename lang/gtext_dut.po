@@ -3182,8 +3182,8 @@ msgstr "SPEL STARTEN"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "SPEL"
+msgid "Lobbies Menu"
+msgstr "LOBBYMENU"
 
 #: guitext:403
 msgctxt "Menu interface item"

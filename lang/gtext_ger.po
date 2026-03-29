@@ -3313,8 +3313,8 @@ msgstr "Spiel starten"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Spiele-Session"
+msgid "Lobbies Menu"
+msgstr "Lobbymenü"
 
 #: guitext:403
 msgctxt "Menu interface item"

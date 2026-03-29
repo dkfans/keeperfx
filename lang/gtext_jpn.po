@@ -3143,8 +3143,8 @@ msgstr "ゲームを始める"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "マルチプレイメニュー"
+msgid "Lobbies Menu"
+msgstr "ロビーメニュー"
 
 #: guitext:403
 msgctxt "Menu interface item"
