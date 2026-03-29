@@ -27,8 +27,9 @@ extern "C" {
 /******************************************************************************/
 #define NETSP_PLAYERS_COUNT 32
 #define SESSION_ENTRIES_COUNT 32
-#define SESSION_NAME_MAX_LEN  128
-#define NETSP_PLAYER_NAME_MAX_LEN 32
+#define SESSION_NAME_MAX_LEN     128
+#define SESSION_LOBBY_ID_MAX_LEN  64
+#define NETSP_PLAYER_NAME_MAX_LEN  32
 
 enum NetMsgType
 {
@@ -44,10 +45,12 @@ enum NetMsgType
 };
 
 struct TbNetworkSessionNameEntry {
-    unsigned char joinable; //possibly active or selected is better name
+    unsigned char joinable;
     unsigned long id;
     unsigned long in_use;
     char text[SESSION_NAME_MAX_LEN];
+    char join_address[SESSION_LOBBY_ID_MAX_LEN];
+    char lobby_id[SESSION_LOBBY_ID_MAX_LEN];
 };
 
 struct TbNetworkPlayerEntry {

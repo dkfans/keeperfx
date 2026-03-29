@@ -2691,8 +2691,8 @@ msgstr "播放开场动画"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "服务选单"
+msgid "Multiplayer Menu"
+msgstr "多人遊戲選單"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -2916,8 +2916,8 @@ msgstr "测试员"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "连线作业"
+msgid "Game Lobbies"
+msgstr "遊戲大廳"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -2926,8 +2926,8 @@ msgstr "姓名"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "服务"
+msgid "Game Modes"
+msgstr "遊戲模式"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -2936,13 +2936,13 @@ msgstr "讯息"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "建立游戏"
+msgid "Create Lobby"
+msgstr "建立大廳"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "加入游戏"
+msgid "Join Lobby"
+msgstr "加入大廳"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -2951,8 +2951,8 @@ msgstr "开始游戏"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "游戏选单"
+msgid "Lobbies Menu"
+msgstr "大廳選單"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -5510,18 +5510,18 @@ msgstr "四名玩者"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "串列"
+msgid "Online"
+msgstr "線上"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "数据机"
+msgid "LAN"
+msgstr "區域網路"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "遭遇戰"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6199,7 +6199,7 @@ msgstr ""
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr ""
 
 #: guitext:970

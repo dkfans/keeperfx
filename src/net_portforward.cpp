@@ -186,7 +186,7 @@ static int natpmp_add_port_mapping(uint16_t port) {
             return 0;
         }
     }
-    LbNetLog("NAT-PMP: Mapped port %u\n", port);
+    LbNetLog("NAT-PMP: port forwarding active on port %u\n", port);
     mapped_port = port;
     active_method = PORT_FORWARD_NATPMP;
     closenatpmp(&natpmp);
@@ -207,7 +207,7 @@ static void port_forward_add_mapping_internal(uint16_t port) {
     int error = 0;
     struct UPNPDev *device_list = upnpDiscover(UPNP_TIMEOUT_MS, NULL, NULL, 0, 0, 2, &error);
     if (!device_list) {
-        LbNetLog("UPnP: No devices found\n");
+        LbNetLog("UPnP: no devices found, port forwarding unavailable, UDP hole punching will be used\n");
         return;
     }
 #if (MINIUPNPC_API_VERSION >= 18)
@@ -217,24 +217,25 @@ static void port_forward_add_mapping_internal(uint16_t port) {
 #endif
     freeUPNPDevlist(device_list);
     if (internet_gateway_device_result == 0) {
-        LbNetLog("UPnP: Failed to get valid IGD\n");
+        LbNetLog("UPnP: router found but no valid IGD, port forwarding unavailable, UDP hole punching will be used\n");
         FreeUPNPUrls(&upnp_urls);
         return;
     }
     char port_string[16];
     snprintf(port_string, sizeof(port_string), "%u", port);
     UPNP_DeletePortMapping(upnp_urls.controlURL, upnp_data.first.servicetype, port_string, "UDP", "");
+    LbNetLog("UPnP: lanaddr=%s\n", upnp_lanaddr);
     int result = UPNP_AddPortMapping(upnp_urls.controlURL, upnp_data.first.servicetype, port_string, port_string, upnp_lanaddr, "KeeperFX", "UDP", "", "0");
     if (result != UPNPCOMMAND_SUCCESS) {
-        LbNetLog("UPnP: Permanent lease rejected, trying timed lease\n");
+        LbNetLog("UPnP: permanent lease rejected (error %d), trying timed lease\n", result);
         result = UPNP_AddPortMapping(upnp_urls.controlURL, upnp_data.first.servicetype, port_string, port_string, upnp_lanaddr, "KeeperFX", "UDP", "", "3600");
         if (result != UPNPCOMMAND_SUCCESS) {
-            LbNetLog("UPnP: Failed to add port mapping\n");
+            LbNetLog("UPnP: failed to add port mapping (error %d), UDP hole punching will be used\n", result);
             FreeUPNPUrls(&upnp_urls);
             return;
         }
     }
-    LbNetLog("UPnP: Mapped port %u\n", port);
+    LbNetLog("UPnP: port forwarding active on port %u\n", port);
     mapped_port = port;
     active_method = PORT_FORWARD_UPNP;
 }

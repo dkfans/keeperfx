@@ -21,10 +21,8 @@ src/ariadne_points.c \
 src/ariadne_regions.c \
 src/ariadne_tringls.c \
 src/ariadne_wallhug.c \
-src/bflib_base_tcp.cpp \
 src/bflib_basics.c \
 src/bflib_coroutine.c \
-src/bflib_client_tcp.cpp \
 src/bflib_cpu.c \
 src/bflib_crash.c \
 src/bflib_datetm.cpp \
@@ -51,12 +49,10 @@ src/bflib_planar.c \
 src/bflib_render.c \
 src/bflib_render_gpoly.c \
 src/bflib_render_trig.c \
-src/bflib_server_tcp.cpp \
 src/bflib_sndlib.cpp \
 src/bflib_sound.c \
 src/bflib_sprfnt.c \
 src/bflib_string.c \
-src/bflib_tcpsp.c \
 src/bflib_video.c \
 src/bflib_vidraw.c \
 src/bflib_vidraw_spr_norm.c \
@@ -211,6 +207,9 @@ src/map_utils.c \
 src/moonphase.c \
 src/net_checksums.c \
 src/net_game.c \
+src/net_holepunch.c \
+src/net_matchmaking.c \
+src/net_lan.c \
 src/net_input_lag.c \
 src/net_received_packets.c \
 src/net_redundant_packets.c \
@@ -282,6 +281,7 @@ KFX_INCLUDES = \
 	-Ideps/centitoml \
 	-Ideps/astronomy/include \
 	-Ideps/enet6/include \
+	-Ideps/libcurl/include \
 	$(shell pkg-config --cflags-only-I luajit)
 
 KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
@@ -309,6 +309,7 @@ KFX_LDFLAGS += \
 	$(shell pkg-config --libs-only-l zlib) \
 	-lminiupnpc \
 	-lnatpmp \
+	-Ldeps/libcurl/lib -lcurl -lssl -lcrypto -lzstd \
 	-ldl
 
 TOML_SOURCES = \
@@ -331,11 +332,12 @@ endif
 all: bin/keeperfx
 
 clean:
-	rm -rf obj bin src/ver_defs.h deps/astronomy deps/centijson deps/enet6
+	rm -rf obj bin src/ver_defs.h deps/astronomy deps/centijson deps/enet6 deps/libcurl
+	rm -f deps/libcurl-lin64.tar.gz
 
 .PHONY: all clean
 
-bin/keeperfx: $(KFX_OBJECTS) $(TOML_OBJECTS) | bin
+bin/keeperfx: $(KFX_OBJECTS) $(TOML_OBJECTS) deps/libcurl/lib/libcurl.a | bin
 	$(CXX) -o $@ $(KFX_OBJECTS) $(TOML_OBJECTS) $(KFX_LDFLAGS)
 
 $(KFX_C_OBJECTS): obj/%.o: src/%.c src/ver_defs.h | obj
@@ -349,13 +351,15 @@ $(KFX_CXX_OBJECTS): obj/%.o: src/%.cpp src/ver_defs.h | obj
 $(TOML_OBJECTS): obj/centitoml/%.o: deps/centitoml/%.c | obj/centitoml
 	$(CC) $(TOML_CFLAGS) -c $< -o $@
 
-bin obj deps/astronomy deps/centijson deps/enet6 obj/centitoml:
+bin obj deps/astronomy deps/centijson deps/enet6 deps/libcurl obj/centitoml:
 	$(MKDIR) $@
 
 src/actionpt.c: deps/centijson/include/json.h
 src/api.c: deps/centijson/include/json.h
 src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
+src/net_holepunch.c: deps/enet6/include/enet6/enet.h
+src/net_matchmaking.c: deps/libcurl/include/curl/curl.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 
@@ -376,6 +380,14 @@ deps/enet6-lin64.tar.gz:
 
 deps/enet6/include/enet6/enet.h: deps/enet6-lin64.tar.gz | deps/enet6
 	tar xzmf $< -C deps/enet6
+
+deps/libcurl-lin64.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260310/libcurl-lin64.tar.gz"
+
+deps/libcurl/lib/libcurl.a: deps/libcurl-lin64.tar.gz | deps/libcurl
+	tar xzmf $< -C deps/libcurl
+
+deps/libcurl/include/curl/curl.h: deps/libcurl/lib/libcurl.a
 
 src/ver_defs.h: version.mk
 	$(ECHO) "#define VER_MAJOR   $(VER_MAJOR)" > $@.swp

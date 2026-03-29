@@ -22,9 +22,7 @@
     <ClCompile Include="src\ariadne_regions.c" />
     <ClCompile Include="src\ariadne_tringls.c" />
     <ClCompile Include="src\ariadne_wallhug.c" />
-    <ClCompile Include="src\bflib_base_tcp.cpp" />
     <ClCompile Include="src\bflib_basics.c" />
-    <ClCompile Include="src\bflib_client_tcp.cpp" />
     <ClCompile Include="src\bflib_coroutine.c" />
     <ClCompile Include="src\bflib_cpu.c" />
     <ClCompile Include="src\bflib_crash.c" />
@@ -54,12 +52,10 @@
     <ClCompile Include="src\bflib_render.c" />
     <ClCompile Include="src\bflib_render_gpoly.c" />
     <ClCompile Include="src\bflib_render_trig.c" />
-    <ClCompile Include="src\bflib_server_tcp.cpp" />
     <ClCompile Include="src\bflib_sndlib.cpp" />
     <ClCompile Include="src\bflib_sound.c" />
     <ClCompile Include="src\bflib_sprfnt.c" />
     <ClCompile Include="src\bflib_string.c" />
-    <ClCompile Include="src\bflib_tcpsp.c" />
     <ClCompile Include="src\bflib_video.c" />
     <ClCompile Include="src\bflib_vidraw.c" />
     <ClCompile Include="src\bflib_vidraw_spr_norm.c" />
@@ -213,6 +209,9 @@
     <ClCompile Include="src\map_utils.c" />
     <ClCompile Include="src\moonphase.c" />
     <ClCompile Include="src\net_game.c" />
+    <ClCompile Include="src\net_holepunch.c" />
+    <ClCompile Include="src\net_lan.c" />
+    <ClCompile Include="src\net_matchmaking.c" />
     <ClCompile Include="src\net_portforward.cpp" />
     <ClCompile Include="src\net_resync.cpp" />
     <ClCompile Include="src\packets.c" />
@@ -282,9 +281,7 @@
     <ClInclude Include="src\ariadne_regions.h" />
     <ClInclude Include="src\ariadne_tringls.h" />
     <ClInclude Include="src\ariadne_wallhug.h" />
-    <ClInclude Include="src\bflib_base_tcp.hpp" />
     <ClInclude Include="src\bflib_basics.h" />
-    <ClInclude Include="src\bflib_client_tcp.hpp" />
     <ClInclude Include="src\bflib_coroutine.h" />
     <ClInclude Include="src\bflib_cpu.h" />
     <ClInclude Include="src\bflib_crash.h" />
@@ -312,7 +309,6 @@
     <ClInclude Include="src\bflib_network.h" />
     <ClInclude Include="src\bflib_planar.h" />
     <ClInclude Include="src\bflib_render.h" />
-    <ClInclude Include="src\bflib_server_tcp.hpp" />
     <ClInclude Include="src\bflib_sndlib.h" />
     <ClInclude Include="src\bflib_sound.h" />
     <ClInclude Include="src\bflib_sprfnt.h" />
@@ -454,6 +450,9 @@
     <ClInclude Include="src\moonphase.h" />
     <ClInclude Include="src\mutex.hpp" />
     <ClInclude Include="src\net_game.h" />
+    <ClInclude Include="src\net_holepunch.h" />
+    <ClInclude Include="src\net_lan.h" />
+    <ClInclude Include="src\net_matchmaking.h" />
     <ClInclude Include="src\net_portforward.h" />
     <ClInclude Include="src\net_resync.h" />
     <ClInclude Include="src\packets.h" />
