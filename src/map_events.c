@@ -24,7 +24,7 @@
 #include "bflib_planar.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
-#include "thing_objects.h"
+#include "config_sounds.h"
 #include "thing_doors.h"
 #include "thing_traps.h"
 #include "config_strings.h"
@@ -620,7 +620,7 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                     {
                         if (is_my_player_number(dungeon->owner)) {
                             struct SoundEmitter* emit = S3DGetSoundEmitter(Non3DEmitter);
-                            stop_sample(get_emitter_id(emit), 947, 0);
+                            stop_sample(get_emitter_id(emit), snd_tab_fall);
                             play_non_3d_sample(175);
                         }
                         unsigned char prev_ev_idx = dungeon->event_button_index[i - 1];

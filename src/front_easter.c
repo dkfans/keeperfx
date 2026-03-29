@@ -28,6 +28,7 @@
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
 #include "kjm_input.h"
+#include "config_sounds.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
 #include "config_strings.h"
@@ -149,7 +150,7 @@ void input_eastegg(void)
     short allow = (lbKeyOn[KC_LSHIFT] != 0);
     unsigned short state = input_eastegg_keycodes(&game.eastegg01_cntr, allow, &eastegg_feckoff_codes);
     if ((state == 2) || (state == 3)) {
-      play_non_3d_sample(60);
+      play_non_3d_sample(snd_button_click);
     }
     // Maintain the JLW cheat
     if (game.easter_eggs_enabled == true)

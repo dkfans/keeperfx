@@ -33,6 +33,7 @@
 #include "bflib_network_exchange.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sndlib.h"
 #include "kjm_input.h"
 #include "frontend.h"
@@ -1514,7 +1515,7 @@ short get_creature_control_action_inputs(void)
             if ((player->possession_lock == true) && thing_is_creature(thing))
             {
                 if (is_my_player(player))
-                    play_non_3d_sample(119); //refusal
+                    play_non_3d_sample(snd_refusal); //refusal
             }
             else
             {

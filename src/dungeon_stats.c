@@ -35,6 +35,7 @@
 #include "config_powerhands.h"
 #include "config_spritecolors.h"
 #include "config_players.h"
+#include "config_sounds.h"
 #include "room_library.h"
 #include "game_legacy.h"
 #include "post_inc.h"

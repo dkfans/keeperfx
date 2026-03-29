@@ -23,6 +23,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "config_sounds.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
 #include "config_creature.h"
@@ -1167,11 +1168,11 @@ void update_dungeon_heart_beat(struct Thing *heartng)
                 heartng->heart.beat_direction = (unsigned char)-1;
                 if (bounce)
                 {
-                    thing_play_sample(heartng, 151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                    thing_play_sample(heartng, snd_heart_beat_up, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
                 }
                 else
                 {
-                    thing_play_sample(heartng, 150, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                    thing_play_sample(heartng, snd_heart_beat_down, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
                 }
                 bounce = !bounce;
             }
@@ -1182,7 +1183,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         {
             stop_thing_playing_sample(heartng, 93);
         }
-        else if ( !S3DEmitterIsPlayingSample(heartng->snd_emitter_id, 93, 0) )
+        else if ( !S3DEmitterIsPlayingSample(heartng->snd_emitter_id, 93) )
         {
             thing_play_sample(heartng, 93, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
         }
@@ -1527,7 +1528,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
 
-    if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, powerst->select_sound_idx, 0) ) {
+    if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, powerst->select_sound_idx) ) {
         thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 1, 3, FULL_LOUDNESS);
     }
 

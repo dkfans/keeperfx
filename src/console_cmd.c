@@ -24,7 +24,7 @@
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
-#include "config.h"
+#include "config_sounds.h"
 #include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "config_effects.h"
@@ -1837,7 +1837,7 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(thing, snd_spell_frozen, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
     apply_spell_effect_to_thing(thing, 3, 8, plyr_idx); // 3 was 'SplK_Freeze' in the enum.
     return true;
@@ -1855,7 +1855,7 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(thing, snd_spell_frozen, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
     apply_spell_effect_to_thing(thing, 12, 8, plyr_idx); // 12 was 'SplK_Slow' in the enum.
     return true;

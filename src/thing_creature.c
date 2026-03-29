@@ -28,6 +28,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_fileio.h"
 
 #include "config_creature.h"
@@ -2389,7 +2390,7 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
                     creatng->creature.gold_carried += tgthing->valuable.gold_stored;
                     delete_thing_structure(tgthing, 0);
                 }
-                thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(creatng, snd_gold_pickup, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         } else
         {
@@ -4019,7 +4020,7 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
             // If cannot find a valid target, do not use it and don't consider it used.
 
             // Make a rejection sound
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
             return 0;
         }
     }
@@ -7049,7 +7050,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                     {
                         if (is_my_player_number(plyr_idx))
                         {
-                            play_non_3d_sample(119);
+                            play_non_3d_sample(snd_refusal);
                         }
                         return;
                     }
@@ -7080,7 +7081,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                         {
                             if (is_my_player_number(plyr_idx))
                             {
-                                play_non_3d_sample(119);
+                                play_non_3d_sample(snd_refusal);
                             }
                             return;
                         }

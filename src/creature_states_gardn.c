@@ -22,6 +22,7 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
+#include "config_sounds.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -77,7 +78,7 @@ TbBool hunger_is_creature_hungry(const struct Thing *creatng)
 
 void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room)
 {
-    thing_play_sample(creatng, 112+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, snd_chicken_cluck + SOUND_RANDOM(snd_chicken_cluck_count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
     creatng->continue_state = CrSt_CreatureToGarden;
