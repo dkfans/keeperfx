@@ -197,10 +197,17 @@ enum TbScriptCommands {
     Cmd_SHOW_BONUS_LEVEL                   = 185,
     Cmd_HIDE_BONUS_LEVEL                   = 186,
     Cmd_HIDE_HERO_GATE                     = 187,
-    Cmd_DISPLAY_WARNING                    = 188,
-    Cmd_DISPLAY_WARNING_WITH_POS           = 189,
-    Cmd_QUICK_WARNING                      = 190,
-    Cmd_QUICK_WARNING_WITH_POS             = 191,
+    Cmd_DISPLAY_BONUS_OBJECTIVE            = 188,
+    Cmd_DISPLAY_BONUS_OBJECTIVE_WITH_POS   = 189,
+    Cmd_DISPLAY_BONUS_INFORMATION          = 190,
+    Cmd_DISPLAY_BONUS_INFORMATION_WITH_POS = 191,
+    Cmd_DISPLAY_WARNING                    = 192,
+    Cmd_DISPLAY_WARNING_WITH_POS           = 193,
+    Cmd_QUICK_BONUS_OBJECTIVE              = 194,
+    Cmd_QUICK_BONUS_INFORMATION            = 195,
+    Cmd_QUICK_WARNING                      = 196,
+    Cmd_QUICK_BONUS_OBJECTIVE_WITH_POS     = 197,
+    Cmd_QUICK_BONUS_INFORMATION_WITH_POS   = 198,
 };
 
 struct ScriptLine {
