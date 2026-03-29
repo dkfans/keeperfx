@@ -226,7 +226,7 @@ void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on
             if (heartng->health < old_health)
             {
                 event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
-                if (is_my_player_number(heartng->owner))
+                if (is_my_player_number(heartng->owner), 0)
                 {
                     output_message(SMsg_HeartUnderAttack, 400);
                     controller_rumble(50);
@@ -486,7 +486,7 @@ TbBool mark_creature_joined_dungeon(struct Thing *creatng)
     }
     if ((dungeon->owned_creatures_of_model[creatng->model] <= 1) && (dungeon->creature_models_joined[creatng->model] <= 0))
     {
-        event_create_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NewCreature, creatng->owner, creatng->index);
+        event_create_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NewCreature, creatng->owner, creatng->index, 0);
     }
     if (dungeon->creature_models_joined[creatng->model] < 255)
     {

@@ -1923,7 +1923,7 @@ void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x,
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
+    event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id, 0);
 }
 
 void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
@@ -1940,8 +1940,7 @@ void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, M
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    struct Event *event = event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
-    event->icon = 268; //GPS_message_rpanel_msg_inforg_act;
+    event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id, 0);
 }
 
 void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
@@ -2313,7 +2312,7 @@ void process_payday(void)
             if (player_paid_creatures_count > 0)
             {
                 struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
-                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreaturePayday, plyr_idx, dungeon->creatures_total_pay);
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreaturePayday, plyr_idx, dungeon->creatures_total_pay, 0);
             }
         }
     }
