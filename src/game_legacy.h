@@ -136,6 +136,51 @@ struct LogThingDesyncInfo {
     HitPoints health;
     GameTurn creation_turn;
     uint32_t random_seed;
+    unsigned char current_frame;
+    unsigned char max_frames;
+    HitPoints max_health;
+    CrtrExpLevel exp_level;
+    unsigned short inst_turn;
+    CrInstance instance_id;
+    unsigned char active_state;
+    unsigned char continue_state;
+    GameTurn tasks_check_turn;
+    struct Coord3d moveto_pos;
+    ThingIndex dragtng_idx;
+    ThingIndex arming_thing_id;
+    ThingIndex pickup_object_id;
+    ThingIndex pickup_creature_id;
+    unsigned char move_flags;
+    ThingIndex players_prev_creature_idx;
+    ThingIndex players_next_creature_idx;
+    short last_work_room_id;
+    short work_room_id;
+    short target_room_id;
+    int32_t turns_at_job;
+    short blocking_door_id;
+    CrInstance active_instance_id;
+    unsigned char active_state_bkp;
+    unsigned char continue_state_bkp;
+    unsigned short damage_wall_coords;
+    unsigned short job_assigned;
+    GameTurn healing_sleep_check_turn;
+    GameTurn job_assigned_check_turn;
+    unsigned char stopped_for_hand_turns;
+    GameTurn idle_start_gameturn;
+    SlabKind current_slab_kind;
+    PlayerNumber current_slab_owner;
+    SlabKind task_slab_kind;
+    PlayerNumber task_slab_owner;
+    SlabKind working_slab_kind;
+    PlayerNumber working_slab_owner;
+    GameTurn digger_stack_update_turn;
+    SubtlCodedCoords digger_working_stl;
+    SubtlCodedCoords digger_task_stl;
+    unsigned short digger_task_idx;
+    unsigned char digger_consecutive_reinforcements;
+    unsigned char digger_last_did_job;
+    unsigned char digger_task_stack_pos;
+    unsigned short digger_task_repeats;
     TbBigChecksum checksum;
 };
 
@@ -157,6 +202,32 @@ struct LogRoomDesyncInfo {
     TbBigChecksum checksum;
 };
 
+struct LogMapTaskDesyncInfo {
+    unsigned char kind;
+    SubtlCodedCoords coords;
+    TbBigChecksum checksum;
+};
+
+struct LogDiggerStackDesyncInfo {
+    SubtlCodedCoords stl_num;
+    SpDiggerTaskType task_type;
+    TbBigChecksum checksum;
+};
+
+struct LogImpSchedulerDesyncInfo {
+    PlayerNumber id;
+    short digger_list_start;
+    int task_count;
+    short highest_task_number;
+    GameTurn digger_stack_update_turn;
+    uint32_t digger_stack_length;
+    TbBigChecksum task_list_checksum;
+    TbBigChecksum digger_stack_checksum;
+    TbBigChecksum checksum;
+    struct LogMapTaskDesyncInfo tasks[MAPTASKS_COUNT];
+    struct LogDiggerStackDesyncInfo digger_tasks[DIGGER_TASK_MAX_COUNT];
+};
+
 struct DesyncChecksums {
     TbBigChecksum creatures;
     TbBigChecksum traps;
@@ -168,6 +239,7 @@ struct DesyncChecksums {
     TbBigChecksum doors;
     TbBigChecksum rooms;
     TbBigChecksum players;
+    TbBigChecksum imp_schedulers;
     TbBigChecksum action_seed;
     TbBigChecksum ai_seed;
     TbBigChecksum player_seed;
@@ -181,6 +253,8 @@ struct LogDetailedSnapshot {
     int player_count;
     struct LogRoomDesyncInfo rooms[ROOMS_COUNT];
     int room_count;
+    struct LogImpSchedulerDesyncInfo imp_schedulers[PLAYERS_COUNT];
+    int imp_scheduler_count;
 };
 
 struct Game {
