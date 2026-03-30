@@ -3083,6 +3083,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             pos.x.val = arid->endpos.x.val;
             pos.y.val = arid->endpos.y.val;
             pos.z.val = arid->endpos.z.val;
+            JUSTLOG("RECOMPUTE PATH");
             if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags) == AridRet_OK) {
                 return AridRet_OK;
             }
