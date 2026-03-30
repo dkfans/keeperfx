@@ -131,6 +131,8 @@
 #include "net_input_lag.h"
 #include "moonphase.h"
 #include "frontmenu_ingame_map.h"
+#include "frontend.h"
+#include "sprites.h"
 #include <stdint.h>
 
 #ifdef FUNCTESTING
@@ -1948,12 +1950,18 @@ void set_general_bonus_information_at_location(long msg_id, TbMapLocation target
     struct PlayerInfo *player;
     long pos_x;
     long pos_y;
+    long x, y;
     player = get_my_player();
-    find_map_location_coords(target, 0, 0, my_player_number, __func__);
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_x = 0;
     pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
     MsgColour colour = get_colour(colour_value);
-    int icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
     event_create_event(pos_x, pos_y, EvKind_BonusInformation, player->id_number, -msg_id, icon);
 }
 
@@ -1972,7 +1980,7 @@ void set_general_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSu
         pos_x = subtile_coord_center(x);
     }
     MsgColour colour = get_colour(colour_value);
-    int icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
     event_create_event(pos_x, pos_y, EvKind_BonusInformation, player->id_number, -msg_id, icon);
 }
 
@@ -1981,12 +1989,18 @@ void set_quick_bonus_information_at_location(long msg_id, TbMapLocation target, 
     struct PlayerInfo *player;
     long pos_x;
     long pos_y;
+    long x, y;
     player = get_my_player();
-    find_map_location_coords(target, 0, 0, my_player_number, __func__);
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_x = 0;
     pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
     MsgColour colour = get_colour(colour_value);
-    int icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
     event_create_event(pos_x, pos_y, EvKind_QuickBonusInformation, player->id_number, -msg_id, icon);
 }
 
@@ -2006,7 +2020,7 @@ void set_quick_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubt
         pos_x = subtile_coord_center(x);
     }
     MsgColour colour = get_colour(colour_value);
-    int icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
     event_create_event(pos_x, pos_y, EvKind_QuickBonusInformation, player->id_number, -msg_id, icon);
 }
 

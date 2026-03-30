@@ -229,6 +229,33 @@ enum IngameButtonDesignationIDs {
     BID_ASSIST
 };
 
+typedef enum {
+    MSG_COLOUR_DEFAULT,
+    MSG_COLOUR_BLUE,
+    MSG_COLOUR_BROWN,
+    MSG_COLOUR_GREEN,
+    MSG_COLOUR_GREY,
+    MSG_COLOUR_ORANGE,
+    MSG_COLOUR_PGREEN,
+    MSG_COLOUR_PURPLE,
+    MSG_COLOUR_RED,
+    MSG_COLOUR_WHITE,
+    MSG_COLOUR_YELLOW,
+    MSG_COLOUR_COUNT
+} MsgColour;
+
+typedef enum {
+    MSG_ICON_INFO,
+    MSG_ICON_EXCLAM,
+    MSG_ICON_QUESTN,
+    MSG_ICON_COUNT
+} MsgIconType;
+
+MsgColour get_colour(const char *input);
+
+extern const struct NamedCommand message_colour_desc[];
+extern int rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT];
+
 struct GuiMenu;
 struct GuiButton;
 struct TbLoadFiles;
