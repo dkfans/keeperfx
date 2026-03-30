@@ -67,7 +67,7 @@ static uint8_t num_definable_keys()
 
     for (int i = 0; i < GAME_KEYS_COUNT; i++)
     {
-        if (game_key_settings[i].visibility == 1) {
+        if (game_key_settings[i].binding_menu_visibility == BMV_Visible) {
             num++;
         }
     }

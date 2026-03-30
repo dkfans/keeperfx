@@ -95,16 +95,15 @@ obj/ariadne_points.o \
 obj/ariadne_regions.o \
 obj/ariadne_tringls.o \
 obj/ariadne_wallhug.o \
-obj/bflib_base_tcp.o \
 obj/bflib_basics.o \
 obj/bflib_coroutine.o \
-obj/bflib_client_tcp.o \
 obj/bflib_cpu.o \
 obj/bflib_crash.o \
 obj/bflib_datetm.o \
 obj/bflib_dernc.o \
 obj/bflib_enet.o \
 obj/net_portforward.o \
+obj/net_holepunch.o \
 obj/bflib_fileio.o \
 obj/bflib_filelst.o \
 obj/bflib_fmvids.o \
@@ -126,12 +125,10 @@ obj/bflib_planar.o \
 obj/bflib_render.o \
 obj/bflib_render_gpoly.o \
 obj/bflib_render_trig.o \
-obj/bflib_server_tcp.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_sprfnt.o \
 obj/bflib_string.o \
-obj/bflib_tcpsp.o \
 obj/bflib_video.o \
 obj/bflib_vidraw.o \
 obj/bflib_vidraw_spr_norm.o \
@@ -287,6 +284,8 @@ obj/net_input_lag.o \
 obj/net_received_packets.o \
 obj/net_redundant_packets.o \
 obj/net_checksums.o \
+obj/net_matchmaking.o \
+obj/net_lan.o \
 obj/packets.o \
 obj/packets_cheats.o \
 obj/packets_input.o \
@@ -377,6 +376,7 @@ LINKLIB = -mwindows \
 	-L"deps/enet6/lib" -lenet6 \
 	-L"deps/miniupnpc" -lminiupnpc \
 	-L"deps/libnatpmp" -lnatpmp -liphlpapi \
+	-L"deps/libcurl/lib" -lcurl -lwldap32 -lcrypt32 -lsecur32 -liphlpapi \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
@@ -395,7 +395,8 @@ INCS = \
 	-I"deps/openal/include" \
 	-I"deps/luajit/include" \
 	-I"deps/miniupnpc/include" \
-	-I"deps/libnatpmp/include"
+	-I"deps/libnatpmp/include" \
+	-I"deps/libcurl/include"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -435,7 +436,7 @@ HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-sign-compare -Wno-strict-aliasing -Wno-unknown-pragmas -Werror
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
-CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
+CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS) -DCURL_STATICLIB
 LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
 ifeq ($(USE_PRE_FILE), 1)
@@ -651,10 +652,11 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp
+	-$(RM) -rf deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl
+	-$(RM) deps/libcurl-mingw32.tar.gz
 	-$(RM) libexterns
 
-deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp:
+deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl:
 	$(MKDIR) $@
 
 src/api.c: deps/centijson/include/json.h
@@ -668,6 +670,7 @@ src/bflib_sndlib.cpp: deps/openal/include/AL/al.h
 src/net_resync.cpp: deps/zlib/include/zlib.h
 src/console_cmd.c: deps/luajit/include/lua.h
 src/net_portforward.cpp: deps/miniupnpc/include/miniupnpc/miniupnpc.h deps/libnatpmp/include/natpmp/natpmp.h
+src/net_matchmaking.c: deps/libcurl/include/curl/curl.h
 
 deps/enet6-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260212/enet6-mingw32.tar.gz"
@@ -730,6 +733,12 @@ deps/libnatpmp-mingw32.tar.gz:
 
 deps/libnatpmp/include/natpmp/natpmp.h: deps/libnatpmp-mingw32.tar.gz | deps/libnatpmp
 	tar xzmf $< -C deps/libnatpmp
+
+deps/libcurl-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260310/libcurl-mingw32.tar.gz"
+
+deps/libcurl/include/curl/curl.h: deps/libcurl-mingw32.tar.gz | deps/libcurl
+	tar xzmf $< -C deps/libcurl
 
 cppcheck: | src/ver_defs.h
 cppcheck: | deps/zlib/include/zlib.h

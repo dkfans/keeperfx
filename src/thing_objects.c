@@ -49,6 +49,7 @@
 #include "player_instances.h"
 #include "power_hand.h"
 #include "room_entrance.h"
+#include "room_garden.h"
 #include "sounds.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
@@ -254,19 +255,7 @@ void destroy_food(struct Thing *foodtng)
         }
     }
     create_effect(&pos, TngEff_ChickenBlood, plyr_idx);
-    struct Room* room = get_room_thing_is_on(foodtng);
-    if (!room_is_invalid(room))
-    {
-        if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == foodtng->owner))
-        {
-            int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
-            if (room->used_capacity >= required_cap)
-            {
-                room->used_capacity -= required_cap;
-            }
-            foodtng->food.life_remaining = game.conf.rules[plyr_idx].game.food_life_out_of_hatchery;
-        }
-    }
+    remove_food_from_food_room_if_possible(foodtng);
     delete_thing_structure(foodtng, 0);
 }
 

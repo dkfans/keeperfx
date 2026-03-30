@@ -3001,8 +3001,8 @@ msgstr "Voir L'introduction"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menu Service"
+msgid "Multiplayer Menu"
+msgstr "Menu multijoueur"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3228,8 +3228,8 @@ msgstr "Testeurs"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessions"
+msgid "Game Lobbies"
+msgstr "Salons de jeu"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3238,8 +3238,8 @@ msgstr "Nom"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Services"
+msgid "Game Modes"
+msgstr "Modes de jeu"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3248,13 +3248,13 @@ msgstr "Messages"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Créer Partie"
+msgid "Create Lobby"
+msgstr "Créer un salon"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Joindre Une Partie"
+msgid "Join Lobby"
+msgstr "Rejoindre un salon"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3263,8 +3263,8 @@ msgstr "Lancer Le Jeu"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Menu Jeu"
+msgid "Lobbies Menu"
+msgstr "Menu des salons"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -6035,18 +6035,18 @@ msgstr "4 Joueurs"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Cable Série"
+msgid "Online"
+msgstr "En ligne"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Modem"
+msgid "LAN"
+msgstr "Réseau local"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Escarmouche"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6813,7 +6813,7 @@ msgstr "Retour au menu Jeu Libre"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Collection de Cartes"
 
 #: guitext:970

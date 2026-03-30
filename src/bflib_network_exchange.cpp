@@ -34,10 +34,8 @@
 #include "post_inc.h"
 
 #ifdef __cplusplus
-void gameplay_loop_draw();
 extern "C" void network_yield_draw_gameplay();
 extern "C" void network_yield_draw_frontend();
-extern "C" short frontend_draw();
 extern "C" long double last_draw_completed_time;
 extern "C" void LbNetwork_TimesyncBarrier(void);
 extern "C" TbBool keeper_screen_redraw(void);
@@ -242,13 +240,16 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name) {
     while (true) {
         TbClockMSec elapsed = LbTimerClock() - start;
         if (elapsed >= TIMEOUT_JOIN_LOBBY) {
+            NETMSG("ExchangeLogin: timed out waiting for login response (%dms)", (int)TIMEOUT_JOIN_LOBBY);
             break;
         }
         unsigned wait_ms = (unsigned)(TIMEOUT_JOIN_LOBBY - elapsed);
         if (!netstate.sp->msgready(SERVER_ID, wait_ms)) {
+            NETMSG("ExchangeLogin: msgready returned false");
             break;
         }
         if (ProcessMessage(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket)) == Lb_FAIL) {
+            NETMSG("ExchangeLogin: ProcessMessage failed");
             break;
         }
         if (netstate.msg_buffer[0] == NETMSG_LOGIN) {
@@ -256,12 +257,14 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name) {
         }
     }
     if (netstate.msg_buffer[0] != NETMSG_LOGIN) {
-        fprintf(stderr, "Network login rejected");
+        NETMSG("ExchangeLogin: login rejected (msg_buffer[0]=%d)", (int)netstate.msg_buffer[0]);
         return Lb_FAIL;
     }
-    ProcessMessage(SERVER_ID, &net_screen_packet, sizeof (struct ScreenPacket));
+    if (netstate.sp->msgready(SERVER_ID, TIMEOUT_JOIN_LOBBY)) {
+        ProcessMessage(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket));
+    }
     if (netstate.my_id == INVALID_USER_ID) {
-        fprintf(stderr, "Network login unsuccessful");
+        NETMSG("ExchangeLogin: login unsuccessful, still INVALID_USER_ID");
         return Lb_FAIL;
     }
     return Lb_OK;

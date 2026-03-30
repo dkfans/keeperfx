@@ -30,7 +30,7 @@ extern "C" {
 
 #define CLIENT_TABLE_LEN 32
 
-#define TIMEOUT_ENET_CONNECT 2000
+#define TIMEOUT_ENET_CONNECT 15000
 #define TIMEOUT_JOIN_LOBBY 2000
 #define TIMEOUT_LOBBY_EXCHANGE 3000
 #define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
@@ -160,8 +160,6 @@ struct NetSP // new version
     void (*drop_user)(NetUserId id);
 };
 
-extern const struct NetSP tcpSP;
-
 // New Declarations End Here ==================================================
 
 struct TbNetworkSessionNameEntry;
@@ -169,7 +167,6 @@ struct TbNetworkSessionNameEntry;
 typedef long (*Net_Callback_Func)(void);
 
 enum TbNetworkService {
-    NS_TCP_IP,
     NS_ENET_UDP,
 };
 
@@ -253,7 +250,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, int32_t *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
-TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
