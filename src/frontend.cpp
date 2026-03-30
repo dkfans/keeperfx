@@ -367,7 +367,10 @@ struct EventTypeInfo event_button_info[] = {
   {0,                                            GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
   {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
   {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_Warning - Information but with a !
+  {GPS_message_rpanel_msg_inforg_act,            GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_BonusInformation - Coloured i.
+  {GPS_message_rpanel_msg_inforg_act,            GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_QuickBonusInformation - Coloured i.
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_Warning - same but with a !
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_QuickWarning - same but with a !
   {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2}, // Objective slot 2
   {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3}, // Objective slot 3
   {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4}, // Objective slot 4

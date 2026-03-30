@@ -104,6 +104,7 @@ struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_i
  * @param evkind Event kind to be searched or created.
  * @param dngn_id Owning dungeon index.
  * @param target Event target identification parameter, its meaning depends on event kind.
+ * @param icon Icon argument for specific event commands that accept a colour argument. 0 for unchanged.
  * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
  */
 EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target, int icon)
@@ -131,6 +132,7 @@ EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, Ma
  * @param evkind Event kind to be searched or created.
  * @param dngn_id Owning dungeon index.
  * @param target Event target identification parameter, its meaning depends on event kind.
+ * @param icon Icon argument for specific event commands that accept a colour argument. 0 for unchanged.
  * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
  */
 EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target, int icon)
@@ -157,6 +159,7 @@ EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_
  * @param evkind Event kind to be searched or created.
  * @param plyr_idx Owning player index.
  * @param target Event target identification parameter, its meaning depends on event kind.
+ * @param icon Icon argument for specific event commands that accept a colour argument. 0 for unchanged.
  * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
  */
 EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char plyr_idx, int32_t target, int icon)

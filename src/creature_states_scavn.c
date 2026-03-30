@@ -427,7 +427,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
         if (is_my_player_number(scavtng->owner)) {
             output_message(SMsg_CreatureScanvenged, 500);
         }
-        event_create_event(scavtng->mappos.x.val, scavtng->mappos.y.val, EvKind_CreatrScavenged, scavtng->owner, scavtng->index);
+        event_create_event(scavtng->mappos.x.val, scavtng->mappos.y.val, EvKind_CreatrScavenged, scavtng->owner, scavtng->index, 0);
     } else
     {
         calldngn->scavenge_turn_points[calltng->model] += work_value;

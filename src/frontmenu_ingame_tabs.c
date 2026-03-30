@@ -2172,7 +2172,13 @@ void maintain_event_button(struct GuiButton *gbtn)
         activate_event_box(evidx);
     }
     // Override with chosen colour if set via script command.
-    if (((event->kind == EvKind_Objective) || (event->kind == EvKind_Information) || (event->kind == EvKind_QuickInformation)) && (event->icon != 0))
+    // not sure if this is better or worse than trying to overwrite the value in event_button_info[] directly
+    // (but that would presumably update all instances at once, so only feasible for objectives)
+    if (((event->kind == EvKind_BonusInformation) || (event->kind == EvKind_QuickBonusInformation)
+        || (event->kind == EvKind_Warning) || (event->kind == EvKind_QuickWarning)
+        || (event->kind == EvKind_Objective)  || (event->kind == EvKind_Objective2) || (event->kind == EvKind_Objective3) || (event->kind == EvKind_Objective4) 
+        || (event->kind == EvKind_Objective5) || (event->kind == EvKind_Objective6) || (event->kind == EvKind_Objective7) || (event->kind == EvKind_Objective8))
+        && (event->icon != 0))
     {
         gbtn->sprite_idx = event->icon;
     }

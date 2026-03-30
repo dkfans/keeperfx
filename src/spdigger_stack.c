@@ -1386,7 +1386,7 @@ long add_to_pretty_to_imp_stack_if_need_to(MapSlabCoord slb_x, MapSlabCoord slb_
         {
             if ((players_are_enemies(doortng->owner, dungeon->owner)) && (slab_by_players_land(dungeon->owner, slb_x, slb_y)))
             {
-                event_create_event_or_update_same_target_existing_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_EnemyDoor, dungeon->owner, doortng->index);
+                event_create_event_or_update_same_target_existing_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_EnemyDoor, dungeon->owner, doortng->index, 0);
             }
         }
     }
@@ -3291,7 +3291,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     {
       evidx = event_create_event_or_update_nearby_existing_event(
           subtile_coord_center(stl_x), subtile_coord_center(stl_y),
-          EvKind_TrapCrateFound, thing->owner, sectng->index);
+          EvKind_TrapCrateFound, thing->owner, sectng->index, 0);
         if (evidx > 0)
         {
 
@@ -3308,7 +3308,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     {
       evidx = event_create_event_or_update_nearby_existing_event(
           subtile_coord_center(stl_x), subtile_coord_center(stl_y),
-          EvKind_DoorCrateFound, thing->owner, sectng->index);
+          EvKind_DoorCrateFound, thing->owner, sectng->index, 0);
         if (evidx > 0)
         {
             if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )

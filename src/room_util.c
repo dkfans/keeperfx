@@ -548,10 +548,10 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
             switch (rrole)
             {
             case RoRoF_LairStorage:
-                evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
+                evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index, 0);
                 break;
             case RoRoF_GoldStorage:
-                evidx = event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, plyr_idx, 0);
+                evidx = event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, plyr_idx, 0, 0);
                 break;
             default:
                 evidx = 1;
@@ -565,7 +565,7 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
             SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_role_code_name(rrole));
             RoomKind rkind = find_first_roomkind_with_role(rrole);
             evidx = event_create_event_or_update_nearby_existing_event(
-                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rkind);
+                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rkind, 0);
             if (evidx > 0) {
                 output_room_message(plyr_idx, rkind, OMsg_RoomNoRoute);
             }
@@ -578,10 +578,10 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
             switch (rrole)
             {
             case RoRoF_LairStorage:
-                evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
+                evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index, 0);
                 break;
             case RoRoF_GoldStorage:
-                evidx = event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NeedTreasureRoom, plyr_idx, 0);
+                evidx = event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NeedTreasureRoom, plyr_idx, 0, 0);
                 break;
             default:
                 evidx = 1;

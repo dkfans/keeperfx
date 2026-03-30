@@ -1093,7 +1093,7 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, M
     }
     event_create_event_or_update_nearby_existing_event(
         subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
-        EvKind_RoomUnderAttack, room->owner, 0);
+        EvKind_RoomUnderAttack, room->owner, 0, 0);
     if (is_my_player_number(room->owner))
         output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
     thing->continue_state = CrSt_CreatureAttackRooms;
@@ -3355,7 +3355,7 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
         return 1;
     }
     anger_apply_anger_to_creature(creatng, crconf->annoy_queue, AngR_NotPaid, 1);
-    EventIndex evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, creatng->owner, RoK_TREASURE);
+    EventIndex evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, creatng->owner, RoK_TREASURE, 0);
     if (evidx > 0)
     {
         output_room_message(creatng->owner, RoK_TREASURE, OMsg_RoomNoRoute);
@@ -3972,7 +3972,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
 
         set_flag(cctrl->party.player_broken_into_flags, to_flag(i));
         ++dgn->times_broken_into;
-        event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Breach, i, 0);
+        event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Breach, i, 0, 0);
         if (is_my_player_number(i))
         {
             output_message(SMsg_WallsBreach, 0);
@@ -5257,12 +5257,12 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureM
         }
     }
     if (room_is_invalid(nroom)) {
-        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0, 0);
         anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     if (!external_set_thing_state(creatng, CrSt_CreatureToGarden)) {
-        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0, 0);
         anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }

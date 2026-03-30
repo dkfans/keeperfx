@@ -662,7 +662,7 @@ long instf_dig(struct Thing *creatng, int32_t *param)
         {
             EventIndex evidx = event_create_event_or_update_nearby_existing_event(
                 subtile_coord_center(stl_x), subtile_coord_center(stl_y),
-                EvKind_AreaDiscovered, creatng->owner, 0);
+                EvKind_AreaDiscovered, creatng->owner, 0, 0);
             if ((evidx > 0) && is_my_player_number(creatng->owner))
                 output_message(SMsg_DugIntoNewArea, 0);
         }
@@ -675,7 +675,7 @@ long instf_dig(struct Thing *creatng, int32_t *param)
         {
             EventIndex evidx = event_create_event_or_update_nearby_existing_event(
                 subtile_coord_center(stl_x), subtile_coord_center(stl_y),
-                EvKind_AreaDiscovered, creatng->owner, 0);
+                EvKind_AreaDiscovered, creatng->owner, 0, 0);
             if ((evidx > 0) && is_my_player_number(creatng->owner))
                 output_message(SMsg_DugIntoNewArea, 0);
         }
@@ -719,7 +719,7 @@ long instf_destroy(struct Thing *creatng, int32_t *param)
         {
             MapCoord ccor_x = subtile_coord_center(room->central_stl_x);
             MapCoord ccor_y = subtile_coord_center(room->central_stl_y);
-            event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, room->owner, room->kind);
+            event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, room->owner, room->kind, 0);
             claim_enemy_room(room, creatng);
         }
         thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -783,7 +783,7 @@ long instf_attack_room_slab(struct Thing *creatng, int32_t *param)
     }
     if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
     {
-        event_create_event_or_update_nearby_existing_event(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), EvKind_RoomLost, room->owner, room->kind);
+        event_create_event_or_update_nearby_existing_event(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), EvKind_RoomLost, room->owner, room->kind, 0);
     }
     long z = get_floor_filled_subtiles_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     if (!delete_room_slab(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), 1))
@@ -931,7 +931,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
                         MapCoord coord_x = subtile_coord_center(room->central_stl_x);
                         MapCoord coord_y = subtile_coord_center(room->central_stl_y);
                         event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
-                            EvKind_RoomUnderAttack, room->owner, 0);
+                            EvKind_RoomUnderAttack, room->owner, 0, 0);
                         if (is_my_player_number(room->owner))
                         {
                             output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);

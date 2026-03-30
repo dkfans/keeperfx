@@ -107,7 +107,7 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
     {
         evidx = event_create_event_or_update_nearby_existing_event(
             picktng->mappos.x.val, picktng->mappos.y.val,
-            EvKind_SpellPickedUp, creatng->owner, picktng->index);
+            EvKind_SpellPickedUp, creatng->owner, picktng->index, 0);
         // Only play speech message if new event was created
         if (evidx > 0)
         {
@@ -139,7 +139,7 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
     {
         evidx = event_create_event_or_update_nearby_existing_event(
             picktng->mappos.x.val, picktng->mappos.y.val,
-            EvKind_DnSpecialFound, creatng->owner, picktng->index);
+            EvKind_DnSpecialFound, creatng->owner, picktng->index, 0);
         // Only play speech message if new event was created
         if (evidx > 0)
         {
@@ -363,7 +363,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 {
                     add_item_to_room_capacity(room, true);
                 }
-                event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind);
+                event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind, 0);
                 create_effect(&pos, TngEff_ResearchComplete, spelltng->owner);
             }
             else
@@ -382,7 +382,7 @@ void process_player_research(PlayerNumber plyr_idx)
         {
             RoomKind rkind;
             rkind = rsrchval->rkind;
-            event_create_event(0, 0, EvKind_NewRoomResrch, plyr_idx, rkind);
+            event_create_event(0, 0, EvKind_NewRoomResrch, plyr_idx, rkind, 0);
             dungeon->room_buildable[rkind] |= 3; // Player may build room and may research it again
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_ResearchedRoom, 0);

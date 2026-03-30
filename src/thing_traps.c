@@ -592,7 +592,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
     if (trapst->notify == true)
     {
-        event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
+        event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0, 0);
     }
     thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     switch (trapst->activation_type)
@@ -656,7 +656,7 @@ void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
             traptng->trap.revealed = 1;
             if (trapst->notify == true)
             {
-                event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
+                event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0, 0);
             }
             thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
 

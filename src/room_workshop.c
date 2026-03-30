@@ -134,12 +134,12 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
     {
     case TCls_Trap:
         if ((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Built) == 0) {
-            event_create_event(cratetng->mappos.x.val, cratetng->mappos.y.val, EvKind_NewTrap, plyr_idx, tngmodel);
+            event_create_event(cratetng->mappos.x.val, cratetng->mappos.y.val, EvKind_NewTrap, plyr_idx, tngmodel, 0);
         }
         break;
     case TCls_Door:
         if ((dungeon->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Built) == 0) {
-          event_create_event(cratetng->mappos.x.val, cratetng->mappos.y.val, EvKind_NewDoor, plyr_idx, tngmodel);
+          event_create_event(cratetng->mappos.x.val, cratetng->mappos.y.val, EvKind_NewDoor, plyr_idx, tngmodel, 0);
         }
         break;
     default:
@@ -681,7 +681,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
     {
         evidx = event_create_event_or_update_nearby_existing_event(
             picktng->mappos.x.val, picktng->mappos.y.val,
-            EvKind_TrapCrateFound, creatng->owner, picktng->index);
+            EvKind_TrapCrateFound, creatng->owner, picktng->index, 0);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
                 output_message(SMsg_TrapStolen, 0);
@@ -701,7 +701,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
     {
        evidx = event_create_event_or_update_nearby_existing_event(
             picktng->mappos.x.val, picktng->mappos.y.val,
-            EvKind_DoorCrateFound, creatng->owner, picktng->index);
+            EvKind_DoorCrateFound, creatng->owner, picktng->index, 0);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
                 output_message(SMsg_DoorStolen, 0);

@@ -868,7 +868,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         }
         if (shotng->owner != target->owner)
         {
-            event_create_event_or_update_nearby_existing_event(shootertng->mappos.x.val, shootertng->mappos.y.val, EvKind_HeartAttacked, target->owner, shootertng->index);
+            event_create_event_or_update_nearby_existing_event(shootertng->mappos.x.val, shootertng->mappos.y.val, EvKind_HeartAttacked, target->owner, shootertng->index, 0);
             if (is_my_player_number(target->owner)) {
                 output_message(SMsg_HeartUnderAttack, 400);
                 controller_rumble(50);

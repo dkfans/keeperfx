@@ -68,7 +68,10 @@ enum EventKinds {
     EvKind_EnemyDoor,                      // ComputerKeeper: DoorAtck1 [event20] --> attacks enemy doors
     EvKind_SecretDoorDiscovered,
     EvKind_SecretDoorSpotted,
+    EvKind_BonusInformation,
+    EvKind_QuickBonusInformation,
     EvKind_Warning,
+    EvKind_QuickWarning,
     EvKind_Objective2,
     EvKind_Objective3,
     EvKind_Objective4,
@@ -126,7 +129,7 @@ void event_initialise_all(void);
 long event_move_player_towards_event(struct PlayerInfo *player, long event_idx);
 struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t msg_id, int icon);
 struct Event *event_allocate_free_event_structure(void);
-void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t msg_id);
+void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t msg_id, int icon);
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon);
 void event_update_on_battle_removal(BattleIndex battle_idx);
 void event_delete_event(long plridx, EventIndex evidx);

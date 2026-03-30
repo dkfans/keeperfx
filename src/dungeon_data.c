@@ -225,7 +225,7 @@ void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on
         {
             if (heartng->health < old_health)
             {
-                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
+                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index, 0);
                 if (is_my_player_number(heartng->owner), 0)
                 {
                     output_message(SMsg_HeartUnderAttack, 400);

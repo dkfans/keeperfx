@@ -829,6 +829,22 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         }
       }
       break;
+  case Cmd_DISPLAY_BONUS_INFORMATION:
+      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
+          set_general_bonus_information_at_location(param1, param2, param3);
+      break;
+  case Cmd_DISPLAY_BONUS_INFORMATION_WITH_POS:
+      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
+          set_general_bonus_information_at_coords(param1, stl_num_decode_x(param2), stl_num_decode_y(param2), param3);
+      break;
+  case Cmd_QUICK_BONUS_INFORMATION:
+      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
+          set_quick_bonus_information_at_location(param1, param2, param3);
+      break;
+  case Cmd_QUICK_BONUS_INFORMATION_WITH_POS:
+      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
+          set_quick_bonus_information_at_coords(param1, stl_num_decode_x(param2), stl_num_decode_y(param2), param3);
+      break;
   default:
       WARNMSG("Unsupported Game VALUE, command %lu.",var_index);
       break;

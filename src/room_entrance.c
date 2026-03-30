@@ -372,7 +372,7 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
                 rkind = find_first_roomkind_with_role(RoRoF_LairStorage);
             }
             if (dungeon_has_room_of_role(dungeon, RoRoF_LairStorage)) {
-                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NoMoreLivingSet, dungeon->owner, 0);
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NoMoreLivingSet, dungeon->owner, 0, 0);
                 output_room_message(dungeon->owner, rkind, OMsg_RoomTooSmall);
             } else {
                 output_room_message(dungeon->owner, rkind, OMsg_RoomNeeded);
