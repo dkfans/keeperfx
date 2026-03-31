@@ -102,8 +102,8 @@ struct Event {
     unsigned char kind;
     int32_t target;
     /** Button lifespan, decreased over time. When reaches 0, the button disappears. */
-    unsigned long lifespan_turns;
-    unsigned long icon; // from GUIPanelSprite
+    uint32_t lifespan_turns;
+    int16_t icon; // from GUIPanelSprite
 };
 
 struct Bookmark {

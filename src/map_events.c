@@ -639,8 +639,8 @@ void maintain_my_event_list(struct Dungeon *dungeon)
 
 void kill_oldest_my_event(struct Dungeon *dungeon)
 {
-    long old_idx = -1;
-    long old_birth = 2147483647;
+    int32_t old_idx = -1;
+    int32_t old_birth = INT_MAX;
     for (long i = EVENT_BUTTONS_COUNT; i > 0; i--)
     {
         long k = dungeon->event_button_index[i];
