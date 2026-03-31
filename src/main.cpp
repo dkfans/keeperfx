@@ -1945,7 +1945,7 @@ void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, M
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id, 0);
 }
 
-void set_general_bonus_information_at_location(long msg_id, TbMapLocation target, const char *colour_value)
+void set_general_bonus_information_at_location(long msg_id, TbMapLocation target, long colour_value)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1960,12 +1960,15 @@ void set_general_bonus_information_at_location(long msg_id, TbMapLocation target
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    MsgColour colour = get_colour(colour_value);
+    if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
+        colour = MSG_COLOUR_DEFAULT;
+    else
+        colour = (MsgColour)colour_value;
     GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
     event_create_event(pos_x, pos_y, EvKind_BonusInformation, player->id_number, -msg_id, icon);
 }
 
-void set_general_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubtlCoord y, const char *colour_value)
+void set_general_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubtlCoord y, long colour_value)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1979,12 +1982,15 @@ void set_general_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSu
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    MsgColour colour = get_colour(colour_value);
+    if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
+        colour = MSG_COLOUR_DEFAULT;
+    else
+        colour = (MsgColour)colour_value;
     GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
     event_create_event(pos_x, pos_y, EvKind_BonusInformation, player->id_number, -msg_id, icon);
 }
 
-void set_quick_bonus_information_at_location(long msg_id, TbMapLocation target, const char *colour_value)
+void set_quick_bonus_information_at_location(long msg_id, TbMapLocation target, long colour_value)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1999,13 +2005,16 @@ void set_quick_bonus_information_at_location(long msg_id, TbMapLocation target, 
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    MsgColour colour = get_colour(colour_value);
+    if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
+        colour = MSG_COLOUR_DEFAULT;
+    else
+        colour = (MsgColour)colour_value;
     GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
     event_create_event(pos_x, pos_y, EvKind_QuickBonusInformation, player->id_number, -msg_id, icon);
 }
 
 
-void set_quick_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubtlCoord y, const char *colour_value)
+void set_quick_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubtlCoord y, long colour_value)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -2019,7 +2028,10 @@ void set_quick_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubt
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    MsgColour colour = get_colour(colour_value);
+    if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
+        colour = MSG_COLOUR_DEFAULT;
+    else
+        colour = (MsgColour)colour_value;
     GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
     event_create_event(pos_x, pos_y, EvKind_QuickBonusInformation, player->id_number, -msg_id, icon);
 }

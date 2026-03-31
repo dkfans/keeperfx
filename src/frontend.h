@@ -24,6 +24,7 @@
 #include "gui_frontmenu.h"
 #include "game_saves.h"
 #include "config.h"
+#include "sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -252,7 +253,7 @@ typedef enum {
     MSG_ICON_COUNT
 } MsgIconType;
 
-MsgColour get_colour(const char *input);
+MsgColour get_colour_for_coloured_message(const char *input);
 
 extern const struct NamedCommand message_colour_desc[];
 extern GUIPanelSprite rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT];

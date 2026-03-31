@@ -402,18 +402,18 @@ const struct NamedCommand message_colour_desc[] = {
   {"YELLOW",     MSG_COLOUR_YELLOW},
   {NULL,         0},
 };
-MsgColour get_colour(const char *input)
+MsgColour get_colour_for_coloured_message(const char *input)
 {
     if (!input) return MSG_COLOUR_DEFAULT;
     for (int i = 0; message_colour_desc[i].name; i++) {
         if (strcmp(input, message_colour_desc[i].name) == 0) {
-            return message_colour_desc[i].value;
+            return message_colour_desc[i].num;
         }
     }
     return MSG_COLOUR_DEFAULT;
 }
 
-int rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT] = {
+GUIPanelSprite rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT] = {
     // MSG_ICON_INFO (i)
     {
         GPS_message_rpanel_msg_inforg_act, // pgreen is default

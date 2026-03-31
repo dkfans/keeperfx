@@ -458,24 +458,6 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
-const struct NamedCommand message_colour_desc[] = {
-  {"DEFAULT",    0},
-  {"BLUE",       1},
-  {"BROWN",      2},
-  {"GREEN",      3},
-  {"GREY",       4},
-  {"GRAY",       4},
-  {"ORANGE",     5},
-  {"PGREEN",     6},
-  {"PLAYERGREEN",6},
-  {"GREEN2",     6},
-  {"PURPLE",     7},
-  {"RED",        8},
-  {"WHITE",      9},
-  {"YELLOW",    10},
-  {NULL,         0},
-};
-
 ThingModel parse_creature_name(const char *creature_name)
 {
     ThingModel ret = get_rid(creature_desc, creature_name);
@@ -6510,12 +6492,16 @@ const struct CommandDesc command_desc[] = {
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
   {"RUN_LUA_CODE",                      "A       ", Cmd_RUN_LUA_CODE , &run_lua_code_check, &run_lua_code_process},
-  {"DISPLAY_BONUS_OBJECTIVE",           "NLa     ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
-  {"DISPLAY_BONUS_OBJECTIVE_WITH_POS",  "NNNa    ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
-  {"DISPLAY_BONUS_INFORMATION",         "NLa      ", Cmd_DISPLAY_INFORMATION, NULL, NULL},
-  {"DISPLAY_BONUS_INFORMATION_WITH_POS","NNNa     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
+  {"DISPLAY_BONUS_OBJECTIVE",           "NLa     ", Cmd_DISPLAY_BONUS_OBJECTIVE, &display_objective_check, &display_objective_process},
+  {"DISPLAY_BONUS_OBJECTIVE_WITH_POS",  "NNNa    ", Cmd_DISPLAY_BONUS_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
+  {"DISPLAY_BONUS_INFORMATION",         "NLa     ", Cmd_DISPLAY_BONUS_INFORMATION, NULL, NULL},
+  {"DISPLAY_BONUS_INFORMATION_WITH_POS","NNNa    ", Cmd_DISPLAY_BONUS_INFORMATION_WITH_POS, NULL, NULL},
+  {"QUICK_BONUS_OBJECTIVE",             "NALa    ", Cmd_QUICK_BONUS_OBJECTIVE, NULL, NULL},
+  {"QUICK_BONUS_INFORMATION",           "NALa    ", Cmd_QUICK_BONUS_INFORMATION, NULL, NULL},
+  {"QUICK_BONUS_OBJECTIVE_WITH_POS",    "NANNa   ", Cmd_QUICK_BONUS_OBJECTIVE_WITH_POS, NULL, NULL},
+  {"QUICK_BONUS_INFORMATION_WITH_POS",  "NANNa   ", Cmd_QUICK_BONUS_INFORMATION_WITH_POS, NULL, NULL},
   {"DISPLAY_WARNING",                   "NLa     ", Cmd_DISPLAY_WARNING, NULL, NULL},
-  {"DISPLAY_WARNING_WITH_POS",          "NNNa    ", Cmd_DISPLAY_WARNING, NULL, NULL},
+  {"DISPLAY_WARNING_WITH_POS",          "NNNa    ", Cmd_DISPLAY_WARNING_WITH_POS, NULL, NULL},
   {"QUICK_WARNING",                     "NALa    ", Cmd_QUICK_WARNING, NULL, NULL},
   {"QUICK_WARNING_WITH_POS",            "NANNa   ", Cmd_QUICK_WARNING_WITH_POS, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
