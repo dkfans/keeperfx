@@ -2055,7 +2055,7 @@ void set_general_objective(TextStringId msg_id, TbMapLocation target, MapSubtlCo
 {
     process_objective(get_string(msg_id), target, x, y);
 }
-void set_bonus_objective(PlayerNumber plyr_idx, int icon, TextStringId msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_bonus_objective(PlayerNumber plyr_idx, TextStringId msg_id, int icon, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     process_bonus_objective(plyr_idx ,icon, get_string(msg_id), target, x, y);
 }

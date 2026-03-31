@@ -872,7 +872,7 @@ static void display_bonus_objective_check(const struct ScriptLine* scline)
     }
 
     value->shorts[0] = msg_num;
-    value->shorts[1] = rpanel_msg_colour[0][icon_idx];
+    value->shorts[1] = rpanel_msg_colour[MSG_ICON_QUESTN][icon_idx];
     value->shorts[2] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
@@ -882,12 +882,12 @@ static void display_bonus_objective_check(const struct ScriptLine* scline)
 
 static void display_bonus_objective_process(struct ScriptContext* context)
 {
-        set_bonus_objective(context->player_idx,
-            context->value->shorts[0],
-            context->value->shorts[1],
-            context->value->shorts[2],
-            context->value->shorts[3],
-            context->value->shorts[4]);
+    set_bonus_objective(context->player_idx,
+        context->value->shorts[0],
+        context->value->shorts[1],
+        context->value->shorts[2],
+        context->value->shorts[3],
+        context->value->shorts[4]);
 }
 
 static void tag_map_rect_check(const struct ScriptLine* scline)
