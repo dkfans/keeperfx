@@ -833,6 +833,45 @@ static void display_objective_process(struct ScriptContext *context)
     }
 }
 
+static void display_bonus_objective_check(const struct ScriptLine* scline)
+{
+    long msg_num = scline->np[0];
+    long x, y;
+    TbMapLocation location = 0;
+    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    {
+        SCRPTERRLOG("Invalid TEXT number");
+        return;
+    }
+    JUSTLOG("Spatulade wants to display icon %s", scline->tp[2]);
+    if (scline->command == Cmd_DISPLAY_BONUS_OBJECTIVE)
+    {
+        const char* where = scline->tp[2];
+        if (!get_map_location_id(where, &location))
+        {
+            return;
+        }
+        command_add_value(Cmd_DISPLAY_BONUS_OBJECTIVE, ALL_PLAYERS, msg_num, location, 0);
+    }
+    else
+    {
+        x = scline->np[1];
+        y = scline->np[2];
+        command_add_value(Cmd_DISPLAY_BONUS_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x, y));
+    }
+}
+
+static void display_bonus_objective_process(struct ScriptContext* context)
+{
+    if (my_player_number == context->player_idx)
+    {
+        set_general_objective(context->value->longs[0],
+            context->value->longs[1],
+            stl_num_decode_x(context->value->longs[2]),
+            stl_num_decode_y(context->value->longs[2]));
+    }
+}
+
 static void tag_map_rect_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -6488,8 +6527,8 @@ const struct CommandDesc command_desc[] = {
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
   {"RUN_LUA_CODE",                      "A       ", Cmd_RUN_LUA_CODE , &run_lua_code_check, &run_lua_code_process},
-  {"DISPLAY_BONUS_OBJECTIVE",           "NLa     ", Cmd_DISPLAY_BONUS_OBJECTIVE, &display_objective_check, &display_objective_process},
-  {"DISPLAY_BONUS_OBJECTIVE_WITH_POS",  "NNNa    ", Cmd_DISPLAY_BONUS_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
+  {"DISPLAY_BONUS_OBJECTIVE",           "NAl     ", Cmd_DISPLAY_BONUS_OBJECTIVE, &display_bonus_objective_check, &display_bonus_objective_process},
+  {"DISPLAY_BONUS_OBJECTIVE_WITH_POS",  "NNNa    ", Cmd_DISPLAY_BONUS_OBJECTIVE_WITH_POS, &display_bonus_objective_check, &display_bonus_objective_process },
   {"DISPLAY_BONUS_INFORMATION",         "NLa     ", Cmd_DISPLAY_BONUS_INFORMATION, NULL, NULL},
   {"DISPLAY_BONUS_INFORMATION_WITH_POS","NNNa    ", Cmd_DISPLAY_BONUS_INFORMATION_WITH_POS, NULL, NULL},
   {"QUICK_BONUS_OBJECTIVE",             "NALa    ", Cmd_QUICK_BONUS_OBJECTIVE, NULL, NULL},
