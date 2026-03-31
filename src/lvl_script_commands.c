@@ -835,15 +835,26 @@ static void display_objective_process(struct ScriptContext *context)
 
 static void display_bonus_objective_check(const struct ScriptLine* scline)
 {
-    long msg_num = scline->np[0];
-    long x, y;
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    int16_t msg_num = scline->np[0];
+    int16_t icon_idx = get_id(message_colour_desc, scline->tp[1]);
+
+    if (icon_idx < 0)
+    {
+        SCRPTERRLOG("Invalid icon name %s", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    MapSubtlCoord x, y;
     TbMapLocation location = 0;
     if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
     {
-        SCRPTERRLOG("Invalid TEXT number");
+        SCRPTERRLOG("Invalid TEXT number %d", msg_num);
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    JUSTLOG("Spatulade wants to display icon `%s` which has number %ld", scline->tp[1], get_id(message_colour_desc, scline->tp[1]));
+
     if (scline->command == Cmd_DISPLAY_BONUS_OBJECTIVE)
     {
         const char* where = scline->tp[2];
@@ -855,20 +866,29 @@ static void display_bonus_objective_check(const struct ScriptLine* scline)
     }
     else
     {
+        //todo params still need to be corrected in script command Cmd_DISPLAY_BONUS_OBJECTIVE_FOR_POS
         x = scline->np[1];
         y = scline->np[2];
-        command_add_value(Cmd_DISPLAY_BONUS_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x, y));
     }
+
+    value->shorts[0] = msg_num;
+    value->shorts[1] = icon_idx;
+    value->shorts[2] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_bonus_objective_process(struct ScriptContext* context)
 {
     if (my_player_number == context->player_idx)
     {
-        set_general_objective(context->value->longs[0],
-            context->value->longs[1],
-            stl_num_decode_x(context->value->longs[2]),
-            stl_num_decode_y(context->value->longs[2]));
+        JUSTLOG("Spatulade wants to display icon %d", context->value->shorts[1]);
+        set_general_objective(context->value->shorts[0],
+            context->value->shorts[2],
+            stl_num_decode_x(context->value->shorts[3]),
+            stl_num_decode_y(context->value->shorts[4]));
     }
 }
 
