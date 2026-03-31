@@ -2248,6 +2248,14 @@ static TbBool is_sound_file_path(const char *s)
     return false;
 }
 
+/** Returns true if the string is the special keyword "NONE" (case-insensitive),
+ *  which explicitly disables / silences a creature sound slot. */
+static TbBool is_sound_none_keyword(const char *s)
+{
+    if (s == NULL) return false;
+    return (strcasecmp(s, "NONE") == 0);
+}
+
 /**
  * Expands a base path and a count into sequential numbered file paths.
  * Finds the trailing digit run before the extension and increments it N times.
@@ -2362,14 +2370,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2390,14 +2402,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].hit.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].hit.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].hit.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].hit.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].hit.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2418,14 +2434,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].happy.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].happy.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].happy.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].happy.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].happy.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2446,14 +2466,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].sad.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].sad.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].sad.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].sad.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].sad.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2474,14 +2498,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].hang.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].hang.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].hang.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].hang.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].hang.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2502,14 +2530,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].drop.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].drop.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].drop.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].drop.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].drop.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2530,14 +2562,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].torture.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].torture.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].torture.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].torture.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].torture.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2558,14 +2594,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].slap.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].slap.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].slap.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].slap.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].slap.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2586,26 +2626,31 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    /* Only overwrite if not already set to custom sound (negative value) */
-                    if (game.conf.crtr_conf.creature_sounds[crtr_model].die.index >= 0)
-                    {
-                        game.conf.crtr_conf.creature_sounds[crtr_model].die.index = k;
-                        SYNCDBG(8, "Set %s die sound index to %d", creature_code_name(crtr_model), k);
-                    }
-                    else
-                    {
-                        SYNCDBG(0, "Preserving custom die sound (index %d) for %s, ignoring Die=%d from %s",
-                            game.conf.crtr_conf.creature_sounds[crtr_model].die.index,
-                            creature_code_name(crtr_model), k, config_textname);
+                    if (is_sound_none_keyword(word_buf)) {
+                        /* NONE explicitly silences this sound, overriding any custom sound */
+                        game.conf.crtr_conf.creature_sounds[crtr_model].die.index = 0;
+                    } else {
+                        k = atoi(word_buf);
+                        /* Only overwrite if not already set to custom sound (negative value) */
+                        if (game.conf.crtr_conf.creature_sounds[crtr_model].die.index >= 0)
+                        {
+                            game.conf.crtr_conf.creature_sounds[crtr_model].die.index = k;
+                            SYNCDBG(8, "Set %s die sound index to %d", creature_code_name(crtr_model), k);
+                        }
+                        else
+                        {
+                            SYNCDBG(0, "Preserving custom die sound (index %d) for %s, ignoring Die=%d from %s",
+                                game.conf.crtr_conf.creature_sounds[crtr_model].die.index,
+                                creature_code_name(crtr_model), k, config_textname);
+                        }
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            if (game.conf.crtr_conf.creature_sounds[crtr_model].die.index >= 0)
+                                game.conf.crtr_conf.creature_sounds[crtr_model].die.count = k;
+                            n++;
+                        }
                     }
                     n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
-                        k = atoi(word_buf);
-                        if (game.conf.crtr_conf.creature_sounds[crtr_model].die.index >= 0)
-                            game.conf.crtr_conf.creature_sounds[crtr_model].die.count = k;
-                        n++;
-                    }
                 }
             }
             if (n < 1)
@@ -2626,14 +2671,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].foot.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].foot.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].foot.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].foot.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].foot.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2654,14 +2703,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].fight.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].fight.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].fight.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].fight.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].fight.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
@@ -2682,14 +2735,18 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 }
                 else
                 {
-                    k = atoi(word_buf);
-                    game.conf.crtr_conf.creature_sounds[crtr_model].piss.index = k;
-                    n++;
-                    if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                    if (is_sound_none_keyword(word_buf)) {
+                        game.conf.crtr_conf.creature_sounds[crtr_model].piss.index = 0;
+                    } else {
                         k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].piss.count = k;
-                        n++;
+                        game.conf.crtr_conf.creature_sounds[crtr_model].piss.index = k;
+                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+                            k = atoi(word_buf);
+                            game.conf.crtr_conf.creature_sounds[crtr_model].piss.count = k;
+                            n++;
+                        }
                     }
+                    n++;
                 }
             }
             if (n < 1)
