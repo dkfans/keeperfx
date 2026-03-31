@@ -885,10 +885,11 @@ static void display_bonus_objective_process(struct ScriptContext* context)
     if (my_player_number == context->player_idx)
     {
         JUSTLOG("Spatulade wants to display icon %d", context->value->shorts[1]);
-        set_general_objective(context->value->shorts[0],
+        set_general_objective(
+            context->value->shorts[0],
             context->value->shorts[2],
-            stl_num_decode_x(context->value->shorts[3]),
-            stl_num_decode_y(context->value->shorts[4]));
+            context->value->shorts[3],
+            context->value->shorts[4]);
     }
 }
 
