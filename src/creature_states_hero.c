@@ -1057,6 +1057,7 @@ short good_leave_through_exit_door(struct Thing *thing)
         creature_drop_dragged_object(thing, dragtng);
         destroy_object(dragtng);
     }
+    create_effect(&thing->mappos, ball_puff_effects[get_player_color_idx(thing->owner)], thing->owner);
     place_thing_in_creature_controlled_limbo(thing);
     internal_set_thing_state(thing, CrSt_GoodWaitInExitDoor);
     return 1;
@@ -1107,6 +1108,16 @@ short good_wait_in_exit_door(struct Thing *thing)
             if (cctrl->hero.hero_gate_creation_turn == tmptng->creation_turn)
             {
                 remove_thing_from_creature_controlled_limbo(thing);
+                set_flag(thing->movement_flags, TMvF_MagicFall);
+                if (flag_is_set(thing->movement_flags, TMvF_Flying))
+                {
+                    thing->veloc_push_add.z.val -= PLAYER_RANDOM(plyr_idx, 32);
+                }
+                else
+                {
+                    thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
+                }
+                set_flag(thing->state_flags, TF1_PushAdd);
                 set_start_state(thing);
                 return 1;
             }

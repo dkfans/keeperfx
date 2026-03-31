@@ -169,6 +169,17 @@ struct Thing *luaL_checkCreature(lua_State *L, int index)
     return thing;
 }
 
+struct Thing* luaL_checkObject(lua_State* L, int index)
+{
+    struct Thing* thing = luaL_checkThing(L, index);
+    if (thing->class_id != TCls_Object)
+    {
+        luaL_argerror(L, index, "Expected an object");
+        return NULL;
+    }
+    return thing;
+}
+
 TbMapLocation luaL_checkLocation(lua_State *L, int index)
 {
     if (luaL_isPlayer(L, index))

@@ -232,8 +232,6 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
     }
     switch (snd_idx)
     {
-    case CrSnd_Hurt:
-        return &game.conf.crtr_conf.creature_sounds[cmodel].hurt;
     case CrSnd_Hit:
         return &game.conf.crtr_conf.creature_sounds[cmodel].hit;
     case CrSnd_Happy:

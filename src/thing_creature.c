@@ -6790,7 +6790,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->pickup_object_id = picktng->index;
-    struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
+    struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hit);
     unsigned short smpl_idx = crsound->index + 1;
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
     display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4), plyr_idx);

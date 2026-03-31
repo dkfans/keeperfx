@@ -230,7 +230,6 @@ const struct NamedCommand creatmodel_jobs_commands[] = {
   };
 
 const struct NamedCommand creatmodel_sounds_commands[] = {
-  {"HURT",                 CrSnd_Hurt},
   {"HIT",                  CrSnd_Hit},
   {"HAPPY",                CrSnd_Happy},
   {"SAD",                  CrSnd_Sad},
@@ -2251,25 +2250,6 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
-        case CrSnd_Hurt:
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = k;
-                n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
-                n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
         case CrSnd_Hit:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
@@ -2527,9 +2507,9 @@ static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname,
 }
 
 /* @comment
- *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod_one need to be consistent.
+ *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod need to be consistent.
  */
-static TbBool load_creaturemodel_config_for_mod_one(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_item)
+static TbBool load_creaturemodel_config_for_mod(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_item)
 {
     set_flag(flags, CnfLd_IgnoreErrors);
 
@@ -2559,7 +2539,7 @@ static TbBool load_creaturemodel_config_for_mod_one(ThingModel crmodel, unsigned
 
     if (mod_state->cmpg_lvls)
     {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_level_number(), conf_fnstr);
         if (strlen(fname) > 0)
         {
             result |= load_creaturemodel_config_file(crmodel, fname, flags);
@@ -2579,7 +2559,7 @@ static TbBool load_creaturemodel_config_for_mod_list(ThingModel crmodel, unsigne
         if (mod_item->state.mod_dir == 0)
             continue;
 
-        result |= load_creaturemodel_config_for_mod_one(crmodel, flags, conf_fnstr, mod_item);
+        result |= load_creaturemodel_config_for_mod(crmodel, flags, conf_fnstr, mod_item);
     }
 
     return result;
@@ -2589,7 +2569,7 @@ static TbBool load_creaturemodel_config_for_mod_list(ThingModel crmodel, unsigne
  *     Load model configuration for a creature.
  *     Splitting ThingModel into conf_crmodel and crmodel, So specific/different configuration can be loaded for crmodel.
  * @comment
- *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod_one need to be consistent.
+ *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod need to be consistent.
  */
 TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, unsigned short flags)
 {
@@ -2642,8 +2622,7 @@ TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, un
             set_flag(flags, CnfLd_IgnoreErrors);
         }
     }
-
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_level_number(), conf_fnstr);
     if (strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel, fname, flags);

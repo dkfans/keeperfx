@@ -109,13 +109,15 @@ struct ObjectConfigStats {
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     ThingModel related_creatr_model;
     unsigned char persistence;
-    unsigned char destroy_on_liquid;
+    TbBool destroy_on_liquid;
     unsigned char rotation_flag;
     FuncIdx updatefn_idx;
     unsigned char initial_state;
     unsigned char random_start_frame;
     unsigned char transparency_flags;  // Lower 2 bits are transparency flags.
     struct Effects effect;
+    EffectOrEffElModel lava_burn_effect;
+    EffectOrEffElModel water_splash_effect;
     struct FlameProperties flame;
 };
 

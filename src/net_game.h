@@ -23,13 +23,13 @@
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
 #include "bflib_network.h"
+#include "front_network.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define NET_PLAYERS_COUNT       4
-#define NET_SERVICES_COUNT     16
 #define NET_SERVICE_LEN        64
 #define PACKETS_COUNT           9
 
@@ -50,7 +50,7 @@ extern char net_player_name[20];
 
 #pragma pack()
 /******************************************************************************/
-short setup_network_service(int srvidx);
+short setup_network_service(enum FrontendNetService service);
 int setup_old_network_service(void);
 void init_players_network_game(CoroutineLoop *context);
 void setup_count_players(void);

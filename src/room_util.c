@@ -435,7 +435,7 @@ TbBool check_and_asimilate_thing_by_room(struct Thing *thing)
             // No room - delete it, hoard cannot exist outside treasure room
             ERRORLOG("Found %s outside of %s room; removing",thing_model_name(thing),room_role_code_name(RoRoF_GoldStorage));
             create_gold_pile(&thing->mappos, thing->owner, gold_value);
-            delete_thing_structure(thing, 0);
+            destroy_object(thing);
             return false;
         }
         MapSubtlCoord stl_x = thing->mappos.x.stl.num - 1;
@@ -452,7 +452,7 @@ TbBool check_and_asimilate_thing_by_room(struct Thing *thing)
             return true;
         }
         create_gold_pile(&thing->mappos, thing->owner, gold_value);
-        delete_thing_structure(thing, 0);
+        destroy_object(thing);
         return false;
     }
     if (thing_is_spellbook(thing))
