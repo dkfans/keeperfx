@@ -23,6 +23,7 @@
 #include "bflib_guibtns.h"
 #include "gui_frontmenu.h"
 #include "game_saves.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -254,7 +255,7 @@ typedef enum {
 MsgColour get_colour(const char *input);
 
 extern const struct NamedCommand message_colour_desc[];
-extern int rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT];
+extern GUIPanelSprite rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT];
 
 struct GuiMenu;
 struct GuiButton;

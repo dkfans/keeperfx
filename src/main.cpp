@@ -1950,7 +1950,7 @@ void set_general_bonus_information_at_location(long msg_id, TbMapLocation target
     struct PlayerInfo *player;
     long pos_x;
     long pos_y;
-    long x, y;
+    MapSubtlCoord x, y;
     player = get_my_player();
     find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_x = 0;
@@ -1989,7 +1989,7 @@ void set_quick_bonus_information_at_location(long msg_id, TbMapLocation target, 
     struct PlayerInfo *player;
     long pos_x;
     long pos_y;
-    long x, y;
+    MapSubtlCoord x, y;
     player = get_my_player();
     find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_x = 0;

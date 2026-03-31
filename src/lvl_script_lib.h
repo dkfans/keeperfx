@@ -204,10 +204,11 @@ enum TbScriptCommands {
     Cmd_DISPLAY_WARNING                    = 192,
     Cmd_DISPLAY_WARNING_WITH_POS           = 193,
     Cmd_QUICK_BONUS_OBJECTIVE              = 194,
-    Cmd_QUICK_BONUS_INFORMATION            = 195,
-    Cmd_QUICK_WARNING                      = 196,
-    Cmd_QUICK_BONUS_OBJECTIVE_WITH_POS     = 197,
-    Cmd_QUICK_BONUS_INFORMATION_WITH_POS   = 198,
+    Cmd_QUICK_BONUS_OBJECTIVE_WITH_POS     = 195,
+    Cmd_QUICK_BONUS_INFORMATION            = 196,
+    Cmd_QUICK_BONUS_INFORMATION_WITH_POS   = 197,
+    Cmd_QUICK_WARNING                      = 198,
+    Cmd_QUICK_WARNING_WITH_POS             = 199,
 };
 
 struct ScriptLine {
