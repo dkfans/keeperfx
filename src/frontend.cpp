@@ -407,7 +407,7 @@ MsgColour get_colour_for_coloured_message(const char *input)
     if (!input) return MSG_COLOUR_DEFAULT;
     for (int i = 0; message_colour_desc[i].name; i++) {
         if (strcmp(input, message_colour_desc[i].name) == 0) {
-            return message_colour_desc[i].num;
+            return (MsgColour)message_colour_desc[i].num;
         }
     }
     return MSG_COLOUR_DEFAULT;

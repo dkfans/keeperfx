@@ -1960,6 +1960,7 @@ void set_general_bonus_information_at_location(long msg_id, TbMapLocation target
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
+    MsgColour colour;
     if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
         colour = MSG_COLOUR_DEFAULT;
     else
@@ -1982,6 +1983,7 @@ void set_general_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSu
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
+    MsgColour colour;
     if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
         colour = MSG_COLOUR_DEFAULT;
     else
@@ -2005,6 +2007,7 @@ void set_quick_bonus_information_at_location(long msg_id, TbMapLocation target, 
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
+    MsgColour colour;
     if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
         colour = MSG_COLOUR_DEFAULT;
     else
@@ -2028,6 +2031,7 @@ void set_quick_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubt
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
+    MsgColour colour;
     if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
         colour = MSG_COLOUR_DEFAULT;
     else

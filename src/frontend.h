@@ -256,7 +256,7 @@ typedef enum {
 MsgColour get_colour_for_coloured_message(const char *input);
 
 extern const struct NamedCommand message_colour_desc[];
-extern GUIPanelSprite rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT];
+extern enum GUIPanelSprite rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT];
 
 struct GuiMenu;
 struct GuiButton;
