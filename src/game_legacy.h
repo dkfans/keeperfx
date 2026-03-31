@@ -40,6 +40,7 @@
 #include "config_players.h"
 #include "config_slabsets.h"
 #include "dungeon_data.h"
+#include "frontend.h"
 #include "thing_data.h"
 #include "thing_traps.h"
 #include "thing_doors.h"
@@ -295,6 +296,8 @@ struct Game {
     struct CreatureBattle battles[BATTLES_COUNT];
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
+    char evntbox_text_bonus_objective[MSG_COLOUR_COUNT][MESSAGE_TEXT_LEN];
+    char evntbox_text_bonus_buffer[MSG_COLOUR_COUNT][MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
     int32_t flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
     char loaded_swipe_idx;

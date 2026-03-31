@@ -456,6 +456,7 @@ void toggle_gui_overlay_map(void);
 
 void update_player_objectives(PlayerNumber plyr_idx);
 void set_level_objective(const char *msg_text);
+void display_bonus_objectives(PlayerNumber plyr_idx, int icon, MapSubtlCoord x, MapSubtlCoord y);
 void display_objectives(PlayerNumber plyr_idx,MapSubtlCoord x,MapSubtlCoord y);
 
 short toggle_main_cheat_menu(void);

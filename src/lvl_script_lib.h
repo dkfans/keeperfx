@@ -89,7 +89,6 @@ enum TbScriptCommands {
     Cmd_DISPLAY_INFORMATION_WITH_POS       = 74,
     Cmd_PRINT                              = 76, // from beta
     Cmd_SWAP_CREATURE                      = 77,
-  // New commands propositions - KeeperFX only
     Cmd_CHANGE_SLAB_TYPE                   = 78,
     Cmd_CHANGE_SLAB_OWNER                  = 79,
     Cmd_IF_SLAB_TYPE                       = 80,

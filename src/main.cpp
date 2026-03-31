@@ -2040,9 +2040,24 @@ void set_quick_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubt
     event_create_event(pos_x, pos_y, EvKind_QuickBonusInformation, player->id_number, -msg_id, icon);
 }
 
-void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
+void process_bonus_objective(PlayerNumber plyr_idx, int icon, const char* msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    MapSubtlCoord pos_x = x;
+    MapSubtlCoord pos_y = y;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
+
+    set_level_objective(msg_text);
+    display_bonus_objectives(player->id_number,icon, pos_x, pos_y);
+}
+
+void set_general_objective(TextStringId msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     process_objective(get_string(msg_id), target, x, y);
+}
+void set_bonus_objective(PlayerNumber plyr_idx, int icon, TextStringId msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+{
+    process_bonus_objective(plyr_idx ,icon, get_string(msg_id), target, x, y);
 }
 
 void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)

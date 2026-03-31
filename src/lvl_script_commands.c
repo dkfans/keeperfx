@@ -835,13 +835,13 @@ static void display_objective_process(struct ScriptContext *context)
 
 static void display_bonus_objective_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    int16_t msg_num = scline->np[0];
-    int16_t icon_idx = get_id(message_colour_desc, scline->tp[1]);
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    int16_t msg_num = scline->np[1];
+    int16_t icon_idx = get_id(message_colour_desc, scline->tp[2]);
 
     if (icon_idx < 0)
     {
-        SCRPTERRLOG("Invalid icon name %s", scline->tp[1]);
+        SCRPTERRLOG("Invalid icon name %s", scline->tp[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -857,7 +857,7 @@ static void display_bonus_objective_check(const struct ScriptLine* scline)
 
     if (scline->command == Cmd_DISPLAY_BONUS_OBJECTIVE)
     {
-        const char* where = scline->tp[2];
+        const char* where = scline->tp[3];
         if (!get_map_location_id(where, &location))
         {
             return;
@@ -867,8 +867,8 @@ static void display_bonus_objective_check(const struct ScriptLine* scline)
     else
     {
         //todo params still need to be corrected in script command Cmd_DISPLAY_BONUS_OBJECTIVE_FOR_POS
-        x = scline->np[1];
-        y = scline->np[2];
+        x = scline->np[2];
+        y = scline->np[3];
     }
 
     value->shorts[0] = msg_num;
@@ -882,15 +882,12 @@ static void display_bonus_objective_check(const struct ScriptLine* scline)
 
 static void display_bonus_objective_process(struct ScriptContext* context)
 {
-    if (my_player_number == context->player_idx)
-    {
-        JUSTLOG("Spatulade wants to display icon %d", context->value->shorts[1]);
-        set_general_objective(
+        set_bonus_objective(context->player_idx,
             context->value->shorts[0],
+            context->value->shorts[1],
             context->value->shorts[2],
             context->value->shorts[3],
             context->value->shorts[4]);
-    }
 }
 
 static void tag_map_rect_check(const struct ScriptLine* scline)
@@ -6548,7 +6545,7 @@ const struct CommandDesc command_desc[] = {
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
   {"RUN_LUA_CODE",                      "A       ", Cmd_RUN_LUA_CODE , &run_lua_code_check, &run_lua_code_process},
-  {"DISPLAY_BONUS_OBJECTIVE",           "NAl     ", Cmd_DISPLAY_BONUS_OBJECTIVE, &display_bonus_objective_check, &display_bonus_objective_process},
+  {"DISPLAY_BONUS_OBJECTIVE",           "PNAl    ", Cmd_DISPLAY_BONUS_OBJECTIVE, &display_bonus_objective_check, &display_bonus_objective_process},
   {"DISPLAY_BONUS_OBJECTIVE_WITH_POS",  "NANN    ", Cmd_DISPLAY_BONUS_OBJECTIVE_WITH_POS, &display_bonus_objective_check, &display_bonus_objective_process },
   {"DISPLAY_BONUS_INFORMATION",         "NAl     ", Cmd_DISPLAY_BONUS_INFORMATION, NULL, NULL},
   {"DISPLAY_BONUS_INFORMATION_WITH_POS","NANN    ", Cmd_DISPLAY_BONUS_INFORMATION_WITH_POS, NULL, NULL},

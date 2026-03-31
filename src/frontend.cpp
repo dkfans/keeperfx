@@ -3708,6 +3708,48 @@ void update_player_objectives(PlayerNumber plyr_idx)
     }
 }
 
+void display_bonus_objectives(PlayerNumber plyr_idx, int icon, MapSubtlCoord x, MapSubtlCoord y)
+{
+    MapCoord cor_x;
+    MapCoord cor_y;
+    cor_y = 0;
+    cor_x = 0;
+    if ((x > 0) || (y > 0))
+    {
+        cor_x = subtile_coord_center(x);
+        cor_y = subtile_coord_center(y);
+    }
+    int evbtn_idx;
+    for (evbtn_idx = 0; evbtn_idx < EVENT_BUTTONS_COUNT + 1; evbtn_idx++)
+    {
+        struct Dungeon* dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        EventIndex evidx;
+        evidx = dungeon->event_button_index[evbtn_idx]; //todo bonus objective
+        struct Event* event;
+        event = &game.event[evidx];
+        if (event->kind == EvKind_Objective)
+        {
+            event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0, icon);
+            return;
+        }
+    }
+    if ((x == 255) && (y == 255))
+    {
+        struct Thing* creatng = lord_of_the_land_find();
+        if (thing_exists(creatng))
+        {
+            cor_x = creatng->mappos.x.val;
+            cor_y = creatng->mappos.y.val;
+        }
+        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index, icon);
+    }
+    else
+    {
+        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0, icon);
+    }
+}
+
 void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
 {
     MapCoord cor_x;
