@@ -872,7 +872,7 @@ static void display_bonus_objective_check(const struct ScriptLine* scline)
     }
 
     value->shorts[0] = msg_num;
-    value->shorts[1] = icon_idx;
+    value->shorts[1] = rpanel_msg_colour[0][icon_idx];
     value->shorts[2] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
