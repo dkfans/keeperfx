@@ -843,7 +843,7 @@ static void display_bonus_objective_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Invalid TEXT number");
         return;
     }
-    JUSTLOG("Spatulade wants to display icon %s", scline->tp[2]);
+    JUSTLOG("Spatulade wants to display icon `%s`", scline->tp[1]);
     if (scline->command == Cmd_DISPLAY_BONUS_OBJECTIVE)
     {
         const char* where = scline->tp[2];
