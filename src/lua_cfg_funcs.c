@@ -165,6 +165,10 @@ short luafunc_trap_activation_func(FuncIdx func_idx,struct Thing *trap, struct T
         short result = 0;
         CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 1, 0),"trap_activation_func");
 
+        /* Retrieve the result returned by the Lua function */
+        if (lua_isnumber(Lvl_script, -1)) {
+            result = lua_tointeger(Lvl_script, -1);
+        }
         lua_pop(Lvl_script, 1);
         return result;
     } else {
