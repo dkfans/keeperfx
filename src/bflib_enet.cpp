@@ -46,6 +46,7 @@ uint16_t external_ipv4_port = 0;
 
 namespace
 {
+    int debug_skip_holepunch_to_test_direct_connect_fallback = 1;
     NetDropCallback g_drop_callback = nullptr;
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
@@ -207,14 +208,28 @@ namespace
         return 1;
     }
 
-    void destroy_host_and_peer(ENetHost *network_host, ENetPeer *peer)
-    {
-        if (!network_host) return;
+    void cleanup_join_host(ENetHost *network_host, ENetPeer *peer) {
+        if (!network_host)
+            return;
+        if (network_host == host) {
+            host_destroy();
+            return;
+        }
         if (peer) {
             enet_peer_disconnect_now(peer, 0);
             enet_host_flush(network_host);
         }
         enet_host_destroy(network_host);
+    }
+
+    TbError finish_join(ENetHost *next_host, ENetPeer *next_peer, ENetHost *old_host, ENetPeer *old_peer,
+        const char *join_type, const char *ip_version) {
+        LbNetLog("Join: connected successfully via %s (%s)\n", join_type, ip_version);
+        enet_peer_timeout(next_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
+        cleanup_join_host(old_host, old_peer);
+        host = next_host;
+        client_peer = next_peer;
+        return Lb_OK;
     }
 
     TbError create_join_host(ENetAddressType address_type)
@@ -228,149 +243,20 @@ namespace
         return Lb_OK;
     }
 
-    TbError join_via_holepunch(TbClockMSec join_start_ms)
+    TbError connect_to_current_join_host(const ENetAddress *connect_address, const char *join_type,
+        TbClockMSec join_start_ms, TbClockMSec timeout_ms)
     {
-        LbNetLog("Join: connecting via matchmaking server (UDP hole punching)\n");
-        if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
+        if (timeout_ms <= 0)
             return Lb_FAIL;
-        uint16_t my_external_ipv4_port = holepunch_stun_query(host, NULL, 0);
-        if (my_external_ipv4_port == 0)
-            LbNetLog("Join: STUN failed, proceeding with port 0\n");
-        ENetHost *ipv6_host = create_ipv6_host(ENET_PORT_ANY);
-        int my_ipv6_port = 0;
-        if (ipv6_host) {
-            enet_host_compress_with_range_coder(ipv6_host);
-            my_ipv6_port = (int)ipv6_host->address.port;
-        }
-        PunchAddresses punch_addresses;
-        if (matchmaking_punch(join_lobby_id, (int)my_external_ipv4_port, my_ipv6_port, &punch_addresses) != 0) {
-            LbNetLog("Join: matchmaking_punch failed\n");
-            destroy_host_and_peer(ipv6_host, nullptr);
-            host_destroy();
-            return Lb_FAIL;
-        }
-        ENetAddress ipv4_address = {};
-        ENetAddress ipv6_address = {};
-        int has_ipv4 = resolve_punch_address(punch_addresses.ipv4, ENET_ADDRESS_TYPE_IPV4, punch_addresses.ipv4_port, &ipv4_address);
-        int has_ipv6 = (ipv6_host != nullptr) && resolve_punch_address(punch_addresses.ipv6, ENET_ADDRESS_TYPE_IPV6, punch_addresses.ipv6_port, &ipv6_address);
-        if (!has_ipv4 && !has_ipv6) {
-            LbNetLog("Join: failed to resolve any peer address from punch\n");
-            destroy_host_and_peer(ipv6_host, nullptr);
-            host_destroy();
-            return Lb_FAIL;
-        }
-        join_lobby_id[0] = '\0';
         enet_host_compress_with_range_coder(host);
-        if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
-        if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
-        SDL_Delay(HOLEPUNCH_PRE_CONNECT_DELAY_MS);
-        ENetPeer *ipv4_peer = nullptr;
-        ENetPeer *ipv6_peer = nullptr;
-        if (has_ipv6) {
-            ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, 0);
-        } else if (has_ipv4) {
-            ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
-        }
-        TbClockMSec deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
-        TbClockMSec ipv4_delay_end = LbTimerClock() + HAPPY_EYEBALLS_DELAY_MS;
-        ENetEvent enet_event;
-        while (LbTimerClock() < deadline) {
-            if (has_ipv4 && ipv4_peer == nullptr && LbTimerClock() >= ipv4_delay_end) {
-                ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
-            }
-            if (ipv6_peer && enet_host_service(ipv6_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
-                LbNetLog("Join: connected successfully via matchmaking server (IPv6)\n");
-                enet_peer_timeout(ipv6_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
-                host_destroy();
-                host = ipv6_host;
-                client_peer = ipv6_peer;
-                return Lb_OK;
-            }
-            if (ipv4_peer && enet_host_service(host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
-                if (ipv6_peer) {
-                    LbNetLog("Join: IPv4 connected first, continuing over IPv4.\n");
-                }
-                LbNetLog("Join: connected successfully via matchmaking server (IPv4)\n");
-                enet_peer_timeout(ipv4_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
-                destroy_host_and_peer(ipv6_host, ipv6_peer);
-                client_peer = ipv4_peer;
-                return Lb_OK;
-            }
-            if (ipv6_peer) {
-                holepunch_punch_to(ipv6_host, &ipv6_address);
-            }
-            if (ipv4_peer) {
-                holepunch_punch_to(host, &ipv4_address);
-            }
-            TbClockMSec remaining = deadline - LbTimerClock();
-            enet_uint32 wait_ms = (enet_uint32)min((TbClockMSec)HOLEPUNCH_CONNECT_DELAY_MS, remaining);
-            if (has_ipv4 && ipv4_peer == nullptr) {
-                TbClockMSec time_to_ipv4 = ipv4_delay_end - LbTimerClock();
-                if (time_to_ipv4 > 0)
-                    wait_ms = (enet_uint32)min((TbClockMSec)wait_ms, time_to_ipv4);
-            }
-            SDL_Delay(wait_ms);
-            display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
-        }
-        LbNetLog("Join: connection timed out or failed\n");
-        destroy_host_and_peer(ipv6_host, ipv6_peer);
-        host_destroy();
-        return Lb_FAIL;
-    }
-
-    TbError bf_enet_join(const char *session, void *)
-    {
-        ENetAddress connect_address;
-        TbClockMSec join_start_ms = LbTimerClock();
-        const char *join_type;
-        if (strncmp(join_lobby_id, "LAN:", 4) == 0) {
-            LbNetLog("Join: connecting via LAN\n");
-            join_type = "LAN";
-            char lan_peer_address[MATCHMAKING_IP_MAX];
-            snprintf(lan_peer_address, sizeof(lan_peer_address), "%s", join_lobby_id + 4);
-            join_lobby_id[0] = '\0';
-            char *port_separator = strrchr(lan_peer_address, ':');
-            if (!port_separator)
-                return Lb_FAIL;
-            *port_separator = '\0';
-            int lan_game_port = atoi(port_separator + 1);
-            if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, lan_peer_address) < 0) {
-                LbNetLog("Join: failed to resolve LAN peer address %s\n", lan_peer_address);
-                return Lb_FAIL;
-            }
-            connect_address.port = (enet_uint16)lan_game_port;
-            if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
-                return Lb_FAIL;
-        } else if (join_lobby_id[0] != '\0') {
-            return join_via_holepunch(join_start_ms);
-        } else {
-            char address_string[ENET_ADDRESS_BUFFER_SIZE] = {0};
-            enet_uint16 port = parse_session_address(session, address_string, sizeof(address_string));
-            if (port == 0 || address_string[0] == '\0')
-                return Lb_FAIL;
-            ENetAddressType connect_type = ENET_ADDRESS_TYPE_IPV4;
-            if (strchr(address_string, ':') != NULL) {
-                connect_type = ENET_ADDRESS_TYPE_IPV6;
-                join_type = "direct connect (IPv6)";
-            } else {
-                join_type = "direct connect (IPv4)";
-            }
-            LbNetLog("Join: connecting via %s\n", join_type);
-            if (enet_address_set_host(&connect_address, connect_type, address_string) < 0)
-                return Lb_FAIL;
-            connect_address.port = port;
-            if (create_join_host(connect_type) != Lb_OK)
-                return Lb_FAIL;
-        }
-        enet_host_compress_with_range_coder(host);
-        client_peer = enet_host_connect(host, &connect_address, NUM_CHANNELS, 0);
+        client_peer = enet_host_connect(host, connect_address, NUM_CHANNELS, 0);
         if (!client_peer) {
             LbNetLog("Join: enet_host_connect returned NULL\n");
             host_destroy();
             return Lb_FAIL;
         }
         ENetEvent enet_event;
-        TbClockMSec connection_deadline = LbTimerClock() + TIMEOUT_ENET_CONNECT;
+        TbClockMSec connection_deadline = LbTimerClock() + timeout_ms;
         while (LbTimerClock() < connection_deadline) {
             TbClockMSec time_remaining = connection_deadline - LbTimerClock();
             enet_uint32 service_wait_ms = (enet_uint32)min((TbClockMSec)HOLEPUNCH_CONNECT_DELAY_MS, time_remaining);
@@ -396,6 +282,181 @@ namespace
         LbNetLog("Join: connection timed out or failed\n");
         host_destroy();
         return Lb_FAIL;
+    }
+
+    TbError join_direct_session(const char *session, TbClockMSec join_start_ms, TbClockMSec timeout_ms, const char *join_label)
+    {
+        ENetAddress connect_address;
+        char address_string[ENET_ADDRESS_BUFFER_SIZE] = {0};
+        enet_uint16 port = parse_session_address(session, address_string, sizeof(address_string));
+        if (port == 0 || address_string[0] == '\0')
+            return Lb_FAIL;
+        ENetAddressType connect_type = ENET_ADDRESS_TYPE_IPV4;
+        const char *ip_version = "IPv4";
+        if (strchr(address_string, ':') != NULL) {
+            connect_type = ENET_ADDRESS_TYPE_IPV6;
+            ip_version = "IPv6";
+        }
+        char join_type[64];
+        snprintf(join_type, sizeof(join_type), "%s (%s)", join_label, ip_version);
+        LbNetLog("Join: connecting via %s\n", join_type);
+        if (enet_address_set_host(&connect_address, connect_type, address_string) < 0)
+            return Lb_FAIL;
+        connect_address.port = port;
+        if (create_join_host(connect_type) != Lb_OK)
+            return Lb_FAIL;
+        return connect_to_current_join_host(&connect_address, join_type, join_start_ms, timeout_ms);
+    }
+
+    int build_direct_connect_session(const char *address, int port, TbBool is_ipv6, char *session, size_t session_size)
+    {
+        if (address[0] == '\0' || port <= 0)
+            return 0;
+        int written;
+        if (is_ipv6) {
+            written = snprintf(session, session_size, "[%s]:%d", address, port);
+        } else {
+            written = snprintf(session, session_size, "%s:%d", address, port);
+        }
+        return written > 0 && (size_t)written < session_size;
+    }
+
+    TbError join_direct_fallback(const PunchAddresses *punch_addresses, TbClockMSec join_start_ms, TbClockMSec timeout_ms)
+    {
+        if (timeout_ms <= 0)
+            return Lb_FAIL;
+        char ipv6_session[ENET_ADDRESS_BUFFER_SIZE] = {0};
+        char ipv4_session[ENET_ADDRESS_BUFFER_SIZE] = {0};
+        const int has_ipv6 = build_direct_connect_session(punch_addresses->ipv6, punch_addresses->ipv6_port,
+            true, ipv6_session, sizeof(ipv6_session));
+        const int has_ipv4 = build_direct_connect_session(punch_addresses->ipv4, punch_addresses->ipv4_port,
+            false, ipv4_session, sizeof(ipv4_session));
+        if (!has_ipv6 && !has_ipv4) {
+            LbNetLog("Join: direct-connect fallback has no usable address\n");
+            return Lb_FAIL;
+        }
+        LbNetLog("Join: hole-punch phase timed out, retrying via direct connect\n");
+        TbClockMSec deadline = LbTimerClock() + timeout_ms;
+        if (has_ipv6 && join_direct_session(ipv6_session, join_start_ms, deadline - LbTimerClock(), "direct connect fallback") == Lb_OK)
+            return Lb_OK;
+        if (!has_ipv4)
+            return Lb_FAIL;
+        return join_direct_session(ipv4_session, join_start_ms, deadline - LbTimerClock(), "direct connect fallback");
+    }
+
+    TbError join_via_holepunch(TbClockMSec join_start_ms)
+    {
+        LbNetLog("Join: connecting via matchmaking server (UDP hole punching)\n");
+        if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
+            return Lb_FAIL;
+        uint16_t my_external_ipv4_port = holepunch_stun_query(host, NULL, 0);
+        if (my_external_ipv4_port == 0)
+            LbNetLog("Join: STUN failed, proceeding with port 0\n");
+        ENetHost *ipv6_host = create_ipv6_host(ENET_PORT_ANY);
+        int my_ipv6_port = 0;
+        if (ipv6_host) {
+            enet_host_compress_with_range_coder(ipv6_host);
+            my_ipv6_port = (int)ipv6_host->address.port;
+        }
+        PunchAddresses punch_addresses;
+        if (matchmaking_punch(join_lobby_id, (int)my_external_ipv4_port, my_ipv6_port, &punch_addresses) != 0) {
+            LbNetLog("Join: matchmaking_punch failed\n");
+            cleanup_join_host(ipv6_host, nullptr);
+            host_destroy();
+            return Lb_FAIL;
+        }
+        ENetAddress ipv4_address = {};
+        ENetAddress ipv6_address = {};
+        int has_ipv4 = resolve_punch_address(punch_addresses.ipv4, ENET_ADDRESS_TYPE_IPV4, punch_addresses.ipv4_port, &ipv4_address);
+        int has_ipv6 = (ipv6_host != nullptr) && resolve_punch_address(punch_addresses.ipv6, ENET_ADDRESS_TYPE_IPV6, punch_addresses.ipv6_port, &ipv6_address);
+        if (!has_ipv4 && !has_ipv6) {
+            LbNetLog("Join: failed to resolve any peer address from punch\n");
+            cleanup_join_host(ipv6_host, nullptr);
+            host_destroy();
+            return Lb_FAIL;
+        }
+        join_lobby_id[0] = '\0';
+        if (debug_skip_holepunch_to_test_direct_connect_fallback == 1) {
+            LbNetLog("Join: debug_skip_holepunch_to_test_direct_connect_fallback enabled, skipping hole-punch phase\n");
+            cleanup_join_host(ipv6_host, nullptr);
+            host_destroy();
+            return join_direct_fallback(&punch_addresses, join_start_ms, TIMEOUT_ENET_CONNECT);
+        }
+        enet_host_compress_with_range_coder(host);
+        if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
+        if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
+        SDL_Delay(HOLEPUNCH_PRE_CONNECT_DELAY_MS);
+        ENetPeer *ipv4_peer = nullptr;
+        ENetPeer *ipv6_peer = nullptr;
+        if (has_ipv6) {
+            ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, 0);
+        } else if (has_ipv4) {
+            ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
+        }
+        TbClockMSec connection_start = LbTimerClock();
+        TbClockMSec holepunch_deadline = connection_start + TIMEOUT_ENET_CONNECT / 2;
+        TbClockMSec connection_deadline = connection_start + TIMEOUT_ENET_CONNECT;
+        TbClockMSec ipv4_delay_end = LbTimerClock() + HAPPY_EYEBALLS_DELAY_MS;
+        ENetEvent enet_event;
+        while (LbTimerClock() < holepunch_deadline) {
+            if (has_ipv4 && ipv4_peer == nullptr && LbTimerClock() >= ipv4_delay_end) {
+                ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
+            }
+            if (ipv6_peer && enet_host_service(ipv6_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT)
+                return finish_join(ipv6_host, ipv6_peer, host, nullptr, "matchmaking server", "IPv6");
+            if (ipv4_peer && enet_host_service(host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
+                if (ipv6_peer)
+                    LbNetLog("Join: IPv4 connected first, continuing over IPv4.\n");
+                return finish_join(host, ipv4_peer, ipv6_host, ipv6_peer, "matchmaking server", "IPv4");
+            }
+            if (ipv6_peer) {
+                holepunch_punch_to(ipv6_host, &ipv6_address);
+            }
+            if (ipv4_peer) {
+                holepunch_punch_to(host, &ipv4_address);
+            }
+            TbClockMSec remaining = holepunch_deadline - LbTimerClock();
+            enet_uint32 wait_ms = (enet_uint32)min((TbClockMSec)HOLEPUNCH_CONNECT_DELAY_MS, remaining);
+            if (has_ipv4 && ipv4_peer == nullptr) {
+                TbClockMSec time_to_ipv4 = ipv4_delay_end - LbTimerClock();
+                if (time_to_ipv4 > 0)
+                    wait_ms = (enet_uint32)min((TbClockMSec)wait_ms, time_to_ipv4);
+            }
+            SDL_Delay(wait_ms);
+            display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
+        }
+        cleanup_join_host(ipv6_host, ipv6_peer);
+        host_destroy();
+        return join_direct_fallback(&punch_addresses, join_start_ms, connection_deadline - LbTimerClock());
+    }
+
+    TbError bf_enet_join(const char *session, void *)
+    {
+        ENetAddress connect_address;
+        TbClockMSec join_start_ms = LbTimerClock();
+        if (strncmp(join_lobby_id, "LAN:", 4) == 0) {
+            LbNetLog("Join: connecting via LAN\n");
+            char lan_peer_address[MATCHMAKING_IP_MAX];
+            snprintf(lan_peer_address, sizeof(lan_peer_address), "%s", join_lobby_id + 4);
+            join_lobby_id[0] = '\0';
+            char *port_separator = strrchr(lan_peer_address, ':');
+            if (!port_separator)
+                return Lb_FAIL;
+            *port_separator = '\0';
+            int lan_game_port = atoi(port_separator + 1);
+            if (enet_address_set_host(&connect_address, ENET_ADDRESS_TYPE_IPV4, lan_peer_address) < 0) {
+                LbNetLog("Join: failed to resolve LAN peer address %s\n", lan_peer_address);
+                return Lb_FAIL;
+            }
+            connect_address.port = (enet_uint16)lan_game_port;
+            if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
+                return Lb_FAIL;
+        } else if (join_lobby_id[0] != '\0') {
+            return join_via_holepunch(join_start_ms);
+        } else {
+            return join_direct_session(session, join_start_ms, TIMEOUT_ENET_CONNECT, "direct connect");
+        }
+        return connect_to_current_join_host(&connect_address, "LAN", join_start_ms, TIMEOUT_ENET_CONNECT);
     }
 
     /*
