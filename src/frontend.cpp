@@ -668,6 +668,7 @@ void versions_different_error(void)
     lbKeyOn[KC_SPACE] = 0;
     lbKeyOn[KC_RETURN] = 0;
     text[0] = '\0';
+    snprintf(text, sizeof(text), "%s\n", get_string(GUIStr_VersionMismatch));
     // Preparing message
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
@@ -686,7 +687,7 @@ void versions_different_error(void)
       LbWindowsControl();
       if (LbScreenLock() == Lb_SUCCESS)
       {
-        draw_text_box(text);
+        draw_text_box_top(text, Lb_TEXT_HALIGN_LEFT);
         LbScreenUnlock();
       }
       LbScreenSwap();
