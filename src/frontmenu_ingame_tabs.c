@@ -2852,6 +2852,11 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
 
 void maintain_spell_next_page_button(struct GuiButton *gbtn)
 {
+    if (menu_is_active(GMnu_SPELL2))
+    {
+        gbtn->flags |= (LbBtnF_Visible | LbBtnF_Enabled);
+        return;
+    }
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &spell_menu2.buttons[i];
@@ -2866,6 +2871,11 @@ void maintain_spell_next_page_button(struct GuiButton *gbtn)
 
 void maintain_room_next_page_button(struct GuiButton *gbtn)
 {
+    if (menu_is_active(GMnu_ROOM2))
+    {
+        gbtn->flags |= (LbBtnF_Visible | LbBtnF_Enabled);
+        return;
+    }
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &room_menu2.buttons[i];
@@ -2883,6 +2893,11 @@ void maintain_room_next_page_button(struct GuiButton *gbtn)
 
 void maintain_trap_next_page_button(struct GuiButton *gbtn)
 {
+    if (menu_is_active(GMnu_TRAP2))
+    {
+        gbtn->flags |= (LbBtnF_Visible | LbBtnF_Enabled);
+        return;
+    }
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &trap_menu2.buttons[i];
