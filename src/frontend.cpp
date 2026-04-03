@@ -675,7 +675,7 @@ void versions_different_error(void)
       nspckt = &net_screen_packet[i];
       if ((nspckt->networkstatus_flags & 0x01) != 0)
       {
-        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->stored_data1, nspckt->stored_data2);
+        str_appendf(text, sizeof(text), "%s: %d.%d.%d.%02d\n", plyr_nam, nspckt->param1, nspckt->param2, nspckt->stored_data1, nspckt->stored_data2);
       }
     }
     // Waiting for users reaction

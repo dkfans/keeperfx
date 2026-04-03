@@ -1790,6 +1790,8 @@ void process_frontend_packets(void)
   nspckt->frontend_alliances = frontend_alliances;
   set_flag(nspckt->networkstatus_flags, 0x01);
   nspckt->networkstatus_flags ^= ((nspckt->networkstatus_flags ^ (fe_computer_players << 1)) & 0x06);
+  nspckt->param1 = VersionMajor;
+  nspckt->param2 = VersionMinor;
   nspckt->stored_data1 = VersionRelease;
   nspckt->stored_data2 = VersionBuild;
   if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
