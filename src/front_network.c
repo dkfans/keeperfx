@@ -422,10 +422,10 @@ void frontnet_start_update(void)
     }
 }
 
-void display_attempting_to_join_message(int elapsed_s)
+void display_attempting_to_join_message(int remaining_s)
 {
     char msg[128];
-    snprintf(msg, sizeof(msg), "%s (%ds)", get_string(GUIStr_NetAttemptingToJoin), elapsed_s);
+    snprintf(msg, sizeof(msg), "%s (%ds)", get_string(GUIStr_NetAttemptingToJoin), remaining_s);
     frontend_draw();
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         clear_key_pressed(KC_ESCAPE);

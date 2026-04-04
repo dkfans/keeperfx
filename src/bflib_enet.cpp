@@ -281,7 +281,7 @@ namespace
                 break;
             enet_uint32 wait_ms = (enet_uint32)min((TbClockMSec)JOIN_CONNECT_POLL_DELAY_MS, time_remaining);
             SDL_Delay(wait_ms);
-            display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
+            display_attempting_to_join_message((int)((connection_deadline - LbTimerClock()) / 1000));
             if (attempting_to_join_cancel_requested()) {
                 LbNetLog("Join: cancelled by user\n");
                 host_destroy();
@@ -432,7 +432,7 @@ namespace
                     wait_ms = (enet_uint32)min((TbClockMSec)wait_ms, time_to_ipv4);
             }
             SDL_Delay(wait_ms);
-            display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
+            display_attempting_to_join_message((int)((connection_deadline - LbTimerClock()) / 1000));
             if (attempting_to_join_cancel_requested()) {
                 LbNetLog("Join: cancelled by user during hole-punch\n");
                 cleanup_join_host(ipv6_host, ipv6_peer);
