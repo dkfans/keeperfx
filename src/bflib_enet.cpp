@@ -282,6 +282,11 @@ namespace
             enet_uint32 wait_ms = (enet_uint32)min((TbClockMSec)JOIN_CONNECT_POLL_DELAY_MS, time_remaining);
             SDL_Delay(wait_ms);
             display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
+            if (attempting_to_join_cancel_requested()) {
+                LbNetLog("Join: cancelled by user\n");
+                host_destroy();
+                return Lb_FAIL;
+            }
         }
         LbNetLog("Join: connection timed out or failed\n");
         host_destroy();
@@ -428,6 +433,12 @@ namespace
             }
             SDL_Delay(wait_ms);
             display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
+            if (attempting_to_join_cancel_requested()) {
+                LbNetLog("Join: cancelled by user during hole-punch\n");
+                cleanup_join_host(ipv6_host, ipv6_peer);
+                host_destroy();
+                return Lb_FAIL;
+            }
         }
         cleanup_join_host(ipv6_host, ipv6_peer);
         host_destroy();

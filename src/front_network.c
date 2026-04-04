@@ -68,6 +68,7 @@ int net_service_index_selected;
 char tmp_net_player_name[24];
 static TbClockMSec frontnet_ping_stabilization_end_time = 0;
 static int previous_player_count_for_ping_wait = -1;
+static TbBool attempting_to_join_cancelled = false;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -426,11 +427,25 @@ void display_attempting_to_join_message(int elapsed_s)
     char msg[128];
     snprintf(msg, sizeof(msg), "%s (%ds)", get_string(GUIStr_NetAttemptingToJoin), elapsed_s);
     frontend_draw();
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
+        clear_key_pressed(KC_ESCAPE);
+        attempting_to_join_cancelled = true;
+    }
     if (LbScreenLock() == Lb_SUCCESS) {
         draw_text_box(msg);
         LbScreenUnlock();
     }
     LbScreenSwap();
+}
+
+void reset_attempting_to_join_cancel(void)
+{
+    attempting_to_join_cancelled = false;
+}
+
+TbBool attempting_to_join_cancel_requested(void)
+{
+    return attempting_to_join_cancelled;
 }
 
 void net_load_config_file(void)
