@@ -3917,8 +3917,8 @@ msgstr "Destra"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Inizializzazione Modem"
+msgid "Game version mismatch"
+msgstr "La versione del gioco non corrisponde"
 
 #: guitext:532
 msgctxt "Network game message"
