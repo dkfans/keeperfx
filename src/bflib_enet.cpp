@@ -40,6 +40,7 @@
 #define HOLEPUNCH_CONNECT_DELAY_MS 1000
 #define HOLEPUNCH_PRE_CONNECT_DELAY_MS 500
 #define HAPPY_EYEBALLS_DELAY_MS 250
+#define JOIN_CONNECT_POLL_DELAY_MS 16
 #define ENET_ADDRESS_BUFFER_SIZE 128
 
 uint16_t external_ipv4_port = 0;
@@ -258,9 +259,7 @@ namespace
         ENetEvent enet_event;
         TbClockMSec connection_deadline = LbTimerClock() + timeout_ms;
         while (LbTimerClock() < connection_deadline) {
-            TbClockMSec time_remaining = connection_deadline - LbTimerClock();
-            enet_uint32 service_wait_ms = (enet_uint32)min((TbClockMSec)HOLEPUNCH_CONNECT_DELAY_MS, time_remaining);
-            int service_result = enet_host_service(host, &enet_event, service_wait_ms);
+            int service_result = enet_host_service(host, &enet_event, 0);
             if (service_result > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
                 LbNetLog("Join: connected successfully via %s\n", join_type);
                 enet_peer_timeout(client_peer, 0, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
@@ -277,6 +276,11 @@ namespace
                 ERRORLOG("Unable to connect: %d", service_result);
                 break;
             }
+            TbClockMSec time_remaining = connection_deadline - LbTimerClock();
+            if (time_remaining <= 0)
+                break;
+            enet_uint32 wait_ms = (enet_uint32)min((TbClockMSec)JOIN_CONNECT_POLL_DELAY_MS, time_remaining);
+            SDL_Delay(wait_ms);
             display_attempting_to_join_message((int)((LbTimerClock() - join_start_ms) / 1000));
         }
         LbNetLog("Join: connection timed out or failed\n");
