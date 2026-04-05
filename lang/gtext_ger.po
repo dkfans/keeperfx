@@ -4021,8 +4021,8 @@ msgstr "Cursor Rechts"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initialisiere Modem"
+msgid "Game version mismatch"
+msgstr "Spielversion stimmt nicht überein"
 
 #: guitext:532
 msgctxt "Network game message"

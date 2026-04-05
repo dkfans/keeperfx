@@ -3831,8 +3831,8 @@ msgstr "矢印キー左"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "モデムの初期化"
+msgid "Game version mismatch"
+msgstr "ゲームのバージョンが一致しません"
 
 #: guitext:532
 msgctxt "Network game message"

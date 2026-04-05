@@ -2941,7 +2941,7 @@ msgstr ""
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
+msgid "Game version mismatch"
 msgstr ""
 
 #: guitext:532
