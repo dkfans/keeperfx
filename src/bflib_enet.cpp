@@ -44,6 +44,7 @@
 #define ENET_ADDRESS_BUFFER_SIZE 128
 
 uint16_t external_ipv4_port = 0;
+int skip_holepunch = 1;
 
 namespace
 {
@@ -367,6 +368,12 @@ namespace
             return Lb_FAIL;
         }
         join_lobby_id[0] = '\0';
+        if (skip_holepunch) {
+            LbNetLog("Join: skipping hole-punch phase\n");
+            cleanup_join_host(ipv6_host, nullptr);
+            host_destroy();
+            return join_direct_fallback(&punch_addresses, LbTimerClock() + TIMEOUT_CONNECT_DIRECT_IPV4);
+        }
         enet_host_compress_with_range_coder(host);
         if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
         if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
