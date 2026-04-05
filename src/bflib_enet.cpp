@@ -47,7 +47,6 @@ uint16_t external_ipv4_port = 0;
 
 namespace
 {
-    int debug_block_holepunch = 0;
     NetDropCallback g_drop_callback = nullptr;
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
@@ -381,19 +380,15 @@ namespace
         }
         join_lobby_id[0] = '\0';
         enet_host_compress_with_range_coder(host);
-        if (debug_block_holepunch) {
-            if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
-            if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
-        }
+        if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
+        if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
         SDL_Delay(HOLEPUNCH_PRE_CONNECT_DELAY_MS);
         ENetPeer *ipv4_peer = nullptr;
         ENetPeer *ipv6_peer = nullptr;
-        if (debug_block_holepunch) {
-            if (has_ipv6) {
-                ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, 0);
-            } else if (has_ipv4) {
-                ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
-            }
+        if (has_ipv6) {
+            ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, 0);
+        } else if (has_ipv4) {
+            ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
         }
         TbClockMSec connection_start = LbTimerClock();
         TbClockMSec holepunch_deadline = connection_start + TIMEOUT_CONNECT_HOLEPUNCH;
@@ -403,7 +398,7 @@ namespace
         TbClockMSec ipv4_delay_end = LbTimerClock() + HAPPY_EYEBALLS_DELAY_MS;
         ENetEvent enet_event;
         while (LbTimerClock() < holepunch_deadline) {
-            if (!debug_block_holepunch&& has_ipv4 && ipv4_peer == nullptr && LbTimerClock() >= ipv4_delay_end) {
+            if (has_ipv4 && ipv4_peer == nullptr && LbTimerClock() >= ipv4_delay_end) {
                 ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
             }
             if (ipv6_peer && enet_host_service(ipv6_host, &enet_event, 0) > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT)
