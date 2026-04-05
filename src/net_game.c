@@ -193,7 +193,7 @@ long network_session_join(void)
 {
     int32_t plyr_num;
     reset_attempting_to_join_cancel();
-    display_attempting_to_join_message(TIMEOUT_ENET_CONNECT / 1000);
+    display_attempting_to_join_message((TIMEOUT_CONNECT_HOLEPUNCH + TIMEOUT_CONNECT_DIRECT_IPV6 + TIMEOUT_CONNECT_DIRECT_IPV4) / 1000);
     if (attempting_to_join_cancel_requested())
         return -1;
     snprintf(join_lobby_id, sizeof(join_lobby_id), "%s", net_session[net_session_index_active]->join_address);

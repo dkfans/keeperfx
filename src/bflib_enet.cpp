@@ -330,10 +330,8 @@ namespace
         return written > 0 && (size_t)written < session_size;
     }
 
-    TbError join_direct_fallback(const PunchAddresses *punch_addresses, TbClockMSec join_start_ms, TbClockMSec timeout_ms)
+    TbError join_direct_fallback(const PunchAddresses *punch_addresses, TbClockMSec join_start_ms)
     {
-        if (timeout_ms <= 0)
-            return Lb_FAIL;
         char ipv6_session[ENET_ADDRESS_BUFFER_SIZE] = {0};
         char ipv4_session[ENET_ADDRESS_BUFFER_SIZE] = {0};
         const int has_ipv6 = build_direct_connect_session(punch_addresses->ipv6, punch_addresses->ipv6_port,
@@ -345,12 +343,11 @@ namespace
             return Lb_FAIL;
         }
         LbNetLog("Join: hole-punch phase timed out, retrying via direct connect\n");
-        TbClockMSec deadline = LbTimerClock() + timeout_ms;
-        if (has_ipv6 && join_direct_session(ipv6_session, join_start_ms, deadline - LbTimerClock(), "direct connect fallback") == Lb_OK)
+        if (has_ipv6 && join_direct_session(ipv6_session, join_start_ms, TIMEOUT_CONNECT_DIRECT_IPV6, "direct connect fallback") == Lb_OK)
             return Lb_OK;
         if (!has_ipv4)
             return Lb_FAIL;
-        return join_direct_session(ipv4_session, join_start_ms, deadline - LbTimerClock(), "direct connect fallback");
+        return join_direct_session(ipv4_session, join_start_ms, TIMEOUT_CONNECT_DIRECT_IPV4, "direct connect fallback");
     }
 
     TbError join_via_holepunch(TbClockMSec join_start_ms)
@@ -386,10 +383,20 @@ namespace
         }
         join_lobby_id[0] = '\0';
         if (debug_skip_holepunch_to_test_direct_connect_fallback == 1) {
-            LbNetLog("Join: debug_skip_holepunch_to_test_direct_connect_fallback enabled, skipping hole-punch phase\n");
+            LbNetLog("Join: debug_skip_holepunch_to_test_direct_connect_fallback enabled, waiting out holepunch timeout\n");
             cleanup_join_host(ipv6_host, nullptr);
             host_destroy();
-            return join_direct_fallback(&punch_addresses, join_start_ms, TIMEOUT_ENET_CONNECT);
+            TbClockMSec wait_deadline = LbTimerClock() + TIMEOUT_CONNECT_HOLEPUNCH;
+            while (LbTimerClock() < wait_deadline) {
+                TbClockMSec remaining = wait_deadline - LbTimerClock();
+                SDL_Delay((enet_uint32)min((TbClockMSec)JOIN_CONNECT_POLL_DELAY_MS, remaining));
+                display_attempting_to_join_message((int)(remaining / 1000));
+                if (attempting_to_join_cancel_requested()) {
+                    LbNetLog("Join: cancelled by user during debug holepunch wait\n");
+                    return Lb_FAIL;
+                }
+            }
+            return join_direct_fallback(&punch_addresses, join_start_ms);
         }
         enet_host_compress_with_range_coder(host);
         if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
@@ -403,8 +410,8 @@ namespace
             ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
         }
         TbClockMSec connection_start = LbTimerClock();
-        TbClockMSec holepunch_deadline = connection_start + TIMEOUT_ENET_CONNECT / 2;
-        TbClockMSec connection_deadline = connection_start + TIMEOUT_ENET_CONNECT;
+        TbClockMSec holepunch_deadline = connection_start + TIMEOUT_CONNECT_HOLEPUNCH;
+        TbClockMSec connection_deadline = connection_start + TIMEOUT_CONNECT_HOLEPUNCH + TIMEOUT_CONNECT_DIRECT_IPV6 + TIMEOUT_CONNECT_DIRECT_IPV4;
         TbClockMSec ipv4_delay_end = LbTimerClock() + HAPPY_EYEBALLS_DELAY_MS;
         ENetEvent enet_event;
         while (LbTimerClock() < holepunch_deadline) {
@@ -442,7 +449,7 @@ namespace
         }
         cleanup_join_host(ipv6_host, ipv6_peer);
         host_destroy();
-        return join_direct_fallback(&punch_addresses, join_start_ms, connection_deadline - LbTimerClock());
+        return join_direct_fallback(&punch_addresses, join_start_ms);
     }
 
     TbError bf_enet_join(const char *session, void *)
@@ -469,9 +476,9 @@ namespace
         } else if (join_lobby_id[0] != '\0') {
             return join_via_holepunch(join_start_ms);
         } else {
-            return join_direct_session(session, join_start_ms, TIMEOUT_ENET_CONNECT, "direct connect");
+            return join_direct_session(session, join_start_ms, TIMEOUT_CONNECT_DIRECT_IPV4, "direct connect");
         }
-        return connect_to_current_join_host(&connect_address, "LAN", join_start_ms, TIMEOUT_ENET_CONNECT);
+        return connect_to_current_join_host(&connect_address, "LAN", join_start_ms, TIMEOUT_CONNECT_DIRECT_IPV4);
     }
 
     /*
