@@ -249,6 +249,10 @@ namespace
     {
         if (timeout_ms <= 0)
             return Lb_FAIL;
+        char addr_ip[ENET_ADDRESS_BUFFER_SIZE] = {0};
+        enet_address_get_host_ip(connect_address, addr_ip, sizeof(addr_ip));
+        LbNetLog("Join: connect_to_current_join_host via %s: addr=%s port=%d timeout=%dms\n",
+            join_type, addr_ip, (int)connect_address->port, (int)timeout_ms);
         enet_host_compress_with_range_coder(host);
         client_peer = enet_host_connect(host, connect_address, NUM_CHANNELS, 0);
         if (!client_peer) {
@@ -295,11 +299,16 @@ namespace
 
     TbError join_direct_session(const char *session, TbClockMSec display_deadline, TbClockMSec timeout_ms, const char *join_label)
     {
+        LbNetLog("Join: join_direct_session session=\"%s\" label=\"%s\" timeout=%dms\n",
+            session, join_label, (int)timeout_ms);
         ENetAddress connect_address;
         char address_string[ENET_ADDRESS_BUFFER_SIZE] = {0};
         enet_uint16 port = parse_session_address(session, address_string, sizeof(address_string));
-        if (port == 0 || address_string[0] == '\0')
+        LbNetLog("Join: join_direct_session parsed: host=\"%s\" port=%d\n", address_string, (int)port);
+        if (port == 0 || address_string[0] == '\0') {
+            LbNetLog("Join: join_direct_session failed to parse session address\n");
             return Lb_FAIL;
+        }
         ENetAddressType connect_type = ENET_ADDRESS_TYPE_IPV4;
         const char *ip_version = "IPv4";
         if (strchr(address_string, ':') != NULL) {
@@ -309,8 +318,10 @@ namespace
         char join_type[64];
         snprintf(join_type, sizeof(join_type), "%s (%s)", join_label, ip_version);
         LbNetLog("Join: connecting via %s\n", join_type);
-        if (enet_address_set_host(&connect_address, connect_type, address_string) < 0)
+        if (enet_address_set_host(&connect_address, connect_type, address_string) < 0) {
+            LbNetLog("Join: join_direct_session enet_address_set_host failed for \"%s\"\n", address_string);
             return Lb_FAIL;
+        }
         connect_address.port = port;
         if (create_join_host(connect_type) != Lb_OK)
             return Lb_FAIL;
@@ -318,6 +329,9 @@ namespace
     }
 
     TbError join_direct_fallback(const PunchAddresses *punch_addresses, TbClockMSec display_deadline) {
+        LbNetLog("Join: join_direct_fallback: ipv4=%s ipv4_port=%d ipv6=%s ipv6_port=%d\n",
+            punch_addresses->ipv4, punch_addresses->ipv4_port,
+            punch_addresses->ipv6, punch_addresses->ipv6_port);
         const int has_ipv4 = (punch_addresses->ipv4[0] != '\0');
         const int has_ipv6 = (punch_addresses->ipv6[0] != '\0');
         if (!has_ipv4 && !has_ipv6) {
@@ -325,23 +339,30 @@ namespace
             return Lb_FAIL;
         }
         LbNetLog("Join: hole-punch phase timed out, retrying via direct connect\n");
+        LbNetLog("Join: direct-connect fallback note: using ENET_DEFAULT_PORT=%d (not punch port ipv4_port=%d)\n",
+            (int)ENET_DEFAULT_PORT, punch_addresses->ipv4_port);
         char session[ENET_ADDRESS_BUFFER_SIZE];
         if (has_ipv6) {
             snprintf(session, sizeof(session), "[%s]:%d", punch_addresses->ipv6, ENET_DEFAULT_PORT);
+            LbNetLog("Join: trying IPv6 fallback: session=\"%s\"\n", session);
             if (join_direct_session(session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV6, "direct connect fallback") == Lb_OK)
                 return Lb_OK;
+            LbNetLog("Join: IPv6 fallback failed, trying IPv4\n");
         }
         if (!has_ipv4)
             return Lb_FAIL;
         snprintf(session, sizeof(session), "%s:%d", punch_addresses->ipv4, ENET_DEFAULT_PORT);
+        LbNetLog("Join: trying IPv4 fallback: session=\"%s\"\n", session);
         return join_direct_session(session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV4, "direct connect fallback");
     }
 
     TbError join_via_holepunch(TbClockMSec join_start_ms) {
         LbNetLog("Join: connecting via matchmaking server (UDP hole punching)\n");
+        LbNetLog("Join: join_lobby_id=%s\n", join_lobby_id);
         if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
             return Lb_FAIL;
         uint16_t my_external_ipv4_port = holepunch_stun_query(host, NULL, 0);
+        LbNetLog("Join: STUN result: my_external_ipv4_port=%d\n", (int)my_external_ipv4_port);
         if (my_external_ipv4_port == 0)
             LbNetLog("Join: STUN failed, proceeding with port 0\n");
         ENetHost *ipv6_host = create_ipv6_host(ENET_PORT_ANY);
@@ -349,7 +370,12 @@ namespace
         if (ipv6_host) {
             enet_host_compress_with_range_coder(ipv6_host);
             my_ipv6_port = (int)ipv6_host->address.port;
+            LbNetLog("Join: IPv6 host created on port %d\n", my_ipv6_port);
+        } else {
+            LbNetLog("Join: no IPv6 host available\n");
         }
+        LbNetLog("Join: calling matchmaking_punch with lobby_id=%s ipv4_port=%d ipv6_port=%d\n",
+            join_lobby_id, (int)my_external_ipv4_port, my_ipv6_port);
         PunchAddresses punch_addresses;
         if (matchmaking_punch(join_lobby_id, (int)my_external_ipv4_port, my_ipv6_port, &punch_addresses) != 0) {
             LbNetLog("Join: matchmaking_punch failed\n");
@@ -359,8 +385,12 @@ namespace
         }
         ENetAddress ipv4_address = {};
         ENetAddress ipv6_address = {};
+        LbNetLog("Join: punch_addresses: ipv4=%s ipv4_port=%d ipv6=%s ipv6_port=%d\n",
+            punch_addresses.ipv4, punch_addresses.ipv4_port,
+            punch_addresses.ipv6, punch_addresses.ipv6_port);
         int has_ipv4 = resolve_punch_address(punch_addresses.ipv4, ENET_ADDRESS_TYPE_IPV4, punch_addresses.ipv4_port, &ipv4_address);
         int has_ipv6 = (ipv6_host != nullptr) && resolve_punch_address(punch_addresses.ipv6, ENET_ADDRESS_TYPE_IPV6, punch_addresses.ipv6_port, &ipv6_address);
+        LbNetLog("Join: resolve results: has_ipv4=%d has_ipv6=%d\n", has_ipv4, has_ipv6);
         if (!has_ipv4 && !has_ipv6) {
             LbNetLog("Join: failed to resolve any peer address from punch\n");
             cleanup_join_host(ipv6_host, nullptr);
@@ -428,6 +458,8 @@ namespace
 
     TbError bf_enet_join(const char *session, void *)
     {
+        LbNetLog("Join: bf_enet_join session=\"%s\" join_lobby_id=\"%s\"\n",
+            session ? session : "(null)", join_lobby_id);
         ENetAddress connect_address;
         TbClockMSec join_start_ms = LbTimerClock();
         if (strncmp(join_lobby_id, "LAN:", 4) == 0) {

@@ -452,6 +452,7 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
     snprintf(request_message, sizeof(request_message),
         "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"myIpv4Port\":%d,\"myIpv6Port\":%d,\"myIpv4\":\"%s\",\"myIpv6\":\"%s\"}",
         lobby_id, udp_ipv4_port, udp_ipv6_port, published_addresses.ipv4, published_addresses.ipv6);
+    LbNetLog("Matchmaking: sending punch request: %s\n", request_message);
     if (websocket_send(request_message) != 0) {
         SDL_UnlockMutex(mutex);
         return -1;
