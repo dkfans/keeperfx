@@ -44,7 +44,7 @@
 #define ENET_ADDRESS_BUFFER_SIZE 128
 
 uint16_t external_ipv4_port = 0;
-int skip_holepunch = 1;
+int skip_holepunch = 0;
 
 namespace
 {
