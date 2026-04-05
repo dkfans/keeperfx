@@ -316,36 +316,24 @@ namespace
         return connect_to_current_join_host(&connect_address, join_type, display_deadline, timeout_ms);
     }
 
-    int build_direct_connect_session(const char *address, int port, TbBool is_ipv6, char *session, size_t session_size)
-    {
-        if (address[0] == '\0' || port <= 0)
-            return 0;
-        int written;
-        if (is_ipv6) {
-            written = snprintf(session, session_size, "[%s]:%d", address, port);
-        } else {
-            written = snprintf(session, session_size, "%s:%d", address, port);
-        }
-        return written > 0 && (size_t)written < session_size;
-    }
-
     TbError join_direct_fallback(const PunchAddresses *punch_addresses, TbClockMSec display_deadline) {
-        char ipv6_session[ENET_ADDRESS_BUFFER_SIZE] = {0};
-        char ipv4_session[ENET_ADDRESS_BUFFER_SIZE] = {0};
-        const int has_ipv6 = build_direct_connect_session(punch_addresses->ipv6, punch_addresses->ipv6_port,
-            true, ipv6_session, sizeof(ipv6_session));
-        const int has_ipv4 = build_direct_connect_session(punch_addresses->ipv4, punch_addresses->ipv4_port,
-            false, ipv4_session, sizeof(ipv4_session));
-        if (!has_ipv6 && !has_ipv4) {
+        const int has_ipv4 = (punch_addresses->ipv4[0] != '\0');
+        const int has_ipv6 = (punch_addresses->ipv6[0] != '\0');
+        if (!has_ipv4 && !has_ipv6) {
             LbNetLog("Join: direct-connect fallback has no usable address\n");
             return Lb_FAIL;
         }
         LbNetLog("Join: hole-punch phase timed out, retrying via direct connect\n");
-        if (has_ipv6 && join_direct_session(ipv6_session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV6, "direct connect fallback") == Lb_OK)
-            return Lb_OK;
+        char session[ENET_ADDRESS_BUFFER_SIZE];
+        if (has_ipv6) {
+            snprintf(session, sizeof(session), "[%s]:%d", punch_addresses->ipv6, ENET_DEFAULT_PORT);
+            if (join_direct_session(session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV6, "direct connect fallback") == Lb_OK)
+                return Lb_OK;
+        }
         if (!has_ipv4)
             return Lb_FAIL;
-        return join_direct_session(ipv4_session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV4, "direct connect fallback");
+        snprintf(session, sizeof(session), "%s:%d", punch_addresses->ipv4, ENET_DEFAULT_PORT);
+        return join_direct_session(session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV4, "direct connect fallback");
     }
 
     TbError join_via_holepunch(TbClockMSec join_start_ms) {
