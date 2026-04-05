@@ -3909,8 +3909,8 @@ msgstr "Dextra"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Modisum initiandum"
+msgid "Game version mismatch"
+msgstr "Versio ludicrum non congruit"
 
 #: guitext:532
 msgctxt "Network game message"

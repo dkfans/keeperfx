@@ -3885,8 +3885,8 @@ msgstr "Höger"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initierar Modem"
+msgid "Game version mismatch"
+msgstr "Spelversionen matchar inte"
 
 #: guitext:532
 msgctxt "Network game message"

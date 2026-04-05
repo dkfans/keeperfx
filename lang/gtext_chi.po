@@ -3669,8 +3669,8 @@ msgstr "右"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "调制解调器初始化中"
+msgid "Game version mismatch"
+msgstr "游戏版本不匹配"
 
 #: guitext:532
 msgctxt "Network game message"

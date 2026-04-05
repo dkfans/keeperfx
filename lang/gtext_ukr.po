@@ -3922,8 +3922,8 @@ msgstr "Right"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Ініціалізація модему"
+msgid "Game version mismatch"
+msgstr "Невідповідність версії гри"
 
 #: guitext:532
 msgctxt "Network game message"
