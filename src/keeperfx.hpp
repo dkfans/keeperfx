@@ -275,8 +275,13 @@ short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
 void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
 void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void set_general_bonus_information_at_location(long msg_id, TbMapLocation target, long colour_value);
+void set_general_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubtlCoord y, long colour_value);
+void set_quick_bonus_information_at_location(long msg_id, TbMapLocation target, long colour_value);
+void set_quick_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubtlCoord y, long colour_value);
 void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
-void set_general_objective(long msg_id, TbMapLocation target, long x, long y);
+void set_general_objective(TextStringId msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void set_bonus_objective(PlayerNumber plyr_idx, TextStringId msg_id, int icon, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
 void turn_off_power_sight_of_evil(PlayerNumber plridx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
 

@@ -307,12 +307,12 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
                             if (thing_is_spellbook(thing))
                             {
                                 event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
-                                    EvKind_SpellPickedUp, spdigtng->owner, thing->index);
+                                    EvKind_SpellPickedUp, spdigtng->owner, thing->index, 0);
                             } else
                             if (thing_is_special_box(thing))
                             {
                                 event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
-                                    EvKind_DnSpecialFound, spdigtng->owner, thing->index);
+                                    EvKind_DnSpecialFound, spdigtng->owner, thing->index, 0);
                             }
                             spdigtng->continue_state = CrSt_CreaturePicksUpSpellObject;
                             cctrl->pickup_object_id = thing->index;
@@ -389,12 +389,12 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
                             if (thing_is_trap_crate(thing))
                             {
                                 event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
-                                    EvKind_TrapCrateFound, spdigtng->owner, thing->index);
+                                    EvKind_TrapCrateFound, spdigtng->owner, thing->index, 0);
                             } else
                             if (thing_is_door_crate(thing))
                             {
                                 event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
-                                    EvKind_DoorCrateFound, spdigtng->owner, thing->index);
+                                    EvKind_DoorCrateFound, spdigtng->owner, thing->index, 0);
                             }
                             spdigtng->continue_state = CrSt_CreaturePicksUpCrateForWorkshop;
                             cctrl->pickup_object_id = thing->index;
@@ -1056,7 +1056,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
                       MapCoord coord_x = subtile_coord_center(room->central_stl_x);
                       MapCoord coord_y = subtile_coord_center(room->central_stl_y);
                       event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
-                          EvKind_RoomUnderAttack, room->owner, 0);
+                          EvKind_RoomUnderAttack, room->owner, 0, 0);
                       if (is_my_player_number(room->owner))
                       {
                           output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);

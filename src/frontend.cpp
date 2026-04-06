@@ -331,42 +331,131 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
 struct EventTypeInfo event_button_info[] = {
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam2_act,    GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
-  {GPS_message_rpanel_msg_battle_act,     GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
-  {GPS_message_rpanel_msg_questn_act,     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_room_act,       GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_creatr_act,     GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_spell_act,      GUIStr_EventNewSpellResrchDesc,     GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_manufct_act,    GUIStr_EventNewTrapDesc,            GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_manufct_act,    GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
-  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
-  {GPS_message_rpanel_msg_payday_act,     GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreatrAnnoyedDesc,      GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventNoMoreLivingSetDesc,    GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
-  {GPS_message_rpanel_msg_alarm_act,      GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
-  {GPS_message_rpanel_msg_inforg_act,     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
-  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
-  {GPS_message_rpanel_msg_bonusbox_act,   GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_inforg_act,     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {GPS_message_rpanel_msg_battle_act,     GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
-  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
-  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
-  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
-  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
-  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam2_act,           GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
+  {GPS_message_rpanel_msg_battle_act,            GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_room_act,              GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_creatr_act,            GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_spell_act,             GUIStr_EventNewSpellResrchDesc,     GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_manufct_act,           GUIStr_EventNewTrapDesc,            GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_manufct_act,           GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
+  {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_payday_act,            GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventCreatrAnnoyedDesc,      GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventNoMoreLivingSetDesc,    GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_alarm_act,             GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
+  {GPS_message_rpanel_msg_inforg_act,            GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
+  {GPS_message_rpanel_msg_bonusbox_act,          GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforg_act,            GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_battle_act,            GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
+  {0,                                            GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
+  {0,                                            GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
+  {0,                                            GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
+  {GPS_message_rpanel_msg_inforb_act,            GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforg_act,            GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_BonusInformation - Coloured i.
+  {GPS_message_rpanel_msg_inforg_act,            GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_QuickBonusInformation - Coloured i.
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_Warning - same but with a !
+  {GPS_message_rpanel_msg_exclam_act,            GUIStr_EventWarningDesc,            GUIStr_Empty,                   1200,   0, EvKind_Nothing}, // EvKind_QuickWarning - same but with a !
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective2}, // Objective slot 2
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective3}, // Objective slot 3
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective4}, // Objective slot 4
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective5}, // Objective slot 5
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective6}, // Objective slot 6
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective7}, // Objective slot 7
+  {GPS_message_rpanel_msg_questn_act,            GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective8}, // Objective slot 8
+};
+
+// setup of message colours for i,!,? (icons and default vary)
+// see MsgColour and MsgIconType
+
+// might need to move to somewhere else (i.e. where script command goes)
+// interpret possible colour strings, otherwise fallback to default if not recognised.
+const struct NamedCommand message_colour_desc[] = {
+  {"DEFAULT",    MSG_COLOUR_DEFAULT},
+  {"BLUE",       MSG_COLOUR_BLUE},
+  {"BROWN",      MSG_COLOUR_BROWN},
+  {"GREEN",      MSG_COLOUR_GREEN},
+  {"GREY",       MSG_COLOUR_GREY},
+  {"GRAY",       MSG_COLOUR_GREY},
+  {"ORANGE",     MSG_COLOUR_ORANGE},
+  {"PGREEN",     MSG_COLOUR_PGREEN},
+  {"PLAYERGREEN",MSG_COLOUR_PGREEN},
+  {"GREEN2",     MSG_COLOUR_PGREEN},
+  {"PURPLE",     MSG_COLOUR_PURPLE},
+  {"RED",        MSG_COLOUR_RED},
+  {"WHITE",      MSG_COLOUR_WHITE},
+  {"YELLOW",     MSG_COLOUR_YELLOW},
+  {NULL,         0},
+};
+MsgColour get_colour_for_coloured_message(const char *input)
+{
+    if (!input) return MSG_COLOUR_DEFAULT;
+    for (int i = 0; message_colour_desc[i].name; i++) {
+        if (strcmp(input, message_colour_desc[i].name) == 0) {
+            return (MsgColour)message_colour_desc[i].num;
+        }
+    }
+    return MSG_COLOUR_DEFAULT;
+}
+
+GUIPanelSprite rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT] = {
+    // MSG_ICON_INFO (i)
+    {
+        GPS_message_rpanel_msg_inforg_act, // pgreen is default
+        GPS_message_rpanel_msg_info_blue_act, // like blue icon but flashes
+        GPS_message_rpanel_msg_info_brown_act,
+        GPS_message_rpanel_msg_info_green_act,
+        GPS_message_rpanel_msg_info_grey_act,
+        GPS_message_rpanel_msg_info_orange_act,
+        GPS_message_rpanel_msg_inforg_act, // pgreen is default
+        GPS_message_rpanel_msg_info_purple_act,
+        GPS_message_rpanel_msg_info_red_act,
+        GPS_message_rpanel_msg_info_white_act,
+        GPS_message_rpanel_msg_info_yellow_act
+    },
+    //MSG_ICON_EXCLAM (!)
+    {
+        GPS_message_rpanel_msg_exclam_act, // blue is default
+        GPS_message_rpanel_msg_exclam_act, // blue is default
+        GPS_message_rpanel_msg_exclam_brown_act,
+        GPS_message_rpanel_msg_exclam_green_act,
+        GPS_message_rpanel_msg_exclam_grey_act,
+        GPS_message_rpanel_msg_exclam_orange_act,
+        GPS_message_rpanel_msg_exclam_pgreen_act,
+        GPS_message_rpanel_msg_exclam_purple_act,
+        GPS_message_rpanel_msg_exclam_red_act, // used for heart attack, probably best to avoid
+        GPS_message_rpanel_msg_exclam_white_act,
+        GPS_message_rpanel_msg_exclam_yellow_act
+    },
+    //MSG_ICON_QUESTN (?)
+    {
+        GPS_message_rpanel_msg_questn_act, // pgreen is default
+        GPS_message_rpanel_msg_questn_blue_act,
+        GPS_message_rpanel_msg_questn_brown_act,
+        GPS_message_rpanel_msg_questn_green_act,
+        GPS_message_rpanel_msg_questn_grey_act,
+        GPS_message_rpanel_msg_questn_orange_act,
+        GPS_message_rpanel_msg_questn_act, // pgreen is default
+        GPS_message_rpanel_msg_questn_purple_act,
+        GPS_message_rpanel_msg_questn_red_act,
+        GPS_message_rpanel_msg_questn_white_act,
+        GPS_message_rpanel_msg_questn_yellow_act
+    }
 };
 
 const unsigned long alliance_grid[4][4] = {
@@ -3620,6 +3709,48 @@ void update_player_objectives(PlayerNumber plyr_idx)
     }
 }
 
+void display_bonus_objectives(PlayerNumber plyr_idx, int icon, MapSubtlCoord x, MapSubtlCoord y)
+{
+    MapCoord cor_x;
+    MapCoord cor_y;
+    cor_y = 0;
+    cor_x = 0;
+    if ((x > 0) || (y > 0))
+    {
+        cor_x = subtile_coord_center(x);
+        cor_y = subtile_coord_center(y);
+    }
+    int evbtn_idx;
+    for (evbtn_idx = 0; evbtn_idx < EVENT_BUTTONS_COUNT + 1; evbtn_idx++)
+    {
+        struct Dungeon* dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        EventIndex evidx;
+        evidx = dungeon->event_button_index[evbtn_idx]; //todo bonus objective
+        struct Event* event;
+        event = &game.event[evidx];
+        if (event->kind == EvKind_Objective)
+        {
+            event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0, icon);
+            return;
+        }
+    }
+    if ((x == 255) && (y == 255))
+    {
+        struct Thing* creatng = lord_of_the_land_find();
+        if (thing_exists(creatng))
+        {
+            cor_x = creatng->mappos.x.val;
+            cor_y = creatng->mappos.y.val;
+        }
+        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index, icon);
+    }
+    else
+    {
+        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0, icon);
+    }
+}
+
 void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
 {
     MapCoord cor_x;
@@ -3642,7 +3773,7 @@ void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
         event = &game.event[evidx];
         if (event->kind == EvKind_Objective)
         {
-            event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
+            event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0, 0);
             return;
         }
     }
@@ -3654,10 +3785,10 @@ void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
             cor_x = creatng->mappos.x.val;
             cor_y = creatng->mappos.y.val;
         }
-        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index);
+        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index, 0);
     } else
     {
-        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
+        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0, 0);
     }
 }
 

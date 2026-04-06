@@ -2171,7 +2171,21 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         activate_event_box(evidx);
     }
-    gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
+    // Override with chosen colour if set via script command.
+    // not sure if this is better or worse than trying to overwrite the value in event_button_info[] directly
+    // (but that would presumably update all instances at once, so only feasible for objectives)
+    if (((event->kind == EvKind_BonusInformation) || (event->kind == EvKind_QuickBonusInformation)
+        || (event->kind == EvKind_Warning) || (event->kind == EvKind_QuickWarning)
+        || (event->kind == EvKind_Objective)  || (event->kind == EvKind_Objective2) || (event->kind == EvKind_Objective3) || (event->kind == EvKind_Objective4) 
+        || (event->kind == EvKind_Objective5) || (event->kind == EvKind_Objective6) || (event->kind == EvKind_Objective7) || (event->kind == EvKind_Objective8))
+        && (event->icon != 0))
+    {
+        gbtn->sprite_idx = event->icon;
+    }
+    else
+    {
+        gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
+    }
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate))
     {

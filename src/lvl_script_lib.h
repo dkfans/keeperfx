@@ -89,7 +89,6 @@ enum TbScriptCommands {
     Cmd_DISPLAY_INFORMATION_WITH_POS       = 74,
     Cmd_PRINT                              = 76, // from beta
     Cmd_SWAP_CREATURE                      = 77,
-  // New commands propositions - KeeperFX only
     Cmd_CHANGE_SLAB_TYPE                   = 78,
     Cmd_CHANGE_SLAB_OWNER                  = 79,
     Cmd_IF_SLAB_TYPE                       = 80,
@@ -197,6 +196,18 @@ enum TbScriptCommands {
     Cmd_SHOW_BONUS_LEVEL                   = 185,
     Cmd_HIDE_BONUS_LEVEL                   = 186,
     Cmd_HIDE_HERO_GATE                     = 187,
+    Cmd_DISPLAY_BONUS_OBJECTIVE            = 188,
+    Cmd_DISPLAY_BONUS_OBJECTIVE_WITH_POS   = 189,
+    Cmd_DISPLAY_BONUS_INFORMATION          = 190,
+    Cmd_DISPLAY_BONUS_INFORMATION_WITH_POS = 191,
+    Cmd_DISPLAY_WARNING                    = 192,
+    Cmd_DISPLAY_WARNING_WITH_POS           = 193,
+    Cmd_QUICK_BONUS_OBJECTIVE              = 194,
+    Cmd_QUICK_BONUS_OBJECTIVE_WITH_POS     = 195,
+    Cmd_QUICK_BONUS_INFORMATION            = 196,
+    Cmd_QUICK_BONUS_INFORMATION_WITH_POS   = 197,
+    Cmd_QUICK_WARNING                      = 198,
+    Cmd_QUICK_WARNING_WITH_POS             = 199,
 };
 
 struct ScriptLine {
@@ -326,6 +337,7 @@ extern const struct NamedCommand fill_desc[];
 extern const struct NamedCommand set_door_desc[];
 extern const struct NamedCommand texture_pack_desc[];
 extern const struct NamedCommand locked_desc[];
+extern const struct NamedCommand message_colour_desc[];
 
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);

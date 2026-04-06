@@ -287,7 +287,7 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
             dungeon->creatures_annoyed++;
             event_create_event_or_update_nearby_existing_event(
               creatng->mappos.x.val, creatng->mappos.y.val,
-              EvKind_CreatrIsAnnoyed, creatng->owner, creatng->index);
+              EvKind_CreatrIsAnnoyed, creatng->owner, creatng->index, 0);
         }
     } else
     {

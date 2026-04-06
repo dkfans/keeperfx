@@ -104,20 +104,21 @@ struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_i
  * @param evkind Event kind to be searched or created.
  * @param dngn_id Owning dungeon index.
  * @param target Event target identification parameter, its meaning depends on event kind.
+ * @param icon Icon argument for specific event commands that accept a colour argument. 0 for unchanged.
  * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
  */
-EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target)
+EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target, int icon)
 {
     short range = (evkind == EvKind_HeartAttacked) ? 35 : 5;
     struct Event* event = get_event_nearby_of_type_for_player(map_x, map_y, subtile_coord(range, 0), evkind, dngn_id);
     if (!event_is_invalid(event))
     {
         SYNCDBG(3,"Updating event %d to be kind %d at (%d,%d)",(int)event->index,(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
-        event_initialise_event(event, map_x, map_y, evkind, dngn_id, target);
+        event_initialise_event(event, map_x, map_y, evkind, dngn_id, target, icon);
         return -(EventIndex)event->index;
     }
     SYNCDBG(3,"Creating event kind %d at (%d,%d)",(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
-    event = event_create_event(map_x, map_y, evkind, dngn_id, target);
+    event = event_create_event(map_x, map_y, evkind, dngn_id, target, icon);
     if (event_is_invalid(event)) {
         return 0;
     }
@@ -131,19 +132,20 @@ EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, Ma
  * @param evkind Event kind to be searched or created.
  * @param dngn_id Owning dungeon index.
  * @param target Event target identification parameter, its meaning depends on event kind.
+ * @param icon Icon argument for specific event commands that accept a colour argument. 0 for unchanged.
  * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
  */
-EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
+EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target, int icon)
 {
     struct Event* event = get_event_of_target_and_type_for_player(target, evkind, dngn_id);
     if (!event_is_invalid(event))
     {
         SYNCDBG(3,"Updating event %d to be kind %d at (%d,%d)",(int)event->index,(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
-        event_initialise_event(event, map_x, map_y, evkind, dngn_id, target);
+        event_initialise_event(event, map_x, map_y, evkind, dngn_id, target, icon);
         return -(EventIndex)event->index;
     }
     SYNCDBG(3,"Creating event kind %d at (%d,%d)",(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
-    event = event_create_event(map_x, map_y, evkind, dngn_id, target);
+    event = event_create_event(map_x, map_y, evkind, dngn_id, target, icon);
     if (event_is_invalid(event)) {
         return 0;
     }
@@ -157,21 +159,22 @@ EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_
  * @param evkind Event kind to be searched or created.
  * @param plyr_idx Owning player index.
  * @param target Event target identification parameter, its meaning depends on event kind.
+ * @param icon Icon argument for specific event commands that accept a colour argument. 0 for unchanged.
  * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
  */
-EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char plyr_idx, int32_t target)
+EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char plyr_idx, int32_t target, int icon)
 {
     // Check if such event already exists
     struct Event* event = get_event_of_type_for_player(evkind, plyr_idx);
     // If we've found a matching event, replace it
     if (!event_is_invalid(event))
     {
-        event_initialise_event(event, map_x, map_y, evkind, plyr_idx, target);
+        event_initialise_event(event, map_x, map_y, evkind, plyr_idx, target, icon);
         event_add_to_event_buttons_list_or_replace_button(event, get_dungeon(plyr_idx));
         return -(EventIndex)event->index;
     }
     // If no matching event found, then create new one
-    event = event_create_event(map_x, map_y, evkind, plyr_idx, target);
+    event = event_create_event(map_x, map_y, evkind, plyr_idx, target, icon);
     if (event_is_invalid(event)) {
         return 0;
     }
@@ -201,7 +204,7 @@ long event_move_player_towards_event(struct PlayerInfo *player, long event_idx)
     return 1;
 }
 
-struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target)
+struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target, int icon)
 {
     long i;
     if (dngn_id == game.neutral_player_num) {
@@ -225,7 +228,7 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
     if (event_is_invalid(event)) {
         return INVALID_EVENT;
     }
-    event_initialise_event(event, map_x, map_y, evkind, dngn_id, target);
+    event_initialise_event(event, map_x, map_y, evkind, dngn_id, target, icon);
     event_add_to_event_buttons_list_or_replace_button(event, dungeon);
     return event;
 }
@@ -245,7 +248,7 @@ struct Event *event_allocate_free_event_structure(void)
     return INVALID_EVENT;
 }
 
-void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target)
+void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target, int icon)
 {
     event->mappos_x = map_x;
     event->mappos_y = map_y;
@@ -254,6 +257,7 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
     event->lifespan_turns = event_button_info[evkind].lifespan_turns;
     event->target = target;
     event->flags |= EvF_BtnFirstFall;
+    event->icon = icon;
 }
 
 void event_delete_event_structure(long ev_idx)
@@ -635,8 +639,8 @@ void maintain_my_event_list(struct Dungeon *dungeon)
 
 void kill_oldest_my_event(struct Dungeon *dungeon)
 {
-    long old_idx = -1;
-    long old_birth = 2147483647;
+    int32_t old_idx = -1;
+    int32_t old_birth = INT_MAX;
     for (long i = EVENT_BUTTONS_COUNT; i > 0; i--)
     {
         long k = dungeon->event_button_index[i];

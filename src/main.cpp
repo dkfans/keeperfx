@@ -131,6 +131,8 @@
 #include "net_input_lag.h"
 #include "moonphase.h"
 #include "frontmenu_ingame_map.h"
+#include "frontend.h"
+#include "sprites.h"
 #include <stdint.h>
 
 #ifdef FUNCTESTING
@@ -1923,7 +1925,7 @@ void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x,
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
+    event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id, 0);
 }
 
 void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
@@ -1940,12 +1942,122 @@ void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, M
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
+    event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id, 0);
 }
 
-void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
+void set_general_bonus_information_at_location(long msg_id, TbMapLocation target, long colour_value)
+{
+    struct PlayerInfo *player;
+    long pos_x;
+    long pos_y;
+    MapSubtlCoord x, y;
+    player = get_my_player();
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    MsgColour colour;
+    if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
+        colour = MSG_COLOUR_DEFAULT;
+    else
+        colour = (MsgColour)colour_value;
+    GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    event_create_event(pos_x, pos_y, EvKind_BonusInformation, player->id_number, -msg_id, icon);
+}
+
+void set_general_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubtlCoord y, long colour_value)
+{
+    struct PlayerInfo *player;
+    long pos_x;
+    long pos_y;
+    player = get_my_player();
+    find_map_location_coords(0, &x, &y, my_player_number, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    MsgColour colour;
+    if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
+        colour = MSG_COLOUR_DEFAULT;
+    else
+        colour = (MsgColour)colour_value;
+    GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    event_create_event(pos_x, pos_y, EvKind_BonusInformation, player->id_number, -msg_id, icon);
+}
+
+void set_quick_bonus_information_at_location(long msg_id, TbMapLocation target, long colour_value)
+{
+    struct PlayerInfo *player;
+    long pos_x;
+    long pos_y;
+    MapSubtlCoord x, y;
+    player = get_my_player();
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    MsgColour colour;
+    if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
+        colour = MSG_COLOUR_DEFAULT;
+    else
+        colour = (MsgColour)colour_value;
+    GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    event_create_event(pos_x, pos_y, EvKind_QuickBonusInformation, player->id_number, -msg_id, icon);
+}
+
+
+void set_quick_bonus_information_at_coords(long msg_id, MapSubtlCoord x, MapSubtlCoord y, long colour_value)
+{
+    struct PlayerInfo *player;
+    long pos_x;
+    long pos_y;
+    player = get_my_player();
+    find_map_location_coords(0, &x, &y, my_player_number, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    MsgColour colour;
+    if (colour_value < 0 || colour_value >= MSG_COLOUR_COUNT)
+        colour = MSG_COLOUR_DEFAULT;
+    else
+        colour = (MsgColour)colour_value;
+    GUIPanelSprite icon = rpanel_msg_colour[MSG_ICON_INFO][colour];
+    event_create_event(pos_x, pos_y, EvKind_QuickBonusInformation, player->id_number, -msg_id, icon);
+}
+
+void process_bonus_objective(PlayerNumber plyr_idx, int icon, const char* msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    MapSubtlCoord pos_x = x;
+    MapSubtlCoord pos_y = y;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
+
+    set_level_objective(msg_text);
+    display_bonus_objectives(player->id_number,icon, pos_x, pos_y);
+}
+
+void set_general_objective(TextStringId msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     process_objective(get_string(msg_id), target, x, y);
+}
+void set_bonus_objective(PlayerNumber plyr_idx, TextStringId msg_id, int icon, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+{
+    process_bonus_objective(plyr_idx ,icon, get_string(msg_id), target, x, y);
 }
 
 void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
@@ -2312,7 +2424,7 @@ void process_payday(void)
             if (player_paid_creatures_count > 0)
             {
                 struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
-                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreaturePayday, plyr_idx, dungeon->creatures_total_pay);
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreaturePayday, plyr_idx, dungeon->creatures_total_pay, 0);
             }
         }
     }

@@ -648,9 +648,9 @@ void update_battle_events(BattleIndex battle_id)
             dungeon->last_combat_location.y.val = map_y;
             dungeon->last_combat_location.z.val = map_z;
             if (owner_flags == to_flag(i)) { // if the current player (i) is the only player in the fight
-                event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, battle_id);
+                event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, battle_id, 0);
             } else {
-                event_create_event_or_update_old_event(map_x, map_y, EvKind_EnemyFight, i, battle_id);
+                event_create_event_or_update_old_event(map_x, map_y, EvKind_EnemyFight, i, battle_id, 0);
             }
         }
     }

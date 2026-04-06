@@ -23,6 +23,8 @@
 #include "bflib_guibtns.h"
 #include "gui_frontmenu.h"
 #include "game_saves.h"
+#include "config.h"
+#include "sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -229,6 +231,33 @@ enum IngameButtonDesignationIDs {
     BID_ASSIST
 };
 
+typedef enum {
+    MSG_COLOUR_DEFAULT,
+    MSG_COLOUR_BLUE,
+    MSG_COLOUR_BROWN,
+    MSG_COLOUR_GREEN,
+    MSG_COLOUR_GREY,
+    MSG_COLOUR_ORANGE,
+    MSG_COLOUR_PGREEN,
+    MSG_COLOUR_PURPLE,
+    MSG_COLOUR_RED,
+    MSG_COLOUR_WHITE,
+    MSG_COLOUR_YELLOW,
+    MSG_COLOUR_COUNT
+} MsgColour;
+
+typedef enum {
+    MSG_ICON_INFO,
+    MSG_ICON_EXCLAM,
+    MSG_ICON_QUESTN,
+    MSG_ICON_COUNT
+} MsgIconType;
+
+MsgColour get_colour_for_coloured_message(const char *input);
+
+extern const struct NamedCommand message_colour_desc[];
+extern enum GUIPanelSprite rpanel_msg_colour[MSG_ICON_COUNT][MSG_COLOUR_COUNT];
+
 struct GuiMenu;
 struct GuiButton;
 struct TbLoadFiles;
@@ -427,6 +456,7 @@ void toggle_gui_overlay_map(void);
 
 void update_player_objectives(PlayerNumber plyr_idx);
 void set_level_objective(const char *msg_text);
+void display_bonus_objectives(PlayerNumber plyr_idx, int icon, MapSubtlCoord x, MapSubtlCoord y);
 void display_objectives(PlayerNumber plyr_idx,MapSubtlCoord x,MapSubtlCoord y);
 
 short toggle_main_cheat_menu(void);

@@ -833,6 +833,63 @@ static void display_objective_process(struct ScriptContext *context)
     }
 }
 
+static void display_bonus_objective_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    int16_t msg_num = scline->np[1];
+    int16_t icon_idx = get_id(message_colour_desc, scline->tp[2]);
+
+    if (icon_idx < 0)
+    {
+        SCRPTERRLOG("Invalid icon name %s", scline->tp[2]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    MapSubtlCoord x, y;
+    TbMapLocation location = 0;
+    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    {
+        SCRPTERRLOG("Invalid TEXT number %d", msg_num);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    if (scline->command == Cmd_DISPLAY_BONUS_OBJECTIVE)
+    {
+        const char* where = scline->tp[3];
+        if (!get_map_location_id(where, &location))
+        {
+            return;
+        }
+        command_add_value(Cmd_DISPLAY_BONUS_OBJECTIVE, ALL_PLAYERS, msg_num, location, 0);
+    }
+    else
+    {
+        //todo params still need to be corrected in script command Cmd_DISPLAY_BONUS_OBJECTIVE_FOR_POS
+        x = scline->np[2];
+        y = scline->np[3];
+    }
+
+    value->shorts[0] = msg_num;
+    value->shorts[1] = rpanel_msg_colour[MSG_ICON_QUESTN][icon_idx];
+    value->shorts[2] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void display_bonus_objective_process(struct ScriptContext* context)
+{
+    set_bonus_objective(context->player_idx,
+        context->value->shorts[0],
+        context->value->shorts[1],
+        context->value->shorts[2],
+        context->value->shorts[3],
+        context->value->shorts[4]);
+}
+
 static void tag_map_rect_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -6488,6 +6545,18 @@ const struct CommandDesc command_desc[] = {
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
   {"RUN_LUA_CODE",                      "A       ", Cmd_RUN_LUA_CODE , &run_lua_code_check, &run_lua_code_process},
+  {"DISPLAY_BONUS_OBJECTIVE",           "PNAl    ", Cmd_DISPLAY_BONUS_OBJECTIVE, &display_bonus_objective_check, &display_bonus_objective_process},
+  {"DISPLAY_BONUS_OBJECTIVE_WITH_POS",  "NANN    ", Cmd_DISPLAY_BONUS_OBJECTIVE_WITH_POS, &display_bonus_objective_check, &display_bonus_objective_process },
+  {"DISPLAY_BONUS_INFORMATION",         "NAl     ", Cmd_DISPLAY_BONUS_INFORMATION, NULL, NULL},
+  {"DISPLAY_BONUS_INFORMATION_WITH_POS","NANN    ", Cmd_DISPLAY_BONUS_INFORMATION_WITH_POS, NULL, NULL},
+  {"QUICK_BONUS_OBJECTIVE",             "NAAl    ", Cmd_QUICK_BONUS_OBJECTIVE, NULL, NULL},
+  {"QUICK_BONUS_INFORMATION",           "NAAl    ", Cmd_QUICK_BONUS_INFORMATION, NULL, NULL},
+  {"QUICK_BONUS_OBJECTIVE_WITH_POS",    "NAANN   ", Cmd_QUICK_BONUS_OBJECTIVE_WITH_POS, NULL, NULL},
+  {"QUICK_BONUS_INFORMATION_WITH_POS",  "NAANN   ", Cmd_QUICK_BONUS_INFORMATION_WITH_POS, NULL, NULL},
+  {"DISPLAY_WARNING",                   "NAl     ", Cmd_DISPLAY_WARNING, NULL, NULL},
+  {"DISPLAY_WARNING_WITH_POS",          "NANN    ", Cmd_DISPLAY_WARNING_WITH_POS, NULL, NULL},
+  {"QUICK_WARNING",                     "NAAl    ", Cmd_QUICK_WARNING, NULL, NULL},
+  {"QUICK_WARNING_WITH_POS",            "NAANN   ", Cmd_QUICK_WARNING_WITH_POS, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

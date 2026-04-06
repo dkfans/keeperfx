@@ -27,7 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       36
+#define EVENT_KIND_COUNT       47
 #define EVENTS_COUNT          200
 #define INVALID_EVENT &game.event[0]
 
@@ -68,6 +68,17 @@ enum EventKinds {
     EvKind_EnemyDoor,                      // ComputerKeeper: DoorAtck1 [event20] --> attacks enemy doors
     EvKind_SecretDoorDiscovered,
     EvKind_SecretDoorSpotted,
+    EvKind_BonusInformation,
+    EvKind_QuickBonusInformation,
+    EvKind_Warning,
+    EvKind_QuickWarning,
+    EvKind_Objective2,
+    EvKind_Objective3,
+    EvKind_Objective4,
+    EvKind_Objective5,
+    EvKind_Objective6,
+    EvKind_Objective7,
+    EvKind_Objective8,
 };
 
 enum EventFlags {
@@ -91,7 +102,8 @@ struct Event {
     unsigned char kind;
     int32_t target;
     /** Button lifespan, decreased over time. When reaches 0, the button disappears. */
-    unsigned long lifespan_turns;
+    uint32_t lifespan_turns;
+    int16_t icon; // from GUIPanelSprite
 };
 
 struct Bookmark {
@@ -110,14 +122,14 @@ struct Event *get_event_nearby_of_type_for_player(MapCoord map_x, MapCoord map_y
 
 TbBool event_is_invalid(const struct Event *event);
 TbBool event_exists(const struct Event* event);
-EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target);
-EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target);
-EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target);
+EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target, int icon);
+EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target, int icon);
+EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target, int icon);
 void event_initialise_all(void);
 long event_move_player_towards_event(struct PlayerInfo *player, long event_idx);
-struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t msg_id);
+struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t msg_id, int icon);
 struct Event *event_allocate_free_event_structure(void);
-void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t msg_id);
+void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t msg_id, int icon);
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon);
 void event_update_on_battle_removal(BattleIndex battle_idx);
 void event_delete_event(long plridx, EventIndex evidx);
