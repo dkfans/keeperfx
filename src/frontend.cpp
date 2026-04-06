@@ -226,7 +226,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuPlayIntro, 1},
     {GUIStr_NetServiceMenu, 0}, // [10]
     {GUIStr_NetSessionMenu, 0},
-    {GUIStr_MnuGameMenu, 0}, // [12]
+    {GUIStr_MnuOnlineLobbies, 0}, // [12]
     {GUIStr_NetJoinGame, 1}, // [13]
     {GUIStr_NetCreateGame, 1}, // [14]
     {GUIStr_NetStartGame, 1}, // [15]

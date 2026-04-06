@@ -3206,8 +3206,8 @@ msgstr "Incipe ludum"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Tabula vestibulorum"
+msgid "Online Lobbies"
+msgstr "Vestibula Interretialia"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -7166,3 +7166,8 @@ msgstr "Vestibulum Interretiale"
 msgctxt "Menu interface item"
 msgid "LAN Lobby"
 msgstr "Vestibulum Retis Localis"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Vestibula Retis Localis"

@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       2000
 #define DK_STRINGS_MAX     941
-#define GUI_STRINGS_COUNT 1083
+#define GUI_STRINGS_COUNT 1086
 
 struct GameCampaign;
 
@@ -110,7 +110,7 @@ enum GUIStrings {
     GUIStr_NetCreateGame,
     GUIStr_NetJoinGame,
     GUIStr_NetStartGame,
-    GUIStr_MnuGameMenu = STRINGS_MAX+402,
+    GUIStr_MnuOnlineLobbies = STRINGS_MAX+402,
     GUIStr_MnuCancel,
     GUIStr_MnuNoName,
     GUIStr_MnuPlayers,
@@ -435,6 +435,7 @@ enum GUIStrings {
     GUIStr_Keeper = STRINGS_MAX + 1082,
     GUIStr_MnuOnlineLobby = STRINGS_MAX + 1083,
     GUIStr_MnuLanLobby = STRINGS_MAX + 1084,
+    GUIStr_MnuLanLobbies = STRINGS_MAX + 1085,
 };
 
 enum CampaignStrings {

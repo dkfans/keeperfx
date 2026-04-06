@@ -3196,8 +3196,8 @@ msgstr "Starta Spel"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Lobbymeny"
+msgid "Online Lobbies"
+msgstr "Online-lobbyer"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -7162,3 +7162,8 @@ msgstr "Online-lobby"
 msgctxt "Menu interface item"
 msgid "LAN Lobby"
 msgstr "LAN-lobby"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN-lobbyer"

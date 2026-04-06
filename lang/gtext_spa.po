@@ -3307,8 +3307,8 @@ msgstr "Iniciar la partida"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Menú de salas"
+msgid "Online Lobbies"
+msgstr "Salas en línea"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -7398,3 +7398,8 @@ msgstr "Sala en línea"
 msgctxt "Menu interface item"
 msgid "LAN Lobby"
 msgstr "Sala LAN"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Salas LAN"

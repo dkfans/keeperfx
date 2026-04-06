@@ -70,9 +70,11 @@ short setup_network_service(enum FrontendNetService service)
   }
   net_service_index_selected = service;
   if (service == FrontendNetSvc_LAN) {
-    frontend_button_info[12].capstr_idx = GUIStr_MnuLanLobby;
+    frontend_button_info[11].capstr_idx = GUIStr_MnuLanLobby;
+    frontend_button_info[12].capstr_idx = GUIStr_MnuLanLobbies;
   } else {
-    frontend_button_info[12].capstr_idx = GUIStr_MnuOnlineLobby;
+    frontend_button_info[11].capstr_idx = GUIStr_MnuOnlineLobby;
+    frontend_button_info[12].capstr_idx = GUIStr_MnuOnlineLobbies;
   }
   frontend_set_state(FeSt_NET_SESSION);
   return 1;
