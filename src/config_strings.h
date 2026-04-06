@@ -238,7 +238,7 @@ enum GUIStrings {
     GUIStr_KeyDown,
     GUIStr_KeyLeft,
     GUIStr_KeyRight,
-    GUIStr_NetInitingModem = STRINGS_MAX+531,
+    GUIStr_VersionMismatch = STRINGS_MAX+531,
     GUIStr_NetConnectnModem,
     GUIStr_NetDial,
     GUIStr_NetContinue,

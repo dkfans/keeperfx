@@ -3967,8 +3967,8 @@ msgstr "W Prawo"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Inicjalizacja modemu"
+msgid "Game version mismatch"
+msgstr "Niezgodność wersji gry"
 
 #: guitext:532
 msgctxt "Network game message"

@@ -668,6 +668,7 @@ void versions_different_error(void)
     lbKeyOn[KC_SPACE] = 0;
     lbKeyOn[KC_RETURN] = 0;
     text[0] = '\0';
+    snprintf(text, sizeof(text), "%s\n", get_string(GUIStr_VersionMismatch));
     // Preparing message
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
@@ -675,7 +676,7 @@ void versions_different_error(void)
       nspckt = &net_screen_packet[i];
       if ((nspckt->networkstatus_flags & 0x01) != 0)
       {
-        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->stored_data1, nspckt->stored_data2);
+        str_appendf(text, sizeof(text), "%s: %d.%d.%d.%02d\n", plyr_nam, nspckt->param1, nspckt->param2, nspckt->stored_data1, nspckt->stored_data2);
       }
     }
     // Waiting for users reaction
@@ -686,7 +687,7 @@ void versions_different_error(void)
       LbWindowsControl();
       if (LbScreenLock() == Lb_SUCCESS)
       {
-        draw_text_box(text);
+        draw_text_box_top(text, Lb_TEXT_HALIGN_LEFT);
         LbScreenUnlock();
       }
       LbScreenSwap();

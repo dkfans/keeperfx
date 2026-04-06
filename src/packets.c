@@ -1818,6 +1818,8 @@ void process_frontend_packets(void)
         case 3:
             if (!validate_versions())
             {
+                nspckt->param1 = VersionMajor;
+                nspckt->param2 = VersionMinor;
                 versions_different_error();
                 break;
             }

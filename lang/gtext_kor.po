@@ -3867,8 +3867,8 @@ msgstr "오른쪽"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initialising Modem"
+msgid "Game version mismatch"
+msgstr "게임 버전 불일치"
 
 #: guitext:532
 msgctxt "Network game message"

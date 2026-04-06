@@ -425,7 +425,7 @@ struct Persons {
 
 struct CreatureSound {
     int32_t index;
-    int32_t count;
+    int16_t count;
 };
 
 struct CreatureSounds {

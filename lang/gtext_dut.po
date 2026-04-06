@@ -3875,8 +3875,8 @@ msgstr "Rechts"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "MODEM INITIALISEERT"
+msgid "Game version mismatch"
+msgstr "Spelversies komen niet overeen"
 
 #: guitext:532
 msgctxt "Network game message"
