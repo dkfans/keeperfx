@@ -376,7 +376,14 @@ namespace
             LbNetLog("Join: skipping hole-punch phase\n");
             cleanup_join_host(ipv6_host, nullptr);
             host_destroy();
-            return join_direct_fallback(&punch_addresses, LbTimerClock() + TIMEOUT_CONNECT_DIRECT_IPV4);
+            TbClockMSec direct_display_ms = 0;
+            if (punch_addresses.ipv6[0] != '\0') {
+                direct_display_ms += TIMEOUT_CONNECT_DIRECT_IPV6;
+            }
+            if (punch_addresses.ipv4[0] != '\0') {
+                direct_display_ms += TIMEOUT_CONNECT_DIRECT_IPV4;
+            }
+            return join_direct_fallback(&punch_addresses, LbTimerClock() + direct_display_ms);
         }
         enet_host_compress_with_range_coder(host);
         if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
