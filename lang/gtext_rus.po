@@ -6537,3 +6537,13 @@ msgstr "Призыв создания: На время призывает хра
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Хранитель"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Онлайн-лобби"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN-лобби"

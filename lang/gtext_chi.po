@@ -6755,3 +6755,13 @@ msgstr "召唤术：在战斗中召唤出暂时存在的卫兵与怪物协同作
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "守护者"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "在线大厅"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "局域网大厅"

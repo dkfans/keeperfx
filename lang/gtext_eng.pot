@@ -5736,3 +5736,13 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr ""
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr ""
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr ""

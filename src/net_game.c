@@ -34,6 +34,7 @@
 #include "frontend.h"
 #include "front_network.h"
 #include "config_settings.h"
+#include "config_strings.h"
 #include "game_legacy.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
@@ -68,6 +69,11 @@ short setup_network_service(enum FrontendNetService service)
     return 0;
   }
   net_service_index_selected = service;
+  if (service == FrontendNetSvc_LAN) {
+    frontend_button_info[12].capstr_idx = GUIStr_MnuLanLobby;
+  } else {
+    frontend_button_info[12].capstr_idx = GUIStr_MnuOnlineLobby;
+  }
   frontend_set_state(FeSt_NET_SESSION);
   return 1;
 }
