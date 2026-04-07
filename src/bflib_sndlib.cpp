@@ -12,6 +12,11 @@
 #include <SDL2/SDL_mixer.h>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+
+// Single-header MP3 decoder (no external DLL dependency)
+#define DR_MP3_IMPLEMENTATION
+#include "../deps/dr_mp3.h"
 #include <memory>
 #include <vector>
 #include <fstream>
@@ -23,6 +28,7 @@
 #include <mutex>
 #include <atomic>
 #include <set>
+
 #include "post_inc.h"
 
 namespace {
@@ -338,6 +344,17 @@ struct sound_sample {
 		} else {
 			alBufferData(buffer.id, format, pcm.data(), pcm.size(), wav.samplerate());
 		}
+		const auto errcode = alGetError();
+		if (errcode != AL_NO_ERROR) {
+			throw openal_error("Cannot buffer sample data", errcode);
+		}
+	}
+
+	sound_sample(const char * _name, SoundSFXID _sfx_id,
+	             const std::vector<uint8_t> & pcm, ALenum format, int samplerate) {
+		name = _name;
+		sfx_id = _sfx_id;
+		alBufferData(buffer.id, format, pcm.data(), (ALsizei)pcm.size(), samplerate);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot buffer sample data", errcode);
@@ -893,48 +910,139 @@ extern "C" int custom_sound_bank_size() {
 	return g_custom_bank.size();
 }
 
-// Helper: Normalize path for cross-platform file access
-// Handles ./ prefix and converts forward slashes to platform-specific separators
-static std::string normalize_file_path(const char* filepath) {
-	if (!filepath) return "";
-	
-	std::string path(filepath);
-	
-	// Remove ./ prefix if present
-	if (path.size() >= 2 && path[0] == '.' && path[1] == '/') {
-		path = path.substr(2);
-	}
-	
-#ifdef _WIN32
-	// On Windows, convert forward slashes to backslashes for better compatibility
-	// Note: Most Windows APIs accept forward slashes, but std::ifstream may not
-	std::replace(path.begin(), path.end(), '/', '\\');
-#endif
-	
-	return path;
-}
-
-extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id) {
-	try {
-		// Normalize path for cross-platform compatibility
-		std::string normalized_path = normalize_file_path(filepath);
-		
-		std::ifstream stream(normalized_path, std::ios::binary);
-		if (!stream.is_open()) {
-			// Fallback: try original path
-			WARNLOG("Failed to open WAV with normalized path, trying original: %s", filepath);
-			stream.open(filepath, std::ios::binary);
-			if (!stream.is_open()) {
-				WARNLOG("Failed to open WAV file stream: %s (normalized: %s)", filepath, normalized_path.c_str());
-				return false;
-			}
-		}
-		
-		wave_file wav(stream);
-		g_custom_bank.emplace_back(filepath, sample_id, wav);
-		return true;
-	} catch (const std::exception& e) {
-		ERRORLOG("Failed to load WAV %s: %s", filepath, e.what());
+// Decode data as MP3 (via dr_mp3) and push it into g_custom_bank.
+// data/size may point into a larger buffer (e.g. after stripping a BMU header).
+static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
+	const uint8_t* data, size_t size)
+{
+	drmp3_config cfg = {};
+	drmp3_uint64 frame_count = 0;
+	drmp3_int16* mp3_pcm = drmp3_open_memory_and_read_pcm_frames_s16(
+		data, size, &cfg, &frame_count, nullptr);
+	if (!mp3_pcm || frame_count == 0) {
+		if (mp3_pcm) drmp3_free(mp3_pcm, nullptr);
+		ERRORLOG("Cannot decode MP3 data from %s", filepath);
 		return false;
 	}
+
+	const ALenum al_fmt = (cfg.channels == 1)
+		? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	const size_t byte_count =
+		(size_t)frame_count * cfg.channels * sizeof(drmp3_int16);
+
+	try {
+		const std::vector<uint8_t> pcm(
+			reinterpret_cast<const uint8_t*>(mp3_pcm),
+			reinterpret_cast<const uint8_t*>(mp3_pcm) + byte_count);
+		g_custom_bank.emplace_back(filepath, sample_id, pcm,
+			al_fmt, (int)cfg.sampleRate);
+	} catch (...) {
+		drmp3_free(mp3_pcm, nullptr);
+		ERRORLOG("Out of memory buffering MP3 %s", filepath);
+		return false;
+	}
+	drmp3_free(mp3_pcm, nullptr);
+	return true;
+}
+
+// Load a WAV or MP3 file and append it to g_custom_bank as a signed-16-bit
+// OpenAL buffer.
+//   - Plain WAV  : SDL_LoadWAV_RW (SDL2.dll only, no libxmp dependency)
+//   - Plain MP3  : dr_mp3 single-header decoder (compiled in, no external DLLs)
+//   - BMU V1.0   : 8-byte wrapper used by some campaigns; contains a plain MP3
+//                  stream after the header — stripped and decoded via dr_mp3.
+extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id)
+{
+	// Resolve to absolute path so the decoders can find the file regardless of
+	// process CWD (keeperfx changes directories at startup).
+	char abs_buf[4096];
+#ifdef _WIN32
+	if (_fullpath(abs_buf, filepath, sizeof(abs_buf)) == nullptr)
+		snprintf(abs_buf, sizeof(abs_buf), "%s", filepath);
+#else
+	if (realpath(filepath, abs_buf) == nullptr)
+		snprintf(abs_buf, sizeof(abs_buf), "%s", filepath);
+#endif
+
+	// Read the whole file once so we can inspect the magic bytes and route to
+	// the right decoder without reopening.
+	std::vector<uint8_t> file_data;
+	{
+		std::ifstream f(abs_buf, std::ios::binary | std::ios::ate);
+		if (!f) {
+			ERRORLOG("Cannot open audio file %s", filepath);
+			return false;
+		}
+		const auto sz = f.tellg();
+		if (sz <= 0) {
+			ERRORLOG("Empty audio file %s", filepath);
+			return false;
+		}
+		file_data.resize((size_t)sz);
+		f.seekg(0);
+		if (!f.read(reinterpret_cast<char*>(file_data.data()), sz)) {
+			ERRORLOG("Cannot read audio file %s", filepath);
+			return false;
+		}
+	}
+
+	const uint8_t* data = file_data.data();
+	const size_t   size = file_data.size();
+
+	// Detect BMU V1.0 wrapper (8-byte ASCII prefix used by some campaigns).
+	// After the prefix the payload is a standard MP3 (often with an ID3 tag).
+	static const uint8_t bmu_magic[8] = { 'B','M','U',' ','V','1','.','0' };
+	if (size > 8 && memcmp(data, bmu_magic, 8) == 0) {
+		return decode_mp3_and_store(filepath, sample_id, data + 8, size - 8);
+	}
+
+	// Detect MP3 by ID3v2 tag or sync-word (0xFF 0xE? / 0xFF 0xF?).
+	// Also handle plain .mp3 extension as a hint.
+	const bool looks_like_mp3 =
+		(size >= 3 && data[0] == 'I' && data[1] == 'D' && data[2] == '3') ||
+		(size >= 2 && data[0] == 0xFF && (data[1] & 0xE0) == 0xE0);
+	if (looks_like_mp3) {
+		return decode_mp3_and_store(filepath, sample_id, data, size);
+	}
+
+	// --- WAV path: SDL_LoadWAV_RW (SDL2.dll, no libxmp dependency) ---
+	SDL_RWops* rw = SDL_RWFromConstMem(data, (int)size);
+	if (!rw) {
+		ERRORLOG("Cannot create RWops for %s: %s", filepath, SDL_GetError());
+		return false;
+	}
+
+	SDL_AudioSpec spec = {};
+	Uint8* wav_buf = nullptr;
+	Uint32 wav_len = 0;
+	// freesrc=1 closes rw whether or not decoding succeeds.
+	if (SDL_LoadWAV_RW(rw, 1, &spec, &wav_buf, &wav_len) == nullptr) {
+		ERRORLOG("Cannot decode audio file %s: %s", filepath, SDL_GetError());
+		return false;
+	}
+
+	// Map SDL format to OpenAL.
+	ALenum al_fmt;
+	switch (spec.format) {
+	case AUDIO_U8:
+	case AUDIO_S8:
+		al_fmt = (spec.channels == 1) ? AL_FORMAT_MONO8 : AL_FORMAT_STEREO8;
+		break;
+	case AUDIO_S16LSB:
+	case AUDIO_S16MSB:
+	default:
+		al_fmt = (spec.channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		break;
+	}
+
+	try {
+		const std::vector<uint8_t> pcm(wav_buf, wav_buf + wav_len);
+		g_custom_bank.emplace_back(filepath, sample_id, pcm, al_fmt, spec.freq);
+	} catch (...) {
+		SDL_FreeWAV(wav_buf);
+		ERRORLOG("Out of memory buffering WAV %s", filepath);
+		return false;
+	}
+	SDL_FreeWAV(wav_buf);
+	return true;
 }
