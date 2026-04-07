@@ -3168,8 +3168,8 @@ msgstr "게임 시작"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "로비 메뉴"
+msgid "Online Lobbies"
+msgstr "온라인 로비"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3867,8 +3867,8 @@ msgstr "오른쪽"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initialising Modem"
+msgid "Game version mismatch"
+msgstr "게임 버전 불일치"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -7134,3 +7134,18 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "키퍼"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "온라인 로비"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN 로비"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN 로비"

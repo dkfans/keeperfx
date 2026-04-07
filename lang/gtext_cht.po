@@ -2951,8 +2951,8 @@ msgstr "开始游戏"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "大廳選單"
+msgid "Online Lobbies"
+msgstr "線上大廳"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3625,8 +3625,8 @@ msgstr "右"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "数据机初始化中"
+msgid "Game version mismatch"
+msgstr "遊戲版本不匹配"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -6751,3 +6751,18 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "守护者"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "線上大廳"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "區域網路大廳"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "區域網路大廳"

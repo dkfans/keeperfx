@@ -3263,8 +3263,8 @@ msgstr "Lancer Le Jeu"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Menu des salons"
+msgid "Online Lobbies"
+msgstr "Salons en ligne"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3973,8 +3973,8 @@ msgstr "Droite"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initialisation Du Modem"
+msgid "Game version mismatch"
+msgstr "La version du jeu ne correspond pas"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -7383,3 +7383,18 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Gardien"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Salon en ligne"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Salon LAN"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Salons LAN"
