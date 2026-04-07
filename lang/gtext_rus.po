@@ -2838,8 +2838,8 @@ msgstr "Начать игру"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Меню лобби"
+msgid "Online Lobbies"
+msgstr "Онлайн-лобби"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -6537,3 +6537,18 @@ msgstr "Призыв создания: На время призывает хра
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Хранитель"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Онлайн-лобби"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN-лобби"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN-лобби"
