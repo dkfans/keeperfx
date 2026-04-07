@@ -152,6 +152,10 @@ short luafunc_thing_update_func(FuncIdx func_idx,struct Thing *thing)
 
 short luafunc_trap_activation_func(FuncIdx func_idx,struct Thing *trap, struct Thing *creature)
 {
+    if(func_idx == 0) {
+        return true;
+    }
+    
     const char *func_name = get_function_name(func_idx);
     if (!func_name) {
         ERRORLOG("Invalid function index: %d", func_idx);
