@@ -6546,7 +6546,7 @@ msgstr "Интернет-лобби"
 #: guitext:1084
 msgctxt "Menu interface item"
 msgid "LAN Lobby"
-msgstr "Локальные лобби"
+msgstr "Локальное лобби"
 
 #: guitext:1085
 msgctxt "Menu interface item"
