@@ -1951,17 +1951,15 @@ static int lua_get_things_on_subtile(lua_State *L)
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     struct Thing* thing = INVALID_THING;
 
-    if (mapblk != NULL)
-    {
-        thing = thing_get(get_mapwho_thing_index(mapblk));
-    }
-
     lua_newtable(L);
     uint16_t k = 0;
     uint16_t table_index = 0;
 
-    while (thing != INVALID_THING)
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
     {
+        thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -1974,7 +1972,7 @@ static int lua_get_things_on_subtile(lua_State *L)
             lua_rawseti(L, -2, table_index);
         }
 
-        thing = thing_get(thing->next_on_mapblk);
+        i = thing->next_on_mapblk;
         k++;
         if (k > THINGS_COUNT)
         {
@@ -2003,14 +2001,17 @@ static int lua_get_things_on_slab(lua_State *L)
             MapSubtlCoord stl_y = slb_y * STL_PER_SLB + y;
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             struct Thing* thing = thing_get(get_mapwho_thing_index(mapblk));
-            while (thing != NULL)
+            long i = get_mapwho_thing_index(mapblk);
+            while (i != 0)
             {
-            
+                thing = thing_get(i);
+                TRACE_THING(thing);
                 if (thing_is_invalid(thing))
                 {
                     ERRORLOG("Jump to invalid thing detected");
                     break;
                 }
+                i = thing->next_on_mapblk;
                 if (class_id == 0 || thing->class_id == class_id)
                 {   
                     table_index++;
@@ -2018,7 +2019,6 @@ static int lua_get_things_on_slab(lua_State *L)
                     lua_rawseti(L, -2, table_index);
                 }
 
-                thing = thing_get(thing->next_on_mapblk);
                 k++;
                 if (k > THINGS_COUNT)
                 {
