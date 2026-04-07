@@ -63,7 +63,6 @@ enum TrapActivationTypes {
     TrpAcT_CreatureShot,
     TrpAcT_CreatureSpawn,
     TrpAcT_Power,
-    TrpAcT_Lua,
 };
 
 struct Thing;

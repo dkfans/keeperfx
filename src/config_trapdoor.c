@@ -84,7 +84,6 @@ static const struct NamedCommand trap_activation_type_commands[] = {
     {"CREATURE_SHOT",       TrpAcT_CreatureShot},
     {"CREATURE_SPAWN",      TrpAcT_CreatureSpawn},
     {"POWER",               TrpAcT_Power},
-    {"LUA",                 TrpAcT_Lua},
     {NULL,                   0},
 };
 
