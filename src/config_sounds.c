@@ -23,6 +23,7 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "sound_manager.h"
+#include "gui_soundmsgs.h"
 #include "globals.h"
 #include "game_legacy.h"
 
@@ -68,6 +69,7 @@ int            snd_dig_impact_count = 3;
 SoundSmplTblID snd_dig_dirt        = 73;   // terrain/rocks2.wav
 
 /* Footstep variants */
+
 SoundSmplTblID snd_foot_spur       = 5;    // footsteps/spur1.wav
 int            snd_foot_spur_count = 4;
 SoundSmplTblID snd_foot_wet        = 21;   // footsteps/footwet1.wav
@@ -113,6 +115,221 @@ SoundSmplTblID snd_heart_engine    = 93;   // terrain/doordown.wav
 SoundSmplTblID snd_scavenge        = 156;  // rooms/prayers.wav
 
 /******************************************************************************/
+
+/******************************************************************************/
+// Speech overrides
+/******************************************************************************/
+
+/** Per-message speech override paths.  Indexed by SMsg_* enum value.
+ *  Empty string = use default speech bank sample. */
+char g_speech_overrides[SMsg_MAX][512];
+
+/** NamedCommand table mapping SMsg_* name strings to enum values. */
+static const struct NamedCommand speech_desc[] = {
+    {"CreatrAngryAnyReason", SMsg_CreatrAngryAnyReason},
+    {"CreatrAngryNoLair",    SMsg_CreatrAngryNoLair},
+    {"CreatrAngryNotPaid",   SMsg_CreatrAngryNotPaid},
+    {"CreatrAngryNoFood",    SMsg_CreatrAngryNoFood},
+    {"CreatrDestroyRooms",   SMsg_CreatrDestroyRooms},
+    {"CreatureLeaving",      SMsg_CreatureLeaving},
+    {"WallsBreach",          SMsg_WallsBreach},
+    {"HeartUnderAttack",     SMsg_HeartUnderAttack},
+    {"BattleDefeat",         SMsg_BattleDefeat},
+    {"BattleVictory",        SMsg_BattleVictory},
+    {"BattleDeath",          SMsg_BattleDeath},
+    {"BattleWon",            SMsg_BattleWon},
+    {"CreatureDefending",    SMsg_CreatureDefending},
+    {"CreatureAttacking",    SMsg_CreatureAttacking},
+    {"EnemyDestroyRooms",    SMsg_EnemyDestroyRooms},
+    {"EnemyClaimGround",     SMsg_EnemyClaimGround},
+    {"EnemyRoomTakeOver",    SMsg_EnemyRoomTakeOver},
+    {"NewRoomTakenOver",     SMsg_NewRoomTakenOver},
+    {"LordOfLandComming",    SMsg_LordOfLandComming},
+    {"FingthingFriends",     SMsg_FingthingFriends},
+    {"BattleOver",           SMsg_BattleOver},
+    {"GardenTooSmall",       SMsg_GardenTooSmall},
+    {"LairTooSmall",         SMsg_LairTooSmall},
+    {"TreasuryTooSmall",     SMsg_TreasuryTooSmall},
+    {"LibraryTooSmall",      SMsg_LibraryTooSmall},
+    {"PrisonTooSmall",       SMsg_PrisonTooSmall},
+    {"TortureTooSmall",      SMsg_TortureTooSmall},
+    {"TrainingTooSmall",     SMsg_TrainingTooSmall},
+    {"WorkshopTooSmall",     SMsg_WorkshopTooSmall},
+    {"ScavengeTooSmall",     SMsg_ScavengeTooSmall},
+    {"TempleTooSmall",       SMsg_TempleTooSmall},
+    {"GraveyardTooSmall",    SMsg_GraveyardTooSmall},
+    {"BarracksTooSmall",     SMsg_BarracksTooSmall},
+    {"NoRouteToGarden",      SMsg_NoRouteToGarden},
+    {"NoRouteToTreasury",    SMsg_NoRouteToTreasury},
+    {"NoRouteToLair",        SMsg_NoRouteToLair},
+    {"EntranceClaimed",      SMsg_EntranceClaimed},
+    {"EntranceLost",         SMsg_EntranceLost},
+    {"RoomTreasrNeeded",     SMsg_RoomTreasrNeeded},
+    {"RoomLairNeeded",       SMsg_RoomLairNeeded},
+    {"RoomGardenNeeded",     SMsg_RoomGardenNeeded},
+    {"ResearchedRoom",       SMsg_ResearchedRoom},
+    {"ResearchedSpell",      SMsg_ResearchedSpell},
+    {"ManufacturedDoor",     SMsg_ManufacturedDoor},
+    {"ManufacturedTrap",     SMsg_ManufacturedTrap},
+    {"NoMoreReseach",        SMsg_NoMoreReseach},
+    {"SpellbookTaken",       SMsg_SpellbookTaken},
+    {"TrapTaken",            SMsg_TrapTaken},
+    {"DoorTaken",            SMsg_DoorTaken},
+    {"SpellbookStolen",      SMsg_SpellbookStolen},
+    {"TrapStolen",           SMsg_TrapStolen},
+    {"DoorStolen",           SMsg_DoorStolen},
+    {"TortureInformation",   SMsg_TortureInformation},
+    {"TortureConverted",     SMsg_TortureConverted},
+    {"PrisonMadeSkeleton",   SMsg_PrisonMadeSkeleton},
+    {"TortureMadeGhost",     SMsg_TortureMadeGhost},
+    {"PrisonersEscaping",    SMsg_PrisonersEscaping},
+    {"GraveyardMadeVampire", SMsg_GraveyardMadeVampire},
+    {"CreatrFreedPrison",    SMsg_CreatrFreedPrison},
+    {"PrisonersStarving",    SMsg_PrisonersStarving},
+    {"CreatureScanvenged",   SMsg_CreatureScanvenged},
+    {"MinionScanvenged",     SMsg_MinionScanvenged},
+    {"CreatureJoinedEnemy",  SMsg_CreatureJoinedEnemy},
+    {"CreatureRevealInfo",   SMsg_CreatureRevealInfo},
+    {"SacrificeGood",        SMsg_SacrificeGood},
+    {"SacrificeReward",      SMsg_SacrificeReward},
+    {"SacrificeNeutral",     SMsg_SacrificeNeutral},
+    {"SacrificeBad",         SMsg_SacrificeBad},
+    {"SacrificePunish",      SMsg_SacrificePunish},
+    {"SacrificeWishing",     SMsg_SacrificeWishing},
+    {"DiscoveredSpecial",    SMsg_DiscoveredSpecial},
+    {"DiscoveredSpell",      SMsg_DiscoveredSpell},
+    {"DiscoveredDoor",       SMsg_DiscoveredDoor},
+    {"DiscoveredTrap",       SMsg_DiscoveredTrap},
+    {"CreaturesJoinedYou",   SMsg_CreaturesJoinedYou},
+    {"DugIntoNewArea",       SMsg_DugIntoNewArea},
+    {"SpecRevealMap",        SMsg_SpecRevealMap},
+    {"SpecResurrect",        SMsg_SpecResurrect},
+    {"SpecTransfer",         SMsg_SpecTransfer},
+    {"CommonAcknowledge",    SMsg_CommonAcknowledge},
+    {"SpecHeroStolen",       SMsg_SpecHeroStolen},
+    {"SpecCreatrDoubled",    SMsg_SpecCreatrDoubled},
+    {"SpecIncLevel",         SMsg_SpecIncLevel},
+    {"SpecWallsFortify",     SMsg_SpecWallsFortify},
+    {"SpecHiddenWorld",      SMsg_SpecHiddenWorld},
+    {"GoldLow",              SMsg_GoldLow},
+    {"GoldNotEnough",        SMsg_GoldNotEnough},
+    {"NoGoldToScavenge",     SMsg_NoGoldToScavenge},
+    {"NoGoldToTrain",        SMsg_NoGoldToTrain},
+    {"Payday",               SMsg_Payday},
+    {"FullOfPies",           SMsg_FullOfPies},
+    {"SurrealHappen",        SMsg_SurrealHappen},
+    {"StrangeAccent",        SMsg_StrangeAccent},
+    {"PantsTooTight",        SMsg_PantsTooTight},
+    {"CraveChocolate",       SMsg_CraveChocolate},
+    {"SmellAgain",           SMsg_SmellAgain},
+    {"Hello",                SMsg_Hello},
+    {"Glaagh",               SMsg_Glaagh},
+    {"Achew",                SMsg_Achew},
+    {"Chgreche",             SMsg_Chgreche},
+    {"WorkerJobsLimit",      SMsg_WorkerJobsLimit},
+    {"GameLoaded",           SMsg_GameLoaded},
+    {"GameSaved",            SMsg_GameSaved},
+    {"DefeatedKeeper",       SMsg_DefeatedKeeper},
+    {"LevelFailed",          SMsg_LevelFailed},
+    {"LevelWon",             SMsg_LevelWon},
+    {"SenceAvatar",          SMsg_SenceAvatar},
+    {"AvatarBodyVanish",     SMsg_AvatarBodyVanish},
+    {"GameFinalVictory",     SMsg_GameFinalVictory},
+    {NULL, 0},
+};
+
+/**
+ * @brief Parse a [speech] block, mapping SMsg_* names to override file paths.
+ *
+ * Each line has the form:
+ *   GraveyardMadeVampire = speech/custom_vampire.ogg
+ *
+ * Paths are relative to the game root directory (FGrp_Main) and are resolved at playback time.
+ */
+static TbBool parse_speech_section(char* buf, long len, const char* config_textname,
+                                   unsigned short flags)
+{
+    int32_t pos = 0;
+    const char* blockname = NULL;
+    int blocknamelen = 0;
+    TbBool found_section = false;
+
+    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+    {
+        if (blocknamelen > 0 && strncasecmp(blockname, "speech", blocknamelen) == 0)
+        {
+            found_section = true;
+            break;
+        }
+    }
+
+    if (!found_section)
+        return true;
+
+    while (pos < len)
+    {
+        if (buf[pos] == '[') break;
+
+        if (buf[pos] == '\n' || buf[pos] == '\r') { pos++; continue; }
+
+        if (buf[pos] == ';' || buf[pos] == '#')
+        {
+            while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+            continue;
+        }
+
+        char name_buf[COMMAND_WORD_LEN];
+        char path_buf[512];
+
+        if (get_conf_parameter_single(buf, &pos, len, name_buf, sizeof(name_buf)) <= 0)
+        {
+            while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+            while (pos < len && (buf[pos] == '\n' || buf[pos] == '\r')) pos++;
+            continue;
+        }
+
+        long smsg_id = get_id(speech_desc, name_buf);
+        if (smsg_id <= 0 || smsg_id >= SMsg_MAX)
+        {
+            if (smsg_id < 0)
+                WARNLOG("Unknown speech message name '%s' in %s", name_buf, config_textname);
+            while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+            while (pos < len && (buf[pos] == '\n' || buf[pos] == '\r')) pos++;
+            continue;
+        }
+
+        /* Skip '=' separator (same logic as parse_sound_line) */
+        if (get_conf_parameter_single(buf, &pos, len, path_buf, sizeof(path_buf)) <= 0)
+        {
+            while (pos < len && (buf[pos] == '=' || buf[pos] == ' ' || buf[pos] == '\t')) pos++;
+            if (get_conf_parameter_single(buf, &pos, len, path_buf, sizeof(path_buf)) <= 0)
+            {
+                WARNLOG("Missing path for speech message '%s' in %s", name_buf, config_textname);
+                while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+                while (pos < len && (buf[pos] == '\n' || buf[pos] == '\r')) pos++;
+                continue;
+            }
+        }
+        if (path_buf[0] == '=')
+        {
+            if (get_conf_parameter_single(buf, &pos, len, path_buf, sizeof(path_buf)) <= 0)
+            {
+                WARNLOG("Missing path after '=' for speech message '%s' in %s", name_buf, config_textname);
+                while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+                while (pos < len && (buf[pos] == '\n' || buf[pos] == '\r')) pos++;
+                continue;
+            }
+        }
+
+        snprintf(g_speech_overrides[smsg_id], sizeof(g_speech_overrides[smsg_id]), "%s", path_buf);
+        SYNCDBG(8, "Speech override: %s (%ld) -> %s", name_buf, smsg_id, path_buf);
+
+        while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+        while (pos < len && (buf[pos] == '\n' || buf[pos] == '\r')) pos++;
+    }
+
+    return true;
+}
 
 /**
  * @brief Parse a single line in the format: NAME = ID [count]
@@ -203,11 +420,16 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
     }
     else
     {
-        // Filepath - load as custom sound
-        // TODO: Implement custom sound loading from path
-        // For now, just log it
-        SYNCDBG(8, "Sound '%s' -> filepath '%s' (custom loading not yet implemented)", 
-                name_buf, value_buf);
+        // Filepath - load as custom sound and register the name
+        SoundSmplTblID id = sound_manager_load_named_sound(name_buf, value_buf, count);
+        if (id <= 0)
+        {
+            WARNLOG("Failed to load custom sound '%s' from '%s' in %s",
+                    name_buf, value_buf, config_textname);
+            return false;
+        }
+        SYNCDBG(8, "Registered custom sound '%s' -> ID %d (file '%s', count %d)",
+                name_buf, id, value_buf, count);
     }
     
     return true;
@@ -326,6 +548,8 @@ static TbBool load_sounds_config_file(const char *fname, unsigned short flags)
             result = false;
         }
     }
+
+    parse_speech_section(buf, len, fname, flags);
     
     free(buf);
     return result;
@@ -461,6 +685,25 @@ TbBool cache_common_sound_ids(void)
 
     SYNCDBG(8, "Common sound IDs cached");
     return true;
+}
+
+/******************************************************************************/
+
+int64_t value_sound_id(const struct NamedField* named_field, const char* value_text,
+                       const struct NamedFieldSet* named_fields_set, int idx,
+                       const char* src_str, unsigned char flags)
+{
+    if (parameter_is_number(value_text))
+    {
+        return value_default(named_field, value_text, named_fields_set, idx, src_str, flags);
+    }
+    int id = sound_manager_get_id(value_text);
+    if (id > 0)
+    {
+        return (int64_t)id;
+    }
+    NAMFIELDWRNLOG("Unrecognized sound name for field '%s', got '%s'", named_field->name, value_text);
+    return 0;
 }
 
 /******************************************************************************/

@@ -253,6 +253,20 @@ SoundEmitterID sound_manager_play_effect_named(const char* name, long priority, 
 // Config parser bridge for loading custom sounds from creature cfg files
 int load_creature_custom_sound(long crtr_model, const char* sound_type, const char* wav_path, const char* config_textname);
 
+/**
+ * @brief Load and register a named custom sound from sounds.cfg.
+ *
+ * Resolves @p path_in against FGrp_FxData, FGrp_CmpgConfig, and FGrp_Main
+ * (with extension probing when no extension is present). For count > 1 the
+ * trailing digit run in the stem is incremented to produce sequential variants.
+ *
+ * @param name     Name to register (e.g. "SPELL_STARS")
+ * @param path_in  Relative path as written in the cfg file
+ * @param count    Number of sequential variants (1 = single file)
+ * @return Registered sample ID on success, 0 on failure
+ */
+SoundSmplTblID sound_manager_load_named_sound(const char* name, const char* path_in, int count);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

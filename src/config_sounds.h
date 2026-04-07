@@ -22,6 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
+#include "config.h"
+#include "gui_soundmsgs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -177,6 +179,27 @@ extern SoundSmplTblID snd_heart_engine;     /* heartbeat engine hum (looping) */
 
 /* Room sounds */
 extern SoundSmplTblID snd_scavenge;         /* scavenging room sound */
+
+/******************************************************************************/
+
+/**
+ * @brief Per-message speech override paths, indexed by SMsg_* enum value.
+ * A non-empty string means output_message() will play this file instead of
+ * the default speech-bank sample.  Populated by the [speech] section of
+ * sounds.cfg.
+ */
+extern char g_speech_overrides[SMsg_MAX][512];
+
+/**
+ * @brief NamedField parse function that resolves a sound name or numeric ID.
+ *
+ * If value_text is a number it behaves like value_default.  Otherwise it
+ * looks the name up in the SoundManager registry (via sound_manager_get_id)
+ * and returns the registered sample ID, or 0 if unknown.
+ */
+int64_t value_sound_id(const struct NamedField* named_field, const char* value_text,
+                       const struct NamedFieldSet* named_fields_set, int idx,
+                       const char* src_str, unsigned char flags);
 
 /******************************************************************************/
 #ifdef __cplusplus

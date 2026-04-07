@@ -552,6 +552,126 @@ static bool resolve_creature_sound_path(const char* path_in, char* out_path, siz
     return false;
 }
 
+// Resolve a sound file path specified in sounds.cfg (or any other non-creature cfg).
+// Search order:
+//   1. FGrp_FxData/<path>   (base game fxdata/)
+//   2. FGrp_CmpgConfig/<path> (campaign config folder)
+//   3. FGrp_Main/<path>     (game root directory)
+// If the path has no extension, each location is tried with .wav, .mp3, .ogg, .flac.
+// Returns true and fills out_path (size 2048) on success.
+static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, size_t out_size)
+{
+    static const TbFileGroups groups[] = { FGrp_FxData, FGrp_CmpgConfig, FGrp_Main };
+    static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
+
+    const char* dot   = strrchr(path_in, '.');
+    const char* slash = strrchr(path_in, '/');
+    bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
+
+    for (int gi = 0; gi < (int)(sizeof(groups)/sizeof(groups[0])); gi++) {
+        for (int ei = 0; exts[ei] != NULL; ei++) {
+            if (has_ext && ei > 0) break;
+            if (!has_ext && ei == 0) continue;
+
+            char candidate[2048];
+            snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
+            const char* resolved = prepare_file_path((TbFileGroups)groups[gi], candidate);
+            if (resolved != NULL && LbFileExists(resolved)) {
+                SYNCDBG(7, "Named sound path resolved: '%s' -> '%s'", path_in, resolved);
+                snprintf(out_path, out_size, "%s", resolved);
+                return true;
+            }
+        }
+    }
+    SYNCDBG(5, "Named sound path not found: '%s'", path_in);
+    return false;
+}
+
+// Config parser bridge: load and register a named custom sound from sounds.cfg.
+// name     - the name to register (e.g. "SPELL_STARS")
+// path_in  - file path as written in the cfg (relative, with or without extension)
+// count    - number of sequential variants (1 = single file)
+// Returns the registered sample ID on success, 0 on failure.
+SoundSmplTblID sound_manager_load_named_sound(const char* name, const char* path_in, int count)
+{
+    using namespace KeeperFX;
+    SoundManager& sm = SoundManager::getInstance();
+    if (!sm.isInitialized()) {
+        if (!sm.initialize()) {
+            WARNLOG("Failed to initialize SoundManager for named sound '%s'", name);
+        }
+    }
+
+    if (count <= 1) {
+        char full_path[2048];
+        if (!resolve_sounds_cfg_sound_path(path_in, full_path, sizeof(full_path))) {
+            WARNLOG("Named sound file not found: '%s' (name '%s')", path_in, name);
+            return 0;
+        }
+        SoundSmplTblID id = sm.loadCustomSound(name, full_path);
+        if (id <= 0) {
+            WARNLOG("Failed to load named sound '%s' from '%s'", name, full_path);
+            return 0;
+        }
+        sm.registerSound(name, id, 1);
+        SYNCDBG(5, "Named sound '%s' loaded from '%s' -> ID %d", name, full_path, id);
+        return id;
+    }
+
+    // Multiple variants - expand trailing digit sequence
+    char expanded[32][512];
+    // Use the same expand helper from creature sounds by copying the logic inline.
+    // Build: base without ext + incrementing suffix + ext.
+    const char* last_dot   = strrchr(path_in, '.');
+    const char* last_slash = strrchr(path_in, '/');
+    bool has_ext = (last_dot != NULL) && (last_slash == NULL || last_dot > last_slash);
+    char stem[512]; const char* ext_part = "";
+    if (has_ext) {
+        size_t stem_len = (size_t)(last_dot - path_in);
+        if (stem_len >= sizeof(stem)) stem_len = sizeof(stem)-1;
+        strncpy(stem, path_in, stem_len);
+        stem[stem_len] = '\0';
+        ext_part = last_dot;
+    } else {
+        snprintf(stem, sizeof(stem), "%s", path_in);
+    }
+    // Find trailing digit run in stem.
+    size_t stem_len = strlen(stem);
+    size_t digits_start = stem_len;
+    while (digits_start > 0 && isdigit((unsigned char)stem[digits_start-1])) digits_start--;
+    int base_num = (digits_start < stem_len) ? atoi(stem + digits_start) : 1;
+    char stem_prefix[512];
+    strncpy(stem_prefix, stem, digits_start);
+    stem_prefix[digits_start] = '\0';
+    int width = (int)(stem_len - digits_start);
+    if (width == 0) { width = 1; base_num = 1; }
+    if (count > 32) count = 32;
+    for (int i = 0; i < count; i++)
+        snprintf(expanded[i], 512, "%s%0*d%s", stem_prefix, width, base_num + i, ext_part);
+
+    SoundSmplTblID first_id = 0;
+    for (int i = 0; i < count; i++) {
+        char full_path[2048];
+        if (!resolve_sounds_cfg_sound_path(expanded[i], full_path, sizeof(full_path))) {
+            WARNLOG("Named sound variant %d not found: '%s' (name '%s')", i, expanded[i], name);
+            continue;
+        }
+        char variant_name[256];
+        snprintf(variant_name, sizeof(variant_name), "%s_%d", name, i);
+        SoundSmplTblID id = sm.loadCustomSound(variant_name, full_path);
+        if (id <= 0) {
+            WARNLOG("Failed to load named sound variant '%s' from '%s'", variant_name, full_path);
+            continue;
+        }
+        if (first_id == 0) first_id = id;
+    }
+    if (first_id > 0) {
+        sm.registerSound(name, first_id, count);
+        SYNCDBG(5, "Named sound '%s' loaded %d variant(s) starting at ID %d", name, count, first_id);
+    }
+    return first_id;
+}
+
 // Config parser bridge: load custom sound from creature cfg file
 int load_creature_custom_sound(long crtr_model, const char* sound_type, const char* wav_path, const char* config_textname) {
     using namespace KeeperFX;

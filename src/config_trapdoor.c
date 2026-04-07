@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "config_players.h"
+#include "config_sounds.h"
 #include "config_strings.h"
 #include "console_cmd.h"
 #include "custom_sprites.h"
@@ -270,7 +271,7 @@ const struct NamedField trapdoor_door_named_fields[] = {
     {"PROPERTIES",          -1, field(game.conf.trapdoor_conf.door_cfgstats[0].model_flags),              0,   INT32_MIN,         UINT32_MAX, door_properties_commands, value_flagsfield, assign_default},
     {"SELLINGVALUE",         0, field(game.conf.trapdoor_conf.door_cfgstats[0].selling_value),            0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default,    assign_default},
     {"UNSELLABLE",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].unsellable),               0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default,    assign_default},
-    {"PLACESOUND",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].place_sound_idx),        117,   INT32_MIN,         UINT32_MAX, NULL,                     value_default,    assign_default},
+    {"PLACESOUND",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].place_sound_idx),        117,   INT32_MIN,         UINT32_MAX, NULL,                     value_sound_id,        assign_default},
     {"UPDATEFUNCTION",       0, field(game.conf.trapdoor_conf.door_cfgstats[0].updatefn_idx),             0,   INT32_MIN,         UINT32_MAX, NULL,                     value_function,   assign_default},
     {NULL},
 };
@@ -336,8 +337,8 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"SHOTORIGIN",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].shot_shift_x),                     0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"SHOTORIGIN",             1, field(game.conf.trapdoor_conf.trap_cfgstats[0].shot_shift_y),                     0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"SHOTORIGIN",             2, field(game.conf.trapdoor_conf.trap_cfgstats[0].shot_shift_z),                     0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
-    {"PLACESOUND",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].place_sound_idx),                117,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
-    {"TRIGGERSOUND",           0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_sound_idx),              176,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
+    {"PLACESOUND",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].place_sound_idx),                117,   INT32_MIN,         UINT32_MAX, NULL,                     value_sound_id, assign_default},
+    {"TRIGGERSOUND",           0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_sound_idx),              176,   INT32_MIN,         UINT32_MAX, NULL,                     value_sound_id, assign_default},
     {"DESTROYEDEFFECT",        0, field(game.conf.trapdoor_conf.trap_cfgstats[0].destroyed_effect), -TngEffElm_Blast2,   INT32_MIN,         UINT32_MAX, NULL,                  value_effOrEffEl, assign_default},
     {"INITIALDELAY",           0, field(game.conf.trapdoor_conf.trap_cfgstats[0].initial_delay),                    0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"PLACEONSUBTILE",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].place_on_subtile),                 0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
