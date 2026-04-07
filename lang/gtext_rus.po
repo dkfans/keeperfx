@@ -2814,7 +2814,7 @@ msgstr "Имя"
 #: guitext:397
 msgctxt "Menu interface item"
 msgid "Game Modes"
-msgstr "Режимы игры по сети"
+msgstr "Режимы"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -2839,7 +2839,7 @@ msgstr "Начать игру"
 #: guitext:402
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
-msgstr "Онлайн-лобби"
+msgstr "Интернет-лобби"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -6541,14 +6541,14 @@ msgstr "Хранитель"
 #: guitext:1083
 msgctxt "Menu interface item"
 msgid "Online Lobby"
-msgstr "Онлайн-лобби"
+msgstr "Интернет-лобби"
 
 #: guitext:1084
 msgctxt "Menu interface item"
 msgid "LAN Lobby"
-msgstr "LAN-лобби"
+msgstr "Локальные лобби"
 
 #: guitext:1085
 msgctxt "Menu interface item"
 msgid "LAN Lobbies"
-msgstr "LAN-лобби"
+msgstr "Локальные лобби"
