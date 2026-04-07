@@ -62,7 +62,7 @@ enum TrapActivationTypes {
     TrpAcT_SlabChange,
     TrpAcT_CreatureShot,
     TrpAcT_CreatureSpawn,
-    TrpAcT_Power
+    TrpAcT_Power,
 };
 
 struct Thing;
