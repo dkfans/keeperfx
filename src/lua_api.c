@@ -1942,6 +1942,82 @@ static int lua_get_things_of_class(lua_State *L)
     return 1; // return value is the amount of args you push back
 }
 
+static int lua_get_things_on_subtile(lua_State *L)
+{
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 1);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 2);
+    ThingClass class_id = luaL_optNamedCommand(L,3,class_commands);
+
+    struct Thing* thing = get_mapwho_thing(stl_x, stl_y);
+
+    lua_newtable(L);
+    long k = 0;
+
+    while (thing != NULL)
+    {
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        if (class_id == 0 || thing->class_id == class_id)
+        {   
+            lua_pushThing(L, thing);
+            lua_rawseti(L, -2, k + 1);
+        }
+
+        thing = thing->next_on_mapblk;
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things on tile");
+            break;
+        }
+    }
+    return 1; // return value is the amount of args you push back
+}
+
+static int lua_get_things_on_slab(lua_State *L)
+{
+    MapSlabCoord slb_x = luaL_checkslb_x(L, 1);
+    MapSlabCoord slb_y = luaL_checkslb_y(L, 2);
+    ThingClass class_id = luaL_optNamedCommand(L,3,class_commands);
+
+    lua_newtable(L);
+    long k = 0;
+
+    for (int x = 0; x < STL_PER_SLB; x++)
+    {
+        for (int y = 0; y < STL_PER_SLB; y++)
+        {
+            struct Thing* thing = get_mapwho_thing(slb_x * STL_PER_SLB + x, slb_y * STL_PER_SLB + y);
+            while (thing != NULL)
+            {
+            
+                if (thing_is_invalid(thing))
+                {
+                    ERRORLOG("Jump to invalid thing detected");
+                    break;
+                }
+                if (class_id == 0 || thing->class_id == class_id)
+                {   
+                    lua_pushThing(L, thing);
+                    lua_rawseti(L, -2, k + 1);
+                }
+
+                thing = thing->next_on_mapblk;
+                k++;
+                if (k > THINGS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things on tile");
+                    break;
+                }
+            }
+        }
+    }
+    return 1; // return value is the amount of args you push back
+}
+
 static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, uint32_t *k)
 {
     int ri = dungeon->room_list_start[rkind];
@@ -2219,6 +2295,8 @@ static const luaL_Reg global_methods[] = {
     {"GetCreatureByCriterion",          lua_get_creature_by_criterion},
     {"GetThingByIdx",                   lua_get_thing_by_idx},
     {"GetThingsOfClass",                lua_get_things_of_class},
+    {"GetThingsOnSubtile",              lua_get_things_on_subtile},
+    {"GetThingsOnSlab",                 lua_get_things_on_slab},
     {"IsActionpointActivatedByPlayer",  lua_is_action_point_activated_by_player},
     {"GetSlab",                         lua_get_slab},
     {"GetString",                       lua_get_string},
