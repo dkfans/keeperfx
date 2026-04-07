@@ -417,7 +417,10 @@ long map_fade_in(long a)
     }
     map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
       a, 320, 200, lbDisplay.GraphicsScreenWidth);
-    long nxamount =  a + 4;
+    uint16_t step = 4;
+    if (game.process_turn_time > 1.0)
+        step = 0;
+    uint32_t nxamount =  a + step;
     if (nxamount > 32)
         nxamount = 32;
     return nxamount;
@@ -436,8 +439,11 @@ long map_fade_out(long a)
     }
     map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
       a, 320, 200, lbDisplay.GraphicsScreenWidth);
-    long nxamount =  a - 4;
-    if (a < 0)
+    uint16_t step = 4;
+    if (game.process_turn_time > 1.0)
+        step = 0;
+    uint32_t nxamount =  a - step;
+    if (nxamount < 0)
         nxamount = 0;
     return nxamount;
 }
