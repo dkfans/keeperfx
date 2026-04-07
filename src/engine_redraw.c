@@ -420,7 +420,7 @@ long map_fade_in(long a)
     uint16_t step = 4;
     if (game.process_turn_time > 1.0)
         step = 0;
-    uint32_t nxamount =  a + step;
+    int32_t nxamount =  a + step;
     if (nxamount > 32)
         nxamount = 32;
     return nxamount;
@@ -442,7 +442,7 @@ long map_fade_out(long a)
     uint16_t step = 4;
     if (game.process_turn_time > 1.0)
         step = 0;
-    uint32_t nxamount =  a - step;
+    int32_t nxamount =  a - step;
     if (nxamount < 0)
         nxamount = 0;
     return nxamount;
