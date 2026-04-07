@@ -2579,7 +2579,7 @@ msgstr "Показать вступление"
 #: guitext:350
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
-msgstr "Меню сетевой игры"
+msgstr "Игра по сети"
 
 #: guitext:351
 msgctxt "Menu interface item"
