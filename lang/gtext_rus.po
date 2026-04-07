@@ -2838,8 +2838,8 @@ msgstr "Начать игру"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Меню лобби"
+msgid "Online Lobbies"
+msgstr "Онлайн-лобби"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3516,8 +3516,8 @@ msgstr "Вправо"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Инициализация модема"
+msgid "Game version mismatch"
+msgstr "Несовпадение версии игры"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -6579,19 +6579,19 @@ msgid "Previous Ability"
 msgstr "Предыдущий экземпляр"
 
 #: guitext:1091
-msgctxt "Game controls"
-msgid "Cheat Menu 1"
-msgstr "Меню читов 1"
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Онлайн-лобби"
 
 #: guitext:1092
-msgctxt "Game controls"
-msgid "Cheat Menu 2"
-msgstr "Меню читов 2"
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN-лобби"
 
 #: guitext:1093
-msgctxt "Game controls"
-msgid "Cheat Menu 3"
-msgstr "Меню читов 3"
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN-лобби"
 
 #: guitext:1094
 msgctxt "Game controls"

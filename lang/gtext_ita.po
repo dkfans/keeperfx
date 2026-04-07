@@ -3221,8 +3221,8 @@ msgstr "Comincia Partita"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Menu lobby"
+msgid "Online Lobbies"
+msgstr "Lobby online"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3917,8 +3917,8 @@ msgstr "Destra"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Inizializzazione Modem"
+msgid "Game version mismatch"
+msgstr "La versione del gioco non corrisponde"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -7287,19 +7287,19 @@ msgid "Previous Ability"
 msgstr "Istanza Precedente"
 
 #: guitext:1091
-msgctxt "Game controls"
-msgid "Cheat Menu 1"
-msgstr "Menu Trucchi 1"
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Lobby online"
 
 #: guitext:1092
-msgctxt "Game controls"
-msgid "Cheat Menu 2"
-msgstr "Menu Trucchi 2"
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Lobby LAN"
 
 #: guitext:1093
-msgctxt "Game controls"
-msgid "Cheat Menu 3"
-msgstr "Menu Trucchi 3"
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Lobby LAN"
 
 #: guitext:1094
 msgctxt "Game controls"

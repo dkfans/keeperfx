@@ -3150,8 +3150,8 @@ msgstr "Spustit hru"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Nabídka lobby"
+msgid "Online Lobbies"
+msgstr "Online lobby"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3843,8 +3843,8 @@ msgstr "Šipka Doprava"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Inicializuji modem"
+msgid "Game version mismatch"
+msgstr "Rozdílná verze hry"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -7168,19 +7168,19 @@ msgid "Previous Ability"
 msgstr "Předchozí instance"
 
 #: guitext:1091
-msgctxt "Game controls"
-msgid "Cheat Menu 1"
-msgstr "Menu cheatů 1"
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Online lobby"
 
 #: guitext:1092
-msgctxt "Game controls"
-msgid "Cheat Menu 2"
-msgstr "Menu cheatů 2"
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN lobby"
 
 #: guitext:1093
-msgctxt "Game controls"
-msgid "Cheat Menu 3"
-msgstr "Menu cheatů 3"
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN lobby"
 
 #: guitext:1094
 msgctxt "Game controls"

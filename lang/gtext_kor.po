@@ -3168,8 +3168,8 @@ msgstr "게임 시작"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "로비 메뉴"
+msgid "Online Lobbies"
+msgstr "온라인 로비"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3867,8 +3867,8 @@ msgstr "오른쪽"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initialising Modem"
+msgid "Game version mismatch"
+msgstr "게임 버전 불일치"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -7176,19 +7176,19 @@ msgid "Previous Ability"
 msgstr "이전 인스턴스"
 
 #: guitext:1091
-msgctxt "Game controls"
-msgid "Cheat Menu 1"
-msgstr "치트 메뉴 1"
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "온라인 로비"
 
 #: guitext:1092
-msgctxt "Game controls"
-msgid "Cheat Menu 2"
-msgstr "치트 메뉴 2"
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN 로비"
 
 #: guitext:1093
-msgctxt "Game controls"
-msgid "Cheat Menu 3"
-msgstr "치트 메뉴 3"
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN 로비"
 
 #: guitext:1094
 msgctxt "Game controls"

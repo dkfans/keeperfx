@@ -2978,8 +2978,8 @@ msgstr "开始游戏"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "大厅菜单"
+msgid "Online Lobbies"
+msgstr "在线大厅"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3669,8 +3669,8 @@ msgstr "右"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "调制解调器初始化中"
+msgid "Game version mismatch"
+msgstr "游戏版本不匹配"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -6797,19 +6797,19 @@ msgid "Previous Ability"
 msgstr "上一个实例"
 
 #: guitext:1091
-msgctxt "Game controls"
-msgid "Cheat Menu 1"
-msgstr "作弊菜单 1"
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "在线大厅"
 
 #: guitext:1092
-msgctxt "Game controls"
-msgid "Cheat Menu 2"
-msgstr "作弊菜单 2"
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "局域网大厅"
 
 #: guitext:1093
-msgctxt "Game controls"
-msgid "Cheat Menu 3"
-msgstr "作弊菜单 3"
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "局域网大厅"
 
 #: guitext:1094
 msgctxt "Game controls"
@@ -6895,3 +6895,4 @@ msgstr "默认传送"
 msgctxt "Keyboard"
 msgid "Grave"
 msgstr "反引号"
+

@@ -2294,7 +2294,7 @@ msgstr ""
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
+msgid "Online Lobbies"
 msgstr ""
 
 #: guitext:403
@@ -2941,7 +2941,7 @@ msgstr ""
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
+msgid "Game version mismatch"
 msgstr ""
 
 #: guitext:532
@@ -5778,18 +5778,18 @@ msgid "Previous Ability"
 msgstr ""
 
 #: guitext:1091
-msgctxt "Game controls"
-msgid "Cheat Menu 1"
+msgctxt "Menu interface item"
+msgid "Online Lobby"
 msgstr ""
 
 #: guitext:1092
-msgctxt "Game controls"
-msgid "Cheat Menu 2"
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
 msgstr ""
 
 #: guitext:1093
-msgctxt "Game controls"
-msgid "Cheat Menu 3"
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
 msgstr ""
 
 #: guitext:1094
@@ -5875,4 +5875,4 @@ msgstr ""
 #: guitext:1110
 msgctxt "Keyboard"
 msgid "Grave"
-msgstr ""
+
