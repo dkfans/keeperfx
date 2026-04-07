@@ -2564,7 +2564,7 @@ msgstr "Продолжить игру"
 #: guitext:347
 msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
-msgstr "Мультиплеер"
+msgstr "Игра по сети"
 
 #: guitext:348
 msgctxt "Menu interface item"
@@ -2579,7 +2579,7 @@ msgstr "Показать вступление"
 #: guitext:350
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
-msgstr "Меню мультиплеера"
+msgstr "Игра по сети"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -2804,7 +2804,7 @@ msgstr "Тестировщики"
 #: guitext:395
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
-msgstr "Игровые лобби"
+msgstr "Доступные лобби"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -2814,7 +2814,7 @@ msgstr "Имя"
 #: guitext:397
 msgctxt "Menu interface item"
 msgid "Game Modes"
-msgstr "Режимы игры"
+msgstr "Режимы"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -2829,7 +2829,7 @@ msgstr "Создать лобби"
 #: guitext:400
 msgctxt "Menu interface item"
 msgid "Join Lobby"
-msgstr "Присоединиться к лобби"
+msgstr "Подключиться к лобби"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -2839,7 +2839,7 @@ msgstr "Начать игру"
 #: guitext:402
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
-msgstr "Онлайн-лобби"
+msgstr "Интернет-лобби"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3517,7 +3517,7 @@ msgstr "Вправо"
 #: guitext:531
 msgctxt "Network game message"
 msgid "Game version mismatch"
-msgstr "Несовпадение версии игры"
+msgstr "Несоответствмие версий"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5329,7 +5329,7 @@ msgstr "4 игрока"
 #: guitext:874
 msgctxt "Menu interface, Network service item"
 msgid "Online"
-msgstr "Онлайн"
+msgstr "Интернет"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
@@ -5339,7 +5339,7 @@ msgstr "Локальная сеть"
 #: guitext:876
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
-msgstr "Схватка"
+msgstr "Скирмиш"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6541,14 +6541,14 @@ msgstr "Хранитель"
 #: guitext:1083
 msgctxt "Menu interface item"
 msgid "Online Lobby"
-msgstr "Онлайн-лобби"
+msgstr "Интернет-лобби"
 
 #: guitext:1084
 msgctxt "Menu interface item"
 msgid "LAN Lobby"
-msgstr "LAN-лобби"
+msgstr "Локальное лобби"
 
 #: guitext:1085
 msgctxt "Menu interface item"
 msgid "LAN Lobbies"
-msgstr "LAN-лобби"
+msgstr "Локальные лобби"
