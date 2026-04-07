@@ -1990,7 +1990,10 @@ static int lua_get_things_on_slab(lua_State *L)
     {
         for (int y = 0; y < STL_PER_SLB; y++)
         {
-            struct Thing* thing = get_mapwho_thing(slb_x * STL_PER_SLB + x, slb_y * STL_PER_SLB + y);
+            MapSubtlCoord stl_x = slb_x * STL_PER_SLB + x;
+            MapSubtlCoord stl_y = slb_y * STL_PER_SLB + y;
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+            struct Thing* thing = thing_get(get_mapwho_thing_index(mapblk));
             while (thing != NULL)
             {
             
