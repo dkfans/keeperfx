@@ -1947,8 +1947,13 @@ static int lua_get_things_on_subtile(lua_State *L)
     MapSubtlCoord stl_x = luaL_checkstl_x(L, 1);
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 2);
     ThingClass class_id = luaL_optNamedCommand(L,3,class_commands);
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Thing* thing = NULL;
 
-    struct Thing* thing = get_mapwho_thing(stl_x, stl_y);
+    if (mapblk != NULL)
+    {
+        thing = thing_get(get_mapwho_thing_index(mapblk));
+    }
 
     lua_newtable(L);
     long k = 0;
