@@ -2978,8 +2978,8 @@ msgstr "开始游戏"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "大厅菜单"
+msgid "Online Lobbies"
+msgstr "在线大厅"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -6755,3 +6755,18 @@ msgstr "召唤术：在战斗中召唤出暂时存在的卫兵与怪物协同作
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "守护者"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "在线大厅"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "局域网大厅"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "局域网大厅"

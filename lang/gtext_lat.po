@@ -3206,8 +3206,8 @@ msgstr "Incipe ludum"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Tabula vestibulorum"
+msgid "Online Lobbies"
+msgstr "Vestibula Interretialia"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -7156,3 +7156,18 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Custos"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Vestibulum Interretiale"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Vestibulum Retis Localis"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Vestibula Retis Localis"
