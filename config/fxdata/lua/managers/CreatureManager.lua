@@ -39,7 +39,7 @@ end
 
 
 ---@return Creature[]
-function GetCreaturesOnTile(slb_x, slb_y)
+function GetCreaturesOnSlab(slb_x, slb_y)
     return GetThingsOnSlab(slb_x, slb_y, "Creature")
 end
 

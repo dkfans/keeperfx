@@ -3,6 +3,7 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include <stdint.h>
 
 #include "bflib_basics.h"
 #include "bflib_sndlib.h"
@@ -1952,6 +1953,7 @@ static int lua_get_things_on_subtile(lua_State *L)
 
     lua_newtable(L);
     long k = 0;
+    uint16_t table_index = 0;
 
     while (thing != NULL)
     {
@@ -1962,8 +1964,9 @@ static int lua_get_things_on_subtile(lua_State *L)
         }
         if (class_id == 0 || thing->class_id == class_id)
         {   
+            table_index ++;
             lua_pushThing(L, thing);
-            lua_rawseti(L, -2, k + 1);
+            lua_rawseti(L, -2, table_index);
         }
 
         thing = thing->next_on_mapblk;
@@ -1985,6 +1988,7 @@ static int lua_get_things_on_slab(lua_State *L)
 
     lua_newtable(L);
     long k = 0;
+    uint16_t table_index = 0;
 
     for (int x = 0; x < STL_PER_SLB; x++)
     {
@@ -2001,8 +2005,9 @@ static int lua_get_things_on_slab(lua_State *L)
                 }
                 if (class_id == 0 || thing->class_id == class_id)
                 {   
+                    table_index++;
                     lua_pushThing(L, thing);
-                    lua_rawseti(L, -2, k + 1);
+                    lua_rawseti(L, -2, table_index);
                 }
 
                 thing = thing->next_on_mapblk;

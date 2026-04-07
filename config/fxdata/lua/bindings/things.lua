@@ -9,7 +9,7 @@
 ---@nodiscard
 function GetThingsOfClass(class) end
 
----returns a list containing all things of 
+---returns a list containing all things on the given subtile
 ---@param stl_x integer
 ---@param stl_y integer
 ---@param class? thing_class if not given, will return all things on the subtile
@@ -17,7 +17,7 @@ function GetThingsOfClass(class) end
 ---@nodiscard
 function GetThingsOnSubtile(stl_x, stl_y, class) end
 
----returns a list containing all things of 
+---returns a list containing all things on the given slab
 ---@param slb_x integer
 ---@param slb_y integer
 ---@param class? thing_class if not given, will return all things on the slab

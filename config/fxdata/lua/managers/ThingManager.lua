@@ -5,7 +5,7 @@
 
 
 ---@return Object[]
-function GetObjectsOnTile(slb_x, slb_y)
+function GetObjectsOnSlab(slb_x, slb_y)
     return GetThingsOnSlab(slb_x, slb_y, "Object")
 end
 
