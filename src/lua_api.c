@@ -1949,7 +1949,7 @@ static int lua_get_things_on_subtile(lua_State *L)
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 2);
     ThingClass class_id = luaL_optNamedCommand(L,3,class_commands);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    struct Thing* thing = NULL;
+    struct Thing* thing = INVALID_THING;
 
     if (mapblk != NULL)
     {
@@ -1957,10 +1957,10 @@ static int lua_get_things_on_subtile(lua_State *L)
     }
 
     lua_newtable(L);
-    long k = 0;
+    uint16_t k = 0;
     uint16_t table_index = 0;
 
-    while (thing != NULL)
+    while (thing != INVALID_THING)
     {
         if (thing_is_invalid(thing))
         {
@@ -1974,7 +1974,7 @@ static int lua_get_things_on_subtile(lua_State *L)
             lua_rawseti(L, -2, table_index);
         }
 
-        thing = thing->next_on_mapblk;
+        thing = thing_get(thing->next_on_mapblk);
         k++;
         if (k > THINGS_COUNT)
         {
@@ -1992,7 +1992,7 @@ static int lua_get_things_on_slab(lua_State *L)
     ThingClass class_id = luaL_optNamedCommand(L,3,class_commands);
 
     lua_newtable(L);
-    long k = 0;
+    uint16_t k = 0;
     uint16_t table_index = 0;
 
     for (int x = 0; x < STL_PER_SLB; x++)
@@ -2018,7 +2018,7 @@ static int lua_get_things_on_slab(lua_State *L)
                     lua_rawseti(L, -2, table_index);
                 }
 
-                thing = thing->next_on_mapblk;
+                thing = thing_get(thing->next_on_mapblk);
                 k++;
                 if (k > THINGS_COUNT)
                 {
