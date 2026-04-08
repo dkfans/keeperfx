@@ -1820,7 +1820,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Moo"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -6757,16 +6757,126 @@ msgid "Keeper"
 msgstr "守护者"
 
 #: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Record"
+msgstr "屏幕录制"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screen Shot"
+msgstr "屏幕截图"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "增加跳帧"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "减少跳帧"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "放大小地图"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "缩小小地图"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "下一个实例"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "上一个实例"
+
+#: guitext:1091
 msgctxt "Menu interface item"
 msgid "Online Lobby"
 msgstr "在线大厅"
 
-#: guitext:1084
+#: guitext:1092
 msgctxt "Menu interface item"
 msgid "LAN Lobby"
 msgstr "局域网大厅"
 
-#: guitext:1085
+#: guitext:1093
 msgctxt "Menu interface item"
 msgid "LAN Lobbies"
 msgstr "局域网大厅"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "切换界面"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "切换提示"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "退出游戏"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "禁用数据包模式"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "切换屏幕分辨率"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "切换控制台"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "完成关卡"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "选项菜单"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "切换英雄生命值花朵"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "反引号"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "传送到最后的工作室"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "传送到集合点"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "默认传送"

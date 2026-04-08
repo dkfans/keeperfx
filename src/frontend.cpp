@@ -3115,9 +3115,10 @@ TbBool frontscreen_end_input(TbBool force)
 
 short get_frontend_global_inputs(void)
 {
-    if (is_key_pressed(KC_X, KMod_ALT))
+    int32_t val;
+    if (is_game_key_pressed(Gkey_ExitGame, &val ,false))
     {
-        clear_key_pressed(KC_X);
+        clear_key_pressed(val);
         exit_keeper = true;
     } else {
         return false;

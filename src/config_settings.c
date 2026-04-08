@@ -27,6 +27,7 @@
 #include "bflib_video.h"
 #include "frontmenu_options.h"
 #include "config.h"
+#include "front_input.h"
 #include "engine_camera.h"
 #include "game_merge.h"
 #include "vidmode.h"
@@ -157,54 +158,6 @@ static const struct { unsigned char code; const char *name; } keycode_table[] = 
 };
 #define KEYCODE_TABLE_SIZE ((int)(sizeof(keycode_table)/sizeof(keycode_table[0])))
 
-static const char *game_key_names[GAME_KEYS_COUNT] = {
-    "MoveUp",                   // Gkey_MoveUp
-    "MoveDown",                 // Gkey_MoveDown
-    "MoveLeft",                 // Gkey_MoveLeft
-    "MoveRight",                // Gkey_MoveRight
-    "RotateMod",                // Gkey_RotateMod
-    "SpeedMod",                 // Gkey_SpeedMod
-    "RotateCW",                 // Gkey_RotateCW
-    "RotateCCW",                // Gkey_RotateCCW
-    "ZoomIn",                   // Gkey_ZoomIn
-    "ZoomOut",                  // Gkey_ZoomOut
-    "ZoomRoomTreasure",         // Gkey_ZoomRoomTreasure
-    "ZoomRoomLibrary",          // Gkey_ZoomRoomLibrary
-    "ZoomRoomLair",             // Gkey_ZoomRoomLair
-    "ZoomRoomPrison",           // Gkey_ZoomRoomPrison
-    "ZoomRoomTorture",          // Gkey_ZoomRoomTorture
-    "ZoomRoomTraining",         // Gkey_ZoomRoomTraining
-    "ZoomRoomHeart",            // Gkey_ZoomRoomHeart
-    "ZoomRoomWorkshop",         // Gkey_ZoomRoomWorkshop
-    "ZoomRoomScavenger",        // Gkey_ZoomRoomScavenger
-    "ZoomRoomTemple",           // Gkey_ZoomRoomTemple
-    "ZoomRoomGraveyard",        // Gkey_ZoomRoomGraveyard
-    "ZoomRoomBarracks",         // Gkey_ZoomRoomBarracks
-    "ZoomRoomHatchery",         // Gkey_ZoomRoomHatchery
-    "ZoomRoomGuardPost",        // Gkey_ZoomRoomGuardPost
-    "ZoomRoomBridge",           // Gkey_ZoomRoomBridge
-    "ZoomRoomPortal",           // Gkey_ZoomRoomPortal
-    "ZoomToFight",              // Gkey_ZoomToFight
-    "ZoomCrAnnoyed",            // Gkey_ZoomCrAnnoyed
-    "CrtrContrlMod",            // Gkey_CrtrContrlMod
-    "CrtrQueryMod",             // Gkey_CrtrQueryMod
-    "DumpToOldPos",             // Gkey_DumpToOldPos
-    "TogglePause",              // Gkey_TogglePause
-    "SwitchToMap",              // Gkey_SwitchToMap
-    "ToggleMessage",            // Gkey_ToggleMessage
-    "SnapCamera",               // Gkey_SnapCamera
-    "BestRoomSpace",            // Gkey_BestRoomSpace
-    "SquareRoomSpace",          // Gkey_SquareRoomSpace
-    "RoomSpaceIncSize",         // Gkey_RoomSpaceIncSize
-    "RoomSpaceDecSize",         // Gkey_RoomSpaceDecSize
-    "SellTrapOnSubtile",        // Gkey_SellTrapOnSubtile
-    "TiltUp",                   // Gkey_TiltUp
-    "TiltDown",                 // Gkey_TiltDown
-    "TiltReset",                // Gkey_TiltReset
-    "Ascend",                   // Gkey_Ascend
-    "Descend",                  // Gkey_Descend
-};
-
 static const char *keycode_to_name(unsigned char code)
 {
     for (int i = 0; i < KEYCODE_TABLE_SIZE; i++)
@@ -290,78 +243,30 @@ static unsigned char name_to_kmod(const char *name)
 /******************************************************************************/
 void setup_default_settings(void)
 {
-    // CPU status variable
-    const struct GameSettings default_settings = {
-     0,                         // unusedfield_0
-     4,                         // video_shadows
-     3,                         // view_distance
-     0,                         // video_rotate_mode
-     1,                         // video_textures
-     0,                         // video_cluedo_mode
-     127,                       // sound_volume
-     90,                        // music_volume
-     1,                         // unusedfield_8
-     0,                         // gamma_correction
-     Lb_SCREEN_MODE_INVALID,    // Screen mode, set to correct value below
-     {
-          {KC_W, KMod_NONE},                 // Gkey_MoveUp
-          {KC_S, KMod_NONE},                 // Gkey_MoveDown
-          {KC_A, KMod_NONE},                 // Gkey_MoveLeft
-          {KC_D, KMod_NONE},                 // Gkey_MoveRight
-          {KC_LCONTROL, KMod_NONE},          // Gkey_RotateMod
-          {KC_LSHIFT, KMod_NONE},            // Gkey_SpeedMod
-          {KC_DELETE, KMod_NONE},            // Gkey_RotateCW
-          {KC_PGDOWN, KMod_NONE},            // Gkey_RotateCCW
-          {KC_HOME, KMod_NONE},              // Gkey_ZoomIn
-          {KC_END, KMod_NONE},               // Gkey_ZoomOut
-          {KC_T, KMod_NONE},                 // Gkey_ZoomRoomTreasure
-          {KC_L, KMod_NONE},                 // Gkey_ZoomRoomLibrary
-          {KC_L, KMod_SHIFT},                // Gkey_ZoomRoomLair
-          {KC_P, KMod_SHIFT},                // Gkey_ZoomRoomPrison
-          {KC_T, KMod_ALT},                  // Gkey_ZoomRoomTorture
-          {KC_T, KMod_SHIFT},                // Gkey_ZoomRoomTraining
-          {KC_H, KMod_NONE},                 // Gkey_ZoomRoomHeart
-          {KC_W, KMod_ALT},                  // Gkey_ZoomRoomWorkshop
-          {KC_S, KMod_ALT},                  // Gkey_ZoomRoomScavenger
-          {KC_T, KMod_CONTROL},              // Gkey_ZoomRoomTemple
-          {KC_G, KMod_NONE},                 // Gkey_ZoomRoomGraveyard
-          {KC_B, KMod_NONE},                 // Gkey_ZoomRoomBarracks
-          {KC_H, KMod_SHIFT},                // Gkey_ZoomRoomHatchery
-          {KC_G, KMod_SHIFT},                // Gkey_ZoomRoomGuardPost
-          {KC_B, KMod_SHIFT},                // Gkey_ZoomRoomBridge
-          {KC_P, KMod_CONTROL},              // Gkey_ZoomRoomPortal
-          {KC_F, KMod_NONE},                 // Gkey_ZoomToFight
-          {KC_A, KMod_ALT},                  // Gkey_ZoomCrAnnoyed
-          {KC_LSHIFT, KMod_NONE},            // Gkey_CrtrContrlMod
-          {KC_Q, KMod_NONE},                 // Gkey_CrtrQueryMod
-          {KC_BACK, KMod_NONE},              // Gkey_DumpToOldPos
-          {KC_P, KMod_NONE},                 // Gkey_TogglePause
-          {KC_M, KMod_NONE},                 // Gkey_SwitchToMap
-          {KC_E, KMod_NONE},                 // Gkey_ToggleMessage
-          {KC_MOUSE3, KMod_NONE},            // Gkey_SnapCamera
-          {KC_LSHIFT, KMod_NONE},            // Gkey_BestRoomSpace
-          {KC_LCONTROL, KMod_NONE},          // Gkey_SquareRoomSpace
-          {KC_MOUSEWHEEL_DOWN, KMod_NONE},   // Gkey_RoomSpaceIncSize
-          {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
-          {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
-          {KC_PGUP, KMod_SHIFT},             // Gkey_TiltUp
-          {KC_PGDOWN, KMod_SHIFT},           // Gkey_TiltDown
-          {KC_INSERT, KMod_SHIFT},           // Gkey_TiltReset
-          {KC_X, KMod_NONE},                 // Gkey_Ascend
-          {KC_Z, KMod_NONE},                 // Gkey_Descend
-     },                         // kbkeys
-     true,                      // tooltips_on
-     0,                         // first_person_move_invert
-     6,                         // first_person_move_sensitivity
-     256,                       // minimap_zoom
-     8192,                      // isometric_view_zoom_level
-     FRONTVIEW_CAMERA_ZOOM_MAX, // frontview_zoom_level
-     127,                       // mentor_volume
-     CAMERA_TILT_DEFAULT,       // isometric_tilt
-     false,                     // highlight_mode
-    };
-    memcpy(&settings, &default_settings, sizeof(struct GameSettings));
-    settings.switching_vidmodes_index = 0;
+    settings.video_shadows                 = 4;
+    settings.view_distance                 = 3;
+    settings.video_rotate_mode             = 0;
+    settings.video_textures                = 1;
+    settings.video_cluedo_mode             = 0;
+    settings.sound_volume                  = 127;
+    settings.music_volume                  = 90;
+    settings.gamma_correction              = 0;
+    settings.switching_vidmodes_index      = Lb_SCREEN_MODE_INVALID;
+    settings.tooltips_on                   = true;
+    settings.first_person_move_invert      = 0;
+    settings.first_person_move_sensitivity = 6;
+    settings.minimap_zoom                  = 256;
+    settings.isometric_view_zoom_level     = 8192;
+    settings.frontview_zoom_level          = FRONTVIEW_CAMERA_ZOOM_MAX;
+    settings.mentor_volume                 = 127;
+    settings.isometric_tilt                = CAMERA_TILT_DEFAULT;
+    settings.highlight_mode                = false;
+
+    for (int i = 0; i < GAME_KEYS_COUNT; i++)
+    {
+        settings.kbkeys[i].code = game_key_settings[i].default_code;
+        settings.kbkeys[i].mods = game_key_settings[i].default_mods;
+    }
 }
 
 TbBool load_settings(void)
@@ -450,7 +355,7 @@ TbBool load_settings(void)
     {
         for (int i = 0; i < GAME_KEYS_COUNT; i++)
         {
-            val = value_dict_get(vsec, game_key_names[i]);
+            val = value_dict_get(vsec, game_key_settings[i].toml_name);
             if (val && value_type(val) == VALUE_DICT)
             {
                 VALUE *vcode = value_dict_get(val, "code");
@@ -527,7 +432,7 @@ short save_settings(void)
         char mods_buf[32];
         kmod_to_name(settings.kbkeys[i].mods, mods_buf, sizeof(mods_buf));
         TOSAVE("%s = { code = \"%s\", mods = \"%s\" }\n",
-            game_key_names[i],
+            game_key_settings[i].toml_name,
             keycode_to_name(settings.kbkeys[i].code),
             mods_buf);
     }

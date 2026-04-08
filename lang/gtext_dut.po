@@ -1975,7 +1975,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Boe"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -7128,16 +7128,127 @@ msgid "Keeper"
 msgstr "Keeper"
 
 #: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Record"
+msgstr "Schermopname"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screen Shot"
+msgstr "Schermafbeelding"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Frame-overslaan verhogen"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Frame-overslaan verlagen"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Minikaart inzoomen"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Minikaart uitzoomen"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "Volgende instantie"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "Vorige instantie"
+
+#: guitext:1091
 msgctxt "Menu interface item"
 msgid "Online Lobby"
 msgstr "ONLINE LOBBY"
 
-#: guitext:1084
+#: guitext:1092
 msgctxt "Menu interface item"
 msgid "LAN Lobby"
 msgstr "LAN LOBBY"
 
-#: guitext:1085
+#: guitext:1093
 msgctxt "Menu interface item"
 msgid "LAN Lobbies"
 msgstr "LAN LOBBY'S"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Interface schakelen"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Tooltips schakelen"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Spel afsluiten"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Pakketmodus uitschakelen"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Schermresolutie wijzigen"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Console schakelen"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Niveau voltooien"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Optiemenu"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Held gezondheidsbloemd schakelen"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Accent grave"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Teleporteer Laatste Werkplaats"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Teleporteer Oproep tot Wapens"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Teleporteer Standaard"
+
