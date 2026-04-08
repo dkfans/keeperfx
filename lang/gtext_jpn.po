@@ -2883,8 +2883,8 @@ msgstr "ムービープレイ"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "マルチプレイメニュー"
+msgid "Multiplayer Menu"
+msgstr "マルチプレイヤーメニュー"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3108,8 +3108,8 @@ msgstr "テスター"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "セッション"
+msgid "Game Lobbies"
+msgstr "ゲームロビー"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3118,8 +3118,8 @@ msgstr "名前"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "通信方式"
+msgid "Game Modes"
+msgstr "ゲームモード"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3128,13 +3128,13 @@ msgstr "チャットメッセージ"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "ゲームを作成する"
+msgid "Create Lobby"
+msgstr "ロビーを作成"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "ゲームに参加する"
+msgid "Join Lobby"
+msgstr "ロビーに参加"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3143,8 +3143,8 @@ msgstr "ゲームを始める"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "マルチプレイメニュー"
+msgid "Online Lobbies"
+msgstr "オンラインロビー"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3831,8 +3831,8 @@ msgstr "矢印キー左"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "モデムの初期化"
+msgid "Game version mismatch"
+msgstr "ゲームのバージョンが一致しません"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5793,18 +5793,18 @@ msgstr "４人プレイ"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "シリアル"
+msgid "Online"
+msgstr "オンライン"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "モデム"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "ＩＰＸ"
+msgid "Skirmish"
+msgstr "遭遇戦"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6532,7 +6532,7 @@ msgstr "自由遊びのレベルに戻る"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "マップパック"
 
 #: guitext:970
@@ -7085,3 +7085,23 @@ msgstr "使い魔: クリーチャーを守って助ける仲間を呼ぶ。"
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr "援助要請: 戦闘にクリーチャーを支援する一時的な守護者を呼び寄せる。"
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "キーパー"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "オンラインロビー"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LANロビー"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LANロビー"

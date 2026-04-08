@@ -9,6 +9,22 @@
 ---@nodiscard
 function GetThingsOfClass(class) end
 
+---returns a list containing all things on the given subtile
+---@param stl_x integer
+---@param stl_y integer
+---@param class? thing_class if not given, will return all things on the subtile
+---@return Thing[]
+---@nodiscard
+function GetThingsOnSubtile(stl_x, stl_y, class) end
+
+---returns a list containing all things on the given slab
+---@param slb_x integer
+---@param slb_y integer
+---@param class? thing_class if not given, will return all things on the slab
+---@return Thing[]
+---@nodiscard
+function GetThingsOnSlab(slb_x, slb_y, class) end
+
 ---gets a single creature based on the given criteria
 ---@param player playerrange
 ---@param creature_type creature_type

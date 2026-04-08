@@ -33,6 +33,11 @@ extern "C" {
 #define AVERAGE_PING_UPDATE_RATE 500
 #define FRONTNET_PING_STABILIZATION_DELAY_MS 3000
 
+enum FrontendNetService {
+    FrontendNetSvc_Online = 0,
+    FrontendNetSvc_LAN = 1,
+};
+
 #pragma pack(1)
 
 /******************************************************************************/
@@ -44,7 +49,9 @@ extern char tmp_net_player_name[24];
 /******************************************************************************/
 void process_network_error(long errcode);
 void draw_out_of_sync_box(long a1, long a2, long box_width);
-void display_attempting_to_join_message(void);
+void display_attempting_to_join_message(int remaining_s);
+void reset_attempting_to_join_cancel(void);
+TbBool attempting_to_join_cancel_requested(void);
 CoroutineLoopState setup_alliances(CoroutineLoop *con);
 void frontnet_service_setup(void);
 void frontnet_session_setup(void);
@@ -54,6 +61,7 @@ void frontnet_session_update(void);
 void frontnet_start_update(void);
 TbBool frontnet_is_waiting_for_ping_stabilization(void);
 void frontnet_reset_ping_stabilization(void);
+TbBool frontnet_service_selected(enum FrontendNetService service);
 
 void net_load_config_file(void);
 void net_write_config_file(void);

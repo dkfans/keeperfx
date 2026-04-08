@@ -47,19 +47,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-long frontnet_number_of_players_in_session(void)
-{
-    long i;
-    long nplyr;
-    nplyr = 0;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      if (network_player_active(i))
-        nplyr++;
-    }
-    return nplyr;
-}
-
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_scroll_offset != 0)) & LbBtnF_Enabled;
@@ -85,9 +72,16 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players - 1 > net_player_scroll_offset)) & LbBtnF_Enabled;
 }
 
+static TbBool frontnet_can_join_session(void)
+{
+    return (net_session_index_active >= 0)
+        && (net_session_index_active < net_number_of_sessions)
+        && (net_session[net_session_index_active] != NULL);
+}
+
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled) & LbBtnF_Enabled;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * frontnet_can_join_session()) & LbBtnF_Enabled;
 }
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
@@ -249,7 +243,7 @@ void frontnet_session_add(struct GuiButton *gbtn)
 void frontnet_session_join(struct GuiButton *gbtn)
 {
     long plyr_num;
-    if (net_session[net_session_index_active] == NULL)
+    if (!frontnet_can_join_session())
         return;
     plyr_num = network_session_join();
     if (plyr_num < 0)

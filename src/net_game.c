@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "net_matchmaking.h"
 #include "net_game.h"
 
 #include "globals.h"
@@ -33,6 +34,7 @@
 #include "frontend.h"
 #include "front_network.h"
 #include "config_settings.h"
+#include "config_strings.h"
 #include "game_legacy.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
@@ -52,18 +54,28 @@ struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 /******************************************************************************/
-short setup_network_service(int srvidx)
+short setup_network_service(enum FrontendNetService service)
 {
   struct ServiceInitData *init_data = NULL;
-  SYNCMSG("Initializing 4-players type %d network",srvidx);
+  SYNCMSG("Initializing 4-players type %d network", service);
   memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
-  {
-    if (srvidx > NS_ENET_UDP)
-      process_network_error(-800);
+  if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
+    process_network_error(-800);
     return 0;
   }
-  net_service_index_selected = srvidx;
+  if ( LbNetwork_Init(NS_ENET_UDP, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
+  {
+    process_network_error(-800);
+    return 0;
+  }
+  net_service_index_selected = service;
+  if (service == FrontendNetSvc_LAN) {
+    frontend_button_info[11].capstr_idx = GUIStr_MnuLanLobby;
+    frontend_button_info[12].capstr_idx = GUIStr_MnuLanLobbies;
+  } else {
+    frontend_button_info[11].capstr_idx = GUIStr_MnuOnlineLobby;
+    frontend_button_info[12].capstr_idx = GUIStr_MnuOnlineLobbies;
+  }
   frontend_set_state(FeSt_NET_SESSION);
   return 1;
 }
@@ -188,13 +200,17 @@ const char *network_player_name(int plyr_idx)
 long network_session_join(void)
 {
     int32_t plyr_num;
-    display_attempting_to_join_message();
-    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
-    {
-      process_network_error(-802);
-      return -1;
-    }
-    return plyr_num;
+    reset_attempting_to_join_cancel();
+    display_attempting_to_join_message(-1);
+    if (attempting_to_join_cancel_requested())
+        return -1;
+    snprintf(join_lobby_id, sizeof(join_lobby_id), "%s", net_session[net_session_index_active]->join_address);
+    if (LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) == 0)
+        return plyr_num;
+    join_lobby_id[0] = '\0';
+    if (!attempting_to_join_cancel_requested())
+        process_network_error(-802);
+    return -1;
 }
 
 void sync_various_data()

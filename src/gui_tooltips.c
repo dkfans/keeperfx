@@ -448,13 +448,14 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
     struct PlayerInfo* player = get_my_player();
     if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
     {
-        if (player->acamera == NULL)
+      struct Camera *camera = get_player_active_camera(player);
+      if (camera == NULL)
         {
             ERRORLOG("No active camera");
             return false;
         }
         struct Coord3d mappos;
-        if (screen_to_map(get_local_camera(player->acamera), GetMouseX(), GetMouseY(), &mappos))
+      if (screen_to_map(get_local_camera(camera), GetMouseX(), GetMouseY(), &mappos))
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {

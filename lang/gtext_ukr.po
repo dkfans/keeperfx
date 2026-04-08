@@ -2956,8 +2956,8 @@ msgstr "Відтворити вступ"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Службове меню"
+msgid "Multiplayer Menu"
+msgstr "Меню мультиплеєра"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3182,8 +3182,8 @@ msgstr "Тестувальники"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Сесії"
+msgid "Game Lobbies"
+msgstr "Ігрові лобі"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3192,8 +3192,8 @@ msgstr "Ім'я"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Сервіси"
+msgid "Game Modes"
+msgstr "Режими гри"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3202,13 +3202,13 @@ msgstr "Повідомлення"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Створити гру"
+msgid "Create Lobby"
+msgstr "Створити лобі"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Приєднатися до гри"
+msgid "Join Lobby"
+msgstr "Приєднатися до лобі"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3217,8 +3217,8 @@ msgstr "Почати гру"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Ігрове меню"
+msgid "Online Lobbies"
+msgstr "Онлайн-лобі"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3922,8 +3922,8 @@ msgstr "Right"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Ініціалізація модему"
+msgid "Game version mismatch"
+msgstr "Невідповідність версії гри"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5881,18 +5881,18 @@ msgstr "4 Гравців"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Серійний"
+msgid "Online"
+msgstr "Онлайн"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Модем"
+msgid "LAN"
+msgstr "Локальна мережа"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "Мережевий протокол"
+msgid "Skirmish"
+msgstr "Сутичка"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6638,7 +6638,7 @@ msgstr "Повернутися до рівнів вільної гри"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Набори мап"
 
 #: guitext:970
@@ -7202,3 +7202,23 @@ msgstr ""
 #~ msgctxt "Unused"
 #~ msgid "Moo9"
 #~ msgstr "Moo9"
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Хранитель"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Онлайн-лобі"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN-лобі"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN-лобі"

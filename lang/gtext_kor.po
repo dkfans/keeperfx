@@ -2908,8 +2908,8 @@ msgstr "오프닝 보기"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "서비스 매뉴"
+msgid "Multiplayer Menu"
+msgstr "멀티플레이어 메뉴"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3133,8 +3133,8 @@ msgstr "Testers"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "세션들"
+msgid "Game Lobbies"
+msgstr "게임 로비"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3143,8 +3143,8 @@ msgstr "이름"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "서비스"
+msgid "Game Modes"
+msgstr "게임 모드"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3153,13 +3153,13 @@ msgstr "메시지"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "게임 만들기"
+msgid "Create Lobby"
+msgstr "로비 만들기"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "게임에 참여"
+msgid "Join Lobby"
+msgstr "로비 참가"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3168,8 +3168,8 @@ msgstr "게임 시작"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "게임 매뉴"
+msgid "Online Lobbies"
+msgstr "온라인 로비"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3867,8 +3867,8 @@ msgstr "오른쪽"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initialising Modem"
+msgid "Game version mismatch"
+msgstr "게임 버전 불일치"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5837,18 +5837,18 @@ msgstr "4 플레이어"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "시리얼"
+msgid "Online"
+msgstr "온라인"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "모뎀"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "교전"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6582,8 +6582,8 @@ msgstr "레벨 자유 탐험으로 돌아가기"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
-msgstr "Map packs"
+msgid "Map Packs"
+msgstr "Map Packs"
 
 #: guitext:970
 msgctxt "Menu interface item"
@@ -7129,3 +7129,23 @@ msgstr ""
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "키퍼"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "온라인 로비"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN 로비"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN 로비"

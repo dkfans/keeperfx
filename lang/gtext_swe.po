@@ -2935,8 +2935,8 @@ msgstr "Intro"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Servicemeny"
+msgid "Multiplayer Menu"
+msgstr "Flerspelarmeny"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3161,8 +3161,8 @@ msgstr "Testare"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessioner"
+msgid "Game Lobbies"
+msgstr "Spellobbyer"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3171,8 +3171,8 @@ msgstr "Namn"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Uppkoppling"
+msgid "Game Modes"
+msgstr "Spellägen"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3181,13 +3181,13 @@ msgstr "Meddelanden"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Skapa Spel"
+msgid "Create Lobby"
+msgstr "Skapa lobby"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Gå Med I Spel"
+msgid "Join Lobby"
+msgstr "Gå med i lobby"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3196,8 +3196,8 @@ msgstr "Starta Spel"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Spelmeny"
+msgid "Online Lobbies"
+msgstr "Online-lobbyer"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3885,8 +3885,8 @@ msgstr "Höger"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initierar Modem"
+msgid "Game version mismatch"
+msgstr "Spelversionen matchar inte"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5834,18 +5834,18 @@ msgstr "4 spelare"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Seriell"
+msgid "Online"
+msgstr "Online"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Modem"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Skärmytsling"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6589,7 +6589,7 @@ msgstr "Tillbaka till Fria Spel-världar"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Banpaket"
 
 #: guitext:970
@@ -7147,3 +7147,23 @@ msgstr ""
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Väktare"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Online-lobby"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN-lobby"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN-lobbyer"

@@ -55,6 +55,7 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 #include "front_input.h"
+#include "net_game.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -100,7 +101,6 @@ unsigned char *map_screen;
 long fe_net_level_selected;
 long net_map_limp_time;
 struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
-long players_currently_in_session;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -389,11 +389,11 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             default:
                 if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign, EnsFullMoon);
+                    i = get_disabled_flag_option(lvinfo->ensign, EnsNewMoon);
                 }
                 else
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign, EnsNewMoon);
+                    i = get_disabled_flag_option(lvinfo->ensign, EnsFullMoon);
                 }
                 spr = get_map_ensign(i);
                 break;
@@ -1174,6 +1174,7 @@ TbBool frontmap_load(void)
     frontend_load_data_reset();
     struct PlayerInfo* player = get_my_player();
     lvnum = get_continue_level_number();
+    fade_palette_in = 0;
     if ((player->display_flags & PlaF6_PlyrHasQuit) != 0)
     {
         lvnum = get_loaded_level_number();
@@ -1743,6 +1744,12 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
         struct ScreenPacket* nspck = &net_screen_packet[i];
         if ((nspck->networkstatus_flags & 0x01) == 0)
           continue;
+        if (i != my_player_number && !network_player_active(i))
+        {
+            LbNetwork_EnableNewPlayers(1);
+            frontend_set_state(FeSt_NET_START);
+            return false;
+        }
         if (nspck->param1 == LEVELNUMBER_ERROR)
         {
             if (fe_network_active)

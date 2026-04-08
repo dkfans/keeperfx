@@ -48,7 +48,7 @@ extern "C" {
 #define INSTANCE_TYPES_MAX 2000
 #define LAIR_ENEMY_MAX 5
 
-#define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
+#define INVALID_CRTR_CONTROL (&game.cctrl_data[0])
 /******************************************************************************/
 #pragma pack(1)
 
@@ -57,18 +57,17 @@ struct PlayerInfo;
 
 enum CreatureSoundTypes {
     CrSnd_None      = 0,
-    CrSnd_Hurt      = 1,
-    CrSnd_Hit       = 2,
-    CrSnd_Happy     = 3,
-    CrSnd_Sad       = 4,
-    CrSnd_Hang      = 5,
-    CrSnd_Drop      = 6,
-    CrSnd_Torture   = 7,
-    CrSnd_Slap      = 8,
-    CrSnd_Die       = 9,
-    CrSnd_Foot      = 10,
-    CrSnd_Fight     = 11,
-    CrSnd_Piss      = 12,
+    CrSnd_Hit       = 1,
+    CrSnd_Happy     = 2,
+    CrSnd_Sad       = 3,
+    CrSnd_Hang      = 4,
+    CrSnd_Drop      = 5,
+    CrSnd_Torture   = 6,
+    CrSnd_Slap      = 7,
+    CrSnd_Die       = 8,
+    CrSnd_Foot      = 9,
+    CrSnd_Fight     = 10,
+    CrSnd_Piss      = 11,
 };
 
 enum CreatureControlFlags {
@@ -185,7 +184,8 @@ struct CreatureControl {
     ThingIndex pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
-    uint32_t group_info;// offset 7A
+    ThingIndex group_leader_idx;
+    uint16_t group_member_count;
     short last_work_room_id;
     /** Work room index, used when creature is working in a room. */
     short work_room_id;
@@ -423,7 +423,7 @@ struct Persons {
 
 struct CreatureSound {
     int32_t index;
-    int32_t count;
+    int16_t count;
 };
 
 struct CreatureSounds {
@@ -431,7 +431,6 @@ struct CreatureSounds {
     struct CreatureSound hit;
     struct CreatureSound happy;
     struct CreatureSound sad;
-    struct CreatureSound hurt;
     struct CreatureSound die;
     struct CreatureSound hang;
     struct CreatureSound drop;

@@ -2922,8 +2922,8 @@ msgstr "Toon Intro"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Service"
+msgid "Multiplayer Menu"
+msgstr "Multiplayermenu"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3147,8 +3147,8 @@ msgstr "TESTERS"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "SESSIES"
+msgid "Game Lobbies"
+msgstr "Spellobby's"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3157,8 +3157,8 @@ msgstr "NAAM"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "SERVICE"
+msgid "Game Modes"
+msgstr "Spelmodi"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3167,13 +3167,13 @@ msgstr "BERICHTEN"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "SPEL CREËREN"
+msgid "Create Lobby"
+msgstr "LOBBY MAKEN"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "MEEDOEN"
+msgid "Join Lobby"
+msgstr "LOBBY BETREDEN"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3182,8 +3182,8 @@ msgstr "SPEL STARTEN"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "SPEL"
+msgid "Online Lobbies"
+msgstr "ONLINE LOBBY'S"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3875,8 +3875,8 @@ msgstr "Rechts"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "MODEM INITIALISEERT"
+msgid "Game version mismatch"
+msgstr "Spelversies komen niet overeen"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5823,18 +5823,18 @@ msgstr "4 Spelers"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Serieel"
+msgid "Online"
+msgstr "Online"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Modem"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Schermutseling"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6563,7 +6563,7 @@ msgstr "Terug naar selectiescherm"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Level pakketten"
 
 #: guitext:970
@@ -7121,3 +7121,23 @@ msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""
 "Oproepen: Roept tijdelijke bewakers op om het wezen in gevecht te helpen."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Keeper"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "ONLINE LOBBY"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN LOBBY"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN LOBBY'S"

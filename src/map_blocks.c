@@ -42,6 +42,7 @@
 #include "thing_navigate.h"
 #include "thing_physics.h"
 #include "config_spritecolors.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -381,7 +382,7 @@ unsigned short torch_flags_for_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return tflag;
 }
 
-unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
+unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slabkind)
 {
     SubtlCodedCoords stl_num;
     struct Thing *thing;
@@ -413,13 +414,22 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
                 struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
                 if (objst->destroy_on_liquid)
                 {
-                    if (rmeffect > 0)
+                    EffectOrEffElModel rmeffect = 0;
+                    if (slabkind == SlbT_LAVA)
+                    {
+                        rmeffect = objst->lava_burn_effect;
+                    }
+                    else
+                    {
+                        rmeffect = objst->water_splash_effect;
+                    }
+                    if (rmeffect != 0)
                     {
                         set_coords_to_slab_center(&pos,slb_x,slb_y);
                         pos.z.val = get_floor_height_at(&pos);
-                        create_effect(&pos, rmeffect, thing->owner);
+                        create_used_effect_or_element(&pos, rmeffect, thing->owner,thing->index);
                     }
-                    delete_thing_structure(thing, 0);
+                    destroy_object(thing);
                     removed_num++;
                 }
             }
@@ -612,7 +622,7 @@ static void delete_attached_things_on_slab(long slb_x, long slb_y)
                     {
                         char class_id = thing->class_id;
                         if (class_id == TCls_Object || class_id == TCls_EffectGen)
-                            delete_thing_structure(thing, 0);
+                            destroy_thing(thing);
                     }
                     thing = next_thing;
                     k++;
@@ -1423,7 +1433,7 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                     }
                     if (delete_thing)
                     {
-                        delete_thing_structure(thing, 0);
+                        destroy_thing(thing);
                     }
                 }
                 thing = next_thing;
@@ -1583,6 +1593,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
         return;
     }
     struct SlabMap *slbmap = get_slabmap_block(slb_x, slb_y);
+    SlabKind old_kind = slbmap->kind;
     if (slbmap->kind != SlbT_GEMS)
     {
         all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
@@ -1595,6 +1606,10 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
     {
         remove_unwanted_things_from_wall_slab(slb_x, slb_y);
     }
+        if (slbmap->kind != old_kind)
+        {
+            lua_on_slab_kind_change(slb_x, slb_y, old_kind);
+        }
 }
 
 /**
@@ -1694,6 +1709,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
             all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
         }
     }
+    SlabKind old_kind = slb->kind;
     slb->kind = skind;
 
     set_slab_owner(slb_x, slb_y, owner);
@@ -1785,10 +1801,8 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
             remove_unwanted_things_from_wall_slab(slb_x, slb_y);
             break;
         case SlbT_LAVA:
-            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, TngEff_HarmlessGas2);
-            break;
         case SlbT_WATER:
-            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, TngEff_Drip3);
+            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, nslab);
             break;
         case SlbT_PATH:
         case SlbT_CLAIMED:
@@ -1797,6 +1811,10 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
             break;
         default:
             break;
+    }
+    if (old_kind != nslab)
+    {
+        lua_on_slab_kind_change(slb_x, slb_y, old_kind);
     }
 }
 

@@ -2564,7 +2564,7 @@ msgstr "Продолжить игру"
 #: guitext:347
 msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
-msgstr "Мультиплеер"
+msgstr "Игра по сети"
 
 #: guitext:348
 msgctxt "Menu interface item"
@@ -2578,8 +2578,8 @@ msgstr "Показать вступление"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Меню протоколов"
+msgid "Multiplayer Menu"
+msgstr "Игра по сети"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -2803,8 +2803,8 @@ msgstr "Тестировщики"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Сеансы"
+msgid "Game Lobbies"
+msgstr "Доступные лобби"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -2813,8 +2813,8 @@ msgstr "Имя"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Протокол"
+msgid "Game Modes"
+msgstr "Режимы"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -2823,13 +2823,13 @@ msgstr "Сообщения"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Создать игру"
+msgid "Create Lobby"
+msgstr "Создать лобби"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Присоединиться к игре"
+msgid "Join Lobby"
+msgstr "Подключиться к лобби"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -2838,8 +2838,8 @@ msgstr "Начать игру"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Игровое меню"
+msgid "Online Lobbies"
+msgstr "Интернет-лобби"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3516,8 +3516,8 @@ msgstr "Вправо"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Инициализация модема"
+msgid "Game version mismatch"
+msgstr "Несоответствмие версий"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5328,18 +5328,18 @@ msgstr "4 игрока"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Нуль-модем"
+msgid "Online"
+msgstr "Интернет"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Модем"
+msgid "LAN"
+msgstr "Локальная сеть"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Скирмиш"
 
 #: guitext:877
 msgctxt "World direction"
@@ -5994,7 +5994,7 @@ msgstr "Вернуться к списку карт"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Наборы карт"
 
 #: guitext:970
@@ -6532,3 +6532,23 @@ msgstr "Призыв фамильяра: Призывает спутника, з
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr "Призыв создания: На время призывает хранителей, помогающих призвавшему их созданию в битве."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Хранитель"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Интернет-лобби"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Локальное лобби"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Локальные лобби"

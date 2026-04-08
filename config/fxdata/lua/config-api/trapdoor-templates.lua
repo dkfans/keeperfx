@@ -18,3 +18,11 @@ function door_UpdateFunction_template(door) end
 -- --  0, /**< Returned if the trap is unmodified. */
 -- --  1, /**< Returned if the trap is modified. */
 function trap_UpdateFunction_template(trap) end
+
+
+-- with ACTIVATIONTYPE set to LUA
+-- ACTIVATIONLUAFUNC can be set to a func with this signature
+---@param trap Trap the trap that was triggered
+---@param creature Creature|Trap the creature that triggered the trap, or the trap itself if the trap triggered itself (like with activation type ALWAYS)
+---@return boolean activate true if the trap should continue with its normal activation, false if the trap should not activate 
+function trap_ActivationFunction_template(trap, creature) return false end

@@ -2961,8 +2961,8 @@ msgstr "Esegui Introduzione"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menù Servizio"
+msgid "Multiplayer Menu"
+msgstr "Menu multigiocatore"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3186,8 +3186,8 @@ msgstr "Collaudatori"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessioni"
+msgid "Game Lobbies"
+msgstr "Lobby di gioco"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3196,8 +3196,8 @@ msgstr "Nome"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Servizi"
+msgid "Game Modes"
+msgstr "Modalità di gioco"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3206,13 +3206,13 @@ msgstr "Messaggi"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Crea Partita"
+msgid "Create Lobby"
+msgstr "Crea lobby"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Entra in Partita"
+msgid "Join Lobby"
+msgstr "Entra nella lobby"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3221,8 +3221,8 @@ msgstr "Comincia Partita"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Menù Gioco"
+msgid "Online Lobbies"
+msgstr "Lobby online"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3917,8 +3917,8 @@ msgstr "Destra"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Inizializzazione Modem"
+msgid "Game version mismatch"
+msgstr "La versione del gioco non corrisponde"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5901,18 +5901,18 @@ msgstr "4 Giocatori"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Seriale"
+msgid "Online"
+msgstr "Online"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "MODEM"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Schermaglia"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6677,7 +6677,7 @@ msgstr ""
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr ""
 
 #: guitext:970
@@ -7240,3 +7240,23 @@ msgstr ""
 #~ msgctxt "In-game interface description"
 #~ msgid "Research Skill: unused."
 #~ msgstr "Capacità di ricerca: non utilizzato."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Keeper"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Lobby online"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Lobby LAN"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Lobby LAN"

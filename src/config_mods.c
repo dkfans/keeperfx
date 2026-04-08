@@ -89,6 +89,19 @@ static void recheck_block_mod_list_exist(struct ModConfigItem *mod_items, long m
                 strcat(config_dirs, "FGrp_FxData");
         }
 
+        fname = prepare_file_path_mod(mod_dir, FGrp_StdData, NULL);
+        if (fname[0] != 0 && LbFileExists(fname))
+        {
+            mod_state->std_data = 1;
+
+            strcat(config_dirs, str_sep);
+            str_sep = ", ";
+            if (memcmp(main_dir, fname, main_len) == 0)
+                strcat(config_dirs, fname+main_len+1);
+            else
+                strcat(config_dirs, "FGrp_StdData");
+        }
+
         fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig, NULL);
         if (fname[0] != 0 && LbFileExists(fname))
         {
@@ -143,9 +156,9 @@ static void recheck_block_mod_list_exist(struct ModConfigItem *mod_items, long m
         }
 
         if (config_dirs[0] == 0)
-            WARNMSG("The '%s' mod configured in '%s' section exists but has no configuration.", mod_item->name, block_name);
+            WARNMSG("The '%s' mod configured in '%s' section exists but has no valid configuration.", mod_item->name, block_name);
         else
-            SYNCLOG("The '%s' mod configured in '%s' section exists and contains configuration: %s", mod_item->name, block_name, config_dirs);
+            SYNCLOG("The '%s' mod configured in '%s' section exists and contains valid configuration: %s", mod_item->name, block_name, config_dirs);
     }
 }
 

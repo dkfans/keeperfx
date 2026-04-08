@@ -1008,7 +1008,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set, const char *conf
           named_fields_set->names[i].name = (char*)name_NamedField->field + i * named_fields_set->struct_size;
           named_fields_set->names[i].num = i;
       }
-      // Don't set terminator here - it will be set after parsing based on actual count, lens name lookups may depend on it
+      named_fields_set->names[named_fields_set->max_count - 1].name = NULL; // must be null for get_id
   }
 }
 
@@ -1045,17 +1045,6 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
         blockname_null[blocknamelen] = '\0';
 
         parse_named_field_block(buf, len, config_textname, flags, blockname_null, named_fields_set->named_fields, named_fields_set, i);
-    }
-
-    // Set the terminator safely within the allocated range
-    if (named_fields_set->names != NULL && named_fields_set->count_field != NULL)
-    {
-        int terminator_index = *named_fields_set->count_field;
-        if (terminator_index >= named_fields_set->max_count)
-        {
-            terminator_index = named_fields_set->max_count - 1;
-        }
-        named_fields_set->names[terminator_index].name = NULL;
     }
 
     return true;
@@ -2086,9 +2075,9 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
 
 
 /* @comment
- *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ *     The loading items of load_config and load_config_for_mod need to be consistent.
  */
-static void load_config_for_mod_one(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
+static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
 {
     set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
 
@@ -2109,7 +2098,7 @@ static void load_config_for_mod_one(const struct ConfigFileData* file_data, unsi
 
     if (mod_state->cmpg_config)
     {
-        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig,conf_fname);
+        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig, conf_fname);
         if (strlen(fname) > 0)
         {
             file_data->load_func(fname,flags);
@@ -2134,12 +2123,12 @@ static void load_config_for_mod_list(const struct ConfigFileData* file_data, uns
         if (mod_item->state.mod_dir == 0)
             continue;
 
-        load_config_for_mod_one(file_data, flags, mod_item);
+        load_config_for_mod(file_data, flags, mod_item);
     }
 }
 
 /* @comment
- *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ *     The loading items of load_config and load_config_for_mod need to be consistent.
  */
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
@@ -2158,7 +2147,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         load_config_for_mod_list(file_data, flags, mods_conf.after_base_item, mods_conf.after_base_cnt);
     }
 
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    fname = prepare_file_path(FGrp_CmpgConfig, conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);

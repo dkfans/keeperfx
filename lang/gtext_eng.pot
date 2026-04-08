@@ -2034,7 +2034,7 @@ msgstr ""
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
+msgid "Multiplayer Menu"
 msgstr ""
 
 #: guitext:351
@@ -2259,7 +2259,7 @@ msgstr ""
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
+msgid "Game Lobbies"
 msgstr ""
 
 #: guitext:396
@@ -2269,7 +2269,7 @@ msgstr ""
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
+msgid "Game Modes"
 msgstr ""
 
 #: guitext:398
@@ -2279,12 +2279,12 @@ msgstr ""
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
+msgid "Create Lobby"
 msgstr ""
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
+msgid "Join Lobby"
 msgstr ""
 
 #: guitext:401
@@ -2294,7 +2294,7 @@ msgstr ""
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
+msgid "Online Lobbies"
 msgstr ""
 
 #: guitext:403
@@ -2941,7 +2941,7 @@ msgstr ""
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
+msgid "Game version mismatch"
 msgstr ""
 
 #: guitext:532
@@ -4654,17 +4654,17 @@ msgstr ""
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
+msgid "Online"
 msgstr ""
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
+msgid "LAN"
 msgstr ""
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
+msgid "Skirmish"
 msgstr ""
 
 #: guitext:877
@@ -5199,7 +5199,7 @@ msgstr ""
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr ""
 
 #: guitext:970
@@ -5730,4 +5730,24 @@ msgstr ""
 #: guitext:1081
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr ""
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr ""
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr ""
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr ""
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
 msgstr ""

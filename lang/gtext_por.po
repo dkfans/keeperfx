@@ -3021,8 +3021,8 @@ msgstr "Reproduzir Introdução"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menu de Serviço"
+msgid "Multiplayer Menu"
+msgstr "Menu multijogador"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3247,8 +3247,8 @@ msgstr "Testadores"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessões"
+msgid "Game Lobbies"
+msgstr "Lobbies de jogo"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3257,8 +3257,8 @@ msgstr "Nome"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Serviços"
+msgid "Game Modes"
+msgstr "Modos de jogo"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3267,13 +3267,13 @@ msgstr "Mensagens"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Criar Jogo"
+msgid "Create Lobby"
+msgstr "Criar lobby"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Entrar no Jogo"
+msgid "Join Lobby"
+msgstr "Entrar no lobby"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3282,8 +3282,8 @@ msgstr "Iniciar Jogo"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Menu do Jogo"
+msgid "Online Lobbies"
+msgstr "Lobbies online"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3988,8 +3988,8 @@ msgstr "Direita"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Inicializando Modem"
+msgid "Game version mismatch"
+msgstr "Incompatibilidade de versão do jogo"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -6025,18 +6025,18 @@ msgstr "4 Jogadores"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Serial"
+msgid "Online"
+msgstr "Online"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Modem"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Escaramuça"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6792,7 +6792,7 @@ msgstr "Voltar aos Níveis de Jogo Livre"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Pacotes de mapas"
 
 #: guitext:970
@@ -7353,3 +7353,23 @@ msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""
 "Invocar: Convoca guardiões temporários para ajudar a criatura em combate."
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Guardião"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Lobby online"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Lobby LAN"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Lobbies LAN"

@@ -2,7 +2,7 @@
 -- Entry points for engine-triggered events (e.g. OnPowerCast, OnGameTick).
 -- These functions are called by the C engine and dispatch event data to the Lua trigger system.
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"Rebirth"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"Rebirth"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -28,6 +28,14 @@ function OnCreatureDeath(unit)
     local eventData = {}
     eventData.unit = unit
     ProcessEvent("Death",eventData)
+end
+
+--- Called when an object is destroyed
+--- @param unit Object The unit that dies
+function OnObjectDestroyed(unit)
+    local eventData = {}
+    eventData.unit = unit
+    ProcessEvent("Destroyed",eventData)
 end
 
 --- Called on each game tick to process timer events
@@ -97,4 +105,34 @@ function OnCreatureRebirth(unit)
     local eventData = {}
     eventData.unit = unit
     ProcessEvent("Rebirth",eventData)
+end
+
+--- Called when a slab changed
+---@param slab Slab
+---@param old_slab_kind slab_type
+function OnSlabKindChange(slab, old_slab_kind)
+    local eventData = {}
+    eventData.Slab = slab
+    eventData.old_slab_kind = old_slab_kind
+    ProcessEvent("SlabKindChange",eventData)
+end
+
+--- Called when a slab owner changed
+---@param slab Slab
+---@param old_owner Player
+function OnSlabOwnerChange(slab, old_owner)
+    local eventData = {}
+    eventData.Slab = slab
+    eventData.old_owner = old_owner
+    ProcessEvent("SlabOwnerChange",eventData)
+end
+
+--- Called when a room changes owner
+---@param room Room
+---@param old_owner Player
+function OnRoomOwnerChange(room, old_owner)
+    local eventData = {}
+    eventData.Room = room
+    eventData.old_owner = old_owner
+    ProcessEvent("RoomOwnerChange",eventData)
 end

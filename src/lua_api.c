@@ -3,6 +3,7 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include <stdint.h>
 
 #include "bflib_basics.h"
 #include "bflib_sndlib.h"
@@ -1214,14 +1215,14 @@ static int lua_Set_creature_tendencies(lua_State *L)
 static int lua_Creature_entrance_level(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    unsigned char level = luaL_checkinteger(L, 4);
+    unsigned char level = luaL_checkCrtLevel(L, 2);
 
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Dungeon* dungeon = get_dungeon(i);
         if (dungeon_invalid(dungeon))
             continue;
-        dungeon->creature_entrance_level = level - 1;
+        dungeon->creature_entrance_level = level;
     }
     return 0;
 }
@@ -1966,6 +1967,94 @@ static int lua_get_things_of_class(lua_State *L)
     return 1; // return value is the amount of args you push back
 }
 
+static int lua_get_things_on_subtile(lua_State *L)
+{
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 1);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 2);
+    ThingClass class_id = luaL_optNamedCommand(L,3,class_commands);
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Thing* thing = INVALID_THING;
+
+    lua_newtable(L);
+    uint16_t k = 0;
+    uint16_t table_index = 0;
+
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        if (class_id == 0 || thing->class_id == class_id)
+        {   
+            table_index ++;
+            lua_pushThing(L, thing);
+            lua_rawseti(L, -2, table_index);
+        }
+
+        i = thing->next_on_mapblk;
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things on tile");
+            break;
+        }
+    }
+    return 1; // return value is the amount of args you push back
+}
+
+static int lua_get_things_on_slab(lua_State *L)
+{
+    MapSlabCoord slb_x = luaL_checkslb_x(L, 1);
+    MapSlabCoord slb_y = luaL_checkslb_y(L, 2);
+    ThingClass class_id = luaL_optNamedCommand(L,3,class_commands);
+
+    lua_newtable(L);
+    uint16_t k = 0;
+    uint16_t table_index = 0;
+
+    for (int x = 0; x < STL_PER_SLB; x++)
+    {
+        for (int y = 0; y < STL_PER_SLB; y++)
+        {
+            MapSubtlCoord stl_x = slb_x * STL_PER_SLB + x;
+            MapSubtlCoord stl_y = slb_y * STL_PER_SLB + y;
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+            struct Thing* thing = thing_get(get_mapwho_thing_index(mapblk));
+            long i = get_mapwho_thing_index(mapblk);
+            while (i != 0)
+            {
+                thing = thing_get(i);
+                TRACE_THING(thing);
+                if (thing_is_invalid(thing))
+                {
+                    ERRORLOG("Jump to invalid thing detected");
+                    break;
+                }
+                i = thing->next_on_mapblk;
+                if (class_id == 0 || thing->class_id == class_id)
+                {   
+                    table_index++;
+                    lua_pushThing(L, thing);
+                    lua_rawseti(L, -2, table_index);
+                }
+
+                k++;
+                if (k > THINGS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things on tile");
+                    break;
+                }
+            }
+        }
+    }
+    return 1; // return value is the amount of args you push back
+}
+
 static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, uint32_t *k)
 {
     int ri = dungeon->room_list_start[rkind];
@@ -2244,6 +2333,8 @@ static const luaL_Reg global_methods[] = {
     {"GetCreatureByCriterion",          lua_get_creature_by_criterion},
     {"GetThingByIdx",                   lua_get_thing_by_idx},
     {"GetThingsOfClass",                lua_get_things_of_class},
+    {"GetThingsOnSubtile",              lua_get_things_on_subtile},
+    {"GetThingsOnSlab",                 lua_get_things_on_slab},
     {"IsActionpointActivatedByPlayer",  lua_is_action_point_activated_by_player},
     {"GetSlab",                         lua_get_slab},
     {"GetString",                       lua_get_string},

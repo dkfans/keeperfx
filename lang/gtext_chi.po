@@ -2718,8 +2718,8 @@ msgstr "播放介绍"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "服务菜单"
+msgid "Multiplayer Menu"
+msgstr "多人游戏菜单"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -2943,8 +2943,8 @@ msgstr "测试"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "会话"
+msgid "Game Lobbies"
+msgstr "游戏大厅"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -2953,8 +2953,8 @@ msgstr "名称"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "服务"
+msgid "Game Modes"
+msgstr "游戏模式"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -2963,13 +2963,13 @@ msgstr "信息"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "创建游戏"
+msgid "Create Lobby"
+msgstr "创建大厅"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "加入游戏"
+msgid "Join Lobby"
+msgstr "加入大厅"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -2978,8 +2978,8 @@ msgstr "开始游戏"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "游戏菜单"
+msgid "Online Lobbies"
+msgstr "在线大厅"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3669,8 +3669,8 @@ msgstr "右"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "调制解调器初始化中"
+msgid "Game version mismatch"
+msgstr "游戏版本不匹配"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5512,18 +5512,18 @@ msgstr "４个玩家"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "串口线"
+msgid "Online"
+msgstr "在线"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "调制解调器"
+msgid "LAN"
+msgstr "局域网"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "遭遇战"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6202,7 +6202,7 @@ msgstr "返回更深的地下城"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "地图包"
 
 #: guitext:970
@@ -6750,3 +6750,23 @@ msgstr "魔宠：召唤一个伙伴，来保护和协助怪物。"
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr "召唤术：在战斗中召唤出暂时存在的卫兵与怪物协同作战。"
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "守护者"
+
+#: guitext:1083
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "在线大厅"
+
+#: guitext:1084
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "局域网大厅"
+
+#: guitext:1085
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "局域网大厅"
