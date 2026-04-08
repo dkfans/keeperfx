@@ -226,7 +226,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuPlayIntro, 1},
     {GUIStr_NetServiceMenu, 0}, // [10]
     {GUIStr_NetSessionMenu, 0},
-    {GUIStr_MnuGameMenu, 0}, // [12]
+    {GUIStr_MnuOnlineLobbies, 0}, // [12]
     {GUIStr_NetJoinGame, 1}, // [13]
     {GUIStr_NetCreateGame, 1}, // [14]
     {GUIStr_NetStartGame, 1}, // [15]
@@ -3115,9 +3115,10 @@ TbBool frontscreen_end_input(TbBool force)
 
 short get_frontend_global_inputs(void)
 {
-    if (is_key_pressed(KC_X, KMod_ALT))
+    int32_t val;
+    if (is_game_key_pressed(Gkey_ExitGame, &val ,false))
     {
-        clear_key_pressed(KC_X);
+        clear_key_pressed(val);
         exit_keeper = true;
     } else {
         return false;

@@ -2035,7 +2035,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Muu"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -3307,8 +3307,8 @@ msgstr "Iniciar la partida"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Menú de salas"
+msgid "Online Lobbies"
+msgstr "Salas en línea"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -7388,3 +7388,129 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Guardián"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Record"
+msgstr "Grabar Pantalla"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screen Shot"
+msgstr "Captura de Pantalla"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Aumentar Salto de Fotogramas"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Disminuir Salto de Fotogramas"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Acercar Minimapa"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Alejar Minimapa"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "Siguiente Instancia"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "Instancia Anterior"
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Sala en línea"
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Sala LAN"
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Salas LAN"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Alternar Interfaz"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Alternar Descripciones"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Salir del Juego"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Desactivar Modo Paquete"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Cambiar Resolución"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Alternar Consola"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Terminar Nivel"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Menú de Opciones"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Alternar Flores de Salud del Héroe"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Acento grave"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Teletransporte Última Sala de Trabajo"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Teletransporte Llamada a las Armas"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Teletransporte Predeterminado"
+

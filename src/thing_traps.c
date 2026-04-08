@@ -586,10 +586,22 @@ void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, Power
     magic_use_power_direct(traptng->owner, pwkind, trapst->activation_level, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
 }
 
+TbBool activate_trap_lua(struct Thing *traptng, struct Thing *creatng, FuncIdx func_idx)
+{
+    return luafunc_trap_activation_func(func_idx, traptng, creatng);
+}
+
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
-    traptng->trap.revealed = 1;
+
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+
+    if (!activate_trap_lua(traptng, creatng, trapst->activation_lua_func_idx))
+    {
+        return;
+    }
+
+    traptng->trap.revealed = 1;
     if (trapst->notify == true)
     {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
@@ -644,6 +656,7 @@ void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
         case TrpAcT_SlabChange:
         case TrpAcT_CreatureSpawn:
         case TrpAcT_Power:
+        case TrpAcT_None:
             activate_trap(traptng, trgtng);
             break;
         default:
