@@ -407,7 +407,6 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
 long map_fade_in(long a)
 {
     SYNCDBG(6,"Starting");
-    JUSTLOG("Fade in at turn %d with %ld", game.play_gameturn,a);
     if (a == 0)
     {
         map_fade_ghost_table = poly_pool;
@@ -418,27 +417,12 @@ long map_fade_in(long a)
     }
     map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
       a, 320, 200, lbDisplay.GraphicsScreenWidth);
-    uint16_t step = 4;
-    if (game.process_turn_time > 1.0)
-    {
-        step = 0;
-        JUSTLOG("Fade in at turn %d step 0", game.play_gameturn);
-    }
-    else
-    {
-        JUSTLOG("Fade in at turn %d step 4", game.play_gameturn);
-    }
-    int32_t nxamount =  a + step;
-    if (nxamount > 32)
-        nxamount = 32;
-    JUSTLOG("Return value %ld", a);
-    return nxamount;
+    return (8 - get_my_player()->instance_remain_turns) * 4;
 }
 
 long map_fade_out(long a)
 {
     SYNCDBG(6,"Starting");
-    JUSTLOG("Fade out at turn %d", game.play_gameturn);
     if (a == 32)
     {
         map_fade_ghost_table = poly_pool;
@@ -449,20 +433,7 @@ long map_fade_out(long a)
     }
     map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
       a, 320, 200, lbDisplay.GraphicsScreenWidth);
-    uint16_t step = 4;
-    if (game.process_turn_time > 1.0)
-    {
-        step = 0;
-        JUSTLOG("Fade out at turn %d step 0", game.play_gameturn);
-    }
-    else
-    {
-        JUSTLOG("Fade out at turn %d step 4", game.play_gameturn);
-    }
-    int32_t nxamount =  a - step;
-    if (nxamount < 0)
-        nxamount = 0;
-    return nxamount;
+    return get_my_player()->instance_remain_turns * 4;
 }
 
 void set_sprite_view_3d(void)
