@@ -7273,9 +7273,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Commutare Flores Salutis Heroum"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Gravis"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -7292,7 +7292,3 @@ msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Translatio Praedefinita"
 
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "Gravis"

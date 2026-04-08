@@ -7243,9 +7243,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Přepnout květiny zdraví hrdinů"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Zpětný apostrof"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -7261,8 +7261,3 @@ msgstr "Teleport k výzvě ke zbraním"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teleport výchozí"
-
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "Zpětný apostrof"

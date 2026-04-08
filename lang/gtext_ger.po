@@ -7530,9 +7530,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Helden-Gesundheitsblumen umschalten"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Gravis"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -7548,8 +7548,3 @@ msgstr "Teleport Aufruf zu den Waffen"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teleport Standard"
-
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "Gravis"

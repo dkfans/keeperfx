@@ -7324,9 +7324,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Перемкнути квіти здоров'я героїв"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Зворотний апостроф"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -7343,7 +7343,3 @@ msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Телепорт за замовчуванням"
 
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "Зворотний апостроф"

@@ -5853,9 +5853,8 @@ msgid "Toggle Hero Health Flowers"
 msgstr ""
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -5872,7 +5871,4 @@ msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr ""
 
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
 

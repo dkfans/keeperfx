@@ -7207,9 +7207,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "勇者体力星：表示切替"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "グレイヴ"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -7225,8 +7225,3 @@ msgstr "テレポート：出陣旗先"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "テレポート：既定先"
-
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "グレイヴ"

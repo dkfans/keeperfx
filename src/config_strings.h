@@ -457,11 +457,10 @@ enum GUIStrings {
     GUIStr_FinishLevel,
     GUIStr_OptionsMenu,
     GUIStr_ToggleHeroHealthFlowers,
-    GUIStr_Moo4,
+    GUIStr_KeyGrave,
     GUIStr_TeleportLastWorkroom,
     GUIStr_TeleportCallToArms,
     GUIStr_TeleportDefault,
-    GUIStr_KeyGrave,
     GuiStrEnd
 };
 

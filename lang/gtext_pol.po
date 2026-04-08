@@ -7350,9 +7350,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Przełącz kwiaty zdrowia bohaterów"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Akcent grave"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -7369,7 +7369,3 @@ msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teleport domyślny"
 
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "Akcent grave"

@@ -6872,9 +6872,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "切换英雄生命值花朵"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "反引号"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -6890,9 +6890,3 @@ msgstr "传送到集合点"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "默认传送"
-
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "反引号"
-

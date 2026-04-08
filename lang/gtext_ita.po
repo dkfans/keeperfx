@@ -7362,9 +7362,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Attiva/Disattiva Fiori Salute Eroi"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Accento grave"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -7381,7 +7381,3 @@ msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teletrasporto Predefinito"
 
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "Accento grave"

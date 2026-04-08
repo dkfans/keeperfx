@@ -6654,9 +6654,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Вкл./выкл. цветок здоровья"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Гравис/Тупое ударение"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -6672,8 +6672,3 @@ msgstr "В создании - К знамени "К оружию!""
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "В создании - К личному логову"
-
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "Гравис/Тупое ударение"

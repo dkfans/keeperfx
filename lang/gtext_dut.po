@@ -7243,9 +7243,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Held gezondheidsbloemd schakelen"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Accent grave"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -7262,7 +7262,3 @@ msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teleporteer Standaard"
 
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "Accent grave"

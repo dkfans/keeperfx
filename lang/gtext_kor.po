@@ -7251,9 +7251,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "영웅 체력 꽃 전환"
 
 #: guitext:1106
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "억음 부호"
 
 #: guitext:1107
 msgctxt "Game controls"
@@ -7269,8 +7269,3 @@ msgstr "순간이동 소집"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "순간이동 기본"
-
-#: guitext:1110
-msgctxt "Keyboard"
-msgid "Grave"
-msgstr "억음 부호"
