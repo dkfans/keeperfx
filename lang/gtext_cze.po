@@ -1970,7 +1970,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Moo"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -7193,19 +7193,19 @@ msgid "Toggle Tooltips"
 msgstr "Přepnout nápovědy"
 
 #: guitext:1096
-msgctxt "Game controls"
-msgid "Landview Show All Ensigns"
-msgstr "Landview Zobrazit všechny odznaky"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1097
-msgctxt "Game controls"
-msgid "Landview Next Level"
-msgstr "Landview Další úroveň"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1098
-msgctxt "Game controls"
-msgid "Landview Prev Level"
-msgstr "Landview Předchozí úroveň"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1099
 msgctxt "Game controls"
@@ -7243,9 +7243,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Přepnout květiny zdraví hrdinů"
 
 #: guitext:1106
-msgctxt "Game controls"
-msgid "Teleport Fight"
-msgstr "Teleport do boje"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1107
 msgctxt "Game controls"

@@ -2015,7 +2015,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Meuh"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -7450,19 +7450,19 @@ msgid "Toggle Tooltips"
 msgstr "Basculer infobulles"
 
 #: guitext:1096
-msgctxt "Game controls"
-msgid "Landview Show All Ensigns"
-msgstr "Landview Afficher tous les drapeaux"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1097
-msgctxt "Game controls"
-msgid "Landview Next Level"
-msgstr "Landview Niveau suivant"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1098
-msgctxt "Game controls"
-msgid "Landview Prev Level"
-msgstr "Landview Niveau précédent"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1099
 msgctxt "Game controls"
@@ -7500,9 +7500,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Basculer fleurs santé héros"
 
 #: guitext:1106
-msgctxt "Game controls"
-msgid "Teleport Fight"
-msgstr "Téléportation Combat"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1107
 msgctxt "Game controls"

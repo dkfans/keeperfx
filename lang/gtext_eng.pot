@@ -5803,18 +5803,18 @@ msgid "Toggle Tooltips"
 msgstr ""
 
 #: guitext:1096
-msgctxt "Game controls"
-msgid "Landview Show All Ensigns"
+msgctxt "Moo"
+msgid "Moo"
 msgstr ""
 
 #: guitext:1097
-msgctxt "Game controls"
-msgid "Landview Next Level"
+msgctxt "Moo"
+msgid "Moo"
 msgstr ""
 
 #: guitext:1098
-msgctxt "Game controls"
-msgid "Landview Prev Level"
+msgctxt "Moo"
+msgid "Moo"
 msgstr ""
 
 #: guitext:1099
@@ -5853,8 +5853,8 @@ msgid "Toggle Hero Health Flowers"
 msgstr ""
 
 #: guitext:1106
-msgctxt "Game controls"
-msgid "Teleport Fight"
+msgctxt "Moo"
+msgid "Moo"
 msgstr ""
 
 #: guitext:1107

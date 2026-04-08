@@ -1992,7 +1992,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Му"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -7274,19 +7274,19 @@ msgid "Toggle Tooltips"
 msgstr "Перемкнути підказки"
 
 #: guitext:1096
-msgctxt "Game controls"
-msgid "Landview Show All Ensigns"
-msgstr "Landview Показати всі знаки"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1097
-msgctxt "Game controls"
-msgid "Landview Next Level"
-msgstr "Landview Наступний рівень"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1098
-msgctxt "Game controls"
-msgid "Landview Prev Level"
-msgstr "Landview Попередній рівень"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1099
 msgctxt "Game controls"
@@ -7324,9 +7324,9 @@ msgid "Toggle Hero Health Flowers"
 msgstr "Перемкнути квіти здоров'я героїв"
 
 #: guitext:1106
-msgctxt "Game controls"
-msgid "Teleport Fight"
-msgstr "Телепорт до бою"
+msgctxt "Moo"
+msgid "Moo"
+msgstr ""
 
 #: guitext:1107
 msgctxt "Game controls"
