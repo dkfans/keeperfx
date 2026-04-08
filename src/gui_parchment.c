@@ -936,6 +936,7 @@ void zoom_to_parchment_map(void)
     if (((game.system_flags & GSF_NetworkActive) != 0)
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
+        JUSTLOG("Cannot fade in, screen width is %ld", lbDisplay.PhysicalScreenWidth);
       if (!toggle_status_menu(0))
         clear_flag(game.operation_flags, GOF_ShowPanel);
       set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
