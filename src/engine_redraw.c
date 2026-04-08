@@ -407,7 +407,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
 long map_fade_in(long a)
 {
     SYNCDBG(6,"Starting");
-    JUSTLOG("Fade in at turn %d", game.play_gameturn);
+    JUSTLOG("Fade in at turn %d with %ld", game.play_gameturn,a);
     if (a == 0)
     {
         map_fade_ghost_table = poly_pool;
@@ -431,6 +431,7 @@ long map_fade_in(long a)
     int32_t nxamount =  a + step;
     if (nxamount > 32)
         nxamount = 32;
+    JUSTLOG("Return value %ld", a);
     return nxamount;
 }
 
