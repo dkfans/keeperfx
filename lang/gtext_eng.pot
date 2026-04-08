@@ -5802,18 +5802,8 @@ msgctxt "Game controls"
 msgid "Toggle Tooltips"
 msgstr ""
 
-#: guitext:1096
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
-
-#: guitext:1097
-msgctxt "Moo"
-msgid "Moo"
-msgstr ""
-
-#: guitext:1098
-msgctxt "Moo"
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
 msgid "Moo"
 msgstr ""
 
