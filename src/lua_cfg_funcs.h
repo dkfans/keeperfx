@@ -38,6 +38,7 @@ TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerK
 
 short luafunc_crstate_func(FuncIdx func_idx,struct Thing *thing);
 short luafunc_thing_update_func(FuncIdx func_idx,struct Thing *thing);
+short luafunc_trap_activation_func(FuncIdx func_idx,struct Thing *trap, struct Thing *creature);
 
 #ifdef __cplusplus
 }
