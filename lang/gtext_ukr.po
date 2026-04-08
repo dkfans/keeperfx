@@ -1992,7 +1992,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Му"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -7209,16 +7209,127 @@ msgid "Keeper"
 msgstr "Хранитель"
 
 #: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Record"
+msgstr "Запис екрану"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screen Shot"
+msgstr "Знімок екрану"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Збільшити пропуск кадрів"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Зменшити пропуск кадрів"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Збільшити міні-карту"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Зменшити міні-карту"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "Наступний екземпляр"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "Попередній екземпляр"
+
+#: guitext:1091
 msgctxt "Menu interface item"
 msgid "Online Lobby"
 msgstr "Онлайн-лобі"
 
-#: guitext:1084
+#: guitext:1092
 msgctxt "Menu interface item"
 msgid "LAN Lobby"
 msgstr "LAN-лобі"
 
-#: guitext:1085
+#: guitext:1093
 msgctxt "Menu interface item"
 msgid "LAN Lobbies"
 msgstr "LAN-лобі"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Перемкнути інтерфейс"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Перемкнути підказки"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Вихід з гри"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Вимкнути пакетний режим"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Змінити роздільність"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Перемкнути консоль"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Завершити рівень"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Меню опцій"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Перемкнути квіти здоров'я героїв"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Зворотний апостроф"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Телепорт до останньої майстерні"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Телепорт до заклику до зброї"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Телепорт за замовчуванням"
+
