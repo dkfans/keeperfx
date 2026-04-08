@@ -166,12 +166,12 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"TeleportLastWorkroom",  GUIStr_TeleportLastWorkroom,    KC_SEMICOLON, KMod_NONE,       BMV_Visible,        },       // Gkey_TeleportLastWorkroom,
     {"TeleportCallToArms",    GUIStr_TeleportCallToArms,      KC_SLASH, KMod_NONE,           BMV_Visible,        },       // Gkey_TeleportCallToArms,
     {"TeleportDefault",       GUIStr_TeleportDefault,         KC_COMMA, KMod_NONE,           BMV_Visible,        },       // Gkey_TeleportDefault,
-    {"CheatMenu1",            GUIStr_MnuUnused,               KC_NUMPADENTER, KMod_NONE,     BMV_Hidden,         },       // Gkey_CheatMenu1,
-    {"CheatMenu2",            GUIStr_MnuUnused,               KC_F12, KMod_NONE,             BMV_Hidden,         },       // Gkey_CheatMenu2,
-    {"CheatMenu3",            GUIStr_MnuUnused,               KC_NUMPADENTER, KMod_NONE,     BMV_Hidden,         },       // Gkey_CheatMenu3,
-    {"LVShowAllEnsigns",      GUIStr_MnuUnused,               KC_F11, KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVShowAllEnsigns,
-    {"LVNextLevel",           GUIStr_MnuUnused,               KC_F10, KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVNextLevel,
-    {"LVPrevLevel",           GUIStr_MnuUnused,               KC_F9,  KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVPrevLevel,
+    {"CheatMenu1",            GUIStr_Empty,                   KC_NUMPADENTER, KMod_NONE,     BMV_Hidden,         },       // Gkey_CheatMenu1,
+    {"CheatMenu2",            GUIStr_Empty,                   KC_F12, KMod_NONE,             BMV_Hidden,         },       // Gkey_CheatMenu2,
+    {"CheatMenu3",            GUIStr_Empty,                   KC_NUMPADENTER, KMod_NONE,     BMV_Hidden,         },       // Gkey_CheatMenu3,
+    {"LVShowAllEnsigns",      GUIStr_Empty,                   KC_F11, KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVShowAllEnsigns,
+    {"LVNextLevel",           GUIStr_Empty,                   KC_F10, KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVNextLevel,
+    {"LVPrevLevel",           GUIStr_Empty,                   KC_F9,  KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVPrevLevel,
 
 };
 
