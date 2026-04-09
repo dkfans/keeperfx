@@ -98,7 +98,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
   set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
   if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet)))
       ERRORLOG("Network Exchange failed");
-  int k = 0;
+  int initialized_players = 0;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++)
   {
       pckt = get_packet_direct(i);
@@ -121,10 +121,10 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
           snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
-          k++;
+          initialized_players++;
       }
   }
-  if (k != game.active_players_count)
+  if (initialized_players != game.active_players_count)
   {
       return CLS_REPEAT; // Repeat
   }
