@@ -21,15 +21,15 @@ extern "C" {
 
 static struct Packet local_input_lag_packets[MAXIMUM_INPUT_LAG_TURNS + 1];
 
-void store_local_packet_in_input_lag_queue(PlayerNumber my_packet_num) {
+void store_local_packet_in_input_lag_queue(PlayerNumber local_player_id) {
     if (game.input_lag_turns + 1 <= 0) {
         return;
     }
     int slot = game.play_gameturn % (game.input_lag_turns + 1);
-    local_input_lag_packets[slot] = game.packets[my_packet_num];
+    local_input_lag_packets[slot] = game.packets[local_player_id];
     const char* player_name;
-    if (my_packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
-    MULTIPLAYER_LOG("store_local_packet_in_input_lag_queue: STORING local packet[%s] turn=%lu checksum=%08lx into queue slot %d", player_name, (unsigned long)game.packets[my_packet_num].turn, (unsigned long)game.packets[my_packet_num].checksum, slot);
+    if (local_player_id == 0) {player_name = "Host";} else {player_name = "Client";}
+    MULTIPLAYER_LOG("store_local_packet_in_input_lag_queue: STORING local packet[%s] turn=%lu checksum=%08lx into queue slot %d", player_name, (unsigned long)game.packets[local_player_id].turn, (unsigned long)game.packets[local_player_id].checksum, slot);
 }
 
 struct Packet* get_local_input_lag_packet_for_turn(GameTurn target_turn) {

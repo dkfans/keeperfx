@@ -468,7 +468,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
     TbBool one_click_mode_exclusive = false;
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     if (player->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
@@ -629,7 +629,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
     current_roomspace.plyr_idx = plyr_idx;
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     player->one_click_lock_cursor = false;
     player->one_click_mode_exclusive = false;
     if (player->ignore_next_PCtr_LBtnRelease)
@@ -738,7 +738,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     best_roomspace.rkind = rkind;
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     struct RoomSpace temp_best_room;
     player->one_click_lock_cursor = false;
     if (player->ignore_next_PCtr_LBtnRelease)
@@ -1883,3 +1883,4 @@ TbBool roomspace_slab_blocks_bridge(PlayerNumber plyr_idx, MapSlabCoord slb_x, M
 #ifdef __cplusplus
 }
 #endif
+

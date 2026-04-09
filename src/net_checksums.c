@@ -170,7 +170,7 @@ short checksums_different(void) {
         if (i == host_player_id || !player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
             continue;
         }
-        struct Packet* packet = get_packet_direct(player->packet_num);
+        struct Packet* packet = get_packet_direct(player->id_number);
         if (is_packet_empty(packet)) {
             MULTIPLAYER_LOG("checksums_different: packet[%d] is EMPTY", i);
             mismatch = true;
@@ -417,3 +417,4 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con) {
 #ifdef __cplusplus
 }
 #endif
+

@@ -65,7 +65,7 @@ TbBool is_mouse_on_map(struct Packet* pckt)
 }
 
 void remember_cursor_subtile(struct PlayerInfo *player) {
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     if (player->interpolated_tagging == true) {
         player->previous_cursor_subtile_x = player->cursor_subtile_x;
         player->previous_cursor_subtile_y = player->cursor_subtile_y;
@@ -101,7 +101,7 @@ void set_tag_untag_mode(PlayerNumber plyr_idx)
 TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     MapCoord x = (pckt->pos_x);
     MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
@@ -189,7 +189,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
 TbBool process_dungeon_power_hand_state(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     MapCoord x = pckt->pos_x;
     MapCoord y = pckt->pos_y;
     MapSubtlCoord stl_x = coord_subtile(x);
@@ -264,7 +264,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     struct Thing *thing;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     MapCoord x = pckt->pos_x;
     MapCoord y = pckt->pos_y;
     MapSubtlCoord stl_x = coord_subtile(x);
@@ -543,7 +543,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))
@@ -649,7 +649,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
 TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     MapCoord x = (pckt->pos_x);
     MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
@@ -697,7 +697,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     struct Thing *thing;
     PowerKind pwkind;
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     player->full_slab_cursor = 1;
     packet_left_button_double_clicked[plyr_idx] = 0;
@@ -953,3 +953,4 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     }
     return ret;
 }
+

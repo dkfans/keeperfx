@@ -83,12 +83,12 @@ void store_received_packet(GameTurn turn, PlayerNumber player, const struct Pack
 void store_received_packets(void) {
     MULTIPLAYER_LOG("store_received_packets: RECEIVED packets from network");
     struct PlayerInfo* player = get_my_player();
-    PlayerNumber my_packet_num = 0;
+    PlayerNumber local_player_id = 0;
     if (player_exists(player)) {
-        my_packet_num = player->packet_num;
+        local_player_id = player->id_number;
     }
     for (int i = 0; i < PACKETS_COUNT; ++i) {
-        if (i != my_packet_num) {
+        if (i != local_player_id) {
             if (is_packet_empty(&game.packets[i])) {
                 MULTIPLAYER_LOG("store_received_packets: RECEIVED packet[%d] is EMPTY", i);
             } else {
@@ -132,3 +132,4 @@ const struct Packet* get_received_packet_for_player(GameTurn turn, PlayerNumber 
 #ifdef __cplusplus
 }
 #endif
+

@@ -47,7 +47,7 @@ unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
 {
     SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
@@ -402,3 +402,4 @@ TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     return can_place;
 }
 /******************************************************************************/
+

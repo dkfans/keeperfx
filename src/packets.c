@@ -195,7 +195,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
 
     while (game.conf.rules[plyr_idx].magic.allow_instant_charge_up && is_game_key_pressed(Gkey_SpeedMod, NULL, true))
     {
@@ -502,7 +502,7 @@ void update_box_lag_compensation(struct PlayerInfo* player) {
     box_lag_compensation_x = 0;
     box_lag_compensation_y = 0;
     if (is_my_player(player)) {
-        struct Packet* auth_pckt = get_packet_direct(player->packet_num);
+        struct Packet* auth_pckt = get_packet_direct(player->id_number);
         struct Packet* visual_pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
         if (visual_pckt != NULL) {
             box_lag_compensation_x = coord_slab(auth_pckt->pos_x) - coord_slab(visual_pckt->pos_x);
@@ -516,7 +516,7 @@ void update_box_lag_compensation(struct PlayerInfo* player) {
 void process_players_dungeon_control_packet_control(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     struct Camera* cam = get_player_active_camera(player);
     if (cam == NULL) {
@@ -672,7 +672,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
 {
   //TODO PACKET add commands from beta
   struct PlayerInfo* player = get_player(plyr_idx);
-  struct Packet* pckt = get_packet_direct(player->packet_num);
+  struct Packet* pckt = get_packet_direct(player->id_number);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   struct Dungeon *dungeon;
   struct Thing *thing;
@@ -1157,7 +1157,7 @@ void process_players_map_packet_control(long plyr_idx)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     // Get map coordinates
     process_map_packet_clicks(plyr_idx);
     player->cameras[CamIV_Parchment].mappos.x.val = pckt->pos_x;
@@ -1185,7 +1185,7 @@ void process_map_packet_clicks(long plyr_idx)
 void process_players_packet(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     if (is_packet_empty(pckt))
     {
         MULTIPLAYER_LOG("process_players_packet: Skipping empty packet for player %ld", plyr_idx);
@@ -1231,7 +1231,7 @@ void process_players_packet(long plyr_idx)
 void process_players_creature_passenger_packet_action(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     if (pckt->action == PckA_PasngrCtrlExit)
     {
@@ -1245,7 +1245,7 @@ void process_players_creature_passenger_packet_action(long plyr_idx)
 TbBool process_players_dungeon_control_packet_action(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     switch (pckt->action)
     {
@@ -1327,7 +1327,7 @@ void process_players_creature_control_packet_control(long idx)
 
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_player(idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     struct Thing* cctng = thing_get(player->controlled_thing_idx);
     if (!can_process_creature_input(cctng))
         return;
@@ -1494,7 +1494,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   struct Packet *pckt;
   long i;
   player = get_player(plyr_idx);
-  pckt = get_packet_direct(player->packet_num);
+  pckt = get_packet_direct(player->id_number);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
   {
@@ -1588,7 +1588,7 @@ static void replace_with_ai(int old_active_players)
         for (int i = 0; i < NET_PLAYERS_COUNT; i++)
         {
             struct PlayerInfo *player = get_player(i);
-            if (!network_player_active(player->packet_num))
+            if (!network_player_active(player->id_number))
             {
                 message_add(MsgType_Player, player->id_number, "I am the computer now!");
                 JUSTLOG("p:%d I am the computer now!", player->id_number);
@@ -1600,7 +1600,7 @@ static void replace_with_ai(int old_active_players)
     }
 }
 
-static void load_old_packets(PlayerNumber my_packet_num) {
+static void load_old_packets(PlayerNumber local_player_id) {
     GameTurn historical_turn = game.play_gameturn - game.input_lag_turns;
     const struct Packet* received_packets = get_received_packets_for_turn(historical_turn);
     const char* received_packets_status;
@@ -1615,7 +1615,7 @@ static void load_old_packets(PlayerNumber my_packet_num) {
         const char* player_name;
         if (i == 0) {player_name = "Host";} else {player_name = "Client";}
 
-        if (i == my_packet_num) {
+        if (i == local_player_id) {
             struct Packet* local_packet = get_local_input_lag_packet_for_turn(historical_turn);
             if (local_packet != NULL) {
                 game.packets[i] = *local_packet;
@@ -1668,7 +1668,7 @@ void process_packets(void)
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)game.play_gameturn);
     set_local_packet_turn();
     update_turn_checksums();
-    store_local_packet_in_input_lag_queue(player->packet_num);
+    store_local_packet_in_input_lag_queue(player->id_number);
 
     if (game.game_kind != GKind_LocalGame)
     {
@@ -1682,9 +1682,9 @@ void process_packets(void)
 
         if (!game.packet_load_enable || game.packet_load_initialized)
         {
-            struct Packet* my_pckt = get_packet_direct(player->packet_num);
+            struct Packet* my_pckt = get_packet_direct(player->id_number);
             const char* player_name;
-            if (player->packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
+            if (player->id_number == 0) {player_name = "Host";} else {player_name = "Client";}
             MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_pckt->turn, (unsigned long)my_pckt->checksum);
             TbError exchange_result = LbNetwork_Exchange(NETMSG_GAMEPLAY, my_pckt, game.packets, sizeof(struct Packet));
             if (exchange_result != Lb_OK) {
@@ -1696,7 +1696,7 @@ void process_packets(void)
     }
 
     MULTIPLAYER_LOG("process_packets: Loading packets from input lag queue");
-    load_old_packets(player->packet_num);
+    load_old_packets(player->id_number);
 
     if (input_lag_skips_initial_processing())
     {
@@ -1949,3 +1949,4 @@ void process_sprite_zip_count_sync(long plyr_idx, long zip_count)
 }
 
 /******************************************************************************/
+

@@ -55,7 +55,7 @@ extern TbResult LbScreenSwap(void);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
         unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
 {
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
     pckt->actn_par3 = par3;
@@ -65,7 +65,7 @@ void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
 
 unsigned char get_players_packet_action(struct PlayerInfo *player)
 {
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     return pckt->action;
 }
 
@@ -76,7 +76,7 @@ void set_packet_control(struct Packet *pckt, unsigned long flag)
 
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     pckt->control_flags |= flag;
 }
 
@@ -87,7 +87,7 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag)
 
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet_direct(player->id_number);
     pckt->control_flags &= ~flag;
 }
 
@@ -110,13 +110,13 @@ struct Packet *get_packet(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player))
         return INVALID_PACKET;
-    if (player->packet_num >= PACKETS_COUNT)
+    if (player->id_number >= PACKETS_COUNT)
         return INVALID_PACKET;
-    return &game.packets[player->packet_num];
+    return &game.packets[player->id_number];
 }
 /**
  * Gives a pointer to packet of given index.
- * @param pckt_idx Packet index in the array. Note that it may differ from player index.
+ * @param pckt_idx Packet index in the array.
  * @return Returns Packet pointer. On error, returns a dummy structure.
  */
 struct Packet *get_packet_direct(long pckt_idx)
@@ -391,7 +391,7 @@ void set_packet_pause_toggle()
     struct PlayerInfo* player = get_my_player();
     if (player_invalid(player))
         return;
-    if (player->packet_num >= PACKETS_COUNT)
+    if (player->id_number >= PACKETS_COUNT)
         return;
     if (game.game_kind != GKind_LocalGame) {
         unsigned long current_time = LbTimerClock();
@@ -420,3 +420,4 @@ void set_packet_pause_toggle()
     }
     process_pause_packet(0, 0);
 }
+

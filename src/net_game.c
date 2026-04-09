@@ -109,8 +109,8 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
       }
       if ((net_player_info[i].active) && (pckt->action == PckA_InitPlayerNum))
       {
-          player = get_player(k);
-          player->id_number = k;
+          player = get_player(i);
+          player->id_number = i;
           player->allocflags |= PlaF_Allocated;
           switch (pckt->actn_par2) {
               case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
@@ -134,20 +134,14 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
 static short setup_select_player_number(void)
 {
     short is_set = 0;
-    int k = 0;
     SYNCDBG(6, "Starting");
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo* player = get_player(i);
         if (net_player_info[i].active)
         {
-            player->packet_num = i;
-            if ((!is_set) && (my_player_number == i))
-            {
+            if ((!is_set) && (my_player_number == i)) {
                 is_set = 1;
-                my_player_number = k;
             }
-            k++;
         }
     }
     return is_set;
@@ -241,3 +235,4 @@ void sync_various_data()
 #ifdef __cplusplus
 }
 #endif
+

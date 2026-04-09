@@ -633,7 +633,7 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
     }
     if (r > 0) {
         int radius_offset = r / 2;
-        struct Packet * pckt = get_packet_direct(player->packet_num);
+        struct Packet * pckt = get_packet_direct(player->id_number);
         MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
         MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
         clear_dig_for_map_rect(player->id_number,
@@ -664,7 +664,7 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
     }
     if (r > 0) {
         int radius_offset = r / 2;
-        struct Packet * pckt = get_packet_direct(player->packet_num);
+        struct Packet * pckt = get_packet_direct(player->id_number);
         MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
         MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
         conceal_map_area(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset, false);
@@ -837,7 +837,7 @@ TbBool cmd_create_gold(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct PlayerInfo * player = get_player(plyr_idx);
-    struct Packet * pckt = get_packet_direct(player->packet_num);
+    struct Packet * pckt = get_packet_direct(player->id_number);
     struct Thing * thing = create_gold_pot_at(pckt->pos_x, pckt->pos_y, plyr_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "coordinate thing is invalid");
@@ -916,7 +916,7 @@ TbBool cmd_create_object(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct PlayerInfo * player = get_player(plyr_idx);
-    struct Packet * pckt = get_packet_direct(player->packet_num);
+    struct Packet * pckt = get_packet_direct(player->id_number);
     struct Coord3d pos = {0};
     pos.x.stl.num = coord_subtile(pckt->pos_x);
     pos.y.stl.num = coord_subtile(pckt->pos_y);
@@ -998,7 +998,7 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct PlayerInfo * player = get_player(plyr_idx);
-    struct Packet * pckt = get_packet_direct(player->packet_num);
+    struct Packet * pckt = get_packet_direct(player->id_number);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     if (subtile_coords_invalid(stl_x, stl_y)) {
@@ -1085,7 +1085,7 @@ TbBool cmd_create_thing(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct PlayerInfo * player = get_player(plyr_idx);
-    struct Packet * pckt = get_packet_direct(player->packet_num);
+    struct Packet * pckt = get_packet_direct(player->id_number);
     struct Coord3d pos = {0};
     pos.x.stl.num = coord_subtile(pckt->pos_x);
     pos.y.stl.num = coord_subtile(pckt->pos_y);
@@ -1120,7 +1120,7 @@ TbBool cmd_place_slab(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct PlayerInfo * player = get_player(plyr_idx);
-    struct Packet * pckt = get_packet_direct(player->packet_num);
+    struct Packet * pckt = get_packet_direct(player->id_number);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -1462,7 +1462,7 @@ TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
     struct Coord3d pos = {0};
     if (pr2str == NULL) {
         struct PlayerInfo * player = get_player(plyr_idx);
-        struct Packet * pckt = get_packet_direct(player->packet_num);
+        struct Packet * pckt = get_packet_direct(player->id_number);
         pos.x.val = pckt->pos_x;
         pos.y.val = pckt->pos_y;
     } else {
@@ -1571,7 +1571,7 @@ TbBool cmd_cursor_pos(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct PlayerInfo * player = get_player(plyr_idx);
-    struct Packet * pckt = get_packet_direct(player->packet_num);
+    struct Packet * pckt = get_packet_direct(player->id_number);
     struct Coord3d pos = {0};
     pos.x.val = pckt->pos_x;
     pos.y.val = pckt->pos_y;
@@ -1589,7 +1589,7 @@ TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
     }
     char * pr2str = strsep(&args, " ");
     struct PlayerInfo * player = get_player(plyr_idx);
-    struct Packet * pckt = get_packet_direct(player->packet_num);
+    struct Packet * pckt = get_packet_direct(player->id_number);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     struct Thing * thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_thing_at_position(stl_x, stl_y);
@@ -1666,7 +1666,7 @@ TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
             pos.z.val = get_floor_height_at(&pos);
         }
     } else {
-        struct Packet * pckt = get_packet_direct(player->packet_num);
+        struct Packet * pckt = get_packet_direct(player->id_number);
         pos.x.val = pckt->pos_x;
         pos.y.val = pckt->pos_y;
         pos.z.val = get_floor_height_at(&pos);
@@ -1699,7 +1699,7 @@ TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
     }
     char * pr2str = strsep(&args, " ");
     struct PlayerInfo * player = get_player(plyr_idx);
-    struct Packet * pckt = get_packet_direct(player->packet_num);
+    struct Packet * pckt = get_packet_direct(player->id_number);
     MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
     MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
     struct Room * room = (pr2str != NULL) ? room_get(atoi(pr2str)) : subtile_room_get(stl_x, stl_y);
@@ -1741,7 +1741,7 @@ TbBool cmd_slab_health(PlayerNumber plyr_idx, char * args)
     }
     char * pr2str = strsep(&args, " ");
     struct PlayerInfo * player = get_player(plyr_idx);
-    struct Packet * pckt = get_packet_direct(player->packet_num);
+    struct Packet * pckt = get_packet_direct(player->id_number);
     MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
     MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
     struct SlabMap * slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -2563,3 +2563,4 @@ static char get_door_number_for_command(char* msg)
 #ifdef __cplusplus
 }
 #endif
+
