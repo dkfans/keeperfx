@@ -7155,7 +7155,7 @@ msgstr "Väktare"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "Skärminspelning"
 
 #: guitext:1084

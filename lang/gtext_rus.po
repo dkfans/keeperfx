@@ -6539,19 +6539,19 @@ msgid "Keeper"
 msgstr "Хранитель"
 
 #: guitext:1083
-msgctxt "Menu interface item"
-msgid "Online Lobby"
-msgstr "Интернет-лобби"
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr "Запись экрана"
 
 #: guitext:1084
-msgctxt "Menu interface item"
-msgid "LAN Lobby"
-msgstr "Локальное лобби"
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr "Снимок экрана"
 
 #: guitext:1085
-msgctxt "Menu interface item"
-msgid "LAN Lobbies"
-msgstr "Локальные лобби"
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Увеличить пропуск кадров"
 
 #: guitext:1086
 msgctxt "Game controls"
