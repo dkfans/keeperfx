@@ -7093,7 +7093,7 @@ msgstr "キーパー"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "画面録画"
 
 #: guitext:1084

@@ -7210,7 +7210,7 @@ msgstr "Хранитель"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "Запис екрану"
 
 #: guitext:1084
