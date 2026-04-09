@@ -7248,12 +7248,12 @@ msgstr "Keeper"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "Registra Schermo"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "Cattura Schermo"
 
 #: guitext:1085

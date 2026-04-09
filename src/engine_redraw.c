@@ -404,10 +404,10 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     }
 }
 
-long map_fade_in(long a)
+long map_fade_in(long palette_fade_step)
 {
     SYNCDBG(6,"Starting");
-    if (a == 0)
+    if (palette_fade_step == 0)
     {
         map_fade_ghost_table = poly_pool;
         map_fade_src = poly_pool + PALETTE_COLORS*PALETTE_COLORS;
@@ -416,17 +416,14 @@ long map_fade_in(long a)
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
     map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
-      a, 320, 200, lbDisplay.GraphicsScreenWidth);
-    long nxamount =  a + 4;
-    if (nxamount > 32)
-        nxamount = 32;
-    return nxamount;
+        palette_fade_step, 320, 200, lbDisplay.GraphicsScreenWidth);
+    return (8 - get_my_player()->instance_remain_turns) * 4;
 }
 
-long map_fade_out(long a)
+long map_fade_out(long palette_fade_step)
 {
     SYNCDBG(6,"Starting");
-    if (a == 32)
+    if (palette_fade_step == 32)
     {
         map_fade_ghost_table = poly_pool;
         map_fade_src = poly_pool + PALETTE_COLORS*PALETTE_COLORS;
@@ -435,11 +432,8 @@ long map_fade_out(long a)
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
     map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
-      a, 320, 200, lbDisplay.GraphicsScreenWidth);
-    long nxamount =  a - 4;
-    if (a < 0)
-        nxamount = 0;
-    return nxamount;
+      palette_fade_step, 320, 200, lbDisplay.GraphicsScreenWidth);
+    return get_my_player()->instance_remain_turns * 4;
 }
 
 void set_sprite_view_3d(void)

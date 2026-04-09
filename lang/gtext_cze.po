@@ -7129,12 +7129,12 @@ msgstr "Strážce"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "Nahrávání obrazovky"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "Snímek obrazovky"
 
 #: guitext:1085

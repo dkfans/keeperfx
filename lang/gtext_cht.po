@@ -6754,12 +6754,12 @@ msgstr "守护者"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "螢幕錄製"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "螢幕截圖"
 
 #: guitext:1085

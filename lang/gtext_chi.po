@@ -6758,12 +6758,12 @@ msgstr "守护者"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "屏幕录制"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "屏幕截图"
 
 #: guitext:1085
