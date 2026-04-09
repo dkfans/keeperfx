@@ -7164,7 +7164,7 @@ msgstr "Recordatio Scaenae"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "Imago Scaenae"
 
 #: guitext:1085
