@@ -81,6 +81,11 @@ short setup_network_service(enum FrontendNetService service)
 }
 
 unsigned long get_host_player_id(void) {
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (net_player_info[i].active) {
+            return i;
+        }
+    }
     return 0;
 }
 
