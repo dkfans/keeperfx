@@ -54,9 +54,6 @@
     <ClCompile Include="src\bflib_crash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_datetm.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_dernc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -784,6 +781,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\net_matchmaking.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_datetm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
