@@ -113,7 +113,7 @@ static const struct luaL_Reg slab_methods[] = {
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     } else {
-        return luaL_error(L, "Unknown field or method '%s' for Player", key);
+        return luaL_error(L, "Unknown field or method '%s' for Camera", key);
     }
 
     return 1;
