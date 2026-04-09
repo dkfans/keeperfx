@@ -7215,7 +7215,7 @@ msgstr "Запис екрану"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "Знімок екрану"
 
 #: guitext:1085

@@ -7134,7 +7134,7 @@ msgstr "Schermopname"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "Schermafbeelding"
 
 #: guitext:1085

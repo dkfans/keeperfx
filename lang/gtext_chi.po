@@ -6763,7 +6763,7 @@ msgstr "屏幕录制"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "屏幕截图"
 
 #: guitext:1085

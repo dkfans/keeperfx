@@ -6759,7 +6759,7 @@ msgstr "螢幕錄製"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "螢幕截圖"
 
 #: guitext:1085
