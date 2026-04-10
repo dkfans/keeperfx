@@ -283,8 +283,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         create_light_for_possession(thing);
     }
-    if (thing->class_id == TCls_Creature)
-    {
+    if ((thing->class_id == TCls_Creature) && is_my_player(player)) {
         crconf = creature_stats_get_from_thing(thing);
         SYNCDBG(7,"Controlling creature '%s', eye_effect=%d", crconf->name, crconf->eye_effect);
         setup_eye_lens(crconf->eye_effect);
@@ -3224,18 +3223,15 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
     player->influenced_thing_creation = 0;
-    if (player->id_number == thing->owner)
-        setup_eye_lens(0);
     set_camera_zoom(get_player_active_camera(player), player->dungeon_camera_zoom);
-    if (player->id_number == thing->owner)
-    {
+    if (is_my_player(player)) {
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-  }
-  light_turn_light_on(player->cursor_light_idx);
-  PaletteSetPlayerPalette(player, engine_palette);
+        PaletteSetPlayerPalette(player, engine_palette);
+    }
+    light_turn_light_on(player->cursor_light_idx);
 }
 
 void delete_armour_effects_attached_to_creature(struct Thing *thing)
