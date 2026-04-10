@@ -1976,7 +1976,7 @@ void maintain_activity_up(struct GuiButton *gbtn)
         gbtn->flags |= LbBtnF_Visible;
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (top_of_breed_list > 0)) & LbBtnF_Enabled;
     }
-    if (wheel_scrolled_up && ((is_game_key_pressed(Gkey_SpeedMod, NULL, true)) || mouse_is_over_side_panel_bottom()))
+    if (wheel_scrolled_up && ((is_game_key_pressed(Gkey_SpeedMod, false, true)) || mouse_is_over_side_panel_bottom()))
     {
         if (top_of_breed_list > 0)
         {
@@ -1997,7 +1997,7 @@ void maintain_activity_down(struct GuiButton *gbtn)
         gbtn->flags |= LbBtnF_Visible;
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnF_Enabled;
     }
-    if (wheel_scrolled_down && (is_game_key_pressed(Gkey_SpeedMod, NULL, true) || mouse_is_over_side_panel_bottom()))
+    if (wheel_scrolled_down && (is_game_key_pressed(Gkey_SpeedMod, false, true) || mouse_is_over_side_panel_bottom()))
     {
         if (top_of_breed_list + 6 < no_of_breeds_owned)
         {
@@ -2115,7 +2115,6 @@ void maintain_event_button(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     EventIndex evidx;
     unsigned long evbtn_idx = gbtn->content.lval;
-    int32_t keycode;
     if (evbtn_idx <= EVENT_BUTTONS_COUNT)
     {
         evidx = dungeon->event_button_index[evbtn_idx];
@@ -2129,18 +2128,17 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         turn_on_event_info_panel_if_necessary(dungeon->visible_event_idx);
         //TODO: that should be not here, Keys should be processed at one place
-        if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false)
+        if (is_game_key_pressed(Gkey_ToggleMessage, true, false)
             && ((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0))
         {
             gui_kill_event(gbtn);
-            clear_key_pressed(keycode);
         }
     }
     else
     {
         if (dungeon->visible_event_idx == 0)
         {
-            if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false)
+            if (is_game_key_pressed(Gkey_ToggleMessage, true, false)
                 && ((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0))
             {
                 for (int i = EVENT_BUTTONS_COUNT; i >= 0; i--)
@@ -2152,7 +2150,6 @@ void maintain_event_button(struct GuiButton *gbtn)
                         break;
                     }
                 }
-                clear_key_pressed(keycode);
             }
         }
     }
@@ -2177,16 +2174,14 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         // Fight icon flashes when there are fights to show
         gbtn->sprite_idx += 2;
-        if(is_game_key_pressed(Gkey_ZoomToFight, &keycode, true) && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
+        if(is_game_key_pressed(Gkey_SpeedMod, false, true) && is_game_key_pressed(Gkey_ZoomToFight, true, true))
         {
             if (evidx == dungeon->visible_event_idx)
             {
-            clear_key_pressed(keycode);
             gui_close_objective(gbtn);
             }
             else
             {
-            clear_key_pressed(keycode);
             activate_event_box(evidx);
             }
         }

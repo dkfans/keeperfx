@@ -249,7 +249,7 @@ void update_gui_layer()
 
     struct PlayerInfo* player = get_my_player();
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (player->render_roomspace.highlight_mode))  &&
-         (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
+         (is_game_key_pressed(Gkey_BestRoomSpace, false, true) || is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) )
     {
         if (player->render_roomspace.one_click_mode_exclusive)
         {
@@ -274,16 +274,15 @@ short game_is_busy_doing_gui_string_input(void)
   return (input_button != NULL);
 }
 
-int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
+int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods)
 {
   int result;
   int i;
   if ((key_id < 0) || (key_id >= GAME_KEYS_COUNT))
     return 0;
-  if (val != NULL)
-  {
-    *val = settings.kbkeys[key_id].code;
-  }
+
+  int32_t val = settings.kbkeys[key_id].code;
+
   if (get_current_gui_layer() == GuiLayer_OneClickBridgeBuild)
   {
     if ( ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod)) && (
@@ -331,20 +330,22 @@ int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
             if ((key_id == Gkey_FrameSkipIncrease) && is_key_pressed(KC_EQUALS, KMod_CONTROL))
             {
                 result = 1;
-                *val = KC_EQUALS;
+                val = KC_EQUALS;
             }
             else if ((key_id == Gkey_FrameSkipDecrease) && is_key_pressed(KC_MINUS, KMod_CONTROL))
             {
                 result = 1;
-                *val = KC_MINUS;
+                val = KC_MINUS;
             }
             else if ((key_id == Gkey_CheatMenu1) && is_key_pressed(KC_RETURN, KMod_SHIFT))
             {
                 result = 1;
-                *val = KC_RETURN;
+                val = KC_RETURN;
             }
       }
   }
+  if (result && clear_pressed)
+    clear_key_pressed(val);
 
   return result;
 }
@@ -391,19 +392,16 @@ short get_players_message_inputs(void)
  */
 short get_screen_capture_inputs(void)
 {
-  int32_t val;
-  if (is_game_key_pressed(Gkey_ScreenRecord, &val, false))
+  if (is_game_key_pressed(Gkey_ScreenRecord, true, false))
   {
       if ((game.system_flags & GSF_CaptureMovie) != 0)
         movie_record_stop();
       else
         movie_record_start();
-      clear_key_pressed(val);
   }
-  if (is_game_key_pressed(Gkey_ScreenShot, &val, false))
+  if (is_game_key_pressed(Gkey_ScreenShot, true, false))
   {
       set_flag(game.system_flags, GSF_CaptureSShot);
-      clear_key_pressed(val);
   }
   return false;
 }
@@ -471,15 +469,13 @@ void decreaseFrameskip(void)
 short get_speed_control_inputs(void)
 {
     int32_t val;
-  if (is_game_key_pressed(Gkey_FrameSkipIncrease, &val, false))
+  if (is_game_key_pressed(Gkey_FrameSkipIncrease, true, false))
   {
       increaseFrameskip();
-      clear_key_pressed(val);
   }
-  if (is_game_key_pressed(Gkey_FrameSkipDecrease, &val, false))
+  if (is_game_key_pressed(Gkey_FrameSkipDecrease, true, false))
   {
       decreaseFrameskip();
-      clear_key_pressed(val);
   }
   return false;
 }
@@ -489,19 +485,16 @@ short get_speed_control_inputs(void)
  */
 short get_packet_load_game_control_inputs(void)
 {
-  int32_t val;
-  if (is_game_key_pressed(Gkey_ExitGame, &val, false))
+  if (is_game_key_pressed(Gkey_ExitGame, true, false))
   {
-    clear_key_pressed(val);
     if ((game.system_flags & GSF_NetworkActive) != 0)
       LbNetwork_Stop();
     quit_game = 1;
     exit_keeper = 1;
     return true;
   }
-  if (is_game_key_pressed(Gkey_DisablePacketMode, &val, false))
+  if (is_game_key_pressed(Gkey_DisablePacketMode, true, false))
   {
-    clear_key_pressed(val);
     disable_packet_mode();
     return true;
   }
@@ -582,10 +575,8 @@ short zoom_shortcuts(void)
 {
     for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++)
     {
-        int32_t val;
-        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
+        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, true, false))
         {
-            clear_key_pressed(val);
             go_to_my_next_room_of_type(zoom_key_room_order[i]);
             return true;
         }
@@ -602,7 +593,7 @@ short get_minimap_control_inputs(void)
     struct PlayerInfo* player = get_my_player();
     short packet_made = false;
     int32_t val;
-    if (is_game_key_pressed(Gkey_ZoomMinimapOut, &val, false))
+    if (is_game_key_pressed(Gkey_ZoomMinimapOut, true, false))
     {
         if (menu_is_active(GMnu_MAIN))
         {
@@ -613,11 +604,10 @@ short get_minimap_control_inputs(void)
             set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
             packet_made = true;
         }
-        clear_key_pressed(val);
         if (packet_made)
             return true;
   }
-  if (is_game_key_pressed(Gkey_ZoomMinimapIn, &val, false))
+  if (is_game_key_pressed(Gkey_ZoomMinimapIn, true, false))
   {
       if (menu_is_active(GMnu_MAIN))
       {
@@ -628,7 +618,6 @@ short get_minimap_control_inputs(void)
           set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
           packet_made = true;
       }
-      clear_key_pressed(val);
       if (packet_made) return true;
   }
   return false;
@@ -642,12 +631,10 @@ short get_screen_control_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     short packet_made = false;
-    int32_t val;
-    if (is_game_key_pressed(Gkey_SwitchScreenRes, &val, false))
+    if (is_game_key_pressed(Gkey_SwitchScreenRes, true, false))
     {
         set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
         packet_made = true;
-        clear_key_pressed(val);
         if (packet_made)
             return true;
   }
@@ -659,7 +646,6 @@ short get_global_inputs(void)
   if (game_is_busy_doing_gui_string_input())
     return false;
   struct PlayerInfo* player = get_my_player();
-  int32_t keycode;
   if ((player->allocflags & PlaF_NewMPMessage) != 0)
   {
     get_players_message_inputs();
@@ -701,7 +687,7 @@ short get_global_inputs(void)
       (player->instance_num != PI_MapFadeFrom) &&
       (!game_is_busy_doing_gui_string_input()))
   {
-      if ( is_game_key_pressed(Gkey_TogglePause, &keycode, false) )
+      if ( is_game_key_pressed(Gkey_TogglePause, true, false) )
       {
         long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave);// the paused flag is currently set to the current pause state, not the state we are about to enter
         LbGrabMouseCheck(grab_check_flags);
@@ -722,7 +708,6 @@ short get_global_inputs(void)
             }
         }
         set_packet_pause_toggle();
-        clear_key_pressed(keycode);
         return true;
       }
       else if( flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
@@ -761,21 +746,18 @@ short get_global_inputs(void)
         return true;
       }
   }
-  if ( is_game_key_pressed(Gkey_DumpToOldPos, &keycode, false) )
+  if ( is_game_key_pressed(Gkey_DumpToOldPos, true, false) )
   {
       set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
-      clear_key_pressed(keycode);
   }
-  if (is_game_key_pressed(Gkey_ToggleConsole, &keycode, false)) {
+  if (is_game_key_pressed(Gkey_ToggleConsole, true, false)) {
     debug_display_consolelog = !debug_display_consolelog;
-    clear_key_pressed(keycode);
   }
   return false;
 }
 
 TbBool get_level_lost_inputs(void)
 {
-    int32_t keycode;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
@@ -800,7 +782,7 @@ TbBool get_level_lost_inputs(void)
         return true;
     if (get_screen_capture_inputs())
         return true;
-    if (is_game_key_pressed(Gkey_FinishLevel, &keycode, false))
+    if (is_game_key_pressed(Gkey_FinishLevel, true, false))
     {
         set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
         clear_key_pressed(keycode);
@@ -814,7 +796,7 @@ TbBool get_level_lost_inputs(void)
         int32_t map_x;
         int32_t map_y;
         TbBool map_valid = point_to_overhead_map(get_local_camera(camera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
-        if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
+        if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
         {
             lbKeyOn[keycode] = 0;
             zoom_from_parchment_map();
@@ -847,7 +829,7 @@ TbBool get_level_lost_inputs(void)
             toggle_gui();
           }
       } else
-      if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
+      if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
       {
         lbKeyOn[keycode] = 0;
         if (player->view_mode != PVM_ParchFadeOut)
@@ -1108,12 +1090,12 @@ short get_status_panel_keyboard_action_inputs(void)
   }
   
   int32_t keycode;
-  if(is_game_key_pressed(Gkey_NextInstance, &keycode, false))
+  if(is_game_key_pressed(Gkey_NextInstance, true, false))
   {
     go_to_adjacent_menu_tab(1);
     clear_key_pressed(keycode);
   }
-  if(is_game_key_pressed(Gkey_PrevInstance, &keycode, false))
+  if(is_game_key_pressed(Gkey_PrevInstance, true, false))
   {
       go_to_adjacent_menu_tab(-1);
       clear_key_pressed(keycode);
@@ -1132,31 +1114,20 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
     if (get_bookmark_inputs())
       return true;
 
-    if (is_game_key_pressed(Gkey_ToggleTooltips, &val, false))
+    if (is_game_key_pressed(Gkey_ToggleTooltips, true, false))
     {
-        clear_key_pressed(val);
         toggle_tooltips();
     }
-    if (is_game_key_pressed(Gkey_CheatMenu3, &val, false))
+    if (is_game_key_pressed(Gkey_CheatMenu3, true, false))
     {
-        if (close_instance_cheat_menu())
-        {
-            clear_key_pressed(val);
-        }
-        else
-        if (toggle_main_cheat_menu())
-        {
-            clear_key_pressed(val);
-        }
+        if (!close_instance_cheat_menu())
+            toggle_main_cheat_menu();
     }
 
-    if (is_game_key_pressed(Gkey_CheatMenu2, &val, false))
+    if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
-        if (close_creature_cheat_menu())
-        {
-            clear_key_pressed(val);
-        }
+        close_creature_cheat_menu();
     }
     if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
@@ -1170,7 +1141,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
           toggle_gui();
       }
       // Middle mouse camera actions for IsometricView
-      if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
+      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
       {
           struct Camera* cam = &player->cameras[CamIV_Isometric];
           struct Packet* pckt = get_packet(my_player_number);
@@ -1246,19 +1217,17 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
             (angle = ANGLE_NORTH);
         }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
-        clear_key_pressed(val);
         return true;
       }
     }
     if (player->view_mode == PVM_FrontView)
     {
-      if (is_game_key_pressed(Gkey_ToggleGui, &val, false))
+      if (is_game_key_pressed(Gkey_ToggleGui, true, false))
       {
-          clear_key_pressed(val);
           toggle_gui();
       }
       // Middle mouse camera actions for FrontView
-      if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
+      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
       {
           struct Camera* cam = &player->cameras[CamIV_FrontView];
           struct Packet* pckt = get_packet(my_player_number);
@@ -1283,7 +1252,6 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
             }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         }
-        clear_key_pressed(val);
         return true;
       }
     }
@@ -1294,9 +1262,8 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
     {
         process_cheat_mode_selection_inputs();
     }
-    if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
+    if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
     {
-      clear_key_pressed(val);
       if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != 2))
       {
           turn_off_all_window_menus();
@@ -1304,9 +1271,8 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
       }
       return true;
     }
-    if (is_game_key_pressed(Gkey_ToggleHeroHealthFlowers, &val, false))
+    if (is_game_key_pressed(Gkey_ToggleHeroHealthFlowers, true, false))
     {
-        clear_key_pressed(val);
         toggle_hero_health_flowers();
     }
     return false;
@@ -1314,7 +1280,6 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
 
 TbBool get_dungeon_control_action_inputs(void)
 {
-    int32_t val;
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
         return true;
@@ -1355,15 +1320,13 @@ TbBool get_dungeon_control_action_inputs(void)
     }
 
     // Zooming cannot be done paused because it's a player instance.
-    if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
+    if (is_game_key_pressed(Gkey_ZoomToFight, true, false))
     {
-        clear_key_pressed(val);
         zoom_to_fight(player->id_number);
         return true;
     }
-    if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, &val, false))
+    if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, true, false))
     {
-        clear_key_pressed(val);
         zoom_to_next_annoyed_creature();
         return true;
     }
@@ -1468,9 +1431,8 @@ short get_creature_passenger_action_inputs(void)
         return true;
     }
     int32_t val;
-    if (is_game_key_pressed(Gkey_ToggleGui, &val, false))
+    if (is_game_key_pressed(Gkey_ToggleGui, true, false))
     {
-        clear_key_pressed(val);
         toggle_gui();
     }
     return false;
@@ -1523,29 +1485,23 @@ static void set_possession_instance(struct PlayerInfo* player, struct Thing* thi
 
 short get_creature_control_action_inputs(void)
 {
-    int32_t keycode;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
         return 1;
     if ( ((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
         get_gui_inputs(1);
-    if (is_game_key_pressed(Gkey_CheatMenu1, &keycode, false))
+    if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
-        if (close_main_cheat_menu())
+        if (!close_main_cheat_menu())
         {
-            clear_key_pressed(keycode);
-        } else
-        if (toggle_instance_cheat_menu())
-        {
-            clear_key_pressed(keycode);
+            toggle_instance_cheat_menu();
         }
     }
-    if (is_game_key_pressed(Gkey_CheatMenu2, &keycode, false))
+    if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
         toggle_creature_cheat_menu();
-        clear_key_pressed(keycode);
     }
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
@@ -1607,7 +1563,7 @@ short get_creature_control_action_inputs(void)
         turn_off_menu(GMnu_CREATURE_QUERY1);
         turn_on_menu(GMnu_CREATURE_QUERY2);
       }
-      if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false) || wheel_scrolled_down)
+      if (is_game_key_pressed(Gkey_ToggleMessage, true, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY1);
         if (creature_instance_get_available_id_for_pos(thing,6) > 0)
@@ -1621,7 +1577,7 @@ short get_creature_control_action_inputs(void)
         fake_button_click(0);
         update_wheel_scrolled();
       }
-      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_up)
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY1);
         turn_on_menu(GMnu_CREATURE_QUERY4);
@@ -1640,7 +1596,7 @@ short get_creature_control_action_inputs(void)
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY1);
       }
-      if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false) || wheel_scrolled_down)
+      if (is_game_key_pressed(Gkey_ToggleMessage, true, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY3);
@@ -1648,7 +1604,7 @@ short get_creature_control_action_inputs(void)
         fake_button_click(0);
         update_wheel_scrolled();
       }
-      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_up)
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY1);
@@ -1675,7 +1631,7 @@ short get_creature_control_action_inputs(void)
         turn_off_menu(GMnu_CREATURE_QUERY3);
         turn_on_menu(GMnu_CREATURE_QUERY2);
       }
-      if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false) || wheel_scrolled_down)
+      if (is_game_key_pressed(Gkey_ToggleMessage, true, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY3);
         turn_on_menu(GMnu_CREATURE_QUERY4);
@@ -1683,7 +1639,7 @@ short get_creature_control_action_inputs(void)
         fake_button_click(0);
         update_wheel_scrolled();
       }
-      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_up)
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY3);
         if (creature_instance_get_available_id_for_pos(thing,6) > 0)
@@ -1716,31 +1672,28 @@ short get_creature_control_action_inputs(void)
         turn_off_menu(GMnu_CREATURE_QUERY4);
         turn_on_menu(GMnu_CREATURE_QUERY2);
       }
-      if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false) || wheel_scrolled_down)
+      if (is_game_key_pressed(Gkey_ToggleMessage, true, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY4);
         turn_on_menu(GMnu_CREATURE_QUERY1);
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
-      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_up)
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY4);
         turn_on_menu(GMnu_CREATURE_QUERY3);
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
     }
 
-    if (is_game_key_pressed(Gkey_ToggleGui, &keycode, false))
+    if (is_game_key_pressed(Gkey_ToggleGui, true, false))
     {
-        clear_key_pressed(keycode);
         toggle_gui();
     }
     int numkey = -1;
-    for (keycode=KC_1; keycode <= KC_0; keycode++)
+    for (int32_t keycode=KC_1; keycode <= KC_0; keycode++)
     {
         if (is_key_pressed(keycode,KMod_DONTCARE))
         {
@@ -1802,40 +1755,34 @@ short get_creature_control_action_inputs(void)
             numkey = 9;
         }
     }
-        int32_t val;
         TextStringId StrID = 0;
         for (int i = 0; i <= 15; i++)
         {
-            if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
+            if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, true, false))
             {
-                clear_key_pressed(val);
                 set_players_packet_action(player, PckA_SwitchTeleportDest, i, 0, 0, 0);
                 struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[i]);
                 StrID = roomst->name_stridx;
             }
 
         }
-        if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
+        if (is_game_key_pressed(Gkey_ZoomToFight, true, false))
         {
-            clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);
             StrID = GUIStr_StateFight;
         }
-        else if (is_game_key_pressed(Gkey_TeleportLastWorkroom, &val, false))
+        else if (is_game_key_pressed(Gkey_TeleportLastWorkroom, true, false))
         {
-            clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 17, 0, 0, 0);; // Last work room
         }
-        else if (is_game_key_pressed(Gkey_TeleportCallToArms, &val, false))
+        else if (is_game_key_pressed(Gkey_TeleportCallToArms, true, false))
         {
-            clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0);; // Call to Arms
             struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
             StrID = powerst->name_stridx;
         }
-        else if (is_game_key_pressed(Gkey_TeleportDefault, &val, false))
+        else if (is_game_key_pressed(Gkey_TeleportDefault, true, false))
         {
-            clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 19, 0, 0, 0); // default behaviour
             StrID = GUIStr_Lair;
         }
@@ -1848,7 +1795,7 @@ short get_creature_control_action_inputs(void)
             }
             message_add(MsgType_CreatureInstance, CrInst_TELEPORT, get_string(StrID));
         }
-        if (is_game_key_pressed(Gkey_CrtrContrlMod, &val, false))
+        if (is_game_key_pressed(Gkey_CrtrContrlMod, false, false))
         {
             if (!player->first_person_dig_claim_mode)
             {
@@ -1880,7 +1827,7 @@ short get_creature_control_action_inputs(void)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
-            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &val, true))
+            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true))
             {
                 first_person_see_item_desc = true;
             }
@@ -1958,15 +1905,13 @@ short get_creature_control_action_inputs(void)
             {
                 struct Thing* cthing = thing_get(player->controlled_thing_idx);
                 
-                if (is_game_key_pressed(Gkey_NextInstance, &keycode, false))
+                if (is_game_key_pressed(Gkey_NextInstance, true, false))
                 {
-                    clear_key_pressed(keycode);
                     set_possession_instance(player, cthing, 1);
                     
                 }
-                else if (is_game_key_pressed(Gkey_PrevInstance, &keycode, false))
+                else if (is_game_key_pressed(Gkey_PrevInstance, true, false))
                 {
-                    clear_key_pressed(keycode);
                     set_possession_instance(player, cthing, -1);
                 }
             }
@@ -2076,21 +2021,16 @@ short get_map_action_inputs(void)
     if (get_players_packet_action(player) != PckA_None)
         return true;
     {
-        int32_t val;
-      if (is_game_key_pressed(Gkey_ToggleTooltips, &val, false))
+      if (is_game_key_pressed(Gkey_ToggleTooltips, true, false))
       {
           toggle_tooltips();
-          clear_key_pressed(val);
       }
-      if (is_game_key_pressed(Gkey_CheatMenu1, &val, false))
+      if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
       {
-          if (toggle_main_cheat_menu())
-            clear_key_pressed(val);
+          toggle_main_cheat_menu()
       }
-      int32_t keycode;
-      if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
+      if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
       {
-          clear_key_pressed(keycode);
           turn_off_all_window_menus();
           zoom_from_parchment_map();
           return true;
@@ -2197,8 +2137,8 @@ void get_isometric_view_nonaction_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     struct Packet* packet = get_packet(my_player_number);
-    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
-    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
+    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
+    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
     if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
       return;
     if (speed_pressed != 0)
@@ -2219,13 +2159,13 @@ void get_isometric_view_nonaction_inputs(void)
     {
         if (rotate_pressed)
         {
-            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewRotateCW);
-            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewRotateCCW);
-            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomIn);
-            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomOut);
         } else
         {
@@ -2243,19 +2183,19 @@ void get_isometric_view_nonaction_inputs(void)
                 set_packet_control(packet, PCtr_ViewTiltDown);
             if (is_game_key_pressed(Gkey_TiltReset, NULL, false))
                 set_packet_control(packet, PCtr_ViewTiltReset);
-            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
                 movement_accum_x = -1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
                 movement_accum_x = 1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
             {
                 movement_accum_y = -1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             {
                 movement_accum_y = 1.0f;
             }
@@ -2271,17 +2211,17 @@ void get_overhead_view_nonaction_inputs(void)
     struct Packet* pckt = get_packet(my_player_number);
     long my = my_mouse_y;
     long mx = my_mouse_x;
-    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
-    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
+    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
+    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
     if ((player->allocflags & PlaF_KeyboardInputDisabled) == 0)
     {
         if (speed_pressed)
           pckt->additional_packet_values |= PCAdV_SpeedupPressed;
         if (rotate_pressed)
         {
-          if ( is_game_key_pressed(Gkey_MoveUp, NULL, speed_pressed!=0) )
+          if ( is_game_key_pressed(Gkey_MoveUp, false, speed_pressed!=0) )
             set_packet_control(pckt, PCtr_ViewZoomIn);
-          if ( is_game_key_pressed(Gkey_MoveDown, NULL, speed_pressed!=0) )
+          if ( is_game_key_pressed(Gkey_MoveDown, false, speed_pressed!=0) )
             set_packet_control(pckt, PCtr_ViewZoomOut);
         }
         if (my <= 4)
@@ -2302,8 +2242,8 @@ void get_front_view_nonaction_inputs(void)
     static TbClockMSec last_rotate_right_time = 0;
     struct PlayerInfo* player = get_my_player();
     struct Packet* pckt = get_packet(my_player_number);
-    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
-    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
+    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
+    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
     TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
 
     if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
@@ -2325,7 +2265,7 @@ void get_front_view_nonaction_inputs(void)
     {
         if (rotate_pressed)
         {
-            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
                 if (LbTimerClock() > last_rotate_left_time + 250)
                 {
@@ -2333,7 +2273,7 @@ void get_front_view_nonaction_inputs(void)
                     last_rotate_left_time = LbTimerClock();
                 }
             }
-            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
                 if (LbTimerClock() > last_rotate_right_time + 250)
                 {
@@ -2341,9 +2281,9 @@ void get_front_view_nonaction_inputs(void)
                     last_rotate_right_time = LbTimerClock();
                 }
             }
-            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
                 set_packet_control(pckt, PCtr_ViewZoomIn);
-            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
                 set_packet_control(pckt, PCtr_ViewZoomOut);
         }
         else
@@ -2364,19 +2304,19 @@ void get_front_view_nonaction_inputs(void)
                     last_rotate_right_time = LbTimerClock();
                 }
             }
-            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
                 movement_accum_x = -1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
                 movement_accum_x = 1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
             {
                 movement_accum_y = -1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             {
                 movement_accum_y = 1.0f;
             }
@@ -2565,17 +2505,15 @@ short get_packet_load_game_inputs(void)
  */
 TbBool get_packet_load_demo_inputs(void)
 {
-    int32_t val = KC_UNASSIGNED;
   if (is_key_pressed(KC_SPACE,KMod_DONTCARE) ||
       is_key_pressed(KC_ESCAPE,KMod_DONTCARE) ||
       is_key_pressed(KC_RETURN,KMod_DONTCARE) ||
-      (is_game_key_pressed(Gkey_ExitGame, &val ,false)) ||
+      (is_game_key_pressed(Gkey_ExitGame, true ,false)) ||
       left_button_clicked)
   {
       clear_key_pressed(KC_SPACE);
       clear_key_pressed(KC_ESCAPE);
       clear_key_pressed(KC_RETURN);
-      clear_key_pressed(val);
       left_button_clicked = 0;
       quit_game = 1;
       return true;
@@ -2657,19 +2595,19 @@ void get_creature_control_nonaction_inputs(void)
             right_button_clicked = 0;
             right_button_released = 0;
         }
-        if (is_game_key_pressed(Gkey_MoveLeft, NULL, true) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveLeft, false, true) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveLeft);
-        if (is_game_key_pressed(Gkey_MoveRight, NULL, true) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveRight, false, true) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveRight);
-        if (is_game_key_pressed(Gkey_MoveUp, NULL, true) || is_key_pressed(KC_UP, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveUp, false, true) || is_key_pressed(KC_UP, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveUp);
-        if (is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveDown, false, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveDown);
         if (flag_is_set(thing->movement_flags, TMvF_Flying))
         {
-            if (is_game_key_pressed(Gkey_Ascend, NULL, true))
+            if (is_game_key_pressed(Gkey_Ascend, false, true))
                 set_packet_control(pckt, PCtr_Ascend);
-            if (is_game_key_pressed(Gkey_Descend, NULL, true))
+            if (is_game_key_pressed(Gkey_Descend, false, true))
                 set_packet_control(pckt, PCtr_Descend);
         }
     }
@@ -2822,10 +2760,8 @@ short get_inputs(void)
         set_players_packet_position(get_packet(my_player_number), 0, 0 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
-            int32_t keycode;
-            if (is_game_key_pressed(Gkey_TogglePause, &keycode, false))
+            if (is_game_key_pressed(Gkey_TogglePause, true, false))
             {
-                lbKeyOn[keycode] = 0;
                 set_packet_pause_toggle();
             }
             else if( flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
@@ -2944,15 +2880,15 @@ void input(void)
       lbKeyOn[lbInkey] = 0;
     }
     struct Packet* pckt = get_packet(my_player_number);
-    if (is_game_key_pressed(Gkey_CrtrContrlMod, NULL, false) != 0)
+    if (is_game_key_pressed(Gkey_CrtrContrlMod, false, false) != 0)
       pckt->additional_packet_values |= PCAdV_CrtrContrlPressed;
     else
       pckt->additional_packet_values &= ~PCAdV_CrtrContrlPressed;
-    if (is_game_key_pressed(Gkey_CrtrQueryMod, NULL, false) != 0)
+    if (is_game_key_pressed(Gkey_CrtrQueryMod, false, false) != 0)
       pckt->additional_packet_values |= PCAdV_CrtrQueryPressed;
     else
       pckt->additional_packet_values &= ~PCAdV_CrtrQueryPressed;
-    if (is_game_key_pressed(Gkey_RotateMod, NULL, false) != 0)
+    if (is_game_key_pressed(Gkey_RotateMod, false, false) != 0)
         pckt->additional_packet_values |= PCAdV_RotatePressed;
     else
         pckt->additional_packet_values &= ~PCAdV_RotatePressed;

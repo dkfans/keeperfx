@@ -863,7 +863,7 @@ void maintain_scroll_up(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (scrollwnd->start_y < 0)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        if (wheel_scrolled_up && (is_game_key_pressed(Gkey_RotateMod, NULL, true)))
+        if (wheel_scrolled_up && (is_game_key_pressed(Gkey_RotateMod, false, true)))
         {
             scrollwnd->action = 1;
         }
@@ -878,7 +878,7 @@ void maintain_scroll_down(struct GuiButton *gbtn)
         * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        if (wheel_scrolled_down && (is_game_key_pressed(Gkey_RotateMod, NULL, true)))
+        if (wheel_scrolled_down && (is_game_key_pressed(Gkey_RotateMod, false, true)))
         {
             scrollwnd->action = 2;
         }
@@ -3115,10 +3115,8 @@ TbBool frontscreen_end_input(TbBool force)
 
 short get_frontend_global_inputs(void)
 {
-    int32_t val;
-    if (is_game_key_pressed(Gkey_ExitGame, &val ,false))
+    if (is_game_key_pressed(Gkey_ExitGame, true ,false))
     {
-        clear_key_pressed(val);
         exit_keeper = true;
     } else {
         return false;
