@@ -222,6 +222,19 @@ static int websocket_exchange(const char *request, char *response_buffer, size_t
     return websocket_receive(response_buffer, buffer_size, WEBSOCKET_RECEIVE_TIMEOUT_MS);
 }
 
+int matchmaking_request_list(void)
+{
+    SDL_LockMutex(mutex);
+    if (!curl_handle) {
+        SDL_UnlockMutex(mutex);
+        return -1;
+    }
+    matchmaking_session_count = 0;
+    int result = websocket_send("{\"action\":\"list\",\"version\":\"" MATCHMAKING_VERSION "\"}");
+    SDL_UnlockMutex(mutex);
+    return result;
+}
+
 static const char *json_parse_string(const char *json, const char *key, char *output, size_t output_buffer_size)
 {
     char key_pattern[JSON_KEY_PATTERN_SIZE];
@@ -333,9 +346,8 @@ int matchmaking_connect(void)
         return -1;
     }
     LbNetLog("Matchmaking: connected\n");
-    websocket_send("{\"action\":\"list\",\"version\":\"" MATCHMAKING_VERSION "\"}");
     SDL_UnlockMutex(mutex);
-    return 0;
+    return matchmaking_request_list();
 }
 
 void matchmaking_disconnect(void)

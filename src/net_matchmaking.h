@@ -46,6 +46,7 @@ extern char join_lobby_id[MATCHMAKING_ID_MAX];
 
 void matchmaking_connect_async(void);
 int matchmaking_connect(void);
+int matchmaking_request_list(void);
 void matchmaking_disconnect(void);
 void matchmaking_refresh_sessions(void);
 int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port);
