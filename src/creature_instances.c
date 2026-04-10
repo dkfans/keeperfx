@@ -414,7 +414,7 @@ void process_creature_instance(struct Thing *thing)
     if (cctrl->instance_id != CrInst_NULL && creature_under_spell_effect(thing, CSAfF_Freeze))
     {
         inst_inf = creature_instance_info_get(cctrl->instance_id);
-        if (!inst_inf->fp_allow_while_frozen)
+        if (!inst_inf->allow_while_frozen)
         {
             return;
         }

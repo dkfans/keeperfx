@@ -1459,7 +1459,7 @@ void process_players_creature_control_packet_control(long idx)
                             if (creature_under_spell_effect(cctng, CSAfF_Freeze))
                             {
                                 inst_inf = creature_instance_info_get(i);
-                                allowed = inst_inf->fp_allow_while_frozen;
+                                allowed = inst_inf->allow_while_frozen;
                             }
                             if (allowed)
                             {
@@ -1491,7 +1491,7 @@ void process_players_creature_control_packet_control(long idx)
                         {
                             if (creature_under_spell_effect(cctng, CSAfF_Freeze))
                             {
-                                allowed = inst_inf->fp_allow_while_frozen;
+                                allowed = inst_inf->allow_while_frozen;
                             }
                             else
                             {
@@ -1561,11 +1561,11 @@ void process_players_creature_control_packet_action(long plyr_idx)
             TbBool chicken = creature_under_spell_effect(thing, CSAfF_Chicken);
             if (frozen && chicken)
             {
-                allowed = (inst_inf->fp_allow_while_frozen && inst_inf->fp_allow_when_chicken);
+                allowed = (inst_inf->allow_while_frozen && inst_inf->fp_allow_when_chicken);
             }
             else if (frozen)
             {
-                allowed = inst_inf->fp_allow_while_frozen;
+                allowed = inst_inf->allow_while_frozen;
             }
             else if (chicken)
             {
