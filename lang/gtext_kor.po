@@ -7137,12 +7137,12 @@ msgstr "키퍼"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "화면 녹화"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "스크린샷"
 
 #: guitext:1085

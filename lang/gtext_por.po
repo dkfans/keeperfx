@@ -7361,12 +7361,12 @@ msgstr "Guardião"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "Gravar Tela"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "Captura de Tela"
 
 #: guitext:1085

@@ -208,8 +208,14 @@ long network_session_join(void)
     if (LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) == 0)
         return plyr_num;
     join_lobby_id[0] = '\0';
-    if (!attempting_to_join_cancel_requested())
+    if (!attempting_to_join_cancel_requested()) {
+        if (frontnet_service_selected(FrontendNetSvc_Online)) {
+            net_session_index_active = -1;
+            net_session_index_active_id = -1;
+            matchmaking_request_list();
+        }
         process_network_error(-802);
+    }
     return -1;
 }
 

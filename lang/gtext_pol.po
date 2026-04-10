@@ -7236,12 +7236,12 @@ msgstr "Strażnik"
 
 #: guitext:1083
 msgctxt "Game controls"
-msgid "Screen Record"
+msgid "Screen Capture"
 msgstr "Nagrywanie ekranu"
 
 #: guitext:1084
 msgctxt "Game controls"
-msgid "Screen Shot"
+msgid "Screenshot"
 msgstr "Zrzut ekranu"
 
 #: guitext:1085
