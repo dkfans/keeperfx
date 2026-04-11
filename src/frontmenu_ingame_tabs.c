@@ -1878,14 +1878,6 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     {
         disabled = true;
     }
-    else if (creature_under_spell_effect(ctrltng, CSAfF_Freeze))
-    {
-        disabled = !inst_inf->allow_while_frozen;
-    }
-    else if (creature_under_spell_effect(ctrltng, CSAfF_Chicken))
-    {
-        disabled = !inst_inf->fp_allow_when_chicken;
-    }
     else
     {
         disabled = false;
