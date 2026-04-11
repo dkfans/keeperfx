@@ -80,7 +80,8 @@ struct ModsConfig {
     struct ModConfigItem after_map_item[MOD_ITEM_MAX];
 };
 
-extern struct ModsConfig mods_conf;
+const struct ModsConfig *get_loaded_mods_conf(void);
+#define mods_conf (*get_loaded_mods_conf())
 void recheck_all_mod_exist();
 TbBool load_mods_order_config_file();
 

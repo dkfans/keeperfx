@@ -1626,29 +1626,43 @@ void process_players_creature_control_packet_action(long plyr_idx)
   }
 }
 
-static void replace_with_ai(int old_active_players)
-{
-    int k = 0;
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-    {
-        if (network_player_active(i))
-            k++;
+static void replace_disconnected_players_with_ai(void) {
+    if ((game.system_flags & GSF_NetworkActive) == 0) {
+        return;
     }
-    if (old_active_players != k)
-    {
-        for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-        {
-            struct PlayerInfo *player = get_player(i);
-            if (!network_player_active(player->packet_num))
-            {
-                message_add(MsgType_Player, player->id_number, "I am the computer now!");
-                JUSTLOG("p:%d I am the computer now!", player->id_number);
-
-                player->allocflags |= PlaF_CompCtrl;
-                toggle_computer_player(i);
-            }
+    TbBool host_disconnected = (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED);
+    for (int player_index = 0; player_index < NET_PLAYERS_COUNT; player_index++) {
+        struct PlayerInfo* player = get_player(player_index);
+        if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
+            continue;
         }
+        if (host_disconnected && player_index == my_player_number) {
+            continue;
+        }
+        if (!host_disconnected && network_player_active(player_index)) {
+            continue;
+        }
+        if (player->victory_state != VicS_Undecided) {
+            player->allocflags &= ~PlaF_Allocated;
+            continue;
+        }
+        message_add(MsgType_Player, player->id_number, "I am the computer now!");
+        JUSTLOG("p:%d I am the computer now!", player->id_number);
+        player->allocflags |= PlaF_CompCtrl;
+        toggle_computer_player(player->id_number);
     }
+    if (!host_disconnected) {
+        return;
+    }
+    message_add(MsgType_Player, my_player_number, "Network connection to host lost");
+    game.input_lag_turns = 0;
+    game.skip_initial_input_turns = 0;
+    LbNetwork_Stop();
+    memset(net_player_info, 0, sizeof(net_player_info));
+    clear_flag(game.system_flags, GSF_NetworkActive);
+    fe_network_active = 0;
+    game.game_kind = GKind_LocalGame;
+    setup_count_players();
 }
 
 static void load_old_packets(PlayerNumber my_packet_num) {
@@ -1723,27 +1737,19 @@ void process_packets(void)
 
     if (game.game_kind != GKind_LocalGame)
     {
-        int old_active_players = 0;
-        for (i = 0; i < NET_PLAYERS_COUNT; i++)
-        {
-            if (network_player_active(i))
-                old_active_players++;
-        }
-        MULTIPLAYER_LOG("process_packets: About to send/receive packets, active_players=%d", old_active_players);
-
         if (!game.packet_load_enable || game.packet_load_initialized)
         {
-            struct Packet* my_pckt = get_packet_direct(player->packet_num);
+            struct Packet* my_packet = get_packet_direct(player->packet_num);
             const char* player_name;
             if (player->packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
-            MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_pckt->turn, (unsigned long)my_pckt->checksum);
-            TbError exchange_result = LbNetwork_Exchange(NETMSG_GAMEPLAY, my_pckt, game.packets, sizeof(struct Packet));
+            MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_packet->turn, (unsigned long)my_packet->checksum);
+            TbError exchange_result = LbNetwork_Exchange(NETMSG_GAMEPLAY, my_packet, game.packets, sizeof(struct Packet));
             if (exchange_result != Lb_OK) {
                 ERRORLOG("LbNetwork_Exchange failed");
             }
             LbNetwork_WaitForMissingPackets(game.packets, sizeof(struct Packet));
         }
-        replace_with_ai(old_active_players);
+        replace_disconnected_players_with_ai();
     }
 
     MULTIPLAYER_LOG("process_packets: Loading packets from input lag queue");
@@ -1755,8 +1761,7 @@ void process_packets(void)
         return;
     }
 
-    if (checksums_different()) { //Should be called directly after LbNetwork_Exchange, to see if there's anything wrong with the received packet
-        // Setting checksum problem flags
+    if ((game.system_flags & GSF_NetworkActive) != 0 && checksums_different()) {
         set_flag(game.system_flags, GSF_NetGameNoSync);
         clear_flag(game.system_flags, GSF_NetSeedNoSync);
     } else {
@@ -1765,8 +1770,9 @@ void process_packets(void)
     }
 
     // Write packets into file, if requested
-    if ((game.packet_save_enable) && (game.packet_fopened))
+    if ((game.packet_save_enable) && (game.packet_fopened)) {
         save_packets();
+    }
     //Debug code, to find packet errors
     #if DEBUG_NETWORK_PACKETS
     write_debug_packets();
@@ -1774,14 +1780,15 @@ void process_packets(void)
     // Process the packets
     for (i=0; i<PACKETS_COUNT; i++)
     {
-        player = get_player(i);
-        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-        process_players_packet(i);
+        struct PlayerInfo* packet_player = get_player(i);
+        if (player_exists(packet_player) && ((packet_player->allocflags & PlaF_CompCtrl) == 0)) {
+            process_players_packet(i);
+        }
     }
     // Clear all packets
     clear_packets();
-    if (((game.system_flags & GSF_NetGameNoSync) != 0)
-    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+    if (((game.system_flags & GSF_NetworkActive) != 0)
+     && ((game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
     {
         SYNCDBG(0,"Resyncing");
         resync_game();
