@@ -56,6 +56,12 @@ char* InitMessageBuffer(enum NetMessageType msg_type) {
     return ptr + 1;
 }
 
+static TbBool can_exchange_with_peer(NetUserId peer_id) {
+    return (peer_id != netstate.my_id) &&
+        (netstate.users[peer_id].progress != USER_UNUSED) &&
+        (my_player_number == get_host_player_id() || peer_id == SERVER_ID);
+}
+
 void SendMessage(NetUserId dest, const char* end_ptr) {
     netstate.sp->sendmsg_single(dest, netstate.msg_buffer, end_ptr - netstate.msg_buffer);
 }
@@ -281,23 +287,26 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
         TbClockMSec start = LbTimerClock();
         while (true) {
             int elapsed = LbTimerClock() - start;
+            TbBool has_remote_peer = false;
             if (elapsed >= TIMEOUT_GAMEPLAY_MISSING_PACKET) {
                 MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Timeout waiting for turn=%lu packets", (unsigned long)historical_turn);
                 break;
             }
 
-            NetUserId id;
-            for (id = 0; id < netstate.max_players; id += 1) {
-                if (id == netstate.my_id) { continue; }
-                if (netstate.users[id].progress == USER_UNUSED) { continue; }
-                if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
+            netstate.sp->update(OnNewUser);
+            const int wait_time = min(TIMEOUT_GAMEPLAY_MISSING_PACKET - elapsed, 100);
+            for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
+                if (!can_exchange_with_peer(peer_id)) { continue; }
 
-                int wait_time = TIMEOUT_GAMEPLAY_MISSING_PACKET - elapsed;
-                if (netstate.sp->msgready(id, wait_time)) {
-                    while (netstate.sp->msgready(id, 0)) {
-                        ProcessMessage(id, server_buf, client_frame_size);
+                has_remote_peer = true;
+                if (netstate.sp->msgready(peer_id, wait_time)) {
+                    while (netstate.sp->msgready(peer_id, 0)) {
+                        ProcessMessage(peer_id, server_buf, client_frame_size);
                     }
                 }
+            }
+            if (!has_remote_peer) {
+                break;
             }
 
             received_packets = get_received_packets_for_turn(historical_turn);
@@ -329,11 +338,8 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
         timeout_max = (1000 / game_num_fps);
     }
 
-    NetUserId id;
-    for (id = 0; id < netstate.max_players; id += 1) {
-        if (id == netstate.my_id) { continue; }
-        if (netstate.users[id].progress == USER_UNUSED) { continue; }
-        if (my_player_number != get_host_player_id() && id != SERVER_ID) { continue; }
+    for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
+        if (!can_exchange_with_peer(peer_id)) { continue; }
 
         TbClockMSec start = LbTimerClock();
         while (true) {
@@ -341,7 +347,7 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
             if (elapsed >= timeout_max) {
                 break;
             }
-            if (netstate.users[id].progress == USER_UNUSED) {
+            if (netstate.users[peer_id].progress == USER_UNUSED) {
                 break;
             }
 
@@ -350,14 +356,14 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
             if (remaining_time_until_draw < 0) {remaining_time_until_draw = 0;}
             int wait = min(timeout_max - elapsed, remaining_time_until_draw);
 
-            if (netstate.sp->msgready(id, wait)) {
-                ProcessMessage(id, server_buf, client_frame_size);
+            if (netstate.sp->msgready(peer_id, wait)) {
+                ProcessMessage(peer_id, server_buf, client_frame_size);
                 if (msg_type != NETMSG_GAMEPLAY) {
                     break;
                 }
                 TbBool received_gameplay_msg = (netstate.msg_buffer[0] == NETMSG_GAMEPLAY);
-                while (netstate.sp->msgready(id, 0)) {
-                    ProcessMessage(id, server_buf, client_frame_size);
+                while (netstate.sp->msgready(peer_id, 0)) {
+                    ProcessMessage(peer_id, server_buf, client_frame_size);
                     if (netstate.msg_buffer[0] == NETMSG_GAMEPLAY) {
                         received_gameplay_msg = true;
                     }
