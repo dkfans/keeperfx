@@ -242,6 +242,9 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason) {
         NETMSG("Warning: Trying to drop local user. There's a bug in code somewhere, probably server trying to send message to itself.");
         return;
     }
+    if (netstate.users[id].progress == USER_UNUSED) {
+        return;
+    }
     if (reason == NETDROP_ERROR) {
         NETMSG("User left (or connection error): %i %s", id, netstate.users[id].name);
     } else if (reason == NETDROP_MANUAL) {
