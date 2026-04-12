@@ -458,7 +458,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-
+    struct InstanceInfo* inst_inf;
     if ((thing->size_change & TSC_ChangeSize) != 0)
     {
       thing->size_change &= ~TSC_ChangeSize;
@@ -469,6 +469,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     if (!creature_under_spell_effect(thing, CSAfF_Chicken))
     {
+        inst_inf = creature_instance_info_get(cctrl->instance_id);
         if (cctrl->instance_id != CrInst_NULL)
         {
           if (cctrl->instance_id == CrInst_TORTURED)
@@ -477,8 +478,11 @@ void update_creature_graphic_anim(struct Thing *thing)
           }
           if (!creature_under_spell_effect(thing, CSAfF_Freeze))
           {
-              struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
               update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
+          }
+          else
+          {
+              update_creature_anim(thing, 0, inst_inf->graphics_idx);
           }
         } else
         if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_under_spell_effect(thing, CSAfF_Freeze))
