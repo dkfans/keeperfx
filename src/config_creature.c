@@ -106,7 +106,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"SearchTargetsFunc",    20},
   {"PostalPriority",       21},
   {"NoAnimationLoop",      22},
-  {"AllowWhileFrozen",     23},
+  {"FPAllowWhileFrozen",   23},
   {"FPAllowWhenChicken",   24},
   {NULL,              0},
   };
@@ -1413,11 +1413,11 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 23: // ALLOWWHILEFROZEN
+        case 23: // FPALLOWWHILEFROZEN
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              inst_inf->allow_while_frozen = (TbBool)k;
+              inst_inf->fp_allow_while_frozen = (TbBool)k;
               n++;
             }
             if (n < 1)
