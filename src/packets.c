@@ -1435,6 +1435,7 @@ void process_players_creature_control_packet_control(long idx)
     }
     if ((!creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
     {
+        TbBool allowed;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = ccctrl->active_instance_id;
@@ -1444,7 +1445,27 @@ void process_players_creature_control_packet_control(long idx)
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        process_player_use_instance(cctng, i, pckt);
+                        if (creature_under_spell_effect(cctng, CSAfF_Chicken))
+                        {
+                            inst_inf = creature_instance_info_get(i);
+                            allowed = inst_inf->fp_allow_when_chicken;
+                        }
+                        else
+                        {
+                            allowed = true;
+                        }
+                        if (allowed)
+                        {
+                            if (creature_under_spell_effect(cctng, CSAfF_Freeze))
+                            {
+                                inst_inf = creature_instance_info_get(i);
+                                allowed = inst_inf->allow_while_frozen;
+                            }
+                            if (allowed)
+                            {
+                                process_player_use_instance(cctng, i, pckt);
+                            }
+                        }
                     }
                 }
                 else
@@ -1468,7 +1489,18 @@ void process_players_creature_control_packet_control(long idx)
                     {
                         if (creature_instance_has_reset(cctng, i))
                         {
-                            process_player_use_instance(cctng, i, pckt);
+                            if (creature_under_spell_effect(cctng, CSAfF_Freeze))
+                            {
+                                allowed = inst_inf->allow_while_frozen;
+                            }
+                            else
+                            {
+                                allowed = true;
+                            }
+                            if (allowed)
+                            {
+                                process_player_use_instance(cctng, i, pckt);
+                            }
                         }
                     }
                     else
@@ -1524,11 +1556,33 @@ void process_players_creature_control_packet_action(long plyr_idx)
       {
         if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->actn_par1))
         {
+            TbBool allowed;
+            TbBool frozen = creature_under_spell_effect(thing, CSAfF_Freeze);
+            TbBool chicken = creature_under_spell_effect(thing, CSAfF_Chicken);
+            if (frozen && chicken)
+            {
+                allowed = (inst_inf->allow_while_frozen && inst_inf->fp_allow_when_chicken);
+            }
+            else if (frozen)
+            {
+                allowed = inst_inf->allow_while_frozen;
+            }
+            else if (chicken)
+            {
+                allowed = inst_inf->fp_allow_when_chicken;
+            }
+            else
+            {
+                allowed = true;
+            }
+            if (allowed)
+            {
               i = pckt->actn_par1;
               process_player_use_instance(thing, i, pckt);
               if (plyr_idx == my_player_number) {
                   instant_instance_selected(i);
               }
+            }
         }
       }
       break;
