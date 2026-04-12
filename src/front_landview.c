@@ -1518,7 +1518,6 @@ void frontmap_input(void)
     }
     if (zoom_done)
     {
-         int32_t val;
       check_mouse_scroll();
       if (is_game_key_pressed(Gkey_LVShowAllEnsigns, true, false))
       {
