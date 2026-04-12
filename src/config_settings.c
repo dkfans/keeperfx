@@ -243,6 +243,7 @@ static unsigned char name_to_kmod(const char *name)
 /******************************************************************************/
 void setup_default_settings(void)
 {
+    settings.video_detail_level            = 0;
     settings.video_shadows                 = 4;
     settings.view_distance                 = 3;
     settings.video_rotate_mode             = 0;
@@ -250,6 +251,7 @@ void setup_default_settings(void)
     settings.video_cluedo_mode             = 0;
     settings.sound_volume                  = 127;
     settings.music_volume                  = 90;
+    settings.roomflags_on                  = 1;
     settings.gamma_correction              = 0;
     settings.switching_vidmodes_index      = Lb_SCREEN_MODE_INVALID;
     settings.tooltips_on                   = true;
