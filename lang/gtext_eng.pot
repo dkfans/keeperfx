@@ -2294,7 +2294,7 @@ msgstr ""
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
+msgid "Online Lobbies"
 msgstr ""
 
 #: guitext:403
@@ -2941,7 +2941,7 @@ msgstr ""
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
+msgid "Game version mismatch"
 msgstr ""
 
 #: guitext:532
@@ -5736,3 +5736,130 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr ""
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr ""
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr ""
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr ""
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr ""
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr ""
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr ""
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr ""
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr ""
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr ""
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr ""
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr ""
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr ""
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr ""
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr ""
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr ""
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr ""
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr ""
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr ""
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr ""
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr ""
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr ""
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr ""
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr ""
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr ""
+
+

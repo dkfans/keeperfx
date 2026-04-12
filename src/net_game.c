@@ -34,6 +34,7 @@
 #include "frontend.h"
 #include "front_network.h"
 #include "config_settings.h"
+#include "config_strings.h"
 #include "game_legacy.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
@@ -68,6 +69,13 @@ short setup_network_service(enum FrontendNetService service)
     return 0;
   }
   net_service_index_selected = service;
+  if (service == FrontendNetSvc_LAN) {
+    frontend_button_info[11].capstr_idx = GUIStr_MnuLanLobby;
+    frontend_button_info[12].capstr_idx = GUIStr_MnuLanLobbies;
+  } else {
+    frontend_button_info[11].capstr_idx = GUIStr_MnuOnlineLobby;
+    frontend_button_info[12].capstr_idx = GUIStr_MnuOnlineLobbies;
+  }
   frontend_set_state(FeSt_NET_SESSION);
   return 1;
 }
@@ -192,12 +200,22 @@ const char *network_player_name(int plyr_idx)
 long network_session_join(void)
 {
     int32_t plyr_num;
-    display_attempting_to_join_message(0);
+    reset_attempting_to_join_cancel();
+    display_attempting_to_join_message(-1);
+    if (attempting_to_join_cancel_requested())
+        return -1;
     snprintf(join_lobby_id, sizeof(join_lobby_id), "%s", net_session[net_session_index_active]->join_address);
     if (LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) == 0)
         return plyr_num;
     join_lobby_id[0] = '\0';
-    process_network_error(-802);
+    if (!attempting_to_join_cancel_requested()) {
+        if (frontnet_service_selected(FrontendNetSvc_Online)) {
+            net_session_index_active = -1;
+            net_session_index_active_id = -1;
+            matchmaking_request_list();
+        }
+        process_network_error(-802);
+    }
     return -1;
 }
 

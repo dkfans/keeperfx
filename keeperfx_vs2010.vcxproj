@@ -26,7 +26,7 @@
     <ClCompile Include="src\bflib_coroutine.c" />
     <ClCompile Include="src\bflib_cpu.c" />
     <ClCompile Include="src\bflib_crash.c" />
-    <ClCompile Include="src\bflib_datetm.c" />
+    <ClCompile Include="src\bflib_datetm.cpp" />
     <ClCompile Include="src\bflib_dernc.c" />
     <ClCompile Include="src\bflib_enet.cpp" />
     <ClCompile Include="src\bflib_fileio.c" />

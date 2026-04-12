@@ -2633,10 +2633,14 @@ void update_room_tab_to_config(void)
         if (roomst->panel_tab_idx <= 16)
         {
             ibtn = &room_menu.buttons[roomst->panel_tab_idx - 1];
+        } else
+        if (roomst->panel_tab_idx <= 32)
+        {
+            ibtn = &room_menu2.buttons[roomst->panel_tab_idx - 17];
         }
         else
         {
-            ibtn = &room_menu2.buttons[roomst->panel_tab_idx - 17];
+            ERRORLOG("Invalid panel_tab_idx value %d on %s", roomst->panel_tab_idx, room_code_name(i));
         }
         ibtn->sprite_idx = roomst->medsym_sprite_idx;
         ibtn->tooltip_stridx = roomst->tooltip_stridx;
@@ -2699,10 +2703,14 @@ void update_trap_tab_to_config(void)
         if (manufctr->panel_tab_idx <= 16)
         {
             ibtn = &trap_menu.buttons[manufctr->panel_tab_idx - 1];
+        } else
+        if (manufctr->panel_tab_idx <= 32)
+        {
+            ibtn = &trap_menu2.buttons[manufctr->panel_tab_idx - 17];
         }
         else
         {
-            ibtn = &trap_menu2.buttons[manufctr->panel_tab_idx - 17];
+            ERRORLOG("Invalid panel_tab_idx value %d", manufctr->panel_tab_idx);
         }
         ibtn->sprite_idx = manufctr->medsym_sprite_idx;
         ibtn->tooltip_stridx = manufctr->tooltip_stridx;
@@ -2780,9 +2788,13 @@ void update_powers_tab_to_config(void)
         {
             ibtn = &spell_menu.buttons[powerst->panel_tab_idx - 1];
         }
-        else
+        else if (powerst->panel_tab_idx <= 32)
         {
             ibtn = &spell_menu2.buttons[powerst->panel_tab_idx - 17];
+        }
+        else
+        {
+            ERRORLOG("Invalid panel_tab_idx value %d on %s", powerst->panel_tab_idx, power_code_name(pwkind));
         }
         ibtn->sprite_idx = powerst->medsym_sprite_idx;
         ibtn->tooltip_stridx = powerst->tooltip_stridx;
@@ -2835,6 +2847,11 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
 
 void maintain_spell_next_page_button(struct GuiButton *gbtn)
 {
+    if (menu_is_active(GMnu_SPELL2))
+    {
+        gbtn->flags |= (LbBtnF_Visible | LbBtnF_Enabled);
+        return;
+    }
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &spell_menu2.buttons[i];
@@ -2849,6 +2866,11 @@ void maintain_spell_next_page_button(struct GuiButton *gbtn)
 
 void maintain_room_next_page_button(struct GuiButton *gbtn)
 {
+    if (menu_is_active(GMnu_ROOM2))
+    {
+        gbtn->flags |= (LbBtnF_Visible | LbBtnF_Enabled);
+        return;
+    }
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &room_menu2.buttons[i];
@@ -2866,6 +2888,11 @@ void maintain_room_next_page_button(struct GuiButton *gbtn)
 
 void maintain_trap_next_page_button(struct GuiButton *gbtn)
 {
+    if (menu_is_active(GMnu_TRAP2))
+    {
+        gbtn->flags |= (LbBtnF_Visible | LbBtnF_Enabled);
+        return;
+    }
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &trap_menu2.buttons[i];

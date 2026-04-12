@@ -57,18 +57,17 @@ struct PlayerInfo;
 
 enum CreatureSoundTypes {
     CrSnd_None      = 0,
-    CrSnd_Hurt      = 1,
-    CrSnd_Hit       = 2,
-    CrSnd_Happy     = 3,
-    CrSnd_Sad       = 4,
-    CrSnd_Hang      = 5,
-    CrSnd_Drop      = 6,
-    CrSnd_Torture   = 7,
-    CrSnd_Slap      = 8,
-    CrSnd_Die       = 9,
-    CrSnd_Foot      = 10,
-    CrSnd_Fight     = 11,
-    CrSnd_Piss      = 12,
+    CrSnd_Hit       = 1,
+    CrSnd_Happy     = 2,
+    CrSnd_Sad       = 3,
+    CrSnd_Hang      = 4,
+    CrSnd_Drop      = 5,
+    CrSnd_Torture   = 6,
+    CrSnd_Slap      = 7,
+    CrSnd_Die       = 8,
+    CrSnd_Foot      = 9,
+    CrSnd_Fight     = 10,
+    CrSnd_Piss      = 11,
 };
 
 enum CreatureControlFlags {
@@ -424,7 +423,7 @@ struct Persons {
 
 struct CreatureSound {
     int32_t index;
-    int32_t count;
+    int16_t count;
 };
 
 struct CreatureSounds {
@@ -432,7 +431,6 @@ struct CreatureSounds {
     struct CreatureSound hit;
     struct CreatureSound happy;
     struct CreatureSound sad;
-    struct CreatureSound hurt;
     struct CreatureSound die;
     struct CreatureSound hang;
     struct CreatureSound drop;
@@ -465,7 +463,6 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
 void stop_creature_sound(struct Thing *thing, long snd_idx);
 void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2);
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
-void reset_creature_eye_lens(struct Thing *thing);
 TbBool creature_can_gain_experience(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus

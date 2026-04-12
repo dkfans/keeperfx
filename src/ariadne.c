@@ -3077,6 +3077,16 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             ariadne_init_movement_to_current_waypoint(thing, arid);
             return AridRet_OK;
         }
+        if (hug_angle != thing->move_angle_xy)
+        {
+            struct Coord3d pos;
+            pos.x.val = arid->endpos.x.val;
+            pos.y.val = arid->endpos.y.val;
+            pos.z.val = arid->endpos.z.val;
+            if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags) == AridRet_OK) {
+                return AridRet_OK;
+            }
+        }
         arid->next_position.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
         arid->next_position.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
         arid->next_position.z.val = get_thing_height_at(thing, &arid->next_position);

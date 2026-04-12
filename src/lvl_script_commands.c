@@ -2767,51 +2767,47 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     {
         switch (creature_variable)
         {
-        case 1: // HURT
-            game.conf.crtr_conf.creature_sounds[creatid].hurt.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].hurt.count = config_value_secondary;
-            break;
-        case 2: // HIT
+        case CrSnd_Hit:
             game.conf.crtr_conf.creature_sounds[creatid].hit.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].hit.count = config_value_secondary;
             break;
-        case 3: // HAPPY
+        case CrSnd_Happy:
             game.conf.crtr_conf.creature_sounds[creatid].happy.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].happy.count = config_value_secondary;
             break;
-        case 4: // SAD
+        case CrSnd_Sad:
             game.conf.crtr_conf.creature_sounds[creatid].sad.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].sad.count = config_value_secondary;
             break;
-        case 5: // HANG
+        case CrSnd_Hang:
             game.conf.crtr_conf.creature_sounds[creatid].hang.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].hang.count = config_value_secondary;
             break;
-        case 6: // DROP
+        case CrSnd_Drop:
             game.conf.crtr_conf.creature_sounds[creatid].drop.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].drop.count = config_value_secondary;
             break;
-        case 7: // TORTURE
+        case CrSnd_Torture:
             game.conf.crtr_conf.creature_sounds[creatid].torture.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].torture.count = config_value_secondary;
             break;
-        case 8: // SLAP
+        case CrSnd_Slap:
             game.conf.crtr_conf.creature_sounds[creatid].slap.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].slap.count = config_value_secondary;
             break;
-        case 9: // DIE
+        case CrSnd_Die:
             game.conf.crtr_conf.creature_sounds[creatid].die.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].die.count = config_value_secondary;
             break;
-        case 10: // FOOT
+        case CrSnd_Foot:
             game.conf.crtr_conf.creature_sounds[creatid].foot.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].foot.count = config_value_secondary;
             break;
-        case 11: // FIGHT
+        case CrSnd_Fight:
             game.conf.crtr_conf.creature_sounds[creatid].fight.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].fight.count = config_value_secondary;
             break;
-        case 12: // PISS
+        case CrSnd_Piss:
             game.conf.crtr_conf.creature_sounds[creatid].piss.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].piss.count = config_value_secondary;
             break;

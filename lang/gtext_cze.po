@@ -1970,7 +1970,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Moo"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -3150,8 +3150,8 @@ msgstr "Spustit hru"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Lobbies Menu"
-msgstr "Nabídka lobby"
+msgid "Online Lobbies"
+msgstr "Online lobby"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3843,8 +3843,8 @@ msgstr "Šipka Doprava"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Inicializuji modem"
+msgid "Game version mismatch"
+msgstr "Rozdílná verze hry"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -7126,3 +7126,128 @@ msgstr "Přivolání: Přivolá dočasné ochránce, kteří pomohou stvoření 
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Strážce"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr "Nahrávání obrazovky"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr "Snímek obrazovky"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Zvýšit přeskakování snímků"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Snížit přeskakování snímků"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Přiblížit minimapu"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Oddálit minimapu"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "Další instance"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "Předchozí instance"
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Online lobby"
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN lobby"
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN lobby"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Přepnout rozhraní"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Přepnout nápovědy"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Ukončit hru"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Zakázat paketový režim"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Změnit rozlišení"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Přepnout konzoli"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Dokončit úroveň"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Menu možností"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Přepnout květiny zdraví hrdinů"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Zpětný apostrof"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Teleport do poslední dílny"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Teleport k výzvě ke zbraním"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Teleport výchozí"

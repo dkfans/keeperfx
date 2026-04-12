@@ -302,6 +302,7 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"PANELTABINDEX",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].panel_tab_idx),                    0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_panel_tab_idx_trap},
     {"TRIGGERTYPE",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_type),                     0,   INT32_MIN,         UINT32_MAX, trap_trigger_type_commands,value_default, assign_default},
     {"ACTIVATIONTYPE",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_type),                  0,   INT32_MIN,         UINT32_MAX, trap_activation_type_commands,value_default, assign_default},
+    {"ACTIVATIONLUAFUNC",      0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_lua_func_idx),          0,   INT32_MIN,         UINT32_MAX, NULL,                     value_function, assign_default},
     {"EFFECTTYPE",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].created_itm_model),                0,   INT32_MIN,         UINT32_MAX, NULL,            value_activationeffect, assign_default},
     {"ACTIVATIONLEVEL",        0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_level),                 0,          0,                 9, NULL,                        value_min1, assign_default},
     {"ANIMATIONID",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_anim_idx),                  0,   INT32_MIN,         UINT32_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id},
