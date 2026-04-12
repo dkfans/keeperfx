@@ -411,14 +411,6 @@ void process_creature_instance(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     struct InstanceInfo* inst_inf;
     SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
-    if (cctrl->instance_id != CrInst_NULL && creature_under_spell_effect(thing, CSAfF_Freeze))
-    {
-        inst_inf = creature_instance_info_get(cctrl->instance_id);
-        if (!inst_inf->fp_allow_while_frozen)
-        {
-            return;
-        }
-    }
     if (cctrl->inst_turn >= cctrl->inst_total_turns)
     {
         if (!cctrl->inst_repeat)
