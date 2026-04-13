@@ -26,6 +26,7 @@
 #include "thing_data.h"
 #include "room_list.h"
 #include "creature_control.h"
+#include "thing_creature.h"
 #include "frontend.h"
 #include "thing_list.h"
 #include "post_inc.h"
@@ -83,6 +84,25 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing) {
     CHECKSUM_ADD(checksum, thing->veloc_push_add.x.val);
     CHECKSUM_ADD(checksum, thing->veloc_push_add.y.val);
     CHECKSUM_ADD(checksum, thing->veloc_push_add.z.val);
+    if (thing_is_creature_special_digger(thing)) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        CHECKSUM_ADD(checksum, cctrl->moveto_pos.x.val);
+        CHECKSUM_ADD(checksum, cctrl->moveto_pos.y.val);
+        CHECKSUM_ADD(checksum, cctrl->moveto_pos.z.val);
+        CHECKSUM_ADD(checksum, cctrl->dragtng_idx);
+        CHECKSUM_ADD(checksum, cctrl->arming_thing_id);
+        CHECKSUM_ADD(checksum, cctrl->pickup_object_id);
+        CHECKSUM_ADD(checksum, cctrl->pickup_creature_id);
+        CHECKSUM_ADD(checksum, cctrl->move_flags);
+        CHECKSUM_ADD(checksum, cctrl->digger.stack_update_turn);
+        CHECKSUM_ADD(checksum, cctrl->digger.working_stl);
+        CHECKSUM_ADD(checksum, cctrl->digger.task_stl);
+        CHECKSUM_ADD(checksum, cctrl->digger.task_idx);
+        CHECKSUM_ADD(checksum, cctrl->digger.consecutive_reinforcements);
+        CHECKSUM_ADD(checksum, cctrl->digger.last_did_job);
+        CHECKSUM_ADD(checksum, cctrl->digger.task_stack_pos);
+        CHECKSUM_ADD(checksum, cctrl->digger.task_repeats);
+    }
     return checksum;
 }
 
@@ -233,6 +253,24 @@ void update_turn_checksums(void) {
             thing_snapshot->veloc_base = thing->veloc_base;
             thing_snapshot->veloc_push_once = thing->veloc_push_once;
             thing_snapshot->veloc_push_add = thing->veloc_push_add;
+            thing_snapshot->is_special_digger = thing_is_creature_special_digger(thing);
+            if (thing_snapshot->is_special_digger) {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                thing_snapshot->digger_moveto_pos = cctrl->moveto_pos;
+                thing_snapshot->digger_dragtng_idx = cctrl->dragtng_idx;
+                thing_snapshot->digger_arming_thing_id = cctrl->arming_thing_id;
+                thing_snapshot->digger_pickup_object_id = cctrl->pickup_object_id;
+                thing_snapshot->digger_pickup_creature_id = cctrl->pickup_creature_id;
+                thing_snapshot->digger_move_flags = cctrl->move_flags;
+                thing_snapshot->digger_stack_update_turn = cctrl->digger.stack_update_turn;
+                thing_snapshot->digger_working_stl = cctrl->digger.working_stl;
+                thing_snapshot->digger_task_stl = cctrl->digger.task_stl;
+                thing_snapshot->digger_task_idx = cctrl->digger.task_idx;
+                thing_snapshot->digger_consecutive_reinforcements = cctrl->digger.consecutive_reinforcements;
+                thing_snapshot->digger_last_did_job = cctrl->digger.last_did_job;
+                thing_snapshot->digger_task_stack_pos = cctrl->digger.task_stack_pos;
+                thing_snapshot->digger_task_repeats = cctrl->digger.task_repeats;
+            }
             thing_snapshot->checksum = get_thing_checksum(thing);
         }
         for (int i = 0; i < PLAYERS_COUNT; i++) {
@@ -348,6 +386,28 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
                 (long)client_thing->veloc_base.x.val, (long)client_thing->veloc_base.y.val, (long)client_thing->veloc_base.z.val,
                 (long)client_thing->veloc_push_once.x.val, (long)client_thing->veloc_push_once.y.val, (long)client_thing->veloc_push_once.z.val,
                 (long)client_thing->veloc_push_add.x.val, (long)client_thing->veloc_push_add.y.val, (long)client_thing->veloc_push_add.z.val);
+            if (client_thing->is_special_digger) {
+                if (host_thing != NULL) {
+                    ERRORLOG("    [Host]   digger moveto=(%ld,%ld,%ld) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
+                        (long)host_thing->digger_moveto_pos.x.val, (long)host_thing->digger_moveto_pos.y.val, (long)host_thing->digger_moveto_pos.z.val,
+                        (int)host_thing->digger_dragtng_idx, (int)host_thing->digger_arming_thing_id,
+                        (int)host_thing->digger_pickup_object_id, (int)host_thing->digger_pickup_creature_id,
+                        (unsigned)host_thing->digger_move_flags, (long)host_thing->digger_stack_update_turn,
+                        (unsigned)host_thing->digger_working_stl, (unsigned)host_thing->digger_task_stl,
+                        (unsigned)host_thing->digger_task_idx, (unsigned)host_thing->digger_consecutive_reinforcements,
+                        (unsigned)host_thing->digger_last_did_job,
+                        (unsigned)host_thing->digger_task_stack_pos, (unsigned)host_thing->digger_task_repeats);
+                }
+                ERRORLOG("    [Client] digger moveto=(%ld,%ld,%ld) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
+                    (long)client_thing->digger_moveto_pos.x.val, (long)client_thing->digger_moveto_pos.y.val, (long)client_thing->digger_moveto_pos.z.val,
+                    (int)client_thing->digger_dragtng_idx, (int)client_thing->digger_arming_thing_id,
+                    (int)client_thing->digger_pickup_object_id, (int)client_thing->digger_pickup_creature_id,
+                    (unsigned)client_thing->digger_move_flags, (long)client_thing->digger_stack_update_turn,
+                    (unsigned)client_thing->digger_working_stl, (unsigned)client_thing->digger_task_stl,
+                    (unsigned)client_thing->digger_task_idx, (unsigned)client_thing->digger_consecutive_reinforcements,
+                    (unsigned)client_thing->digger_last_did_job,
+                    (unsigned)client_thing->digger_task_stack_pos, (unsigned)client_thing->digger_task_repeats);
+            }
             shown++;
         }
     }

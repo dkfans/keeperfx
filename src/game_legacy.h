@@ -149,6 +149,21 @@ struct LogThingDesyncInfo {
     struct CoordDelta3d veloc_base;
     struct CoordDelta3d veloc_push_once;
     struct CoordDelta3d veloc_push_add;
+    TbBool is_special_digger;
+    struct Coord3d digger_moveto_pos;
+    short digger_dragtng_idx;
+    ThingIndex digger_arming_thing_id;
+    ThingIndex digger_pickup_object_id;
+    ThingIndex digger_pickup_creature_id;
+    unsigned char digger_move_flags;
+    int32_t digger_stack_update_turn;
+    SubtlCodedCoords digger_working_stl;
+    SubtlCodedCoords digger_task_stl;
+    unsigned short digger_task_idx;
+    unsigned char digger_consecutive_reinforcements;
+    unsigned char digger_last_did_job;
+    unsigned char digger_task_stack_pos;
+    unsigned short digger_task_repeats;
     TbBigChecksum checksum;
 };
 
