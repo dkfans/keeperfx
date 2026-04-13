@@ -66,12 +66,23 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing) {
     CHECKSUM_ADD(checksum, thing->health);
     CHECKSUM_ADD(checksum, thing->current_frame);
     CHECKSUM_ADD(checksum, thing->max_frames);
-
-    if (thing->class_id == TCls_Creature) {
-        struct CreatureControl* creature_control = creature_control_get_from_thing(thing);
-        CHECKSUM_ADD(checksum, creature_control->inst_turn);
-        CHECKSUM_ADD(checksum, creature_control->instance_id);
-    }
+    CHECKSUM_ADD(checksum, thing->active_state);
+    CHECKSUM_ADD(checksum, thing->continue_state);
+    CHECKSUM_ADD(checksum, thing->movement_flags);
+    CHECKSUM_ADD(checksum, thing->move_angle_xy);
+    CHECKSUM_ADD(checksum, thing->move_angle_z);
+    CHECKSUM_ADD(checksum, thing->holding_player);
+    CHECKSUM_ADD(checksum, thing->parent_idx);
+    CHECKSUM_ADD(checksum, thing->fall_acceleration);
+    CHECKSUM_ADD(checksum, thing->veloc_base.x.val);
+    CHECKSUM_ADD(checksum, thing->veloc_base.y.val);
+    CHECKSUM_ADD(checksum, thing->veloc_base.z.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_once.x.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_once.y.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_once.z.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_add.x.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_add.y.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_add.z.val);
     return checksum;
 }
 
@@ -209,6 +220,19 @@ void update_turn_checksums(void) {
             thing_snapshot->health = thing->health;
             thing_snapshot->creation_turn = thing->creation_turn;
             thing_snapshot->random_seed = thing->random_seed;
+            thing_snapshot->current_frame = thing->current_frame;
+            thing_snapshot->max_frames = thing->max_frames;
+            thing_snapshot->active_state = thing->active_state;
+            thing_snapshot->continue_state = thing->continue_state;
+            thing_snapshot->movement_flags = thing->movement_flags;
+            thing_snapshot->move_angle_xy = thing->move_angle_xy;
+            thing_snapshot->move_angle_z = thing->move_angle_z;
+            thing_snapshot->holding_player = thing->holding_player;
+            thing_snapshot->parent_idx = thing->parent_idx;
+            thing_snapshot->fall_acceleration = thing->fall_acceleration;
+            thing_snapshot->veloc_base = thing->veloc_base;
+            thing_snapshot->veloc_push_once = thing->veloc_push_once;
+            thing_snapshot->veloc_push_add = thing->veloc_push_add;
             thing_snapshot->checksum = get_thing_checksum(thing);
         }
         for (int i = 0; i < PLAYERS_COUNT; i++) {
@@ -297,11 +321,33 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
         }
         if (host_thing == NULL || client_thing->checksum != host_thing->checksum) {
             if (host_thing != NULL) {
-                ERRORLOG("    [Host] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x", host_thing->index, host_thing->class_id, host_thing->model, host_thing->owner, (long)host_thing->mappos.x.val, (long)host_thing->mappos.y.val, (long)host_thing->mappos.z.val, (long)host_thing->health, (unsigned long)host_thing->creation_turn, host_thing->random_seed);
+                ERRORLOG("    [Host] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x current_frame=%u max_frames=%u active_state=%u continue_state=%u movement_flags=%04x move_angle_xy=%d move_angle_z=%d holding_player=%d parent_idx=%d fall_acceleration=%u veloc_base=(%ld,%ld,%ld) veloc_push_once=(%ld,%ld,%ld) veloc_push_add=(%ld,%ld,%ld)",
+                    host_thing->index, host_thing->class_id, host_thing->model, host_thing->owner,
+                    (long)host_thing->mappos.x.val, (long)host_thing->mappos.y.val, (long)host_thing->mappos.z.val,
+                    (long)host_thing->health, (unsigned long)host_thing->creation_turn, host_thing->random_seed,
+                    (unsigned)host_thing->current_frame, (unsigned)host_thing->max_frames,
+                    (unsigned)host_thing->active_state, (unsigned)host_thing->continue_state,
+                    (unsigned)host_thing->movement_flags,
+                    (int)host_thing->move_angle_xy, (int)host_thing->move_angle_z,
+                    (int)host_thing->holding_player, (int)host_thing->parent_idx, (unsigned)host_thing->fall_acceleration,
+                    (long)host_thing->veloc_base.x.val, (long)host_thing->veloc_base.y.val, (long)host_thing->veloc_base.z.val,
+                    (long)host_thing->veloc_push_once.x.val, (long)host_thing->veloc_push_once.y.val, (long)host_thing->veloc_push_once.z.val,
+                    (long)host_thing->veloc_push_add.x.val, (long)host_thing->veloc_push_add.y.val, (long)host_thing->veloc_push_add.z.val);
             } else {
                 ERRORLOG("    [Host] Thing[%d] missing", client_thing->index);
             }
-            ERRORLOG("    [Client] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x", client_thing->index, client_thing->class_id, client_thing->model, client_thing->owner, (long)client_thing->mappos.x.val, (long)client_thing->mappos.y.val, (long)client_thing->mappos.z.val, (long)client_thing->health, (unsigned long)client_thing->creation_turn, client_thing->random_seed);
+            ERRORLOG("    [Client] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x current_frame=%u max_frames=%u active_state=%u continue_state=%u movement_flags=%04x move_angle_xy=%d move_angle_z=%d holding_player=%d parent_idx=%d fall_acceleration=%u veloc_base=(%ld,%ld,%ld) veloc_push_once=(%ld,%ld,%ld) veloc_push_add=(%ld,%ld,%ld)",
+                client_thing->index, client_thing->class_id, client_thing->model, client_thing->owner,
+                (long)client_thing->mappos.x.val, (long)client_thing->mappos.y.val, (long)client_thing->mappos.z.val,
+                (long)client_thing->health, (unsigned long)client_thing->creation_turn, client_thing->random_seed,
+                (unsigned)client_thing->current_frame, (unsigned)client_thing->max_frames,
+                (unsigned)client_thing->active_state, (unsigned)client_thing->continue_state,
+                (unsigned)client_thing->movement_flags,
+                (int)client_thing->move_angle_xy, (int)client_thing->move_angle_z,
+                (int)client_thing->holding_player, (int)client_thing->parent_idx, (unsigned)client_thing->fall_acceleration,
+                (long)client_thing->veloc_base.x.val, (long)client_thing->veloc_base.y.val, (long)client_thing->veloc_base.z.val,
+                (long)client_thing->veloc_push_once.x.val, (long)client_thing->veloc_push_once.y.val, (long)client_thing->veloc_push_once.z.val,
+                (long)client_thing->veloc_push_add.x.val, (long)client_thing->veloc_push_add.y.val, (long)client_thing->veloc_push_add.z.val);
             shown++;
         }
     }
@@ -360,8 +406,11 @@ void compare_desync_history_from_host(void) {
                 ERRORLOG("    Room[%d] missing from host", client_room->index);
                 shown++;
             } else if (client_room->checksum != host_room->checksum) {
-                ERRORLOG("    Room[%d] slabs_count: Host=%d Client=%d, efficiency: Host=%d Client=%d",
-                    client_room->index, host_room->slabs_count, client_room->slabs_count, host_room->efficiency, client_room->efficiency);
+                ERRORLOG("    Room[%d] slabs_count: Host=%d Client=%d, efficiency: Host=%d Client=%d, used_capacity: Host=%d Client=%d, central_stl: Host=(%d,%d) Client=(%d,%d)",
+                    client_room->index, host_room->slabs_count, client_room->slabs_count, host_room->efficiency, client_room->efficiency,
+                    (int)host_room->used_capacity, (int)client_room->used_capacity,
+                    (int)host_room->central_stl_x, (int)host_room->central_stl_y,
+                    (int)client_room->central_stl_x, (int)client_room->central_stl_y);
                 shown++;
             }
         }

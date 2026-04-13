@@ -136,6 +136,19 @@ struct LogThingDesyncInfo {
     HitPoints health;
     GameTurn creation_turn;
     uint32_t random_seed;
+    unsigned char current_frame;
+    unsigned char max_frames;
+    unsigned char active_state;
+    unsigned char continue_state;
+    unsigned short movement_flags;
+    short move_angle_xy;
+    short move_angle_z;
+    PlayerNumber holding_player;
+    short parent_idx;
+    unsigned char fall_acceleration;
+    struct CoordDelta3d veloc_base;
+    struct CoordDelta3d veloc_push_once;
+    struct CoordDelta3d veloc_push_add;
     TbBigChecksum checksum;
 };
 
