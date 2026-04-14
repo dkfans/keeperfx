@@ -86,11 +86,14 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing) {
     CHECKSUM_ADD(checksum, thing->veloc_push_add.x.val);
     CHECKSUM_ADD(checksum, thing->veloc_push_add.y.val);
     CHECKSUM_ADD(checksum, thing->veloc_push_add.z.val);
-    if (thing_is_creature_special_digger(thing)) {
+    if (thing->class_id == TCls_Creature) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         CHECKSUM_ADD(checksum, cctrl->moveto_pos.x.val);
         CHECKSUM_ADD(checksum, cctrl->moveto_pos.y.val);
         CHECKSUM_ADD(checksum, cctrl->moveto_pos.z.val);
+    }
+    if (thing_is_creature_special_digger(thing)) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         CHECKSUM_ADD(checksum, cctrl->dragtng_idx);
         CHECKSUM_ADD(checksum, cctrl->arming_thing_id);
         CHECKSUM_ADD(checksum, cctrl->pickup_object_id);
@@ -255,6 +258,11 @@ void update_turn_checksums(void) {
             thing_snapshot->veloc_base = thing->veloc_base;
             thing_snapshot->veloc_push_once = thing->veloc_push_once;
             thing_snapshot->veloc_push_add = thing->veloc_push_add;
+            thing_snapshot->is_creature = (thing->class_id == TCls_Creature);
+            if (thing_snapshot->is_creature) {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                thing_snapshot->moveto_pos = cctrl->moveto_pos;
+            }
             thing_snapshot->is_special_digger = thing_is_creature_special_digger(thing);
             if (thing_snapshot->is_special_digger) {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -388,9 +396,17 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
                 (long)client_thing->veloc_base.x.val, (long)client_thing->veloc_base.y.val, (long)client_thing->veloc_base.z.val,
                 (long)client_thing->veloc_push_once.x.val, (long)client_thing->veloc_push_once.y.val, (long)client_thing->veloc_push_once.z.val,
                 (long)client_thing->veloc_push_add.x.val, (long)client_thing->veloc_push_add.y.val, (long)client_thing->veloc_push_add.z.val);
+            if (client_thing->is_creature) {
+                if (host_thing != NULL) {
+                    ERRORLOG("    [Host]   moveto_pos=(%ld,%ld,%ld)",
+                        (long)host_thing->moveto_pos.x.val, (long)host_thing->moveto_pos.y.val, (long)host_thing->moveto_pos.z.val);
+                }
+                ERRORLOG("    [Client] moveto_pos=(%ld,%ld,%ld)",
+                    (long)client_thing->moveto_pos.x.val, (long)client_thing->moveto_pos.y.val, (long)client_thing->moveto_pos.z.val);
+            }
             if (client_thing->is_special_digger) {
                 if (host_thing != NULL) {
-                    ERRORLOG("    [Host]   digger moveto=(%ld,%ld,%ld) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
+                    ERRORLOG("    [Host]   digger_moveto_pos=(%ld,%ld,%ld) dragtng_idx=%d arming_thing_id=%d pickup_object_id=%d pickup_creature_id=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
                         (long)host_thing->digger_moveto_pos.x.val, (long)host_thing->digger_moveto_pos.y.val, (long)host_thing->digger_moveto_pos.z.val,
                         (int)host_thing->digger_dragtng_idx, (int)host_thing->digger_arming_thing_id,
                         (int)host_thing->digger_pickup_object_id, (int)host_thing->digger_pickup_creature_id,
@@ -400,7 +416,7 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
                         (unsigned)host_thing->digger_last_did_job,
                         (unsigned)host_thing->digger_task_stack_pos, (unsigned)host_thing->digger_task_repeats);
                 }
-                ERRORLOG("    [Client] digger moveto=(%ld,%ld,%ld) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
+                ERRORLOG("    [Client] digger_moveto_pos=(%ld,%ld,%ld) dragtng_idx=%d arming_thing_id=%d pickup_object_id=%d pickup_creature_id=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
                     (long)client_thing->digger_moveto_pos.x.val, (long)client_thing->digger_moveto_pos.y.val, (long)client_thing->digger_moveto_pos.z.val,
                     (int)client_thing->digger_dragtng_idx, (int)client_thing->digger_arming_thing_id,
                     (int)client_thing->digger_pickup_object_id, (int)client_thing->digger_pickup_creature_id,

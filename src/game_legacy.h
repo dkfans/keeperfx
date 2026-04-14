@@ -149,6 +149,8 @@ struct LogThingDesyncInfo {
     struct CoordDelta3d veloc_base;
     struct CoordDelta3d veloc_push_once;
     struct CoordDelta3d veloc_push_add;
+    TbBool is_creature;
+    struct Coord3d moveto_pos;
     TbBool is_special_digger;
     struct Coord3d digger_moveto_pos;
     short digger_dragtng_idx;
