@@ -34,7 +34,9 @@
 #include "frontend.h"
 #include "front_network.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "config_strings.h"
+#include "dungeon_data.h"
 #include "game_legacy.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
@@ -95,7 +97,10 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
   clear_packets();
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet_direct(my_player_number);
-  set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
+  unsigned short initial_tendencies = 0;
+  if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
+  if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
+  set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, initial_tendencies, 0);
   if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet)))
       ERRORLOG("Network Exchange failed");
   int k = 0;
@@ -120,6 +125,14 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           }
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
+          TbBool imprison = (pckt->actn_par3 & CrTend_Imprison) != 0;
+          TbBool flee = (pckt->actn_par3 & CrTend_Flee) != 0;
+          set_creature_tendencies(player, CrTend_Imprison, imprison);
+          set_creature_tendencies(player, CrTend_Flee, flee);
+          if (player->id_number == my_player_number) {
+              game.creatures_tend_imprison = imprison;
+              game.creatures_tend_flee = flee;
+          }
           snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
           k++;
       }
@@ -175,6 +188,7 @@ void init_players_network_game(CoroutineLoop *context)
   setup_select_player_number();
   coroutine_add(context, &setup_exchange_player_number);
   coroutine_add(context, &perform_checksum_verification);
+  coroutine_add(context, &verify_sprite_zip_checksums);
   coroutine_add(context, &setup_alliances);
 }
 

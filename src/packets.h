@@ -193,7 +193,7 @@ enum TbPacketAction {
         PckA_PlyrQueryCreature,
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
-        PckA_SpriteZipCountSync,
+        PckA_SpriteZipChecksumSync,
 };
 
 /** Packet flags for non-action player operation. */
@@ -323,7 +323,6 @@ void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
 void set_packet_pause_toggle(void);
 void force_application_close(void);
-void apply_default_flee_and_imprison_setting(void);
 TbBool process_dungeon_control_packet_clicks(long idx);
 TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
@@ -356,8 +355,6 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
 void set_tag_untag_mode(PlayerNumber plyr_idx);
 TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void send_sprite_zip_count_to_other_players(void);
-void process_sprite_zip_count_sync(long plyr_idx, long zip_count);
 /******************************************************************************/
 #ifdef __cplusplus
 }

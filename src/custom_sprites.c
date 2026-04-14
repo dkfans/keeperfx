@@ -97,6 +97,10 @@ static int num_added_lens_mists = 0;
 unsigned char base_pal[PALETTE_SIZE];
 
 int total_sprite_zip_count = 0;
+uint32_t sprite_zip_combined_checksum = 0;
+
+// Used to cheaply detect mismatched custom sprites between players; makes file order matter when combining checksums, without this XOR alone gives the same result regardless of order.
+#define ROL32_5(x) (((uint32_t)(x) << 5) | ((uint32_t)(x) >> 27))
 
 // Indicates what custom assets to load
 enum CustomLoadFlags {
@@ -227,6 +231,28 @@ static int cmp_named_command(const void *a, const void *b)
 }
 
 
+static uint32_t compute_zip_checksum(const char *path)
+{
+    unzFile zip = unzOpen(path);
+    if (zip == NULL) {
+        return 0;
+    }
+    uint32_t checksum = 0;
+    char entry_name[PATH_MAX];
+    for (int err = unzGoToFirstFile(zip); err == UNZ_OK; err = unzGoToNextFile(zip)) {
+        unz_file_info64 info = {0};
+        if (UNZ_OK != unzGetCurrentFileInfo64(zip, &info, entry_name, sizeof(entry_name) - 1, NULL, 0, NULL, 0)) {
+            continue;
+        }
+        checksum = ROL32_5(checksum) ^ (uint32_t)info.crc;
+        for (const char *c = entry_name; *c; c++) {
+            checksum = ROL32_5(checksum) ^ (unsigned char)*c;
+        }
+    }
+    unzClose(zip);
+    return checksum;
+}
+
 static int load_file_sprites(const char *path, const char *file_desc)
 {
     SYNCDBG(8, "Starting");
@@ -287,8 +313,10 @@ static int load_file_sprites(const char *path, const char *file_desc)
         {
             SYNCDBG(0, "Unable to load lens mists from %s", file_desc);
         }
-        total_sprite_zip_count++;
     }
+
+    sprite_zip_combined_checksum = ROL32_5(sprite_zip_combined_checksum) ^ compute_zip_checksum(path);
+    total_sprite_zip_count++;
 
     return add_flag;
 }
@@ -317,7 +345,6 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
 
         if (dir_desc != NULL)
             LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
-        total_sprite_zip_count += cnt_zip;
     }
 }
 
@@ -384,6 +411,7 @@ void init_custom_sprites(LevelNumber lvnum)
     free_spritesheet(&custom_sprites);
     custom_sprites = create_spritesheet();
     total_sprite_zip_count = 0;
+    sprite_zip_combined_checksum = 0;
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {

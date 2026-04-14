@@ -214,7 +214,6 @@ extern void faststartup_saved_packet_game(void);
 extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 extern void startup_network_game(CoroutineLoop *context, TbBool local);
-void first_gameturn_actions(void);
 /******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
@@ -2724,7 +2723,6 @@ void update(void)
     message_update();
     update_all_players_cameras();
     update_player_sounds();
-    first_gameturn_actions();
     SYNCDBG(6,"Finished");
 }
 
@@ -2746,14 +2744,6 @@ void intentional_desync() {
         }
     }
     get_player(0)->instance_remain_turns += 1;
-}
-
-void first_gameturn_actions() {
-    if (game.play_gameturn == 1) {
-        apply_default_flee_and_imprison_setting();
-        send_sprite_zip_count_to_other_players();
-    }
-    //intentional_desync();
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
