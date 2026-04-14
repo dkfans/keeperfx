@@ -2682,29 +2682,6 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
     // Get the selected index
     while (i != 0)
     {
-        struct PlayerInfo *player = get_player(room->owner);
-        if (player->roomspace.is_active)
-        {
-            MapSlabCoord slb_x = slb_num_decode_x(i);
-            MapSlabCoord slb_y = slb_num_decode_y(i);
-            for (long j = 0; j < SMALL_AROUND_LENGTH; j++)
-            {
-                MapSlabCoord aslb_x = slb_x + small_around[j].delta_x;
-                MapSlabCoord aslb_y = slb_y + small_around[j].delta_y;
-                struct Room* nroom = slab_room_get(aslb_x, aslb_y);
-                if (!room_is_invalid(nroom))
-                {
-                    if ( (nroom->kind == room->kind) && (nroom->owner == room->owner) )
-                    {
-                        if (nroom->index != room->index)
-                        {
-                            ERRORLOG("Tried to find free position in %s %d but ended up looking in %s %d instead", room_code_name(room->kind),room->index,room_code_name(nroom->kind), nroom->index);
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
         // Per room tile code
         if (n >= selected)
         {
