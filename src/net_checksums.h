@@ -38,6 +38,8 @@ TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short checksums_different(void);
 CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
 CoroutineLoopState verify_sprite_zip_checksums(CoroutineLoop *con);
+void imp_random_log_push(uint16_t thing_idx, const char *func, unsigned long line, unsigned long range, unsigned long result, unsigned long seed_after);
+void imp_random_log_dump(uint16_t thing_idx);
 
 /******************************************************************************/
 #ifdef __cplusplus

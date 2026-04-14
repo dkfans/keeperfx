@@ -52,11 +52,13 @@ extern "C" {
 
 // Random number generation system with synchronized and unsynchronized variants
 
+void imp_random_log_push(uint16_t thing_idx, const char *func, unsigned long line, unsigned long range, unsigned long result, unsigned long seed_after);
+
 static inline unsigned long thing_random_impl(struct Thing *thing, unsigned long range, const char *func_name, unsigned long line)
 {
     unsigned long result = LbRandomSeries(range, &thing->random_seed, func_name, line);
     if (thing_is_creature_special_digger(thing)) {
-        SYNCLOG("imp THING_RANDOM called from %s line %lu range=%lu result=%lu seed_after=%08lx", func_name, line, range, result, (unsigned long)thing->random_seed);
+        imp_random_log_push(thing->index, func_name, line, range, result, (unsigned long)thing->random_seed);
     }
     return result;
 }

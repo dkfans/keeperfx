@@ -40,6 +40,49 @@ extern "C" {
 /******************************************************************************/
 #define CHECKSUM_ADD(checksum, value) checksum = ((checksum << 5) | (checksum >> 27)) ^ (ulong)(value)
 #define SNAPSHOT_BUFFER_SIZE 15
+#define IMP_RANDOM_LOG_SIZE 16384
+
+struct ImpRandomEntry {
+    const char *func;
+    unsigned long line;
+    unsigned long range;
+    unsigned long result;
+    unsigned long seed_after;
+    uint16_t thing_idx;
+};
+
+static struct ImpRandomEntry imp_random_log[IMP_RANDOM_LOG_SIZE];
+static int imp_random_log_pos = 0;
+static int imp_random_log_count = 0;
+
+void imp_random_log_push(uint16_t thing_idx, const char *func, unsigned long line, unsigned long range, unsigned long result, unsigned long seed_after)
+{
+    struct ImpRandomEntry *entry = &imp_random_log[imp_random_log_pos];
+    entry->thing_idx = thing_idx;
+    entry->func = func;
+    entry->line = line;
+    entry->range = range;
+    entry->result = result;
+    entry->seed_after = seed_after;
+    imp_random_log_pos = (imp_random_log_pos + 1) % IMP_RANDOM_LOG_SIZE;
+    if (imp_random_log_count < IMP_RANDOM_LOG_SIZE) {
+        imp_random_log_count++;
+    }
+}
+
+void imp_random_log_dump(uint16_t thing_idx)
+{
+    ERRORLOG("  Imp Thing[%u] THING_RANDOM history (last %d entries):", (unsigned)thing_idx, imp_random_log_count);
+    int start = (imp_random_log_pos - imp_random_log_count + IMP_RANDOM_LOG_SIZE) % IMP_RANDOM_LOG_SIZE;
+    for (int i = 0; i < imp_random_log_count; i++) {
+        struct ImpRandomEntry *entry = &imp_random_log[(start + i) % IMP_RANDOM_LOG_SIZE];
+        if (entry->thing_idx != thing_idx) {
+            continue;
+        }
+        ERRORLOG("    Thing[%u] %s:%lu range=%lu result=%lu seed_after=%08lx",
+            (unsigned)entry->thing_idx, entry->func, entry->line, entry->range, entry->result, entry->seed_after);
+    }
+}
 
 struct ChecksumSnapshot {
     GameTurn turn;
@@ -346,6 +389,11 @@ void pack_desync_history_for_resync(void) {
     }
     game.host_checksums = snapshot->checksums;
     game.log_snapshot = snapshot->log_details;
+    for (int i = 0; i < game.log_snapshot.thing_count; i++) {
+        if (game.log_snapshot.things[i].is_special_digger) {
+            imp_random_log_dump(game.log_snapshot.things[i].index);
+        }
+    }
 }
 
 static void log_thing_differences(struct LogDetailedSnapshot* client, const char* name, TbBigChecksum client_sum, TbBigChecksum host_sum, ThingClass filter_class) {
@@ -425,6 +473,7 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
                     (unsigned)client_thing->digger_task_idx, (unsigned)client_thing->digger_consecutive_reinforcements,
                     (unsigned)client_thing->digger_last_did_job,
                     (unsigned)client_thing->digger_task_stack_pos, (unsigned)client_thing->digger_task_repeats);
+                imp_random_log_dump(client_thing->index);
             }
             shown++;
         }
