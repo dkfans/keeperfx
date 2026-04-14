@@ -362,10 +362,6 @@ int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods)
     if (result && clear_pressed)
         controller_button_state &= ~settings.kbkeys[key_id].controller_buttons;
 
-    if (key_id == Gkey_SwitchToMap)
-        JUSTLOG("Switch to map button pressed, controller state: %d, result: %d", controller_button_state, result);
-
-
   return result;
 }
 

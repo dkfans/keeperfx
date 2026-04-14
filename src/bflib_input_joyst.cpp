@@ -107,11 +107,15 @@ static TbControllerButtons SDL_gamecontrollerbutton_to_controllerbutton(const Ui
     return CBtn_NONE;
 }
 
-static TbControllerButtons SDL_axis_to_controllerbutton(const Uint8 button)
+static TbControllerButtons SDL_axis_to_controllerbutton(const Uint8 button, int8_t sign)
 {
     switch (button) {
         case SDL_CONTROLLER_AXIS_TRIGGERLEFT: return CBtn_L2;
         case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: return CBtn_R2;
+        case SDL_CONTROLLER_AXIS_LEFTX: return  sign < 0 ? CBtn_LS_LEFT : CBtn_LS_RIGHT;
+        case SDL_CONTROLLER_AXIS_LEFTY: return  sign < 0 ? CBtn_LS_UP : CBtn_LS_DOWN;
+        case SDL_CONTROLLER_AXIS_RIGHTX: return sign < 0 ? CBtn_RS_LEFT : CBtn_RS_RIGHT;
+        case SDL_CONTROLLER_AXIS_RIGHTY: return sign < 0 ? CBtn_RS_UP : CBtn_RS_DOWN;
 
         
         default: break;
@@ -156,25 +160,45 @@ void JEvent(const SDL_Event *ev)
         close_controller();
         break;
     case SDL_CONTROLLERAXISMOTION:
-        if (ev->caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT || ev->caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT) {
-            TbControllerButtons controller_btn = SDL_axis_to_controllerbutton(ev->caxis.axis);
+        {
+            TbControllerButtons btn_pos = SDL_axis_to_controllerbutton(ev->caxis.axis, 1);
+            TbControllerButtons btn_neg = SDL_axis_to_controllerbutton(ev->caxis.axis, -1);
 
-            if (controller_btn != CBtn_NONE)
+            if (ev->caxis.value > 10000)
             {
-                if (ev->caxis.value > 10000) // Threshold for considering the trigger "pressed"
-                {
-                    if (!(internal_button_state & controller_btn)) {
-                        controller_button_state |= controller_btn;
-                        internal_button_state |= controller_btn;
-                    }
+                if (btn_neg != CBtn_NONE) {
+                    controller_button_state &= ~btn_neg;
+                    internal_button_state &= ~btn_neg;
                 }
-                else
-                {
-                    controller_button_state &= ~controller_btn;
-                    internal_button_state &= ~controller_btn;
+                if (btn_pos != CBtn_NONE && !(internal_button_state & btn_pos)) {
+                    controller_button_state |= btn_pos;
+                    internal_button_state |= btn_pos;
+                }
+            }
+            else if (ev->caxis.value < -10000)
+            {
+                if (btn_pos != CBtn_NONE) {
+                    controller_button_state &= ~btn_pos;
+                    internal_button_state &= ~btn_pos;
+                }
+                if (btn_neg != CBtn_NONE && !(internal_button_state & btn_neg)) {
+                    controller_button_state |= btn_neg;
+                    internal_button_state |= btn_neg;
+                }
+            }
+            else
+            {
+                if (btn_pos != CBtn_NONE) {
+                    controller_button_state &= ~btn_pos;
+                    internal_button_state &= ~btn_pos;
+                }
+                if (btn_neg != CBtn_NONE) {
+                    controller_button_state &= ~btn_neg;
+                    internal_button_state &= ~btn_neg;
                 }
             }
         }
+        break;
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:
     case SDL_JOYHATMOTION:
@@ -291,7 +315,6 @@ static float get_input_delta_time()
 }
 void poll_controller()
 {
-    JUSTLOG("%d",controller_button_state);
     input_delta_time = get_input_delta_time();
     if (controller != NULL) {
         
