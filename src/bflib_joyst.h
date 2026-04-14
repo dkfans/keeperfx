@@ -61,6 +61,8 @@ enum ControllerButtons {
     CBtn_RS_RIGHT       = 0x20000000,
 };
 
+extern TbControllerButtons controller_button_state;
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

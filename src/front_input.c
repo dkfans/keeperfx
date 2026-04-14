@@ -173,8 +173,8 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"LVShowAllEnsigns",      GUIStr_MnuUnused,               KC_F11, KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVShowAllEnsigns,
     {"LVNextLevel",           GUIStr_MnuUnused,               KC_F10, KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVNextLevel,
     {"LVPrevLevel",           GUIStr_MnuUnused,               KC_F9,  KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVPrevLevel,
-    {"NextInstance",          GUIStr_NextInstance,            KC_UNASSIGNED,  KMod_NONE,     CBtn_LEFTSHOULDER,        BMV_ControllerOnly, },       // Gkey_NextInstance,
-    {"PrevInstance",          GUIStr_PrevInstance,            KC_UNASSIGNED,  KMod_NONE,     CBtn_RIGHTSHOULDER,       BMV_ControllerOnly, },       // Gkey_PrevInstance,
+    {"NextInstance",          GUIStr_NextInstance,            KC_UNASSIGNED,  KMod_NONE,     CBtn_RIGHTSHOULDER,       BMV_ControllerOnly, },       // Gkey_NextInstance,
+    {"PrevInstance",          GUIStr_PrevInstance,            KC_UNASSIGNED,  KMod_NONE,     CBtn_LEFTSHOULDER,        BMV_ControllerOnly, },       // Gkey_PrevInstance,
     {"ButtonSnapLeft",        GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_LEFT,           BMV_ControllerOnly, },       // Gkey_ButtonSnapLeft,
     {"ButtonSnapRight",       GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_RIGHT,          BMV_ControllerOnly, },       // Gkey_ButtonSnapRight,
     {"ButtonSnapUp",          GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_UP,             BMV_ControllerOnly, },       // Gkey_ButtonSnapUp,
@@ -344,8 +344,27 @@ int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods)
             }
       }
   }
-  if (result && clear_pressed)
-    clear_key_pressed(val);
+    if (result)
+    {
+        if (clear_pressed)
+            clear_key_pressed(val);
+        return result;
+    }
+
+    if (settings.kbkeys[key_id].controller_buttons == 0 || controller_button_state == 0)
+        return 0;
+
+    if (ignore_mods )
+        result = (controller_button_state & settings.kbkeys[key_id].controller_buttons) != 0;
+    else
+        result = (controller_button_state & settings.kbkeys[key_id].controller_buttons) == controller_button_state;
+
+    if (result && clear_pressed)
+        controller_button_state &= ~settings.kbkeys[key_id].controller_buttons;
+
+    if (key_id == Gkey_SwitchToMap)
+        JUSTLOG("Switch to map button pressed, controller state: %d, result: %d", controller_button_state, result);
+
 
   return result;
 }

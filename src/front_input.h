@@ -143,7 +143,7 @@ struct GamekeySettings {
     TextStringId string_id; // For display in the key binding menu
     uint8_t default_code;
     uint8_t default_mods;
-    TbControllerButtons default_gamepad_buttons;
+    TbControllerButtons default_controller_buttons;
     uint8_t binding_menu_visibility;
 
 };

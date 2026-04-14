@@ -47,24 +47,11 @@ extern "C" {
 
 static SDL_GameController *controller = NULL;
 
-static TbBool lt_pressed = false;
-static TbBool rt_pressed = false;
+static TbControllerButtons internal_button_state = 0;
+TbControllerButtons controller_button_state = 0;
 
-
-static Uint8 prev_back = 0;
-static Uint8 prev_leftshoulder = 0;
-static Uint8 prev_rightshoulder = 0;
-static Uint8 prev_joy_left = 0;
-//static Uint8 prev_joy_right = 0;
-
-static Uint8 prev_dpad_up    = 0;
-static Uint8 prev_dpad_down  = 0;
-static Uint8 prev_dpad_left  = 0;
-static Uint8 prev_dpad_right = 0;
-
-static float mouse_accum_x = 0.0f;
-static float mouse_accum_y = 0.0f;
-
+//static float mouse_accum_x = 0.0f;
+//static float mouse_accum_y = 0.0f;
 float movement_accum_x = 0.0f;
 float movement_accum_y = 0.0f;
 
@@ -83,17 +70,12 @@ static void open_controller(int device_index)
     controller = SDL_GameControllerOpen(device_index);
 }
 
-static void close_controller(SDL_JoystickID instance_id)
+static void close_controller()
 {
     if (controller) {
-        SDL_Joystick *joy = SDL_GameControllerGetJoystick(controller);
-        if (SDL_JoystickInstanceID(joy) == instance_id) {
-            SDL_GameControllerClose(controller);
-            controller = NULL;
-        }
+        SDL_GameControllerClose(controller);
+        controller = NULL;
     }
-    lt_pressed = false;
-    rt_pressed = false;
 }
 
 static TbControllerButtons SDL_gamecontrollerbutton_to_controllerbutton(const Uint8 button)
@@ -113,6 +95,25 @@ static TbControllerButtons SDL_gamecontrollerbutton_to_controllerbutton(const Ui
         case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return CBtn_DPAD_DOWN;
         case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return CBtn_DPAD_LEFT;
         case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return CBtn_DPAD_RIGHT;
+        case SDL_CONTROLLER_BUTTON_MISC1: return CBtn_MISC1;
+        case SDL_CONTROLLER_BUTTON_PADDLE1: return CBtn_PADDLE1;
+        case SDL_CONTROLLER_BUTTON_PADDLE2: return CBtn_PADDLE2;
+        case SDL_CONTROLLER_BUTTON_PADDLE3: return CBtn_PADDLE3;
+        case SDL_CONTROLLER_BUTTON_PADDLE4: return CBtn_PADDLE4;
+        case SDL_CONTROLLER_BUTTON_TOUCHPAD: return CBtn_TOUCHPAD;
+        
+        default: break;
+    }
+    return CBtn_NONE;
+}
+
+static TbControllerButtons SDL_axis_to_controllerbutton(const Uint8 button)
+{
+    switch (button) {
+        case SDL_CONTROLLER_AXIS_TRIGGERLEFT: return CBtn_L2;
+        case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: return CBtn_R2;
+
+        
         default: break;
     }
     return CBtn_NONE;
@@ -128,17 +129,21 @@ void JEvent(const SDL_Event *ev)
     case SDL_CONTROLLERBUTTONUP:
     {
         Uint8 button_val = ev->cbutton.button;
-        TbControllerButtons keycode = SDL_gamecontrollerbutton_to_controllerbutton(button_val);
-        if (keycode != CBtn_NONE)
+        TbControllerButtons controller_btn = SDL_gamecontrollerbutton_to_controllerbutton(button_val);
+
+        if (controller_btn != CBtn_NONE)
         {
             if (ev->type == SDL_CONTROLLERBUTTONDOWN)
             {
-                lbKeyOn[keycode] = 1;
-                lbInkey = keycode;
+                if (!(internal_button_state & controller_btn)) {
+                    controller_button_state |= controller_btn;
+                    internal_button_state |= controller_btn;
+                }
             }
             else
             {
-                lbKeyOn[keycode] = 0;
+                controller_button_state &= ~controller_btn;
+                internal_button_state &= ~controller_btn;
             }
         }
     }
@@ -148,14 +153,33 @@ void JEvent(const SDL_Event *ev)
         open_controller(ev->cdevice.which);
         break;
     case SDL_CONTROLLERDEVICEREMOVED:
-        close_controller(ev->cdevice.which);
+        close_controller();
         break;
+    case SDL_CONTROLLERAXISMOTION:
+        if (ev->caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT || ev->caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT) {
+            TbControllerButtons controller_btn = SDL_axis_to_controllerbutton(ev->caxis.axis);
+
+            if (controller_btn != CBtn_NONE)
+            {
+                if (ev->caxis.value > 10000) // Threshold for considering the trigger "pressed"
+                {
+                    if (!(internal_button_state & controller_btn)) {
+                        controller_button_state |= controller_btn;
+                        internal_button_state |= controller_btn;
+                    }
+                }
+                else
+                {
+                    controller_button_state &= ~controller_btn;
+                    internal_button_state &= ~controller_btn;
+                }
+            }
+        }
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:
     case SDL_JOYHATMOTION:
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
-    case SDL_CONTROLLERAXISMOTION:
     default:
         break;
     }
@@ -168,7 +192,7 @@ void controller_rumble(long ms)
     }
 }
 
-
+/*7
 #define STICK_DEADZONE      0.15f
 
 static void poll_controller_movement(Sint16 lx, Sint16 ly)
@@ -256,6 +280,7 @@ static void poll_controller_mouse(Sint16 rx, Sint16 ry)
         mouseControl(MActn_MOUSEMOVE, &mouseDelta);
     }
 }
+*/
 
 static float get_input_delta_time()
 {
@@ -264,48 +289,14 @@ static float get_input_delta_time()
     float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game_num_fps;
     return min(calculated_delta_time, 1.0f);
 }
-
 void poll_controller()
 {
+    JUSTLOG("%d",controller_button_state);
     input_delta_time = get_input_delta_time();
     if (controller != NULL) {
         
         //analog sticks and dpad, layout based on what's available, with mouse being most important, then movement, then cam rotation/zoom
-
-        // D-pad for button snapping
-        Uint8 dpad_up =    SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
-        Uint8 dpad_down =  SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-        Uint8 dpad_left =  SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-        Uint8 dpad_right = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-        Uint8 btn_B = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
-        
-        if (!btn_B) {
-        
-            // Check for button press (edge detection)
-            if (dpad_up && !prev_dpad_up) {
-                snap_to_direction(GetMouseX(), GetMouseY(), 0.0f, -1.0f);
-            }
-            if (dpad_down && !prev_dpad_down) {
-                snap_to_direction(GetMouseX(), GetMouseY(), 0.0f, 1.0f);
-            }
-            if (dpad_left && !prev_dpad_left) {
-                snap_to_direction(GetMouseX(), GetMouseY(), -1.0f, 0.0f);
-            }
-            if (dpad_right && !prev_dpad_right) {
-                snap_to_direction(GetMouseX(), GetMouseY(), 1.0f, 0.0f);
-            }
-        }
-        else {
-            lbKeyOn[KC_UP] = dpad_up;
-            lbKeyOn[KC_DOWN] = dpad_down;
-            lbKeyOn[KC_RIGHT] = dpad_left;
-            lbKeyOn[KC_LEFT] = dpad_right;
-        }
-        
-        prev_dpad_up = dpad_up;
-        prev_dpad_down = dpad_down;
-        prev_dpad_left = dpad_left;
-        prev_dpad_right = dpad_right;
+/*
         
         Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
         Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
@@ -399,8 +390,9 @@ void poll_controller()
         //}
         //prev_joy_right = current_joy_right;
 
-
+*/
     }
+        
 }
 
 
