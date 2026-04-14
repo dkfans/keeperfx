@@ -52,8 +52,17 @@ extern "C" {
 
 // Random number generation system with synchronized and unsynchronized variants
 
+static inline unsigned long thing_random_impl(struct Thing *thing, unsigned long range, const char *func_name, unsigned long line)
+{
+    unsigned long result = LbRandomSeries(range, &thing->random_seed, func_name, line);
+    if (thing_is_creature_special_digger(thing)) {
+        SYNCLOG("imp THING_RANDOM called from %s line %lu range=%lu result=%lu seed_after=%08lx", func_name, line, range, result, (unsigned long)thing->random_seed);
+    }
+    return result;
+}
+
 // Thing-specific random for deterministic per-thing behavior (creatures, objects, etc.)
-#define THING_RANDOM(thing, range) LbRandomSeries(range, &((struct Thing*)(thing))->random_seed, __func__, __LINE__)
+#define THING_RANDOM(thing, range) thing_random_impl((struct Thing*)(thing), range, __func__, __LINE__)
 // Global game events requiring synchronization across network (scripts, AI decisions, player events)
 #define GAME_RANDOM(range) LbRandomSeries(range, &game.action_random_seed, __func__, __LINE__)
 // Unsynchronized random for visual/audio effects that don't affect game state (lighting, particles)
