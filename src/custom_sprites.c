@@ -99,6 +99,7 @@ unsigned char base_pal[PALETTE_SIZE];
 int total_sprite_zip_count = 0;
 uint32_t sprite_zip_combined_checksum = 0;
 
+// Used to cheaply detect mismatched custom sprites between players; makes file order matter when combining checksums, without this XOR alone gives the same result regardless of order.
 #define ROL32_5(x) (((uint32_t)(x) << 5) | ((uint32_t)(x) >> 27))
 
 // Indicates what custom assets to load
