@@ -976,7 +976,7 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
         while (1) {
             crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
             // Accept only evil creatures
-            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
+            struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
             if ((crconf->model_flags & CMF_IsSpectator) != 0) {
                 continue;
             }

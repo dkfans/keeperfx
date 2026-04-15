@@ -1347,7 +1347,7 @@ void update_creatr_model_activities_list(TbBool forced)
         int write_idx = 1;
         for (int i = 1; i < num_breeds; i++)
         {
-            crconf = &game.conf.crtr_conf.model[breed_activities[i]];
+            crconf = creature_stats_get(breed_activities[i]);
             if (any_flag_is_set(crconf->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger)))
             {
                 temp = breed_activities[i];

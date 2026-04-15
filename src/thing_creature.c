@@ -167,7 +167,7 @@ TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingMod
         return true;
 
     struct CreatureModelConfig *crconf;
-    crconf = &game.conf.crtr_conf.model[crmodel];
+    crconf = creature_stats_get(crmodel);
     return flag_is_set(crconf->model_flags,CMF_IsSpecDigger);
 }
 
@@ -7186,14 +7186,14 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     {
         id = picktng->owner;
         type = MsgType_Player;
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(picktng);
         snprintf(str, sizeof(str), "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
         id = RoK_GRAVEYARD;
         type = MsgType_Room;
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(picktng);
         snprintf(str, sizeof(str), "%s", get_string(crconf->namestr_idx));
     }
     else
@@ -7594,7 +7594,7 @@ ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags)
 ThingModel get_random_appropriate_creature_kind(ThingModel original_model)
 {
     struct CreatureModelConfig *newconf;
-    struct CreatureModelConfig *oldconf = &game.conf.crtr_conf.model[original_model];
+    struct CreatureModelConfig *oldconf = creature_stats_get(original_model);
     ThingModel random_model;
     while (true)
     {
@@ -7605,7 +7605,7 @@ ThingModel get_random_appropriate_creature_kind(ThingModel original_model)
             continue;
         }
         // Exclude same creature kind, spectators and diggers.
-        newconf = &game.conf.crtr_conf.model[random_model];
+        newconf = creature_stats_get(random_model);
         if ((random_model == original_model) || (any_flag_is_set(newconf->model_flags, (CMF_IsSpectator|CMF_IsSpecDigger|CMF_IsDiggingCreature))))
         {
             continue;

@@ -3229,7 +3229,7 @@ void process_cheat_mode_selection_inputs()
                             new_value = 0;
                             break;
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
@@ -3245,7 +3245,7 @@ void process_cheat_mode_selection_inputs()
                             new_value = 0;
                             break;
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);
@@ -3271,7 +3271,7 @@ void process_cheat_mode_selection_inputs()
                                break;
                            }
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
@@ -3293,7 +3293,7 @@ void process_cheat_mode_selection_inputs()
                                 break;
                             }
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);

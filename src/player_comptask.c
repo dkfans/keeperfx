@@ -3521,7 +3521,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         return false;
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksFrequent)) {
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[thing->model];
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
 
         switch (dst_state)
         {
@@ -3907,7 +3907,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
         message_add_fmt(MsgType_Player, comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
     }
     ctask->ttype = CTT_AttackMagic;

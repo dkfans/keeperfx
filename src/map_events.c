@@ -440,7 +440,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (thing_exists(thing))
             {
-                crconf = &game.conf.crtr_conf.model[thing->model];
+                crconf = creature_stats_get_from_thing(thing);
                 i = crconf->namestr_idx;
                 str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             }
@@ -473,7 +473,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (thing_exists(thing))
             {
-                crconf = &game.conf.crtr_conf.model[thing->model];
+                crconf = creature_stats_get_from_thing(thing);
                 i = crconf->namestr_idx;
                 str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             }
@@ -516,7 +516,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (thing_exists(thing))
             {
-                crconf = &game.conf.crtr_conf.model[thing->model];
+                crconf = creature_stats_get_from_thing(thing);
                 i = crconf->namestr_idx;
                 str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             }

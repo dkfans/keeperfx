@@ -2085,7 +2085,7 @@ const char *creature_own_name(const struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((get_creature_model_flags(creatng) & CMF_OneOfKind) != 0) {
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
         return get_string(crconf->namestr_idx);
     }
     if (cctrl->creature_name[0] > 0)

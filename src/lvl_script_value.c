@@ -285,7 +285,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       crconf->fearsome_factor = saturate_set_unsigned(param2, 16);
       break;
   case Cmd_SET_CREATURE_PROPERTY:
-      crconf = &game.conf.crtr_conf.model[param1];
       crconf = creature_stats_get(param1);
       switch (param2)
       {
