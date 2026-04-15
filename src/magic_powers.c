@@ -350,7 +350,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         {
             if (thing->owner == plyr_idx) {
                 struct TrapConfigStats *trapst;
-                trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+                trapst = get_trap_model_stats(thing->model);
                 if ((trapst->slappable > 0) && trap_is_active(thing)) {
                     return true;
                 }

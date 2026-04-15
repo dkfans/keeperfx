@@ -73,7 +73,7 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     struct TrapConfigStats *trapst;
     if (thing->owner == plyr_idx)
     {
-        trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+        trapst = get_trap_model_stats(thing->model);
         return (trapst->slappable > 0) && trap_is_active(thing);
     }
     return false;
@@ -180,7 +180,7 @@ short thing_is_destructible_trap(const struct Thing *thing)
         return -2;
     if (thing->trap.num_shots <= 0)
         return -2;
-    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+    struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
     return trapst->destructible;
 }
 
@@ -190,7 +190,7 @@ TbBool thing_is_sellable_trap(const struct Thing* thing)
         return false;
     if (thing->class_id != TCls_Trap)
         return false;
-    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+    struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
     return (trapst->unsellable == 0);
 }
 
@@ -1212,7 +1212,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, stru
 
 TbBool trap_on_bridge(ThingModel trpkind)
 {
-    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpkind];
+    struct TrapConfigStats* trapst = get_trap_model_stats(trpkind);
     return trapst->place_on_bridge;
 }
 
