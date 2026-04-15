@@ -1112,7 +1112,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     // The room digging task is complete - change it to room placing task
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
-        roomst = &game.conf.slab_conf.room_cfgstats[ctask->rkind];
+        roomst = get_room_kind_stats(ctask->rkind);
         message_add_fmt(MsgType_Player, comp->dungeon->owner, "Now I can place the %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_PlaceRoom;
@@ -1144,7 +1144,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     struct Dungeon *dungeon = comp->dungeon;
     RoomKind rkind = ctask->create_room.kind;
-    struct RoomConfigStats *roomst = &game.conf.slab_conf.room_cfgstats[rkind];
+    struct RoomConfigStats *roomst = get_room_kind_stats(rkind);
     // If we don't have money for the room - don't even try
     if (roomst->cost + 1000 >= dungeon->total_money_owned)
     {
@@ -1541,7 +1541,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     {
         if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
             struct RoomConfigStats *roomst;
-            roomst = &game.conf.slab_conf.room_cfgstats[rkind];
+            roomst = get_room_kind_stats(rkind);
             message_add_fmt(MsgType_Player, comp->dungeon->owner, "It is time to build %s.",get_string(roomst->name_stridx));
         }
         ctask->ttype = CTT_DigRoomPassage;
@@ -3604,7 +3604,7 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
         room = room_get(room_idx);
         if (room_exists(room)) {
             struct RoomConfigStats *roomst;
-            roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
+            roomst = get_room_kind_stats(room->kind);
             message_add_fmt(MsgType_Player, comp->dungeon->owner, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
         } else {
             if (flag_is_set(game.computer_chat_flags, CChat_TasksFrequent))
@@ -3840,7 +3840,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     }
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
-        roomst = &game.conf.slab_conf.room_cfgstats[RoK_ENTRANCE];
+        roomst = get_room_kind_stats(RoK_ENTRANCE);
         message_add_fmt(MsgType_Player, comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_DigToEntrance;
