@@ -29,6 +29,8 @@
 #include "thing_creature.h"
 #include "frontend.h"
 #include "thing_list.h"
+#include "custom_sprites.h"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -519,6 +521,36 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con) {
     }
     NETLOG("Checksums are verified");
 
+    return CLS_CONTINUE;
+}
+
+CoroutineLoopState verify_sprite_zip_checksums(CoroutineLoop *con)
+{
+    clear_packets();
+    struct Packet *pckt = get_packet(my_player_number);
+    set_packet_action(pckt, PckA_SpriteZipChecksumSync, (int32_t)sprite_zip_combined_checksum, 0, 0, 0);
+    if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet))) {
+        ERRORLOG("Network exchange failed on sprite zip verification");
+    }
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (!net_player_info[i].active || i == my_player_number) {
+            continue;
+        }
+        pckt = get_packet_direct(i);
+        if (pckt->action != PckA_SpriteZipChecksumSync) {
+            return CLS_REPEAT;
+        }
+    }
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (!net_player_info[i].active || i == my_player_number) {
+            continue;
+        }
+        pckt = get_packet_direct(i);
+        if ((uint32_t)pckt->actn_par1 != sprite_zip_combined_checksum) {
+            message_add_fmt(MsgType_Player, 0, "Verify /fxdata/ is the same across all PCs.");
+            message_add_fmt(MsgType_Player, 0, "WARNING: Custom sprite mismatch with %s!", network_player_name(i));
+        }
+    }
     return CLS_CONTINUE;
 }
 

@@ -118,7 +118,6 @@ extern "C" {
 extern TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool change_campaign(const char *cmpgn_fname);
-extern int total_sprite_zip_count;
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
 /******************************************************************************/
@@ -1143,11 +1142,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
         return false;
     }
-    case PckA_SpriteZipCountSync:
-    {
-        process_sprite_zip_count_sync(plyr_idx, pckt->actn_par1);
-        return true;
-    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -1928,31 +1922,6 @@ void process_frontend_packets(void)
   }
 }
 
-void apply_default_flee_and_imprison_setting(void)
-{
-    struct PlayerInfo* player = get_my_player();
-    if (!player_exists(player) || game.packet_load_enable) {
-        return;
-    }
-
-    struct Dungeon* dungeon = get_dungeon(player->id_number);
-    unsigned short tendencies_to_toggle = 0;
-
-    TbBool current_imprison_state = (dungeon->creature_tendencies & CrTend_Imprison) != 0;
-    if (IMPRISON_BUTTON_DEFAULT != current_imprison_state) {
-        tendencies_to_toggle |= CrTend_Imprison;
-    }
-
-    TbBool current_flee_state = (dungeon->creature_tendencies & CrTend_Flee) != 0;
-    if (FLEE_BUTTON_DEFAULT != current_flee_state) {
-        tendencies_to_toggle |= CrTend_Flee;
-    }
-
-    if (tendencies_to_toggle) {
-        set_players_packet_action(player, PckA_ToggleTendency, tendencies_to_toggle, 0, 0, 0);
-    }
-}
-
 // Using Alt-F4, or similar operating system close requests
 void force_application_close()
 {
@@ -1979,31 +1948,5 @@ void force_application_close()
     }
 }
 
-void send_sprite_zip_count_to_other_players(void)
-{
-    struct PlayerInfo* my_player = get_my_player();
-    if (my_player != INVALID_PLAYER)
-    {
-        set_players_packet_action(my_player, PckA_SpriteZipCountSync, total_sprite_zip_count, 0, 0, 0);
-    }
-}
-
-void process_sprite_zip_count_sync(long plyr_idx, long zip_count)
-{
-    if (zip_count != total_sprite_zip_count)
-    {
-        if (my_player_number == get_host_player_id())
-        {
-            message_add_fmt(MsgType_Player, 0,
-                "Verify /fxdata/ is the same across both PCs.");
-            message_add_fmt(MsgType_Player, 0,
-                "%s has %ld .zip files, %s has %d .zip files.",
-                network_player_name(plyr_idx), zip_count,
-                network_player_name(my_player_number), total_sprite_zip_count);
-            message_add_fmt(MsgType_Player, 0,
-                "WARNING: Custom sprite files mismatch detected!");
-        }
-    }
-}
 
 /******************************************************************************/

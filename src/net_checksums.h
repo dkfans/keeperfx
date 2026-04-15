@@ -37,6 +37,7 @@ void compare_desync_history_from_host(void);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short checksums_different(void);
 CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
+CoroutineLoopState verify_sprite_zip_checksums(CoroutineLoop *con);
 
 /******************************************************************************/
 #ifdef __cplusplus
