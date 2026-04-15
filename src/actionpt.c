@@ -254,7 +254,7 @@ TbBool process_action_points(void)
         struct ActionPoint* apt = &game.action_points[i];
         if (apt->exists == true)
         {
-            if (((apt->num + game.play_gameturn) & 7) == 0)
+            if (((apt->num + get_gameturn()) & 7) == 0)
             {
                 apt->activated = action_point_get_players_within(i);
                 //if (i==1) show_onscreen_msg(2*game.num_fps, "APT PLYRS %d", (int)apt->activated);

@@ -1041,7 +1041,7 @@ short arrive_at_alarm(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->alarm_over_turn < (unsigned long)game.play_gameturn)
+    if (cctrl->alarm_over_turn < (unsigned long)get_gameturn())
     {
         set_start_state(creatng);
         return 1;
@@ -1506,7 +1506,7 @@ short creature_being_dropped(struct Thing *creatng)
     cctrl->creature_control_flags |= CCFlg_NoCompControl;
     // Cannot teleport for a few turns after being dropped
     delay_teleport(creatng);
-    cctrl->dropped_turn = game.play_gameturn;
+    cctrl->dropped_turn = get_gameturn();
     MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -1593,7 +1593,7 @@ short creature_being_dropped(struct Thing *creatng)
                 }
                 else
                 {
-                    cctrl->healing_sleep_check_turn = game.play_gameturn;
+                    cctrl->healing_sleep_check_turn = get_gameturn();
                 }
             }
         }
@@ -1671,7 +1671,7 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((game.play_gameturn - cctrl->countdown) >= 128)
+    if ((get_gameturn() - cctrl->countdown) >= 128)
     {
         set_start_state(creatng);
         return 0;
@@ -1805,10 +1805,10 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
         ERRORLOG("The %s index %d has lair in invalid room",thing_model_name(creatng),(int)creatng->index);
         return false;
     }
-    if (game.play_gameturn - cctrl->tasks_check_turn <= 128) {
+    if (get_gameturn() - cctrl->tasks_check_turn <= 128) {
         return false;
     }
-    cctrl->tasks_check_turn = game.play_gameturn;
+    cctrl->tasks_check_turn = get_gameturn();
     if (!creature_setup_random_move_for_job_in_room(creatng, room, Job_TAKE_SLEEP, NavRtF_Default)) {
         return false;
     }
@@ -1823,10 +1823,10 @@ short creature_try_going_to_healing_sleep(struct Thing *creatng)
     if (!creature_can_do_healing_sleep(creatng)) {
         return false;
     }
-    if (game.play_gameturn - cctrl->healing_sleep_check_turn <= 200) {
+    if (get_gameturn() - cctrl->healing_sleep_check_turn <= 200) {
         return false;
     }
-    cctrl->healing_sleep_check_turn = game.play_gameturn;
+    cctrl->healing_sleep_check_turn = get_gameturn();
     if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
         return false;
     }
@@ -1844,7 +1844,7 @@ short creature_doing_nothing(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Wait for up to 2 turns (note that this is unsigned substraction)
-    if (game.play_gameturn - cctrl->idle.start_gameturn <= 1) {
+    if (get_gameturn() - cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
     if (creature_under_spell_effect(creatng, CSAfF_MadKilling)) {
@@ -1854,10 +1854,10 @@ short creature_doing_nothing(struct Thing *creatng)
     }
     if (!creature_has_lair_room(creatng) && creature_can_do_healing_sleep(creatng) && creature_free_for_sleep(creatng, CrSt_CreatureWantsAHome))
     {
-        if ((game.play_gameturn - cctrl->tasks_check_turn > 128))
+        if ((get_gameturn() - cctrl->tasks_check_turn > 128))
         {
             int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
-            cctrl->tasks_check_turn = game.play_gameturn;
+            cctrl->tasks_check_turn = get_gameturn();
             struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_role_for_job(Job_TAKE_SLEEP), NavRtF_Default, required_cap);
             if (!room_is_invalid(room))
             {
@@ -1881,24 +1881,24 @@ short creature_doing_nothing(struct Thing *creatng)
             return 1;
         }
     }
-    if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))
+    if ((cctrl->job_assigned != Job_NULL) && (get_gameturn() - cctrl->job_assigned_check_turn > 128))
     {
         if (attempt_job_preference(creatng, cctrl->job_assigned)) {
             SYNCDBG(8,"The %s index %d will do assigned job with state %s",thing_model_name(creatng),
                 (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return 1;
         }
-        cctrl->job_assigned_check_turn = game.play_gameturn;
+        cctrl->job_assigned_check_turn = get_gameturn();
     }
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    if ((crconf->job_primary != Job_NULL) && (game.play_gameturn - cctrl->job_primary_check_turn > 128))
+    if ((crconf->job_primary != Job_NULL) && (get_gameturn() - cctrl->job_primary_check_turn > 128))
     {
         if (attempt_job_preference(creatng, crconf->job_primary)) {
             SYNCDBG(8,"The %s index %d will do primary job with state %s",thing_model_name(creatng),
                 (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return 1;
         }
-        cctrl->job_primary_check_turn = game.play_gameturn;
+        cctrl->job_primary_check_turn = get_gameturn();
     }
     long n = THING_RANDOM(creatng, 3);
     for (long i = 0; i < 3; i++)
@@ -1929,9 +1929,9 @@ short creature_doing_nothing(struct Thing *creatng)
         }
         n = (n + 1) % 3;
     }
-    if (game.play_gameturn - cctrl->wander_around_check_turn > 128)
+    if (get_gameturn() - cctrl->wander_around_check_turn > 128)
     {
-        cctrl->wander_around_check_turn = game.play_gameturn;
+        cctrl->wander_around_check_turn = get_gameturn();
         struct Coord3d pos;
         if (get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &pos))
         {
@@ -1943,7 +1943,7 @@ short creature_doing_nothing(struct Thing *creatng)
         }
     }
     internal_set_thing_state(creatng, CrSt_CreatureCannotFindAnythingToDo);
-    cctrl->countdown = game.play_gameturn;
+    cctrl->countdown = get_gameturn();
     return 0;
 }
 
@@ -2251,11 +2251,11 @@ short creature_follow_leader(struct Thing *creatng)
         remove_creature_from_group(creatng);
         return 0;
     }
-    if ((fails_amount > 0) && (cctrl->following_leader_since + 16 > game.play_gameturn))
+    if ((fails_amount > 0) && (cctrl->following_leader_since + 16 > get_gameturn()))
     {
         return 0;
     }
-    cctrl->following_leader_since = game.play_gameturn;
+    cctrl->following_leader_since = get_gameturn();
     MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
@@ -2851,7 +2851,7 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
         return 1;
     }
 
-    long offsetted_gameturn = game.play_gameturn + creatng->index;
+    long offsetted_gameturn = get_gameturn() + creatng->index;
 
     if ( (offsetted_gameturn % 16) == 0 )
     {
@@ -3349,7 +3349,7 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     {
         doortng = INVALID_THING;
     }
-    if (!thing_is_deployed_door(doortng) || ((game.play_gameturn - doortng->creation_turn) <= 3) || !doortng->door.is_locked)
+    if (!thing_is_deployed_door(doortng) || ((get_gameturn() - doortng->creation_turn) <= 3) || !doortng->door.is_locked)
     {
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
@@ -4282,7 +4282,7 @@ TbBool process_creature_hunger(struct Thing *thing)
     if (game.conf.rules[thing->owner].health.turns_per_hunger_health_loss > 0)
     {
         // Make sure every creature loses health on different turn.
-        if (((game.play_gameturn + thing->index) % game.conf.rules[thing->owner].health.turns_per_hunger_health_loss) == 0) {
+        if (((get_gameturn() + thing->index) % game.conf.rules[thing->owner].health.turns_per_hunger_health_loss) == 0) {
             SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules[thing->owner].health.hunger_health_loss);
             remove_health_from_thing_and_display_health(thing, game.conf.rules[thing->owner].health.hunger_health_loss);
             return true;
@@ -4521,9 +4521,9 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
     {
         enemytng = INVALID_THING;
     }
-    if (game.play_gameturn - cctrl->seek_enemy.turn_looked_for_enemy > 64)
+    if (get_gameturn() - cctrl->seek_enemy.turn_looked_for_enemy > 64)
     {
-        cctrl->seek_enemy.turn_looked_for_enemy = game.play_gameturn;
+        cctrl->seek_enemy.turn_looked_for_enemy = get_gameturn();
         enemytng = find_nearest_enemy_creature(thing);
     }
     if (thing_is_invalid(enemytng))
@@ -4672,7 +4672,7 @@ short seek_the_enemy(struct Thing *creatng)
         {
             if (cctrl->instance_id == CrInst_NULL)
             {
-                if ((dist < 2304) && (game.play_gameturn-cctrl->countdown < 20))
+                if ((dist < 2304) && (get_gameturn()-cctrl->countdown < 20))
                 {
                     crsound = get_creature_sound(creatng, CrSnd_Fight);
                     thing_play_sample(creatng, crsound->index + SOUND_RANDOM(crsound->count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -4684,14 +4684,14 @@ short seek_the_enemy(struct Thing *creatng)
                     if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
                     {
                         creatng->continue_state = CrSt_SeekTheEnemy;
-                        cctrl->countdown = game.play_gameturn;
+                        cctrl->countdown = get_gameturn();
                         return 1;
                     }
                 }
                 if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
                 {
                     creatng->continue_state = CrSt_SeekTheEnemy;
-                    cctrl->countdown = game.play_gameturn;
+                    cctrl->countdown = get_gameturn();
                 }
             }
             return 1;
@@ -5045,7 +5045,7 @@ TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const 
 TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((creature_affected_by_slap(thing) || creature_is_called_to_arms(thing)) && (cctrl->dropped_turn != game.play_gameturn))
+    if ((creature_affected_by_slap(thing) || creature_is_called_to_arms(thing)) && (cctrl->dropped_turn != get_gameturn()))
         return false;
     return can_change_from_state_to(thing, thing->active_state, state);
 }
@@ -5076,7 +5076,7 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
     if (get_creature_health_permil(creatng) >= game.conf.rules[creatng->owner].creature.critical_health_permil) {
         return 0;
     }
-    if (game.play_gameturn >= cctrl->healing_sleep_check_turn)
+    if (get_gameturn() >= cctrl->healing_sleep_check_turn)
     {
         if (!creature_can_do_healing_sleep(creatng))
         {
@@ -5101,7 +5101,7 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
         if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
             return 0;
         }
-        if ((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
+        if ((get_gameturn() - cctrl->healing_sleep_check_turn) > 128)
         {
             if ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng)))
             {
@@ -5116,7 +5116,7 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
                 struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
                 anger_apply_anger_to_creature(creatng, crconf->annoy_no_lair, AngR_NoLair, 1);
             }
-            cctrl->healing_sleep_check_turn = game.play_gameturn;
+            cctrl->healing_sleep_check_turn = get_gameturn();
         }
     }
     return 0;
@@ -5223,7 +5223,7 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureM
     }
     if (crconf->hunger_fill <= cctrl->hunger_loss)
     {
-        cctrl->garden_eat_check_turn = game.play_gameturn;
+        cctrl->garden_eat_check_turn = get_gameturn();
         cctrl->hunger_loss -= crconf->hunger_fill;
         return 0;
     }
@@ -5235,14 +5235,14 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureM
         anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
-    if (game.play_gameturn - cctrl->garden_eat_check_turn <= 128) {
+    if (get_gameturn() - cctrl->garden_eat_check_turn <= 128) {
         anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     struct Room* nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_FoodStorage, NavRtF_Default, 1);
     if (room_is_invalid(nroom))
     {
-        cctrl->garden_eat_check_turn = game.play_gameturn;
+        cctrl->garden_eat_check_turn = get_gameturn();
         // No food in nearest room, try to find another room
         nroom = find_random_room_of_role_for_thing(creatng, creatng->owner, RoRoF_FoodStorage, 0);
         if (room_is_invalid(nroom))
@@ -5362,14 +5362,14 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureMo
     if (creature_is_doing_anger_job(creatng)) {
         return 0;
     }
-    if (anger_is_creature_livid(creatng) && (((game.play_gameturn + creatng->index) & 0x3F) == 0))
+    if (anger_is_creature_livid(creatng) && (((get_gameturn() + creatng->index) & 0x3F) == 0))
     {
         if (creature_find_and_perform_anger_job(creatng))
             return 1;
     }
-    if ((crconf->annoy_in_temple < 0) && (game.play_gameturn - cctrl->temple_pray_check_turn > 128))
+    if ((crconf->annoy_in_temple < 0) && (get_gameturn() - cctrl->temple_pray_check_turn > 128))
     {
-        cctrl->temple_pray_check_turn = game.play_gameturn;
+        cctrl->temple_pray_check_turn = get_gameturn();
         if (creature_is_doing_temple_pray_activity(creatng))
             return 1;
         if (creature_can_do_job_for_player(creatng, creatng->owner, Job_TEMPLE_PRAY, JobChk_PlayMsgOnFail)
@@ -5384,9 +5384,9 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureMo
     }
     if (creature_has_lair_room(creatng) && creature_can_do_healing_sleep(creatng))
     {
-      if (game.play_gameturn - cctrl->sulking_sleep_check_turn > 128)
+      if (get_gameturn() - cctrl->sulking_sleep_check_turn > 128)
       {
-          cctrl->sulking_sleep_check_turn = game.play_gameturn;
+          cctrl->sulking_sleep_check_turn = get_gameturn();
           // If creature has lair, try to go to it
           if (anger_get_creature_anger_type(creatng) == AngR_NoLair)
           {
@@ -5405,7 +5405,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureMo
 long process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (game.play_gameturn >= cctrl->healing_sleep_check_turn)
+    if (get_gameturn() >= cctrl->healing_sleep_check_turn)
     {
         if (!creature_requires_healing(creatng)) {
             return 0;
@@ -5431,7 +5431,7 @@ long process_creature_needs_to_heal(struct Thing *creatng, const struct Creature
         if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
             return 0;
         }
-        if ((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
+        if ((get_gameturn() - cctrl->healing_sleep_check_turn) > 128)
         {
             if ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng)))
             {
@@ -5444,7 +5444,7 @@ long process_creature_needs_to_heal(struct Thing *creatng, const struct Creature
             {
                 anger_apply_anger_to_creature(creatng, crconf->annoy_no_lair, AngR_NoLair, 1);
             }
-            cctrl->healing_sleep_check_turn = game.play_gameturn;
+            cctrl->healing_sleep_check_turn = get_gameturn();
         }
     }
     return 0;
@@ -5478,7 +5478,7 @@ long process_piss_need(struct Thing *thing, const struct CreatureModelConfig *cr
     if ((pisstng->owner == thing->owner) || !crconf->piss_on_dead) {
         return 0;
     }
-    if (game.play_gameturn - cctrl->last_piss_turn <= 200) {
+    if (get_gameturn() - cctrl->last_piss_turn <= 200) {
         return 0;
     }
     if (!external_set_thing_state(thing, CrSt_CreaturePiss))
@@ -5486,7 +5486,7 @@ long process_piss_need(struct Thing *thing, const struct CreatureModelConfig *cr
         return 0;
     }
     cctrl->countdown = 50;
-    cctrl->last_piss_turn = game.play_gameturn;
+    cctrl->last_piss_turn = get_gameturn();
     return 1;
 }
 

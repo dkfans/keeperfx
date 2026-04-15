@@ -450,10 +450,10 @@ long creature_available_for_combat_this_turn(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Check once per 8 turns
-    if (((game.play_gameturn + creatng->index) & 7) != 0)
+    if (((get_gameturn() + creatng->index) & 7) != 0)
     {
         // On first turn in a state, check anyway
-        if (game.play_gameturn - cctrl->tasks_check_turn > 1) {
+        if (get_gameturn() - cctrl->tasks_check_turn > 1) {
             return false;
         }
     }
@@ -1016,7 +1016,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 cctrl->disease_caster_plyridx = game.neutral_player_num;
             }
             long num_disease = 0;
-            cctrl->disease_start_turn = game.play_gameturn;
+            cctrl->disease_start_turn = get_gameturn();
             for (int j = 0; j < 3; j++)
             {
                 pos.x.val = thing->mappos.x.val;
@@ -1116,12 +1116,12 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
             }
             if (external_set_thing_state(thing, CrSt_CreatureCombatFlee))
             {
-                cctrl->flee_start_turn = game.play_gameturn;
+                cctrl->flee_start_turn = get_gameturn();
             }
         }
         else // If spell is reapplied reset flee_start_turn and state.
         {
-            cctrl->flee_start_turn = game.play_gameturn;
+            cctrl->flee_start_turn = get_gameturn();
             if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureCombatFlee)
             {
                 external_set_thing_state(thing, CrSt_CreatureCombatFlee);
@@ -2056,7 +2056,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     famcctrl->summon_spl_idx = spl_idx;
                     creature_change_multiple_levels(famlrtng, sumxp);
                     remove_first_creature(famlrtng); //temporary units are not real creatures
-                    famcctrl->unsummon_turn = game.play_gameturn + duration;
+                    famcctrl->unsummon_turn = get_gameturn() + duration;
                     set_flag(famcctrl->creature_state_flags, TF2_SummonedCreature);
                     struct Thing* leadtng = get_group_leader(creatng);
                     if (leadtng == creatng)
@@ -2092,7 +2092,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     if (famlrtng->model == model)
                     {
                         famcctrl = creature_control_get_from_thing(famlrtng);
-                        famcctrl->unsummon_turn = game.play_gameturn + duration;
+                        famcctrl->unsummon_turn = get_gameturn() + duration;
                         level_up_familiar(famlrtng);
                         if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) //if it's not getting to the summoner, teleport it there
                         {
@@ -2510,7 +2510,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     }
     // Enable this to know which function hangs on update_creature.
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
-    //if (game.play_gameturn > 119800)
+    //if (get_gameturn() > 119800)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
     struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
     if (stati->process_state != 0) {
@@ -3288,7 +3288,7 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
         {
             famlrtng = thing_get(scctrl->familiar_idx[i]);
             fcctrl = creature_control_get_from_thing(famlrtng);
-            fcctrl->unsummon_turn = game.play_gameturn;
+            fcctrl->unsummon_turn = get_gameturn();
         }
     }
 }
@@ -3331,7 +3331,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     // Terminate all the actives spell effects with damage > 0.
     terminate_all_actives_damage_over_time_spell_effects(creatng);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
+    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > get_gameturn()))
     {
         create_effect_around_thing(creatng, ball_puff_effects[get_player_color_idx(creatng->owner)]);
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
@@ -4029,7 +4029,7 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
     long ritime;
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    long delta = (long)game.play_gameturn - (long)cctrl->instance_use_turn[inst_idx];
+    long delta = (long)get_gameturn() - (long)cctrl->instance_use_turn[inst_idx];
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         ritime = inst_inf->fp_reset_time + cctrl->inst_total_turns - cctrl->inst_action_turns;
@@ -4737,7 +4737,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
         cctrl = creature_control_get_from_thing(creatng);
         cctrl->paydays_owed = 0;
         cctrl->paydays_advanced = 0;
-        cctrl->idle.start_gameturn = game.play_gameturn;
+        cctrl->idle.start_gameturn = get_gameturn();
     }
 }
 
@@ -4814,7 +4814,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
-    crtng->creation_turn = game.play_gameturn;
+    crtng->creation_turn = get_gameturn();
     cctrl->joining_age = 17 + THING_RANDOM(crtng, 13);
     cctrl->blood_type = THING_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (player_is_roaming(owner))
@@ -5956,9 +5956,9 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
         if (crconf->hurt_by_lava > 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if ((!creature_is_escaping_death(thing)) && (cctrl->lava_escape_since + 64 < game.play_gameturn))
+            if ((!creature_is_escaping_death(thing)) && (cctrl->lava_escape_since + 64 < get_gameturn()))
             {
-                cctrl->lava_escape_since = game.play_gameturn;
+                cctrl->lava_escape_since = get_gameturn();
                 if (cleanup_current_thing_state(thing))
                 {
                     if (setup_move_off_lava(thing))
@@ -6071,7 +6071,7 @@ void process_magic_fall_effect(struct Thing *thing)
 {
     if (flag_is_set(thing->movement_flags, TMvF_MagicFall))
     {
-        GameTurnDelta dturn = game.play_gameturn - thing->creation_turn;
+        GameTurnDelta dturn = get_gameturn() - thing->creation_turn;
         if ((dturn & 1) == 0)
         {
             create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
@@ -6287,7 +6287,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
-    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < game.play_gameturn))
+    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < get_gameturn()))
     {
         create_effect_around_thing(thing, ball_puff_effects[get_player_color_idx(thing->owner)]);
         kill_creature(thing, INVALID_THING, -1, CrDed_NotReallyDying| CrDed_NoEffects);
@@ -6402,7 +6402,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     }
     else
     {
-        if (((game.play_gameturn + thing->index) % 41) == 0) //Check sometimes to move the familiar back into the group
+        if (((get_gameturn() + thing->index) % 41) == 0) //Check sometimes to move the familiar back into the group
         {
             if (cctrl->summoner_idx > 0)
             {

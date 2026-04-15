@@ -99,7 +99,7 @@ int get_trigger_time_measurement_fps(struct TriggerTimeMeasurement *trigger)
 float get_delta_time()
 {
     // Allow frame skip to work correctly when delta time is enabled
-    if ( (game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0)) {
+    if ( (game.frame_skip != 0) && ((get_gameturn() % game.frame_skip) != 0)) {
         return 1.0;
     }
     long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();

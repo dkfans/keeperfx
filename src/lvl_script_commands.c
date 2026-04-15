@@ -5478,7 +5478,7 @@ static void clear_message_process(struct ScriptContext* context)
     unsigned char count = min(context->value->chars[1], game.active_messages_count);
     for (int k = game.active_messages_count-1; k >= (game.active_messages_count-count); k--)
     {
-        game.messages[k].expiration_turn = game.play_gameturn;
+        game.messages[k].expiration_turn = get_gameturn();
     }
 }
 

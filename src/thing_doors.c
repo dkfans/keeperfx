@@ -126,7 +126,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->rendering_flags |= TRF_Invisible;
     doortng->door.orientation = orient;
     doortng->active_state = DorSt_Closed;
-    doortng->creation_turn = game.play_gameturn;
+    doortng->creation_turn = get_gameturn();
     doortng->health = doorst->health;
     doortng->door.is_locked = is_locked;
     if (doorst->model_flags & DoMF_Thick)

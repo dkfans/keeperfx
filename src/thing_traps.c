@@ -65,7 +65,7 @@ TbBool destroy_trap(struct Thing *traptng)
 
 TbBool trap_is_active(const struct Thing *thing)
 {
-    return ((thing->trap.num_shots > 0) && (thing->trap.rearm_turn <= game.play_gameturn));
+    return ((thing->trap.num_shots > 0) && (thing->trap.rearm_turn <= get_gameturn()));
 }
 
 TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
@@ -795,7 +795,7 @@ TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
 void process_trap_charge(struct Thing* traptng)
 {
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
-    traptng->trap.rearm_turn = game.play_gameturn + trapst->shots_delay;
+    traptng->trap.rearm_turn = get_gameturn() + trapst->shots_delay;
     if (trapst->attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
@@ -811,7 +811,7 @@ void process_trap_charge(struct Thing* traptng)
         {
             trigger_duration = get_lifespan_of_animation(trapst->attack_sprite_anim_idx, trapst->attack_anim_speed);
         }
-        traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
+        traptng->trap.shooting_finished_turn = (get_gameturn() + trigger_duration);
         traptng->current_frame = 0;
         traptng->anim_time = 0;
     }
@@ -946,14 +946,14 @@ TngUpdateRet update_trap(struct Thing *traptng)
     }
     if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharge' anim.
     {
-        if ((traptng->trap.rearm_turn <= game.play_gameturn)) // Recharge complete, rearm.
+        if ((traptng->trap.rearm_turn <= get_gameturn())) // Recharge complete, rearm.
         {
             // Back to regular anim.
             traptng->anim_sprite = convert_td_iso(trapst->sprite_anim_idx);
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             traptng->trap.wait_for_rearm = false;
         }
-        else if (traptng->trap.shooting_finished_turn > (game.play_gameturn)) // Shot anim is playing.
+        else if (traptng->trap.shooting_finished_turn > (get_gameturn())) // Shot anim is playing.
         {
             if (trapst->attack_sprite_anim_idx != 0)
             {
@@ -1049,12 +1049,12 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->clipbox_size_z = trapst->size_z;
     thing->solid_size_xy = trapst->size_xy;
     thing->solid_size_z = trapst->size_z;
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
     thing->health = trapst->health;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
     thing->rendering_flags |= TRF_Transpar_4;
     thing->trap.num_shots = 0;
-    thing->trap.rearm_turn = game.play_gameturn;
+    thing->trap.rearm_turn = get_gameturn();
     if (trapst->light_radius != 0)
     {
         ilght.mappos.x.val = thing->mappos.x.val;
@@ -1198,7 +1198,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, stru
     {
         trap_fire_shot_without_target(thing, trapst->created_itm_model, 1, angle);
     }
-    thing->trap.rearm_turn = game.play_gameturn + trapst->shots_delay;
+    thing->trap.rearm_turn = get_gameturn() + trapst->shots_delay;
     if (thing->trap.num_shots != INFINITE_CHARGES)
     {
         if (thing->trap.num_shots > 0) {

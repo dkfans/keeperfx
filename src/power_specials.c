@@ -605,13 +605,13 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
         default:
             if (thing_is_custom_special_box(cratetng))
             {
-                if (game.current_player_turn == game.play_gameturn)
+                if (game.current_player_turn == get_gameturn())
                 {
                     WARNLOG("box activation rejected turn:%u", game.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }
-                game.current_player_turn = game.play_gameturn;
+                game.current_player_turn = get_gameturn();
                 game.script_current_player = player->id_number;
                 memcpy(&game.triggered_object_location, &pos, sizeof(struct Coord3d));
                 dungeon->box_info.activated[cratetng->custom_box.box_kind]++;

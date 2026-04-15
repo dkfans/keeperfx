@@ -180,7 +180,7 @@ static void compute_checksums(struct DesyncChecksums* checksums) {
     checksums->action_seed = game.action_random_seed;
     checksums->ai_seed = game.ai_random_seed;
     checksums->player_seed = game.player_random_seed;
-    checksums->game_turn = game.play_gameturn;
+    checksums->game_turn = get_gameturn();
 }
 
 static struct ChecksumSnapshot* find_snapshot(GameTurn turn) {
@@ -221,7 +221,7 @@ short checksums_different(void) {
 void update_turn_checksums(void) {
     struct ChecksumSnapshot* snapshot = &snapshot_buffer[snapshot_head];
     struct LogDetailedSnapshot* snapshot_info = &snapshot->log_details;
-    snapshot->turn = game.play_gameturn;
+    snapshot->turn = get_gameturn();
     snapshot->valid = true;
     compute_checksums(&snapshot->checksums);
     snapshot_info->thing_count = 0;
@@ -324,7 +324,7 @@ void update_turn_checksums(void) {
     packet->checksum += checksums->player_seed;
     packet->checksum += checksums->ai_seed;
 
-    MULTIPLAYER_LOG("update_turn_checksums: turn=%lu checksum=%08lx things=%08lx rooms=%08lx players=%08lx", (unsigned long)game.play_gameturn, (unsigned long)packet->checksum, (unsigned long)things_sum, (unsigned long)checksums->rooms, (unsigned long)checksums->players);
+    MULTIPLAYER_LOG("update_turn_checksums: turn=%lu checksum=%08lx things=%08lx rooms=%08lx players=%08lx", (unsigned long)get_gameturn(), (unsigned long)packet->checksum, (unsigned long)things_sum, (unsigned long)checksums->rooms, (unsigned long)checksums->players);
 }
 
 void pack_desync_history_for_resync(void) {

@@ -254,14 +254,14 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 }
             } else
             {
-                if (game.play_gameturn - thing->creation_turn > game.conf.rules[thing->owner].creature.body_remains_for) {
+                if (get_gameturn() - thing->creation_turn > game.conf.rules[thing->owner].creature.body_remains_for) {
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
             }
         } else
         {
-            corpse_age = game.play_gameturn - thing->creation_turn;
+            corpse_age = get_gameturn() - thing->creation_turn;
             #define VANISH_EFFECT_DELAY 60
             if (((corpse_age > game.conf.rules[thing->owner].creature.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
                 && !(is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing)))
@@ -454,7 +454,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->inertia_air = 51;
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_ZeroVerticalVelocity;
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
     struct CreatureModelConfig* crconf = creature_stats_get(model);
     if (crconf->transparency_flags != 0)
     {

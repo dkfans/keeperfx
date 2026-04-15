@@ -602,7 +602,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   case Cmd_BONUS_LEVEL_TIME:
       if (param1 > 0) {
-          game.bonus_time = game.play_gameturn + param1;
+          game.bonus_time = get_gameturn() + param1;
           set_flag(game.flags_gui,GGUI_CountdownTimer);
       } else {
           game.bonus_time = 0;

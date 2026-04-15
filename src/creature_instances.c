@@ -500,7 +500,7 @@ long instf_creature_fire_shot(struct Thing *creatng, int32_t *param)
     }
     thing_fire_shot(creatng, target, *param, 1, hittype);
     // Start cooldown after shot is fired
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
+    cctrl->instance_use_turn[cctrl->instance_id] = get_gameturn();
     return 0;
 }
 
@@ -532,7 +532,7 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
     }
 
     // Start cooldown after spell effect activates
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
+    cctrl->instance_use_turn[cctrl->instance_id] = get_gameturn();
     return 0;
 }
 
@@ -1112,13 +1112,13 @@ long instf_tunnel(struct Thing *creatng, int32_t *param)
 void delay_teleport(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
+    cctrl->instance_use_turn[CrInst_TELEPORT] = get_gameturn() + 100;
 }
 
 void delay_heal_sleep(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->healing_sleep_check_turn = game.play_gameturn + 600;
+    cctrl->healing_sleep_check_turn = get_gameturn() + 600;
 }
 
 /**

@@ -103,7 +103,7 @@ static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const ch
     memset(thing, 0, sizeof(struct Thing));
     thing->alloc_flags |= TAlF_Exists;
     thing->index = thing_idx;
-    thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
+    thing->random_seed = thing->index * 9377 + 9439 + get_gameturn();
     TRACE_THING(thing);
 
     return thing;

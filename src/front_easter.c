@@ -215,13 +215,13 @@ void draw_eastegg(void)
       unsigned char pos;
       for (i = 0; i < 30; i += 2)
       {
-        pos = game.play_gameturn - i;
+        pos = get_gameturn() - i;
         lbDisplay.DrawColour = pos;
         LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
           scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       }
       clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
-      pos=game.play_gameturn;
+      pos=get_gameturn();
       LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
           scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       if (eastegg_skeksis_cntr >= 255)

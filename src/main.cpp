@@ -402,7 +402,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
                     if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0))
                     {
                         thing->continue_state = CrSt_ArriveAtAlarm;
-                        cctrl->alarm_over_turn = game.play_gameturn + 800;
+                        cctrl->alarm_over_turn = get_gameturn() + 800;
                         cctrl->alarm_stl_x = traptng->mappos.x.stl.num;
                         cctrl->alarm_stl_y = traptng->mappos.y.stl.num;
                     }
@@ -2054,7 +2054,7 @@ void set_mouse_light(struct PlayerInfo *player)
     SYNCDBG(6,"Starting");
     struct Packet *pckt;
     if (is_my_player(player)) {
-        pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+        pckt = get_local_input_lag_packet_for_turn(get_gameturn());
     } else {
         pckt = get_packet_direct(player->packet_num);
     }
@@ -2197,7 +2197,7 @@ static void process_dungeon_devastation_effects(void)
         dungeon = get_players_num_dungeon(plyr_idx);
         if (dungeon->devastation_turn == 0)
             continue;
-        if ((game.play_gameturn & 1) != 0)
+        if ((get_gameturn() & 1) != 0)
             continue;
         dungeon->devastation_turn++;
         if (dungeon->devastation_turn >= max(game.map_tiles_x,game.map_tiles_y))
@@ -2546,7 +2546,7 @@ long update_cave_in(struct Thing *thing)
     struct Coord3d pos;
     PlayerNumber owner;
     owner = thing->owner;
-    if ((game.play_gameturn % 3) == 0)
+    if ((get_gameturn() % 3) == 0)
     {
         int n;
         n = GAME_RANDOM(AROUND_TILES_COUNT);
@@ -2565,7 +2565,7 @@ long update_cave_in(struct Thing *thing)
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
     turns_between = powerst->duration / 5;
-    turns_alive = game.play_gameturn - thing->creation_turn;
+    turns_alive = get_gameturn() - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
         pos.x.val = thing->mappos.x.val + THING_RANDOM(thing, 128);
@@ -2662,7 +2662,7 @@ void update_global_lighting()
 void update(void)
 {
     struct PlayerInfo *player;
-    SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
+    SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
 
     process_packets();
     api_update_server();
@@ -2686,7 +2686,7 @@ void update(void)
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
-        if ((game.play_gameturn & 0x01) != 0)
+        if ((get_gameturn() & 0x01) != 0)
             update_animating_texture_maps();
         update_things();
         process_rooms();
@@ -2727,7 +2727,7 @@ void update(void)
 }
 
 void intentional_desync() {
-    if (game.play_gameturn != 50 || !is_my_player_number(0)) {
+    if (get_gameturn() != 50 || !is_my_player_number(0)) {
         return;
     }
     for (struct Room* room = start_rooms; room < end_rooms; room += 1) {
@@ -3222,11 +3222,11 @@ short display_should_be_updated_this_turn(void)
     if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) )
     {
       find_frame_rate();
-      if ( (game.frame_skip == 0) || ((game.play_gameturn % game.frame_skip) == 0))
+      if ( (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0))
         return true;
     } else
-    if ( ((game.play_gameturn & 0x3F)==0) ||
-         ((game.packet_loading_in_progress) && ((game.play_gameturn & 7)==0)) )
+    if ( ((get_gameturn() & 0x3F)==0) ||
+         ((game.packet_loading_in_progress) && ((get_gameturn() & 7)==0)) )
     {
       packet_load_find_frame_rate(64);
       return true;
@@ -3374,7 +3374,7 @@ void gameplay_loop_logic()
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
     {
         static GameTurn previous_gameturn = 0;
-        if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
+        if(get_gameturn() >= start_params.pause_at_gameturn && get_gameturn() != previous_gameturn)
         {
             if(!game.paused_at_gameturn)
             {
@@ -3388,7 +3388,7 @@ void gameplay_loop_logic()
                 set_packet_pause_toggle();
             }
         }
-        previous_gameturn = game.play_gameturn;
+        previous_gameturn = get_gameturn();
     }
 
     if (is_feature_on(Ft_DeltaTime) == true) {
@@ -3508,14 +3508,14 @@ void gameplay_loop_timestep()
         }
     }
 
-    if (game.turns_packetoff == game.play_gameturn) {
+    if (game.turns_packetoff == get_gameturn()) {
         exit_keeper = 1;
     }
 
     if (game_num_fps_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true) {
         keeper_wait_for_next_draw();
 
-        if (game.turns_packetoff == game.play_gameturn) {
+        if (game.turns_packetoff == get_gameturn()) {
             exit_keeper = 1;
         }
     }
@@ -3552,7 +3552,7 @@ void keeper_gameplay_loop(void)
 
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
-    SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
+    SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)get_gameturn());
 
     // Reset the game kind because we are not in a game anymore at this point
     game.game_kind = GKind_Unset;
@@ -3976,7 +3976,7 @@ void game_loop(void)
           exit_keeper=true;
       playtime += endtime-starttime;
       SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
-      total_play_turns += game.play_gameturn;
+      total_play_turns += get_gameturn();
       reset_eye_lenses();
       close_packet_file();
       game.packet_load_enable = false;

@@ -101,7 +101,7 @@ struct TimeSyncResponse {
 };
 
 void animate_resync_progress_bar(int current_phase, int total_phases) {
-    if (game.play_gameturn == 0) {
+    if (get_gameturn() == 0) {
         return;
     }
     if ((game.operation_flags & GOF_Paused) != 0) {

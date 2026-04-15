@@ -502,7 +502,7 @@ void update_box_lag_compensation(struct PlayerInfo* player) {
     box_lag_compensation_y = 0;
     if (is_my_player(player)) {
         struct Packet* auth_pckt = get_packet_direct(player->packet_num);
-        struct Packet* visual_pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+        struct Packet* visual_pckt = get_local_input_lag_packet_for_turn(get_gameturn());
         if (visual_pckt != NULL) {
             box_lag_compensation_x = coord_slab(auth_pckt->pos_x) - coord_slab(visual_pckt->pos_x);
             box_lag_compensation_y = coord_slab(auth_pckt->pos_y) - coord_slab(visual_pckt->pos_y);
@@ -1609,7 +1609,7 @@ static void replace_disconnected_players_with_ai(void) {
 }
 
 static void load_old_packets(PlayerNumber my_packet_num) {
-    GameTurn historical_turn = game.play_gameturn - game.input_lag_turns;
+    GameTurn historical_turn = get_gameturn() - game.input_lag_turns;
     const struct Packet* received_packets = get_received_packets_for_turn(historical_turn);
     const char* received_packets_status;
     if (received_packets != NULL) {
@@ -1617,7 +1617,7 @@ static void load_old_packets(PlayerNumber my_packet_num) {
     } else {
         received_packets_status = "NULL";
     }
-    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%lu historical_turn=%lu received_packets=%s", (unsigned long)game.play_gameturn, (unsigned long)historical_turn, received_packets_status);
+    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%lu historical_turn=%lu received_packets=%s", (unsigned long)get_gameturn(), (unsigned long)historical_turn, received_packets_status);
 
     for (int i = 0; i < PACKETS_COUNT; i++) {
         const char* player_name;
@@ -1659,8 +1659,8 @@ static void load_old_packets(PlayerNumber my_packet_num) {
 
 void set_local_packet_turn(void) {
     struct Packet* pckt = get_packet(my_player_number);
-    pckt->turn = game.play_gameturn;
-    MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)game.play_gameturn, (unsigned long)pckt->checksum);
+    pckt->turn = get_gameturn();
+    MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)get_gameturn(), (unsigned long)pckt->checksum);
 }
 
 
@@ -1673,7 +1673,7 @@ void process_packets(void)
     struct PlayerInfo* player = get_my_player();
     SYNCDBG(5, "Starting");
 
-    MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)game.play_gameturn);
+    MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
     set_local_packet_turn();
     update_turn_checksums();
     store_local_packet_in_input_lag_queue(player->packet_num);
@@ -1737,7 +1737,7 @@ void process_packets(void)
         resync_game();
     }
     get_current_slowdown_percentage();
-    MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)game.play_gameturn);
+    MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)get_gameturn());
     SYNCDBG(7,"Finished");
 }
 

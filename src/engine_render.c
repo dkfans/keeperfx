@@ -554,7 +554,7 @@ void interpolate_thing(struct Thing *thing)
 {
     // Note: if delta_time is off the interpolated position will also reflect that
 
-    if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thing->last_turn_drawn > 1 ) {
+    if (thing->creation_turn == get_gameturn()-1 || get_gameturn() - thing->last_turn_drawn > 1 ) {
         // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
         thing->interp_mappos = thing->mappos;
         thing->interp_floor_height = thing->floor_height;
@@ -4880,7 +4880,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     {
         EngineSpriteDrawUsingAlpha = 1;
     }
-    nframe = (thing->index + game.play_gameturn * flame.anim_speed / 256) % keepersprite_frames(flame.animation_id);
+    nframe = (thing->index + get_gameturn() * flame.anim_speed / 256) % keepersprite_frames(flame.animation_id);
     process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, flame.animation_id, angle, nframe, scale);
 }
 
@@ -4957,7 +4957,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         || (thing->class_id == TCls_DeadCreature)
         || (player->work_state == PSt_QueryAll))
     {
-        if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
+        if ((player->thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = white_pal;
@@ -5160,17 +5160,17 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
     if (is_my_player_number(thing->owner))
     {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-        if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
+        if (get_gameturn() - cctrl->thought_bubble_last_turn_drawn == 1)
         {
             if (cctrl->thought_bubble_display_timer < 40) {
                 cctrl->thought_bubble_display_timer++;
             }
         } else {
-            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
+            if (get_gameturn() - cctrl->thought_bubble_last_turn_drawn > 1) {
                 cctrl->thought_bubble_display_timer = 0;
             }
         }
-        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+        cctrl->thought_bubble_last_turn_drawn = get_gameturn();
         if (cctrl->thought_bubble_display_timer >= 40)
         {
             struct CreatureStateConfig *stati;
@@ -5287,7 +5287,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     {
         if (player->thing_under_hand != thing->index)
         {
-            cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+            cctrl->thought_bubble_last_turn_drawn = get_gameturn();
             if (cctrl->force_health_flower_displayed == false)
             {
                 return;
@@ -5335,7 +5335,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    if (((game.play_gameturn % (8 * gui_blink_rate)) < 4 * gui_blink_rate) && (anger_spridx > 0))
+    if (((get_gameturn() % (8 * gui_blink_rate)) < 4 * gui_blink_rate) && (anger_spridx > 0))
     {
         spr = get_button_sprite(anger_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
@@ -5353,12 +5353,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         h_add += h;
     }
 
-    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate))
+    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
     {
         int flash_color = get_player_color_idx(thing->owner);
         if (flash_color == PLAYER_NEUTRAL)
         {
-            flash_color = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
+            flash_color = (get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate;
         }
         spr = get_button_sprite_for_player(health_spridx, thing->owner);
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
@@ -5517,8 +5517,8 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
 {
     if ((x1 == x2) && (y1 == y2)) return; // todo if distance is 0, provide a red square
 
-    // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
-    unsigned char color_index = game.play_gameturn & 0xf;
+    // get the 4 least significant bits of get_gameturn(), to loop through the starting index of the color array, using numbers 0-15.
+    unsigned char color_index = get_gameturn() & 0xf;
 
     // get engine window width and height
     struct PlayerInfo *player = get_my_player();
@@ -7959,7 +7959,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 
     if (!thing_is_invalid(thing))
     {
-        if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
+        if ((player->thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
           struct Camera *active_cam = get_player_active_camera(player);
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
@@ -8775,17 +8775,17 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
+            if (get_gameturn() - thing->roomflag2.last_turn_drawn == 1)
             {
                 if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
-                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1) {
+                if (get_gameturn() - thing->roomflag2.last_turn_drawn > 1) {
                     thing->roomflag2.display_timer = 0;
                 }
             }
-            thing->roomflag2.last_turn_drawn = game.play_gameturn;
+            thing->roomflag2.last_turn_drawn = get_gameturn();
             if (thing->roomflag2.display_timer == 10)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
@@ -8809,7 +8809,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     default:
         break;
     }
-    thing->last_turn_drawn = game.play_gameturn;
+    thing->last_turn_drawn = get_gameturn();
 }
 
 static void do_map_who(short tnglist_idx)
@@ -8890,17 +8890,17 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-            if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
+            if (get_gameturn() - thing->roomflag2.last_turn_drawn == 1)
             {
                 if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
-                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1) {
+                if (get_gameturn() - thing->roomflag2.last_turn_drawn > 1) {
                     thing->roomflag2.display_timer = 0;
                 }
             }
-            thing->roomflag2.last_turn_drawn = game.play_gameturn;
+            thing->roomflag2.last_turn_drawn = get_gameturn();
             if (thing->roomflag2.display_timer == 10)
             {
                 add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
@@ -8921,7 +8921,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     default:
         break;
     }
-    thing->last_turn_drawn = game.play_gameturn;
+    thing->last_turn_drawn = get_gameturn();
 }
 
 static void draw_frontview_things_on_element(struct Map *mapblk, struct Camera *cam)

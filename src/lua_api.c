@@ -346,7 +346,7 @@ static int lua_Bonus_level_time(lua_State *L)
     TbBool clocktime = lua_toboolean(L, 2);
     if (turns > 0)
     {
-        game.bonus_time = game.play_gameturn + turns;
+        game.bonus_time = get_gameturn() + turns;
         set_flag(game.flags_gui, GGUI_CountdownTimer);
     }
     else
@@ -639,7 +639,7 @@ static int lua_Clear_message(lua_State* L)
     }
     for (int k = game.active_messages_count - 1; k >= (game.active_messages_count - count); k--)
     {
-        game.messages[k].expiration_turn = game.play_gameturn;
+        game.messages[k].expiration_turn = get_gameturn();
     }
     return 0;
 }
