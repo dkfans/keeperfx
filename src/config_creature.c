@@ -106,8 +106,8 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"SearchTargetsFunc",    20},
   {"PostalPriority",       21},
   {"NoAnimationLoop",      22},
-  {"FPAllowWhileFrozen",   23},
-  {"FPAllowWhenChicken",   24},
+  {"FPAllowSelfCastWhileFrozen",   23},
+  {"FPAllowSelfCastWhenChicken",   24},
   {NULL,              0},
   };
 
@@ -1016,6 +1016,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             inst_inf->validate_target_func_params[0] = 0;
             inst_inf->validate_target_func_params[1] = 0;
             inst_inf->postal_priority = 0;
+            inst_inf->fp_allow_self_cast_while_frozen = 0;
+            inst_inf->fp_allow_self_cast_when_chicken = 0;
         }
     }
     instance_desc[INSTANCE_TYPES_MAX - 1].name = NULL; // must be null for get_id
@@ -1413,11 +1415,11 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 23: // FPALLOWWHILEFROZEN
+        case 23: // FPALLOWSELFCASTWHILEFROZEN
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              inst_inf->fp_allow_while_frozen = (TbBool)k;
+              inst_inf->fp_allow_self_cast_while_frozen = (TbBool)k;
               n++;
             }
             if (n < 1)
@@ -1426,11 +1428,11 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 24: // FPALLOWWHENCHICKEN
+        case 24: // FPALLOWSELFCASTWHENCHICKEN
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              inst_inf->fp_allow_when_chicken = (TbBool)k;
+              inst_inf->fp_allow_self_cast_when_chicken = (TbBool)k;
               n++;
             }
             if (n < 1)

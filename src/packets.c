@@ -1323,6 +1323,7 @@ void process_players_creature_control_packet_control(long idx)
     struct Thing* cctng = thing_get(player->controlled_thing_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
+    ThingIndex target_idx;
     if (can_process_creature_input(cctng))
     {
         long speed_limit = get_creature_speed(cctng);
@@ -1439,10 +1440,11 @@ void process_players_creature_control_packet_control(long idx)
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
+                        target_idx = get_human_controlled_creature_target(cctng, i, pckt);
                         if (creature_under_spell_effect(cctng, CSAfF_Chicken))
                         {
                             inst_inf = creature_instance_info_get(i);
-                            allowed = inst_inf->fp_allow_when_chicken;
+                            allowed = inst_inf->fp_allow_self_cast_when_chicken & (cctng->index == target_idx);
                         }
                         else
                         {
@@ -1453,7 +1455,7 @@ void process_players_creature_control_packet_control(long idx)
                             if (creature_under_spell_effect(cctng, CSAfF_Freeze))
                             {
                                 inst_inf = creature_instance_info_get(i);
-                                allowed = inst_inf->fp_allow_while_frozen;
+                                allowed = inst_inf->fp_allow_self_cast_while_frozen & (cctng->index == target_idx);
                             }
                             if (allowed)
                             {
@@ -1475,6 +1477,7 @@ void process_players_creature_control_packet_control(long idx)
             // Button is held down - check whether the instance has auto-repeat
             i = ccctrl->active_instance_id;
             inst_inf = creature_instance_info_get(i);
+            target_idx = get_human_controlled_creature_target(cctng, i, pckt);
             if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
             {
                 if (ccctrl->instance_id == CrInst_NULL)
@@ -1485,7 +1488,8 @@ void process_players_creature_control_packet_control(long idx)
                         {
                             if (creature_under_spell_effect(cctng, CSAfF_Freeze))
                             {
-                                allowed = inst_inf->fp_allow_while_frozen;
+                                target_idx = get_human_controlled_creature_target(cctng, i, pckt);
+                                allowed = inst_inf->fp_allow_self_cast_while_frozen & (cctng->index == target_idx);
                             }
                             else
                             {
@@ -1553,17 +1557,18 @@ void process_players_creature_control_packet_action(long plyr_idx)
             TbBool allowed;
             TbBool frozen = creature_under_spell_effect(thing, CSAfF_Freeze);
             TbBool chicken = creature_under_spell_effect(thing, CSAfF_Chicken);
+            ThingIndex target_idx = get_human_controlled_creature_target(thing, i, pckt);
             if (frozen && chicken)
             {
-                allowed = (inst_inf->fp_allow_while_frozen && inst_inf->fp_allow_when_chicken);
+                allowed = (inst_inf->fp_allow_self_cast_while_frozen & inst_inf->fp_allow_self_cast_when_chicken) && (thing->index == target_idx);
             }
             else if (frozen)
             {
-                allowed = inst_inf->fp_allow_while_frozen;
+                allowed = inst_inf->fp_allow_self_cast_while_frozen & (thing->index == target_idx);
             }
             else if (chicken)
             {
-                allowed = inst_inf->fp_allow_when_chicken;
+                allowed = inst_inf->fp_allow_self_cast_when_chicken & (thing->index == target_idx);
             }
             else
             {

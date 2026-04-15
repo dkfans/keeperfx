@@ -3903,7 +3903,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
         if ((inst_inf->instance_property_flags & InstPF_RangedBuff) == 0 ||
             ((packet != NULL) && (packet->additional_packet_values & PCAdV_CrtrContrlPressed) != 0))
         {
-            // If it doesn't has RANGED_BUFF or the Possession key (default:left shift) is pressed,
+            // If it doesn't have RANGED_BUFF or the Possession key (default:left shift) is pressed,
             // cast on the caster itself.
             return thing->index;
         }
