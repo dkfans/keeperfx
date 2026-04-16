@@ -986,7 +986,15 @@ TngUpdateRet update_trap(struct Thing *traptng)
         }
         if (traptng->trap.volley_repeat > 0)
         {
-            thing_fire_shot(traptng, thing_get(traptng->trap.firing_at), trapst->created_itm_model, 1, THit_CrtrsNObjcts);
+            struct Thing* trgtng = thing_get(traptng->trap.firing_at);
+            if (!thing_is_invalid(trgtng))
+            {
+                thing_fire_shot(traptng, trgtng, trapst->created_itm_model, 1, THit_CrtrsNObjcts);
+            }
+            else
+            {
+                trap_fire_shot_without_target(traptng, trapst->created_itm_model, 1, traptng->move_angle_xy);
+            }
             return TUFRet_Modified;
         }
     }
@@ -1290,23 +1298,6 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             pos1.x.val = firing->mappos.x.val;
             pos1.y.val = firing->mappos.y.val;
             pos1.z.val = firing->mappos.z.val;
-            if (shotst->fire_logic == ShFL_Volley)
-            {
-                if (!firing->trap.volley_fire)
-                {
-                    firing->trap.volley_fire = true;
-                    firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
-                    firing->trap.volley_delay = shotst->effect_spacing;
-                    firing->trap.firing_at = 0;
-                }
-                else
-                {
-                    firing->trap.volley_delay = shotst->effect_spacing;
-                    if (firing->trap.volley_repeat == 0)
-                        return;
-                    firing->trap.volley_repeat--;
-                }
-            }
             firing->move_angle_xy = angle_xy; //visually rotates the trap
             pos1.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, firing->move_angle_xy + DEGREES_90);
             pos1.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, firing->move_angle_xy + DEGREES_90);
@@ -1350,6 +1341,25 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             shotng->parent_idx = firing->index;
             break;
         }
+        case ShFL_Volley:
+        {
+            
+            if (!firing->trap.volley_fire)
+            {
+                firing->trap.volley_fire = true;
+                firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
+                firing->trap.volley_delay = shotst->effect_spacing;
+                firing->trap.firing_at = 0;
+            }
+            else
+            {
+                firing->trap.volley_delay = shotst->effect_spacing;
+                if (firing->trap.volley_repeat == 0)
+                    return;
+                firing->trap.volley_repeat--;
+            }
+        }
+        //fallthrough
         default:
             shotng = create_shot(&firing->mappos, shot_model, firing->owner);
             if (thing_is_invalid(shotng)) {
