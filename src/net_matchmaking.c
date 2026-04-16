@@ -206,7 +206,8 @@ static int websocket_receive(char *response_buffer, size_t buffer_size, int time
         }
 
         size_t bytes_received = 0;
-        CURLcode curl_result = curl_ws_recv(curl_handle, response_buffer, buffer_size - 1, &bytes_received, NULL);
+        const struct curl_ws_frame *websocket_frame = NULL;
+        CURLcode curl_result = curl_ws_recv(curl_handle, response_buffer, buffer_size - 1, &bytes_received, &websocket_frame);
         if (curl_result == CURLE_AGAIN)
             return 0;
         if (curl_result != CURLE_OK) {
