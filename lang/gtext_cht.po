@@ -1827,7 +1827,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "哞"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -2691,8 +2691,8 @@ msgstr "播放开场动画"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "服务选单"
+msgid "Multiplayer Menu"
+msgstr "多人遊戲選單"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -2916,8 +2916,8 @@ msgstr "测试员"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "连线作业"
+msgid "Game Lobbies"
+msgstr "遊戲大廳"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -2926,8 +2926,8 @@ msgstr "姓名"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "服务"
+msgid "Game Modes"
+msgstr "遊戲模式"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -2936,13 +2936,13 @@ msgstr "讯息"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "建立游戏"
+msgid "Create Lobby"
+msgstr "建立大廳"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "加入游戏"
+msgid "Join Lobby"
+msgstr "加入大廳"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -2951,8 +2951,8 @@ msgstr "开始游戏"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "游戏选单"
+msgid "Online Lobbies"
+msgstr "線上大廳"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3625,8 +3625,8 @@ msgstr "右"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "数据机初始化中"
+msgid "Game version mismatch"
+msgstr "遊戲版本不匹配"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5510,18 +5510,18 @@ msgstr "四名玩者"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "串列"
+msgid "Online"
+msgstr "線上"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "数据机"
+msgid "LAN"
+msgstr "區域網路"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "遭遇戰"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6199,7 +6199,7 @@ msgstr ""
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr ""
 
 #: guitext:970
@@ -6751,3 +6751,128 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "守护者"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr "螢幕錄製"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr "螢幕截圖"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "增加跳幀"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "減少跳幀"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "放大小地圖"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "縮小小地圖"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "下一個實例"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "上一個實例"
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "線上大廳"
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "區域網路大廳"
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "區域網路大廳"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "切換介面"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "切換提示"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "退出遊戲"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "停用封包模式"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "切換螢幕解析度"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "切換主控台"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "完成關卡"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "選項選單"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "切換英雄生命值花朵"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "反引號"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "傳送到最後的工作室"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "傳送到集合點"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "預設傳送"

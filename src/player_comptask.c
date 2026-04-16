@@ -677,13 +677,13 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
         i = subtile_coord(3,0);
     }
     locpos.z.val += i;
-    if (thing_is_object(droptng) && object_is_gold_pile(droptng))
+    if (object_is_gold_pile(droptng))
     {
         drop_gold_coins(pos, droptng->valuable.gold_stored, comp->dungeon_plyr_idx);
         if (is_my_player_number(comp->dungeon_plyr_idx)) {
             play_non_3d_sample(88);
         }
-        delete_thing_structure(droptng, 0);
+        destroy_object(droptng);
     } else
     {
         drop_held_thing_on_ground(computer_dungeon(comp), droptng, &locpos);

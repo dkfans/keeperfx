@@ -26,8 +26,11 @@
 #include "thing_data.h"
 #include "room_list.h"
 #include "creature_control.h"
+#include "thing_creature.h"
 #include "frontend.h"
 #include "thing_list.h"
+#include "custom_sprites.h"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -66,11 +69,41 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing) {
     CHECKSUM_ADD(checksum, thing->health);
     CHECKSUM_ADD(checksum, thing->current_frame);
     CHECKSUM_ADD(checksum, thing->max_frames);
-
-    if (thing->class_id == TCls_Creature) {
-        struct CreatureControl* creature_control = creature_control_get_from_thing(thing);
-        CHECKSUM_ADD(checksum, creature_control->inst_turn);
-        CHECKSUM_ADD(checksum, creature_control->instance_id);
+    CHECKSUM_ADD(checksum, thing->active_state);
+    CHECKSUM_ADD(checksum, thing->continue_state);
+    CHECKSUM_ADD(checksum, thing->movement_flags);
+    CHECKSUM_ADD(checksum, thing->move_angle_xy);
+    CHECKSUM_ADD(checksum, thing->move_angle_z);
+    CHECKSUM_ADD(checksum, thing->holding_player);
+    CHECKSUM_ADD(checksum, thing->parent_idx);
+    CHECKSUM_ADD(checksum, thing->fall_acceleration);
+    CHECKSUM_ADD(checksum, thing->veloc_base.x.val);
+    CHECKSUM_ADD(checksum, thing->veloc_base.y.val);
+    CHECKSUM_ADD(checksum, thing->veloc_base.z.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_once.x.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_once.y.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_once.z.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_add.x.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_add.y.val);
+    CHECKSUM_ADD(checksum, thing->veloc_push_add.z.val);
+    if (thing_is_creature_special_digger(thing)) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        CHECKSUM_ADD(checksum, cctrl->moveto_pos.x.val);
+        CHECKSUM_ADD(checksum, cctrl->moveto_pos.y.val);
+        CHECKSUM_ADD(checksum, cctrl->moveto_pos.z.val);
+        CHECKSUM_ADD(checksum, cctrl->dragtng_idx);
+        CHECKSUM_ADD(checksum, cctrl->arming_thing_id);
+        CHECKSUM_ADD(checksum, cctrl->pickup_object_id);
+        CHECKSUM_ADD(checksum, cctrl->pickup_creature_id);
+        CHECKSUM_ADD(checksum, cctrl->move_flags);
+        CHECKSUM_ADD(checksum, cctrl->digger.stack_update_turn);
+        CHECKSUM_ADD(checksum, cctrl->digger.working_stl);
+        CHECKSUM_ADD(checksum, cctrl->digger.task_stl);
+        CHECKSUM_ADD(checksum, cctrl->digger.task_idx);
+        CHECKSUM_ADD(checksum, cctrl->digger.consecutive_reinforcements);
+        CHECKSUM_ADD(checksum, cctrl->digger.last_did_job);
+        CHECKSUM_ADD(checksum, cctrl->digger.task_stack_pos);
+        CHECKSUM_ADD(checksum, cctrl->digger.task_repeats);
     }
     return checksum;
 }
@@ -209,6 +242,37 @@ void update_turn_checksums(void) {
             thing_snapshot->health = thing->health;
             thing_snapshot->creation_turn = thing->creation_turn;
             thing_snapshot->random_seed = thing->random_seed;
+            thing_snapshot->current_frame = thing->current_frame;
+            thing_snapshot->max_frames = thing->max_frames;
+            thing_snapshot->active_state = thing->active_state;
+            thing_snapshot->continue_state = thing->continue_state;
+            thing_snapshot->movement_flags = thing->movement_flags;
+            thing_snapshot->move_angle_xy = thing->move_angle_xy;
+            thing_snapshot->move_angle_z = thing->move_angle_z;
+            thing_snapshot->holding_player = thing->holding_player;
+            thing_snapshot->parent_idx = thing->parent_idx;
+            thing_snapshot->fall_acceleration = thing->fall_acceleration;
+            thing_snapshot->veloc_base = thing->veloc_base;
+            thing_snapshot->veloc_push_once = thing->veloc_push_once;
+            thing_snapshot->veloc_push_add = thing->veloc_push_add;
+            thing_snapshot->is_special_digger = thing_is_creature_special_digger(thing);
+            if (thing_snapshot->is_special_digger) {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                thing_snapshot->digger_moveto_pos = cctrl->moveto_pos;
+                thing_snapshot->digger_dragtng_idx = cctrl->dragtng_idx;
+                thing_snapshot->digger_arming_thing_id = cctrl->arming_thing_id;
+                thing_snapshot->digger_pickup_object_id = cctrl->pickup_object_id;
+                thing_snapshot->digger_pickup_creature_id = cctrl->pickup_creature_id;
+                thing_snapshot->digger_move_flags = cctrl->move_flags;
+                thing_snapshot->digger_stack_update_turn = cctrl->digger.stack_update_turn;
+                thing_snapshot->digger_working_stl = cctrl->digger.working_stl;
+                thing_snapshot->digger_task_stl = cctrl->digger.task_stl;
+                thing_snapshot->digger_task_idx = cctrl->digger.task_idx;
+                thing_snapshot->digger_consecutive_reinforcements = cctrl->digger.consecutive_reinforcements;
+                thing_snapshot->digger_last_did_job = cctrl->digger.last_did_job;
+                thing_snapshot->digger_task_stack_pos = cctrl->digger.task_stack_pos;
+                thing_snapshot->digger_task_repeats = cctrl->digger.task_repeats;
+            }
             thing_snapshot->checksum = get_thing_checksum(thing);
         }
         for (int i = 0; i < PLAYERS_COUNT; i++) {
@@ -297,11 +361,55 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
         }
         if (host_thing == NULL || client_thing->checksum != host_thing->checksum) {
             if (host_thing != NULL) {
-                ERRORLOG("    [Host] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x", host_thing->index, host_thing->class_id, host_thing->model, host_thing->owner, (long)host_thing->mappos.x.val, (long)host_thing->mappos.y.val, (long)host_thing->mappos.z.val, (long)host_thing->health, (unsigned long)host_thing->creation_turn, host_thing->random_seed);
+                ERRORLOG("    [Host] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x current_frame=%u max_frames=%u active_state=%u continue_state=%u movement_flags=%04x move_angle_xy=%d move_angle_z=%d holding_player=%d parent_idx=%d fall_acceleration=%u veloc_base=(%ld,%ld,%ld) veloc_push_once=(%ld,%ld,%ld) veloc_push_add=(%ld,%ld,%ld)",
+                    host_thing->index, host_thing->class_id, host_thing->model, host_thing->owner,
+                    (long)host_thing->mappos.x.val, (long)host_thing->mappos.y.val, (long)host_thing->mappos.z.val,
+                    (long)host_thing->health, (unsigned long)host_thing->creation_turn, host_thing->random_seed,
+                    (unsigned)host_thing->current_frame, (unsigned)host_thing->max_frames,
+                    (unsigned)host_thing->active_state, (unsigned)host_thing->continue_state,
+                    (unsigned)host_thing->movement_flags,
+                    (int)host_thing->move_angle_xy, (int)host_thing->move_angle_z,
+                    (int)host_thing->holding_player, (int)host_thing->parent_idx, (unsigned)host_thing->fall_acceleration,
+                    (long)host_thing->veloc_base.x.val, (long)host_thing->veloc_base.y.val, (long)host_thing->veloc_base.z.val,
+                    (long)host_thing->veloc_push_once.x.val, (long)host_thing->veloc_push_once.y.val, (long)host_thing->veloc_push_once.z.val,
+                    (long)host_thing->veloc_push_add.x.val, (long)host_thing->veloc_push_add.y.val, (long)host_thing->veloc_push_add.z.val);
             } else {
                 ERRORLOG("    [Host] Thing[%d] missing", client_thing->index);
             }
-            ERRORLOG("    [Client] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x", client_thing->index, client_thing->class_id, client_thing->model, client_thing->owner, (long)client_thing->mappos.x.val, (long)client_thing->mappos.y.val, (long)client_thing->mappos.z.val, (long)client_thing->health, (unsigned long)client_thing->creation_turn, client_thing->random_seed);
+            ERRORLOG("    [Client] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x current_frame=%u max_frames=%u active_state=%u continue_state=%u movement_flags=%04x move_angle_xy=%d move_angle_z=%d holding_player=%d parent_idx=%d fall_acceleration=%u veloc_base=(%ld,%ld,%ld) veloc_push_once=(%ld,%ld,%ld) veloc_push_add=(%ld,%ld,%ld)",
+                client_thing->index, client_thing->class_id, client_thing->model, client_thing->owner,
+                (long)client_thing->mappos.x.val, (long)client_thing->mappos.y.val, (long)client_thing->mappos.z.val,
+                (long)client_thing->health, (unsigned long)client_thing->creation_turn, client_thing->random_seed,
+                (unsigned)client_thing->current_frame, (unsigned)client_thing->max_frames,
+                (unsigned)client_thing->active_state, (unsigned)client_thing->continue_state,
+                (unsigned)client_thing->movement_flags,
+                (int)client_thing->move_angle_xy, (int)client_thing->move_angle_z,
+                (int)client_thing->holding_player, (int)client_thing->parent_idx, (unsigned)client_thing->fall_acceleration,
+                (long)client_thing->veloc_base.x.val, (long)client_thing->veloc_base.y.val, (long)client_thing->veloc_base.z.val,
+                (long)client_thing->veloc_push_once.x.val, (long)client_thing->veloc_push_once.y.val, (long)client_thing->veloc_push_once.z.val,
+                (long)client_thing->veloc_push_add.x.val, (long)client_thing->veloc_push_add.y.val, (long)client_thing->veloc_push_add.z.val);
+            if (client_thing->is_special_digger) {
+                if (host_thing != NULL) {
+                    ERRORLOG("    [Host]   digger moveto=(%ld,%ld,%ld) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
+                        (long)host_thing->digger_moveto_pos.x.val, (long)host_thing->digger_moveto_pos.y.val, (long)host_thing->digger_moveto_pos.z.val,
+                        (int)host_thing->digger_dragtng_idx, (int)host_thing->digger_arming_thing_id,
+                        (int)host_thing->digger_pickup_object_id, (int)host_thing->digger_pickup_creature_id,
+                        (unsigned)host_thing->digger_move_flags, (long)host_thing->digger_stack_update_turn,
+                        (unsigned)host_thing->digger_working_stl, (unsigned)host_thing->digger_task_stl,
+                        (unsigned)host_thing->digger_task_idx, (unsigned)host_thing->digger_consecutive_reinforcements,
+                        (unsigned)host_thing->digger_last_did_job,
+                        (unsigned)host_thing->digger_task_stack_pos, (unsigned)host_thing->digger_task_repeats);
+                }
+                ERRORLOG("    [Client] digger moveto=(%ld,%ld,%ld) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
+                    (long)client_thing->digger_moveto_pos.x.val, (long)client_thing->digger_moveto_pos.y.val, (long)client_thing->digger_moveto_pos.z.val,
+                    (int)client_thing->digger_dragtng_idx, (int)client_thing->digger_arming_thing_id,
+                    (int)client_thing->digger_pickup_object_id, (int)client_thing->digger_pickup_creature_id,
+                    (unsigned)client_thing->digger_move_flags, (long)client_thing->digger_stack_update_turn,
+                    (unsigned)client_thing->digger_working_stl, (unsigned)client_thing->digger_task_stl,
+                    (unsigned)client_thing->digger_task_idx, (unsigned)client_thing->digger_consecutive_reinforcements,
+                    (unsigned)client_thing->digger_last_did_job,
+                    (unsigned)client_thing->digger_task_stack_pos, (unsigned)client_thing->digger_task_repeats);
+            }
             shown++;
         }
     }
@@ -360,8 +468,11 @@ void compare_desync_history_from_host(void) {
                 ERRORLOG("    Room[%d] missing from host", client_room->index);
                 shown++;
             } else if (client_room->checksum != host_room->checksum) {
-                ERRORLOG("    Room[%d] slabs_count: Host=%d Client=%d, efficiency: Host=%d Client=%d",
-                    client_room->index, host_room->slabs_count, client_room->slabs_count, host_room->efficiency, client_room->efficiency);
+                ERRORLOG("    Room[%d] slabs_count: Host=%d Client=%d, efficiency: Host=%d Client=%d, used_capacity: Host=%d Client=%d, central_stl: Host=(%d,%d) Client=(%d,%d)",
+                    client_room->index, host_room->slabs_count, client_room->slabs_count, host_room->efficiency, client_room->efficiency,
+                    (int)host_room->used_capacity, (int)client_room->used_capacity,
+                    (int)host_room->central_stl_x, (int)host_room->central_stl_y,
+                    (int)client_room->central_stl_x, (int)client_room->central_stl_y);
                 shown++;
             }
         }
@@ -410,6 +521,36 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con) {
     }
     NETLOG("Checksums are verified");
 
+    return CLS_CONTINUE;
+}
+
+CoroutineLoopState verify_sprite_zip_checksums(CoroutineLoop *con)
+{
+    clear_packets();
+    struct Packet *pckt = get_packet(my_player_number);
+    set_packet_action(pckt, PckA_SpriteZipChecksumSync, (int32_t)sprite_zip_combined_checksum, 0, 0, 0);
+    if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet))) {
+        ERRORLOG("Network exchange failed on sprite zip verification");
+    }
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (!net_player_info[i].active || i == my_player_number) {
+            continue;
+        }
+        pckt = get_packet_direct(i);
+        if (pckt->action != PckA_SpriteZipChecksumSync) {
+            return CLS_REPEAT;
+        }
+    }
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (!net_player_info[i].active || i == my_player_number) {
+            continue;
+        }
+        pckt = get_packet_direct(i);
+        if ((uint32_t)pckt->actn_par1 != sprite_zip_combined_checksum) {
+            message_add_fmt(MsgType_Player, 0, "Verify /fxdata/ is the same across all PCs.");
+            message_add_fmt(MsgType_Player, 0, "WARNING: Custom sprite mismatch with %s!", network_player_name(i));
+        }
+    }
     return CLS_CONTINUE;
 }
 

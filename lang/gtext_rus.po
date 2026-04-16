@@ -1717,7 +1717,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Му"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -2564,7 +2564,7 @@ msgstr "Продолжить игру"
 #: guitext:347
 msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
-msgstr "Мультиплеер"
+msgstr "Игра по сети"
 
 #: guitext:348
 msgctxt "Menu interface item"
@@ -2578,8 +2578,8 @@ msgstr "Показать вступление"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Меню протоколов"
+msgid "Multiplayer Menu"
+msgstr "Игра по сети"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -2803,8 +2803,8 @@ msgstr "Тестировщики"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Сеансы"
+msgid "Game Lobbies"
+msgstr "Доступные лобби"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -2813,8 +2813,8 @@ msgstr "Имя"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Протокол"
+msgid "Game Modes"
+msgstr "Режимы"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -2823,13 +2823,13 @@ msgstr "Сообщения"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Создать игру"
+msgid "Create Lobby"
+msgstr "Создать лобби"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Присоединиться к игре"
+msgid "Join Lobby"
+msgstr "Подключиться к лобби"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -2838,8 +2838,8 @@ msgstr "Начать игру"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Игровое меню"
+msgid "Online Lobbies"
+msgstr "Интернет-лобби"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3516,8 +3516,8 @@ msgstr "Вправо"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Инициализация модема"
+msgid "Game version mismatch"
+msgstr "Несоответствмие версий"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5328,18 +5328,18 @@ msgstr "4 игрока"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Нуль-модем"
+msgid "Online"
+msgstr "Интернет"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Модем"
+msgid "LAN"
+msgstr "Локальная сеть"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Скирмиш"
 
 #: guitext:877
 msgctxt "World direction"
@@ -5994,7 +5994,7 @@ msgstr "Вернуться к списку карт"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Наборы карт"
 
 #: guitext:970
@@ -6537,3 +6537,128 @@ msgstr "Призыв создания: На время призывает хра
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Хранитель"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr "Запись экрана"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr "Снимок экрана"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Увеличить пропуск кадров"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Уменьшить пропуск кадров"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Увеличить мини-карту"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Уменьшить мини-карту"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "Следующая способность"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "Предыдущая способность"
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Интернет-лобби"
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Локальное лобби"
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Локальные лобби"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Вкл./выкл. интерфейс"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Вкл./выкл. всплывающие подсказки"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Выход из игры"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Режим реплея - Перехватить управление"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Изменение разрешения"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Вкл./выкл. консоль"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Завершить уровень"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Меню настроек"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Вкл./выкл. цветок здоровья"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Гравис/Тупое ударение"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "В создании - К посл. рабочему месту"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "В создании - К знамени "К оружию!""
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "В создании - К личному логову"

@@ -149,3 +149,35 @@ short luafunc_thing_update_func(FuncIdx func_idx,struct Thing *thing)
         return 0;
     }
 }
+
+short luafunc_trap_activation_func(FuncIdx func_idx,struct Thing *trap, struct Thing *creature)
+{
+    if(func_idx == 0) {
+        return true;
+    }
+    
+    const char *func_name = get_function_name(func_idx);
+    if (!func_name) {
+        ERRORLOG("Invalid function index: %d", func_idx);
+        return true;
+    }
+
+    lua_getglobal(Lvl_script, func_name);
+    if (lua_isfunction(Lvl_script, -1)) {
+        lua_pushThing(Lvl_script, trap);
+        lua_pushThing(Lvl_script, creature);
+        short result = true;
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 1, 0),"trap_activation_func");
+
+        /* Retrieve the result returned by the Lua function */
+        if (lua_isboolean(Lvl_script, -1)) {
+            result = lua_toboolean(Lvl_script, -1);
+        }
+        lua_pop(Lvl_script, 1);
+        return result;
+    } else {
+        ERRORLOG("Lua function '%s' not found or not a function", func_name);
+        lua_pop(Lvl_script, 1);
+        return true;
+    }
+}

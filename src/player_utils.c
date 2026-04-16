@@ -42,6 +42,7 @@
 #include "gui_soundmsgs.h"
 #include "gui_frontmenu.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "config_spritecolors.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
@@ -1118,6 +1119,10 @@ void init_players_local_game(void)
         default: player->view_mode_restore = PVM_IsoWibbleView; break;
     }
     init_player(player, 0);
+    set_creature_tendencies(player, CrTend_Imprison, IMPRISON_BUTTON_DEFAULT);
+    set_creature_tendencies(player, CrTend_Flee, FLEE_BUTTON_DEFAULT);
+    game.creatures_tend_imprison = IMPRISON_BUTTON_DEFAULT;
+    game.creatures_tend_flee = FLEE_BUTTON_DEFAULT;
 }
 
 void process_player_states(void)

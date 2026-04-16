@@ -885,28 +885,28 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
     {
       switch (chr)
       {
-        case 1:
+        case DKChr_Modifier_Transparent4:
           lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
           break;
-        case 2:
+        case DKChr_Modifier_Transparent8:
           lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
           break;
-        case 3:
+        case DKChr_Modifier_Outline:
           lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
           break;
-        case 4:
+        case DKChr_Modifier_FlipHoriz:
           lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_HORIZ;
           break;
-        case 5:
+        case DKChr_Modifier_FlipVertic:
           lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_VERTIC;
           break;
-        case 11:
+        case DKChr_Modifier_Underline:
           lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
           break;
-        case 12:
+        case DKChr_Modifier_OneColor:
           lbDisplay.DrawFlags ^= Lb_TEXT_ONE_COLOR;
           break;
-        case 14:
+        case DKChr_Modifier_Colour:
           c++;
           lbDisplay.DrawColour = (unsigned char)(*c);
           break;
@@ -996,16 +996,16 @@ long text_string_height(int units_per_px, const char *text)
       } else
       switch (chr)
       {
-      case '\r':
+      case DKChr_Return:
           lnwidth = lnwidth_clip;
           nlines++;
-          if (pchr[1] == '\n') pchr++;
+          if (pchr[1] == DKChr_NewLine) pchr++;
           break;
-      case '\n':
+      case DKChr_NewLine:
           lnwidth = lnwidth_clip;
           nlines++;
           break;
-      case '\t':
+      case DKChr_Tab:
           w = LbTextCharWidth(' ') * units_per_px / 16;
           lnwidth += lbSpacesPerTab * w;
           if (lnwidth + LbTextWordWidth(pchr+1)*units_per_px/16 - lnwidth_clip > lbTextJustifyWindow.width)
@@ -1014,7 +1014,7 @@ long text_string_height(int units_per_px, const char *text)
             nlines++;
           }
           break;
-      case 14:
+      case DKChr_Modifier_Colour:
           pchr++;
           break;
       }

@@ -2003,7 +2003,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Moo"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -2961,8 +2961,8 @@ msgstr "Esegui Introduzione"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menù Servizio"
+msgid "Multiplayer Menu"
+msgstr "Menu multigiocatore"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3186,8 +3186,8 @@ msgstr "Collaudatori"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessioni"
+msgid "Game Lobbies"
+msgstr "Lobby di gioco"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3196,8 +3196,8 @@ msgstr "Nome"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Servizi"
+msgid "Game Modes"
+msgstr "Modalità di gioco"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3206,13 +3206,13 @@ msgstr "Messaggi"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Crea Partita"
+msgid "Create Lobby"
+msgstr "Crea lobby"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Entra in Partita"
+msgid "Join Lobby"
+msgstr "Entra nella lobby"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3221,8 +3221,8 @@ msgstr "Comincia Partita"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Menù Gioco"
+msgid "Online Lobbies"
+msgstr "Lobby online"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3917,8 +3917,8 @@ msgstr "Destra"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Inizializzazione Modem"
+msgid "Game version mismatch"
+msgstr "La versione del gioco non corrisponde"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5901,18 +5901,18 @@ msgstr "4 Giocatori"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Seriale"
+msgid "Online"
+msgstr "Online"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "MODEM"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Schermaglia"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6677,7 +6677,7 @@ msgstr ""
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr ""
 
 #: guitext:970
@@ -7245,3 +7245,129 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Keeper"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr "Registra Schermo"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr "Cattura Schermo"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Aumenta Salto Frame"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Riduci Salto Frame"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Ingrandisci Minimappa"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Rimpicciolisci Minimappa"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "Prossima Istanza"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "Istanza Precedente"
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Lobby online"
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Lobby LAN"
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Lobby LAN"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Attiva/Disattiva Interfaccia"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Attiva/Disattiva Suggerimenti"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Esci dal Gioco"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Disattiva Modalità Pacchetto"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Cambia Risoluzione"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Attiva/Disattiva Console"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Termina Livello"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Menu Opzioni"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Attiva/Disattiva Fiori Salute Eroi"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Accento grave"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Teletrasporto Ultima Stanza di Lavoro"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Teletrasporto Chiamata alle Armi"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Teletrasporto Predefinito"
+

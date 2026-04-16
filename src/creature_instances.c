@@ -212,10 +212,14 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
     return false;
 }
 
-void creature_increase_available_instances(struct Thing *thing)
+TbBool creature_increase_available_instances(struct Thing *thing)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (!creature_control_exists(cctrl))
+    {
+        return false;
+    }
     for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
         int k = crconf->learned_instance_id[i];
@@ -230,6 +234,7 @@ void creature_increase_available_instances(struct Thing *thing)
             }
         }
     }
+    return true;
 }
 
 /**
@@ -403,6 +408,10 @@ void process_creature_instance(struct Thing *thing)
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
+    if (cctrl->instance_id != CrInst_NULL && creature_under_spell_effect(thing, CSAfF_Freeze))
+    {
+        return;
+    }
     if (cctrl->inst_turn >= cctrl->inst_total_turns)
     {
         if (!cctrl->inst_repeat)

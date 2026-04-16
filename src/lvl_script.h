@@ -182,7 +182,7 @@ struct LevelScript {
     uint32_t lose_conditions_num;
 
     // Store strings used at level here
-    char strings[2048];
+    char strings[8192];
     int32_t next_string_offset;
 };
 

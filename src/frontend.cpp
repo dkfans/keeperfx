@@ -226,7 +226,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuPlayIntro, 1},
     {GUIStr_NetServiceMenu, 0}, // [10]
     {GUIStr_NetSessionMenu, 0},
-    {GUIStr_MnuGameMenu, 0}, // [12]
+    {GUIStr_MnuOnlineLobbies, 0}, // [12]
     {GUIStr_NetJoinGame, 1}, // [13]
     {GUIStr_NetCreateGame, 1}, // [14]
     {GUIStr_NetStartGame, 1}, // [15]
@@ -668,6 +668,7 @@ void versions_different_error(void)
     lbKeyOn[KC_SPACE] = 0;
     lbKeyOn[KC_RETURN] = 0;
     text[0] = '\0';
+    snprintf(text, sizeof(text), "%s\n", get_string(GUIStr_VersionMismatch));
     // Preparing message
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
@@ -675,7 +676,7 @@ void versions_different_error(void)
       nspckt = &net_screen_packet[i];
       if ((nspckt->networkstatus_flags & 0x01) != 0)
       {
-        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->stored_data1, nspckt->stored_data2);
+        str_appendf(text, sizeof(text), "%s: %d.%d.%d.%02d\n", plyr_nam, nspckt->param1, nspckt->param2, nspckt->stored_data1, nspckt->stored_data2);
       }
     }
     // Waiting for users reaction
@@ -686,7 +687,7 @@ void versions_different_error(void)
       LbWindowsControl();
       if (LbScreenLock() == Lb_SUCCESS)
       {
-        draw_text_box(text);
+        draw_text_box_top(text, Lb_TEXT_HALIGN_LEFT);
         LbScreenUnlock();
       }
       LbScreenSwap();
@@ -3114,9 +3115,10 @@ TbBool frontscreen_end_input(TbBool force)
 
 short get_frontend_global_inputs(void)
 {
-    if (is_key_pressed(KC_X, KMod_ALT))
+    int32_t val;
+    if (is_game_key_pressed(Gkey_ExitGame, &val ,false))
     {
-        clear_key_pressed(KC_X);
+        clear_key_pressed(val);
         exit_keeper = true;
     } else {
         return false;
@@ -3814,7 +3816,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(NS_ENET_UDP))
+      if (setup_network_service(FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3826,7 +3828,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(NS_ENET_UDP))
+      if (setup_network_service(FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();

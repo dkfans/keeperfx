@@ -1064,7 +1064,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     {
         if (shotst->hit_creature.sndsample_idx > 0)
         {
-            play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
+            play_creature_sound(trgtng, CrSnd_Hit, 3, 0);
         }
         create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
         if (!thing_is_invalid(shooter)) {
@@ -1327,7 +1327,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             trgtng->state_flags |= TF1_PushAdd;
             if (shotst->hit_creature.sndsample_idx != 0)
             {
-                play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
+                play_creature_sound(trgtng, CrSnd_Hit, 1, 0);
                 thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         }
@@ -1366,7 +1366,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         if (shotst->hit_creature.sndsample_idx != 0)
         {
-            play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
+            play_creature_sound(trgtng, CrSnd_Hit, 1, 0);
             thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
