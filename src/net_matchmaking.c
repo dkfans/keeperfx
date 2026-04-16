@@ -191,28 +191,43 @@ static int websocket_receive(char *response_buffer, size_t buffer_size, int time
         LbNetLog("Matchmaking: websocket_receive failed to get active socket\n");
         return -1;
     }
+    Uint32 timeout_deadline = SDL_GetTicks() + timeout_ms;
+    while (1) {
+        if (timeout_ms > 0) {
+            int time_remaining = (int)(timeout_deadline - SDL_GetTicks());
+            if (time_remaining <= 0)
+                return 0;
+            fd_set readable_sockets;
+            FD_ZERO(&readable_sockets);
+            FD_SET(raw_socket, &readable_sockets);
+            struct timeval timeout_value = { time_remaining / 1000, (time_remaining % 1000) * 1000 };
+            if (select((int)raw_socket + 1, &readable_sockets, NULL, NULL, &timeout_value) <= 0)
+                return 0;
+        }
 
-    if (timeout_ms > 0) {
-        fd_set readable_sockets;
-        FD_ZERO(&readable_sockets);
-        FD_SET(raw_socket, &readable_sockets);
-        struct timeval timeout_value = { timeout_ms / 1000, (timeout_ms % 1000) * 1000 };
-        if (select((int)raw_socket + 1, &readable_sockets, NULL, NULL, &timeout_value) <= 0)
+        size_t bytes_received = 0;
+        const struct curl_ws_frame *websocket_frame = NULL;
+        CURLcode curl_result = curl_ws_recv(curl_handle, response_buffer, buffer_size - 1, &bytes_received, &websocket_frame);
+        if (curl_result == CURLE_AGAIN)
             return 0;
+        if (curl_result != CURLE_OK) {
+            LbNetLog("Matchmaking: websocket_receive failed (%s)\n", curl_easy_strerror(curl_result));
+            websocket_cleanup();
+            return -1;
+        }
+        response_buffer[bytes_received] = '\0';
+        if (!strstr(response_buffer, "\"type\":\"ping\""))
+            return (int)bytes_received;
+        if (hosted_lobby_id[0] == '\0') {
+            LbNetLog("Matchmaking: ignoring ping while not hosting\n");
+            continue;
+        }
+        if (websocket_send("{\"action\":\"pong\"}") != 0) {
+            LbNetLog("Matchmaking: ping response failed\n");
+            return -1;
+        }
+        LbNetLog("Matchmaking: ping replied\n");
     }
-
-    size_t bytes_received = 0;
-    const struct curl_ws_frame *websocket_frame = NULL;
-    CURLcode curl_result = curl_ws_recv(curl_handle, response_buffer, buffer_size - 1, &bytes_received, &websocket_frame);
-    if (curl_result == CURLE_AGAIN)
-        return 0;
-    if (curl_result != CURLE_OK) {
-        LbNetLog("Matchmaking: websocket_receive failed (%s)\n", curl_easy_strerror(curl_result));
-        websocket_cleanup();
-        return -1;
-    }
-    response_buffer[bytes_received] = '\0';
-    return (int)bytes_received;
 }
 
 static int websocket_exchange(const char *request, char *response_buffer, size_t buffer_size)
@@ -470,7 +485,7 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
     }
     int bytes_received;
     Uint32 timeout_deadline = SDL_GetTicks() + WEBSOCKET_RECEIVE_TIMEOUT_MS;
-    for (;;) {
+    while (1) {
         int time_remaining = (int)(timeout_deadline - SDL_GetTicks());
         if (time_remaining <= 0) {
             LbNetLog("Matchmaking: punch failed - timeout\n");
