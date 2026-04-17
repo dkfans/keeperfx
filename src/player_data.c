@@ -26,6 +26,7 @@
 #include "config_powerhands.h"
 #include "player_instances.h"
 #include "config_players.h"
+#include "front_simple.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
 #include "frontend.h"
@@ -44,10 +45,50 @@ TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
 struct PlayerInfo bad_player;
+static unsigned char *local_player_main_palette;
+static unsigned char *local_player_lens_palette;
 
 /** The current player's number. */
 unsigned char my_player_number;
 /******************************************************************************/
+static TbBool is_local_player_ref(const struct PlayerInfo *player)
+{
+    if (player == NULL)
+        return false;
+    if ((player < &game.players[0]) || (player >= &game.players[PLAYERS_COUNT]))
+        return false;
+    return is_my_player(player);
+}
+
+unsigned char *get_player_main_palette(const struct PlayerInfo *player)
+{
+    if (!is_local_player_ref(player))
+        return engine_palette;
+    if (local_player_main_palette == NULL)
+        return engine_palette;
+    return local_player_main_palette;
+}
+
+void set_player_main_palette(struct PlayerInfo *player, unsigned char *palette)
+{
+    if (!is_local_player_ref(player))
+        return;
+    local_player_main_palette = palette;
+}
+
+unsigned char *get_player_lens_palette(const struct PlayerInfo *player)
+{
+    if (!is_local_player_ref(player))
+        return NULL;
+    return local_player_lens_palette;
+}
+
+void set_player_lens_palette(struct PlayerInfo *player, unsigned char *palette)
+{
+    if (!is_local_player_ref(player))
+        return;
+    local_player_lens_palette = palette;
+}
 
 struct Camera *get_player_active_camera(const struct PlayerInfo *player)
 {
@@ -245,6 +286,8 @@ TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber 
 
 void clear_players(void)
 {
+    local_player_main_palette = NULL;
+    local_player_lens_palette = NULL;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = &game.players[i];

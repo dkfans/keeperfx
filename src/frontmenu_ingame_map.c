@@ -160,7 +160,7 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     long long cscale;
     float circle_time;
     if ((game.operation_flags & GOF_Paused) == 0) {
-        circle_time = ((game.play_gameturn + owner) & 7) + game.process_turn_time;
+        circle_time = ((game.play_gameturn + owner) & 7) + process_turn_time;
     } else {
         circle_time = ((game.play_gameturn + owner) & 7);
     }

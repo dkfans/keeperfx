@@ -43,11 +43,6 @@ struct Column { // sizeof=0x18
     unsigned short cubes[COLUMN_STACK_HEIGHT];
 };
 
-struct Columns {
-    struct Column *lookup[COLUMNS_COUNT];
-    struct Column *end;
-};
-
 enum ColumnFlags {
     CLF_ACTIVE = 0x01,
     CLF_CEILING_MASK = 0x0E, // Height of ceiling cube layer.

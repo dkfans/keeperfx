@@ -200,7 +200,7 @@ unsigned char zoom_to_heart_palette[768];
 unsigned char EngineSpriteDrawUsingAlpha;
 unsigned char temp_pal[768];
 unsigned char *lightning_palette;
-
+long double process_turn_time;
 
 #ifdef __cplusplus
 extern "C" {
@@ -1549,8 +1549,8 @@ void reinit_level_after_load(void)
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
     player = get_my_player();
-    player->lens_palette = 0;
-    player->main_palette = engine_palette;
+    set_player_lens_palette(player, NULL);
+    set_player_main_palette(player, engine_palette);
     init_navigation();
     reinit_packets_after_load();
     game.easter_eggs_enabled = start_params.easter_egg;
@@ -1818,9 +1818,10 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     {
       player->additional_flags &= ~PlaAF_FreezePaletteIsActive; // flag Freeze palette is not active
     }
-    if ( (player->lens_palette == 0) || ((pal != player->main_palette) && (pal == player->lens_palette)) )
+    unsigned char *lens_palette = get_player_lens_palette(player);
+    if ( (lens_palette == 0) || ((pal != get_player_main_palette(player)) && (pal == lens_palette)) )
     {
-        player->main_palette = pal;
+        set_player_main_palette(player, pal);
         player->palette_fade_step_pain = 0;
         player->palette_fade_step_possession = 0;
         if (is_my_player(player))
@@ -3392,10 +3393,10 @@ void gameplay_loop_logic()
     }
 
     if (is_feature_on(Ft_DeltaTime) == true) {
-        if (game.process_turn_time < 1.0) {
+        if (process_turn_time < 1.0) {
             return;
         }
-        game.process_turn_time -= 1.0;
+        process_turn_time -= 1.0;
     }
 
     frametime_start_measurement(Frametime_Logic);
@@ -3466,7 +3467,7 @@ void gameplay_loop_draw()
 extern "C" void network_yield_draw_gameplay()
 {
     game.delta_time = get_delta_time();
-    game.process_turn_time += game.delta_time;
+    process_turn_time += game.delta_time;
     gameplay_loop_draw();
 }
 
@@ -3497,11 +3498,11 @@ void gameplay_loop_timestep()
     frametime_start_measurement(Frametime_Sleep);
     if (is_feature_on(Ft_DeltaTime) == true) {
         game.delta_time = get_delta_time();
-        game.process_turn_time += game.delta_time;
+        process_turn_time += game.delta_time;
     } else {
         // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
         game.delta_time = 1;
-        game.process_turn_time = 1;
+        process_turn_time = 1;
         // Make delay if the machine is too fast
         if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
             keeper_wait_for_next_turn();

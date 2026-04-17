@@ -252,7 +252,6 @@ struct Game {
     unsigned char packet_load_enable;
     char packet_fname[150];
     char packet_fopened;
-    TbFileHandle packet_save_fp;
     unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     uint32_t turns_stored;
@@ -384,7 +383,6 @@ struct Game {
     unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
     unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
     float delta_time;
-    long double process_turn_time;
     float flash_button_time;
     MapSubtlCoord map_subtiles_x;
     MapSubtlCoord map_subtiles_y;
@@ -411,6 +409,8 @@ extern int32_t game_num_fps;
 extern int32_t game_num_fps_draw_current;
 extern int32_t game_num_fps_draw_main;
 extern int32_t game_num_fps_draw_secondary;
+
+extern long double process_turn_time;
 
 /******************************************************************************/
 #ifdef __cplusplus

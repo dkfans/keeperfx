@@ -5643,7 +5643,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
 {
     SYNCDBG(19,"Starting for %s index %d owner %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     struct Computer2* comp = (struct Computer2*)(param->primary_pointer);
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (!can_thing_be_picked_up_by_player(thing, dungeon->owner)) {
         return -1;
     }

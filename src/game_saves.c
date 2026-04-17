@@ -416,11 +416,14 @@ TbBool load_game(long slot_num)
     clear_flag(player->additional_flags, PlaAF_FreezePaletteIsActive);
     player->palette_fade_step_pain = 0;
     player->palette_fade_step_possession = 0;
-    player->lens_palette = 0;
+    set_player_lens_palette(player, NULL);
     // Reinitialize lens first (restores lens_palette pointer from config)
     reinitialise_eye_lens(game.applied_lens_type);
     // Apply the appropriate palette (lens palette if active, otherwise engine default)
-    PaletteSetPlayerPalette(player, player->lens_palette ? player->lens_palette : engine_palette);
+    {
+        unsigned char* lens_palette = get_player_lens_palette(player);
+        PaletteSetPlayerPalette(player, lens_palette ? lens_palette : engine_palette);
+    }
     init_local_cameras(player);
     // Update the lights system state
     light_import_system_state(&game.lightst);

@@ -19,6 +19,8 @@
 #include "pre_inc.h"
 #include "player_utils.h"
 
+#include <inttypes.h>
+
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
@@ -114,7 +116,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
             show_real_time_taken();
         }
         struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game_num_fps);
-        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+        SYNCMSG("Won level %u. Total turns taken: %" PRIu32 " (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
             game.loaded_level_number, dungeon->lvstats.hopes_dashed,
             GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps,
             Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
@@ -781,7 +783,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
-    player->main_palette = engine_palette;
+    set_player_main_palette(player, engine_palette);
     player->minimap_zoom = settings.minimap_zoom;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;

@@ -59,8 +59,8 @@ enum CameraIndexValues {
 };
 
 struct MinMax { // sizeof = 8
-    long min;
-    long max;
+    int32_t min;
+    int32_t max;
 };
 
 struct ComponentVector {
@@ -79,9 +79,9 @@ struct Camera {
     int zoom;
     int inertia_rotation;
     TbBool in_active_movement_rotation;
-    long inertia_x;
+    int32_t inertia_x;
     TbBool in_active_movement_x;
-    long inertia_y;
+    int32_t inertia_y;
     TbBool in_active_movement_y;
 };
 

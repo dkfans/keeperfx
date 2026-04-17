@@ -156,7 +156,6 @@ struct PlayerInfo {
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     unsigned char display_flags;
-    unsigned char *lens_palette;
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;
     int32_t hand_animationId;
@@ -208,14 +207,13 @@ struct PlayerInfo {
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
-    unsigned long instance_remain_turns;
+    GameTurnDelta instance_remain_turns;
     /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
     char view_mode_restore;
     int32_t dungeon_camera_zoom;
     int32_t palette_fade_step_map;
     int32_t palette_fade_step_pain;
     int32_t palette_fade_step_possession;
-    unsigned char *main_palette;
     /** Overcharge level while casting keeper powers. */
     int32_t cast_expand_level;
     char video_cluedo_mode;
@@ -305,8 +303,13 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
 
+unsigned char *get_player_main_palette(const struct PlayerInfo *player);
+void set_player_main_palette(struct PlayerInfo *player, unsigned char *palette);
+unsigned char *get_player_lens_palette(const struct PlayerInfo *player);
+void set_player_lens_palette(struct PlayerInfo *player, unsigned char *palette);
 struct Camera *get_player_active_camera(const struct PlayerInfo *player);
 void set_player_active_camera(struct PlayerInfo *player, unsigned char cam_idx);
+
 unsigned char rotate_mode_to_view_mode(unsigned char mode);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);

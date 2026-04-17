@@ -302,9 +302,10 @@ long PaletteFadePlayer(struct PlayerInfo *player)
     i = 120;
   long step = 120 - i;
   // Create the new palette
+    unsigned char* player_palette = get_player_main_palette(player);
   for (i=0; i < PALETTE_COLORS; i++)
   {
-      unsigned char* src = &player->main_palette[3 * i];
+      unsigned char* src = &player_palette[3 * i];
       unsigned char* dst = &palette[3 * i];
       unsigned long pix = ((step * (((long)src[0]) - 63)) / 120) + 63;
       if (pix > 63)

@@ -167,12 +167,12 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
 {
     SYNCDBG(18,"Starting for %s",cevent->name);
     struct Coord3d pos;
-    if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
+    if (!get_computer_drop_position_near_subtile(&pos, computer_dungeon(comp), coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
         SYNCDBG(8,"No drop position near (%d,%d) for %s",(int)coord_subtile(event->mappos_x),(int)coord_subtile(event->mappos_y),cevent->name);
         return CTaskRet_Unk0;
     }
     // Check if there are any enemies in the vicinity - no enemies, don't drop creatures
-    struct Thing* enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(pos.x.val, pos.y.val, 21, comp->dungeon->owner);
+    struct Thing* enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(pos.x.val, pos.y.val, 21, comp->dungeon_plyr_idx);
     if (thing_is_invalid(enmtng))
     {
         SYNCDBG(8,"No enemies near %s",cevent->name);
@@ -248,7 +248,7 @@ struct Thing *find_creature_in_fight_with_enemy(struct Computer2 *comp)
 {
     struct CreatureControl *cctrl;
     struct Thing *creatng;
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     // Search through special diggers
     unsigned long k = 0;
     int i = dungeon->digger_list_start;
@@ -309,7 +309,7 @@ struct Thing *find_creature_in_fight_with_enemy(struct Computer2 *comp)
 
 long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    if (comp->dungeon->fights_num <= 0) {
+    if (computer_dungeon(comp)->fights_num <= 0) {
         return CTaskRet_Unk4;
     }
     struct Thing* creatng = find_creature_in_fight_with_enemy(comp);
@@ -365,12 +365,12 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
 struct Thing *computer_get_creature_in_fight(struct Computer2 *comp, PowerKind pwkind)
 {
     struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
-    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, powerst->spell_idx);
+    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon_plyr_idx, powerst->spell_idx);
 }
 
 long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    if (comp->dungeon->fights_num <= 0)
+    if (computer_dungeon(comp)->fights_num <= 0)
     {
         return CTaskRet_Unk4;
     }
@@ -413,7 +413,7 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
 
 PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEvent *cevent, struct Thing *creatng)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     struct PowerConfigStats *powerst;
     struct SpellConfig *spconf;
     int i = (cevent->tertiary_parameter + 1) % (sizeof(computer_attack_spells) / sizeof(computer_attack_spells[0]));
@@ -454,7 +454,7 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
 
 long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (dungeon->fights_num <= 0) {
         return CTaskRet_Unk4;
     }
@@ -506,13 +506,13 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             continue;
         }
         struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[bldroom->rkind];
-        int tiles = get_room_slabs_count(comp->dungeon->owner,bldroom->rkind);
+        int tiles = get_room_slabs_count(comp->dungeon_plyr_idx,bldroom->rkind);
         if ((tiles >= cevent->tertiary_parameter) && !(cevent->tertiary_parameter == 0)) // Room has reached the preconfigured maximum size
         {
-            SYNCDBG(8,"Player %d reached maximum size %d for %s",(int)comp->dungeon->owner,tiles,room_code_name(bldroom->rkind));
+            SYNCDBG(8,"Player %d reached maximum size %d for %s",(int)comp->dungeon_plyr_idx,tiles,room_code_name(bldroom->rkind));
             if (room_role_matches(bldroom->rkind, RoRoF_CratesManufctr))
             {
-                struct Dungeon* dungeon = comp->dungeon;
+                struct Dungeon* dungeon = computer_dungeon(comp);
                 int32_t used_capacity;
                 int32_t total_capacity;
                 int32_t storaged_capacity;
@@ -522,7 +522,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                     if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
                     {
                         create_task_sell_traps_and_doors(comp, storaged_capacity/3*2 ,100000,false);
-                        SYNCDBG(8,"Player %d to sell crates to free up space in %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
+                        SYNCDBG(8,"Player %d to sell crates to free up space in %s",(int)comp->dungeon_plyr_idx,room_code_name(bldroom->rkind));
                     }
                 }
             }
@@ -532,7 +532,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             if (emergency_state && ((roomst->flags & RoCFlg_BuildTillBroke) == 0)) {
                 continue;
             }
-            SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
+            SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon_plyr_idx,room_code_name(bldroom->rkind));
             // Find the corresponding build process and mark it as needed
             for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
             {
@@ -541,7 +541,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                     break;
                 if (cproc->parent == bldroom->process_idx)
                 {
-                    SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
+                    SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon_plyr_idx,cproc->name);
                     ret = CTaskRet_Unk1;
                     reactivate_build_process(comp, bldroom->rkind);
                 }
@@ -560,14 +560,14 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         SYNCDBG(8, "Target %s is not a door", thing_model_name(thing));
         return CTaskRet_Unk0;
     }
-    if (!players_are_enemies(comp->dungeon->owner, thing->owner))
+    if (!players_are_enemies(comp->dungeon_plyr_idx, thing->owner))
     {
         SYNCDBG(8, "Door owner is no longer an enemy");
         return CTaskRet_Unk0;
     }
 
     struct Coord3d freepos;
-    if (!get_computer_drop_position_next_to_subtile(&freepos, comp->dungeon, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
+    if (!get_computer_drop_position_next_to_subtile(&freepos, computer_dungeon(comp), coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
         SYNCDBG(18, "No drop position near (%d,%d) for %s", (int)coord_subtile(event->mappos_x), (int)coord_subtile(event->mappos_y), cevent->name);
         return CTaskRet_Unk0;
     }
@@ -633,7 +633,7 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
 long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
     SYNCDBG(18, "Starting");
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     struct Thing* creatng = thing_get(event->target);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
@@ -678,7 +678,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
             {
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount))
                 {
-                    magic_use_available_power_on_thing(comp->dungeon->owner, PwrK_HEALCRTR, power_level, 0, 0, creatng, PwMod_Default);
+                    magic_use_available_power_on_thing(comp->dungeon_plyr_idx, PwrK_HEALCRTR, power_level, 0, 0, creatng, PwMod_Default);
                     return CTaskRet_Unk1;
                 }
                 return CTaskRet_Unk4;
@@ -691,7 +691,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
     SYNCDBG(18, "Starting");
-    if (count_slabs_of_room_type(comp->dungeon->owner, event->target) == 0)
+    if (count_slabs_of_room_type(comp->dungeon_plyr_idx, event->target) == 0)
     {
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
@@ -700,7 +700,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
                 break;
             if ((cproc->func_check == cpfl_computer_check_any_room) && (cproc->process_configuration_value_4 == event->target))
             {
-                SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
+                SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon_plyr_idx, room_code_name(event->target));
                 clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
                 cproc->last_run_turn = 0;
             }
@@ -711,7 +711,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
 
 long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* cevent)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     int health_permil = (cevent->primary_parameter * 10);
     // Do not check for PwrK_HAND here; this would prevent the computer from taking other actions without it!
     // Do we have a prison to put the unit back into?
@@ -731,7 +731,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
     struct Dungeon* victdungeon;
     for (int j = 0; j < DUNGEONS_COUNT; j++)
     {
-        if (j == comp->dungeon->owner)
+        if (j == comp->dungeon_plyr_idx)
         {
             continue;
         }
@@ -803,7 +803,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
 
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (dungeon->fights_num <= 0) {
         return CTaskRet_Unk4;
     }
@@ -878,7 +878,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
 
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
 {
-    struct Dungeon* dungeon = comp->dungeon;
+    struct Dungeon* dungeon = computer_dungeon(comp);
     if (dungeon->total_money_owned >= dungeon->creatures_total_pay) {
         return CTaskRet_Unk4;
     }

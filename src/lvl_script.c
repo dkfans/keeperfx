@@ -601,9 +601,9 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
                 strcpy(scline->tp[dst], "0");
                 break;
             }
-            SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
+            SCRPTLOG("Function \"%s\" returned value \"%d\"", funcmd_desc->textptr,
                      intralvl.campaign_flags[player_id][flag_id]);
-            snprintf(scline->tp[dst], MAX_TEXT_LENGTH, "%ld", intralvl.campaign_flags[player_id][flag_id]);
+            snprintf(scline->tp[dst], MAX_TEXT_LENGTH, "%d", intralvl.campaign_flags[player_id][flag_id]);
             break;
         }
         default:
@@ -1069,7 +1069,7 @@ void process_check_new_tunneller_parties(void)
                 }
                 else
                 {
-                    SCRIPTDBG(6, "Adding tunneler, heading %lu", tn_trig->heading);
+                    SCRIPTDBG(6, "Adding tunneler, heading %u", tn_trig->heading);
                     script_process_new_tunneler(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
                         tn_trig->exp_level, tn_trig->carried_gold);
                 }

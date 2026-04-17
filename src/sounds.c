@@ -395,8 +395,6 @@ TbBool init_sound(void)
     struct SoundSettings* snd_settng = &game.sound_settings;
     snd_settng->flags = SndSetting_Sound;
     snd_settng->sound_type = 1622;
-    snd_settng->sound_data_path = sound_dir;
-    snd_settng->dir3 = sound_dir;
     snd_settng->sound_buffer_enable = 1;
     snd_settng->stereo = 1;
     snd_settng->max_number_of_samples = 100;

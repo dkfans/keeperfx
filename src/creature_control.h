@@ -417,11 +417,6 @@ struct CreatureControl {
     GameTurnDelta hand_blocked_turns;
 };
 
-struct Persons {
-    struct CreatureControl *cctrl_lookup[CREATURES_COUNT];
-    struct CreatureControl *cctrl_end;
-};
-
 struct CreatureSound {
     int32_t index;
     int16_t count;

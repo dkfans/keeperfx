@@ -45,12 +45,12 @@ extern "C" {
 struct ComputerProcess {
   char name[COMMAND_WORD_LEN];
   char mnemonic[COMMAND_WORD_LEN];
-  long priority;
+  int32_t priority;
   // Signed process config values
-  long process_configuration_value_2;
-  long process_configuration_value_3;
-  long process_configuration_value_4; /**< room kind or amount of creatures or gameturn or count of slabs */
-  long process_configuration_value_5;
+  int32_t process_configuration_value_2;
+  int32_t process_configuration_value_3;
+  int32_t process_configuration_value_4; /**< room kind or amount of creatures or gameturn or count of slabs */
+  int32_t process_configuration_value_5;
   FuncIdx func_check;
   FuncIdx func_setup;
   FuncIdx func_task;
@@ -58,25 +58,25 @@ struct ComputerProcess {
   FuncIdx func_pause;
   unsigned char parent;
   // Unsigned process parameters storage (stores gameturns)
-  unsigned long process_parameter_1;
-  unsigned long process_parameter_2;
-  unsigned long process_parameter_3;
-  unsigned long last_run_turn;
+  uint32_t process_parameter_1;
+  uint32_t process_parameter_2;
+  uint32_t process_parameter_3;
+  uint32_t last_run_turn;
   // Signed process parameters storage
-  long process_parameter_5;
-  unsigned long flags; /**< Values from ComProc_* enumeration. */
+  int32_t process_parameter_5;
+  uint32_t flags; /**< Values from ComProc_* enumeration. */
 };
 
 struct ComputerCheck {
   char name[COMMAND_WORD_LEN];
   char mnemonic[COMMAND_WORD_LEN];
-  unsigned long flags; /**< Values from ComChk_* enumeration. */
-  long turns_interval;
+  uint32_t flags; /**< Values from ComChk_* enumeration. */
+  int32_t turns_interval;
   FuncIdx func;
-  long primary_parameter;
-  long secondary_parameter;
-  long tertiary_parameter;
-  long last_run_turn;
+  int32_t primary_parameter;
+  int32_t secondary_parameter;
+  int32_t tertiary_parameter;
+  int32_t last_run_turn;
 };
 
 struct ComputerEvent {
@@ -98,12 +98,12 @@ struct ComputerType {
   char name[COMMAND_WORD_LEN];
   short tooltip_stridx;
   short sprite_idx;
-  long dig_stack_size;
-  long processes_time;
-  long click_rate;
-  long max_room_build_tasks;
-  long turn_begin;
-  long sim_before_dig;
+  int32_t dig_stack_size;
+  int32_t processes_time;
+  int32_t click_rate;
+  int32_t max_room_build_tasks;
+  int32_t turn_begin;
+  int32_t sim_before_dig;
   GameTurnDelta drop_delay;
   unsigned char processes[COMPUTER_PROCESSES_COUNT];
   unsigned char checks[COMPUTER_CHECKS_COUNT];
@@ -119,9 +119,9 @@ struct ComputerPlayerConfig {
   struct ComputerEvent event_types[COMPUTER_EVENTS_TYPES_COUNT];
   int32_t computers_count;
   struct ComputerType computer_types[COMPUTER_MODELS_COUNT];
-  long skirmish_first;
-  long skirmish_last;
-  long player_assist_default;
+  int32_t skirmish_first;
+  int32_t skirmish_last;
+  int32_t player_assist_default;
   unsigned char computer_assist_types[COMPUTER_ASSIST_TYPES_COUNT];
 
 };

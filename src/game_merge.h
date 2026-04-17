@@ -118,10 +118,10 @@ enum GameFlags2 {
  */
 struct TextScrollWindow {
     char text[MESSAGE_TEXT_LEN];
-    long start_y;
+    int32_t start_y;
     char action;
-    long text_height;
-    long window_height;
+    int32_t text_height;
+    int32_t window_height;
 };
 
 /**
@@ -131,7 +131,7 @@ struct TextScrollWindow {
 struct IntralevelData {
     unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
     struct CreatureStorage transferred_creatures[PLAYERS_COUNT][TRANSFER_CREATURE_STORAGE_COUNT];
-    long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
+    int32_t campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
     char next_level;
 };
 

@@ -40,6 +40,7 @@ extern "C" {
 struct Packet bad_packet;
 unsigned long initial_replay_seed;
 unsigned long last_pause_toggle_time = 0;
+static TbFileHandle packet_save_fp = NULL;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
@@ -138,24 +139,24 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 {
     memset(centry, 0, sizeof(struct CatalogueEntry));
     strcpy(game.packet_fname, fname);
-    game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
-    if (!game.packet_save_fp)
+    packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
+    if (!packet_save_fp)
     {
         ERRORLOG("Cannot open keeper packet file for load");
         game.packet_fopened = 0;
         return false;
     }
-    int i = load_game_chunks(game.packet_save_fp, centry);
+    int i = load_game_chunks(packet_save_fp, centry);
     if ((i != GLoad_PacketStart) && (i != GLoad_PacketContinue))
     {
-        LbFileClose(game.packet_save_fp);
-        game.packet_save_fp = NULL;
+        LbFileClose(packet_save_fp);
+        packet_save_fp = NULL;
         game.packet_fopened = 0;
         WARNMSG("Couldn't correctly read packet file \"%s\" header.",fname);
         return false;
     }
-    game.packet_file_pos = LbFilePosition(game.packet_save_fp);
-    game.turns_stored = (LbFileLengthHandle(game.packet_save_fp) - game.packet_file_pos) / PACKET_TURN_SIZE;
+    game.packet_file_pos = LbFilePosition(packet_save_fp);
+    game.turns_stored = (LbFileLengthHandle(packet_save_fp) - game.packet_file_pos) / PACKET_TURN_SIZE;
     if ((game.packet_checksum_verify) && (!game.packet_save_head.chksum_available))
     {
         WARNMSG("PacketSave checksum not available, checking disabled.");
@@ -221,24 +222,24 @@ short save_packets(void)
         chksum = compute_replay_integrity();
     else
         chksum = 0;
-    LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
+    LbFileSeek(packet_save_fp, 0, Lb_FILE_SEEK_END);
     // Prepare data in the buffer
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
         memcpy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[i], sizeof(struct Packet));
     memcpy(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
     // Write buffer into file
-    if (LbFileWrite(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
+    if (LbFileWrite(packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
     {
         ERRORLOG("Packet file write error");
     }
     for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
         if (game.packets[i].action == PckA_PlyrMsgEnd) {
-            if (LbFileWrite(game.packet_save_fp, get_player(i)->mp_pending_message, PLAYER_MP_MESSAGE_LEN) != PLAYER_MP_MESSAGE_LEN) {
+            if (LbFileWrite(packet_save_fp, get_player(i)->mp_pending_message, PLAYER_MP_MESSAGE_LEN) != PLAYER_MP_MESSAGE_LEN) {
                 ERRORLOG("Chat message file write error");
             }
         }
     }
-    if ( !LbFileFlush(game.packet_save_fp) )
+    if ( !LbFileFlush(packet_save_fp) )
     {
         ERRORLOG("Unable to flush PacketSave File");
         return false;
@@ -250,9 +251,9 @@ void close_packet_file(void)
 {
     if ( game.packet_fopened )
     {
-        LbFileClose(game.packet_save_fp);
+        LbFileClose(packet_save_fp);
         game.packet_fopened = 0;
-        game.packet_save_fp = NULL;
+        packet_save_fp = NULL;
     }
 }
 
@@ -284,7 +285,7 @@ TbBool reinit_packets_after_load(void)
 {
     game.packet_save_enable = false;
     game.packet_load_enable = false;
-    game.packet_save_fp = NULL;
+    packet_save_fp = NULL;
     game.packet_fopened = 0;
     return true;
 }
@@ -321,8 +322,8 @@ TbBool open_new_packet_file_for_save(void)
         }
     }
     LbFileDelete(game.packet_fname);
-    game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_NEW);
-    if (!game.packet_save_fp)
+    packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_NEW);
+    if (!packet_save_fp)
     {
         ERRORLOG("Cannot open keeper packet file for save, \"%s\".",game.packet_fname);
         game.packet_fopened = 0;
@@ -330,12 +331,12 @@ TbBool open_new_packet_file_for_save(void)
     }
     struct CatalogueEntry centry;
     fill_game_catalogue_entry(&centry, "Packet file");
-    if (!save_packet_chunks(game.packet_save_fp,&centry))
+    if (!save_packet_chunks(packet_save_fp,&centry))
     {
         WARNMSG("Cannot write to packet file, \"%s\".",game.packet_fname);
-        LbFileClose(game.packet_save_fp);
+        LbFileClose(packet_save_fp);
         game.packet_fopened = 0;
-        game.packet_save_fp = NULL;
+        packet_save_fp = NULL;
         return false;
     }
     game.packet_fopened = 1;
@@ -354,7 +355,7 @@ void load_packets_for_turn(GameTurn nturn)
         return;
     }
 
-    if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
+    if (LbFileRead(packet_save_fp, &pckt_buf, turn_data_size) == -1)
     {
         ERRORDBG(18,"Cannot read turn data from Packet File");
         erstat_inc(ESE_CantReadPackets);
@@ -365,7 +366,7 @@ void load_packets_for_turn(GameTurn nturn)
         memcpy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
     for (long i = 0; i < NET_PLAYERS_COUNT; i++) {
         if (game.packets[i].action == PckA_PlyrMsgEnd) {
-            if (LbFileRead(game.packet_save_fp, get_player(i)->mp_pending_message, PLAYER_MP_MESSAGE_LEN) == PLAYER_MP_MESSAGE_LEN) {
+            if (LbFileRead(packet_save_fp, get_player(i)->mp_pending_message, PLAYER_MP_MESSAGE_LEN) == PLAYER_MP_MESSAGE_LEN) {
                 game.packet_file_pos += PLAYER_MP_MESSAGE_LEN;
             } else {
                 ERRORDBG(18,"Cannot read chat message from Packet File");

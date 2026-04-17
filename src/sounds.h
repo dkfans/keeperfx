@@ -39,9 +39,6 @@ extern "C" {
 struct Thing;
 
 struct SoundSettings {
-  char *sound_data_path;
-  char *music_data_path;
-  char *dir3;
   unsigned short sound_type;
   unsigned short flags;
   unsigned char max_number_of_samples;
