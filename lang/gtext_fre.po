@@ -2766,10 +2766,10 @@ msgid ""
 "can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
-"Type d'affichage: Alterne entre deux types de vue de la perspective. La vue "
-"par défaut a des murs tordus et permet la rotation libre. Désactivez l'effet "
+"Type d'affichage: Alterne entre les vues en perspective. La vue "
+"par défaut a des murs tordus et permet une rotation libre. Désactivez l'effet "
 "de torsion pour des lignes droites. La vue forcée change l'angle de vision "
-"et ne peut faire que des rotations à 90 degrés. Alterner avec le bouton "
+"et ne peut pivoter que par rotations de 90 degrés. Alterner avec le bouton "
 "gauche de la souris."
 
 #: guitext:315
