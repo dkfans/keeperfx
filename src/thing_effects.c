@@ -465,7 +465,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     i = eestats->subeffect_delay;
     if (i > 0)
     {
-      if (((elemtng->creation_turn - get_gameturn()) % i) == 0)
+      if (((get_gameturn() - elemtng->creation_turn) % i) == 0)
       {
           struct Thing *subeff = create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
           if (!thing_is_invalid(subeff))
