@@ -211,7 +211,7 @@ TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *
 
 TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    if ((game.armageddon_cast_turn != 0) && (game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn <= game.play_gameturn)) {
+    if ((game.armageddon_cast_turn != 0) && (game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn <= get_gameturn())) {
         return true;
     }
     return false;
@@ -247,7 +247,7 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
         return (thing_is_object(thing) && object_is_pickable_by_hand_for_use(thing, plyr_idx));
     }
 
-    if ( (game.armageddon_cast_turn > 0) && ( (game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn) <= game.play_gameturn) )
+    if ( (game.armageddon_cast_turn > 0) && ( (game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn) <= get_gameturn()) )
     {
         return false;
     }
@@ -325,12 +325,12 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
 void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    if (player->hand_busy_until_turn >= game.play_gameturn)
+    if (player->hand_busy_until_turn >= get_gameturn())
     {
         if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
           player->hand_busy_until_turn = 0;
     }
-    if (player->hand_busy_until_turn < game.play_gameturn)
+    if (player->hand_busy_until_turn < get_gameturn())
     {
         if (player->hand_animationId != HandAnimationID)
         {
@@ -583,7 +583,7 @@ void draw_power_hand(void)
     thing = thing_get(player->hand_thing_idx);
     if (!thing_exists(thing))
         return;
-    if (player->hand_busy_until_turn > game.play_gameturn)
+    if (player->hand_busy_until_turn > get_gameturn())
     {
         SYNCDBG(7,"Drawing hand %s index %d, busy state", thing_model_name(thing), (int)thing->index);
         process_keeper_sprite(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY()+scale_ui_value(40*global_hand_scale),
@@ -840,7 +840,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
     player = get_player(plyr_idx);
     if (player_exists(player)) {
         set_power_hand_graphic(plyr_idx, HndA_Hover);
-        player->hand_busy_until_turn = game.play_gameturn + 16;
+        player->hand_busy_until_turn = get_gameturn() + 16;
     }
 }
 
@@ -941,7 +941,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         if (is_my_player_number(dungeon->owner)) {
             play_creature_sound(droptng, CrSnd_Drop, 3, 0);
         }
-        dungeon->last_creature_dropped_gameturn = game.play_gameturn;
+        dungeon->last_creature_dropped_gameturn = get_gameturn();
         struct CreatureModelConfig* crconf = creature_stats_get(droptng->model);
         if ((crconf->illuminated) || (creature_under_spell_effect(droptng, CSAfF_Light)))
         {
@@ -1087,7 +1087,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
     if (game.armageddon_cast_turn != 0)
     {
         // If Armageddon is on, teleport creature to its position
-        if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
+        if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= get_gameturn()))
         {
             cctrl->armageddon_teleport_turn = 0;
             if (remove_thing_from_power_hand(thing, dungeon->owner))
@@ -1590,24 +1590,24 @@ static TbBool hand_rule_always(struct HandRule *hand_rule, const struct Thing *t
 
 static TbBool hand_rule_age_lower(struct HandRule *hand_rule, const struct Thing *thing)
 {
-    return (game.play_gameturn - thing->creation_turn < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+    return (get_gameturn() - thing->creation_turn < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_age_higher(struct HandRule *hand_rule, const struct Thing *thing)
 {
-    return (game.play_gameturn - thing->creation_turn >= hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+    return (get_gameturn() - thing->creation_turn >= hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_dropped_time_lower(struct HandRule* hand_rule, const struct Thing* thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return (((game.play_gameturn - cctrl->dropped_turn) <= hand_rule->param) && (cctrl->dropped_turn != 0)) ? !hand_rule->allow : !!hand_rule->allow;
+    return (((get_gameturn() - cctrl->dropped_turn) <= hand_rule->param) && (cctrl->dropped_turn != 0)) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_dropped_time_higher(struct HandRule* hand_rule, const struct Thing* thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return ((game.play_gameturn - cctrl->dropped_turn) >= hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+    return ((get_gameturn() - cctrl->dropped_turn) >= hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_lvl_lower(struct HandRule *hand_rule, const struct Thing *thing)

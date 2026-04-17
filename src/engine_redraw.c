@@ -791,7 +791,7 @@ TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord 
         }
     }
     i = get_player_colored_pointer_icon_idx(powerst->pointer_sprite_idx,my_player_number);
-    set_pointer_graphic_spell(i, game.play_gameturn);
+    set_pointer_graphic_spell(i, get_gameturn());
     return true;
 }
 
@@ -910,7 +910,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             }
             break;
         default:
-            if (player->hand_busy_until_turn <= game.play_gameturn)
+            if (player->hand_busy_until_turn <= get_gameturn())
               set_pointer_graphic(MousePG_Arrow);
             else
               set_pointer_graphic(MousePG_Invisible);
@@ -1153,13 +1153,13 @@ void redraw_display(void)
     if (game.armageddon_cast_turn != 0)
     {
         int i = 0;
-        if (game.armageddon_cast_turn + game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down <= game.play_gameturn)
+        if (game.armageddon_cast_turn + game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down <= get_gameturn())
         {
-            if (game.armageddon_over_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_duration <= game.play_gameturn)
-                i = game.armageddon_over_turn - game.play_gameturn;
+            if (game.armageddon_over_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_duration <= get_gameturn())
+                i = game.armageddon_over_turn - get_gameturn();
         } else
         {
-            i = game.play_gameturn - game.armageddon_cast_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down;
+            i = get_gameturn() - game.armageddon_cast_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down;
         }
         LbTextSetFont(winfont);
         char text[64];

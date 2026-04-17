@@ -152,7 +152,7 @@ short creature_being_scavenged(struct Thing *creatng)
     locpos.y.val = fellowtng->mappos.y.val;
     locpos.z.val = fellowtng->mappos.z.val;
     {
-        int angle = (((game.play_gameturn - creatng->creation_turn) >> 6) & 7) * DEGREES_45;
+        int angle = (((get_gameturn() - creatng->creation_turn) >> 6) & 7) * DEGREES_45;
         locpos.x.val += -LbSinL(angle)/128;
         locpos.y.val += LbCosL(angle)/128;
     }
@@ -231,7 +231,7 @@ TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng)
 TbBool reset_scavenge_counts(struct Dungeon *dungeon)
 {
     memset(dungeon->creatures_scavenging, 0, game.conf.crtr_conf.model_count);
-    dungeon->scavenge_counters_turn = game.play_gameturn;
+    dungeon->scavenge_counters_turn = get_gameturn();
     return true;
 }
 
@@ -274,7 +274,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
         return false;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(scavtng);
-    if (game.play_gameturn - cctrl->temple_cure_gameturn > game.conf.rules[calltng->owner].rooms.temple_scavenge_protection_turns)
+    if (get_gameturn() - cctrl->temple_cure_gameturn > game.conf.rules[calltng->owner].rooms.temple_scavenge_protection_turns)
     {
         return true;
     }
@@ -305,7 +305,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
                 thing_model_name(thing),(int)thing->index,(int)thing->owner,
                 thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if (game.play_gameturn - cctrl->temple_cure_gameturn > game.conf.rules[calltng->owner].rooms.temple_scavenge_protection_turns)
+            if (get_gameturn() - cctrl->temple_cure_gameturn > game.conf.rules[calltng->owner].rooms.temple_scavenge_protection_turns)
             {
                 long thingpts = calculate_correct_creature_scavenge_required(thing, calltng->owner);
                 if (weakpts > thingpts)
@@ -527,7 +527,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         set_start_state(calltng);
         return CrCkRet_Continue;
     }
-    if (calldngn->scavenge_counters_turn != game.play_gameturn)
+    if (calldngn->scavenge_counters_turn != get_gameturn())
     {
         reset_scavenge_counts(calldngn);
     }

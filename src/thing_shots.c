@@ -1666,7 +1666,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         }
         if (shotst->periodical > 0) {
             unsigned short frequency = shotst->periodical;
-            if (((game.play_gameturn + thing->index) % frequency) == 0) {
+            if (((get_gameturn() + thing->index) % frequency) == 0) {
                 detonate_shot(thing, false);
             }
         }
@@ -1732,7 +1732,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                 thing->mappos.z.val = 0;
                 break;
             case ShUL_TrapLightning:
-                if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
+                if (((get_gameturn() - thing->creation_turn) % 16) == 0)
                 {
                   god_lightning_choose_next_creature(thing);
                   target = thing_get(thing->shot.target_idx);
@@ -1778,7 +1778,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
     thing->class_id = TCls_Shot;
     thing->model = model;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
@@ -1875,7 +1875,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 if ((creature_distance < blow_distance) && !creature_is_immune_to_spell_effect(thing, CSAfF_Wind) && !creatureAlreadyAffected)
                 {
                     set_start_state(thing);
-                    cctrl->idle.start_gameturn = game.play_gameturn;
+                    cctrl->idle.start_gameturn = get_gameturn();
                     apply_velocity = true;
                     set_flag(cctrl->spell_flags, CSAfF_Wind);
                 } // If weight_affect_push_rule is on.

@@ -1367,7 +1367,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
     struct RoomConfigStats* roomst;
     int i = game.conf.slab_conf.room_types_count - 1;
 
-    roomst = &game.conf.slab_conf.room_cfgstats[i];
+    roomst = get_room_kind_stats(i);
     memset(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
@@ -5478,7 +5478,7 @@ static void clear_message_process(struct ScriptContext* context)
     unsigned char count = min(context->value->chars[1], game.active_messages_count);
     for (int k = game.active_messages_count-1; k >= (game.active_messages_count-count); k--)
     {
-        game.messages[k].expiration_turn = game.play_gameturn;
+        game.messages[k].expiration_turn = get_gameturn();
     }
 }
 

@@ -678,7 +678,7 @@ short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KMod_ALT) )
   {
-    JUSTMSG("REPORT. gameturn is %u, requested fps is %d",game.play_gameturn, game_num_fps);
+    JUSTMSG("REPORT. gameturn is %u, requested fps is %d",get_gameturn(), game_num_fps);
   }
 
   for (int idx = KC_F1; idx <= KC_F8; idx++)
@@ -745,9 +745,9 @@ short get_global_inputs(void)
         if ( timer_enabled() )
         {
             update_time();
-            struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
+            struct GameTime GameT = get_game_time(get_gameturn(), game_num_fps);
             SYNCMSG("Finished level %d. Total turns taken: %u (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
-                game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+                game.loaded_level_number, get_gameturn(), GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
@@ -3226,7 +3226,7 @@ void process_cheat_mode_selection_inputs()
                             new_value = 0;
                             break;
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
@@ -3242,7 +3242,7 @@ void process_cheat_mode_selection_inputs()
                             new_value = 0;
                             break;
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);
@@ -3268,7 +3268,7 @@ void process_cheat_mode_selection_inputs()
                                break;
                            }
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
@@ -3290,7 +3290,7 @@ void process_cheat_mode_selection_inputs()
                                 break;
                             }
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);

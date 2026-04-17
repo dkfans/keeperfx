@@ -151,7 +151,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
 
     set_flag_value(thing->movement_flags, TMvF_Immobile, objst->immobile);
     thing->owner = owner;
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
 
     if (!objst->random_start_frame)
     {
@@ -721,12 +721,12 @@ static long food_moves(struct Thing *objtng)
     {
         objtng->parent_idx = room->index;
         struct Thing* near_creatng;
-        if (room->hatch_gameturn == game.play_gameturn)
+        if (room->hatch_gameturn == get_gameturn())
         {
             near_creatng = thing_get(room->cached_nearby_creature_index);
         } else
         {
-            room->hatch_gameturn = game.play_gameturn;
+            room->hatch_gameturn = get_gameturn();
             near_creatng = get_nearest_thing_of_class_and_model_owned_by(pos.x.val, pos.y.val, -1, TCls_Creature, -1);
             if (!thing_is_invalid(near_creatng))
                 room->cached_nearby_creature_index = near_creatng->index;
@@ -1202,7 +1202,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 
     if ((heartng->health > 0) && (game.conf.rules[heartng->owner].game.dungeon_heart_heal_time != 0))
     {
-        if ((game.play_gameturn % game.conf.rules[heartng->owner].game.dungeon_heart_heal_time) == 0)
+        if ((get_gameturn() % game.conf.rules[heartng->owner].game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.conf.rules[heartng->owner].game.dungeon_heart_heal_health;
             if (heartng->health < 0)
@@ -1535,11 +1535,11 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     int max_time_active = powerst->strength[sight_casted_power_level];
     int strength = min(powerst->strength[sight_casted_power_level], (MAX_SOE_RADIUS * COORD_PER_STL / 4));
 
-    if ( game.play_gameturn - objtng->creation_turn >= max_time_active
-        && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
+    if ( get_gameturn() - objtng->creation_turn >= max_time_active
+        && get_gameturn() - dungeon->sight_casted_gameturn < max_time_active )
     {
-        int time_active = game.play_gameturn - dungeon->sight_casted_gameturn;
-        if ( game.play_gameturn >= dungeon->sight_casted_gameturn)
+        int time_active = get_gameturn() - dungeon->sight_casted_gameturn;
+        if ( get_gameturn() >= dungeon->sight_casted_gameturn)
         {
             if ( max_time_active / 16 < time_active )
                 time_active = max_time_active / 16;
@@ -1549,15 +1549,15 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             time_active = 0;
         }
         const int time_interval_divisor = (max_time_active / 16) / power_sight_close_instance_time[sight_casted_power_level];
-        dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active + time_active / time_interval_divisor - power_sight_close_instance_time[sight_casted_power_level];
+        dungeon->sight_casted_gameturn = get_gameturn() - max_time_active + time_active / time_interval_divisor - power_sight_close_instance_time[sight_casted_power_level];
     }
-    if ( max_time_active <= game.play_gameturn - dungeon->sight_casted_gameturn )
+    if ( max_time_active <= get_gameturn() - dungeon->sight_casted_gameturn )
     {
-        if ( power_sight_close_instance_time[dungeon->sight_casted_power_level] <= (game.play_gameturn - dungeon->sight_casted_gameturn) - max_time_active )
+        if ( power_sight_close_instance_time[dungeon->sight_casted_power_level] <= (get_gameturn() - dungeon->sight_casted_gameturn) - max_time_active )
         {
             if ( (dungeon->computer_enabled & 4) != 0 )
             {
-                dungeon->sight_casted_gameturn = game.play_gameturn;
+                dungeon->sight_casted_gameturn = get_gameturn();
                 struct Coord3d pos;
                 pos.x.val = (dungeon->sight_casted_stl_x << 8) + 128;
                 pos.z.val = 1408;
@@ -1578,7 +1578,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         else
         {
             // draw 32 particles in a collapsing starburst pattern
-            const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
+            const int anim_time = (get_gameturn() - dungeon->sight_casted_gameturn);
             const int anim_radius = 4 * anim_time;
             const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_power_level] - (anim_time - max_time_active));
             const int max_duration_radius = max_time_active / 4;
@@ -1599,7 +1599,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     else
     {
         // draw 32 particles in an expanding radial pattern, 4 at a time, exploring terrain as we go
-        const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
+        const int anim_time = (get_gameturn() - dungeon->sight_casted_gameturn);
         const int anim_radius = 4 * anim_time;
         const int max_duration_radius = max_time_active / 4;
         const int strength_radius = strength/4;
@@ -1629,7 +1629,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
 {
     objtng->health = 2;
-    unsigned long exist_turns = game.play_gameturn - objtng->creation_turn;
+    unsigned long exist_turns = get_gameturn() - objtng->creation_turn;
     long variation = NUM_ANGLES * exist_turns;
     for (long i = 0; i < NUM_ANGLES; i++)
     {

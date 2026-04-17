@@ -577,7 +577,7 @@ void update_creature_graphic_tint(struct Thing *thing)
     {
         untint_thing(thing);
     } else
-    if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
+    if (((get_gameturn() % 3) == 0) || is_hero_thing(thing))
     {
         untint_thing(thing);
     } else

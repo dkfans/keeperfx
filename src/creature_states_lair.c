@@ -212,7 +212,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     // Search for enemies no often than every 64 turns
-    if (((game.play_gameturn + thing->index) & 0x3F) != 0)
+    if (((get_gameturn() + thing->index) & 0x3F) != 0)
     {
         return 0;
     }
@@ -532,7 +532,7 @@ short creature_sleep(struct Thing *thing)
     // Recovery is disabled if frequency is set to 0 on rules.cfg.
     if (game.conf.rules[thing->owner].creature.recovery_frequency > 0)
     {
-        if (((game.play_gameturn + thing->index) % game.conf.rules[thing->owner].creature.recovery_frequency) == 0)
+        if (((get_gameturn() + thing->index) % game.conf.rules[thing->owner].creature.recovery_frequency) == 0)
         {
             HitPoints recover = compute_creature_max_health(crconf->sleep_recovery, cctrl->exp_level);
             apply_health_to_thing_and_display_health(thing, recover);
@@ -544,7 +544,7 @@ short creature_sleep(struct Thing *thing)
     {
         cctrl->turns_at_job--;
     }
-    if (((game.play_gameturn + thing->index) & 0x3F) == 0)
+    if (((get_gameturn() + thing->index) & 0x3F) == 0)
     {
         if (THING_RANDOM(thing, 100) < 5)
         {

@@ -280,7 +280,7 @@ void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size)
     if (game.skip_initial_input_turns > 0) {
         return;
     }
-    GameTurn historical_turn = game.play_gameturn - game.input_lag_turns;
+    GameTurn historical_turn = get_gameturn() - game.input_lag_turns;
     const struct Packet* received_packets = get_received_packets_for_turn(historical_turn);
     if (received_packets == NULL) {
         MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Missing packets for turn=%lu, waiting...", (unsigned long)historical_turn);

@@ -355,7 +355,7 @@ TbBool cmd_time(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
     char * pr3str = strsep(&args, " ");
-    GameTurn turn = (pr2str != NULL) ? (GameTurn) atoi(pr2str) : game.play_gameturn;
+    GameTurn turn = (pr2str != NULL) ? (GameTurn) atoi(pr2str) : get_gameturn();
     long frames = (pr3str != NULL) ? (long) atoi(pr3str) : game_num_fps;
     show_game_time_taken(frames, turn);
     return true;
@@ -385,7 +385,7 @@ TbBool cmd_timer_switch(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_turn(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn %ld", game.play_gameturn);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn %ld", get_gameturn());
     return true;
 }
 
@@ -976,7 +976,7 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
         while (1) {
             crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
             // Accept only evil creatures
-            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
+            struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
             if ((crconf->model_flags & CMF_IsSpectator) != 0) {
                 continue;
             }
