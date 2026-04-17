@@ -233,23 +233,26 @@ static int cmp_named_command(const void *a, const void *b)
 
 static uint32_t compute_zip_checksum(const char *path)
 {
-    unzFile zip = unzOpen(path);
-    if (zip == NULL) {
+    long file_length = LbFileLength(path);
+    if (file_length <= 0) {
         return 0;
     }
-    uint32_t checksum = 0;
-    char entry_name[PATH_MAX];
-    for (int err = unzGoToFirstFile(zip); err == UNZ_OK; err = unzGoToNextFile(zip)) {
-        unz_file_info64 info = {0};
-        if (UNZ_OK != unzGetCurrentFileInfo64(zip, &info, entry_name, sizeof(entry_name) - 1, NULL, 0, NULL, 0)) {
-            continue;
-        }
-        checksum = ROL32_5(checksum) ^ (uint32_t)info.crc;
-        for (const char *c = entry_name; *c; c++) {
-            checksum = ROL32_5(checksum) ^ (unsigned char)*c;
-        }
+    TbFileHandle handle = LbFileOpen(path, Lb_FILE_MODE_READ_ONLY);
+    if (handle == NULL) {
+        return 0;
     }
-    unzClose(zip);
+    unsigned char *buffer = malloc(file_length);
+    if (buffer == NULL) {
+        LbFileClose(handle);
+        return 0;
+    }
+    LbFileRead(handle, buffer, file_length);
+    LbFileClose(handle);
+    uint32_t checksum = 0;
+    for (long i = 0; i < file_length; i++) {
+        checksum = ROL32_5(checksum) ^ buffer[i];
+    }
+    free(buffer);
     return checksum;
 }
 

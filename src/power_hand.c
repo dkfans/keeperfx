@@ -1595,7 +1595,7 @@ static TbBool hand_rule_age_lower(struct HandRule *hand_rule, const struct Thing
 
 static TbBool hand_rule_age_higher(struct HandRule *hand_rule, const struct Thing *thing)
 {
-    return (get_gameturn() - thing->creation_turn < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+    return (get_gameturn() - thing->creation_turn >= hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_dropped_time_lower(struct HandRule* hand_rule, const struct Thing* thing)
