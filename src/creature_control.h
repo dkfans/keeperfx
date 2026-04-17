@@ -194,6 +194,7 @@ struct CreatureControl {
     int32_t turns_at_job;
     short blocking_door_id;
     unsigned char move_flags;
+    unsigned long cleanse_flags;
 
   union // Union on diggers, heroes and normal creatures
   {
