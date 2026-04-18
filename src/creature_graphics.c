@@ -361,7 +361,7 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
 short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
     short idx = get_creature_model_graphics(thing->model, seq_idx);
-    return convert_td_iso(idx);
+    return get_anim_for_current_view(idx);
 }
 
 void untint_thing(struct Thing *thing)
@@ -393,9 +393,9 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
     return false;
 }
 
-TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
+TbBool update_creature_animation_by_sprite(struct Thing *thing, long speed, long anim_idx)
 {
-    unsigned long i = convert_td_iso(td_idx);
+    unsigned long i = get_anim_for_current_view(anim_idx);
     // Only update when it's a different sprite, or a different animation speed.
     if ((i != thing->anim_sprite) || ((speed != thing->anim_speed) && (speed != -1)))
     {
@@ -545,19 +545,19 @@ void update_creature_graphic_anim(struct Thing *thing)
         thing->rendering_flags &= ~(TRF_Transpar_Flags);
         if (cctrl->distance_to_destination == 0)
         {
-            update_creature_anim_td(thing, 256, 820);
+            update_creature_animation_by_sprite(thing, 256, 820);
         } else
         if (thing->floor_height < thing->mappos.z.val)
         {
-            update_creature_anim_td(thing, 256, 820);
+            update_creature_animation_by_sprite(thing, 256, 820);
         } else
         if (crconf->fixed_anim_speed)
         {
-            update_creature_anim_td(thing, 256, 819);
+            update_creature_animation_by_sprite(thing, 256, 819);
         } else
         {
             i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed+1);
-            if (!update_creature_anim_td(thing, i, 819))
+            if (!update_creature_animation_by_sprite(thing, i, 819))
             {
                 thing->anim_speed = i;
             }

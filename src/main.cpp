@@ -311,7 +311,7 @@ long get_foot_creature_has_down(struct Thing *thing)
         return 0;
     unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
     n = get_creature_model_graphics(thing->model, frame);
-    i = convert_td_iso(n);
+    i = get_anim_for_current_view(n);
     if (i != thing->anim_sprite)
         return 0;
     if (val == 1)
@@ -913,7 +913,7 @@ void init_keeper(void)
 {
     SYNCDBG(8,"Starting");
     engine_init();
-    init_iso_3d_conversion_tables();
+    init_fp_td_animation_conversion_tables();
     init_colours();
     init_spiral_steps();
     init_key_to_strings();

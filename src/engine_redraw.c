@@ -449,7 +449,7 @@ void set_sprite_view_3d(void)
         {
             if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
             {
-                int n = straight_iso_td(thing->anim_sprite);
+                int n = convert_td_to_fp_animation(thing->anim_sprite);
                 if (n >= 0)
                 {
                     thing->anim_sprite = n;
@@ -480,7 +480,7 @@ void set_sprite_view_isometric(void)
         {
             if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
             {
-                int n = straight_td_iso(thing->anim_sprite);
+                int n = convert_fp_to_td_animation(thing->anim_sprite);
                 if (n >= 0)
                 {
                     thing->anim_sprite = n;
