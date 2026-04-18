@@ -236,10 +236,10 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 //Closes a file
 int LbFileClose(TbFileHandle handle)
 {
-  if ( fclose(handle) )
+    if (handle == NULL || fclose(handle) == 0) {
+        return 0;
+    }
     return -1;
-  else
-    return 1;
 }
 
 /*
