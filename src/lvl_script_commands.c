@@ -4365,7 +4365,6 @@ static void set_music_process(struct ScriptContext *context)
     short track = context->value->chars[0];
     if ((track > 0) && (game.music_track == track))
     {
-        JUSTLOG("doing nothing because %d = %d", game.music_track , track);
         return;
     }
     if (track == 0) {
