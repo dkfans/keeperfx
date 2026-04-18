@@ -54,8 +54,8 @@ struct TbSpriteSheet * gui_panel_sprites = NULL;
 struct TbSpriteSheet * custom_sprites = NULL;
 struct NamedCommand *anim_names = NULL;
 
-short iso_td_add[KEEPERSPRITE_ADD_NUM];
-short td_iso_add[KEEPERSPRITE_ADD_NUM];
+short td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
+short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
 
 TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM] = {
         0
@@ -829,7 +829,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-branch-clone"
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
-                         int fp, VALUE *def, VALUE *itm)
+                         int is_fp, VALUE *def, VALUE *itm)
 {
     struct TbHugeSprite *sprite = &context->sprite;
     size_t out_size;
@@ -936,7 +936,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     { \
         ksprite-> dst = fn(val); \
     } \
-    else if (val = value_dict_get(def, fp ? fp_def : td_def), \
+    else if (val = value_dict_get(def, is_fp ? fp_def : td_def), \
             value_type(val) != VALUE_NULL \
             ) \
     {                                                              \
@@ -1171,9 +1171,9 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
 
     int prev_sz;
     VALUE *ud_lst;
-    for (int fp = 0; fp < 2; fp++)
+    for (int is_fp = 0; is_fp < 2; is_fp++)
     {
-        if (fp == 0)
+        if (is_fp == 0)
         {
             ud_lst = value_dict_get(node, "td");
             prev_sz = value_array_size(value_array_get(ud_lst, 0));
@@ -1229,7 +1229,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                 fprintf(stderr, "F:%s/%s\n", path, name);
                 fprintf(stderr, "A:%d\n", SDL_GetTicks());
 #endif
-                if (!read_png_data(zip, path, context, name, fp, node, itm))
+                if (!read_png_data(zip, path, context, name, is_fp, node, itm))
                 {
                     // Reverting possible changes
                     *context->id_ptr = store_p;
@@ -1276,10 +1276,10 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
     {
         short fp_id = context->fp_id + i;
         short td_id = context->td_id + i;
-        td_iso_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
-        iso_td_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
-        iso_td_add[td_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
-        td_iso_add[td_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
+        fp_to_td_sprite_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
+        td_to_fp_sprite_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
+        td_to_fp_sprite_add[td_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
+        fp_to_td_sprite_add[td_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
     }
     return context->td_sz <= 0;
 }

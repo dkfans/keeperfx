@@ -302,7 +302,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
         i = UNSYNC_RANDOM(3);
         powerst = get_power_model_stats(PwrK_PICKUPFOOD);
         thing_play_sample(thing, powerst->select_sound_idx + i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        i = convert_td_iso(122);
+        i = get_anim_for_current_view(122);
         set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
         remove_food_from_food_room_if_possible(thing);
         picktng = thing;
@@ -951,7 +951,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
     if (thing_is_object(droptng))
     {
         if (object_is_mature_food(droptng)) {
-            set_thing_draw(droptng, convert_td_iso(819), 256, -1, -1, 0, ODC_Default);
+            set_thing_draw(droptng, get_anim_for_current_view(819), 256, -1, -1, 0, ODC_Default);
         }
         else
         {
@@ -1389,7 +1389,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         //Removing combat is called in insert_thing_into_power_hand_list(), so we don't have to do it here
         if (creature_under_spell_effect(thing, CSAfF_Chicken))
         {
-            i = convert_td_iso(122); // Hardcoded value, 122 is grabbed chicken.
+            i = get_anim_for_current_view(122); // Hardcoded value, 122 is grabbed chicken.
         }
         else
         {
@@ -1405,7 +1405,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         }
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
         if (objst->sprite_anim_idx_in_hand != 0)
-            i = convert_td_iso(objst->sprite_anim_idx_in_hand);
+            i = get_anim_for_current_view(objst->sprite_anim_idx_in_hand);
         else
             i = objst->sprite_anim_idx;
         set_thing_draw(thing, i, objst->anim_speed, -1, -1, 0, ODC_Default);

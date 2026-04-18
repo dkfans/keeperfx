@@ -155,11 +155,11 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
 
     if (!objst->random_start_frame)
     {
-      i = convert_td_iso(objst->sprite_anim_idx);
+      i = get_anim_for_current_view(objst->sprite_anim_idx);
       start_frame = 0;
     } else
     {
-      i = convert_td_iso(objst->sprite_anim_idx);
+      i = get_anim_for_current_view(objst->sprite_anim_idx);
       start_frame = -1;
     }
     set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
@@ -1496,16 +1496,16 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
     if (cssize+32 < spr_size)
     {
         objtng->lair.cssize = cssize+32;
-        i = convert_td_iso(objst->sprite_anim_idx);
+        i = get_anim_for_current_view(objst->sprite_anim_idx);
     } else
     if (cssize-32 > spr_size)
     {
         objtng->lair.cssize = cssize-32;
-        i = convert_td_iso(objst->sprite_anim_idx);
+        i = get_anim_for_current_view(objst->sprite_anim_idx);
     } else
     {
         objtng->lair.cssize = spr_size;
-        i = convert_td_iso(objst->sprite_anim_idx);
+        i = get_anim_for_current_view(objst->sprite_anim_idx);
     }
     if ((i & 0x8000u) != 0) {
         i = objst->sprite_anim_idx;
@@ -1995,7 +1995,7 @@ GoldAmount add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmoun
     // Set visual appearance
     struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
     unsigned short i = objst->sprite_anim_idx;
-    unsigned short n = convert_td_iso(i);
+    unsigned short n = get_anim_for_current_view(i);
     if ((n & 0x8000u) == 0) {
       i = n;
     }
@@ -2047,7 +2047,7 @@ GoldAmount remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, Gold
     // Set visual appearance
     struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
     unsigned short i = objst->sprite_anim_idx;
-    unsigned short n = convert_td_iso(i);
+    unsigned short n = get_anim_for_current_view(i);
     if ((n & 0x8000u) == 0) {
       i = n;
     }

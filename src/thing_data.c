@@ -282,7 +282,7 @@ struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
 void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class)
 {
     unsigned long i;
-    thing->anim_sprite = convert_td_iso(anim);
+    thing->anim_sprite = get_anim_for_current_view(anim);
     thing->draw_class = draw_class;
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {

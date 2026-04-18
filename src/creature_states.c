@@ -1776,7 +1776,7 @@ short creature_change_to_chicken(struct Thing *creatng)
         struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            unsigned long k = convert_td_iso(819);
+            unsigned long k = get_anim_for_current_view(819);
             set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
             clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
             set_flag(efftng->rendering_flags, TRF_Transpar_8);
