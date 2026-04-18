@@ -6367,15 +6367,9 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
     } else
     {
-        if (creature_under_spell_effect(thing, CSAfF_Freeze))
+        if (creature_under_spell_effect(thing, CSAfF_Freeze) && creature_instance_is_available(thing, CrInst_CLEANSE) && creature_instance_has_reset(thing, CrInst_CLEANSE))
         {
-            if (creature_instance_is_available(thing, CrInst_CLEANSE) && creature_instance_has_reset(thing, CrInst_CLEANSE)) { 
-                cctrl->stopped_for_hand_turns = 0;
-            }
-            if (process_creature_state(thing) == TUFRet_Deleted)
-            {
-                return TUFRet_Deleted;
-            }
+            cctrl->stopped_for_hand_turns = 0;
         }
         else if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
