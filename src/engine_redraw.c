@@ -27,7 +27,6 @@
 #include "bflib_mouse.h"
 #include "bflib_dernc.h"
 #include "lvl_script.h"
-#include "engine_arrays.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "player_instances.h"
@@ -440,68 +439,6 @@ long map_fade_out(long palette_fade_step)
     return get_my_player()->instance_remain_turns * 4;
 }
 
-void set_sprite_view_3d(void)
-{
-    for (long i = 1; i < THINGS_COUNT; i++)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing))
-        {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
-            {
-                int n = convert_td_to_fp_animation(thing->anim_sprite);
-                if (n >= 0)
-                {
-                    thing->anim_sprite = n;
-                    long nframes = keepersprite_frames(thing->anim_sprite);
-                    if (nframes != thing->max_frames)
-                    {
-                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
-                        thing->max_frames = nframes;
-                        n = thing->max_frames - 1;
-                        if (n > thing->current_frame) {
-                            n = thing->current_frame;
-                        }
-                        thing->current_frame = n;
-                        thing->anim_time = n << 8;
-                    }
-                }
-            }
-        }
-    }
-}
-
-void set_sprite_view_isometric(void)
-{
-    for (long i = 1; i < THINGS_COUNT; i++)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing))
-        {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
-            {
-                int n = convert_fp_to_td_animation(thing->anim_sprite);
-                if (n >= 0)
-                {
-                    thing->anim_sprite = n;
-                    long nframes = keepersprite_frames(thing->anim_sprite);
-                    if (nframes != thing->max_frames)
-                    {
-                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
-                        thing->max_frames = nframes;
-                        n = thing->max_frames - 1;
-                        if (n > thing->current_frame) {
-                            n = thing->current_frame;
-                        }
-                        thing->current_frame = n;
-                        thing->anim_time = n << 8;
-                    }
-                }
-            }
-        }
-    }
-}
-
 long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)
 {
     return 1;
@@ -528,7 +465,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
         if (!is_my_player(player))
             break;
         lens_mode = 2;
-        set_sprite_view_3d();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(0);
         LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
@@ -544,7 +480,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
             break;
         lens_mode = 0;
         // no need to set temp_cluedo_mode here; it's done in update_engine_settings
-        set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
         break;
@@ -568,7 +503,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
             break;
         lens_mode = 0;
         temp_cluedo_mode = 0;
-        set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
         break;

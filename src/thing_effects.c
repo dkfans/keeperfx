@@ -201,9 +201,9 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 80; //effect is 25% larger than unit
 
         struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
-        unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
+        unsigned char nframes = keepersprite_frames(eestat->sprite_idx);
         GameTurnDelta dtadd = 0;
-        unsigned short cframe = get_gameturn() % nframes;
+        unsigned char cframe = get_gameturn() % nframes;
         pos.z.val = thing->mappos.z.val;
         int radius = diamtr / 2;
         while (pos.z.val < cor_z_max + thing->mappos.z.val)

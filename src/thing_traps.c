@@ -28,6 +28,7 @@
 #include "thing_data.h"
 #include "creature_states_combt.h"
 #include "config_creature.h"
+#include "config_trapdoor.h"
 #include "config_terrain.h"
 #include "creature_states.h"
 #include "thing_effects.h"
@@ -949,7 +950,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
         if ((traptng->trap.rearm_turn <= get_gameturn())) // Recharge complete, rearm.
         {
             // Back to regular anim.
-            traptng->anim_sprite = get_anim_for_current_view(trapst->sprite_anim_idx);
+            traptng->anim_sprite = get_td_animation_sprite(trapst->sprite_anim_idx);
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             traptng->trap.wait_for_rearm = false;
         }
@@ -957,7 +958,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
         {
             if (trapst->attack_sprite_anim_idx != 0)
             {
-                traptng->anim_sprite = get_anim_for_current_view(trapst->attack_sprite_anim_idx);
+                traptng->anim_sprite = get_td_animation_sprite(trapst->attack_sprite_anim_idx);
                 traptng->anim_speed = trapst->attack_anim_speed;
                 traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             }
@@ -966,12 +967,12 @@ TngUpdateRet update_trap(struct Thing *traptng)
         {
             if (trapst->recharge_sprite_anim_idx != 0)
             {
-                traptng->anim_sprite = get_anim_for_current_view(trapst->recharge_sprite_anim_idx);
+                traptng->anim_sprite = get_td_animation_sprite(trapst->recharge_sprite_anim_idx);
                 traptng->anim_speed = trapst->recharge_anim_speed;
             }
             else
             {
-                traptng->anim_sprite = get_anim_for_current_view(trapst->sprite_anim_idx);
+                traptng->anim_sprite = get_td_animation_sprite(trapst->sprite_anim_idx);
                 traptng->anim_speed = trapst->anim_speed;
             }
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);

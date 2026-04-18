@@ -69,7 +69,7 @@ enum FrameFlags {
     FFL_NoShadows = 1,
 };
 
-struct KeeperSprite { // sizeof = 16
+struct KeeperSprite { // sizeof = 26
   uint32_t DataOffset;
 
   unsigned short SWidth;

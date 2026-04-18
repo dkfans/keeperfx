@@ -61,9 +61,8 @@ extern short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
 extern unsigned short floor_to_ceiling_map[TEXTURE_BLOCKS_COUNT];
 extern struct WibbleTable blank_wibble_table[WIBBLE_TABLE_SIZE];
 /******************************************************************************/
-short get_anim_for_current_view(short n);
-short convert_fp_to_td_animation(short n);
-short convert_td_to_fp_animation(short n);
+short get_td_animation_sprite(short animation_sprite);
+unsigned short get_render_animation_sprite(unsigned short animation_sprite);
 
 void init_fp_td_animation_conversion_tables(void);
 void setup_mesh_randomizers(void);
