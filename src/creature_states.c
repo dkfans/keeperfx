@@ -1515,7 +1515,7 @@ short creature_being_dropped(struct Thing *creatng)
     {
         // Note that the creature should have no self control while dropping - after all, it was in hand moments ago
         SYNCDBG(17,"The %s index %d owner %d dropped at (%d,%d) isn't touching ground yet",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
-        return 1;
+        return CrStRet_Modified;
     }
     set_creature_assigned_job(creatng, Job_NULL);
     // If the creature has flight ability, return it to flying state
@@ -1589,7 +1589,7 @@ short creature_being_dropped(struct Thing *creatng)
                     SYNCDBG(3, "The %s index %d owner %d found digger job at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                     cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
                     delay_heal_sleep(creatng);
-                    return 2;
+                    return CrStRet_ResetOk;
                 }
                 else
                 {
@@ -1600,26 +1600,26 @@ short creature_being_dropped(struct Thing *creatng)
         if (creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             external_set_thing_state(creatng, CrSt_CreatureCombatFlee);
-            return 2;
+            return CrStRet_ResetOk;
         }
         // Do combat, if we can
         if (creature_will_do_combat(creatng))
         {
             if (creature_look_for_combat(creatng)) {
                 SYNCDBG(3,"The %s index %d owner %d found creature combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
-                return 2;
+                return CrStRet_ResetOk;
             }
             if (creature_look_for_enemy_heart_combat(creatng)) {
                 SYNCDBG(3,"The %s index %d owner %d found heart combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
-                return 2;
+                return CrStRet_ResetOk;
             }
             if (creature_look_for_enemy_door_combat(creatng)) {
                 SYNCDBG(3,"The %s index %d owner %d found enemy combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
-                return 2;
+                return CrStRet_ResetOk;
             }
             if (creature_look_for_enemy_object_combat(creatng)) {
                 SYNCDBG(3, "The %s index %d owner %d found enemy combat at (%d,%d)", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, (int)stl_x, (int)stl_y);
-                return 2;
+                return CrStRet_ResetOk;
             }
         }
         if (new_job != Job_NULL)
@@ -1640,7 +1640,7 @@ short creature_being_dropped(struct Thing *creatng)
         SYNCDBG(3,"No job found at (%d,%d) for %s index %d owner %d",(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         // Job_NULL is already assigned here, and default state is already initialized
         cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
-        return 2;
+        return CrStRet_ResetOk;
     }
     SYNCDBG(3,"Job %s to be assigned to %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
     // Check if specific conditions are met for this job to be assigned
@@ -1648,14 +1648,14 @@ short creature_being_dropped(struct Thing *creatng)
     {
         SYNCDBG(16,"Cannot assign job %s to %s (owner %d)",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
         cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
-        return 2;
+        return CrStRet_ResetOk;
     }
     // Now try sending the creature to do job it should do at this position
     if (!send_creature_to_job_near_position(creatng, stl_x, stl_y, new_job))
     {
         SYNCDBG(13,"Cannot assign %s to %s index %d owner %d; could not send to room",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
-        return 2;
+        return CrStRet_ResetOk;
     }
     // If applicable, set the job as assigned job for the creature
     if ((get_flags_for_job(new_job) & JoKF_AssignOneTime) == 0) {
@@ -1664,7 +1664,7 @@ short creature_being_dropped(struct Thing *creatng)
         // One-time jobs are not assigned to the creature, they are just initialized to be performed once
         //set_creature_assigned_job(creatng, Job_NULL); -- already assigned
     }
-    return 2;
+    return CrStRet_ResetOk;
 }
 
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
