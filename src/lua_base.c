@@ -9,6 +9,7 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "config_keeperfx.h"
+#include "game_legacy.h"
 #include "globals.h"
 #include "gui_msgs.h"
 
@@ -165,6 +166,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	Lvl_script = luaL_newstate();
 
 	luaL_openlibs(Lvl_script);
+	lua_set_random_seed(game.action_random_seed);
 
 	reg_host_functions(Lvl_script);
 
