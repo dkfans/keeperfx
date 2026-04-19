@@ -72,6 +72,7 @@ long gfa_can_level_up(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *
 long gf_level_up(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 long gfa_can_level_down(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag);
 long gf_level_down(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_apply_spell(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Null mode",                1,           NULL,              gf_change_player_state, 0, 0, 0,               PSt_None, 0, 0, 0, true},
@@ -108,6 +109,25 @@ struct GuiBoxOption gui_creature_cheat_option_list[] = {
  {"Give controlled creature spells", 1,			  gfa_can_give_controlled_creature_spells, gf_give_controlled_creature_spells,    0, 0, 0, 0, 0, 0, 0, 0},
  {"Level up",   					 1,           gfa_can_level_up,           			   gf_level_up,   0, 0, 0,                1, 0, 0, 0, 0},
  {"Level down",   					 1,           gfa_can_level_down,           		   gf_level_down, 0, 0, 0,                1, 0, 0, 0, 0},
+ {"",                         		 2,           NULL,                                    NULL, 0, 0, 0,                         0, 0, 0, 0, false},
+ {"Buffs:",                          2,           NULL,                                    NULL, 0, 0, 0,                         0, 0, 0, 0, false},
+ {"",                         		 2,           NULL,                                    NULL, 0, 0, 0,                         0, 0, 0, 0, false},
+ {"Speed",         				     1,           NULL,                                    gf_apply_spell, 0, 0, 0,               11, 0, 0, 0, true},
+ {"Armour",         				 1,           NULL,                                    gf_apply_spell, 0, 0, 0,               4, 0, 0, 0, true},
+ {"Rebound",         				 1,           NULL,                                    gf_apply_spell, 0, 0, 0,               6, 0, 0, 0, true},
+ {"Invisibility",         			 1,           NULL,                                    gf_apply_spell, 0, 0, 0,               9, 0, 0, 0, true},
+ {"Flight",         			     1,           NULL,                                    gf_apply_spell, 0, 0, 0,               20, 0, 0, 0, true},
+ {"Sight",         			         1,           NULL,                                    gf_apply_spell, 0, 0, 0,               21, 0, 0, 0, true},
+ {"Heal",         			         1,           NULL,                                    gf_apply_spell, 0, 0, 0,               7, 0, 0, 0, true},
+ {"Cleanse",         			     1,           NULL,                                    gf_apply_spell, 0, 0, 0,               32, 0, 0, 0, true},
+ {"Illumination",         			 1,           NULL,                                    gf_apply_spell, 0, 0, 0,               19, 0, 0, 0, true},
+ {"",                         		 2,           NULL,                                    NULL, 0, 0, 0,                         0, 0, 0, 0, false},
+ {"Debuffs:",                        2,           NULL,                                    NULL, 0, 0, 0,                         0, 0, 0, 0, false},
+ {"",                         		 2,           NULL,                                    NULL, 0, 0, 0,                         0, 0, 0, 0, false},
+ {"Slow",         				     1,           NULL,                                    gf_apply_spell, 0, 0, 0,               12, 0, 0, 0, true},
+ {"Freeze",         				 1,           NULL,                                    gf_apply_spell, 0, 0, 0,               3, 0, 0, 0, true},
+ {"Chicken",         				 1,           NULL,                                    gf_apply_spell, 0, 0, 0,               27, 0, 0, 0, true},
+ {"Disease",         				 1,           NULL,                                    gf_apply_spell, 0, 0, 0,               26, 0, 0, 0, true},
  {"!",                         		 0,           NULL,                        			   NULL, 0, 0, 0,               		  0, 0, 0, 0, 0},
 };
 
@@ -350,6 +370,14 @@ long gf_level_down(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned cha
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
     set_players_packet_action(player, PckA_CheatLevelDown, 0, 0, 0, 0);
+    return 1;
+}
+
+long gf_apply_spell(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatApplySpell, *tag, 0, 0, 0);
     return 1;
 }
 

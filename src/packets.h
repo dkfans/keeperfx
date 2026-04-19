@@ -198,6 +198,7 @@ enum TbPacketAction {
 		PckA_CheatLoseLevel,
 		PckA_CheatLevelUp,
 		PckA_CheatLevelDown,
+		PckA_CheatApplySpell,
 };
 
 /** Packet flags for non-action player operation. */

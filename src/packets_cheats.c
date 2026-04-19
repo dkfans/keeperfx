@@ -897,6 +897,13 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
             }
 			return false;
 		}
+		case PckA_CheatApplySpell:
+		{
+			player = get_player(plyr_idx);
+			struct Thing* thing = thing_get(player->controlled_thing_idx);
+			apply_spell_effect_to_thing(thing, pckt->actn_par1, SPELL_MAX_LEVEL, plyr_idx);
+			return false;
+		}
         default:
           return false;
   }
