@@ -94,7 +94,6 @@ enum GameKeys {
     Gkey_TeleportDefault,
     Gkey_CheatMenu1,
     Gkey_CheatMenu2,
-    Gkey_CheatMenu3,
     Gkey_LVShowAllEnsigns,
     Gkey_LVNextLevel,
     Gkey_LVPrevLevel,
