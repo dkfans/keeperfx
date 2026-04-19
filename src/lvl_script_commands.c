@@ -4363,15 +4363,17 @@ static void set_music_check(const struct ScriptLine *scline)
 static void set_music_process(struct ScriptContext *context)
 {
     short track = context->value->chars[0];
+    if ((track > 0) && (game.music_track == track))
+    {
+        return;
+    }
     if (track == 0) {
         SCRPTLOG("Stopping music");
         stop_music();
     } else if (track < 0) {
         const char * fname = script_strval(context->value->longs[1]);
-        SCRPTLOG("Playing music from %s", fname);
         play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", fname));
     } else {
-        SCRPTLOG("Playing music track %d", track);
         play_music_track(track);
     }
 }
