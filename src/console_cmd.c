@@ -2188,15 +2188,15 @@ TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
 	{
         toggle_main_cheat_menu();
 	}
-    if (menu_type == 2)
+    else if (menu_type == 2)
 	{
         toggle_creature_cheat_menu();
 	}
-    if (menu_type == 3)
+    else if (menu_type == 3)
 	{
         toggle_instance_cheat_menu();
 	}
-	if (menu_type == 4)
+	else if (menu_type == 4)
 	{
         toggle_secondary_cheat_menu();
 	}
