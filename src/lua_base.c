@@ -166,7 +166,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	Lvl_script = luaL_newstate();
 
 	luaL_openlibs(Lvl_script);
-    lua_set_random_seed(game.action_random_seed);
+	lua_set_random_seed(game.action_random_seed);
 
 	reg_host_functions(Lvl_script);
 
