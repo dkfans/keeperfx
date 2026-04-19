@@ -29,6 +29,7 @@
 #include "net_game.h"
 #include "game_legacy.h"
 #include "lens_api.h"
+#include "lua_base.h"
 #include "net_input_lag.h"
 #include "net_received_packets.h"
 #include "net_redundant_packets.h"
@@ -355,6 +356,7 @@ void resync_game(void) {
     } else {
         receive_resync_game();
     }
+    lua_set_random_seed(game.action_random_seed);
     recall_localised_game_structure();
     reinit_level_after_load();
 

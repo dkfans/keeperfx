@@ -145,6 +145,9 @@ static void init_level(void)
     lens_mode = 0;
     setup_heap_manager();
 
+    init_seeds();
+    sync_various_data();
+
     luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
     recheck_all_mod_exist();
@@ -169,9 +172,6 @@ static void init_level(void)
     setup_panel_colors();
     init_map_size(get_selected_level_number());
     clear_messages();
-    init_seeds();
-    
-    sync_various_data();
     
     // Load the actual level files
     TbBool script_preloaded = preload_script(get_selected_level_number());
@@ -484,6 +484,5 @@ void init_seeds()
         game.player_random_seed = game.action_random_seed * 9473 + 9479;
         
         initial_replay_seed = game.action_random_seed;
-        lua_set_random_seed(game.action_random_seed);
     }
 }
