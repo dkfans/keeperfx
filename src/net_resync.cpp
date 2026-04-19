@@ -356,7 +356,9 @@ void resync_game(void) {
     } else {
         receive_resync_game();
     }
-    lua_set_random_seed(game.action_random_seed);
+    if (Lvl_script != NULL) {
+        lua_set_random_seed(game.action_random_seed);
+    }
     recall_localised_game_structure();
     reinit_level_after_load();
 
