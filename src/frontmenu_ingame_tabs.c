@@ -606,8 +606,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 }
 
 /**
- * Sets a new chosen spell.
- * Fills packet with the previous spell disable action.
+ * Fills info_tag, room_tag, spell_tag and trap_tag which is used when restoring menu after possession.
  */
 void gui_set_page(struct GuiButton* gbtn)
 {
