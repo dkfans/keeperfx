@@ -55,7 +55,6 @@
 #include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
-#include "engine_arrays.h"
 #include "player_utils.h"
 #include "player_instances.h"
 #include "player_computer.h"
@@ -1776,8 +1775,7 @@ short creature_change_to_chicken(struct Thing *creatng)
         struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            unsigned long k = get_anim_for_current_view(819);
-            set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
+            set_thing_draw(efftng, 819, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
             clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
             set_flag(efftng->rendering_flags, TRF_Transpar_8);
         }

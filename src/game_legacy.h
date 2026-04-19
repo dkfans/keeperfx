@@ -136,6 +136,9 @@ struct LogThingDesyncInfo {
     HitPoints health;
     GameTurn creation_turn;
     uint32_t random_seed;
+    unsigned short anim_sprite;
+    short anim_speed;
+    int32_t anim_time;
     unsigned char current_frame;
     unsigned char max_frames;
     unsigned char active_state;

@@ -2598,7 +2598,7 @@ TbBool update_kills_counters(struct Thing *victim, struct Thing *killer,
 long creature_is_ambulating(struct Thing *thing)
 {
     int n = get_creature_model_graphics(thing->model, CGI_Ambulate);
-    int i = get_anim_for_current_view(n);
+    int i = get_td_animation_sprite(n);
     if (i != thing->anim_sprite)
         return 0;
     return 1;

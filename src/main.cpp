@@ -311,7 +311,7 @@ long get_foot_creature_has_down(struct Thing *thing)
         return 0;
     unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
     n = get_creature_model_graphics(thing->model, frame);
-    i = get_anim_for_current_view(n);
+    i = get_td_animation_sprite(n);
     if (i != thing->anim_sprite)
         return 0;
     if (val == 1)
@@ -867,7 +867,7 @@ void update_thing_animation(struct Thing *thing)
             thing->anim_time %= i;
           }
         }
-        thing->current_frame = (thing->anim_time >> 8) & 0xFF;
+        thing->current_frame = thing->anim_time >> 8;
     }
     if (thing->transformation_speed != 0)
     {

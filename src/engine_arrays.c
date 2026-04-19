@@ -48,48 +48,37 @@ long lintel_bottom_height[256];
 }
 #endif
 /******************************************************************************/
-short get_anim_for_current_view(short n)
+short get_td_animation_sprite(short animation_sprite)
 {
-    if ((lens_mode == 2) || (lens_mode == 3))
-    {
-        if ((n < FP_TD_ANIMATION_COUNT) && (td_to_fp_animation[n] >= 0))
-          return td_to_fp_animation[n];
-        else if ((n >= KEEPERSPRITE_ADD_OFFSET) && (n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
-        {
-            return td_to_fp_sprite_add[n - KEEPERSPRITE_ADD_OFFSET];
-        }
-    } else
-    {
-        if ((n < FP_TD_ANIMATION_COUNT) && (fp_to_td_animation[n] >= 0))
-          return fp_to_td_animation[n];
-        else if ((n >= KEEPERSPRITE_ADD_OFFSET) && (n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
-        {
-            return fp_to_td_sprite_add[n - KEEPERSPRITE_ADD_OFFSET];
+    if ((animation_sprite >= 0) && (animation_sprite < FP_TD_ANIMATION_COUNT) && (fp_to_td_animation[animation_sprite] >= 0)) {
+        return fp_to_td_animation[animation_sprite];
+    }
+    if ((animation_sprite >= KEEPERSPRITE_ADD_OFFSET) && (animation_sprite < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)) {
+        short td_sprite = fp_to_td_sprite_add[animation_sprite - KEEPERSPRITE_ADD_OFFSET];
+        if (td_sprite > 0) {
+            return td_sprite;
         }
     }
-    return n;
+    return animation_sprite;
 }
 
-short convert_fp_to_td_animation(short n)
+unsigned short get_render_animation_sprite(unsigned short animation_sprite)
 {
-    if (n < FP_TD_ANIMATION_COUNT)
-        return fp_to_td_animation[n];
-    else if ((n >= KEEPERSPRITE_ADD_OFFSET) && (n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
-    {
-        return fp_to_td_sprite_add[n - KEEPERSPRITE_ADD_OFFSET];
+    if ((lens_mode == 2) || (lens_mode == 3)) {
+        if (animation_sprite < FP_TD_ANIMATION_COUNT) {
+            short fp_sprite = td_to_fp_animation[animation_sprite];
+            if (fp_sprite >= 0) {
+                return (unsigned short)fp_sprite;
+            }
+        }
+        if ((animation_sprite >= KEEPERSPRITE_ADD_OFFSET) && (animation_sprite < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)) {
+            short fp_sprite = td_to_fp_sprite_add[animation_sprite - KEEPERSPRITE_ADD_OFFSET];
+            if (fp_sprite > 0) {
+                return (unsigned short)fp_sprite;
+            }
+        }
     }
-    return n;
-}
-
-short convert_td_to_fp_animation(short n)
-{
-    if (n < FP_TD_ANIMATION_COUNT)
-        return td_to_fp_animation[n];
-    else if ((n >= KEEPERSPRITE_ADD_OFFSET) && (n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
-    {
-        return td_to_fp_sprite_add[n - KEEPERSPRITE_ADD_OFFSET];
-    }
-    return n;
+    return animation_sprite;
 }
 
 void init_fp_td_animation_conversion_tables(void)

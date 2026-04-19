@@ -275,6 +275,19 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
         *unsc_h = 0;
         return;
     }
+    int32_t frames = kspr->FramesCount;
+    if (frames <= 0) {
+        *orig_w = 0;
+        *orig_h = 0;
+        *unsc_w = 0;
+        *unsc_h = 0;
+        return;
+    }
+    if (frame < 0) {
+        frame = 0;
+    } else if (frame >= frames) {
+        frame = frames - 1;
+    }
     if (((angle & ANGLE_MASK) <= DEGREES_202_5) || ((angle & ANGLE_MASK) >= DEGREES_337_5) )
         val_in_range = 0;
     else
@@ -361,7 +374,7 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
 short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
     short idx = get_creature_model_graphics(thing->model, seq_idx);
-    return get_anim_for_current_view(idx);
+    return get_td_animation_sprite(idx);
 }
 
 void untint_thing(struct Thing *thing)
@@ -395,7 +408,7 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 
 TbBool update_creature_animation_by_sprite(struct Thing *thing, long speed, long anim_idx)
 {
-    unsigned long i = get_anim_for_current_view(anim_idx);
+    unsigned long i = get_td_animation_sprite(anim_idx);
     // Only update when it's a different sprite, or a different animation speed.
     if ((i != thing->anim_sprite) || ((speed != thing->anim_speed) && (speed != -1)))
     {
