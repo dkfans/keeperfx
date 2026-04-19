@@ -1123,8 +1123,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
         {
             clear_key_pressed(val);
         }
-        else
-        if (toggle_main_cheat_menu())
+        else if (toggle_main_cheat_menu())
         {
             clear_key_pressed(val);
         }
@@ -1137,6 +1136,10 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
         {
             clear_key_pressed(val);
         }
+		else if (toggle_secondary_cheat_menu())
+		{
+			clear_key_pressed(val);
+		}
     }
     if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
