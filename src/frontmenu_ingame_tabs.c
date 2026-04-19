@@ -609,6 +609,54 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
  * Sets a new chosen spell.
  * Fills packet with the previous spell disable action.
  */
+void gui_set_page(struct GuiButton* gbtn)
+{
+    short menu_id = gbtn->content.lval;
+    info_tag = (menu_id == GMnu_QUERY) || (menu_id == GMnu_CREATURE_QUERY1) ||
+        (menu_id == GMnu_CREATURE_QUERY2) || (menu_id == GMnu_CREATURE_QUERY3) || (menu_id == GMnu_CREATURE_QUERY4);
+    if (menu_id == GMnu_ROOM)
+    {
+        room_tag = 1;
+    }
+    else if (menu_id == GMnu_ROOM2)
+    {
+        room_tag = 2;
+    }
+    else
+    {
+        room_tag = 0;
+    }
+    if (menu_id == GMnu_SPELL)
+    {
+        spell_tag = 1;
+    }
+    else if (menu_id == GMnu_SPELL2)
+    {
+        spell_tag = 2;
+    }
+    else
+    {
+        spell_tag = 0;
+    }
+    if (menu_id == GMnu_TRAP)
+    {
+        trap_tag = 1;
+    }
+    else if (menu_id == GMnu_TRAP2)
+    {
+        trap_tag = 2;
+    }
+    else
+    {
+        trap_tag = 0;
+    }
+    creature_tag = (menu_id == GMnu_CREATURE);
+}
+
+/**
+ * Sets a new chosen spell.
+ * Fills packet with the previous spell disable action.
+ */
 void gui_choose_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_spell code to choose_spell

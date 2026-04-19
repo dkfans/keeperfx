@@ -1034,14 +1034,14 @@ short get_status_panel_keyboard_action_inputs(void)
         {
             if (menu_is_active(GMnu_SPELL))
             {
-                turn_off_menu(GMnu_SPELL);
-                turn_on_menu(GMnu_SPELL2);
+                set_menu_mode(GMnu_SPELL2);
+                spell_tag = 2;
                 fake_button_click(BID_POWER_NXPG);
             }
             else if (menu_is_active(GMnu_SPELL2))
             {
-                turn_off_menu(GMnu_SPELL2);
-                turn_on_menu(GMnu_SPELL);
+                set_menu_mode(GMnu_SPELL);
+                spell_tag = 1;
                 fake_button_click(BID_POWER_NXPG);
             }
             else
