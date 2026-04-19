@@ -500,6 +500,9 @@ extern "C" void set_music_volume(SoundVolume value) {
 
 extern "C" TbBool play_music(const char * fname) {
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
+    if (strcmp(game.music_fname, fname) == 0)
+        return false;
+    game.music_track = -1;
 	snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
 	// Mix_PlayMusic will stop anything currently playing and eventually
 	// calls on_music_finished so theres no need to call Mix_FreeMusic first.

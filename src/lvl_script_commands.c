@@ -4372,14 +4372,8 @@ static void set_music_process(struct ScriptContext *context)
         stop_music();
     } else if (track < 0) {
         const char * fname = script_strval(context->value->longs[1]);
-        const char* full_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", fname);
-        if (strcmp(game.music_fname, full_fname) == 0)
-            return;
-        SCRPTLOG("Playing music from %s", fname);
-        game.music_track = -1;
-        play_music(full_fname);
+        play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", fname));
     } else {
-        SCRPTLOG("Playing music track %d", track);
         play_music_track(track);
     }
 }
