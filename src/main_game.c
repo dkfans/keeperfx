@@ -27,6 +27,7 @@
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "frontend.h"
+#include "front_network.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
 #include "game_heap.h"
@@ -38,6 +39,7 @@
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
+#include "net_game.h"
 #include "net_resync.h"
 #include "room_library.h"
 #include "room_list.h"
@@ -146,7 +148,7 @@ static void init_level(void)
     setup_heap_manager();
 
     init_seeds();
-    sync_various_data();
+    sync_initial_network_seed();
 
     luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
@@ -363,6 +365,9 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
 static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
 {
     TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
+    if (game.game_kind == GKind_MultiGame) {
+        setup_alliances();
+    }
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");

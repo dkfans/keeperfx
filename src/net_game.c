@@ -63,6 +63,7 @@ struct StartupSyncPacket {
     unsigned char action;
     int32_t is_active;
     int32_t video_rotate_mode;
+    int32_t input_lag_turns;
     uint16_t initial_tendencies;
     TbBigChecksum level_checksum;
     uint32_t sprite_zip_checksum;
@@ -113,6 +114,7 @@ static void setup_local_startup_packet(struct StartupSyncPacket *sync)
   sync->action = PckA_InitPlayerNum;
   sync->is_active = player->is_active;
   sync->video_rotate_mode = settings.video_rotate_mode;
+  sync->input_lag_turns = game.input_lag_turns;
   sync->initial_tendencies = initial_tendencies;
   sync->level_checksum = calculate_network_startup_level_checksum();
   sync->sprite_zip_checksum = sprite_zip_combined_checksum;
@@ -158,6 +160,14 @@ static TbBool setup_players_from_startup_packets(const struct StartupSyncPacket 
   return (k == game.active_players_count);
 }
 
+static void sync_startup_input_lag(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+{
+  const struct StartupSyncPacket *host_sync = &startup_sync_packets[get_host_player_id()];
+  game.input_lag_turns = host_sync->input_lag_turns;
+  game.skip_initial_input_turns = calculate_skip_input();
+  NETLOG("Startup input lag synced: input_lag=%d", game.input_lag_turns);
+}
+
 static TbBool verify_startup_level_checksums(CoroutineLoop *context, const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
 {
   const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].level_checksum;
@@ -191,7 +201,7 @@ static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket s
   }
 }
 
-static CoroutineLoopState setup_startup_sync(CoroutineLoop *context)
+static CoroutineLoopState net_startup_sync(CoroutineLoop *context)
 {
   SYNCDBG(6,"Starting");
   struct StartupSyncPacket local_startup_sync;
@@ -216,13 +226,13 @@ static CoroutineLoopState setup_startup_sync(CoroutineLoop *context)
   }
   NETLOG("Checksums are verified");
   verify_startup_sprite_zip_checksums(startup_sync_packets);
-  setup_alliances();
+  sync_startup_input_lag(startup_sync_packets);
   return CLS_CONTINUE; // Skip loop to next function
 }
 
-static short setup_select_player_number(void)
+static void setup_network_player_numbers(void)
 {
-    short is_set = 0;
+    TbBool is_set = false;
     int k = 0;
     SYNCDBG(6, "Starting");
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
@@ -233,13 +243,12 @@ static short setup_select_player_number(void)
             player->packet_num = i;
             if ((!is_set) && (my_player_number == i))
             {
-                is_set = 1;
+                is_set = true;
                 my_player_number = k;
             }
             k++;
         }
     }
-    return is_set;
 }
 
 void setup_count_players(void)
@@ -261,8 +270,8 @@ void setup_count_players(void)
 void init_players_network_game(CoroutineLoop *context)
 {
   SYNCDBG(4,"Starting");
-  setup_select_player_number();
-  coroutine_add(context, &setup_startup_sync);
+  setup_network_player_numbers();
+  coroutine_add(context, &net_startup_sync);
 }
 
 /** Check whether a network player is active.
@@ -306,7 +315,7 @@ long network_session_join(void)
     return -1;
 }
 
-void sync_various_data()
+void sync_initial_network_seed(void)
 {
    if ((game.system_flags & GSF_NetworkActive) == 0) {
       return;
@@ -314,11 +323,9 @@ void sync_various_data()
 
    struct {
       uint32_t action_random_seed;
-      int input_lag_turns;
    } initial_sync_data;
 
    initial_sync_data.action_random_seed = game.action_random_seed;
-   initial_sync_data.input_lag_turns = game.input_lag_turns;
    if (!LbNetwork_Resync(&initial_sync_data, sizeof(initial_sync_data))) {
       ERRORLOG("Initial sync failed");
       return;
@@ -326,9 +333,7 @@ void sync_various_data()
    game.action_random_seed = initial_sync_data.action_random_seed;
    game.ai_random_seed = game.action_random_seed * 9377 + 9391;
    game.player_random_seed = game.action_random_seed * 9473 + 9479;
-   game.input_lag_turns = initial_sync_data.input_lag_turns;
-   game.skip_initial_input_turns = calculate_skip_input();
-   NETLOG("Initial network state synced: action_seed=%u, input_lag=%d", game.action_random_seed, game.input_lag_turns);
+   NETLOG("Initial network state synced: action_seed=%u", game.action_random_seed);
 }
 /******************************************************************************/
 #ifdef __cplusplus
