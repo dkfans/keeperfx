@@ -315,7 +315,8 @@ static void load_published_public_ips(int udp_ipv4_port, int udp_ipv6_port, Punc
 
 static int matchmaking_connect_thread(void *)
 {
-    matchmaking_connect();
+    if (matchmaking_connect() == 0)
+        matchmaking_request_list();
     SDL_AtomicSet(&connect_thread_active, 0);
     return 0;
 }
@@ -362,7 +363,7 @@ int matchmaking_connect(void)
     }
     LbNetLog("Matchmaking: connected\n");
     SDL_UnlockMutex(mutex);
-    return matchmaking_request_list();
+    return 0;
 }
 
 void matchmaking_disconnect(void)
