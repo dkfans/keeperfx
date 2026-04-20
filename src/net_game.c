@@ -65,6 +65,7 @@ struct StartupSyncPacket {
     TbBigChecksum map_checksum;
     uint32_t sprite_zip_checksum;
     uint16_t initial_tendencies;
+    uint8_t player_active;
 };
 #pragma pack()
 
@@ -103,17 +104,6 @@ int setup_old_network_service(void)
     return setup_network_service(net_service_index_selected);
 }
 
-
-static TbBool all_players_present(void)
-{
-    int count = 0;
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (net_player_info[i].active) {
-            count++;
-        }
-    }
-    return (count == game.active_players_count);
-}
 
 static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
 {
@@ -199,18 +189,28 @@ static void build_local_startup_sync(void)
     if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
     if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
     s_local_startup_sync.initial_tendencies = initial_tendencies;
+    s_local_startup_sync.player_active = 1;
+}
+
+static TbBool startup_sync_packets_received(void)
+{
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+        if (!net_player_info[i].active) {
+            continue;
+        }
+        if (!s_startup_sync_packets[i].player_active) {
+            return false;
+        }
+    }
+    return true;
 }
 
 static CoroutineLoopState net_startup_wait_for_players_and_exchange(CoroutineLoop *context)
 {
+    (void)context;
     memset(s_startup_sync_packets, 0, sizeof(s_startup_sync_packets));
-    if (LbNetwork_Exchange(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket))) {
-        ERRORLOG("Network Exchange failed");
-        create_frontend_error_box(5000, get_string(GUIStr_NetUnknownError));
-        coroutine_clear(context, true);
-        return CLS_ABORT;
-    }
-    if (!all_players_present()) {
+    LbNetwork_Exchange(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket));
+    if (!startup_sync_packets_received()) {
         return CLS_REPEAT;
     }
     return CLS_CONTINUE;
