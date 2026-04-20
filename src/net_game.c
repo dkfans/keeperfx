@@ -320,7 +320,7 @@ void sync_initial_network_seed(void)
    }
    game.ai_random_seed = game.action_random_seed * 9377 + 9391;
    game.player_random_seed = game.action_random_seed * 9473 + 9479;
-   NETLOG("Initial network state synced: action_seed=%u", game.action_random_seed);
+   NETLOG("Initial network seed synced: action_seed=%u", game.action_random_seed);
 }
 /******************************************************************************/
 #ifdef __cplusplus
