@@ -140,8 +140,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
 
 static void sync_startup_input_lag(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
 {
-    const struct StartupSyncPacket *host_sync = &startup_sync_packets[get_host_player_id()];
-    game.input_lag_turns = host_sync->input_lag_turns;
+    game.input_lag_turns = startup_sync_packets[get_host_player_id()].input_lag_turns;
     game.skip_initial_input_turns = calculate_skip_input();
     NETLOG("Startup input lag synced: input_lag=%d", game.input_lag_turns);
 }
@@ -150,10 +149,7 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
 {
     const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].map_checksum;
     for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (!net_player_info[i].network_user_active) {
-            continue;
-        }
-        if (startup_sync_packets[i].map_checksum != host_checksum) {
+        if (net_player_info[i].network_user_active && startup_sync_packets[i].map_checksum != host_checksum) {
             ERRORLOG("Level checksums %08x(Host) != %08x(Client) for player %d", host_checksum, startup_sync_packets[i].map_checksum, i);
             return false;
         }
@@ -165,10 +161,7 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
 static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
 {
     for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (!net_player_info[i].network_user_active) {
-            continue;
-        }
-        if (startup_sync_packets[i].sprite_zip_checksum != sprite_zip_combined_checksum) {
+        if (net_player_info[i].network_user_active && startup_sync_packets[i].sprite_zip_checksum != sprite_zip_combined_checksum) {
             message_add_fmt(MsgType_Player, 0, "Verify /fxdata/ is the same across all PCs.");
             message_add_fmt(MsgType_Player, 0, "WARNING: Custom sprite mismatch with %s!", network_player_name(i));
         }
@@ -195,10 +188,7 @@ static void build_local_startup_sync(void)
 static TbBool all_human_players_sent_startup_sync(void)
 {
     for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (!net_player_info[i].network_user_active) {
-            continue;
-        }
-        if (!s_startup_sync_packets[i].startup_sync_packet_valid) {
+        if (net_player_info[i].network_user_active && !s_startup_sync_packets[i].startup_sync_packet_valid) {
             return false;
         }
     }
@@ -324,17 +314,10 @@ void sync_initial_network_seed(void)
    if ((game.system_flags & GSF_NetworkActive) == 0) {
       return;
    }
-
-   struct {
-      uint32_t action_random_seed;
-   } initial_sync_data;
-
-   initial_sync_data.action_random_seed = game.action_random_seed;
-   if (!LbNetwork_Resync(&initial_sync_data, sizeof(initial_sync_data))) {
+   if (!LbNetwork_Resync(&game.action_random_seed, sizeof(game.action_random_seed))) {
       ERRORLOG("Initial sync failed");
       return;
    }
-   game.action_random_seed = initial_sync_data.action_random_seed;
    game.ai_random_seed = game.action_random_seed * 9377 + 9391;
    game.player_random_seed = game.action_random_seed * 9473 + 9479;
    NETLOG("Initial network state synced: action_seed=%u", game.action_random_seed);
