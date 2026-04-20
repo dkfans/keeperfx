@@ -58,6 +58,7 @@ struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 /******************************************************************************/
+#pragma pack(1)
 struct StartupSyncPacket {
     unsigned char action;
     int32_t is_active;
@@ -66,6 +67,7 @@ struct StartupSyncPacket {
     TbBigChecksum level_checksum;
     uint32_t sprite_zip_checksum;
 };
+#pragma pack()
 
 short setup_network_service(enum FrontendNetService service)
 {
