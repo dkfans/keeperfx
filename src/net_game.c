@@ -179,6 +179,7 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
           return false;
       }
   }
+  NETLOG("Map checksums are verified");
   return true;
 }
 
@@ -216,7 +217,6 @@ static CoroutineLoopState net_startup_sync(CoroutineLoop *context)
       create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
       return CLS_ABORT;
   }
-  NETLOG("Map checksums are verified");
   verify_startup_sprite_zip_checksums(startup_sync_packets);
   sync_startup_input_lag(startup_sync_packets);
   setup_players_from_startup_packets(startup_sync_packets);
