@@ -115,18 +115,26 @@ static void setup_local_startup_packet(struct StartupSyncPacket *sync)
   sync->sprite_zip_checksum = sprite_zip_combined_checksum;
 }
 
-static TbBool setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+static TbBool all_players_present(void)
 {
-  struct PlayerInfo* player;
+  int count = 0;
+  for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+      if (net_player_info[i].active) {
+          count++;
+      }
+  }
+  return (count == game.active_players_count);
+}
+
+static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+{
   int k = 0;
-  for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-  {
+  for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
       const struct StartupSyncPacket *sync = &startup_sync_packets[i];
-      if (!net_player_info[i].active)
-      {
+      if (!net_player_info[i].active) {
           continue;
       }
-      player = get_player(k);
+      struct PlayerInfo *player = get_player(k);
       player->id_number = k;
       player->packet_num = i;
       player->allocflags |= PlaF_Allocated;
@@ -149,7 +157,6 @@ static TbBool setup_players_from_startup_packets(const struct StartupSyncPacket 
       snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
       k++;
   }
-  return (k == game.active_players_count);
 }
 
 static void sync_startup_input_lag(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
@@ -177,13 +184,11 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
 
 static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
 {
-  const int local_packet_num = get_my_player()->packet_num;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-      if (!net_player_info[i].active || i == local_packet_num) {
+      if (!net_player_info[i].active) {
           continue;
       }
-      const struct StartupSyncPacket *sync = &startup_sync_packets[i];
-      if (sync->sprite_zip_checksum != sprite_zip_combined_checksum) {
+      if (startup_sync_packets[i].sprite_zip_checksum != sprite_zip_combined_checksum) {
           message_add_fmt(MsgType_Player, 0, "Verify /fxdata/ is the same across all PCs.");
           message_add_fmt(MsgType_Player, 0, "WARNING: Custom sprite mismatch with %s!", network_player_name(i));
       }
@@ -198,14 +203,12 @@ static CoroutineLoopState net_startup_sync(CoroutineLoop *context)
   memset(&local_startup_sync, 0, sizeof(local_startup_sync));
   memset(&startup_sync_packets[0], 0, sizeof(startup_sync_packets));
   setup_local_startup_packet(&local_startup_sync);
-  if (LbNetwork_Exchange(NETMSG_STARTUP_SYNC, &local_startup_sync, startup_sync_packets, sizeof(struct StartupSyncPacket)))
-  {
+  if (LbNetwork_Exchange(NETMSG_STARTUP_SYNC, &local_startup_sync, startup_sync_packets, sizeof(struct StartupSyncPacket))) {
       ERRORLOG("Network Exchange failed");
       coroutine_clear(context, true);
       return CLS_ABORT;
   }
-
-  if (!setup_players_from_startup_packets(startup_sync_packets)) {
+  if (!all_players_present()) {
       return CLS_REPEAT;
   }
   if (!verify_map_checksums(startup_sync_packets)) {
@@ -216,6 +219,7 @@ static CoroutineLoopState net_startup_sync(CoroutineLoop *context)
   NETLOG("Map checksums are verified");
   verify_startup_sprite_zip_checksums(startup_sync_packets);
   sync_startup_input_lag(startup_sync_packets);
+  setup_players_from_startup_packets(startup_sync_packets);
   return CLS_CONTINUE;
 }
 
