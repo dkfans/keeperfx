@@ -36,7 +36,7 @@ void pack_desync_history_for_resync(void);
 void compare_desync_history_from_host(void);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short checksums_different(void);
-TbBigChecksum calculate_network_startup_level_checksum(void);
+TbBigChecksum calculate_network_startup_map_checksum(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

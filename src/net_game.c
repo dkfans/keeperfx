@@ -65,7 +65,7 @@ struct StartupSyncPacket {
     int32_t video_rotate_mode;
     int32_t input_lag_turns;
     uint16_t initial_tendencies;
-    TbBigChecksum level_checksum;
+    TbBigChecksum map_checksum;
     uint32_t sprite_zip_checksum;
 };
 #pragma pack()
@@ -116,7 +116,7 @@ static void setup_local_startup_packet(struct StartupSyncPacket *sync)
   sync->video_rotate_mode = settings.video_rotate_mode;
   sync->input_lag_turns = game.input_lag_turns;
   sync->initial_tendencies = initial_tendencies;
-  sync->level_checksum = calculate_network_startup_level_checksum();
+  sync->map_checksum = calculate_network_startup_map_checksum();
   sync->sprite_zip_checksum = sprite_zip_combined_checksum;
 }
 
@@ -168,16 +168,16 @@ static void sync_startup_input_lag(const struct StartupSyncPacket startup_sync_p
   NETLOG("Startup input lag synced: input_lag=%d", game.input_lag_turns);
 }
 
-static TbBool verify_startup_level_checksums(CoroutineLoop *context, const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+static TbBool verify_map_checksums(CoroutineLoop *context, const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
 {
-  const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].level_checksum;
+  const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].map_checksum;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
       if (!net_player_info[i].active) {
           continue;
       }
       const struct StartupSyncPacket *sync = &startup_sync_packets[i];
-      if (sync->level_checksum != host_checksum) {
-          ERRORLOG("Level checksums %08x(Host) != %08x(Client) for player %d", host_checksum, sync->level_checksum, i);
+      if (sync->map_checksum != host_checksum) {
+          ERRORLOG("Level checksums %08x(Host) != %08x(Client) for player %d", host_checksum, sync->map_checksum, i);
           coroutine_clear(context, true);
           create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
           return false;
@@ -220,11 +220,11 @@ static CoroutineLoopState net_startup_sync(CoroutineLoop *context)
   {
       return CLS_REPEAT; // Repeat
   }
-  if (!verify_startup_level_checksums(context, startup_sync_packets))
+  if (!verify_map_checksums(context, startup_sync_packets))
   {
       return CLS_ABORT;
   }
-  NETLOG("Checksums are verified");
+  NETLOG("Map checksums are verified");
   verify_startup_sprite_zip_checksums(startup_sync_packets);
   sync_startup_input_lag(startup_sync_packets);
   return CLS_CONTINUE; // Skip loop to next function

@@ -217,7 +217,7 @@ short checksums_different(void) {
     return mismatch;
 }
 
-TbBigChecksum calculate_network_startup_level_checksum(void) {
+TbBigChecksum calculate_network_startup_map_checksum(void) {
     TbBigChecksum checksum_mem = 0;
     for (int i = 1; i < THINGS_COUNT; i++) {
         struct Thing* thing = thing_get(i);
