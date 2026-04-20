@@ -46,9 +46,9 @@ enum TbPacketAction {
         PckA_UserUpdate,
         PckA_Frame,
         PckA_Resync,
-        PckA_InitPlayerNum,//10
+        PckA_UnusedSlot010,//10
         PckA_UnusedSlot011,
-        PckA_LevelExactCheck,
+        PckA_UnusedSlot012,
         PckA_PlyrMsgBegin,
         PckA_PlyrMsgEnd,
         PckA_UnusedSlot015,//15
@@ -193,7 +193,7 @@ enum TbPacketAction {
         PckA_PlyrQueryCreature,
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
-        PckA_SpriteZipChecksumSync,
+        PckA_UnusedSlot157,
 };
 
 /** Packet flags for non-action player operation. */

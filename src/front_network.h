@@ -52,7 +52,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width);
 void display_attempting_to_join_message(int remaining_s);
 void reset_attempting_to_join_cancel(void);
 TbBool attempting_to_join_cancel_requested(void);
-CoroutineLoopState setup_alliances(CoroutineLoop *con);
+void setup_alliances(void);
 void frontnet_service_setup(void);
 void frontnet_session_setup(void);
 void frontnet_start_setup(void);

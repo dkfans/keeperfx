@@ -153,7 +153,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     }
 }
 
-CoroutineLoopState setup_alliances(CoroutineLoop *loop)
+void setup_alliances(void)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
@@ -167,7 +167,6 @@ CoroutineLoopState setup_alliances(CoroutineLoop *loop)
             }
         }
     }
-    return CLS_CONTINUE; // Exit the loop
 }
 
 void frontnet_service_update(void)
