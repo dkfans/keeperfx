@@ -62,9 +62,9 @@ char net_player_name[20];
 struct StartupSyncPacket {
     int32_t video_rotate_mode;
     int32_t input_lag_turns;
-    uint16_t initial_tendencies;
     TbBigChecksum map_checksum;
     uint32_t sprite_zip_checksum;
+    uint16_t initial_tendencies;
 };
 #pragma pack()
 
@@ -103,17 +103,6 @@ int setup_old_network_service(void)
     return setup_network_service(net_service_index_selected);
 }
 
-static void setup_local_startup_packet(struct StartupSyncPacket *sync)
-{
-    unsigned short initial_tendencies = 0;
-    if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
-    if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
-    sync->video_rotate_mode = settings.video_rotate_mode;
-    sync->input_lag_turns = game.input_lag_turns;
-    sync->initial_tendencies = initial_tendencies;
-    sync->map_checksum = calculate_network_startup_map_checksum();
-    sync->sprite_zip_checksum = sprite_zip_combined_checksum;
-}
 
 static TbBool all_players_present(void)
 {
@@ -196,16 +185,29 @@ static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket s
     }
 }
 
+static struct StartupSyncPacket build_local_startup_sync(void)
+{
+    struct StartupSyncPacket packet;
+    memset(&packet, 0, sizeof(packet));
+    packet.video_rotate_mode = settings.video_rotate_mode;
+    packet.input_lag_turns = game.input_lag_turns;
+    packet.map_checksum = calculate_network_startup_map_checksum();
+    packet.sprite_zip_checksum = sprite_zip_combined_checksum;
+    uint16_t initial_tendencies = 0;
+    if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
+    if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
+    packet.initial_tendencies = initial_tendencies;
+    return packet;
+}
+
 static CoroutineLoopState net_startup_sync(CoroutineLoop *context)
 {
-    SYNCDBG(6,"Starting");
-    struct StartupSyncPacket local_startup_sync;
     struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT];
-    memset(&local_startup_sync, 0, sizeof(local_startup_sync));
-    memset(&startup_sync_packets[0], 0, sizeof(startup_sync_packets));
-    setup_local_startup_packet(&local_startup_sync);
+    memset(startup_sync_packets, 0, sizeof(startup_sync_packets));
+    struct StartupSyncPacket local_startup_sync = build_local_startup_sync();
     if (LbNetwork_Exchange(NETMSG_STARTUP_SYNC, &local_startup_sync, startup_sync_packets, sizeof(struct StartupSyncPacket))) {
         ERRORLOG("Network Exchange failed");
+        create_frontend_error_box(5000, get_string(GUIStr_NetUnknownError));
         coroutine_clear(context, true);
         return CLS_ABORT;
     }
@@ -213,8 +215,8 @@ static CoroutineLoopState net_startup_sync(CoroutineLoop *context)
         return CLS_REPEAT;
     }
     if (!verify_map_checksums(startup_sync_packets)) {
-        coroutine_clear(context, true);
         create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
+        coroutine_clear(context, true);
         return CLS_ABORT;
     }
     verify_startup_sprite_zip_checksums(startup_sync_packets);
