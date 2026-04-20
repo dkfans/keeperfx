@@ -18,7 +18,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "net_checksums.h"
-#include "bflib_network_exchange.h"
 #include "game_legacy.h"
 #include "net_game.h"
 #include "packets.h"
@@ -27,10 +26,7 @@
 #include "room_list.h"
 #include "creature_control.h"
 #include "thing_creature.h"
-#include "frontend.h"
 #include "thing_list.h"
-#include "custom_sprites.h"
-#include "gui_msgs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -219,6 +215,17 @@ short checksums_different(void) {
         }
     }
     return mismatch;
+}
+
+TbBigChecksum calculate_network_startup_level_checksum(void) {
+    TbBigChecksum checksum_mem = 0;
+    for (int i = 1; i < THINGS_COUNT; i++) {
+        struct Thing* thing = thing_get(i);
+        if (thing_exists(thing)) {
+            checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
+        }
+    }
+    return checksum_mem + game.action_random_seed;
 }
 
 void update_turn_checksums(void) {
@@ -494,72 +501,6 @@ void compare_desync_history_from_host(void) {
     log_thing_differences(client_snapshot, "EffectGens", client->effect_gens, host->effect_gens, TCls_EffectGen);
     log_thing_differences(client_snapshot, "Doors", client->doors, host->doors, TCls_Door);
     ERRORLOG("=== END ===");
-}
-
-CoroutineLoopState perform_checksum_verification(CoroutineLoop *con) {
-    short result = true;
-    unsigned long checksum_mem = 0;
-    for (int i = 1; i < THINGS_COUNT; i++) {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing)) {
-            checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
-        }
-    }
-    clear_packets();
-    struct Packet* pckt = get_packet(my_player_number);
-    set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
-    pckt->checksum = checksum_mem + game.action_random_seed;
-    if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet))) {
-        ERRORLOG("Network exchange failed on level checksum verification");
-        result = false;
-    }
-    if (get_packet(0)->action != get_packet(1)->action) {
-        MULTIPLAYER_LOG("perform_checksum_verification: actions don't match, waiting");
-        return CLS_REPEAT;
-    }
-    if ( checksums_different() ) {
-        ERRORLOG("Level checksums different for network players");
-        result = false;
-    }
-    if (!result) {
-        coroutine_clear(con, true);
-
-        create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
-        return CLS_ABORT;
-    }
-    NETLOG("Checksums are verified");
-
-    return CLS_CONTINUE;
-}
-
-CoroutineLoopState verify_sprite_zip_checksums(CoroutineLoop *con)
-{
-    clear_packets();
-    struct Packet *pckt = get_packet(my_player_number);
-    set_packet_action(pckt, PckA_SpriteZipChecksumSync, (int32_t)sprite_zip_combined_checksum, 0, 0, 0);
-    if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet))) {
-        ERRORLOG("Network exchange failed on sprite zip verification");
-    }
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (!net_player_info[i].active || i == my_player_number) {
-            continue;
-        }
-        pckt = get_packet_direct(i);
-        if (pckt->action != PckA_SpriteZipChecksumSync) {
-            return CLS_REPEAT;
-        }
-    }
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (!net_player_info[i].active || i == my_player_number) {
-            continue;
-        }
-        pckt = get_packet_direct(i);
-        if ((uint32_t)pckt->actn_par1 != sprite_zip_combined_checksum) {
-            message_add_fmt(MsgType_Player, 0, "Verify /fxdata/ is the same across all PCs.");
-            message_add_fmt(MsgType_Player, 0, "WARNING: Custom sprite mismatch with %s!", network_player_name(i));
-        }
-    }
-    return CLS_CONTINUE;
 }
 
 /******************************************************************************/

@@ -36,8 +36,10 @@
 #include "config_settings.h"
 #include "config_keeperfx.h"
 #include "config_strings.h"
+#include "custom_sprites.h"
 #include "dungeon_data.h"
 #include "game_legacy.h"
+#include "gui_msgs.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
 #include "keeperfx.hpp"
@@ -56,6 +58,15 @@ struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 /******************************************************************************/
+struct StartupSyncPacket {
+    unsigned char action;
+    int32_t is_active;
+    int32_t video_rotate_mode;
+    uint16_t initial_tendencies;
+    TbBigChecksum level_checksum;
+    uint32_t sprite_zip_checksum;
+};
+
 short setup_network_service(enum FrontendNetService service)
 {
   struct ServiceInitData *init_data = NULL;
@@ -91,42 +102,47 @@ int setup_old_network_service(void)
     return setup_network_service(net_service_index_selected);
 }
 
-static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
+static void setup_local_startup_packet(struct StartupSyncPacket *sync)
 {
-  SYNCDBG(6,"Starting");
-  clear_packets();
   struct PlayerInfo* player = get_my_player();
-  struct Packet* pckt = get_packet_direct(my_player_number);
   unsigned short initial_tendencies = 0;
   if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
   if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
-  set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, initial_tendencies, 0);
-  if (LbNetwork_Exchange(NETMSG_SMALLDATA, pckt, game.packets, sizeof(struct Packet)))
-      ERRORLOG("Network Exchange failed");
+  sync->action = PckA_InitPlayerNum;
+  sync->is_active = player->is_active;
+  sync->video_rotate_mode = settings.video_rotate_mode;
+  sync->initial_tendencies = initial_tendencies;
+  sync->level_checksum = calculate_network_startup_level_checksum();
+  sync->sprite_zip_checksum = sprite_zip_combined_checksum;
+}
+
+static TbBool setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+{
+  struct PlayerInfo* player;
   int k = 0;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++)
   {
-      pckt = get_packet_direct(i);
-      if (is_packet_empty(pckt))
+      const struct StartupSyncPacket *sync = &startup_sync_packets[i];
+      if (sync->action == PckA_None)
       {
-          MULTIPLAYER_LOG("setup_network_multiplayer_game: packet[%d] is EMPTY, skipping", i);
+          MULTIPLAYER_LOG("setup_network_multiplayer_game: startup packet[%d] is EMPTY, skipping", i);
           continue;
       }
-      if ((net_player_info[i].active) && (pckt->action == PckA_InitPlayerNum))
+      if ((net_player_info[i].active) && (sync->action == PckA_InitPlayerNum))
       {
           player = get_player(k);
           player->id_number = k;
           player->allocflags |= PlaF_Allocated;
-          switch (pckt->actn_par2) {
+          switch (sync->video_rotate_mode) {
               case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
               case 1: player->view_mode_restore = PVM_IsoStraightView; break;
               case 2: player->view_mode_restore = PVM_FrontView; break;
               default: player->view_mode_restore = PVM_IsoWibbleView; break;
           }
-          player->is_active = pckt->actn_par1;
+          player->is_active = sync->is_active;
           init_player(player, 0);
-          TbBool imprison = (pckt->actn_par3 & CrTend_Imprison) != 0;
-          TbBool flee = (pckt->actn_par3 & CrTend_Flee) != 0;
+          TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;
+          TbBool flee = (sync->initial_tendencies & CrTend_Flee) != 0;
           set_creature_tendencies(player, CrTend_Imprison, imprison);
           set_creature_tendencies(player, CrTend_Flee, flee);
           if (player->id_number == my_player_number) {
@@ -137,10 +153,68 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           k++;
       }
   }
-  if (k != game.active_players_count)
+  return (k == game.active_players_count);
+}
+
+static TbBool verify_startup_level_checksums(CoroutineLoop *context, const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+{
+  const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].level_checksum;
+  for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+      if (!net_player_info[i].active) {
+          continue;
+      }
+      const struct StartupSyncPacket *sync = &startup_sync_packets[i];
+      if (sync->level_checksum != host_checksum) {
+          ERRORLOG("Level checksums %08x(Host) != %08x(Client) for player %d", host_checksum, sync->level_checksum, i);
+          coroutine_clear(context, true);
+          create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
+          return false;
+      }
+  }
+  return true;
+}
+
+static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+{
+  const int local_packet_num = get_my_player()->packet_num;
+  for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+      if (!net_player_info[i].active || i == local_packet_num) {
+          continue;
+      }
+      const struct StartupSyncPacket *sync = &startup_sync_packets[i];
+      if (sync->sprite_zip_checksum != sprite_zip_combined_checksum) {
+          message_add_fmt(MsgType_Player, 0, "Verify /fxdata/ is the same across all PCs.");
+          message_add_fmt(MsgType_Player, 0, "WARNING: Custom sprite mismatch with %s!", network_player_name(i));
+      }
+  }
+}
+
+static CoroutineLoopState setup_startup_sync(CoroutineLoop *context)
+{
+  SYNCDBG(6,"Starting");
+  struct StartupSyncPacket local_startup_sync;
+  struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT];
+  memset(&local_startup_sync, 0, sizeof(local_startup_sync));
+  memset(&startup_sync_packets[0], 0, sizeof(startup_sync_packets));
+  setup_local_startup_packet(&local_startup_sync);
+  if (LbNetwork_Exchange(NETMSG_STARTUP_SYNC, &local_startup_sync, startup_sync_packets, sizeof(struct StartupSyncPacket)))
+  {
+      ERRORLOG("Network Exchange failed");
+      coroutine_clear(context, true);
+      return CLS_ABORT;
+  }
+
+  if (!setup_players_from_startup_packets(startup_sync_packets))
   {
       return CLS_REPEAT; // Repeat
   }
+  if (!verify_startup_level_checksums(context, startup_sync_packets))
+  {
+      return CLS_ABORT;
+  }
+  NETLOG("Checksums are verified");
+  verify_startup_sprite_zip_checksums(startup_sync_packets);
+  setup_alliances();
   return CLS_CONTINUE; // Skip loop to next function
 }
 
@@ -186,10 +260,7 @@ void init_players_network_game(CoroutineLoop *context)
 {
   SYNCDBG(4,"Starting");
   setup_select_player_number();
-  coroutine_add(context, &setup_exchange_player_number);
-  coroutine_add(context, &perform_checksum_verification);
-  coroutine_add(context, &verify_sprite_zip_checksums);
-  coroutine_add(context, &setup_alliances);
+  coroutine_add(context, &setup_startup_sync);
 }
 
 /** Check whether a network player is active.
