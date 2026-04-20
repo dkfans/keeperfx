@@ -186,7 +186,7 @@ struct ConfigInfo {
 
 struct TbNetworkPlayerInfo {
 char name[32];
-long active;
+long network_user_active;
 };
 
 struct TbNetworkCallbackData {

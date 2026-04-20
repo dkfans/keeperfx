@@ -60,12 +60,12 @@ char net_player_name[20];
 /******************************************************************************/
 #pragma pack(1)
 struct StartupSyncPacket {
+    uint8_t startup_sync_packet_valid;
     int32_t video_rotate_mode;
     int32_t input_lag_turns;
     TbBigChecksum map_checksum;
     uint32_t sprite_zip_checksum;
     uint16_t initial_tendencies;
-    uint8_t player_active;
 };
 #pragma pack()
 
@@ -110,7 +110,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
     int k = 0;
     for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
         const struct StartupSyncPacket *sync = &startup_sync_packets[i];
-        if (!net_player_info[i].active) {
+        if (!net_player_info[i].network_user_active) {
             continue;
         }
         struct PlayerInfo *player = get_player(k);
@@ -150,7 +150,7 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
 {
     const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].map_checksum;
     for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (!net_player_info[i].active) {
+        if (!net_player_info[i].network_user_active) {
             continue;
         }
         if (startup_sync_packets[i].map_checksum != host_checksum) {
@@ -165,7 +165,7 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
 static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
 {
     for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (!net_player_info[i].active) {
+        if (!net_player_info[i].network_user_active) {
             continue;
         }
         if (startup_sync_packets[i].sprite_zip_checksum != sprite_zip_combined_checksum) {
@@ -181,6 +181,7 @@ static struct StartupSyncPacket s_startup_sync_packets[NET_PLAYERS_COUNT];
 static void build_local_startup_sync(void)
 {
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
+    s_local_startup_sync.startup_sync_packet_valid = 1;
     s_local_startup_sync.video_rotate_mode = settings.video_rotate_mode;
     s_local_startup_sync.input_lag_turns = game.input_lag_turns;
     s_local_startup_sync.map_checksum = calculate_network_startup_map_checksum();
@@ -189,16 +190,15 @@ static void build_local_startup_sync(void)
     if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
     if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
     s_local_startup_sync.initial_tendencies = initial_tendencies;
-    s_local_startup_sync.player_active = 1;
 }
 
-static TbBool startup_sync_packets_received(void)
+static TbBool all_human_players_sent_startup_sync(void)
 {
     for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        if (!net_player_info[i].active) {
+        if (!net_player_info[i].network_user_active) {
             continue;
         }
-        if (!s_startup_sync_packets[i].player_active) {
+        if (!s_startup_sync_packets[i].startup_sync_packet_valid) {
             return false;
         }
     }
@@ -210,7 +210,7 @@ static CoroutineLoopState net_startup_wait_for_players_and_exchange(CoroutineLoo
     (void)context;
     memset(s_startup_sync_packets, 0, sizeof(s_startup_sync_packets));
     LbNetwork_Exchange(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket));
-    if (!startup_sync_packets_received()) {
+    if (!all_human_players_sent_startup_sync()) {
         return CLS_REPEAT;
     }
     return CLS_CONTINUE;
@@ -237,7 +237,7 @@ static void setup_network_player_numbers(void)
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (net_player_info[i].active)
+        if (net_player_info[i].network_user_active)
         {
             player->packet_num = i;
             if ((!is_set) && (my_player_number == i))
@@ -263,7 +263,7 @@ void setup_count_players(void)
     game.active_players_count = 0;
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
-      if (net_player_info[i].active)
+      if (net_player_info[i].network_user_active)
         game.active_players_count++;
     }
   }
@@ -287,7 +287,7 @@ TbBool network_player_active(int plyr_idx)
 {
     if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT))
         return false;
-    return (net_player_info[plyr_idx].active != 0);
+    return (net_player_info[plyr_idx].network_user_active != 0);
 }
 
 const char *network_player_name(int plyr_idx)
