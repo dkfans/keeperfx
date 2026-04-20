@@ -447,8 +447,13 @@ int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
         escaped_lobby_name, udp_ipv4_port, udp_ipv6_port, MATCHMAKING_VERSION,
         published_addresses.ipv4, published_addresses.ipv6);
     int bytes_received = websocket_exchange(request_message, response_buffer, sizeof(response_buffer));
-    if (bytes_received > 0)
+    // Skip stale lobby responses
+    while (bytes_received > 0 && strstr(response_buffer, "\"lobbies\"")) {
+        bytes_received = websocket_receive(response_buffer, sizeof(response_buffer), WEBSOCKET_RECEIVE_TIMEOUT_MS);
+    }
+    if (bytes_received > 0) {
         LbNetLog("Matchmaking: create response (%d bytes): %s\n", bytes_received, response_buffer);
+    }
     if (bytes_received <= 0) {
         SDL_UnlockMutex(mutex);
         return -1;
