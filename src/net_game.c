@@ -60,8 +60,6 @@ char net_player_name[20];
 /******************************************************************************/
 #pragma pack(1)
 struct StartupSyncPacket {
-    unsigned char action;
-    int32_t is_active;
     int32_t video_rotate_mode;
     int32_t input_lag_turns;
     uint16_t initial_tendencies;
@@ -107,12 +105,9 @@ int setup_old_network_service(void)
 
 static void setup_local_startup_packet(struct StartupSyncPacket *sync)
 {
-  struct PlayerInfo* player = get_my_player();
   unsigned short initial_tendencies = 0;
   if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
   if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
-  sync->action = PckA_InitPlayerNum;
-  sync->is_active = player->is_active;
   sync->video_rotate_mode = settings.video_rotate_mode;
   sync->input_lag_turns = game.input_lag_turns;
   sync->initial_tendencies = initial_tendencies;
@@ -127,35 +122,32 @@ static TbBool setup_players_from_startup_packets(const struct StartupSyncPacket 
   for (int i = 0; i < NET_PLAYERS_COUNT; i++)
   {
       const struct StartupSyncPacket *sync = &startup_sync_packets[i];
-      if (sync->action == PckA_None)
+      if (!net_player_info[i].active)
       {
-          MULTIPLAYER_LOG("setup_network_multiplayer_game: startup packet[%d] is EMPTY, skipping", i);
           continue;
       }
-      if ((net_player_info[i].active) && (sync->action == PckA_InitPlayerNum))
-      {
-          player = get_player(k);
-          player->id_number = k;
-          player->allocflags |= PlaF_Allocated;
-          switch (sync->video_rotate_mode) {
-              case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
-              case 1: player->view_mode_restore = PVM_IsoStraightView; break;
-              case 2: player->view_mode_restore = PVM_FrontView; break;
-              default: player->view_mode_restore = PVM_IsoWibbleView; break;
-          }
-          player->is_active = sync->is_active;
-          init_player(player, 0);
-          TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;
-          TbBool flee = (sync->initial_tendencies & CrTend_Flee) != 0;
-          set_creature_tendencies(player, CrTend_Imprison, imprison);
-          set_creature_tendencies(player, CrTend_Flee, flee);
-          if (player->id_number == my_player_number) {
-              game.creatures_tend_imprison = imprison;
-              game.creatures_tend_flee = flee;
-          }
-          snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
-          k++;
+      player = get_player(k);
+      player->id_number = k;
+      player->packet_num = i;
+      player->allocflags |= PlaF_Allocated;
+      switch (sync->video_rotate_mode) {
+          case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
+          case 1: player->view_mode_restore = PVM_IsoStraightView; break;
+          case 2: player->view_mode_restore = PVM_FrontView; break;
+          default: player->view_mode_restore = PVM_IsoWibbleView; break;
       }
+      player->is_active = 1;
+      init_player(player, 0);
+      TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;
+      TbBool flee = (sync->initial_tendencies & CrTend_Flee) != 0;
+      set_creature_tendencies(player, CrTend_Imprison, imprison);
+      set_creature_tendencies(player, CrTend_Flee, flee);
+      if (player->id_number == my_player_number) {
+          game.creatures_tend_imprison = imprison;
+          game.creatures_tend_flee = flee;
+      }
+      snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
+      k++;
   }
   return (k == game.active_players_count);
 }
@@ -248,6 +240,9 @@ static void setup_network_player_numbers(void)
             }
             k++;
         }
+    }
+    if (!is_set) {
+        ERRORLOG("Local player number %d not found among active network players", my_player_number);
     }
 }
 

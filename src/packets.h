@@ -46,7 +46,7 @@ enum TbPacketAction {
         PckA_UserUpdate,
         PckA_Frame,
         PckA_Resync,
-        PckA_InitPlayerNum,//10
+        PckA_UnusedSlot010,//10
         PckA_UnusedSlot011,
         PckA_UnusedSlot012,
         PckA_PlyrMsgBegin,
