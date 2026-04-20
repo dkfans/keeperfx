@@ -2422,7 +2422,7 @@ unsigned long toggle_status_menu(short visible)
         set_menu_visible_on(GMnu_SPELL_LOST);
       if ( trap_on )
         set_menu_visible_on(GMnu_TRAP);
-    if ( trap_2_on )
+      if ( trap_2_on )
         set_menu_visible_on(GMnu_TRAP2);
       if ( event_on )
         set_menu_visible_on(GMnu_EVENT);
