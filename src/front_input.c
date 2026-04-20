@@ -168,7 +168,6 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"TeleportDefault",       GUIStr_TeleportDefault,         KC_COMMA, KMod_NONE,           BMV_Visible,        },       // Gkey_TeleportDefault,
     {"CheatMenu1",            GUIStr_MnuUnused,               KC_NUMPADENTER, KMod_NONE,     BMV_Hidden,         },       // Gkey_CheatMenu1,
     {"CheatMenu2",            GUIStr_MnuUnused,               KC_F12, KMod_NONE,             BMV_Hidden,         },       // Gkey_CheatMenu2,
-    {"CheatMenu3",            GUIStr_MnuUnused,               KC_NUMPADENTER, KMod_NONE,     BMV_Hidden,         },       // Gkey_CheatMenu3,
     {"LVShowAllEnsigns",      GUIStr_MnuUnused,               KC_F11, KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVShowAllEnsigns,
     {"LVNextLevel",           GUIStr_MnuUnused,               KC_F10, KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVNextLevel,
     {"LVPrevLevel",           GUIStr_MnuUnused,               KC_F9,  KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVPrevLevel,
@@ -1034,14 +1033,14 @@ short get_status_panel_keyboard_action_inputs(void)
         {
             if (menu_is_active(GMnu_SPELL))
             {
-                turn_off_menu(GMnu_SPELL);
-                turn_on_menu(GMnu_SPELL2);
+                set_menu_mode(GMnu_SPELL2);
+                spell_tag = 2;
                 fake_button_click(BID_POWER_NXPG);
             }
             else if (menu_is_active(GMnu_SPELL2))
             {
-                turn_off_menu(GMnu_SPELL2);
-                turn_on_menu(GMnu_SPELL);
+                set_menu_mode(GMnu_SPELL);
+                spell_tag = 1;
                 fake_button_click(BID_POWER_NXPG);
             }
             else
@@ -1117,7 +1116,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
         clear_key_pressed(val);
         toggle_tooltips();
     }
-    if (is_game_key_pressed(Gkey_CheatMenu3, &val, false))
+    if (is_game_key_pressed(Gkey_CheatMenu1, &val, false))
     {
         if (close_instance_cheat_menu())
         {

@@ -179,7 +179,7 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         UpdateLocalPlayerInfo(id);
         return Lb_OK;
     }
-    if (type == NETMSG_FRONTEND || type == NETMSG_SMALLDATA || type == NETMSG_GAMEPLAY) {
+    if (type == NETMSG_FRONTEND || type == NETMSG_STARTUP_SYNC || type == NETMSG_GAMEPLAY) {
         NetUserId peer_id = (NetUserId)*ptr;
         if (peer_id < 0 || peer_id >= netstate.max_players) {
             ERRORLOG("Critical error: Out of range peer ID %i received, could be used for buffer overflow attack", peer_id);

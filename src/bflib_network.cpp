@@ -60,8 +60,8 @@ TbBool IsUserActive(NetUserId id) {
 }
 
 void UpdateLocalPlayerInfo(NetUserId id) {
-    localPlayerInfoPtr[id].active = (netstate.users[id].progress != USER_UNUSED);
-    if (!localPlayerInfoPtr[id].active) {
+    localPlayerInfoPtr[id].network_user_active = (netstate.users[id].progress != USER_UNUSED);
+    if (!localPlayerInfoPtr[id].network_user_active) {
         memset(localPlayerInfoPtr[id].name, 0, sizeof(localPlayerInfoPtr[id].name));
         return;
     }
