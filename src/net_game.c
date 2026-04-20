@@ -160,18 +160,15 @@ static void sync_startup_input_lag(const struct StartupSyncPacket startup_sync_p
   NETLOG("Startup input lag synced: input_lag=%d", game.input_lag_turns);
 }
 
-static TbBool verify_map_checksums(CoroutineLoop *context, const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
 {
   const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].map_checksum;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
       if (!net_player_info[i].active) {
           continue;
       }
-      const struct StartupSyncPacket *sync = &startup_sync_packets[i];
-      if (sync->map_checksum != host_checksum) {
-          ERRORLOG("Level checksums %08x(Host) != %08x(Client) for player %d", host_checksum, sync->map_checksum, i);
-          coroutine_clear(context, true);
-          create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
+      if (startup_sync_packets[i].map_checksum != host_checksum) {
+          ERRORLOG("Level checksums %08x(Host) != %08x(Client) for player %d", host_checksum, startup_sync_packets[i].map_checksum, i);
           return false;
       }
   }
@@ -208,18 +205,18 @@ static CoroutineLoopState net_startup_sync(CoroutineLoop *context)
       return CLS_ABORT;
   }
 
-  if (!setup_players_from_startup_packets(startup_sync_packets))
-  {
-      return CLS_REPEAT; // Repeat
+  if (!setup_players_from_startup_packets(startup_sync_packets)) {
+      return CLS_REPEAT;
   }
-  if (!verify_map_checksums(context, startup_sync_packets))
-  {
+  if (!verify_map_checksums(startup_sync_packets)) {
+      coroutine_clear(context, true);
+      create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
       return CLS_ABORT;
   }
   NETLOG("Map checksums are verified");
   verify_startup_sprite_zip_checksums(startup_sync_packets);
   sync_startup_input_lag(startup_sync_packets);
-  return CLS_CONTINUE; // Skip loop to next function
+  return CLS_CONTINUE;
 }
 
 static void setup_network_player_numbers(void)
