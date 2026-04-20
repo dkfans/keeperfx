@@ -27,7 +27,6 @@
 #include "bflib_mouse.h"
 #include "bflib_dernc.h"
 #include "lvl_script.h"
-#include "engine_arrays.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "player_instances.h"
@@ -100,10 +99,14 @@ static void draw_creature_view_icons(struct Thing* creatng)
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    struct SpellConfig *spconf;
     for (SpellKind spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
     {
-        spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
+        struct CastedSpellData* cspell = &cctrl->casted_spells[spell_idx];
+        if (cspell->spkind == 0)
+        {
+            continue;
+        }
+        struct SpellConfig *spconf = get_spell_config(cspell->spkind);
         long spridx = spconf->medsym_sprite_idx;
         if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))
         {
@@ -436,68 +439,6 @@ long map_fade_out(long palette_fade_step)
     return get_my_player()->instance_remain_turns * 4;
 }
 
-void set_sprite_view_3d(void)
-{
-    for (long i = 1; i < THINGS_COUNT; i++)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing))
-        {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
-            {
-                int n = straight_iso_td(thing->anim_sprite);
-                if (n >= 0)
-                {
-                    thing->anim_sprite = n;
-                    long nframes = keepersprite_frames(thing->anim_sprite);
-                    if (nframes != thing->max_frames)
-                    {
-                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
-                        thing->max_frames = nframes;
-                        n = thing->max_frames - 1;
-                        if (n > thing->current_frame) {
-                            n = thing->current_frame;
-                        }
-                        thing->current_frame = n;
-                        thing->anim_time = n << 8;
-                    }
-                }
-            }
-        }
-    }
-}
-
-void set_sprite_view_isometric(void)
-{
-    for (long i = 1; i < THINGS_COUNT; i++)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing))
-        {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
-            {
-                int n = straight_td_iso(thing->anim_sprite);
-                if (n >= 0)
-                {
-                    thing->anim_sprite = n;
-                    long nframes = keepersprite_frames(thing->anim_sprite);
-                    if (nframes != thing->max_frames)
-                    {
-                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
-                        thing->max_frames = nframes;
-                        n = thing->max_frames - 1;
-                        if (n > thing->current_frame) {
-                            n = thing->current_frame;
-                        }
-                        thing->current_frame = n;
-                        thing->anim_time = n << 8;
-                    }
-                }
-            }
-        }
-    }
-}
-
 long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)
 {
     return 1;
@@ -524,7 +465,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
         if (!is_my_player(player))
             break;
         lens_mode = 2;
-        set_sprite_view_3d();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(0);
         LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
@@ -540,7 +480,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
             break;
         lens_mode = 0;
         // no need to set temp_cluedo_mode here; it's done in update_engine_settings
-        set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
         break;
@@ -564,7 +503,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
             break;
         lens_mode = 0;
         temp_cluedo_mode = 0;
-        set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
         break;
@@ -787,7 +725,7 @@ TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord 
         }
     }
     i = get_player_colored_pointer_icon_idx(powerst->pointer_sprite_idx,my_player_number);
-    set_pointer_graphic_spell(i, game.play_gameturn);
+    set_pointer_graphic_spell(i, get_gameturn());
     return true;
 }
 
@@ -906,7 +844,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             }
             break;
         default:
-            if (player->hand_busy_until_turn <= game.play_gameturn)
+            if (player->hand_busy_until_turn <= get_gameturn())
               set_pointer_graphic(MousePG_Arrow);
             else
               set_pointer_graphic(MousePG_Invisible);
@@ -1149,13 +1087,13 @@ void redraw_display(void)
     if (game.armageddon_cast_turn != 0)
     {
         int i = 0;
-        if (game.armageddon_cast_turn + game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down <= game.play_gameturn)
+        if (game.armageddon_cast_turn + game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down <= get_gameturn())
         {
-            if (game.armageddon_over_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_duration <= game.play_gameturn)
-                i = game.armageddon_over_turn - game.play_gameturn;
+            if (game.armageddon_over_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_duration <= get_gameturn())
+                i = game.armageddon_over_turn - get_gameturn();
         } else
         {
-            i = game.play_gameturn - game.armageddon_cast_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down;
+            i = get_gameturn() - game.armageddon_cast_turn - game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down;
         }
         LbTextSetFont(winfont);
         char text[64];

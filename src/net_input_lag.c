@@ -25,7 +25,7 @@ void store_local_packet_in_input_lag_queue(PlayerNumber my_packet_num) {
     if (game.input_lag_turns + 1 <= 0) {
         return;
     }
-    int slot = game.play_gameturn % (game.input_lag_turns + 1);
+    int slot = get_gameturn() % (game.input_lag_turns + 1);
     local_input_lag_packets[slot] = game.packets[my_packet_num];
     const char* player_name;
     if (my_packet_num == 0) {player_name = "Host";} else {player_name = "Client";}

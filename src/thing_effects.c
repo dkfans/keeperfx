@@ -125,7 +125,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     thing->inertia_air = eestat->inertia_air;
     thing->movement_flags |= TMvF_ZeroVerticalVelocity;
     set_flag_value(thing->movement_flags, TMvF_GoThroughWalls, eestat->through_walls);
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
 
     if (eestat->lifespan > 0)
     {
@@ -197,13 +197,13 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if (creature_under_spell_effect(thing, CSAfF_Rebound))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        dturn = game.play_gameturn - thing->creation_turn;
+        dturn = get_gameturn() - thing->creation_turn;
         MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 80; //effect is 25% larger than unit
 
         struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
-        unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
+        unsigned char nframes = keepersprite_frames(eestat->sprite_idx);
         GameTurnDelta dtadd = 0;
-        unsigned short cframe = game.play_gameturn % nframes;
+        unsigned char cframe = get_gameturn() % nframes;
         pos.z.val = thing->mappos.z.val;
         int radius = diamtr / 2;
         while (pos.z.val < cor_z_max + thing->mappos.z.val)
@@ -230,7 +230,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         int i = cor_z_max / 64; //64 is the vertical speed of the circle.
         if (i <= 1)
           i = 1;
-        dturn = game.play_gameturn - thing->creation_turn;
+        dturn = get_gameturn() - thing->creation_turn;
         int vrange = i;
         if (dturn % (2 * i) < vrange)
             pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
@@ -465,7 +465,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     i = eestats->subeffect_delay;
     if (i > 0)
     {
-      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0)
+      if (((get_gameturn() - elemtng->creation_turn) % i) == 0)
       {
           struct Thing *subeff = create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
           if (!thing_is_invalid(subeff))
@@ -567,7 +567,7 @@ struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, uns
     effgentng->owner = owner;
     effgentng->effect_generator.range = range;
     effgentng->mappos = *pos;
-    effgentng->creation_turn = game.play_gameturn;
+    effgentng->creation_turn = get_gameturn();
     effgentng->health = -1;
     effgentng->rendering_flags |= TRF_Invisible;
     add_thing_to_its_class_list(effgentng);
@@ -877,7 +877,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
         ERRORDBG(8,"Should be able to allocate effect %d (%s) for player %d, but failed.",(int)effmodel,effect_code_name(effmodel),(int)owner);
         return INVALID_THING;
     }
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
     thing->class_id = TCls_Effect;
     thing->model = effmodel;
     thing->mappos.x.val = pos->x.val;
@@ -1213,7 +1213,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     long stl_ymin;
     long stl_ymax;
     // Effect causes area damage only on its birth turn
-    if (efftng->creation_turn != game.play_gameturn) {
+    if (efftng->creation_turn != get_gameturn()) {
         return;
     }
 

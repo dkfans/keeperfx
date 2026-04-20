@@ -169,7 +169,6 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"TeleportDefault",       GUIStr_TeleportDefault,         KC_COMMA, KMod_NONE,           CBtn_NONE,                BMV_Visible,        },       // Gkey_TeleportDefault,
     {"CheatMenu1",            GUIStr_MnuUnused,               KC_NUMPADENTER, KMod_NONE,     CBtn_NONE,                BMV_Hidden,         },       // Gkey_CheatMenu1,
     {"CheatMenu2",            GUIStr_MnuUnused,               KC_F12, KMod_NONE,             CBtn_NONE,                BMV_Hidden,         },       // Gkey_CheatMenu2,
-    {"CheatMenu3",            GUIStr_MnuUnused,               KC_NUMPADENTER, KMod_NONE,     CBtn_NONE,                BMV_Hidden,         },       // Gkey_CheatMenu3,
     {"LVShowAllEnsigns",      GUIStr_MnuUnused,               KC_F11, KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVShowAllEnsigns,
     {"LVNextLevel",           GUIStr_MnuUnused,               KC_F10, KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVNextLevel,
     {"LVPrevLevel",           GUIStr_MnuUnused,               KC_F9,  KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVPrevLevel,
@@ -684,7 +683,7 @@ short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KMod_ALT) )
   {
-    JUSTMSG("REPORT. gameturn is %u, requested fps is %d",game.play_gameturn, game_num_fps);
+    JUSTMSG("REPORT. gameturn is %u, requested fps is %d",get_gameturn(), game_num_fps);
   }
 
   for (int idx = KC_F1; idx <= KC_F8; idx++)
@@ -750,9 +749,9 @@ short get_global_inputs(void)
         if ( timer_enabled() )
         {
             update_time();
-            struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
+            struct GameTime GameT = get_game_time(get_gameturn(), game_num_fps);
             SYNCMSG("Finished level %d. Total turns taken: %u (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
-                game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+                game.loaded_level_number, get_gameturn(), GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
@@ -1033,14 +1032,14 @@ short get_status_panel_keyboard_action_inputs(void)
         {
             if (menu_is_active(GMnu_SPELL))
             {
-                turn_off_menu(GMnu_SPELL);
-                turn_on_menu(GMnu_SPELL2);
+                set_menu_mode(GMnu_SPELL2);
+                spell_tag = 2;
                 fake_button_click(BID_POWER_NXPG);
             }
             else if (menu_is_active(GMnu_SPELL2))
             {
-                turn_off_menu(GMnu_SPELL2);
-                turn_on_menu(GMnu_SPELL);
+                set_menu_mode(GMnu_SPELL);
+                spell_tag = 1;
                 fake_button_click(BID_POWER_NXPG);
             }
             else
@@ -1124,7 +1123,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
     {
         toggle_tooltips();
     }
-    if (is_game_key_pressed(Gkey_CheatMenu3, true, false))
+    if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
     {
         if (!close_instance_cheat_menu())
             toggle_main_cheat_menu();
@@ -1875,33 +1874,36 @@ short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
         }
-        if (!creature_under_spell_effect(thing, CSAfF_Chicken))
+        if (numkey != -1)
         {
-            if (numkey != -1)
-            {
-                int num_avail = 0;
-                for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
-                {
-                    struct Thing* cthing = thing_get(player->controlled_thing_idx);
-                    TRACE_THING(cthing);
-                    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cthing);
-                    int inst_id = crconf->learned_instance_id[idx];
-                    if (creature_instance_is_available(cthing, inst_id))
-                    {
-                        if (numkey == num_avail)
-                        {
-                            set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id, 0, 0, 0);
-                            break;
-                        }
-                        num_avail++;
-                    }
-                }
-            }
-            
-            // Next/Previous instance switching
-            if (menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2))
+            int num_avail = 0;
+            for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
             {
                 struct Thing* cthing = thing_get(player->controlled_thing_idx);
+                TRACE_THING(cthing);
+                struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cthing);
+                int inst_id = crconf->learned_instance_id[idx];
+                if (creature_instance_is_available(cthing, inst_id))
+                {
+                    if (numkey == num_avail)
+                    {
+                        set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id, 0, 0, 0);
+                        break;
+                    }
+                    num_avail++;
+                }
+            }
+        }
+        
+        // Next/Previous instance switching
+        if (menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2))
+        {
+            struct Thing* cthing = thing_get(player->controlled_thing_idx);
+            
+            if (is_key_pressed(KC_GAMEPAD_RIGHTSHOULDER, KMod_DONTCARE))
+            {
+                clear_key_pressed(KC_GAMEPAD_RIGHTSHOULDER);
+                set_possession_instance(player, cthing, 1);
                 
                 if (is_game_key_pressed(Gkey_NextInstance, true, false))
                 {
@@ -3183,7 +3185,7 @@ void process_cheat_mode_selection_inputs()
                             new_value = 0;
                             break;
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
@@ -3199,7 +3201,7 @@ void process_cheat_mode_selection_inputs()
                             new_value = 0;
                             break;
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);
@@ -3225,7 +3227,7 @@ void process_cheat_mode_selection_inputs()
                                break;
                            }
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
@@ -3247,7 +3249,7 @@ void process_cheat_mode_selection_inputs()
                                 break;
                             }
                         }
-                        crconf = &game.conf.crtr_conf.model[new_value];
+                        crconf = creature_stats_get(new_value);
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);

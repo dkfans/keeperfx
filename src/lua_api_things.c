@@ -255,8 +255,7 @@ static int thing_set_field(lua_State *L) {
         move_thing_in_map(thing, &pos);
     } else if (strcmp(key, "anim_sprite") == 0)
     {
-        thing->anim_sprite = luaL_checkAnimationId(L, 3);
-        thing->max_frames = keepersprite_frames(thing->anim_sprite);
+        set_thing_animation(thing, luaL_checkAnimationId(L, 3), -1);
     } else if (strcmp(key, "anim_speed") == 0)
     {
         thing->anim_speed = luaL_checkinteger(L, 3);

@@ -1367,7 +1367,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
     struct RoomConfigStats* roomst;
     int i = game.conf.slab_conf.room_types_count - 1;
 
-    roomst = &game.conf.slab_conf.room_cfgstats[i];
+    roomst = get_room_kind_stats(i);
     memset(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
@@ -4363,15 +4363,17 @@ static void set_music_check(const struct ScriptLine *scline)
 static void set_music_process(struct ScriptContext *context)
 {
     short track = context->value->chars[0];
+    if ((track > 0) && (game.music_track == track))
+    {
+        return;
+    }
     if (track == 0) {
         SCRPTLOG("Stopping music");
         stop_music();
     } else if (track < 0) {
         const char * fname = script_strval(context->value->longs[1]);
-        SCRPTLOG("Playing music from %s", fname);
         play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", fname));
     } else {
-        SCRPTLOG("Playing music track %d", track);
         play_music_track(track);
     }
 }
@@ -5478,7 +5480,7 @@ static void clear_message_process(struct ScriptContext* context)
     unsigned char count = min(context->value->chars[1], game.active_messages_count);
     for (int k = game.active_messages_count-1; k >= (game.active_messages_count-count); k--)
     {
-        game.messages[k].expiration_turn = game.play_gameturn;
+        game.messages[k].expiration_turn = get_gameturn();
     }
 }
 

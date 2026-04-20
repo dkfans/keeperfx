@@ -57,7 +57,7 @@ enum NetMessageType {
     NETMSG_LOGIN,
     NETMSG_USERUPDATE,
     NETMSG_FRONTEND,
-    NETMSG_SMALLDATA,
+    NETMSG_STARTUP_SYNC,
     NETMSG_GAMEPLAY,
     NETMSG_RESYNC_DATA,
     NETMSG_RESYNC_RESUME,
@@ -186,7 +186,7 @@ struct ConfigInfo {
 
 struct TbNetworkPlayerInfo {
 char name[32];
-long active;
+long network_user_active;
 };
 
 struct TbNetworkCallbackData {

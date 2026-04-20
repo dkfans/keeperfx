@@ -41,7 +41,6 @@
 #include "room_lair.h"
 #include "room_util.h"
 #include "map_utils.h"
-#include "engine_arrays.h"
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
@@ -212,7 +211,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     // Search for enemies no often than every 64 turns
-    if (((game.play_gameturn + thing->index) & 0x3F) != 0)
+    if (((get_gameturn() + thing->index) & 0x3F) != 0)
     {
         return 0;
     }
@@ -266,8 +265,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
     lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
     struct ObjectConfigStats* objst = get_object_model_stats(lairtng->model);
-    unsigned long i = convert_td_iso(objst->sprite_anim_idx);
-    set_thing_draw(lairtng, i, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);
+    set_thing_draw(lairtng, objst->sprite_anim_idx, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);
     thing_play_sample(creatng, 158, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
     create_effect(&pos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     anger_set_creature_anger(creatng, 0, AngR_NoLair);
@@ -532,7 +530,7 @@ short creature_sleep(struct Thing *thing)
     // Recovery is disabled if frequency is set to 0 on rules.cfg.
     if (game.conf.rules[thing->owner].creature.recovery_frequency > 0)
     {
-        if (((game.play_gameturn + thing->index) % game.conf.rules[thing->owner].creature.recovery_frequency) == 0)
+        if (((get_gameturn() + thing->index) % game.conf.rules[thing->owner].creature.recovery_frequency) == 0)
         {
             HitPoints recover = compute_creature_max_health(crconf->sleep_recovery, cctrl->exp_level);
             apply_health_to_thing_and_display_health(thing, recover);
@@ -544,7 +542,7 @@ short creature_sleep(struct Thing *thing)
     {
         cctrl->turns_at_job--;
     }
-    if (((game.play_gameturn + thing->index) & 0x3F) == 0)
+    if (((get_gameturn() + thing->index) & 0x3F) == 0)
     {
         if (THING_RANDOM(thing, 100) < 5)
         {

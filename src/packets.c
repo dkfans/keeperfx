@@ -118,7 +118,6 @@ extern "C" {
 extern TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool change_campaign(const char *cmpgn_fname);
-extern int total_sprite_zip_count;
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
 /******************************************************************************/
@@ -503,7 +502,7 @@ void update_box_lag_compensation(struct PlayerInfo* player) {
     box_lag_compensation_y = 0;
     if (is_my_player(player)) {
         struct Packet* auth_pckt = get_packet_direct(player->packet_num);
-        struct Packet* visual_pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+        struct Packet* visual_pckt = get_local_input_lag_packet_for_turn(get_gameturn());
         if (visual_pckt != NULL) {
             box_lag_compensation_x = coord_slab(auth_pckt->pos_x) - coord_slab(visual_pckt->pos_x);
             box_lag_compensation_y = coord_slab(auth_pckt->pos_y) - coord_slab(visual_pckt->pos_y);
@@ -1143,11 +1142,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
         return false;
     }
-    case PckA_SpriteZipCountSync:
-    {
-        process_sprite_zip_count_sync(plyr_idx, pckt->actn_par1);
-        return true;
-    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -1322,167 +1316,200 @@ TbBool can_process_creature_input(struct Thing *thing)
 
 void process_players_creature_control_packet_control(long idx)
 {
+    SYNCDBG(6,"Starting");
     struct InstanceInfo *inst_inf;
     long i;
-
-    SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_player(idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
     struct Thing* cctng = thing_get(player->controlled_thing_idx);
-    if (!can_process_creature_input(cctng))
-        return;
+    struct Packet* pckt = get_packet_direct(player->packet_num);
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
-    long speed_limit = get_creature_speed(cctng);
-    if ((pckt->control_flags & PCtr_MoveUp) != 0)
+    ThingIndex target_idx;
+    if (can_process_creature_input(cctng))
     {
-        if (!creature_control_invalid(ccctrl))
-        {
-            ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
-            ccctrl->creature_control_flags |= CCFlg_MoveY;
-        } else
-        {
-            ERRORLOG("No creature to increase speed");
-        }
-    }
-    if ((pckt->control_flags & PCtr_MoveDown) != 0)
-    {
-        if (!creature_control_invalid(ccctrl))
-        {
-            ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
-            ccctrl->creature_control_flags |= CCFlg_MoveY;
-        } else
-        {
-            ERRORLOG("No creature to decrease speed");
-        }
-    }
-    if ((pckt->control_flags & PCtr_MoveLeft) != 0)
-    {
-        if (!creature_control_invalid(ccctrl))
-        {
-            ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->creature_control_flags |= CCFlg_MoveX;
-        } else
-        {
-            ERRORLOG("No creature to increase speed");
-        }
-    }
-    if ((pckt->control_flags & PCtr_MoveRight) != 0)
-    {
-        if (!creature_control_invalid(ccctrl))
-        {
-            ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->creature_control_flags |= CCFlg_MoveX;
-        } else
-        {
-            ERRORLOG("No creature to decrease speed");
-        }
-    }
-    if (flag_is_set(cctng->movement_flags, TMvF_Flying))
-    {
-        MapCoord floor_height, ceiling_height;
-        if ((pckt->control_flags & PCtr_Ascend) != 0)
+        long speed_limit = get_creature_speed(cctng);
+        if ((pckt->control_flags & PCtr_MoveUp) != 0)
         {
             if (!creature_control_invalid(ccctrl))
             {
-                ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
-                ccctrl->creature_control_flags |= CCFlg_MoveZ;
-                if (ccctrl->vertical_speed != 0)
-                {
-                    get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
-                    if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
-                    {
-                        ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 227);
-                    }
-                    else
-                    {
-                        ccctrl->moveaccel.z.val = 0;
-                    }
-                }
+                ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
+                ccctrl->creature_control_flags |= CCFlg_MoveY;
             } else
             {
-                ERRORLOG("No creature to ascend");
+                ERRORLOG("No creature to increase speed");
             }
         }
-        if ((pckt->control_flags & PCtr_Descend) != 0)
+        if ((pckt->control_flags & PCtr_MoveDown) != 0)
         {
             if (!creature_control_invalid(ccctrl))
             {
-                // We want increase here, not decrease, because we don't want it angle-dependent
-                ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
-                ccctrl->creature_control_flags |= CCFlg_MoveZ;
-                if (ccctrl->vertical_speed != 0)
-                {
-                    get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
-                    if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
-                    {
-                        ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 1820);
-                    }
-                    else
-                    {
-                        ccctrl->moveaccel.z.val = 0;
-                    }
-                }
+                ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
+                ccctrl->creature_control_flags |= CCFlg_MoveY;
             } else
             {
-                ERRORLOG("No creature to descend");
+                ERRORLOG("No creature to decrease speed");
             }
         }
-    }
-
-    if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
-    {
-        i = ccctrl->active_instance_id;
-        if (ccctrl->instance_id == CrInst_NULL)
+        if ((pckt->control_flags & PCtr_MoveLeft) != 0)
         {
-            if (creature_instance_is_available(cctng, i))
+            if (!creature_control_invalid(ccctrl))
             {
-                if (creature_instance_has_reset(cctng, i))
+                ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
+                ccctrl->creature_control_flags |= CCFlg_MoveX;
+            } else
+            {
+                ERRORLOG("No creature to increase speed");
+            }
+        }
+        if ((pckt->control_flags & PCtr_MoveRight) != 0)
+        {
+            if (!creature_control_invalid(ccctrl))
+            {
+                ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
+                ccctrl->creature_control_flags |= CCFlg_MoveX;
+            } else
+            {
+                ERRORLOG("No creature to decrease speed");
+            }
+        }
+        if (flag_is_set(cctng->movement_flags, TMvF_Flying))
+        {
+            MapCoord floor_height, ceiling_height;
+            if ((pckt->control_flags & PCtr_Ascend) != 0)
+            {
+                if (!creature_control_invalid(ccctrl))
                 {
-                    if (!creature_under_spell_effect(cctng, CSAfF_Chicken))
+                    ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
+                    ccctrl->creature_control_flags |= CCFlg_MoveZ;
+                    if (ccctrl->vertical_speed != 0)
                     {
-                        inst_inf = creature_instance_info_get(i);
-                        process_player_use_instance(cctng, i, pckt);
+                        get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
+                        if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
+                        {
+                            ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 227);
+                        }
+                        else
+                        {
+                            ccctrl->moveaccel.z.val = 0;
+                        }
                     }
+                } else
+                {
+                    ERRORLOG("No creature to ascend");
                 }
             }
-            else
+            if ((pckt->control_flags & PCtr_Descend) != 0)
             {
-                // cheat mode
-                inst_inf = creature_instance_info_get(i);
-                process_player_use_instance(cctng, i, pckt);
+                if (!creature_control_invalid(ccctrl))
+                {
+                    // We want increase here, not decrease, because we don't want it angle-dependent
+                    ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
+                    ccctrl->creature_control_flags |= CCFlg_MoveZ;
+                    if (ccctrl->vertical_speed != 0)
+                    {
+                        get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
+                        if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
+                        {
+                            ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 1820);
+                        }
+                        else
+                        {
+                            ccctrl->moveaccel.z.val = 0;
+                        }
+                    }
+                } else
+                {
+                    ERRORLOG("No creature to descend");
+                }
             }
         }
+        long new_horizontal, new_vertical, new_roll;
+        process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
+        cctng->move_angle_xy = new_horizontal;
+        cctng->move_angle_z = new_vertical;
+        ccctrl->roll = new_roll;
     }
-    if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
+    if ((!creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
     {
-        // Button is held down - check whether the instance has auto-repeat
-        i = ccctrl->active_instance_id;
-        inst_inf = creature_instance_info_get(i);
-        if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
+        TbBool allowed;
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
+            i = ccctrl->active_instance_id;
             if (ccctrl->instance_id == CrInst_NULL)
             {
                 if (creature_instance_is_available(cctng, i))
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        process_player_use_instance(cctng, i, pckt);
+                        target_idx = get_human_controlled_creature_target(cctng, i, pckt);
+                        if (creature_under_spell_effect(cctng, CSAfF_Chicken))
+                        {
+                            inst_inf = creature_instance_info_get(i);
+                            allowed = inst_inf->fp_allow_self_cast_when_chicken & (cctng->index == target_idx);
+                        }
+                        else
+                        {
+                            allowed = true;
+                        }
+                        if (allowed)
+                        {
+                            if (creature_under_spell_effect(cctng, CSAfF_Freeze))
+                            {
+                                inst_inf = creature_instance_info_get(i);
+                                allowed = inst_inf->fp_allow_self_cast_while_frozen & (cctng->index == target_idx);
+                            }
+                            if (allowed)
+                            {
+                                process_player_use_instance(cctng, i, pckt);
+                            }
+                        }
                     }
                 }
                 else
                 {
                     // cheat mode
+                    inst_inf = creature_instance_info_get(i);
                     process_player_use_instance(cctng, i, pckt);
                 }
             }
         }
+        if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
+        {
+            // Button is held down - check whether the instance has auto-repeat
+            i = ccctrl->active_instance_id;
+            inst_inf = creature_instance_info_get(i);
+            target_idx = get_human_controlled_creature_target(cctng, i, pckt);
+            if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
+            {
+                if (ccctrl->instance_id == CrInst_NULL)
+                {
+                    if (creature_instance_is_available(cctng, i))
+                    {
+                        if (creature_instance_has_reset(cctng, i))
+                        {
+                            if (creature_under_spell_effect(cctng, CSAfF_Freeze))
+                            {
+                                target_idx = get_human_controlled_creature_target(cctng, i, pckt);
+                                allowed = inst_inf->fp_allow_self_cast_while_frozen & (cctng->index == target_idx);
+                            }
+                            else
+                            {
+                                allowed = true;
+                            }
+                            if (allowed)
+                            {
+                                process_player_use_instance(cctng, i, pckt);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // cheat mode
+                        process_player_use_instance(cctng, i, pckt);
+                    }
+                }
+            }
+        }
     }
-
-    long new_horizontal, new_vertical, new_roll;
-    process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
-    cctng->move_angle_xy = new_horizontal;
-    cctng->move_angle_z = new_vertical;
-    ccctrl->roll = new_roll;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
@@ -1527,11 +1554,34 @@ void process_players_creature_control_packet_action(long plyr_idx)
       {
         if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->actn_par1))
         {
-          i = pckt->actn_par1;
-          process_player_use_instance(thing, i, pckt);
-          if (plyr_idx == my_player_number) {
-              instant_instance_selected(i);
-          }
+            TbBool allowed;
+            TbBool frozen = creature_under_spell_effect(thing, CSAfF_Freeze);
+            TbBool chicken = creature_under_spell_effect(thing, CSAfF_Chicken);
+            ThingIndex target_idx = get_human_controlled_creature_target(thing, i, pckt);
+            if (frozen && chicken)
+            {
+                allowed = (inst_inf->fp_allow_self_cast_while_frozen & inst_inf->fp_allow_self_cast_when_chicken) && (thing->index == target_idx);
+            }
+            else if (frozen)
+            {
+                allowed = inst_inf->fp_allow_self_cast_while_frozen & (thing->index == target_idx);
+            }
+            else if (chicken)
+            {
+                allowed = inst_inf->fp_allow_self_cast_when_chicken & (thing->index == target_idx);
+            }
+            else
+            {
+                allowed = true;
+            }
+            if (allowed)
+            {
+              i = pckt->actn_par1;
+              process_player_use_instance(thing, i, pckt);
+              if (plyr_idx == my_player_number) {
+                  instant_instance_selected(i);
+              }
+            }
         }
       }
       break;
@@ -1575,33 +1625,47 @@ void process_players_creature_control_packet_action(long plyr_idx)
   }
 }
 
-static void replace_with_ai(int old_active_players)
-{
-    int k = 0;
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-    {
-        if (network_player_active(i))
-            k++;
+static void replace_disconnected_players_with_ai(void) {
+    if ((game.system_flags & GSF_NetworkActive) == 0) {
+        return;
     }
-    if (old_active_players != k)
-    {
-        for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-        {
-            struct PlayerInfo *player = get_player(i);
-            if (!network_player_active(player->packet_num))
-            {
-                message_add(MsgType_Player, player->id_number, "I am the computer now!");
-                JUSTLOG("p:%d I am the computer now!", player->id_number);
-
-                player->allocflags |= PlaF_CompCtrl;
-                toggle_computer_player(i);
-            }
+    TbBool host_disconnected = (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED);
+    for (int player_index = 0; player_index < NET_PLAYERS_COUNT; player_index++) {
+        struct PlayerInfo* player = get_player(player_index);
+        if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
+            continue;
         }
+        if (host_disconnected && player_index == my_player_number) {
+            continue;
+        }
+        if (!host_disconnected && network_player_active(player_index)) {
+            continue;
+        }
+        if (player->victory_state != VicS_Undecided) {
+            player->allocflags &= ~PlaF_Allocated;
+            continue;
+        }
+        message_add(MsgType_Player, player->id_number, "I am the computer now!");
+        JUSTLOG("p:%d I am the computer now!", player->id_number);
+        player->allocflags |= PlaF_CompCtrl;
+        toggle_computer_player(player->id_number);
     }
+    if (!host_disconnected) {
+        return;
+    }
+    message_add(MsgType_Player, my_player_number, "Network connection to host lost");
+    game.input_lag_turns = 0;
+    game.skip_initial_input_turns = 0;
+    LbNetwork_Stop();
+    memset(net_player_info, 0, sizeof(net_player_info));
+    clear_flag(game.system_flags, GSF_NetworkActive);
+    fe_network_active = 0;
+    game.game_kind = GKind_LocalGame;
+    setup_count_players();
 }
 
 static void load_old_packets(PlayerNumber my_packet_num) {
-    GameTurn historical_turn = game.play_gameturn - game.input_lag_turns;
+    GameTurn historical_turn = get_gameturn() - game.input_lag_turns;
     const struct Packet* received_packets = get_received_packets_for_turn(historical_turn);
     const char* received_packets_status;
     if (received_packets != NULL) {
@@ -1609,7 +1673,7 @@ static void load_old_packets(PlayerNumber my_packet_num) {
     } else {
         received_packets_status = "NULL";
     }
-    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%lu historical_turn=%lu received_packets=%s", (unsigned long)game.play_gameturn, (unsigned long)historical_turn, received_packets_status);
+    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%lu historical_turn=%lu received_packets=%s", (unsigned long)get_gameturn(), (unsigned long)historical_turn, received_packets_status);
 
     for (int i = 0; i < PACKETS_COUNT; i++) {
         const char* player_name;
@@ -1651,8 +1715,8 @@ static void load_old_packets(PlayerNumber my_packet_num) {
 
 void set_local_packet_turn(void) {
     struct Packet* pckt = get_packet(my_player_number);
-    pckt->turn = game.play_gameturn;
-    MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)game.play_gameturn, (unsigned long)pckt->checksum);
+    pckt->turn = get_gameturn();
+    MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)get_gameturn(), (unsigned long)pckt->checksum);
 }
 
 
@@ -1665,34 +1729,26 @@ void process_packets(void)
     struct PlayerInfo* player = get_my_player();
     SYNCDBG(5, "Starting");
 
-    MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)game.play_gameturn);
+    MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
     set_local_packet_turn();
     update_turn_checksums();
     store_local_packet_in_input_lag_queue(player->packet_num);
 
     if (game.game_kind != GKind_LocalGame)
     {
-        int old_active_players = 0;
-        for (i = 0; i < NET_PLAYERS_COUNT; i++)
-        {
-            if (network_player_active(i))
-                old_active_players++;
-        }
-        MULTIPLAYER_LOG("process_packets: About to send/receive packets, active_players=%d", old_active_players);
-
         if (!game.packet_load_enable || game.packet_load_initialized)
         {
-            struct Packet* my_pckt = get_packet_direct(player->packet_num);
+            struct Packet* my_packet = get_packet_direct(player->packet_num);
             const char* player_name;
             if (player->packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
-            MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_pckt->turn, (unsigned long)my_pckt->checksum);
-            TbError exchange_result = LbNetwork_Exchange(NETMSG_GAMEPLAY, my_pckt, game.packets, sizeof(struct Packet));
+            MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_packet->turn, (unsigned long)my_packet->checksum);
+            TbError exchange_result = LbNetwork_Exchange(NETMSG_GAMEPLAY, my_packet, game.packets, sizeof(struct Packet));
             if (exchange_result != Lb_OK) {
                 ERRORLOG("LbNetwork_Exchange failed");
             }
             LbNetwork_WaitForMissingPackets(game.packets, sizeof(struct Packet));
         }
-        replace_with_ai(old_active_players);
+        replace_disconnected_players_with_ai();
     }
 
     MULTIPLAYER_LOG("process_packets: Loading packets from input lag queue");
@@ -1704,8 +1760,7 @@ void process_packets(void)
         return;
     }
 
-    if (checksums_different()) { //Should be called directly after LbNetwork_Exchange, to see if there's anything wrong with the received packet
-        // Setting checksum problem flags
+    if ((game.system_flags & GSF_NetworkActive) != 0 && checksums_different()) {
         set_flag(game.system_flags, GSF_NetGameNoSync);
         clear_flag(game.system_flags, GSF_NetSeedNoSync);
     } else {
@@ -1714,8 +1769,9 @@ void process_packets(void)
     }
 
     // Write packets into file, if requested
-    if ((game.packet_save_enable) && (game.packet_fopened))
+    if ((game.packet_save_enable) && (game.packet_fopened)) {
         save_packets();
+    }
     //Debug code, to find packet errors
     #if DEBUG_NETWORK_PACKETS
     write_debug_packets();
@@ -1723,20 +1779,21 @@ void process_packets(void)
     // Process the packets
     for (i=0; i<PACKETS_COUNT; i++)
     {
-        player = get_player(i);
-        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-        process_players_packet(i);
+        struct PlayerInfo* packet_player = get_player(i);
+        if (player_exists(packet_player) && ((packet_player->allocflags & PlaF_CompCtrl) == 0)) {
+            process_players_packet(i);
+        }
     }
     // Clear all packets
     clear_packets();
-    if (((game.system_flags & GSF_NetGameNoSync) != 0)
-    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+    if (((game.system_flags & GSF_NetworkActive) != 0)
+     && ((game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
     {
         SYNCDBG(0,"Resyncing");
         resync_game();
     }
     get_current_slowdown_percentage();
-    MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)game.play_gameturn);
+    MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)get_gameturn());
     SYNCDBG(7,"Finished");
 }
 
@@ -1870,31 +1927,6 @@ void process_frontend_packets(void)
   }
 }
 
-void apply_default_flee_and_imprison_setting(void)
-{
-    struct PlayerInfo* player = get_my_player();
-    if (!player_exists(player) || game.packet_load_enable) {
-        return;
-    }
-
-    struct Dungeon* dungeon = get_dungeon(player->id_number);
-    unsigned short tendencies_to_toggle = 0;
-
-    TbBool current_imprison_state = (dungeon->creature_tendencies & CrTend_Imprison) != 0;
-    if (IMPRISON_BUTTON_DEFAULT != current_imprison_state) {
-        tendencies_to_toggle |= CrTend_Imprison;
-    }
-
-    TbBool current_flee_state = (dungeon->creature_tendencies & CrTend_Flee) != 0;
-    if (FLEE_BUTTON_DEFAULT != current_flee_state) {
-        tendencies_to_toggle |= CrTend_Flee;
-    }
-
-    if (tendencies_to_toggle) {
-        set_players_packet_action(player, PckA_ToggleTendency, tendencies_to_toggle, 0, 0, 0);
-    }
-}
-
 // Using Alt-F4, or similar operating system close requests
 void force_application_close()
 {
@@ -1921,31 +1953,5 @@ void force_application_close()
     }
 }
 
-void send_sprite_zip_count_to_other_players(void)
-{
-    struct PlayerInfo* my_player = get_my_player();
-    if (my_player != INVALID_PLAYER)
-    {
-        set_players_packet_action(my_player, PckA_SpriteZipCountSync, total_sprite_zip_count, 0, 0, 0);
-    }
-}
-
-void process_sprite_zip_count_sync(long plyr_idx, long zip_count)
-{
-    if (zip_count != total_sprite_zip_count)
-    {
-        if (my_player_number == get_host_player_id())
-        {
-            message_add_fmt(MsgType_Player, 0,
-                "Verify /fxdata/ is the same across both PCs.");
-            message_add_fmt(MsgType_Player, 0,
-                "%s has %ld .zip files, %s has %d .zip files.",
-                network_player_name(plyr_idx), zip_count,
-                network_player_name(my_player_number), total_sprite_zip_count);
-            message_add_fmt(MsgType_Player, 0,
-                "WARNING: Custom sprite files mismatch detected!");
-        }
-    }
-}
 
 /******************************************************************************/
