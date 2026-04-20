@@ -66,6 +66,10 @@ struct StartupSyncPacket {
     TbBigChecksum map_checksum;
     uint32_t sprite_zip_checksum;
     uint16_t initial_tendencies;
+    uint32_t isometric_view_zoom_level;
+    uint32_t frontview_zoom_level;
+    uint32_t zoom_distance_setting;
+    uint32_t frontview_zoom_distance_setting;
 };
 #pragma pack()
 
@@ -125,6 +129,8 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         }
         player->is_active = 1;
         init_player(player, 0);
+        player->isometric_view_zoom_level = sync->isometric_view_zoom_level;
+        player->frontview_zoom_level = sync->frontview_zoom_level;
         TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;
         TbBool flee = (sync->initial_tendencies & CrTend_Flee) != 0;
         set_creature_tendencies(player, CrTend_Imprison, imprison);
@@ -143,6 +149,12 @@ static void sync_startup_input_lag(const struct StartupSyncPacket startup_sync_p
     game.input_lag_turns = startup_sync_packets[get_host_player_id()].input_lag_turns;
     game.skip_initial_input_turns = calculate_skip_input();
     NETLOG("Startup input lag synced: input_lag=%d", game.input_lag_turns);
+}
+
+static void sync_startup_zoom_distance(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+{
+    zoom_distance_setting = startup_sync_packets[get_host_player_id()].zoom_distance_setting;
+    frontview_zoom_distance_setting = startup_sync_packets[get_host_player_id()].frontview_zoom_distance_setting;
 }
 
 static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
@@ -183,6 +195,10 @@ static void build_local_startup_sync(void)
     if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
     if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
     s_local_startup_sync.initial_tendencies = initial_tendencies;
+    s_local_startup_sync.isometric_view_zoom_level = settings.isometric_view_zoom_level;
+    s_local_startup_sync.frontview_zoom_level = settings.frontview_zoom_level;
+    s_local_startup_sync.zoom_distance_setting = zoom_distance_setting;
+    s_local_startup_sync.frontview_zoom_distance_setting = frontview_zoom_distance_setting;
 }
 
 static TbBool all_human_players_sent_startup_sync(void)
@@ -215,6 +231,7 @@ static CoroutineLoopState net_startup_sync_apply(CoroutineLoop *context)
     }
     verify_startup_sprite_zip_checksums(s_startup_sync_packets);
     sync_startup_input_lag(s_startup_sync_packets);
+    sync_startup_zoom_distance(s_startup_sync_packets);
     setup_players_from_startup_packets(s_startup_sync_packets);
     return CLS_CONTINUE;
 }
