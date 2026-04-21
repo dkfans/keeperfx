@@ -134,7 +134,7 @@ void ftest_bug_ai_bridge__report_stats_and_increment_seed()
     }
     else
     {
-        FTESTLOG("seed is 0 - defaults to gameturn %d", game.play_gameturn);
+        FTESTLOG("seed is 0 - defaults to gameturn %d", get_gameturn());
     }
 }
 
@@ -142,7 +142,7 @@ FTestActionResult ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs
 {
     struct ftest_bug_ai_bridge__variables* const vars = args->data;
 
-    if(game.play_gameturn == 20) // don't open map too soon, otherwise game will crash...
+    if(get_gameturn() == 20) // don't open map too soon, otherwise game will crash...
     {
         zoom_to_parchment_map(); // open map?? might make test faster due to no 3d rendering?
     }
@@ -172,14 +172,14 @@ FTestActionResult ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs
     {
         ++vars->test_runs;
         ++vars->test_runs_with_bridges;
-        FTESTLOG("Bridges were found at GameTurn %d, reporting and exiting test", game.play_gameturn);
+        FTESTLOG("Bridges were found at GameTurn %d, reporting and exiting test", get_gameturn());
         vars->take_screenshot = true;
         game.frame_skip = 0;
         ftest_bug_ai_bridge__report_stats_and_increment_seed();
         return FTRs_Go_To_Next_Action; // exit test
     }
 
-    if(game.play_gameturn >= vars->end_test_after_n_turns)
+    if(get_gameturn() >= vars->end_test_after_n_turns)
     {
         ++vars->test_runs;
         ++vars->test_runs_without_bridges;
@@ -199,7 +199,7 @@ FTestActionResult ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTest
 
     if(vars->take_screenshot)
     {
-        if(game.play_gameturn < args->actual_started_at_game_turn + screenshot_turn_delay) // wait until we are supposed to take the screenshot
+        if(get_gameturn() < args->actual_started_at_game_turn + screenshot_turn_delay) // wait until we are supposed to take the screenshot
         {
             return FTRs_Repeat_Current_Action;
         }

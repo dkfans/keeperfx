@@ -1771,7 +1771,7 @@ void setup_imp_stack(struct Dungeon *dungeon)
     {
         dungeon->digger_stack[i].task_type = DigTsk_None;
     }
-    dungeon->digger_stack_update_turn = game.play_gameturn;
+    dungeon->digger_stack_update_turn = get_gameturn();
     dungeon->digger_stack_length = 0;
     r_stackpos = 0;
 }
@@ -2710,10 +2710,10 @@ long check_out_available_imp_tasks(struct Thing *thing)
     if (check_out_imp_stack(thing)) {
         return 1;
     }
-    if (game.play_gameturn-cctrl->tasks_check_turn > 128)
+    if (get_gameturn()-cctrl->tasks_check_turn > 128)
     {
         check_out_imp_has_money_for_treasure_room(thing);
-        cctrl->tasks_check_turn = game.play_gameturn;
+        cctrl->tasks_check_turn = get_gameturn();
         return 1;
     }
     SYNCDBG(9,"No task for %s index %d",thing_model_name(thing),(int)thing->index);
@@ -2834,7 +2834,7 @@ long check_out_imp_last_did(struct Thing *creatng)
       {
           if (send_creature_to_job_for_player(creatng, creatng->owner, cctrl->job_assigned))
           {
-              cctrl->job_assigned_check_turn = game.play_gameturn;
+              cctrl->job_assigned_check_turn = get_gameturn();
               return true;
           }
       }
@@ -2867,7 +2867,7 @@ TbBool imp_stack_update(struct Thing *creatng)
     struct Dungeon *dungeon;
     SYNCDBG(18,"Starting");
     dungeon = get_dungeon(creatng->owner);
-    if ((game.play_gameturn - dungeon->digger_stack_update_turn) < 128)
+    if ((get_gameturn() - dungeon->digger_stack_update_turn) < 128)
         return 0;
     SYNCDBG(8,"Updating");
     setup_imp_stack(dungeon);
@@ -2956,11 +2956,11 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
     struct CreatureControl *cctrl;
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(thing);
-    if (game.play_gameturn - cctrl->tasks_check_turn > 128)
+    if (get_gameturn() - cctrl->tasks_check_turn > 128)
     {
         cctrl->digger.task_stack_pos--;
         check_out_imp_has_money_for_treasure_room(thing);
-        cctrl->tasks_check_turn = game.play_gameturn;
+        cctrl->tasks_check_turn = get_gameturn();
         return 1;
     }
     stl_x = stl_num_decode_x(dstack->stl_num);
@@ -3377,10 +3377,10 @@ long check_out_worker_pickup_gold_pile(struct Thing *thing, struct DiggerStack *
     crconf = creature_stats_get_from_thing(thing);
     if (crconf->gold_hold <= thing->creature.gold_carried)
     {
-        if (game.play_gameturn - cctrl->tasks_check_turn > 128)
+        if (get_gameturn() - cctrl->tasks_check_turn > 128)
         {
           check_out_imp_has_money_for_treasure_room(thing);
-          cctrl->tasks_check_turn = game.play_gameturn;
+          cctrl->tasks_check_turn = get_gameturn();
         }
         return 1;
     }

@@ -26,6 +26,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
 #include "bflib_math.h"
+#include "bflib_sprfnt.h"
 
 #include "config_settings.h"
 #include "config_strings.h"
@@ -77,32 +78,33 @@ long key_to_string[256];
 
 /** Initialization array, used to create array which stores index of text name of keyboard keys. */
 struct KeyToStringInit key_to_string_init[] = {
-  {KC_A,  -65},
-  {KC_B,  -66},
-  {KC_C,  -67},
-  {KC_D,  -68},
-  {KC_E,  -69},
-  {KC_F,  -70},
-  {KC_G,  -71},
-  {KC_H,  -72},
-  {KC_I,  -73},
-  {KC_J,  -74},
-  {KC_K,  -75},
-  {KC_L,  -76},
-  {KC_M,  -77},
-  {KC_N,  -78},
-  {KC_O,  -79},
-  {KC_P,  -80},
-  {KC_Q,  -81},
-  {KC_R,  -82},
-  {KC_S,  -83},
-  {KC_T,  -84},
-  {KC_U,  -85},
-  {KC_V,  -86},
-  {KC_W,  -87},
-  {KC_X,  -88},
-  {KC_Y,  -89},
-  {KC_Z,  -90},
+
+  {KC_A,  -DKChr_Upper_A},
+  {KC_B,  -DKChr_Upper_B},
+  {KC_C,  -DKChr_Upper_C},
+  {KC_D,  -DKChr_Upper_D},
+  {KC_E,  -DKChr_Upper_E},
+  {KC_F,  -DKChr_Upper_F},
+  {KC_G,  -DKChr_Upper_G},
+  {KC_H,  -DKChr_Upper_H},
+  {KC_I,  -DKChr_Upper_I},
+  {KC_J,  -DKChr_Upper_J},
+  {KC_K,  -DKChr_Upper_K},
+  {KC_L,  -DKChr_Upper_L},
+  {KC_M,  -DKChr_Upper_M},
+  {KC_N,  -DKChr_Upper_N},
+  {KC_O,  -DKChr_Upper_O},
+  {KC_P,  -DKChr_Upper_P},
+  {KC_Q,  -DKChr_Upper_Q},
+  {KC_R,  -DKChr_Upper_R},
+  {KC_S,  -DKChr_Upper_S},
+  {KC_T,  -DKChr_Upper_T},
+  {KC_U,  -DKChr_Upper_U},
+  {KC_V,  -DKChr_Upper_V},
+  {KC_W,  -DKChr_Upper_W},
+  {KC_X,  -DKChr_Upper_X},
+  {KC_Y,  -DKChr_Upper_Y},
+  {KC_Z,  -DKChr_Upper_Z},
   {KC_F1,  GUIStr_KeyF1},
   {KC_F2,  GUIStr_KeyF2},
   {KC_F3,  GUIStr_KeyF3},
@@ -149,7 +151,6 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_RIGHT,  GUIStr_KeyRight},
   {KC_LALT,   GUIStr_KeyLeftAlt},
   {KC_RALT,   GUIStr_KeyRightAlt},
-// [mouse buttons as keybinds - quick fix]
   {KC_MOUSE3,          GUIStr_MouseButton},
   {KC_MOUSEWHEEL_UP,   GUIStr_MouseScrollWheelUp},
   {KC_MOUSEWHEEL_DOWN, GUIStr_MouseScrollWheelDown},
@@ -159,6 +160,17 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_MOUSE7,          GUIStr_MouseButton},
   {KC_MOUSE8,          GUIStr_MouseButton},
   {KC_MOUSE9,          GUIStr_MouseButton},
+  {KC_ADD,             -DKChr_Plus},
+  {KC_SUBTRACT,        -DKChr_Hyphen},
+  {KC_GRAVE,           GUIStr_KeyGrave},
+  {KC_SEMICOLON,       -DKChr_Semicolon},
+  {KC_SLASH,           -DKChr_Slash},
+  {KC_COMMA,           -DKChr_Comma},
+  {KC_TAB,             GUIStr_KeyTab},
+  {KC_SPACE,           GUIStr_KeySpace},
+  {KC_COLON,           -DKChr_Colon},
+  {KC_EQUALS,          -DKChr_Equals},
+  {KC_MINUS,           -DKChr_Hyphen},
   {  0,     0},
 };
 

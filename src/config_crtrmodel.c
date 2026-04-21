@@ -230,7 +230,6 @@ const struct NamedCommand creatmodel_jobs_commands[] = {
   };
 
 const struct NamedCommand creatmodel_sounds_commands[] = {
-  {"HURT",                 CrSnd_Hurt},
   {"HIT",                  CrSnd_Hit},
   {"HAPPY",                CrSnd_Happy},
   {"SAD",                  CrSnd_Sad},
@@ -2251,25 +2250,6 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
-        case CrSnd_Hurt:
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = k;
-                n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
-                n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
         case CrSnd_Hit:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {

@@ -1975,7 +1975,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Boe"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -2922,8 +2922,8 @@ msgstr "Toon Intro"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Service"
+msgid "Multiplayer Menu"
+msgstr "Multiplayermenu"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3147,8 +3147,8 @@ msgstr "TESTERS"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "SESSIES"
+msgid "Game Lobbies"
+msgstr "Spellobby's"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3157,8 +3157,8 @@ msgstr "NAAM"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "SERVICE"
+msgid "Game Modes"
+msgstr "Spelmodi"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3167,13 +3167,13 @@ msgstr "BERICHTEN"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "SPEL CREËREN"
+msgid "Create Lobby"
+msgstr "LOBBY MAKEN"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "MEEDOEN"
+msgid "Join Lobby"
+msgstr "LOBBY BETREDEN"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3182,8 +3182,8 @@ msgstr "SPEL STARTEN"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "SPEL"
+msgid "Online Lobbies"
+msgstr "ONLINE LOBBY'S"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3875,8 +3875,8 @@ msgstr "Rechts"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "MODEM INITIALISEERT"
+msgid "Game version mismatch"
+msgstr "Spelversies komen niet overeen"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5823,18 +5823,18 @@ msgstr "4 Spelers"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Serieel"
+msgid "Online"
+msgstr "Online"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Modem"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Schermutseling"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6563,7 +6563,7 @@ msgstr "Terug naar selectiescherm"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Level pakketten"
 
 #: guitext:970
@@ -7126,3 +7126,129 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Keeper"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr "Schermopname"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr "Schermafbeelding"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Frame-overslaan verhogen"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Frame-overslaan verlagen"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Minikaart inzoomen"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Minikaart uitzoomen"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "Volgende instantie"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "Vorige instantie"
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "ONLINE LOBBY"
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN LOBBY"
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN LOBBY'S"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Interface schakelen"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Tooltips schakelen"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Spel afsluiten"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Pakketmodus uitschakelen"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Schermresolutie wijzigen"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Console schakelen"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Niveau voltooien"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Optiemenu"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Held gezondheidsbloemd schakelen"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Accent grave"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Teleporteer Laatste Werkplaats"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Teleporteer Oproep tot Wapens"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Teleporteer Standaard"
+

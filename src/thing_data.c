@@ -103,7 +103,7 @@ static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const ch
     memset(thing, 0, sizeof(struct Thing));
     thing->alloc_flags |= TAlF_Exists;
     thing->index = thing_idx;
-    thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
+    thing->random_seed = thing->index * 9377 + 9439 + get_gameturn();
     TRACE_THING(thing);
 
     return thing;
@@ -279,15 +279,20 @@ struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
     return get_player(thing->owner);
 }
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class)
+void set_thing_animation(struct Thing *thing, long animation_index, long speed)
 {
-    unsigned long i;
-    thing->anim_sprite = convert_td_iso(anim);
-    thing->draw_class = draw_class;
+    thing->anim_sprite = get_td_animation_sprite(animation_index);
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
         thing->anim_speed = speed;
     }
+}
+
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class)
+{
+    unsigned char current_frame;
+    set_thing_animation(thing, anim, speed);
+    thing->draw_class = draw_class;
     if (scale != -1)
     {
         thing->sprite_size = scale;
@@ -299,23 +304,21 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     if (animate_once != -1) {
         set_flag_value(thing->rendering_flags, TRF_AnimateOnce, animate_once);
     }
-    if (start_frame == -2)
-    {
-      i = keepersprite_frames(thing->anim_sprite) - 1;
-      thing->current_frame = i;
-      thing->anim_time = i << 8;
-    } else
-    if (start_frame == -1)
-    {
-      i = THING_RANDOM(thing, thing->max_frames);
-      thing->current_frame = i;
-      thing->anim_time = i << 8;
-    } else
-    {
-      i = start_frame;
-      thing->current_frame = i;
-      thing->anim_time = i << 8;
+    if (start_frame == -2) {
+        current_frame = 0;
+        if (thing->max_frames > 0) {
+            current_frame = thing->max_frames - 1;
+        }
+    } else if (start_frame == -1) {
+        current_frame = 0;
+        if (thing->max_frames > 0) {
+            current_frame = THING_RANDOM(thing, thing->max_frames);
+        }
+    } else {
+        current_frame = start_frame;
     }
+    thing->current_frame = current_frame;
+    thing->anim_time = current_frame << 8;
 }
 
 void query_thing(struct Thing *thing)

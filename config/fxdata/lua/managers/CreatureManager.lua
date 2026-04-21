@@ -36,3 +36,14 @@ function GetCreaturesByFilter(filter)
     end
     return filtered_creatures
 end
+
+
+---@return Creature[]
+function GetCreaturesOnSlab(slb_x, slb_y)
+    return GetThingsOnSlab(slb_x, slb_y, "Creature")
+end
+
+---@return Creature[]
+function GetCreaturesOnSubtile(stl_x, stl_y)
+    return GetThingsOnSubtile(stl_x, stl_y, "Creature")
+end

@@ -29,6 +29,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "custom_sprites.h"
+#include "thing_effects.h"
 #include "thing_objects.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -95,6 +96,8 @@ static const struct NamedField objects_named_fields[] = {
     {"MAXIMUMSIZE",              0, field_t(struct ObjectConfigStats, sprite_size_max),               0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"DESTROYONLIQUID",          0, field_t(struct ObjectConfigStats, destroy_on_liquid),             0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"DESTROYONLAVA",            0, field_t(struct ObjectConfigStats, destroy_on_lava),               0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"LAVADESTROYEFFECT",        0, field_t(struct ObjectConfigStats, lava_burn_effect),   TngEff_HarmlessGas2, INT32_MIN,UINT32_MAX, NULL,                 value_effOrEffEl,assign_default},
+    {"WATERDESTROYEFFECT",       0, field_t(struct ObjectConfigStats, water_splash_effect),TngEff_Drip3, INT32_MIN,UINT32_MAX, NULL,                        value_effOrEffEl,assign_default},
     {"HEALTH",                   0, field_t(struct ObjectConfigStats, health),                        0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"FALLACCELERATION",         0, field_t(struct ObjectConfigStats, fall_acceleration),             0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"LIGHTUNAFFECTED",          0, field_t(struct ObjectConfigStats, light_unaffected),              0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},

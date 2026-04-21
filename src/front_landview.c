@@ -55,6 +55,7 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 #include "front_input.h"
+#include "net_game.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -1517,17 +1518,18 @@ void frontmap_input(void)
     }
     if (zoom_done)
     {
+         int32_t val;
       check_mouse_scroll();
-      if (is_key_pressed(KC_F11, KMod_CONTROL))
+      if (is_game_key_pressed(Gkey_LVShowAllEnsigns, &val, false))
       {
         if (game.easter_eggs_enabled == true)
         {
           set_all_ensigns_state(LvSt_Visible);
-          clear_key_pressed(KC_F11);
+          clear_key_pressed(val);
           return;
         }
       }
-      if (is_key_pressed(KC_F10, KMod_CONTROL))
+      if (is_game_key_pressed(Gkey_LVNextLevel, &val, false))
       {
         if (game.easter_eggs_enabled == true)
         {
@@ -1535,11 +1537,11 @@ void frontmap_input(void)
           frontmap_unload();
           frontmap_load();
           //update_ensigns_visibility();
-          clear_key_pressed(KC_F10);
+          clear_key_pressed(val);
           return;
         }
       }
-      if (is_key_pressed(KC_F9, KMod_CONTROL))
+      if (is_game_key_pressed(Gkey_LVPrevLevel, &val, false))
       {
         if (game.easter_eggs_enabled == true)
         {
@@ -1547,7 +1549,7 @@ void frontmap_input(void)
           frontmap_unload();
           frontmap_load();
           //update_ensigns_visibility();
-          clear_key_pressed(KC_F9);
+          clear_key_pressed(val);
           return;
         }
       }
@@ -1743,6 +1745,12 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
         struct ScreenPacket* nspck = &net_screen_packet[i];
         if ((nspck->networkstatus_flags & 0x01) == 0)
           continue;
+        if (i != my_player_number && !network_player_active(i))
+        {
+            LbNetwork_EnableNewPlayers(1);
+            frontend_set_state(FeSt_NET_START);
+            return false;
+        }
         if (nspck->param1 == LEVELNUMBER_ERROR)
         {
             if (fe_network_active)
