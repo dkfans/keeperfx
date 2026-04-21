@@ -14,6 +14,7 @@
  *     hzzdev - 18 Sep 2025, Add sprite loading for mods.
  *     hzzdev - 30 Oct 2025, Add multi-lang string loading for mods.
  *     hzzdev - 23 Feb 2026, Add texture loading for mods.
+ *     hzzdev - 20 Apr 2026, Add lua loading for mods.
  *
  */
 /******************************************************************************/
