@@ -1130,14 +1130,42 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
 
     if (is_game_key_pressed(Gkey_CheatMenu2, &val, false))
     {
-        // Note that we're using "close", not "toggle". Menu can't be opened here.
-        if (close_creature_cheat_menu())
-        {
-            clear_key_pressed(val);
-        }
-		else if (toggle_secondary_cheat_menu())
+		if ( (player->continue_work_state == PSt_CreatrQuery) || (player->continue_work_state == PSt_QueryAll) )
 		{
-			clear_key_pressed(val);
+			struct Thing *creatng = thing_get(player->influenced_thing_idx);
+			if (thing_is_creature(creatng))
+			{
+				if (toggle_creature_cheat_menu())
+				{
+					clear_key_pressed(val);
+				}
+			}
+			else
+			{
+				if (close_creature_cheat_menu())
+				{
+					clear_key_pressed(val);
+				}
+				else if (toggle_secondary_cheat_menu())
+				{
+					clear_key_pressed(val);
+				}
+			}
+		}
+		else
+		{
+			// Note that we're using "close", not "toggle". Menu can't be opened here.
+			if (close_creature_cheat_menu())
+			{
+				clear_key_pressed(val);
+			}
+			else
+			{
+				if (toggle_secondary_cheat_menu())
+				{
+					clear_key_pressed(val);
+				}
+			}
 		}
     }
     if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
