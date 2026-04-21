@@ -331,87 +331,24 @@ void poll_controller()
 
 
 
-        TbBool has_triggers =
-            SDL_GameControllerHasAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) &&
-            SDL_GameControllerHasAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-
-        if(has_triggers)
-        {
-            // Handle triggers for mouse buttons
-            Sint16 lt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
-            Sint16 rt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-            struct TbPoint delta = {0, 0};
-            if (lt > 10000 && !lt_pressed) {
-                lt_pressed = true;
-                mouseControl(MActn_RBUTTONDOWN, &delta);
-            } else if (lt <= 10000 && lt_pressed) {
-                lt_pressed = false;
-                mouseControl(MActn_RBUTTONUP, &delta);
-            }
-            if (rt > 10000 && !rt_pressed) {
-                rt_pressed = true;
-                mouseControl(MActn_LBUTTONDOWN, &delta);
-            } else if (rt <= 10000 && rt_pressed) {
-                rt_pressed = false;
-                mouseControl(MActn_LBUTTONUP, &delta);
-            }
+        // Handle triggers for mouse buttons
+        Sint16 lt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+        Sint16 rt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+        struct TbPoint delta = {0, 0};
+        if (lt > 10000 && !lt_pressed) {
+            lt_pressed = true;
+            mouseControl(MActn_RBUTTONDOWN, &delta);
+        } else if (lt <= 10000 && lt_pressed) {
+            lt_pressed = false;
+            mouseControl(MActn_RBUTTONUP, &delta);
         }
-        else {
-            struct TbPoint delta = {0, 0};
-
-            Uint8 current_leftshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-            if (current_leftshoulder && !prev_leftshoulder) {
-                mouseControl(MActn_RBUTTONDOWN, &delta);
-            }
-            else if (!current_leftshoulder && prev_leftshoulder) {
-                mouseControl(MActn_RBUTTONUP, &delta);
-            }
-            prev_leftshoulder = current_leftshoulder;
-
-            Uint8 current_rightshoulder = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-            if (current_rightshoulder && !prev_rightshoulder) {
-                mouseControl(MActn_LBUTTONDOWN, &delta);
-            }
-            else if (!current_rightshoulder && prev_rightshoulder) {
-                mouseControl(MActn_LBUTTONUP, &delta);
-            }
-            prev_rightshoulder = current_rightshoulder;
+        if (rt > 10000 && !rt_pressed) {
+            rt_pressed = true;
+            mouseControl(MActn_LBUTTONDOWN, &delta);
+        } else if (rt <= 10000 && rt_pressed) {
+            rt_pressed = false;
+            mouseControl(MActn_LBUTTONUP, &delta);
         }
-
-        lbKeyOn[KC_LSHIFT] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
-        lbKeyOn[KC_LCONTROL] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
-        lbKeyOn[settings.kbkeys[Gkey_ZoomToFight].code]   = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
-        lbKeyOn[settings.kbkeys[Gkey_ZoomRoomHeart].code] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
-
-        // Handle Start and Back buttons with edge detection to simulate key presses
-        lbKeyOn[KC_SPACE] = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK);
-
-
-        Uint8 current_back = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
-        if (current_back && !prev_back) {
-            keyboardControl(KActn_KEYDOWN, KC_ESCAPE, KMod_NONE, 0);
-            keyboardControl(KActn_KEYDOWN, KC_P, KMod_NONE, 0);
-        } else if (!current_back && prev_back) {
-            keyboardControl(KActn_KEYUP, KC_ESCAPE, KMod_NONE, 0);
-            keyboardControl(KActn_KEYUP, KC_P, KMod_NONE, 0);
-        }
-        prev_back = current_back;
-
-        Uint8 current_joy_left = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSTICK);
-        if (current_joy_left && !prev_joy_left) {
-            keyboardControl(KActn_KEYDOWN, settings.kbkeys[Gkey_SwitchToMap].code, KMod_NONE, 0);
-        } else if (!current_joy_left && prev_joy_left) {
-            keyboardControl(KActn_KEYUP, settings.kbkeys[Gkey_SwitchToMap].code, KMod_NONE, 0);
-        }
-        prev_joy_left = current_joy_left;
-
-        //Uint8 current_joy_right = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSTICK);
-        //if (current_joy_right && !prev_joy_right) {
-        //    keyboardControl(KActn_KEYDOWN, KC_P, KMod_NONE, 0);
-        //} else if (!current_joy_right && prev_joy_right) {
-        //    keyboardControl(KActn_KEYUP, KC_P, KMod_NONE, 0);
-        //}
-        //prev_joy_right = current_joy_right;
 
 */
     }
