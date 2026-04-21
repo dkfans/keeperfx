@@ -64,8 +64,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct NetMapPlayersState {
-    long tmp1;
-    LevelNumber lvnum;
+    int32_t unselected_players;
+    LevelNumber selected_level_number;
     TbBool is_selected;
 };
 
@@ -140,7 +140,7 @@ short is_over_ensign(const struct LevelInformation *lvinfo, long scr_x, long scr
 {
     long map_x = map_info.screen_shift_x + scr_x * 16 / units_per_pixel_landview;
     long map_y = map_info.screen_shift_y + scr_y * 16 / units_per_pixel_landview;
-    const struct TbSprite* spr = get_map_ensign(10);
+    const struct TbSprite* spr = get_map_ensign(EnsFullFlag);
     long spr_w = spr->SWidth;
     long spr_h = spr->SHeight;
     if ((map_x >= lvinfo->ensign_x-(spr_w>>1)) && (map_x < lvinfo->ensign_x+(spr_w>>1))
@@ -333,12 +333,12 @@ int get_disabled_flag_option (unsigned short ensign, unsigned short default_ensi
 const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
 {
     const struct TbSprite *spr;
-    int i = lvinfo->ensign;
     if (lvinfo == NULL)
         return NULL;
     if (lvinfo->state == LvSt_Hidden)
         return NULL;
 
+    int i = lvinfo->ensign;
     if (lvinfo->level_type & LvKind_IsSingle)
     {
         switch (lvinfo->state)
@@ -1077,7 +1077,7 @@ TbBool frontnetmap_load(void)
     if (fe_network_active)
     {
         net_number_of_players = 0;
-        for (long i = 0; i < 4; i++)
+        for (long i = 0; i < NET_PLAYERS_COUNT; i++)
         {
             struct ScreenPacket* nspck = &net_screen_packet[i];
             if ((nspck->networkstatus_flags & NetStat_PlayerConnected) != 0)
@@ -1746,7 +1746,7 @@ TbBool frontmap_exchange_screen_packet(void)
 TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
 {
     memset(scratch, 0, PALETTE_SIZE);
-    long tmp2 = -1;
+    int32_t leading_votes = -1;
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         struct ScreenPacket* nspck = &net_screen_packet[i];
@@ -1773,19 +1773,19 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
         }
         if ((nspck->action_par1 == SINGLEPLAYER_NOTSTARTED) || (screen_packet_action(nspck) == NetAct_Slapping))
         {
-            nmps->tmp1++;
+            nmps->unselected_players++;
         } else
         {
             LevelNumber pckt_lvnum = nspck->action_par1;
             scratch[pckt_lvnum]++;
-            if (scratch[pckt_lvnum] == tmp2)
+            if (scratch[pckt_lvnum] == leading_votes)
             {
                 nmps->is_selected = false;
             } else
-            if (scratch[pckt_lvnum] > tmp2)
+            if (scratch[pckt_lvnum] > leading_votes)
             {
-                nmps->lvnum = pckt_lvnum;
-                tmp2 = scratch[pckt_lvnum];
+                nmps->selected_level_number = pckt_lvnum;
+                leading_votes = scratch[pckt_lvnum];
                 nmps->is_selected = true;
             }
         }
@@ -1812,8 +1812,8 @@ TbBool frontnetmap_update(void)
     set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
 
     struct NetMapPlayersState nmps;
-    nmps.tmp1 = 0;
-    nmps.lvnum = SINGLEPLAYER_NOTSTARTED;
+    nmps.unselected_players = 0;
+    nmps.selected_level_number = SINGLEPLAYER_NOTSTARTED;
     nmps.is_selected = false;
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
@@ -1827,12 +1827,12 @@ TbBool frontnetmap_update(void)
         frontmap_exchange_screen_packet();
         frontnetmap_update_players(&nmps);
     }
-    if ((!nmps.tmp1) && (nmps.lvnum > 0) && (nmps.is_selected))
+    if ((!nmps.unselected_players) && (nmps.selected_level_number > 0) && (nmps.is_selected))
     {
-        set_selected_level_number(nmps.lvnum);
-        snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.lvnum);
+        set_selected_level_number(nmps.selected_level_number);
+        snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.selected_level_number);
         map_info.state_trigger = (fe_network_active < 1) ? FeSt_START_KPRLEVEL : FeSt_START_MPLEVEL;
-        frontmap_zoom_in_init(nmps.lvnum);
+        frontmap_zoom_in_init(nmps.selected_level_number);
         if (!fe_network_active)
             fe_computer_players = 1;
     }
