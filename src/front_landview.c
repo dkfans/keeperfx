@@ -73,6 +73,13 @@ struct NetMapPlayersState {
 #define WINDOW_X_SIZE 960
 #define WINDOW_Y_SIZE 720
 #define LANDVIEW_BASE_FPS 33.0f
+
+enum NetMapSlapFrame {
+    NetMapSlap_StartFrame = 9,
+    NetMapSlap_HitFrame = 13,
+    NetMapSlap_EndFrame = 16,
+};
+
 static float get_landview_delta_time(void) {
     if (is_feature_on(Ft_DeltaTime))
         return game.delta_time * (LANDVIEW_BASE_FPS / game_num_fps);
@@ -1587,7 +1594,7 @@ void frontnetmap_input(void)
           {
               if ((!net_map_slap_frame) && (!net_map_limp_time))
               {
-                  net_map_slap_frame = 9;
+                  net_map_slap_frame = NetMapSlap_StartFrame;
               }
           } else
         {
@@ -1711,7 +1718,7 @@ TbBool frontmap_exchange_screen_packet(void)
     {
         nspck->stored_data1 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
         nspck->stored_data2 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
-        if (net_map_slap_frame <= 16)
+        if (net_map_slap_frame <= NetMapSlap_EndFrame)
         {
           screen_packet_set_action(nspck, NetAct_Slapping);
           nspck->action_par1 = net_map_slap_frame;
@@ -1782,7 +1789,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
                 nmps->is_selected = true;
             }
         }
-        if ((screen_packet_action(nspck) == NetAct_Slapping) && (nspck->action_par1 == 13))
+        if ((screen_packet_action(nspck) == NetAct_Slapping) && (nspck->action_par1 == NetMapSlap_HitFrame))
         {
             if ( test_hand_slap_collides(i) )
             {
