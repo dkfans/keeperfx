@@ -469,8 +469,9 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
 int64_t value_name(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     size_t offset = named_fields_set->struct_size * idx;
-    strncpy((char*)named_field->field + offset, value_text, COMMAND_WORD_LEN - 1);
-    ((char*)named_field->field + offset)[COMMAND_WORD_LEN - 1] = '\0';
+    char* base = (char*)named_fields_set->get_struct_base() + (ptrdiff_t)named_field->field;
+    strncpy(base + offset, value_text, COMMAND_WORD_LEN - 1);
+    (base + offset)[COMMAND_WORD_LEN - 1] = '\0';
     return 0;
 }
 
@@ -666,7 +667,7 @@ int64_t parse_named_field_value(const struct NamedField* named_field, const char
 
 int64_t get_named_field_value(const struct NamedField* named_field, const struct NamedFieldSet* named_fields_set, int idx)
 {
-    void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
+    void* field = (char*)named_fields_set->get_struct_base() + (ptrdiff_t)named_field->field + named_fields_set->struct_size * idx;
     switch (named_field->type)
     {
     case dt_uchar:
@@ -713,7 +714,7 @@ void assign_null(const struct NamedField* named_field, int64_t value, const stru
 
 void assign_default(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
+    void* field = (char*)named_fields_set->get_struct_base() + (ptrdiff_t)named_field->field + named_fields_set->struct_size * idx;
     switch (named_field->type)
     {
     case dt_uchar:
@@ -1005,7 +1006,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set, const char *conf
   {
       for (int i = 0; i < named_fields_set->max_count; i++)
       {
-          named_fields_set->names[i].name = (char*)name_NamedField->field + i * named_fields_set->struct_size;
+          named_fields_set->names[i].name = (char*)named_fields_set->get_struct_base() + (ptrdiff_t)name_NamedField->field + i * named_fields_set->struct_size;
           named_fields_set->names[i].num = i;
       }
       named_fields_set->names[named_fields_set->max_count - 1].name = NULL; // must be null for get_id
