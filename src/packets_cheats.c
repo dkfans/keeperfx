@@ -904,6 +904,13 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
 			apply_spell_effect_to_thing(thing, pckt->actn_par1, SPELL_MAX_LEVEL, plyr_idx);
 			return false;
 		}
+		case PckA_CheatKillCreature:
+		{
+			player = get_player(plyr_idx);
+			struct Thing* thing = thing_get(player->controlled_thing_idx);
+			kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+			return false;
+		}
         default:
           return false;
   }
