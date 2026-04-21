@@ -158,7 +158,7 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"ZoomMinimapOut",        GUIStr_ZoomMinimapOut,          KC_SUBTRACT, KMod_NONE,        CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomMinimapOut,
     {"ToggleGui",             GUIStr_ToggleGui,               KC_TAB, KMod_CONTROL,          CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleGui,
     {"ToggleTooltips",        GUIStr_ToggleTooltips,          KC_F8, KMod_NONE,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleTooltips,
-    {"ExitGame",              GUIStr_ExitGame,                KC_X,   KMod_ALT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ExitGame,
+    {"ExitGame",              GUIStr_ExitGame,                KC_X,   KMod_ALT,              CBtn_START|CBtn_BACK,     BMV_Visible,        },       // Gkey_ExitGame,
     {"DisablePacketMode",     GUIStr_DisablePacketMode,       KC_T,   KMod_ALT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_DisablePacketMode,
     {"SwitchScreenRes",       GUIStr_SwitchScreenRes,         KC_R,   KMod_ALT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_SwitchScreenRes,
     {"ToggleConsole",         GUIStr_ToggleConsole,           KC_GRAVE, KMod_NONE,           CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleConsole,
