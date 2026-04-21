@@ -89,11 +89,11 @@ struct ScreenPacket {
   unsigned char action_par2;
 };
 
-static inline enum NetAction screen_packet_action(const struct ScreenPacket *nspck) {
-    return (enum NetAction)(nspck->networkstatus_flags & NetStat_ActionMask);
+static inline unsigned char screen_packet_action(const struct ScreenPacket *nspck) {
+    return nspck->networkstatus_flags & NetStat_ActionMask;
 }
 
-static inline void screen_packet_set_action(struct ScreenPacket *nspck, enum NetAction action) {
+static inline void screen_packet_set_action(struct ScreenPacket *nspck, unsigned char action) {
     nspck->networkstatus_flags = (nspck->networkstatus_flags & NetStat_NonActionMask) | action;
 }
 

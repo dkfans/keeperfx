@@ -338,71 +338,71 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
     if (lvinfo->state == LvSt_Hidden)
         return NULL;
 
-    int i = lvinfo->ensign_type;
+    int ensign_sprite_index = lvinfo->ensign_type;
     if (lvinfo->level_type & LvKind_IsSingle)
     {
         switch (lvinfo->state)
         {
         case LvSt_Visible:
-            if (i == 0)
-                i = EnsFullFlag;
+            if (ensign_sprite_index == 0)
+                ensign_sprite_index = EnsFullFlag;
             if (lvinfo->lvnum == mouse_over_lvnum)
-                i += 4;
-            spr = get_map_ensign(i + (anim_frame & 3));
+                ensign_sprite_index += 4;
+            spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
             break;
         default:
-            i = get_disabled_flag_option(lvinfo->ensign_type, EnsFullFlag);
-            spr = get_map_ensign(i);
+            ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsFullFlag);
+            spr = get_map_ensign(ensign_sprite_index);
             break;
         }
     } else
     if (lvinfo->level_type & LvKind_IsBonus)
     {
-        if (i == 0)
-            i = EnsBonus;
+        if (ensign_sprite_index == 0)
+            ensign_sprite_index = EnsBonus;
         switch (lvinfo->state)
         {
         case LvSt_Visible:
             if (lvinfo->lvnum == mouse_over_lvnum)
-                i += 4;
-            spr = get_map_ensign(i + (anim_frame & 3));
+                ensign_sprite_index += 4;
+            spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
             break;
         default:
-            i = get_disabled_flag_option(lvinfo->ensign_type, EnsTutorial);
-            spr = get_map_ensign(i);
+            ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsTutorial);
+            spr = get_map_ensign(ensign_sprite_index);
             break;
         }
     } else
     if (lvinfo->level_type & LvKind_IsExtra)
     {
-        if (i == 0)
+        if (ensign_sprite_index == 0)
         {
             if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
             {
-                i = EnsNewMoon;
+                ensign_sprite_index = EnsNewMoon;
             }
             else
             {
-                i = EnsFullMoon;
+                ensign_sprite_index = EnsFullMoon;
             }
         }
         switch (lvinfo->state)
         {
             case LvSt_Visible:
                 if (lvinfo->lvnum == mouse_over_lvnum)
-                    i += 4;
-                spr = get_map_ensign(i + (anim_frame & 3));
+                    ensign_sprite_index += 4;
+                spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
                 break;
             default:
                 if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign_type, EnsNewMoon);
+                    ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsNewMoon);
                 }
                 else
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign_type, EnsFullMoon);
+                    ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsFullMoon);
                 }
-                spr = get_map_ensign(i);
+                spr = get_map_ensign(ensign_sprite_index);
                 break;
         }
     } else
@@ -413,40 +413,40 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             switch (lvinfo->players)
             {
             case 2:
-                i = 5;
+                ensign_sprite_index = 5;
                 break;
             case 3:
-                i = 7;
+                ensign_sprite_index = 7;
                 break;
             case 4:
-                i = 9;
+                ensign_sprite_index = 9;
                 break;
             default:
-                i = 5;
+                ensign_sprite_index = 5;
                 break;
             }
             if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
-                i++;
+                ensign_sprite_index++;
         }
         else
         {
             switch (lvinfo->players)
             {
             case 2:
-                i = EnsDisMulti2;
+                ensign_sprite_index = EnsDisMulti2;
                 break;
             case 3:
-                i = EnsDisMulti3;
+                ensign_sprite_index = EnsDisMulti3;
                 break;
             case 4:
-                i = EnsDisMulti4;
+                ensign_sprite_index = EnsDisMulti4;
                 break;
             default:
-                i = EnsDisMulti2;
+                ensign_sprite_index = EnsDisMulti2;
                 break;
             }
         }
-        spr = get_map_ensign(i);
+        spr = get_map_ensign(ensign_sprite_index);
     }
     else
     {
@@ -1389,7 +1389,7 @@ void draw_netmap_players_hands(void)
   long h;
   long i;
   long k;
-  enum NetAction action;
+  unsigned char action;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
       nspck = &net_screen_packet[i];
@@ -1831,7 +1831,11 @@ TbBool frontnetmap_update(void)
     {
         set_selected_level_number(nmps.selected_level_number);
         snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.selected_level_number);
-        map_info.state_trigger = (fe_network_active < 1) ? FeSt_START_KPRLEVEL : FeSt_START_MPLEVEL;
+        if (fe_network_active < 1) {
+            map_info.state_trigger = FeSt_START_KPRLEVEL;
+        } else {
+            map_info.state_trigger = FeSt_START_MPLEVEL;
+        }
         frontmap_zoom_in_init(nmps.selected_level_number);
         if (!fe_network_active)
             fe_computer_players = 1;
