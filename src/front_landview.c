@@ -305,16 +305,16 @@ void update_frontmap_ambient_sound(void)
     }
 }
 
-int get_disabled_flag_option (unsigned short ensign, unsigned short default_ensign)
+int get_disabled_flag_option(unsigned short ensign_type, unsigned short default_ensign)
 {
     int base_ensign;
-    if (ensign == 0)
+    if (ensign_type == 0)
     {
         base_ensign = default_ensign;
     }
     else
     {
-        base_ensign = ensign;
+        base_ensign = ensign_type;
     }
     if (base_ensign == EnsTutorial)
         return EnsDisTutorial;
@@ -338,7 +338,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
     if (lvinfo->state == LvSt_Hidden)
         return NULL;
 
-    int i = lvinfo->ensign;
+    int i = lvinfo->ensign_type;
     if (lvinfo->level_type & LvKind_IsSingle)
     {
         switch (lvinfo->state)
@@ -351,7 +351,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             spr = get_map_ensign(i + (anim_frame & 3));
             break;
         default:
-            i = get_disabled_flag_option(lvinfo->ensign, EnsFullFlag);
+            i = get_disabled_flag_option(lvinfo->ensign_type, EnsFullFlag);
             spr = get_map_ensign(i);
             break;
         }
@@ -368,7 +368,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             spr = get_map_ensign(i + (anim_frame & 3));
             break;
         default:
-            i = get_disabled_flag_option(lvinfo->ensign, EnsTutorial);
+            i = get_disabled_flag_option(lvinfo->ensign_type, EnsTutorial);
             spr = get_map_ensign(i);
             break;
         }
@@ -396,11 +396,11 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             default:
                 if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign, EnsNewMoon);
+                    i = get_disabled_flag_option(lvinfo->ensign_type, EnsNewMoon);
                 }
                 else
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign, EnsFullMoon);
+                    i = get_disabled_flag_option(lvinfo->ensign_type, EnsFullMoon);
                 }
                 spr = get_map_ensign(i);
                 break;
