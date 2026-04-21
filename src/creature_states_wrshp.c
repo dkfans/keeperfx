@@ -274,7 +274,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
     cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon *dungeon;
     dungeon = get_dungeon(creatng->owner);
-    if ((game.play_gameturn - dungeon->turn_last_manufacture < 50) && ((game.play_gameturn + creatng->index) & 3) == 0)
+    if ((get_gameturn() - dungeon->turn_last_manufacture < 50) && ((get_gameturn() + creatng->index) & 3) == 0)
     {
         if (cctrl->instance_id == CrInst_NULL) {
             set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);

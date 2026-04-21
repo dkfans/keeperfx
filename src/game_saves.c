@@ -150,7 +150,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             chunks_done |= SGF_InfoBlock;
     }
     // If it's not start of a level, save progress data too
-    if (game.play_gameturn != 0)
+    if (get_gameturn() != 0)
     {
         { // Game data chunk
             hdr.id = SGC_GameOrig;

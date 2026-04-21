@@ -78,7 +78,7 @@ short room_grow_food(struct Room *room)
         count_food_in_room(room);
     }
     if ((room->used_capacity >= room->total_capacity)
-      || game.play_gameturn % ((game.conf.rules[room->owner].rooms.food_generation_speed / room->total_capacity) + 1))
+      || get_gameturn() % ((game.conf.rules[room->owner].rooms.food_generation_speed / room->total_capacity) + 1))
     {
         return 0;
     }

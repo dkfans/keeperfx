@@ -29,6 +29,7 @@
 #include "net_game.h"
 #include "game_legacy.h"
 #include "lens_api.h"
+#include "lua_base.h"
 #include "net_input_lag.h"
 #include "net_received_packets.h"
 #include "net_redundant_packets.h"
@@ -101,7 +102,7 @@ struct TimeSyncResponse {
 };
 
 void animate_resync_progress_bar(int current_phase, int total_phases) {
-    if (game.play_gameturn == 0) {
+    if (get_gameturn() == 0) {
         return;
     }
     if ((game.operation_flags & GOF_Paused) != 0) {
@@ -354,6 +355,9 @@ void resync_game(void) {
         send_resync_game();
     } else {
         receive_resync_game();
+    }
+    if (Lvl_script != NULL) {
+        lua_set_random_seed(game.action_random_seed);
     }
     recall_localised_game_structure();
     reinit_level_after_load();

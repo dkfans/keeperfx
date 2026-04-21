@@ -30,7 +30,9 @@ extern "C" {
 
 #define CLIENT_TABLE_LEN 32
 
-#define TIMEOUT_ENET_CONNECT 15000
+#define TIMEOUT_CONNECT_HOLEPUNCH 5000
+#define TIMEOUT_CONNECT_DIRECT_IPV6 5000
+#define TIMEOUT_CONNECT_DIRECT_IPV4 5000
 #define TIMEOUT_JOIN_LOBBY 2000
 #define TIMEOUT_LOBBY_EXCHANGE 3000
 #define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
@@ -55,7 +57,7 @@ enum NetMessageType {
     NETMSG_LOGIN,
     NETMSG_USERUPDATE,
     NETMSG_FRONTEND,
-    NETMSG_SMALLDATA,
+    NETMSG_STARTUP_SYNC,
     NETMSG_GAMEPLAY,
     NETMSG_RESYNC_DATA,
     NETMSG_RESYNC_RESUME,
@@ -184,7 +186,7 @@ struct ConfigInfo {
 
 struct TbNetworkPlayerInfo {
 char name[32];
-long active;
+long network_user_active;
 };
 
 struct TbNetworkCallbackData {

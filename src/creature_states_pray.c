@@ -147,7 +147,7 @@ long process_temple_cure(struct Thing *creatng)
     }
     // TODO: Make it configurable by room type.
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    cctrl->temple_cure_gameturn = game.play_gameturn;
+    cctrl->temple_cure_gameturn = get_gameturn();
     return 1;
 }
 

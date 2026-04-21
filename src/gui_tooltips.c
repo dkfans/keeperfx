@@ -245,7 +245,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                 update_gui_tooltip_target(thing);
                 if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
                 {
-                    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[objst->related_creatr_model];
+                    struct CreatureModelConfig* crconf = creature_stats_get(objst->related_creatr_model);
                     const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);     //TODO use a separate string for creature lair object than for lair room
                     set_gui_tooltip_box_fmt(5, "%s %s", get_string(crconf->namestr_idx), get_string(roomst->name_stridx)); // (creature) Lair
                 }
@@ -373,7 +373,7 @@ void setup_gui_tooltip(struct GuiButton* gbtn)
             k = get_players_special_digger_model(my_player_number);
         if (k > 0)
         {
-            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[k];
+            struct CreatureModelConfig* crconf = creature_stats_get(k);
             set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crconf->namestr_idx), text);
         }
     }

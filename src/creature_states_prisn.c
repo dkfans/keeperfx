@@ -115,9 +115,9 @@ short creature_arrived_at_prison(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    cctrl->turns_at_job = game.play_gameturn;
-    cctrl->imprison.start_gameturn = game.play_gameturn;
-    cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
+    cctrl->turns_at_job = get_gameturn();
+    cctrl->imprison.start_gameturn = get_gameturn();
+    cctrl->imprison.last_mood_sound_turn = get_gameturn();
     cctrl->creature_control_flags |= CCFlg_NoCompControl;
     internal_set_thing_state(creatng, get_continue_state_for_job(Job_CAPTIVITY));
     if (creature_under_spell_effect(creatng, CSAfF_Speed))
@@ -127,6 +127,9 @@ short creature_arrived_at_prison(struct Thing *creatng)
     if (creature_under_spell_effect(creatng, CSAfF_Invisibility))
     {
         clean_spell_effect(creatng, CSAfF_Invisibility);
+    }
+    if (creature_under_spell_effect(creatng, CSAfF_SpellBlocks)) {
+        clean_spell_effect(creatng, CSAfF_SpellBlocks);
     }
     if (creatng->light_id != 0) {
         light_delete_light(creatng->light_id);
@@ -274,20 +277,20 @@ CrStateRet process_prison_visuals(struct Thing *creatng, struct Room *room)
     if (cctrl->instance_id != CrInst_NULL) {
         return CrStRet_Unchanged;
     }
-    if (game.play_gameturn - cctrl->turns_at_job > 200)
+    if (get_gameturn() - cctrl->turns_at_job > 200)
     {
-        if (game.play_gameturn - cctrl->turns_at_job < 250)
+        if (get_gameturn() - cctrl->turns_at_job < 250)
         {
             set_creature_instance(creatng, CrInst_MOAN, 0, 0);
             event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_PrisonerStarving, room->owner, creatng->index);
-            if (game.play_gameturn - cctrl->imprison.last_mood_sound_turn > 32)
+            if (get_gameturn() - cctrl->imprison.last_mood_sound_turn > 32)
             {
                 play_creature_sound(creatng, CrSnd_Sad, 2, 0);
-                cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
+                cctrl->imprison.last_mood_sound_turn = get_gameturn();
             }
             return CrStRet_Modified;
         }
-        cctrl->turns_at_job = game.play_gameturn;
+        cctrl->turns_at_job = get_gameturn();
     }
     if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_CAPTIVITY)) {
         return CrStRet_Unchanged;
@@ -409,7 +412,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 
     if ( thing_is_invalid(foodtng) )
     {
-        long offsetted_gameturn = game.play_gameturn + creatng->index;
+        long offsetted_gameturn = get_gameturn() + creatng->index;
        if ((offsetted_gameturn % 64 == 0)
         && thing_is_invalid(get_food_at_subtile_available_to_eat_and_owned_by(cctrl->moveto_pos.x.stl.num,cctrl->moveto_pos.y.stl.num, -1)))
         {
@@ -483,8 +486,8 @@ CrCheckRet process_prison_function(struct Thing *creatng)
     if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room))
         return CrCkRet_Continue;
     // Breaking from jail is only possible once per some amount of turns, and only if creature sits in jail for long enough.
-    if (((game.play_gameturn % game.conf.rules[room->owner].rooms.time_between_prison_break) == 0) &&
-        (game.play_gameturn > cctrl->imprison.start_gameturn + game.conf.rules[room->owner].rooms.time_in_prison_without_break))
+    if (((get_gameturn() % game.conf.rules[room->owner].rooms.time_between_prison_break) == 0) &&
+        (get_gameturn() > cctrl->imprison.start_gameturn + game.conf.rules[room->owner].rooms.time_in_prison_without_break))
     {
         // Check the base jail break condition - whether prison touches enemy land.
         if (jailbreak_possible(room, creatng->owner) && (THING_RANDOM(creatng, 100) < game.conf.rules[room->owner].rooms.prison_break_chance))

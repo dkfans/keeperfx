@@ -54,8 +54,8 @@ struct TbSpriteSheet * gui_panel_sprites = NULL;
 struct TbSpriteSheet * custom_sprites = NULL;
 struct NamedCommand *anim_names = NULL;
 
-short iso_td_add[KEEPERSPRITE_ADD_NUM];
-short td_iso_add[KEEPERSPRITE_ADD_NUM];
+short td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
+short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
 
 TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM] = {
         0
@@ -97,6 +97,10 @@ static int num_added_lens_mists = 0;
 unsigned char base_pal[PALETTE_SIZE];
 
 int total_sprite_zip_count = 0;
+uint32_t sprite_zip_combined_checksum = 0;
+
+// Used to cheaply detect mismatched custom sprites between players; makes file order matter when combining checksums, without this XOR alone gives the same result regardless of order.
+#define ROL32_5(x) (((uint32_t)(x) << 5) | ((uint32_t)(x) >> 27))
 
 // Indicates what custom assets to load
 enum CustomLoadFlags {
@@ -227,6 +231,31 @@ static int cmp_named_command(const void *a, const void *b)
 }
 
 
+static uint32_t compute_zip_checksum(const char *path)
+{
+    long file_length = LbFileLength(path);
+    if (file_length <= 0) {
+        return 0;
+    }
+    TbFileHandle handle = LbFileOpen(path, Lb_FILE_MODE_READ_ONLY);
+    if (handle == NULL) {
+        return 0;
+    }
+    unsigned char *buffer = malloc(file_length);
+    if (buffer == NULL) {
+        LbFileClose(handle);
+        return 0;
+    }
+    LbFileRead(handle, buffer, file_length);
+    LbFileClose(handle);
+    uint32_t checksum = 0;
+    for (long i = 0; i < file_length; i++) {
+        checksum = ROL32_5(checksum) ^ buffer[i];
+    }
+    free(buffer);
+    return checksum;
+}
+
 static int load_file_sprites(const char *path, const char *file_desc)
 {
     SYNCDBG(8, "Starting");
@@ -287,8 +316,10 @@ static int load_file_sprites(const char *path, const char *file_desc)
         {
             SYNCDBG(0, "Unable to load lens mists from %s", file_desc);
         }
-        total_sprite_zip_count++;
     }
+
+    sprite_zip_combined_checksum = ROL32_5(sprite_zip_combined_checksum) ^ compute_zip_checksum(path);
+    total_sprite_zip_count++;
 
     return add_flag;
 }
@@ -317,7 +348,6 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
 
         if (dir_desc != NULL)
             LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
-        total_sprite_zip_count += cnt_zip;
     }
 }
 
@@ -384,6 +414,7 @@ void init_custom_sprites(LevelNumber lvnum)
     free_spritesheet(&custom_sprites);
     custom_sprites = create_spritesheet();
     total_sprite_zip_count = 0;
+    sprite_zip_combined_checksum = 0;
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
@@ -798,7 +829,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-branch-clone"
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
-                         int fp, VALUE *def, VALUE *itm)
+                         int is_fp, VALUE *def, VALUE *itm)
 {
     struct TbHugeSprite *sprite = &context->sprite;
     size_t out_size;
@@ -905,7 +936,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     { \
         ksprite-> dst = fn(val); \
     } \
-    else if (val = value_dict_get(def, fp ? fp_def : td_def), \
+    else if (val = value_dict_get(def, is_fp ? fp_def : td_def), \
             value_type(val) != VALUE_NULL \
             ) \
     {                                                              \
@@ -1140,9 +1171,9 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
 
     int prev_sz;
     VALUE *ud_lst;
-    for (int fp = 0; fp < 2; fp++)
+    for (int is_fp = 0; is_fp < 2; is_fp++)
     {
-        if (fp == 0)
+        if (is_fp == 0)
         {
             ud_lst = value_dict_get(node, "td");
             prev_sz = value_array_size(value_array_get(ud_lst, 0));
@@ -1198,7 +1229,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                 fprintf(stderr, "F:%s/%s\n", path, name);
                 fprintf(stderr, "A:%d\n", SDL_GetTicks());
 #endif
-                if (!read_png_data(zip, path, context, name, fp, node, itm))
+                if (!read_png_data(zip, path, context, name, is_fp, node, itm))
                 {
                     // Reverting possible changes
                     *context->id_ptr = store_p;
@@ -1245,10 +1276,10 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
     {
         short fp_id = context->fp_id + i;
         short td_id = context->td_id + i;
-        td_iso_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
-        iso_td_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
-        iso_td_add[td_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
-        td_iso_add[td_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
+        fp_to_td_sprite_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
+        td_to_fp_sprite_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
+        td_to_fp_sprite_add[td_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
+        fp_to_td_sprite_add[td_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
     }
     return context->td_sz <= 0;
 }

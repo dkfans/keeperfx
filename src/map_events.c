@@ -216,7 +216,7 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
     if (i != 0)
     {
         long k = event_button_info[evkind].turns_between_events;
-        if ((k != 0) && (i+k >= game.play_gameturn))
+        if ((k != 0) && (i+k >= get_gameturn()))
         {
           return INVALID_EVENT;
         }
@@ -272,7 +272,7 @@ void event_update_last_use(struct Event *event)
         ERRORLOG("Illegal Event kind %d to be updated",(int)event->kind);
         return;
     }
-    dungeon->event_last_run_turn[event->kind] = game.play_gameturn;
+    dungeon->event_last_run_turn[event->kind] = get_gameturn();
 }
 
 void event_delete_event(long plyr_idx, EventIndex evidx)
@@ -347,7 +347,7 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
                 if (is_my_player_number(dungeon->owner))
                 {
                     struct PlayerInfo* player = get_player(dungeon->owner);
-                    if ( (game.play_gameturn > 10) && (player->view_type != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
+                    if ( (get_gameturn() > 10) && (player->view_type != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
                     {
                         play_non_3d_sample(947);
                     }
@@ -440,7 +440,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (thing_exists(thing))
             {
-                crconf = &game.conf.crtr_conf.model[thing->model];
+                crconf = creature_stats_get_from_thing(thing);
                 i = crconf->namestr_idx;
                 str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             }
@@ -473,7 +473,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (thing_exists(thing))
             {
-                crconf = &game.conf.crtr_conf.model[thing->model];
+                crconf = creature_stats_get_from_thing(thing);
                 i = crconf->namestr_idx;
                 str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             }
@@ -516,7 +516,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (thing_exists(thing))
             {
-                crconf = &game.conf.crtr_conf.model[thing->model];
+                crconf = creature_stats_get_from_thing(thing);
                 i = crconf->namestr_idx;
                 str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             }

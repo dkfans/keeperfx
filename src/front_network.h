@@ -49,8 +49,10 @@ extern char tmp_net_player_name[24];
 /******************************************************************************/
 void process_network_error(long errcode);
 void draw_out_of_sync_box(long a1, long a2, long box_width);
-void display_attempting_to_join_message(int elapsed_s);
-CoroutineLoopState setup_alliances(CoroutineLoop *con);
+void display_attempting_to_join_message(int remaining_s);
+void reset_attempting_to_join_cancel(void);
+TbBool attempting_to_join_cancel_requested(void);
+void setup_alliances(void);
 void frontnet_service_setup(void);
 void frontnet_session_setup(void);
 void frontnet_start_setup(void);

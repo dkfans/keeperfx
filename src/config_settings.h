@@ -21,8 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
-#define GAME_KEYS_COUNT        45
+#include "front_input.h"
 
 #ifdef __cplusplus
 extern "C" {

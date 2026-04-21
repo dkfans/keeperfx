@@ -1367,7 +1367,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
     struct RoomConfigStats* roomst;
     int i = game.conf.slab_conf.room_types_count - 1;
 
-    roomst = &game.conf.slab_conf.room_cfgstats[i];
+    roomst = get_room_kind_stats(i);
     memset(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
@@ -2767,51 +2767,47 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     {
         switch (creature_variable)
         {
-        case 1: // HURT
-            game.conf.crtr_conf.creature_sounds[creatid].hurt.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].hurt.count = config_value_secondary;
-            break;
-        case 2: // HIT
+        case CrSnd_Hit:
             game.conf.crtr_conf.creature_sounds[creatid].hit.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].hit.count = config_value_secondary;
             break;
-        case 3: // HAPPY
+        case CrSnd_Happy:
             game.conf.crtr_conf.creature_sounds[creatid].happy.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].happy.count = config_value_secondary;
             break;
-        case 4: // SAD
+        case CrSnd_Sad:
             game.conf.crtr_conf.creature_sounds[creatid].sad.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].sad.count = config_value_secondary;
             break;
-        case 5: // HANG
+        case CrSnd_Hang:
             game.conf.crtr_conf.creature_sounds[creatid].hang.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].hang.count = config_value_secondary;
             break;
-        case 6: // DROP
+        case CrSnd_Drop:
             game.conf.crtr_conf.creature_sounds[creatid].drop.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].drop.count = config_value_secondary;
             break;
-        case 7: // TORTURE
+        case CrSnd_Torture:
             game.conf.crtr_conf.creature_sounds[creatid].torture.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].torture.count = config_value_secondary;
             break;
-        case 8: // SLAP
+        case CrSnd_Slap:
             game.conf.crtr_conf.creature_sounds[creatid].slap.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].slap.count = config_value_secondary;
             break;
-        case 9: // DIE
+        case CrSnd_Die:
             game.conf.crtr_conf.creature_sounds[creatid].die.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].die.count = config_value_secondary;
             break;
-        case 10: // FOOT
+        case CrSnd_Foot:
             game.conf.crtr_conf.creature_sounds[creatid].foot.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].foot.count = config_value_secondary;
             break;
-        case 11: // FIGHT
+        case CrSnd_Fight:
             game.conf.crtr_conf.creature_sounds[creatid].fight.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].fight.count = config_value_secondary;
             break;
-        case 12: // PISS
+        case CrSnd_Piss:
             game.conf.crtr_conf.creature_sounds[creatid].piss.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].piss.count = config_value_secondary;
             break;
@@ -4367,15 +4363,17 @@ static void set_music_check(const struct ScriptLine *scline)
 static void set_music_process(struct ScriptContext *context)
 {
     short track = context->value->chars[0];
+    if ((track > 0) && (game.music_track == track))
+    {
+        return;
+    }
     if (track == 0) {
         SCRPTLOG("Stopping music");
         stop_music();
     } else if (track < 0) {
         const char * fname = script_strval(context->value->longs[1]);
-        SCRPTLOG("Playing music from %s", fname);
         play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", fname));
     } else {
-        SCRPTLOG("Playing music track %d", track);
         play_music_track(track);
     }
 }
@@ -5482,7 +5480,7 @@ static void clear_message_process(struct ScriptContext* context)
     unsigned char count = min(context->value->chars[1], game.active_messages_count);
     for (int k = game.active_messages_count-1; k >= (game.active_messages_count-count); k--)
     {
-        game.messages[k].expiration_turn = game.play_gameturn;
+        game.messages[k].expiration_turn = get_gameturn();
     }
 }
 
