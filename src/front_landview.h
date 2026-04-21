@@ -63,14 +63,39 @@ struct MapLevelInfo { // sizeof = 56
   float screen_shift_aimed_y;
 };
 
+enum NetStatusLayout {
+    NetStat_PlayerConnected       = 0x01,
+    NetStat_ComputerPlayersMask   = 0x06,
+    NetStat_ComputerPlayersShift  = 1,
+    NetStat_NonActionMask         = 0x07,
+    NetStat_ActionMask            = 0xF8,
+};
+
+enum NetAction {
+    NetAct_None               = 0x00,
+    NetAct_Slapping           = 0x08,
+    NetAct_Limping            = 0x10,
+    NetAct_HostStartLevel     = 0x18,
+    NetAct_SetAlliance        = 0x20,
+    NetAct_SetComputerPlayers = 0x38,
+};
+
 struct ScreenPacket {
   unsigned char networkstatus_flags;
   char frontend_alliances;
   short stored_data1; // Can contain: VersionRelease (networking) or hand_position_x (landview)
   short stored_data2; // Can contain: VersionBuild (networking) or hand_position_y (landview)
-  short param1;
-  unsigned char param2;
+  short action_par1;
+  unsigned char action_par2;
 };
+
+static inline unsigned char screen_packet_action(const struct ScreenPacket *nspck) {
+    return nspck->networkstatus_flags & NetStat_ActionMask;
+}
+
+static inline void screen_packet_set_action(struct ScreenPacket *nspck, unsigned char action) {
+    nspck->networkstatus_flags = (nspck->networkstatus_flags & NetStat_NonActionMask) | action;
+}
 
 /******************************************************************************/
 extern TbClockMSec play_desc_speech_time;

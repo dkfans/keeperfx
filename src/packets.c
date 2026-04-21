@@ -1840,13 +1840,13 @@ void process_frontend_packets(void)
   long i;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    net_screen_packet[i].networkstatus_flags &= ~0x01;
+    net_screen_packet[i].networkstatus_flags &= ~NetStat_PlayerConnected;
   }
   struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
-  set_flag(nspckt->networkstatus_flags, 0x01);
+  nspckt->networkstatus_flags |= NetStat_PlayerConnected;
   nspckt->frontend_alliances = frontend_alliances;
-  set_flag(nspckt->networkstatus_flags, 0x01);
-  nspckt->networkstatus_flags ^= ((nspckt->networkstatus_flags ^ (fe_computer_players << 1)) & 0x06);
+  nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
+  nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
   nspckt->stored_data1 = VersionRelease;
   nspckt->stored_data2 = VersionBuild;
   if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
@@ -1868,15 +1868,15 @@ void process_frontend_packets(void)
   {
     nspckt = &net_screen_packet[i];
     struct PlayerInfo* player = get_player(i);
-    if ((nspckt->networkstatus_flags & 0x01) != 0)
+    if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) != 0)
     {
-        switch (nspckt->networkstatus_flags >> 3)
+        switch (screen_packet_action(nspckt))
         {
-        case 3:
+        case NetAct_HostStartLevel:
             if (!validate_versions())
             {
-                nspckt->param1 = VersionMajor;
-                nspckt->param2 = VersionMinor;
+                nspckt->action_par1 = VersionMajor;
+                nspckt->action_par2 = VersionMinor;
                 versions_different_error();
                 break;
             }
@@ -1890,11 +1890,11 @@ void process_frontend_packets(void)
                 frontend_set_state(FeSt_NETLAND_VIEW);
             }
             break;
-        case 4:
-            frontend_set_alliance(nspckt->param1, nspckt->param2);
+        case NetAct_SetAlliance:
+            frontend_set_alliance(nspckt->action_par1, nspckt->action_par2);
             break;
-        case 7:
-            fe_computer_players = nspckt->param1;
+        case NetAct_SetComputerPlayers:
+            fe_computer_players = nspckt->action_par1;
             break;
         default:
             break;
@@ -1906,20 +1906,20 @@ void process_frontend_packets(void)
       }
       if (fe_computer_players == 2)
       {
-        long k = ((nspckt->networkstatus_flags & 0x06) >> 1);
+        long k = (nspckt->networkstatus_flags & NetStat_ComputerPlayersMask) >> NetStat_ComputerPlayersShift;
         if (k != 2)
           fe_computer_players = k;
       }
       player->game_version = nspckt->stored_data2 + (nspckt->stored_data1 << 8);
     }
-    nspckt->networkstatus_flags &= 0x07;
+    screen_packet_set_action(nspckt, NetAct_None);
   }
   if (frontend_alliances == -1)
     frontend_alliances = 0;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
     nspckt = &net_screen_packet[i];
-    if ((nspckt->networkstatus_flags & 0x01) == 0)
+    if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) == 0)
     {
       if (frontend_is_player_allied(my_player_number, i))
         frontend_set_alliance(my_player_number, i);
