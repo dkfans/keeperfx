@@ -1132,7 +1132,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
     {
 		if ( (player->continue_work_state == PSt_CreatrQuery) || (player->continue_work_state == PSt_QueryAll) )
 		{
-			struct Thing *creatng = thing_get(player->influenced_thing_idx);
+			struct Thing *creatng = thing_get(player->controlled_thing_idx);
 			if (thing_is_creature(creatng))
 			{
 				if (toggle_creature_cheat_menu())
@@ -1159,12 +1159,9 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
 			{
 				clear_key_pressed(val);
 			}
-			else
+			else if (toggle_secondary_cheat_menu())
 			{
-				if (toggle_secondary_cheat_menu())
-				{
-					clear_key_pressed(val);
-				}
+				clear_key_pressed(val);
 			}
 		}
     }
