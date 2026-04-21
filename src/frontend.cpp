@@ -676,7 +676,7 @@ void versions_different_error(void)
       nspckt = &net_screen_packet[i];
       if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) != 0)
       {
-        str_appendf(text, sizeof(text), "%s: %d.%d.%d.%02d\n", plyr_nam, nspckt->param1, nspckt->param2, nspckt->stored_data1, nspckt->stored_data2);
+        str_appendf(text, sizeof(text), "%s: %d.%d.%d.%02d\n", plyr_nam, nspckt->action_par1, nspckt->action_par2, nspckt->stored_data1, nspckt->stored_data2);
       }
     }
     // Waiting for users reaction
@@ -1522,7 +1522,7 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
     if (screen_packet_action(nspck) == NetAct_None)
     {
         screen_packet_set_action(nspck, NetAct_SetComputerPlayers);
-        nspck->param1 = (fe_computer_players == 0);
+        nspck->action_par1 = (fe_computer_players == 0);
     }
 }
 

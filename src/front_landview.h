@@ -85,8 +85,8 @@ struct ScreenPacket {
   char frontend_alliances;
   short stored_data1; // Can contain: VersionRelease (networking) or hand_position_x (landview)
   short stored_data2; // Can contain: VersionBuild (networking) or hand_position_y (landview)
-  short param1;
-  unsigned char param2;
+  short action_par1;
+  unsigned char action_par2;
 };
 
 static inline enum NetAction screen_packet_action(const struct ScreenPacket *nspck) {

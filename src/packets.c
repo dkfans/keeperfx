@@ -1875,8 +1875,8 @@ void process_frontend_packets(void)
         case NetAct_HostStartLevel:
             if (!validate_versions())
             {
-                nspckt->param1 = VersionMajor;
-                nspckt->param2 = VersionMinor;
+                nspckt->action_par1 = VersionMajor;
+                nspckt->action_par2 = VersionMinor;
                 versions_different_error();
                 break;
             }
@@ -1891,10 +1891,10 @@ void process_frontend_packets(void)
             }
             break;
         case NetAct_SetAlliance:
-            frontend_set_alliance(nspckt->param1, nspckt->param2);
+            frontend_set_alliance(nspckt->action_par1, nspckt->action_par2);
             break;
         case NetAct_SetComputerPlayers:
-            fe_computer_players = nspckt->param1;
+            fe_computer_players = nspckt->action_par1;
             break;
         default:
             break;

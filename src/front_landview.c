@@ -1252,7 +1252,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
     rctb.right = get_sprite(map_hand, 9)->SWidth + rctb.left;
     rctb.bottom = rctb.top + get_sprite(map_hand, 9)->SHeight;
   } else
-  if (nspck->param1 != SINGLEPLAYER_NOTSTARTED)
+  if (nspck->action_par1 != SINGLEPLAYER_NOTSTARTED)
   {
     rctb.left = nspck->stored_data1 - 20;
     rctb.top = nspck->stored_data2 - 14;
@@ -1395,12 +1395,12 @@ void draw_netmap_players_hands(void)
         action = screen_packet_action(nspck);
         if (action == NetAct_Slapping)
         {
-          k = (unsigned char)nspck->param1;
+          k = (unsigned char)nspck->action_par1;
           spr = get_sprite(map_hand, k);
         } else
         if (action == NetAct_Limping)
         {
-          k = nspck->param2;
+          k = nspck->action_par2;
           if (k > 11)
             k = 11;
           if (k < 0)
@@ -1409,7 +1409,7 @@ void draw_netmap_players_hands(void)
           y = hand_limp_yoffset[k];
           spr = get_sprite(map_hand, 21);
         } else
-        if (nspck->param1 == SINGLEPLAYER_NOTSTARTED)
+        if (nspck->action_par1 == SINGLEPLAYER_NOTSTARTED)
         {
             k = LbTimerClock() / 150;
             spr = get_sprite(map_hand, 1 + (k%8));
@@ -1418,7 +1418,7 @@ void draw_netmap_players_hands(void)
             k = LbTimerClock() / 150;
             spr = get_sprite(map_hand, 17 + (k%4));
         }
-        if (i == my_player_number && action == NetAct_None && nspck->param1 == SINGLEPLAYER_NOTSTARTED) {
+        if (i == my_player_number && action == NetAct_None && nspck->action_par1 == SINGLEPLAYER_NOTSTARTED) {
             x += GetMouseX()*16/units_per_pixel_landview - 18;
             y += GetMouseY()*16/units_per_pixel_landview - 25;
         } else {
@@ -1682,14 +1682,14 @@ TbBool frontmap_exchange_screen_packet(void)
     struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
     memset(nspck, 0, sizeof(struct ScreenPacket));
     nspck->networkstatus_flags |= NetStat_PlayerConnected;
-    nspck->param1 = fe_net_level_selected;
+    nspck->action_par1 = fe_net_level_selected;
     if (net_map_limp_time > 0)
     {
       screen_packet_set_action(nspck, NetAct_Limping);
       nspck->stored_data1 = limp_hand_x;
       nspck->stored_data2 = limp_hand_y;
       net_map_limp_time--;
-      nspck->param2 = net_map_limp_time;
+      nspck->action_par2 = net_map_limp_time;
       if (net_map_limp_time == 1)
       {
           LbMouseSetPosition(
@@ -1714,7 +1714,7 @@ TbBool frontmap_exchange_screen_packet(void)
         if (net_map_slap_frame <= 16)
         {
           screen_packet_set_action(nspck, NetAct_Slapping);
-          nspck->param1 = net_map_slap_frame;
+          nspck->action_par1 = net_map_slap_frame;
           net_map_slap_frame++;
         } else
         {
@@ -1751,7 +1751,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             frontend_set_state(FeSt_NET_START);
             return false;
         }
-        if (nspck->param1 == LEVELNUMBER_ERROR)
+        if (nspck->action_par1 == LEVELNUMBER_ERROR)
         {
             if (fe_network_active)
             {
@@ -1764,12 +1764,12 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             }
             return false;
         }
-        if ((nspck->param1 == SINGLEPLAYER_NOTSTARTED) || (screen_packet_action(nspck) == NetAct_Slapping))
+        if ((nspck->action_par1 == SINGLEPLAYER_NOTSTARTED) || (screen_packet_action(nspck) == NetAct_Slapping))
         {
             nmps->tmp1++;
         } else
         {
-            LevelNumber pckt_lvnum = nspck->param1;
+            LevelNumber pckt_lvnum = nspck->action_par1;
             scratch[pckt_lvnum]++;
             if (scratch[pckt_lvnum] == tmp2)
             {
@@ -1782,7 +1782,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
                 nmps->is_selected = true;
             }
         }
-        if ((screen_packet_action(nspck) == NetAct_Slapping) && (nspck->param1 == 13))
+        if ((screen_packet_action(nspck) == NetAct_Slapping) && (nspck->action_par1 == 13))
         {
             if ( test_hand_slap_collides(i) )
             {

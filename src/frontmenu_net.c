@@ -396,8 +396,8 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
         if (screen_packet_action(nspck) == NetAct_None)
         {
             screen_packet_set_action(nspck, NetAct_SetAlliance);
-            nspck->param1 = plyr1_idx;
-            nspck->param2 = plyr2_idx;
+            nspck->action_par1 = plyr1_idx;
+            nspck->action_par2 = plyr2_idx;
         }
     }
 }
