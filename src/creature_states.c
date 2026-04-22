@@ -4191,10 +4191,16 @@ TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, Creatu
     RoomRole rrole = get_room_role_for_job(jobpref);
     if (!room_exists(room))
     {
-        SYNCLOG("%s: The %s(%d) owned by player %d can no longer work in %s because former work room doesn't exist",
-            func_name,thing_model_name(thing),thing->index,(int)thing->owner,room_role_code_name(rrole));
-        // Note that if given room doesn't exist, it do not mean this
-        return true;
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        //Sometimes they accidentally step off. Catch this.
+        room = get_room_at_pos(&cctrl->moveto_pos);
+        if (room_is_invalid(room))
+        {
+            SYNCLOG("%s: The %s(%d) owned by player %d can no longer work in %s because former work room doesn't exist",
+                func_name, thing_model_name(thing), thing->index, (int)thing->owner, room_role_code_name(rrole));
+            // Note that if given room doesn't exist, it do not mean this
+            return true;
+        }
     }
     if (!room_still_valid_as_type_for_thing(room, rrole, thing))
     {
