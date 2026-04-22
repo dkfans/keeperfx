@@ -841,34 +841,255 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
         player->hand_busy_until_turn = get_gameturn() + 16;
     }
 }
+/**
+ * @brief Processes payday advanced and owed from hand gold.
+ */
+void process_payday_payments(GoldAmount salary, struct Thing *creatng, struct CreatureControl *cctrl, struct CreatureModelConfig *crconf)
+{
+    JUSTLOG("=== process_payday_payments START ===");
+    JUSTLOG("  salary=%d, paydays_owed=%d, paydays_advanced=%d, paid_wage=%d, gold_carried=%d",
+            salary, cctrl->paydays_owed, cctrl->paydays_advanced, cctrl->paid_wage, creatng->creature.gold_carried);
+
+    // Check if payday system is enabled
+    if (game.conf.rules[creatng->owner].game.max_paydays_owed == 0)
+    {
+        JUSTLOG("  PAYDAY SYSTEM DISABLED (max_paydays_owed=0) - no payments processed");
+        JUSTLOG("=== process_payday_payments END ===");
+        return;
+    }
+
+    // Determine gold source
+    TbBool use_pocket = game.conf.rules[creatng->owner].game.pocket_gold;
+    unsigned char max_advanced = game.conf.rules[creatng->owner].game.max_paydays_advanced;
+
+    // When pocket_gold is active, merge any paid_wage back into pocket first.
+    // process_custom_salary may have moved gold from pocket to paid_wage earlier;
+    // we need both sources combined to correctly evaluate payment ability.
+    if (use_pocket && cctrl->paid_wage > 0)
+    {
+        JUSTLOG("  merging paid_wage(%d) back into pocket (gold_carried=%d -> %d)",
+                cctrl->paid_wage, creatng->creature.gold_carried,
+                creatng->creature.gold_carried + cctrl->paid_wage);
+        creatng->creature.gold_carried += cctrl->paid_wage;
+        cctrl->paid_wage = 0;
+    }
+
+    GoldAmount available = use_pocket ? creatng->creature.gold_carried : cctrl->paid_wage;
+    JUSTLOG("  available=%d (source: %s)", available, use_pocket ? "pocket" : "paid_wage");
+
+    // Loop: pay off owed first, then advance
+    while (available >= salary)
+    {
+        if (cctrl->paydays_owed > 0)
+        {
+            JUSTLOG("  paying off owed: paydays_owed %d -> %d", cctrl->paydays_owed, cctrl->paydays_owed - 1);
+            cctrl->paydays_owed--;
+            available -= salary;
+        }
+        else if (cctrl->paydays_advanced < max_advanced)
+        {
+            JUSTLOG("  advancing payday: paydays_advanced %d -> %d (max=%d)",
+                    cctrl->paydays_advanced, cctrl->paydays_advanced + 1, max_advanced);
+            cctrl->paydays_advanced++;
+            available -= salary;
+        }
+        else
+        {
+            JUSTLOG("  nothing more to pay (owed=0, advanced=%d at max=%d)", cctrl->paydays_advanced, max_advanced);
+            break;
+        }
+    }
+
+    // Update gold source
+    if (use_pocket)
+    {
+        creatng->creature.gold_carried = available;
+    }
+    else
+    {
+        cctrl->paid_wage = available;
+    }
+
+    JUSTLOG("  RESULT: paydays_owed=%d, paydays_advanced=%d, paid_wage=%d, gold_carried=%d",
+            cctrl->paydays_owed, cctrl->paydays_advanced, cctrl->paid_wage, creatng->creature.gold_carried);
+    JUSTLOG("=== process_payday_payments END ===");
+}
+
+/**
+ * @brief Add gold from hand to the creature's pocket if the pocket gold rule is active.
+ */
+GoldAmount handle_pocket_gold_rule(GoldAmount tribute, struct Thing* creatng, struct CreatureModelConfig* crconf, struct CreatureControl* cctrl)
+{
+    JUSTLOG("--- handle_pocket_gold_rule START ---");
+    JUSTLOG("  INPUT: tribute=%d, gold_carried=%d, gold_hold=%d", tribute, creatng->creature.gold_carried, crconf->gold_hold);
+    GoldAmount fill_space = crconf->gold_hold - creatng->creature.gold_carried;
+    JUSTLOG("  fill_space=%d (gold_hold - gold_carried)", fill_space);
+    //fill the pockets
+    if(tribute < fill_space)
+    {
+        JUSTLOG("  PATH: tribute fits in pocket");
+        JUSTLOG("    gold_carried: %d -> %d", creatng->creature.gold_carried, creatng->creature.gold_carried + tribute);
+        creatng->creature.gold_carried += tribute;
+        JUSTLOG("  returning 0 (all tribute stored)");
+        JUSTLOG("--- handle_pocket_gold_rule END ---");
+    }
+    //pocket ist full
+    else
+    {
+        JUSTLOG("  PATH: pocket is full, overflow tribute");
+        JUSTLOG("    setting gold_carried to max: %d", crconf->gold_hold);
+        creatng->creature.gold_carried = crconf->gold_hold;
+        GoldAmount overflow = tribute - fill_space;
+        JUSTLOG("    overflow (tribute - fill_space): %d", overflow);
+        JUSTLOG("  returning %d (overflow)", overflow);
+        JUSTLOG("--- handle_pocket_gold_rule END ---");
+        return overflow;
+    }
+    return 0;
+}
+
+/**
+ * @brief Processes the gold dropped on a creature.
+ *
+ * This function manages gold dropped on creatures both during and outside of a payday.
+ * It processes configuration settings for pocket gold, partial payments and limits the advanced paydays.
+ *
+ * @param salary The salary to be paid.
+ * @param tribute The incoming gold amount.
+ * @param creatng The creature receiving the gold.
+ * @param crconf The creature's model config.
+ * @param cctrl The creature's control structure.
+ * @param during_payday Indicates whether the function is called during a payday.
+ * @return Remaining gold not used for payday payments (for happiness calculation).
+ */
+GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct Thing* creatng, struct CreatureModelConfig* crconf, struct CreatureControl* cctrl, TbBool during_payday)
+{
+    JUSTLOG("\n========== creature_get_handgold START ==========");
+    JUSTLOG("INPUT: salary=%d, tribute=%d, during_payday=%d", salary, tribute, during_payday);
+    JUSTLOG("CREATURE STATE: paydays_owed=%d, paydays_advanced=%d, paid_wage=%d, gold_carried=%d",
+            cctrl->paydays_owed, cctrl->paydays_advanced, cctrl->paid_wage, creatng->creature.gold_carried);
+    JUSTLOG("RULES: accept_partial=%d, pocket_gold=%d, take_pay_from_pocket=%d, max_advanced=%d",
+            game.conf.rules[creatng->owner].game.accept_partial_payday,
+            game.conf.rules[creatng->owner].game.pocket_gold,
+            game.conf.rules[creatng->owner].game.take_pay_from_pocket,
+            game.conf.rules[creatng->owner].game.max_paydays_advanced);
+
+    GoldAmount remainingTribute = 0;
+
+    // If accept_partial_payday and during_payday, a single drop always counts as one payment
+    if (game.conf.rules[creatng->owner].game.accept_partial_payday && during_payday && cctrl->paydays_owed > 0)
+    {
+        JUSTLOG("  accept_partial_payday + during_payday: partial payment accepted, paydays_owed %d -> %d",
+                cctrl->paydays_owed, cctrl->paydays_owed - 1);
+        cctrl->paydays_owed--;
+    }
+
+    if (game.conf.rules[creatng->owner].game.pocket_gold)
+    {
+        // Pocket gold path: pay first, then pocket the rest
+        // Temporarily add tribute to pocket (may exceed gold_hold)
+        JUSTLOG("  pocket_gold: adding tribute to pocket for payday processing");
+        JUSTLOG("    gold_carried: %d + %d = %d (may exceed gold_hold %d)",
+                creatng->creature.gold_carried, tribute,
+                creatng->creature.gold_carried + tribute, crconf->gold_hold);
+        creatng->creature.gold_carried += tribute;
+
+        // Pay paydays from combined pocket+tribute pool
+        process_payday_payments(salary, creatng, cctrl, crconf);
+        JUSTLOG("  after paydays: gold_carried=%d, gold_hold=%d",
+                creatng->creature.gold_carried, crconf->gold_hold);
+
+        // Cap pocket at gold_hold, overflow goes to happiness
+        if (creatng->creature.gold_carried > crconf->gold_hold)
+        {
+            remainingTribute = creatng->creature.gold_carried - crconf->gold_hold;
+            creatng->creature.gold_carried = crconf->gold_hold;
+            JUSTLOG("  capping pocket: overflow %d -> happiness, pocket=%d",
+                    remainingTribute, creatng->creature.gold_carried);
+        }
+    }
+    else
+    {
+        // Non-pocket path: store tribute in paid_wage, then process payments
+        JUSTLOG("  adding tribute to paid_wage: %d + %d = %d", cctrl->paid_wage, tribute, cctrl->paid_wage + tribute);
+        cctrl->paid_wage += tribute;
+
+        process_payday_payments(salary, creatng, cctrl, crconf);
+
+        // Handle leftover gold
+        TbBool clear_paid_wage = game.conf.rules[creatng->owner].game.accept_partial_payday
+                              || game.conf.rules[creatng->owner].game.max_paydays_owed == 0
+                              || (during_payday && cctrl->paydays_owed == 0);
+        if (clear_paid_wage)
+        {
+            remainingTribute = cctrl->paid_wage;
+            JUSTLOG("  clearing paid_wage=%d -> happiness (accept_partial=%d, max_owed=%d, during=%d, owed=%d)",
+                    remainingTribute,
+                    game.conf.rules[creatng->owner].game.accept_partial_payday,
+                    game.conf.rules[creatng->owner].game.max_paydays_owed,
+                    during_payday, cctrl->paydays_owed);
+            cctrl->paid_wage = 0;
+        }
+        else
+        {
+            // paid_wage persists for batching or creature_take_salary
+            JUSTLOG("  paid_wage=%d persists (accept_partial=0, max_owed=%d, during=%d, owed=%d)",
+                    cctrl->paid_wage, game.conf.rules[creatng->owner].game.max_paydays_owed,
+                    during_payday, cctrl->paydays_owed);
+        }
+    }
+
+    JUSTLOG("FINAL STATE: paydays_owed=%d, paydays_advanced=%d, paid_wage=%d, gold_carried=%d",
+            cctrl->paydays_owed, cctrl->paydays_advanced, cctrl->paid_wage, creatng->creature.gold_carried);
+    JUSTLOG("========== creature_get_handgold END (returning %d) ==========\n", remainingTribute);
+    return remainingTribute;
+}
 
 long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
+    JUSTLOG("\n########## gold_being_dropped_on_creature START ##########");
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct Coord3d pos;
-    TbBool taking_salary;
-    taking_salary = false;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    //actuel amount of gold in hand
+    GoldAmount tribute = goldtng->valuable.gold_stored;
+    GoldAmount salary = calculate_correct_creature_pay(creatng);
+    JUSTLOG("INPUT: plyr_idx=%ld, tribute=%d, calculated_salary=%d", plyr_idx, tribute, salary);
+    if (salary < 1) // we devide by this number later on
+    {
+        JUSTLOG("  WARNING: salary was <1, setting to 1 to avoid division by zero");
+        salary = 1;
+    }
+    JUSTLOG("CREATURE STATE: paydays_owed=%d, paydays_advanced=%d, paid_wage=%d, gold_carried=%d",
+            cctrl->paydays_owed, cctrl->paydays_advanced, cctrl->paid_wage, creatng->creature.gold_carried);
+    JUSTLOG("CONFIG: max_paydays_advanced=%d, max_paydays_owed=%d",
+            game.conf.rules[creatng->owner].game.max_paydays_advanced,
+            game.conf.rules[creatng->owner].game.max_paydays_owed);
+    JUSTLOG("CONFIG RULES: accept_partial=%d, pocket_gold=%d, take_pay_from_pocket=%d",
+            game.conf.rules[creatng->owner].game.accept_partial_payday,
+            game.conf.rules[creatng->owner].game.pocket_gold,
+            game.conf.rules[creatng->owner].game.take_pay_from_pocket);
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
+    //gold falls from the hand
     pos.z.val = get_ceiling_height_at(&pos);
-    if (creature_is_taking_salary_activity(creatng))
+    //creature is in need of a salary (to ensure all states are affected)
+    TbBool during_payday = (cctrl->paydays_owed > 0); // creature_take_salary
+    JUSTLOG("during_payday=%d (paydays_owed > 0)", during_payday);
+    //process the gold dropped on the creature, considering the rules
+    JUSTLOG("--- Calling creature_get_handgold ---");
+    GoldAmount remainingTribute = creature_get_handgold(salary, tribute, creatng, crconf, cctrl, during_payday);
+    JUSTLOG("--- Returned from creature_get_handgold: remainingTribute=%d ---", remainingTribute);
+    if (during_payday && cctrl->paydays_owed == 0)
     {
-        cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->paydays_owed > 0)
-            cctrl->paydays_owed--;
+        JUSTLOG("PAYDAY ENDED: was during_payday, now paydays_owed=0, calling set_start_state");
+        // end payday states
         set_start_state(creatng);
-        taking_salary = true;
     }
-    GoldAmount salary;
-    salary = calculate_correct_creature_pay(creatng);
-    if (salary < 1) // we devide by this number later on
-    {
-        salary = 1;
-    }
-    long tribute;
-    tribute = goldtng->valuable.gold_stored;
+    //visual effect for falling gold coins
     drop_gold_coins(&pos, 0, plyr_idx);
+    //sound effects
     if (tribute >= salary)
     {
         thing_play_sample(creatng, 34, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -881,27 +1102,93 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     {
         thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
     }
-    if ( !taking_salary )
+    long happiness = 0;
+    JUSTLOG("--- Calculating happiness ---");
+    //pocket_gold rule is active
+    if(game.conf.rules[creatng->owner].game.pocket_gold)
     {
-        cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->paydays_advanced < SCHAR_MAX) {
-            cctrl->paydays_advanced++;
+        JUSTLOG("  pocket_gold rule active");
+        //if the tribute doesn't fit entirely in the pocket
+        if (remainingTribute > 0)
+        {
+            JUSTLOG("  PATH: tribute overflow (remainingTribute=%d)", remainingTribute);
+            // calculate the portion of tribute that was successfully added to the pocket
+            long usedTrib = tribute - remainingTribute;
+            JUSTLOG("    usedTrib=%ld (tribute - remainingTribute)", usedTrib);
+            // calculate the base happiness value based on the ratio of tribute to salary
+            long baseHap = crconf->annoy_got_wage / salary;
+            JUSTLOG("    baseHap=%ld (annoy_got_wage / salary)", baseHap);
+            // calculate single happiness from the tribute that fits into the pocket
+            long hapFit = baseHap * usedTrib;
+            JUSTLOG("    hapFit=%ld (baseHap * usedTrib)", hapFit);
+            // calculate double happiness from the remaining tribute
+            long hapRem = baseHap * remainingTribute * 2;
+            JUSTLOG("    hapRem=%ld (baseHap * remainingTribute * 2)", hapRem);
+            // sum both happiness contributions
+            happiness = hapFit + hapRem;
+            JUSTLOG("    total happiness=%ld (hapFit + hapRem)", happiness);
+            // apply the calculated happiness to the creature
+            anger_apply_anger_to_creature_all_types(creatng, happiness);
+        }
+        // if the entire tribute fits into the creature's pocket
+        else
+        {
+            JUSTLOG("  PATH: tribute fits completely (remainingTribute=0)");
+            // calculate single happiness from the tribute that fits into the pocket
+            happiness = crconf->annoy_got_wage * tribute / salary;
+            JUSTLOG("    happiness=%ld (annoy_got_wage * tribute / salary)", happiness);
+        //  anger_apply_anger_to_creature_all_types(creatng, (crconf->annoy_got_wage * tribute / salary * 2));
+            anger_apply_anger_to_creature_all_types( creatng, happiness);
         }
     }
-    struct CreatureModelConfig *crconf;
-    crconf = creature_stats_get_from_thing(creatng);
-    anger_apply_anger_to_creature_all_types(creatng, (crconf->annoy_got_wage * tribute / salary * 2));
+    //default/no pocket_gold rule
+    else
+    {
+        JUSTLOG("  pocket_gold rule NOT active (default/classic)");
+
+        // If there's remaining tribute, calculate happiness separately for used and remaining gold
+        if (remainingTribute > 0)
+        {
+            GoldAmount usedGold = tribute - remainingTribute;
+            JUSTLOG("    usedGold=%d (tribute - remainingTribute)", usedGold);
+
+            // Base happiness for gold used in paydays (normal rate)
+            long base_happiness = crconf->annoy_got_wage * usedGold / salary * 2;
+            JUSTLOG("    base happiness=%ld (annoy_got_wage * usedGold / salary * 2)", base_happiness);
+
+            // Extra happiness for remaining gold (double rate)
+            long extra_happiness = crconf->annoy_got_wage * remainingTribute / salary * 2;
+            JUSTLOG("    extra happiness from remaining %d gold: %ld", remainingTribute, extra_happiness);
+
+            happiness = base_happiness + extra_happiness;
+            JUSTLOG("    total happiness: %ld", happiness);
+        }
+        else
+        {
+            // All gold used for paydays, calculate normal happiness
+            happiness = crconf->annoy_got_wage * tribute / salary * 2;
+            JUSTLOG("    base happiness=%ld (annoy_got_wage * tribute / salary * 2)", happiness);
+        }
+
+        anger_apply_anger_to_creature_all_types(creatng, happiness);
+    }
+    //classic_bug handling
     if (game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {
         anger_set_creature_anger_all_types(creatng, 0);
     }
+    //creature start celebrating animation
     if (can_change_from_state_to(creatng, get_creature_state_besides_interruptions(creatng), CrSt_CreatureBeHappy))
     {
         if (external_set_thing_state(creatng, CrSt_CreatureBeHappy)) {
+            JUSTLOG("Creature entering BeHappy state (celebrating)");
             cctrl = creature_control_get_from_thing(creatng);
             cctrl->countdown = 50;
         }
     }
+    JUSTLOG("FINAL STATE: paydays_owed=%d, paydays_advanced=%d, paid_wage=%d, gold_carried=%d",
+            cctrl->paydays_owed, cctrl->paydays_advanced, cctrl->paid_wage, creatng->creature.gold_carried);
+    JUSTLOG("########## gold_being_dropped_on_creature END ##########\n");
     return 1;
 }
 
