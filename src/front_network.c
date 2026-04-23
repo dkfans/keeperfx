@@ -330,7 +330,18 @@ void frontnet_rewite_net_messages(void)
 
 static TbBool check_frontend_version_mismatch(void)
 {
-  static TbBool mismatch_message_shown = false;
+  static int32_t previous_active_players = 0;
+  static TbBool player_joined = false;
+  int32_t active_players = 0;
+  for (int32_t i = 0; i < NET_PLAYERS_COUNT; i++) {
+    if (network_player_active(i)) {
+      active_players++;
+    }
+  }
+  if (active_players > previous_active_players) {
+    player_joined = true;
+  }
+  previous_active_players = active_players;
   struct ScreenPacket *host_packet = &net_screen_packet[SERVER_ID];
   if ((host_packet->networkstatus_flags & NetStat_PlayerConnected) != 0) {
     for (int32_t i = 0; i < NET_PLAYERS_COUNT; i++) {
@@ -339,23 +350,18 @@ static TbBool check_frontend_version_mismatch(void)
         continue;
       }
       if (nspckt->stored_data1 != host_packet->stored_data1 || nspckt->stored_data2 != host_packet->stored_data2) {
-        if (!mismatch_message_shown) {
+        if (player_joined) {
           char text[MESSAGE_TEXT_LEN];
           snprintf(text, sizeof(text), "%s\n%s: %d.%d\n%s: %d.%d",
               get_string(GUIStr_VersionMismatch),
               network_player_name(SERVER_ID), (int)host_packet->stored_data1, (int)host_packet->stored_data2,
               network_player_name(i), (int)nspckt->stored_data1, (int)nspckt->stored_data2);
           create_frontend_error_box(10000, text);
-          mismatch_message_shown = true;
+          player_joined = false;
         }
         return true;
       }
     }
-  }
-  if (mismatch_message_shown) {
-    mismatch_message_shown = false;
-    gui_message_timeout = 0;
-    turn_off_menu(GMnu_FEERROR_BOX);
   }
   return false;
 }
