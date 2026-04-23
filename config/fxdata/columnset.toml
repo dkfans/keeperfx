@@ -3852,7 +3852,7 @@ Height = 5
 SolidMask = 31
 FloorTexture = 22
 Orientation = 0
-Cubes = [45, 165, 44, 44, 43, 0, 0, 0]
+Cubes = [44, 44, 44, 44, 43, 0, 0, 0]
 
 [column482]
 Lintel = 0
@@ -3860,7 +3860,7 @@ Height = 5
 SolidMask = 31
 FloorTexture = 22
 Orientation = 0
-Cubes = [45, 166, 44, 44, 43, 0, 0, 0]
+Cubes = [44, 44, 44, 44, 43, 0, 0, 0]
 
 [column483]
 Lintel = 0
