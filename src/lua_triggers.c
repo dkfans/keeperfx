@@ -67,14 +67,14 @@ static void lua_on_start_for_mod(lua_State* L, const struct ModConfigItem *mod_i
     if (strpbrk(mod_item->name, " -") != NULL)
         return;
 
-    lua_getglobal(Lvl_script, call_name);
-    if (lua_isfunction(Lvl_script, -1))
+    lua_getglobal(L, call_name);
+    if (lua_isfunction(L, -1))
     {
-        CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0), call_name);
+        CheckLua(L, lua_pcall(L, 0, 0, 0), call_name);
     }
     else
     {
-        lua_pop(Lvl_script, 1);
+        lua_pop(L, 1);
     }
 }
 
