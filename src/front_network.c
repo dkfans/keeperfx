@@ -23,6 +23,8 @@
 #include "bflib_basics.h"
 
 #include "bflib_network.h"
+#include "bflib_network_exchange.h"
+#include "bflib_network_internal.h"
 #include "bflib_netsession.h"
 #include "bflib_guibtns.h"
 #include "bflib_keybrd.h"
@@ -38,7 +40,6 @@
 #include "frontend.h"
 #include "player_data.h"
 #include "net_game.h"
-#include "packets.h"
 #include "config.h"
 #include "config_strings.h"
 #include "game_merge.h"
@@ -325,6 +326,117 @@ void frontnet_rewite_net_messages(void)
     net_number_of_messages = k;
     for (i=0; i < NET_MESSAGES_COUNT; i++)
       memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
+}
+
+static TbBool check_frontend_version_mismatch(void)
+{
+  static TbBool mismatch_message_shown = false;
+  struct ScreenPacket *host_packet = &net_screen_packet[SERVER_ID];
+  if ((host_packet->networkstatus_flags & NetStat_PlayerConnected) != 0) {
+    for (int32_t i = 0; i < NET_PLAYERS_COUNT; i++) {
+      struct ScreenPacket *nspckt = &net_screen_packet[i];
+      if (i == SERVER_ID || (nspckt->networkstatus_flags & NetStat_PlayerConnected) == 0) {
+        continue;
+      }
+      if (nspckt->stored_data1 != host_packet->stored_data1 || nspckt->stored_data2 != host_packet->stored_data2) {
+        if (!mismatch_message_shown) {
+          char text[MESSAGE_TEXT_LEN];
+          snprintf(text, sizeof(text), "%s\n%s: %d.%d\n%s: %d.%d",
+              get_string(GUIStr_VersionMismatch),
+              network_player_name(SERVER_ID), (int)host_packet->stored_data1, (int)host_packet->stored_data2,
+              network_player_name(i), (int)nspckt->stored_data1, (int)nspckt->stored_data2);
+          create_frontend_error_box(10000, text);
+          mismatch_message_shown = true;
+        }
+        return true;
+      }
+    }
+  }
+  if (mismatch_message_shown) {
+    mismatch_message_shown = false;
+    gui_message_timeout = 0;
+    turn_off_menu(GMnu_FEERROR_BOX);
+  }
+  return false;
+}
+
+static void process_frontend_packets(void)
+{
+  int32_t i;
+  for (i = 0; i < NET_PLAYERS_COUNT; i++) {
+    net_screen_packet[i].networkstatus_flags &= ~NetStat_PlayerConnected;
+  }
+  struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
+  nspckt->networkstatus_flags |= NetStat_PlayerConnected;
+  nspckt->frontend_alliances = frontend_alliances;
+  nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
+  nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
+  nspckt->stored_data1 = VersionRelease;
+  nspckt->stored_data2 = VersionBuild;
+  if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
+      ERRORLOG("LbNetwork_Exchange failed");
+      net_service_index_selected = -1;
+  }
+  if (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED) {
+    LbNetwork_Stop();
+    if (!setup_network_service(net_service_index_selected)) {
+      frontend_set_state(FeSt_MAIN_MENU);
+    }
+    return;
+  }
+#if DEBUG_NETWORK_PACKETS
+  write_debug_screenpackets();
+#endif
+  TbBool version_mismatch_found = check_frontend_version_mismatch();
+  for (i = 0; i < NET_PLAYERS_COUNT; i++) {
+    nspckt = &net_screen_packet[i];
+    if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) != 0) {
+        switch (screen_packet_action(nspckt)) {
+        case NetAct_HostStartLevel:
+            if (version_mismatch_found) {
+                break;
+            }
+            fe_network_active = 1;
+            if (game_flags2 & GF2_Connect) {
+                frontend_set_state(FeSt_START_MPLEVEL);
+            } else {
+                frontend_set_state(FeSt_NETLAND_VIEW);
+            }
+            break;
+        case NetAct_SetAlliance:
+            frontend_set_alliance(nspckt->action_par1, nspckt->action_par2);
+            break;
+        case NetAct_SetComputerPlayers:
+            fe_computer_players = nspckt->action_par1;
+            break;
+        default:
+            break;
+        }
+      if (frontend_alliances == -1) {
+        if (nspckt->frontend_alliances != -1) {
+          frontend_alliances = nspckt->frontend_alliances;
+        }
+      }
+      if (fe_computer_players == 2) {
+        int32_t k = (nspckt->networkstatus_flags & NetStat_ComputerPlayersMask) >> NetStat_ComputerPlayersShift;
+        if (k != 2) {
+          fe_computer_players = k;
+        }
+      }
+    }
+    screen_packet_set_action(nspckt, NetAct_None);
+  }
+  if (frontend_alliances == -1) {
+    frontend_alliances = 0;
+  }
+  for (i = 0; i < NET_PLAYERS_COUNT; i++) {
+    nspckt = &net_screen_packet[i];
+    if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) == 0) {
+      if (frontend_is_player_allied(my_player_number, i)) {
+        frontend_set_alliance(my_player_number, i);
+      }
+    }
+  }
 }
 
 TbBool frontnet_is_waiting_for_ping_stabilization(void)
