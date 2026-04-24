@@ -422,7 +422,7 @@ void set_packet_pause_toggle()
     process_pause_packet(0, 0);
 }
 
-void disable_packet_mode()
+void disable_packet_mode(void)
 {
     close_packet_file();
     game.packet_load_enable = false;
