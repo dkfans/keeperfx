@@ -45,7 +45,6 @@ struct NetUser {
     char name[32];
     enum NetUserProgress progress;
     int ack;
-    TbBool version_valid;
     struct GameVersionPacket version;
 };
 
@@ -74,11 +73,7 @@ struct NetState {
 
 extern struct NetState netstate;
 
-static inline struct GameVersionPacket net_current_version(void)
-{
-    struct GameVersionPacket version = { VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD };
-    return version;
-}
+static const struct GameVersionPacket net_current_version = { VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD };
 
 static inline TbBool net_versions_match(const struct GameVersionPacket *version_a, const struct GameVersionPacket *version_b)
 {

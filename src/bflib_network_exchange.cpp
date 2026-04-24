@@ -108,10 +108,8 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         if (from_server) {
             netstate.my_id = (NetUserId)*ptr;
             ptr += 1;
-            netstate.users[netstate.my_id].version = net_current_version();
-            netstate.users[netstate.my_id].version_valid = true;
+            netstate.users[netstate.my_id].version = net_current_version;
             netstate.users[SERVER_ID].version = *(const struct GameVersionPacket *)ptr;
-            netstate.users[SERVER_ID].version_valid = true;
             return Lb_OK;
         }
         if (netstate.users[source].progress != USER_CONNECTED) {
@@ -145,7 +143,6 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         }
         ptr += name_len + 1;
         netstate.users[source].version = *(const struct GameVersionPacket *)ptr;
-        netstate.users[source].version_valid = true;
         NETMSG("User %s successfully logged in", netstate.users[source].name);
         netstate.users[source].progress = USER_LOGGEDIN;
         play_non_3d_sample(76);
@@ -242,18 +239,17 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
 
 TbError LbNetwork_ExchangeLogin(char *plyr_name) {
     NETMSG("Logging in as %s", plyr_name);
-    if (1 + strlen(netstate.password) + 1 + strlen(plyr_name) + 1 + sizeof(struct GameVersionPacket) >= sizeof(netstate.msg_buffer)) {
+    if (1 + strlen(netstate.password) + 1 + strlen(plyr_name) + 1 + sizeof(net_current_version) >= sizeof(netstate.msg_buffer)) {
         ERRORLOG("Login credentials too long");
         return Lb_FAIL;
     }
     char * ptr = InitMessageBuffer(NETMSG_LOGIN);
-    struct GameVersionPacket version = net_current_version();
     strcpy(ptr, netstate.password);
     ptr += strlen(netstate.password) + 1;
     strcpy(ptr, plyr_name);
     ptr += strlen(plyr_name) + 1;
-    memcpy(ptr, &version, sizeof(version));
-    ptr += sizeof(version);
+    memcpy(ptr, &net_current_version, sizeof(net_current_version));
+    ptr += sizeof(net_current_version);
     SendMessage(SERVER_ID, ptr);
     TbClockMSec start = LbTimerClock();
     while (true) {

@@ -345,7 +345,6 @@ static TbBool check_frontend_version_mismatch(void)
     }
     active_players++;
     if (remote_id == -1 && i != SERVER_ID
-        && host_user->version_valid && netstate.users[i].version_valid
         && !net_versions_match(&host_user->version, &netstate.users[i].version)) {
       remote_id = i;
     }
@@ -354,11 +353,11 @@ static TbBool check_frontend_version_mismatch(void)
     player_joined = true;
   }
   previous_active_players = active_players;
-  if (!host_user->version_valid || remote_id == -1) {
+  if (remote_id == -1) {
     return false;
   }
   struct NetUser* remote_user = &netstate.users[remote_id];
-  if (!remote_user->version_valid || net_versions_match(&host_user->version, &remote_user->version)) {
+  if (net_versions_match(&host_user->version, &remote_user->version)) {
     return false;
   }
   if (player_joined) {
