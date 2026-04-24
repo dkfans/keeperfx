@@ -40,6 +40,7 @@
 #include "frontend.h"
 #include "player_data.h"
 #include "net_game.h"
+#include "ver_defs.h"
 #include "config.h"
 #include "config_strings.h"
 #include "game_merge.h"
@@ -352,10 +353,10 @@ static TbBool check_frontend_version_mismatch(void)
       if (nspckt->stored_data1 != host_packet->stored_data1 || nspckt->stored_data2 != host_packet->stored_data2) {
         if (player_joined) {
           char text[MESSAGE_TEXT_LEN];
-          snprintf(text, sizeof(text), "%s\n%s: %d.%d\n%s: %d.%d",
+          snprintf(text, sizeof(text), "%s\n%s: %d.%d.%d.%d\n%s: %d.%d.%d.%d",
               get_string(GUIStr_VersionMismatch),
-              network_player_name(SERVER_ID), (int)host_packet->stored_data1, (int)host_packet->stored_data2,
-              network_player_name(i), (int)nspckt->stored_data1, (int)nspckt->stored_data2);
+              network_player_name(SERVER_ID), VER_MAJOR, VER_MINOR, (int)host_packet->stored_data1, (int)host_packet->stored_data2,
+              network_player_name(i), VER_MAJOR, VER_MINOR, (int)nspckt->stored_data1, (int)nspckt->stored_data2);
           create_frontend_error_box(10000, text);
           player_joined = false;
         }
