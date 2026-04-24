@@ -572,8 +572,8 @@ msgstr "Você fez o impossível. Vitória!"
 #. Ghost in the Machine (lv458)
 #: guitext:90
 msgctxt "In-game message"
-msgid "You have an old version of KeeperFX. You need to update to play this map. Visit www.keeperklan.com "
-msgstr "Você tem uma versão antiga do KeeperFX. Você precisa atualizar para jogar este mapa. Visite www.keeperklan.com"
+msgid "You have an old version of KeeperFX. You need to update to play this map."
+msgstr "Você tem uma versão antiga do KeeperFX. Você precisa atualizar para jogar este mapa."
 
 #. Ghost in the Machine (lv458)
 #: guitext:91

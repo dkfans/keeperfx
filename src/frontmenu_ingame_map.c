@@ -160,9 +160,9 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     long long cscale;
     float circle_time;
     if ((game.operation_flags & GOF_Paused) == 0) {
-        circle_time = ((game.play_gameturn + owner) & 7) + game.process_turn_time;
+        circle_time = ((get_gameturn() + owner) & 7) + game.process_turn_time;
     } else {
-        circle_time = ((game.play_gameturn + owner) & 7);
+        circle_time = ((get_gameturn() + owner) & 7);
     }
     cscale = circle_time * powerst->strength[dungeon->cta_power_level];
     int dxq1;
@@ -246,8 +246,8 @@ void interpolate_minimap_thing(struct Thing *thing, struct Camera *cam)
         thing->interp_minimap_pos_x = interpolate(thing->interp_minimap_pos_x, thing->previous_minimap_pos_x, current_minimap_x);
         thing->interp_minimap_pos_y = interpolate(thing->interp_minimap_pos_y, thing->previous_minimap_pos_y, current_minimap_y);
     }
-    if ((thing->interp_minimap_update_turn != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0) {
-        thing->interp_minimap_update_turn = game.play_gameturn;
+    if ((thing->interp_minimap_update_turn != get_gameturn()) || (game.operation_flags & GOF_Paused) != 0) {
+        thing->interp_minimap_update_turn = get_gameturn();
         thing->previous_minimap_pos_x = current_minimap_x;
         thing->previous_minimap_pos_y = current_minimap_y;
     }
@@ -362,7 +362,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
             if ((thing->trap.revealed) || (player->id_number == thing->owner))
             {
                 TbPixel col;
-                if ((thing->model == gui_trap_type_highlighted) && ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate)) {
+                if ((thing->model == gui_trap_type_highlighted) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
                     col = player_highlight_colours[thing->owner];
                 } else {
                     col = 60;
@@ -441,7 +441,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 basepos = MapDiagonalLength/2;
 
                 // Do the drawing
-                if (((game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate) == 1) {
+                if (((get_gameturn() % (4 * gui_blink_rate)) / gui_blink_rate) == 1) {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing))
                     {
                         short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
@@ -499,7 +499,7 @@ int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long m
         return 0;
     if (cam->view_mode != PVM_CreatureView)
         return 0;
-    if ((game.play_gameturn % (8 * gui_blink_rate)) >= 4 * gui_blink_rate)
+    if ((get_gameturn() % (8 * gui_blink_rate)) >= 4 * gui_blink_rate)
     {
         col = colours[15][15][15];
     }
@@ -562,7 +562,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
             interpolate_minimap_thing(thing, cam);
             if (thing_revealed(thing, player->id_number))
             {
-                if ((game.play_gameturn % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
+                if ((get_gameturn() % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
                 {
                     col1 = player_room_colours[get_player_color_idx(thing->owner)];
                     col2 = player_room_colours[get_player_color_idx(thing->owner)];
@@ -582,7 +582,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 // Do the drawing
                 if (thing->owner == player->id_number)
                 {
-                    if ((thing->model == gui_creature_type_highlighted) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
+                    if ((thing->model == gui_creature_type_highlighted) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
                     {
                         short pixels_amount = scale_pixel(basic_zoom * 4);
                         panel_map_draw_creature_dot(mapos_x + pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
@@ -604,7 +604,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 } else
                 {
                     if (thing->owner == game.neutral_player_num) {
-                        col = player_room_colours[get_player_color_idx(((game.play_gameturn + 1) % (4 * neutral_flash_rate)) / neutral_flash_rate)];
+                        col = player_room_colours[get_player_color_idx(((get_gameturn() + 1) % (4 * neutral_flash_rate)) / neutral_flash_rate)];
                     } else {
                         col = col1;
                     }
@@ -623,7 +623,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                     memberpos = cctrl->party.member_pos_stl[m];
                     if (memberpos == 0)
                         break;
-                    if ((game.play_gameturn % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
+                    if ((get_gameturn() % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
                     {
                         col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx >= 0 ? cctrl->party.target_plyr_idx : 0))];
                         col2 = player_room_colours[get_player_color_idx(thing->owner)];
@@ -703,7 +703,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     delta_x = scale_ui_value(MAP_ARROW_DISTANCE) * LbSinL(angle) >> 16;
     delta_y = scale_ui_value(MAP_ARROW_DISTANCE) * LbCosL(angle) >> 16;
     long frame;
-    frame = (game.play_gameturn & 3) + 1;
+    frame = (get_gameturn() & 3) + 1;
     int draw_x;
     int draw_y;
     draw_x = -delta_x / 2 + (frame * delta_x) / 4 + (basepos << 8);
@@ -1032,9 +1032,9 @@ void setup_background(long units_per_px)
 void setup_panel_colors(void)
 {
     int frame;
-    frame = (game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate;
+    frame = (get_gameturn() % (4 * gui_blink_rate)) / gui_blink_rate;
     unsigned int frcol;
-    frcol = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
+    frcol = player_room_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
@@ -1137,9 +1137,9 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
 void update_panel_colors(void)
 {
     int frame;
-    frame = (game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate;
+    frame = (get_gameturn() % (4 * gui_blink_rate)) / gui_blink_rate;
     unsigned int frcol;
-    frcol = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
+    frcol = player_room_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
@@ -1172,7 +1172,7 @@ void update_panel_colors(void)
 
     int highlight;
     highlight = gui_room_type_highlighted;
-    frame = game.play_gameturn % (2 * gui_blink_rate);
+    frame = get_gameturn() % (2 * gui_blink_rate);
     if (frame >= gui_blink_rate)
         highlight = -1;
     if (PrevRoomHighlight != highlight)
@@ -1282,7 +1282,7 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 
     if ((cam == NULL) || (MapDiagonalLength < 1))
         return;
-    if (game.play_gameturn <= 1) {reset_all_minimap_interpolation = true;} //Fixes initial minimap frame being purple
+    if (get_gameturn() <= 1) {reset_all_minimap_interpolation = true;} //Fixes initial minimap frame being purple
 
     long shift_x;
     long shift_y;
@@ -1305,8 +1305,8 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
             interp_minimap.x = interpolate(interp_minimap.x, interp_minimap.previous_x, current_minimap_x);
             interp_minimap.y = interpolate(interp_minimap.y, interp_minimap.previous_y, current_minimap_y);
         }
-        if ((interp_minimap.get_previous != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0) {
-            interp_minimap.get_previous = game.play_gameturn;
+        if ((interp_minimap.get_previous != get_gameturn()) || (game.operation_flags & GOF_Paused) != 0) {
+            interp_minimap.get_previous = get_gameturn();
             interp_minimap.previous_x = current_minimap_x;
             interp_minimap.previous_y = current_minimap_y;
         }

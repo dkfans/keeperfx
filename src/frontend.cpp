@@ -226,7 +226,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuPlayIntro, 1},
     {GUIStr_NetServiceMenu, 0}, // [10]
     {GUIStr_NetSessionMenu, 0},
-    {GUIStr_MnuGameMenu, 0}, // [12]
+    {GUIStr_MnuOnlineLobbies, 0}, // [12]
     {GUIStr_NetJoinGame, 1}, // [13]
     {GUIStr_NetCreateGame, 1}, // [14]
     {GUIStr_NetStartGame, 1}, // [15]
@@ -629,73 +629,6 @@ void add_message(long plyr_idx, char *msg)
 }
 
 /**
- * Checks if all the network players are using compatible version of DK.
- */
-TbBool validate_versions(void)
-{
-    struct PlayerInfo *player;
-    long i;
-    long ver;
-    ver = -1;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      player = get_player(i);
-      if ((net_screen_packet[i].networkstatus_flags & 0x01) != 0)
-      {
-        if (ver == -1)
-          ver = player->game_version;
-        if (player->game_version != ver)
-          return false;
-      }
-    }
-    return true;
-}
-
-void versions_different_error(void)
-{
-    const char *plyr_nam;
-    struct ScreenPacket *nspckt;
-    char text[MESSAGE_TEXT_LEN];
-    int i;
-
-    NETMSG("Error: Players have different versions of DK");
-
-    if (LbNetwork_Stop())
-    {
-      ERRORLOG("LbNetwork_Stop() failed");
-    }
-    lbKeyOn[KC_ESCAPE] = 0;
-    lbKeyOn[KC_SPACE] = 0;
-    lbKeyOn[KC_RETURN] = 0;
-    text[0] = '\0';
-    // Preparing message
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      plyr_nam = network_player_name(i);
-      nspckt = &net_screen_packet[i];
-      if ((nspckt->networkstatus_flags & 0x01) != 0)
-      {
-        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->stored_data1, nspckt->stored_data2);
-      }
-    }
-    // Waiting for users reaction
-    while ( 1 )
-    {
-      if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_SPACE] || lbKeyOn[KC_RETURN])
-        break;
-      LbWindowsControl();
-      if (LbScreenLock() == Lb_SUCCESS)
-      {
-        draw_text_box(text);
-        LbScreenUnlock();
-      }
-      LbScreenSwap();
-    }
-    // Checking where to go back
-    init_menu_state_on_net_stats_exit();
-}
-
-/**
  * Makes error box with message from GUI strings collection.
  *
  * @param msg_idx
@@ -985,7 +918,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
     struct RoomConfigStats *roomst;
-    roomst = &game.conf.slab_conf.room_cfgstats[rkind];
+    roomst = get_room_kind_stats(rkind);
     game.chosen_room_kind = rkind;
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = tooltip_id;
@@ -1518,10 +1451,10 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->networkstatus_flags & 0xF8) == 0)
+    if (screen_packet_action(nspck) == NetAct_None)
     {
-        nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x38;
-        nspck->param1 = (fe_computer_players == 0);
+        screen_packet_set_action(nspck, NetAct_SetComputerPlayers);
+        nspck->action_par1 = (fe_computer_players == 0);
     }
 }
 
@@ -1552,8 +1485,8 @@ void set_packet_start(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->networkstatus_flags & 0xF8) == 0)
-        nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x18;
+    if (screen_packet_action(nspck) == NetAct_None)
+        screen_packet_set_action(nspck, NetAct_HostStartLevel);
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -2421,7 +2354,7 @@ unsigned long toggle_status_menu(short visible)
         set_menu_visible_on(GMnu_SPELL_LOST);
       if ( trap_on )
         set_menu_visible_on(GMnu_TRAP);
-    if ( trap_2_on )
+      if ( trap_2_on )
         set_menu_visible_on(GMnu_TRAP2);
       if ( event_on )
         set_menu_visible_on(GMnu_EVENT);
@@ -3114,9 +3047,10 @@ TbBool frontscreen_end_input(TbBool force)
 
 short get_frontend_global_inputs(void)
 {
-    if (is_key_pressed(KC_X, KMod_ALT))
+    int32_t val;
+    if (is_game_key_pressed(Gkey_ExitGame, &val ,false))
     {
-        clear_key_pressed(KC_X);
+        clear_key_pressed(val);
         exit_keeper = true;
     } else {
         return false;
@@ -3348,7 +3282,7 @@ void spangle_button(struct GuiButton *gbtn)
     unsigned long i;
     x = gbtn->pos_x + (gbtn->width >> 1)  - ((spr->SWidth*bs_units_per_px/16) / 2);
     y = gbtn->pos_y + (gbtn->height >> 1) - ((spr->SHeight*bs_units_per_px/16) / 2);
-    i = GBS_guisymbols_new_function_1+((game.play_gameturn >> 1) & 7);
+    i = GBS_guisymbols_new_function_1+((get_gameturn() >> 1) & 7);
     spr = get_button_sprite(i);
     LbSpriteDrawResized(x, y, bs_units_per_px, spr);
 }
@@ -3599,9 +3533,9 @@ void update_player_objectives(PlayerNumber plyr_idx)
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
       if ((!player->display_objective_turn) && (player->victory_state != VicS_Undecided))
-        player->display_objective_turn = game.play_gameturn+1;
+        player->display_objective_turn = get_gameturn()+1;
     }
-    if (player->display_objective_turn == game.play_gameturn)
+    if (player->display_objective_turn == get_gameturn())
     {
       switch (player->victory_state)
       {
@@ -3814,7 +3748,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(NS_ENET_UDP))
+      if (setup_network_service(FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3826,7 +3760,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(NS_ENET_UDP))
+      if (setup_network_service(FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3958,8 +3892,13 @@ void frontend_draw_error_text_box(struct GuiButton *gbtn)
 
 void frontend_maintain_error_text_box(struct GuiButton *gbtn)
 {
-    if (LbTimerClock() > gui_message_timeout)
-    {
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
+        clear_key_pressed(KC_ESCAPE);
+        gui_message_timeout = 0;
+        turn_off_menu(GMnu_FEERROR_BOX);
+        return;
+    }
+    if (LbTimerClock() > gui_message_timeout) {
         turn_off_menu(GMnu_FEERROR_BOX);
     }
 }

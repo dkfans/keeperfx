@@ -112,7 +112,7 @@ void process_armageddon(void)
     GameTurnDelta countdown = game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down;
     if (game.armageddon_cast_turn == 0)
         return;
-    if ((game.armageddon_cast_turn + countdown) > game.play_gameturn)
+    if ((game.armageddon_cast_turn + countdown) > get_gameturn())
     {
         if (player_cannot_win(game.armageddon_caster_idx))
         {
@@ -120,7 +120,7 @@ void process_armageddon(void)
             game.armageddon_cast_turn = 0;
         }
     } else
-    if ((game.armageddon_cast_turn + countdown) == game.play_gameturn)
+    if ((game.armageddon_cast_turn + countdown) == get_gameturn())
     {
         for (i=0; i < PLAYERS_COUNT; i++)
         {
@@ -132,7 +132,7 @@ void process_armageddon(void)
             }
         }
     } else
-    if ((game.armageddon_cast_turn + countdown) < game.play_gameturn)
+    if ((game.armageddon_cast_turn + countdown) < get_gameturn())
     {
         for (i=0; i < PLAYERS_COUNT; i++)
         {
@@ -172,7 +172,7 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         // If Armageddon is on, teleport creature to its position
-        if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
+        if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= get_gameturn()))
         {
             teleport_armageddon_influenced_creature(creatng);
         }
@@ -228,7 +228,7 @@ void process_disease(struct Thing *creatng)
             }
         }
     }
-    if (((game.play_gameturn - cctrl->disease_start_turn) % game.conf.rules[creatng->owner].magic.disease_lose_health_time) == 0)
+    if (((get_gameturn() - cctrl->disease_start_turn) % game.conf.rules[creatng->owner].magic.disease_lose_health_time) == 0)
     {
         apply_damage_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].magic.disease_lose_percentage_health * cctrl->max_health / 100, cctrl->disease_caster_plyridx);
     }
@@ -283,7 +283,7 @@ void update_god_lightning_ball(struct Thing *thing)
         return;
     }
     struct ShotConfigStats* shotst;
-    long i = (game.play_gameturn - thing->creation_turn) % 16;
+    long i = (get_gameturn() - thing->creation_turn) % 16;
     struct Thing* target;
     switch (i)
     {

@@ -456,7 +456,7 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
         return CProcRet_Wait;
     }
     if ((there_is_virgin_entrance_for_computer(comp)) &&
-        (game.play_gameturn - (GameTurnDelta)cproc->process_parameter_2 < 2000))
+        (get_gameturn() - (GameTurnDelta)cproc->process_parameter_2 < 2000))
     {
         return CProcRet_Wait;
     }
@@ -472,7 +472,7 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
         return CProcRet_Wait;
     }
     int trn_mul = cproc->process_configuration_value_2;
-    long turns = game.play_gameturn - (GameTurnDelta)cproc->process_parameter_2;
+    long turns = get_gameturn() - (GameTurnDelta)cproc->process_parameter_2;
     if (turns >= trn_mul)
         turns = trn_mul;
     int trn_div = neutral_entrances - entr_count;
@@ -699,7 +699,7 @@ long move_imp_to_mine_here(struct Computer2 *comp, struct Coord3d *pos, long max
 TbBool right_time_to_choose_target_entrance(struct ComputerProcess *cproc, long neutral_entrances, long own_entrances, long targplyr_entrances)
 {
     GameTurnDelta turns_to_capture = cproc->process_configuration_value_2;
-    GameTurnDelta turns_delta = game.play_gameturn - (GameTurnDelta)cproc->process_parameter_2;
+    GameTurnDelta turns_delta = get_gameturn() - (GameTurnDelta)cproc->process_parameter_2;
     if (turns_delta >= turns_to_capture)
       turns_delta = turns_to_capture;
     long entrances_div = neutral_entrances - own_entrances + targplyr_entrances;
@@ -849,7 +849,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     if (digres == -1)
     {
         set_flag(cproc->flags, ComProc_Unkn0004);
-        if (((game.turn_last_checked_for_gold + GOLD_DEMAND_CHECK_INTERVAL) < game.play_gameturn) || (game.turn_last_checked_for_gold == 0))
+        if (((game.turn_last_checked_for_gold + GOLD_DEMAND_CHECK_INTERVAL) < get_gameturn()) || (game.turn_last_checked_for_gold == 0))
         {
             SYNCDBG(8, "Can't find nearest room to gold; will refresh gold map");
             check_map_for_gold();
@@ -861,7 +861,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         SYNCDBG(8,"Finding gold to dig didn't worked out");
         return CProcRet_Fail;
     }
-    unsigned long max_distance = game.play_gameturn / cproc->process_configuration_value_3 + cproc->process_configuration_value_5;
+    unsigned long max_distance = get_gameturn() / cproc->process_configuration_value_3 + cproc->process_configuration_value_5;
     if (digres > max_distance)
     {
         SYNCDBG(8,"Gold is out of distance (%lu > %lu)",digres,max_distance);
@@ -936,7 +936,7 @@ long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
 long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    if (cproc->process_configuration_value_4 >= game.play_gameturn) {
+    if (cproc->process_configuration_value_4 >= get_gameturn()) {
         return CProcRet_Wait;
     }
     TbBool able_to_use_power = computer_able_to_use_power(comp, PwrK_SIGHT, cproc->process_configuration_value_2, 5);
@@ -1078,7 +1078,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                             current_idx = comp->opponent_relations[slab_owner].next_idx;
                             pos = &comp->opponent_relations[slab_owner].pos_A[current_idx];
                             comp->opponent_relations[slab_owner].next_idx = (current_idx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
-                            comp->opponent_relations[slab_owner].last_interaction_turn = game.play_gameturn;
+                            comp->opponent_relations[slab_owner].last_interaction_turn = get_gameturn();
                             pos->x.stl.num = stl_x_current;
                             pos->x.stl.pos = 0;
                             pos->y.stl.num = stl_y_current;
@@ -1164,7 +1164,7 @@ long computer_paused_task(struct Computer2 *comp, struct ComputerProcess *cproc)
 long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     SYNCDBG(8,"Completed process \"%s\"",cproc->name);
-    cproc->process_parameter_2 = game.play_gameturn;
+    cproc->process_parameter_2 = get_gameturn();
     comp->task_state = CTaskSt_Select;
     return CProcRet_Fail;
 }
@@ -1213,7 +1213,7 @@ void shut_down_process(struct Computer2 *comp, struct ComputerProcess *cproc)
     {
         set_flag(cproc->flags, ComProc_Unkn0008);
         clear_flag(cproc->flags, ComProc_Unkn0020);
-        cproc->process_parameter_2 = game.play_gameturn;
+        cproc->process_parameter_2 = get_gameturn();
         Comp_Process_Func callback = computer_process_func_list[cproc->func_complete];
         if (callback != NULL) {
             callback(comp, cproc);
@@ -1245,8 +1245,8 @@ void suspend_process(struct Computer2 *comp, struct ComputerProcess *cproc)
     {
         clear_flag(cproc->flags, ComProc_Unkn0020);
         cproc->process_parameter_3 = 0;
-        cproc->last_run_turn = game.play_gameturn;
-        cproc->process_parameter_2 = game.play_gameturn;
+        cproc->last_run_turn = get_gameturn();
+        cproc->process_parameter_2 = get_gameturn();
     } else {
         WARNLOG("Invalid computer process referenced");
     }
@@ -1274,7 +1274,7 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *cproc)
     cproc->last_run_turn = 0;
     cproc->process_parameter_3 = 0;
     clear_flag(cproc->flags, ComProc_Unkn0020);
-    cproc->process_parameter_2 = game.play_gameturn;
+    cproc->process_parameter_2 = get_gameturn();
   }
 }
 
@@ -1302,7 +1302,7 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
             continue;
         if (cproc->last_run_turn > 0)
         {
-            GameTurnDelta prior = (GameTurnDelta)game.play_gameturn - (GameTurnDelta)cproc->last_run_turn;
+            GameTurnDelta prior = (GameTurnDelta)get_gameturn() - (GameTurnDelta)cproc->last_run_turn;
             if (g1max_prior < prior) {
                 g1max_prior = prior;
                 g1max_cproc = cproc;
@@ -1310,7 +1310,7 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
         } else
         if (cproc->process_parameter_3 > 0)
         {
-            GameTurnDelta prior = (GameTurnDelta)game.play_gameturn - (GameTurnDelta)cproc->process_parameter_3;
+            GameTurnDelta prior = (GameTurnDelta)get_gameturn() - (GameTurnDelta)cproc->process_parameter_3;
             if (g2max_prior < prior) {
                 g2max_prior = prior;
                 g2max_cproc = cproc;
@@ -1364,19 +1364,19 @@ long set_next_process(struct Computer2 *comp)
             chkres = computer_process_func_list[cproc->func_setup](comp, cproc);
             if (chkres == CProcRet_Continue)
             {
-                cproc->process_parameter_1 = game.play_gameturn;
+                cproc->process_parameter_1 = get_gameturn();
                 comp->task_state = CTaskSt_Perform;
             }
         }
         if (chkres == CProcRet_Wait)
         {
-            cproc->last_run_turn = game.play_gameturn;
+            cproc->last_run_turn = get_gameturn();
             cproc->process_parameter_3 = 0;
         }
         if (chkres == CProcRet_Fail)
         {
             cproc->last_run_turn = 0;
-            cproc->process_parameter_3 = game.play_gameturn;
+            cproc->process_parameter_3 = get_gameturn();
         }
     }
     if (chkres != CProcRet_Continue)

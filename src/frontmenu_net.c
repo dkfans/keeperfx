@@ -72,9 +72,16 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players - 1 > net_player_scroll_offset)) & LbBtnF_Enabled;
 }
 
+static TbBool frontnet_can_join_session(void)
+{
+    return (net_session_index_active >= 0)
+        && (net_session_index_active < net_number_of_sessions)
+        && (net_session[net_session_index_active] != NULL);
+}
+
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled) & LbBtnF_Enabled;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * frontnet_can_join_session()) & LbBtnF_Enabled;
 }
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
@@ -236,7 +243,7 @@ void frontnet_session_add(struct GuiButton *gbtn)
 void frontnet_session_join(struct GuiButton *gbtn)
 {
     long plyr_num;
-    if (net_session[net_session_index_active] == NULL)
+    if (!frontnet_can_join_session())
         return;
     plyr_num = network_session_join();
     if (plyr_num < 0)
@@ -348,7 +355,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         {
             if (subplyr_idx >= NET_PLAYERS_COUNT)
                 break;
-            if (net_player_info[subplyr_idx].active)
+            if (net_player_info[subplyr_idx].network_user_active)
             {
                 if (subplyr_idx == netplyr_idx)
                     break;
@@ -386,11 +393,11 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet[my_player_number];
-        if ((nspck->networkstatus_flags & 0xF8) == 0)
+        if (screen_packet_action(nspck) == NetAct_None)
         {
-            nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x20;
-            nspck->param1 = plyr1_idx;
-            nspck->param2 = plyr2_idx;
+            screen_packet_set_action(nspck, NetAct_SetAlliance);
+            nspck->action_par1 = plyr1_idx;
+            nspck->action_par2 = plyr2_idx;
         }
     }
 }
@@ -587,7 +594,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
         int i;
         for (i = nmsg->plyr_idx; i > 0; i--)
         {
-          if ( net_player_info[i].active)
+          if ( net_player_info[i].network_user_active)
             num_active++;
         }
 

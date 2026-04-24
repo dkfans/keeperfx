@@ -662,7 +662,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     }
 
     dungeon->manufacture_progress -= (k << 8);
-    dungeon->turn_last_manufacture = game.play_gameturn;
+    dungeon->turn_last_manufacture = get_gameturn();
     dungeon->lvstats.manufactured_items++;
     if (get_next_manufacture(dungeon))
     {
@@ -835,7 +835,7 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
                     remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
                 }
             }
-            delete_thing_structure(thing, 0);
+            destroy_object(thing);
         }
         // Per thing code ends
         k++;

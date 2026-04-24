@@ -27,6 +27,7 @@
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "frontend.h"
+#include "front_network.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
 #include "game_heap.h"
@@ -38,6 +39,7 @@
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
+#include "net_game.h"
 #include "net_resync.h"
 #include "room_library.h"
 #include "room_list.h"
@@ -145,6 +147,9 @@ static void init_level(void)
     lens_mode = 0;
     setup_heap_manager();
 
+    init_seeds();
+    sync_initial_network_seed();
+
     luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
     recheck_all_mod_exist();
@@ -169,9 +174,6 @@ static void init_level(void)
     setup_panel_colors();
     init_map_size(get_selected_level_number());
     clear_messages();
-    init_seeds();
-    
-    sync_various_data();
     
     // Load the actual level files
     TbBool script_preloaded = preload_script(get_selected_level_number());
@@ -348,12 +350,6 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     {
         game.game_kind = GKind_MultiGame;
         init_players_network_game(context);
-
-        // Fix desyncs when two players have a different zoom distance cfg setting
-        // This temporary solution just disregards their cfg value and sets it here
-        int max_zoom_in_multiplayer = 60;
-        zoom_distance_setting = LbLerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
-        frontview_zoom_distance_setting = LbLerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
     }
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};
@@ -363,6 +359,9 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
 static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
 {
     TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
+    if (game.game_kind == GKind_MultiGame) {
+        setup_alliances();
+    }
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
@@ -484,6 +483,5 @@ void init_seeds()
         game.player_random_seed = game.action_random_seed * 9473 + 9479;
         
         initial_replay_seed = game.action_random_seed;
-        lua_set_random_seed(game.action_random_seed);
     }
 }

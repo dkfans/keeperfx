@@ -60,9 +60,9 @@ static struct Packet* get_packet_for_local_camera_update(void)
 {
     GameTurn turn;
     if (flag_is_set(game.operation_flags, GOF_Paused) && game.game_kind == GKind_LocalGame) {
-        turn = game.play_gameturn;
+        turn = get_gameturn();
     } else {
-        turn = game.play_gameturn - 1;
+        turn = get_gameturn() - 1;
     }
     return get_local_input_lag_packet_for_turn(turn);
 }
