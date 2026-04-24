@@ -83,8 +83,8 @@ enum NetAction {
 struct ScreenPacket {
   unsigned char networkstatus_flags;
   char frontend_alliances;
-  short stored_data1; // Can contain: VersionRelease (networking) or hand_position_x (landview)
-  short stored_data2; // Can contain: VersionBuild (networking) or hand_position_y (landview)
+  short stored_data1; // Can contain: packed version major/minor (networking) or hand_position_x (landview)
+  short stored_data2; // Can contain: packed version release/build (networking) or hand_position_y (landview)
   short action_par1;
   unsigned char action_par2;
 };

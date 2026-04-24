@@ -329,6 +329,18 @@ void frontnet_rewite_net_messages(void)
       memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
 }
 
+static void frontend_screen_packet_version(char *buf, size_t buf_len, const struct ScreenPacket *packet)
+{
+  unsigned short version1 = (unsigned short)packet->stored_data1;
+  unsigned short version2 = (unsigned short)packet->stored_data2;
+  if (version1 > 0xFF || version2 > 0xFF) {
+    snprintf(buf, buf_len, "%u.%u.%u.%u",
+        version1 >> 8, version1 & 0xFF, version2 >> 8, version2 & 0xFF);
+  } else {
+    snprintf(buf, buf_len, "%u.%u", version1, version2);
+  }
+}
+
 static TbBool check_frontend_version_mismatch(void)
 {
   static int32_t previous_active_players = 0;
@@ -353,10 +365,14 @@ static TbBool check_frontend_version_mismatch(void)
       if (nspckt->stored_data1 != host_packet->stored_data1 || nspckt->stored_data2 != host_packet->stored_data2) {
         if (player_joined) {
           char text[MESSAGE_TEXT_LEN];
-          snprintf(text, sizeof(text), "%s\n%s: %d.%d.%d.%d\n%s: %d.%d.%d.%d",
+          char host_version[32];
+          char player_version[32];
+          frontend_screen_packet_version(host_version, sizeof(host_version), host_packet);
+          frontend_screen_packet_version(player_version, sizeof(player_version), nspckt);
+          snprintf(text, sizeof(text), "%s\n%s: %s\n%s: %s",
               get_string(GUIStr_VersionMismatch),
-              network_player_name(SERVER_ID), VER_MAJOR, VER_MINOR, (int)host_packet->stored_data1, (int)host_packet->stored_data2,
-              network_player_name(i), VER_MAJOR, VER_MINOR, (int)nspckt->stored_data1, (int)nspckt->stored_data2);
+              network_player_name(SERVER_ID), host_version,
+              network_player_name(i), player_version);
           create_frontend_error_box(10000, text);
           player_joined = false;
         }
@@ -378,8 +394,8 @@ static void process_frontend_packets(void)
   nspckt->frontend_alliances = frontend_alliances;
   nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
   nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
-  nspckt->stored_data1 = VersionRelease;
-  nspckt->stored_data2 = VersionBuild;
+  nspckt->stored_data1 = (VER_MAJOR << 8) | VER_MINOR;
+  nspckt->stored_data2 = (VER_RELEASE << 8) | VER_BUILD;
   if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
       ERRORLOG("LbNetwork_Exchange failed");
       net_service_index_selected = -1;
