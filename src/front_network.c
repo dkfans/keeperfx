@@ -40,7 +40,6 @@
 #include "frontend.h"
 #include "player_data.h"
 #include "net_game.h"
-#include "ver_defs.h"
 #include "config.h"
 #include "config_strings.h"
 #include "game_merge.h"
@@ -334,37 +333,44 @@ static TbBool check_frontend_version_mismatch(void)
   static int32_t previous_active_players = 0;
   static TbBool player_joined = false;
   int32_t active_players = 0;
+  struct NetUser* host_user = &netstate.users[SERVER_ID];
+  NetUserId remote_id = -1;
+
+  if (netstate.my_id != SERVER_ID) {
+    remote_id = my_player_number;
+  }
   for (int32_t i = 0; i < NET_PLAYERS_COUNT; i++) {
-    if (network_player_active(i)) {
-      active_players++;
+    if (!network_player_active(i)) {
+      continue;
+    }
+    active_players++;
+    if (remote_id == -1 && i != SERVER_ID
+        && host_user->version_valid && netstate.users[i].version_valid
+        && !net_versions_match(&host_user->version, &netstate.users[i].version)) {
+      remote_id = i;
     }
   }
   if (active_players > previous_active_players) {
     player_joined = true;
   }
   previous_active_players = active_players;
-  struct ScreenPacket *host_packet = &net_screen_packet[SERVER_ID];
-  if ((host_packet->networkstatus_flags & NetStat_PlayerConnected) != 0) {
-    for (int32_t i = 0; i < NET_PLAYERS_COUNT; i++) {
-      struct ScreenPacket *nspckt = &net_screen_packet[i];
-      if (i == SERVER_ID || (nspckt->networkstatus_flags & NetStat_PlayerConnected) == 0) {
-        continue;
-      }
-      if (nspckt->stored_data1 != host_packet->stored_data1 || nspckt->stored_data2 != host_packet->stored_data2) {
-        if (player_joined) {
-          char text[MESSAGE_TEXT_LEN];
-          snprintf(text, sizeof(text), "%s\n%s: %d.%d.%d.%d\n%s: %d.%d.%d.%d",
-              get_string(GUIStr_VersionMismatch),
-              network_player_name(SERVER_ID), VER_MAJOR, VER_MINOR, (int)host_packet->stored_data1, (int)host_packet->stored_data2,
-              network_player_name(i), VER_MAJOR, VER_MINOR, (int)nspckt->stored_data1, (int)nspckt->stored_data2);
-          create_frontend_error_box(10000, text);
-          player_joined = false;
-        }
-        return true;
-      }
-    }
+  if (!host_user->version_valid || remote_id == -1) {
+    return false;
   }
-  return false;
+  struct NetUser* remote_user = &netstate.users[remote_id];
+  if (!remote_user->version_valid || net_versions_match(&host_user->version, &remote_user->version)) {
+    return false;
+  }
+  if (player_joined) {
+    char text[MESSAGE_TEXT_LEN];
+    snprintf(text, sizeof(text), "%s\n%s: %d.%d.%d.%d\n%s: %d.%d.%d.%d",
+        get_string(GUIStr_VersionMismatch),
+        network_player_name(SERVER_ID), (int)host_user->version.major, (int)host_user->version.minor, (int)host_user->version.release, (int)host_user->version.build,
+        network_player_name(remote_id), (int)remote_user->version.major, (int)remote_user->version.minor, (int)remote_user->version.release, (int)remote_user->version.build);
+    create_frontend_error_box(10000, text);
+    player_joined = false;
+  }
+  return true;
 }
 
 static void process_frontend_packets(void)
@@ -378,8 +384,6 @@ static void process_frontend_packets(void)
   nspckt->frontend_alliances = frontend_alliances;
   nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
   nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
-  nspckt->stored_data1 = VersionRelease;
-  nspckt->stored_data2 = VersionBuild;
   if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
       ERRORLOG("LbNetwork_Exchange failed");
       net_service_index_selected = -1;

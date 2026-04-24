@@ -21,6 +21,7 @@
 #define BFLIB_NETWORK_INTERNAL_H
 
 #include "bflib_network.h"
+#include "ver_defs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,11 +33,20 @@ enum NetUserProgress {
     USER_LOGGEDIN
 };
 
+struct GameVersionPacket {
+    int32_t major;
+    int32_t minor;
+    int32_t release;
+    int32_t build;
+};
+
 struct NetUser {
     NetUserId id;
     char name[32];
     enum NetUserProgress progress;
     int ack;
+    TbBool version_valid;
+    struct GameVersionPacket version;
 };
 
 struct NetFrame {
@@ -63,6 +73,20 @@ struct NetState {
 };
 
 extern struct NetState netstate;
+
+static inline struct GameVersionPacket net_current_version(void)
+{
+    struct GameVersionPacket version = { VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD };
+    return version;
+}
+
+static inline TbBool net_versions_match(const struct GameVersionPacket *version_a, const struct GameVersionPacket *version_b)
+{
+    return (version_a->major == version_b->major) &&
+        (version_a->minor == version_b->minor) &&
+        (version_a->release == version_b->release) &&
+        (version_a->build == version_b->build);
+}
 
 TbBool OnNewUser(NetUserId *assigned_id);
 void OnDroppedUser(NetUserId id, enum NetDropReason reason);
