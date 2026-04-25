@@ -366,9 +366,6 @@
     <ClCompile Include="src\gui_topmsg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\KeeperSpeechImp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\kjm_input.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1173,9 +1170,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\keeperfx.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KeeperSpeech.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\kjm_input.h">

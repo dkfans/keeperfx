@@ -328,7 +328,6 @@ TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
 void process_players_creature_passenger_packet_action(long idx);
 void process_players_creature_control_packet_action(long idx);
-void process_frontend_packets(void);
 void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
@@ -355,6 +354,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
 void set_tag_untag_mode(PlayerNumber plyr_idx);
 TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
+void disable_packet_mode(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
