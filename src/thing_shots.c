@@ -41,6 +41,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "power_process.h"
+#include "lua_cfg_funcs.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "creature_states.h"
@@ -527,11 +528,15 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         }
     }
 
+    doortng = get_door_for_position(hit_stl_x, hit_stl_y);
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, get_parent_thing(shotng), doortng, hit_stl_x, hit_stl_y))
+    {
+        return true;
+    }
     // If blocked by a higher wall
     if ((blocked_flags & SlbBloF_WalledZ) != 0)
     {
         long cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num, NULL);
-        doortng = get_door_for_position(hit_stl_x, hit_stl_y);
         if (!thing_is_invalid(doortng))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range, shotng->index);
@@ -592,7 +597,6 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     if (dist <= 800) return detonate_shot(shotng, true);
                 }
             }
-            doortng = get_door_for_position(hit_stl_x, hit_stl_y);
             if (!thing_is_invalid(doortng))
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range, shotng->index);
@@ -669,6 +673,10 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
         // If we did found a door to hit
         if (!thing_is_invalid(doortng))
         {
+            if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, get_parent_thing(shotng), doortng, pos->x.stl.num, pos->y.stl.num))
+            {
+                return true;
+            }
             // If the shot hit is supposed to create effect thing
             if (shotst->hit_door.effect_model != 0)
             {
@@ -795,7 +803,11 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (i > 0) {
         thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
-
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shootertng, target, pos->x.stl.num, pos->y.stl.num))
+    {
+        return true;
+    }
+    
     HitPoints damage_done = 0;
     if (shotng->shot.damage)
     {
@@ -856,6 +868,10 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         return false;
     }
     struct Thing* shootertng = get_parent_thing(shotng);
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shootertng, target, pos->x.stl.num, pos->y.stl.num))
+    {
+        return true;
+    }
     if (thing_is_dungeon_heart(target))
     {
         if (shotst->hit_heart.effect_model != 0)
@@ -1058,6 +1074,10 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     if (trgtng->health < 0)
         return 0;
     struct Thing* shooter = get_parent_thing(shotng);
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shooter, trgtng, pos->x.stl.num, pos->y.stl.num))
+    {
+        return true;
+    }
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
     long damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
     if (damage > 0)
@@ -1238,6 +1258,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shooter, trgtng, pos->x.stl.num, pos->y.stl.num))
+    {
+        return true;
+    }
     // Immunity to boulders
     if (shot_is_boulder(shotng))
     {
@@ -1410,8 +1434,11 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 
 TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
-    if (!thing_exists(target))
+    struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
+
+    if (!thing_exists(target)) {
         return false;
+    }
     if (target->class_id == TCls_Object) {
         return shot_hit_object_at(shotng, target, pos);
     }
@@ -1427,6 +1454,10 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     if (target->class_id == TCls_Shot) {
         // On a shot for collision, both shots are destroyed
         //TODO maybe make both shots explode instead?
+        if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, get_parent_thing(shotng), target, pos->x.stl.num, pos->y.stl.num))
+        {
+            return true;
+        }
         shotng->health = -1;
         target->health = -1;
         return true;

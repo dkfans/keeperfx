@@ -313,6 +313,7 @@ struct ShotConfigStats {
     short spread_xy;
     short spread_z;
     short speed_deviation;
+    FuncIdx hit_thing_lua_func_idx;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
