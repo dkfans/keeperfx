@@ -450,6 +450,8 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "picked_up") == 0) {
         lua_pushboolean(L, thing_is_picked_up(thing));
+    } else if (strcmp(key, "thing_class") == 0) {
+        lua_pushstring(L, thing_class_code_name(thing->class_id));
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }

@@ -162,7 +162,6 @@ src/gui_soundmsgs.cpp \
 src/gui_tooltips.c \
 src/gui_topmsg.c \
 src/highscores.c \
-src/KeeperSpeechImp.c \
 src/kjm_input.c \
 src/lens_api.c \
 src/config_effects.c \

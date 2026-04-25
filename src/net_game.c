@@ -301,7 +301,7 @@ const char *network_player_name(int plyr_idx)
 {
     if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT))
         return NULL;
-    return net_player[plyr_idx].name;
+    return net_player_info[plyr_idx].name;
 }
 
 long network_session_join(void)

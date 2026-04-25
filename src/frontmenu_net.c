@@ -393,11 +393,11 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet[my_player_number];
-        if ((nspck->networkstatus_flags & 0xF8) == 0)
+        if (screen_packet_action(nspck) == NetAct_None)
         {
-            nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x20;
-            nspck->param1 = plyr1_idx;
-            nspck->param2 = plyr2_idx;
+            screen_packet_set_action(nspck, NetAct_SetAlliance);
+            nspck->action_par1 = plyr1_idx;
+            nspck->action_par2 = plyr2_idx;
         }
     }
 }
