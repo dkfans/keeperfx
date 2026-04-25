@@ -21,3 +21,12 @@
 ---@param is_free boolean if the power should be cast for free (no gold cost)
 ---@return -1|0|1 if the power was cast successfully 1, if it failed -1, if it was cast but the power didn't do anything 0
 function Magic_power_UseFunction_template(player,power_kind,power_level,stl_x,stl_y,thing,is_free) return 0 end
+
+
+---@param shot Thing the shot hitting something.
+---@param shooter Thing|nil the shooter of the shot.
+---@param target Thing|nil what was hit, will be nil if the shot hit a wall. 
+---@param next_stl_x integer where the shot would have been had it not hit something. Useful when hitting a wall.
+---@param next_stl_y integer where the shot would have been had it not hit something. Useful when hitting a wall.
+---@return boolean return false if the shot was deleted and should no longer be processed, true otherwise
+function Magic_shot_HitThingFunction_template(shot,shooter,target,next_stl_x,next_stl_y) return true end
