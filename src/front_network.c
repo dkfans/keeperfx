@@ -662,6 +662,7 @@ void frontnet_session_setup(void)
         snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.net_player_name);
         strcpy(tmp_net_player_name, net_config_info.net_player_name);
     }
+    set_default_mp_mappack();
     net_session_index_active = -1;
     fe_computer_players = 2;
     lbInkey = 0;
