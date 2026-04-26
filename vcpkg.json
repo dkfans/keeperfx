@@ -17,6 +17,7 @@
         "zlib",
         "minizip",
         "luajit",
-        "miniupnpc"
+        "miniupnpc",
+        "curl"
     ]
 }

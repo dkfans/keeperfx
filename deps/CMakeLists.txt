@@ -282,3 +282,10 @@ else()
     target_link_libraries(keeperfx PUBLIC natpmp_static)
     target_link_libraries(keeperfx_hvlog PUBLIC natpmp_static)
 endif()
+
+## curl
+if(MSVC)
+    find_package(CURL CONFIG REQUIRED)
+    target_link_libraries(keeperfx PUBLIC CURL::libcurl)
+    target_link_libraries(keeperfx_hvlog PUBLIC CURL::libcurl)
+endif()
