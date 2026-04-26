@@ -708,7 +708,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           if (i <= 0)
           {
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file.",
-                COMMAND_TEXT(cmd_num), campgn->lobby_name, config_textname);
+                COMMAND_TEXT(cmd_num), campgn->name, config_textname);
           }
           break;
       case ccr_comment:
