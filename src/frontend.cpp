@@ -328,6 +328,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuAddComputer, 1}, // [110]
     {GUIStr_MnuReturnToFreePlay, 1},
     {GUIStr_MnuMapPacks, 2},
+    {GUIStr_MnuMpMapPacks, 2},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;

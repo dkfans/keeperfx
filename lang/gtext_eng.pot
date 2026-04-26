@@ -5862,4 +5862,7 @@ msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr ""
 
-
+#: guitext:1110
+msgctxt "Menu interface item"
+msgid "Multiplayer Map Packs"
+msgstr ""

@@ -97,7 +97,7 @@ struct GuiButtonInit frontend_select_mappack_buttons[] = {
 };
 
 struct GuiButtonInit frontend_select_mp_mappack_buttons[] = {
-  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,                   NULL,        NULL,             0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {100},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,                   NULL,        NULL,             0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {113},            0, NULL},
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,                      NULL,        NULL,             0,  82, 128,  82, 128,220, 26, frontend_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, NULL},
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,                      NULL,        NULL,             0,  82, 154,  82, 154,450,180, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, NULL},
   { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontend_mp_mappack_select_up,NULL,frontend_over_button,  0, 532, 153, 532, 153, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, frontend_mp_mappack_select_up_maintain},

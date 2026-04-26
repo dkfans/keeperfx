@@ -6876,3 +6876,8 @@ msgstr "傳送到集合點"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "預設傳送"
+
+#: guitext:1110
+msgctxt "Menu interface item"
+msgid "Multiplayer Map Packs"
+msgstr ""
