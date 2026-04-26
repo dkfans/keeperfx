@@ -1767,26 +1767,7 @@ void frontend_load_mp_mappacks(struct GuiButton *gbtn)
 {
     const char *cmpgn_fname;
     SYNCDBG(6,"Clicked");
-    // Check if we can show some levels without showing the map pack selection screen
-    if (mp_mappacks_list.items_num < 1)
-      cmpgn_fname = "";
-    else
-    if (mp_mappacks_list.items_num == 1)
-      cmpgn_fname = mp_mappacks_list.items[0].fname;
-    else
-      cmpgn_fname = NULL;
-    if (cmpgn_fname != NULL)
-    { // If there's only one map pack, then just show the levels
-      if (!change_campaign(cmpgn_fname))
-      {
-        ERRORLOG("Unable to load map pack list");
-        return;
-      }
-      frontend_set_state(FeSt_LEVEL_SELECT);
-    } else
-    { // If there's more map packs, go to selection screen
-      frontend_set_state(FeSt_MP_MAPPACK_SELECT);
-    }
+    frontend_set_state(FeSt_MP_MAPPACK_SELECT);
 }
 
 /**
