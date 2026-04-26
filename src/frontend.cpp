@@ -1765,7 +1765,6 @@ void frontend_load_mappacks(struct GuiButton *gbtn)
 
 void frontend_load_mp_mappacks(struct GuiButton *gbtn)
 {
-    const char *cmpgn_fname;
     SYNCDBG(6,"Clicked");
     frontend_set_state(FeSt_MP_MAPPACK_SELECT);
 }
@@ -3696,6 +3695,9 @@ void frontend_update(short *finish_menu)
         break;
     case FeSt_MAPPACK_SELECT:
         frontend_mappack_select_update();
+        break;
+    case FeSt_MP_MAPPACK_SELECT:
+        frontend_mp_mappack_select_update();
         break;
     case FeSt_HIGH_SCORES:
         frontend_high_scores_update();

@@ -592,6 +592,36 @@ void frontend_mappack_select_update(void)
     }
 }
 
+void frontend_mp_mappack_select_update(void)
+{
+    if (mp_mappacks_list.items_num <= 0)
+    {
+        select_mp_mappack_scroll_offset = 0;
+    } else
+    if (select_mp_mappack_scroll_offset < 0)
+    {
+        select_mp_mappack_scroll_offset = 0;
+    } else
+    if (select_mp_mappack_scroll_offset > mp_mappacks_list.items_num-frontend_select_mp_mappack_items_visible+1)
+    {
+        select_mp_mappack_scroll_offset = mp_mappacks_list.items_num-frontend_select_mp_mappack_items_visible+1;
+    }
+    if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
+    {
+        if (select_mp_mappack_scroll_offset < mp_mappacks_list.items_num-frontend_select_mp_mappack_items_visible+1)
+        {
+            select_mp_mappack_scroll_offset++;
+        }
+    }
+    if (wheel_scrolled_up || (is_key_pressed(KC_UP,KMod_NONE)))
+    {
+        if (select_mp_mappack_scroll_offset > 0)
+        {
+            select_mp_mappack_scroll_offset--;
+        }
+    }
+}
+
 void frontend_draw_mappack_scroll_tab(struct GuiButton *gbtn)
 {
     frontend_draw_scroll_tab(gbtn, select_mappack_scroll_offset, frontend_select_mappack_items_visible-2, mappacks_list.items_num);
