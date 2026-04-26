@@ -450,7 +450,11 @@ LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 # load program version
 include version.mk
 
-VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_SUFFIX)
+ifeq ($(PACKAGE_SUFFIX),)
+VER_STRING = "$(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER)"
+else
+VER_STRING = "$(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_SUFFIX)"
+endif
 
 # Enable parallel compilation by default. Users can still override with: make -j8, make -j1, etc.
 ifndef MAKEFLAGS
