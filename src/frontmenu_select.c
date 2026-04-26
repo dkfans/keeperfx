@@ -597,6 +597,11 @@ void frontend_draw_mappack_scroll_tab(struct GuiButton *gbtn)
     frontend_draw_scroll_tab(gbtn, select_mappack_scroll_offset, frontend_select_mappack_items_visible-2, mappacks_list.items_num);
 }
 
+void frontend_draw_mp_mappack_scroll_tab(struct GuiButton *gbtn)
+{
+    frontend_draw_scroll_tab(gbtn, select_mp_mappack_scroll_offset, frontend_select_mp_mappack_items_visible-2, mp_mappacks_list.items_num);
+}
+
 void frontend_campaign_list_load(void)
 {
     frontend_select_campaign_items_visible = (campaigns_list.items_num < frontend_select_campaign_items_max_visible)?campaigns_list.items_num+1:frontend_select_campaign_items_max_visible;

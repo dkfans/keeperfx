@@ -82,6 +82,7 @@ void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn);
 void frontend_mappack_select(struct GuiButton *gbtn);
 void frontend_mappack_select_update(void);
 void frontend_draw_mappack_scroll_tab(struct GuiButton *gbtn);
+void frontend_draw_mp_mappack_scroll_tab(struct GuiButton *gbtn);
 void frontend_mappack_list_load(void);
 void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn);
 
