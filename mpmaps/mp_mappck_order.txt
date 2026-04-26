@@ -1,2 +1,3 @@
 #order of the multiplayer mappacks, packs not in the list will be at the bottom alphabetically
 classic.cfg
+standard.cfg
