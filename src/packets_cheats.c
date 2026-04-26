@@ -103,7 +103,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_hero_kind];
+            struct CreatureModelConfig* crconf = creature_stats_get(player->cheatselection.chosen_hero_kind);
             snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
@@ -122,7 +122,7 @@ TbBool packets_process_cheats(
                         {
                             continue;
                         }
-                        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
+                        struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
                         if ((crconf->model_flags & CMF_IsSpectator) != 0)
                         {
                             continue;
@@ -260,7 +260,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_creature_kind];
+            struct CreatureModelConfig* crconf = creature_stats_get(player->cheatselection.chosen_creature_kind);
             snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
@@ -275,7 +275,7 @@ TbBool packets_process_cheats(
                     while (1)
                     {
                         crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
-                        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
+                        struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
                         if ((crconf->model_flags & CMF_IsSpectator) != 0) {
                             continue;
                         }

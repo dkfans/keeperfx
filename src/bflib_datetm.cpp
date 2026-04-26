@@ -25,10 +25,7 @@
 #include "bflib_basics.h"
 #include "game_legacy.h"
 
-#if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
+#include <SDL2/SDL.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -102,7 +99,7 @@ int get_trigger_time_measurement_fps(struct TriggerTimeMeasurement *trigger)
 float get_delta_time()
 {
     // Allow frame skip to work correctly when delta time is enabled
-    if ( (game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0)) {
+    if ( (game.frame_skip != 0) && ((get_gameturn() % game.frame_skip) != 0)) {
         return 1.0;
     }
     long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
@@ -307,9 +304,7 @@ TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct
 
 inline void LbDoMultitasking(void)
 {
-#if defined(_WIN32)
-    Sleep(LARGE_DELAY_TIME>>1); // This switches to other tasks
-#endif
+    SDL_Delay(LARGE_DELAY_TIME>>1);
 }
 
 TbBool LbSleepFor(TbClockMSec delay)

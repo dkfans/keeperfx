@@ -217,7 +217,7 @@ void frontstats_initialise(void)
     dungeon->lvstats.num_rooms = calculate_player_num_rooms_built(my_player_number);
     dungeon->lvstats.gameplay_time = (dungeon->lvstats.end_time - dungeon->lvstats.start_time) / 1000;
     dungeon->lvstats.num_entrances = count_player_rooms_entrances(my_player_number);
-    dungeon->lvstats.hopes_dashed = game.play_gameturn;
+    dungeon->lvstats.hopes_dashed = get_gameturn();
     memcpy(&frontstats_data, &dungeon->lvstats, sizeof(struct LevelStats));
 }
 

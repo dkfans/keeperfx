@@ -98,6 +98,7 @@ const struct NamedCommand spell_effect_flags[] = {
     {"TELEPORT",      CSAfF_Teleport},
     {"TIMEBOMB",      CSAfF_Timebomb},
     {"WIND",          CSAfF_Wind},
+    {"SPELL_BLOCKS",  CSAfF_SpellBlocks},
     {NULL,            0},
 };
 
@@ -170,6 +171,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"SPEEDDEVIATION",        58},
   {"SPREAD_XY",             59},
   {"SPREAD_Z",              60},
+  {"HITTHINGFUNC",          61},
   {NULL,                     0},
   };
 
@@ -2084,6 +2086,17 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
+      case 61: // HITTHINGFUNC
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              shotst->hit_thing_lua_func_idx = get_function_idx(word_buf, NULL);
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:

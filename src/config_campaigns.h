@@ -144,7 +144,7 @@ struct LevelInformation {
   long ensign_zoom_x;
   long ensign_zoom_y;
   unsigned long level_type;
-  unsigned short ensign;
+  unsigned short ensign_type;
   unsigned short state;
   unsigned short location;
   int mapsize_x;

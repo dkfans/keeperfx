@@ -17,42 +17,45 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_objects.h"
 
+#include "thing_objects.h"
 #include "globals.h"
+
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_sound.h"
 #include "bflib_planar.h"
-
-#include "config_strings.h"
-#include "config_objects.h"
-#include "config_terrain.h"
+#include "bflib_sound.h"
 #include "config_creature.h"
 #include "config_effects.h"
 #include "config_magic.h"
-#include "thing_stats.h"
-#include "thing_effects.h"
-#include "thing_navigate.h"
-#include "thing_physics.h"
-#include "power_hand.h"
-#include "player_instances.h"
-#include "map_data.h"
-#include "map_columns.h"
-#include "map_utils.h"
-#include "magic_powers.h"
-#include "room_entrance.h"
-#include "gui_topmsg.h"
-#include "gui_soundmsgs.h"
-#include "engine_arrays.h"
-#include "sounds.h"
+#include "config_objects.h"
+#include "config_spritecolors.h"
+#include "config_strings.h"
+#include "config_terrain.h"
 #include "creature_states_pray.h"
 #include "game_legacy.h"
-#include "local_camera.h"
-#include "keeperfx.hpp"
 #include "game_loop.h"
-#include "config_spritecolors.h"
+#include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
+#include "keeperfx.hpp"
+#include "local_camera.h"
 #include "lua_cfg_funcs.h"
+#include "lua_triggers.h"
+#include "magic_powers.h"
+#include "map_columns.h"
+#include "map_data.h"
+#include "map_utils.h"
+#include "player_instances.h"
+#include "power_hand.h"
+#include "room_entrance.h"
+#include "room_garden.h"
+#include "sounds.h"
+#include "thing_effects.h"
+#include "thing_data.h"
+#include "thing_navigate.h"
+#include "thing_physics.h"
+#include "thing_stats.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -110,8 +113,7 @@ struct CallToArmsGraphics call_to_arms_graphics[10];
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigned short owner, long parent_idx)
 {
-    long i;
-    long start_frame;
+    char start_frame;
 
     if (!i_can_allocate_free_thing_structure(TCls_Object))
     {
@@ -137,8 +139,6 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     thing->clipbox_size_z = objst->size_z;
     thing->solid_size_xy = objst->size_xy;
     thing->solid_size_z = objst->size_z;
-    thing->anim_speed = objst->anim_speed;
-    thing->anim_sprite = objst->sprite_anim_idx;
     thing->health = saturate_set_signed(objst->health,32);
     thing->fall_acceleration = objst->fall_acceleration;
     thing->inertia_floor = 204;
@@ -148,18 +148,13 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
 
     set_flag_value(thing->movement_flags, TMvF_Immobile, objst->immobile);
     thing->owner = owner;
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
 
-    if (!objst->random_start_frame)
-    {
-      i = convert_td_iso(objst->sprite_anim_idx);
-      start_frame = 0;
-    } else
-    {
-      i = convert_td_iso(objst->sprite_anim_idx);
-      start_frame = -1;
+    start_frame = 0;
+    if (objst->random_start_frame) {
+        start_frame = -1;
     }
-    set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
+    set_thing_draw(thing, objst->sprite_anim_idx, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
     set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
 
     set_flag(thing->rendering_flags, objst->transparency_flags);
@@ -210,7 +205,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     }
     if (objst->genre == OCtg_HeroGate)
     {
-        i = get_free_hero_gate_number();
+        int32_t i = get_free_hero_gate_number();
         if (i > 0)
         {
             thing->hero_gate.number = i;
@@ -252,24 +247,13 @@ void destroy_food(struct Thing *foodtng)
         }
     }
     create_effect(&pos, TngEff_ChickenBlood, plyr_idx);
-    struct Room* room = get_room_thing_is_on(foodtng);
-    if (!room_is_invalid(room))
-    {
-        if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == foodtng->owner))
-        {
-            int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
-            if (room->used_capacity >= required_cap)
-            {
-                room->used_capacity -= required_cap;
-            }
-            foodtng->food.life_remaining = game.conf.rules[plyr_idx].game.food_life_out_of_hatchery;
-        }
-    }
+    remove_food_from_food_room_if_possible(foodtng);
     delete_thing_structure(foodtng, 0);
 }
 
 void destroy_object(struct Thing *thing)
 {
+    lua_on_object_destroyed(thing);
     if (object_is_mature_food(thing) || object_is_growing_food(thing))
     {
         destroy_food(thing);
@@ -651,7 +635,7 @@ TbBool delete_lair_totem(struct Thing *lairtng)
     } else {
         ERRORLOG("No totem owner");
     }
-    delete_thing_structure(lairtng, 0);
+    destroy_object(lairtng);
     return true;
 }
 
@@ -729,12 +713,12 @@ static long food_moves(struct Thing *objtng)
     {
         objtng->parent_idx = room->index;
         struct Thing* near_creatng;
-        if (room->hatch_gameturn == game.play_gameturn)
+        if (room->hatch_gameturn == get_gameturn())
         {
             near_creatng = thing_get(room->cached_nearby_creature_index);
         } else
         {
-            room->hatch_gameturn = game.play_gameturn;
+            room->hatch_gameturn = get_gameturn();
             near_creatng = get_nearest_thing_of_class_and_model_owned_by(pos.x.val, pos.y.val, -1, TCls_Creature, -1);
             if (!thing_is_invalid(near_creatng))
                 room->cached_nearby_creature_index = near_creatng->index;
@@ -954,7 +938,7 @@ GoldAmount gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room
     thing->valuable.gold_stored = gold_store;
     if (thing->valuable.gold_stored <= 0)
     {
-        delete_thing_structure(thing, 0);
+        destroy_object(thing);
         return -1;
     }
     return 0;
@@ -1094,14 +1078,14 @@ static long object_being_dropped(struct Thing *thing)
     {
         struct Room* room = get_room_thing_is_on(thing);
         process_object_sacrifice(thing, room->owner);
-        delete_thing_structure(thing, 0);
+        destroy_thing(thing);
         return TUFRet_Deleted;
     }
     if (object_is_gold_pile(thing))
     {
         if (thing->valuable.gold_stored <= 0)
         {
-            delete_thing_structure(thing, 0);
+            destroy_object(thing);
             return TUFRet_Deleted;
         }
         struct Room* room = get_room_thing_is_on(thing);
@@ -1117,14 +1101,14 @@ static long object_being_dropped(struct Thing *thing)
         if (thing->model == ObjMdl_SpinningCoin)
         {
             drop_gold_pile(thing->valuable.gold_stored, &thing->mappos);
-            delete_thing_structure(thing, 0);
+            destroy_thing(thing);
             return TUFRet_Deleted;
         }
         struct Thing* gldtng = find_base_thing_on_mapwho_excluding_self(thing);
         if (!thing_is_invalid(gldtng))
         {
             add_gold_to_pile(gldtng, thing->valuable.gold_stored);
-            delete_thing_structure(thing, 0);
+            destroy_thing(thing);
             return TUFRet_Deleted;
         }
     }
@@ -1185,7 +1169,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
             }
         }
         k = (((unsigned long long)heartng->anim_time >> 32) & 0xFF) + heartng->anim_time;
-        heartng->current_frame = (k >> 8) & 0xFF;
+        heartng->current_frame = k >> 8;
         if (LbIsFrozenOrPaused())
         {
             stop_thing_playing_sample(heartng, 93);
@@ -1210,7 +1194,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 
     if ((heartng->health > 0) && (game.conf.rules[heartng->owner].game.dungeon_heart_heal_time != 0))
     {
-        if ((game.play_gameturn % game.conf.rules[heartng->owner].game.dungeon_heart_heal_time) == 0)
+        if ((get_gameturn() % game.conf.rules[heartng->owner].game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.conf.rules[heartng->owner].game.dungeon_heart_heal_health;
             if (heartng->health < 0)
@@ -1262,7 +1246,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             destroy_dungeon_heart_room(heartng->owner, heartng);
             if (!thing_is_invalid(heartng))
             {
-                delete_thing_structure(heartng, 0);
+                destroy_object(heartng);
             }
         }
         return TUFRet_Deleted; //Also when it is not deleted, to stop the heart from flashing
@@ -1492,7 +1476,7 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
     int spr_size;
-    int start_frame = objtng->current_frame;
+    unsigned char start_frame = objtng->current_frame;
     if (objtng->lair.belongs_to) {
         spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * cctrl->exp_level * game.conf.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
@@ -1500,25 +1484,18 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
     }
     int cssize = objtng->lair.cssize;
     objtng->lair.spr_size = spr_size;
-    long i;
     if (cssize+32 < spr_size)
     {
         objtng->lair.cssize = cssize+32;
-        i = convert_td_iso(objst->sprite_anim_idx);
     } else
     if (cssize-32 > spr_size)
     {
         objtng->lair.cssize = cssize-32;
-        i = convert_td_iso(objst->sprite_anim_idx);
     } else
     {
         objtng->lair.cssize = spr_size;
-        i = convert_td_iso(objst->sprite_anim_idx);
     }
-    if ((i & 0x8000u) != 0) {
-        i = objst->sprite_anim_idx;
-    }
-    set_thing_draw(objtng, i, objst->anim_speed, objtng->lair.cssize, 0, start_frame, objst->draw_class);
+    set_thing_draw(objtng, objst->sprite_anim_idx, objst->anim_speed, objtng->lair.cssize, 0, start_frame, objst->draw_class);
     return TUFRet_Modified;
 }
 
@@ -1543,11 +1520,11 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     int max_time_active = powerst->strength[sight_casted_power_level];
     int strength = min(powerst->strength[sight_casted_power_level], (MAX_SOE_RADIUS * COORD_PER_STL / 4));
 
-    if ( game.play_gameturn - objtng->creation_turn >= max_time_active
-        && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
+    if ( get_gameturn() - objtng->creation_turn >= max_time_active
+        && get_gameturn() - dungeon->sight_casted_gameturn < max_time_active )
     {
-        int time_active = game.play_gameturn - dungeon->sight_casted_gameturn;
-        if ( game.play_gameturn >= dungeon->sight_casted_gameturn)
+        int time_active = get_gameturn() - dungeon->sight_casted_gameturn;
+        if ( get_gameturn() >= dungeon->sight_casted_gameturn)
         {
             if ( max_time_active / 16 < time_active )
                 time_active = max_time_active / 16;
@@ -1557,15 +1534,15 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             time_active = 0;
         }
         const int time_interval_divisor = (max_time_active / 16) / power_sight_close_instance_time[sight_casted_power_level];
-        dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active + time_active / time_interval_divisor - power_sight_close_instance_time[sight_casted_power_level];
+        dungeon->sight_casted_gameturn = get_gameturn() - max_time_active + time_active / time_interval_divisor - power_sight_close_instance_time[sight_casted_power_level];
     }
-    if ( max_time_active <= game.play_gameturn - dungeon->sight_casted_gameturn )
+    if ( max_time_active <= get_gameturn() - dungeon->sight_casted_gameturn )
     {
-        if ( power_sight_close_instance_time[dungeon->sight_casted_power_level] <= (game.play_gameturn - dungeon->sight_casted_gameturn) - max_time_active )
+        if ( power_sight_close_instance_time[dungeon->sight_casted_power_level] <= (get_gameturn() - dungeon->sight_casted_gameturn) - max_time_active )
         {
             if ( (dungeon->computer_enabled & 4) != 0 )
             {
-                dungeon->sight_casted_gameturn = game.play_gameturn;
+                dungeon->sight_casted_gameturn = get_gameturn();
                 struct Coord3d pos;
                 pos.x.val = (dungeon->sight_casted_stl_x << 8) + 128;
                 pos.z.val = 1408;
@@ -1586,7 +1563,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         else
         {
             // draw 32 particles in a collapsing starburst pattern
-            const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
+            const int anim_time = (get_gameturn() - dungeon->sight_casted_gameturn);
             const int anim_radius = 4 * anim_time;
             const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_power_level] - (anim_time - max_time_active));
             const int max_duration_radius = max_time_active / 4;
@@ -1607,7 +1584,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     else
     {
         // draw 32 particles in an expanding radial pattern, 4 at a time, exploring terrain as we go
-        const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
+        const int anim_time = (get_gameturn() - dungeon->sight_casted_gameturn);
         const int anim_radius = 4 * anim_time;
         const int max_duration_radius = max_time_active / 4;
         const int strength_radius = strength/4;
@@ -1637,7 +1614,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
 {
     objtng->health = 2;
-    unsigned long exist_turns = game.play_gameturn - objtng->creation_turn;
+    unsigned long exist_turns = get_gameturn() - objtng->creation_turn;
     long variation = NUM_ANGLES * exist_turns;
     for (long i = 0; i < NUM_ANGLES; i++)
     {
@@ -2002,12 +1979,7 @@ GoldAmount add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmoun
     gldtng->model = gold_hoard_objects[wealth_size-1];
     // Set visual appearance
     struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
-    unsigned short i = objst->sprite_anim_idx;
-    unsigned short n = convert_td_iso(i);
-    if ((n & 0x8000u) == 0) {
-      i = n;
-    }
-    set_thing_draw(gldtng, i, objst->anim_speed, objst->sprite_size_max, 0, 0, objst->draw_class);
+    set_thing_draw(gldtng, objst->sprite_anim_idx, objst->anim_speed, objst->sprite_size_max, 0, 0, objst->draw_class);
     return amount;
 }
 
@@ -2044,7 +2016,7 @@ GoldAmount remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, Gold
 
     if (gldtng->valuable.gold_stored <= 0)
     {
-        delete_thing_structure(gldtng, 0);
+        destroy_object(gldtng);
         return amount;
     }
     // Add new wealth size
@@ -2054,12 +2026,7 @@ GoldAmount remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, Gold
     gldtng->model = gold_hoard_objects[wealth_size-1];
     // Set visual appearance
     struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
-    unsigned short i = objst->sprite_anim_idx;
-    unsigned short n = convert_td_iso(i);
-    if ((n & 0x8000u) == 0) {
-      i = n;
-    }
-    set_thing_draw(gldtng, i, objst->anim_speed, objst->sprite_size_max, 0, 0, objst->draw_class);
+    set_thing_draw(gldtng, objst->sprite_anim_idx, objst->anim_speed, objst->sprite_size_max, 0, 0, objst->draw_class);
     return amount;
 }
 

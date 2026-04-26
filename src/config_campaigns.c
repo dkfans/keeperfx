@@ -969,7 +969,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
                 k = get_id(cmpgn_map_ensign_flag_options, word_buf);
                 if (k >= 0)
                 {
-                    lvinfo->ensign = k;
+                    lvinfo->ensign_type = k;
                 }
                 else
                 {

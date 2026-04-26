@@ -1213,10 +1213,10 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
 TbBool creature_try_doing_secondary_job(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (game.play_gameturn - cctrl->job_secondary_check_turn <= 128) {
+    if (get_gameturn() - cctrl->job_secondary_check_turn <= 128) {
         return false;
     }
-    cctrl->job_secondary_check_turn = game.play_gameturn;
+    cctrl->job_secondary_check_turn = get_gameturn();
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     return attempt_job_secondary_preference(creatng, crconf->job_secondary);
 }

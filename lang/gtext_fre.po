@@ -2015,7 +2015,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Meuh"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -2766,10 +2766,10 @@ msgid ""
 "can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
-"Type d'affichage: Alterne entre deux types de vue de la perspective. La vue "
-"par défaut a des murs tordus et permet la rotation libre. Désactivez l'effet "
+"Type d'affichage: Alterne entre les vues en perspective. La vue "
+"par défaut a des murs tordus et permet une rotation libre. Désactivez l'effet "
 "de torsion pour des lignes droites. La vue forcée change l'angle de vision "
-"et ne peut faire que des rotations à 90 degrés. Alterner avec le bouton "
+"et ne peut pivoter que par rotations de 90 degrés. Alterner avec le bouton "
 "gauche de la souris."
 
 #: guitext:315
@@ -3001,8 +3001,8 @@ msgstr "Voir L'introduction"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menu Service"
+msgid "Multiplayer Menu"
+msgstr "Menu multijoueur"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3228,8 +3228,8 @@ msgstr "Testeurs"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sessions"
+msgid "Game Lobbies"
+msgstr "Salons de jeu"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3238,8 +3238,8 @@ msgstr "Nom"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Services"
+msgid "Game Modes"
+msgstr "Modes de jeu"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3248,13 +3248,13 @@ msgstr "Messages"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Créer Partie"
+msgid "Create Lobby"
+msgstr "Créer un salon"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Joindre Une Partie"
+msgid "Join Lobby"
+msgstr "Rejoindre un salon"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3263,8 +3263,8 @@ msgstr "Lancer Le Jeu"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Menu Jeu"
+msgid "Online Lobbies"
+msgstr "Salons en ligne"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3973,8 +3973,8 @@ msgstr "Droite"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initialisation Du Modem"
+msgid "Game version mismatch"
+msgstr "La version du jeu ne correspond pas"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -6035,18 +6035,18 @@ msgstr "4 Joueurs"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Cable Série"
+msgid "Online"
+msgstr "En ligne"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Modem"
+msgid "LAN"
+msgstr "Réseau local"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Escarmouche"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6813,7 +6813,7 @@ msgstr "Retour au menu Jeu Libre"
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr "Collection de Cartes"
 
 #: guitext:970
@@ -7383,3 +7383,129 @@ msgstr ""
 msgctxt "Highscore Default Name"
 msgid "Keeper"
 msgstr "Gardien"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr "Enregistrer écran"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr "Capture d'écran"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Augmenter saut d'image"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Diminuer saut d'image"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Zoomer minicarte"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Dézoomer minicarte"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "Instance suivante"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "Instance précédente"
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Salon en ligne"
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Salon LAN"
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Salons LAN"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Basculer interface"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Basculer infobulles"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Quitter le jeu"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Désactiver mode paquet"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Changer résolution"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Basculer console"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Terminer niveau"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Menu Options"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Basculer fleurs santé héros"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Accent grave"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Téléportation Dernière salle"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Téléportation Appel aux armes"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Téléportation Par défaut"
+

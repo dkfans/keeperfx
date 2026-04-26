@@ -24,8 +24,8 @@
 #include "globals.h"
 #include "engine_render.h"
 
-// All anims below this have two different sprites in 3d and map view
-#define TD_ISO_POINTS        982
+// All animations below this may have separate TD and FP sprites.
+#define FP_TD_ANIMATION_COUNT        982
 #define RANDOMISORS_LEN      512
 #define RANDOMISORS_MASK   0x1ff
 #define RANDOMISORS_RANGE     63
@@ -55,17 +55,16 @@ extern long lintel_bottom_height[256];
 
 #pragma pack()
 
-extern short iso_td_add[KEEPERSPRITE_ADD_NUM];
-extern short td_iso_add[KEEPERSPRITE_ADD_NUM];
+extern short td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
+extern short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
 /******************************************************************************/
 extern unsigned short floor_to_ceiling_map[TEXTURE_BLOCKS_COUNT];
 extern struct WibbleTable blank_wibble_table[WIBBLE_TABLE_SIZE];
 /******************************************************************************/
-short convert_td_iso(short n);
-short straight_td_iso(short n);
-short straight_iso_td(short n);
+short get_td_animation_sprite(short animation_sprite);
+unsigned short get_render_animation_sprite(unsigned short animation_sprite);
 
-void init_iso_3d_conversion_tables(void);
+void init_fp_td_animation_conversion_tables(void);
 void setup_mesh_randomizers(void);
 
 TbBool load_ceiling_table(void);

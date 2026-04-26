@@ -25,6 +25,7 @@
 #include "bflib_network_exchange.h"
 #include "bflib_datetm.h"
 #include "front_landview.h"
+#include "frontend.h"
 #include "game_legacy.h"
 #include "game_saves.h"
 #include "gui_topmsg.h"
@@ -292,7 +293,7 @@ TbBool reinit_packets_after_load(void)
 TbBool open_new_packet_file_for_save(void)
 {
     // Filling the header
-    SYNCMSG("Starting packet saving, turn %lu",(unsigned long)game.play_gameturn);
+    SYNCMSG("Starting packet saving, turn %lu",(unsigned long)get_gameturn());
     game.packet_save_head.game_ver_major = VER_MAJOR;
     game.packet_save_head.game_ver_minor = VER_MINOR;
     game.packet_save_head.game_ver_release = VER_RELEASE;
@@ -379,7 +380,7 @@ void load_packets_for_turn(GameTurn nturn)
     {
         if (compute_replay_integrity() != tot_chksum)
         {
-            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", game.play_gameturn);
+            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", get_gameturn());
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         }
@@ -419,4 +420,13 @@ void set_packet_pause_toggle()
         return;
     }
     process_pause_packet(0, 0);
+}
+
+void disable_packet_mode(void)
+{
+    close_packet_file();
+    game.packet_load_enable = false;
+    game.packet_save_enable = false;
+    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
+    set_gui_visible(true);
 }

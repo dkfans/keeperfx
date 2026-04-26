@@ -1969,7 +1969,7 @@ static char light_render_light(struct Light* lgt)
 {
   int remember_original_lgt_mappos_x = lgt->mappos.x.val;
   int remember_original_lgt_mappos_y = lgt->mappos.y.val;
-  if ((lgt->interp_has_been_initialized == false) || (game.play_gameturn - lgt->last_turn_drawn > 1)) {
+  if ((lgt->interp_has_been_initialized == false) || (get_gameturn() - lgt->last_turn_drawn > 1)) {
     lgt->interp_has_been_initialized = true;
     lgt->interp_mappos.x.val = lgt->mappos.x.val;
     lgt->interp_mappos.y.val = lgt->mappos.y.val;
@@ -1979,7 +1979,7 @@ static char light_render_light(struct Light* lgt)
     lgt->interp_mappos.x.val = interpolate(lgt->interp_mappos.x.val, lgt->previous_mappos.x.val, lgt->mappos.x.val);
     lgt->interp_mappos.y.val = interpolate(lgt->interp_mappos.y.val, lgt->previous_mappos.y.val, lgt->mappos.y.val);
   }
-  lgt->last_turn_drawn = game.play_gameturn;
+  lgt->last_turn_drawn = get_gameturn();
   lgt->mappos.x.val = lgt->interp_mappos.x.val;
   lgt->mappos.y.val = lgt->interp_mappos.y.val;
   TbBool is_dynamic = lgt->flags & LgtF_Dynamic;

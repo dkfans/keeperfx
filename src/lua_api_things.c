@@ -22,6 +22,7 @@
 #include "power_specials.h"
 #include "thing_creature.h"
 #include "thing_effects.h"
+#include "thing_physics.h"
 #include "magic_powers.h"
 #include "config_crtrstates.h"
 #include "creature_states_mood.h"
@@ -72,13 +73,13 @@ static int lua_delete_thing(lua_State *L)
                 break;
         }
     }
-    if (thing->class_id == TCls_Creature)
+    if (thing_is_creature(thing))
     {
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
     }
     else
     {
-        delete_thing_structure(thing,0);
+        delete_thing_structure(thing, 0);
     }
     return 0;
 }
@@ -89,6 +90,16 @@ static int lua_is_valid(lua_State *L)
     return 1;
 }
 
+static int lua_destroy_object(lua_State* L)
+{
+    struct Thing* thing = luaL_checkObject(L, 1);
+    if (!thing_is_invalid(thing))
+    {
+        destroy_object(thing);
+        return 1;
+    } else
+    return 0;
+}
 
 static int lua_creature_walk_to(lua_State *L)
 {
@@ -244,8 +255,7 @@ static int thing_set_field(lua_State *L) {
         move_thing_in_map(thing, &pos);
     } else if (strcmp(key, "anim_sprite") == 0)
     {
-        thing->anim_sprite = luaL_checkAnimationId(L, 3);
-        thing->max_frames = keepersprite_frames(thing->anim_sprite);
+        set_thing_animation(thing, luaL_checkAnimationId(L, 3), -1);
     } else if (strcmp(key, "anim_speed") == 0)
     {
         thing->anim_speed = luaL_checkinteger(L, 3);
@@ -440,6 +450,8 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "picked_up") == 0) {
         lua_pushboolean(L, thing_is_picked_up(thing));
+    } else if (strcmp(key, "thing_class") == 0) {
+        lua_pushstring(L, thing_class_code_name(thing->class_id));
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }
@@ -587,19 +599,20 @@ static int thing_eq(lua_State *L) {
 
 
 static const struct luaL_Reg thing_methods[] = {
-    {"make_thing_zombie", make_thing_zombie},
-    {"walk_to",  lua_creature_walk_to},
-    {"kill",    lua_kill_creature},
-    {"stun",    lua_stun_creature},
-    {"delete",     lua_delete_thing},
-    {"isValid",         lua_is_valid},
+    {"make_thing_zombie"            ,make_thing_zombie                  },
+    {"walk_to"                      ,lua_creature_walk_to               },
+    {"kill"                         ,lua_kill_creature                  },
+    {"stun"                         ,lua_stun_creature                  },
+    {"destroy"                      ,lua_destroy_object                 },
+    {"delete"                       ,lua_delete_thing                   },
+    {"isValid"                      ,lua_is_valid                       },
     
-   {"transfer"                    ,lua_Transfer_creature               },
-   {"level_up"                    ,lua_Level_up_creature               },
-   {"teleport"                    ,lua_Teleport_creature               },
-   {"change_owner"                ,lua_Change_creature_owner           },
-   {"get_annoyance"               ,lua_get_creature_annoyance          },
-   {"set_annoyance"               ,lua_set_creature_annoyance          },
+    {"transfer"                     ,lua_Transfer_creature              },
+    {"level_up"                     ,lua_Level_up_creature              },
+    {"teleport"                     ,lua_Teleport_creature              },
+    {"change_owner"                 ,lua_Change_creature_owner          },
+    {"get_annoyance"                ,lua_get_creature_annoyance         },
+    {"set_annoyance"                ,lua_set_creature_annoyance         },
     {NULL, NULL}
 };
 

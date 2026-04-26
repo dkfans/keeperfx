@@ -148,6 +148,7 @@ struct GuiBoxOption gui_instance_option_list[] = {
  {"Disease",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_DISEASE, 0, 0, CrInst_CAST_SPELL_DISEASE, 0, 0, 0, true},
  {"Chicken",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_CHICKEN, 0, 0, CrInst_CAST_SPELL_CHICKEN, 0, 0, 0, true},
  {"Time Bomb",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_TIME_BOMB, 0, 0, CrInst_CAST_SPELL_TIME_BOMB, 0, 0, 0, true},
+ {"Cleanse", 1, NULL, gf_change_creature_instance, CrInst_CLEANSE, 0, 0, CrInst_CLEANSE, 0, 0, 0, true},
  {"!",     0,                          NULL,                             NULL, 0, 0, 0,  0, 0, 0, 0, false},
 };
 
@@ -741,12 +742,10 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
     if (left_button_released)
     {
       left_button_released = 0;
-      synthetic_left = 0;
       button_num = 1;
     } else
     {
       right_button_released = 0;
-      synthetic_right = 0;
       button_num = 2;
     }
     if (goptn->is_enabled == 1)
@@ -787,7 +786,6 @@ short gui_process_inputs(void)
       {
         dragging_box.gbox = NULL;
         left_button_released = 0;
-        synthetic_left = 0;
       }
       result = true;
     } else

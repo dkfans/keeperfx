@@ -999,7 +999,7 @@ short imp_birth(struct Thing *thing)
         }
         return 1;
     }
-    long i = game.play_gameturn - thing->creation_turn;
+    long i = get_gameturn() - thing->creation_turn;
     if ((i % 2) == 0) {
       create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
     }
@@ -1149,13 +1149,13 @@ short imp_digs_mines(struct Thing *spdigtng)
         // If the creature holds more gold than its able
         if (spdigtng->creature.gold_carried > crconf->gold_hold)
         {
-            if (game.play_gameturn - cctrl->tasks_check_turn > 128)
+            if (get_gameturn() - cctrl->tasks_check_turn > 128)
             {
                 if (check_out_imp_has_money_for_treasure_room(spdigtng)) {
                     // Note - do not increase cctrl->digger.task_repeats here; the task is to mine, not to return gold.
                     return 1;
                 }
-                cctrl->tasks_check_turn = game.play_gameturn;
+                cctrl->tasks_check_turn = get_gameturn();
             }
             drop_gold_pile(spdigtng->creature.gold_carried - crconf->gold_hold, &spdigtng->mappos);
             spdigtng->creature.gold_carried = crconf->gold_hold;
@@ -1177,13 +1177,13 @@ short imp_doing_nothing(struct Thing *spdigtng)
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (game.play_gameturn-cctrl->idle.start_gameturn <= 1) {
+    if (get_gameturn()-cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
     if (check_out_imp_last_did(spdigtng)) {
         return 1;
     }
-    cctrl->healing_sleep_check_turn = game.play_gameturn; //imp is now free to check if he needs healing, since there is no assigned job to do.
+    cctrl->healing_sleep_check_turn = get_gameturn(); //imp is now free to check if he needs healing, since there is no assigned job to do.
     if (check_out_available_imp_tasks(spdigtng)) {
         return 1;
     }
@@ -1338,13 +1338,13 @@ GoldAmount take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long li
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
+        if (object_is_gold_pile(thing))
         {
             GoldAmount pot_stored = thing->valuable.gold_stored;
             if ((limit - total_taken >= pot_stored) || (limit == -1))
             {
                 total_taken += pot_stored;
-                delete_thing_structure(thing, 0);
+                destroy_object(thing);
             } else
             {
                 thing->valuable.gold_stored += total_taken - limit;
@@ -2082,7 +2082,7 @@ short creature_arms_trap(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
-    delete_thing_structure(cratetng, 0);
+    destroy_thing(cratetng);
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     // The action of moving object is now finished
     set_start_state(thing);
@@ -2114,7 +2114,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
     }
-    delete_thing_structure(cratetng, 0);
+    destroy_thing(cratetng);
     set_start_state(creatng);
     return 1;
 }

@@ -41,6 +41,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "power_process.h"
+#include "lua_cfg_funcs.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "creature_states.h"
@@ -527,11 +528,15 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         }
     }
 
+    doortng = get_door_for_position(hit_stl_x, hit_stl_y);
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, get_parent_thing(shotng), doortng, hit_stl_x, hit_stl_y))
+    {
+        return true;
+    }
     // If blocked by a higher wall
     if ((blocked_flags & SlbBloF_WalledZ) != 0)
     {
         long cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num, NULL);
-        doortng = get_door_for_position(hit_stl_x, hit_stl_y);
         if (!thing_is_invalid(doortng))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range, shotng->index);
@@ -592,7 +597,6 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     if (dist <= 800) return detonate_shot(shotng, true);
                 }
             }
-            doortng = get_door_for_position(hit_stl_x, hit_stl_y);
             if (!thing_is_invalid(doortng))
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range, shotng->index);
@@ -669,6 +673,10 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
         // If we did found a door to hit
         if (!thing_is_invalid(doortng))
         {
+            if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, get_parent_thing(shotng), doortng, pos->x.stl.num, pos->y.stl.num))
+            {
+                return true;
+            }
             // If the shot hit is supposed to create effect thing
             if (shotst->hit_door.effect_model != 0)
             {
@@ -795,7 +803,11 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (i > 0) {
         thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
-
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shootertng, target, pos->x.stl.num, pos->y.stl.num))
+    {
+        return true;
+    }
+    
     HitPoints damage_done = 0;
     if (shotng->shot.damage)
     {
@@ -856,6 +868,10 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         return false;
     }
     struct Thing* shootertng = get_parent_thing(shotng);
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shootertng, target, pos->x.stl.num, pos->y.stl.num))
+    {
+        return true;
+    }
     if (thing_is_dungeon_heart(target))
     {
         if (shotst->hit_heart.effect_model != 0)
@@ -1058,13 +1074,17 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     if (trgtng->health < 0)
         return 0;
     struct Thing* shooter = get_parent_thing(shotng);
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shooter, trgtng, pos->x.stl.num, pos->y.stl.num))
+    {
+        return true;
+    }
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
     long damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
     if (damage > 0)
     {
         if (shotst->hit_creature.sndsample_idx > 0)
         {
-            play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
+            play_creature_sound(trgtng, CrSnd_Hit, 3, 0);
         }
         create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
         if (!thing_is_invalid(shooter)) {
@@ -1238,6 +1258,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
+    if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shooter, trgtng, pos->x.stl.num, pos->y.stl.num))
+    {
+        return true;
+    }
     // Immunity to boulders
     if (shot_is_boulder(shotng))
     {
@@ -1327,7 +1351,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             trgtng->state_flags |= TF1_PushAdd;
             if (shotst->hit_creature.sndsample_idx != 0)
             {
-                play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
+                play_creature_sound(trgtng, CrSnd_Hit, 1, 0);
                 thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         }
@@ -1366,7 +1390,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         if (shotst->hit_creature.sndsample_idx != 0)
         {
-            play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
+            play_creature_sound(trgtng, CrSnd_Hit, 1, 0);
             thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
@@ -1410,8 +1434,11 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 
 TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
-    if (!thing_exists(target))
+    struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
+
+    if (!thing_exists(target)) {
         return false;
+    }
     if (target->class_id == TCls_Object) {
         return shot_hit_object_at(shotng, target, pos);
     }
@@ -1427,6 +1454,10 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     if (target->class_id == TCls_Shot) {
         // On a shot for collision, both shots are destroyed
         //TODO maybe make both shots explode instead?
+        if (!luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, get_parent_thing(shotng), target, pos->x.stl.num, pos->y.stl.num))
+        {
+            return true;
+        }
         shotng->health = -1;
         target->health = -1;
         return true;
@@ -1666,7 +1697,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         }
         if (shotst->periodical > 0) {
             unsigned short frequency = shotst->periodical;
-            if (((game.play_gameturn + thing->index) % frequency) == 0) {
+            if (((get_gameturn() + thing->index) % frequency) == 0) {
                 detonate_shot(thing, false);
             }
         }
@@ -1732,7 +1763,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                 thing->mappos.z.val = 0;
                 break;
             case ShUL_TrapLightning:
-                if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
+                if (((get_gameturn() - thing->creation_turn) % 16) == 0)
                 {
                   god_lightning_choose_next_creature(thing);
                   target = thing_get(thing->shot.target_idx);
@@ -1778,7 +1809,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
     thing->class_id = TCls_Shot;
     thing->model = model;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
@@ -1791,7 +1822,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
     thing->inertia_floor = shotst->inertia_floor;
     thing->inertia_air = shotst->inertia_air;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_ZeroVerticalVelocity * shotst->soft_landing) & TMvF_ZeroVerticalVelocity;
-    set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, ODC_Default);
+    set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, -1, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
     thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Invisible;
@@ -1875,7 +1906,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 if ((creature_distance < blow_distance) && !creature_is_immune_to_spell_effect(thing, CSAfF_Wind) && !creatureAlreadyAffected)
                 {
                     set_start_state(thing);
-                    cctrl->idle.start_gameturn = game.play_gameturn;
+                    cctrl->idle.start_gameturn = get_gameturn();
                     apply_velocity = true;
                     set_flag(cctrl->spell_flags, CSAfF_Wind);
                 } // If weight_affect_push_rule is on.

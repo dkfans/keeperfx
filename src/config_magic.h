@@ -55,6 +55,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Teleport     = 0x008000,
     CSAfF_Timebomb     = 0x010000,
     CSAfF_Wind         = 0x020000,
+    CSAfF_SpellBlocks  = 0x040000,
 };
 
 enum SpellPropertiesFlags {
@@ -312,6 +313,7 @@ struct ShotConfigStats {
     short spread_xy;
     short spread_z;
     short speed_deviation;
+    FuncIdx hit_thing_lua_func_idx;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

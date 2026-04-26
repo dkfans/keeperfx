@@ -75,6 +75,36 @@ enum GameKeys {
     Gkey_TiltReset,
     Gkey_Ascend,
     Gkey_Descend,
+    Gkey_ScreenRecord,
+    Gkey_ScreenShot,
+    Gkey_FrameSkipIncrease,
+    Gkey_FrameSkipDecrease,
+    Gkey_ZoomMinimapIn,
+    Gkey_ZoomMinimapOut,
+    Gkey_ToggleGui,
+    Gkey_ToggleTooltips,
+    Gkey_ExitGame,
+    Gkey_DisablePacketMode,
+    Gkey_SwitchScreenRes,
+    Gkey_ToggleConsole,
+    Gkey_FinishLevel,
+    Gkey_ToggleHeroHealthFlowers,
+    Gkey_TeleportLastWorkroom,
+    Gkey_TeleportCallToArms,
+    Gkey_TeleportDefault,
+    Gkey_CheatMenu1,
+    Gkey_CheatMenu2,
+    Gkey_LVShowAllEnsigns,
+    Gkey_LVNextLevel,
+    Gkey_LVPrevLevel,
+    GAME_KEYS_COUNT
+};
+
+enum BindingMenuVisibility {
+    BMV_Hidden,
+    BMV_KeyMouseOnly,
+    BMV_ControllerOnly,
+    BMV_Visible,
 };
 
 enum TbButtonFrontendFlags {
@@ -97,29 +127,31 @@ struct GuiLayer {
     long current_gui_layer;
 };
 
-struct GuiMenu;
-struct GuiButton;
+struct GamekeySettings {
+    const char* toml_name;
+    TextStringId string_id; // For display in the key binding menu
+    uint8_t default_code;
+    uint8_t default_mods;
+    uint8_t binding_menu_visibility;
+
+};
+
+extern const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT];
 
 #pragma pack()
 /******************************************************************************/
 extern long old_mx;
 extern long old_my;
-extern int synthetic_left;
-extern int synthetic_right;
 /******************************************************************************/
 void input(void);
-short get_inputs(void);
 short get_screen_capture_inputs(void);
 int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);
 short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];
-TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn);
-long get_current_gui_layer();
 TbBool check_current_gui_layer(long layer_id);
-void process_cheat_mode_selection_inputs();
 TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health);
-void disable_packet_mode();
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
