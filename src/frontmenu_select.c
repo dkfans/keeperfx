@@ -411,13 +411,6 @@ void frontend_mappack_select(struct GuiButton *gbtn)
 }
 
 
-
-
-
-
-
-
-
 void frontend_mp_mappack_list_load(void)
 {
     select_level_scroll_offset = 0; // Reset the scroll of the level select screen here, as it should only be reset when user returns to map pack select screen (Not from exiting level etc).
@@ -501,7 +494,14 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
     
     if (!change_campaign(campgn->fname))
         return;
-    frontend_set_state(FeSt_NET_START);
+    if (fe_network_active == 0)
+    {
+        frontend_set_state(FeSt_NETLAND_VIEW);
+    }
+    else
+    {
+        frontend_set_state(FeSt_NET_START);
+    }
 }
 
 void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn)

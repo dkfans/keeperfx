@@ -694,7 +694,7 @@ void frontnet_service_select(struct GuiButton *gbtn)
      && (srvidx+1 >= net_number_of_services) )
   {
       fe_network_active = 0;
-      frontend_set_state(FeSt_NETLAND_VIEW);
+      frontend_set_state(FeSt_MP_MAPPACK_SELECT);
   } else
   if (srvidx < 0)
   {
