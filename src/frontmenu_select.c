@@ -494,7 +494,7 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
     
     if (!change_campaign(campgn->fname))
         return;
-    if (fe_network_active == 0)
+    if (net_service_index_selected == FrontendNetSvc_Skirmish)
     {
         frontend_set_state(FeSt_NETLAND_VIEW);
     }
