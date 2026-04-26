@@ -1387,7 +1387,7 @@ TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char
 
 void set_default_mp_mappack(void)
 {
-    if (mp_mappacks_list.items_count < 1)
+    if (mp_mappacks_list.items_num < 1)
     {
         ERRORLOG("No MP Map Packs available to set as default.");
         return;
