@@ -150,9 +150,10 @@ static void init_level(void)
     init_seeds();
     sync_initial_network_seed();
 
+    recheck_all_mod_exist();
+
     luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
-    recheck_all_mod_exist();
     init_custom_sprites(get_selected_level_number());
     load_stats_files();
     check_and_auto_fix_stats();
