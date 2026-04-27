@@ -3320,10 +3320,14 @@ struct Thing *check_for_door_to_fight(struct Thing *thing)
         MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
         MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
         struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if (!thing_is_invalid(doortng) && !door_is_hidden_to_player(doortng,thing->owner))
+        if (!thing_is_invalid(doortng))
         {
-          if (thing->owner != doortng->owner)
-              return doortng;
+            if (thing->owner != doortng->owner)
+            {
+                //Dropping a creature next to the door, means the player saw it. Call to Arms uses this too.
+                reveal_secret_door_to_player(doortng, thing->owner);
+                return doortng;
+            }
         }
         m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
     }
