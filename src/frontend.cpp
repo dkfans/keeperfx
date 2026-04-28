@@ -1346,7 +1346,7 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
     get_gui_button_init(gmnu, BID_MOUSE_MUL)->content.lval = settings.first_person_move_sensitivity;
     if (!is_campaign_loaded())
     {
-        if (!change_campaign(""))
+        if (!change_campaign(CampgnT_Default,""))
         {
             ERRORLOG("Unable to load campaign");
         }
@@ -1657,7 +1657,7 @@ void frontend_ldcampaign_change_state(struct GuiButton *gbtn)
 {
   if (!is_campaign_loaded())
   {
-    if (!change_campaign(""))
+    if (!change_campaign(CampgnT_Default,""))
       return;
   }
   frontend_change_state(gbtn);
@@ -1682,7 +1682,7 @@ void frontend_netservice_change_state(struct GuiButton *gbtn)
     }
     if (set_cmpg)
     {
-        if (!change_campaign(""))
+        if (!change_campaign(CampgnT_MultiplayerMappack,""))
           return;
     }
     frontend_change_state(gbtn);
@@ -1694,7 +1694,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
     int i;
     SYNCDBG(7,"Starting");
     memset(&intralvl, 0, sizeof(struct IntralevelData));
-    if (!change_campaign(cmpgn_fname))
+    if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
         return false;
     set_continue_level_number(first_singleplayer_level());
     for (i=0; i < PLAYERS_COUNT; i++)
@@ -1750,7 +1750,7 @@ void frontend_load_mappacks(struct GuiButton *gbtn)
       cmpgn_fname = NULL;
     if (cmpgn_fname != NULL)
     { // If there's only one map pack, then just show the levels
-      if (!change_campaign(cmpgn_fname))
+      if (!change_campaign(CampgnT_Mappack, cmpgn_fname))
       {
         ERRORLOG("Unable to load map pack list");
         return;

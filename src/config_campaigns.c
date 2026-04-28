@@ -1164,23 +1164,52 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     return false;
 }
 
-TbBool change_campaign(const char *cmpgn_fname)
+TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
 {
     TbBool result;
     SYNCDBG(8,"Starting");
     if ((campaign.fname[0] != '\0') && (strcasecmp(campaign.fname,cmpgn_fname) == 0))
         return true;
     free_campaign(&campaign);
-    // Determine type of campaign (currently campaign and mappack)
-    short fgroup = FGrp_Campgn; //use this as a default
-    if (is_campaign_in_list(cmpgn_fname, &mappacks_list)) // check if this is a map pack CFG file
-        fgroup = FGrp_VarLevels;
-    else if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list)) // check if this is a map pack CFG file
-        fgroup = FGrp_MpLevels;
-    if ((cmpgn_fname != NULL) && (cmpgn_fname[0] != '\0'))
+
+    short fgroup = FGrp_None;
+    switch (pack)
+    {
+    case CampgnT_Mappack:
+        if (is_campaign_in_list(cmpgn_fname, &mappacks_list))
+            fgroup = FGrp_VarLevels;
+        break;
+    case CampgnT_Campaign:
+        if (is_campaign_in_list(cmpgn_fname, &campaigns_list))
+            fgroup = FGrp_Campgn;
+        break;
+    case CampgnT_MultiplayerMappack:
+        if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list))
+            fgroup = FGrp_MpLevels;
+        break;
+    case CampgnT_Default:
+    default:
+        if (is_campaign_in_list(cmpgn_fname, &campaigns_list))
+            fgroup = FGrp_Campgn;
+        else if (is_campaign_in_list(cmpgn_fname, &mappacks_list))
+            fgroup = FGrp_VarLevels;
+        else if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list))
+            fgroup = FGrp_MpLevels;
+
+        break;
+    }
+    if (fgroup != FGrp_None)
+    {
         result = load_campaign(cmpgn_fname,&campaign,CnfLd_Standard, fgroup);
-    else
+    }
+    
+    if (!result)
+    {
+        WARNMSG("Loading campaign file \"%s\" failed falling back to default campaign.", cmpgn_fname);
         result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard, FGrp_Campgn);
+    }
+    
+
 
     find_and_load_lof_files();
     find_and_load_lif_files();
@@ -1393,7 +1422,7 @@ void set_default_mp_mappack(void)
         return;
     }
 
-    change_campaign(mp_mappacks_list.items[0].fname);
+    change_campaign(CampgnT_MultiplayerMappack, mp_mappacks_list.items[0].fname);
 }
 
 TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)

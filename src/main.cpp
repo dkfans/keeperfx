@@ -3670,10 +3670,10 @@ static TbBool wait_at_frontend(void)
         if (start_params.selected_campaign[0] != '\0')
         {
             str_append(start_params.selected_campaign, sizeof(start_params.selected_campaign), ".cfg");
-            result = change_campaign(start_params.selected_campaign);
+            result = change_campaign(CampgnT_Default, start_params.selected_campaign);
         }
         if (!result) {
-            if (!change_campaign("")) {
+            if (!change_campaign(CampgnT_Default,"")) {
                 WARNMSG("Unable to load default campaign for the specified level CMD Line parameter");
             }
             else if (start_params.selected_campaign[0] != '\0') { // only show this log message if the user actually specified a campaign

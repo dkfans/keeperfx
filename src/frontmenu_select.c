@@ -405,7 +405,7 @@ void frontend_mappack_select(struct GuiButton *gbtn)
         campgn = &mappacks_list.items[i];
     if (campgn == NULL)
         return;
-    if (!change_campaign(campgn->fname))
+    if (!change_campaign(CampgnT_Mappack, campgn->fname))
         return;
     frontend_set_state(FeSt_LEVEL_SELECT);
 }
@@ -483,7 +483,7 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
 
     frontnet_queue_campaign_change_message(campgn->fname);
     
-    if (!change_campaign(campgn->fname))
+    if (!change_campaign(CampgnT_MultiplayerMappack, campgn->fname))
         return;
     if (net_service_index_selected == FrontendNetSvc_Skirmish)
     {
