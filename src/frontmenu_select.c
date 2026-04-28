@@ -481,16 +481,7 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
     if (campgn == NULL)
         return;
 
-    // Send campaign change message to other players
-    char base_name[64];
-    strncpy(base_name, campgn->fname, sizeof(base_name)-1);
-    base_name[sizeof(base_name)-1] = '\0';
-    char *dot = strrchr(base_name, '.');
-    if (dot != NULL) *dot = '\0';
-    
-    static char msg[64];
-    snprintf(msg, sizeof(msg), "%s:_", base_name);
-    set_auto_message(msg);
+    frontnet_queue_campaign_change_message(campgn->fname);
     
     if (!change_campaign(campgn->fname))
         return;

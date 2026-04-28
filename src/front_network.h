@@ -69,6 +69,7 @@ void net_load_config_file(void);
 void net_write_config_file(void);
 
 void set_auto_message(const char* msg);
+void frontnet_queue_campaign_change_message(const char* campaign_fname);
 /******************************************************************************/
 #ifdef __cplusplus
 }
