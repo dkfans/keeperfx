@@ -3695,6 +3695,7 @@ void frontend_update(short *finish_menu)
         break;
     case FeSt_MP_MAPPACK_SELECT:
         frontend_mp_mappack_select_update();
+        frontnet_start_update();
         break;
     case FeSt_HIGH_SCORES:
         frontend_high_scores_update();
