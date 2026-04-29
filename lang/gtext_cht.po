@@ -6881,8 +6881,3 @@ msgstr "預設傳送"
 msgctxt "Menu interface item"
 msgid "Multiplayer Map Packs"
 msgstr ""
-
-#: guitext:1111
-msgctxt "MP mappack description"
-msgid "Mappack:"
-msgstr ""
