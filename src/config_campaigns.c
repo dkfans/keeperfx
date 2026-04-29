@@ -1166,7 +1166,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 
 TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
 {
-    TbBool result;
+    TbBool result = false;
     SYNCDBG(8,"Starting");
     if ((campaign.fname[0] != '\0') && (strcasecmp(campaign.fname,cmpgn_fname) == 0))
         return true;
