@@ -1299,7 +1299,7 @@ void frontmap_draw(void)
 void check_mouse_scroll(void)
 {
     long mx = GetMouseX();
-    if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, NULL, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
+    if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, false, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
     {
         map_info.velocity_x -= 8 * get_landview_delta_time();
         if (map_info.velocity_x < -48)
@@ -1307,7 +1307,7 @@ void check_mouse_scroll(void)
         if (map_info.velocity_x > 48)
             map_info.velocity_x = 48;
   } else
-  if ( (mx >= lbDisplay.PhysicalScreenWidth-8) || ( (is_game_key_pressed(Gkey_MoveRight, NULL, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
+  if ( (mx >= lbDisplay.PhysicalScreenWidth-8) || ( (is_game_key_pressed(Gkey_MoveRight, false, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
   {
     map_info.velocity_x += 8 * get_landview_delta_time();
     if (map_info.velocity_x < -48)
@@ -1316,7 +1316,7 @@ void check_mouse_scroll(void)
       map_info.velocity_x = 48;
   }
   long my = GetMouseY();
-  if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, NULL, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
+  if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, false, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
   {
     map_info.velocity_y -= 8 * get_landview_delta_time();
     if (map_info.velocity_y < -48)
@@ -1324,7 +1324,7 @@ void check_mouse_scroll(void)
     if (map_info.velocity_y > 48)
       map_info.velocity_y = 48;
   } else
-  if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, NULL, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
+  if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, false, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
   {
     map_info.velocity_y += 8 * get_landview_delta_time();
     if (map_info.velocity_y < -48)
@@ -1525,18 +1525,16 @@ void frontmap_input(void)
     }
     if (zoom_done)
     {
-         int32_t val;
       check_mouse_scroll();
-      if (is_game_key_pressed(Gkey_LVShowAllEnsigns, &val, false))
+      if (is_game_key_pressed(Gkey_LVShowAllEnsigns, true, false))
       {
         if (game.easter_eggs_enabled == true)
         {
           set_all_ensigns_state(LvSt_Visible);
-          clear_key_pressed(val);
           return;
         }
       }
-      if (is_game_key_pressed(Gkey_LVNextLevel, &val, false))
+      if (is_game_key_pressed(Gkey_LVNextLevel, true, false))
       {
         if (game.easter_eggs_enabled == true)
         {
@@ -1544,11 +1542,10 @@ void frontmap_input(void)
           frontmap_unload();
           frontmap_load();
           //update_ensigns_visibility();
-          clear_key_pressed(val);
           return;
         }
       }
-      if (is_game_key_pressed(Gkey_LVPrevLevel, &val, false))
+      if (is_game_key_pressed(Gkey_LVPrevLevel, true, false))
       {
         if (game.easter_eggs_enabled == true)
         {
@@ -1556,7 +1553,6 @@ void frontmap_input(void)
           frontmap_unload();
           frontmap_load();
           //update_ensigns_visibility();
-          clear_key_pressed(val);
           return;
         }
       }

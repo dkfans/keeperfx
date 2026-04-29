@@ -34,6 +34,7 @@
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
+#include "bflib_joyst.h"
 #include "kjm_input.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
@@ -97,74 +98,80 @@ long old_mx;
 long old_my;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
-    {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               BMV_Visible,        },       // Gkey_MoveUp
-    {"MoveDown",              GUIStr_CtrlDown,                KC_S, KMod_NONE,               BMV_Visible,        },       // Gkey_MoveDown
-    {"MoveLeft",              GUIStr_CtrlLeft,                KC_A, KMod_NONE,               BMV_Visible,        },       // Gkey_MoveLeft
-    {"MoveRight",             GUIStr_CtrlRight,               KC_D, KMod_NONE,               BMV_Visible,        },       // Gkey_MoveRight
-    {"RotateMod",             GUIStr_CtrlRotate,              KC_LCONTROL, KMod_NONE,        BMV_Visible,        },       // Gkey_RotateMod
-    {"SpeedMod",              GUIStr_CtrlSpeed,               KC_LSHIFT, KMod_NONE,          BMV_Visible,        },       // Gkey_SpeedMod
-    {"RotateCW",              GUIStr_CtrlRotateLeft,          KC_DELETE, KMod_NONE,          BMV_Visible,        },       // Gkey_RotateCW
-    {"RotateCCW",             GUIStr_CtrlRotateRight,         KC_PGDOWN, KMod_NONE,          BMV_Visible,        },       // Gkey_RotateCCW
-    {"ZoomIn",                GUIStr_CtrlZoomIn,              KC_HOME, KMod_NONE,            BMV_Visible,        },       // Gkey_ZoomIn
-    {"ZoomOut",               GUIStr_CtrlZoomOut,             KC_END, KMod_NONE,             BMV_Visible,        },       // Gkey_ZoomOut
-    {"ZoomRoomTreasure",      CpgStr_RoomKind1+0,             KC_T, KMod_NONE,               BMV_Visible,        },       // Gkey_ZoomRoomTreasure
-    {"ZoomRoomLibrary",       CpgStr_RoomKind1+1,             KC_L, KMod_NONE,               BMV_Visible,        },       // Gkey_ZoomRoomLibrary
-    {"ZoomRoomLair",          CpgStr_RoomKind1+2,             KC_L, KMod_SHIFT,              BMV_Visible,        },       // Gkey_ZoomRoomLair
-    {"ZoomRoomPrison",        CpgStr_RoomKind1+3,             KC_P, KMod_SHIFT,              BMV_Visible,        },       // Gkey_ZoomRoomPrison
-    {"ZoomRoomTorture",       CpgStr_RoomKind1+4,             KC_T, KMod_ALT,                BMV_Visible,        },       // Gkey_ZoomRoomTorture
-    {"ZoomRoomTraining",      CpgStr_RoomKind1+5,             KC_T, KMod_SHIFT,              BMV_Visible,        },       // Gkey_ZoomRoomTraining
-    {"ZoomRoomHeart",         CpgStr_RoomKind1+6,             KC_H, KMod_NONE,               BMV_Visible,        },       // Gkey_ZoomRoomHeart
-    {"ZoomRoomWorkshop",      CpgStr_RoomKind1+7,             KC_W, KMod_ALT,                BMV_Visible,        },       // Gkey_ZoomRoomWorkshop
-    {"ZoomRoomScavenger",     CpgStr_RoomKind1+8,             KC_S, KMod_ALT,                BMV_Visible,        },       // Gkey_ZoomRoomScavenger
-    {"ZoomRoomTemple",        CpgStr_RoomKind1+9,             KC_T, KMod_CONTROL,            BMV_Visible,        },       // Gkey_ZoomRoomTemple
-    {"ZoomRoomGraveyard",     CpgStr_RoomKind1+10,            KC_G, KMod_NONE,               BMV_Visible,        },       // Gkey_ZoomRoomGraveyard
-    {"ZoomRoomBarracks",      CpgStr_RoomKind1+11,            KC_B, KMod_NONE,               BMV_Visible,        },       // Gkey_ZoomRoomBarracks
-    {"ZoomRoomHatchery",      CpgStr_RoomKind1+12,            KC_H, KMod_SHIFT,              BMV_Visible,        },       // Gkey_ZoomRoomHatchery
-    {"ZoomRoomGuardPost",     CpgStr_RoomKind1+13,            KC_G, KMod_SHIFT,              BMV_Visible,        },       // Gkey_ZoomRoomGuardPost
-    {"ZoomRoomBridge",        CpgStr_RoomKind1+14,            KC_B, KMod_SHIFT,              BMV_Visible,        },       // Gkey_ZoomRoomBridge
-    {"ZoomRoomPortal",        CpgStr_RoomKind2,               KC_P, KMod_CONTROL,            BMV_Visible,        },       // Gkey_ZoomRoomPortal
-    {"ZoomToFight",           GUIStr_StateFight,              KC_F, KMod_NONE,               BMV_Visible,        },       // Gkey_ZoomToFight
-    {"ZoomCrAnnoyed",         GUIStr_StateAnnoyed,            KC_A, KMod_ALT,                BMV_Visible,        },       // Gkey_ZoomCrAnnoyed
-    {"CrtrContrlMod",         CpgStr_PowerKind1,              KC_LSHIFT, KMod_NONE,          BMV_Visible,        },       // Gkey_CrtrContrlMod
-    {"CrtrQueryMod",          GUIStr_Query,                   KC_Q, KMod_NONE,               BMV_Visible,        },       // Gkey_CrtrQueryMod
-    {"DumpToOldPos",          GUIStr_UndoPickup,              KC_BACK, KMod_NONE,            BMV_Visible,        },       // Gkey_DumpToOldPos
-    {"TogglePause",           GUIStr_Pause,                   KC_P, KMod_NONE,               BMV_Visible,        },       // Gkey_TogglePause
-    {"SwitchToMap",           GUIStr_Map,                     KC_M, KMod_NONE,               BMV_Visible,        },       // Gkey_SwitchToMap
-    {"ToggleMessage",         GUIStr_ToggleMessage,           KC_E, KMod_NONE,               BMV_Visible,        },       // Gkey_ToggleMessage
-    {"SnapCamera",            GUIStr_SnapCamera,              KC_MOUSE3, KMod_NONE,          BMV_Visible,        },       // Gkey_SnapCamera
-    {"BestRoomSpace",         GUIStr_BestRoomSpace,           KC_LSHIFT, KMod_NONE,          BMV_Visible,        },       // Gkey_BestRoomSpace
-    {"SquareRoomSpace",       GUIStr_SquareRoomSpace,         KC_LCONTROL, KMod_NONE,        BMV_Visible,        },       // Gkey_SquareRoomSpace
-    {"RoomSpaceIncSize",      GUIStr_RoomSpaceIncrease,       KC_MOUSEWHEEL_DOWN, KMod_NONE, BMV_Visible,        },       // Gkey_RoomSpaceIncSize
-    {"RoomSpaceDecSize",      GUIStr_RoomSpaceDecrease,       KC_MOUSEWHEEL_UP, KMod_NONE,   BMV_Visible,        },       // Gkey_RoomSpaceDecSize
-    {"SellTrapOnSubtile",     GUIStr_SellTrapOnSubtile,       KC_LALT, KMod_NONE,            BMV_Visible,        },       // Gkey_SellTrapOnSubtile
-    {"TiltUp",                GUIStr_CtrlTiltUp,              KC_PGUP, KMod_SHIFT,           BMV_Visible,        },       // Gkey_TiltUp
-    {"TiltDown",              GUIStr_CtrlTiltDown,            KC_PGDOWN, KMod_SHIFT,         BMV_Visible,        },       // Gkey_TiltDown
-    {"TiltReset",             GUIStr_CtrlTiltReset,           KC_INSERT, KMod_SHIFT,         BMV_Visible,        },       // Gkey_TiltReset
-    {"Ascend",                GUIStr_CtrlAscend,              KC_X, KMod_NONE,               BMV_Visible,        },       // Gkey_Ascend
-    {"Descend",               GUIStr_CtrlDescend,             KC_Z, KMod_NONE,               BMV_Visible,        },       // Gkey_Descend
-    {"ScreenRecord",          GUIStr_ScreenRecord,            KC_M, KMod_SHIFT,              BMV_Visible,        },       // Gkey_ScreenRecord,
-    {"ScreenShot",            GUIStr_ScreenShot,              KC_C, KMod_SHIFT,              BMV_Visible,        },       // Gkey_ScreenShot,
-    {"FrameSkipIncrease",     GUIStr_FrameSkipIncrease,       KC_ADD, KMod_CONTROL,          BMV_Visible,        },       // Gkey_FrameSkipIncrease,
-    {"FrameSkipDecrease",     GUIStr_FrameSkipDecrease,       KC_SUBTRACT, KMod_CONTROL,     BMV_Visible,        },       // Gkey_FrameSkipDecrease,
-    {"ZoomMinimapIn",         GUIStr_ZoomMinimapIn,           KC_ADD, KMod_NONE,             BMV_Visible,        },       // Gkey_ZoomMinimapIn,
-    {"ZoomMinimapOut",        GUIStr_ZoomMinimapOut,          KC_SUBTRACT, KMod_NONE,        BMV_Visible,        },       // Gkey_ZoomMinimapOut,
-    {"ToggleGui",             GUIStr_ToggleGui,               KC_TAB, KMod_CONTROL,          BMV_Visible,        },       // Gkey_ToggleGui,
-    {"ToggleTooltips",        GUIStr_ToggleTooltips,          KC_F8, KMod_NONE,              BMV_Visible,        },       // Gkey_ToggleTooltips,
-    {"ExitGame",              GUIStr_ExitGame,                KC_X,   KMod_ALT,              BMV_Visible,        },       // Gkey_ExitGame,
-    {"DisablePacketMode",     GUIStr_DisablePacketMode,       KC_T,   KMod_ALT,              BMV_Visible,        },       // Gkey_DisablePacketMode,
-    {"SwitchScreenRes",       GUIStr_SwitchScreenRes,         KC_R,   KMod_ALT,              BMV_Visible,        },       // Gkey_SwitchScreenRes,
-    {"ToggleConsole",         GUIStr_ToggleConsole,           KC_GRAVE, KMod_NONE,           BMV_Visible,        },       // Gkey_ToggleConsole,
-    {"FinishLevel",           GUIStr_FinishLevel,             KC_SPACE, KMod_NONE,           BMV_Visible,        },       // Gkey_FinishLevel,
-    {"ToggleHeroHealthFlower",GUIStr_ToggleHeroHealthFlowers, KC_F, KMod_ALT,                BMV_Visible,        },       // Gkey_ToggleHeroHealthFlowers,
-    {"TeleportLastWorkroom",  GUIStr_TeleportLastWorkroom,    KC_SEMICOLON, KMod_NONE,       BMV_Visible,        },       // Gkey_TeleportLastWorkroom,
-    {"TeleportCallToArms",    GUIStr_TeleportCallToArms,      KC_SLASH, KMod_NONE,           BMV_Visible,        },       // Gkey_TeleportCallToArms,
-    {"TeleportDefault",       GUIStr_TeleportDefault,         KC_COMMA, KMod_NONE,           BMV_Visible,        },       // Gkey_TeleportDefault,
-    {"CheatMenu1",            GUIStr_MnuUnused,               KC_NUMPADENTER, KMod_NONE,     BMV_Hidden,         },       // Gkey_CheatMenu1,
-    {"CheatMenu2",            GUIStr_MnuUnused,               KC_F12, KMod_NONE,             BMV_Hidden,         },       // Gkey_CheatMenu2,
-    {"LVShowAllEnsigns",      GUIStr_MnuUnused,               KC_F11, KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVShowAllEnsigns,
-    {"LVNextLevel",           GUIStr_MnuUnused,               KC_F10, KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVNextLevel,
-    {"LVPrevLevel",           GUIStr_MnuUnused,               KC_F9,  KMod_CONTROL,          BMV_Hidden,         },       // Gkey_LVPrevLevel,
-
+    {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_RS_UP,               BMV_Visible,        },       // Gkey_MoveUp
+    {"MoveDown",              GUIStr_CtrlDown,                KC_S, KMod_NONE,               CBtn_RS_DOWN,             BMV_Visible,        },       // Gkey_MoveDown
+    {"MoveLeft",              GUIStr_CtrlLeft,                KC_A, KMod_NONE,               CBtn_RS_LEFT,             BMV_Visible,        },       // Gkey_MoveLeft
+    {"MoveRight",             GUIStr_CtrlRight,               KC_D, KMod_NONE,               CBtn_RS_RIGHT,            BMV_Visible,        },       // Gkey_MoveRight
+    {"RotateMod",             GUIStr_CtrlRotate,              KC_LCONTROL, KMod_NONE,        CBtn_B,                   BMV_Visible,        },       // Gkey_RotateMod
+    {"SpeedMod",              GUIStr_CtrlSpeed,               KC_LSHIFT, KMod_NONE,          CBtn_A,                   BMV_Visible,        },       // Gkey_SpeedMod
+    {"RotateCW",              GUIStr_CtrlRotateLeft,          KC_DELETE, KMod_NONE,          CBtn_A|CBtn_DPAD_LEFT,    BMV_Visible,        },       // Gkey_RotateCW
+    {"RotateCCW",             GUIStr_CtrlRotateRight,         KC_PGDOWN, KMod_NONE,          CBtn_A|CBtn_DPAD_RIGHT,   BMV_Visible,        },       // Gkey_RotateCCW
+    {"ZoomIn",                GUIStr_CtrlZoomIn,              KC_HOME, KMod_NONE,            CBtn_A|CBtn_DPAD_UP,      BMV_Visible,        },       // Gkey_ZoomIn
+    {"ZoomOut",               GUIStr_CtrlZoomOut,             KC_END, KMod_NONE,             CBtn_A|CBtn_DPAD_DOWN,    BMV_Visible,        },       // Gkey_ZoomOut
+    {"ZoomRoomTreasure",      CpgStr_RoomKind1+0,             KC_T, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomTreasure
+    {"ZoomRoomLibrary",       CpgStr_RoomKind1+1,             KC_L, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomLibrary
+    {"ZoomRoomLair",          CpgStr_RoomKind1+2,             KC_L, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomLair
+    {"ZoomRoomPrison",        CpgStr_RoomKind1+3,             KC_P, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomPrison
+    {"ZoomRoomTorture",       CpgStr_RoomKind1+4,             KC_T, KMod_ALT,                CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomTorture
+    {"ZoomRoomTraining",      CpgStr_RoomKind1+5,             KC_T, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomTraining
+    {"ZoomRoomHeart",         CpgStr_RoomKind1+6,             KC_H, KMod_NONE,               CBtn_Y,                   BMV_Visible,        },       // Gkey_ZoomRoomHeart
+    {"ZoomRoomWorkshop",      CpgStr_RoomKind1+7,             KC_W, KMod_ALT,                CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomWorkshop
+    {"ZoomRoomScavenger",     CpgStr_RoomKind1+8,             KC_S, KMod_ALT,                CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomScavenger
+    {"ZoomRoomTemple",        CpgStr_RoomKind1+9,             KC_T, KMod_CONTROL,            CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomTemple
+    {"ZoomRoomGraveyard",     CpgStr_RoomKind1+10,            KC_G, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomGraveyard
+    {"ZoomRoomBarracks",      CpgStr_RoomKind1+11,            KC_B, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomBarracks
+    {"ZoomRoomHatchery",      CpgStr_RoomKind1+12,            KC_H, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomHatchery
+    {"ZoomRoomGuardPost",     CpgStr_RoomKind1+13,            KC_G, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomGuardPost
+    {"ZoomRoomBridge",        CpgStr_RoomKind1+14,            KC_B, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomBridge
+    {"ZoomRoomPortal",        CpgStr_RoomKind2,               KC_P, KMod_CONTROL,            CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomPortal
+    {"ZoomToFight",           GUIStr_StateFight,              KC_F, KMod_NONE,               CBtn_X,                   BMV_Visible,        },       // Gkey_ZoomToFight
+    {"ZoomCrAnnoyed",         GUIStr_StateAnnoyed,            KC_A, KMod_ALT,                CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomCrAnnoyed
+    {"CrtrContrlMod",         CpgStr_PowerKind1,              KC_LSHIFT, KMod_NONE,          CBtn_A,                   BMV_Visible,        },       // Gkey_CrtrContrlMod
+    {"CrtrQueryMod",          GUIStr_Query,                   KC_Q, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_CrtrQueryMod
+    {"DumpToOldPos",          GUIStr_UndoPickup,              KC_BACK, KMod_NONE,            CBtn_NONE,                BMV_Visible,        },       // Gkey_DumpToOldPos
+    {"TogglePause",           GUIStr_Pause,                   KC_P, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_TogglePause
+    {"SwitchToMap",           GUIStr_Map,                     KC_M, KMod_NONE,               CBtn_LEFTSTICK,           BMV_Visible,        },       // Gkey_SwitchToMap
+    {"ToggleMessage",         GUIStr_ToggleMessage,           KC_E, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleMessage
+    {"SnapCamera",            GUIStr_SnapCamera,              KC_MOUSE3, KMod_NONE,          CBtn_NONE,                BMV_Visible,        },       // Gkey_SnapCamera
+    {"BestRoomSpace",         GUIStr_BestRoomSpace,           KC_LSHIFT, KMod_NONE,          CBtn_A,                   BMV_Visible,        },       // Gkey_BestRoomSpace
+    {"SquareRoomSpace",       GUIStr_SquareRoomSpace,         KC_LCONTROL, KMod_NONE,        CBtn_B,                   BMV_Visible,        },       // Gkey_SquareRoomSpace
+    {"RoomSpaceIncSize",      GUIStr_RoomSpaceIncrease,       KC_MOUSEWHEEL_DOWN, KMod_NONE, CBtn_NONE,                BMV_Visible,        },       // Gkey_RoomSpaceIncSize
+    {"RoomSpaceDecSize",      GUIStr_RoomSpaceDecrease,       KC_MOUSEWHEEL_UP, KMod_NONE,   CBtn_NONE,                BMV_Visible,        },       // Gkey_RoomSpaceDecSize
+    {"SellTrapOnSubtile",     GUIStr_SellTrapOnSubtile,       KC_LALT, KMod_NONE,            CBtn_NONE,                BMV_Visible,        },       // Gkey_SellTrapOnSubtile
+    {"TiltUp",                GUIStr_CtrlTiltUp,              KC_PGUP, KMod_SHIFT,           CBtn_NONE,                BMV_Visible,        },       // Gkey_TiltUp
+    {"TiltDown",              GUIStr_CtrlTiltDown,            KC_PGDOWN, KMod_SHIFT,         CBtn_NONE,                BMV_Visible,        },       // Gkey_TiltDown
+    {"TiltReset",             GUIStr_CtrlTiltReset,           KC_INSERT, KMod_SHIFT,         CBtn_NONE,                BMV_Visible,        },       // Gkey_TiltReset
+    {"Ascend",                GUIStr_CtrlAscend,              KC_X, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_Ascend
+    {"Descend",               GUIStr_CtrlDescend,             KC_Z, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_Descend
+    {"ScreenRecord",          GUIStr_ScreenRecord,            KC_M, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ScreenRecord,
+    {"ScreenShot",            GUIStr_ScreenShot,              KC_C, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ScreenShot,
+    {"FrameSkipIncrease",     GUIStr_FrameSkipIncrease,       KC_ADD, KMod_CONTROL,          CBtn_NONE,                BMV_Visible,        },       // Gkey_FrameSkipIncrease,
+    {"FrameSkipDecrease",     GUIStr_FrameSkipDecrease,       KC_SUBTRACT, KMod_CONTROL,     CBtn_NONE,                BMV_Visible,        },       // Gkey_FrameSkipDecrease,
+    {"ZoomMinimapIn",         GUIStr_ZoomMinimapIn,           KC_ADD, KMod_NONE,             CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomMinimapIn,
+    {"ZoomMinimapOut",        GUIStr_ZoomMinimapOut,          KC_SUBTRACT, KMod_NONE,        CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomMinimapOut,
+    {"ToggleGui",             GUIStr_ToggleGui,               KC_TAB, KMod_CONTROL,          CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleGui,
+    {"ToggleTooltips",        GUIStr_ToggleTooltips,          KC_F8, KMod_NONE,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleTooltips,
+    {"ExitGame",              GUIStr_ExitGame,                KC_X,   KMod_ALT,              CBtn_START|CBtn_BACK,     BMV_Visible,        },       // Gkey_ExitGame,
+    {"DisablePacketMode",     GUIStr_DisablePacketMode,       KC_T,   KMod_ALT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_DisablePacketMode,
+    {"SwitchScreenRes",       GUIStr_SwitchScreenRes,         KC_R,   KMod_ALT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_SwitchScreenRes,
+    {"ToggleConsole",         GUIStr_ToggleConsole,           KC_GRAVE, KMod_NONE,           CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleConsole,
+    {"FinishLevel",           GUIStr_FinishLevel,             KC_SPACE, KMod_NONE,           CBtn_BACK,                BMV_Visible,        },       // Gkey_FinishLevel,
+    {"ToggleHeroHealthFlower",GUIStr_ToggleHeroHealthFlowers, KC_F, KMod_ALT,                CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleHeroHealthFlowers,
+    {"TeleportLastWorkroom",  GUIStr_TeleportLastWorkroom,    KC_SEMICOLON, KMod_NONE,       CBtn_NONE,                BMV_Visible,        },       // Gkey_TeleportLastWorkroom,
+    {"TeleportCallToArms",    GUIStr_TeleportCallToArms,      KC_SLASH, KMod_NONE,           CBtn_NONE,                BMV_Visible,        },       // Gkey_TeleportCallToArms,
+    {"TeleportDefault",       GUIStr_TeleportDefault,         KC_COMMA, KMod_NONE,           CBtn_NONE,                BMV_Visible,        },       // Gkey_TeleportDefault,
+    {"CheatMenu1",            GUIStr_MnuUnused,               KC_NUMPADENTER, KMod_NONE,     CBtn_NONE,                BMV_Hidden,         },       // Gkey_CheatMenu1,
+    {"CheatMenu2",            GUIStr_MnuUnused,               KC_F12, KMod_NONE,             CBtn_NONE,                BMV_Hidden,         },       // Gkey_CheatMenu2,
+    {"LVShowAllEnsigns",      GUIStr_MnuUnused,               KC_F11, KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVShowAllEnsigns,
+    {"LVNextLevel",           GUIStr_MnuUnused,               KC_F10, KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVNextLevel,
+    {"LVPrevLevel",           GUIStr_MnuUnused,               KC_F9,  KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVPrevLevel,
+    {"NextInstance",          GUIStr_NextInstance,            KC_UNASSIGNED,  KMod_NONE,     CBtn_RIGHTSHOULDER,       BMV_ControllerOnly, },       // Gkey_NextInstance,
+    {"PrevInstance",          GUIStr_PrevInstance,            KC_UNASSIGNED,  KMod_NONE,     CBtn_LEFTSHOULDER,        BMV_ControllerOnly, },       // Gkey_PrevInstance,
+    {"ButtonSnapLeft",        GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_LEFT,           BMV_ControllerOnly, },       // Gkey_ButtonSnapLeft,
+    {"ButtonSnapRight",       GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_RIGHT,          BMV_ControllerOnly, },       // Gkey_ButtonSnapRight,
+    {"ButtonSnapUp",          GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_UP,             BMV_ControllerOnly, },       // Gkey_ButtonSnapUp,
+    {"ButtonSnapDown",        GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_DOWN,           BMV_ControllerOnly, },       // Gkey_ButtonSnapDown,
+    {"PauseMenu",             GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_START,               BMV_ControllerOnly, },       // Gkey_PauseMenu,
 };
 
 
@@ -235,7 +242,7 @@ static void update_gui_layer(void)
 
     struct PlayerInfo* player = get_my_player();
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (player->render_roomspace.highlight_mode))  &&
-         (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
+         (is_game_key_pressed(Gkey_BestRoomSpace, false, true) || is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) )
     {
         if (player->render_roomspace.one_click_mode_exclusive)
         {
@@ -260,16 +267,15 @@ short game_is_busy_doing_gui_string_input(void)
   return (input_button != NULL);
 }
 
-int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
+int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods)
 {
   int result;
   int i;
   if ((key_id < 0) || (key_id >= GAME_KEYS_COUNT))
     return 0;
-  if (val != NULL)
-  {
-    *val = settings.kbkeys[key_id].code;
-  }
+
+  int32_t val = settings.kbkeys[key_id].code;
+
   if (get_current_gui_layer() == GuiLayer_OneClickBridgeBuild)
   {
     if ( ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod)) && (
@@ -317,20 +323,37 @@ int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
             if ((key_id == Gkey_FrameSkipIncrease) && is_key_pressed(KC_EQUALS, KMod_CONTROL))
             {
                 result = 1;
-                *val = KC_EQUALS;
+                val = KC_EQUALS;
             }
             else if ((key_id == Gkey_FrameSkipDecrease) && is_key_pressed(KC_MINUS, KMod_CONTROL))
             {
                 result = 1;
-                *val = KC_MINUS;
+                val = KC_MINUS;
             }
             else if ((key_id == Gkey_CheatMenu1) && is_key_pressed(KC_RETURN, KMod_SHIFT))
             {
                 result = 1;
-                *val = KC_RETURN;
+                val = KC_RETURN;
             }
       }
   }
+    if (result)
+    {
+        if (clear_pressed)
+            clear_key_pressed(val);
+        return result;
+    }
+
+    if (settings.kbkeys[key_id].controller_buttons == 0 || controller_button_state == 0)
+        return 0;
+
+    if (ignore_mods )
+        result = (controller_button_state & settings.kbkeys[key_id].controller_buttons) != 0;
+    else
+        result = (controller_button_state & settings.kbkeys[key_id].controller_buttons) == controller_button_state;
+
+    if (result && clear_pressed)
+        controller_button_state &= ~settings.kbkeys[key_id].controller_buttons;
 
   return result;
 }
@@ -377,19 +400,16 @@ static short get_players_message_inputs(void)
  */
 short get_screen_capture_inputs(void)
 {
-  int32_t val;
-  if (is_game_key_pressed(Gkey_ScreenRecord, &val, false))
+  if (is_game_key_pressed(Gkey_ScreenRecord, true, false))
   {
       if ((game.system_flags & GSF_CaptureMovie) != 0)
         movie_record_stop();
       else
         movie_record_start();
-      clear_key_pressed(val);
   }
-  if (is_game_key_pressed(Gkey_ScreenShot, &val, false))
+  if (is_game_key_pressed(Gkey_ScreenShot, true, false))
   {
       set_flag(game.system_flags, GSF_CaptureSShot);
-      clear_key_pressed(val);
   }
   return false;
 }
@@ -456,16 +476,13 @@ static void decreaseFrameskip(void)
  */
 static short get_speed_control_inputs(void)
 {
-    int32_t val;
-  if (is_game_key_pressed(Gkey_FrameSkipIncrease, &val, false))
+  if (is_game_key_pressed(Gkey_FrameSkipIncrease, true, false))
   {
       increaseFrameskip();
-      clear_key_pressed(val);
   }
-  if (is_game_key_pressed(Gkey_FrameSkipDecrease, &val, false))
+  if (is_game_key_pressed(Gkey_FrameSkipDecrease, true, false))
   {
       decreaseFrameskip();
-      clear_key_pressed(val);
   }
   return false;
 }
@@ -475,19 +492,16 @@ static short get_speed_control_inputs(void)
  */
 static short get_packet_load_game_control_inputs(void)
 {
-  int32_t val;
-  if (is_game_key_pressed(Gkey_ExitGame, &val, false))
+  if (is_game_key_pressed(Gkey_ExitGame, true, false))
   {
-    clear_key_pressed(val);
     if ((game.system_flags & GSF_NetworkActive) != 0)
       LbNetwork_Stop();
     quit_game = 1;
     exit_keeper = 1;
     return true;
   }
-  if (is_game_key_pressed(Gkey_DisablePacketMode, &val, false))
+  if (is_game_key_pressed(Gkey_DisablePacketMode, true, false))
   {
-    clear_key_pressed(val);
     disable_packet_mode();
     return true;
   }
@@ -568,10 +582,8 @@ static short zoom_shortcuts(void)
 {
     for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++)
     {
-        int32_t val;
-        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
+        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, true, false))
         {
-            clear_key_pressed(val);
             go_to_my_next_room_of_type(zoom_key_room_order[i]);
             return true;
         }
@@ -587,8 +599,7 @@ static short get_minimap_control_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     short packet_made = false;
-    int32_t val;
-    if (is_game_key_pressed(Gkey_ZoomMinimapOut, &val, false))
+    if (is_game_key_pressed(Gkey_ZoomMinimapOut, true, false))
     {
         if (menu_is_active(GMnu_MAIN))
         {
@@ -599,11 +610,10 @@ static short get_minimap_control_inputs(void)
             set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
             packet_made = true;
         }
-        clear_key_pressed(val);
         if (packet_made)
             return true;
   }
-  if (is_game_key_pressed(Gkey_ZoomMinimapIn, &val, false))
+  if (is_game_key_pressed(Gkey_ZoomMinimapIn, true, false))
   {
       if (menu_is_active(GMnu_MAIN))
       {
@@ -614,7 +624,6 @@ static short get_minimap_control_inputs(void)
           set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
           packet_made = true;
       }
-      clear_key_pressed(val);
       if (packet_made) return true;
   }
   return false;
@@ -628,12 +637,10 @@ static short get_screen_control_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     short packet_made = false;
-    int32_t val;
-    if (is_game_key_pressed(Gkey_SwitchScreenRes, &val, false))
+    if (is_game_key_pressed(Gkey_SwitchScreenRes, true, false))
     {
         set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
         packet_made = true;
-        clear_key_pressed(val);
         if (packet_made)
             return true;
   }
@@ -645,7 +652,6 @@ static short get_global_inputs(void)
   if (game_is_busy_doing_gui_string_input())
     return false;
   struct PlayerInfo* player = get_my_player();
-  int32_t keycode;
   if ((player->allocflags & PlaF_NewMPMessage) != 0)
   {
     get_players_message_inputs();
@@ -687,7 +693,7 @@ static short get_global_inputs(void)
       (player->instance_num != PI_MapFadeFrom) &&
       (!game_is_busy_doing_gui_string_input()))
   {
-      if ( is_game_key_pressed(Gkey_TogglePause, &keycode, false) )
+      if ( is_game_key_pressed(Gkey_TogglePause, true, false) )
       {
         long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave);// the paused flag is currently set to the current pause state, not the state we are about to enter
         LbGrabMouseCheck(grab_check_flags);
@@ -708,7 +714,6 @@ static short get_global_inputs(void)
             }
         }
         set_packet_pause_toggle();
-        clear_key_pressed(keycode);
         return true;
       }
       else if( flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
@@ -747,21 +752,18 @@ static short get_global_inputs(void)
         return true;
       }
   }
-  if ( is_game_key_pressed(Gkey_DumpToOldPos, &keycode, false) )
+  if ( is_game_key_pressed(Gkey_DumpToOldPos, true, false) )
   {
       set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
-      clear_key_pressed(keycode);
   }
-  if (is_game_key_pressed(Gkey_ToggleConsole, &keycode, false)) {
+  if (is_game_key_pressed(Gkey_ToggleConsole, true, false)) {
     debug_display_consolelog = !debug_display_consolelog;
-    clear_key_pressed(keycode);
   }
   return false;
 }
 
 static TbBool get_level_lost_inputs(void)
 {
-    int32_t keycode;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
@@ -786,10 +788,9 @@ static TbBool get_level_lost_inputs(void)
         return true;
     if (get_screen_capture_inputs())
         return true;
-    if (is_game_key_pressed(Gkey_FinishLevel, &keycode, false))
+    if (is_game_key_pressed(Gkey_FinishLevel, true, false))
     {
         set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
-        clear_key_pressed(keycode);
     }
     if (player->view_type == PVT_MapScreen)
     {
@@ -800,9 +801,8 @@ static TbBool get_level_lost_inputs(void)
         int32_t map_x;
         int32_t map_y;
         TbBool map_valid = point_to_overhead_map(get_local_camera(camera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
-        if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
+        if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
         {
-            lbKeyOn[keycode] = 0;
             zoom_from_parchment_map();
         } else
         if ( right_button_released )
@@ -833,9 +833,8 @@ static TbBool get_level_lost_inputs(void)
             toggle_gui();
           }
       } else
-      if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
+      if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
       {
-        lbKeyOn[keycode] = 0;
         if (player->view_mode != PVM_ParchFadeOut)
         {
           turn_off_all_window_menus();
@@ -1092,12 +1091,21 @@ static short get_status_panel_keyboard_action_inputs(void)
     clear_key_pressed(KC_5);
     fake_button_click(BID_CREATR_TAB);
   }
+  
+  if(is_game_key_pressed(Gkey_NextInstance, true, false))
+  {
+    go_to_adjacent_menu_tab(1);
+  }
+  if(is_game_key_pressed(Gkey_PrevInstance, true, false))
+  {
+      go_to_adjacent_menu_tab(-1);
+  }   
+
   return false;
 }
 
 static TbBool get_dungeon_control_pausable_action_inputs(void)
 {
-    int32_t val;
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
       return true;
@@ -1105,31 +1113,20 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     if (get_bookmark_inputs())
       return true;
 
-    if (is_game_key_pressed(Gkey_ToggleTooltips, &val, false))
+    if (is_game_key_pressed(Gkey_ToggleTooltips, true, false))
     {
-        clear_key_pressed(val);
         toggle_tooltips();
     }
-    if (is_game_key_pressed(Gkey_CheatMenu1, &val, false))
+    if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
     {
-        if (close_instance_cheat_menu())
-        {
-            clear_key_pressed(val);
-        }
-        else
-        if (toggle_main_cheat_menu())
-        {
-            clear_key_pressed(val);
-        }
+        if (!close_instance_cheat_menu())
+            toggle_main_cheat_menu();
     }
 
-    if (is_game_key_pressed(Gkey_CheatMenu2, &val, false))
+    if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
-        if (close_creature_cheat_menu())
-        {
-            clear_key_pressed(val);
-        }
+        close_creature_cheat_menu();
     }
     if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
@@ -1143,7 +1140,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
           toggle_gui();
       }
       // Middle mouse camera actions for IsometricView
-      if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
+      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
       {
           struct Camera* cam = &player->cameras[CamIV_Isometric];
           struct Packet* pckt = get_packet(my_player_number);
@@ -1219,19 +1216,17 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
             (angle = ANGLE_NORTH);
         }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
-        clear_key_pressed(val);
         return true;
       }
     }
     if (player->view_mode == PVM_FrontView)
     {
-      if (is_game_key_pressed(Gkey_ToggleGui, &val, false))
+      if (is_game_key_pressed(Gkey_ToggleGui, true, false))
       {
-          clear_key_pressed(val);
           toggle_gui();
       }
       // Middle mouse camera actions for FrontView
-      if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
+      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
       {
           struct Camera* cam = &player->cameras[CamIV_FrontView];
           struct Packet* pckt = get_packet(my_player_number);
@@ -1256,7 +1251,6 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
             }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         }
-        clear_key_pressed(val);
         return true;
       }
     }
@@ -1267,9 +1261,8 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     {
         process_cheat_mode_selection_inputs();
     }
-    if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
+    if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
     {
-      clear_key_pressed(val);
       if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != 2))
       {
           turn_off_all_window_menus();
@@ -1277,9 +1270,8 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
       }
       return true;
     }
-    if (is_game_key_pressed(Gkey_ToggleHeroHealthFlowers, &val, false))
+    if (is_game_key_pressed(Gkey_ToggleHeroHealthFlowers, true, false))
     {
-        clear_key_pressed(val);
         toggle_hero_health_flowers();
     }
     return false;
@@ -1287,7 +1279,6 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
 
 static TbBool get_dungeon_control_action_inputs(void)
 {
-    int32_t val;
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
         return true;
@@ -1328,15 +1319,13 @@ static TbBool get_dungeon_control_action_inputs(void)
     }
 
     // Zooming cannot be done paused because it's a player instance.
-    if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
+    if (is_game_key_pressed(Gkey_ZoomToFight, true, false))
     {
-        clear_key_pressed(val);
         zoom_to_fight(player->id_number);
         return true;
     }
-    if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, &val, false))
+    if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, true, false))
     {
-        clear_key_pressed(val);
         zoom_to_next_annoyed_creature();
         return true;
     }
@@ -1440,10 +1429,8 @@ static short get_creature_passenger_action_inputs(void)
         set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
         return true;
     }
-    int32_t val;
-    if (is_game_key_pressed(Gkey_ToggleGui, &val, false))
+    if (is_game_key_pressed(Gkey_ToggleGui, true, false))
     {
-        clear_key_pressed(val);
         toggle_gui();
     }
     return false;
@@ -1496,29 +1483,23 @@ static void set_possession_instance(struct PlayerInfo* player, struct Thing* thi
 
 static short get_creature_control_action_inputs(void)
 {
-    int32_t keycode;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
         return 1;
     if ( ((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
         get_gui_inputs(1);
-    if (is_game_key_pressed(Gkey_CheatMenu1, &keycode, false))
+    if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
-        if (close_main_cheat_menu())
+        if (!close_main_cheat_menu())
         {
-            clear_key_pressed(keycode);
-        } else
-        if (toggle_instance_cheat_menu())
-        {
-            clear_key_pressed(keycode);
+            toggle_instance_cheat_menu();
         }
     }
-    if (is_game_key_pressed(Gkey_CheatMenu2, &keycode, false))
+    if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
         toggle_creature_cheat_menu();
-        clear_key_pressed(keycode);
     }
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
@@ -1580,7 +1561,7 @@ static short get_creature_control_action_inputs(void)
         turn_off_menu(GMnu_CREATURE_QUERY1);
         turn_on_menu(GMnu_CREATURE_QUERY2);
       }
-      if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false) || wheel_scrolled_down)
+      if (is_game_key_pressed(Gkey_ToggleMessage, true, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY1);
         if (creature_instance_get_available_id_for_pos(thing,6) > 0)
@@ -1590,15 +1571,13 @@ static short get_creature_control_action_inputs(void)
         {
             turn_on_menu(GMnu_CREATURE_QUERY3);
         }
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
-      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_up)
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY1);
         turn_on_menu(GMnu_CREATURE_QUERY4);
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
@@ -1613,19 +1592,17 @@ static short get_creature_control_action_inputs(void)
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY1);
       }
-      if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false) || wheel_scrolled_down)
+      if (is_game_key_pressed(Gkey_ToggleMessage, true, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY3);
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
-      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_up)
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY1);
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
@@ -1648,15 +1625,14 @@ static short get_creature_control_action_inputs(void)
         turn_off_menu(GMnu_CREATURE_QUERY3);
         turn_on_menu(GMnu_CREATURE_QUERY2);
       }
-      if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false) || wheel_scrolled_down)
+      if (is_game_key_pressed(Gkey_ToggleMessage, true, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY3);
         turn_on_menu(GMnu_CREATURE_QUERY4);
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
-      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_up)
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY3);
         if (creature_instance_get_available_id_for_pos(thing,6) > 0)
@@ -1666,7 +1642,6 @@ static short get_creature_control_action_inputs(void)
         {
             turn_on_menu(GMnu_CREATURE_QUERY1);
         }
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
@@ -1689,35 +1664,31 @@ static short get_creature_control_action_inputs(void)
         turn_off_menu(GMnu_CREATURE_QUERY4);
         turn_on_menu(GMnu_CREATURE_QUERY2);
       }
-      if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false) || wheel_scrolled_down)
+      if (is_game_key_pressed(Gkey_ToggleMessage, true, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY4);
         turn_on_menu(GMnu_CREATURE_QUERY1);
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
-      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_up)
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY4);
         turn_on_menu(GMnu_CREATURE_QUERY3);
-        clear_key_pressed(keycode);
         fake_button_click(0);
         update_wheel_scrolled();
       }
     }
 
-    if (is_game_key_pressed(Gkey_ToggleGui, &keycode, false))
+    if (is_game_key_pressed(Gkey_ToggleGui, true, false))
     {
-        clear_key_pressed(keycode);
         toggle_gui();
     }
     int numkey = -1;
-    for (keycode=KC_1; keycode <= KC_0; keycode++)
+    for (int32_t keycode=KC_1; keycode <= KC_0; keycode++)
     {
         if (is_key_pressed(keycode,KMod_DONTCARE))
         {
-            clear_key_pressed(keycode);
             numkey = keycode-KC_1;
             break;
         }
@@ -1775,40 +1746,34 @@ static short get_creature_control_action_inputs(void)
             numkey = 9;
         }
     }
-        int32_t val;
         TextStringId StrID = 0;
         for (int i = 0; i <= 15; i++)
         {
-            if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
+            if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, true, false))
             {
-                clear_key_pressed(val);
                 set_players_packet_action(player, PckA_SwitchTeleportDest, i, 0, 0, 0);
                 struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[i]);
                 StrID = roomst->name_stridx;
             }
 
         }
-        if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
+        if (is_game_key_pressed(Gkey_ZoomToFight, true, false))
         {
-            clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);
             StrID = GUIStr_StateFight;
         }
-        else if (is_game_key_pressed(Gkey_TeleportLastWorkroom, &val, false))
+        else if (is_game_key_pressed(Gkey_TeleportLastWorkroom, true, false))
         {
-            clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 17, 0, 0, 0);; // Last work room
         }
-        else if (is_game_key_pressed(Gkey_TeleportCallToArms, &val, false))
+        else if (is_game_key_pressed(Gkey_TeleportCallToArms, true, false))
         {
-            clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0);; // Call to Arms
             struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
             StrID = powerst->name_stridx;
         }
-        else if (is_game_key_pressed(Gkey_TeleportDefault, &val, false))
+        else if (is_game_key_pressed(Gkey_TeleportDefault, true, false))
         {
-            clear_key_pressed(val);
             set_players_packet_action(player, PckA_SwitchTeleportDest, 19, 0, 0, 0); // default behaviour
             StrID = GUIStr_Lair;
         }
@@ -1821,7 +1786,7 @@ static short get_creature_control_action_inputs(void)
             }
             message_add(MsgType_CreatureInstance, CrInst_TELEPORT, get_string(StrID));
         }
-        if (is_game_key_pressed(Gkey_CrtrContrlMod, &val, false))
+        if (is_game_key_pressed(Gkey_CrtrContrlMod, false, false))
         {
             if (!player->first_person_dig_claim_mode)
             {
@@ -1853,7 +1818,7 @@ static short get_creature_control_action_inputs(void)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
-            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &val, true))
+            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true))
             {
                 first_person_see_item_desc = true;
             }
@@ -1934,11 +1899,15 @@ static short get_creature_control_action_inputs(void)
                 clear_key_pressed(KC_GAMEPAD_RIGHTSHOULDER);
                 set_possession_instance(player, cthing, 1);
                 
-            }
-            else if (is_key_pressed(KC_GAMEPAD_LEFTSHOULDER, KMod_DONTCARE))
-            {
-                clear_key_pressed(KC_GAMEPAD_LEFTSHOULDER);
-                set_possession_instance(player, cthing, -1);
+                if (is_game_key_pressed(Gkey_NextInstance, true, false))
+                {
+                    set_possession_instance(player, cthing, 1);
+                    
+                }
+                else if (is_game_key_pressed(Gkey_PrevInstance, true, false))
+                {
+                    set_possession_instance(player, cthing, -1);
+                }
             }
         }
     return false;
@@ -2021,21 +1990,16 @@ static short get_map_action_inputs(void)
     if (get_players_packet_action(player) != PckA_None)
         return true;
     {
-        int32_t val;
-      if (is_game_key_pressed(Gkey_ToggleTooltips, &val, false))
+      if (is_game_key_pressed(Gkey_ToggleTooltips, true, false))
       {
           toggle_tooltips();
-          clear_key_pressed(val);
       }
-      if (is_game_key_pressed(Gkey_CheatMenu1, &val, false))
+      if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
       {
-          if (toggle_main_cheat_menu())
-            clear_key_pressed(val);
+          toggle_main_cheat_menu();
       }
-      int32_t keycode;
-      if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
+      if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
       {
-          clear_key_pressed(keycode);
           turn_off_all_window_menus();
           zoom_from_parchment_map();
           return true;
@@ -2101,7 +2065,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
         if (mx <= edge_scrolling_border)
         {
-            if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
+            if ( is_game_key_pressed(Gkey_MoveLeft, false, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
             {
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
@@ -2110,7 +2074,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         }
         if (mx >= MyScreenWidth-edge_scrolling_border)
         {
-            if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
+            if ( is_game_key_pressed(Gkey_MoveRight, false, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
             {
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
@@ -2119,7 +2083,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         }
         if (my <= edge_scrolling_border)
         {
-            if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
+            if ( is_game_key_pressed(Gkey_MoveUp, false, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
             {
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
@@ -2128,7 +2092,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         }
         if (my >= MyScreenHeight-edge_scrolling_border)
         {
-            if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
+            if ( is_game_key_pressed(Gkey_MoveDown, false, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
             {
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
@@ -2142,8 +2106,8 @@ static void get_isometric_view_nonaction_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     struct Packet* packet = get_packet(my_player_number);
-    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
-    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
+    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
+    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
     if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
       return;
     if (speed_pressed != 0)
@@ -2164,43 +2128,43 @@ static void get_isometric_view_nonaction_inputs(void)
     {
         if (rotate_pressed)
         {
-            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewRotateCW);
-            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewRotateCCW);
-            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomIn);
-            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomOut);
         } else
         {
-            if (is_game_key_pressed(Gkey_RotateCW, NULL, false))
+            if (is_game_key_pressed(Gkey_RotateCW, false, false))
                 set_packet_control(packet, PCtr_ViewRotateCW);
-            if (is_game_key_pressed(Gkey_RotateCCW, NULL, false))
+            if (is_game_key_pressed(Gkey_RotateCCW, false, false))
                 set_packet_control(packet, PCtr_ViewRotateCCW);
-            if (is_game_key_pressed(Gkey_ZoomIn, NULL, false))
+            if (is_game_key_pressed(Gkey_ZoomIn, false, false))
                 set_packet_control(packet, PCtr_ViewZoomIn);
-            if (is_game_key_pressed(Gkey_ZoomOut, NULL, false))
+            if (is_game_key_pressed(Gkey_ZoomOut, false, false))
                 set_packet_control(packet, PCtr_ViewZoomOut);
-            if (is_game_key_pressed(Gkey_TiltUp, NULL, false))
+            if (is_game_key_pressed(Gkey_TiltUp, false, false))
                 set_packet_control(packet, PCtr_ViewTiltUp);
-            if (is_game_key_pressed(Gkey_TiltDown, NULL, false))
+            if (is_game_key_pressed(Gkey_TiltDown, false, false))
                 set_packet_control(packet, PCtr_ViewTiltDown);
-            if (is_game_key_pressed(Gkey_TiltReset, NULL, false))
+            if (is_game_key_pressed(Gkey_TiltReset, false, false))
                 set_packet_control(packet, PCtr_ViewTiltReset);
-            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
                 movement_accum_x = -1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
                 movement_accum_x = 1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
             {
                 movement_accum_y = -1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             {
                 movement_accum_y = 1.0f;
             }
@@ -2216,17 +2180,17 @@ static void get_overhead_view_nonaction_inputs(void)
     struct Packet* pckt = get_packet(my_player_number);
     long my = my_mouse_y;
     long mx = my_mouse_x;
-    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
-    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
+    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
+    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
     if ((player->allocflags & PlaF_KeyboardInputDisabled) == 0)
     {
         if (speed_pressed)
           pckt->additional_packet_values |= PCAdV_SpeedupPressed;
         if (rotate_pressed)
         {
-          if ( is_game_key_pressed(Gkey_MoveUp, NULL, speed_pressed!=0) )
+          if ( is_game_key_pressed(Gkey_MoveUp, false, speed_pressed!=0) )
             set_packet_control(pckt, PCtr_ViewZoomIn);
-          if ( is_game_key_pressed(Gkey_MoveDown, NULL, speed_pressed!=0) )
+          if ( is_game_key_pressed(Gkey_MoveDown, false, speed_pressed!=0) )
             set_packet_control(pckt, PCtr_ViewZoomOut);
         }
         if (my <= 4)
@@ -2247,8 +2211,8 @@ static void get_front_view_nonaction_inputs(void)
     static TbClockMSec last_rotate_right_time = 0;
     struct PlayerInfo* player = get_my_player();
     struct Packet* pckt = get_packet(my_player_number);
-    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
-    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
+    int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
+    int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
     TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
 
     if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
@@ -2270,7 +2234,7 @@ static void get_front_view_nonaction_inputs(void)
     {
         if (rotate_pressed)
         {
-            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
                 if (LbTimerClock() > last_rotate_left_time + 250)
                 {
@@ -2278,7 +2242,7 @@ static void get_front_view_nonaction_inputs(void)
                     last_rotate_left_time = LbTimerClock();
                 }
             }
-            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
                 if (LbTimerClock() > last_rotate_right_time + 250)
                 {
@@ -2286,14 +2250,14 @@ static void get_front_view_nonaction_inputs(void)
                     last_rotate_right_time = LbTimerClock();
                 }
             }
-            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
                 set_packet_control(pckt, PCtr_ViewZoomIn);
-            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
                 set_packet_control(pckt, PCtr_ViewZoomOut);
         }
         else
         {
-            if (is_game_key_pressed(Gkey_RotateCW, NULL, false))
+            if (is_game_key_pressed(Gkey_RotateCW, false, false))
             {
                 if (LbTimerClock() > last_rotate_left_time + 250)
                 {
@@ -2301,7 +2265,7 @@ static void get_front_view_nonaction_inputs(void)
                     last_rotate_left_time = LbTimerClock();
                 }
             }
-            if (is_game_key_pressed(Gkey_RotateCCW, NULL, false))
+            if (is_game_key_pressed(Gkey_RotateCCW, false, false))
             {
                 if (LbTimerClock() > last_rotate_right_time + 250)
                 {
@@ -2309,26 +2273,26 @@ static void get_front_view_nonaction_inputs(void)
                     last_rotate_right_time = LbTimerClock();
                 }
             }
-            if (is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
                 movement_accum_x = -1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
                 movement_accum_x = 1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
             {
                 movement_accum_y = -1.0f;
             }
-            if (is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             {
                 movement_accum_y = 1.0f;
             }
         }
-        if (is_game_key_pressed(Gkey_ZoomIn, NULL, false))
+        if (is_game_key_pressed(Gkey_ZoomIn, false, false))
             set_packet_control(pckt, PCtr_ViewZoomIn);
-        if (is_game_key_pressed(Gkey_ZoomOut, NULL, false))
+        if (is_game_key_pressed(Gkey_ZoomOut, false, false))
             set_packet_control(pckt, PCtr_ViewZoomOut);
     }
 }
@@ -2510,17 +2474,15 @@ static short get_packet_load_game_inputs(void)
  */
 static TbBool get_packet_load_demo_inputs(void)
 {
-    int32_t val = KC_UNASSIGNED;
   if (is_key_pressed(KC_SPACE,KMod_DONTCARE) ||
       is_key_pressed(KC_ESCAPE,KMod_DONTCARE) ||
       is_key_pressed(KC_RETURN,KMod_DONTCARE) ||
-      (is_game_key_pressed(Gkey_ExitGame, &val ,false)) ||
+      (is_game_key_pressed(Gkey_ExitGame, true ,false)) ||
       left_button_clicked)
   {
       clear_key_pressed(KC_SPACE);
       clear_key_pressed(KC_ESCAPE);
       clear_key_pressed(KC_RETURN);
-      clear_key_pressed(val);
       left_button_clicked = 0;
       quit_game = 1;
       return true;
@@ -2602,19 +2564,19 @@ static void get_creature_control_nonaction_inputs(void)
             right_button_clicked = 0;
             right_button_released = 0;
         }
-        if (is_game_key_pressed(Gkey_MoveLeft, NULL, true) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveLeft, false, true) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveLeft);
-        if (is_game_key_pressed(Gkey_MoveRight, NULL, true) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveRight, false, true) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveRight);
-        if (is_game_key_pressed(Gkey_MoveUp, NULL, true) || is_key_pressed(KC_UP, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveUp, false, true) || is_key_pressed(KC_UP, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveUp);
-        if (is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveDown, false, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveDown);
         if (flag_is_set(thing->movement_flags, TMvF_Flying))
         {
-            if (is_game_key_pressed(Gkey_Ascend, NULL, true))
+            if (is_game_key_pressed(Gkey_Ascend, false, true))
                 set_packet_control(pckt, PCtr_Ascend);
-            if (is_game_key_pressed(Gkey_Descend, NULL, true))
+            if (is_game_key_pressed(Gkey_Descend, false, true))
                 set_packet_control(pckt, PCtr_Descend);
         }
     }
@@ -2667,10 +2629,8 @@ static short get_inputs(void)
         set_players_packet_position(get_packet(my_player_number), 0, 0 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
-            int32_t keycode;
-            if (is_game_key_pressed(Gkey_TogglePause, &keycode, false))
+            if (is_game_key_pressed(Gkey_TogglePause, true, false))
             {
-                lbKeyOn[keycode] = 0;
                 set_packet_pause_toggle();
             }
             else if( flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
@@ -2784,15 +2744,15 @@ void input(void)
       lbKeyOn[lbInkey] = 0;
     }
     struct Packet* pckt = get_packet(my_player_number);
-    if (is_game_key_pressed(Gkey_CrtrContrlMod, NULL, false) != 0)
+    if (is_game_key_pressed(Gkey_CrtrContrlMod, false, false) != 0)
       pckt->additional_packet_values |= PCAdV_CrtrContrlPressed;
     else
       pckt->additional_packet_values &= ~PCAdV_CrtrContrlPressed;
-    if (is_game_key_pressed(Gkey_CrtrQueryMod, NULL, false) != 0)
+    if (is_game_key_pressed(Gkey_CrtrQueryMod, false, false) != 0)
       pckt->additional_packet_values |= PCAdV_CrtrQueryPressed;
     else
       pckt->additional_packet_values &= ~PCAdV_CrtrQueryPressed;
-    if (is_game_key_pressed(Gkey_RotateMod, NULL, false) != 0)
+    if (is_game_key_pressed(Gkey_RotateMod, false, false) != 0)
         pckt->additional_packet_values |= PCAdV_RotatePressed;
     else
         pckt->additional_packet_values &= ~PCAdV_RotatePressed;
