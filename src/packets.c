@@ -269,7 +269,6 @@ static TbBool resync_game_allowed(void)
         if ((int32_t)(now - resync_cooldown_end) < 0) {
             if (!resync_cooldown_warned) {
                 show_onscreen_msg(10 * game_num_fps, "Game may be in a desynced state.");
-                NETLOG("Game may be in a desynced state.");
                 resync_cooldown_warned = true;
             }
             return false;
