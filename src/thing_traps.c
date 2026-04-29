@@ -40,7 +40,6 @@
 #include "room_util.h"
 #include "game_legacy.h"
 #include "frontend.h"
-#include "engine_arrays.h"
 #include "engine_render.h"
 #include "gui_topmsg.h"
 
@@ -926,6 +925,37 @@ void set_trap_shots(struct Thing *traptng, int shots)
     }
 }
 
+static void select_trap_animation(struct Thing *traptng, const struct TrapConfigStats *trapst, int32_t *anim_idx, int32_t *anim_speed)
+{
+    GameTurn turn = get_gameturn();
+
+    *anim_idx = trapst->sprite_anim_idx;
+    *anim_speed = trapst->anim_speed;
+    if ((traptng->trap.wait_for_rearm == true) && (traptng->trap.rearm_turn > turn)) {
+        if ((traptng->trap.shooting_finished_turn > turn) && (trapst->attack_sprite_anim_idx != 0)) {
+            *anim_idx = trapst->attack_sprite_anim_idx;
+            *anim_speed = trapst->attack_anim_speed;
+        } else if (trapst->recharge_sprite_anim_idx != 0) {
+            *anim_idx = trapst->recharge_sprite_anim_idx;
+            *anim_speed = trapst->recharge_anim_speed;
+        }
+    }
+}
+
+void update_trap_draw(struct Thing *traptng)
+{
+    char start_frame = 0;
+    const struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+    int32_t anim_idx;
+    int32_t anim_speed;
+
+    select_trap_animation(traptng, trapst, &anim_idx, &anim_speed);
+    if (trapst->random_start_frame) {
+        start_frame = -1;
+    }
+    set_thing_draw(traptng, anim_idx, anim_speed, trapst->sprite_size_max, trapst->unanimated, start_frame, ODC_Default);
+}
+
 TngUpdateRet update_trap(struct Thing *traptng)
 {
     SYNCDBG(18,"Starting");
@@ -947,35 +977,14 @@ TngUpdateRet update_trap(struct Thing *traptng)
     }
     if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharge' anim.
     {
-        if ((traptng->trap.rearm_turn <= get_gameturn())) // Recharge complete, rearm.
+        int32_t anim_idx;
+        int32_t anim_speed;
+
+        select_trap_animation(traptng, trapst, &anim_idx, &anim_speed);
+        set_thing_animation(traptng, anim_idx, anim_speed);
+        if (traptng->trap.rearm_turn <= get_gameturn()) // Recharge complete, rearm.
         {
-            // Back to regular anim.
-            traptng->anim_sprite = get_td_animation_sprite(trapst->sprite_anim_idx);
-            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             traptng->trap.wait_for_rearm = false;
-        }
-        else if (traptng->trap.shooting_finished_turn > (get_gameturn())) // Shot anim is playing.
-        {
-            if (trapst->attack_sprite_anim_idx != 0)
-            {
-                traptng->anim_sprite = get_td_animation_sprite(trapst->attack_sprite_anim_idx);
-                traptng->anim_speed = trapst->attack_anim_speed;
-                traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
-            }
-        }
-        else // Done shooting, still recharging. Show recharge animation.
-        {
-            if (trapst->recharge_sprite_anim_idx != 0)
-            {
-                traptng->anim_sprite = get_td_animation_sprite(trapst->recharge_sprite_anim_idx);
-                traptng->anim_speed = trapst->recharge_anim_speed;
-            }
-            else
-            {
-                traptng->anim_sprite = get_td_animation_sprite(trapst->sprite_anim_idx);
-                traptng->anim_speed = trapst->anim_speed;
-            }
-            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
         }
     }
     if (trapst->activation_type == TrpAcT_CreatureShot)
@@ -1037,13 +1046,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->parent_idx = thing->index;
     thing->owner = plyr_idx;
     thing->trap.flag_number = trapst->flag_number;
-    char start_frame;
-    if (trapst->random_start_frame) {
-        start_frame = -1;
-    } else {
-        start_frame = 0;
-    }
-    set_thing_draw(thing, trapst->sprite_anim_idx, trapst->anim_speed, trapst->sprite_size_max, trapst->unanimated, start_frame, ODC_Default);
+    update_trap_draw(thing);
     if (trapst->unshaded) {
         thing->rendering_flags |= TRF_Unshaded;
     } else {
