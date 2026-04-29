@@ -1038,6 +1038,7 @@ TbBool frontnetmap_load(void)
 {
     SYNCDBG(8,"Starting");
     char hand_data_path[2048];
+    char hand_index_path[2048];
     if (fe_network_active)
     {
       if (LbNetwork_EnableNewPlayers(0))
