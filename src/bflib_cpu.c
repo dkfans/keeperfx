@@ -17,37 +17,50 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
 #include "pre_inc.h"
 #include "bflib_cpu.h"
 
 #include "bflib_basics.h"
 #include "post_inc.h"
 
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 
-/** Issue a single request to CPUID.
- *  Fits 'intel features', for instance note that even if only "eax" and "edx"
- *  are of interest, other registers will be modified by the operation,
- *  so we need to tell the compiler about it.
- */
+#ifdef _MSC_VER
+/** Issue a single request to CPUID (MSVC). */
 static inline void cpuid(int code, uint32_t *a, uint32_t *d) {
-  #if defined(__i386__) || defined(__x86_64__)
-    asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
-  #endif
+    int info[4];
+    __cpuid(info, code);
+    *a = (uint32_t)info[0];
+    *d = (uint32_t)info[3];
 }
 
-/** Issue a complete request, storing general registers output in an array.
- */
-static inline void cpuid_string(int code, void * destination) {
-  #if defined(__i386__) || defined(__x86_64__)
-  uint32_t * where = (uint32_t *) destination;
-  asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
-      "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
-  #endif
+/** Issue a complete request, storing general registers output in an array (MSVC). */
+static inline void cpuid_string(int code, void *destination) {
+    int info[4];
+    __cpuid(info, code);
+    memcpy(destination, info, 16);
 }
+#else
+/** Issue a single request to CPUID. */
+static inline void cpuid(int code, uint32_t *a, uint32_t *d) {
+    asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
+}
+
+/** Issue a complete request, storing general registers output in an array. */
+static inline void cpuid_string(int code, void * destination) {
+    uint32_t * where = (uint32_t *) destination;
+    asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
+        "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
+}
+#endif
 /******************************************************************************/
 
 void cpu_detect(struct CPU_INFO *cpu)
@@ -58,7 +71,6 @@ void cpu_detect(struct CPU_INFO *cpu)
   cpu->timeStampCounter = 0;
   cpu->feature_intl = 0;
   cpu->feature_edx = 0;
-  #if defined(__i386__) || defined(__x86_64__)
   {
     uint32_t where[4];
     cpuid_string(CPUID_GETVENDORSTRING, where);
@@ -83,7 +95,6 @@ void cpu_detect(struct CPU_INFO *cpu)
         cpuid_string(CPUID_INTELBRANDSTRINGEND, &cpu->brand[32]);
     }
   }
-  #endif
 }
 
 unsigned char cpu_get_type(struct CPU_INFO *cpu)

@@ -13,7 +13,9 @@ extern "C" {
 	#include <libavcodec/avcodec.h>
 	#include <libavutil/imgutils.h>
 	#include <libswresample/swresample.h>
+    #ifdef __GNUC__
     #pragma GCC diagnostic warning "-Wdeprecated-declarations"
+    #endif
 }
 
 #include <cstdio>

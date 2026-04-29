@@ -1,0 +1,9 @@
+[submodule "gfx"]
+	path = gfx
+	url = https://github.com/dkfans/FXGraphics.git
+[submodule "sfx"]
+	path = sfx
+	url = https://github.com/dkfans/FXSounds.git
+[submodule "external/vcpkg"]
+	path = external/vcpkg
+	url = https://github.com/microsoft/vcpkg

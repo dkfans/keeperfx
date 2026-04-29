@@ -826,8 +826,10 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
     return 1;
 }
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-branch-clone"
+#endif
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
                          int is_fp, VALUE *def, VALUE *itm)
 {
@@ -963,7 +965,9 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     spng_ctx_free(ctx);
     return 1;
 }
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
 {

@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "compiler_compat.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -129,43 +131,43 @@ extern char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
 extern size_t consoleLogArraySize;
 
 // High level functions - DK specific
-short warning_dialog(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
-short error_dialog(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
-short error_dialog_fatal(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
-int str_append(char * buffer, int size, const char * str) __attribute__ ((nonnull(1, 3)));
-int str_appendf(char * buffer, int size, const char * format, ...) __attribute__ ((format(printf, 3, 4), nonnull(1, 3)));
+short warning_dialog(const char *codefile,const int ecode,const char *message) KFX_NONNULL(1, 3);
+short error_dialog(const char *codefile,const int ecode,const char *message) KFX_NONNULL(1, 3);
+short error_dialog_fatal(const char *codefile,const int ecode,const char *message) KFX_NONNULL(1, 3);
+int str_append(char * buffer, int size, const char * str) KFX_NONNULL(1, 3);
+int str_appendf(char * buffer, int size, const char * format, ...) KFX_PRINTF_FORMAT(3, 4) KFX_NONNULL(1, 3);
 /******************************************************************************/
-int LbErrorLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
-int LbWarnLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
-int LbSyncLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
-int LbNetLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
-int LbJustLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
-int LbNaviLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+int LbErrorLog(const char *format, ...) KFX_PRINTF_FORMAT(1, 2) KFX_NONNULL(1);
+int LbWarnLog(const char *format, ...) KFX_PRINTF_FORMAT(1, 2) KFX_NONNULL(1);
+int LbSyncLog(const char *format, ...) KFX_PRINTF_FORMAT(1, 2) KFX_NONNULL(1);
+int LbNetLog(const char *format, ...) KFX_PRINTF_FORMAT(1, 2) KFX_NONNULL(1);
+int LbJustLog(const char *format, ...) KFX_PRINTF_FORMAT(1, 2) KFX_NONNULL(1);
+int LbNaviLog(const char *format, ...) KFX_PRINTF_FORMAT(1, 2) KFX_NONNULL(1);
 
 #ifdef FUNCTESTING
-int LbFTestLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+int LbFTestLog(const char *format, ...) KFX_PRINTF_FORMAT(1, 2) KFX_NONNULL(1);
 #endif
-int LbScriptLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
-int LbConfigLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
+int LbScriptLog(unsigned long line,const char *format, ...) KFX_PRINTF_FORMAT(2, 3) KFX_NONNULL(2);
+int LbConfigLog(unsigned long line,const char *format, ...) KFX_PRINTF_FORMAT(2, 3) KFX_NONNULL(2);
 
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int LbErrorLogClose(void);
 
-int LbLogClose(struct TbLog *log) __attribute__ ((nonnull(1)));
-int LbLogSetup(struct TbLog *log, const char *filename, ulong flags) __attribute__ ((nonnull(1, 2)));
-int LbLogSetPrefix(struct TbLog *log, const char *prefix) __attribute__ ((nonnull(1, 2)));
-int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(1, 2)));
+int LbLogClose(struct TbLog *log) KFX_NONNULL(1);
+int LbLogSetup(struct TbLog *log, const char *filename, ulong flags) KFX_NONNULL(1, 2);
+int LbLogSetPrefix(struct TbLog *log, const char *prefix) KFX_NONNULL(1, 2);
+int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...) KFX_PRINTF_FORMAT(2, 3) KFX_NONNULL(1, 2);
 
 /******************************************************************************/
 typedef void (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/
-unsigned long llong (unsigned char *p) __attribute__ ((nonnull(1)));
-unsigned long lword (unsigned char *p) __attribute__ ((nonnull(1)));
+unsigned long llong (unsigned char *p) KFX_NONNULL(1);
+unsigned long lword (unsigned char *p) KFX_NONNULL(1);
 long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
-void make_lowercase(char *) __attribute__ ((nonnull(1)));
-void make_uppercase(char *) __attribute__ ((nonnull(1)));
-int natoi(const char * str, int len) __attribute__ ((nonnull(1))); // like atoi but stops after len bytes
+void make_lowercase(char *) KFX_NONNULL(1);
+void make_uppercase(char *) KFX_NONNULL(1);
+int natoi(const char * str, int len) KFX_NONNULL(1); // like atoi but stops after len bytes
 
 /**
  * Converts an index number to a flag - by creating a bitmask where only the nth bit is set to 1.
