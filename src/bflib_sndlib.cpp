@@ -12,16 +12,23 @@
 #include <SDL2/SDL_mixer.h>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+
+// Single-header MP3 decoder (no external DLL dependency)
+#define DR_MP3_IMPLEMENTATION
+#include "../deps/dr_mp3.h"
 #include <memory>
 #include <vector>
 #include <fstream>
 #include <string>
+#include <algorithm>
 #include <utility>
 #include <array>
 #include <deque>
 #include <mutex>
 #include <atomic>
 #include <set>
+
 #include "post_inc.h"
 
 namespace {
@@ -109,7 +116,6 @@ public:
 	SoundMilesID mss_id = 0;
 	SoundEmitterID emit_id = 0;
 	SoundSmplTblID smptbl_id = 0;
-	SoundBankID bank_id = 0;
 	int flags = 0;
 
 	openal_source() {
@@ -199,15 +205,13 @@ public:
 	: id(std::exchange(other.id, 0))
 	, mss_id(std::exchange(other.mss_id, 0))
 	, emit_id(std::exchange(other.emit_id, 0))
-	, smptbl_id(std::exchange(other.smptbl_id, 0))
-	, bank_id(std::exchange(other.bank_id, 0)){}
+	, smptbl_id(std::exchange(other.smptbl_id, 0)){}
 
 	inline openal_source & operator=(openal_source && other) {
 		id = std::exchange(other.id, 0);
 		mss_id = std::exchange(other.mss_id, 0);
 		emit_id = std::exchange(other.emit_id, 0);
 		smptbl_id = std::exchange(other.smptbl_id, 0);
-		bank_id = std::exchange(other.bank_id, 0);
 		return *this;
 	}
 };
@@ -345,6 +349,17 @@ struct sound_sample {
 			throw openal_error("Cannot buffer sample data", errcode);
 		}
 	}
+
+	sound_sample(const char * _name, SoundSFXID _sfx_id,
+	             const std::vector<uint8_t> & pcm, ALenum format, int samplerate) {
+		name = _name;
+		sfx_id = _sfx_id;
+		alBufferData(buffer.id, format, pcm.data(), (ALsizei)pcm.size(), samplerate);
+		const auto errcode = alGetError();
+		if (errcode != AL_NO_ERROR) {
+			throw openal_error("Cannot buffer sample data", errcode);
+		}
+	}
 };
 
 #pragma pack(1)
@@ -408,12 +423,14 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 		stream.seekg(directory.first_data_offset + sample.data_offset, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
-	JUSTLOG("Loaded %d sound samples from %s", (int) buffers.size(), filename);
 	return buffers;
 }
 
 std::vector<openal_source> g_sources;
 std::array<std::vector<sound_sample>, 2> g_banks;
+std::vector<sound_sample> g_custom_bank;  // Third bank for custom sounds loaded at runtime
+SoundSmplTblID g_speech_offset = 0;  // Unified ID start of speech bank
+SoundSmplTblID g_custom_offset = 0;  // Unified ID start of custom bank
 
 void load_sound_banks() {
 	char snd_fname[2048];
@@ -430,31 +447,27 @@ void load_sound_banks() {
 	}
 	g_banks[0] = load_sound_bank(snd_fname);
 	g_banks[1] = load_sound_bank(spc_fname);
+	g_speech_offset = (SoundSmplTblID)g_banks[0].size();
+	g_custom_offset = g_speech_offset + (SoundSmplTblID)g_banks[1].size();
 }
 
 void print_device_info() {
 	if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT")) {
 		const auto devices = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
-		JUSTLOG("Available audio devices:");
 		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			JUSTLOG("  %s", device);
+			// Device enumeration
 		}
-		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-		JUSTLOG("Default audio device: %s", default_device);
 	} else if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
 		const auto devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
-		JUSTLOG("Available audio devices:");
 		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			JUSTLOG("  %s", device);
+			// Device enumeration
 		}
-		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-		JUSTLOG("Default audio device: %s", default_device);
 	} else {
 		// Cannot enumerate devices :(
 	}
 }
 
-Mix_Chunk * g_streamed_sample = nullptr;
+__attribute__((unused)) Mix_Chunk * g_streamed_sample = nullptr;
 std::mutex g_mix_mutex;
 
 struct queued_sample {
@@ -462,7 +475,7 @@ struct queued_sample {
 	SoundVolume volume;
 };
 
-void SDLCALL on_music_finished() {
+__attribute__((unused)) static void SDLCALL on_music_finished() {
 	// don't grab mutex or we'll deadlock, just free memory
 	Mix_FreeMusic(g_mix_music.exchange(nullptr));
 }
@@ -473,8 +486,13 @@ extern "C" void FreeAudio() {
 	g_sources.clear();
 	g_banks[0].clear();
 	g_banks[1].clear();
+	g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
 	g_openal_context = nullptr;
 	g_openal_device = nullptr;
+}
+
+extern "C" void custom_sound_bank_clear() {
+	g_custom_bank.clear();
 }
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
@@ -517,7 +535,6 @@ extern "C" TbBool play_music(const char * fname) {
 	}
 	// g_mix_music will be null here as Mix_PlayMusic ends up calling on_music_finished
 	g_mix_music = music;
-	JUSTLOG("Playing %s", game.music_fname);
 	return true;
 }
 
@@ -531,7 +548,6 @@ extern "C" TbBool play_music_track(int track) {
 		return play_music(prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", track));
 	} else {
 		if (PlayRedbookTrack(track)) {
-			JUSTLOG("Playing track %d", game.music_track);
 			return true;
 		} else {
 			WARNLOG("Cannot play track %d", game.music_track);
@@ -541,7 +557,6 @@ extern "C" TbBool play_music_track(int track) {
 }
 
 extern "C" void pause_music() {
-	JUSTLOG("Pausing music");
 	if (features_enabled & Ft_NoCdMusic) {
 		Mix_PauseMusic();
 	} else {
@@ -550,7 +565,6 @@ extern "C" void pause_music() {
 }
 
 extern "C" void resume_music() {
-	JUSTLOG("Resuming music");
 	if (features_enabled & Ft_NoCdMusic) {
 		Mix_ResumeMusic();
 	} else {
@@ -559,7 +573,6 @@ extern "C" void resume_music() {
 }
 
 extern "C" void stop_music() {
-	JUSTLOG("Stopping music");
 	game.music_track = 0;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
 	if (features_enabled & Ft_NoCdMusic) {
@@ -582,7 +595,6 @@ extern "C" void MonitorStreamedSoundTrack() {
 			if (source.emit_id > 0 && !source.is_playing()) {
 				source.emit_id = 0;
 				source.smptbl_id = 0;
-				source.bank_id = 0;
 			}
 		} catch (const std::exception & e) {
 			ERRORLOG("%s", e.what());
@@ -712,25 +724,41 @@ extern "C" SoundMilesID play_sample(
 	SoundPan pan,
 	SoundPitch pitch,
 	char repeats, // possible values: -1, 0
-	unsigned char ctype, // possible values: 2, 3
-	SoundBankID bank_id
+	unsigned char ctype // possible values: 2, 3
 ) {
 	if (emit_id <= 0) {
-		ERRORLOG("Can't play sample %d from bank %u, invalid emitter ID", smptbl_id, bank_id);
-		return 0;
-	} else if (bank_id > g_banks.size()) {
-		ERRORLOG("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
-		return 0;
-	} else if (smptbl_id == 0) {
-		return 0; // silently ignore
-	} else if (smptbl_id <= 0 || smptbl_id >= g_banks[bank_id].size()) {
-		ERRORLOG("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d, invalid emitter ID", smptbl_id);
 		return 0;
 	}
-	// (ab)use the fact that bank_id and smptbl_id are currently 8- and 16-bits wide respectively.
-	const uint32_t tick_sample_key = (uint32_t(bank_id) << 16) | (smptbl_id & 0xffff);
+	// Resolve sample data from unified ID space
+	const openal_buffer * buf = nullptr;
+	if (smptbl_id >= g_custom_offset) {
+		const SoundSmplTblID idx = smptbl_id - g_custom_offset;
+		if (idx < 0 || idx >= (SoundSmplTblID)g_custom_bank.size()) {
+			ERRORLOG("Can't play custom sample %d, out of range", smptbl_id);
+			return 0;
+		}
+		buf = &g_custom_bank[idx].buffer;
+	} else if (smptbl_id >= g_speech_offset) {
+		const SoundSmplTblID idx = smptbl_id - g_speech_offset;
+		if (idx <= 0 || idx >= (SoundSmplTblID)g_banks[1].size()) {
+			ERRORLOG("Can't play speech sample %d, out of range", smptbl_id);
+			return 0;
+		}
+		buf = &g_banks[1][idx].buffer;
+	} else {
+		if (smptbl_id <= 0 || smptbl_id >= (SoundSmplTblID)g_banks[0].size()) {
+			if (smptbl_id != 0) {
+				ERRORLOG("Can't play effect sample %d, out of range", smptbl_id);
+			}
+			return 0;
+		}
+		buf = &g_banks[0][smptbl_id].buffer;
+	}
+	// Don't play the same unified sample twice on the same tick
+	const uint32_t tick_sample_key = (uint32_t)(uint16_t)smptbl_id;
 	if (g_tick_samples.count(tick_sample_key) > 0) {
-		return 0; // don't play the same sample multiple times on the same tick
+		return 0;
 	}
 	try {
 		g_tick_samples.emplace(tick_sample_key);
@@ -751,17 +779,15 @@ extern "C" SoundMilesID play_sample(
 				} else {
 					source.pitch(pitch);
 				}
-				source.play(g_banks[bank_id][smptbl_id].buffer);
+				source.play(*buf);
 				source.emit_id = emit_id;
 				source.smptbl_id = smptbl_id;
-				source.bank_id = bank_id;
 				return source.mss_id;
 			}
 		}
-        if (game.frame_skip < 2)
-        {
-            ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
-        }
+		if (game.frame_skip < 2) {
+			ERRORLOG("Can't play sample %d, too many samples playing at once", smptbl_id);
+		}
 		return 0;
 	} catch (const std::exception & e) {
 		ERRORLOG("%s", e.what());
@@ -769,14 +795,13 @@ extern "C" SoundMilesID play_sample(
 	return 0;
 }
 
-extern "C" void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id) {
+extern "C" void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id) {
 	for (auto & source : g_sources) {
-		if (emit_id == source.emit_id && smptbl_id == source.smptbl_id && bank_id == source.bank_id) {
+		if (emit_id == source.emit_id && smptbl_id == source.smptbl_id) {
 			try {
 				source.stop();
 				source.emit_id = 0;
 				source.smptbl_id = 0;
-				source.bank_id = 0;
 			} catch (const std::exception & e) {
 				ERRORLOG("%s", e.what());
 			}
@@ -784,14 +809,21 @@ extern "C" void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, So
 	}
 }
 
-extern "C" SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID bank_id) {
-	if (bank_id > 1) {
+extern "C" SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id) {
+	if (smptbl_id >= g_custom_offset) {
 		return 0;
-	} else if (smptbl_id < 0 || smptbl_id >= g_banks[bank_id].size()) {
-		return 0;
+	} else if (smptbl_id >= g_speech_offset) {
+		const SoundSmplTblID idx = smptbl_id - g_speech_offset;
+		if (idx <= 0 || idx >= (SoundSmplTblID)g_banks[1].size()) return 0;
+		return g_banks[1][idx].sfx_id;
+	} else {
+		if (smptbl_id <= 0 || smptbl_id >= (SoundSmplTblID)g_banks[0].size()) return 0;
+		return g_banks[0][smptbl_id].sfx_id;
 	}
-	return g_banks[bank_id][smptbl_id].sfx_id;
 }
+
+extern "C" SoundSmplTblID get_speech_offset(void) { return g_speech_offset; }
+extern "C" SoundSmplTblID get_custom_offset(void) { return g_custom_offset; }
 
 extern "C" int InitialiseSDLAudio()
 {
@@ -873,4 +905,146 @@ extern "C" void set_streamed_sample_volume(SoundVolume volume) {
 
 extern "C" void toggle_bbking_mode() {
 	g_bb_king_mode = !g_bb_king_mode;
+}
+
+// Bridge functions for custom sound loading from C++ sound_manager
+extern "C" int custom_sound_bank_size() {
+	return g_custom_bank.size();
+}
+
+// Decode data as MP3 (via dr_mp3) and push it into g_custom_bank.
+// data/size may point into a larger buffer (e.g. after stripping a BMU header).
+static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
+	const uint8_t* data, size_t size)
+{
+	drmp3_config cfg = {};
+	drmp3_uint64 frame_count = 0;
+	drmp3_int16* mp3_pcm = drmp3_open_memory_and_read_pcm_frames_s16(
+		data, size, &cfg, &frame_count, nullptr);
+	if (!mp3_pcm || frame_count == 0) {
+		if (mp3_pcm) drmp3_free(mp3_pcm, nullptr);
+		ERRORLOG("Cannot decode MP3 data from %s", filepath);
+		return false;
+	}
+
+	const ALenum al_fmt = (cfg.channels == 1)
+		? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	const size_t byte_count =
+		(size_t)frame_count * cfg.channels * sizeof(drmp3_int16);
+
+	try {
+		const std::vector<uint8_t> pcm(
+			reinterpret_cast<const uint8_t*>(mp3_pcm),
+			reinterpret_cast<const uint8_t*>(mp3_pcm) + byte_count);
+		g_custom_bank.emplace_back(filepath, sample_id, pcm,
+			al_fmt, (int)cfg.sampleRate);
+	} catch (...) {
+		drmp3_free(mp3_pcm, nullptr);
+		ERRORLOG("Out of memory buffering MP3 %s", filepath);
+		return false;
+	}
+	drmp3_free(mp3_pcm, nullptr);
+	return true;
+}
+
+// Load a WAV or MP3 file and append it to g_custom_bank as a signed-16-bit
+// OpenAL buffer.
+//   - Plain WAV  : SDL_LoadWAV_RW (SDL2.dll only, no libxmp dependency)
+//   - Plain MP3  : dr_mp3 single-header decoder (compiled in, no external DLLs)
+//   - BMU V1.0   : 8-byte wrapper used by some campaigns; contains a plain MP3
+//                  stream after the header — stripped and decoded via dr_mp3.
+extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id)
+{
+	// Resolve to absolute path so the decoders can find the file regardless of
+	// process CWD (keeperfx changes directories at startup).
+	char abs_buf[4096];
+#ifdef _WIN32
+	if (_fullpath(abs_buf, filepath, sizeof(abs_buf)) == nullptr)
+		snprintf(abs_buf, sizeof(abs_buf), "%s", filepath);
+#else
+	if (realpath(filepath, abs_buf) == nullptr)
+		snprintf(abs_buf, sizeof(abs_buf), "%s", filepath);
+#endif
+
+	// Read the whole file once so we can inspect the magic bytes and route to
+	// the right decoder without reopening.
+	std::vector<uint8_t> file_data;
+	{
+		std::ifstream f(abs_buf, std::ios::binary | std::ios::ate);
+		if (!f) {
+			ERRORLOG("Cannot open audio file %s", filepath);
+			return false;
+		}
+		const auto sz = f.tellg();
+		if (sz <= 0) {
+			ERRORLOG("Empty audio file %s", filepath);
+			return false;
+		}
+		file_data.resize((size_t)sz);
+		f.seekg(0);
+		if (!f.read(reinterpret_cast<char*>(file_data.data()), sz)) {
+			ERRORLOG("Cannot read audio file %s", filepath);
+			return false;
+		}
+	}
+
+	const uint8_t* data = file_data.data();
+	const size_t   size = file_data.size();
+
+	// Detect BMU V1.0 wrapper (8-byte ASCII prefix used by some campaigns).
+	// After the prefix the payload is a standard MP3 (often with an ID3 tag).
+	static const uint8_t bmu_magic[8] = { 'B','M','U',' ','V','1','.','0' };
+	if (size > 8 && memcmp(data, bmu_magic, 8) == 0) {
+		return decode_mp3_and_store(filepath, sample_id, data + 8, size - 8);
+	}
+
+	// Detect MP3 by ID3v2 tag or sync-word (0xFF 0xE? / 0xFF 0xF?).
+	// Also handle plain .mp3 extension as a hint.
+	const bool looks_like_mp3 =
+		(size >= 3 && data[0] == 'I' && data[1] == 'D' && data[2] == '3') ||
+		(size >= 2 && data[0] == 0xFF && (data[1] & 0xE0) == 0xE0);
+	if (looks_like_mp3) {
+		return decode_mp3_and_store(filepath, sample_id, data, size);
+	}
+
+	// --- WAV path: SDL_LoadWAV_RW (SDL2.dll, no libxmp dependency) ---
+	SDL_RWops* rw = SDL_RWFromConstMem(data, (int)size);
+	if (!rw) {
+		ERRORLOG("Cannot create RWops for %s: %s", filepath, SDL_GetError());
+		return false;
+	}
+
+	SDL_AudioSpec spec = {};
+	Uint8* wav_buf = nullptr;
+	Uint32 wav_len = 0;
+	// freesrc=1 closes rw whether or not decoding succeeds.
+	if (SDL_LoadWAV_RW(rw, 1, &spec, &wav_buf, &wav_len) == nullptr) {
+		ERRORLOG("Cannot decode audio file %s: %s", filepath, SDL_GetError());
+		return false;
+	}
+
+	// Map SDL format to OpenAL.
+	ALenum al_fmt;
+	switch (spec.format) {
+	case AUDIO_U8:
+	case AUDIO_S8:
+		al_fmt = (spec.channels == 1) ? AL_FORMAT_MONO8 : AL_FORMAT_STEREO8;
+		break;
+	case AUDIO_S16LSB:
+	case AUDIO_S16MSB:
+	default:
+		al_fmt = (spec.channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		break;
+	}
+
+	try {
+		const std::vector<uint8_t> pcm(wav_buf, wav_buf + wav_len);
+		g_custom_bank.emplace_back(filepath, sample_id, pcm, al_fmt, spec.freq);
+	} catch (...) {
+		SDL_FreeWAV(wav_buf);
+		ERRORLOG("Out of memory buffering WAV %s", filepath);
+		return false;
+	}
+	SDL_FreeWAV(wav_buf);
+	return true;
 }

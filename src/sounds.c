@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
-#include "bflib_fileio.h"
+#include "config_sounds.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "engine_render.h"
@@ -80,6 +80,16 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
     SoundVolume volume_scale = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
     SoundVolume adjusted_loudness = (loudness * volume_scale) / FULL_LOUDNESS;
 
+    // Convert raw sample IDs to unified ID space:
+    // - Effect IDs (1..): passed unchanged (all effects including IDs 1000+ live in effects bank)
+    // - Custom sound IDs (<0): encoded as -(index+1), convert to custom offset + index
+    // NOTE: speech is never played via thing_play_sample; it uses play_speech_sample instead.
+    SoundSmplTblID sample_id = smptbl_idx;
+    if (smptbl_idx < 0) {
+        // Custom sound: negative encoding → unified custom ID
+        sample_id = get_custom_offset() + (-smptbl_idx) - 1;
+    }
+
     struct Coord3d rcpos;
     rcpos.x.val = Receiver.pos.val_x;
     rcpos.y.val = Receiver.pos.val_y;
@@ -89,11 +99,11 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, adjusted_loudness, repeats, ctype, flags | 0x01, priority);
+            S3DAddSampleToEmitterPri(eidx, sample_id, pitch, adjusted_loudness, repeats, ctype, flags | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, adjusted_loudness, repeats, flags | 0x01, priority);
+               sample_id, pitch, adjusted_loudness, repeats, flags | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }
@@ -139,16 +149,16 @@ void play_thing_walking(struct Thing *thing)
         // Flying diptera has a buzzing noise sound
         if (get_creature_model_flags(thing) & CMF_IsDiptera)
         {
-            if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0))
+            if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25))
             {
-                thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
+                thing_play_sample(thing, snd_insect_fly, 100, -1, 2, 0, 2, loudness);
             }
         }
     }
     else
     {
-        if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
-            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
+        if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, snd_insect_fly) ) {
+            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, snd_insect_fly);
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
@@ -156,7 +166,7 @@ void play_thing_walking(struct Thing *thing)
             int smpl_variant = foot_down_sound_sample_variant[4 * cctrl->footstep_variant + cctrl->footstep_counter];
             long smpl_idx;
             if ((thing->movement_flags & TMvF_IsOnSnow) != 0) {
-                smpl_idx = 181 + smpl_variant;
+                smpl_idx = snd_foot_snow + smpl_variant;
             } else {
                 struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
                 smpl_idx = crsound->index + smpl_variant;
@@ -170,7 +180,7 @@ void play_thing_walking(struct Thing *thing)
             crconf = creature_stats_get(thing->model);
             thing_play_sample(thing, smpl_idx, crconf->footstep_pitch, 0, 3, 3, 1, loudness);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
-                thing_play_sample(thing, 21 + SOUND_RANDOM(4), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
+                thing_play_sample(thing, snd_foot_wet + SOUND_RANDOM(snd_foot_wet_count), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
             }
         }
     }
@@ -196,7 +206,7 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
         i = thing->snd_emitter_id;
         if (i != 0)
         {
-            if ( !S3DEmitterIsPlayingSample(i, sample_idx, 0) )
+            if ( !S3DEmitterIsPlayingSample(i, sample_idx) )
             {
                 S3DDeleteAllSamplesFromEmitter(thing->snd_emitter_id);
                 thing_play_sample(thing, sample_idx, NORMAL_PITCH, -1, 3, 0, 6, FULL_LOUDNESS);
@@ -504,8 +514,8 @@ void stop_thing_playing_sample(struct Thing *thing, SoundSmplTblID smpl_idx)
     unsigned char eidx = thing->snd_emitter_id;
     if (eidx > 0)
     {
-        if (S3DEmitterIsPlayingSample(eidx, smpl_idx, 0)) {
-            S3DDeleteSampleFromEmitter(eidx, smpl_idx, 0);
+        if (S3DEmitterIsPlayingSample(eidx, smpl_idx)) {
+            S3DDeleteSampleFromEmitter(eidx, smpl_idx);
         }
     }
 }
@@ -590,7 +600,7 @@ void update_first_person_object_ambience(struct Thing *thing)
             if (!thing_is_invalid(audtng))
             {
                 objst = get_object_model_stats(audtng->model);
-                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objst->fp_smpl_idx, 0))
+                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objst->fp_smpl_idx))
                 {
                     long volume = line_of_sight_2d(&thing->mappos, &audtng->mappos) ? FULL_LOUDNESS : 128;
                     thing_play_sample(audtng, objst->fp_smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);

@@ -25,6 +25,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "custom_sprites.h"
 #include "magic_powers.h"
 #include "power_specials.h"
@@ -871,15 +872,15 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     drop_gold_coins(&pos, 0, plyr_idx);
     if (tribute >= salary)
     {
-        thing_play_sample(creatng, 34, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, snd_salary_full, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     else if ((tribute * 2) >= salary)
     {
-        thing_play_sample(creatng, 33, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, snd_salary_partial, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     else
     {
-        thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
+        thing_play_sample(creatng, snd_salary_none, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
     }
     if ( !taking_salary )
     {
@@ -977,7 +978,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         }
         return 0;
     }
@@ -999,7 +1000,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         {
             drop_gold_coins(&pos, droptng->valuable.gold_stored, plyr_idx);
             if (is_my_player_number(plyr_idx)) {
-                play_non_3d_sample(88);
+                play_non_3d_sample(snd_gold_pickup + SOUND_RANDOM(snd_gold_pickup_count));
             }
         }
         destroy_object(droptng);
