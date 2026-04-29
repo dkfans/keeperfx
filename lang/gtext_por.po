@@ -7483,3 +7483,8 @@ msgstr "Teletransporte Chamada às Armas"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "Teletransporte Padrão"
+
+#: guitext:1110
+msgctxt "Menu interface item"
+msgid "Multiplayer Map Packs"
+msgstr ""

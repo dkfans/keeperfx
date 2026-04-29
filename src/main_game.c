@@ -265,7 +265,7 @@ void startup_saved_packet_game(void)
     struct CatalogueEntry centry;
     clear_packets();
     open_packet_file_for_load(game.packet_fname,&centry);
-    if (!change_campaign(centry.campaign_fname))
+    if (!change_campaign(CampgnT_Default, centry.campaign_fname))
     {
         ERRORLOG("Unable to load campaign associated with packet file");
     }
@@ -395,7 +395,7 @@ void faststartup_network_game(CoroutineLoop *context)
     game.game_kind = GKind_LocalGame;
     if (!is_campaign_loaded())
     {
-        if (!change_campaign(""))
+        if (!change_campaign(CampgnT_Default,""))
             ERRORLOG("Unable to load campaign");
     }
     player = get_my_player();

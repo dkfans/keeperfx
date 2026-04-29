@@ -34,6 +34,7 @@ extern "C" {
 #define FRONTNET_PING_STABILIZATION_DELAY_MS 3000
 
 enum FrontendNetService {
+    FrontendNetSvc_Skirmish = -1,
     FrontendNetSvc_Online = 0,
     FrontendNetSvc_LAN = 1,
 };
@@ -41,6 +42,7 @@ enum FrontendNetService {
 #pragma pack(1)
 
 /******************************************************************************/
+
 extern int fe_network_active;
 extern int net_service_index_selected;
 extern char tmp_net_player_name[24];
@@ -65,6 +67,9 @@ TbBool frontnet_service_selected(enum FrontendNetService service);
 
 void net_load_config_file(void);
 void net_write_config_file(void);
+
+void set_auto_message(const char* msg);
+void frontnet_queue_campaign_change_message(const char* campaign_fname);
 /******************************************************************************/
 #ifdef __cplusplus
 }

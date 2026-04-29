@@ -115,6 +115,12 @@ struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
 /******************************************************************************/
 void draw_map_screen(void)
 {
+    if (map_screen == NULL)
+    {
+        ERRORLOG("Map screen buffer is not allocated");
+        return;
+    }
+
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
         scale_value_landview(LANDVIEW_MAP_WIDTH), scale_value_landview(LANDVIEW_MAP_HEIGHT),
         -scale_value_landview(map_info.screen_shift_x), -scale_value_landview(map_info.screen_shift_y),
@@ -231,12 +237,17 @@ void update_net_ensigns_visibility(void)
     SYNCDBG(18, "Starting");
     set_all_ensigns_state(LvSt_Hidden);
     long lvnum = first_multiplayer_level();
+    int16_t i = 0;
     while (lvnum > 0)
     {
         struct LevelInformation* lvinfo = get_level_info(lvnum);
         if (lvinfo != NULL)
             lvinfo->state = LvSt_Visible;
         lvnum = next_multiplayer_level(lvnum);
+        if (++i > MULTI_LEVELS_COUNT) {
+            ERRORLOG("Breaking infinite loop in update_net_ensigns_visibility");
+            break;
+        }
     }
 }
 
@@ -986,13 +997,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
 
 void frontnet_init_level_descriptions(void)
 {
-    //TODO NETWORK Don't allow campaigns besides original - we don't have per-campaign MP yet
-    //if (!is_campaign_loaded())
-    {
-        if (!change_campaign("")) {
-            return;
-        }
-    }
+
 }
 
 void frontnetmap_unload(void)
@@ -1032,6 +1037,8 @@ static void frontmap_start_music(void)
 TbBool frontnetmap_load(void)
 {
     SYNCDBG(8,"Starting");
+    char hand_data_path[2048];
+    char hand_index_path[2048];
     if (fe_network_active)
     {
       if (LbNetwork_EnableNewPlayers(0))
@@ -1057,11 +1064,19 @@ TbBool frontnetmap_load(void)
         break;
     }
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
-    map_hand = load_spritesheet("ldata/maphand.dat", "ldata/maphand.tab");
+
+    prepare_file_path_buf(hand_data_path, sizeof(hand_data_path), FGrp_LandView, "maphand.dat");
+    prepare_file_path_buf(hand_index_path, sizeof(hand_index_path), FGrp_LandView, "maphand.tab");
+    map_hand = load_spritesheet(hand_data_path, hand_index_path);
     if (!map_flag || !map_font || !map_hand)
     {
-      ERRORLOG("Unable to load MAP SCREEN sprites");
-      return false;
+        ERRORLOG("Unable to load MAP SCREEN sprites");
+        free_font(&map_font);
+        free_spritesheet(&map_flag);
+        free_spritesheet(&map_hand);
+        unload_map_and_window();
+        frontend_load_data_reset();
+        return false;
     }
     frontend_load_data_reset();
     frontnet_init_level_descriptions();
