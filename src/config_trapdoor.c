@@ -35,6 +35,7 @@
 #include "player_instances.h"
 #include "thing_doors.h"
 #include "thing_effects.h"
+#include "thing_traps.h"
 
 #include "post_inc.h"
 
@@ -45,7 +46,7 @@ extern "C" {
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 
-static void refresh_trap_anim(long trap_id);
+static void update_all_trap_draws_of_model(int32_t trap_model);
 
 /******************************************************************************/
 static TbBool load_trapdoor_config_file(const char *fname, unsigned short flags);
@@ -229,7 +230,7 @@ static void assign_multiple_refresh_trap_anim(const struct NamedField* named_fie
     assign_default(named_field, value, named_fields_set, idx, src_str, flags);
     if (flag_is_set(flags, ccf_DuringLevel))
     {
-        refresh_trap_anim(idx);
+        update_all_trap_draws_of_model(idx);
     }
 }
 
@@ -238,7 +239,7 @@ static void assign_refresh_trap_anim(const struct NamedField* named_field, int64
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
     {
-        refresh_trap_anim(idx);
+        update_all_trap_draws_of_model(idx);
     }
 }
 
@@ -247,7 +248,7 @@ static void assign_refresh_trap_anim_anim_id(const struct NamedField* named_fiel
     assign_animid(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
     {
-        refresh_trap_anim(idx);
+        update_all_trap_draws_of_model(idx);
     }
 }
 
@@ -768,50 +769,25 @@ TbBool make_available_all_traps(PlayerNumber plyr_idx)
   return true;
 }
 
-static void refresh_trap_anim(long trap_id)
+static void update_all_trap_draws_of_model(int32_t trap_model)
 {
     int k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
-    struct TrapConfigStats *trapst_old = get_trap_model_stats(trap_id);
-    struct TrapConfigStats *trapst_new;
-    long correct_anim_speed;
     int i = slist->index;
-    while (i != 0)
-    {
+    while (i != 0) {
         struct Thing* traptng = thing_get(i);
-        if (thing_is_invalid(traptng))
-        {
+        if (thing_is_invalid(traptng)) {
             ERRORLOG("Jump to invalid thing detected");
             break;
         }
         i = traptng->next_of_class;
         // Per thing code.
-        if (traptng->model == trap_id)
-        {
-            if ((traptng->trap.wait_for_rearm == true) || (trapst_old->recharge_sprite_anim_idx == 0))
-            {
-                traptng->anim_sprite = trapst_old->sprite_anim_idx;
-                correct_anim_speed = trapst_old->anim_speed;
-            }
-            else
-            {
-                traptng->anim_sprite = trapst_old->recharge_sprite_anim_idx;
-                correct_anim_speed = trapst_old->recharge_anim_speed;
-            }
-            trapst_new = get_trap_model_stats(traptng->model);
-            char start_frame;
-            if (trapst_new->random_start_frame) {
-                start_frame = -1;
-            }
-            else {
-                start_frame = 0;
-            }
-            set_thing_draw(traptng, trapst_new->sprite_anim_idx, correct_anim_speed, trapst_new->sprite_size_max, trapst_new->unanimated, start_frame, ODC_Default);
+        if (traptng->model == trap_model) {
+            update_trap_draw(traptng);
         }
         // Per thing code ends.
         k++;
-        if (k > (int) slist->index)
-        {
+        if (k > (int) slist->index) {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
         }
