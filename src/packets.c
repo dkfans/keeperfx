@@ -1832,7 +1832,7 @@ TbBool try_starting_level_from_chat(char* message, long player_id)
     char campaign_filename[80];
     snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
 
-    if (!change_campaign(CampgnT_Default, campaign_filename)) {
+    if (!change_campaign(CampgnT_MultiplayerMappack, campaign_filename)) {
         ERRORLOG("Unable to load campaign '%.*s' for level %d", campaign_len, message, (int)level_num);
         return false;
     }

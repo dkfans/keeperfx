@@ -1037,6 +1037,7 @@ static void frontmap_start_music(void)
 TbBool frontnetmap_load(void)
 {
     SYNCDBG(8,"Starting");
+    char hand_data_path[2048];
     if (fe_network_active)
     {
       if (LbNetwork_EnableNewPlayers(0))
@@ -1062,11 +1063,19 @@ TbBool frontnetmap_load(void)
         break;
     }
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
-    map_hand = load_spritesheet("ldata/maphand.dat", "ldata/maphand.tab");
+
+    prepare_file_path_buf(hand_data_path, sizeof(hand_data_path), FGrp_LandView, "maphand.dat");
+    prepare_file_path_buf(hand_index_path, sizeof(hand_index_path), FGrp_LandView, "maphand.tab");
+    map_hand = load_spritesheet(hand_data_path, hand_index_path);
     if (!map_flag || !map_font || !map_hand)
     {
-      ERRORLOG("Unable to load MAP SCREEN sprites");
-      return false;
+        ERRORLOG("Unable to load MAP SCREEN sprites");
+        free_font(&map_font);
+        free_spritesheet(&map_flag);
+        free_spritesheet(&map_hand);
+        unload_map_and_window();
+        frontend_load_data_reset();
+        return false;
     }
     frontend_load_data_reset();
     frontnet_init_level_descriptions();
