@@ -3322,8 +3322,12 @@ struct Thing *check_for_door_to_fight(struct Thing *thing)
         struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(doortng))
         {
-          if (thing->owner != doortng->owner)
-              return doortng;
+            if (thing->owner != doortng->owner)
+            {
+                //Dropping a creature next to the door, means the player saw it. Call to Arms uses this too.
+                reveal_secret_door_to_player(doortng, thing->owner);
+                return doortng;
+            }
         }
         m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
     }
