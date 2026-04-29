@@ -46,29 +46,9 @@ char gui_textbuf[TEXT_BUFFER_LENGTH];
 unsigned char *gui_slab;
 unsigned char *frontend_background;
 struct TbSpriteSheet * frontend_sprite = NULL;
+int gui_blink_rate = 1; // Number of frames before menu/map effects flash. Default value, overwritten by cfg setting.
+int neutral_flash_rate = 1; // Number of frames before neutral rooms/creatures cycle colours. Default value, overwritten by cfg setting.
 /******************************************************************************/
-
-int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
-{
-    int m;
-    int w = 0;
-    int h = 0;
-    for (m=0; m < 5; m++)
-    {
-        w += img_w;
-        h += img_h;
-        if (w > rect_w) break;
-        if (h > rect_h) break;
-    }
-    // The image width can't be larger than video resolution
-    if (m < 1)
-    {
-        if (w > lbDisplay.PhysicalScreenWidth)
-          return 0;
-        m = 1;
-    }
-    return m;
-}
 
 void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 {
@@ -664,7 +644,50 @@ TbBool draw_text_box(const char *text)
     int tx_units_per_px = ((box_height / 4) * 13 / 11) * 16 / LbTextLineHeight();
     LbTextSetWindow(startx, starty, box_width, box_height);
     n = LbTextLineHeight() * tx_units_per_px / 16;
-    return LbTextDrawResized(0, (box_height - spritesy * n) / 2, tx_units_per_px, text);
+    int line_count = 1;
+    for (const char *p = text; *p; p++) {
+        if (*p == '\n') {
+            line_count++;
+        }
+    }
+    return LbTextDrawResized(0, (box_height - line_count * n) / 2, tx_units_per_px, text);
+}
+
+TbBool draw_text_box_top(const char* text, ushort drawflags)
+{
+    long spritesy;
+    long spritesx;
+    LbTextSetFont(frontend_font[1]);
+    long n = LbTextStringWidth(text);
+    if (n < (4 * 108)) {
+        spritesy = 1;
+        spritesx = n / 108;
+    }
+    else {
+        spritesx = 4;
+        spritesy = n / (3 * 108);
+    }
+    if (spritesy > 4) {
+        ERRORLOG("Text too long for error box");
+    }
+    if (spritesx < 2) {
+        spritesx = 2;
+    }
+    else
+        if (spritesx > 4) {
+            spritesx = 4;
+        }
+    long box_width = (108 * spritesx + 18) * units_per_pixel / 16;
+    long box_height = 92 * units_per_pixel / 16;
+    long startx = (lbDisplay.PhysicalScreenWidth - box_width) / 2;
+    long starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
+    draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
+    // Draw the text inside box
+    lbDisplay.DrawFlags = drawflags;
+    int tx_units_per_px = ((box_height / 4) * 13 / 11) * 16 / LbTextLineHeight();
+    LbTextSetWindow(startx, starty, box_width, box_height);
+    n = LbTextLineHeight() * tx_units_per_px / 16;
+    return LbTextDrawResized(tx_units_per_px/2, 0, tx_units_per_px, text);
 }
 
 int scroll_box_get_units_per_px(struct GuiButton *gbtn)
@@ -743,13 +766,6 @@ void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long 
     spridx = get_player_colored_icon_idx(spridx, plyr_idx);
     const struct TbSprite* spr = get_panel_sprite(spridx);
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
-}
-
-void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color)
-{
-    spridx = get_player_colored_icon_idx(spridx,my_player_number);
-    const struct TbSprite* spr = get_panel_sprite(spridx);
-    LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
 }
 
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx)

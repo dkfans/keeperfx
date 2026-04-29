@@ -84,6 +84,7 @@ enum PlayerStates {
     PSt_DestroyThing,
     PSt_CreatrInfoAll, // 40
     PSt_CreateDigger,
+    PST_CastGenericLevelPower,
     PSt_ListEnd
 };
 
@@ -105,12 +106,11 @@ enum PlayerStatePointerGroup {
 
 /******************************************************************************/
 extern struct NamedCommand player_state_commands[];
-extern const char keeper_playerstates_file[];
+extern const struct ConfigFileData keeper_playerstates_file_data;
 
 /******************************************************************************/
 const char *player_state_code_name(int wrkstate);
 struct PlayerStateConfigStats *get_player_state_stats(PlayerState plr_state);
-TbBool load_playerstate_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }

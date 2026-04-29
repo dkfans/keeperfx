@@ -81,8 +81,8 @@ static unsigned char lbIInkeyFlags;
 static unsigned char lbIInkey;
 static int lbKeyboardLang;
 static unsigned char lbExtendedKeyPress;
-unsigned char lbKeyOn[256];
-unsigned char lbInkey;
+unsigned char lbKeyOn[KC_LIST_END];
+TbKeyCode lbInkey;
 
 /******************************************************************************/
 extern void init_inputcontrol(void);
@@ -102,15 +102,6 @@ short LbIKeyboardOpen(void)
 void LbKeyboardSetLanguage(int lngnum)
 {
   lbKeyboardLang = lngnum;
-}
-
-short LbKeyCodeValid(TbKeyCode key)
-{
-  if (key <= KC_UNASSIGNED)
-    return false;
-  if (key > KC_WAKE) // last key in enumeration - update if enumeration is changed
-    return false;
-  return true;
 }
 
 void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, int ScanCode)
@@ -180,98 +171,6 @@ void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, i
     }
 }
 
-long KeyboardProc(int a1, unsigned int a2, long code)
-{
-    unsigned char lbcode;
-    unsigned char klcode = (code >> 16);
-    lbExtendedKeyPress = ((code & 0x1000000) != 0);
-    if (lbExtendedKeyPress)
-      klcode += 0x80;
-    if (klcode == 43)
-    {
-        lbcode = KC_OEM_102;
-    } else
-    {
-      switch (lbKeyboardLang)
-      {
-      case 2:
-          switch (klcode)
-          {
-          case 0x10u:
-              lbcode = KC_A;
-              break;
-          case 0x11u:
-              lbcode = KC_Z;
-              break;
-          case 0x1Eu:
-              lbcode = KC_Q;
-              break;
-          case 0x27u:
-              lbcode = KC_M;
-              break;
-          case 0x2Cu:
-              lbcode = KC_W;
-              break;
-          case 0x32u:
-              lbcode = KC_COMMA;
-              break;
-          case 0x33u:
-              lbcode = KC_SEMICOLON;
-              break;
-          default:
-              lbcode = klcode;
-              break;
-          }
-          break;
-      case 3:
-      case 7:
-          switch (klcode)
-          {
-          case 21:
-              lbcode = KC_Z;
-              break;
-          case 44:
-              lbcode = KC_Y;
-              break;
-          default:
-              lbcode = klcode;
-              break;
-          }
-          break;
-      default:
-          lbcode = klcode;
-          break;
-      }
-    }
-    if ((code & 0x80000000) != 0)
-    {
-      lbKeyOn[lbcode] = 0;
-      lbExtendedKeyPress = 0;
-    }
-    else
-    {
-      lbKeyOn[lbcode] = 1;
-      lbInkey = lbcode;
-    }
-    lbInkeyFlags = 0;
-    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
-        lbInkeyFlags |= KMod_SHIFT;
-    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
-        lbInkeyFlags |= KMod_CONTROL;
-    if (lbKeyOn[KC_LALT] || lbKeyOn[KC_RALT])
-        lbInkeyFlags |= KMod_ALT;
-    if (lbKeyOn[lbcode] != 0)
-        lbKeyOn[lbcode] |= lbInkeyFlags;
-    if (lbInkey < 0x80)
-    {
-        if (lbIInkey == 0)
-        {
-            lbIInkey = lbInkey;
-            lbIInkeyFlags = lbInkeyFlags;
-        }
-    }
-    return 0;
-}
 /******************************************************************************/
 #ifdef __cplusplus
 }

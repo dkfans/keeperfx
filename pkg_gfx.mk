@@ -139,6 +139,8 @@ pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
 pkg-enginegfx: $(ENGINEGFX)
 
+pkg-landviewtabs: $(LANDVIEWDATTABS)
+
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
 pkg/campgns/$(1)_lnd/rgmap%.pal: gfx/landviews/$(1)_lnd/rgmap%.png gfx/landviews/$(1)_lnd/viframe.png tools/png2bestpal/res/color_tbl_landview.txt $$(PNGTOBSPAL)
@@ -312,25 +314,49 @@ pkg/data/tmap%.dat:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/ldata/%.raw pkg/data/%.raw:
+define BUILD_RAW_IMAGE_CMD
 	-$(ECHO) 'Building RAW image: $@'
 	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -f raw -l 100 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
+endef
 
-pkg/ldata/%.dat pkg/data/%.dat:
+pkg/ldata/%.raw:
+	$(BUILD_RAW_IMAGE_CMD)
+
+pkg/data/%.raw:
+	$(BUILD_RAW_IMAGE_CMD)
+
+
+define BUILD_TABULATED_SPRITES_CMD
 	-$(ECHO) 'Building tabulated sprites: $@'
 	$(MKDIR) "$(@D)"
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
+endef
 
-pkg/creatrs/%.jty pkg/data/%.jty:
+pkg/ldata/%.dat:
+	$(BUILD_TABULATED_SPRITES_CMD)
+
+pkg/data/%.dat:
+	$(BUILD_TABULATED_SPRITES_CMD)
+
+
+define BUILD_JONTY_SPRITES_CMD
 	-$(ECHO) 'Building jonty sprites: $@'
 	@$(MKDIR) "$(@D)"
 	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
+endef
+
+pkg/creatrs/%.jty:
+	$(BUILD_JONTY_SPRITES_CMD)
+
+pkg/data/%.jty:
+	$(BUILD_JONTY_SPRITES_CMD)
+
 
 gfx/%:: | gfx/LICENSE ;
 

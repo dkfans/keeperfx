@@ -37,30 +37,53 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_effects_file[]="effects.toml";
+static TbBool load_effects_config_file(const char *fname, unsigned short flags);
 
-const struct NamedCommand effect_generator_commands[] = {
-    {"NAME",                    1},
-    {"GENERATIONDELAYMIN",      2},
-    {"GENERATIONDELAYMAX",      3},
-    {"GENERATIONAMOUNT",        4},
-    {"EFFECTMODEL",             5},
-    {"IGNORETERRAIN",           6},
-    {"SPAWNHEIGHT",             7},
-    {"ACCELERATIONMIN",         8},
-    {"ACCELERATIONMAX",         9},
-    {"SOUND",                  10},
-    {"HITTYPE",                11},
-    {NULL,                      0},
+const struct ConfigFileData keeper_effects_file_data = {
+    .filename = "effects.toml",
+    .load_func = load_effects_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
-long const imp_spangle_effects[] = {
-    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite, 
+
+const struct NamedField effects_effectgenerator_named_fields[] = {
+    {"NAME",                   0, field(game.conf.effects_conf.effectgen_cfgstats[0].code_name),            0,    INT32_MIN, UINT32_MAX, effectgen_desc,  value_name,      assign_null},
+    {"GENERATIONDELAYMIN",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_min), 0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"GENERATIONDELAYMAX",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_max), 0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"GENERATIONAMOUNT",       0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_amount),    0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"EFFECTMODEL",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].effect_model),         0,    INT32_MIN, UINT32_MAX, NULL,            value_effOrEffEl,assign_default},
+    {"IGNORETERRAIN",          0, field(game.conf.effects_conf.effectgen_cfgstats[0].ignore_terrain),       0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SPAWNHEIGHT",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].spawn_height),         1,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_min),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_min),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_min),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_max),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_max),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_max),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SOUND",                  0, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_idx),     0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SOUND",                  1, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_rng),     0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {NULL},
+};
+
+
+const struct NamedFieldSet effects_effectgenerator_named_fields_set = {
+    &game.conf.effects_conf.effectgen_cfgstats_count,
+    "effectGenerator",
+    effects_effectgenerator_named_fields,
+    effectgen_desc,
+    EFFECTSGEN_TYPES_MAX,
+    sizeof(game.conf.effects_conf.effectgen_cfgstats[0]),
+    game.conf.effects_conf.effectgen_cfgstats,
+};
+
+int32_t const imp_spangle_effects[] = {
+    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite,
     TngEff_None, TngEff_ImpSpanglePurple, TngEff_ImpSpangleBlack, TngEff_ImpSpangleOrange
 };
 
-long const ball_puff_effects[] = {
-    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, 
+int32_t const ball_puff_effects[] = {
+    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite,
     TngEff_BallPuffWhite, TngEff_BallPuffPurple, TngEff_BallPuffBlack, TngEff_BallPuffOrange
 };
 
@@ -72,12 +95,13 @@ struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];
 
 static void load_effects(VALUE *value, unsigned short flags)
 {
-    char key[64];
+    char key[64] = "";
     VALUE *section;
+    int max_effect_id = -1;
     for (int id = 0; id < EFFECTS_TYPES_MAX; id++)
     {
         {
-            sprintf(key, "effect%d", id);
+            snprintf(key, sizeof(key), "effect%d", id);
             section = value_dict_get(value, key);
         }
         if (value_type(section) == VALUE_DICT)
@@ -85,10 +109,11 @@ static void load_effects(VALUE *value, unsigned short flags)
             struct EffectConfigStats *effcst = &game.conf.effects_conf.effect_cfgstats[id];
 
             SET_NAME(section,effect_desc,effcst->code_name);
+            max_effect_id = id;
 
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationAccelXYRange",effcst->accel_xy_min,effcst->accel_xy_max);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationAccelZRange", effcst->accel_z_min, effcst->accel_z_max);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationKindRange",   effcst->kind_min,    effcst->kind_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelXYRange",effcst->accel_xy_min,effcst->accel_xy_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelZRange", effcst->accel_z_min, effcst->accel_z_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationKindRange",   effcst->kind_min,    effcst->kind_max);
             CONDITIONAL_ASSIGN_INT(section,"Health",        effcst->start_health);
             CONDITIONAL_ASSIGN_INT(section,"GenerationType",effcst->generation_type);
             CONDITIONAL_ASSIGN_INT(section,"AreaAffectType",effcst->area_affect_type);
@@ -103,12 +128,32 @@ static void load_effects(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_SPELL(section,"SpellEffect",effcst->spell_effect);
         }
     }
+    
+    // Set sentinel NULL entry to mark the end of valid entries
+    if (max_effect_id >= 0)
+    {
+        if (max_effect_id + 1 < EFFECTS_TYPES_MAX)
+        {
+            effect_desc[max_effect_id + 1].name = NULL;
+        }
+        // Fill any gaps with placeholder entries so get_id() won't terminate early
+        for (int id = 0; id <= max_effect_id; id++)
+        {
+            if (effect_desc[id].name == NULL)
+            {
+                effect_desc[id].num = id;
+                // Use the code_name from the effect config (should be initialized to empty or "NULL")
+                effect_desc[id].name = game.conf.effects_conf.effect_cfgstats[id].code_name;
+            }
+        }
+    }
 }
 
 static void load_effectsgenerators(VALUE *value, unsigned short flags)
 {
     char key[KEY_SIZE];
     VALUE *section;
+    int max_effectgen_id = -1;
     for (int id = 0; id < EFFECTSGEN_TYPES_MAX; id++)
     {
         {
@@ -120,6 +165,7 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
             struct EffectGeneratorConfigStats *effgencst = &game.conf.effects_conf.effectgen_cfgstats[id];
 
             SET_NAME(section,effectgen_desc,effgencst->code_name);
+            max_effectgen_id = id;
 
             CONDITIONAL_ASSIGN_INT(section,"GenerationDelayMin",effgencst->generation_delay_min);
             CONDITIONAL_ASSIGN_INT(section,"GenerationDelayMax",effgencst->generation_delay_max);
@@ -134,12 +180,31 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_ARR2_INT(section,"Sound",effgencst->sound_sample_idx,effgencst->sound_sample_rng);
         }
     }
+    // Set sentinel NULL entry to mark the end of valid entries
+    if (max_effectgen_id >= 0)
+    {
+        if (max_effectgen_id + 1 < EFFECTSGEN_TYPES_MAX)
+        {
+            effectgen_desc[max_effectgen_id + 1].name = NULL;
+        }
+        // Fill any gaps with placeholder entries so get_id() won't terminate early
+        for (int id = 0; id <= max_effectgen_id; id++)
+        {
+            if (effectgen_desc[id].name == NULL)
+            {
+                effectgen_desc[id].num = id;
+                // Use the code_name from the effect generator config (should be initialized to empty or "NULL")
+                effectgen_desc[id].name = game.conf.effects_conf.effectgen_cfgstats[id].code_name;
+            }
+        }
+    }
 }
 
 static void load_effectelements(VALUE *value, unsigned short flags)
 {
     char key[KEY_SIZE];
     VALUE *section;
+    int max_effectelement_id = -1;
     for (int id = 0; id < EFFECTSELLEMENTS_TYPES_MAX; id++)
     {
         {
@@ -151,16 +216,17 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             struct EffectElementConfigStats *effelcst = &game.conf.effects_conf.effectelement_cfgstats[id];
 
             SET_NAME(section,effectelem_desc,effelcst->code_name);
+            max_effectelement_id = id;
 
             CONDITIONAL_ASSIGN_INT(section,"DrawClass", effelcst->draw_class);
             CONDITIONAL_ASSIGN_INT(section,"MoveType",  effelcst->move_type);
             CONDITIONAL_ASSIGN_INT(section,"Unanimated",effelcst->unanimated);
             CONDITIONAL_ASSIGN_ARR2_INT(section,"Lifespan",effelcst->lifespan,effelcst->lifespan_random);
             CONDITIONAL_ASSIGN_ANIMID(section,"AnimationId",effelcst->sprite_idx);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSize",effelcst->sprite_size_min,effelcst->sprite_size_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"SpriteSize",effelcst->sprite_size_min,effelcst->sprite_size_max);
             CONDITIONAL_ASSIGN_INT(section,"RenderFlags",effelcst->animate_once); //todo Remove after people have had time to handle the rename
             CONDITIONAL_ASSIGN_INT(section, "AnimateOnce", effelcst->animate_once);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSpeed",effelcst->sprite_speed_min,effelcst->sprite_speed_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"SpriteSpeed",effelcst->sprite_speed_min,effelcst->sprite_speed_max);
 
             CONDITIONAL_ASSIGN_BOOL(section,"AnimateOnFloor",  effelcst->animate_on_floor);
             CONDITIONAL_ASSIGN_BOOL(section,"Unshaded",        effelcst->unshaded);
@@ -197,41 +263,38 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind", effelcst->affected_by_wind );
         }
     }
+    // Set sentinel NULL entry to mark the end of valid entries
+    if (max_effectelement_id >= 0)
+    {
+        if (max_effectelement_id + 1 < EFFECTSELLEMENTS_TYPES_MAX)
+        {
+            effectelem_desc[max_effectelement_id + 1].name = NULL;
+        }
+        // Fill any gaps with placeholder entries so get_id() won't terminate early
+        for (int id = 0; id <= max_effectelement_id; id++)
+        {
+            if (effectelem_desc[id].name == NULL)
+            {
+                effectelem_desc[id].num = id;
+                // Use the code_name from the effect element config (should be initialized to empty or "NULL")
+                effectelem_desc[id].name = game.conf.effects_conf.effectelement_cfgstats[id].code_name;
+            }
+        }
+    }
 }
 
-static TbBool load_effects_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_effects_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
+    load_effectelements(&file_root, flags);
     load_effects(&file_root,flags);
     load_effectsgenerators(&file_root,flags);
-    load_effectelements(&file_root,flags);
 
     value_fini(&file_root);
-    
-    return true;
-}
 
-TbBool load_effects_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global effects config";
-    static const char config_campgn_textname[] = "campaign effects config";
-    static const char config_level_textname[] = "level effects config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_effects_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_effects_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_effects_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
-    return result;
+    return true;
 }
 
 /**

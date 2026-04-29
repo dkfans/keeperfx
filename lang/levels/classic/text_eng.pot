@@ -437,42 +437,7 @@ msgctxt "In-game message"
 msgid "An impressive victory Keeper! I'm sure you will enjoy plundering this land in your own time, but your remaining minions must need a rest?!"
 msgstr ""
 
-#. Skybird's Other Side (lv920)
-#: guitext:68
-msgctxt "In-game message"
-msgid "You're in Skybird Trill again! What dark forces compel you to return to this realm? It seems the gods seek proof that you can achieve victory no matter which side of the realm your quest begins? Prove that your victory versus the Avatar is unavoidable, no matter where your dungeon must be built!"
-msgstr ""
-
-#. Skybird's Other Side (lv920)
-#: guitext:69
-msgctxt "In-game message"
-msgid "You have destroyed the Avatar's castle but your rival has already taken the Avatar prisoner. Be that as it may, only the Keeper with the blackest heart can destroy this legendary hero, so ransack your rival's dungeon and take the prize. Hmm, getting a sense of deja-vu Master?"
-msgstr ""
-
-#. Skybird's Other Side (lv920)
-#: guitext:70
-msgctxt "In-game message"
-msgid "You have once more proved yourself to be the ruler of Skybird Trill! The latest Avatar lies amongst your defeated foes; you can put him with his predecessors! Your authority in this realm is unchallenged. For now, anyway........ "
-msgstr ""
-
-#. Skybird's Other Side (lv920)
-#: guitext:71
-msgctxt "In-game message"
-msgid "Prepare yourself for a plague of angry dwarves! You must deal with these irritating minions robustly Keeper. They are the advance Heroes for a forthcoming attack it seems? "
-msgstr ""
-
-#. Skybird's Other Side (lv920)
-#: guitext:72
-msgctxt "In-game message"
-msgid "You have defeated the Avatar! However, you are familiar with this realm, and will know it's never safe to assume victory? "
-msgstr ""
-
-#. Skybird's Other Side (lv920)
-#: guitext:73
-msgctxt "In-game message"
-msgid "And so the Avatar has returned with a formidable army! Prepare for the final battle Keeper. The fate of this realm must be decided very soon. "
-msgstr ""
-
+#: guitext:68 guitext:69 guitext:70 guitext:71 guitext:72 guitext:73
 #: guitext:74 guitext:75 guitext:76 guitext:77 guitext:78 guitext:79 guitext:80 guitext:81 guitext:82 guitext:83 guitext:84 guitext:85 guitext:86 guitext:87 guitext:88 guitext:89 guitext:90 guitext:91 guitext:92 guitext:93 guitext:94 guitext:95 guitext:96 guitext:97 guitext:98 guitext:99 guitext:100 guitext:101 guitext:102 guitext:103 guitext:104 guitext:105 guitext:106 guitext:107 guitext:108 guitext:109 guitext:110 guitext:111 guitext:112 guitext:113
 #: guitext:114 guitext:115 guitext:116 guitext:117 guitext:118 guitext:119 guitext:120 guitext:121 guitext:122 guitext:123 guitext:124 guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140 guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 guitext:149 guitext:150
 #: guitext:151 guitext:152 guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160 guitext:161 guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168 guitext:169 guitext:170 guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187

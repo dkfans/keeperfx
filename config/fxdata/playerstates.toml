@@ -210,3 +210,8 @@ StopOwnUnits = true
 Name = "PLAYER_STATE_CREATEDIGGER"
 PointerGroup = "SPELL"
 StopOwnUnits = false
+
+[playerstate42]
+Name = "PLAYER_STATE_GENERICLEVELPOWER"
+PointerGroup = "SPELL"
+StopOwnUnits = false

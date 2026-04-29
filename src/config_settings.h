@@ -21,9 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
-#define DK_GAME_KEYS_COUNT     32
-#define GAME_KEYS_COUNT        43
+#include "front_input.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +35,7 @@ struct GameKey { // sizeof = 2
 };
 
 struct GameSettings { // KFX settings
-    unsigned char field_0;
+    unsigned char video_detail_level;
     unsigned char video_shadows;
     unsigned char view_distance;
     unsigned char video_rotate_mode;
@@ -57,6 +55,7 @@ struct GameSettings { // KFX settings
     unsigned long frontview_zoom_level;
     long mentor_volume;
     int isometric_tilt;
+    TbBool highlight_mode;
     };
 #pragma pack()
 /******************************************************************************/

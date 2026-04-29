@@ -90,15 +90,15 @@ long get_triangle_region_id(long tri_id)
 {
     if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
         return -1;
-    return (Triangles[tri_id].field_E >> EDGELEN_BITS);
+    return (Triangles[tri_id].region_and_edgelen >> EDGELEN_BITS);
 }
 
 TbBool set_triangle_region_id(long tri_id, long reg_id)
 {
     if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
         return false;
-    Triangles[tri_id].field_E &= ((1 << EDGELEN_BITS) - 1);
-    Triangles[tri_id].field_E |= (reg_id << EDGELEN_BITS);
+    Triangles[tri_id].region_and_edgelen &= ((1 << EDGELEN_BITS) - 1);
+    Triangles[tri_id].region_and_edgelen |= (reg_id << EDGELEN_BITS);
     return true;
 }
 
@@ -106,15 +106,15 @@ long get_triangle_edgelen(long tri_id)
 {
     if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
         return 0;
-    return (Triangles[tri_id].field_E & ((1 << EDGELEN_BITS) - 1));
+    return (Triangles[tri_id].region_and_edgelen & ((1 << EDGELEN_BITS) - 1));
 }
 
 TbBool set_triangle_edgelen(long tri_id, long edgelen)
 {
     if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
         return false;
-    Triangles[tri_id].field_E &= ~((1 << EDGELEN_BITS) - 1);
-    Triangles[tri_id].field_E |= edgelen;
+    Triangles[tri_id].region_and_edgelen &= ~((1 << EDGELEN_BITS) - 1);
+    Triangles[tri_id].region_and_edgelen |= edgelen;
     return true;
 }
 
@@ -181,7 +181,7 @@ TbBool outer_locked(long ntri, long ncor)
         ERRORLOG("border edge");
         return true;
     }
-    return ( (Triangles[n].field_D & (1 << (shft + 3)) ) != 0);
+    return ( (Triangles[n].navigation_flags & (1 << (shft + 3)) ) != 0);
 }
 
 long point_loop(long pt_tri, long pt_cor)
@@ -264,17 +264,17 @@ long edge_rotateAC(long tri1_id, long cor1_id)
     long tri4_id = Triangles[tri2_id].tags[cor2b_id];
 
     {
-        unsigned short tri1_fld = Triangles[tri1_id].field_D;
-        unsigned short tri2_fld = Triangles[tri2_id].field_D;
+        unsigned short tri1_fld = Triangles[tri1_id].navigation_flags;
+        unsigned short tri2_fld = Triangles[tri2_id].navigation_flags;
         if ( ((1 << (cor1_id + 3)) & tri1_fld) || ((1 << (cor2_id + 3)) & tri2_fld) ) {
             return false;
         }
-        Triangles[tri1_id].field_D &= ~(1 << (cor1b_id + 3));
-        Triangles[tri2_id].field_D &= ~(1 << (cor2b_id + 3));
-        Triangles[tri1_id].field_D &= ~(1 << (cor1_id + 3));
-        Triangles[tri1_id].field_D |= ((((1 << (cor2b_id + 3)) & tri2_fld) != 0) << (cor1_id + 3));
-        Triangles[tri2_id].field_D &= ~(1 << (cor2_id + 3));
-        Triangles[tri2_id].field_D |= ((((1 << (cor1b_id + 3)) & tri1_fld) != 0) << (cor2_id + 3));
+        Triangles[tri1_id].navigation_flags &= ~(1 << (cor1b_id + 3));
+        Triangles[tri2_id].navigation_flags &= ~(1 << (cor2b_id + 3));
+        Triangles[tri1_id].navigation_flags &= ~(1 << (cor1_id + 3));
+        Triangles[tri1_id].navigation_flags |= ((((1 << (cor2b_id + 3)) & tri2_fld) != 0) << (cor1_id + 3));
+        Triangles[tri2_id].navigation_flags &= ~(1 << (cor2_id + 3));
+        Triangles[tri2_id].navigation_flags |= ((((1 << (cor1b_id + 3)) & tri1_fld) != 0) << (cor2_id + 3));
     }
 
     int pt1_id = Triangles[tri1_id].points[cor1_id];
@@ -315,21 +315,21 @@ long edge_rotateAC(long tri1_id, long cor1_id)
         }
         Triangles[tri4_id].tags[tmcor_id] = tri1_id;
     }
-    unsigned short tri1_fld = Triangles[tri1_id].field_D;
-    unsigned short tri2_fld = Triangles[tri2_id].field_D;
-    Triangles[tri1_id].field_D &= ~(1 << cor1_id);
-    Triangles[tri1_id].field_D |= ((((1 << cor2b_id) & tri2_fld) != 0) << cor1_id);
-    Triangles[tri1_id].field_D &= ~(1 << cor1b_id);
-    Triangles[tri1_id].field_D |= ((((1 << cor1_id) & tri1_fld) != 0) << cor1b_id);
-    Triangles[tri2_id].field_D &= ~(1 << cor2_id);
-    Triangles[tri2_id].field_D |= ((((1 << cor1b_id) & tri1_fld) != 0) << cor2_id);
-    Triangles[tri2_id].field_D &= ~(1 << cor2b_id);
-    Triangles[tri2_id].field_D |= ((((1 << cor2_id) & tri2_fld) != 0) << cor2b_id);
+    unsigned short tri1_fld = Triangles[tri1_id].navigation_flags;
+    unsigned short tri2_fld = Triangles[tri2_id].navigation_flags;
+    Triangles[tri1_id].navigation_flags &= ~(1 << cor1_id);
+    Triangles[tri1_id].navigation_flags |= ((((1 << cor2b_id) & tri2_fld) != 0) << cor1_id);
+    Triangles[tri1_id].navigation_flags &= ~(1 << cor1b_id);
+    Triangles[tri1_id].navigation_flags |= ((((1 << cor1_id) & tri1_fld) != 0) << cor1b_id);
+    Triangles[tri2_id].navigation_flags &= ~(1 << cor2_id);
+    Triangles[tri2_id].navigation_flags |= ((((1 << cor1b_id) & tri1_fld) != 0) << cor2_id);
+    Triangles[tri2_id].navigation_flags &= ~(1 << cor2b_id);
+    Triangles[tri2_id].navigation_flags |= ((((1 << cor2_id) & tri2_fld) != 0) << cor2b_id);
     edgelen_set(tri1_id);
     edgelen_set(tri2_id);
     return true;
 }
-long reduce_point(long *pt_tri, long *pt_cor)
+long reduce_point(int32_t *pt_tri, int32_t *pt_cor)
 {
     long k = 0;
     long ntri = *pt_tri;
@@ -389,10 +389,10 @@ void triangulation_init_triangles(long pt_id1, long pt_id2, long pt_id3, long pt
     Triangles[1].tree_alt = NAVMAP_FLOORHEIGHT_MAX;
     Triangles[1].tags[1] = -1;
     Triangles[1].tags[2] = -1;
-    Triangles[0].field_D = 7;
-    Triangles[0].field_E = 0;
-    Triangles[1].field_E = 0;
-    Triangles[1].field_D = 7;
+    Triangles[0].navigation_flags = 7;
+    Triangles[0].region_and_edgelen = 0;
+    Triangles[1].region_and_edgelen = 0;
+    Triangles[1].navigation_flags = 7;
 }
 
 char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y)

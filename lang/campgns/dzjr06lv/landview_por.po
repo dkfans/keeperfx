@@ -1,0 +1,89 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file speech_por.po
+#      KeeperFX Speeches translation file
+#  @par Purpose:
+#      Contains translation of the national speeches in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: DzjeeAr's 6-level campaign for KeeperFX\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "DzjeeAr's 6-level campaign"
+msgstr "Campanha de 6 níveis de DzjeeAr"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Pile of its own good. This land has never gained pain or the beauty of WAR. Everyone here is happy. You must change it immediately, my lord."
+msgstr "Monte de Bondade. Esta terra nunca conheceu a dor ou a beleza da GUERRA. Todos aqui são felizes. Você deve mudar isso imediatamente, meu senhor."
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Handful of stones. Now, this land has tasted all the wonders of pain and war. Recently, its inhabitants were happy. Now we are happy. Great job, my lord!"
+msgstr "Punhado de pedras. Agora, esta terra provou todas as maravilhas da dor e da guerra. Recentemente, seus habitantes eram felizes. Agora nós estamos felizes. Ótimo trabalho, meu senhor!"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Ancient Fortress. This is a splendid fortress. Many keepers tried to conquer it, but no one done it at last. It is time to change this place into ruins!"
+msgstr "Fortaleza Antiga. Esta é uma fortaleza esplêndida. Muitos guardiões tentaram conquistá-la, mas no final, ninguém conseguiu. É hora de transformar este lugar em ruínas!"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Splendid ruins. In my whole poor life I haven't seen stones crushed so wonderfully, and ugly humans cut in half as you did it... Now I can see scenes from my best dreams! Good work!"
+msgstr "Ruínas esplêndidas. Em toda a minha pobre vida, nunca vi pedras esmagadas tão maravilhosamente, nem humanos feios cortados ao meio como você fez... Agora posso ver cenas dos meus melhores sonhos! Bom trabalho!"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "The Necromancer. This land is under rule of one Vampire, who is master in his worship.. Unfortunately, this ignorant fool refused to join our forces.. Now, it's time to show him, who will be master of this sad land."
+msgstr "O Necromante. Esta terra está sob o domínio de um Vampiro, que é mestre em sua adoração.. Infelizmente, este tolo ignorante se recusou a se juntar às nossas forças.. Agora, é hora de mostrar a ele quem será o mestre desta terra triste."
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Valley of Vampires. The defeated vampire refused to acknowledge your rule.. But a few troll's hammer hits in his mutt, was enough for change his mind. I ordered him to change all local humans into vampires.. Now even children are on the DARK SIDE!"
+msgstr "Vale dos Vampiros. O vampiro derrotado se recusou a reconhecer seu domínio.. Mas alguns golpes de martelo de troll em sua fuça foram suficientes para fazê-lo mudar de ideia. Eu o ordenei que transformasse todos os humanos locais em vampiros.. Agora até as crianças estão no LADO SOMBRIO!"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Frozen Plains. Even the humans have left this land, in arachnophobia. They feared that giant spiders could come to their houses thru windows and eat them on dinner. Now we will bake those arthropods on supper!"
+msgstr "Planícies Congeladas. Até os humanos abandonaram esta terra, por aracnofobia. Eles temiam que aranhas gigantes pudessem entrar em suas casas pelas janelas e comê-los no jantar. Agora nós vamos assar esses artrópodes no jantar!"
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Warm plains. Now we can in calmness admire the sights this land, with its stirring lava drift. Spiders are crunchy, when we bake them in this hot lava long enough."
+msgstr "Planícies Quentes. Agora podemos admirar com calma as paisagens desta terra, com sua corrente de lava agitada. As aranhas ficam crocantes quando as assamos nesta lava quente por tempo suficiente."
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Barbarian Stronghold. Barbarians are horrible human nation. Before centuries, they were afraid of attacks from underground so much, that they have built this impressive stronghold. We must conquer it at all costs!"
+msgstr "Fortaleza Bárbara. Bárbaros são uma nação humana horrível. Séculos atrás, eles tinham tanto medo de ataques do subterrâneo que construíram esta fortaleza impressionante. Devemos conquistá-la a todo custo!"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Keepers Stronghold. Barbarians switched to our side without any complications. Now we've got there even a circus :O My favorite trick is throwing knifes to barbarians! You should try it some day, my lord!"
+msgstr "Fortaleza dos Guardiões. Os bárbaros passaram para o nosso lado sem complicações. Agora temos até um circo lá :O Meu truque favorito é atirar facas nos bárbaros! Você deveria tentar algum dia, meu senhor!"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Final Countdown. One last step separates us from final victory. None of the keepers went to those lands before. We only know, that all the people which survived, have regrouped there. They are awaiting you.."
+msgstr "Contagem Regressiva Final. Um último passo nos separa da vitória final. Nenhum dos guardiões foi a essas terras antes. Só sabemos que todas as pessoas que sobreviveram se reagruparam lá. Eles estão esperando por você.."
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Magmaland. Finally, we won! Now with the whole world conquered, at last we can go rest and relax, watching how blood and lava joyfully flows through all the plains, meadows and mountains!"
+msgstr "Terra do Magma. Finalmente, nós vencemos! Agora, com o mundo inteiro conquistado, finalmente podemos descansar e relaxar, observando como o sangue e a lava fluem alegremente por todas as planícies, prados e montanhas!"

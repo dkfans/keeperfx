@@ -43,6 +43,7 @@ extern "C" {
 /******************************************************************************/
 
 struct KeeperSprite *creature_table;
+size_t creature_table_length = 0;
 
 /******************************************************************************/
 static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
@@ -157,80 +158,81 @@ static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
 /******************************************************************************/
 
 /******************************************************************************/
-struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
+struct PickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
     ThingModel crmodel = thing->model;
     if ((crmodel < 1) || (crmodel >= game.conf.crtr_conf.model_count))
         crmodel = 0;
-    struct CreatureStats* crstat = creature_stats_get(crmodel);
-    return &crstat->creature_picked_up_offset;
+    struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
+    return &crconf->creature_picked_up_offset;
 }
 
 unsigned char keepersprite_frames(unsigned short n)
 {
-  if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
-        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
-        )
-  {
-      ERRORLOG("Frame %d out of range",(int)n);
-      n = 0;
-  }
-  else if (n >= KEEPERSPRITE_ADD_OFFSET)
-  {
-      return creature_table_add[n - KEEPERSPRITE_ADD_OFFSET].FramesCount;
-  }
-  unsigned long i = creature_list[n];
-  return creature_table[i].FramesCount;
+    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+    {
+        return creature_table_add[n - KEEPERSPRITE_ADD_OFFSET].FramesCount;
+    }
+    if (n < CREATURE_FRAMELIST_LENGTH)
+    {
+        const unsigned short i = creature_list[n];
+        if (i < creature_table_length)
+        {
+            return creature_table[i].FramesCount;
+        }
+    }
+    ERRORLOG("Frame %u out of range", n);
+    return 0;
 }
 
 unsigned char keepersprite_rotable(unsigned short n)
 {
-    if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
-        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
-        )
-    {
-      ERRORLOG("Frame %d out of range",(int)n);
-      n = 0;
-    }
-    else if (n >= KEEPERSPRITE_ADD_OFFSET)
+    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
     {
         return creature_table_add[n - KEEPERSPRITE_ADD_OFFSET].Rotable;
     }
-    unsigned long i = creature_list[n];
-    return creature_table[i].Rotable;
+    if (n < CREATURE_FRAMELIST_LENGTH)
+    {
+        const unsigned short i = creature_list[n];
+        if (i < creature_table_length)
+        {
+            return creature_table[i].Rotable;
+        }
+    }
+    ERRORLOG("Frame %u out of range", n);
+    return 0;
 }
 
 struct KeeperSprite * keepersprite_array(unsigned short n)
 {
-    if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
-        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
-        )
-    {
-        ERRORLOG("Frame %d out of range",(int)n);
-        n = 0;
-    }
-    else if (n >= KEEPERSPRITE_ADD_OFFSET)
+    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
     {
         return &creature_table_add[n - KEEPERSPRITE_ADD_OFFSET];
     }
-    unsigned long i = creature_list[n];
-    return &creature_table[i];
+    if (n < CREATURE_FRAMELIST_LENGTH)
+    {
+        const unsigned short i = creature_list[n];
+        if (i < creature_table_length)
+        {
+            return &creature_table[i];
+        }
+    }
+    ERRORLOG("Frame %u out of range", n);
+    return NULL;
 }
 
 unsigned long keepersprite_index(unsigned short n)
 {
-    if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
-        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
-        )
-    {
-      ERRORLOG("Frame %d out of range",(int)n);
-      n = 0;
-    }
-    else if (n >= KEEPERSPRITE_ADD_OFFSET)
+    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
     {
         return n;
     }
-    return creature_list[n];
+    if (n < CREATURE_FRAMELIST_LENGTH)
+    {
+        return creature_list[n];
+    }
+    ERRORLOG("Frame %u out of range", n);
+    return 0;
 }
 
 long get_lifespan_of_animation(long ani, long speed)
@@ -245,19 +247,48 @@ long get_lifespan_of_animation(long ani, long speed)
 
 static struct KeeperSprite* sprite_by_frame(long kspr_frame)
 {
-    if (kspr_frame >= KEEPERSPRITE_ADD_OFFSET)
+    if (kspr_frame >= KEEPERSPRITE_ADD_OFFSET &&  kspr_frame < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
     {
         return &creature_table_add[kspr_frame - KEEPERSPRITE_ADD_OFFSET];
     }
-    unsigned long i = creature_list[kspr_frame];
-    return &creature_table[i];
+    if (kspr_frame >= 0 && kspr_frame < CREATURE_FRAMELIST_LENGTH)
+    {
+        const unsigned short i = creature_list[kspr_frame];
+        if (i < creature_table_length) {
+            return &creature_table[i];
+        }
+    }
+    ERRORLOG("Frame %ld out of range", kspr_frame);
+    return NULL;
 }
 
 void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
 {
     TbBool val_in_range;
     struct KeeperSprite* kspr = sprite_by_frame(kspr_anim);
-    if (((angle & 0x7FF) <= 1151) || ((angle & 0x7FF) >= 1919) )
+    if (kspr == NULL)
+    {
+        ERRORLOG("[md10 crash investigation] NULL sprite returned for anim=%ld angle=%ld frame=%ld", kspr_anim, angle, frame);
+        *orig_w = 0;
+        *orig_h = 0;
+        *unsc_w = 0;
+        *unsc_h = 0;
+        return;
+    }
+    int32_t frames = kspr->FramesCount;
+    if (frames <= 0) {
+        *orig_w = 0;
+        *orig_h = 0;
+        *unsc_w = 0;
+        *unsc_h = 0;
+        return;
+    }
+    if (frame < 0) {
+        frame = 0;
+    } else if (frame >= frames) {
+        frame = frames - 1;
+    }
+    if (((angle & ANGLE_MASK) <= DEGREES_202_5) || ((angle & ANGLE_MASK) >= DEGREES_337_5) )
         val_in_range = 0;
     else
         val_in_range = 1;
@@ -283,7 +314,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
     }
     else if (kspr->Rotable == 2)
     {
-        kspr += frame + abs(4 - (((angle + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
+        kspr += frame + abs(4 - (((angle + DEGREES_22_5) & ANGLE_MASK) >> 8)) * kspr->FramesCount;
         *orig_w = kspr->SWidth;
         *orig_h = kspr->SHeight;
         if ( val_in_range )
@@ -343,7 +374,7 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
 short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
     short idx = get_creature_model_graphics(thing->model, seq_idx);
-    return convert_td_iso(idx);
+    return get_td_animation_sprite(idx);
 }
 
 void untint_thing(struct Thing *thing)
@@ -361,18 +392,25 @@ void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 {
     unsigned long i = get_creature_anim(thing, seq_idx);
+    // Only update when it's a different sprite, or a different animation speed.
     if (i != thing->anim_sprite)
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
         return true;
     }
+    if ((speed != thing->anim_speed) && (speed != -1))
+    {
+        thing->anim_speed = speed;
+        return true;
+    }
     return false;
 }
 
-TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
+TbBool update_creature_animation_by_sprite(struct Thing *thing, long speed, long anim_idx)
 {
-    unsigned long i = convert_td_iso(td_idx);
-    if (i != thing->anim_sprite)
+    unsigned long i = get_td_animation_sprite(anim_idx);
+    // Only update when it's a different sprite, or a different animation speed.
+    if ((i != thing->anim_sprite) || ((speed != thing->anim_speed) && (speed != -1)))
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
         return true;
@@ -393,10 +431,10 @@ void update_creature_rendering_flags(struct Thing *thing)
     }
     if (thing_is_creature(thing))
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        if (crstat->transparency_flags != 0)
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+        if (crconf->transparency_flags != 0)
         {
-            set_flag(thing->rendering_flags, crstat->transparency_flags);
+            set_flag(thing->rendering_flags, crconf->transparency_flags);
         }
     }
     if (creature_is_invisible(thing))
@@ -410,7 +448,7 @@ void update_creature_rendering_flags(struct Thing *thing)
             thing->rendering_flags |= TRF_Invisible;
             struct PlayerInfo* player = get_my_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
-            if (creatng != thing)
+            if ((creatng != thing) && (thing_is_creature(creatng)))
             {
                 if ( (is_thing_directly_controlled_by_player(creatng, player->id_number)) || (is_thing_passenger_controlled_by_player(creatng, player->id_number)) )
                 {
@@ -432,8 +470,8 @@ void update_creature_graphic_anim(struct Thing *thing)
 
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    struct InstanceInfo* inst_inf;
     if ((thing->size_change & TSC_ChangeSize) != 0)
     {
       thing->size_change &= ~TSC_ChangeSize;
@@ -444,14 +482,21 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     if (!creature_under_spell_effect(thing, CSAfF_Chicken))
     {
+        inst_inf = creature_instance_info_get(cctrl->instance_id);
         if (cctrl->instance_id != CrInst_NULL)
         {
           if (cctrl->instance_id == CrInst_TORTURED)
           {
               thing->rendering_flags &= ~(TRF_Transpar_Flags);
           }
-          struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
-          update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
+          if (!creature_under_spell_effect(thing, CSAfF_Freeze))
+          {
+              update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
+          }
+          else
+          {
+              update_creature_anim(thing, 0, inst_inf->graphics_idx);
+          }
         } else
         if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_under_spell_effect(thing, CSAfF_Freeze))
         {
@@ -485,46 +530,47 @@ void update_creature_graphic_anim(struct Thing *thing)
         } else
         if (cctrl->distance_to_destination == 0)
         {
-            update_creature_anim(thing, 256, CGI_Stand);
+            update_creature_anim(thing, crconf->walking_anim_speed, CGI_Stand);
         } else
         if (thing->floor_height < thing->mappos.z.val)
         {
-            update_creature_anim(thing, 256, CGI_Stand);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed + 1);
+            update_creature_anim(thing, i, CGI_Stand);
         } else
         if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed+1);
             update_creature_anim(thing, i, CGI_Drag);
         } else
-        if (crstat->fixed_anim_speed)
+        if (crconf->fixed_anim_speed)
         {
             update_creature_anim(thing, 256, CGI_Ambulate);
         } else
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed + 1);
             if (!update_creature_anim(thing, i, CGI_Ambulate))
             {
                 thing->anim_speed = i;
             }
         }
-    } else
+    } else // chickened
     {
         thing->rendering_flags &= ~(TRF_Transpar_Flags);
         if (cctrl->distance_to_destination == 0)
         {
-            update_creature_anim_td(thing, 256, 820);
+            update_creature_animation_by_sprite(thing, 256, 820);
         } else
         if (thing->floor_height < thing->mappos.z.val)
         {
-            update_creature_anim_td(thing, 256, 820);
+            update_creature_animation_by_sprite(thing, 256, 820);
         } else
-        if (crstat->fixed_anim_speed)
+        if (crconf->fixed_anim_speed)
         {
-            update_creature_anim_td(thing, 256, 819);
+            update_creature_animation_by_sprite(thing, 256, 819);
         } else
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
-            if (!update_creature_anim_td(thing, i, 819))
+            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed+1);
+            if (!update_creature_animation_by_sprite(thing, i, 819))
             {
                 thing->anim_speed = i;
             }
@@ -544,7 +590,7 @@ void update_creature_graphic_tint(struct Thing *thing)
     {
         untint_thing(thing);
     } else
-    if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
+    if (((get_gameturn() % 3) == 0) || is_hero_thing(thing))
     {
         untint_thing(thing);
     } else
@@ -568,6 +614,7 @@ size_t creature_table_load_get_size(size_t disk_size)
     {
         ERRORLOG("Unexpected creature.tab");
     }
+    creature_table_length = items;
     return items * sizeof(struct KeeperSprite);
 }
 

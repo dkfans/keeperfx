@@ -36,7 +36,7 @@ static inline MapCoord value_read_stl_coord(VALUE *value)
 int value_parse_class(VALUE *value);
 int value_parse_model(int oclass, VALUE *value);
 int value_parse_anim(VALUE *value);
-TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsigned short flags);
+TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags);
 
 #define KEY_SIZE 64
 
@@ -91,6 +91,17 @@ TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsi
     {\
         field1 = value_int32(value_array_get(val_arr, 0));\
         field2 = value_int32(value_array_get(val_arr, 1));\
+    }\
+}
+
+#define CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,name,field1,field2) \
+{\
+    VALUE *val_arr = value_dict_get(section,name);\
+    if (value_type(val_arr) == VALUE_ARRAY)\
+    {\
+        int v1 = value_int32(value_array_get(val_arr, 0));\
+        int v2 = value_int32(value_array_get(val_arr, 1));\
+        if (v1 <= v2) { field1 = v1; field2 = v2; } else { field1 = v2; field2 = v1; }\
     }\
 }
 

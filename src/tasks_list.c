@@ -156,13 +156,6 @@ long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig)
     return -1;
 }
 
-TbBool task_list_entry_invalid(struct MapTask *task)
-{
-    if ((task == INVALID_MAP_TASK) || (task == NULL))
-        return true;
-    return false;
-}
-
 long remove_from_task_list(long plyr_idx, long stack_pos)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);

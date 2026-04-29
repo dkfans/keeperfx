@@ -437,42 +437,7 @@ msgctxt "In-game message"
 msgid "An impressive victory Keeper! I'm sure you will enjoy plundering this land in your own time, but your remaining minions must need a rest?!"
 msgstr "一次令人印象深刻的胜利，守护者！我猜你打算在闲暇的时间里继续享受掠夺这片土地的乐趣，但你的爪牙们却想要休息一下？！"
 
-#. Skybird's Other Side (lv920)
-#: guitext:68
-msgctxt "In-game message"
-msgid "You're in Skybird Trill again! What dark forces compel you to return to this realm? It seems the gods seek proof that you can achieve victory no matter which side of the realm your quest begins? Prove that your victory versus the Avatar is unavoidable, no matter where your dungeon must be built!"
-msgstr "你又一次来到太阳鸟鸣了！是什么黑暗力量迫使你又一次回到这个王国了？似乎黑暗之神希望你能证明自己，无论你的地下城位于这个王国的哪一边，你都可以取得胜利吧？向他证明，无论你的地下城建在哪一边，都无法阻止你成功地打倒圣者！"
-
-#. Skybird's Other Side (lv920)
-#: guitext:69
-msgctxt "In-game message"
-msgid "You have destroyed the Avatar's castle but your rival has already taken the Avatar prisoner. Be that as it may, only the Keeper with the blackest heart can destroy this legendary hero, so ransack your rival's dungeon and take the prize. Hmm, getting a sense of deja-vu Master?"
-msgstr "你已经摧毁了圣者的城堡，而你的竞争者则囚禁了圣者。不过，只有一个最黑暗邪恶的守护者才能消灭这位传奇英雄，所以洗劫你敌人的地下城，并获得你的奖品。嗯…似曾相识的场面，主人？"
-
-#. Skybird's Other Side (lv920)
-#: guitext:70
-msgctxt "In-game message"
-msgid "You have once more proved yourself to be the ruler of Skybird Trill! The latest Avatar lies amongst your defeated foes; you can put him with his predecessors! Your authority in this realm is unchallenged. For now, anyway........ "
-msgstr "你再一次证明了自己才是太阳鸟鸣的统治者！新一任的圣者倒在了被你击败的敌人之中；你可以把他和他的先辈们葬在一起了！你在这个王国的权威是毋庸置疑的。不管怎么说，至少现在如此……"
-
-#. Skybird's Other Side (lv920)
-#: guitext:71
-msgctxt "In-game message"
-msgid "Prepare yourself for a plague of angry dwarves! You must deal with these irritating minions robustly Keeper. They are the advance Heroes for a forthcoming attack it seems? "
-msgstr "准备好迎接一群愤怒的矮人吧！你必须残忍地消灭这些烦人的仆从。他们似乎就是即将到来的英雄中的先锋队？"
-
-#. Skybird's Other Side (lv920)
-#: guitext:72
-msgctxt "In-game message"
-msgid "You have defeated the Avatar! However, you are familiar with this realm, and will know it's never safe to assume victory? "
-msgstr "你已经击败了圣者！然而，你已经对这个王国很熟悉了，应该知道现在还没有胜利吧？"
-
-#. Skybird's Other Side (lv920)
-#: guitext:73
-msgctxt "In-game message"
-msgid "And so the Avatar has returned with a formidable army! Prepare for the final battle Keeper. The fate of this realm must be decided very soon. "
-msgstr "圣者又一次回来了，还带领着一支强大的军队！为最后的战斗做好准备，守护者。这个王国的命运很快就会决定了。"
-
+#: guitext:68 guitext:69 guitext:70 guitext:71 guitext:72 guitext:73
 #: guitext:74 guitext:75 guitext:76 guitext:77 guitext:78 guitext:79
 #: guitext:80 guitext:81 guitext:82 guitext:83 guitext:84 guitext:85
 #: guitext:86 guitext:87 guitext:88 guitext:89 guitext:90 guitext:91
@@ -496,7 +461,7 @@ msgstr "圣者又一次回来了，还带领着一支强大的军队！为最后
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
 #: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
 #: guitext:198 guitext:199 guitext:200
-msgid ""
+msgid "Moo"
 msgstr ""
 
 #: guitext:202

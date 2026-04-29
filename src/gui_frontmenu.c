@@ -63,7 +63,7 @@ MenuNumber menu_id_to_number(MenuID menu_id)
     for (MenuNumber idx = 0; idx < ACTIVE_MENUS_COUNT; idx++)
     {
         struct GuiMenu* gmnu = &active_menus[idx];
-        //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->field_1);
+        //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->visual_state);
         if ((gmnu->visual_state != 0) && (gmnu->ident == menu_id))
             return idx;
     }
@@ -374,8 +374,98 @@ void turn_on_menu(MenuID mnu_idx)
     struct GuiMenu* gmnu = menu_list[mnu_idx];
     if (create_menu(gmnu) >= 0)
     {
-      if (gmnu->field_1F)
+      if (gmnu->is_active_panel)
         game.active_panel_mnu_idx = mnu_idx;
+    }
+}
+
+void update_query_menu()
+{
+    if(!(menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2) || menu_is_active(GMnu_CREATURE_QUERY3) || menu_is_active(GMnu_CREATURE_QUERY4)))
+        return;
+    struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
+
+    if (menu_is_active(GMnu_CREATURE_QUERY1))
+    {
+        if (wheel_scrolled_down)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            if (creature_instance_get_available_id_for_pos(thing, 6) > 0)
+            {
+                turn_on_menu(GMnu_CREATURE_QUERY2);
+            }
+            else
+            {
+                turn_on_menu(GMnu_CREATURE_QUERY3);
+            }
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+        if (wheel_scrolled_up)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+    }
+    if (menu_is_active(GMnu_CREATURE_QUERY2))
+    {
+        if (wheel_scrolled_down)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+        if (wheel_scrolled_up)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+    }
+    if (menu_is_active(GMnu_CREATURE_QUERY3))
+    {
+        if (wheel_scrolled_down)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+        if (wheel_scrolled_up)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            if (creature_instance_get_available_id_for_pos(thing, 6) > 0)
+            {
+                turn_on_menu(GMnu_CREATURE_QUERY2);
+            }
+            else
+            {
+                turn_on_menu(GMnu_CREATURE_QUERY1);
+            }
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+    }
+    if (menu_is_active(GMnu_CREATURE_QUERY4))
+    {
+        if (wheel_scrolled_down)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
+        if (wheel_scrolled_up)
+        {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+        }
     }
 }
 

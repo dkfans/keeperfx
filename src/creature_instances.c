@@ -62,19 +62,19 @@ extern "C" {
 #define MAX_CREATURES_SEARCHED 100
 
 /******************************************************************************/
-long instf_attack_room_slab(struct Thing *creatng, long *param);
-long instf_creature_cast_spell(struct Thing *creatng, long *param);
-long instf_creature_fire_shot(struct Thing *creatng, long *param);
-long instf_damage_wall(struct Thing *creatng, long *param);
-long instf_destroy(struct Thing *creatng, long *param);
-long instf_dig(struct Thing *creatng, long *param);
-long instf_eat(struct Thing *creatng, long *param);
-long instf_fart(struct Thing *creatng, long *param);
-long instf_first_person_do_imp_task(struct Thing *creatng, long *param);
-long instf_pretty_path(struct Thing *creatng, long *param);
-long instf_reinforce(struct Thing *creatng, long *param);
-long instf_tortured(struct Thing *creatng, long *param);
-long instf_tunnel(struct Thing *creatng, long *param);
+long instf_attack_room_slab(struct Thing *creatng, int32_t *param);
+long instf_creature_cast_spell(struct Thing *creatng, int32_t *param);
+long instf_creature_fire_shot(struct Thing *creatng, int32_t *param);
+long instf_damage_wall(struct Thing *creatng, int32_t *param);
+long instf_destroy(struct Thing *creatng, int32_t *param);
+long instf_dig(struct Thing *creatng, int32_t *param);
+long instf_eat(struct Thing *creatng, int32_t *param);
+long instf_fart(struct Thing *creatng, int32_t *param);
+long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param);
+long instf_pretty_path(struct Thing *creatng, int32_t *param);
+long instf_reinforce(struct Thing *creatng, int32_t *param);
+long instf_tortured(struct Thing *creatng, int32_t *param);
+long instf_tunnel(struct Thing *creatng, int32_t *param);
 
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
@@ -126,6 +126,7 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_target_benefits_from_wind",                      10},
     {"validate_target_non_idle",                                11},
     {"validate_target_takes_gas_damage",                        12},
+    {"validate_target_requires_cleansing",                      13},
     {NULL, 0},
 };
 
@@ -143,6 +144,7 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_target_benefits_from_wind,
     validate_target_non_idle,
     validate_target_takes_gas_damage,
+    validate_target_requires_cleansing,
     NULL,
 };
 
@@ -196,10 +198,10 @@ TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inst
 TbBool creature_choose_first_available_instance(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
-        long k = crstat->learned_instance_id[i];
+        long k = crconf->learned_instance_id[i];
         if (k > 0)
         {
             if (cctrl->instance_available[k]) {
@@ -212,74 +214,29 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
     return false;
 }
 
-void creature_increase_available_instances(struct Thing *thing)
+TbBool creature_increase_available_instances(struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (!creature_control_exists(cctrl))
+    {
+        return false;
+    }
     for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
-        int k = crstat->learned_instance_id[i];
+        int k = crconf->learned_instance_id[i];
         if (k > 0)
         {
-            if (crstat->learned_instance_level[i] <= cctrl->exp_level+1) {
+            if (crconf->learned_instance_level[i] <= cctrl->exp_level+1) {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crstat->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ( (crconf->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules[thing->owner].game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
             {
                 cctrl->instance_available[k] = false;
             }
         }
     }
-}
-
-/**
- * Given instance ID, returns its position in compacted list of instances.
- * Compacted list of instances is a list of available creature instances without holes.
- * @param thing
- * @param req_inst_id
- * @return
- */
-int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    int avail_pos = 0;
-    for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
-    {
-        CrInstance inst_id = crstat->learned_instance_id[avail_num];
-        if (creature_instance_is_available(thing, inst_id))
-        {
-            if (inst_id == req_inst_id) {
-                return avail_pos;
-            }
-            avail_pos++;
-        }
-    }
-    return -1;
-}
-
-/**
- * For position in compacted list of instances, gives instance position in availability list.
- * Compacted list of instances is a list of available creature instances without holes.
- * @param thing
- * @param req_avail_pos
- * @return
- */
-int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    int avail_pos = 0;
-    for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
-    {
-        CrInstance inst_id = crstat->learned_instance_id[avail_num];
-        if (creature_instance_is_available(thing, inst_id))
-        {
-            if (avail_pos == req_avail_pos) {
-                return avail_num;
-            }
-            avail_pos++;
-        }
-    }
-    return -1;
+    return true;
 }
 
 /**
@@ -291,11 +248,11 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
  */
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
-        CrInstance inst_id = crstat->learned_instance_id[avail_num];
+        CrInstance inst_id = crconf->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
             if (avail_pos == req_avail_pos) {
@@ -488,7 +445,7 @@ void process_creature_instance(struct Thing *thing)
     }
 }
 
-long instf_creature_fire_shot(struct Thing *creatng, long *param)
+long instf_creature_fire_shot(struct Thing *creatng, int32_t *param)
 {
     struct Thing *target;
     int hittype;
@@ -497,7 +454,9 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     if (cctrl->targtng_idx == 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+        {
             hittype = THit_CrtrsOnlyNotOwn;
+        }
         else
             hittype = THit_CrtrsNObjcts;
     }
@@ -523,7 +482,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         else if (target->class_id == TCls_Trap)
             hittype = THit_TrapsAll;
         else if (target->owner == creatng->owner)
-            hittype = THit_CrtrsOnly;
+            hittype = THit_CrtrsOnlyOwn;
         else
             hittype = THit_CrtrsOnlyNotOwn;
     }
@@ -539,17 +498,17 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     }
     thing_fire_shot(creatng, target, *param, 1, hittype);
     // Start cooldown after shot is fired
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
+    cctrl->instance_use_turn[cctrl->instance_id] = get_gameturn();
     return 0;
 }
 
-long instf_creature_cast_spell(struct Thing *creatng, long *param)
+long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long spl_idx = param[0];
     struct SpellConfig* spconf = get_spell_config(spl_idx);
-    struct Thing* target = NULL;
+    struct Thing* target = INVALID_THING;
 
     SYNCDBG(8,"The %s(%d) casts %s at %d", thing_model_name(creatng), (int)creatng->index,
         spell_code_name(spl_idx), cctrl->targtng_idx);
@@ -559,10 +518,10 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
         // If the targtng_idx is just the caster itself, we can call creature_cast_spell
         // instead of creature_cast_spell_at_thing.
         target = thing_get(cctrl->targtng_idx);
-        if (thing_is_invalid(target)) target = NULL;
     }
-
-    if (target != NULL)
+    // Start cooldown after spell effect activates
+    cctrl->instance_use_turn[cctrl->instance_id] = get_gameturn();
+    if (!thing_is_invalid(target))
     {
         creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->exp_level);
     }
@@ -570,9 +529,6 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     {
         creature_cast_spell(creatng, spl_idx, cctrl->exp_level, cctrl->targtstl_x, cctrl->targtstl_y);
     }
-
-    // Start cooldown after spell effect activates
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
 }
 
@@ -651,7 +607,7 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     return (i < game.conf.crtr_conf.instances_count) ? i : CrInst_NULL;
 }
 
-long instf_dig(struct Thing *creatng, long *param)
+long instf_dig(struct Thing *creatng, int32_t *param)
 {
     long stl_x;
     long stl_y;
@@ -682,7 +638,7 @@ long instf_dig(struct Thing *creatng, long *param)
         if (!slab_kind_is_indestructible(slb->kind))
             slb->health -= dig_damage;
         struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
-        thing_play_sample(creatng, shotst->dig.sndsample_idx + UNSYNC_RANDOM(shotst->dig.sndsample_range), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, shotst->dig.sndsample_idx + SOUND_RANDOM(shotst->dig.sndsample_range), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         create_effect(&creatng->mappos, shotst->dig.effect_model, creatng->owner);
         if (taskkind == SDDigTask_MineGold)
         {
@@ -725,11 +681,11 @@ long instf_dig(struct Thing *creatng, long *param)
         }
     }
     check_map_explored(creatng, stl_x, stl_y);
-    thing_play_sample(creatng, 72 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(creatng, 72 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     return 1;
 }
 
-long instf_destroy(struct Thing *creatng, long *param)
+long instf_destroy(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
@@ -751,12 +707,13 @@ long instf_destroy(struct Thing *creatng, long *param)
             {
                 volume = FULL_LOUDNESS;
             }
-            thing_play_sample(creatng, 5 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, volume);
+            thing_play_sample(creatng, 5 + SOUND_RANDOM(2), 200, 0, 3, 0, 2, volume);
             return 0;
         }
         clear_dig_on_room_slabs(room, creatng->owner);
         if (room->owner == game.neutral_player_num)
         {
+            remove_room_from_players_list(room, game.neutral_player_num);
             claim_room(room, creatng);
         } else
         {
@@ -776,7 +733,7 @@ long instf_destroy(struct Thing *creatng, long *param)
         {
             volume = FULL_LOUDNESS;
         }
-        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
+        thing_play_sample(creatng, 128 + SOUND_RANDOM(3), 200, 0, 3, 0, 2, volume);
         return 0;
     }
     if (prev_owner != game.neutral_player_num) {
@@ -787,7 +744,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     {
         volume = FULL_LOUDNESS;
     }
-    thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
+    thing_play_sample(creatng, 128 + SOUND_RANDOM(3), 200, 0, 3, 0, 2, volume);
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
@@ -796,7 +753,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_attack_room_slab(struct Thing *creatng, long *param)
+long instf_attack_room_slab(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     struct Room* room = get_room_thing_is_on(creatng);
@@ -816,7 +773,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     {
         //TODO CONFIG damage made to room slabs is constant - doesn't look good
         slb->health -= 2;
-        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, 128 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         return 1;
     }
     if (room->owner != game.neutral_player_num)
@@ -846,7 +803,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_damage_wall(struct Thing *creatng, long *param)
+long instf_damage_wall(struct Thing *creatng, int32_t *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
@@ -872,22 +829,22 @@ long instf_damage_wall(struct Thing *creatng, long *param)
         create_dirt_rubble_for_dug_slab(slb_x, slb_y);
         thing_play_sample(creatng, 73, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 63+SOUND_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
-long instf_eat(struct Thing *creatng, long *param)
+long instf_eat(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+    apply_health_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].health.food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
 }
 
-long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
+long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct PlayerInfo* player = get_player(get_appropriate_player_for_creature(creatng));
@@ -1049,13 +1006,13 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     if (dig)
     {
         //TODO CONFIG shot model dependency
-        long locparam = ShM_Dig;
+        int32_t locparam = ShM_Dig;
         instf_creature_fire_shot(creatng, &locparam);
     }
     return 1;
 }
 
-long instf_pretty_path(struct Thing *creatng, long *param)
+long instf_pretty_path(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     SYNCDBG(16,"Starting");
@@ -1072,7 +1029,7 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_reinforce(struct Thing *creatng, long *param)
+long instf_reinforce(struct Thing *creatng, int32_t *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
@@ -1096,7 +1053,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
             {
                 volume = FULL_LOUDNESS;
             }
-            thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, volume);
+            thing_play_sample(creatng, 1005 + SOUND_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, volume);
         }
         return 0;
     }
@@ -1118,13 +1075,13 @@ long instf_reinforce(struct Thing *creatng, long *param)
     return 0;
 }
 
-long instf_tortured(struct Thing *creatng, long *param)
+long instf_tortured(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     return 1;
 }
 
-long instf_tunnel(struct Thing *creatng, long *param)
+long instf_tunnel(struct Thing *creatng, int32_t *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
@@ -1135,7 +1092,7 @@ long instf_tunnel(struct Thing *creatng, long *param)
     if (slabmap_block_invalid(slb)) {
         return 0;
     }
-    thing_play_sample(creatng, 69+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 69+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (slb->health > 1) {
         slb->health--;
         } else {
@@ -1151,13 +1108,13 @@ long instf_tunnel(struct Thing *creatng, long *param)
 void delay_teleport(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
+    cctrl->instance_use_turn[CrInst_TELEPORT] = get_gameturn() + 100;
 }
 
 void delay_heal_sleep(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->healing_sleep_check_turn = game.play_gameturn + 600;
+    cctrl->healing_sleep_check_turn = get_gameturn() + 600;
 }
 
 /**
@@ -1194,8 +1151,9 @@ TbBool validate_source_basic
 
     if (!creature_instance_is_available(source, inst_idx) ||
         !creature_instance_has_reset(source, inst_idx) ||
-        creature_under_spell_effect(source, CSAfF_Freeze) ||
-        creature_is_fleeing_combat(source) || creature_under_spell_effect(source, CSAfF_Chicken) ||
+        ((creature_under_spell_effect(source, CSAfF_Freeze)) && (!flag_is_set(param1, CSAfF_Freeze))) ||
+        creature_is_fleeing_combat(source) || 
+        ((creature_under_spell_effect(source, CSAfF_Chicken)) && (!flag_is_set(param1, CSAfF_Chicken))) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
         creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
@@ -1475,7 +1433,7 @@ TbBool validate_target_benefits_from_defensive
         ERRORLOG("Invalid creature control");
         return false;
     }
-    // When the target is fighting creatures, return true because it needs defensive buffs. 
+    // When the target is fighting creatures, return true because it needs defensive buffs.
     // Doors and Hearts do not fight back, and keepers only defend by dropping units.
     if (any_flag_is_set(cctrl->combat_flags, (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)))
     {
@@ -1585,7 +1543,7 @@ TbBool validate_target_benefits_from_wind
     {
         return true;
     }
-    struct CreatureStats* stats = creature_stats_get_from_thing(target);
+    struct CreatureModelConfig* stats = creature_stats_get_from_thing(target);
     if (stats->attack_preference == AttckT_Ranged && cctrl->opponents_melee_count >= 2)
     {
         // Surrounded by 2+ enemies. This could be definitely smarter but not now.
@@ -1831,13 +1789,13 @@ TbBool search_target_ranged_heal
 
 void script_set_creature_instance(ThingModel crmodel, short slot, int instance, short level)
 {
-    struct CreatureStats *crstat = creature_stats_get(crmodel);
+    struct CreatureModelConfig *crconf = creature_stats_get(crmodel);
 
-    if (!creature_stats_invalid(crstat))
+    if (!creature_stats_invalid(crconf))
     {
-        CrInstance old_instance = crstat->learned_instance_id[slot - 1];
-        crstat->learned_instance_id[slot - 1] = instance;
-        crstat->learned_instance_level[slot - 1] = level;
+        CrInstance old_instance = crconf->learned_instance_id[slot - 1];
+        crconf->learned_instance_id[slot - 1] = instance;
+        crconf->learned_instance_level[slot - 1] = level;
         const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
         unsigned long k = 0;
         int i = slist->index;
@@ -1871,6 +1829,39 @@ void script_set_creature_instance(ThingModel crmodel, short slot, int instance, 
 
 
     }
+}
+
+TbBool validate_target_requires_cleansing
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target) ||
+        !creature_requires_cleansing(target, param1))
+    {
+        return false;
+    }
+
+    if (source->index == target->index)
+    {
+        // Special case. The creature is always allowed to cleanse itself.
+        return true;
+    }
+    else
+    {
+        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured(source) || creature_is_kept_in_prison(source) ||
+            creature_under_spell_effect(source, CSAfF_Freeze) || creature_under_spell_effect(source, CSAfF_Chicken)) // not allowed to cleanse others (only itself) even if source param1 is set
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /******************************************************************************/

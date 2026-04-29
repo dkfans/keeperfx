@@ -26,11 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern const char keeper_textureanim_file[];
-
-
-TbBool load_textureanim_config(const char *conf_fname,unsigned short flags);
-
+extern const struct ConfigFileData keeper_textureanim_file_data;
 /******************************************************************************/
 #ifdef __cplusplus
 }

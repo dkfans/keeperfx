@@ -29,9 +29,9 @@
 
 /******************************************************************************/
 /******************************************************************************/
-long gpoly_countdown[] = { 0,-15,-14,-13,-12,-11,-10, -9,  -8, -7, -6, -5, -4, -3, -2, -1 };
+static const long gpoly_countdown[] = { 0,-15,-14,-13,-12,-11,-10, -9,  -8, -7, -6, -5, -4, -3, -2, -1 };
 
-long gpoly_reptable[] = {
+static const long gpoly_reptable[] = {
          0x0,0x7FFFFFFF,0x3FFFFFFF,0x2AAAAAAA,0x1FFFFFFF,0x19999999,0x15555555,0x12492492,
   0x0FFFFFFF,0x0E38E38E,0x0CCCCCCC,0x0BA2E8BA,0x0AAAAAAA, 0x9D89D89, 0x9249249, 0x8888888,
    0x7FFFFFF, 0x7878787, 0x71C71C7, 0x6BCA1AF, 0x6666666, 0x6186186, 0x5D1745D, 0x590B216,
@@ -66,7 +66,7 @@ long gpoly_reptable[] = {
    0x0842108, 0x0839930, 0x083126E, 0x0828CBF, 0x0820820, 0x081848D, 0x0810204, 0x0808080,
          0x0,       0x0 };
 
-long gpoly_divtable[][64] = {
+static const long gpoly_divtable[][64] = {
    {-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
     -8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
     -8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
@@ -325,48 +325,37 @@ long gpoly_divtable[][64] = {
        50737,   52851,   54965,   57079,   59193,   61307,   63421,   65536,},
 };
 
-static long gpoly_pro_enable_mode_ofs;
-// Static variables used only inside draw_gpoly().
-// These don't really have to be global; but this helps
-// in using these inside assembly code
-long gpoly_mode;
-long factor_ca,factor_ba,factor_cb,factor_chk;
-// More variables - made global temporarly to ease assembly rewriting
-struct PolyPoint *gploc_point_a,*gploc_point_b,*gploc_point_c;
-long gploc_1A4,gploc_1A0;
-short gploc_word01,gploc_word02,gploc_word03;
-long gploc_198,gploc_194,gploc_18C,gploc_188,gploc_180;
-long gploc_pt_ay,gploc_pt_ax,gploc_pt_shax,gploc_170,gploc_16C,gploc_168;
-long gploc_pt_by,gploc_pt_bx,gploc_pt_shbx,gploc_158,gploc_154,gploc_150;
-long gploc_pt_cy,gploc_pt_cx,gploc_pt_shcx,gploc_140,gploc_13C,gploc_138;
-long gploc_12C,gploc_128,gploc_104,gploc_FC,gploc_F8,gploc_F4,gploc_E4,gploc_E0;
-long gploc_D8,gploc_D4,gploc_CC,gploc_C8,gploc_C4,gploc_C0,gploc_BC,gploc_B8,gploc_B4,gploc_B0,gploc_AC,gploc_A7,gploc_A8,gploc_A4,gploc_A0,gploc_9C;
-long gploc_98,gploc_94,gploc_90,gploc_8C,gploc_88,gploc_84,gploc_80,gploc_7C,gploc_78,gploc_74,gploc_68,gploc_64,gploc_60;
-long gploc_5C,gploc_58,gploc_54,gploc_50,gploc_4C,gploc_48,gploc_44,gploc_34,gploc_30,gploc_2C,gploc_28;
+static long factor_ca,factor_ba,factor_cb,factor_chk;
+static long gploc_point_c;
+static long shadingtop_deltashade;
+static long maptexturetop_deltau,mapxveltop,maptexturetop_deltav,mapyveltop,scanlinescounter;
+static long triangle_point_a_y,triangle_point_a_x,triangle_point_a_shade_x,triangle_point_a_shade,triangle_point_a_texture_u,triangle_point_a_texture_v;
+static long triangle_point_b_y,triangle_point_b_x,triangle_point_b_shade_x,triangle_point_b_shade,triangle_point_b_texture_u,triangle_point_b_texture_v;
+static long triangle_point_c_y,triangle_point_c_x,triangle_point_c_shade_x,triangle_point_c_shade,triangle_point_c_texture_u,triangle_point_c_texture_v;
+static long shadingfactor_primary,shadingfactor_secondary,screenbuffer_linestride,g_shadeAccumulator,g_shadeAccumulatorNext,texture_xaccumulator_backup;
+static uint8_t * screenbuffer_lineptr;
+static long texture_xaccumulator_high_backup,pixel_span_remaining_count,texture_yaccumulator_low,texture_yaccumulator_high_combined,scanline_span_count,shade_interpolation_top_low,shade_interpolation_top_high_combined,mapxhstep,mapyhstep,shadehstep,texture_pointc_interpolation_low,texture_pointc_interpolation_high_combined;
+static long shade_interpolation_bottom_low,shade_interpolation_bottom_high_combined,startpos_top_shade_texture_combined,startpos_top_texturex_texturey_combined,startpos_bottom_shade_texture_combined,startpos_bottom_texturex_texturey_combined,current_scanline_xposition,shade_interpolation_pointc_high,shade_interpolation_pointc_low,texture_xaccumulator_low;
+static long shade_interpolation_bottom_combined,startposshadetop,startposmapxtop,startposmapytop,startposshadebottom,startposmapxbottom,startposmapybottom,texture_xaccumulator_low_backup,shade_interpolation_top_shifted,texture_delta_bottom_high_combined;
 /******************************************************************************/
-void gpoly_enable_pentium_pro(TbBool state)
+
+#undef __ROL4__
+#define __ROL4__(val, shift) \
+    (uint32_t)( ((uint32_t)(val) << (shift)) | ((uint32_t)(val) >> (32 - (shift))) )
+
+static inline uint64_t CFADD64(uint64_t a_low, uint64_t b_low)
 {
-  SYNCMSG("Pentium Pro polygon rendering %s",state?"on":"off");
-  if (state)
-    gpoly_pro_enable_mode_ofs = (1<<6);
-  else
-    gpoly_pro_enable_mode_ofs = 0;
+    // Return 1 if (a_low + b_low) overflows 32 bits
+    uint64_t sum = a_low + b_low;
+    return (sum < a_low) ? 1u : 0u;
 }
 
-void draw_gpoly_sub1a();
-void draw_gpoly_sub1b();
-void draw_gpoly_sub1c();
-void draw_gpoly_sub2a();
-void draw_gpoly_sub2b();
-void draw_gpoly_sub2c();
-void draw_gpoly_sub3a();
-void draw_gpoly_sub3b();
-void draw_gpoly_sub4();
-void draw_gpoly_sub5();
-void draw_gpoly_sub6();
-void draw_gpoly_sub7();
-void draw_gpoly_sub11();
-void draw_gpoly_sub12();
+static inline uint64_t PAIR64(uint32_t high32, uint32_t low32) {
+    return ((uint64_t)high32 << 32) | (uint64_t)low32;
+}
+
+void draw_gpoly_sub7a();
+void draw_gpoly_sub7b();
 void draw_gpoly_sub13();
 void draw_gpoly_sub14();
 
@@ -378,29 +367,28 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     LOC_vec_screen_width = vec_screen_width;
     LOC_vec_window_width = vec_window_width;
     LOC_vec_window_height = vec_window_height;
-    gpoly_mode = gpoly_pro_enable_mode_ofs + vec_mode;
     { // Check for outranged poly size
         // test lengths
-        int len_bc_x = point_b->X - point_c->X;
-        if ((len_bc_x < -16383) || (len_bc_x > 16383))
+        int edge_bc_length_x = point_b->X - point_c->X;
+        if ((edge_bc_length_x < -16383) || (edge_bc_length_x > 16383))
             return;
-        int len_bc_y = point_b->Y - point_c->Y;
-        if ((len_bc_y < -16383) || (len_bc_y > 16383))
+        int edge_bc_length_y = point_b->Y - point_c->Y;
+        if ((edge_bc_length_y < -16383) || (edge_bc_length_y > 16383))
             return;
-        int len_ba_x = point_b->X - point_a->X;
-        if ((len_ba_x < -16383) || (len_ba_x > 16383))
+        int edge_ba_length_x = point_b->X - point_a->X;
+        if ((edge_ba_length_x < -16383) || (edge_ba_length_x > 16383))
             return;
-        int len_ca_y = point_c->Y - point_a->Y;
-        if ((len_ca_y < -16383) || (len_ca_y > 16383))
+        int edge_ca_length_y = point_c->Y - point_a->Y;
+        if ((edge_ca_length_y < -16383) || (edge_ca_length_y > 16383))
             return;
-        int len_ca_x = point_c->X - point_a->X;
-        if ((len_ca_x < -16383) || (len_ca_x > 16383))
+        int edge_ca_length_x = point_c->X - point_a->X;
+        if ((edge_ca_length_x < -16383) || (edge_ca_length_x > 16383))
             return;
-        int len_ba_y = point_b->Y - point_a->Y;
-        if ((len_ba_y < -16383) || (len_ba_y > 16383))
+        int edge_ba_length_y = point_b->Y - point_a->Y;
+        if ((edge_ba_length_y < -16383) || (edge_ba_length_y > 16383))
             return;
         // test area
-        if ((len_ca_x * len_ba_y) - (len_ba_x * len_ca_y) >= 0)
+        if ((edge_ca_length_x * edge_ba_length_y) - (edge_ba_length_x * edge_ca_length_y) >= 0)
             return;
     }
     long exceeds_window = ((point_a->X | point_b->X | point_c->X) < 0) || (point_a->X > vec_window_width) || (point_b->X > vec_window_width) || (point_c->X > vec_window_width);
@@ -490,4512 +478,874 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
         factor_chk = len_y * factor_ca + len_x;
     }
 
-    gploc_pt_ax = point_a->X;
-    gploc_pt_ay = point_a->Y;
-    gploc_pt_shax = point_a->X << 16;
-    gploc_pt_bx = point_b->X;
-    gploc_pt_by = point_b->Y;
-    gploc_pt_shbx = point_b->X << 16;
-    gploc_pt_cx = point_c->X;
-    gploc_pt_cy = point_c->Y;
-    gploc_pt_shcx = point_c->X << 16;
-    gploc_170 = point_a->S >> 16;
-    gploc_158 = point_b->S >> 16;
-    gploc_140 = point_c->S >> 16;
-    gploc_16C = point_a->U >> 16;
-    gploc_168 = point_a->V >> 16;
-    gploc_154 = point_b->U >> 16;
-    gploc_150 = point_b->V >> 16;
-    gploc_13C = point_c->U >> 16;
-    gploc_138 = point_c->V >> 16;
+    triangle_point_a_x = point_a->X;
+    triangle_point_a_y = point_a->Y;
+    triangle_point_a_shade_x = point_a->X << 16;
+    triangle_point_b_x = point_b->X;
+    triangle_point_b_y = point_b->Y;
+    triangle_point_b_shade_x = point_b->X << 16;
+    triangle_point_c_x = point_c->X;
+    triangle_point_c_y = point_c->Y;
+    triangle_point_c_shade_x = point_c->X << 16;
+    triangle_point_a_shade   = point_a->S >> 16;
+    triangle_point_b_shade   = point_b->S >> 16;
+    triangle_point_c_shade   = point_c->S >> 16;
+    triangle_point_a_texture_u   = point_a->U >> 16;
+    triangle_point_a_texture_v   = point_a->V >> 16;
+    triangle_point_b_texture_u   = point_b->U >> 16;
+    triangle_point_b_texture_v   = point_b->V >> 16;
+    triangle_point_c_texture_u   = point_c->U >> 16;
+    triangle_point_c_texture_v   = point_c->V >> 16;
 
-
-    gploc_point_a = point_a;
-    gploc_point_b = point_b;
-    gploc_point_c = point_c;
-
-    switch (gpoly_mode)
+    if(vec_mode != 5)
     {
-    case 27:
-    case 29:
-    case 31:
-    case 32:
-    case 33:
-    case 34:
-    case 37:
-    case 38:
-    case 91:
-    case 93:
-    case 95:
-    case 96:
-    case 97:
-    case 98:
-    case 101:
-    case 102:
-        draw_gpoly_sub1a();
-        draw_gpoly_sub1b();
-        draw_gpoly_sub1c();
-        break;
-    case 28:
-    case 30:
-    case 35:
-    case 36:
-    case 39:
-    case 40:
-    case 92:
-    case 94:
-    case 99:
-    case 100:
-    case 103:
-    case 104:
-        draw_gpoly_sub2a();
-        draw_gpoly_sub2b();
-        draw_gpoly_sub2c();
-        break;
-    case 4:
-    case 16:
-    case 17:
-    case 68:
-    case 80:
-    case 81:
-        draw_gpoly_sub3a();
-        draw_gpoly_sub3b();
-        break;
-    case 3:
-    case 12:
-    case 13:
-    case 18:
-    case 19:
-    case 22:
-    case 23:
-    case 67:
-    case 76:
-    case 77:
-    case 82:
-    case 83:
-    case 86:
-    case 87:
-        draw_gpoly_sub4();
-        break;
-    case 2:
-    case 66:
-        draw_gpoly_sub5();
-        break;
-    case 5:
-    case 6:
-    case 20:
-    case 21:
-    case 24:
-    case 25:
-    case 70:
-    case 84:
-    case 85:
-    case 88:
-    case 89:
-        draw_gpoly_sub6();
-        break;
-    case 69:
-        draw_gpoly_sub7();
-        break;
-    case 43:
-    case 44:
-    case 45:
-    case 46:
-    case 47:
-    case 48:
-    case 49:
-    case 50:
-    case 51:
-    case 52:
-    case 53:
-    case 54:
-    case 55:
-    case 56:
-    case 57:
-    case 58:
-    case 59:
-    case 60:
-    case 61:
-    case 62:
-    case 63:
-      return;
+        ERRORLOG("unexpected vec_mode %d in draw_gpoly", vec_mode);
+        return;
     }
 
-    // End of first switch - now the second
-    switch (gpoly_mode)
+    draw_gpoly_sub7a();
+    draw_gpoly_sub7b();
+
+    screenbuffer_linestride = LOC_vec_screen_width;
+    scanlinescounter = 2;
+    texture_xaccumulator_low = shade_interpolation_pointc_high;
+    texture_yaccumulator_low = texture_pointc_interpolation_low;
+    texture_yaccumulator_high_combined = texture_pointc_interpolation_high_combined;
+    if (factor_chk < 0)
     {
-    case 5:
-        if (exceeds_window)
+        shadingfactor_primary = factor_ca;
+        shadingfactor_secondary = factor_ba;
+    } else
+    {
+        shadingfactor_primary = factor_ba;
+        shadingfactor_secondary = factor_ca;
+    }
+
+    if (exceeds_window)
+    {
+        draw_gpoly_sub13();
+    } else // not exceeds_window
+    {
+        draw_gpoly_sub14();
+    }
+}
+
+void draw_gpoly_sub7a()
+{
+    int triangle_height_ac = triangle_point_c_y - triangle_point_a_y;
+    int cross_product_adjustment = (triangle_point_b_x - triangle_point_a_x) * (triangle_point_c_y - triangle_point_a_y);
+    if (factor_chk >= 0)
+        cross_product_adjustment -= 2 * triangle_height_ac;
+
+    int triangle_area_determinant = (triangle_point_c_x - triangle_point_a_x) * (triangle_point_b_y - triangle_point_a_y) - (triangle_height_ac + cross_product_adjustment);
+
+    if (triangle_area_determinant != 0)
+    {
+        int division_factor = 0x7FFFFFFF / triangle_area_determinant;
+        int triangle_height_ac_copy = triangle_point_c_y - triangle_point_a_y;
+        int triangle_height_ab = triangle_point_b_y - triangle_point_a_y;
+
+        // First component: shadehstep
         {
-            gploc_104 = LOC_vec_screen_width;
-            gploc_180 = 2;
-            gploc_60 = gploc_1A4;
-            gploc_CC = gploc_A4;
-            gploc_C4 = gploc_A0;
-            gploc_C8 = gploc_9C;
-            if (factor_chk < 0)
-            {
-                gploc_12C = factor_ca;
-                gploc_128 = factor_ba;
-            }
-            else
-            {
-                gploc_12C = factor_ba;
-                gploc_128 = factor_ca;
-            }
-            draw_gpoly_sub11();
-        } else // not exceeds_window
-        {
-            draw_gpoly_sub12();
+            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_shade - triangle_point_a_shade) - (int64_t)triangle_height_ac_copy * (triangle_point_b_shade - triangle_point_a_shade);
+            int64_t result = 2 * num * division_factor;
+            shadehstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
         }
-        break;
 
-    case 64+5: //Pentium pro index + 5
-        if (exceeds_window)
+        // Second component: mapxhstep
         {
-            gploc_104 = LOC_vec_screen_width;
-            gploc_180 = 2;
-            gploc_60 = gploc_68;
-            gploc_CC = gploc_A4;
-            gploc_C4 = gploc_A0;
-            if (factor_chk < 0)
-            {
-                gploc_12C = factor_ca;
-                gploc_128 = factor_ba;
-
-            } else
-            {
-                gploc_12C = factor_ba;
-                gploc_128 = factor_ca;
-            }
-            draw_gpoly_sub13();
-        } else // not exceeds_window
-        {
-            gploc_104 = LOC_vec_screen_width;
-            gploc_180 = 2;
-            gploc_60 = gploc_68;
-            gploc_CC = gploc_A4;
-            gploc_C4 = gploc_A0;
-            if (factor_chk < 0)
-            {
-                gploc_12C = factor_ca;
-                gploc_128 = factor_ba;
-            } else
-            {
-                gploc_12C = factor_ba;
-                gploc_128 = factor_ca;
-            }
-            draw_gpoly_sub14();
+            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_texture_u - triangle_point_a_texture_u) - (int64_t)triangle_height_ac_copy * (triangle_point_b_texture_u - triangle_point_a_texture_u);
+            int64_t result = 2 * num * division_factor;
+            mapxhstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
         }
+
+        // Third component: mapyhstep
+        {
+            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_texture_v - triangle_point_a_texture_v) - (int64_t)triangle_height_ac_copy * (triangle_point_b_texture_v - triangle_point_a_texture_v);
+            int64_t result = 2 * num * division_factor;
+            mapyhstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
+        }
+    }
+    else
+    {
+        shadehstep = 0;
+        mapxhstep = 0;
+        mapyhstep = 0;
+    }
+}
+
+void draw_gpoly_sub7b_block1(void);
+void draw_gpoly_sub7b_block2(void);
+void draw_gpoly_sub7b_block3(void);
+
+void draw_gpoly_sub7b()
+{
+
+    if (factor_chk < 0)
+    {
+        draw_gpoly_sub7b_block2();
+    }
+    else
+    {
+        draw_gpoly_sub7b_block1();
+    }
+
+    draw_gpoly_sub7b_block3();
+
+}
+
+static inline int32_t shift_mul(int32_t delta, int32_t scale)
+{
+    // 64-bit result of signed multiplication
+    int64_t result = (int64_t)delta * scale;
+
+    // Split into low and high 32-bit words
+    uint32_t lo = (uint32_t)(result & 0xFFFFFFFF);
+    uint32_t hi = (uint32_t)((uint64_t)result >> 32);
+
+    // Overwrite low 16 bits of lo with low 16 bits of hi
+    lo = (lo & 0xFFFF0000) | (hi & 0x0000FFFF);
+
+    // Rotate left by 16 bits
+    uint32_t rotated = (lo << 16) | (lo >> 16);
+
+    // If result is negative, increment
+    if ((int32_t)rotated < 0)
+        rotated++;
+
+    return (int32_t)rotated;
+}
+
+void draw_gpoly_sub7b_block1(void)
+{
+    int32_t dy_ab = triangle_point_b_y - triangle_point_a_y;
+    int32_t scale1 = (dy_ab > 255) ? (0x7FFFFFFF / dy_ab) : gpoly_reptable[dy_ab];
+
+    gploc_point_c = shift_mul(2 * (triangle_point_b_shade - triangle_point_a_shade), scale1);
+    mapxveltop    = shift_mul(2 * (triangle_point_b_texture_u - triangle_point_a_texture_u), scale1);
+    mapyveltop    = shift_mul(2 * (triangle_point_b_texture_v - triangle_point_a_texture_v), scale1);
+
+    int32_t dy_bc = triangle_point_c_y - triangle_point_b_y;
+    int32_t scale2 = (dy_bc > 255) ? (0x7FFFFFFF / dy_bc) : gpoly_reptable[dy_bc];
+
+    shadingtop_deltashade = shift_mul(2 * (triangle_point_c_shade - triangle_point_b_shade), scale2);
+    maptexturetop_deltau = shift_mul(2 * (triangle_point_c_texture_u - triangle_point_b_texture_u), scale2);
+    maptexturetop_deltav = shift_mul(2 * (triangle_point_c_texture_v - triangle_point_b_texture_v), scale2);
+}
+
+static inline int rol16_from_product(int64_t product)
+{
+    uint32_t eax = (uint32_t)(product & 0xFFFFFFFF);
+    uint16_t dx = (uint16_t)(product >> 32);
+    eax = (dx << 16) | (eax >> 16); // this mimics: movw dx, ax; rol eax, 16
+    if ((int32_t)eax < 0)
+        ++eax;
+    return eax;
+}
+
+void draw_gpoly_sub7b_block2(void)
+{
+    int dy = triangle_point_c_y - triangle_point_a_y;
+    int factor = (dy > 255) ? (0x7FFFFFFF / dy) : gpoly_reptable[dy];
+
+    int delta = triangle_point_c_shade - triangle_point_a_shade;
+    int64_t product = (int64_t)factor * (delta * 2);
+    gploc_point_c = rol16_from_product(product);
+
+    delta = triangle_point_c_texture_u - triangle_point_a_texture_u;
+    product = (int64_t)factor * (delta * 2);
+    mapxveltop = rol16_from_product(product);
+
+    delta = triangle_point_c_texture_v - triangle_point_a_texture_v;
+    product = (int64_t)factor * (delta * 2);
+    mapyveltop = rol16_from_product(product);
+}
+
+void draw_gpoly_sub7b_block3(void)
+{
+    //----------------------------------------------------------------
+    // 1) Write the six “startpos…” values exactly as in the ASM:
+    //----------------------------------------------------------------
+    startposshadetop    = (uint32_t)( (int32_t)triangle_point_a_shade   << 16 );
+    startposmapxtop     = (uint32_t)( (int32_t)triangle_point_a_texture_u   << 16 );
+    startposmapytop     = (uint32_t)( (int32_t)triangle_point_a_texture_v   << 16 );
+    startposshadebottom = (uint32_t)( (int32_t)triangle_point_b_shade   << 16 );
+    startposmapxbottom  = (uint32_t)( (int32_t)triangle_point_b_texture_u   << 16 );
+    startposmapybottom  = (uint32_t)( (int32_t)triangle_point_b_texture_v   << 16 );
+
+    //----------------------------------------------------------------
+    // 2) TOP‐SHADING INTERPOLATION → shade_interpolation_top_shifted, shade_interpolation_top_low, shade_interpolation_top_high_combined
+    //----------------------------------------------------------------
+    {
+
+        int32_t m_y       = (int32_t)mapyhstep;
+        int32_t s         = (int32_t)(shadehstep >> 8);
+
+        // Build the 48-bit fixed‐point value in a 64‐bit container:
+        int64_t val       = ((int64_t)m_y << 16);
+
+        // If (shadehstep>>8) is negative, emulate the “andl $0x0FFFF; subl $0x10000; sbbl $0,EDX” exactly:
+        if (s < 0) {
+            // EBX = (uint16_t)s
+            uint32_t unsigned_lower_bits = (uint32_t)( (uint16_t)s );
+            // EAX -= 0x10000  →  val -= 0x10000
+            val -= ((int64_t)0x10000);
+            // Add back (uint16_t)s
+            val += (int64_t)unsigned_lower_bits;
+        }
+        else {
+            // s ≥ 0  →  just add s
+            val += (int64_t)s;
+        }
+
+        // Now split val into “low32bits” = EAX and “high32bits” = EDX (signed):
+        uint32_t low32 = (uint32_t)val;
+        int32_t  high32 = (int32_t)( val >> 32 );  // arithmetic shift
+
+        // shade_interpolation_top_shifted ← (shadehstep << 24):
+        shade_interpolation_top_shifted = (uint32_t)( (int32_t)shadehstep << 24 );
+        // shade_interpolation_top_low ← low‐word (EAX):
+        shade_interpolation_top_low = low32;
+
+        // Next: shade_interpolation_top_high_combined = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx = (int32_t)mapxhstep;
+        if (high32 < 0) {
+            mx -= 1;
+        }
+        shade_interpolation_top_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+    }
+
+    //----------------------------------------------------------------
+    // 3) BOTTOM‐SHADING INTERPOLATION → shade_interpolation_bottom_combined, shade_interpolation_bottom_high_combined
+    //----------------------------------------------------------------
+    {
+
+        int32_t m_y   = (int32_t)mapyhstep;
+        int32_t s     = (int32_t)(shadehstep >> 8);
+
+        int64_t val   = ((int64_t)m_y << 16);
+
+        if (s < 0) {
+            // EBX = (uint16_t)s
+            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)s);
+            // EAX -= 0x0FFFF
+            val -= ((int64_t)0x0FFFF);
+            // add EBX
+            val += (int64_t)unsigned_lower_bits;
+        }
+        else {
+            val += (int64_t)s;
+        }
+
+        uint32_t low32  = (uint32_t)val;
+        int32_t  high32 = (int32_t)(val >> 32);
+
+        // Store EAX→shade_interpolation_bottom_combined
+        shade_interpolation_bottom_combined = low32;
+
+        // shade_interpolation_bottom_high_combined = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx      = (int32_t)mapxhstep;
+        if (high32 < 0) {
+            mx -= 1;
+        }
+        shade_interpolation_bottom_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+    }
+
+    //----------------------------------------------------------------
+    // 4) TOP “POINT‐C” INTERPOLATION → shade_interpolation_pointc_high, texture_pointc_interpolation_low, texture_pointc_interpolation_high_combined
+    //----------------------------------------------------------------
+    {
+        int32_t m_y   = (int32_t)mapyveltop;
+        int64_t val   = ((int64_t)m_y << 16);
+
+        // Build shade_interpolation_pointc_high = (gploc_point_c << 24)
+        int32_t ptc     = (int32_t)gploc_point_c;
+        shade_interpolation_pointc_high        = (uint32_t)(ptc << 24);
+
+        int32_t s       = (int32_t)(ptc >> 8);
+        if (s < 0) {
+            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)s);
+            val -= ((int64_t)0x10000);
+            val += (int64_t)unsigned_lower_bits;
+        }
+        else {
+            val += (int64_t)s;
+        }
+
+        uint32_t low32  = (uint32_t)val;
+        int32_t  high32 = (int32_t)(val >> 32);
+        texture_pointc_interpolation_low        = low32;
+
+        // texture_pointc_interpolation_high_combined = ( (mapxveltop + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx      = (int32_t)mapxveltop;
+        if (high32 < 0) {
+            mx -= 1;
+        }
+        texture_pointc_interpolation_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+    }
+
+    //----------------------------------------------------------------
+    // 5) COMBINE STARTPOS FOR TOP: → startpos_top_shade_texture_combined, startpos_top_texturex_texturey_combined
+    //----------------------------------------------------------------
+    {
+        uint32_t sp_y = startposmapytop;
+        uint32_t sp_s = startposshadetop;
+        uint32_t sp_x = startposmapxtop;
+
+        // startpos_top_shade_texture_combined = (sp_s >> 8) | (sp_y << 16)
+        startpos_top_shade_texture_combined = ( (uint32_t)sp_s >> 8 ) | ( (uint32_t)sp_y << 16 );
+
+        // startpos_top_texturex_texturey_combined = (sp_x << 8) | ((sp_y >> 16) & 0xFF)
+        startpos_top_texturex_texturey_combined = ( (uint32_t)sp_x << 8 ) | ( ((uint32_t)sp_y >> 16) & 0xFF );
+    }
+
+    //----------------------------------------------------------------
+    // 6) “IF (factor_chk >= 0) THEN…” → BOTTOM “POINT‐C” BLOCK
+    //----------------------------------------------------------------
+    if ( (int32_t)factor_chk >= 0 )
+    {
+        int32_t m_y   = (int32_t)maptexturetop_deltav;
+        int64_t val   = ((int64_t)m_y << 16);
+
+        // shade_interpolation_pointc_low = (shadingtop_deltashade << 24)
+        int32_t signed_shade_delta    = (int32_t)shadingtop_deltashade;
+        shade_interpolation_pointc_low      = (uint32_t)(signed_shade_delta << 24);
+
+        int32_t shifted_shade_delta    = (int32_t)(signed_shade_delta >> 8);
+        if (shifted_shade_delta < 0) {
+            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)shifted_shade_delta);
+            val -= ((int64_t)0x10000);
+            val += (int64_t)unsigned_lower_bits;
+        }
+        else {
+            val += (int64_t)shifted_shade_delta;
+        }
+
+        uint32_t low32  = (uint32_t)val;
+        int32_t  high32 = (int32_t)(val >> 32);
+        shade_interpolation_bottom_low        = low32;
+
+        // texture_delta_bottom_high_combined = ( (maptexturetop_deltau + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx      = (int32_t)maptexturetop_deltau;
+        if (high32 < 0) {
+            mx -= 1;
+        }
+        texture_delta_bottom_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+
+        //----------------------------------------------------------------
+        // Finally, combine “bottom” startpos → startpos_bottom_shade_texture_combined, startpos_bottom_texturex_texturey_combined
+        //----------------------------------------------------------------
+        {
+            uint32_t sp_yb = startposmapybottom;
+            uint32_t sp_sb = startposshadebottom;
+            uint32_t sp_xb = startposmapxbottom;
+
+            // startpos_bottom_shade_texture_combined = (sp_sb >> 8) | (sp_yb << 16)
+            startpos_bottom_shade_texture_combined = ( (uint32_t)sp_sb >> 8 ) | ( (uint32_t)sp_yb << 16 );
+
+            // startpos_bottom_texturex_texturey_combined = (sp_xb << 8) | ((sp_yb >> 16) & 0xFF)
+            startpos_bottom_texturex_texturey_combined = ( (uint32_t)sp_xb << 8 ) | ( ((uint32_t)sp_yb >> 16) & 0xFF );
+        }
+    }
+}
+
+void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_combined, uint8_t *screen_line_offset)
+{
+    int span_mod16 = pixel_span_len & 0xF;
+    uint8_t * pixel_dst = NULL;
+
+    pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
+
+    if (pixel_dst < LOC_vec_screen) return;
+
+    pixel_span_remaining_count = pixel_span_len;
+    int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
+    uint8_t *texture_map = LOC_vec_map;
+    int texture_step_y = shade_interpolation_bottom_combined;
+    switch ( span_mod16 )
+    {
+      case 0:
+        goto UNROLLED_LOOP_PIXEL0;
+      case 1:
+        goto UNROLLED_LOOP_PIXEL1;
+      case 2:
+        goto UNROLLED_LOOP_PIXEL2;
+      case 3:
+        goto UNROLLED_LOOP_PIXEL3;
+      case 4:
+        goto UNROLLED_LOOP_PIXEL4;
+      case 5:
+        goto UNROLLED_LOOP_PIXEL5;
+      case 6:
+        goto UNROLLED_LOOP_PIXEL6;
+      case 7:
+        goto UNROLLED_LOOP_PIXEL7;
+      case 8:
+        goto UNROLLED_LOOP_PIXEL8;
+      case 9:
+        goto UNROLLED_LOOP_PIXEL9;
+      case 10:
+        goto UNROLLED_LOOP_PIXEL10;
+      case 11:
+        goto UNROLLED_LOOP_PIXEL11;
+      case 12:
+        goto UNROLLED_LOOP_PIXEL12;
+      case 13:
+        goto UNROLLED_LOOP_PIXEL13;
+      case 14:
+        goto UNROLLED_LOOP_PIXEL14;
+      case 15:
+        while ( 1 )
+        {
+            pixel_dst[1] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL14:
+            pixel_dst[2] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL13:
+            pixel_dst[3] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL12:
+            pixel_dst[4] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL11:
+            pixel_dst[5] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL10:
+            pixel_dst[6] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL9:
+            pixel_dst[7] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL8:
+            pixel_dst[8] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL7:
+            pixel_dst[9] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL6:
+            pixel_dst[10] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL5:
+            pixel_dst[11] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL4:
+            pixel_dst[12] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL3:
+            pixel_dst[13] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL2:
+            pixel_dst[14] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+UNROLLED_LOOP_PIXEL1:
+            pixel_dst[15] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+            pixel_dst += 16;
+            bool span_too_small_or_complete = pixel_span_remaining_count <= 16;
+            pixel_span_remaining_count -= 16;
+            if ( span_too_small_or_complete )
+              break;
+UNROLLED_LOOP_PIXEL0:
+            *pixel_dst = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
+        } // while ( 1 );
         break;
     }
-}
-
-static void unk_update_gpoly1_tri8a(long * vout0, long * vout1, long vinp2, long vin0, long delta)
-{
-    long tmp1 = (vin0 << 16);
-    long tmp2 = (vin0 >> 16);
-    tmp1 += (unsigned char)(vinp2);
-    if ( (char)(vinp2) < 0 )
-    {
-        long tmp3 = (unsigned int)tmp1 < delta;
-        tmp1 -= delta;
-        tmp2 = (tmp2 & ~0xff) | ((tmp2 - tmp3) & 0xff);
-    }
-    *vout1 = tmp1;
-    *vout0 = tmp2;
-}
-
-static void unk_update_gpoly1_tri16a(long * vout0, long * vout1, long vinp2, long vin0, long delta)
-{
-    long tmp1 = (vin0 << 16);
-    long tmp2 = (vin0 >> 16);
-    tmp1 += (unsigned short)(vinp2);
-    if ( (short)(vinp2) < 0 )
-    {
-        long tmp3 = (unsigned int)tmp1 < delta;
-        tmp1 -= delta;
-        tmp2 = (tmp2 & ~0xff) | ((tmp2 - tmp3) & 0xff);
-    }
-    *vout1 = tmp1;
-    *vout0 = tmp2;
-}
-
-static void unk_update_gpoly1_tri8b(long * vout0, long * vout1, long * vout2, long vin0, long vin1)
-{
-    *vout2 = (vin1 << 16);
-    long tmp1 = (vin0 << 16);
-    tmp1 += ((unsigned int)vin1 >> 16) & 0xff;
-    *vout1 = tmp1;
-    *vout0 = (unsigned int)(vin0 << 8) >> 24 << 8;
-}
-
-static void unk_update_gpoly1_tri16b(long * vout0, long * vout1, long * vout2, long vin0, long vin1, long vin2)
-{
-    long tmp1 = (vin1 << 16);
-    tmp1 += ((unsigned int)vin2 >> 8) & 0xffff;
-    *vout2 = tmp1;
-    tmp1 = (vin0 << 16);
-    tmp1 += ((unsigned int)vin1 >> 16) & 0xff;
-    *vout1 = tmp1;
-    tmp1 = (unsigned int)(vin0 << 8) >> 24 << 8;
-    tmp1 += (vin2) & 0xff;
-    *vout0 = tmp1;
-}
-
-void draw_gpoly_sub1a()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
-    movl    _factor_chk,%%edi\n \
-    orl %%edi,%%edi\n \
-    subl    $0,%%esi\n \
-    addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
-    subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-    movl    %%ecx,%%eax\n \
-    imull   %%esi,%%ecx\n \
-    movl    _factor_chk,%%ebp\n \
-    orl %%ebp,%%ebp\n \
-    js  gpo_loc_0532\n \
-    subl    %%eax,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-\n \
-gpo_loc_0532:         # 33C\n \
-    addl    %%eax,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    jz  gpo_loc_05B8\n \
-    xorl    %%edx,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ebx\n \
-    movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_16C,%%edx\n \
-    movl    _gploc_13C,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_154,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_057F\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_057F:         # 38C\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_168,%%edx\n \
-    movl    _gploc_138,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_150,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_05AF\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_05AF:         # 3BC\n \
-    movl    %%eax,_gploc_AC\n \
-    jmp gpo_loc_05C8\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_05B8:         # 34\n \
-    xorl    %%eax,%%eax\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%eax,_gploc_AC\n \
-\n \
-gpo_loc_05C8:         # 3C6\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub1b()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_0715\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_05ED\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_05FB\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_05ED:         # 3F2\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_05FB:         # 3FB\n \
-    movl    _gploc_154,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0610\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0610:         # 41D\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_150,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0629\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0629:         # 436\n \
-    movl    %%eax,_gploc_188\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_0646\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_0654\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_0646:         # 44B\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_0654:         # 45\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_154,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0669\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0669:         # 476\n \
-    movl    %%eax,_gploc_198\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_150,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0682\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0682:         # 48\n \
-    movl    %%eax,_gploc_18C\n \
-    movl    _gploc_point_a,%%eax\n \
-    movl    _gploc_B0,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_194\n \
-    movl    _gploc_point_a,%%eax\n \
-    movl    _gploc_AC,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_188\n \
-    movl    _gploc_point_a,%%eax\n \
-    movl    _gploc_A8,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_point_c\n \
-    movl    _gploc_point_b,%%eax\n \
-    movl    _gploc_B0,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_198\n \
-    movl    _gploc_point_b,%%eax\n \
-    movl    _gploc_AC,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_18C\n \
-    movl    _gploc_point_b,%%eax\n \
-    movl    _gploc_A8,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_1A0\n \
-    jmp gpo_loc_07B0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_0715:         # 3DE\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_072E\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_073C\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_072E:         # 533\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_073C:         # 53C\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0751\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0751:         # 55E\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_076A\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_076A:         # 577\n \
-    movl    %%eax,_gploc_188\n \
-    movl    _factor_ca,%%eax\n \
-    movl    _gploc_B0,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_194\n \
-    movl    _factor_ca,%%eax\n \
-    movl    _gploc_AC,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_188\n \
-    movl    _factor_ca,%%eax\n \
-    movl    _gploc_A8,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_point_c\n \
-\n \
-gpo_loc_07B0:         # 520\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub1c()
-{
-    gploc_54 = (gploc_16C << 16) + gploc_B0;
-    gploc_50 = (gploc_168 << 16) + gploc_AC;
-    gploc_48 = (gploc_154 << 16) + gploc_B0;
-    gploc_44 = (gploc_150 << 16) + gploc_AC;
-
-    gploc_BC = (gploc_B0 << 16);
-    gploc_B8 = (gploc_B0 >> 16);
-    unk_update_gpoly1_tri8a(&gploc_B4, &gploc_B8, gploc_B8, gploc_AC, 256);
-    gploc_A4 = (gploc_194 << 16);
-    gploc_A0 = (gploc_194 >> 16);
-    unk_update_gpoly1_tri8a(&gploc_9C, &gploc_A0, gploc_A0, gploc_188, 256);
-    unk_update_gpoly1_tri8b(&gploc_84, &gploc_88, &gploc_8C, gploc_50, gploc_54);
-    if ( factor_chk >= 0 )
-    {
-        gploc_98 = (gploc_198 << 16);
-        gploc_94 = (gploc_198 >> 16);
-        unk_update_gpoly1_tri8a(&gploc_90, &gploc_94, gploc_94, gploc_18C, 256);
-        unk_update_gpoly1_tri8b(&gploc_78, &gploc_7C, &gploc_80, gploc_44, gploc_48);
-    }
-}
-
-void draw_gpoly_sub2a()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
-    movl    _factor_chk,%%edi\n \
-    orl %%edi,%%edi\n \
-    subl    $0,%%esi\n \
-    addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
-    subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-    movl    %%ecx,%%eax\n \
-    imull   %%esi,%%ecx\n \
-    movl    _factor_chk,%%ebp\n \
-    orl %%ebp,%%ebp\n \
-    js  gpo_loc_09AC\n \
-    subl    %%eax,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-\n \
-gpo_loc_09AC:         # 7B6\n \
-    addl    %%eax,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    jz  gpo_loc_0A66\n \
-    xorl    %%edx,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ebx\n \
-    movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_170,%%edx\n \
-    movl    _gploc_140,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_158,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_09FD\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_09FD:         # 80A\n \
-    movl    %%eax,_gploc_A8\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_16C,%%edx\n \
-    movl    _gploc_13C,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_154,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0A2D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0A2D:         # 83A\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_168,%%edx\n \
-    movl    _gploc_138,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_150,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0A5D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0A5D:         # 86A\n \
-    movl    %%eax,_gploc_AC\n \
-    jmp gpo_loc_0A7D\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_0A66:         # 7C3\n \
-    xorl    %%eax,%%eax\n \
-    movl    %%eax,_gploc_A8\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%eax,_gploc_AC\n \
-\n \
-gpo_loc_0A7D:         # 87\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub2b()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_0BFC\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_0AA2\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_0AB0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_0AA2:         # 8A7\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_0AB0:         # 8B0\n \
-    movl    _gploc_158,%%eax\n \
-    subl    _gploc_170,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0AC5\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0AC5:         # 8D2\n \
-    movl    %%eax,_gploc_point_c\n \
-    movl    _gploc_154,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0ADE\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0ADE:         # 8EB\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_150,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0AF7\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0AF7:         # 90\n \
-    movl    %%eax,_gploc_188\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_0B14\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_0B22\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_0B14:         # 91\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_0B22:         # 922\n \
-    movl    _gploc_140,%%eax\n \
-    subl    _gploc_158,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0B37\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0B37:         # 94\n \
-    movl    %%eax,_gploc_1A0\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_154,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0B50\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0B50:         # 95D\n \
-    movl    %%eax,_gploc_198\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_150,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0B69\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0B69:         # 976\n \
-    movl    %%eax,_gploc_18C\n \
-    movl    _gploc_point_a,%%eax\n \
-    movl    _gploc_B0,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_194\n \
-    movl    _gploc_point_a,%%eax\n \
-    movl    _gploc_AC,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_188\n \
-    movl    _gploc_point_a,%%eax\n \
-    movl    _gploc_A8,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_point_c\n \
-    movl    _gploc_point_b,%%eax\n \
-    movl    _gploc_B0,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_198\n \
-    movl    _gploc_point_b,%%eax\n \
-    movl    _gploc_AC,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_18C\n \
-    movl    _gploc_point_b,%%eax\n \
-    movl    _gploc_A8,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_1A0\n \
-    jmp gpo_loc_0CB0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_0BFC:         # 893\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_0C15\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_0C23\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_0C15:         # A1A\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_0C23:         # A23\n \
-    movl    _gploc_140,%%eax\n \
-    subl    _gploc_170,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0C38\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0C38:         # A45\n \
-    movl    %%eax,_gploc_point_c\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0C51\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0C51:         # A5E\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0C6A\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0C6A:         # A77\n \
-    movl    %%eax,_gploc_188\n \
-    movl    _factor_ca,%%eax\n \
-    movl    _gploc_B0,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_194\n \
-    movl    _factor_ca,%%eax\n \
-    movl    _gploc_AC,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_188\n \
-    movl    _factor_ca,%%eax\n \
-    movl    _gploc_A8,%%ebx\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    subl    %%eax,_gploc_point_c\n \
-\n \
-gpo_loc_0CB0:         # A07\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub2c()
-{
-    gploc_58 = (gploc_170 << 16) + gploc_A8;
-    gploc_54 = (gploc_16C << 16) + gploc_B0;
-    gploc_50 = (gploc_168 << 16) + gploc_AC;
-    gploc_4C = (gploc_158 << 16) + gploc_A8;
-    gploc_48 = (gploc_154 << 16) + gploc_B0;
-    gploc_44 = (gploc_150 << 16) + gploc_AC;
-
-    unk_update_gpoly1_tri16a(&gploc_B8, &gploc_BC, gploc_word03, gploc_B0, 65536);
-    unk_update_gpoly1_tri8a(&gploc_B4, &gploc_B8, gploc_B8, gploc_AC, 256);
-    unk_update_gpoly1_tri16a(&gploc_2C, &gploc_5C, gploc_word03, gploc_B0, 65535);
-    unk_update_gpoly1_tri8a(&gploc_28, &gploc_2C, gploc_2C, gploc_AC, 256);
-    unk_update_gpoly1_tri16a(&gploc_A0, &gploc_A4, gploc_word01, gploc_194, 65536);
-    unk_update_gpoly1_tri8a(&gploc_9C, &gploc_A0, gploc_A0, gploc_188, 256);
-    unk_update_gpoly1_tri16b(&gploc_84, &gploc_88, &gploc_8C, gploc_50, gploc_54, gploc_58);
-
-    if ( factor_chk >= 0 )
-    {
-        unk_update_gpoly1_tri16a(&gploc_94, &gploc_98, gploc_word02, gploc_198, 65536);
-        unk_update_gpoly1_tri8a(&gploc_90, &gploc_94, gploc_94, gploc_18C, 256);
-        unk_update_gpoly1_tri16b(&gploc_78, &gploc_7C, &gploc_80, gploc_44, gploc_48, gploc_4C);
-    }
-
-}
-
-void draw_gpoly_sub3a()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
-    movl    _factor_chk,%%edi\n \
-    orl %%edi,%%edi\n \
-    subl    $0,%%esi\n \
-    addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
-    subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-    movl    %%ecx,%%eax\n \
-    imull   %%esi,%%ecx\n \
-    movl    _factor_chk,%%ebp\n \
-    orl %%ebp,%%ebp\n \
-    js  gpo_loc_0FAC\n \
-    subl    %%eax,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-\n \
-gpo_loc_0FAC:         # DB6\n \
-    addl    %%eax,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    jz  gpo_loc_1002\n \
-    xorl    %%edx,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ebx\n \
-    movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_170,%%edx\n \
-    movl    _gploc_140,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_158,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_0FF9\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_0FF9:         # E06\n \
-    movl    %%eax,_gploc_A8\n \
-    jmp gpo_loc_100B\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1002:         # DC3\n \
-    xorl    %%eax,%%eax\n \
-    movl    %%eax,_gploc_A8\n \
-\n \
-gpo_loc_100B:         # E10\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub3b()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_1099\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1030\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_103E\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1030:         # E35\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_103E:         # E3E\n \
-    movl    _gploc_158,%%eax\n \
-    subl    _gploc_170,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1053\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1053:         # E60\n \
-    movl    %%eax,_gploc_point_c\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1070\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_107E\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1070:         # E75\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_107E:         # E7E\n \
-    movl    _gploc_140,%%eax\n \
-    subl    _gploc_158,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1093\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1093:         # EA0\n \
-    movl    %%eax,_gploc_1A0\n \
-    jmp gpo_loc_10D9\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1099:         # E2\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_10B2\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_10C0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_10B2:         # EB7\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_10C0:         # EC0\n \
-    movl    _gploc_140,%%eax\n \
-    subl    _gploc_170,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_10D5\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_10D5:         # EE2\n \
-    movl    %%eax,_gploc_point_c\n \
-\n \
-gpo_loc_10D9:         # EA7\n \
-    movl    _gploc_170,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_58\n \
-    movl    _gploc_158,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_4C\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub4()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
-    movl    _factor_chk,%%edi\n \
-    orl %%edi,%%edi\n \
-    subl    $0,%%esi\n \
-    addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
-    subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-    movl    %%ecx,%%eax\n \
-    imull   %%esi,%%ecx\n \
-    movl    _factor_chk,%%ebp\n \
-    orl %%ebp,%%ebp\n \
-    js  gpo_loc_1137\n \
-    subl    %%eax,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-\n \
-gpo_loc_1137:         # F4\n \
-    addl    %%eax,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    jz  gpo_loc_11BD\n \
-    xorl    %%edx,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ebx\n \
-    movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_16C,%%edx\n \
-    movl    _gploc_13C,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_154,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1184\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1184:         # F9\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_168,%%edx\n \
-    movl    _gploc_138,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_150,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_11B4\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_11B4:         # FC\n \
-    movl    %%eax,_gploc_AC\n \
-    jmp gpo_loc_11CD\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_11BD:         # F4E\n \
-    xorl    %%eax,%%eax\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%eax,_gploc_AC\n \
-\n \
-gpo_loc_11CD:         # FCB\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_128D\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_11F2\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1200\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_11F2:         # FF7\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1200:         # 1000\n \
-    movl    _gploc_154,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1215\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1215:         # 1022\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_150,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_122E\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_122E:         # 103B\n \
-    movl    %%eax,_gploc_188\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_124B\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1259\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_124B:         # 1050\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1259:         # 105\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_154,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_126E\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_126E:         # 107B\n \
-    movl    %%eax,_gploc_198\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_150,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1287\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1287:         # 109\n \
-    movl    %%eax,_gploc_18C\n \
-    jmp gpo_loc_12E6\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_128D:         # FE3\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_12A6\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_12B4\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_12A6:         # 10AB\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_12B4:         # 10B\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_12C9\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_12C9:         # 10D6\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_12E2\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_12E2:         # 10E\n \
-    movl    %%eax,_gploc_188\n \
-\n \
-gpo_loc_12E6:         # 109B\n \
-    movl    _gploc_16C,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_54\n \
-    movl    _gploc_168,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_50\n \
-    movl    _gploc_154,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_48\n \
-    movl    _gploc_150,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_44\n \
-    movl    _gploc_B0,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    %%eax,_gploc_BC\n \
-    movl    %%edx,_gploc_B8\n \
-    movl    _gploc_AC,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    _gploc_AC,%%edx\n \
-    sarl    $0x10,%%edx\n \
-    movb    _gploc_B8,%%al\n \
-    orb %%al,%%al\n \
-    jns gpo_loc_1362\n \
-    subl    $0x100,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_1362:         # 1168\n \
-    movl    %%eax,_gploc_B8\n \
-    movl    %%edx,_gploc_B4\n \
-    movl    _gploc_194,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    %%eax,_gploc_A4\n \
-    movl    %%edx,_gploc_A0\n \
-    movl    _gploc_188,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    _gploc_188,%%edx\n \
-    sarl    $0x10,%%edx\n \
-    movb    _gploc_A0,%%al\n \
-    orb %%al,%%al\n \
-    jns gpo_loc_13AB\n \
-    subl    $0x100,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_13AB:         # 11B\n \
-    movl    %%eax,_gploc_A0\n \
-    movl    %%edx,_gploc_9C\n \
-    movl    _gploc_54,%%ecx\n \
-    movl    _gploc_50,%%edx\n \
-    movl    %%ecx,%%eax\n \
-    shll    $0x10,%%ecx\n \
-    shrl    $0x10,%%eax\n \
-    movl    %%ecx,_gploc_8C\n \
-    movl    %%edx,%%ecx\n \
-    shll    $0x10,%%ecx\n \
-    shll    $8,%%edx\n \
-    shrl    $0x18,%%edx\n \
-    shll    $8,%%edx\n \
-    movb    %%al,%%cl\n \
-    movl    %%ecx,_gploc_88\n \
-    movl    %%edx,_gploc_84\n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_1484\n \
-    movl    _gploc_198,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    %%eax,_gploc_98\n \
-    movl    %%edx,_gploc_94\n \
-    movl    _gploc_18C,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    _gploc_18C,%%edx\n \
-    sarl    $0x10,%%edx\n \
-    movb    _gploc_94,%%al\n \
-    orb %%al,%%al\n \
-    jns gpo_loc_143B\n \
-    subl    $0x100,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_143B:         # 124\n \
-    movl    %%eax,_gploc_94\n \
-    movl    %%edx,_gploc_90\n \
-    movl    _gploc_48,%%ecx\n \
-    movl    _gploc_44,%%edx\n \
-    movl    %%ecx,%%eax\n \
-    shll    $0x10,%%ecx\n \
-    shrl    $0x10,%%eax\n \
-    movl    %%ecx,_gploc_80\n \
-    movl    %%edx,%%ecx\n \
-    shll    $0x10,%%ecx\n \
-    shll    $8,%%edx\n \
-    shrl    $0x18,%%edx\n \
-    shll    $8,%%edx\n \
-    movb    %%al,%%cl\n \
-    movl    %%ecx,_gploc_7C\n \
-    movl    %%edx,_gploc_78\n \
-\n \
-gpo_loc_1484:         # 120A\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub5()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
-    movl    _factor_chk,%%edi\n \
-    orl %%edi,%%edi\n \
-    subl    $0,%%esi\n \
-    addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
-    subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-    movl    %%ecx,%%eax\n \
-    imull   %%esi,%%ecx\n \
-    movl    _factor_chk,%%ebp\n \
-    orl %%ebp,%%ebp\n \
-    js  gpo_loc_14C6\n \
-    subl    %%eax,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-\n \
-gpo_loc_14C6:         # 12D0\n \
-    addl    %%eax,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    jz  gpo_loc_154C\n \
-    xorl    %%edx,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ebx\n \
-    movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_16C,%%edx\n \
-    movl    _gploc_13C,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_154,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1513\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1513:         # 1320\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_168,%%edx\n \
-    movl    _gploc_138,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_150,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1543\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1543:         # 1350\n \
-    movl    %%eax,_gploc_AC\n \
-    jmp gpo_loc_155C\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_154C:         # 12DD\n \
-    xorl    %%eax,%%eax\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%eax,_gploc_AC\n \
-\n \
-gpo_loc_155C:         # 135A\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_161C\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1581\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_158F\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1581:         # 1386\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_158F:         # 138\n \
-    movl    _gploc_154,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_15A4\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_15A4:         # 13B\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_150,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_15BD\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_15BD:         # 13CA\n \
-    movl    %%eax,_gploc_188\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_15DA\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_15E8\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_15DA:         # 13D\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_15E8:         # 13E8\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_154,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_15FD\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_15FD:         # 140A\n \
-    movl    %%eax,_gploc_198\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_150,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1616\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1616:         # 1423\n \
-    movl    %%eax,_gploc_18C\n \
-    jmp gpo_loc_1675\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_161C:         # 1372\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1635\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1643\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1635:         # 143A\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1643:         # 1443\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1658\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1658:         # 1465\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1671\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1671:         # 147E\n \
-    movl    %%eax,_gploc_188\n \
-\n \
-gpo_loc_1675:         # 142A\n \
-    movl    _gploc_16C,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_54\n \
-    movl    _gploc_168,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_50\n \
-    movl    _gploc_154,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_48\n \
-    movl    _gploc_150,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_44\n \
-    movl    _gploc_AC,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_BC\n \
-    movl    _gploc_B0,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_16CC\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_16CC:         # 14D\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_B8\n \
-    movl    _gploc_188,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_A4\n \
-    movl    _gploc_194,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_16FA\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_16FA:         # 1507\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_A0\n \
-    movl    _gploc_50,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_8C\n \
-    movl    _gploc_54,%%eax\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_88\n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_17A3\n \
-    movl    _gploc_18C,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_98\n \
-    movl    _gploc_198,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_175F\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_175F:         # 156C\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_94\n \
-    movl    _gploc_44,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_80\n \
-    movl    _gploc_48,%%eax\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_7C\n \
-\n \
-gpo_loc_17A3:         # 155\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub6()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
-    movl    _factor_chk,%%edi\n \
-    orl %%edi,%%edi\n \
-    subl    $0,%%esi\n \
-    addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
-    subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-    movl    %%ecx,%%eax\n \
-    imull   %%esi,%%ecx\n \
-    movl    _factor_chk,%%ebp\n \
-    orl %%ebp,%%ebp\n \
-    js  gpo_loc_17E5\n \
-    subl    %%eax,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-\n \
-gpo_loc_17E5:         # 15E\n \
-    addl    %%eax,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    jz  gpo_loc_189F\n \
-    xorl    %%edx,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ebx\n \
-    movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_170,%%edx\n \
-    movl    _gploc_140,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_158,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1836\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1836:         # 1643\n \
-    movl    %%eax,_gploc_A8\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_16C,%%edx\n \
-    movl    _gploc_13C,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_154,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1866\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1866:         # 1673\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_168,%%edx\n \
-    movl    _gploc_138,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_150,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1896\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1896:         # 16A3\n \
-    movl    %%eax,_gploc_AC\n \
-    jmp gpo_loc_18B6\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_189F:         # 15FC\n \
-    xorl    %%eax,%%eax\n \
-    movl    %%eax,_gploc_A8\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%eax,_gploc_AC\n \
-\n \
-gpo_loc_18B6:         # 16AD\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_19A8\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_18DB\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_18E9\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_18DB:         # 16E0\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_18E9:         # 16E\n \
-    movl    _gploc_158,%%eax\n \
-    subl    _gploc_170,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_18FE\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_18FE:         # 170B\n \
-    movl    %%eax,_gploc_point_c\n \
-    movl    _gploc_154,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1917\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1917:         # 172\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_150,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1930\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1930:         # 173D\n \
-    movl    %%eax,_gploc_188\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_194D\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_195B\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_194D:         # 1752\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_195B:         # 175B\n \
-    movl    _gploc_140,%%eax\n \
-    subl    _gploc_158,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1970\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1970:         # 177D\n \
-    movl    %%eax,_gploc_1A0\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_154,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1989\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1989:         # 1796\n \
-    movl    %%eax,_gploc_198\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_150,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_19A2\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_19A2:         # 17A\n \
-    movl    %%eax,_gploc_18C\n \
-    jmp gpo_loc_1A1A\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_19A8:         # 16CC\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_19C1\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_19CF\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_19C1:         # 17C6\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_19CF:         # 17C\n \
-    movl    _gploc_140,%%eax\n \
-    subl    _gploc_170,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_19E4\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_19E4:         # 17F\n \
-    movl    %%eax,_gploc_point_c\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_19FD\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_19FD:         # 180A\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1A16\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1A16:         # 1823\n \
-    movl    %%eax,_gploc_188\n \
-\n \
-gpo_loc_1A1A:         # 17B6\n \
-    movl    _gploc_170,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_58\n \
-    movl    _gploc_16C,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_54\n \
-    movl    _gploc_168,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_50\n \
-    movl    _gploc_158,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_4C\n \
-    movl    _gploc_154,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_48\n \
-    movl    _gploc_150,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_44\n \
-    movl    _gploc_B0,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movw    _gploc_word03,%%ax\n \
-    orw %%ax,%%ax\n \
-    jns gpo_loc_1A92\n \
-    subl    $0x10000,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_1A92:         # 1898\n \
-    movl    %%eax,_gploc_BC\n \
-    movl    %%edx,_gploc_B8\n \
-    movl    _gploc_AC,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    _gploc_AC,%%edx\n \
-    sarl    $0x10,%%edx\n \
-    movb    _gploc_B8,%%al\n \
-    orb %%al,%%al\n \
-    jns gpo_loc_1AC7\n \
-    subl    $0x100,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_1AC7:         # 18CD\n \
-    movl    %%eax,_gploc_B8\n \
-    movl    %%edx,_gploc_B4\n \
-    movl    _gploc_B0,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movw    _gploc_word03,%%ax\n \
-    orw %%ax,%%ax\n \
-    jns gpo_loc_1AF9\n \
-    subl    $0x0FFFF,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_1AF9:         # 18F\n \
-    movl    %%eax,_gploc_5C\n \
-    movl    %%edx,_gploc_2C\n \
-    movl    _gploc_AC,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    _gploc_AC,%%edx\n \
-    sarl    $0x10,%%edx\n \
-    movb    _gploc_2C,%%al\n \
-    orb %%al,%%al\n \
-    jns gpo_loc_1B2E\n \
-    subl    $0x100,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_1B2E:         # 193\n \
-    movl    %%eax,_gploc_2C\n \
-    movl    %%edx,_gploc_28\n \
-    movl    _gploc_194,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movw    _gploc_word01,%%ax\n \
-    orw %%ax,%%ax\n \
-    jns gpo_loc_1B5A\n \
-    subl    $0x10000,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_1B5A:         # 1960\n \
-    movl    %%eax,_gploc_A4\n \
-    movl    %%edx,_gploc_A0\n \
-    movl    _gploc_188,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    _gploc_188,%%edx\n \
-    sarl    $0x10,%%edx\n \
-    movb    _gploc_A0,%%al\n \
-    orb %%al,%%al\n \
-    jns gpo_loc_1B89\n \
-    subl    $0x100,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_1B89:         # 198\n \
-    movl    %%eax,_gploc_A0\n \
-    movl    %%edx,_gploc_9C\n \
-    movl    _gploc_58,%%ebx\n \
-    movl    _gploc_54,%%ecx\n \
-    movl    _gploc_50,%%edx\n \
-    movb    %%bl,_gploc_84\n \
-    shrl    $8,%%ebx\n \
-    movl    %%ecx,%%eax\n \
-    shll    $0x10,%%ecx\n \
-    shrl    $0x10,%%eax\n \
-    movw    %%bx,%%cx\n \
-    movl    %%ecx,_gploc_8C\n \
-    movl    %%edx,%%ecx\n \
-    shll    $0x10,%%ecx\n \
-    shll    $8,%%edx\n \
-    shrl    $0x18,%%edx\n \
-    shll    $8,%%edx\n \
-    movb    %%al,%%cl\n \
-    movl    %%ecx,_gploc_88\n \
-    movb    _gploc_84,%%dl\n \
-    movl    %%edx,_gploc_84\n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_1CAA\n \
-    movl    _gploc_198,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movw    _gploc_word02,%%ax\n \
-    orw %%ax,%%ax\n \
-    jns gpo_loc_1C17\n \
-    subl    $0x10000,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_1C17:         # 1A1D\n \
-    movl    %%eax,_gploc_98\n \
-    movl    %%edx,_gploc_94\n \
-    movl    _gploc_18C,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    _gploc_18C,%%edx\n \
-    sarl    $0x10,%%edx\n \
-    movb    _gploc_94,%%al\n \
-    orb %%al,%%al\n \
-    jns gpo_loc_1C46\n \
-    subl    $0x100,%%eax\n \
-    sbbb    $0,%%dl\n \
-\n \
-gpo_loc_1C46:         # 1A4C\n \
-    movl    %%eax,_gploc_94\n \
-    movl    %%edx,_gploc_90\n \
-    movl    _gploc_4C,%%ebx\n \
-    movl    _gploc_48,%%ecx\n \
-    movl    _gploc_44,%%edx\n \
-    movb    %%bl,_gploc_78\n \
-    shrl    $8,%%ebx\n \
-    movl    %%ecx,%%eax\n \
-    shll    $0x10,%%ecx\n \
-    shrl    $0x10,%%eax\n \
-    movw    %%bx,%%cx\n \
-    movl    %%ecx,_gploc_80\n \
-    movl    %%edx,%%ecx\n \
-    shll    $0x10,%%ecx\n \
-    shll    $8,%%edx\n \
-    shrl    $0x18,%%edx\n \
-    shll    $8,%%edx\n \
-    movb    %%al,%%cl\n \
-    movl    %%ecx,_gploc_7C\n \
-    movb    _gploc_78,%%dl\n \
-    movl    %%edx,_gploc_78\n \
-\n \
-gpo_loc_1CAA:\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub7()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
-    movl    _factor_chk,%%edi\n \
-    orl     %%edi,%%edi\n \
-    subl    $0x0,%%esi\n \
-    addl    $0x0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
-    subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-    movl    %%ecx,%%eax\n \
-    imull   %%esi,%%ecx\n \
-    movl    _factor_chk,%%ebp\n \
-    orl     %%ebp,%%ebp\n \
-    js      gpo_loc_1CEC\n \
-    subl    %%eax,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-\n \
-gpo_loc_1CEC:         # 1AF6\n \
-    addl    %%eax,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    jz      gpo_loc_1DA6\n \
-    xorl    %%edx,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ebx\n \
-    movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_170,%%edx\n \
-    movl    _gploc_140,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_158,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1D3D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1D3D:         # 1B4A\n \
-    movl    %%eax,_gploc_A8\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_16C,%%edx\n \
-    movl    _gploc_13C,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_154,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1D6D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1D6D:         # 1B7A\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_168,%%edx\n \
-    movl    _gploc_138,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_150,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1D9D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1D9D:         # 1BAA\n \
-    movl    %%eax,_gploc_AC\n \
-    jmp gpo_loc_1DBD\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1DA6:         # 1B03\n \
-    xorl    %%eax,%%eax\n \
-    movl    %%eax,_gploc_A8\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%eax,_gploc_AC\n \
-\n \
-gpo_loc_1DBD:\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_1EAF\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1DE2\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1DF0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1DE2:         # 1BE7\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1DF0:         # 1BF0\n \
-    movl    _gploc_158,%%eax\n \
-    subl    _gploc_170,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E05\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E05:         # 1C12\n \
-    movl    %%eax,_gploc_point_c\n \
-    movl    _gploc_154,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E1E\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E1E:         # 1C2B\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_150,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E37\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E37:         # 1C4\n \
-    movl    %%eax,_gploc_188\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1E54\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1E62\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1E54:         # 1C5\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1E62:         # 1C62\n \
-    movl    _gploc_140,%%eax\n \
-    subl    _gploc_158,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E77\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E77:         # 1C8\n \
-    movl    %%eax,_gploc_1A0\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_154,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E90\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E90:         # 1C9D\n \
-    movl    %%eax,_gploc_198\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_150,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1EA9\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1EA9:         # 1CB6\n \
-    movl    %%eax,_gploc_18C\n \
-    jmp gpo_loc_1F21\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1EAF:         # 1BD3\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1EC8\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1ED6\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1EC8:         # 1CCD\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1ED6:         # 1CD6\n \
-    movl    _gploc_140,%%eax\n \
-    subl    _gploc_170,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1EEB\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1EEB:         # 1CF8\n \
-    movl    %%eax,_gploc_point_c\n \
-    movl    _gploc_13C,%%eax\n \
-    subl    _gploc_16C,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1F04\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1F04:         # 1D1\n \
-    movl    %%eax,_gploc_194\n \
-    movl    _gploc_138,%%eax\n \
-    subl    _gploc_168,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1F1D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1F1D:         # 1D2A\n \
-    movl    %%eax,_gploc_188\n \
-\n \
-gpo_loc_1F21:         # 1CBD\n \
-    movl    _gploc_170,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_58\n \
-    movl    _gploc_16C,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_54\n \
-    movl    _gploc_168,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_50\n \
-    movl    _gploc_158,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_4C\n \
-    movl    _gploc_154,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_48\n \
-    movl    _gploc_150,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_44\n \
-    movl    _gploc_AC,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    _gploc_A8,%%ebx\n \
-    shll    $0x18,%%ebx\n \
-    movl    %%ebx,_gploc_30\n \
-    movl    _gploc_A8,%%ebx\n \
-    sarl    $8,%%ebx\n \
-    orl %%ebx,%%ebx\n \
-    jns gpo_loc_1FB1\n \
-    andl    $0x0FFFF,%%ebx\n \
-    subl    $0x10000,%%eax\n \
-    sbbl    $0,%%edx\n \
-\n \
-gpo_loc_1FB1:         # 1DB\n \
-    addl    %%ebx,%%eax\n \
-    adcl    $0,%%edx\n \
-    movl    %%eax,_gploc_BC\n \
-    movl    _gploc_B0,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_1FC9\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_1FC9:         # 1DD6\n \
-    shll    $8,%%eax\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_B8\n \
-    movl    _gploc_AC,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    _gploc_A8,%%ebx\n \
-    sarl    $8,%%ebx\n \
-    orl %%ebx,%%ebx\n \
-    jns gpo_loc_2006\n \
-    andl    $0x0FFFF,%%ebx\n \
-    subl    $0x0FFFF,%%eax\n \
-    sbbl    $0,%%edx\n \
-\n \
-gpo_loc_2006:         # 1E06\n \
-    addl    %%ebx,%%eax\n \
-    adcl    $0,%%edx\n \
-    movl    %%eax,_gploc_5C\n \
-    movl    _gploc_B0,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_201E\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_201E:         # 1E2B\n \
-    shll    $8,%%eax\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_2C\n \
-    movl    _gploc_188,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    _gploc_point_c,%%ebx\n \
-    shll    $0x18,%%ebx\n \
-    movl    %%ebx,_gploc_68\n \
-    movl    _gploc_point_c,%%ebx\n \
-    sarl    $8,%%ebx\n \
-    orl %%ebx,%%ebx\n \
-    jns gpo_loc_2063\n \
-    andl    $0x0FFFF,%%ebx\n \
-    subl    $0x10000,%%eax\n \
-    sbbl    $0,%%edx\n \
-\n \
-gpo_loc_2063:         # 1E63\n \
-    addl    %%ebx,%%eax\n \
-    adcl    $0,%%edx\n \
-    movl    %%eax,_gploc_A4\n \
-    movl    _gploc_194,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_2078\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_2078:         # 1E85\n \
-    shll    $8,%%eax\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_A0\n \
-    movl    _gploc_50,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    _gploc_58,%%ebx\n \
-    shrl    $8,%%ebx\n \
-    orl %%ebx,%%eax\n \
-    movl    %%eax,_gploc_8C\n \
-    movl    _gploc_54,%%eax\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_88\n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_case69_break\n \
-    movl    _gploc_18C,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    _gploc_1A0,%%ebx\n \
-    shll    $0x18,%%ebx\n \
-    movl    %%ebx,_gploc_64\n \
-    movl    _gploc_1A0,%%ebx\n \
-    sarl    $8,%%ebx\n \
-    orl %%ebx,%%ebx\n \
-    jns gpo_loc_2104\n \
-    andl    $0x0FFFF,%%ebx\n \
-    subl    $0x10000,%%eax\n \
-    sbbl    $0,%%edx\n \
-\n \
-gpo_loc_2104:         # 1F0\n \
-    addl    %%ebx,%%eax\n \
-    adcl    $0,%%edx\n \
-    movl    %%eax,_gploc_98\n \
-    movl    _gploc_198,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_2119\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_2119:         # 1F26\n \
-    shll    $8,%%eax\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_94\n \
-    movl    _gploc_44,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    _gploc_4C,%%ebx\n \
-    shrl    $8,%%ebx\n \
-    orl %%ebx,%%eax\n \
-    movl    %%eax,_gploc_80\n \
-    movl    _gploc_48,%%eax\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_7C\n \
-\n \
-gpo_case69_break:\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub11()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_8C,%%ecx\n \
-    movl    _gploc_88,%%edx\n \
-    movl    _gploc_84,%%ebx\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    movl    _LOC_vec_screen_width,%%edi\n \
-    imull   %%esi,%%edi\n \
-    addl    _LOC_vec_screen,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jg  locret5a\n \
-    movl    _gploc_pt_by,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_782808\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_782808:         # 261\n \
-    subl    _gploc_pt_ay,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_ax,%%esi\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_shax,%%eax\n \
-    movl    %%eax,%%ebp\n \
-    jz  loc_782CD8\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_782C50\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_loop02\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782B70:         # 2910\n \
-    addb    _gploc_A8,%%bl\n \
-    adcl    _gploc_BC,%%ecx\n \
-    adcl    _gploc_B8,%%edx\n \
-    adcb    _gploc_B4,%%bh\n \
-    incl    %%esi\n \
-    cmpl    %%esi,%%eax\n \
-    jle loc_782B08\n \
-    jmp loc_782B70\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782BA0:         # 2912\n \
-    subb    _gploc_A8,%%bl\n \
-    sbbl    _gploc_BC,%%ecx\n \
-    sbbl    _gploc_B8,%%edx\n \
-    sbbb    _gploc_B4,%%bh\n \
-    decl    %%esi\n \
-    cmpl    %%esi,%%eax\n \
-    jge loc_782B08\n \
-    jmp loc_782BA0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782BD0:         # 2908\n \
-    orl %%esi,%%esi\n \
-    jz  loc_782B08\n \
-    js  loc_782BE0\n \
-    jmp loc_782C10\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782BE0:         # 29E8\n \
-    addb    _gploc_A8,%%bl\n \
-    adcl    _gploc_BC,%%ecx\n \
-    adcl    _gploc_B8,%%edx\n \
-    adcb    _gploc_B4,%%bh\n \
-    incl    %%esi\n \
-    jz  loc_782B08\n \
-    jmp loc_782BE0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782C10:         # 29EA\n \
-    subb    _gploc_A8,%%bl\n \
-    sbbl    _gploc_BC,%%ecx\n \
-    sbbl    _gploc_B8,%%edx\n \
-    sbbb    _gploc_B4,%%bh\n \
-    decl    %%esi\n \
-    jz  loc_782B08\n \
-    jmp loc_782C10\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782C40:         # 294\n \
-    movl    _LOC_vec_window_width,%%ebp\n \
-    jmp loc_782B3A\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782C50:         # 2640\n \
-    addb    _gploc_60,%%bl\n \
-    adcl    _gploc_CC,%%ecx\n \
-    adcl    _gploc_C4,%%edx\n \
-    adcb    _gploc_C8,%%bh\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    subl    %%eax,_gploc_74\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    addl    %%eax,_gploc_74\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  loc_782CD0\n \
-    incl    %%esi\n \
-    js  loc_782C50\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_loop02\n \
-# ---------------------------------------------------------------------------\n \
-\
-\n \
-loc_782CD0:         # 2AC8\n \
-    movl    _gploc_74,%%esi\n \
-    nop \n \
-\n \
-loc_782CD8:         # 263\n \
-    decl _gploc_180\n \
-    jz  locret5a\n \
-    movl    %%eax,_gploc_FC\n \
-    movl    _factor_chk,%%eax\n \
-    orl %%eax,%%eax\n \
-    js  loc_782D90\n \
-    movl    _factor_cb,%%eax\n \
-    movl    %%eax,_gploc_12C\n \
-    movl    _gploc_1A0,%%eax\n \
-    movl    %%eax,_gploc_60\n \
-    movl    _gploc_98,%%eax\n \
-    movl    %%eax,_gploc_CC\n \
-    movl    _gploc_94,%%eax\n \
-    movl    %%eax,_gploc_C4\n \
-    movl    _gploc_90,%%eax\n \
-    movl    %%eax,_gploc_C8\n \
-    movl    _gploc_80,%%ecx\n \
-    movl    _gploc_7C,%%edx\n \
-    movl    _gploc_78,%%ebx\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_782D5B\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_782D5B:         # 2B6\n \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_bx,%%eax\n \
-    movl    %%eax,_gploc_74\n \
-    movl    _gploc_pt_shbx,%%eax\n \
-    jle locret5a\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_782C50\n \
-    movl    _gploc_pt_bx,%%esi\n \
-    jmp loc_loop02\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782D90:         # 2AF\n \
-    movl    _factor_cb,%%ebp\n \
-    movl    %%ebp,_gploc_128\n \
-    movl    _gploc_pt_shbx,%%ebp\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_782DB0\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_782DB0:         # 2BB\n \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_FC,%%eax\n \
-    jle locret5a\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_782C50\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_loop02\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_loop01:         # 294E\n \
-    movl    _gploc_FC,%%eax\n \
-    movl    _gploc_F8,%%ebp\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    _gploc_74,%%esi\n \
-    sarl    $0x10,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    addl    %%eax,%%esi\n \
-    movl    _gploc_FC,%%eax\n \
-    movl    _gploc_E0,%%ecx\n \
-    movl    _gploc_E4,%%ebx\n \
-    movl    _gploc_D8,%%edx\n \
-    addb    _gploc_60,%%bl\n \
-    adcl    _gploc_CC,%%ecx\n \
-    adcl    _gploc_C4,%%edx\n \
-    adcb    _gploc_C8,%%bh\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  loc_782CD8\n \
-\n \
-loc_loop02:         # 264D\n \
-    movl    %%eax,_gploc_FC\n \
-    movl    %%ebp,_gploc_F8\n \
-    movl    %%edi,_gploc_F4\n \
-    sarl    $0x10,%%eax\n \
-    js  loc_782BD0\n \
-    cmpl    %%esi,%%eax\n \
-    jg  loc_782B70\n \
-    jl  loc_782BA0\n \
-\n \
-loc_782B08:         # 299F\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    %%ecx,_gploc_E0\n \
-    movl    %%ebx,_gploc_E4\n \
-    movl    %%edx,_gploc_D8\n \
-    sarl    $0x10,%%ebp\n \
-    cmpl    _LOC_vec_window_width,%%ebp\n \
-    jg  loc_782C40\n \
-\n \
-loc_782B3A:         # 2A56\n \
-    addl    %%esi,%%edi\n \
-    subl    %%esi,%%ebp\n \
-    jle loc_loop01\n \
-    movl    %%ebp,%%eax\n \
-    andl    $0x0F,%%eax\n \
-    addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,_gploc_D4\n \
-    movl    _gploc_5C,%%ebp\n \
-    movl    _LOC_vec_map,%%esi\n \
-    jmp   *switch_vecmap(,%%eax,4)\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_vecmap00:         # 285C\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,(%%edi)\n \
-\n \
-loc_vecmap15:         # 3E6C\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,1(%%edi)\n \
-\n \
-loc_vecmap14:         # 3E68\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,2(%%edi)\n \
-\n \
-loc_vecmap13:         # 3E64\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,3(%%edi)\n \
-\n \
-loc_vecmap12:         # 3E60\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,4(%%edi)\n \
-\n \
-loc_vecmap11:         # 3E5C\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,5(%%edi)\n \
-\n \
-loc_vecmap10:         # 3E58\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,6(%%edi)\n \
-\n \
-loc_vecmap09:         # 3E54\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,7(%%edi)\n \
-\n \
-loc_vecmap08:         # 3E50\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,8(%%edi)\n \
-\n \
-loc_vecmap07:         # 3E4C\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,9(%%edi)\n \
-\n \
-loc_vecmap06:         # 3E48\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0A(%%edi)\n \
-\n \
-loc_vecmap05:         # 3E44\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0B(%%edi)\n \
-\n \
-loc_vecmap04:         # 3E40\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0C(%%edi)\n \
-\n \
-loc_vecmap03:         # 3E3C\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0D(%%edi)\n \
-\n \
-loc_vecmap02:         # 3E38\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0E(%%edi)\n \
-\n \
-loc_vecmap01:         # 3E34\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0F(%%edi)\n \
-    addl    $0x10,%%edi\n \
-    subl $0x10,_gploc_D4\n \
-    jg  loc_vecmap00\n \
-    jmp  loc_loop01\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-switch_vecmap:\n \
-    .int    loc_vecmap00\n \
-    .int    loc_vecmap01\n \
-    .int    loc_vecmap02\n \
-    .int    loc_vecmap03\n \
-    .int    loc_vecmap04\n \
-    .int    loc_vecmap05\n \
-    .int    loc_vecmap06\n \
-    .int    loc_vecmap07\n \
-    .int    loc_vecmap08\n \
-    .int    loc_vecmap09\n \
-    .int    loc_vecmap10\n \
-    .int    loc_vecmap11\n \
-    .int    loc_vecmap12\n \
-    .int    loc_vecmap13\n \
-    .int    loc_vecmap14\n \
-    .int    loc_vecmap15\n \
-\n \
-locret5a:\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
-}
-
-void draw_gpoly_sub12()
-{
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _LOC_vec_screen_width,%%ecx\n \
-    movl    %%ecx,_gploc_104\n \
-    movl    $2,%%ecx\n \
-    movl    %%ecx,_gploc_180\n \
-    movl    _gploc_1A4,%%eax\n \
-    movl    %%eax,_gploc_60\n \
-    movl    _gploc_A4,%%eax\n \
-    movl    %%eax,_gploc_CC\n \
-    movl    _gploc_A0,%%eax\n \
-    movl    %%eax,_gploc_C4\n \
-    movl    _gploc_9C,%%eax\n \
-    movl    %%eax,_gploc_C8\n \
-    movl    _factor_chk,%%eax\n \
-    orl %%eax,%%eax\n \
-    js  loc_782209\n \
-    movl    _factor_ba,%%eax\n \
-    movl    %%eax,_gploc_12C\n \
-    movl    _factor_ca,%%eax\n \
-    movl    %%eax,_gploc_128\n \
-    jmp loc_78221E\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782209:         # 2000\n \
-    movl    _factor_ca,%%eax\n \
-    movl    %%eax,_gploc_12C\n \
-    movl    _factor_ba,%%eax\n \
-    movl    %%eax,_gploc_128\n \
-\n \
-loc_78221E:         # 2017\n \
-    movl    _gploc_8C,%%ecx\n \
-    movl    _gploc_88,%%edx\n \
-    movl    _gploc_84,%%ebx\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    movl    _LOC_vec_screen_width,%%edi\n \
-    imull   %%esi,%%edi\n \
-    addl    _LOC_vec_screen,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jg  locret5b\n \
-    movl    _gploc_pt_by,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_782267\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_782267:         # 2070\n \
-    subl    _gploc_pt_ay,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_ax,%%esi\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_shax,%%eax\n \
-    movl    %%eax,%%ebp\n \
-    jz  loc_782618\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_782590\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_782520\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7822A1:         # 22BB\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,(%%edi)\n \
-\n \
-loc_7822C0:         # 3E2C\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,1(%%edi)\n \
-\n \
-loc_7822E0:         # 3E28\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,2(%%edi)\n \
-\n \
-loc_782300:         # 3E24\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,3(%%edi)\n \
-\n \
-loc_782320:         # 3E20\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,4(%%edi)\n \
-\n \
-loc_782340:         # 3E1C\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,5(%%edi)\n \
-\n \
-loc_782360:         # 3E18\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,6(%%edi)\n \
-\n \
-loc_782380:         # 3E14\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,7(%%edi)\n \
-\n \
-loc_7823A0:         # 3E10\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,8(%%edi)\n \
-\n \
-loc_7823C0:         # 3E0C\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,9(%%edi)\n \
-\n \
-loc_7823E0:         # 3E08\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0A(%%edi)\n \
-\n \
-loc_782400:         # 3E04\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0B(%%edi)\n \
-\n \
-loc_782420:         # 3E00\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0C(%%edi)\n \
-\n \
-loc_782440:         # 3DFC\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0D(%%edi)\n \
-\n \
-loc_782460:         # 3DF8\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0E(%%edi)\n \
-\n \
-loc_782480:         # 3DF4\n \
-    movb    %%ch,%%ah\n \
-    movb    %%dl,%%bl\n \
-    addl    %%ebp,%%ecx\n \
-    movb    (%%ebx,%%esi),%%al\n \
-    adcl    _gploc_2C,%%edx\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%eax),%%al\n \
-    popl    %%ebx\n \
-    adcb    _gploc_28,%%bh\n \
-    movb    %%al,0x0F(%%edi)\n \
-    addl    $0x10,%%edi\n \
-    subl $0x10,_gploc_D4\n \
-    jg  loc_7822A1\n \
-\n \
-loc_7824B1:         # 236B\n \
-    movl    _gploc_FC,%%eax\n \
-    movl    _gploc_F8,%%ebp\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    _gploc_74,%%esi\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    _gploc_E0,%%ecx\n \
-    movl    _gploc_E4,%%ebx\n \
-    movl    _gploc_D8,%%edx\n \
-    addb    _gploc_60,%%bl\n \
-    adcl    _gploc_CC,%%ecx\n \
-    adcl    _gploc_C4,%%edx\n \
-    adcb    _gploc_C8,%%bh\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  loc_782618\n \
-\n \
-loc_782520:         # 20AC\n \
-# draw_gpoly_+2414 ...\n \
-    movl    %%eax,_gploc_FC\n \
-    movl    %%ebp,_gploc_F8\n \
-    movl    %%edi,_gploc_F4\n \
-    sarl    $0x10,%%eax\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    %%ecx,_gploc_E0\n \
-    movl    %%ebx,_gploc_E4\n \
-    movl    %%edx,_gploc_D8\n \
-    sarl    $0x10,%%ebp\n \
-    addl    %%eax,%%edi\n \
-    subl    %%eax,%%ebp\n \
-    jle loc_7824B1\n \
-    movl    %%ebp,%%eax\n \
-    andl    $0x0F,%%eax\n \
-    addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,_gploc_D4\n \
-    movl    _gploc_5C,%%ebp\n \
-    movl    _LOC_vec_map,%%esi\n \
-    jmp   *off_783FE0(,%%eax,4)\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782590:         # 209\n \
-    addb    _gploc_60,%%bl\n \
-    adcl    _gploc_CC,%%ecx\n \
-    adcl    _gploc_C4,%%edx\n \
-    adcb    _gploc_C8,%%bh\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    subl    %%eax,_gploc_74\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    addl    %%eax,_gploc_74\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  loc_782610\n \
-    incl    %%esi\n \
-    js  loc_782590\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_782520\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782610:         # 2408\n \
-    movl    _gploc_74,%%esi\n \
-    nop \n \
-\n \
-loc_782618:         # 2093\n \
-    decl _gploc_180\n \
-    jz  locret5b\n \
-    movl    %%eax,_gploc_FC\n \
-    movl    _factor_chk,%%eax\n \
-    orl %%eax,%%eax\n \
-    js  loc_7826D0\n \
-    movl    _factor_cb,%%eax\n \
-    movl    %%eax,_gploc_12C\n \
-    movl    _gploc_1A0,%%eax\n \
-    movl    %%eax,_gploc_60\n \
-    movl    _gploc_98,%%eax\n \
-    movl    %%eax,_gploc_CC\n \
-    movl    _gploc_94,%%eax\n \
-    movl    %%eax,_gploc_C4\n \
-    movl    _gploc_90,%%eax\n \
-    movl    %%eax,_gploc_C8\n \
-    movl    _gploc_80,%%ecx\n \
-    movl    _gploc_7C,%%edx\n \
-    movl    _gploc_78,%%ebx\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_78269B\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_78269B:         # 24A\n \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_bx,%%eax\n \
-    movl    %%eax,_gploc_74\n \
-    movl    _gploc_pt_shbx,%%eax\n \
-    jle locret5b\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_782590\n \
-    movl    _gploc_pt_bx,%%esi\n \
-    jmp loc_782520\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7826D0:         # 243\n \
-    movl    _factor_cb,%%ebp\n \
-    movl    %%ebp,_gploc_128\n \
-    movl    _gploc_pt_shbx,%%ebp\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_7826F0\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_7826F0:         # 24F\n \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_FC,%%eax\n \
-    jle locret5b\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_782590\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_782520\n \
-\n \
-off_783FE0:\n \
-    .int    loc_7822A1\n \
-    .int    loc_782480\n \
-    .int    loc_782460\n \
-    .int    loc_782440\n \
-    .int    loc_782420\n \
-    .int    loc_782400\n \
-    .int    loc_7823E0\n \
-    .int    loc_7823C0\n \
-    .int    loc_7823A0\n \
-    .int    loc_782380\n \
-    .int    loc_782360\n \
-    .int    loc_782340\n \
-    .int    loc_782320\n \
-    .int    loc_782300\n \
-    .int    loc_7822E0\n \
-    .int    loc_7822C0\n \
-\n \
-locret5b:\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
 }
 
 void draw_gpoly_sub13()
 {
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    xorl    %%ecx,%%ecx\n \
-    movl    _gploc_8C,%%edx\n \
-    movl    _gploc_88,%%ebx\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    movl    _LOC_vec_screen_width,%%edi\n \
-    imull   %%esi,%%edi\n \
-    addl    _LOC_vec_screen,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jg  locret69a\n \
-    movl    _gploc_pt_by,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_783508\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_783508:         # 331\n \
-    subl    _gploc_pt_ay,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_ax,%%esi\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_shax,%%eax\n \
-    movl    %%eax,%%ebp\n \
-    jz  loc_783A68\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_7839E0\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_783899\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_783542:         # 361C\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_78356D:         # 3EEC\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,1(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783599:         # 3EE8\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,2(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_7835C5:         # 3EE4\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,3(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_7835F1:         # 3EE0\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,4(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_78361D:         # 3EDC\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,5(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783649:         # 3ED8\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,6(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783675:         # 3ED4\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,7(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_7836A1:         # 3ED0\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,8(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_7836CD:         # 3ECC\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,9(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_7836F9:         # 3EC8\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0A(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783725:         # 3EC4\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0B(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783751:         # 3EC0\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0C(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_78377D:         # 3EBC\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0D(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_7837A9:         # 3EB8\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0E(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_7837D5:         # 3EB4\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0F(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-    addl    $0x10,%%edi\n \
-    subl    $0x10,_gploc_D4\n \
-    jg  loc_783542\n \
-\n \
-loc_783812:         # 370B\n \
-    movl    _gploc_FC,%%eax\n \
-    movl    _gploc_F8,%%ebp\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    _gploc_74,%%esi\n \
-    sarl    $0x10,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    addl    %%eax,%%esi\n \
-    movl    _gploc_FC,%%eax\n \
-    movl    _gploc_34,%%ecx\n \
-    movl    _gploc_D8,%%edx\n \
-    movl    _gploc_E4,%%ebx\n \
-    addl    _gploc_60,%%ecx\n \
-    adcl    _gploc_CC,%%edx\n \
-    adcl    _gploc_C4,%%ebx\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  loc_783A68\n \
-\n \
-loc_783899:         # 334D\n \
-    movl    %%eax,_gploc_FC\n \
-    movl    %%ebp,_gploc_F8\n \
-    movl    %%edi,_gploc_F4\n \
-    sarl    $0x10,%%eax\n \
-    js  loc_783980\n \
-    cmpl    %%esi,%%eax\n \
-    jg  loc_783940\n \
-    jl  loc_783960\n \
-\n \
-loc_7838C5:         # 3768\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    %%ecx,_gploc_34\n \
-    movl    %%edx,_gploc_D8\n \
-    movl    %%ebx,_gploc_E4\n \
-    sarl    $0x10,%%ebp\n \
-    cmpl    _LOC_vec_window_width,%%ebp\n \
-    jg  loc_7839D0\n \
-\n \
-loc_7838F7:         # 37E6\n \
-    addl    %%esi,%%edi\n \
-    subl    %%esi,%%ebp\n \
-    jle loc_783812\n \
-    movl    %%ebp,%%eax\n \
-    andl    $0x0F,%%eax\n \
-    addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,_gploc_D4\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    andl    %%ebx,%%ecx\n \
-    roll    $8,%%ecx\n \
-    movl    _LOC_vec_map,%%esi\n \
-    movl    _gploc_5C,%%ebp\n \
-    jmp     *off_7840A0(,%%eax,4)\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_783940:         # 36C\n \
-    addl    _gploc_30,%%ecx\n \
-    adcl    _gploc_BC,%%edx\n \
-    adcl    _gploc_B8,%%ebx\n \
-    incl    %%esi\n \
-    cmpl    %%esi,%%eax\n \
-    jle loc_7838C5\n \
-    jmp loc_783940\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_783960:         # 36C\n \
-    subl    _gploc_30,%%ecx\n \
-    sbbl    _gploc_BC,%%edx\n \
-    sbbl    _gploc_B8,%%ebx\n \
-    decl    %%esi\n \
-    cmpl    %%esi,%%eax\n \
-    jge loc_7838C5\n \
-    jmp loc_783960\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_783980:         # 36C\n \
-    orl %%esi,%%esi\n \
-    jz  loc_7838C5\n \
-    js  loc_783990\n \
-    jmp loc_7839B0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_783990:         # 3798\n \
-    addl    _gploc_30,%%ecx\n \
-    adcl    _gploc_BC,%%edx\n \
-    adcl    _gploc_B8,%%ebx\n \
-    incl    %%esi\n \
-    jz  loc_7838C5\n \
-    jmp loc_783990\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7839B0:         # 379A\n \
-    subl    _gploc_30,%%ecx\n \
-    sbbl    _gploc_BC,%%edx\n \
-    sbbl    _gploc_B8,%%ebx\n \
-    decl    %%esi\n \
-    jz  loc_7838C5\n \
-    jmp loc_7839B0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7839D0:         # 370\n \
-    movl    _LOC_vec_window_width,%%ebp\n \
-    jmp loc_7838F7\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7839E0:         # 3340\n \
-    addl    _gploc_60,%%ecx\n \
-    adcl    _gploc_CC,%%edx\n \
-    adcl    _gploc_C4,%%ebx\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    subl    %%eax,_gploc_74\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    addl    %%eax,_gploc_74\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  loc_783A60\n \
-    incl    %%esi\n \
-    js  loc_7839E0\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_783899\n \
-# ---------------------------------------------------------------------------\n \
-\
-\n \
-loc_783A60:         # 385\n \
-    movl    _gploc_74,%%esi\n \
-    nop \n \
-\n \
-loc_783A68:         # 333\n \
-    decl _gploc_180\n \
-    jz  locret69a\n \
-    movl    %%eax,_gploc_FC\n \
-    movl    _factor_chk,%%eax\n \
-    orl %%eax,%%eax\n \
-    js  loc_783B10\n \
-    movl    _factor_cb,%%eax\n \
-    movl    %%eax,_gploc_12C\n \
-    movl    _gploc_64,%%eax\n \
-    movl    %%eax,_gploc_60\n \
-    movl    _gploc_98,%%eax\n \
-    movl    %%eax,_gploc_CC\n \
-    movl    _gploc_94,%%eax\n \
-    movl    %%eax,_gploc_C4\n \
-    xorl    %%ecx,%%ecx\n \
-    movl    _gploc_80,%%edx\n \
-    movl    _gploc_7C,%%ebx\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_783ADB\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_783ADB:         # 38E\n \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_bx,%%eax\n \
-    movl    %%eax,_gploc_74\n \
-    movl    _gploc_pt_shbx,%%eax\n \
-    jle locret69a\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_7839E0\n \
-    movl    _gploc_pt_bx,%%esi\n \
-    jmp loc_783899\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_783B10:         # 388\n \
-    movl    _factor_cb,%%ebp\n \
-    movl    %%ebp,_gploc_128\n \
-    movl    _gploc_pt_shbx,%%ebp\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_783B30\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_783B30:         # 393\n \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_FC,%%eax\n \
-    jle locret69a\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_7839E0\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_783899\n \
-\n \
-off_7840A0:\n \
-    .int    loc_783542\n \
-    .int    loc_7837D5\n \
-    .int    loc_7837A9\n \
-    .int    loc_78377D\n \
-    .int    loc_783751\n \
-    .int    loc_783725\n \
-    .int    loc_7836F9\n \
-    .int    loc_7836CD\n \
-    .int    loc_7836A1\n \
-    .int    loc_783675\n \
-    .int    loc_783649\n \
-    .int    loc_78361D\n \
-    .int    loc_7835F1\n \
-    .int    loc_7835C5\n \
-    .int    loc_783599\n \
-    .int    loc_78356D\n \
-\n \
-locret69a:\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
+  int tex_x_accum_low; // ecx
+  int tex_x_accum_high; // edx
+  int tex_x_accum_combined; // ebx
+  uchar *screen_line_ptr; // edi
+  int clamped_by; // eax
+  bool skip_render; // zf
+  int spanCount; // eax
+  int xStart; // esi
+  int shadeAccumulator; // eax
+  int shadeAccumulatorNext; // ebp
+  int scanline_y_esi; // esi
+  bool range_check_passed; // cc
+  int shade_position_adjustment; // esi
+  int shade_pixel_position; // eax
+  int next_shade_pixel_position; // ebp
+  int pixel_span_len; // ebp
+  bool carry_flag; // cf
+  int clipped_end_y; // eax
+  int clipped_triangle_end_y; // eax
+
+  tex_x_accum_low = 0;
+  tex_x_accum_high = startpos_top_shade_texture_combined;
+  tex_x_accum_combined = startpos_top_texturex_texturey_combined;
+  screen_line_ptr = (uchar *)(LOC_vec_screen + triangle_point_a_y * LOC_vec_screen_width);
+  if ( triangle_point_a_y <= LOC_vec_window_height )
+  {
+    clamped_by = triangle_point_b_y;
+    if ( triangle_point_b_y > LOC_vec_window_height )
+      clamped_by = LOC_vec_window_height;
+    spanCount = clamped_by - triangle_point_a_y;
+    skip_render = spanCount == 0;
+    scanline_span_count = spanCount;
+    xStart = triangle_point_a_x;
+    current_scanline_xposition = triangle_point_a_x;
+    shadeAccumulator = triangle_point_a_shade_x;
+    shadeAccumulatorNext = triangle_point_a_shade_x;
+    if ( !skip_render )
+    {
+      scanline_y_esi = triangle_point_a_y;
+      if ( triangle_point_a_y < 0 )
+        goto SKEWED_SCAN_ADJUST;
+      xStart = current_scanline_xposition;
+      goto REMAINDER_SCANLINE_STEP;
+    }
+    while ( 1 )
+    {
+      if ( !--scanlinescounter )
+        return;
+      g_shadeAccumulator = shadeAccumulator;
+      if ( factor_chk >= 0 )
+        break;
+      shadingfactor_secondary = factor_cb;
+      shadeAccumulatorNext = triangle_point_b_shade_x;
+      clipped_triangle_end_y = triangle_point_c_y;
+      if ( triangle_point_c_y > LOC_vec_window_height )
+        clipped_triangle_end_y = LOC_vec_window_height;
+      range_check_passed = clipped_triangle_end_y <= triangle_point_b_y;
+      scanline_span_count = clipped_triangle_end_y - triangle_point_b_y;
+      shadeAccumulator = g_shadeAccumulator;
+      if ( range_check_passed )
+        return;
+      current_scanline_xposition = xStart;
+      scanline_y_esi = triangle_point_b_y;
+      if ( triangle_point_b_y >= 0 )
+      {
+        xStart = current_scanline_xposition;
+        do
+        {
+REMAINDER_SCANLINE_STEP:
+          g_shadeAccumulator = shadeAccumulator;
+          g_shadeAccumulatorNext = shadeAccumulatorNext;
+          screenbuffer_lineptr = screen_line_ptr;
+          shade_pixel_position = shadeAccumulator >> 16;
+          if ( shade_pixel_position < 0 )
+          {
+            if ( xStart )
+            {
+              if ( xStart >= 0 )
+              {
+                do
+                {
+                  carry_flag = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
+                  tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted)) >> 32;
+                  tex_x_accum_low -= shade_interpolation_top_shifted;
+                  tex_x_accum_combined -= carry_flag + shade_interpolation_top_high_combined;
+                  --xStart;
+                }
+                while ( xStart );
+              }
+              else
+              {
+                do
+                {
+                  carry_flag = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
+                  tex_x_accum_high = (PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+                  tex_x_accum_low += shade_interpolation_top_shifted;
+                  tex_x_accum_combined += shade_interpolation_top_high_combined + carry_flag;
+                  ++xStart;
+                }
+                while ( xStart );
+              }
+            }
+          }
+          else if ( shade_pixel_position > xStart )
+          {
+            do
+            {
+              carry_flag = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
+              tex_x_accum_high = (PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+              tex_x_accum_low += shade_interpolation_top_shifted;
+              tex_x_accum_combined += shade_interpolation_top_high_combined + carry_flag;
+              ++xStart;
+            }
+            while ( shade_pixel_position > xStart );
+          }
+          else
+          {
+            for ( ; shade_pixel_position < xStart; --xStart )
+            {
+              carry_flag = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
+              tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted)) >> 32;
+              tex_x_accum_low -= shade_interpolation_top_shifted;
+              tex_x_accum_combined -= carry_flag + shade_interpolation_top_high_combined;
+            }
+          }
+          current_scanline_xposition = xStart;
+          texture_xaccumulator_low_backup = tex_x_accum_low;
+          texture_xaccumulator_high_backup = tex_x_accum_high;
+          texture_xaccumulator_backup = tex_x_accum_combined;
+          next_shade_pixel_position = shadeAccumulatorNext >> 16;
+          if ( next_shade_pixel_position > LOC_vec_window_width )
+            next_shade_pixel_position = LOC_vec_window_width;
+          range_check_passed = next_shade_pixel_position <= xStart;
+          pixel_span_len = next_shade_pixel_position - xStart;
+          if ( !range_check_passed )
+          {
+            unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screenbuffer_lineptr + xStart);
+          }
+          shade_position_adjustment = current_scanline_xposition - (g_shadeAccumulator >> 16);
+          shadeAccumulatorNext = shadingfactor_secondary + g_shadeAccumulatorNext;
+          g_shadeAccumulator += shadingfactor_primary;
+          xStart = (g_shadeAccumulator >> 16) + shade_position_adjustment;
+          shadeAccumulator = g_shadeAccumulator;
+          tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) >> 32;
+          tex_x_accum_low = texture_xaccumulator_low + texture_xaccumulator_low_backup;
+          tex_x_accum_combined = texture_yaccumulator_high_combined
+                               + CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup))
+                               + texture_xaccumulator_backup;
+          screen_line_ptr = &screenbuffer_lineptr[screenbuffer_linestride];
+          --scanline_span_count;
+        }
+        while ( scanline_span_count );
+        continue;
+      }
+SKEWED_SCAN_ADJUST:
+      while ( 1 )
+      {
+        carry_flag = CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(tex_x_accum_high, tex_x_accum_low));
+        tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+        tex_x_accum_low += texture_xaccumulator_low;
+        tex_x_accum_combined += texture_yaccumulator_high_combined + carry_flag;
+        current_scanline_xposition -= shadeAccumulator >> 16;
+        shadeAccumulatorNext += shadingfactor_secondary;
+        g_shadeAccumulator = shadingfactor_primary + shadeAccumulator;
+        current_scanline_xposition += (shadingfactor_primary + shadeAccumulator) >> 16;
+        shadeAccumulator += shadingfactor_primary;
+        screen_line_ptr += screenbuffer_linestride;
+        if ( !--scanline_span_count )
+          break;
+        if ( ++scanline_y_esi >= 0 )
+        {
+          xStart = current_scanline_xposition;
+          goto REMAINDER_SCANLINE_STEP;
+        }
+      }
+      xStart = current_scanline_xposition;
+    }
+    shadingfactor_primary = factor_cb;
+    texture_xaccumulator_low = shade_interpolation_pointc_low;
+    texture_yaccumulator_low = shade_interpolation_bottom_low;
+    texture_yaccumulator_high_combined = texture_delta_bottom_high_combined;
+    tex_x_accum_low = 0;
+    tex_x_accum_high = startpos_bottom_shade_texture_combined;
+    tex_x_accum_combined = startpos_bottom_texturex_texturey_combined;
+    clipped_end_y = triangle_point_c_y;
+    if ( triangle_point_c_y > LOC_vec_window_height )
+      clipped_end_y = LOC_vec_window_height;
+    range_check_passed = clipped_end_y <= triangle_point_b_y;
+    scanline_span_count = clipped_end_y - triangle_point_b_y;
+    current_scanline_xposition = triangle_point_b_x;
+    shadeAccumulator = triangle_point_b_shade_x;
+    if ( !range_check_passed )
+    {
+      scanline_y_esi = triangle_point_b_y;
+      if ( triangle_point_b_y < 0 )
+        goto SKEWED_SCAN_ADJUST;
+      xStart = triangle_point_b_x;
+      goto REMAINDER_SCANLINE_STEP;
+    }
+  }
 }
 
+// this function draws all polygons except the ones cut off by the screen edges
 void draw_gpoly_sub14()
 {
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    xorl    %%ecx,%%ecx\n \
-    movl    _gploc_8C,%%edx\n \
-    movl    _gploc_88,%%ebx\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    movl    _LOC_vec_screen_width,%%edi\n \
-    imull   %%esi,%%edi\n \
-    addl    _LOC_vec_screen,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jg  locret69b\n \
-    movl    _gploc_pt_by,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_782EC7\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_782EC7:         # 2CD0\n \
-    subl    _gploc_pt_ay,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_ax,%%esi\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_shax,%%eax\n \
-    movl    %%eax,%%ebp\n \
-    jz  loc_783338\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_7832B0\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_783239\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_782F01:         # 2FDB\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_782F2C:         # 3EAC\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,1(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_782F58:         # 3EA8\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,2(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_782F84:         # 3EA4\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,3(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_782FB0:         # 3EA0\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,4(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_782FDC:         # 3E9C\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,5(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783008:         # 3E98\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,6(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783034:         # 3E94\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,7(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783060:         # 3E90\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl     %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,8(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_78308C:         # 3E8C\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,9(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_7830B8:         # 3E88\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0A(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_7830E4:         # 3E84\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0B(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783110:         # 3E80\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0C(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_78313C:         # 3E7C\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0D(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783168:         # 3E78\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl     %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0E(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-\n \
-loc_783194:         # 3E74\n \
-    xorl    %%eax,%%eax\n \
-    movb    (%%ecx,%%esi),%%al\n \
-    movl    $0x0FF00,%%ecx\n \
-    andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
-    xorl    %%eax,%%eax\n \
-    pushl   %%ebx\n \
-    movl    _render_fade_tables,%%ebx\n \
-    movb    (%%ebx,%%ecx),%%al\n \
-    popl    %%ebx\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    movb    %%al,0x0F(%%edi)\n \
-    andl    %%ebx,%%ecx\n \
-    addl    %%ebp,%%edx\n \
-    adcl    _gploc_2C,%%ebx\n \
-    roll    $8,%%ecx\n \
-    addl    $0x10,%%edi\n \
-    subl $0x10,_gploc_D4\n \
-    jg  loc_782F01\n \
-\n \
-loc_7831D1:         # 3084\n \
-    movl    _gploc_FC,%%eax\n \
-    movl    _gploc_F8,%%ebp\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    _gploc_74,%%esi\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    _gploc_34,%%ecx\n \
-    movl    _gploc_D8,%%edx\n \
-    movl    _gploc_E4,%%ebx\n \
-    addl    _gploc_60,%%ecx\n \
-    adcl    _gploc_CC,%%edx\n \
-    adcl    _gploc_C4,%%ebx\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  loc_783338\n \
-\n \
-loc_783239:         # 2D0C\n \
-    movl    %%eax,_gploc_FC\n \
-    movl    %%ebp,_gploc_F8\n \
-    movl    %%edi,_gploc_F4\n \
-    sarl    $0x10,%%eax\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    %%ecx,_gploc_34\n \
-    movl    %%edx,_gploc_D8\n \
-    movl    %%ebx,_gploc_E4\n \
-    sarl    $0x10,%%ebp\n \
-    addl    %%eax,%%edi\n \
-    subl    %%eax,%%ebp\n \
-    jle loc_7831D1\n \
-    movl    %%ebp,%%eax\n \
-    andl    $0x0F,%%eax\n \
-    addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,_gploc_D4\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    andl    %%ebx,%%ecx\n \
-    roll    $8,%%ecx\n \
-    movl    _LOC_vec_map,%%esi\n \
-    movl    _gploc_5C,%%ebp\n \
-    jmp   *off_784060(,%%eax,4)\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7832B0:         # 2CF\n \
-    addl    _gploc_60,%%ecx\n \
-    adcl    _gploc_CC,%%edx\n \
-    adcl    _gploc_C4,%%ebx\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    subl    %%eax,_gploc_74\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    %%eax,_gploc_FC\n \
-    sarl    $0x10,%%eax\n \
-    addl    %%eax,_gploc_74\n \
-    movl    _gploc_FC,%%eax\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  loc_783330\n \
-    incl    %%esi\n \
-    js  loc_7832B0\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_783239\n \
-# ---------------------------------------------------------------------------\n \
-\
-\n \
-loc_783330:         # 312\n \
-    movl    _gploc_74,%%esi\n \
-    nop \n \
-\n \
-loc_783338:         # 2CF3\n \
-    decl _gploc_180\n \
-    jz  locret69b\n \
-    movl    %%eax,_gploc_FC\n \
-    movl    _factor_chk,%%eax\n \
-    orl %%eax,%%eax\n \
-    js  loc_7833E0\n \
-    movl    _factor_cb,%%eax\n \
-    movl    %%eax,_gploc_12C\n \
-    movl    _gploc_64,%%eax\n \
-    movl    %%eax,_gploc_60\n \
-    movl    _gploc_98,%%eax\n \
-    movl    %%eax,_gploc_CC\n \
-    movl    _gploc_94,%%eax\n \
-    movl    %%eax,_gploc_C4\n \
-    xorl    %%ecx,%%ecx\n \
-    movl    _gploc_80,%%edx\n \
-    movl    _gploc_7C,%%ebx\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_7833AB\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_7833AB:         # 31B\n \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_bx,%%eax\n \
-    movl    %%eax,_gploc_74\n \
-    movl    _gploc_pt_shbx,%%eax\n \
-    jle locret69b\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_7832B0\n \
-    movl    _gploc_pt_bx,%%esi\n \
-    jmp loc_783239\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7833E0:         # 315\n \
-    movl    _factor_cb,%%ebp\n \
-    movl    %%ebp,_gploc_128\n \
-    movl    _gploc_pt_shbx,%%ebp\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_783400\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-loc_783400:         # 320\n \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_FC,%%eax\n \
-    jle locret69b\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  loc_7832B0\n \
-    movl    _gploc_74,%%esi\n \
-    jmp loc_783239\n \
-\n \
-off_784060:\n \
-    .int    loc_782F01\n \
-    .int    loc_783194\n \
-    .int    loc_783168\n \
-    .int    loc_78313C\n \
-    .int    loc_783110\n \
-    .int    loc_7830E4\n \
-    .int    loc_7830B8\n \
-    .int    loc_78308C\n \
-    .int    loc_783060\n \
-    .int    loc_783034\n \
-    .int    loc_783008\n \
-    .int    loc_782FDC\n \
-    .int    loc_782FB0\n \
-    .int    loc_782F84\n \
-    .int    loc_782F58\n \
-    .int    loc_782F2C\n \
-\n \
-locret69b:\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
+
+    if ( triangle_point_a_y > LOC_vec_window_height )
+        return;
+
+    int scanline_y; // esi
+
+    int tex_x_accum_low = 0;
+    int tex_x_accum_high = startpos_top_shade_texture_combined;
+    int tex_x_accum_combined = startpos_top_texturex_texturey_combined;
+    uchar *screen_line_ptr = &LOC_vec_screen[triangle_point_a_y * LOC_vec_screen_width];
+
+    int clamped_by = triangle_point_b_y;
+    if ( triangle_point_b_y > LOC_vec_window_height )
+      clamped_by = LOC_vec_window_height;
+    int spanCount = clamped_by - triangle_point_a_y;
+    bool skip_render = spanCount == 0;
+    scanline_span_count = spanCount;
+    int xStart = triangle_point_a_x;
+    current_scanline_xposition = triangle_point_a_x;
+    int shadeAccumulator = triangle_point_a_shade_x;
+    int shadeAccumulatorNext = triangle_point_a_shade_x;
+    if ( !skip_render )
+    {
+      scanline_y = triangle_point_a_y;
+      if ( triangle_point_a_y < 0 )
+      {
+        goto SKEWED_SCAN_ADJUST;
+
+      }
+      do
+      {
+REMAINDER_SCANLINE_STEP:
+        g_shadeAccumulator = shadeAccumulator;
+        g_shadeAccumulatorNext = shadeAccumulatorNext;
+        screenbuffer_lineptr = screen_line_ptr;
+        int x_start_int = shadeAccumulator >> 16;
+        texture_xaccumulator_low_backup = tex_x_accum_low;
+        texture_xaccumulator_high_backup = tex_x_accum_high;
+        texture_xaccumulator_backup = tex_x_accum_combined;
+        int x_end_int = shadeAccumulatorNext >> 16;
+        int clipped_x_start = x_start_int;
+        int clipped_x_end = x_end_int;
+        if (clipped_x_start < 0) clipped_x_start = 0;
+        if (clipped_x_end > LOC_vec_screen_width) clipped_x_end = LOC_vec_screen_width;
+        bool span_too_small_or_complete = clipped_x_end <= clipped_x_start;
+        int pixel_span_len = clipped_x_end - clipped_x_start;
+        if ( !span_too_small_or_complete )
+        {
+          int skip_left = clipped_x_start - x_start_int;
+          if (skip_left > 0) {
+            for (int i = 0; i < skip_left; i++) {
+              tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, shade_interpolation_bottom_combined) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+              tex_x_accum_high += shade_interpolation_bottom_combined;
+            }
+          }
+          uint8_t *screen_line_offset = &screen_line_ptr[clipped_x_start];
+          unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screen_line_offset);
+        }
+        xStart = current_scanline_xposition;
+        shadeAccumulator = shadingfactor_primary + g_shadeAccumulator;
+        shadeAccumulatorNext = shadingfactor_secondary + g_shadeAccumulatorNext;
+        tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) >> 32;
+        tex_x_accum_low = texture_xaccumulator_low + texture_xaccumulator_low_backup;
+        tex_x_accum_combined = texture_yaccumulator_high_combined + CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) + texture_xaccumulator_backup;
+        screen_line_ptr = (uchar *)(screenbuffer_linestride + screenbuffer_lineptr);
+        --scanline_span_count;
+      }
+      while ( scanline_span_count );
+      goto EDGE_ADVANCE_CHECK;
+    }
+    while ( 1 )
+    {
+EDGE_ADVANCE_CHECK:
+      if ( !--scanlinescounter )
+        return;
+      g_shadeAccumulator = shadeAccumulator;
+      if ( factor_chk >= 0 )
+        break;
+      shadingfactor_secondary = factor_cb;
+      shadeAccumulatorNext = triangle_point_b_shade_x;
+      int clamped_cy2 = triangle_point_c_y;
+      if ( triangle_point_c_y > LOC_vec_window_height )
+        clamped_cy2 = LOC_vec_window_height;
+      bool span_too_small_or_complete = clamped_cy2 <= triangle_point_b_y;
+      scanline_span_count = clamped_cy2 - triangle_point_b_y;
+      shadeAccumulator = g_shadeAccumulator;
+      if ( span_too_small_or_complete )
+        return;
+      current_scanline_xposition = xStart;
+      scanline_y = triangle_point_b_y;
+      if ( triangle_point_b_y >= 0 )
+        goto REMAINDER_SCANLINE_STEP;
+
+SKEWED_SCAN_ADJUST:
+      while ( 1 )
+      {
+        bool carryLow32 = CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(tex_x_accum_high, tex_x_accum_low));
+        tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+        tex_x_accum_low += texture_xaccumulator_low;
+        tex_x_accum_combined += texture_yaccumulator_high_combined + carryLow32;
+        current_scanline_xposition -= shadeAccumulator >> 16;
+        shadeAccumulatorNext += shadingfactor_secondary;
+        g_shadeAccumulator = shadingfactor_primary + shadeAccumulator;
+        current_scanline_xposition += (shadingfactor_primary + shadeAccumulator) >> 16;
+        shadeAccumulator += shadingfactor_primary;
+        screen_line_ptr += screenbuffer_linestride;
+        if ( !--scanline_span_count )
+          break;
+        if ( ++scanline_y >= 0 )
+        {
+          goto REMAINDER_SCANLINE_STEP;
+        }
+      }
+      xStart = current_scanline_xposition;
+    }
+    shadingfactor_primary = factor_cb;
+    texture_xaccumulator_low = shade_interpolation_pointc_low;
+    texture_yaccumulator_low = shade_interpolation_bottom_low;
+    texture_yaccumulator_high_combined = texture_delta_bottom_high_combined;
+    tex_x_accum_low = 0;
+    tex_x_accum_high = startpos_bottom_shade_texture_combined;
+    tex_x_accum_combined = startpos_bottom_texturex_texturey_combined;
+    int clamped_cy = triangle_point_c_y;
+    if ( triangle_point_c_y > LOC_vec_window_height )
+      clamped_cy = LOC_vec_window_height;
+    bool span_too_small_or_complete = clamped_cy <= triangle_point_b_y;
+    scanline_span_count = clamped_cy - triangle_point_b_y;
+    current_scanline_xposition = triangle_point_b_x;
+    shadeAccumulator = triangle_point_b_shade_x;
+    if ( !span_too_small_or_complete )
+    {
+      scanline_y = triangle_point_b_y;
+      if ( triangle_point_b_y < 0 )
+        goto SKEWED_SCAN_ADJUST;
+      goto REMAINDER_SCANLINE_STEP;
+    }
+
 }
 
 /******************************************************************************/

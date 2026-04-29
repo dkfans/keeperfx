@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       2000
 #define DK_STRINGS_MAX     941
-#define GUI_STRINGS_COUNT 1082
+#define GUI_STRINGS_COUNT (GuiStrEnd - STRINGS_MAX)
 
 struct GameCampaign;
 
@@ -110,7 +110,7 @@ enum GUIStrings {
     GUIStr_NetCreateGame,
     GUIStr_NetJoinGame,
     GUIStr_NetStartGame,
-    GUIStr_MnuGameMenu = STRINGS_MAX+402,
+    GUIStr_MnuOnlineLobbies = STRINGS_MAX+402,
     GUIStr_MnuCancel,
     GUIStr_MnuNoName,
     GUIStr_MnuPlayers,
@@ -238,7 +238,7 @@ enum GUIStrings {
     GUIStr_KeyDown,
     GUIStr_KeyLeft,
     GUIStr_KeyRight,
-    GUIStr_NetInitingModem = STRINGS_MAX+531,
+    GUIStr_VersionMismatch = STRINGS_MAX+531,
     GUIStr_NetConnectnModem,
     GUIStr_NetDial,
     GUIStr_NetContinue,
@@ -261,6 +261,7 @@ enum GUIStrings {
     GUIStr_KeyControl,
     GUIStr_KeyAlt,
     GUIStr_CreditsHead2 = STRINGS_MAX+572, // range 572..577
+    GUIStr_Lair=STRINGS_MAX+609,
     GUIStr_EventTreasureRoomFull = STRINGS_MAX+664,
     GUIStr_EventScavengingDetected,
     GUIStr_EventCreaturePayday,
@@ -366,9 +367,9 @@ enum GUIStrings {
     GUIStr_Net2Players,
     GUIStr_Net3Players,
     GUIStr_Net4Players,
-    GUIStr_NetSerial = STRINGS_MAX+874,
-    GUIStr_NetModem,
-    GUIStr_NetIpx,
+    GUIStr_NetOnline = STRINGS_MAX+874,
+    GUIStr_NetLan,
+    GUIStr_NetServiceSkirmish,
     GUIStr_MapN = STRINGS_MAX+877,
     GUIStr_MapE,
     GUIStr_MapS,
@@ -379,9 +380,9 @@ enum GUIStrings {
     GUIStr_Error,
     GUIStr_ErrorSaving,
     GUIStr_NewLevels = STRINGS_MAX+888,
-    GUIStr_InsertDataCD = STRINGS_MAX+889,
-    GUIStr_InsertKeeperCD,
-    GUIStr_InbsertDeeperCD,
+    GUIStr_TrapAvailable = STRINGS_MAX+889,
+    GUIStr_TrapWorkshopNeeded,
+    GUIStr_TrapUnavailable,
     GUIStr_LevelEventMessageDD = STRINGS_MAX+892, // range 892..940, Deeper Dungeons
     GUIStr_EventSecretDoorDiscovDesc = STRINGS_MAX+937,
     GUIStr_EventSecretDoorDiscovered,
@@ -430,6 +431,34 @@ enum GUIStrings {
     GUIStr_CtrlTiltUp = STRINGS_MAX + 1063,
     GUIStr_CtrlTiltDown = STRINGS_MAX + 1064,
     GUIStr_CtrlTiltReset = STRINGS_MAX + 1065,
+    GUIStr_CtrlAscend = STRINGS_MAX + 1078,
+    GUIStr_CtrlDescend = STRINGS_MAX + 1079,
+    GUIStr_Keeper = STRINGS_MAX + 1082,
+    GUIStr_ScreenRecord,
+    GUIStr_ScreenShot,
+    GUIStr_FrameSkipIncrease,
+    GUIStr_FrameSkipDecrease,
+    GUIStr_ZoomMinimapIn,
+    GUIStr_ZoomMinimapOut,
+    GUIStr_NextInstance,
+    GUIStr_PrevInstance = STRINGS_MAX + 1090,
+    GUIStr_MnuOnlineLobby,
+    GUIStr_MnuLanLobby,
+    GUIStr_MnuLanLobbies,
+    GUIStr_ToggleGui,
+    GUIStr_ToggleTooltips = STRINGS_MAX + 1095,
+    GUIStr_ExitGame = STRINGS_MAX + 1099,
+    GUIStr_DisablePacketMode,
+    GUIStr_SwitchScreenRes,
+    GUIStr_ToggleConsole,
+    GUIStr_FinishLevel,
+    GUIStr_OptionsMenu,
+    GUIStr_ToggleHeroHealthFlowers,
+    GUIStr_KeyGrave,
+    GUIStr_TeleportLastWorkroom,
+    GUIStr_TeleportCallToArms,
+    GUIStr_TeleportDefault,
+    GuiStrEnd
 };
 
 enum CampaignStrings {
@@ -492,7 +521,7 @@ TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings, int max);
 const char * get_string(TextStringId stridx);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
-TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
+TbBool fill_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
 unsigned long count_strings(char *strings, int size);
 const char * cmpgn_string(unsigned int index);
 /******************************************************************************/

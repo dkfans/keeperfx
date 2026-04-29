@@ -1,0 +1,109 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file speech_por.po
+#      KeeperFX Speeches translation file
+#  @par Purpose:
+#      Contains translation of the national speeches in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Burdened Imps' Level Pack for KeeperFX\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Me Dug! Dug is imp leader. Master find new lands. Many heroes. Very dangerous! Dug show lands to Keeper. Keeper can show skill!"
+msgstr "Eu Dug! Dug ser líder dos diabretes. Mestre encontrar novas terras. Muitos heróis. Muito perigoso! Dug mostrar terras para Guardião. Guardião pode mostrar habilidade!"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Moonshadow Keep. Keep full of good knights and wizards. Piss Master off. Kill knights and wizards and make new home for Keeper!"
+msgstr "Fortaleza da Sombra Lunar. Fortaleza cheia de cavaleiros e magos bons. Irritar Mestre. Matar cavaleiros e magos e fazer novo lar para Guardião!"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Ha ha ha, Lord of Land is fried for supper! Ha ha! Dug has great appetite!"
+msgstr "Ha ha ha, Senhor da Terra foi frito para o jantar! Ha ha! Dug ter grande apetite!"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Winterfrost Run. Dug no get why called Winterfrost. Place very warm. Heroes killed Keeper. You replace! Kill heroes!"
+msgstr "Corrida da Geada Invernal. Dug não entender por que chamar Geada Invernal. Lugar muito quente. Heróis mataram Guardião. Você substituir! Matar heróis!"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Dug proud to have Master. Master good for Dug and Dug good for Master. Dug got shiny pebble!"
+msgstr "Dug orgulhoso de ter Mestre. Mestre bom para Dug e Dug bom para Mestre. Dug ganhou pedrinha brilhante!"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Master found more land. Place called Blistering Furnace. Dug been there. Land cold on feet, air warm on head. Bad Keeper there. Has portal. Master not. Keeper steal heroes, create army. Keeper clever. Dug run off now. Dug given day off. Dug work hard. Dug now smoke. Very special smoke!"
+msgstr "Mestre encontrou mais terra. Lugar chamado Fornalha Escaldante. Dug esteve lá. Terra fria nos pés, ar quente na cabeça. Guardião mau lá. Tem portal. Mestre não. Guardião roubar heróis, criar exército. Guardião esperto. Dug fugir agora. Dug ganhou dia de folga. Dug trabalhar duro. Dug agora fumar. Fumaça muito especial!"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Dug help Master; dig hole to put heroes! Rotten heroes stink badly!"
+msgstr "Dug ajudar Mestre; cavar buraco para colocar heróis! Heróis podres feder muito!"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Master take you to Raven's Claw. Cave with four evil bad bad magic people! Keeper need go through haunted keep. Dug think scary. Master think amusing. Master thank Keeper for Dug's feeding bag. Run now!"
+msgstr "Mestre levar você para Garra do Corvo. Caverna com quatro pessoas mágicas más más! Guardião precisar passar por fortaleza assombrada. Dug achar assustador. Mestre achar divertido. Mestre agradecer Guardião por saco de comida de Dug. Correr agora!"
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Dug good in digging and swinging pickaxe. Dug be glad to serve at next stop! Ha ha ha!"
+msgstr "Dug bom em cavar e balançar picareta. Dug ficar feliz em servir na próxima parada! Ha ha ha!"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Master find more land. It called Silversong Fall. People live in ground. That Keeper domain. Kill intruders. Destroy underground village! Master tired from travelling. Not find new land soon. Work not stop for Dug! Dug go dig!"
+msgstr "Mestre encontrar mais terra. Chama-se Queda do Canto Prateado. Pessoas viver no chão. Esse ser domínio do Guardião. Matar intrusos. Destruir aldeia subterrânea! Mestre cansado de viajar. Não encontrar nova terra em breve. Trabalho não parar para Dug! Dug ir cavar!"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Dug strong! Dug had courage! Strike Dwarf in head. With bad apple."
+msgstr "Dug forte! Dug teve coragem! Acertar Anão na cabeça. Com maçã podre."
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Land called Springwater River. Keeper kill naughty knights. Naughty knights! Naughty knights! Hope Keeper enjoy! Dug give hint: Not attack right away. Wait for attacks first. If Keeper not get creatures strong in time, then dig around. Keeper find something useful maybe. Dug say bye! Work work work."
+msgstr "Terra chamada Rio da Nascente. Guardião matar cavaleiros malvados. Cavaleiros malvados! Cavaleiros malvados! Esperar que Guardião goste! Dug dar dica: Não atacar logo de cara. Esperar ataques primeiro. Se Guardião não conseguir criaturas fortes a tempo, então cavar por aí. Guardião encontrar algo útil talvez. Dug dizer tchau! Trabalhar, trabalhar, trabalhar."
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Dug run away! Horny Reaper mad, kill all Dug friends! Oh, poor Dug!"
+msgstr "Dug fugir! Ceifador de Chifres furioso, matar todos os amigos de Dug! Oh, pobre Dug!"
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Master proud to show more land. Land called Amberstone Hills. Enemy Keeper stripped Keeper clean. Careful with Dug's friends in start, or Keeper fail! Dug give no hint! Easy for smart Keeper. Master is tired again. Rings bell for food. And Master call Dug lazy!"
+msgstr "Mestre orgulhoso de mostrar mais terra. Terra chamada Colinas de Pedra Âmbar. Guardião inimigo deixou Guardião sem nada. Cuidado com amigos de Dug no começo, ou Guardião falhar! Dug não dar dica! Fácil para Guardião esperto. Mestre está cansado de novo. Toca sino para comida. E Mestre chamar Dug de preguiçoso!"
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Dug wants go dig. But no earth left! Aarghh!"
+msgstr "Dug querer ir cavar. Mas não ter mais terra! Aarghh!"
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Keeper arrive at Dreamweave Caverns with Dug. Wizards cast spell on Dug friends! Twelve friends run to north caves! Find eight of Dug friends and protect! Spells also lost. Dug friends hid them from enemy! You find."
+msgstr "Guardião chegar às Cavernas do Tecido dos Sonhos com Dug. Magos lançar feitiço nos amigos de Dug! Doze amigos correr para cavernas do norte! Encontrar oito amigos de Dug e proteger! Feitiços também perdidos. Amigos de Dug esconderam eles do inimigo! Você encontrar."
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Dug helped conquer land! Dug throw dirt in Avatar's helmet! If didn't, Keeper dead. Yes, Avatar got sand in eyes! Ha ha ha!"
+msgstr "Dug ajudou a conquistar a terra! Dug jogou terra no capacete do Avatar! Se não fizesse, Guardião morto. Sim, Avatar ficou com areia nos olhos! Ha ha ha!"

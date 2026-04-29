@@ -31,34 +31,34 @@ extern "C" {
 #pragma pack(1)
 
 enum VecModes {
-    VM_Unknown0 = 0,
-    VM_Unknown1,
-    VM_Unknown2,
-    VM_Unknown3,
-    VM_Unknown4,
-    VM_Unknown5,
-    VM_Unknown6,
-    VM_Unknown7,
-    VM_Unknown8,
-    VM_Unknown9,
-    VM_Unknown10,
-    VM_Unknown11,
-    VM_Unknown12,
-    VM_Unknown13,
-    VM_Unknown14,
-    VM_Unknown15,
-    VM_Unknown16,
-    VM_Unknown17,
-    VM_Unknown18,
-    VM_Unknown19,
-    VM_Unknown20,
-    VM_Unknown21,
-    VM_Unknown22,
-    VM_Unknown23,
-    VM_Unknown24,
-    VM_Unknown25,
-    VM_Unknown26,
-    VM_Unknown27,
+    VM_FlatColor = 0,
+    VM_Unusedparam1,
+    VM_TriangularGouraud,
+    VM_TriangularTexture,
+    VM_QuadFlatColor,
+    VM_QuadTextured,
+    VM_TriangularTextured,
+    VM_SolidColor,
+    VM_Unusedparam8,
+    VM_Unusedparam9,
+    VM_SpriteTranslucent,
+    VM_Unusedparam11,
+    VM_Unusedparam12,
+    VM_Unusedparam13,
+    VM_Unusedparam14,
+    VM_Unusedparam15,
+    VM_Unusedparam16,
+    VM_Unusedparam17,
+    VM_Unusedparam18,
+    VM_Unusedparam19,
+    VM_Unusedparam20,
+    VM_Unusedparam21,
+    VM_Unusedparam22,
+    VM_Unusedparam23,
+    VM_Unusedparam24,
+    VM_Unusedparam25,
+    VM_Unusedparam26,
+    VM_Unusedparam27,
 };
 
 
@@ -72,18 +72,18 @@ struct PolyPoint {
 };
 
 struct GtBlock { // sizeof = 48
-  unsigned char *field_0;
-  unsigned long field_4;
-  unsigned long field_8;
+  unsigned char *texturedata;
+  unsigned long width;
+  unsigned long height;
   unsigned long lightness0;
   unsigned long lightness1;
   unsigned long lightness3;
   unsigned long lightness2;
-  unsigned long field_1C;
-  unsigned long field_20;
-  unsigned long field_24;
-  unsigned long field_28;
-  unsigned long field_2C;
+  unsigned long texturestride;
+  unsigned long scalingfactor;
+  unsigned long colorformat;
+  unsigned long renderflags;
+  unsigned long textureoffset;
 };
 
 /******************************************************************************/
@@ -100,14 +100,10 @@ extern struct PolyPoint *polyscans;
 extern unsigned char *LOC_poly_screen;
 extern unsigned char *LOC_vec_map;
 extern unsigned char *LOC_vec_screen;
-extern unsigned long LOC_vec_screen_width;
-extern unsigned long LOC_vec_window_width;
-extern unsigned long LOC_vec_window_height;
+extern long LOC_vec_screen_width;
+extern long LOC_vec_window_width;
+extern long LOC_vec_window_height;
 /******************************************************************************/
-void draw_triangle(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
-void draw_quad(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c, struct PolyPoint *point_d);
-/******************************************************************************/
-void gpoly_enable_pentium_pro(TbBool state);
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/
 void gtblock_set_clipping_window(unsigned char *screen_addr, long clip_width, long clip_height, long screen_width);

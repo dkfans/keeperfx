@@ -147,7 +147,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     // Heroes should flee to their gate
     if (is_hero_thing(creatng))
     {
-        struct Thing* gatetng = find_hero_door_hero_can_navigate_to(creatng);
+        struct Thing* gatetng = find_best_hero_gate_to_navigate_to(creatng);
         if ( !thing_is_invalid(gatetng) )
         {
             pos->x.val = gatetng->mappos.x.val;
@@ -241,8 +241,8 @@ long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, Cr
         }
         return CmbtSt_Waiting;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
-    if (crstat->attack_preference == AttckT_Ranged)
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(fightng);
+    if (crconf->attack_preference == AttckT_Ranged)
     {
         if (creature_has_ranged_weapon(fightng) && can_add_ranged_combat_attacker(enmtng)) {
             return CmbtSt_Ranged;
@@ -283,7 +283,7 @@ void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttac
         ERRORLOG("Failed to enter combat state for %s index %d",thing_model_name(fightng),(int)fightng->index);
         return;
     }
-    cctrl->field_AA = 0;
+    cctrl->fighting_at_same_position = 0;
     cctrl->fight_til_death = 0;
     if ( !set_creature_combat_state(fightng, enmtng, attack_type) ) {
         WARNLOG("Couldn't setup combat state for %s index %d and %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
@@ -328,8 +328,8 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex ba
     if (!thing_exists(thing))
     {
         ERRORLOG("Jump to invalid thing detected");
-        player->zoom_to_pos_x = subtile_coord_center(gameadd.map_subtiles_x/2);
-        player->zoom_to_pos_y = subtile_coord_center(gameadd.map_subtiles_y/2);
+        player->zoom_to_pos_x = subtile_coord_center(game.map_subtiles_x/2);
+        player->zoom_to_pos_y = subtile_coord_center(game.map_subtiles_y/2);
         return 0;
     }
     player->zoom_to_pos_x = thing->mappos.x.val;

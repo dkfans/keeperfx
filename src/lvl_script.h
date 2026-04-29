@@ -103,6 +103,7 @@ struct PartyTrigger {
   {
       unsigned short ncopies;
       unsigned char objectv;
+      PlayerNumber target;
   };
 };
 
@@ -122,6 +123,7 @@ struct ScriptValue {
     unsigned char bytes[32];
     char chars[32];
     short shorts[16];
+    unsigned short ushorts[16];
     long longs[8];
     long long longlongs[4];
     unsigned long ulongs[8];
@@ -180,7 +182,7 @@ struct LevelScript {
     unsigned long lose_conditions_num;
 
     // Store strings used at level here
-    char strings[2048];
+    char strings[8192];
     long next_string_offset;
 };
 

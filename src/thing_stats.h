@@ -85,9 +85,8 @@ GoldAmount compute_creature_max_pay(GoldAmount base_pay, CrtrExpLevel exp_level)
 GoldAmount compute_creature_max_training_cost(GoldAmount base_training_cost, CrtrExpLevel exp_level);
 GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_scavenging_cost, CrtrExpLevel exp_level);
 long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck, CrtrExpLevel exp_level, const struct Thing* thing);
-long project_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, const struct Thing* thing);
 long compute_creature_attack_melee_damage(long base_param, long luck, CrtrExpLevel exp_level, struct Thing* thing);
-long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, struct Thing* thing);
+long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, PlayerNumber plyr_idx);
 long compute_creature_attack_range(long base_param, long luck, CrtrExpLevel exp_level);
 HitPoints compute_creature_spell_damage_over_time(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner);
 long compute_creature_work_value(long base_param, long efficiency, CrtrExpLevel exp_level);
@@ -102,7 +101,6 @@ long compute_creature_max_unaffected(long base_param, CrtrExpLevel exp_level);
 long compute_controlled_speed_increase(long prev_speed, long speed_limit);
 long compute_controlled_speed_decrease(long prev_speed, long speed_limit);
 long compute_value_percentage(long base_val, short npercent);
-long compute_value_8bpercentage(long base_val, short npercent);
 GoldAmount calculate_correct_creature_pay(const struct Thing *thing);
 GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing);
 GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing);
@@ -133,6 +131,7 @@ TbBool set_creature_health_to_max_with_heal_effect(struct Thing *thing);
 TbBool apply_health_to_thing(struct Thing *thing, HitPoints amount);
 void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amount);
 HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx);
+HitPoints get_thing_max_health(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

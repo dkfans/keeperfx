@@ -44,9 +44,11 @@
 #include "config_trapdoor.h"
 #include "config_terrain.h"
 #include "config_spritecolors.h"
+#include "engine_render.h"
 #include "room_workshop.h"
 #include "room_list.h"
 #include "gui_frontbtns.h"
+#include "gui_frontmenu.h"
 #include "gui_parchment.h"
 #include "gui_draw.h"
 #include "packets.h"
@@ -66,6 +68,7 @@
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"
+#include "room_workshop.h"
 
 struct Around const draw_square[] = {
 { 0, 0},
@@ -86,7 +89,7 @@ const short pixels_needed[] = {
     AROUND_6x6_PIXEL,
 };
 
-long activity_list[24];
+int32_t activity_list[24];
 char gui_room_type_highlighted;
 char gui_door_type_highlighted;
 char gui_trap_type_highlighted;
@@ -222,6 +225,7 @@ short get_button_designation(short btn_group, short btn_item)
 {
     int i;
     int n;
+    struct GuiButtonInit * ibtn;
     switch (btn_group)
     {
     case GID_MINIMAP_AREA:
@@ -238,8 +242,13 @@ short get_button_designation(short btn_group, short btn_item)
         }
         for (i=0; i < 4*4; i++)
         {
-            struct GuiButtonInit * ibtn;
             ibtn = &room_menu.buttons[i];
+            if (ibtn->content.lval == btn_item)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            ibtn = &room_menu2.buttons[i];
             if (ibtn->content.lval == btn_item)
                 return ibtn->id_num;
         }
@@ -247,8 +256,13 @@ short get_button_designation(short btn_group, short btn_item)
     case GID_POWER_PANE:
         for (i=0; i < 4*4; i++)
         {
-            struct GuiButtonInit * ibtn;
             ibtn = &spell_menu.buttons[i];
+            if (ibtn->content.lval == btn_item)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            ibtn = &spell_menu2.buttons[i];
             if (ibtn->content.lval == btn_item)
                 return ibtn->id_num;
         }
@@ -262,8 +276,13 @@ short get_button_designation(short btn_group, short btn_item)
         n = get_manufacture_data_index_for_thing(TCls_Trap, btn_item);
         for (i=0; i < 4*4; i++)
         {
-            struct GuiButtonInit * ibtn;
             ibtn = &trap_menu.buttons[i];
+            if (ibtn->content.lval == n)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            ibtn = &trap_menu2.buttons[i];
             if (ibtn->content.lval == n)
                 return ibtn->id_num;
         }
@@ -277,8 +296,13 @@ short get_button_designation(short btn_group, short btn_item)
         n = get_manufacture_data_index_for_thing(TCls_Door, btn_item);
         for (i=0; i < 4*4; i++)
         {
-            struct GuiButtonInit * ibtn;
             ibtn = &trap_menu.buttons[i];
+            if (ibtn->content.lval == n)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            ibtn = &trap_menu2.buttons[i];
             if (ibtn->content.lval == n)
                 return ibtn->id_num;
         }
@@ -303,10 +327,10 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
     {
         if ((dungeon->computer_enabled & 0x01) != 0)
         {
-          if (game.play_gameturn & 1)
+          if ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)
             spr_idx += 2;
         }
-        if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
+        if ((gbtn->button_state_left_pressed == 0) && (gbtn->button_state_right_pressed == 0))
           spr_idx += 1;
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     }
@@ -322,7 +346,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     struct Computer2* comp = get_computer_player(player->id_number);
     unsigned long cplr_model = comp->model;
     if (cplr_model < comp_player_conf.computers_count) {
-        struct ComputerTypes* cpt = get_computer_type_template(cplr_model);
+        struct ComputerType* cpt = get_computer_type_template(cplr_model);
         gbtn->tooltip_stridx = cpt->tooltip_stridx;
     } else {
         ERRORLOG("Illegal computer player model %d",(int)cplr_model);
@@ -342,7 +366,7 @@ void gui_area_event_button(struct GuiButton *gbtn)
         int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_message_rpanel_msg_questn_act, 100);
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
         unsigned long i = gbtn->content.lval;
-        if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+        if ((gbtn->button_state_left_pressed) || (gbtn->button_state_right_pressed))
         {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
         } else
@@ -482,7 +506,7 @@ long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rk
     int used_cap = 0;
     int total_cap = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -546,16 +570,16 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     }
     if ((player->work_state == PSt_BuildRoom) && (boxsize > 1))
     {
-        sprintf(gui_textbuf, "%ld", (long)roomst->cost * boxsize);
+        snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", (long)roomst->cost * boxsize);
     }
     else
     {
-        sprintf(gui_textbuf, "%ld", (long)roomst->cost);
+        snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", (long)roomst->cost);
     }
-    if ((roomst->cost * boxsize) <= dungeon->total_money_owned)
+    if (player->render_roomspace.total_roomspace_cost <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
-          && ((game.play_gameturn & 1) == 0))
+          && ((get_gameturn() % (2 * gui_blink_rate)) < gui_blink_rate))
         {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
         } else {
@@ -570,15 +594,62 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
     }
     LbTextUseByteCoding(false);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = (24 * units_per_pixel_ui) / LbTextLineHeight();
     draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
 
     long amount = count_player_rooms_of_type(player->id_number, rkind);
     // Note that "@" is "x" in that font
-    sprintf(gui_textbuf, "@%ld", amount);
+    snprintf(gui_textbuf, sizeof(gui_textbuf), "@%ld", amount);
     draw_string64k(gbtn->scr_pos_x + 40*units_per_px/16, gbtn->scr_pos_y - (14 + 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
     LbTextUseByteCoding(true);
     lbDisplay.DrawFlags = flg_mem;
+}
+
+/**
+ * Fills info_tag, room_tag, spell_tag and trap_tag which is used when restoring menu after possession.
+ */
+void gui_set_page(struct GuiButton* gbtn)
+{
+    short menu_id = gbtn->content.lval;
+    info_tag = (menu_id == GMnu_QUERY) || (menu_id == GMnu_CREATURE_QUERY1) ||
+        (menu_id == GMnu_CREATURE_QUERY2) || (menu_id == GMnu_CREATURE_QUERY3) || (menu_id == GMnu_CREATURE_QUERY4);
+    if (menu_id == GMnu_ROOM)
+    {
+        room_tag = 1;
+    }
+    else if (menu_id == GMnu_ROOM2)
+    {
+        room_tag = 2;
+    }
+    else
+    {
+        room_tag = 0;
+    }
+    if (menu_id == GMnu_SPELL)
+    {
+        spell_tag = 1;
+    }
+    else if (menu_id == GMnu_SPELL2)
+    {
+        spell_tag = 2;
+    }
+    else
+    {
+        spell_tag = 0;
+    }
+    if (menu_id == GMnu_TRAP)
+    {
+        trap_tag = 1;
+    }
+    else if (menu_id == GMnu_TRAP2)
+    {
+        trap_tag = 2;
+    }
+    else
+    {
+        trap_tag = 0;
+    }
+    creature_tag = (menu_id == GMnu_CREATURE);
 }
 
 /**
@@ -631,11 +702,11 @@ void gui_area_spell_button(struct GuiButton *gbtn)
             if (dungeon->total_money_owned < price)
                 spr_idx++;
             TbBool drawn = false;
-            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
+            if ((gbtn->button_state_left_pressed == 0) && (gbtn->button_state_right_pressed == 0))
             {
                 if ((((i != PSt_CallToArms) || !player_uses_power_call_to_arms(my_player_number))
                   && ((i != PSt_SightOfEvil) || !player_uses_power_sight(my_player_number)))
-                 || ((game.play_gameturn & 1) == 0))
+                 || ((get_gameturn() % (2 * gui_blink_rate)) < gui_blink_rate))
                 {
                     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
                     drawn = true;
@@ -702,10 +773,11 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
     GoldAmount price = compute_power_price(dungeon->owner, pwkind, 0);
-    char* text = buf_sprintf("%ld", (long)price);
+    char text[16];
+    snprintf(text, sizeof(text), "%ld", (long)price);
     if (dungeon->total_money_owned >= price)
     {
-        if ((player->work_state == powerst->work_state) && ((game.play_gameturn & 1) != 0)) {
+        if ((player->work_state == powerst->work_state) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
         } else {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
@@ -719,7 +791,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
     }
     LbTextUseByteCoding(false);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = (24 * units_per_pixel_ui) / LbTextLineHeight();
     draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, text);
     LbTextUseByteCoding(true);
     lbDisplay.DrawFlags = flg_mem;
@@ -734,17 +806,23 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
 {
     struct PlayerInfo* player = get_my_player();
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
-    set_players_packet_action(player, PckA_SetPlyrState, manufctr->work_state,
-        manufctr->tngmodel, 0, 0);
-
+    if (   ((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
+        || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel))  )
+    {
+        set_players_packet_action(player, PckA_SetPlyrState, manufctr->work_state,
+            manufctr->tngmodel, 0, 0);
+    }
+    else
+    {
+        set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
+    }
     game.manufactr_element = manufctr_idx;
     game.manufactr_spridx = manufctr->bigsym_sprite_idx;
     game.manufactr_tooltip = tooltip_id;
 }
 
-void gui_choose_trap(struct GuiButton *gbtn)
+void gui_choose_workshop_item(struct GuiButton *gbtn)
 {
-    //Note by Petter: factored out gui_choose_trap to choose_workshop_item (better name as well)
     choose_workshop_item(gbtn->content.lval, gbtn->tooltip_stridx);
 }
 
@@ -911,9 +989,26 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         return;
     }
     // We should draw; maybe just disabled button
-    if ((gbtn->flags & LbBtnF_Enabled) == 0)
+    if ((manufctr->tngclass == TCls_Door &&
+     is_door_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_door_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_door_built(my_player_number, manufctr->tngmodel)) ||
+    (manufctr->tngclass == TCls_Trap &&
+     is_trap_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_built(my_player_number, manufctr->tngmodel)))
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
+        if (gbtn->button_state_left_pressed || gbtn->button_state_right_pressed)
+        {
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_portrt_qmark, 22);
+        } else if (game.manufactr_element == manufctr_idx)
+        {
+            //Draw here when the trap is selected
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_portrt_qmark, 44);
+        } else
+        {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
+        }
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
@@ -941,7 +1036,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         break;
     }
     int i = gbtn->sprite_idx + (amount < 1);
-    if (gbtn->gbactn_1 || gbtn->gbactn_2)
+    if (gbtn->button_state_left_pressed || gbtn->button_state_right_pressed)
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i, 22);
     } else
@@ -993,6 +1088,12 @@ void gui_remove_area_for_traps(struct GuiButton *gbtn)
     set_players_packet_action(player, PckA_SetPlyrState, PSt_Sell, 0, 0, 0);
 }
 
+void gui_area_trap_build_info_button(struct GuiButton* gbtn)
+{
+    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
+}
+
 void gui_area_big_trap_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = gbtn->content.lval;
@@ -1009,43 +1110,57 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
-    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    unsigned int amount;
-    switch (manufctr->tngclass)
-    {
-    case TCls_Trap:
-        amount = dungeon->mnfct_info.trap_amount_placeable[manufctr->tngmodel];
-        break;
-    case TCls_Door:
-        amount = dungeon->mnfct_info.door_amount_placeable[manufctr->tngmodel];
-        break;
-    default:
-        amount = 0;
-        break;
-    }
-    if (dbc_enabled && dbc_initialized)
-    {
-        sprintf(gui_textbuf, "x%ld", (long)amount);
-    }
-    else
-    {
-        // Note that "@" is "×" in that font
-        sprintf(gui_textbuf, "@%ld", (long)amount);
-    }
-    if (amount <= 0) {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
+    if (((manufctr->tngclass == TCls_Door) &&
+     (!is_door_buildable(my_player_number, manufctr->tngmodel) ||
+     is_door_placeable(my_player_number, manufctr->tngmodel) ||
+     is_door_built(my_player_number, manufctr->tngmodel))) ||
+    ((manufctr->tngclass == TCls_Trap) &&
+     (!is_trap_buildable(my_player_number, manufctr->tngmodel) ||
+     is_trap_placeable(my_player_number, manufctr->tngmodel) ||
+     is_trap_built(my_player_number, manufctr->tngmodel))))
+     {
+        lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
+        unsigned int amount;
+        switch (manufctr->tngclass)
+        {
+        case TCls_Trap:
+            amount = dungeon->mnfct_info.trap_amount_placeable[manufctr->tngmodel];
+            break;
+        case TCls_Door:
+            amount = dungeon->mnfct_info.door_amount_placeable[manufctr->tngmodel];
+            break;
+        default:
+            amount = 0;
+            break;
+        }
+        if (dbc_enabled && dbc_initialized)
+        {
+            snprintf(gui_textbuf, sizeof(gui_textbuf), "x%ld", (long)amount);
+        }
+        else
+        {
+            // Note that "@" is "×" in that font
+            snprintf(gui_textbuf, sizeof(gui_textbuf), "@%ld", (long)amount);
+        }
+        if (amount <= 0) {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
+        } else
+        if ((((manufctr->tngclass == TCls_Trap) && (player->chosen_trap_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceTrap))
+        || ((manufctr->tngclass == TCls_Door) && (player->chosen_door_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceDoor)))
+        && ((get_gameturn() % (2 * gui_blink_rate)) < gui_blink_rate) )
+        {
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
+        } else {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
+        }
+        int tx_units_per_px = (24 * units_per_pixel_ui) / LbTextLineHeight();
+        draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
+        lbDisplay.DrawFlags = flg_mem;
     } else
-    if ((((manufctr->tngclass == TCls_Trap) && (player->chosen_trap_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceTrap))
-      || ((manufctr->tngclass == TCls_Door) && (player->chosen_door_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceDoor)))
-      && ((game.play_gameturn & 1) == 0) )
     {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
-    } else {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
+        lbDisplay.DrawFlags = flg_mem;
+        return;
     }
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
-    draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
-    lbDisplay.DrawFlags = flg_mem;
 }
 
 void maintain_big_spell(struct GuiButton *gbtn)
@@ -1157,6 +1272,10 @@ void maintain_trap(struct GuiButton *gbtn)
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
+    } else if (is_trap_buildable(my_player_number, manufctr->tngmodel))
+    {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
+        gbtn->flags |= LbBtnF_Enabled;
     } else
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
@@ -1171,6 +1290,10 @@ void maintain_door(struct GuiButton *gbtn)
     if (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
+        gbtn->flags |= LbBtnF_Enabled;
+    } else if (is_door_buildable(my_player_number, manufctr->tngmodel))
+    {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags |= LbBtnF_Enabled;
     } else
     {
@@ -1191,10 +1314,103 @@ void maintain_big_trap(struct GuiButton *gbtn)
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
+    } else if ((manufctr->tngclass == TCls_Door &&
+     is_door_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_door_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_door_built(my_player_number, manufctr->tngmodel)) ||
+    (manufctr->tngclass == TCls_Trap &&
+     is_trap_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_built(my_player_number, manufctr->tngmodel)))
+    {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
+        gbtn->flags |= LbBtnF_Enabled;
     } else
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
+    }
+}
+
+void maintain_buildable_info(struct GuiButton* gbtn)
+{
+    int manufctr_idx = game.manufactr_element % game.conf.trapdoor_conf.manufacture_types_count;
+    struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
+    gbtn->content.lval = manufctr_idx;
+    if (((manufctr->tngclass == TCls_Trap) && (is_trap_placeable(my_player_number, manufctr->tngmodel) || is_trap_built(my_player_number, manufctr->tngmodel)))
+        || ((manufctr->tngclass == TCls_Door) && (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))))
+    {
+        gbtn->flags |= LbBtnF_Enabled;
+    } else if ((manufctr->tngclass == TCls_Door &&
+     is_door_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_door_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_door_built(my_player_number, manufctr->tngmodel)) ||
+    (manufctr->tngclass == TCls_Trap &&
+     is_trap_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_built(my_player_number, manufctr->tngmodel)))
+    {
+        gbtn->flags |= LbBtnF_Enabled;
+        gbtn->tooltip_stridx = GUIStr_Empty;
+        gbtn->sprite_idx = 0;
+    } else
+    {
+        gbtn->flags &= ~LbBtnF_Enabled;
+        gbtn->tooltip_stridx = GUIStr_Empty;
+        gbtn->sprite_idx = 0;
+        return;
+    }
+    struct PlayerInfo* player = get_my_player();
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    //We cannot use the actual manufacture level because that does not update enough.
+    int manufacture_level = calculate_manufacture_level(dungeon);
+
+    // Overlay a hammer symbol on the top-right to denote manufacturability
+    if (manufctr_idx > 0 ||
+    (manufctr->tngclass == TCls_Door &&
+    is_door_buildable(my_player_number, manufctr->tngmodel) &&
+    !is_door_placeable(my_player_number, manufctr->tngmodel) &&
+    !is_door_built(my_player_number, manufctr->tngmodel)) ||
+    (manufctr->tngclass == TCls_Trap &&
+    is_trap_buildable(my_player_number, manufctr->tngmodel) &&
+    !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
+    !is_trap_built(my_player_number, manufctr->tngmodel)))
+    {
+        // Required manufacture level for this item
+        TbBool is_buildable = false;
+        int required_level = 0;
+        switch (manufctr->tngclass)
+        {
+        case TCls_Trap:
+            is_buildable = is_trap_buildable(my_player_number, manufctr->tngmodel);
+            struct TrapConfigStats* trapst = get_trap_model_stats(manufctr->tngmodel);
+            required_level = trapst->manufct_level;
+            break;
+        case TCls_Door:
+            is_buildable = is_door_buildable(my_player_number, manufctr->tngmodel);
+            struct DoorConfigStats* doorst = get_door_model_stats(manufctr->tngmodel);
+            required_level = doorst->manufct_level;
+            break;
+        }
+
+        if (is_buildable)
+        {
+            if (manufacture_level >= required_level)
+            {
+                gbtn->sprite_idx = GPS_rpanel_manufacture_std; // If manufacturable and high enough level: lit hammer
+                gbtn->tooltip_stridx = GUIStr_TrapAvailable;
+            }
+            else
+            {
+                gbtn->tooltip_stridx = GUIStr_TrapWorkshopNeeded;
+                gbtn->sprite_idx = GPS_rpanel_manufacture_dis; // If manufacturable and level too low: greyed hammer
+            }
+        }
+        else
+        {
+            gbtn->tooltip_stridx = GUIStr_TrapUnavailable;
+            gbtn->sprite_idx = GPS_rpanel_manufacture_cant; // If owned but not manufacturable: no entry hammer
+        }
     }
 }
 
@@ -1384,7 +1600,7 @@ RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
     if (next_room[rkind] <= 0)
     {
         struct Dungeon* dungeon = get_dungeon(plyr_idx);
-        next_room[rkind] = dungeon->room_kind[rkind];
+        next_room[rkind] = dungeon->room_list_start[rkind];
     }
     return next_room[rkind];
 }
@@ -1414,7 +1630,7 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
     unsigned long rkind = gbtn->content.lval;
     go_to_my_next_room_of_type_and_select(rkind);
     game.chosen_room_kind = rkind;
-    struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[rkind];
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = gbtn->tooltip_stridx;
 }
@@ -1445,10 +1661,10 @@ void gui_area_room_button(struct GuiButton *gbtn)
     {
         if ((gbtn->flags & LbBtnF_Enabled) != 0)
         {
-            if (dungeon->room_kind[rkind] > 0)
+            if (dungeon->room_list_start[rkind] > 0)
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
             int spr_idx = (dungeon->total_money_owned < get_room_kind_stats(rkind)->cost) + gbtn->sprite_idx;
-            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
+            if ((gbtn->button_state_left_pressed == 0) && (gbtn->button_state_right_pressed == 0)) {
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
             } else {
                 draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
@@ -1530,7 +1746,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
             spridx += 14 * i / cr_total;
           }
         }
-        if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+        if ((gbtn->button_state_left_pressed) || (gbtn->button_state_right_pressed))
         {
           draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y-2*units_per_px/16, ps_units_per_px, spridx, 12);
         } else
@@ -1539,7 +1755,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         }
         if (gbtn->content.lptr != NULL)
         {
-          sprintf(gui_textbuf, "%ld", cr_total);
+          snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", cr_total);
           // We will use a special coding for our "string" - we want chars to represent
           // sprite index directly, without code pages and multibyte chars interpretation
           if ((cr_total > 0) && (dungeon->guijob_all_creatrs_count[crmodel][(job_idx & 0x03)] ))
@@ -1555,11 +1771,11 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     SYNCDBG(12,"Finished");
 }
 
-long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *creatng, long *out_angr_typ, long *out_angr_prct)
+long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *creatng, int32_t *out_angr_typ, int32_t *out_angr_prct)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long angr_lmt = crstat->annoy_level;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    long angr_lmt = crconf->annoy_level;
     int angr_typ = 0;
     long angr_lvl = 0;
     for (int i = 1; i < 5; i++)
@@ -1599,8 +1815,8 @@ void gui_area_smiley_anger_button(struct GuiButton *gbtn)
     TRACE_THING(ctrltng);
     if (thing_is_creature(ctrltng))
     {
-        long angr_typ;
-        long angr_prct;
+        int32_t angr_typ;
+        int32_t angr_prct;
         anger_get_creature_highest_anger_type_and_byte_percentage(ctrltng, &angr_typ, &angr_prct);
         int angr_pos = 5 * angr_prct / 256;
         if (angr_pos < 0) {
@@ -1631,12 +1847,13 @@ void gui_area_experience_button(struct GuiButton *gbtn)
     if (thing_is_creature(ctrltng))
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
-        struct CreatureStats* crstat = creature_stats_get_from_thing(ctrltng);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(ctrltng);
         struct CreatureControl* cctrl = creature_control_get_from_thing(ctrltng);
         long points_progress = cctrl->exp_points;
-        long points_required = (crstat->to_level[cctrl->exp_level] << 8);
+        long points_required = (crconf->to_level[cctrl->exp_level] << 8);
         gui_area_progress_bar_med2(gbtn, units_per_px, points_progress, points_required);
-        char* text = buf_sprintf("%d", (int)(cctrl->exp_level + 1));
+        char text[16];
+        snprintf(text, sizeof(text), "%d", (int)(cctrl->exp_level + 1));
         draw_button_string(gbtn, 56, text);
     } else
     if (thing_is_dead_creature(ctrltng))
@@ -1689,7 +1906,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
         } else {
             turns_required = inst_inf->reset_time;
         }
-        turns_progress = (long)game.play_gameturn - (long)cctrl->instance_use_turn[curbtn_inst_id] + cctrl->inst_action_turns - cctrl->inst_total_turns;
+        turns_progress = (long)get_gameturn() - (long)cctrl->instance_use_turn[curbtn_inst_id] + cctrl->inst_action_turns - cctrl->inst_total_turns;
         gui_area_progress_bar_short(gbtn, units_per_px, turns_progress, turns_required);
     } else
     {
@@ -1698,11 +1915,29 @@ void gui_area_instance_button(struct GuiButton *gbtn)
 
     // Calculating text size.
     int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (gbtn->height * 11 / 12) * 16 / LbTextLineHeight();
-    const char* text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
+    char text[16];
+    snprintf(text, sizeof(text), "%d", (curbtn_avail_pos + 1) % 10);
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
     // Show disabled icon if instance is on cooldown or creature is frozen.
-    if ((!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || (creature_under_spell_effect(ctrltng, CSAfF_Freeze) && (!inst_inf->instant)))
+    TbBool disabled;
+    if (!creature_instance_has_reset(ctrltng, curbtn_inst_id))
+    {
+        disabled = true;
+    }
+    else if (creature_under_spell_effect(ctrltng, CSAfF_Freeze))
+    {
+        disabled = inst_inf->fp_allow_self_cast_while_frozen == false;
+    }
+    else if (creature_under_spell_effect(ctrltng, CSAfF_Chicken))
+    {
+        disabled = inst_inf->fp_allow_self_cast_when_chicken == false;
+    }
+    else
+    {
+        disabled = false;
+    }
+    if (disabled)
     {
         spr_idx++;
     }
@@ -1805,7 +2040,7 @@ void maintain_activity_up(struct GuiButton *gbtn)
         gbtn->flags |= LbBtnF_Visible;
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (top_of_breed_list > 0)) & LbBtnF_Enabled;
     }
-    if (wheel_scrolled_up && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
+    if (wheel_scrolled_up && ((is_game_key_pressed(Gkey_SpeedMod, NULL, true)) || mouse_is_over_side_panel_bottom()))
     {
         if (top_of_breed_list > 0)
         {
@@ -1826,7 +2061,7 @@ void maintain_activity_down(struct GuiButton *gbtn)
         gbtn->flags |= LbBtnF_Visible;
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnF_Enabled;
     }
-    if (wheel_scrolled_down && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
+    if (wheel_scrolled_down && (is_game_key_pressed(Gkey_SpeedMod, NULL, true) || mouse_is_over_side_panel_bottom()))
     {
         if (top_of_breed_list + 6 < no_of_breeds_owned)
         {
@@ -1895,7 +2130,7 @@ void gui_area_ally(struct GuiButton *gbtn)
         return;
     }
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_plyrsym_symbol_player_any_dis, 100);
-    if (game.play_gameturn & 1)
+    if ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)
     {
         struct PlayerInfo* player = get_my_player();
         if (player_allied_with(player, plyr_idx)) {
@@ -1908,7 +2143,7 @@ void gui_area_ally(struct GuiButton *gbtn)
             spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_b,plyr_idx);
         }
     }
-    if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
+    if ( gbtn->button_state_left_pressed || gbtn->button_state_right_pressed )
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
     } else
@@ -1944,7 +2179,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     EventIndex evidx;
     unsigned long evbtn_idx = gbtn->content.lval;
-    long keycode;
+    int32_t keycode;
     if (evbtn_idx <= EVENT_BUTTONS_COUNT)
     {
         evidx = dungeon->event_button_index[evbtn_idx];
@@ -1991,8 +2226,8 @@ void maintain_event_button(struct GuiButton *gbtn)
       gbtn->btype_value |= LbBFeF_NoMouseOver;
       gbtn->sprite_idx = 0;
       gbtn->flags &= ~LbBtnF_Enabled;
-      gbtn->gbactn_1 = 0;
-      gbtn->gbactn_2 = 0;
+      gbtn->button_state_left_pressed = 0;
+      gbtn->button_state_right_pressed = 0;
       gbtn->tooltip_stridx = GUIStr_Empty;
       return;
     }
@@ -2002,7 +2237,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     }
     gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
-        && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn & 0x01) != 0))
+        && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
     {
         // Fight icon flashes when there are fights to show
         gbtn->sprite_idx += 2;
@@ -2021,9 +2256,15 @@ void maintain_event_button(struct GuiButton *gbtn)
         }
     } else
     if (((event->kind == EvKind_Information) || (event->kind == EvKind_QuickInformation))
-      && (event->target < 0) && ((game.play_gameturn & 0x01) != 0))
+      && (event->target < 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
     {
         // Unread information flashes
+        gbtn->sprite_idx += 2;
+    } else
+    if ((event->kind == EvKind_HeartAttacked)
+        && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
+    {
+        // Heart alert icon flashes when heart is being attacked
         gbtn->sprite_idx += 2;
     }
     gbtn->tooltip_stridx = event_button_info[event->kind].tooltip_stridx;
@@ -2056,7 +2297,7 @@ static unsigned char count_current_players_count()
 
 void maintain_player_page2(struct GuiButton *gbtn)
 {
-    unsigned char current_players_count = count_current_players_count();   
+    unsigned char current_players_count = count_current_players_count();
     if(current_players_count > 4)
     {
         set_flag(gbtn->flags, (LbBtnF_Visible | LbBtnF_Enabled));
@@ -2111,7 +2352,7 @@ void maintain_prison_bar(struct GuiButton *gbtn)
     {
         gbtn->sprite_idx = GPS_rpanel_tendency_prisnu_dis;
         gbtn->flags &= ~LbBtnF_Enabled;
-        /*if (gbtn->gbactn_1) - this does nothing, but was in original function
+        /*if (gbtn->button_state_left_pressed) - this does nothing, but was in original function
         {
             menu_id_to_number(7);
         }*/
@@ -2162,7 +2403,7 @@ void maintain_creature_button(struct GuiButton* gbtn)
 
 void maintain_compsetting_button(struct GuiButton* gbtn)
 {
-    struct ComputerTypes* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
+    struct ComputerType* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
     gbtn->tooltip_stridx = cpt->tooltip_stridx;
     gbtn->sprite_idx = cpt->sprite_idx;
 }
@@ -2208,9 +2449,10 @@ void gui_area_payday_button(struct GuiButton *gbtn)
     int units_per_px = (gbtn->width * 16 + 132 / 2) / 132;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
-    gui_area_progress_bar_wide(gbtn, units_per_px, game.pay_day_progress, game.conf.rules.game.pay_day_gap);
+    gui_area_progress_bar_wide(gbtn, units_per_px, game.pay_day_progress[my_player_number], game.conf.rules[my_player_number].game.pay_day_gap);
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    char* text = buf_sprintf("%d", (int)dungeon->creatures_total_pay);
+    char text[16];
+    snprintf(text, sizeof(text), "%d", (int)dungeon->creatures_total_pay);
     draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + scale_value_by_vertical_resolution(8), 130, gbtn->width);
 }
 
@@ -2271,19 +2513,19 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
     {
         unsigned long spr_idx = get_player_colored_icon_idx(player_has_heart(plyr_idx) ? GPS_plyrsym_symbol_player_red_std_a : GPS_plyrsym_symbol_player_red_dead, plyr_idx);
         if (((dungeon->num_active_creatrs < dungeon->max_creatures_attracted) && (!game.pool.is_empty))
-            || ((game.play_gameturn & 1) != 0))
+            || ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
         {
             draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, plyr_idx);
         } else
         {
             draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44, plyr_idx);
         }
-        char* text;
-        if (game.conf.rules.game.display_portal_limit == true)
+        char text[32];
+        if (game.conf.rules[plyr_idx].game.display_portal_limit == true)
         {
-            text = buf_sprintf(" %u/%ld", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
+            snprintf(text, sizeof(text), " %u/%d", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
         } else {
-            text = buf_sprintf("%u", dungeon->num_active_creatrs);
+            snprintf(text, sizeof(text), "%u", dungeon->num_active_creatrs);
         }
         draw_button_string(gbtn, 60, text);
     }
@@ -2304,7 +2546,8 @@ void gui_area_player_room_info(struct GuiButton *gbtn)
     {
         draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_plyrsym_symbol_room_red_std_a, plyr_idx);
         long i = dungeon->total_rooms;
-        char* text = buf_sprintf("%ld", i);
+        char text[16];
+        snprintf(text, sizeof(text), "%ld", i);
         draw_button_string(gbtn, 60, text);
     }
 }
@@ -2348,7 +2591,7 @@ void gui_switch_players_visible(struct GuiButton *gbtn)
     return;
 }
 
-void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value)
+void draw_gold_total(PlayerNumber plyr_idx, int32_t scr_x, int32_t scr_y, int32_t units_per_px, long long value)
 {
     long long i;
     unsigned int flg_mem = lbDisplay.DrawFlags;
@@ -2418,7 +2661,7 @@ void draw_whole_status_panel(void)
 void gui_set_button_flashing(long btn_idx, long gameturns)
 {
     game.flash_button_index = btn_idx;
-    gameadd.flash_button_time = gameturns;
+    game.flash_button_time = gameturns;
 }
 
 void update_room_tab_to_config(void)
@@ -2448,16 +2691,20 @@ void update_room_tab_to_config(void)
     }
     for (i=0; i < game.conf.slab_conf.room_types_count; i++)
     {
-        struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[i];
+        struct RoomConfigStats* roomst = get_room_kind_stats(i);
         if (roomst->panel_tab_idx < 1)
             continue;
         if (roomst->panel_tab_idx <= 16)
         {
             ibtn = &room_menu.buttons[roomst->panel_tab_idx - 1];
+        } else
+        if (roomst->panel_tab_idx <= 32)
+        {
+            ibtn = &room_menu2.buttons[roomst->panel_tab_idx - 17];
         }
         else
         {
-            ibtn = &room_menu2.buttons[roomst->panel_tab_idx - 17];
+            ERRORLOG("Invalid panel_tab_idx value %d on %s", roomst->panel_tab_idx, room_code_name(i));
         }
         ibtn->sprite_idx = roomst->medsym_sprite_idx;
         ibtn->tooltip_stridx = roomst->tooltip_stridx;
@@ -2520,10 +2767,14 @@ void update_trap_tab_to_config(void)
         if (manufctr->panel_tab_idx <= 16)
         {
             ibtn = &trap_menu.buttons[manufctr->panel_tab_idx - 1];
+        } else
+        if (manufctr->panel_tab_idx <= 32)
+        {
+            ibtn = &trap_menu2.buttons[manufctr->panel_tab_idx - 17];
         }
         else
         {
-            ibtn = &trap_menu2.buttons[manufctr->panel_tab_idx - 17];
+            ERRORLOG("Invalid panel_tab_idx value %d", manufctr->panel_tab_idx);
         }
         ibtn->sprite_idx = manufctr->medsym_sprite_idx;
         ibtn->tooltip_stridx = manufctr->tooltip_stridx;
@@ -2531,14 +2782,14 @@ void update_trap_tab_to_config(void)
         switch (manufctr->tngclass)
         {
             case TCls_Trap:
-                ibtn->click_event = gui_choose_trap;
+                ibtn->click_event = gui_choose_workshop_item;
                 ibtn->rclick_event = gui_go_to_next_trap;
                 ibtn->ptover_event = gui_over_trap_button;
                 ibtn->draw_call = gui_area_trap_button;
                 ibtn->maintain_call = maintain_trap;
                 break;
             case TCls_Door:
-                ibtn->click_event = gui_choose_trap;
+                ibtn->click_event = gui_choose_workshop_item;
                 ibtn->rclick_event = gui_go_to_next_door;
                 ibtn->ptover_event = gui_over_door_button;
                 ibtn->draw_call = gui_area_trap_button;
@@ -2601,9 +2852,13 @@ void update_powers_tab_to_config(void)
         {
             ibtn = &spell_menu.buttons[powerst->panel_tab_idx - 1];
         }
-        else
+        else if (powerst->panel_tab_idx <= 32)
         {
             ibtn = &spell_menu2.buttons[powerst->panel_tab_idx - 17];
+        }
+        else
+        {
+            ERRORLOG("Invalid panel_tab_idx value %d on %s", powerst->panel_tab_idx, power_code_name(pwkind));
         }
         ibtn->sprite_idx = powerst->medsym_sprite_idx;
         ibtn->tooltip_stridx = powerst->tooltip_stridx;
@@ -2656,6 +2911,11 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
 
 void maintain_spell_next_page_button(struct GuiButton *gbtn)
 {
+    if (menu_is_active(GMnu_SPELL2))
+    {
+        gbtn->flags |= (LbBtnF_Visible | LbBtnF_Enabled);
+        return;
+    }
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &spell_menu2.buttons[i];
@@ -2670,6 +2930,11 @@ void maintain_spell_next_page_button(struct GuiButton *gbtn)
 
 void maintain_room_next_page_button(struct GuiButton *gbtn)
 {
+    if (menu_is_active(GMnu_ROOM2))
+    {
+        gbtn->flags |= (LbBtnF_Visible | LbBtnF_Enabled);
+        return;
+    }
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &room_menu2.buttons[i];
@@ -2687,6 +2952,11 @@ void maintain_room_next_page_button(struct GuiButton *gbtn)
 
 void maintain_trap_next_page_button(struct GuiButton *gbtn)
 {
+    if (menu_is_active(GMnu_TRAP2))
+    {
+        gbtn->flags |= (LbBtnF_Visible | LbBtnF_Enabled);
+        return;
+    }
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &trap_menu2.buttons[i];
@@ -2711,5 +2981,65 @@ void maintain_trap_next_page_button(struct GuiButton *gbtn)
         }
     }
     gbtn->flags &= ~(LbBtnF_Visible|LbBtnF_Enabled);
+}
+
+void go_to_adjacent_menu_tab(int direction)
+{
+    // Cycle through the tabs: query, room, spell, trap, creature
+    // direction: 1 for next, -1 for previous
+    MenuID current_menu = GMnu_QUERY;
+    if (menu_is_active(GMnu_QUERY)) {
+        current_menu = GMnu_QUERY;
+    } else if (menu_is_active(GMnu_ROOM) || menu_is_active(GMnu_ROOM2)) {
+        current_menu = GMnu_ROOM;
+    } else if (menu_is_active(GMnu_SPELL) || menu_is_active(GMnu_SPELL2)) {
+        current_menu = GMnu_SPELL;
+    } else if (menu_is_active(GMnu_TRAP) || menu_is_active(GMnu_TRAP2)) {
+        current_menu = GMnu_TRAP;
+    } else if (menu_is_active(GMnu_CREATURE)) {
+        current_menu = GMnu_CREATURE;
+    }
+    // Array of menus in order
+    MenuID menus[] = {GMnu_QUERY, GMnu_ROOM, GMnu_SPELL, GMnu_TRAP, GMnu_CREATURE};
+    int num_menus = sizeof(menus) / sizeof(menus[0]);
+    int current_index = -1;
+    for (int i = 0; i < num_menus; i++) {
+        if (menus[i] == current_menu) {
+            current_index = i;
+            break;
+        }
+    }
+    if (current_index == -1) {
+        // Default to query
+        current_index = 0;
+    }
+    int next_index = (current_index + direction + num_menus) % num_menus;
+    MenuID next_menu = menus[next_index];
+    
+    int tab_bid;
+    switch (next_menu) {
+        case GMnu_QUERY:
+            tab_bid = BID_INFO_TAB;
+            break;
+        case GMnu_ROOM:
+        case GMnu_ROOM2:
+            tab_bid = BID_ROOM_TAB;
+            break;
+        case GMnu_SPELL:
+        case GMnu_SPELL2:
+            tab_bid = BID_SPELL_TAB;
+            break;
+        case GMnu_TRAP:
+        case GMnu_TRAP2:
+            tab_bid = BID_MNFCT_TAB;
+            break;
+        case GMnu_CREATURE:
+            tab_bid = BID_CREATR_TAB;
+            break;
+        default:
+            tab_bid = BID_INFO_TAB;
+            break;
+    }
+    fake_button_click(tab_bid);
 }
 /******************************************************************************/

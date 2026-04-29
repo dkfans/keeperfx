@@ -24,11 +24,8 @@ set(GIT_REVISION    "${COMMIT_ID}")
 
 # CMAKE_BINARY_DIR is defined in CMakePresets.json.
 set(KEEPERFX_VER_DEFS_H_IN ${CMAKE_SOURCE_DIR}/ver_defs.h.in)
-set(KEEPERFX_VER_DEFS_H_OUT ${CMAKE_BINARY_DIR}/ver_defs.h)
+set(KEEPERFX_VER_DEFS_H_OUT ${CMAKE_SOURCE_DIR}/ver_defs.h)
 configure_file(${KEEPERFX_VER_DEFS_H_IN} ${KEEPERFX_VER_DEFS_H_OUT})
-
-# Add binary dir to the include paths, so ver_defs.h can be found.
-include_directories($(${CMAKE_BINARY_DIR}))
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)

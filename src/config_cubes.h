@@ -49,16 +49,15 @@ struct CubeConfigStats {
 };
 
 struct CubesConfig {
-    long cube_types_count;
+    int32_t cube_types_count;
     struct CubeConfigStats cube_cfgstats[CUBE_ITEMS_MAX];
     unsigned short cube_bits[CUBE_OWNERSHIP_GROUPS][COLOURS_COUNT];
 };
 
 /******************************************************************************/
-extern const char keeper_cubes_file[];
+extern const struct ConfigFileData keeper_cubes_file_data;
 extern struct NamedCommand cubes_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
-TbBool load_cubes_config(unsigned short flags);
 struct CubeConfigStats *get_cube_model_stats(long model);
 const char *cube_code_name(long model);
 ThingModel cube_model_id(const char *code_name);
