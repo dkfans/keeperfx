@@ -7514,3 +7514,8 @@ msgctxt "Menu interface item"
 msgid "Multiplayer Map Packs"
 msgstr ""
 
+#: guitext:1111
+msgctxt "Menu interface item"
+msgid "Return to Lobby"
+msgstr ""
+

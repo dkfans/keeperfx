@@ -459,6 +459,7 @@ enum GUIStrings {
     GUIStr_TeleportCallToArms,
     GUIStr_TeleportDefault,
     GUIStr_MnuMpMapPacks,
+    GUIStr_MnuReturnToLobby,
     GuiStrEnd
 };
 
