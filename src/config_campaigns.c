@@ -1154,14 +1154,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
             setup_campaign_credits_data(campgn);
         }
     }
-    if (result && fgroup == FGrp_Campgn)
-        return (campgn->single_levels_count > 0);
-    if (result && fgroup == FGrp_MpLevels)
-        return (campgn->multi_levels_count > 0);
-    if (result && fgroup == FGrp_VarLevels){
-        return (true);
-    }
-    return false;
+    return result;
 }
 
 TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
