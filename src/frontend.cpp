@@ -2839,7 +2839,8 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
-          frontnet_start_setup();
+          if (frontend_menu_state != FeSt_MP_MAPPACK_SELECT)
+            frontnet_start_setup();
           set_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;

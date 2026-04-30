@@ -604,7 +604,7 @@ void process_chat_message_end(int player_id, const char *message)
     if (message[0] != '\0') {
         memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
         memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
-        if (frontend_menu_state == FeSt_NET_START) {
+        if (frontend_menu_state == FeSt_NET_START || frontend_menu_state == FeSt_MP_MAPPACK_SELECT) {
             if (!try_starting_level_from_chat(player->mp_message_text, player_id)) {
                 add_message(player_id, player->mp_message_text);
             }
