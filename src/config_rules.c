@@ -109,6 +109,11 @@ static const struct NamedField rules_game_named_fields[] = {
   {"THINGMINIMUMILLUMINATION",  0, field(game.conf.rules[0].game.thing_minimum_illumination),          32,        0,           INT32_MAX,NULL,                           value_default, assign_default},
   {"LIGHTENABLED",              0, field(game.conf.rules[0].game.light_enabled             ),           1,        0,                  1,NULL,                           value_default, assign_default},
   {"MAPCREATURELIMIT",          0, field(game.conf.rules[0].game.creatures_count           ),         255,        0,  CREATURES_COUNT-2,NULL,                           value_default, assign_MapCreatureLimit_script},
+  {"PAYDAYADVANCED",            0, field(game.conf.rules[0].game.max_paydays_advanced      ),         255,        0,          UCHAR_MAX,NULL,                           value_default, assign_default},
+  {"PAYDAYOWED",                0, field(game.conf.rules[0].game.max_paydays_owed          ),         255,        0,          UCHAR_MAX,NULL,                           value_default, assign_default},
+  {"ACCEPTPARTIALPAYDAY",       0, field(game.conf.rules[0].game.accept_partial_payday     ),           1,        0,                  1,NULL,                           value_default, assign_default},
+  {"POCKETGOLD",                0, field(game.conf.rules[0].game.pocket_gold               ),           0,        0,                  1,NULL,                           value_default, assign_default},
+  {"TAKEPAYFROMPOCKET",         0, field(game.conf.rules[0].game.take_pay_from_pocket      ),           0,        0,                  1,NULL,                           value_default, assign_default},
   {"PRESERVECLASSICBUGS",      -1, field(game.conf.rules[0].game.classic_bugs_flags        ),ClscBug_None,ClscBug_None, ClscBug_ListEnd,rules_game_classicbugs_commands,value_flagsfield, assign_default},
   {NULL},
 };

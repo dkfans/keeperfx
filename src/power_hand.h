@@ -78,6 +78,7 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
 void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, const struct Coord3d *dstpos);
+long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct Thing *creatng);
 void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx);
 TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);
