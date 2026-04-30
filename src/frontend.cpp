@@ -3748,6 +3748,10 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
         return FeSt_START_KPRLEVEL;
     case FeSt_NET_START:
         return FeSt_NET_SESSION;
+    case FeSt_MP_MAPPACK_SELECT:
+         return FeSt_NET_START;
+    case FeSt_LEVEL_SELECT:
+         return FeSt_MAPPACK_SELECT;
     case FeSt_NET_SESSION:
     case FeSt_NETLAND_VIEW:
         return FeSt_NET_SERVICE;
