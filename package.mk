@@ -54,7 +54,9 @@ PKG_BIN = pkg/$(notdir $(BIN))
 PKG_BIN_MAP = $(PKG_BIN:%.exe=%.map)
 PKG_HVLOGBIN = pkg/$(notdir $(HVLOGBIN))
 PKG_HVLOGBIN_MAP = $(PKG_HVLOGBIN:%.exe=%.map)
-PKG_DOCS = pkg/keeperfx_readme.txt
+PKG_DOCS = \
+	pkg/keeperfx_readme.txt \
+	pkg/launcher-auto-file-removal.txt
 PKG_DLL = \
 	pkg/SDL2_net.dll \
 	pkg/SDL2_mixer.dll \
