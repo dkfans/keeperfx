@@ -3697,7 +3697,10 @@ void frontend_update(short *finish_menu)
         break;
     case FeSt_MP_MAPPACK_SELECT:
         frontend_mp_mappack_select_update();
-        frontnet_start_update();
+        if (net_service_index_selected != FrontendNetSvc_Skirmish)
+        {
+            frontnet_start_update();
+        }
         break;
     case FeSt_HIGH_SCORES:
         frontend_high_scores_update();
@@ -3749,7 +3752,14 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_NET_START:
         return FeSt_NET_SESSION;
     case FeSt_MP_MAPPACK_SELECT:
-         return FeSt_NET_START;
+        if (net_service_index_selected == FrontendNetSvc_Skirmish)
+        {
+            return FeSt_NET_SERVICE;
+        }
+        else
+        {
+            return FeSt_NET_START;
+        }
     case FeSt_LEVEL_SELECT:
          return FeSt_MAPPACK_SELECT;
     case FeSt_NET_SESSION:
