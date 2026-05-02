@@ -77,7 +77,7 @@ short setup_network_service(enum FrontendNetService service)
 {
   struct ServiceInitData *init_data = NULL;
   SYNCMSG("Initializing 4-players type %d network", service);
-  memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
+  memset(net_player_info, 0, sizeof(net_player_info));
   if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
     process_network_error(-800);
     return 0;
