@@ -199,7 +199,6 @@ short luafunc_shot_hit_thing_func(FuncIdx func_idx, struct Thing *shot, struct T
         lua_pushThing(Lvl_script, shot);
         lua_pushThing(Lvl_script, shooter);
         lua_pushThing(Lvl_script, target);
-        lua_pushPos(Lvl_script, next_pos);
         lua_pushinteger(Lvl_script, next_stl_x);
         lua_pushinteger(Lvl_script, next_stl_y);
         short result = 1;
