@@ -192,10 +192,14 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
             ERRORLOG("Critical error: Out of range peer ID %i received, could be used for buffer overflow attack", peer_id);
             abort();
         }
-        char* peer_buf = ((char*)server_buf) + peer_id * frame_size;
         ptr += 1;
         netstate.users[peer_id].ack = *(int *)ptr;
         ptr += 4;
+        if (type == NETMSG_FRONTEND) {
+            memcpy(&net_screen_packet[peer_id], ptr, sizeof(struct ScreenPacket));
+            return Lb_OK;
+        }
+        char* peer_buf = ((char*)server_buf) + peer_id * frame_size;
         if (type == NETMSG_GAMEPLAY) {
             struct BundledPacket* bundled = (struct BundledPacket*)ptr;
             memcpy(peer_buf, &bundled->packets[0], frame_size);
@@ -368,7 +372,10 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
             if (netstate.sp->msgready(peer_id, wait)) {
                 ProcessMessage(peer_id, server_buf, client_frame_size);
                 if (msg_type != NETMSG_GAMEPLAY) {
-                    break;
+                    if (msg_type != NETMSG_STARTUP_SYNC || netstate.msg_buffer[0] == msg_type) {
+                        break;
+                    }
+                    continue;
                 }
                 TbBool received_gameplay_msg = (netstate.msg_buffer[0] == NETMSG_GAMEPLAY);
                 while (netstate.sp->msgready(peer_id, 0)) {
