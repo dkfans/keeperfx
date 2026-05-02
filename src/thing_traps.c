@@ -630,6 +630,8 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     case TrpAcT_Power:
         activate_trap_god_spell(traptng, creatng, trapst->created_itm_model);
         break;
+    case TrpAcT_None:
+        break;
     default:
         ERRORLOG("Illegal trap activation type %d (idx=%d)",(int)trapst->activation_type, traptng->index);
         break;
