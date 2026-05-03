@@ -482,7 +482,7 @@ void toggle_tooltips(void)
   {
     statstr = "off";
   }
-  show_onscreen_msg(2*game_num_fps, "Tooltips %s", statstr);
+  show_onscreen_msg(2*turns_per_second, "Tooltips %s", statstr);
   save_settings();
 }
 

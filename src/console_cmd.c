@@ -291,7 +291,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", game_num_fps, game_num_fps_draw_current);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", turns_per_second, turns_per_second_draw_current);
     return true;
 }
 
@@ -299,17 +299,17 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
-        game_num_fps = start_params.num_fps;
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %d fps", game_num_fps);
+        turns_per_second = start_params.num_fps;
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %d fps", turns_per_second);
     } else {
-        game_num_fps = atoi(pr2str);
+        turns_per_second = atoi(pr2str);
     }
     return true;
 }
 
 TbBool cmd_fps_draw(PlayerNumber plyr_idx, char * args)
 {
-    parse_draw_fps_config_val(args, &game_num_fps_draw_main, &game_num_fps_draw_secondary);
+    parse_draw_fps_config_val(args, &turns_per_second_draw_main, &turns_per_second_draw_secondary);
     redetect_screen_refresh_rate_for_draw();
     return true;
 }
@@ -356,7 +356,7 @@ TbBool cmd_time(PlayerNumber plyr_idx, char * args)
     char * pr2str = strsep(&args, " ");
     char * pr3str = strsep(&args, " ");
     GameTurn turn = (pr2str != NULL) ? (GameTurn) atoi(pr2str) : get_gameturn();
-    long frames = (pr3str != NULL) ? (long) atoi(pr3str) : game_num_fps;
+    long frames = (pr3str != NULL) ? (long) atoi(pr3str) : turns_per_second;
     show_game_time_taken(frames, turn);
     return true;
 }

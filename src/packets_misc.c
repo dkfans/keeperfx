@@ -382,7 +382,7 @@ void load_packets_for_turn(GameTurn nturn)
         {
             ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", get_gameturn());
             if (!is_onscreen_msg_visible())
-                show_onscreen_msg(game_num_fps, "Out of sync");
+                show_onscreen_msg(turns_per_second, "Out of sync");
         }
     }
 }
@@ -427,6 +427,6 @@ void disable_packet_mode(void)
     close_packet_file();
     game.packet_load_enable = false;
     game.packet_save_enable = false;
-    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
+    show_onscreen_msg(2*turns_per_second, "Packet mode disabled");
     set_gui_visible(true);
 }

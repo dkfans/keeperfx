@@ -348,7 +348,7 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     }
     int timeout_max = TIMEOUT_LOBBY_EXCHANGE;
     if (msg_type == NETMSG_GAMEPLAY) {
-        timeout_max = (1000 / game_num_fps);
+        timeout_max = (1000 / turns_per_second);
     }
 
     for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
