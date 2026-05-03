@@ -70,6 +70,7 @@ char tmp_net_player_name[24];
 static TbClockMSec frontnet_ping_stabilization_end_time = 0;
 static int previous_player_count_for_ping_wait = -1;
 static TbBool attempting_to_join_cancelled = false;
+static int32_t previous_active_players = 0;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -330,8 +331,6 @@ void frontnet_rewite_net_messages(void)
 
 static TbBool check_frontend_version_mismatch(void)
 {
-  static int32_t previous_active_players = 0;
-  static TbBool player_joined = false;
   int32_t active_players = 0;
   struct NetUser* host_user = &netstate.users[SERVER_ID];
   NetUserId remote_id = -1;
@@ -349,9 +348,7 @@ static TbBool check_frontend_version_mismatch(void)
       remote_id = i;
     }
   }
-  if (active_players > previous_active_players) {
-    player_joined = true;
-  }
+  TbBool player_joined = (active_players > previous_active_players);
   previous_active_players = active_players;
   if (remote_id == -1) {
     return false;
@@ -367,7 +364,6 @@ static TbBool check_frontend_version_mismatch(void)
         network_player_name(SERVER_ID), (int)host_user->version.major, (int)host_user->version.minor, (int)host_user->version.release, (int)host_user->version.build,
         network_player_name(remote_id), (int)remote_user->version.major, (int)remote_user->version.minor, (int)remote_user->version.release, (int)remote_user->version.build);
     create_frontend_error_box(10000, text);
-    player_joined = false;
   }
   return true;
 }
@@ -637,7 +633,8 @@ void frontnet_session_setup(void)
 void frontnet_start_setup(void)
 {
     frontnet_reset_ping_stabilization();
-    memset(&net_screen_packet[my_player_number], 0, sizeof(struct ScreenPacket));
+    previous_active_players = 0;
+    memset(net_screen_packet, 0, sizeof(net_screen_packet));
     frontend_alliances = -1;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
