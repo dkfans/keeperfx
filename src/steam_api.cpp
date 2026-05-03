@@ -146,7 +146,7 @@ int steam_api_init()
     // Check if initialization is successful
     if (result != ESteamAPIInitResult::k_ESteamAPIInitResult_OK)
     {
-        JUSTLOG("Steam API Failure: %s", error);
+        ERRORLOG("Steam API Failure: %s", error);
         FreeLibrary(steam_lib);
         return 1;
     }
