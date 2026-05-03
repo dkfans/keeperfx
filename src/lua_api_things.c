@@ -462,7 +462,6 @@ static int thing_get_field(lua_State *L) {
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Invalid creature control block");
-
         if (strcmp(key, "name") == 0) {
             lua_pushstring(L, creature_own_name(thing));
         } else if (strcmp(key, "gold_held") == 0) {
@@ -521,6 +520,14 @@ static int thing_get_field(lua_State *L) {
             lua_pushPlayer(L, cctrl->party.target_plyr_idx);
         } else if (strcmp(key, "conscious_back_turns") == 0) {
             lua_pushinteger(L, cctrl->conscious_back_turns);
+        } else if (strcmp(key, "property.special_digger") == 0) {
+            lua_pushboolean(L, flag_is_set(get_creature_model_flags(thing), CMF_IsSpecDigger));
+        } else if (strcmp(key, "property.digging_creature") == 0) {
+            lua_pushboolean(L, flag_is_set(get_creature_model_flags(thing), CMF_IsDiggingCreature));
+        } else if (strcmp(key, "property.bleeds") == 0) {
+            lua_pushboolean(L, creature_model_bleeds(thing->model));
+        } else if (strcmp(key, "property.evil") == 0) {
+            lua_pushboolean(L, flag_is_set(get_creature_model_flags(thing), CMF_IsEvil));
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }

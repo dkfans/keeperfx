@@ -32,6 +32,10 @@
 ---@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
 ---@field patrol_countdown integer When this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
 ---@field conscious_back_turns integer Turns until the creature wakes up from stun.
+---@field property.bleeds boolean The creature leaves blood when is hit, slapped, dying or being injured in any way.
+---@field property.special_digger boolean creature is different from 'real' creatures can dig and perform other dungeon tasks. Like an Imp.
+---@field property.digging_creature boolean creature is a 'real' creature but can also dig and perform other dungeon task. Like a Tunneller.
+---@field property.evil boolean creature has evil nature
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
