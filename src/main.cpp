@@ -3800,8 +3800,10 @@ static TbBool wait_at_frontend(void)
         if (is_feature_on(Ft_DeltaTime) == true && should_use_delta_time_on_menu()) {
           game.delta_time = get_delta_time();
         } else {
+          int32_t frame_time;
+          frame_time = max(1, 1000 / game_num_fps);
           game.delta_time = 1;
-          LbSleepUntil(fe_last_loop_time + 30);
+          LbSleepUntil(fe_last_loop_time + frame_time);
         }
       }
       fe_last_loop_time = LbTimerClock();
