@@ -147,11 +147,11 @@ short default_loc_player = 0;
 struct StartupParameters start_params;
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
-int32_t game_num_fps;
+int32_t turns_per_second;
 
-int32_t game_num_fps_draw_current = 0;
-int32_t game_num_fps_draw_main = 0; // -1 if auto
-int32_t game_num_fps_draw_secondary = 0;
+int32_t turns_per_second_draw_current = 0;
+int32_t turns_per_second_draw_main = 0; // -1 if auto
+int32_t turns_per_second_draw_secondary = 0;
 
 
 unsigned char *blue_palette;
@@ -1357,7 +1357,7 @@ void toggle_hero_health_flowers(void)
       do_sound_menu_click();
       statstr = "on";
     }
-    show_onscreen_msg(2*game_num_fps, "Hero health flowers %s", statstr);
+    show_onscreen_msg(2*turns_per_second, "Hero health flowers %s", statstr);
 }
 
 void reset_gui_based_on_player_mode(void)
@@ -3259,7 +3259,7 @@ TbBool keeper_wait_for_next_turn(void)
     if (game.frame_skip >= 0)
     {
         // Standard delaying system
-        long num_fps = game_num_fps;
+        long num_fps = turns_per_second;
         if (game.frame_skip > 0)
             num_fps *= game.frame_skip;
 
@@ -3290,10 +3290,10 @@ TbBool keeper_wait_for_next_turn(void)
 TbBool keeper_wait_for_next_draw(void)
 {
     // fps.draw is currently unable to work properly with frame_skip
-    if (game_num_fps_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
+    if (turns_per_second_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
-        const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw_current;
+        const long double tick_ns_one_frame = tick_ns_one_sec/turns_per_second_draw_current;
 
         static long double tick_ns_last_draw = 0;
         long double tick_ns_cur = get_time_tick_ns();
@@ -3315,24 +3315,24 @@ TbBool keeper_wait_for_next_draw(void)
 
 void redetect_screen_refresh_rate_for_draw()
 {
-    game_num_fps_draw_current = 0;
+    turns_per_second_draw_current = 0;
 
-    if (game_num_fps_draw_main == -1) {
-        if (game_num_fps_draw_secondary > 0)
-            game_num_fps_draw_current = game_num_fps_draw_secondary;
+    if (turns_per_second_draw_main == -1) {
+        if (turns_per_second_draw_secondary > 0)
+            turns_per_second_draw_current = turns_per_second_draw_secondary;
 
         if (lbWindow != NULL) {
             int display_index = SDL_GetWindowDisplayIndex(lbWindow);
             if (display_index >= 0) {
                 SDL_DisplayMode mode;
                 if (SDL_GetCurrentDisplayMode(display_index, &mode) == 0 && mode.refresh_rate > 0) {
-                    game_num_fps_draw_current = mode.refresh_rate;
+                    turns_per_second_draw_current = mode.refresh_rate;
                 }
             }
         }
 
-    } else if (game_num_fps_draw_main > 0) {
-        game_num_fps_draw_current = game_num_fps_draw_main;
+    } else if (turns_per_second_draw_main > 0) {
+        turns_per_second_draw_current = turns_per_second_draw_main;
     }
 }
 
@@ -3498,7 +3498,7 @@ void gameplay_loop_timestep()
         exit_keeper = 1;
     }
 
-    if (game_num_fps_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true) {
+    if (turns_per_second_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true) {
         keeper_wait_for_next_draw();
 
         if (game.turns_packetoff == get_gameturn()) {
@@ -3801,7 +3801,7 @@ static TbBool wait_at_frontend(void)
           game.delta_time = get_delta_time();
         } else {
           int32_t frame_time;
-          frame_time = max(1, 1000 / game_num_fps);
+          frame_time = max(1, 1000 / turns_per_second);
           game.delta_time = 1;
           LbSleepUntil(fe_last_loop_time + frame_time);
         }
