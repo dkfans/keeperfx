@@ -165,18 +165,10 @@ int steam_api_init()
 void steam_api_shutdown()
 {
 #ifdef _WIN32
-    if (SteamAPI_Shutdown != NULL)
-    {
+    if (SteamAPI_Shutdown != NULL) {
         SteamAPI_Shutdown();
-    }
-
-    SteamAPI_Shutdown = NULL;
-    SteamAPI_Init = NULL;
-
-    if (steam_lib != NULL)
-    {
-        FreeLibrary(steam_lib);
-        steam_lib = NULL;
+    } else {
+        WARNLOG("Steam API could not be shut down. SteamAPI_Shutdown() is NULL");
     }
 #endif
 }
