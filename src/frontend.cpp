@@ -1491,7 +1491,7 @@ void frontend_draw_mp_mappack(struct GuiButton *gbtn)
     font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
     const char *text;
-    text = campaign.lobby_name;
+    text = campaign.display_name;
     
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
