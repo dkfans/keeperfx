@@ -2888,7 +2888,12 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NETLAND_VIEW:
           set_pointer_graphic_none();
           frontnet_init_level_descriptions();
-          frontnetmap_load();
+          if(!frontnetmap_load())
+          {
+                ERRORLOG("Failed to load netmap, going back to main menu");
+                frontend_set_state(FeSt_MAIN_MENU);
+                nstate = FeSt_MAIN_MENU;
+          }
           break;
       case FeSt_FEDEFINE_KEYS:
           defining_a_key = 0;
