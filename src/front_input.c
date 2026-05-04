@@ -429,7 +429,7 @@ static void increaseFrameskip(void)
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
         sprintf(speed_txt, "x%d", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
+    show_onscreen_msg(turns_per_second*(game.frame_skip+1), "Fast Forward %s", speed_txt);
 }
 
 static void decreaseFrameskip(void)
@@ -447,7 +447,7 @@ static void decreaseFrameskip(void)
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
         sprintf(speed_txt, "x%d", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
+    show_onscreen_msg(turns_per_second*(game.frame_skip+1), "Fast Forward %s", speed_txt);
 }
 
 /**
@@ -546,7 +546,7 @@ static short get_bookmark_inputs(void)
                 bmark->x = camera->mappos.x.stl.num;
                 bmark->y = camera->mappos.y.stl.num;
                 bmark->flags |= 0x01;
-                show_onscreen_msg(game_num_fps, "Bookmark %d stored", i + 1);
+                show_onscreen_msg(turns_per_second, "Bookmark %d stored", i + 1);
             }
             return true;
         }
@@ -671,7 +671,7 @@ static short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KMod_ALT) )
   {
-    JUSTMSG("REPORT. gameturn is %u, requested fps is %d",get_gameturn(), game_num_fps);
+    JUSTMSG("REPORT. gameturn is %u, requested fps is %d",get_gameturn(), turns_per_second);
   }
 
   for (int idx = KC_F1; idx <= KC_F8; idx++)
@@ -738,9 +738,9 @@ static short get_global_inputs(void)
         if ( timer_enabled() )
         {
             update_time();
-            struct GameTime GameT = get_game_time(get_gameturn(), game_num_fps);
+            struct GameTime GameT = get_game_time(get_gameturn(), turns_per_second);
             SYNCMSG("Finished level %d. Total turns taken: %u (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
-                game.loaded_level_number, get_gameturn(), GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+                game.loaded_level_number, get_gameturn(), GameT.Hours, GameT.Minutes, GameT.Seconds, turns_per_second, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);

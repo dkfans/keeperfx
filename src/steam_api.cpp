@@ -52,8 +52,8 @@ union SteamApiInitUnion
 };
 
 // Variables
-SteamApiInitFunc SteamAPI_Init;
-SteamApiShutdownFunc SteamAPI_Shutdown;
+SteamApiInitFunc SteamAPI_Init = nullptr;
+SteamApiShutdownFunc SteamAPI_Shutdown = nullptr;
 
 /**
  * @brief Initializes the Steam API in KeeperFX.
@@ -146,12 +146,11 @@ int steam_api_init()
     // Check if initialization is successful
     if (result != ESteamAPIInitResult::k_ESteamAPIInitResult_OK)
     {
-        JUSTLOG("Steam API Failure: %s", error);
+        ERRORLOG("Steam API Failure: %s", error);
         FreeLibrary(steam_lib);
         return 1;
     }
 
-    FreeLibrary(steam_lib);
     return 0;
 
 #endif
@@ -165,18 +164,26 @@ int steam_api_init()
 void steam_api_shutdown()
 {
 #ifdef _WIN32
-    if (SteamAPI_Shutdown != NULL)
-    {
+
+    JUSTLOG("Shutting down Steam API");
+
+    if (SteamAPI_Shutdown != nullptr) {
         SteamAPI_Shutdown();
+    } else {
+        WARNLOG("Steam API could not be shut down. SteamAPI_Shutdown() is a null pointer");
     }
 
-    SteamAPI_Shutdown = NULL;
-    SteamAPI_Init = NULL;
-
-    if (steam_lib != NULL)
-    {
+    // Unload the Steam DLL
+    if (steam_lib != nullptr) {
         FreeLibrary(steam_lib);
-        steam_lib = NULL;
+        steam_lib = nullptr;
+    } else {
+        WARNLOG("Steam API library could not be unloaded");
     }
+
+    // Reset function pointers
+    SteamAPI_Init = nullptr;
+    SteamAPI_Shutdown = nullptr;
+
 #endif
 }
