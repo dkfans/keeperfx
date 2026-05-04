@@ -42,6 +42,7 @@
 #include "config_terrain.h"
 #include "power_process.h"
 #include "lua_cfg_funcs.h"
+#include "lua_triggers.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "creature_states.h"
@@ -411,6 +412,22 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, Effe
     return efftng;
 }
 
+short lua_process_shot_hit(struct Thing *shotng, struct Thing *target, MapSubtlCoord next_stl_x, MapSubtlCoord next_stl_y, struct ShotConfigStats *shotst) 
+{
+    if (thing_exists(target) && target->health < 0) {
+        return 1;
+    }
+    struct Thing *shooter = get_parent_thing(shotng);
+    short lua_ret_val = luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shooter, target, next_stl_x, next_stl_y);
+    if (lua_ret_val >= 0)
+    {
+        bool rebound_hit = thing_is_creature(target) && creature_under_spell_effect(target, CSAfF_Rebound) && !flag_is_set(shotst->model_flags, ShMF_ReboundImmune);
+        lua_on_shot_hit(shotng, shooter, target, next_stl_x, next_stl_y, rebound_hit);
+    }
+
+    return lua_ret_val;
+}
+
 /**
  * Processes hitting a wall by given shot.
  *
@@ -529,10 +546,10 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     }
 
     doortng = get_door_for_position(hit_stl_x, hit_stl_y);
-    short lua_return = luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, get_parent_thing(shotng), doortng, hit_stl_x, hit_stl_y);
-    if (lua_return < 1)
+    short lua_ret_val = lua_process_shot_hit(shotng, doortng, hit_stl_x, hit_stl_y, shotst);
+    if (lua_ret_val < 1)
     {
-        return lua_return != 0;
+        return lua_ret_val != 0;
     }
     // If blocked by a higher wall
     if ((blocked_flags & SlbBloF_WalledZ) != 0)
@@ -674,10 +691,10 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
         // If we did found a door to hit
         if (!thing_is_invalid(doortng))
         {
-            short lua_return = luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, get_parent_thing(shotng), doortng, pos->x.stl.num, pos->y.stl.num);
-            if (lua_return < 1)
+            short lua_ret_val = lua_process_shot_hit(shotng, doortng, pos->x.stl.num, pos->y.stl.num, shotst);
+            if (lua_ret_val < 1)
             {
-                return lua_return != 0;
+                return lua_ret_val != 0;
             }
             // If the shot hit is supposed to create effect thing
             if (shotst->hit_door.effect_model != 0)
@@ -801,11 +818,6 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (shotng->parent_idx != shotng->index) {
         shootertng = thing_get(shotng->parent_idx);
     }
-    short lua_return = luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shootertng, target, pos->x.stl.num, pos->y.stl.num);
-    if (lua_return < 1)
-    {
-        return lua_return != 0;
-    }
     int i = shotst->hit_generic.sndsample_idx;
     if (i > 0) {
         thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
@@ -870,11 +882,6 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         return false;
     }
     struct Thing* shootertng = get_parent_thing(shotng);
-    short lua_return = luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shootertng, target, pos->x.stl.num, pos->y.stl.num);
-    if (lua_return < 1)
-    {
-        return lua_return != 0;
-    }
     if (thing_is_dungeon_heart(target))
     {
         if (shotst->hit_heart.effect_model != 0)
@@ -1198,12 +1205,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long push_strength = shotst->push_on_hit;
     struct Thing* shooter = get_parent_thing(shotng);
     
-    short lua_return = luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, shooter, trgtng, pos->x.stl.num, pos->y.stl.num);
-    if (lua_return < 1)
-    {
-        return lua_return != 0;
+    if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
+        return 0;
     }
-    
     // Two fighting creatures gives experience
     if (thing_is_creature(shooter) && thing_is_creature(trgtng))
     {
@@ -1212,9 +1216,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (thing_is_deployed_trap(shooter) && thing_is_creature(trgtng))
     {
         creature_start_combat_with_trap_if_available(trgtng, shooter);
-    }
-    if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
-        return 0;
     }
     if (creature_under_spell_effect(trgtng, CSAfF_Rebound) && !flag_is_set(shotst->model_flags, ShMF_ReboundImmune))
     {
@@ -1439,8 +1440,14 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
 {
     struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
 
+
     if (!thing_exists(target)) {
         return false;
+    }
+    short lua_ret_val = lua_process_shot_hit(shotng, target, pos->x.stl.num, pos->y.stl.num, shotst);
+    if (lua_ret_val < 1)
+    {
+        return lua_ret_val != 0;
     }
     if (target->class_id == TCls_Object) {
         return shot_hit_object_at(shotng, target, pos);
@@ -1457,11 +1464,6 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     if (target->class_id == TCls_Shot) {
         // On a shot for collision, both shots are destroyed
         //TODO maybe make both shots explode instead?
-        short lua_return = luafunc_shot_hit_thing_func(shotst->hit_thing_lua_func_idx, shotng, get_parent_thing(shotng), target, pos->x.stl.num, pos->y.stl.num);
-        if (lua_return < 1)
-        {
-            return lua_return != 0;
-        }
         shotng->health = -1;
         target->health = -1;
         return true;
@@ -1568,10 +1570,7 @@ TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxp
         return false;
     }
     SYNCDBG(18,"The %s index %d, collided with %s index %d",thing_model_name(shotng),(int)shotng->index,thing_model_name(targetng),(int)targetng->index);
-    if (shot_hit_shootable_thing_at(shotng, targetng, nxpos)) {
-        return true;
-    }
-    return false;
+    return shot_hit_shootable_thing_at(shotng, targetng, nxpos);
 }
 
 TngUpdateRet move_shot(struct Thing *shotng)

@@ -240,3 +240,29 @@ function RegisterRoomOwnerChangeEvent(action, room_type, old_owner, owner)
     end
     return trigger
 end
+
+---Triggers when a shot hits something
+---eventData.shot contains the shot
+---eventData.shooter contains the object that fired the shot (can be nil)
+---eventData.target contains the thing that was hit (can be nil)
+---eventData.next_stl_x and eventData.next_stl_y contains the next subtile the shot would be if it didn't hit something.
+---eventData.rebound_hit if the shot hit a creature with rebound (and the shot was not rebound_immune)
+---@param action function|string the function to call when the event happens
+---@param shooter_type? creature_type | trap_type filter on the type of creature/trap that fired the shot. (nil for any)
+---@param target_type? creature_type | trap_type | string filter on the type of target (nil for any)
+---@param shot_type? string filter on the type of shot (nil for any)
+---@return table
+function RegisterOnShotHitEvent(action, shooter_type, target_type, shot_type)
+    local trigData = {shooter_type = shooter_type, target_type = target_type, shot_type = shot_type}
+    local trigger = CreateTrigger("ShotHitThing", action, trigData)
+    if shooter_type then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.shooter.model == triggerData.shooter_type end)
+    end
+    if target_type then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.target.model == triggerData.target_type end)
+    end
+    if shot_type then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.shot.model == triggerData.shot_type end)
+    end
+    return trigger
+end

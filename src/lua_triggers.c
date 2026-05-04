@@ -329,3 +329,25 @@ void lua_on_room_owner_change(struct Room *room, PlayerNumber old_owner)
 		lua_pop(Lvl_script, 1);
 	}
 }
+
+void lua_on_shot_hit(struct Thing *shot, struct Thing *shooter, struct Thing *target, MapSubtlCoord next_stl_x, MapSubtlCoord next_stl_y, bool rebound_hit)
+{
+	SYNCDBG(6,"Starting");
+	lua_getglobal(Lvl_script, "OnShotHit");
+	
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushThing(Lvl_script, shot);
+		lua_pushThing(Lvl_script, shooter);
+		lua_pushThing(Lvl_script, target);
+		lua_pushinteger(Lvl_script, next_stl_x);
+		lua_pushinteger(Lvl_script, next_stl_y);
+		lua_pushboolean(Lvl_script, rebound_hit);
+
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 0),"OnShotHit");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	} 
+}

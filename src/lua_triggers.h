@@ -42,8 +42,7 @@ void lua_on_level_up(struct Thing *thing);
 void lua_on_slab_kind_change(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind old_slab);
 void lua_on_slab_owner_change(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber old_owner);
 void lua_on_room_owner_change(struct Room *room, PlayerNumber old_owner);
-
-
+void lua_on_shot_hit(struct Thing *shot, struct Thing *shooter, struct Thing *target, MapSubtlCoord next_stl_x, MapSubtlCoord next_stl_y, bool rebound_hit);
 
 #ifdef __cplusplus
 }
