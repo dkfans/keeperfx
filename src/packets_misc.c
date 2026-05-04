@@ -25,6 +25,7 @@
 #include "bflib_network_exchange.h"
 #include "bflib_datetm.h"
 #include "front_landview.h"
+#include "frontend.h"
 #include "game_legacy.h"
 #include "game_saves.h"
 #include "gui_topmsg.h"
@@ -381,7 +382,7 @@ void load_packets_for_turn(GameTurn nturn)
         {
             ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", get_gameturn());
             if (!is_onscreen_msg_visible())
-                show_onscreen_msg(game_num_fps, "Out of sync");
+                show_onscreen_msg(turns_per_second, "Out of sync");
         }
     }
 }
@@ -419,4 +420,13 @@ void set_packet_pause_toggle()
         return;
     }
     process_pause_packet(0, 0);
+}
+
+void disable_packet_mode(void)
+{
+    close_packet_file();
+    game.packet_load_enable = false;
+    game.packet_save_enable = false;
+    show_onscreen_msg(2*turns_per_second, "Packet mode disabled");
+    set_gui_visible(true);
 }

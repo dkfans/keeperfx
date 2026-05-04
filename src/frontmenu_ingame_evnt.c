@@ -365,7 +365,7 @@ void draw_bonus_timer(void)
     char text[32];
     if (game.timer_real)
     {
-        unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
+        unsigned long total_seconds = ((nturns) / turns_per_second) + 1;
         unsigned char seconds = total_seconds % 60;
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
@@ -606,7 +606,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     char text[32];
     if (real)
     {
-        unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
+        unsigned long total_seconds = ((nturns) / turns_per_second) + 1;
         unsigned char seconds = total_seconds % 60;
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;

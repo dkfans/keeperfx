@@ -310,7 +310,7 @@ static float get_input_delta_time()
 {
     long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
     delta_time_previous_timepoint = TimeNow;
-    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game_num_fps;
+    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * turns_per_second;
     return min(calculated_delta_time, 1.0f);
 }
 void poll_controller()

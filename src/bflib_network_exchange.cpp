@@ -107,6 +107,9 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
     if (type == NETMSG_LOGIN) {
         if (from_server) {
             netstate.my_id = (NetUserId)*ptr;
+            ptr += 1;
+            netstate.users[netstate.my_id].version = net_current_version;
+            netstate.users[SERVER_ID].version = *(const struct GameVersionPacket *)ptr;
             return Lb_OK;
         }
         if (netstate.users[source].progress != USER_CONNECTED) {
@@ -138,12 +141,16 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
             netstate.sp->drop_user(source);
             return Lb_OK;
         }
+        ptr += name_len + 1;
+        netstate.users[source].version = *(const struct GameVersionPacket *)ptr;
         NETMSG("User %s successfully logged in", netstate.users[source].name);
         netstate.users[source].progress = USER_LOGGEDIN;
         play_non_3d_sample(76);
         char * msg_ptr = InitMessageBuffer(NETMSG_LOGIN);
         *msg_ptr = source;
         msg_ptr += 1;
+        memcpy(msg_ptr, &netstate.users[SERVER_ID].version, sizeof(netstate.users[SERVER_ID].version));
+        msg_ptr += sizeof(netstate.users[SERVER_ID].version);
         SendMessage(source, msg_ptr);
         NetUserId uid;
         for (uid = 0; uid < netstate.max_players; uid += 1) {
@@ -185,10 +192,14 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
             ERRORLOG("Critical error: Out of range peer ID %i received, could be used for buffer overflow attack", peer_id);
             abort();
         }
-        char* peer_buf = ((char*)server_buf) + peer_id * frame_size;
         ptr += 1;
         netstate.users[peer_id].ack = *(int *)ptr;
         ptr += 4;
+        if (type == NETMSG_FRONTEND) {
+            memcpy(&net_screen_packet[peer_id], ptr, sizeof(struct ScreenPacket));
+            return Lb_OK;
+        }
+        char* peer_buf = ((char*)server_buf) + peer_id * frame_size;
         if (type == NETMSG_GAMEPLAY) {
             struct BundledPacket* bundled = (struct BundledPacket*)ptr;
             memcpy(peer_buf, &bundled->packets[0], frame_size);
@@ -232,7 +243,7 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
 
 TbError LbNetwork_ExchangeLogin(char *plyr_name) {
     NETMSG("Logging in as %s", plyr_name);
-    if (1 + strlen(netstate.password) + 1 + strlen(plyr_name) + 1 >= sizeof(netstate.msg_buffer)) {
+    if (1 + strlen(netstate.password) + 1 + strlen(plyr_name) + 1 + sizeof(net_current_version) >= sizeof(netstate.msg_buffer)) {
         ERRORLOG("Login credentials too long");
         return Lb_FAIL;
     }
@@ -241,6 +252,8 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name) {
     ptr += strlen(netstate.password) + 1;
     strcpy(ptr, plyr_name);
     ptr += strlen(plyr_name) + 1;
+    memcpy(ptr, &net_current_version, sizeof(net_current_version));
+    ptr += sizeof(net_current_version);
     SendMessage(SERVER_ID, ptr);
     TbClockMSec start = LbTimerClock();
     while (true) {
@@ -335,7 +348,7 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     }
     int timeout_max = TIMEOUT_LOBBY_EXCHANGE;
     if (msg_type == NETMSG_GAMEPLAY) {
-        timeout_max = (1000 / game_num_fps);
+        timeout_max = (1000 / turns_per_second);
     }
 
     for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
@@ -359,7 +372,10 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
             if (netstate.sp->msgready(peer_id, wait)) {
                 ProcessMessage(peer_id, server_buf, client_frame_size);
                 if (msg_type != NETMSG_GAMEPLAY) {
-                    break;
+                    if (msg_type != NETMSG_STARTUP_SYNC || netstate.msg_buffer[0] == msg_type) {
+                        break;
+                    }
+                    continue;
                 }
                 TbBool received_gameplay_msg = (netstate.msg_buffer[0] == NETMSG_GAMEPLAY);
                 while (netstate.sp->msgready(peer_id, 0)) {

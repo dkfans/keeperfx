@@ -168,7 +168,6 @@
     <ClCompile Include="src\gui_tooltips.c" />
     <ClCompile Include="src\gui_topmsg.c" />
     <ClCompile Include="src\highscores.c" />
-    <ClCompile Include="src\KeeperSpeechImp.c" />
     <ClCompile Include="src\kjm_input.c" />
     <ClCompile Include="src\lens_api.c" />
     <ClCompile Include="src\kfx\lense\DisplacementEffect.cpp" />
@@ -413,7 +412,6 @@
     <ClInclude Include="src\gui_topmsg.h" />
     <ClInclude Include="src\highscores.h" />
     <ClInclude Include="src\keeperfx.hpp" />
-    <ClInclude Include="src\KeeperSpeech.h" />
     <ClInclude Include="src\kjm_input.h" />
     <ClInclude Include="src\lens_api.h" />
     <ClInclude Include="src\kfx\lense\DisplacementEffect.h" />

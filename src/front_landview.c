@@ -64,20 +64,25 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct NetMapPlayersState {
-    long tmp1;
-    LevelNumber lvnum;
+    int32_t unselected_players;
+    LevelNumber selected_level_number;
     TbBool is_selected;
 };
 
 /******************************************************************************/
 #define WINDOW_X_SIZE 960
 #define WINDOW_Y_SIZE 720
-#define LANDVIEW_BASE_FPS 33.0f
-static float get_landview_delta_time(void) {
-    if (is_feature_on(Ft_DeltaTime))
-        return game.delta_time * (LANDVIEW_BASE_FPS / game_num_fps);
-    return 1.0f;
-}
+#define LANDVIEW_ZOOM_STEP (2 * 3.3f)
+#define LANDVIEW_PAN_ACCEL (4 * 3.3f)
+#define LANDVIEW_PAN_DECEL (1 * 3.3f)
+#define LANDVIEW_PAN_MAX_SPEED (24 * 3.3f)
+
+enum NetMapSlapFrame {
+    NetMapSlap_StartFrame = 9,
+    NetMapSlap_HitFrame = 13,
+    NetMapSlap_EndFrame = 16,
+};
+
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
 const long hand_limp_yoffset[] = {-11, -10,  -9,  -8,  -7,  -6,  -5,  -4,  -3,  -2,  -1,  0, };
@@ -133,7 +138,7 @@ short is_over_ensign(const struct LevelInformation *lvinfo, long scr_x, long scr
 {
     long map_x = map_info.screen_shift_x + scr_x * 16 / units_per_pixel_landview;
     long map_y = map_info.screen_shift_y + scr_y * 16 / units_per_pixel_landview;
-    const struct TbSprite* spr = get_map_ensign(10);
+    const struct TbSprite* spr = get_map_ensign(EnsFullFlag);
     long spr_w = spr->SWidth;
     long spr_h = spr->SHeight;
     if ((map_x >= lvinfo->ensign_x-(spr_w>>1)) && (map_x < lvinfo->ensign_x+(spr_w>>1))
@@ -298,16 +303,16 @@ void update_frontmap_ambient_sound(void)
     }
 }
 
-int get_disabled_flag_option (unsigned short ensign, unsigned short default_ensign)
+int get_disabled_flag_option(unsigned short ensign_type, unsigned short default_ensign)
 {
     int base_ensign;
-    if (ensign == 0)
+    if (ensign_type == 0)
     {
         base_ensign = default_ensign;
     }
     else
     {
-        base_ensign = ensign;
+        base_ensign = ensign_type;
     }
     if (base_ensign == EnsTutorial)
         return EnsDisTutorial;
@@ -326,76 +331,76 @@ int get_disabled_flag_option (unsigned short ensign, unsigned short default_ensi
 const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
 {
     const struct TbSprite *spr;
-    int i = lvinfo->ensign;
     if (lvinfo == NULL)
         return NULL;
     if (lvinfo->state == LvSt_Hidden)
         return NULL;
 
+    int ensign_sprite_index = lvinfo->ensign_type;
     if (lvinfo->level_type & LvKind_IsSingle)
     {
         switch (lvinfo->state)
         {
         case LvSt_Visible:
-            if (i == 0)
-                i = EnsFullFlag;
+            if (ensign_sprite_index == 0)
+                ensign_sprite_index = EnsFullFlag;
             if (lvinfo->lvnum == mouse_over_lvnum)
-                i += 4;
-            spr = get_map_ensign(i + (anim_frame & 3));
+                ensign_sprite_index += 4;
+            spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
             break;
         default:
-            i = get_disabled_flag_option(lvinfo->ensign, EnsFullFlag);
-            spr = get_map_ensign(i);
+            ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsFullFlag);
+            spr = get_map_ensign(ensign_sprite_index);
             break;
         }
     } else
     if (lvinfo->level_type & LvKind_IsBonus)
     {
-        if (i == 0)
-            i = EnsBonus;
+        if (ensign_sprite_index == 0)
+            ensign_sprite_index = EnsBonus;
         switch (lvinfo->state)
         {
         case LvSt_Visible:
             if (lvinfo->lvnum == mouse_over_lvnum)
-                i += 4;
-            spr = get_map_ensign(i + (anim_frame & 3));
+                ensign_sprite_index += 4;
+            spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
             break;
         default:
-            i = get_disabled_flag_option(lvinfo->ensign, EnsTutorial);
-            spr = get_map_ensign(i);
+            ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsTutorial);
+            spr = get_map_ensign(ensign_sprite_index);
             break;
         }
     } else
     if (lvinfo->level_type & LvKind_IsExtra)
     {
-        if (i == 0)
+        if (ensign_sprite_index == 0)
         {
             if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
             {
-                i = EnsNewMoon;
+                ensign_sprite_index = EnsNewMoon;
             }
             else
             {
-                i = EnsFullMoon;
+                ensign_sprite_index = EnsFullMoon;
             }
         }
         switch (lvinfo->state)
         {
             case LvSt_Visible:
                 if (lvinfo->lvnum == mouse_over_lvnum)
-                    i += 4;
-                spr = get_map_ensign(i + (anim_frame & 3));
+                    ensign_sprite_index += 4;
+                spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
                 break;
             default:
                 if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign, EnsNewMoon);
+                    ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsNewMoon);
                 }
                 else
                 {
-                    i = get_disabled_flag_option(lvinfo->ensign, EnsFullMoon);
+                    ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsFullMoon);
                 }
-                spr = get_map_ensign(i);
+                spr = get_map_ensign(ensign_sprite_index);
                 break;
         }
     } else
@@ -406,40 +411,40 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             switch (lvinfo->players)
             {
             case 2:
-                i = 5;
+                ensign_sprite_index = 5;
                 break;
             case 3:
-                i = 7;
+                ensign_sprite_index = 7;
                 break;
             case 4:
-                i = 9;
+                ensign_sprite_index = 9;
                 break;
             default:
-                i = 5;
+                ensign_sprite_index = 5;
                 break;
             }
             if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
-                i++;
+                ensign_sprite_index++;
         }
         else
         {
             switch (lvinfo->players)
             {
             case 2:
-                i = EnsDisMulti2;
+                ensign_sprite_index = EnsDisMulti2;
                 break;
             case 3:
-                i = EnsDisMulti3;
+                ensign_sprite_index = EnsDisMulti3;
                 break;
             case 4:
-                i = EnsDisMulti4;
+                ensign_sprite_index = EnsDisMulti4;
                 break;
             default:
-                i = EnsDisMulti2;
+                ensign_sprite_index = EnsDisMulti2;
                 break;
             }
         }
-        spr = get_map_ensign(i);
+        spr = get_map_ensign(ensign_sprite_index);
     }
     else
     {
@@ -624,7 +629,7 @@ void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
     map_info.screen_shift_aimed_y = map_info.screen_shift_y;
     // Set working parameters for zooming
     map_info.fade_pos = FRONTMAP_ZOOM_LENGTH - 1;
-    map_info.fade_step = -FRONTMAP_ZOOM_STEP;
+    map_info.fade_step = -LANDVIEW_ZOOM_STEP;
     map_info.fadeflags |= MLInfoFlg_SpeechAfterZoom;
     map_info.fadeflags |= MLInfoFlg_Zooming;
 }
@@ -650,7 +655,7 @@ void frontmap_zoom_in_init(LevelNumber lvnum)
     map_info.screen_shift_aimed_y = map_info.screen_shift_y;
     SYNCDBG(8,"Level %ld hotspot (%d,%d) zoom (%d,%d)",(long)lvnum,(int)map_info.hotspot_shift_x,(int)map_info.hotspot_shift_y,(int)map_info.hotspot_imgpos_x,(int)map_info.hotspot_imgpos_y);
     // Set working parameters for zooming
-    map_info.fade_step = FRONTMAP_ZOOM_STEP;
+    map_info.fade_step = LANDVIEW_ZOOM_STEP;
     map_info.fade_pos = 0;
     map_info.fadeflags |= MLInfoFlg_SpeechAfterZoom;
     map_info.fadeflags |= MLInfoFlg_Zooming;
@@ -1070,10 +1075,10 @@ TbBool frontnetmap_load(void)
     if (fe_network_active)
     {
         net_number_of_players = 0;
-        for (long i = 0; i < 4; i++)
+        for (long i = 0; i < NET_PLAYERS_COUNT; i++)
         {
             struct ScreenPacket* nspck = &net_screen_packet[i];
-            if ((nspck->networkstatus_flags & 0x01) != 0)
+            if ((nspck->networkstatus_flags & NetStat_PlayerConnected) != 0)
               net_number_of_players++;
         }
     } else
@@ -1089,7 +1094,7 @@ TbBool frontnetmap_load(void)
 void process_map_zoom_in(void)
 {
     step_frontmap_info_screen_shift_zoom();
-    map_sound_fade = max(0, FULL_LOUDNESS + ((5 * (1 - map_info.fade_pos)) / FRONTMAP_ZOOM_STEP));
+    map_sound_fade = max(0, FULL_LOUDNESS + ((5 * (1 - map_info.fade_pos)) / LANDVIEW_ZOOM_STEP));
 }
 
 void process_map_zoom_out(void)
@@ -1113,15 +1118,15 @@ void process_zoom_palette(void)
 TbBool frontmap_update_zoom(void)
 {
     SYNCDBG(8,"Starting");
-    if (map_info.fade_step == FRONTMAP_ZOOM_STEP)
+    if (map_info.fade_step == LANDVIEW_ZOOM_STEP)
     {
         process_map_zoom_in();
     } else
-    if (map_info.fade_step == -FRONTMAP_ZOOM_STEP)
+    if (map_info.fade_step == -LANDVIEW_ZOOM_STEP)
     {
         process_map_zoom_out();
     }
-    map_info.fade_pos += map_info.fade_step * get_landview_delta_time();
+    map_info.fade_pos += map_info.fade_step * game.delta_time;
     if (map_info.fade_pos < 0 || map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH)
     {
         SYNCDBG(8,"Stopping fade");
@@ -1234,7 +1239,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
   if (is_my_player_number(plyr_idx))
     return false;
   struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
-  if ((nspck->networkstatus_flags >> 3) == 0x02)
+  if (screen_packet_action(nspck) == NetAct_Limping)
     return false;
   // Rectangle of given player
   nspck = &net_screen_packet[(int)plyr_idx];
@@ -1245,14 +1250,14 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
   rcta.bottom = rcta.top + 20;
   // Rectangle of local player
   nspck = &net_screen_packet[my_player_number];
-  if ((nspck->networkstatus_flags >> 3) == 0x01)
+  if (screen_packet_action(nspck) == NetAct_Slapping)
   {
     rctb.left = nspck->stored_data1 - 31;
     rctb.top = nspck->stored_data2 - 27;
     rctb.right = get_sprite(map_hand, 9)->SWidth + rctb.left;
     rctb.bottom = rctb.top + get_sprite(map_hand, 9)->SHeight;
   } else
-  if (nspck->param1 != SINGLEPLAYER_NOTSTARTED)
+  if (nspck->action_par1 != SINGLEPLAYER_NOTSTARTED)
   {
     rctb.left = nspck->stored_data1 - 20;
     rctb.top = nspck->stored_data2 - 14;
@@ -1294,36 +1299,36 @@ void check_mouse_scroll(void)
     long mx = GetMouseX();
     if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, false, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
     {
-        map_info.velocity_x -= 8 * get_landview_delta_time();
-        if (map_info.velocity_x < -48)
-            map_info.velocity_x = -48;
-        if (map_info.velocity_x > 48)
-            map_info.velocity_x = 48;
+        map_info.velocity_x -= LANDVIEW_PAN_ACCEL * game.delta_time;
+        if (map_info.velocity_x < -LANDVIEW_PAN_MAX_SPEED)
+            map_info.velocity_x = -LANDVIEW_PAN_MAX_SPEED;
+        if (map_info.velocity_x > LANDVIEW_PAN_MAX_SPEED)
+            map_info.velocity_x = LANDVIEW_PAN_MAX_SPEED;
   } else
   if ( (mx >= lbDisplay.PhysicalScreenWidth-8) || ( (is_game_key_pressed(Gkey_MoveRight, false, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_x += 8 * get_landview_delta_time();
-    if (map_info.velocity_x < -48)
-      map_info.velocity_x = -48;
-    if (map_info.velocity_x > 48)
-      map_info.velocity_x = 48;
+    map_info.velocity_x += LANDVIEW_PAN_ACCEL * game.delta_time;
+    if (map_info.velocity_x < -LANDVIEW_PAN_MAX_SPEED)
+      map_info.velocity_x = -LANDVIEW_PAN_MAX_SPEED;
+    if (map_info.velocity_x > LANDVIEW_PAN_MAX_SPEED)
+      map_info.velocity_x = LANDVIEW_PAN_MAX_SPEED;
   }
   long my = GetMouseY();
   if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, false, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_y -= 8 * get_landview_delta_time();
-    if (map_info.velocity_y < -48)
-      map_info.velocity_y = -48;
-    if (map_info.velocity_y > 48)
-      map_info.velocity_y = 48;
+    map_info.velocity_y -= LANDVIEW_PAN_ACCEL * game.delta_time;
+    if (map_info.velocity_y < -LANDVIEW_PAN_MAX_SPEED)
+      map_info.velocity_y = -LANDVIEW_PAN_MAX_SPEED;
+    if (map_info.velocity_y > LANDVIEW_PAN_MAX_SPEED)
+      map_info.velocity_y = LANDVIEW_PAN_MAX_SPEED;
   } else
   if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, false, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_y += 8 * get_landview_delta_time();
-    if (map_info.velocity_y < -48)
-      map_info.velocity_y = -48;
-    if (map_info.velocity_y > 48)
-      map_info.velocity_y = 48;
+    map_info.velocity_y += LANDVIEW_PAN_ACCEL * game.delta_time;
+    if (map_info.velocity_y < -LANDVIEW_PAN_MAX_SPEED)
+      map_info.velocity_y = -LANDVIEW_PAN_MAX_SPEED;
+    if (map_info.velocity_y > LANDVIEW_PAN_MAX_SPEED)
+      map_info.velocity_y = LANDVIEW_PAN_MAX_SPEED;
   }
 }
 
@@ -1331,34 +1336,34 @@ void update_velocity(void)
 {
     if (map_info.velocity_x != 0)
     {
-      map_info.screen_shift_x += (map_info.velocity_x / 4) * get_landview_delta_time();
+      map_info.screen_shift_x += (map_info.velocity_x / 4) * game.delta_time;
       if (map_info.screen_shift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview)
         map_info.screen_shift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview;
       if (map_info.screen_shift_x < 0)
         map_info.screen_shift_x = 0;
       if (map_info.velocity_x < 0) {
-        map_info.velocity_x += 2 * get_landview_delta_time();
+        map_info.velocity_x += LANDVIEW_PAN_DECEL * game.delta_time;
         if (map_info.velocity_x > 0)
           map_info.velocity_x = 0;
       } else {
-        map_info.velocity_x -= 2 * get_landview_delta_time();
+        map_info.velocity_x -= LANDVIEW_PAN_DECEL * game.delta_time;
         if (map_info.velocity_x < 0)
           map_info.velocity_x = 0;
       }
     }
     if (map_info.velocity_y != 0)
     {
-      map_info.screen_shift_y += (map_info.velocity_y / 4) * get_landview_delta_time();
+      map_info.screen_shift_y += (map_info.velocity_y / 4) * game.delta_time;
       if (map_info.screen_shift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview)
         map_info.screen_shift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview;
       if (map_info.screen_shift_y < 0)
         map_info.screen_shift_y = 0;
       if (map_info.velocity_y < 0) {
-        map_info.velocity_y += 2 * get_landview_delta_time();
+        map_info.velocity_y += LANDVIEW_PAN_DECEL * game.delta_time;
         if (map_info.velocity_y > 0)
           map_info.velocity_y = 0;
       } else {
-        map_info.velocity_y -= 2 * get_landview_delta_time();
+        map_info.velocity_y -= LANDVIEW_PAN_DECEL * game.delta_time;
         if (map_info.velocity_y < 0)
           map_info.velocity_y = 0;
       }
@@ -1382,25 +1387,25 @@ void draw_netmap_players_hands(void)
   long h;
   long i;
   long k;
-  long n;
+  unsigned char action;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
       nspck = &net_screen_packet[i];
       plyr_nam = network_player_name(i);
       colr = net_player_colours[i];
-      if ((nspck->networkstatus_flags & 0x01) != 0)
+      if ((nspck->networkstatus_flags & NetStat_PlayerConnected) != 0)
       {
         x = 0;
         y = 0;
-        n = nspck->networkstatus_flags & 0xF8;
-        if (n == 8)
+        action = screen_packet_action(nspck);
+        if (action == NetAct_Slapping)
         {
-          k = (unsigned char)nspck->param1;
+          k = (unsigned char)nspck->action_par1;
           spr = get_sprite(map_hand, k);
         } else
-        if (n == 16)
+        if (action == NetAct_Limping)
         {
-          k = nspck->param2;
+          k = nspck->action_par2;
           if (k > 11)
             k = 11;
           if (k < 0)
@@ -1409,7 +1414,7 @@ void draw_netmap_players_hands(void)
           y = hand_limp_yoffset[k];
           spr = get_sprite(map_hand, 21);
         } else
-        if (nspck->param1 == SINGLEPLAYER_NOTSTARTED)
+        if (nspck->action_par1 == SINGLEPLAYER_NOTSTARTED)
         {
             k = LbTimerClock() / 150;
             spr = get_sprite(map_hand, 1 + (k%8));
@@ -1418,7 +1423,7 @@ void draw_netmap_players_hands(void)
             k = LbTimerClock() / 150;
             spr = get_sprite(map_hand, 17 + (k%4));
         }
-        if (i == my_player_number && n == 0 && nspck->param1 == SINGLEPLAYER_NOTSTARTED) {
+        if (i == my_player_number && action == NetAct_None && nspck->action_par1 == SINGLEPLAYER_NOTSTARTED) {
             x += GetMouseX()*16/units_per_pixel_landview - 18;
             y += GetMouseY()*16/units_per_pixel_landview - 25;
         } else {
@@ -1583,7 +1588,7 @@ void frontnetmap_input(void)
           {
               if ((!net_map_slap_frame) && (!net_map_limp_time))
               {
-                  net_map_slap_frame = 9;
+                  net_map_slap_frame = NetMapSlap_StartFrame;
               }
           } else
         {
@@ -1677,15 +1682,15 @@ TbBool frontmap_exchange_screen_packet(void)
 {
     struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
     memset(nspck, 0, sizeof(struct ScreenPacket));
-    nspck->networkstatus_flags |= 0x01;
-    nspck->param1 = fe_net_level_selected;
+    nspck->networkstatus_flags |= NetStat_PlayerConnected;
+    nspck->action_par1 = fe_net_level_selected;
     if (net_map_limp_time > 0)
     {
-      nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x10;
+      screen_packet_set_action(nspck, NetAct_Limping);
       nspck->stored_data1 = limp_hand_x;
       nspck->stored_data2 = limp_hand_y;
       net_map_limp_time--;
-      nspck->param2 = net_map_limp_time;
+      nspck->action_par2 = net_map_limp_time;
       if (net_map_limp_time == 1)
       {
           LbMouseSetPosition(
@@ -1707,10 +1712,10 @@ TbBool frontmap_exchange_screen_packet(void)
     {
         nspck->stored_data1 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
         nspck->stored_data2 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
-        if (net_map_slap_frame <= 16)
+        if (net_map_slap_frame <= NetMapSlap_EndFrame)
         {
-          nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x08;
-          nspck->param1 = net_map_slap_frame;
+          screen_packet_set_action(nspck, NetAct_Slapping);
+          nspck->action_par1 = net_map_slap_frame;
           net_map_slap_frame++;
         } else
         {
@@ -1735,11 +1740,11 @@ TbBool frontmap_exchange_screen_packet(void)
 TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
 {
     memset(scratch, 0, PALETTE_SIZE);
-    long tmp2 = -1;
+    int32_t leading_votes = -1;
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         struct ScreenPacket* nspck = &net_screen_packet[i];
-        if ((nspck->networkstatus_flags & 0x01) == 0)
+        if ((nspck->networkstatus_flags & NetStat_PlayerConnected) == 0)
           continue;
         if (i != my_player_number && !network_player_active(i))
         {
@@ -1747,7 +1752,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             frontend_set_state(FeSt_NET_START);
             return false;
         }
-        if (nspck->param1 == LEVELNUMBER_ERROR)
+        if (nspck->action_par1 == LEVELNUMBER_ERROR)
         {
             if (fe_network_active)
             {
@@ -1760,25 +1765,25 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             }
             return false;
         }
-        if ((nspck->param1 == SINGLEPLAYER_NOTSTARTED) || ((nspck->networkstatus_flags & 0xF8) == 8))
+        if ((nspck->action_par1 == SINGLEPLAYER_NOTSTARTED) || (screen_packet_action(nspck) == NetAct_Slapping))
         {
-            nmps->tmp1++;
+            nmps->unselected_players++;
         } else
         {
-            LevelNumber pckt_lvnum = nspck->param1;
+            LevelNumber pckt_lvnum = nspck->action_par1;
             scratch[pckt_lvnum]++;
-            if (scratch[pckt_lvnum] == tmp2)
+            if (scratch[pckt_lvnum] == leading_votes)
             {
                 nmps->is_selected = false;
             } else
-            if (scratch[pckt_lvnum] > tmp2)
+            if (scratch[pckt_lvnum] > leading_votes)
             {
-                nmps->lvnum = pckt_lvnum;
-                tmp2 = scratch[pckt_lvnum];
+                nmps->selected_level_number = pckt_lvnum;
+                leading_votes = scratch[pckt_lvnum];
                 nmps->is_selected = true;
             }
         }
-        if (((nspck->networkstatus_flags & 0xF8) == 0x08) && (nspck->param1 == 13))
+        if ((screen_packet_action(nspck) == NetAct_Slapping) && (nspck->action_par1 == NetMapSlap_HitFrame))
         {
             if ( test_hand_slap_collides(i) )
             {
@@ -1787,7 +1792,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
                 net_map_slap_frame = 0;
                 limp_hand_x = nspck->stored_data1;
                 limp_hand_y = nspck->stored_data2;
-                nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x10;
+                screen_packet_set_action(nspck, NetAct_Limping);
                 SYNCLOG("Slapped out of level");
             }
         }
@@ -1801,8 +1806,8 @@ TbBool frontnetmap_update(void)
     set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
 
     struct NetMapPlayersState nmps;
-    nmps.tmp1 = 0;
-    nmps.lvnum = SINGLEPLAYER_NOTSTARTED;
+    nmps.unselected_players = 0;
+    nmps.selected_level_number = SINGLEPLAYER_NOTSTARTED;
     nmps.is_selected = false;
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
@@ -1816,12 +1821,16 @@ TbBool frontnetmap_update(void)
         frontmap_exchange_screen_packet();
         frontnetmap_update_players(&nmps);
     }
-    if ((!nmps.tmp1) && (nmps.lvnum > 0) && (nmps.is_selected))
+    if ((!nmps.unselected_players) && (nmps.selected_level_number > 0) && (nmps.is_selected))
     {
-        set_selected_level_number(nmps.lvnum);
-        snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.lvnum);
-        map_info.state_trigger = (fe_network_active < 1) ? FeSt_START_KPRLEVEL : FeSt_START_MPLEVEL;
-        frontmap_zoom_in_init(nmps.lvnum);
+        set_selected_level_number(nmps.selected_level_number);
+        snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.selected_level_number);
+        if (fe_network_active < 1) {
+            map_info.state_trigger = FeSt_START_KPRLEVEL;
+        } else {
+            map_info.state_trigger = FeSt_START_MPLEVEL;
+        }
+        frontmap_zoom_in_init(nmps.selected_level_number);
         if (!fe_network_active)
             fe_computer_players = 1;
     }

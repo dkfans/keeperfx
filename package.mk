@@ -32,7 +32,7 @@ PKG_FXDATA_FILES = \
 	$(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.toml)) \
 	$(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.txt)) \
 	$(patsubst config/%,pkg/%,$(wildcard config/fxdata/lua/**/*.lua)) \
-	pkg/fxdata/lua/init.lua
+	$(patsubst config/%,pkg/%,$(wildcard config/fxdata/lua/*.lua))
 PKG_FXDATA_DIRS = $(sort $(dir $(PKG_FXDATA_FILES)))
 PKG_MOD_FILES := $(patsubst config/%,pkg/%,$(shell find config/mods -type f))
 PKG_MOD_DIRS := $(sort $(dir $(PKG_MOD_FILES)))

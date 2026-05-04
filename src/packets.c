@@ -55,7 +55,6 @@
 #include "config_crtrmodel.h"
 #include "config_effects.h"
 #include "config_terrain.h"
-#include "config_players.h"
 #include "config_settings.h"
 #include "config_keeperfx.h"
 #include "player_instances.h"
@@ -121,6 +120,9 @@ extern TbBool change_campaign(const char *cmpgn_fname);
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
 /******************************************************************************/
+#define RESYNC_LIMIT_BEFORE_COOLDOWN 5
+#define RESYNC_COOLDOWN_MS (5 * 60 * 1000)
+
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
@@ -245,6 +247,40 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
         return false;
     }
     return false;
+}
+
+static TbBool resync_game_allowed(void)
+{
+    static int32_t resync_attempt_count = 0;
+    static TbClockMSec resync_cooldown_end = 0;
+    static GameTurn resync_last_turn = 0;
+    static TbBool resync_cooldown_warned = false;
+    TbClockMSec now = LbTimerClock();
+    GameTurn turn = get_gameturn();
+
+    if (turn < resync_last_turn) {
+        resync_attempt_count = 0;
+        resync_cooldown_end = 0;
+        resync_cooldown_warned = false;
+    }
+    resync_last_turn = turn;
+
+    if (resync_attempt_count >= RESYNC_LIMIT_BEFORE_COOLDOWN) {
+        if ((int32_t)(now - resync_cooldown_end) < 0) {
+            if (!resync_cooldown_warned) {
+                show_onscreen_msg(10 * turns_per_second, "Game may be in a desynced state.");
+                resync_cooldown_warned = true;
+            }
+            return false;
+        }
+    }
+
+    if (resync_attempt_count < RESYNC_LIMIT_BEFORE_COOLDOWN) {
+        resync_attempt_count++;
+    }
+    resync_cooldown_end = now + RESYNC_COOLDOWN_MS;
+    resync_cooldown_warned = false;
+    return true;
 }
 
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
@@ -1789,8 +1825,10 @@ void process_packets(void)
     if (((game.system_flags & GSF_NetworkActive) != 0)
      && ((game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
     {
-        SYNCDBG(0,"Resyncing");
-        resync_game();
+        if (resync_game_allowed()) {
+            SYNCDBG(0,"Resyncing");
+            resync_game();
+        }
     }
     get_current_slowdown_percentage();
     MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)get_gameturn());
@@ -1833,98 +1871,6 @@ TbBool try_starting_level_from_chat(char* message, long player_id)
     set_selected_level_number(level_num);
     frontend_set_state(FeSt_START_MPLEVEL);
     return true;
-}
-
-void process_frontend_packets(void)
-{
-  long i;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    net_screen_packet[i].networkstatus_flags &= ~0x01;
-  }
-  struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
-  set_flag(nspckt->networkstatus_flags, 0x01);
-  nspckt->frontend_alliances = frontend_alliances;
-  set_flag(nspckt->networkstatus_flags, 0x01);
-  nspckt->networkstatus_flags ^= ((nspckt->networkstatus_flags ^ (fe_computer_players << 1)) & 0x06);
-  nspckt->stored_data1 = VersionRelease;
-  nspckt->stored_data2 = VersionBuild;
-  if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
-  {
-      ERRORLOG("LbNetwork_Exchange failed");
-      net_service_index_selected = -1;
-  }
-  if (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED) {
-    LbNetwork_Stop();
-    if (!setup_network_service(net_service_index_selected)) {
-      frontend_set_state(FeSt_MAIN_MENU);
-    }
-    return;
-  }
-#if DEBUG_NETWORK_PACKETS
-  write_debug_screenpackets();
-#endif
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    nspckt = &net_screen_packet[i];
-    struct PlayerInfo* player = get_player(i);
-    if ((nspckt->networkstatus_flags & 0x01) != 0)
-    {
-        switch (nspckt->networkstatus_flags >> 3)
-        {
-        case 3:
-            if (!validate_versions())
-            {
-                nspckt->param1 = VersionMajor;
-                nspckt->param2 = VersionMinor;
-                versions_different_error();
-                break;
-            }
-            fe_network_active = 1;
-            if (game_flags2 & GF2_Connect)
-            {
-                frontend_set_state(FeSt_START_MPLEVEL);
-            }
-            else
-            {
-                frontend_set_state(FeSt_NETLAND_VIEW);
-            }
-            break;
-        case 4:
-            frontend_set_alliance(nspckt->param1, nspckt->param2);
-            break;
-        case 7:
-            fe_computer_players = nspckt->param1;
-            break;
-        default:
-            break;
-        }
-      if (frontend_alliances == -1)
-      {
-        if (nspckt->frontend_alliances != -1)
-          frontend_alliances = nspckt->frontend_alliances;
-      }
-      if (fe_computer_players == 2)
-      {
-        long k = ((nspckt->networkstatus_flags & 0x06) >> 1);
-        if (k != 2)
-          fe_computer_players = k;
-      }
-      player->game_version = nspckt->stored_data2 + (nspckt->stored_data1 << 8);
-    }
-    nspckt->networkstatus_flags &= 0x07;
-  }
-  if (frontend_alliances == -1)
-    frontend_alliances = 0;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    nspckt = &net_screen_packet[i];
-    if ((nspckt->networkstatus_flags & 0x01) == 0)
-    {
-      if (frontend_is_player_allied(my_player_number, i))
-        frontend_set_alliance(my_player_number, i);
-    }
-  }
 }
 
 // Using Alt-F4, or similar operating system close requests

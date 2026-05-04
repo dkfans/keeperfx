@@ -629,74 +629,6 @@ void add_message(long plyr_idx, char *msg)
 }
 
 /**
- * Checks if all the network players are using compatible version of DK.
- */
-TbBool validate_versions(void)
-{
-    struct PlayerInfo *player;
-    long i;
-    long ver;
-    ver = -1;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      player = get_player(i);
-      if ((net_screen_packet[i].networkstatus_flags & 0x01) != 0)
-      {
-        if (ver == -1)
-          ver = player->game_version;
-        if (player->game_version != ver)
-          return false;
-      }
-    }
-    return true;
-}
-
-void versions_different_error(void)
-{
-    const char *plyr_nam;
-    struct ScreenPacket *nspckt;
-    char text[MESSAGE_TEXT_LEN];
-    int i;
-
-    NETMSG("Error: Players have different versions of DK");
-
-    if (LbNetwork_Stop())
-    {
-      ERRORLOG("LbNetwork_Stop() failed");
-    }
-    lbKeyOn[KC_ESCAPE] = 0;
-    lbKeyOn[KC_SPACE] = 0;
-    lbKeyOn[KC_RETURN] = 0;
-    text[0] = '\0';
-    snprintf(text, sizeof(text), "%s\n", get_string(GUIStr_VersionMismatch));
-    // Preparing message
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      plyr_nam = network_player_name(i);
-      nspckt = &net_screen_packet[i];
-      if ((nspckt->networkstatus_flags & 0x01) != 0)
-      {
-        str_appendf(text, sizeof(text), "%s: %d.%d.%d.%02d\n", plyr_nam, nspckt->param1, nspckt->param2, nspckt->stored_data1, nspckt->stored_data2);
-      }
-    }
-    // Waiting for users reaction
-    while ( 1 )
-    {
-      if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_SPACE] || lbKeyOn[KC_RETURN])
-        break;
-      LbWindowsControl();
-      if (LbScreenLock() == Lb_SUCCESS)
-      {
-        draw_text_box_top(text, Lb_TEXT_HALIGN_LEFT);
-        LbScreenUnlock();
-      }
-      LbScreenSwap();
-    }
-    // Checking where to go back
-    init_menu_state_on_net_stats_exit();
-}
-
-/**
  * Makes error box with message from GUI strings collection.
  *
  * @param msg_idx
@@ -1519,10 +1451,10 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->networkstatus_flags & 0xF8) == 0)
+    if (screen_packet_action(nspck) == NetAct_None)
     {
-        nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x38;
-        nspck->param1 = (fe_computer_players == 0);
+        screen_packet_set_action(nspck, NetAct_SetComputerPlayers);
+        nspck->action_par1 = (fe_computer_players == 0);
     }
 }
 
@@ -1553,8 +1485,8 @@ void set_packet_start(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->networkstatus_flags & 0xF8) == 0)
-        nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x18;
+    if (screen_packet_action(nspck) == NetAct_None)
+        screen_packet_set_action(nspck, NetAct_HostStartLevel);
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -3958,8 +3890,13 @@ void frontend_draw_error_text_box(struct GuiButton *gbtn)
 
 void frontend_maintain_error_text_box(struct GuiButton *gbtn)
 {
-    if (LbTimerClock() > gui_message_timeout)
-    {
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
+        clear_key_pressed(KC_ESCAPE);
+        gui_message_timeout = 0;
+        turn_off_menu(GMnu_FEERROR_BOX);
+        return;
+    }
+    if (LbTimerClock() > gui_message_timeout) {
         turn_off_menu(GMnu_FEERROR_BOX);
     }
 }

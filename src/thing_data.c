@@ -148,7 +148,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
         return true;
     }
 
-    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d slots used.", SYNCED_THINGS_COUNT - game.synced_free_things_count, SYNCED_THINGS_COUNT);
+    show_onscreen_msg(2 * turns_per_second, "Warning: Cannot create thing, %d/%d slots used.", SYNCED_THINGS_COUNT - game.synced_free_things_count, SYNCED_THINGS_COUNT);
     return false;
 }
 

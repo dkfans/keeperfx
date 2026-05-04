@@ -686,9 +686,9 @@ void process_timebomb(struct Thing *creatng)
     struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
     if (!thing_exists(timetng))
     {
-        if ((cctrl->timebomb_countdown % game_num_fps) == 0)
+        if ((cctrl->timebomb_countdown % turns_per_second) == 0)
         {
-            long time = (cctrl->timebomb_countdown / game_num_fps);
+            long time = (cctrl->timebomb_countdown / turns_per_second);
             timetng = create_price_effect(&creatng->mappos, creatng->owner, time);
             cctrl->timebomb_countdown_id = timetng->index;
             thing_play_sample(creatng, 853, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS); // 853 is hardcoded ticking sound, could be configurable.
