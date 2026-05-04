@@ -109,17 +109,17 @@ TbBool cumulative_screen_shot(void)
     }
     if (i >= 10000)
     {
-        show_onscreen_msg(game_num_fps, "No free filename for screenshot.");
+        show_onscreen_msg(turns_per_second, "No free filename for screenshot.");
         return false;
     }
     TbBool ret = take_screenshot(fname);
     if (ret)
     {
-        show_onscreen_msg(game_num_fps, "File \"%s\" saved.", fname);
+        show_onscreen_msg(turns_per_second, "File \"%s\" saved.", fname);
     }
     else
     {
-        show_onscreen_msg(game_num_fps, "Cannot save \"%s\".", fname);
+        show_onscreen_msg(turns_per_second, "Cannot save \"%s\".", fname);
     }
     return ret;
 }

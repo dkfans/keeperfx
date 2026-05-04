@@ -206,7 +206,6 @@ struct Dungeon {
     int manage_score;
     int total_score;
     uint32_t max_gameplay_score;
-    short times_breached_dungeon;
     short highest_task_number;
     GoldAmount total_money_owned;
     GoldAmount offmap_money_owned;
