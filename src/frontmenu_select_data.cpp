@@ -111,7 +111,7 @@ struct GuiButtonInit frontend_select_mp_mappack_buttons[] = {
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_mp_mappack_select,NULL,frontend_over_button,     0,  95, 255,  95, 257,424, 22, frontend_draw_mp_mappack_select_button,0,GUIStr_Empty,  0,      {49},            0, frontend_mp_mappack_select_maintain},
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_mp_mappack_select,NULL,frontend_over_button,     0,  95, 277,  95, 279,424, 22, frontend_draw_mp_mappack_select_button,0,GUIStr_Empty,  0,      {50},            0, frontend_mp_mappack_select_maintain},
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_mp_mappack_select,NULL,frontend_over_button,     0,  95, 299,  95, 301,424, 22, frontend_draw_mp_mappack_select_button,0,GUIStr_Empty,  0,      {51},            0, frontend_mp_mappack_select_maintain},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL,frontend_over_button,          FeSt_NET_START, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {114},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_back_from_mp_mappack_list,NULL,frontend_over_button,          FeSt_NET_START, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {114},            0, NULL},
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 

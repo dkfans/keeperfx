@@ -495,6 +495,18 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
     }
 }
 
+void frontend_back_from_mp_mappack_list(struct GuiButton *gbtn)
+{
+    if (net_service_index_selected == FrontendNetSvc_Skirmish)
+    {
+        frontend_set_state(FeSt_NET_SERVICE);
+    }
+    else
+    {
+        frontend_set_state(FeSt_NET_START);
+    }
+}
+
 void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn)
 {
     struct GameCampaign *campgn;
