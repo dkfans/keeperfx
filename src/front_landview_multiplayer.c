@@ -444,6 +444,7 @@ TbBool frontnetmap_load(void)
             }
         }
     } else {
+      memset(net_screen_packet, 0, sizeof(net_screen_packet));
       net_number_of_players = 1;
     }
     memset(&net_map_local, 0, sizeof(net_map_local));
