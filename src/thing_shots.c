@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "config_magic.h"
 #include "pre_inc.h"
+#include "config_magic.h"
 #include "thing_shots.h"
 
 #include "globals.h"
