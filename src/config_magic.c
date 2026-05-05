@@ -40,6 +40,7 @@
 #include "thing_creature.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
+#include "thing_shots.h"
 
 #include "post_inc.h"
 
@@ -167,6 +168,44 @@ static void assign_withstand(const struct NamedField* named_field, int64_t value
 }
 
 
+static const struct NamedCommand shotfirelogic_commands[] = {
+    {"DEFAULT",      ShFL_Default},
+    {"0",            ShFL_Default},
+    {"BEAM",         ShFL_Beam},
+    {"1",            ShFL_Beam},
+    {"BREATHE",      ShFL_Breathe},
+    {"2",            ShFL_Breathe},
+    {"HAIL",         ShFL_Hail},
+    {"3",            ShFL_Hail},
+    {"LIZARD",       ShFL_Lizard},
+    {"4",            ShFL_Lizard},
+    {"VOLLEY",       ShFL_Volley},
+    {"5",            ShFL_Volley},
+    {NULL,            0},
+};
+
+static const struct NamedCommand shotupdatelogic_commands[] = {
+    {"DEFAULT",      ShUL_Default},
+    {"0",            ShUL_Default},
+    {"LIGHTNING",    ShUL_Lightning},
+    {"1",            ShUL_Lightning},
+    {"WIND",         ShUL_Wind},
+    {"2",            ShUL_Wind},
+    {"GRENADE",      ShUL_Grenade},
+    {"3",            ShUL_Grenade},
+    {"GODLIGHTNING", ShUL_GodLightning},
+    {"4",            ShUL_GodLightning},
+    {"LIZARD",       ShUL_Lizard},
+    {"5",            ShUL_Lizard},
+    {"GODLIGHTBALL", ShUL_GodLightBall},
+    {"6",            ShUL_GodLightBall},
+    {"TRAPTNT",      ShUL_TrapTNT},
+    {"7",            ShUL_TrapTNT},
+    {"TRAPLIGHTNING",ShUL_TrapLightning},
+    {"8",            ShUL_TrapLightning},
+    {NULL,            0},
+};
+
 const struct NamedField magic_shot_named_fields[] = {
   {"NAME",                  0, field(game.conf.magic_conf.shot_cfgstats[0].code_name),                   0,  INT32_MIN,  UINT32_MAX, shot_desc,                    value_name,      assign_null},
   {"HEALTH",                0, field(game.conf.magic_conf.shot_cfgstats[0].health),                      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
@@ -177,7 +216,7 @@ const struct NamedField magic_shot_named_fields[] = {
   {"AREADAMAGE",            1, field(game.conf.magic_conf.shot_cfgstats[0].area_damage),                 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"AREADAMAGE",            2, field(game.conf.magic_conf.shot_cfgstats[0].area_blow),                   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"SPEED",                 0, field(game.conf.magic_conf.shot_cfgstats[0].speed),                       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
-  {"PROPERTIES",            0, field(game.conf.magic_conf.shot_cfgstats[0].model_flags),                 0,  INT32_MIN,  UINT32_MAX, shotmodel_properties_commands,value_flagsfield,assign_default},
+  {"PROPERTIES",           -1, field(game.conf.magic_conf.shot_cfgstats[0].model_flags),                 0,  INT32_MIN,  UINT32_MAX, shotmodel_properties_commands,value_flagsfield,assign_default},
   {"PUSHONHIT",             0, field(game.conf.magic_conf.shot_cfgstats[0].push_on_hit),                 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"FIRINGSOUND",           0, field(game.conf.magic_conf.shot_cfgstats[0].firing_sound),                0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"SHOTSOUND",             0, field(game.conf.magic_conf.shot_cfgstats[0].shot_sound),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
@@ -197,21 +236,27 @@ const struct NamedField magic_shot_named_fields[] = {
   {"VISUALEFFECTHEALTH",    0, field(game.conf.magic_conf.shot_cfgstats[0].visual.shot_health),          0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"HITWALLEFFECT",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_generic.effect_model),    0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"HITWALLSOUND",          0, field(game.conf.magic_conf.shot_cfgstats[0].hit_generic.sndsample_idx),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITWALLSOUND",          1, field(game.conf.magic_conf.shot_cfgstats[0].hit_generic.sndsample_range),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"HITCREATUREEFFECT",     0, field(game.conf.magic_conf.shot_cfgstats[0].hit_creature.effect_model),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"HITCREATURESOUND",      0, field(game.conf.magic_conf.shot_cfgstats[0].hit_creature.sndsample_idx),  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITCREATURESOUND",      1, field(game.conf.magic_conf.shot_cfgstats[0].hit_creature.sndsample_range),  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"HITDOOREFFECT",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_door.effect_model),       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"HITDOORSOUND",          0, field(game.conf.magic_conf.shot_cfgstats[0].hit_door.sndsample_idx),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITDOORSOUND",          1, field(game.conf.magic_conf.shot_cfgstats[0].hit_door.sndsample_range),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"HITWATEREFFECT",        0, field(game.conf.magic_conf.shot_cfgstats[0].hit_water.effect_model),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"HITWATERSOUND",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_water.sndsample_idx),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITWATERSOUND",         1, field(game.conf.magic_conf.shot_cfgstats[0].hit_water.sndsample_range),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"HITLAVAEFFECT",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_lava.effect_model),       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"HITLAVASOUND",          0, field(game.conf.magic_conf.shot_cfgstats[0].hit_lava.sndsample_idx),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITLAVASOUND",          1, field(game.conf.magic_conf.shot_cfgstats[0].hit_lava.sndsample_range),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"DIGHITEFFECT",          0, field(game.conf.magic_conf.shot_cfgstats[0].dig.effect_model),            0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"DIGHITSOUND",           0, field(game.conf.magic_conf.shot_cfgstats[0].dig.sndsample_idx),           0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"DIGHITSOUND",           1, field(game.conf.magic_conf.shot_cfgstats[0].dig.sndsample_range),           0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"EXPLOSIONEFFECTS",      0, field(game.conf.magic_conf.shot_cfgstats[0].explode.effect1_model),       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"EXPLOSIONEFFECTS",      1, field(game.conf.magic_conf.shot_cfgstats[0].explode.effect2_model),       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"EXPLOSIONEFFECTS",      2, field(game.conf.magic_conf.shot_cfgstats[0].explode.around_effect1_model),0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"EXPLOSIONEFFECTS",      3, field(game.conf.magic_conf.shot_cfgstats[0].explode.around_effect2_model),0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
-  {"WITHSTANDHITAGAINST",   0, NULL,0,                                                                   0,  INT32_MIN,  INT32_MAX,  shotmodel_withstand_types,    value_flagsfield,   assign_withstand},
+  {"WITHSTANDHITAGAINST",  -1, NULL,0,                                                                   0,  INT32_MIN,  INT32_MAX,  shotmodel_withstand_types,    value_flagsfield,   assign_withstand},
   {"ANIMATIONTRANSPARENCY", 0, field(game.conf.magic_conf.shot_cfgstats[0].animation_transparency),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"DESTROYONHIT",          0, field(game.conf.magic_conf.shot_cfgstats[0].destroy_on_first_hit),        0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"BASEEXPERIENCEGAIN",    0, field(game.conf.magic_conf.shot_cfgstats[0].experience_given_to_shooter), 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
@@ -225,12 +270,13 @@ const struct NamedField magic_shot_named_fields[] = {
   {"UNSHADED",              0, field(game.conf.magic_conf.shot_cfgstats[0].unshaded),                    0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"SOFTLANDING",           0, field(game.conf.magic_conf.shot_cfgstats[0].soft_landing),                0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"EFFECTMODEL",           0, field(game.conf.magic_conf.shot_cfgstats[0].effect_id),                   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
-  {"FIRELOGIC",             0, field(game.conf.magic_conf.shot_cfgstats[0].fire_logic),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
-  {"UPDATELOGIC",           0, field(game.conf.magic_conf.shot_cfgstats[0].update_logic),                0,  INT32_MIN,  UINT32_MAX, NULL,                         value_function,   assign_default},
+  {"FIRELOGIC",             0, field(game.conf.magic_conf.shot_cfgstats[0].fire_logic),                  0,  INT32_MIN,  UINT32_MAX, shotfirelogic_commands,       value_default,   assign_default},
+  {"UPDATELOGIC",           0, field(game.conf.magic_conf.shot_cfgstats[0].update_logic),                0,  INT32_MIN,  UINT32_MAX, shotupdatelogic_commands,     value_function,   assign_default},
   {"EFFECTSPACING",         0, field(game.conf.magic_conf.shot_cfgstats[0].effect_spacing),              0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"EFFECTAMOUNT",          0, field(game.conf.magic_conf.shot_cfgstats[0].effect_amount),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"HITHEARTEFFECT",        0, field(game.conf.magic_conf.shot_cfgstats[0].hit_heart.effect_model),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"HITHEARTSOUND",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_heart.sndsample_idx),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITHEARTSOUND",         1, field(game.conf.magic_conf.shot_cfgstats[0].hit_heart.sndsample_range),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"BLEEDINGEFFECT",        0, field(game.conf.magic_conf.shot_cfgstats[0].effect_bleeding),             0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"FROZENEFFECT",          0, field(game.conf.magic_conf.shot_cfgstats[0].effect_frozen),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"PERIODICAL",            0, field(game.conf.magic_conf.shot_cfgstats[0].periodical),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
@@ -245,7 +291,7 @@ const struct NamedFieldSet magic_shot_named_fields_set = {
     &game.conf.magic_conf.shot_types_count,
     "shot",
     magic_shot_named_fields,
-    NULL,
+    shot_desc,
     MAGIC_ITEMS_MAX,
     sizeof(game.conf.magic_conf.shot_cfgstats[0]),
     game.conf.magic_conf.shot_cfgstats,
