@@ -378,7 +378,7 @@ static int64_t value_strength(const struct NamedField* named_field, const char* 
         i++;
     }
 
-    if (num_params == 8)
+    if (num_params == 9)
     {
         powerst->strength[9] = powerst->strength[8];
     }
