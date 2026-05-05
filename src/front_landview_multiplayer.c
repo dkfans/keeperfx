@@ -279,46 +279,46 @@ static void get_hand_packet(PlayerNumber plyr_idx, struct ScreenPacket *nspck, i
 
 static void draw_netmap_players_hands(void)
 {
-  struct ScreenPacket nspck;
-  const char *plyr_nam;
-  const struct TbSprite *spr;
-  TbPixel colr;
-  TbClockMSec now;
-  int32_t x, y;
-  int32_t w;
-  int32_t h;
-  int32_t i;
-  int32_t anim_frame;
+    struct ScreenPacket nspck;
+    const char *plyr_nam;
+    const struct TbSprite *spr;
+    TbPixel colr;
+    TbClockMSec now;
+    int32_t x, y;
+    int32_t w;
+    int32_t h;
+    int32_t i;
+    int32_t anim_frame;
 
-  now = LbTimerClock();
-  anim_frame = now / 150;
-  for (i=0; i < NET_PLAYERS_COUNT; i++) {
-      int32_t slap_frame;
+    now = LbTimerClock();
+    anim_frame = now / 150;
+    for (i=0; i < NET_PLAYERS_COUNT; i++) {
+        int32_t slap_frame;
 
-      if (!is_connected_screen_packet(&net_screen_packet[i])) {
-        continue;
-      }
-      slap_frame = 0;
-      if (i == my_player_number) {
-          slap_frame = get_slap_anim_frame(net_map_local.local_slap_anim_start, now);
-      }
-      get_hand_packet(i, &nspck, slap_frame, now);
-      plyr_nam = network_player_name(i);
-      colr = net_player_colours[i];
-      spr = get_hand_sprite_for_packet(&nspck, anim_frame, &x, &y);
-      x -= (long)map_info.screen_shift_x;
-      y -= (long)map_info.screen_shift_y;
-      LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
-      w = LbTextStringWidth(plyr_nam);
-      if (w > 0) {
-        lbDisplay.DrawFlags = 0;
-        h = LbTextHeight(level_name);
-        y += 32;
-        x += 32;
-        LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), colr);
-        LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, plyr_nam);
-      }
-  }
+        if (!is_connected_screen_packet(&net_screen_packet[i])) {
+            continue;
+        }
+        slap_frame = 0;
+        if (i == my_player_number) {
+            slap_frame = get_slap_anim_frame(net_map_local.local_slap_anim_start, now);
+        }
+        get_hand_packet(i, &nspck, slap_frame, now);
+        plyr_nam = network_player_name(i);
+        colr = net_player_colours[i];
+        spr = get_hand_sprite_for_packet(&nspck, anim_frame, &x, &y);
+        x -= (long)map_info.screen_shift_x;
+        y -= (long)map_info.screen_shift_y;
+        LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
+        w = LbTextStringWidth(plyr_nam);
+        if (w > 0) {
+            lbDisplay.DrawFlags = 0;
+            h = LbTextHeight(level_name);
+            y += 32;
+            x += 32;
+            LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), colr);
+            LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, plyr_nam);
+        }
+    }
 }
 
 void frontnetmap_draw(void)
@@ -340,65 +340,65 @@ void frontnetmap_draw(void)
 
 void frontnetmap_input(void)
 {
-  TbBool can_select;
-  TbClockMSec now;
-  struct LevelInformation* lvinfo;
+    TbBool can_select;
+    TbClockMSec now;
+    struct LevelInformation* lvinfo;
 
-  if (lbKeyOn[KC_ESCAPE]) {
-      fe_net_level_selected = LEVELNUMBER_ERROR;
-      lbKeyOn[KC_ESCAPE] = 0;
-      SYNCLOG("Escaped from level selection");
-      return;
-  }
+    if (lbKeyOn[KC_ESCAPE]) {
+        fe_net_level_selected = LEVELNUMBER_ERROR;
+        lbKeyOn[KC_ESCAPE] = 0;
+        SYNCLOG("Escaped from level selection");
+        return;
+    }
 
-  now = LbTimerClock();
-  if (get_local_hand_limp_frame(now) >= 0) {
-      return;
-  }
-  can_select = (get_slap_anim_frame(net_map_local.local_slap_anim_start, now) == 0) && (net_map_local.local_slap_send_frame == 0);
+    now = LbTimerClock();
+    if (get_local_hand_limp_frame(now) >= 0) {
+        return;
+    }
+    can_select = (get_slap_anim_frame(net_map_local.local_slap_anim_start, now) == 0) && (net_map_local.local_slap_send_frame == 0);
 
-  if (right_button_clicked) {
-      right_button_clicked = 0;
-      if (fe_net_level_selected != SINGLEPLAYER_NOTSTARTED) {
-        lvinfo = get_level_info(fe_net_level_selected);
-        if (lvinfo != NULL) {
-          LbMouseSetPosition(scale_value_landview(lvinfo->ensign_x - (int32_t)map_info.screen_shift_x),
-              scale_value_landview(lvinfo->ensign_y - (int32_t)map_info.screen_shift_y));
+    if (right_button_clicked) {
+        right_button_clicked = 0;
+        if (fe_net_level_selected != SINGLEPLAYER_NOTSTARTED) {
+            lvinfo = get_level_info(fe_net_level_selected);
+            if (lvinfo != NULL) {
+                LbMouseSetPosition(scale_value_landview(lvinfo->ensign_x - (int32_t)map_info.screen_shift_x),
+                    scale_value_landview(lvinfo->ensign_y - (int32_t)map_info.screen_shift_y));
+            }
+            fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
+        } else if (can_select) {
+            net_map_local.local_slap_anim_start = now;
+            net_map_local.local_slap_send_frame = NetLandSlap_StartFrame;
+            can_select = false;
         }
-        fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-      } else if (can_select) {
-          net_map_local.local_slap_anim_start = now;
-          net_map_local.local_slap_send_frame = NetLandSlap_StartFrame;
-          can_select = false;
-      }
-  }
+    }
 
-  if (fe_net_level_selected != SINGLEPLAYER_NOTSTARTED) {
-      return;
-  }
+    if (fe_net_level_selected != SINGLEPLAYER_NOTSTARTED) {
+        return;
+    }
 
-  net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
-  frontmap_input_active_ensign(GetMouseX(), GetMouseY());
-  if (mouse_over_lvnum > 0) {
-    net_level_hilighted = mouse_over_lvnum;
-  }
-  if ((net_level_hilighted > 0) && can_select && left_button_clicked) {
-      fe_net_level_selected = net_level_hilighted;
-      left_button_clicked = 0;
-      set_level_name_text(fe_net_level_selected, NULL);
-      SYNCLOG("Selected level %d with description \"%s\"",(int)fe_net_level_selected,level_name);
-  }
-  check_mouse_scroll();
-  update_velocity();
+    net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
+    frontmap_input_active_ensign(GetMouseX(), GetMouseY());
+    if (mouse_over_lvnum > 0) {
+        net_level_hilighted = mouse_over_lvnum;
+    }
+    if ((net_level_hilighted > 0) && can_select && left_button_clicked) {
+        fe_net_level_selected = net_level_hilighted;
+        left_button_clicked = 0;
+        set_level_name_text(fe_net_level_selected, NULL);
+        SYNCLOG("Selected level %d with description \"%s\"",(int)fe_net_level_selected,level_name);
+    }
+    check_mouse_scroll();
+    update_velocity();
 }
 
 TbBool frontnetmap_load(void)
 {
     SYNCDBG(8,"Starting");
     if (fe_network_active) {
-      if (LbNetwork_EnableNewPlayers(0)) {
-        ERRORLOG("Unable to prohibit new players joining exchange");
-      }
+        if (LbNetwork_EnableNewPlayers(0)) {
+            ERRORLOG("Unable to prohibit new players joining exchange");
+        }
     }
     frontend_load_data_from_cd();
     game.selected_level_number = 0;
@@ -420,8 +420,8 @@ TbBool frontnetmap_load(void)
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
     map_hand = load_spritesheet("ldata/maphand.dat", "ldata/maphand.tab");
     if (!map_flag || !map_font || !map_hand) {
-      ERRORLOG("Unable to load MAP SCREEN sprites");
-      return false;
+        ERRORLOG("Unable to load MAP SCREEN sprites");
+        return false;
     }
     frontend_load_data_reset();
     //TODO NETWORK Don't allow campaigns besides original - we don't have per-campaign MP yet
@@ -440,12 +440,12 @@ TbBool frontnetmap_load(void)
         for (long i = 0; i < NET_PLAYERS_COUNT; i++) {
             struct ScreenPacket* nspck = &net_screen_packet[i];
             if (is_connected_screen_packet(nspck)) {
-              net_number_of_players++;
+                net_number_of_players++;
             }
         }
     } else {
-      memset(net_screen_packet, 0, sizeof(net_screen_packet));
-      net_number_of_players = 1;
+        memset(net_screen_packet, 0, sizeof(net_screen_packet));
+        net_number_of_players = 1;
     }
     memset(&net_map_local, 0, sizeof(net_map_local));
     memset(net_map_remote_slap, 0, sizeof(net_map_remote_slap));
@@ -468,10 +468,10 @@ static TbBool frontmap_exchange_screen_packet(void)
         net_map_local.local_slap_send_frame++;
     }
     if (fe_network_active) {
-      if (LbNetwork_Exchange(NETMSG_FRONTEND, nspck, &net_screen_packet, sizeof(struct ScreenPacket))) {
-          ERRORLOG("LbNetwork_Exchange failed");
-          return false;
-      }
+        if (LbNetwork_Exchange(NETMSG_FRONTEND, nspck, &net_screen_packet, sizeof(struct ScreenPacket))) {
+            ERRORLOG("LbNetwork_Exchange failed");
+            return false;
+        }
     }
     return true;
 }
@@ -487,7 +487,7 @@ static TbBool frontnetmap_update_players(struct NetLandPlayersState * nmps)
         unsigned char action;
         TbBool remote_player;
         if (!is_connected_screen_packet(nspck)) {
-          continue;
+            continue;
         }
         remote_player = i != my_player_number;
         if (remote_player && !network_player_active(i)) {
@@ -497,12 +497,12 @@ static TbBool frontnetmap_update_players(struct NetLandPlayersState * nmps)
         }
         if (nspck->action_par1 == LEVELNUMBER_ERROR) {
             if (fe_network_active) {
-              if (LbNetwork_EnableNewPlayers(1)) {
-                ERRORLOG("Unable to enable new players joining exchange");
-              }
-              frontend_set_state(FeSt_NET_START);
+                if (LbNetwork_EnableNewPlayers(1)) {
+                    ERRORLOG("Unable to enable new players joining exchange");
+                }
+                frontend_set_state(FeSt_NET_START);
             } else {
-              frontend_set_state(FeSt_MAIN_MENU);
+                frontend_set_state(FeSt_MAIN_MENU);
             }
             return false;
         }
@@ -568,8 +568,8 @@ TbBool frontnetmap_update(void)
     struct NetLandPlayersState nmps = { 0, SINGLEPLAYER_NOTSTARTED, false };
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0) {
         if (frontmap_update_zoom()) {
-          SYNCDBG(8,"Zoom end");
-          return true;
+            SYNCDBG(8,"Zoom end");
+            return true;
         }
     } else {
         frontmap_exchange_screen_packet();
