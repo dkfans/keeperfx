@@ -256,10 +256,10 @@ function RegisterOnShotHitEvent(action, shooter_type, target_type, shot_type)
     local trigData = {shooter_type = shooter_type, target_type = target_type, shot_type = shot_type}
     local trigger = CreateTrigger("ShotHitThing", action, trigData)
     if shooter_type then
-        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.shooter.model == triggerData.shooter_type end)
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.shooter ~= nil  and eventData.shooter.model == triggerData.shooter_type end)
     end
     if target_type then
-        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.target.model == triggerData.target_type end)
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.target ~= nil and eventData.target.model == triggerData.target_type end)
     end
     if shot_type then
         TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.shot.model == triggerData.shot_type end)

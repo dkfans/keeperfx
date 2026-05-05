@@ -143,6 +143,7 @@ end
 ---@param target Thing|nil what was hit, will be nil if the shot hit a wall. 
 ---@param next_stl_x integer where the shot would have been had it not hit something. Useful if the shot hit a wall.
 ---@param next_stl_y integer where the shot would have been had it not hit something. Useful if the shot hit a wall.
+---@param rebound_hit boolean true if the target was under the effect of rebound and the shot was not rebound immune.
 function OnShotHit(shot, shooter, target, next_stl_x, next_stl_y, rebound_hit)
     local eventData = {}
     eventData.shot = shot

@@ -29,7 +29,7 @@ function Magic_power_UseFunction_template(player,power_kind,power_level,stl_x,st
 ---@param next_stl_x integer where the shot would have been had it not hit something. Useful when hitting a wall.
 ---@param next_stl_y integer where the shot would have been had it not hit something. Useful when hitting a wall.
 ---@return -1|0|1 
--- -1, /**< Returned if the shot being processed no longer exists. */
+-- -1, /**< Returned if the shot being processed no longer exists and will not be processed further. */
 --  0, /**< Returned if the hit should be ignored. */
 --  1, /**< Returned if the shot should be processed as normal */
 function Magic_shot_HitThingFunction_template(shot,shooter,target,next_stl_x,next_stl_y) return true end
