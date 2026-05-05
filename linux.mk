@@ -123,6 +123,7 @@ src/front_fmvids.c \
 src/front_highscore.c \
 src/front_input.c \
 src/front_landview.c \
+src/front_landview_multiplayer.c \
 src/front_lvlstats.c \
 src/front_lvlstats_data.cpp \
 src/front_network.c \
