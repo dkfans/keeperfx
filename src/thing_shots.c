@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "config_magic.h"
 #include "pre_inc.h"
 #include "thing_shots.h"
 
@@ -1627,7 +1628,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->shot_sound, 0))
             thing_play_sample(thing, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    if (!shotst->no_air_damage)
+    if (!(shotst->model_flags & ShMF_NoAirDamage))
     {
         thing->health--;
     }
@@ -1829,7 +1830,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, -1, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
-    thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Invisible;
+    thing->rendering_flags ^= (thing->rendering_flags ^ ((shotst->model_flags & ShMF_HiddenProjectile) != 0)) & TRF_Invisible;
     thing->clipbox_size_xy = shotst->size_xy;
     thing->clipbox_size_z = shotst->size_z;
     thing->solid_size_xy = shotst->size_xy;
@@ -1941,7 +1942,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             {
                 struct ShotConfigStats *thingshotst = get_shot_model_stats(shotng->model);
                 creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-                if ((creature_distance < blow_distance) && !thingshotst->wind_immune)
+                if ((creature_distance < blow_distance) && !(thingshotst->model_flags & ShMF_WindImmune))
                 {
                     apply_velocity = true;
                 }
