@@ -241,6 +241,16 @@ const struct NamedField magic_shot_named_fields[] = {
   {NULL},
   };
 
+const struct NamedFieldSet magic_shot_named_fields_set = {
+    &game.conf.magic_conf.shot_types_count,
+    "shot",
+    magic_shot_named_fields,
+    NULL,
+    MAGIC_ITEMS_MAX,
+    sizeof(game.conf.magic_conf.shot_cfgstats[0]),
+    game.conf.magic_conf.shot_cfgstats,
+};
+
 const struct NamedCommand magic_power_commands[] = {
   {"NAME",            1},
   {"POWER",           2},
@@ -1196,7 +1206,6 @@ static TbBool load_magic_config_file(const char *fname, unsigned short flags)
     }
 
     game.conf.magic_conf.spell_types_count = MAGIC_ITEMS_MAX;
-    game.conf.magic_conf.shot_types_count = MAGIC_ITEMS_MAX;
     game.conf.magic_conf.special_types_count = MAGIC_ITEMS_MAX;
 
     // Loading file data
@@ -1206,7 +1215,7 @@ static TbBool load_magic_config_file(const char *fname, unsigned short flags)
     if (result)
     {
         parse_magic_spell_blocks(buf, len, fname, flags);
-        parse_magic_shot_blocks(buf, len, fname, flags);
+        parse_named_field_blocks(buf, len, fname, flags, &magic_shot_named_fields_set);
         parse_named_field_blocks(buf, len, fname, flags, &magic_powers_named_fields_set);
         parse_magic_special_blocks(buf, len, fname, flags);
     }
