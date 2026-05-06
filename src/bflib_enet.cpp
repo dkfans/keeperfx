@@ -48,15 +48,43 @@ int skip_holepunch = 0;
 
 namespace
 {
+    struct TransferRateTracker {
+        enet_uint32 sample_time;
+        unsigned int bytes_per_second;
+    };
+
     NetDropCallback g_drop_callback = nullptr;
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
     int host_is_dual_stack = 0;
+    TransferRateTracker download_rate_tracker = {0, 0};
+    TransferRateTracker upload_rate_tracker = {0, 0};
 
     // List
     ENetPacket *oldest_packet = nullptr;
     ENetPacket *newest_packet = nullptr;
     int incoming_queue_size = 0;
+
+    unsigned int sample_transfer_bytes_per_second(TransferRateTracker *tracker, enet_uint32 *total)
+    {
+        enet_uint32 now = enet_time_get();
+        if (tracker->sample_time == 0) {
+            tracker->sample_time = now;
+            tracker->bytes_per_second = 0;
+            *total = 0;
+            return 0;
+        }
+
+        enet_uint32 elapsed = now - tracker->sample_time;
+        if (elapsed < 1000) {
+            return tracker->bytes_per_second;
+        }
+
+        tracker->bytes_per_second = static_cast<unsigned int>((static_cast<unsigned long long>(*total) * 1000ULL) / elapsed);
+        tracker->sample_time = now;
+        *total = 0;
+        return tracker->bytes_per_second;
+    }
 
     ENetHost *create_ipv6_host(enet_uint16 port)
     {
@@ -89,6 +117,8 @@ namespace
             newest_packet = nullptr;
             incoming_queue_size = 0;
         }
+        download_rate_tracker = TransferRateTracker();
+        upload_rate_tracker = TransferRateTracker();
         client_peer = nullptr;
         if (host)
         {
@@ -695,13 +725,6 @@ static bool IsLocalPeer(NetUserId id) {
     return id == SERVER_ID || id == my_player_number;
 }
 
-static unsigned int ClampSizeToUInt(size_t value) {
-    if (value > UINT_MAX) {
-        return UINT_MAX;
-    }
-    return static_cast<unsigned int>(value);
-}
-
 unsigned long GetPing(NetUserId id) {
     const bool requesting_local_peer = IsLocalPeer(id);
 
@@ -733,56 +756,6 @@ unsigned long GetPing(NetUserId id) {
             peer_round_trip = peer->lastRoundTripTime;
         }
         unsigned long value = static_cast<unsigned long>(peer_round_trip);
-        if (!requesting_local_peer) {
-            NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
-            if (peer_id == id) {
-                return value;
-            }
-            continue;
-        }
-        if (value > best_value) {
-            best_value = value;
-        }
-    }
-
-    if (requesting_local_peer) {
-        return best_value;
-    }
-
-    return 0;
-}
-
-unsigned long GetPingVariance(NetUserId id) {
-    const bool requesting_local_peer = IsLocalPeer(id);
-
-    if (IsPeerConnected(client_peer)) {
-        if (!requesting_local_peer) {
-            return 0;
-        }
-        enet_uint32 value = client_peer->roundTripTimeVariance;
-        if (value == 0) {
-            value = client_peer->lastRoundTripTimeVariance;
-        }
-        return static_cast<unsigned long>(value);
-    }
-
-    if (!host) {
-        return 0;
-    }
-
-    unsigned long best_value = 0;
-
-    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
-        ENetPeer *peer = &host->peers[peer_index];
-        if (!IsPeerConnected(peer)) {
-            continue;
-        }
-
-        enet_uint32 peer_round_trip_variance = peer->roundTripTimeVariance;
-        if (peer_round_trip_variance == 0) {
-            peer_round_trip_variance = peer->lastRoundTripTimeVariance;
-        }
-        unsigned long value = static_cast<unsigned long>(peer_round_trip_variance);
         if (!requesting_local_peer) {
             NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
             if (peer_id == id) {
@@ -869,13 +842,6 @@ unsigned int GetClientDataInTransit() {
     return result;
 }
 
-unsigned int GetIncomingPacketQueueSize() {
-    if (incoming_queue_size <= 0) {
-        return 0;
-    }
-    return static_cast<unsigned int>(incoming_queue_size);
-}
-
 unsigned int GetClientPacketsLost() {
     if (IsPeerConnected(client_peer)) {
         return static_cast<unsigned int>(client_peer->packetsLost);
@@ -897,71 +863,20 @@ unsigned int GetClientPacketsLost() {
     return static_cast<unsigned int>(total);
 }
 
-unsigned int GetClientOutgoingDataTotal() {
-    if (IsPeerConnected(client_peer)) {
-        return static_cast<unsigned int>(client_peer->outgoingDataTotal);
-    }
+unsigned int GetUploadRateBytesPerSecond()
+{
     if (!host) {
         return 0;
     }
-    unsigned long long total = 0;
-    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
-        ENetPeer *peer = &host->peers[peer_index];
-        if (!IsPeerConnected(peer)) {
-            continue;
-        }
-        total += static_cast<unsigned long long>(peer->outgoingDataTotal);
-        if (total > UINT_MAX) {
-            return UINT_MAX;
-        }
-    }
-    return static_cast<unsigned int>(total);
+    return sample_transfer_bytes_per_second(&upload_rate_tracker, &host->totalSentData);
 }
 
-unsigned int GetClientIncomingDataTotal() {
-    if (IsPeerConnected(client_peer)) {
-        return static_cast<unsigned int>(client_peer->incomingDataTotal);
-    }
+unsigned int GetDownloadRateBytesPerSecond()
+{
     if (!host) {
         return 0;
     }
-    unsigned long long total = 0;
-    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
-        ENetPeer *peer = &host->peers[peer_index];
-        if (!IsPeerConnected(peer)) {
-            continue;
-        }
-        total += static_cast<unsigned long long>(peer->incomingDataTotal);
-        if (total > UINT_MAX) {
-            return UINT_MAX;
-        }
-    }
-    return static_cast<unsigned int>(total);
-}
-
-unsigned int GetClientReliableCommandsInFlight() {
-    if (IsPeerConnected(client_peer)) {
-        size_t value = enet_list_size(&client_peer->sentReliableCommands);
-        return ClampSizeToUInt(value);
-    }
-    if (!host) {
-        return 0;
-    }
-    size_t best_value = 0;
-    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
-        ENetPeer *peer = &host->peers[peer_index];
-        if (!IsPeerConnected(peer)) {
-            continue;
-        }
-        size_t current = enet_list_size(&peer->sentReliableCommands);
-        if (current > best_value) {
-            best_value = current;
-            if (best_value > UINT_MAX) {
-                return UINT_MAX;
-            }
-        }
-    }
-    return ClampSizeToUInt(best_value);
+    return sample_transfer_bytes_per_second(&download_rate_tracker, &host->totalReceivedData);
 }
 
 uint16_t enet_get_bound_ipv6_port(void)

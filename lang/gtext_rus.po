@@ -6662,3 +6662,13 @@ msgstr "В создании - К знамени "К оружию!""
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "В создании - К личному логову"
+
+#: guitext:1110
+msgctxt "Menu interface item"
+msgid "Multiplayer Map Packs"
+msgstr ""
+
+#: guitext:1111
+msgctxt "Menu interface item"
+msgid "Return to Lobby"
+msgstr ""

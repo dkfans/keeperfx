@@ -54,6 +54,12 @@ enum LandMarkings {
     LndMk_PINPOINTS,
 };
 
+enum CampaignTypes {
+    CampgnT_Default,
+    CampgnT_Campaign,
+    CampgnT_Mappack,
+    CampgnT_MultiplayerMappack,
+};
 
 /******************************************************************************/
 struct CreditsItem {
@@ -160,6 +166,7 @@ struct CampaignsList {
 extern struct GameCampaign campaign;
 extern struct CampaignsList campaigns_list;
 extern struct CampaignsList mappacks_list;
+extern struct CampaignsList mp_mappacks_list;
 extern const struct NamedCommand cmpgn_map_commands[];
 extern const struct NamedCommand cmpgn_map_ensign_flag_options[];
 extern const struct NamedCommand cmpgn_map_cmnds_kind[];
@@ -180,13 +187,12 @@ struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, Level
 // Support for lists of campaigns
 TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries);
 TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries);
-TbBool load_campaigns_list(void);
-TbBool load_mappacks_list(void);
-TbBool change_campaign(const char *cmpgn_fname);
+TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char* list_name, const char* order_fname);
+TbBool change_campaign(uint8_t pack, const char *cmpgn_fname);
 TbBool is_campaign_loaded(void);
 TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist);
-TbBool check_lif_files_in_mappack(struct GameCampaign *campgn);
 TbBool is_map_pack(void);
+void set_default_mp_mappack(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
