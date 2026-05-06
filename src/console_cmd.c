@@ -2159,25 +2159,47 @@ TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
         menu_type = 2;
     else if (strcmp(pr2str, "3") == 0 || strcasecmp(pr2str, "instance") == 0)
         menu_type = 3;
+	else if (strcmp(pr2str, "4") == 0 || strcasecmp(pr2str, "secondary") == 0)
+        menu_type = 4;
 
     if (menu_type < 0) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "menu type is invalid. possible values: 0/1/2/3, none/main/creature/instance");
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "menu type is invalid. possible values: 0/1/2/3/4, none/main/creature/instance/secondary");
         return false;
     }
 
     if (menu_type != 1)
+	{
         close_main_cheat_menu();
+	}
     if (menu_type != 2)
+	{
         close_creature_cheat_menu();
+	}
     if (menu_type != 3)
+	{
         close_instance_cheat_menu();
+	}
+	if (menu_type != 4)
+	{
+        close_secondary_cheat_menu();
+	}
 
     if (menu_type == 1)
+	{
         toggle_main_cheat_menu();
-    if (menu_type == 2)
+	}
+    else if (menu_type == 2)
+	{
         toggle_creature_cheat_menu();
-    if (menu_type == 3)
+	}
+    else if (menu_type == 3)
+	{
         toggle_instance_cheat_menu();
+	}
+	else if (menu_type == 4)
+	{
+        toggle_secondary_cheat_menu();
+	}
 
     return true;
 }

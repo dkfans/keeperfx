@@ -194,6 +194,12 @@ enum TbPacketAction {
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
         PckA_UnusedSlot157,
+		PckA_CheatWinLevel,
+		PckA_CheatLoseLevel,
+		PckA_CheatLevelUp,
+		PckA_CheatLevelDown,
+		PckA_CheatApplySpell,
+		PckA_CheatKillCreature,
 };
 
 /** Packet flags for non-action player operation. */

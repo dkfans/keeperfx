@@ -56,6 +56,7 @@ TbBool cheat_menu_is_active();
 extern struct GuiBoxOption gui_main_cheat_list[];
 extern struct GuiBoxOption gui_creature_cheat_option_list[];
 extern struct GuiBoxOption gui_instance_option_list[];
+extern struct GuiBoxOption gui_secondary_cheat_option_list[];
 /******************************************************************************/
 #ifdef __cplusplus
 }
