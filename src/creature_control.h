@@ -364,7 +364,7 @@ struct CreatureControl {
     unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
     short countdown; // signed
-    unsigned short damage_wall_coords;
+    SubtlCodedCoords damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
     char creature_name[CREATURE_NAME_MAX];
