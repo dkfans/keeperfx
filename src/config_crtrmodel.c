@@ -132,6 +132,45 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {NULL,                 0},
   };
 
+const struct NamedCommand creatmodel_properties_flags_commands[] = {
+  {"NEVER_CHICKENS",    }, // Deprecated, but retained in NamedCommand for backward compatibility.
+  {"IMMUNE_TO_DISEASE", }, // Deprecated, but retained in NamedCommand for backward compatibility.
+  {"UNAFFECTED_BY_WIND", 2}, // Deprecated, but retained in NamedCommand for backward compatibility.
+  {"IMMUNE_TO_GAS",      3}, // Deprecated, but retained in NamedCommand for backward compatibility.
+
+  {"BLEEDS",             1},
+  {"HUMANOID_SKELETON",  4},
+  {"PISS_ON_DEAD",       5},
+  {"FLYING",             7},
+  {"SEE_INVISIBLE",      8},
+  {"PASS_LOCKED_DOORS",  9},
+  {"SPECIAL_DIGGER",    CMF_IsSpecDigger},
+  {"ARACHNID",          CMF_IsArachnid},
+  {"DIPTERA",           CMF_IsDiptera},
+  {"LORD",              CMF_IsLordOfLand},
+  {"SPECTATOR",         CMF_IsSpectator},
+  {"EVIL",              CMF_IsEvil},
+  {"IMMUNE_TO_BOULDER", CMF_ImmuneToBoulder},
+  {"NO_CORPSE_ROTTING", CMF_NoCorpseRotting},
+  {"NO_ENMHEART_ATTCK", CMF_NoEnmHeartAttack},
+  {"TREMBLING_FAT",     CMF_Trembling|CMF_Fat},
+  {"FEMALE",            CMF_Female},
+  {"INSECT",            CMF_Insect},
+  {"ONE_OF_KIND",       CMF_OneOfKind},
+  {"NO_IMPRISONMENT",   CMF_NoImprisonment},
+  {"ILLUMINATED",       },
+  {"ALLURING_SCVNGR",   },
+  {"NO_RESURRECT",      CMF_NoResurrect},
+  {"NO_TRANSFER",       CMF_NoTransfer},
+  {"TREMBLING",         CMF_Trembling},
+  {"FAT",               CMF_Fat},
+  {"NO_STEAL_HERO",     CMF_NoStealHero},
+  {"PREFER_STEAL",      CMF_PreferSteal},
+  {"EVENTFUL_DEATH",    CMF_EventfulDeath},
+  {"DIGGING_CREATURE",  CMF_IsDiggingCreature},
+  {NULL,                 0},
+  };
+
 const struct NamedCommand creatmodel_attraction_commands[] = {
   {"ENTRANCEROOM",       1},
   {"ROOMSLABSREQUIRED",  2},
@@ -244,6 +283,128 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
   {NULL,                   0},
   };
 
+
+  const struct NamedCommand creatmodel_attributes_commands[] = {
+  {"NAME",                1},
+  {"HEALTH",              2},
+  {"HEALREQUIREMENT",     3},
+  {"HEALTHRESHOLD",       4},
+  {"STRENGTH",            5},
+  {"ARMOUR",              6},
+  {"DEXTERITY",           7},
+  {"FEARWOUNDED",         8},
+  {"FEARSTRONGER",        9},
+  {"DEFENCE",            10},
+  {"LUCK",               11},
+  {"RECOVERY",           12},
+  {"HUNGERRATE",         13},
+  {"HUNGERFILL",         14},
+  {"LAIRSIZE",           15},
+  {"HURTBYLAVA",         16},
+  {"BASESPEED",          17},
+  {"GOLDHOLD",           18},
+  {"SIZE",               19},
+  {"ATTACKPREFERENCE",   20},
+  {"PAY",                21},
+  {"HEROVSKEEPERCOST",   22}, // Removed.
+  {"SLAPSTOKILL",        23},
+  {"CREATURELOYALTY",    24},
+  {"LOYALTYLEVEL",       25},
+  {"DAMAGETOBOULDER",    26},
+  {"THINGSIZE",          27},
+  {"PROPERTIES",         28},
+  {"NAMETEXTID",         29},
+  {"FEARSOMEFACTOR",     30},
+  {"TOKINGRECOVERY",     31},
+  {"CORPSEVANISHEFFECT", 32},
+  {"FOOTSTEPPITCH",      33},
+  {"LAIROBJECT",         34},
+  {"PRISONKIND",         35},
+  {"TORTUREKIND",        36},
+  {"SPELLIMMUNITY",      37},
+  {"HOSTILETOWARDS",     38},
+  {NULL,                  0},
+  };
+
+const struct NamedField creaturemodel_attributes_named_fields[] = {
+    //name           //pos    //field                                              //default //min     //max    //NamedCommand
+    {"NAME",                0, field(game.conf.crtr_conf.model[0].name),                  0, INT32_MIN, UINT32_MAX, creature_desc,     value_name,       assign_null},
+    {"HEALTH",              0, field(game.conf.crtr_conf.model[0].health),                0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"HEALREQUIREMENT",     0, field(game.conf.crtr_conf.model[0].heal_requirement),      0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"HEALTHRESHOLD",       0, field(game.conf.crtr_conf.model[0].heal_threshold),        0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"STRENGTH",            0, field(game.conf.crtr_conf.model[0].strength),              0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"ARMOUR",              0, field(game.conf.crtr_conf.model[0].armour),                0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"DEXTERITY",           0, field(game.conf.crtr_conf.model[0].dexterity),             0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"FEARWOUNDED",         0, field(game.conf.crtr_conf.model[0].fear_wounded),          0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"FEARSTRONGER",        0, field(game.conf.crtr_conf.model[0].fear_stronger),         0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"DEFENCE",             0, field(game.conf.crtr_conf.model[0].defense),               0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"LUCK",                0, field(game.conf.crtr_conf.model[0].luck),                  0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"RECOVERY",            0, field(game.conf.crtr_conf.model[0].sleep_recovery),        0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"HUNGERRATE",          0, field(game.conf.crtr_conf.model[0].hunger_rate),           0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"HUNGERFILL",          0, field(game.conf.crtr_conf.model[0].hunger_fill),           0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"LAIRSIZE",            0, field(game.conf.crtr_conf.model[0].lair_size),             0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"HURTBYLAVA",          0, field(game.conf.crtr_conf.model[0].hurt_by_lava),          0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"BASESPEED",           0, field(game.conf.crtr_conf.model[0].base_speed),            0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"GOLDHOLD",            0, field(game.conf.crtr_conf.model[0].gold_hold),             0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"SIZE",                0, field(game.conf.crtr_conf.model[0].size_xy),               0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"SIZE",                1, field(game.conf.crtr_conf.model[0].size_z),                0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"ATTACKPREFERENCE",    0, field(game.conf.crtr_conf.model[0].attack_preference),     0, INT32_MIN, UINT32_MAX, attackpref_desc,   value_default, assign_default},
+    {"PAY",                 0, field(game.conf.crtr_conf.model[0].pay),                   0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"SLAPSTOKILL",         0, field(game.conf.crtr_conf.model[0].slaps_to_kill),         0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"CREATURELOYALTY",     0, field(game.conf.crtr_conf.model[0].creature_loyalty),      0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"LOYALTYLEVEL",        0, field(game.conf.crtr_conf.model[0].loyalty_level),         0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"DAMAGETOBOULDER",     0, field(game.conf.crtr_conf.model[0].damage_to_boulder),     0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"THINGSIZE",           0, field(game.conf.crtr_conf.model[0].thing_size_xy),         0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"THINGSIZE",           1, field(game.conf.crtr_conf.model[0].thing_size_z),          0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"PROPERTIES",          0, field(game.conf.crtr_conf.model[0].properties),            0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"NAMETEXTID",          0, field(game.conf.crtr_conf.model[0].namestr_idx),           0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"FEARSOMEFACTOR",      0, field(game.conf.crtr_conf.model[0].fearsomeness),          0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"TOKINGRECOVERY",      0, field(game.conf.crtr_conf.model[0].toking_recovery),       0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"CORPSEVANISHEFFECT",  0, field(game.conf.crtr_conf.model[0].corpse_vanish_effect),  0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"FOOTSTEPPITCH",       0, field(game.conf.crtr_conf.model[0].footstep_pitch),        0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {"LAIROBJECT",          0, field(game.conf.crtr_conf.model[0].lair_object),           0, INT32_MIN, UINT32_MAX, object_desc,       value_default, assign_default},
+    {"PRISONKIND",          0, field(game.conf.crtr_conf.model[0].prison_kind),           0, INT32_MIN, UINT32_MAX, creature_desc,     value_default, assign_default},
+    {"TORTUREKIND",         0, field(game.conf.crtr_conf.model[0].torture_kind),          0, INT32_MIN, UINT32_MAX, creature_desc,     value_default, assign_default},
+    {"SPELLIMMUNITY",       0, field(game.conf.crtr_conf.model[0].spell_immunity),        0, INT32_MIN, UINT32_MAX, spell_effect_flags,value_default, assign_default},
+    {"HOSTILETOWARDS",      0, field(game.conf.crtr_conf.model[0].hostile_towards),       0, INT32_MIN, UINT32_MAX, NULL,              value_default, assign_default},
+    {NULL},
+};
+
+const struct NamedFieldSet creaturemodel_jobs_named_fields_set = {
+    &game.conf.crtr_conf.model_count,
+    "attributes",
+    creaturemodel_attributes_named_fields,
+    creature_desc,
+    CREATURE_TYPES_MAX,
+    sizeof(struct CreatureModelConfig),
+    game.conf.crtr_conf.model,
+};
+
+  const struct NamedField creaturemodel_jobs_named_fields[] = {
+    //name           //pos    //field                                           //default //min     //max    //NamedCommand
+    {"PRIMARYJOBS",      -1, field(game.conf.crtr_conf.model[0].job_primary),           0,        0,        0, creaturejob_desc,  value_flagsfield, assign_default},
+    {"SECONDARYJOBS",    -1, field(game.conf.crtr_conf.model[0].job_secondary),         0,        0,        0, creaturejob_desc,  value_flagsfield, assign_default},
+    {"NOTDOJOBS",        -1, field(game.conf.crtr_conf.model[0].jobs_not_do),           0,        0,        0, creaturejob_desc,  value_flagsfield, assign_default},
+    {"STRESSFULJOBS",    -1, field(game.conf.crtr_conf.model[0].job_stress),            0,        0,        0, creaturejob_desc,  value_flagsfield, assign_default},
+    {"TRAININGVALUE",     0, field(game.conf.crtr_conf.model[0].training_value),        0,        0,      255, NULL,              value_default,    assign_default},
+    {"TRAININGCOST",      0, field(game.conf.crtr_conf.model[0].training_cost),         0,        0,      255, NULL,              value_default,    assign_default},
+    {"SCAVENGEVALUE",     0, field(game.conf.crtr_conf.model[0].scavenge_value),        0,        0,      255, NULL,              value_default,    assign_default},
+    {"SCAVENGERCOST",     0, field(game.conf.crtr_conf.model[0].scavenger_cost),        0,        0,      255, NULL,              value_default,    assign_default},
+    {"RESEARCHVALUE",     0, field(game.conf.crtr_conf.model[0].research_value),        0,        0,      255, NULL,              value_default,    assign_default},
+    {"MANUFACTUREVALUE",  0, field(game.conf.crtr_conf.model[0].manufacture_value),     0,        0,      255, NULL,              value_default,    assign_default},
+    {"PARTNERTRAINING",   0, field(game.conf.crtr_conf.model[0].partner_training),      0,        0,        1, NULL,              value_default,    assign_default},
+    {NULL},
+};
+
+const struct NamedFieldSet creaturemodel_jobs_named_fields_set = {
+    &game.conf.crtr_conf.model_count,
+    "jobs",
+    creaturemodel_jobs_named_fields,
+    creature_desc,
+    CREATURE_TYPES_MAX,
+    sizeof(struct CreatureModelConfig),
+    game.conf.crtr_conf.model,
+};
 /******************************************************************************/
 
 void strtolower(char * str) {
@@ -254,354 +415,8 @@ void strtolower(char * str) {
 
 TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-  // Block name and parameter word store variables
-  struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
-  // Find the block
-  const char * block_name = "attributes";
-  int32_t pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_name);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_IgnoreErrors) == 0)
-          WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
-      return false;
-  }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_attributes_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_attributes_commands);
-      // Now store the config item in correct place
-      if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          // Name is ignored - it was defined in creature.cfg
-          break;
-      case 2: // HEALTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->health = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 3: // HEALREQUIREMENT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->heal_requirement = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 4: // HEALTHRESHOLD
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->heal_threshold = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 5: // STRENGTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->strength = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 6: // ARMOUR
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->armour = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 7: // DEXTERITY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->dexterity = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 8: // FEARWOUNDED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->fear_wounded = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 9: // FEARSTRONGER
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->fear_stronger = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 10: // DEFENCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->defense = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 11: // LUCK
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->luck = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 12: // RECOVERY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->sleep_recovery = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 13: // HUNGERRATE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->hunger_rate = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 14: // HUNGERFILL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->hunger_fill = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 15: // LAIRSIZE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->lair_size = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 16: // HURTBYLAVA
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->hurt_by_lava = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 17: // BASESPEED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->base_speed = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 18: // GOLDHOLD
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->gold_hold = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 19: // SIZE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->size_xy = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->size_z = k;
-            n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 20: // ATTACKPREFERENCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = get_id(attackpref_desc, word_buf);
-            if (k > 0)
-            {
-              crconf->attack_preference = k;
-              n++;
-            }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 21: // PAY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->pay = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 22: // HEROVSKEEPERCOST
-          break;
-      case 23: // SLAPSTOKILL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->slaps_to_kill = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 24: // CREATURELOYALTY
-          // Unused
-          break;
-      case 25: // LOYALTYLEVEL
-          // Unused
-          break;
-      case 26: // DAMAGETOBOULDER
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->damage_to_boulder = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
-      case 27: // THINGSIZE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->thing_size_xy = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->thing_size_z = k;
-            n++;
-          }
-          if (n < 2)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
-          }
-          break;
+
+
       case 28: // PROPERTIES
           crconf->bleeds = false;
           crconf->humanoid_creature = false;
@@ -617,141 +432,73 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             {
             case 1: // BLEEDS
               crconf->bleeds = true;
-              n++;
-              break;
             case 2: // UNAFFECTED_BY_WIND
               set_flag(crconf->immunity_flags, CSAfF_Wind);
-              n++;
-              break;
             case 3: // IMMUNE_TO_GAS
               set_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
-              n++;
-              break;
             case 4: // HUMANOID_SKELETON
               crconf->humanoid_creature = true;
-              n++;
-              break;
             case 5: // PISS_ON_DEAD
               crconf->piss_on_dead = true;
-              n++;
-              break;
             case 7: // FLYING
               crconf->flying = true;
-              n++;
-              break;
             case 8: // SEE_INVISIBLE
               crconf->can_see_invisible = true;
-              n++;
-              break;
             case 9: // PASS_LOCKED_DOORS
               crconf->can_go_locked_doors = true;
-              n++;
-              break;
             case 10: // SPECIAL_DIGGER
               crconf->model_flags |= CMF_IsSpecDigger;
-              n++;
-              break;
             case 11: // ARACHNID
               crconf->model_flags |= CMF_IsArachnid;
-              n++;
-              break;
             case 12: // DIPTERA
               crconf->model_flags |= CMF_IsDiptera;
-              n++;
-              break;
             case 13: // LORD
               crconf->model_flags |= CMF_IsLordOfLand;
-              n++;
-              break;
             case 14: // SPECTATOR
               crconf->model_flags |= CMF_IsSpectator;
-              n++;
-              break;
             case 15: // EVIL
               crconf->model_flags |= CMF_IsEvil;
-              n++;
-              break;
             case 16: // NEVER_CHICKENS
               set_flag(crconf->immunity_flags, CSAfF_Chicken);
-              n++;
-              break;
             case 17: // IMMUNE_TO_BOULDER
                 crconf->model_flags |= CMF_ImmuneToBoulder;
-                n++;
-                break;
             case 18: // NO_CORPSE_ROTTING
                 crconf->model_flags |= CMF_NoCorpseRotting;
-                n++;
-                break;
             case 19: // NO_ENMHEART_ATTCK
                 crconf->model_flags |= CMF_NoEnmHeartAttack;
-                n++;
-                break;
             case 20: // TREMBLING_FAT
                 crconf->model_flags |= CMF_Trembling;
                 crconf->model_flags |= CMF_Fat;
-                n++;
-                break;
             case 21: // FEMALE
                 crconf->model_flags |= CMF_Female;
-                n++;
-                break;
             case 22: // INSECT
                 crconf->model_flags |= CMF_Insect;
-                n++;
-                break;
             case 23: // ONE_OF_KIND
                 crconf->model_flags |= CMF_OneOfKind;
-                n++;
-                break;
             case 24: // NO_IMPRISONMENT
                 crconf->model_flags |= CMF_NoImprisonment;
-                n++;
-                break;
             case 25: // IMMUNE_TO_DISEASE
                 set_flag(crconf->immunity_flags, CSAfF_Disease);
-                n++;
-                break;
             case 26: // ILLUMINATED
                 crconf->illuminated = true;
-                n++;
-                break;
             case 27: // ALLURING_SCVNGR
                 crconf->entrance_force = true;
-                n++;
-                break;
             case 28: // NO_RESURRECT
                 crconf->model_flags |= CMF_NoResurrect;
-                n++;
-                break;
             case 29: // NO_TRANSFER
                 crconf->model_flags |= CMF_NoTransfer;
-                n++;
-                break;
             case 30: // TREMBLING
                 crconf->model_flags |= CMF_Trembling;
-                n++;
-                break;
             case 31: // FAT
                 crconf->model_flags |= CMF_Fat;
-                n++;
-                break;
             case 32: // NO_STEAL_HERO
                 crconf->model_flags |= CMF_NoStealHero;
-                n++;
-                break;
             case 33: // PREFER_STEAL
                 crconf->model_flags |= CMF_PreferSteal;
-                n++;
-                break;
             case 34: // EVENTFUL_DEATH
                 crconf->model_flags |= CMF_EventfulDeath;
-                n++;
-                break;
             case 35: // DIGGING_CREATURE
                 crconf->model_flags |= CMF_IsDiggingCreature;
-                n++;
-                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
                   COMMAND_TEXT(cmd_num),word_buf, block_name, creature_code_name(crtr_model), config_textname);
@@ -759,104 +506,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             }
           }
           break;
-      case 29: // NAMETEXTID
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
-            {
-              crconf->namestr_idx = k;
-              n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num), block_name, config_textname);
-          }
-          break;
-      case 30: // FEARSOMEFACTOR
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->fearsome_factor = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num), block_name, config_textname);
-          }
-          break;
-      case 31: // TOKINGRECOVERY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crconf->toking_recovery = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num), block_name, config_textname);
-          }
-          break;
-      case 34: // LAIROBJECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(object_desc, word_buf);
-              if (k > 0)
-              {
-                  crconf->lair_object = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-          }
-          break;
-      case 35: // PRISONKIND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(creature_desc, word_buf);
-              if (k > 0)
-              {
-                  crconf->prison_kind = k;
-                  n++;
-              }
-              else if (strcasecmp(word_buf,"NULL") == 0)
-              {
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-          }
-          break;
-      case 36: // TORTUREKIND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(creature_desc, word_buf);
-              if (k > 0)
-              {
-                  crconf->torture_kind = k;
-                  n++;
-              }
-              else if (strcasecmp(word_buf,"NULL") == 0)
-              {
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-          }
-          break;
+   
+
         case 37: // SPELLIMMUNITY
         {
             // Backward compatibility check.
@@ -1961,201 +1612,6 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     return true;
 }
 
-TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
-{
-    // Block name and parameter word store variables
-    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
-    // Find the block
-    const char * block_name = "jobs";
-    int32_t pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_name);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_jobs_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_jobs_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
-        {
-        case 1: // PRIMARYJOBS
-            crconf->job_primary = 0;
-            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = get_id(creaturejob_desc, word_buf);
-              if (k > 0)
-              {
-                crconf->job_primary |= k;
-                n++;
-              } else
-              {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
-              }
-            }
-            break;
-        case 2: // SECONDARYJOBS
-            crconf->job_secondary = 0;
-            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = get_id(creaturejob_desc, word_buf);
-              if (k > 0)
-              {
-                crconf->job_secondary |= k;
-                n++;
-              } else
-              {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
-              }
-            }
-            break;
-        case 3: // NOTDOJOBS
-            crconf->jobs_not_do = 0;
-            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = get_id(creaturejob_desc, word_buf);
-              if (k > 0)
-              {
-                crconf->jobs_not_do |= k;
-                n++;
-              } else
-              {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
-              }
-            }
-            break;
-        case 4: // STRESSFULJOBS
-            crconf->job_stress = 0;
-            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = get_id(creaturejob_desc, word_buf);
-              if (k > 0)
-              {
-                crconf->job_stress |= k;
-                n++;
-              } else
-              {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
-              }
-            }
-            break;
-        case 5: // TRAININGVALUE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->training_value = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 6: // TRAININGCOST
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->training_cost = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 7: // SCAVENGEVALUE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->scavenge_value = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 8: // SCAVENGERCOST
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->scavenger_cost = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 9: // RESEARCHVALUE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->research_value = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 10: // MANUFACTUREVALUE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->manufacture_value = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 11: // PARTNERTRAINING
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              crconf->partner_training = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num, block_name, config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
 TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   int n;
@@ -2497,7 +1953,7 @@ static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname,
         parse_creaturemodel_senses_blocks(crtr_model, buf, len, fname, flags);
         parse_creaturemodel_appearance_blocks(crtr_model, buf, len, fname, flags);
         parse_creaturemodel_experience_blocks(crtr_model, buf, len, fname, flags);
-        parse_creaturemodel_jobs_blocks(crtr_model, buf, len, fname, flags);
+        parse_named_field_block(buf, len, fname, flags,"jobs",  creaturemodel_jobs_named_fields,&creaturemodel_jobs_named_fields_set, crtr_model);
         parse_creaturemodel_sprites_blocks(crtr_model, buf, len, fname, flags);
         parse_creaturemodel_sounds_blocks(crtr_model, buf, len, fname, flags);
     }
