@@ -297,7 +297,7 @@ TbBool ftest_setup_test(struct FTestConfig* const test_config)
     LevelNumber selected_level = test_config->level;
 
     str_append(start_params.selected_campaign, sizeof(start_params.selected_campaign), ".cfg");
-    TbBool result = change_campaign(start_params.selected_campaign);
+    TbBool result = change_campaign(CampgnT_Default, start_params.selected_campaign);
     if(!result)
     {
         FTEST_FAIL_TEST("Failed to load campaign '%d'", start_params.selected_campaign)
