@@ -1041,9 +1041,68 @@ static int lua_Set_room_configuration(lua_State *L)
 }
 
 static int lua_Set_game_rule(lua_State *L)
-{
+{   
+    const char* rulename  = lua_tostring(L, 1);
+    const char* value     = lua_tostring(L, 2);
 
-    //TODO implement
+    TbBool is_classic_bugs_rule = (strcasecmp(rulename, "PreserveClassicBugs") == 0);
+    struct PlayerRange player_range;
+    int8_t classic_bug_toggle = -1;
+
+    player_range.start_idx = 0;
+    player_range.end_idx = PLAYERS_COUNT;
+
+    if (!lua_isnil(L, 3))
+    {
+        if (is_classic_bugs_rule)
+        {
+            player_range.start_idx = 0;
+            player_range.end_idx = 0;
+            classic_bug_toggle = lua_toboolean(L, 3);
+        }
+        else
+        {
+            player_range = luaL_checkPlayerRange(L, 3);
+        }
+    }
+     
+    int32_t rulegroup = 0;
+    int32_t ruledesc = 0;
+    int64_t rulevalue = 0;
+
+    for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
+    {
+        ruledesc = get_named_field_id(ruleblocks[i], rulename);
+        if (ruledesc != -1)
+        {
+            rulegroup = i;
+            if (classic_bug_toggle != -1)
+            {    
+                char concat_val[128];
+                snprintf(concat_val, sizeof(concat_val), "%s %d", value, classic_bug_toggle);
+
+                rulevalue = classic_bug_toggle;
+                rulevalue = parse_named_field_value(ruleblocks[i]+ruledesc, concat_val,&rules_named_fields_set, 0,"SetGameRule",ccf_DuringLevel);
+            }
+            else
+            {
+                rulevalue = parse_named_field_value(ruleblocks[i]+ruledesc, value,&rules_named_fields_set, 0,"SetGameRule",ccf_DuringLevel);
+            }
+            
+            break;
+        }
+    }
+    if (ruledesc == -1)
+    {
+        luaL_argerror(L, 1, "Unknown Game Rule");
+        return 0;
+    }
+
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,i,"SetGameRule",ccf_DuringLevel);
+    }
+
     return 0;
 }
 
