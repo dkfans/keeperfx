@@ -545,6 +545,16 @@ static int thing_get_field(lua_State *L) {
     return 1;
 }
 
+static int lua_is_in_enemy_custody(lua_State *L) {
+    struct Thing* thing = luaL_checkThing(L, 1);
+    if (!thing_is_creature(thing)) {
+        lua_pushboolean(L, false);
+    } else {
+        lua_pushboolean(L, creature_is_kept_in_custody_by_enemy(thing));
+    }
+    return 1; 
+}
+
 static int thing_eq(lua_State *L) {
 
     if (!lua_istable(L, 1) || !lua_istable(L, 2)) {
@@ -614,6 +624,7 @@ static const struct luaL_Reg thing_methods_arr[] = {
     {"change_owner"                 ,lua_Change_creature_owner          },
     {"get_annoyance"                ,lua_get_creature_annoyance         },
     {"set_annoyance"                ,lua_set_creature_annoyance         },
+    {"in_enemy_custody"             ,lua_is_in_enemy_custody            }, 
     {NULL, NULL}
 };
 

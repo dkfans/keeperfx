@@ -132,7 +132,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
             lbDisplay.DrawColour = LbTextGetFontFaceColor();
             lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
             char text[16];
-            snprintf(text, sizeof(text), "%u", (cctrl->timebomb_countdown / game_num_fps));
+            snprintf(text, sizeof(text), "%u", (cctrl->timebomb_countdown / turns_per_second));
             LbTextDrawResized(0, 0, tx_units_per_px, text);
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);

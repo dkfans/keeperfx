@@ -52,7 +52,6 @@ static short next_free_icon = 0;
 
 struct TbSpriteSheet * gui_panel_sprites = NULL;
 struct TbSpriteSheet * custom_sprites = NULL;
-struct NamedCommand *anim_names = NULL;
 
 short td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
 short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
@@ -130,6 +129,22 @@ static TbBool process_lens_mist(const char *path, unzFile zip, VALUE *root);
 static TbBool process_icon(const char *path, unzFile zip, VALUE *root);
 
 static int cmp_named_command(const void *a, const void *b);
+
+static void clear_lens_assets(void)
+{
+    for (int i = 0; i < num_added_lens_overlays; i++) {
+        free(added_lens_overlays[i].name);
+        free(added_lens_overlays[i].data);
+    }
+    for (int i = 0; i < num_added_lens_mists; i++) {
+        free(added_lens_mists[i].name);
+        free(added_lens_mists[i].data);
+    }
+    num_added_lens_overlays = 0;
+    num_added_lens_mists = 0;
+    memset(added_lens_overlays, 0, sizeof(added_lens_overlays));
+    memset(added_lens_mists, 0, sizeof(added_lens_mists));
+}
 
 static unsigned char bad_icon_data[] = // 16x16
         {
@@ -461,14 +476,13 @@ void init_custom_sprites(LevelNumber lvnum)
     memset(added_icons, 0, sizeof(added_icons));
     next_free_icon = 0;
 
+    clear_lens_assets();
+
     // Clear creature table (there sprites live)
     memset(creature_table_add, 0, sizeof(creature_table_add));
+    memset(td_to_fp_sprite_add, 0, sizeof(td_to_fp_sprite_add));
+    memset(fp_to_td_sprite_add, 0, sizeof(fp_to_td_sprite_add));
     next_free_sprite = 0;
-
-    if (anim_names != NULL)
-    {
-        free(anim_names);
-    }
 
 
     char *dname = prepare_file_path(FGrp_FxData, NULL);

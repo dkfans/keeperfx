@@ -52,9 +52,6 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
         return dungeon->total_money_owned;
     case SVar_GAME_TURN:
         return get_gameturn();
-    case SVar_BREAK_IN:
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->times_breached_dungeon;
     case SVar_CREATURE_NUM:
         return count_player_creatures_of_model(plyr_idx, validx);
     case SVar_TOTAL_DIGGERS:

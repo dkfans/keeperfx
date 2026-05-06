@@ -309,8 +309,6 @@ const struct NamedCommand script_boolean_desc[] = {
 const struct NamedCommand variable_desc[] = {
     {"MONEY",                       SVar_MONEY},
     {"GAME_TURN",                   SVar_GAME_TURN},
-    {"BREAK_IN",                    SVar_BREAK_IN},
-    //{"CREATURE_NUM",              SVar_CREATURE_NUM},
     {"TOTAL_DIGGERS",               SVar_TOTAL_DIGGERS},
     {"TOTAL_CREATURES",             SVar_TOTAL_CREATURES},
     {"TOTAL_RESEARCH",              SVar_TOTAL_RESEARCH},
@@ -378,8 +376,6 @@ const struct NamedCommand variable_desc[] = {
 const struct NamedCommand dk1_variable_desc[] = {
     {"MONEY",                       SVar_MONEY},
     {"GAME_TURN",                   SVar_GAME_TURN},
-    {"BREAK_IN",                    SVar_BREAK_IN},
-    //{"CREATURE_NUM",                SVar_CREATURE_NUM},
     {"TOTAL_IMPS",                  SVar_TOTAL_DIGGERS},
     {"TOTAL_CREATURES",             SVar_CONTROLS_TOTAL_CREATURES},
     {"TOTAL_RESEARCH",              SVar_TOTAL_RESEARCH},
