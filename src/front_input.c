@@ -1893,21 +1893,15 @@ static short get_creature_control_action_inputs(void)
         if (menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2))
         {
             struct Thing* cthing = thing_get(player->controlled_thing_idx);
-            
-            if (is_key_pressed(KC_GAMEPAD_RIGHTSHOULDER, KMod_DONTCARE))
+                
+            if (is_game_key_pressed(Gkey_NextInstance, true, false))
             {
-                clear_key_pressed(KC_GAMEPAD_RIGHTSHOULDER);
                 set_possession_instance(player, cthing, 1);
                 
-                if (is_game_key_pressed(Gkey_NextInstance, true, false))
-                {
-                    set_possession_instance(player, cthing, 1);
-                    
-                }
-                else if (is_game_key_pressed(Gkey_PrevInstance, true, false))
-                {
-                    set_possession_instance(player, cthing, -1);
-                }
+            }
+            else if (is_game_key_pressed(Gkey_PrevInstance, true, false))
+            {
+                set_possession_instance(player, cthing, -1);
             }
         }
     return false;
