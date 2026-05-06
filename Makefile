@@ -201,6 +201,7 @@ obj/front_fmvids.o \
 obj/front_highscore.o \
 obj/front_input.o \
 obj/front_landview.o \
+obj/front_landview_multiplayer.o \
 obj/front_lvlstats.o \
 obj/front_lvlstats_data.o \
 obj/front_network.o \

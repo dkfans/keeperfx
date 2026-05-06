@@ -63,33 +63,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct NetMapPlayersState {
-    int32_t unselected_players;
-    LevelNumber selected_level_number;
-    TbBool is_selected;
-};
-
-/******************************************************************************/
 #define WINDOW_X_SIZE 960
 #define WINDOW_Y_SIZE 720
 #define LANDVIEW_ZOOM_STEP (2 * 3.3f)
 #define LANDVIEW_PAN_ACCEL (4 * 3.3f)
 #define LANDVIEW_PAN_DECEL (1 * 3.3f)
 #define LANDVIEW_PAN_MAX_SPEED (24 * 3.3f)
-
-enum NetMapSlapFrame {
-    NetMapSlap_StartFrame = 9,
-    NetMapSlap_HitFrame = 13,
-    NetMapSlap_EndFrame = 16,
-};
-
-TbPixel net_player_colours[] = { 251, 58, 182, 11};
-const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
-const long hand_limp_yoffset[] = {-11, -10,  -9,  -8,  -7,  -6,  -5,  -4,  -3,  -2,  -1,  0, };
 struct TbSprite dummy_sprite = {0, 0, 0};
 
-long limp_hand_x = 0;
-long limp_hand_y = 0;
 LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
 struct TbHugeSprite map_window;
@@ -103,9 +84,6 @@ struct TbSpriteSheet * map_font = NULL;
 struct TbSpriteSheet * map_hand = NULL;
 long map_sound_fade;
 unsigned char *map_screen;
-long fe_net_level_selected;
-long net_map_limp_time;
-struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -113,6 +91,12 @@ struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
 /******************************************************************************/
 void draw_map_screen(void)
 {
+    if (map_screen == NULL)
+    {
+        ERRORLOG("Map screen buffer is not allocated");
+        return;
+    }
+
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
         scale_value_landview(LANDVIEW_MAP_WIDTH), scale_value_landview(LANDVIEW_MAP_HEIGHT),
         -scale_value_landview(map_info.screen_shift_x), -scale_value_landview(map_info.screen_shift_y),
@@ -222,20 +206,6 @@ void update_ensigns_visibility(void)
   lvinfo = get_level_info(lvnum);
   if (lvinfo != NULL)
       lvinfo->state = get_extra_level_kind_visibility(ExLv_NewMoon);
-}
-
-void update_net_ensigns_visibility(void)
-{
-    SYNCDBG(18, "Starting");
-    set_all_ensigns_state(LvSt_Hidden);
-    long lvnum = first_multiplayer_level();
-    while (lvnum > 0)
-    {
-        struct LevelInformation* lvinfo = get_level_info(lvnum);
-        if (lvinfo != NULL)
-            lvinfo->state = LvSt_Visible;
-        lvnum = next_multiplayer_level(lvnum);
-    }
 }
 
 int compute_sound_good_to_bad_factor(void)
@@ -982,37 +952,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
     return true;
 }
 
-void frontnet_init_level_descriptions(void)
-{
-    //TODO NETWORK Don't allow campaigns besides original - we don't have per-campaign MP yet
-    //if (!is_campaign_loaded())
-    {
-        if (!change_campaign("")) {
-            return;
-        }
-    }
-}
-
-void frontnetmap_unload(void)
-{
-    clear_light_system(&game.lish);
-    clear_mapmap();
-    clear_things_and_persons_data();
-    clear_computer();
-    clear_rooms();
-    clear_dungeons();
-    clear_slabs();
-    memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-    free_font(&map_font);
-    free_spritesheet(&map_flag);
-    free_spritesheet(&map_hand);
-    memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-    fe_network_active = 0;
-    stop_music();
-    set_music_volume(settings.music_volume);
-}
-
-static void frontmap_start_music(void)
+void frontmap_start_music(void)
 {
     if (strlen(campaign.soundtrack_fname) > 0) {
         const int track = atoi(campaign.soundtrack_fname);
@@ -1025,70 +965,6 @@ static void frontmap_start_music(void)
     } else {
         play_music_track(2);
     }
-}
-
-TbBool frontnetmap_load(void)
-{
-    SYNCDBG(8,"Starting");
-    if (fe_network_active)
-    {
-      if (LbNetwork_EnableNewPlayers(0))
-        ERRORLOG("Unable to prohibit new players joining exchange");
-    }
-    frontend_load_data_from_cd();
-    game.selected_level_number = 0;
-    if (!load_map_and_window(0))
-    {
-        frontend_load_data_reset();
-        return false;
-    }
-    switch (campaign.land_markers)
-    {
-    case LndMk_PINPOINTS:
-        map_flag = load_spritesheet("ldata/netflag_pin.dat", "ldata/netflag_pin.tab");
-        break;
-    default:
-        ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
-        // Fall Through
-    case LndMk_ENSIGNS:
-        map_flag = load_spritesheet("ldata/netflag_ens.dat", "ldata/netflag_ens.tab");
-        break;
-    }
-    map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
-    map_hand = load_spritesheet("ldata/maphand.dat", "ldata/maphand.tab");
-    if (!map_flag || !map_font || !map_hand)
-    {
-      ERRORLOG("Unable to load MAP SCREEN sprites");
-      return false;
-    }
-    frontend_load_data_reset();
-    frontnet_init_level_descriptions();
-    frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);
-    fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-    net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
-    set_pointer_graphic_none();
-    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
-    map_sound_fade = FULL_LOUDNESS;
-    lbDisplay.DrawFlags = 0;
-    set_music_volume(settings.music_volume);
-    frontmap_start_music();
-    if (fe_network_active)
-    {
-        net_number_of_players = 0;
-        for (long i = 0; i < NET_PLAYERS_COUNT; i++)
-        {
-            struct ScreenPacket* nspck = &net_screen_packet[i];
-            if ((nspck->networkstatus_flags & NetStat_PlayerConnected) != 0)
-              net_number_of_players++;
-        }
-    } else
-    {
-      net_number_of_players = 1;
-    }
-    net_map_slap_frame = 0;
-    net_map_limp_time = 0;
-    update_net_ensigns_visibility();
-    return true;
 }
 
 void process_map_zoom_in(void)
@@ -1216,66 +1092,6 @@ TbBool frontmap_load(void)
     return true;
 }
 
-TbBool rectangle_intersects(struct TbRect *rcta, struct TbRect *rctb)
-{
-    long left = rcta->left;
-    if (rcta->left <= rctb->left)
-      left = rctb->left;
-    long top = rcta->top;
-    if (top <= rctb->top)
-      top = rctb->top;
-    long right = rcta->right;
-    if (right >= rctb->right)
-      right = rctb->right;
-    long bottom = rcta->bottom;
-    if (bottom >= rctb->bottom)
-      bottom = rctb->bottom;
-    return (left < right) && (top < bottom);
-}
-
-TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
-{
-  struct TbRect rctb;
-  if (is_my_player_number(plyr_idx))
-    return false;
-  struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
-  if (screen_packet_action(nspck) == NetAct_Limping)
-    return false;
-  // Rectangle of given player
-  nspck = &net_screen_packet[(int)plyr_idx];
-  struct TbRect rcta;
-  rcta.left = nspck->stored_data1 - 7;
-  rcta.top = nspck->stored_data2 - 13;
-  rcta.right = rcta.left + 30;
-  rcta.bottom = rcta.top + 20;
-  // Rectangle of local player
-  nspck = &net_screen_packet[my_player_number];
-  if (screen_packet_action(nspck) == NetAct_Slapping)
-  {
-    rctb.left = nspck->stored_data1 - 31;
-    rctb.top = nspck->stored_data2 - 27;
-    rctb.right = get_sprite(map_hand, 9)->SWidth + rctb.left;
-    rctb.bottom = rctb.top + get_sprite(map_hand, 9)->SHeight;
-  } else
-  if (nspck->action_par1 != SINGLEPLAYER_NOTSTARTED)
-  {
-    rctb.left = nspck->stored_data1 - 20;
-    rctb.top = nspck->stored_data2 - 14;
-    rctb.right = get_sprite(map_hand, 17)->SWidth + rctb.left;
-    rctb.bottom = rctb.top + get_sprite(map_hand, 17)->SHeight;
-  } else
-  {
-    rctb.left = nspck->stored_data1 - 19;
-    rctb.top = nspck->stored_data2 - 25;
-    rctb.right = get_sprite(map_hand, 1)->SWidth + rctb.left;
-    rctb.bottom = rctb.top + get_sprite(map_hand, 1)->SHeight;
-  }
-  // Return if the rectangles are intersecting
-  if (rectangle_intersects(&rcta, &rctb))
-    return true;
-  return false;
-}
-
 void frontmap_draw(void)
 {
     SYNCDBG(8,"Starting");
@@ -1373,76 +1189,20 @@ void update_velocity(void)
 }
 
 /**
- * Draws player's hands.
+ * Sets the level name text for active level display.
  */
-void draw_netmap_players_hands(void)
+void set_level_name_text(LevelNumber lvnum, const char *lv_name)
 {
-  struct ScreenPacket *nspck;
-  const char *plyr_nam;
-  const struct TbSprite *spr;
-  TbPixel colr;
-  long x;
-  long y;
-  long w;
-  long h;
-  long i;
-  long k;
-  unsigned char action;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-      nspck = &net_screen_packet[i];
-      plyr_nam = network_player_name(i);
-      colr = net_player_colours[i];
-      if ((nspck->networkstatus_flags & NetStat_PlayerConnected) != 0)
-      {
-        x = 0;
-        y = 0;
-        action = screen_packet_action(nspck);
-        if (action == NetAct_Slapping)
-        {
-          k = (unsigned char)nspck->action_par1;
-          spr = get_sprite(map_hand, k);
-        } else
-        if (action == NetAct_Limping)
-        {
-          k = nspck->action_par2;
-          if (k > 11)
-            k = 11;
-          if (k < 0)
-            k = 0;
-          x = hand_limp_xoffset[k];
-          y = hand_limp_yoffset[k];
-          spr = get_sprite(map_hand, 21);
-        } else
-        if (nspck->action_par1 == SINGLEPLAYER_NOTSTARTED)
-        {
-            k = LbTimerClock() / 150;
-            spr = get_sprite(map_hand, 1 + (k%8));
-        } else
-        {
-            k = LbTimerClock() / 150;
-            spr = get_sprite(map_hand, 17 + (k%4));
-        }
-        if (i == my_player_number && action == NetAct_None && nspck->action_par1 == SINGLEPLAYER_NOTSTARTED) {
-            x += GetMouseX()*16/units_per_pixel_landview - 18;
-            y += GetMouseY()*16/units_per_pixel_landview - 25;
-        } else {
-            x += nspck->stored_data1 - (long)map_info.screen_shift_x - 18;
-            y += nspck->stored_data2 - (long)map_info.screen_shift_y - 25;
-        }
-        LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
-        w = LbTextStringWidth(plyr_nam);
-        if (w > 0)
-        {
-          lbDisplay.DrawFlags = 0;
-          h = LbTextHeight(level_name);
-          y += 32;
-          x += 32;
-          LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), colr);
-          LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, plyr_nam);
-        }
-      }
-  }
+    struct LevelInformation *lvinfo = get_level_info(lvnum);
+    if (lvinfo == NULL) {
+        snprintf(level_name, sizeof(level_name), "%s", get_string(GUIStr_MnuLevel));
+        return;
+    }
+    if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
+        snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
+        return;
+    }
+    snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
 }
 
 /**
@@ -1464,11 +1224,7 @@ void draw_map_level_descriptions(void)
         lv_name = get_string(lvinfo->name_stridx);
     else
       lv_name = lvinfo->name;
-    if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
-      snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
-    } else {
-      snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
-    }
+    set_level_name_text(lvnum, lv_name);
     long w = LbTextStringWidth(level_name);
     long x = lvinfo->ensign_x - (long)map_info.screen_shift_x;
     long y = lvinfo->ensign_y - (long)map_info.screen_shift_y - 8;
@@ -1476,25 +1232,6 @@ void draw_map_level_descriptions(void)
     LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), 0);
     LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, level_name);
   }
-}
-
-void frontnetmap_draw(void)
-{
-    SYNCDBG(8,"Starting");
-    LbTextSetFont(map_font);
-    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-    if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
-    {
-        frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
-        compressed_window_draw();
-    } else
-    {
-        draw_map_screen();
-        draw_map_level_ensigns();
-        draw_netmap_players_hands();
-        draw_map_level_descriptions();
-        compressed_window_draw();
-    }
 }
 
 void frontmap_input(void)
@@ -1568,69 +1305,6 @@ void frontmap_input(void)
     update_velocity();
 }
 
-void frontnetmap_input(void)
-{
-  if (lbKeyOn[KC_ESCAPE])
-  {
-      fe_net_level_selected = LEVELNUMBER_ERROR;
-      lbKeyOn[KC_ESCAPE] = 0;
-      SYNCLOG("Escaped from level selection");
-      return;
-  }
-
-  if (net_map_limp_time == 0)
-  {
-      struct LevelInformation* lvinfo;
-      if (right_button_clicked)
-      {
-          right_button_clicked = 0;
-          if (fe_net_level_selected == SINGLEPLAYER_NOTSTARTED)
-          {
-              if ((!net_map_slap_frame) && (!net_map_limp_time))
-              {
-                  net_map_slap_frame = NetMapSlap_StartFrame;
-              }
-          } else
-        {
-            lvinfo = get_level_info(fe_net_level_selected);
-            if (lvinfo != NULL) {
-              LbMouseSetPosition(scale_value_landview(lvinfo->ensign_x - (long)map_info.screen_shift_x),
-                  scale_value_landview(lvinfo->ensign_y - (long)map_info.screen_shift_y));
-            }
-            fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-        }
-    }
-
-    if (fe_net_level_selected == SINGLEPLAYER_NOTSTARTED)
-    {
-      net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
-      frontmap_input_active_ensign(GetMouseX(), GetMouseY());
-      if (mouse_over_lvnum > 0)
-        net_level_hilighted = mouse_over_lvnum;
-      if (net_level_hilighted > 0)
-      {
-        if ((net_map_slap_frame == 0) && (net_map_limp_time == 0))
-        {
-          if (left_button_clicked)
-          {
-              fe_net_level_selected = net_level_hilighted;
-              left_button_clicked = 0;
-              lvinfo = get_level_info(fe_net_level_selected);
-              if (lvinfo != NULL) {
-                snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
-              } else {
-                snprintf(level_name, sizeof(level_name), "%s", get_string(GUIStr_MnuLevel));
-              }
-              SYNCLOG("Selected level %d with description \"%s\"",(int)fe_net_level_selected,level_name);
-          }
-        }
-      }
-      check_mouse_scroll();
-      update_velocity();
-    }
-  }
-}
-
 void frontmap_unload(void)
 {
     SYNCDBG(8,"Starting");
@@ -1677,166 +1351,5 @@ long frontmap_update(void)
   SYNCDBG(8,"Finished");
   return 0;
 }
-
-TbBool frontmap_exchange_screen_packet(void)
-{
-    struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
-    memset(nspck, 0, sizeof(struct ScreenPacket));
-    nspck->networkstatus_flags |= NetStat_PlayerConnected;
-    nspck->action_par1 = fe_net_level_selected;
-    if (net_map_limp_time > 0)
-    {
-      screen_packet_set_action(nspck, NetAct_Limping);
-      nspck->stored_data1 = limp_hand_x;
-      nspck->stored_data2 = limp_hand_y;
-      net_map_limp_time--;
-      nspck->action_par2 = net_map_limp_time;
-      if (net_map_limp_time == 1)
-      {
-          LbMouseSetPosition(
-            limp_hand_x + hand_limp_xoffset[0] - map_info.screen_shift_x,
-            limp_hand_y + hand_limp_yoffset[0] - map_info.screen_shift_y);
-      }
-    } else
-    if (fe_net_level_selected > 0)
-    {
-        const struct TbSprite* spr = get_map_ensign(1);
-        struct LevelInformation* lvinfo = get_level_info(fe_net_level_selected);
-        if (lvinfo != NULL)
-        {
-            nspck->stored_data1 = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
-            nspck->stored_data2 = lvinfo->ensign_y - 48;
-        }
-    } else
-    if (net_map_slap_frame > 0)
-    {
-        nspck->stored_data1 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
-        nspck->stored_data2 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
-        if (net_map_slap_frame <= NetMapSlap_EndFrame)
-        {
-          screen_packet_set_action(nspck, NetAct_Slapping);
-          nspck->action_par1 = net_map_slap_frame;
-          net_map_slap_frame++;
-        } else
-        {
-          net_map_slap_frame = 0;
-        }
-    } else
-    {
-        nspck->stored_data1 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
-        nspck->stored_data2 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
-    }
-    if (fe_network_active)
-    {
-      if (LbNetwork_Exchange(NETMSG_FRONTEND, nspck, &net_screen_packet, sizeof(struct ScreenPacket)))
-      {
-          ERRORLOG("LbNetwork_Exchange failed");
-          return false;
-      }
-    }
-    return true;
-}
-
-TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
-{
-    memset(scratch, 0, PALETTE_SIZE);
-    int32_t leading_votes = -1;
-    for (long i = 0; i < NET_PLAYERS_COUNT; i++)
-    {
-        struct ScreenPacket* nspck = &net_screen_packet[i];
-        if ((nspck->networkstatus_flags & NetStat_PlayerConnected) == 0)
-          continue;
-        if (i != my_player_number && !network_player_active(i))
-        {
-            LbNetwork_EnableNewPlayers(1);
-            frontend_set_state(FeSt_NET_START);
-            return false;
-        }
-        if (nspck->action_par1 == LEVELNUMBER_ERROR)
-        {
-            if (fe_network_active)
-            {
-              if (LbNetwork_EnableNewPlayers(1))
-                ERRORLOG("Unable to enable new players joining exchange");
-              frontend_set_state(FeSt_NET_START);
-            } else
-            {
-              frontend_set_state(FeSt_MAIN_MENU);
-            }
-            return false;
-        }
-        if ((nspck->action_par1 == SINGLEPLAYER_NOTSTARTED) || (screen_packet_action(nspck) == NetAct_Slapping))
-        {
-            nmps->unselected_players++;
-        } else
-        {
-            LevelNumber pckt_lvnum = nspck->action_par1;
-            scratch[pckt_lvnum]++;
-            if (scratch[pckt_lvnum] == leading_votes)
-            {
-                nmps->is_selected = false;
-            } else
-            if (scratch[pckt_lvnum] > leading_votes)
-            {
-                nmps->selected_level_number = pckt_lvnum;
-                leading_votes = scratch[pckt_lvnum];
-                nmps->is_selected = true;
-            }
-        }
-        if ((screen_packet_action(nspck) == NetAct_Slapping) && (nspck->action_par1 == NetMapSlap_HitFrame))
-        {
-            if ( test_hand_slap_collides(i) )
-            {
-                net_map_limp_time = 12;
-                fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-                net_map_slap_frame = 0;
-                limp_hand_x = nspck->stored_data1;
-                limp_hand_y = nspck->stored_data2;
-                screen_packet_set_action(nspck, NetAct_Limping);
-                SYNCLOG("Slapped out of level");
-            }
-        }
-    }
-    return true;
-}
-
-TbBool frontnetmap_update(void)
-{
-    SYNCDBG(8,"Starting");
-    set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
-
-    struct NetMapPlayersState nmps;
-    nmps.unselected_players = 0;
-    nmps.selected_level_number = SINGLEPLAYER_NOTSTARTED;
-    nmps.is_selected = false;
-    if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
-    {
-        if (frontmap_update_zoom())
-        {
-          SYNCDBG(8,"Zoom end");
-          return true;
-        }
-    } else
-    {
-        frontmap_exchange_screen_packet();
-        frontnetmap_update_players(&nmps);
-    }
-    if ((!nmps.unselected_players) && (nmps.selected_level_number > 0) && (nmps.is_selected))
-    {
-        set_selected_level_number(nmps.selected_level_number);
-        snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.selected_level_number);
-        if (fe_network_active < 1) {
-            map_info.state_trigger = FeSt_START_KPRLEVEL;
-        } else {
-            map_info.state_trigger = FeSt_START_MPLEVEL;
-        }
-        frontmap_zoom_in_init(nmps.selected_level_number);
-        if (!fe_network_active)
-            fe_computer_players = 1;
-    }
-    SYNCDBG(8,"Normal end");
-    return false;
-}
-
 
 /******************************************************************************/

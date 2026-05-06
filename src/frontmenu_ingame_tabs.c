@@ -2322,8 +2322,12 @@ void maintain_query_button(struct GuiButton *gbtn)
 void maintain_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = info_panel_pos_to_player_number(gbtn->content.lval);
-    if(plyr_idx == -1)
+    if (plyr_idx == -1)
+    {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
+        gbtn->flags &= ~LbBtnF_Enabled;
         return;
+    }
 
     struct PlayerInfo* player = get_player(plyr_idx);
     if (!is_my_player_number(plyr_idx) && ((player->allocflags & PlaF_Allocated) != 0))
