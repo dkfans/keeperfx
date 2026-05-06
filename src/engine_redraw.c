@@ -1038,7 +1038,7 @@ void redraw_display(void)
     {
         draw_frametime();
     }
-    if (network_stats_enabled())
+    if (debug_display_network_stats != 0)
     {
         draw_network_stats();
     }

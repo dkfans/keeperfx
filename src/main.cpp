@@ -4163,6 +4163,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           detailed_multiplayer_logging = true;
       } else
+      if (strcasecmp(parstr, "netstats") == 0)
+      {
+          debug_display_network_stats = 1;
+      } else
       if (strcasecmp(parstr, "compuchat") == 0)
       {
           if (strcasecmp(pr2str,"scarce") == 0) {

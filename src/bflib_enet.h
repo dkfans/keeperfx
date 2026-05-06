@@ -31,14 +31,11 @@ enum {
 struct NetSP;
 struct NetSP* InitEnetSP();
 unsigned long GetPing(int id);
-unsigned long GetPingVariance(int id);
 unsigned int GetPacketLoss(int id);
 unsigned int GetClientDataInTransit();
-unsigned int GetIncomingPacketQueueSize();
 unsigned int GetClientPacketsLost();
-unsigned int GetClientOutgoingDataTotal();
-unsigned int GetClientIncomingDataTotal();
-unsigned int GetClientReliableCommandsInFlight();
+unsigned int GetUploadRateBytesPerSecond();
+unsigned int GetDownloadRateBytesPerSecond();
 void enet_matchmaking_host_update(void);
 extern uint16_t external_ipv4_port;
 extern int skip_holepunch;
