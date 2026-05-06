@@ -472,19 +472,8 @@ void frontnet_reset_ping_stabilization(void)
     previous_player_count_for_ping_wait = -1;
 }
 
-static int message_char_index = -1;
-static int message_length = 0;
-static char auto_message[64] = "";
 
-void set_auto_message(const char* msg)
-{
-    strncpy(auto_message, msg, sizeof(auto_message)-1);
-    auto_message[sizeof(auto_message)-1] = '\0';
-    message_length = strlen(auto_message);
-    message_char_index = 0;
-}
-
-void frontnet_queue_campaign_change_message(const char* campaign_fname)
+void frontnet_send_campaign_change_message(const char* campaign_fname)
 {
     char base_name[64];
     if ((campaign_fname == NULL) || (campaign_fname[0] == '\0')) {
@@ -499,31 +488,7 @@ void frontnet_queue_campaign_change_message(const char* campaign_fname)
 
     char msg[64];
     snprintf(msg, sizeof(msg), "%s:_", base_name);
-    set_auto_message(msg);
-}
-
-static void send_stored_message()
-{
-    // Send message one character per frame
-    if (message_char_index >= 0) {
-        struct ScreenPacket *nspck;
-        nspck = &net_screen_packet[my_player_number];
-        if ((nspck->networkstatus_flags & 0xF8) == 0) {
-            if (message_char_index < message_length) {
-                // Send next character directly to message buffer
-                struct PlayerInfo *player = get_my_player();
-                if (message_char_index < PLAYER_MP_MESSAGE_LEN - 1) {
-                    player->mp_message_text[message_char_index] = auto_message[message_char_index];
-                    player->mp_message_text[message_char_index + 1] = '\0';
-                }
-                message_char_index++;
-            } else {
-                // Message complete, trigger send
-                lbInkey = KC_RETURN;
-                message_char_index = -1; // Reset for next time
-            }
-        }
-    }
+    LbNetwork_SendChatMessageImmediate(my_player_number,msg);
 }
 
 void handle_autostart_multiplayer_messaging(void)
@@ -539,7 +504,7 @@ void handle_autostart_multiplayer_messaging(void)
     }
 
     if (player_joined && my_player_number == get_host_player_id()) {
-        frontnet_queue_campaign_change_message(campaign.fname);
+        frontnet_send_campaign_change_message(campaign.fname);
     }
 
     if (!send_pending && my_player_number == get_host_player_id() &&
@@ -580,7 +545,6 @@ void frontnet_start_update(void)
 
     frontnet_is_waiting_for_ping_stabilization();
     handle_autostart_multiplayer_messaging();
-    send_stored_message();
 
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {

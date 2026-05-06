@@ -481,7 +481,7 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
     if (campgn == NULL)
         return;
 
-    frontnet_queue_campaign_change_message(campgn->fname);
+    frontnet_send_campaign_change_message(campgn->fname);
     
     if (!change_campaign(CampgnT_MultiplayerMappack, campgn->fname))
         return;
