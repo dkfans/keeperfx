@@ -1347,7 +1347,7 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
       break;
   case FGrp_MpLevels:
       mdir=keeper_runtime_directory;
-      sdir="mpmaps";
+      sdir="multiplayer";
       break;
   default:
       mdir="./";
