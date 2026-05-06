@@ -7259,3 +7259,13 @@ msgstr "순간이동 소집"
 msgctxt "Game controls"
 msgid "Teleport Default"
 msgstr "순간이동 기본"
+
+#: guitext:1110
+msgctxt "Menu interface item"
+msgid "Multiplayer Map Packs"
+msgstr ""
+
+#: guitext:1111
+msgctxt "Menu interface item"
+msgid "Return to Lobby"
+msgstr ""

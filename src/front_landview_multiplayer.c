@@ -114,13 +114,19 @@ static void update_net_ensigns_visibility(void)
 {
     SYNCDBG(18, "Starting");
     set_all_ensigns_state(LvSt_Hidden);
-    long lvnum = first_multiplayer_level();
+    LevelNumber lvnum = first_multiplayer_level();
+    int32_t i = 0;
     while (lvnum > 0) {
         struct LevelInformation* lvinfo = get_level_info(lvnum);
         if (lvinfo != NULL) {
             lvinfo->state = LvSt_Visible;
         }
         lvnum = next_multiplayer_level(lvnum);
+        i++;
+        if (i > MULTI_LEVELS_COUNT) {
+            ERRORLOG("Breaking infinite loop in update_net_ensigns_visibility");
+            break;
+        }
     }
 }
 
@@ -395,6 +401,8 @@ void frontnetmap_input(void)
 TbBool frontnetmap_load(void)
 {
     SYNCDBG(8,"Starting");
+    char hand_data_path[2048];
+    char hand_index_path[2048];
     if (fe_network_active) {
         if (LbNetwork_EnableNewPlayers(0)) {
             ERRORLOG("Unable to prohibit new players joining exchange");
@@ -418,14 +426,19 @@ TbBool frontnetmap_load(void)
         break;
     }
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
-    map_hand = load_spritesheet("ldata/maphand.dat", "ldata/maphand.tab");
+    prepare_file_path_buf(hand_data_path, sizeof(hand_data_path), FGrp_LandView, "maphand.dat");
+    prepare_file_path_buf(hand_index_path, sizeof(hand_index_path), FGrp_LandView, "maphand.tab");
+    map_hand = load_spritesheet(hand_data_path, hand_index_path);
     if (!map_flag || !map_font || !map_hand) {
         ERRORLOG("Unable to load MAP SCREEN sprites");
+        free_font(&map_font);
+        free_spritesheet(&map_flag);
+        free_spritesheet(&map_hand);
+        unload_map_and_window();
+        frontend_load_data_reset();
         return false;
     }
     frontend_load_data_reset();
-    //TODO NETWORK Don't allow campaigns besides original - we don't have per-campaign MP yet
-    change_campaign("");
     frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;

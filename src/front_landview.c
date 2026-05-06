@@ -91,6 +91,12 @@ unsigned char *map_screen;
 /******************************************************************************/
 void draw_map_screen(void)
 {
+    if (map_screen == NULL)
+    {
+        ERRORLOG("Map screen buffer is not allocated");
+        return;
+    }
+
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
         scale_value_landview(LANDVIEW_MAP_WIDTH), scale_value_landview(LANDVIEW_MAP_HEIGHT),
         -scale_value_landview(map_info.screen_shift_x), -scale_value_landview(map_info.screen_shift_y),
