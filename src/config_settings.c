@@ -268,6 +268,7 @@ void setup_default_settings(void)
     {
         settings.kbkeys[i].code = game_key_settings[i].default_code;
         settings.kbkeys[i].mods = game_key_settings[i].default_mods;
+        settings.kbkeys[i].controller_buttons = game_key_settings[i].default_controller_buttons;
     }
 }
 

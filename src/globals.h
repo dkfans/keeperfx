@@ -316,11 +316,14 @@ typedef uint16_t NavColour;
 typedef int8_t SmallAroundIndex;
 /** a player state as defined in config_players*/
 typedef uint8_t PlayerState;
+/** Index to the Creature Control array. */
 typedef uint16_t CctrlIndex;
 /** index to a function, positive for C functions, negative for lua functions*/
 typedef int16_t FuncIdx;
+/** locations like an action point, last event etc. */
 typedef uint32_t TbMapLocation;
-
+/** Controller buttons state. flags field, each bit represents a button */
+typedef uint32_t TbControllerButtons; 
 
 /**
  * Stores a 2d coordinate (x,y).
