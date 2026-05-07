@@ -34,6 +34,8 @@ extern "C" {
 
 #pragma pack()
 /******************************************************************************/
+TbBool generation_due_for_dungeon(struct Dungeon * dungeon);
+
 void process_entrance_generation(void);
 struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_kind);
 

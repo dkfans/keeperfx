@@ -55,6 +55,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Teleport     = 0x008000,
     CSAfF_Timebomb     = 0x010000,
     CSAfF_Wind         = 0x020000,
+    CSAfF_SpellBlocks  = 0x040000,
 };
 
 enum SpellPropertiesFlags {
@@ -122,6 +123,11 @@ enum ShotModelFlags {
     ShMF_BlocksRebirth  = 0x4000,
     ShMF_Penetrating    = 0x8000,
     ShMF_NeverBlock     = 0x10000,
+    ShMF_WallPierce     = 0x20000,
+    ShMF_NoAirDamage     = 0x40000,
+    ShMF_WindImmune      = 0x80000,
+    ShMF_FixedDamage     = 0x100000,
+    ShMF_HiddenProjectile = 0x200000,
 };
 
 #define PwCast_None           (0LL)
@@ -188,11 +194,15 @@ enum ShotModelFlags {
 #define PwCast_Anywhere       (1LL << 29)
 #define PwCast_DiggersOnly    (1LL << 30)
 #define PwCast_DiggersNot     (1LL << 31)
+#define PwCast_OwnedObjects   (1LL << 32)
+#define PwCast_NeutrlObjects  (1LL << 33)
+#define PwCast_EnemyObjects   (1LL << 34)
 
 #define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_NConscCrtrs|PwCast_BoundCrtrs)
 #define PwCast_AllFood (PwCast_OwnedFood|PwCast_NeutrlFood|PwCast_EnemyFood)
 #define PwCast_AllGold (PwCast_OwnedGold|PwCast_NeutrlGold|PwCast_EnemyGold)
-#define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_AllFood|PwCast_AllGold|PwCast_OwnedSpell|PwCast_OwnedBoulders)
+#define PwCast_AllObjects (PwCast_OwnedObjects|PwCast_NeutrlObjects|PwCast_EnemyObjects)
+#define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_AllFood|PwCast_AllGold|PwCast_OwnedSpell|PwCast_OwnedBoulders|PwCast_AllObjects)
 #define PwCast_AllGround (PwCast_UnclmdGround|PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround|PwCast_EnemyGround)
 #define PwCast_NotEnemyGround (PwCast_UnclmdGround|PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround)
 #define PwCast_AllTall (PwCast_NeutrlTall|PwCast_OwnedTall|PwCast_AlliedTall|PwCast_EnemyTall)
@@ -219,7 +229,7 @@ struct SpellConfigStats {
 };
 
 struct ShotHitConfig {
-    ThingModel effect_model; /**< Effect kind to be created when the shot hits. */
+    EffectOrEffElModel effect_model; /**< Effect kind to be created when the shot hits. */
     short sndsample_idx; /**< Base sound sample to be played on hit. */
     unsigned char sndsample_range; /**< Range for random sound sample selection. */
     unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
@@ -244,7 +254,7 @@ struct ShotVisualConfig {
  */
 struct ShotConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    unsigned long model_flags;
+    uint32_t model_flags;
     /** Health of a shot decreases by 1 on every turn, so it works also as lifespan. */
     HitPoints health;
     /** Range of area damage, if the spell causes area damage. */
@@ -280,33 +290,30 @@ struct ShotConfigStats {
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
     char push_on_hit;
-    unsigned char hidden_projectile;
     unsigned char destroy_on_first_hit;
     short experience_given_to_shooter;
     short inertia_floor;
     short inertia_air;
     short bounce_angle;
-    short wind_immune;
-    short no_air_damage;
     unsigned char target_hitstop_turns;
     short animation_transparency;
-    short fixed_damage;
     short light_radius;
     unsigned char light_intensity;
-    unsigned char lightf_53;
+    unsigned char light_flags;
     unsigned char unshaded;
     unsigned char soft_landing;
     EffectOrEffElModel effect_id;
     EffectOrEffElModel effect_bleeding;
     EffectOrEffElModel effect_frozen;
     unsigned char fire_logic; // see enum ShotFireLogics
-    unsigned char update_logic; // see enum ShotUpdateLogics
+    short update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
     unsigned short periodical;
     short spread_xy;
     short spread_z;
     short speed_deviation;
+    FuncIdx hit_thing_lua_func_idx;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -317,10 +324,10 @@ typedef unsigned char (*Expand_Check_Func)(void);
 struct PowerConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
-    unsigned long long can_cast_flags;
-    unsigned long config_flags;
+    uint64_t can_cast_flags;
+    uint32_t config_flags;
     unsigned char overcharge_check_idx;
-    long work_state;
+    uint32_t work_state;
     PowerKind parent_power;
     /** Sprite index of big symbol icon representing the power. */
     short bigsym_sprite_idx;
@@ -330,17 +337,17 @@ struct PowerConfigStats {
     unsigned short tooltip_stridx;
     short select_sample_idx;
     short pointer_sprite_idx;
-    long panel_tab_idx;
+    uint32_t panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
     unsigned char cost_formula;
     SpellKind spell_idx;
     EffectOrEffElModel effect_id;
-    short magic_use_func_idx;
+    FuncIdx magic_use_func_idx;
     ThingModel creature_model;
-    long cost[MAGIC_OVERCHARGE_LEVELS];
-    long duration;
-    long strength[MAGIC_OVERCHARGE_LEVELS+1];
+    GoldAmount cost[MAGIC_OVERCHARGE_LEVELS];
+    GameTurnDelta duration;
+    int32_t strength[MAGIC_OVERCHARGE_LEVELS+1];
 };
 
 /**
@@ -389,20 +396,20 @@ struct SpellConfig {
     HitPoints healing_recovery;
     HitPoints damage;
     GameTurnDelta damage_frequency;
-    unsigned long spell_flags;
-    unsigned long cleanse_flags;
+    uint32_t spell_flags;
+    uint32_t cleanse_flags;
     unsigned char properties_flags;
 };
 
 struct MagicConfig {
-    long spell_types_count;
+    int32_t spell_types_count;
     struct SpellConfig spell_config[MAGIC_ITEMS_MAX];// should get merged into SpellConfigStats
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
-    long shot_types_count;
+    int32_t shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
-    long power_types_count;
+    int32_t power_types_count;
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
-    long special_types_count;
+    int32_t special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
     struct InstanceInfo instance_info[INSTANCE_TYPES_MAX]; //count in crtr_conf
 };
@@ -419,14 +426,16 @@ extern const struct LongNamedCommand powermodel_castability_commands[];
 extern const struct NamedCommand powermodel_expand_check_func_type[];
 extern const struct NamedCommand magic_power_commands[];
 extern const Expand_Check_Func powermodel_expand_check_func_list[];
+extern const struct NamedCommand magic_use_func_commands[];
+extern const struct NamedCommand magic_cost_formula_commands[];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(SpellKind spell_idx);
 TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo);
 TextStringId get_power_description_strindex(PowerKind pwkind);
 TextStringId get_power_name_strindex(PowerKind pwkind);
 TbBool power_is_instinctive(int pwkind);
-long get_power_index_for_work_state(long work_state);
-long get_special_description_strindex(int spckind);
+int32_t get_power_index_for_work_state(int32_t work_state);
+int32_t get_special_description_strindex(int spckind);
 struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel);
 struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel);
 struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel);

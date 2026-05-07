@@ -77,10 +77,10 @@ extern long nav_map_initialised;
 /** Converts slab to coord value. */
 #define slab_coord(slb) ((slb) * (COORD_PER_SLB))
 #define subtile_coord_center(stl) ((stl)*COORD_PER_STL+COORD_PER_STL/2)
-#define navmap_tile_number(stl_x,stl_y) ((stl_y)*gameadd.navigation_map_size_x+(stl_x))
+#define navmap_tile_number(stl_x,stl_y) ((stl_y)*game.navigation_map_size_x+(stl_x))
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-struct Map *get_map_block_at_pos(long stl_num);
+struct Map *get_map_block_at_pos(SubtlCodedCoords stl_num);
 TbBool map_block_invalid(const struct Map *mapblk);
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
@@ -140,7 +140,7 @@ TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool enemy_wall_diggable);
 
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
-void clear_slab_dig(long a1, long a2, char a3);
+void clear_slab_dig(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 
 void player_reveal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h);
 void player_conceal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h, TbBool all);
@@ -150,7 +150,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
 void clear_mapwho(void);
 void clear_mapmap(void);
 
-void set_map_size(MapSlabCoord x,MapSlabCoord y);
+void set_map_size(MapSlabCoord slb_x,MapSlabCoord slb_y);
 void init_map_size(LevelNumber lvnum);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -27,8 +27,9 @@ extern "C" {
 /******************************************************************************/
 #define NETSP_PLAYERS_COUNT 32
 #define SESSION_ENTRIES_COUNT 32
-#define SESSION_NAME_MAX_LEN  32
-#define NETSP_PLAYER_NAME_MAX_LEN 32
+#define SESSION_NAME_MAX_LEN     128
+#define SESSION_LOBBY_ID_MAX_LEN  64
+#define NETSP_PLAYER_NAME_MAX_LEN  32
 
 enum NetMsgType
 {
@@ -44,18 +45,19 @@ enum NetMsgType
 };
 
 struct TbNetworkSessionNameEntry {
-    unsigned char joinable; //possibly active or selected is better name
+    unsigned char joinable;
     unsigned long id;
     unsigned long in_use;
     char text[SESSION_NAME_MAX_LEN];
-    unsigned char field_29[20]; //does not appear to be a string
+    char join_address[SESSION_LOBBY_ID_MAX_LEN];
+    char lobby_id[SESSION_LOBBY_ID_MAX_LEN];
 };
 
 struct TbNetworkPlayerEntry {
-  unsigned char field_0;
+  unsigned char reserved_flags;
   unsigned long id;
-  unsigned long field_5;
-  unsigned long field_9;
+  unsigned long reserved_data;
+  unsigned long is_active;
   char name[32];
 };
 
@@ -69,7 +71,7 @@ struct ReceiveCallbacks {
   void (*mpReqCompsExDataMsg)(unsigned long, unsigned long, void *);
   void *(*unidirectionalMsg)(unsigned long, unsigned long, void *);
   void (*systemUserMsg)(unsigned long, void *, unsigned long, void *);
-  void *(*field_24)(unsigned long, void *);
+  void *(*unhandledMessageTypeCallback)(unsigned long, void *);
 };
 /******************************************************************************/
 void net_copy_name_string(char *dst,const char *src,long max_len);

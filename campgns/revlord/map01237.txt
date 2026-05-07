@@ -300,7 +300,7 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
 	DISPLAY_OBJECTIVE(43,PLAYER_GOOD)
 ENDIF
 
-REM If the keeper's Dungeon heart is destroyed, start Horny sequence. If you destroyed white and secured gems first, well, now reap the whirlwind!
+REM If the keeper's Dungeon heart is destroyed, start Horny sequence. If you destroyed Hero/Good and secured gems first, well, now reap the whirlwind!
 IF(PLAYER2,DUNGEON_DESTROYED >= 1)
 	REM "Congratulations, my liege! You have defeated the barbarian chieftain fair and square."
 	DISPLAY_OBJECTIVE(44,PLAYER2)

@@ -42,7 +42,7 @@ class MouseStateHandler pointerHandler;
   @param x,y Coorditates to adjust.
  * @return Returns true if the coordinates have changed.
  */
-int adjust_point(long *x, long *y)
+int adjust_point(int32_t *x, int32_t *y)
 {
     return false;
 }
@@ -81,13 +81,6 @@ bool MouseStateHandler::Release(void)
     hotspot.x = 0;
     hotspot.y = 0;
     return true;
-}
-
-struct TbPoint *MouseStateHandler::GetPosition(void)
-{
-    if (!this->installed)
-      return NULL;
-    return &mspos;
 }
 
 bool MouseStateHandler::SetMousePosition(long x, long y)
@@ -169,23 +162,6 @@ bool MouseStateHandler::SetMouseWindow(long x, long y,long width, long height)
     adjust_point(&lbDisplay.MMouseX, &lbDisplay.MMouseY);
     adjust_point(&lbDisplay.MouseX, &lbDisplay.MouseY);
     return true;
-}
-
-bool MouseStateHandler::GetMouseWindow(struct TbRect *windowRect)
-{
-    std::lock_guard<std::mutex> guard(lock);
-    windowRect->left = lbDisplay.MouseWindowX;
-    windowRect->top = lbDisplay.MouseWindowY;
-    windowRect->right = lbDisplay.MouseWindowX+lbDisplay.MouseWindowWidth;
-    windowRect->bottom = lbDisplay.MouseWindowY+lbDisplay.MouseWindowHeight;
-    return true;
-}
-
-const struct TbSprite *MouseStateHandler::GetPointer(void)
-{
-    if (!this->installed)
-      return NULL;
-    return mssprite;
 }
 
 bool MouseStateHandler::SetPointer(const struct TbSprite *spr, struct TbPoint *point)

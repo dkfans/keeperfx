@@ -74,13 +74,11 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
 TbBool draw_clear_screen(void);
 TbBool init_actv_bitmap_screen(int stype);
 TbBool free_actv_bitmap_screen(void);
-TbBool draw_actv_bitmap_screen(void);
 TbBool show_actv_bitmap_screen(TbClockMSec tmdelay);
 /******************************************************************************/
 
 TbBool display_loading_screen(void);
 TbBool wait_for_installation_files(void);
-TbBool display_centered_message(long showTime, char *text);
 /******************************************************************************/
 #ifdef __cplusplus
 }

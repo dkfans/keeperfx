@@ -54,12 +54,12 @@ static TbBool load_powerhands_config_file(const char *fname, unsigned short flag
     if (!load_toml_file(fname,&file_root,flags))
         return false;
 
-    char key[64];
+    char key[64] = "";
     VALUE *section;
     // Create sections
     for (int id = 0; id < NUM_VARIANTS; id++)
     {
-        sprintf(key, "hand%d", id);
+        snprintf(key, sizeof(key), "hand%d", id);
         section = value_dict_get(&file_root, key);
         if (value_type(section) == VALUE_DICT)
         {
@@ -85,7 +85,7 @@ static TbBool load_powerhands_config_file(const char *fname, unsigned short flag
         }
     }
 
-    sprintf(key, "hand%d", NUM_VARIANTS);
+    snprintf(key, sizeof(key), "hand%d", NUM_VARIANTS);
     section = value_dict_get(&file_root, key);
     if (value_type(section) == VALUE_DICT)
     {

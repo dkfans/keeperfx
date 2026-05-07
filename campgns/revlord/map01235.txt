@@ -18,7 +18,7 @@ REM Note: someone better proofread my texts!
 REM ********************************************
 
 REM Total party count: 
-REM White - 3 basic + 3 workshop + 1 mech, total 20
+REM Hero/Good - 3 basic + 3 workshop + 1 mech, total 20
 REM Yellow - 3 basic + 2 training + 1 elite, total 20
 REM Green - 3 basic +2 workshop  +1 mech, total 20
 REM Blue - 3 basic +2 training +1 elite total 20
@@ -82,8 +82,8 @@ DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
 DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
 
 REM Parties are simple and really small this time. Most target your troops, other rooms, the strongest orcs target heart.
-REM Hint: Blue and Yellow are priority targets, since they provide orc attacks. White/Green trolls are just plentiful, and Green barracks are highly vulnerable.
-REM White can't be accessed without bridge, or destroying rooms via CTA.
+REM Hint: Blue and Yellow are priority targets, since they provide orc attacks. Hero/Good and Green trolls are just plentiful, and Green barracks are highly vulnerable.
+REM Hero/Good can't be accessed without bridge, or destroying rooms via CTA.
 CREATE_PARTY(WAVE_ONE)
 CREATE_PARTY(WAVE_TWO)
 CREATE_PARTY(WAVE_THREE)

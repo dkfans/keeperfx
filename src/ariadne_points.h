@@ -45,7 +45,6 @@ extern struct Point ari_Points[];
 /******************************************************************************/
 #define INVALID_POINT (&ari_Points[0])
 /******************************************************************************/
-TbBool has_free_points(long n);
 AridPointId point_new(void);
 void point_dispose(AridPointId pt_id);
 TbBool point_set(AridPointId pt_id, long x, long y);
@@ -54,9 +53,6 @@ TbBool point_is_invalid(const struct Point *pt);
 TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y);
 AridPointId point_set_new_or_reuse(long pt_x, long pt_y);
 void triangulation_initxy_points(long startx, long starty, long endx, long endy);
-
-long get_ix_points();
-long get_free_points();
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -27,8 +27,16 @@ PKG_CAMPAIGN_FILES = \
 	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_lnd/*.txt)))
 PKG_CAMPAIGN_DIRS = $(sort $(dir $(PKG_CAMPAIGN_FILES)))
 PKG_CREATURE_FILES = $(patsubst config/creatrs/%,pkg/creatrs/%,$(wildcard config/creatrs/*.cfg))
-PKG_FXDATA_FILES = $(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.cfg)) \
-				   $(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.toml))
+PKG_FXDATA_FILES = \
+	$(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.cfg)) \
+	$(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.toml)) \
+	$(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.txt)) \
+	$(patsubst config/%,pkg/%,$(wildcard config/fxdata/lua/**/*.lua)) \
+	$(patsubst config/%,pkg/%,$(wildcard config/fxdata/lua/*.lua))
+PKG_FXDATA_DIRS = $(sort $(dir $(PKG_FXDATA_FILES)))
+PKG_MOD_FILES := $(patsubst config/%,pkg/%,$(shell find config/mods -type f))
+PKG_MOD_DIRS := $(sort $(dir $(PKG_MOD_FILES)))
+
 PKG_MAPPACK_FILES = \
 	$(patsubst %,pkg/levels/mappck_order.txt,$(MAPPACKS)) \
 	$(patsubst %,pkg/levels/%.cfg,$(MAPPACKS)) \
@@ -40,11 +48,15 @@ PKG_MAPPACK_FILES = \
 	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)_cfgs/*.cfg))) \
 	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)_cfgs/*.toml)))
 PKG_MAPPACK_DIRS = $(sort $(dir $(PKG_MAPPACK_FILES)))
+PKG_MP_MAPPACK_FILES := $(patsubst multiplayer/%,pkg/multiplayer/%,$(shell find multiplayer -type f))
+PKG_MP_MAPPACK_DIRS = $(sort $(dir $(PKG_MP_MAPPACK_FILES)))
 PKG_BIN = pkg/$(notdir $(BIN))
 PKG_BIN_MAP = $(PKG_BIN:%.exe=%.map)
 PKG_HVLOGBIN = pkg/$(notdir $(HVLOGBIN))
 PKG_HVLOGBIN_MAP = $(PKG_HVLOGBIN:%.exe=%.map)
-PKG_DOCS = pkg/keeperfx_readme.txt
+PKG_DOCS = \
+	pkg/keeperfx_readme.txt \
+	pkg/launcher-auto-file-removal.txt
 PKG_DLL = \
 	pkg/SDL2_net.dll \
 	pkg/SDL2_mixer.dll \
@@ -54,7 +66,9 @@ PKG_FILES = \
 	$(PKG_CAMPAIGN_FILES) \
 	$(PKG_CREATURE_FILES) \
 	$(PKG_FXDATA_FILES) \
+	$(PKG_MOD_FILES) \
 	$(PKG_MAPPACK_FILES) \
+	$(PKG_MP_MAPPACK_FILES) \
 	$(NGTEXTDATS) \
 	$(NCTEXTDATS) \
 	$(MPTEXTDATS) \
@@ -68,8 +82,16 @@ PKG_FILES = \
 
 .PHONY: package
 
-pkg pkg/creatrs pkg/fxdata pkg/campgns $(PKG_MAPPACK_DIRS) $(PKG_CAMPAIGN_DIRS):
+pkg pkg/creatrs pkg/fxdata pkg/campgns pkg/fxdata/lua $(PKG_MAPPACK_DIRS) $(PKG_MP_MAPPACK_DIRS)  $(PKG_CAMPAIGN_DIRS) $(PKG_FXDATA_DIRS) $(PKG_MOD_DIRS):
 	$(MKDIR) $@
+	
+pkg/fxdata/lua/%.lua: config/fxdata/lua/%.lua
+	@mkdir -p $(dir $@)
+	$(CP) $^ $@
+
+pkg/fxdata/lua/init.lua: config/fxdata/lua/init.lua | pkg/fxdata/lua
+	@mkdir -p $(dir $@)
+	$(CP) $< $@
 
 pkg/keeperfx.cfg: config/keeperfx.cfg | pkg
 	$(CP) $^ $@
@@ -104,11 +126,29 @@ pkg/fxdata/%.cfg: config/fxdata/%.cfg | pkg/fxdata
 pkg/fxdata/%.toml: config/fxdata/%.toml | pkg/fxdata
 	$(CP) $^ $@
 
+pkg/fxdata/%.txt: config/fxdata/%.txt | pkg/fxdata
+	$(CP) $^ $@
+
+pkg/fxdata/lua/%.lua: config/fxdata/lua/%.lua | pkg/fxdata/lua
+	$(CP) $^ $@
+
+pkg/fxdata/lua/lib/%.lua: config/fxdata/lua/lib/%.lua | pkg/fxdata/lua/lib
+	$(CP) $^ $@
+
+pkg/fxdata/lua/class/%.lua: config/fxdata/lua/class/%.lua | pkg/fxdata/lua/class
+	$(CP) $^ $@
+
+pkg/mods/%: config/mods/% | $(PKG_MOD_DIRS)
+	$(CP) $< $@
+
 pkg/levels/%.cfg: levels/%.cfg | $(PKG_MAPPACK_DIRS)
 	$(CP) $^ $@
 
 pkg/levels/%.txt: levels/%.txt | $(PKG_MAPPACK_DIRS)
 	$(CP) $^ $@
+
+pkg/multiplayer/%: multiplayer/% | $(PKG_MP_MAPPACK_DIRS)
+	$(CP) $< $@
 
 pkg/SDL2_net.dll: sdl/for_final_package/SDL2_net.dll | pkg
 	$(CP) $^ $@

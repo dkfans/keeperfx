@@ -74,12 +74,12 @@ static TbBool load_playerstate_config_file(const char *fname, unsigned short fla
         memset(player_state_commands,0,sizeof(player_state_commands));
     }
 
-    char key[64];
+    char key[64] = "";
     VALUE *section;
     for (int id = 0; id < PLAYER_STATES_COUNT_MAX; id++)
     {
         {
-            sprintf(key, "playerstate%d", id);
+            snprintf(key, sizeof(key), "playerstate%d", id);
             section = value_dict_get(&file_root, key);
         }
         if (value_type(section) == VALUE_DICT)

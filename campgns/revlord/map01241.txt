@@ -252,7 +252,7 @@ REM Hero Gates:
 REM 1 - torture chamber (mistresses)
 REM 2 - blue dungeon heart
 REM 3 - near scavenger room (dragons/demonspawn)
-REM 4 - white dungeon heart
+REM 4 - Hero/Good dungeon heart
 REM 5 - northern imps
 REM 6 - central gold
 REM 7 - eastern gold
@@ -380,7 +380,7 @@ IF(PLAYER0,TIMER0 >= 15000)
 	SET_FLAG(PLAYER0,FLAG1,1)
 ENDIF
 
-REM Approaching white Dungeon Heart triggers weak hornies; turn on endless horny/hound attacks
+REM Approaching Hero/Good Dungeon Heart triggers weak hornies; turn on endless horny/hound attacks
 IF_ACTION_POINT(1,PLAYER0)
 	SET_FLAG(PLAYER0,FLAG5,1)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HORNY,-4,3,4,0)
@@ -488,7 +488,7 @@ ENDIF
 
 IF(PLAYER1,ENTRANCE <= 9)
     NEXT_COMMAND_REUSABLE
-    MAX_CREATURES(PLAYER0,13)
+    MAX_CREATURES(PLAYER1,13)
 ENDIF
 
 IF(PLAYER1,ENTRANCE >= 10)
@@ -496,7 +496,7 @@ IF(PLAYER1,ENTRANCE >= 10)
 	MAX_CREATURES(PLAYER1,26)
 ENDIF
 REM Capture of entrances increases the max creatures count.
-REM AI has 40 creatures, plus whatever white player has for attack.
+REM Human-Player has 40 creatures, plus whatever Hero/Good player has for attack.
 
 IF(PLAYER0,ENTRANCE <= 9)
     NEXT_COMMAND_REUSABLE

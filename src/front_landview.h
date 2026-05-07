@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_sprite.h"
+#include "config_campaigns.h"
 #include "net_game.h"
 
 #ifdef __cplusplus
@@ -31,7 +32,6 @@ extern "C" {
 
 /******************************************************************************/
 #define FRONTMAP_ZOOM_LENGTH 240
-#define FRONTMAP_ZOOM_STEP 4
 /******************************************************************************/
 #pragma pack(1)
 
@@ -45,32 +45,56 @@ enum MapLevelInfoFlags {
 
 struct MapLevelInfo { // sizeof = 56
   unsigned char fadeflags;
-  long fade_step;
-  long fade_pos;
-  long hotspot_imgpos_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Stored as land view background bitmap coordinate. */
-  long hotspot_imgpos_y;
+  float fade_step;
+  float fade_pos;
+  float hotspot_imgpos_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Stored as land view background bitmap coordinate. */
+  float hotspot_imgpos_y;
   long state_trigger;
-  long screen_shift_x; /**< Shift X coordinate for top left corner of the visible land picture area. Acts as the final shift in both zoom and non-zoom modes. */
-  long screen_shift_y; /**< Shift Y coordinate for top left corner of the visible land picture area. */
-  long precise_scrshift_x; /**< Precise shift X for top left corner of the visible land picture area. Extended precision version, used as source for scrshift_x while zooming. */
-  long precise_scrshift_y; /**< Precise shift Y for top left corner of the visible land picture area. */
-  long velocity_x; /**< Velocity at which screen_shift_x is being changed. */
-  long velocity_y; /**< Velocity at which screen_shift_y is being changed. */
-  long hotspot_shift_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Set to top left corner of an area which would have the ensign in center. */
-  long hotspot_shift_y;
-  long screen_shift_aimed_x; /**< Shift X coordinate at which the screen_shift is aiming towards zooming. */
-  long screen_shift_aimed_y;
+  float screen_shift_x; /**< Shift X coordinate for top left corner of the visible land picture area. Acts as the final shift in both zoom and non-zoom modes. */
+  float screen_shift_y; /**< Shift Y coordinate for top left corner of the visible land picture area. */
+  float precise_scrshift_x; /**< Precise shift X for top left corner of the visible land picture area. Extended precision version, used as source for scrshift_x while zooming. */
+  float precise_scrshift_y; /**< Precise shift Y for top left corner of the visible land picture area. */
+  float velocity_x; /**< Velocity at which screen_shift_x is being changed. */
+  float velocity_y; /**< Velocity at which screen_shift_y is being changed. */
+  float hotspot_shift_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Set to top left corner of an area which would have the ensign in center. */
+  float hotspot_shift_y;
+  float screen_shift_aimed_x; /**< Shift X coordinate at which the screen_shift is aiming towards zooming. */
+  float screen_shift_aimed_y;
+};
+
+enum NetStatusLayout {
+    NetStat_PlayerConnected       = 0x01,
+    NetStat_ComputerPlayersMask   = 0x06,
+    NetStat_ComputerPlayersShift  = 1,
+    NetStat_NonActionMask         = 0x07,
+    NetStat_ActionMask            = 0xF8,
+};
+
+enum NetAction {
+    NetAct_None               = 0x00,
+    NetAct_Slapping           = 0x08,
+    NetAct_Limping            = 0x10,
+    NetAct_HostStartLevel     = 0x18,
+    NetAct_SetAlliance        = 0x20,
+    NetAct_SetComputerPlayers = 0x38,
 };
 
 struct ScreenPacket {
-  unsigned char field_0[4];
-  unsigned char field_4;
+  unsigned char networkstatus_flags;
   char frontend_alliances;
-  short field_6;
-  short field_8;
-  short param1;
-  unsigned char param2;
+  short stored_data1; // Can contain: hand_position_x or other frontend-specific temporary data
+  short stored_data2; // Can contain: hand_position_y or other frontend-specific temporary data
+  short action_par1;
+  unsigned char action_par2;
 };
+
+static inline unsigned char screen_packet_action(const struct ScreenPacket *nspck) {
+    return nspck->networkstatus_flags & NetStat_ActionMask;
+}
+
+static inline void screen_packet_set_action(struct ScreenPacket *nspck, unsigned char action) {
+    nspck->networkstatus_flags = (nspck->networkstatus_flags & NetStat_NonActionMask) | action;
+}
 
 /******************************************************************************/
 extern TbClockMSec play_desc_speech_time;
@@ -82,9 +106,7 @@ extern struct TbSpriteSheet *map_hand;
 extern long map_sound_fade;
 extern unsigned char *map_screen;
 extern long fe_net_level_selected;
-extern long net_map_limp_time;
 extern struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
-extern long players_currently_in_session;
 
 #pragma pack()
 /******************************************************************************/
@@ -104,7 +126,9 @@ void frontmap_unload(void);
 long frontmap_update(void);
 void frontzoom_to_point(long a1, long a2, long a3);
 void compressed_window_draw(void);
-void frontnet_init_level_descriptions(void);
+const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame);
+void set_level_name_text(LevelNumber lvnum, const char *lv_name);
+void draw_map_level_descriptions(void);
 
 TbBool initialize_description_speech(void);
 TbBool play_current_description_speech(short play_good);

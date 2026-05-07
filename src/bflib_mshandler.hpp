@@ -36,16 +36,13 @@ class MouseStateHandler {
     bool Install(void);
     bool IsInstalled(void);
     bool Release(void);
-    struct TbPoint *GetPosition(void);
     bool SetMousePosition(long x, long y);
     bool SetPosition(long x, long y);
-    const struct TbSprite *GetPointer(void);
     bool SetMousePointerAndOffset(const struct TbSprite *mouseSprite, long x, long y);
     bool SetMousePointer(const struct TbSprite *mouseSprite);
     bool SetPointerOffset(long x, long y);
     struct TbPoint *GetPointerOffset(void);
     bool SetMouseWindow(long x, long y,long width, long height);
-    bool GetMouseWindow(struct TbRect *windowRect);
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
  protected:

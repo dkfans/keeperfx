@@ -40,6 +40,7 @@
 #include "thing_creature.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
+#include "thing_shots.h"
 
 #include "post_inc.h"
 
@@ -98,6 +99,7 @@ const struct NamedCommand spell_effect_flags[] = {
     {"TELEPORT",      CSAfF_Teleport},
     {"TIMEBOMB",      CSAfF_Timebomb},
     {"WIND",          CSAfF_Wind},
+    {"SPELL_BLOCKS",  CSAfF_SpellBlocks},
     {NULL,            0},
 };
 
@@ -108,70 +110,192 @@ const struct NamedCommand magic_spell_properties[] = {
     {NULL,              0},
 };
 
-const struct NamedCommand magic_shot_commands[] = {
-  {"NAME",                   1},
-  {"HEALTH",                 2},
-  {"DAMAGE",                 3},
-  {"ISMAGICAL",              4},
-  {"HITTYPE",                5},
-  {"AREADAMAGE",             6},
-  {"SPEED",                  7},
-  {"PROPERTIES",             8},
-  {"PUSHONHIT",              9},
-  {"FIRINGSOUND",           10},
-  {"SHOTSOUND",             11},
-  {"FIRINGSOUNDVARIANTS",   12},
-  {"MAXRANGE",              13},
-  {"ANIMATION",             14},
-  {"ANIMATIONSIZE",         15},
-  {"SPELLEFFECT",           16},
-  {"BOUNCEANGLE",           17},
-  {"SIZE_XY",               18},
-  {"SIZE_YZ",               19},
-  {"SIZE_Z",                19},
-  {"FALLACCELERATION",      20},
-  {"VISUALEFFECT",          21},
-  {"VISUALEFFECTAMOUNT",    22},
-  {"VISUALEFFECTSPREAD",    23},
-  {"VISUALEFFECTHEALTH",    24},
-  {"HITWALLEFFECT",         25},
-  {"HITWALLSOUND",          26},
-  {"HITCREATUREEFFECT",     27},
-  {"HITCREATURESOUND",      28},
-  {"HITDOOREFFECT",         29},
-  {"HITDOORSOUND",          30},
-  {"HITWATEREFFECT",        31},
-  {"HITWATERSOUND",         32},
-  {"HITLAVAEFFECT",         33},
-  {"HITLAVASOUND",          34},
-  {"DIGHITEFFECT",          35},
-  {"DIGHITSOUND",           36},
-  {"EXPLOSIONEFFECTS",      37},
-  {"WITHSTANDHITAGAINST",   38},
-  {"ANIMATIONTRANSPARENCY", 39},
-  {"DESTROYONHIT",          40},
-  {"BASEEXPERIENCEGAIN",    41},
-  {"TARGETHITSTOPTURNS",    42},
-  {"SHOTSOUNDPRIORITY",     43},
-  {"LIGHTING",              44},
-  {"INERTIA",               45},
-  {"UNSHADED",              46},
-  {"SOFTLANDING",           47},
-  {"EFFECTMODEL",           48},
-  {"FIRELOGIC",             49},
-  {"UPDATELOGIC",           50},
-  {"EFFECTSPACING",         51},
-  {"EFFECTAMOUNT",          52},
-  {"HITHEARTEFFECT",        53},
-  {"HITHEARTSOUND",         54},
-  {"BLEEDINGEFFECT",        55},
-  {"FROZENEFFECT",          56},
-  {"PERIODICAL",            57},
-  {"SPEEDDEVIATION",        58},
-  {"SPREAD_XY",             59},
-  {"SPREAD_Z",              60},
-  {NULL,                     0},
+static const struct NamedCommand shotmodel_properties_commands[] = {
+  {"SLAPPABLE",           ShMF_Slappable       },
+  {"NAVIGABLE",           ShMF_Navigable       },
+  {"BOULDER",             ShMF_Boulder         },
+  {"REBOUND_IMMUNE",      ShMF_ReboundImmune   },
+  {"DIGGING",             ShMF_Digging         },
+  {"LIFE_DRAIN",          ShMF_LifeDrain       },
+  {"GROUP_UP",            ShMF_GroupUp         },
+  {"NO_STUN",             ShMF_NoStun          },
+  {"NO_HIT",              ShMF_NoHit           },
+  {"STRENGTH_BASED",      ShMF_StrengthBased   },
+  {"ALARMS_UNITS",        ShMF_AlarmsUnits     },
+  {"CAN_COLLIDE",         ShMF_CanCollide      },
+  {"EXPLODE_FLESH",       ShMF_Exploding       },
+  {"NO_AIR_DAMAGE",       ShMF_NoAirDamage     },
+  {"WIND_IMMUNE",         ShMF_WindImmune      },
+  {"FIXED_DAMAGE",        ShMF_FixedDamage     },
+  {"HIDDEN_PROJECTILE",   ShMF_HiddenProjectile},
+  {"DISARMING",           ShMF_Disarming       },
+  {"BLOCKS_REBIRTH",      ShMF_BlocksRebirth   },
+  {"PENETRATING",         ShMF_Penetrating     },
+  {"NEVER_BLOCK",         ShMF_NeverBlock      },
+  {"WALL_PIERCE",         ShMF_WallPierce      },
+  {NULL,                  0},
+};
+
+enum ShotHitWithstandFlags {
+    ShHW_Creature = 0x1,
+    ShHW_Wall = 0x2,
+    ShHW_Door = 0x4,
+    ShHW_Water = 0x8,
+    ShHW_Lava = 0x10,
+    ShHW_Dig = 0x20,
+};
+
+static const struct NamedCommand shotmodel_withstand_types[] = {
+  {"CREATURE",      ShHW_Creature},
+  {"WALL",          ShHW_Wall},
+  {"DOOR",          ShHW_Door},
+  {"WATER",         ShHW_Water},
+  {"LAVA",          ShHW_Lava},
+  {"DIG",           ShHW_Dig},
+  {NULL,            0},
+};
+
+static void assign_withstand(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    struct ShotConfigStats* shotst = get_shot_model_stats(idx);
+
+    shotst->hit_creature.withstand = (value & ShHW_Creature) ? 1 : 0;
+    shotst->hit_generic.withstand  = (value & ShHW_Wall) ? 1 : 0;
+    shotst->hit_door.withstand     = (value & ShHW_Door) ? 1 : 0;
+    shotst->hit_water.withstand    = (value & ShHW_Water) ? 1 : 0;
+    shotst->hit_lava.withstand     = (value & ShHW_Lava) ? 1 : 0;
+    shotst->dig.withstand          = (value & ShHW_Dig) ? 1 : 0;
+}
+
+
+static const struct NamedCommand shotfirelogic_commands[] = {
+    {"DEFAULT",      ShFL_Default},
+    {"0",            ShFL_Default},
+    {"BEAM",         ShFL_Beam},
+    {"1",            ShFL_Beam},
+    {"BREATHE",      ShFL_Breathe},
+    {"2",            ShFL_Breathe},
+    {"HAIL",         ShFL_Hail},
+    {"3",            ShFL_Hail},
+    {"LIZARD",       ShFL_Lizard},
+    {"4",            ShFL_Lizard},
+    {"VOLLEY",       ShFL_Volley},
+    {"5",            ShFL_Volley},
+    {NULL,            0},
+};
+
+static const struct NamedCommand shotupdatelogic_commands[] = {
+    {"DEFAULT",      ShUL_Default},
+    {"0",            ShUL_Default},
+    {"LIGHTNING",    ShUL_Lightning},
+    {"1",            ShUL_Lightning},
+    {"WIND",         ShUL_Wind},
+    {"2",            ShUL_Wind},
+    {"GRENADE",      ShUL_Grenade},
+    {"3",            ShUL_Grenade},
+    {"GODLIGHTNING", ShUL_GodLightning},
+    {"4",            ShUL_GodLightning},
+    {"LIZARD",       ShUL_Lizard},
+    {"5",            ShUL_Lizard},
+    {"GODLIGHTBALL", ShUL_GodLightBall},
+    {"6",            ShUL_GodLightBall},
+    {"TRAPTNT",      ShUL_TrapTNT},
+    {"7",            ShUL_TrapTNT},
+    {"TRAPLIGHTNING",ShUL_TrapLightning},
+    {"8",            ShUL_TrapLightning},
+    {NULL,            0},
+};
+
+const struct NamedField magic_shot_named_fields[] = {
+  {"NAME",                  0, field(game.conf.magic_conf.shot_cfgstats[0].code_name),                   0,  INT32_MIN,  UINT32_MAX, shot_desc,                    value_name,      assign_null},
+  {"HEALTH",                0, field(game.conf.magic_conf.shot_cfgstats[0].health),                      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"DAMAGE",                0, field(game.conf.magic_conf.shot_cfgstats[0].damage),                      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"ISMAGICAL",             0, field(game.conf.magic_conf.shot_cfgstats[0].is_magical),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITTYPE",               0, field(game.conf.magic_conf.shot_cfgstats[0].area_hit_type),  THit_CrtrsOnly,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"AREADAMAGE",            0, field(game.conf.magic_conf.shot_cfgstats[0].area_range),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"AREADAMAGE",            1, field(game.conf.magic_conf.shot_cfgstats[0].area_damage),                 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"AREADAMAGE",            2, field(game.conf.magic_conf.shot_cfgstats[0].area_blow),                   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SPEED",                 0, field(game.conf.magic_conf.shot_cfgstats[0].speed),                       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"PROPERTIES",           -1, field(game.conf.magic_conf.shot_cfgstats[0].model_flags),                 0,  INT32_MIN,  UINT32_MAX, shotmodel_properties_commands,value_flagsfield,assign_default},
+  {"PUSHONHIT",             0, field(game.conf.magic_conf.shot_cfgstats[0].push_on_hit),                 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"FIRINGSOUND",           0, field(game.conf.magic_conf.shot_cfgstats[0].firing_sound),                0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SHOTSOUND",             0, field(game.conf.magic_conf.shot_cfgstats[0].shot_sound),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"FIRINGSOUNDVARIANTS",   0, field(game.conf.magic_conf.shot_cfgstats[0].firing_sound_variants),       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"MAXRANGE",              0, field(game.conf.magic_conf.shot_cfgstats[0].max_range),                   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"ANIMATION",             0, field(game.conf.magic_conf.shot_cfgstats[0].sprite_anim_idx),             0,  INT32_MIN,  UINT32_MAX, NULL,                         value_animid,    assign_animid},
+  {"ANIMATIONSIZE",         0, field(game.conf.magic_conf.shot_cfgstats[0].sprite_size_max),             0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SPELLEFFECT",           0, field(game.conf.magic_conf.shot_cfgstats[0].cast_spell_kind ),            0,  INT32_MIN,  UINT32_MAX, spell_desc,                   value_default,   assign_default},
+  {"BOUNCEANGLE",           0, field(game.conf.magic_conf.shot_cfgstats[0].bounce_angle),                0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SIZE_XY",               0, field(game.conf.magic_conf.shot_cfgstats[0].size_xy),                     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SIZE_YZ",               0, field(game.conf.magic_conf.shot_cfgstats[0].size_z),                      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SIZE_Z",                0, field(game.conf.magic_conf.shot_cfgstats[0].size_z),                      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"FALLACCELERATION",      0, field(game.conf.magic_conf.shot_cfgstats[0].fall_acceleration),           0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"VISUALEFFECT",          0, field(game.conf.magic_conf.shot_cfgstats[0].visual.effect_model),         0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"VISUALEFFECTAMOUNT",    0, field(game.conf.magic_conf.shot_cfgstats[0].visual.amount),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"VISUALEFFECTSPREAD",    0, field(game.conf.magic_conf.shot_cfgstats[0].visual.random_range),         0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"VISUALEFFECTHEALTH",    0, field(game.conf.magic_conf.shot_cfgstats[0].visual.shot_health),          0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITWALLEFFECT",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_generic.effect_model),    0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"HITWALLSOUND",          0, field(game.conf.magic_conf.shot_cfgstats[0].hit_generic.sndsample_idx),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITWALLSOUND",          1, field(game.conf.magic_conf.shot_cfgstats[0].hit_generic.sndsample_range),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITCREATUREEFFECT",     0, field(game.conf.magic_conf.shot_cfgstats[0].hit_creature.effect_model),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"HITCREATURESOUND",      0, field(game.conf.magic_conf.shot_cfgstats[0].hit_creature.sndsample_idx),  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITCREATURESOUND",      1, field(game.conf.magic_conf.shot_cfgstats[0].hit_creature.sndsample_range),  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITDOOREFFECT",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_door.effect_model),       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"HITDOORSOUND",          0, field(game.conf.magic_conf.shot_cfgstats[0].hit_door.sndsample_idx),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITDOORSOUND",          1, field(game.conf.magic_conf.shot_cfgstats[0].hit_door.sndsample_range),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITWATEREFFECT",        0, field(game.conf.magic_conf.shot_cfgstats[0].hit_water.effect_model),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"HITWATERSOUND",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_water.sndsample_idx),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITWATERSOUND",         1, field(game.conf.magic_conf.shot_cfgstats[0].hit_water.sndsample_range),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITLAVAEFFECT",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_lava.effect_model),       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"HITLAVASOUND",          0, field(game.conf.magic_conf.shot_cfgstats[0].hit_lava.sndsample_idx),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITLAVASOUND",          1, field(game.conf.magic_conf.shot_cfgstats[0].hit_lava.sndsample_range),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"DIGHITEFFECT",          0, field(game.conf.magic_conf.shot_cfgstats[0].dig.effect_model),            0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"DIGHITSOUND",           0, field(game.conf.magic_conf.shot_cfgstats[0].dig.sndsample_idx),           0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"DIGHITSOUND",           1, field(game.conf.magic_conf.shot_cfgstats[0].dig.sndsample_range),           0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"EXPLOSIONEFFECTS",      0, field(game.conf.magic_conf.shot_cfgstats[0].explode.effect1_model),       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"EXPLOSIONEFFECTS",      1, field(game.conf.magic_conf.shot_cfgstats[0].explode.effect2_model),       0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"EXPLOSIONEFFECTS",      2, field(game.conf.magic_conf.shot_cfgstats[0].explode.around_effect1_model),0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"EXPLOSIONEFFECTS",      3, field(game.conf.magic_conf.shot_cfgstats[0].explode.around_effect2_model),0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"WITHSTANDHITAGAINST",  -1, NULL,0,                                                                   0,  INT32_MIN,  INT32_MAX,  shotmodel_withstand_types,    value_flagsfield,   assign_withstand},
+  {"ANIMATIONTRANSPARENCY", 0, field(game.conf.magic_conf.shot_cfgstats[0].animation_transparency),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"DESTROYONHIT",          0, field(game.conf.magic_conf.shot_cfgstats[0].destroy_on_first_hit),        0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"BASEEXPERIENCEGAIN",    0, field(game.conf.magic_conf.shot_cfgstats[0].experience_given_to_shooter), 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"TARGETHITSTOPTURNS",    0, field(game.conf.magic_conf.shot_cfgstats[0].target_hitstop_turns),        0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SHOTSOUNDPRIORITY",     0, field(game.conf.magic_conf.shot_cfgstats[0].sound_priority),              0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"LIGHTING",              0, field(game.conf.magic_conf.shot_cfgstats[0].light_radius),                0,  INT32_MIN,  UINT32_MAX, NULL,                         value_stltocoord,   assign_default},
+  {"LIGHTING",              1, field(game.conf.magic_conf.shot_cfgstats[0].light_intensity),             0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"LIGHTING",              2, field(game.conf.magic_conf.shot_cfgstats[0].light_flags),                 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"INERTIA",               0, field(game.conf.magic_conf.shot_cfgstats[0].inertia_floor),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"INERTIA",               1, field(game.conf.magic_conf.shot_cfgstats[0].inertia_air),                 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"UNSHADED",              0, field(game.conf.magic_conf.shot_cfgstats[0].unshaded),                    0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SOFTLANDING",           0, field(game.conf.magic_conf.shot_cfgstats[0].soft_landing),                0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"EFFECTMODEL",           0, field(game.conf.magic_conf.shot_cfgstats[0].effect_id),                   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"FIRELOGIC",             0, field(game.conf.magic_conf.shot_cfgstats[0].fire_logic),                  0,  INT32_MIN,  UINT32_MAX, shotfirelogic_commands,       value_default,   assign_default},
+  {"UPDATELOGIC",           0, field(game.conf.magic_conf.shot_cfgstats[0].update_logic),                0,  INT32_MIN,  UINT32_MAX, shotupdatelogic_commands,     value_function,   assign_default},
+  {"EFFECTSPACING",         0, field(game.conf.magic_conf.shot_cfgstats[0].effect_spacing),              0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"EFFECTAMOUNT",          0, field(game.conf.magic_conf.shot_cfgstats[0].effect_amount),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITHEARTEFFECT",        0, field(game.conf.magic_conf.shot_cfgstats[0].hit_heart.effect_model),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"HITHEARTSOUND",         0, field(game.conf.magic_conf.shot_cfgstats[0].hit_heart.sndsample_idx),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITHEARTSOUND",         1, field(game.conf.magic_conf.shot_cfgstats[0].hit_heart.sndsample_range),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"BLEEDINGEFFECT",        0, field(game.conf.magic_conf.shot_cfgstats[0].effect_bleeding),             0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"FROZENEFFECT",          0, field(game.conf.magic_conf.shot_cfgstats[0].effect_frozen),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
+  {"PERIODICAL",            0, field(game.conf.magic_conf.shot_cfgstats[0].periodical),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SPEEDDEVIATION",        0, field(game.conf.magic_conf.shot_cfgstats[0].speed_deviation),             0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SPREAD_XY",             0, field(game.conf.magic_conf.shot_cfgstats[0].spread_xy),                   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"SPREAD_Z",              0, field(game.conf.magic_conf.shot_cfgstats[0].spread_z),                    0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITTHINGFUNC",          0, field(game.conf.magic_conf.shot_cfgstats[0].hit_thing_lua_func_idx),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_function,   assign_default},
+  {NULL},
   };
+
+const struct NamedFieldSet magic_shot_named_fields_set = {
+    &game.conf.magic_conf.shot_types_count,
+    "shot",
+    magic_shot_named_fields,
+    shot_desc,
+    MAGIC_ITEMS_MAX,
+    sizeof(game.conf.magic_conf.shot_cfgstats[0]),
+    game.conf.magic_conf.shot_cfgstats,
+};
 
 const struct NamedCommand magic_power_commands[] = {
   {"NAME",            1},
@@ -208,42 +332,6 @@ const struct NamedCommand magic_special_commands[] = {
   {"ACTIVATIONEFFECT", 5},
   {"VALUE",            6},
   {NULL,               0},
-  };
-
-
-const struct NamedCommand shotmodel_withstand_types[] = {
-  {"CREATURE",      1},
-  {"WALL",          2},
-  {"DOOR",          3},
-  {"WATER",         4},
-  {"LAVA",          5},
-  {"DIG",           6},
-  {NULL,            0},
-};
-
-const struct NamedCommand shotmodel_properties_commands[] = {
-  {"SLAPPABLE",            1},
-  {"NAVIGABLE",            2},
-  {"BOULDER",              3},
-  {"REBOUND_IMMUNE",       4},
-  {"DIGGING",              5},
-  {"LIFE_DRAIN",           6},
-  {"GROUP_UP",             7},
-  {"NO_STUN",              8},
-  {"NO_HIT",               9},
-  {"STRENGTH_BASED",      10},
-  {"ALARMS_UNITS",        11},
-  {"CAN_COLLIDE",         12},
-  {"EXPLODE_FLESH",       13},
-  {"NO_AIR_DAMAGE",       14},
-  {"WIND_IMMUNE",         15},
-  {"FIXED_DAMAGE",        16},
-  {"HIDDEN_PROJECTILE",   17},
-  {"DISARMING",           18},
-  {"BLOCKS_REBIRTH",      19},
-  {"PENETRATING",         20},
-  {"NEVER_BLOCK",         21},
-  {NULL,                   0},
   };
 
 const struct LongNamedCommand powermodel_castability_commands[] = {
@@ -285,6 +373,10 @@ const struct LongNamedCommand powermodel_castability_commands[] = {
   {"ALL_GROUND",       PwCast_AllGround},
   {"NOT_ENEMY_GROUND", PwCast_NotEnemyGround},
   {"ALL_TALL",         PwCast_AllTall},
+  {"ALL_OBJECTS",      PwCast_AllObjects},
+  {"OWNED_OBJECTS",    PwCast_OwnedObjects},
+  {"NEUTRL_OBJECTS",   PwCast_NeutrlObjects},
+  {"ENEMY_OBJECTS",    PwCast_EnemyObjects},
   {NULL,                0},
   };
 
@@ -360,47 +452,47 @@ static void assign_strength_before_last(const struct NamedField* named_field, in
 
 static const struct NamedField magic_powers_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
-    {"NAME",           0, field(game.conf.magic_conf.power_cfgstats[0].code_name),              0, LONG_MIN,ULONG_MAX, power_desc,                          value_name,      assign_null},
-    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          1, field(game.conf.magic_conf.power_cfgstats[0].strength[1]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          2, field(game.conf.magic_conf.power_cfgstats[0].strength[2]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          3, field(game.conf.magic_conf.power_cfgstats[0].strength[3]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          4, field(game.conf.magic_conf.power_cfgstats[0].strength[4]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          5, field(game.conf.magic_conf.power_cfgstats[0].strength[5]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          6, field(game.conf.magic_conf.power_cfgstats[0].strength[6]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          7, field(game.conf.magic_conf.power_cfgstats[0].strength[7]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[8]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_strength_before_last},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[9]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           1, field(game.conf.magic_conf.power_cfgstats[0].cost[1]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           2, field(game.conf.magic_conf.power_cfgstats[0].cost[2]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           3, field(game.conf.magic_conf.power_cfgstats[0].cost[3]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           4, field(game.conf.magic_conf.power_cfgstats[0].cost[4]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           5, field(game.conf.magic_conf.power_cfgstats[0].cost[5]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           6, field(game.conf.magic_conf.power_cfgstats[0].cost[6]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0, LONG_MIN,ULONG_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
-    {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, LONG_MIN,ULONG_MAX, object_desc,                         value_default,   assign_artifact},
-    {"NAMETEXTID",     0, field(game.conf.magic_conf.power_cfgstats[0].name_stridx),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"TOOLTIPTEXTID",  0, field(game.conf.magic_conf.power_cfgstats[0].tooltip_stridx),         0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"SYMBOLSPRITES",  0, field(game.conf.magic_conf.power_cfgstats[0].bigsym_sprite_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
-    {"SYMBOLSPRITES",  1, field(game.conf.magic_conf.power_cfgstats[0].medsym_sprite_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
-    {"POINTERSPRITES", 0, field(game.conf.magic_conf.power_cfgstats[0].pointer_sprite_idx),     0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
-    {"PANELTABINDEX",  0, field(game.conf.magic_conf.power_cfgstats[0].panel_tab_idx),          0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"SOUNDSAMPLES",   0, field(game.conf.magic_conf.power_cfgstats[0].select_sample_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"PROPERTIES",     0, field(game.conf.magic_conf.power_cfgstats[0].config_flags),           0, LONG_MIN,ULONG_MAX, powermodel_properties_commands,      value_flagsfield,assign_default},
-    {"CASTEXPANDFUNC", 0, field(game.conf.magic_conf.power_cfgstats[0].overcharge_check_idx),   0, LONG_MIN,ULONG_MAX, powermodel_expand_check_func_type,   value_default,   assign_default},
-    {"PLAYERSTATE",    0, field(game.conf.magic_conf.power_cfgstats[0].work_state),             0, LONG_MIN,ULONG_MAX, player_state_commands,               value_default,   assign_default},
-    {"PARENTPOWER",    0, field(game.conf.magic_conf.power_cfgstats[0].parent_power),           0, LONG_MIN,ULONG_MAX, power_desc,                          value_default,   assign_default},
-    {"SOUNDPLAYED",    0, field(game.conf.magic_conf.power_cfgstats[0].select_sound_idx),       0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COOLDOWN",       0, field(game.conf.magic_conf.power_cfgstats[0].cast_cooldown),          0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"SPELL",          0, field(game.conf.magic_conf.power_cfgstats[0].spell_idx),              0, LONG_MIN,ULONG_MAX, spell_desc,                          value_default,   assign_default},
-    {"EFFECT",         0, field(game.conf.magic_conf.power_cfgstats[0].effect_id),              0, LONG_MIN,ULONG_MAX, NULL,                                value_effOrEffEl,assign_default},
-    {"USEFUNCTION",    0, field(game.conf.magic_conf.power_cfgstats[0].magic_use_func_idx),     0, LONG_MIN,ULONG_MAX, magic_use_func_commands,             value_default,   assign_default},
-    {"CREATURETYPE",   0, field(game.conf.magic_conf.power_cfgstats[0].creature_model),         0, LONG_MIN,ULONG_MAX, creature_desc,                       value_default,   assign_default},
-    {"COSTFORMULA",    0, field(game.conf.magic_conf.power_cfgstats[0].cost_formula),           0, LONG_MIN,ULONG_MAX, magic_cost_formula_commands,         value_default,   assign_default},
+    {"NAME",           0, field(game.conf.magic_conf.power_cfgstats[0].code_name),              0, INT32_MIN,UINT32_MAX, power_desc,                          value_name,      assign_null},
+    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          1, field(game.conf.magic_conf.power_cfgstats[0].strength[1]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          2, field(game.conf.magic_conf.power_cfgstats[0].strength[2]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          3, field(game.conf.magic_conf.power_cfgstats[0].strength[3]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          4, field(game.conf.magic_conf.power_cfgstats[0].strength[4]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          5, field(game.conf.magic_conf.power_cfgstats[0].strength[5]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          6, field(game.conf.magic_conf.power_cfgstats[0].strength[6]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          7, field(game.conf.magic_conf.power_cfgstats[0].strength[7]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[8]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_strength_before_last},
+    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[9]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           1, field(game.conf.magic_conf.power_cfgstats[0].cost[1]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           2, field(game.conf.magic_conf.power_cfgstats[0].cost[2]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           3, field(game.conf.magic_conf.power_cfgstats[0].cost[3]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           4, field(game.conf.magic_conf.power_cfgstats[0].cost[4]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           5, field(game.conf.magic_conf.power_cfgstats[0].cost[5]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           6, field(game.conf.magic_conf.power_cfgstats[0].cost[6]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0,         0,UINT64_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
+    {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, INT32_MIN,UINT32_MAX, object_desc,                         value_default,   assign_artifact},
+    {"NAMETEXTID",     0, field(game.conf.magic_conf.power_cfgstats[0].name_stridx),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"TOOLTIPTEXTID",  0, field(game.conf.magic_conf.power_cfgstats[0].tooltip_stridx),         0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"SYMBOLSPRITES",  0, field(game.conf.magic_conf.power_cfgstats[0].bigsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
+    {"SYMBOLSPRITES",  1, field(game.conf.magic_conf.power_cfgstats[0].medsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
+    {"POINTERSPRITES", 0, field(game.conf.magic_conf.power_cfgstats[0].pointer_sprite_idx),     0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
+    {"PANELTABINDEX",  0, field(game.conf.magic_conf.power_cfgstats[0].panel_tab_idx),          0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"SOUNDSAMPLES",   0, field(game.conf.magic_conf.power_cfgstats[0].select_sample_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"PROPERTIES",     0, field(game.conf.magic_conf.power_cfgstats[0].config_flags),           0, INT32_MIN,UINT32_MAX, powermodel_properties_commands,      value_flagsfield,assign_default},
+    {"CASTEXPANDFUNC", 0, field(game.conf.magic_conf.power_cfgstats[0].overcharge_check_idx),   0, INT32_MIN,UINT32_MAX, powermodel_expand_check_func_type,   value_default,   assign_default},
+    {"PLAYERSTATE",    0, field(game.conf.magic_conf.power_cfgstats[0].work_state),             0, INT32_MIN,UINT32_MAX, player_state_commands,               value_default,   assign_default},
+    {"PARENTPOWER",    0, field(game.conf.magic_conf.power_cfgstats[0].parent_power),           0, INT32_MIN,UINT32_MAX, power_desc,                          value_default,   assign_default},
+    {"SOUNDPLAYED",    0, field(game.conf.magic_conf.power_cfgstats[0].select_sound_idx),       0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COOLDOWN",       0, field(game.conf.magic_conf.power_cfgstats[0].cast_cooldown),          0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"SPELL",          0, field(game.conf.magic_conf.power_cfgstats[0].spell_idx),              0, INT32_MIN,UINT32_MAX, spell_desc,                          value_default,   assign_default},
+    {"EFFECT",         0, field(game.conf.magic_conf.power_cfgstats[0].effect_id),              0, INT32_MIN,UINT32_MAX, NULL,                                value_effOrEffEl,assign_default},
+    {"USEFUNCTION",    0, field(game.conf.magic_conf.power_cfgstats[0].magic_use_func_idx),     0, INT32_MIN,UINT32_MAX, magic_use_func_commands,             value_function,  assign_default},
+    {"CREATURETYPE",   0, field(game.conf.magic_conf.power_cfgstats[0].creature_model),         0, INT32_MIN,UINT32_MAX, creature_desc,                       value_default,   assign_default},
+    {"COSTFORMULA",    0, field(game.conf.magic_conf.power_cfgstats[0].cost_formula),           0, INT32_MIN,UINT32_MAX, magic_cost_formula_commands,         value_default,   assign_default},
     {NULL},
 };
 
@@ -450,16 +542,16 @@ TextStringId get_power_description_strindex(PowerKind pwkind)
   return game.conf.magic_conf.power_cfgstats[pwkind].tooltip_stridx;
 }
 
-long get_special_description_strindex(int spckind)
+int32_t get_special_description_strindex(int spckind)
 {
   if ((spckind < 0) || (spckind >= game.conf.magic_conf.power_types_count))
     return game.conf.magic_conf.special_cfgstats[0].tooltip_stridx;
   return game.conf.magic_conf.special_cfgstats[spckind].tooltip_stridx;
 }
 
-long get_power_index_for_work_state(long work_state)
+int32_t get_power_index_for_work_state(int32_t work_state)
 {
-    for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
+    for (int32_t i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         if (game.conf.magic_conf.power_cfgstats[i].work_state == work_state) {
             return i;
@@ -563,7 +655,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   // Load the file
   const char * blockname = NULL;
   int blocknamelen = 0;
-  long pos = 0;
+  int32_t pos = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "spell", followed by one or more digits
@@ -993,1100 +1085,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   return true;
 }
 
-TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  struct ShotConfigStats *shotst;
-  // Initialize the array
-  for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
-    shotst = &game.conf.magic_conf.shot_cfgstats[i];
-    if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(shotst->code_name) <= 0))
-    {
-        if (flag_is_set(flags, CnfLd_ListOnly))
-        {
-            memset(shotst->code_name, 0, COMMAND_WORD_LEN);
-            shot_desc[i].name = shotst->code_name;
-            shot_desc[i].num = i;
-        }
-      shotst->model_flags = 0;
-      shotst->area_hit_type = THit_CrtrsOnly;
-      shotst->area_range = 0;
-      shotst->area_damage = 0;
-      shotst->area_blow = 0;
-      shotst->bounce_angle = 0;
-      shotst->damage = 0;
-      shotst->fall_acceleration = 0;
-      shotst->hidden_projectile = 0;
-      shotst->hit_door.withstand = 0;
-      shotst->hit_generic.withstand = 0;
-      shotst->hit_lava.withstand = 0;
-      shotst->hit_water.withstand = 0;
-      shotst->no_air_damage = 0;
-      shotst->push_on_hit = 0;
-      shotst->max_range = 0;
-      shotst->size_xy = 0;
-      shotst->size_z = 0;
-      shotst->speed = 0;
-      shotst->destroy_on_first_hit = 0;
-      shotst->experience_given_to_shooter = 0;
-      shotst->wind_immune = 0;
-      shotst->animation_transparency = 0;
-      shotst->fixed_damage = 0;
-      shotst->sound_priority = 0;
-      shotst->light_radius = 0;
-      shotst->light_intensity = 0;
-      shotst->lightf_53 = 0;
-      shotst->inertia_air = 0;
-      shotst->inertia_floor = 0;
-      shotst->target_hitstop_turns = 0;
-      shotst->soft_landing = 0;
-      shotst->periodical = 0;
-    }
-  }
-  shot_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
-  // Load the file
-  const char * blockname = NULL;
-  int blocknamelen = 0;
-  long pos = 0;
-  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
-  {
-    // look for blocks starting with "shot", followed by one or more digits
-    if (blocknamelen < 5) {
-        continue;
-    } else if (memcmp(blockname, "shot", 4) != 0) {
-        continue;
-    }
-    const int i = natoi(&blockname[4], blocknamelen - 4);
-    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
-        continue;
-    } else if (i >= game.conf.magic_conf.shot_types_count) {
-        game.conf.magic_conf.shot_types_count = i + 1;
-    }
-    shotst = &game.conf.magic_conf.shot_cfgstats[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_shot_commands,cmd_num)
-    while (pos < len)
-    {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, magic_shot_commands);
-      // Now store the config item in correct place
-      if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      //Do the name when listing, the rest when not listing.
-      if ((flag_is_set(flags, CnfLd_ListOnly) && cmd_num > 1) || (!flag_is_set(flags, CnfLd_ListOnly) && cmd_num <= 1))
-      {
-          cmd_num = ccr_comment;
-      }
-      int n = 0, k = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_single(buf, &pos, len, shotst->code_name, COMMAND_WORD_LEN) <= 0)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            break;
-          }
-          else
-          {
-            shot_desc[i].name = shotst->code_name;
-            shot_desc[i].num = i;
-          }
-          n++;
-          break;
-      case 2: // HEALTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            shotst->health = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 3: // DAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            shotst->damage = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 4: // ISMAGICAL
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->is_magical = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 5: // HITTYPE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->area_hit_type = k;
-              n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 6: // AREADAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->area_range = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->area_damage = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->area_blow = k;
-              n++;
-          }
-          if (n < 3)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 7: // SPEED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            shotst->speed = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 8: // PROPERTIES
-          shotst->model_flags = 0;
-          shotst->no_air_damage = 0;
-          shotst->wind_immune = 0;
-          shotst->hidden_projectile = 0;
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = get_id(shotmodel_properties_commands, word_buf);
-            switch (k)
-            {
-            case 1: // SLAPPABLE
-                shotst->model_flags |= ShMF_Slappable;
-                n++;
-                break;
-            case 2: // NAVIGABLE
-                shotst->model_flags |= ShMF_Navigable;
-                n++;
-                break;
-            case 3: // BOULDER
-                shotst->model_flags |= ShMF_Boulder;
-                n++;
-                break;
-            case 4: // REBOUND_IMMUNE
-                shotst->model_flags |= ShMF_ReboundImmune;
-                n++;
-                break;
-            case 5: // DIGGING
-                shotst->model_flags |= ShMF_Digging;
-                n++;
-                break;
-            case 6: // LIFE_DRAIN
-                shotst->model_flags |= ShMF_LifeDrain;
-                n++;
-                break;
-            case 7: // GROUP_UP
-                shotst->model_flags |= ShMF_GroupUp;
-                n++;
-                break;
-            case 8: // NO_STUN
-                shotst->model_flags |= ShMF_NoStun;
-                n++;
-                break;
-            case 9: // NO_HIT
-                shotst->model_flags |= ShMF_NoHit;
-                n++;
-                break;
-            case 10: // STRENGTH_BASED
-                shotst->model_flags |= ShMF_StrengthBased;
-                n++;
-                break;
-            case 11: // ALARMS_UNITS
-                shotst->model_flags |= ShMF_AlarmsUnits;
-                n++;
-                break;
-            case 12: // CAN_COLLIDE
-                shotst->model_flags |= ShMF_CanCollide;
-                n++;
-                break;
-            case 13: // EXPLODE_FLESH
-                shotst->model_flags |= ShMF_Exploding;
-                n++;
-                break;
-            case 14: // NO_AIR_DAMAGE
-                shotst->no_air_damage = 1;
-                n++;
-                break;
-            case 15: // WIND_IMMUNE
-                shotst->wind_immune = 1;
-                n++;
-                break;
-            case 16: // FIXED_DAMAGE
-                shotst->fixed_damage = 1;
-                n++;
-                break;
-            case 17: // HIDDEN_PROJECTILE
-                shotst->hidden_projectile = 1;
-                n++;
-                break;
-            case 18: // DISARMING
-                shotst->model_flags |= ShMF_Disarming;
-                n++;
-                break;
-            case 19: // BlocksRebirth
-                shotst->model_flags |= ShMF_BlocksRebirth;
-                n++;
-                break;
-            case 20: // Penetrating
-                shotst->model_flags |= ShMF_Penetrating;
-                n++;
-                break;
-            case 21: // NeverBlock
-                shotst->model_flags |= ShMF_NeverBlock;
-                n++;
-                break;
-            default:
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
-            }
-          }
-          break;
-      case 9: // PUSHONHIT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->push_on_hit = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-       case 10: //FIRINGSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->firing_sound = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-                   break;
-      case 11: //SHOTSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->shot_sound = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-                   break;
-      case 12: //FIRINGSOUNDVARIANTS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->firing_sound_variants = k;
-              n++;
-          }
-          if (n < 1)
-          {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-                   break;
-      case 13: //MAXRANGE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->max_range = k;
-              n++;
-          }
-          if (n < 1)
-          {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-                   break;
-      case 14: //ANIMATION
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              struct ObjectConfigStats obj_tmp;
-              k = get_anim_id(word_buf, &obj_tmp);
-              shotst->sprite_anim_idx = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 15: //ANIMATIONSIZE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->sprite_size_max = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 16: //SPELLEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              if (parameter_is_number(word_buf))
-              {
-                  k = atoi(word_buf);
-              }
-              else
-              {
-                  k = get_id(spell_desc, word_buf);
-              }
-              if (k >= 0)
-              {
-                  shotst->cast_spell_kind = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 17: //BOUNCEANGLE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->bounce_angle = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 18: //SIZE_XY
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->size_xy = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 19: //SIZE_Z
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->size_z = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 20: //FALLACCELERATION
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->fall_acceleration = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 21: //VISUALEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->visual.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 22: //VISUALEFFECTAMOUNT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->visual.amount = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 23: //VISUALEFFECTSPREAD
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->visual.random_range = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 24: //VISUALEFFECTHEALTH
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->visual.shot_health = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 25: //HITWALLEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->hit_generic.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 26: //HITWALLSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_generic.sndsample_idx = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_generic.sndsample_range = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 27: //HITCREATUREEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->hit_creature.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 28: //HITCREATURESOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_creature.sndsample_idx = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_creature.sndsample_range = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 29: //HITDOOREFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->hit_door.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 30: //HITDOORSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_door.sndsample_idx = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_door.sndsample_range = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 31: //HITWATEREFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->hit_water.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 32: //HITWATERSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_water.sndsample_idx = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_water.sndsample_range = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 33: //HITLAVAEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->hit_lava.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 34: //HITLAVASOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_lava.sndsample_idx = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_lava.sndsample_range = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 35: //DIGHITEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->dig.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 36: //DIGHITSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->dig.sndsample_idx = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->dig.sndsample_range = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 37: // EXPLOSIONEFFECTS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->explode.effect1_model = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->explode.effect2_model = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->explode.around_effect1_model = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->explode.around_effect2_model = k;
-              n++;
-          }
-          if (n < 4)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 38: //WITHSTANDHITAGAINST
-          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(shotmodel_withstand_types, word_buf);
-              switch (k)
-              {
-              case 1: // CREATURE
-                  shotst->hit_creature.withstand = 1;
-                  n++;
-                  break;
-              case 2: // WALL
-                  shotst->hit_generic.withstand = 1;
-                  n++;
-                  break;
-              case 3: // DOOR
-                  shotst->hit_door.withstand = 1;
-                  n++;
-                  break;
-              case 4: // WATER
-                  shotst->hit_water.withstand = 1;
-                  n++;
-                  break;
-              case 5: // LAVA
-                  shotst->hit_lava.withstand = 1;
-                  n++;
-                  break;
-              case 6: // DIG
-                  shotst->dig.withstand = 1;
-                  n++;
-                  break;
-              default:
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
-              }
-          }
-          break;
-      case 39: //ANIMATIONTRANSPARENCY
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->animation_transparency = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 40: //DESTROYONHIT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->destroy_on_first_hit = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 41: //BASEEXPERIENCEGAIN
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->experience_given_to_shooter = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 42: //TARGETHITSTOPTURNS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->target_hitstop_turns = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 43: //SHOTSOUNDPRIORITY
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->sound_priority = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 44: // LIGHTING
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->light_radius = k * COORD_PER_STL;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->light_intensity = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->lightf_53 = k;
-              n++;
-          }
-          if (n < 3)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 45: // INERTIA
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->inertia_floor = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->inertia_air = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 46: //UNSHADED
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->unshaded = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 47: //SOFTLANDING
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->soft_landing = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 48: //EFFECTMODEL
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->effect_id = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 49: //FIRELOGIC
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->fire_logic = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 50: //UPDATELOGIC
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->update_logic = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 51: //EFFECTSPACING
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->effect_spacing = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 52: //EFFECTAMOUNT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->effect_amount = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 53: //HITHEARTEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->hit_heart.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 54: //HITHEARTSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_heart.sndsample_idx = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_heart.sndsample_range = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 55: // BLEEDINGEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->effect_bleeding = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 56: // FROZENEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              shotst->effect_frozen = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 57: // PERIODICAL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            shotst->periodical = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 58: // SPEEDDEVIATION
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->speed_deviation = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 59: // SPREAD_XY
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->spread_xy = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 60: // SPREAD_Z
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->spread_z = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case ccr_comment:
-          break;
-      case ccr_endOfFile:
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-              cmd_num, blocknamelen, blockname,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-    //write_magic_shot_to_log(shotst, i);
-#undef COMMAND_TEXT
-  }
-  return true;
-}
-
 TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpecialConfigStats *specst;
@@ -2107,7 +1105,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
   // Load the file
   const char * blockname = NULL;
   int blocknamelen = 0;
-  long pos = 0;
+  int32_t pos = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "special", followed by one or more digits
@@ -2254,7 +1252,6 @@ static TbBool load_magic_config_file(const char *fname, unsigned short flags)
     }
 
     game.conf.magic_conf.spell_types_count = MAGIC_ITEMS_MAX;
-    game.conf.magic_conf.shot_types_count = MAGIC_ITEMS_MAX;
     game.conf.magic_conf.special_types_count = MAGIC_ITEMS_MAX;
 
     // Loading file data
@@ -2264,7 +1261,7 @@ static TbBool load_magic_config_file(const char *fname, unsigned short flags)
     if (result)
     {
         parse_magic_spell_blocks(buf, len, fname, flags);
-        parse_magic_shot_blocks(buf, len, fname, flags);
+        parse_named_field_blocks(buf, len, fname, flags, &magic_shot_named_fields_set);
         parse_named_field_blocks(buf, len, fname, flags, &magic_powers_named_fields_set);
         parse_magic_special_blocks(buf, len, fname, flags);
     }

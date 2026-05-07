@@ -84,6 +84,9 @@ enum CreatureInstances {
     CrInst_RANGED_SPEED,
     CrInst_RANGED_ARMOUR,
     CrInst_RANGED_REBOUND,
+    CrInst_CRIPPLE,
+    CrInst_CLEANSE,
+    CrInst_RANGED_CLEANSE,
     CrInst_LISTEND,
 };
 
@@ -92,7 +95,7 @@ enum CreatureInstances {
 
 struct Thing;
 
-typedef long (*Creature_Instf_Func)(struct Thing *, long *);
+typedef long (*Creature_Instf_Func)(struct Thing *, int32_t *);
 typedef TbBool (*Creature_Validate_Func)(struct Thing *, struct Thing *, CrInstance, int32_t, int32_t);
 typedef TbBool (*Creature_Target_Search_Func)(struct Thing *, CrInstance, ThingIndex **, uint16_t *, int32_t, int32_t);
 
@@ -110,11 +113,12 @@ struct InstanceInfo {
     short force_visibility;
     unsigned char primary_target;
     unsigned char func_idx;
-    long func_params[2];
+    int32_t func_params[2];
     long range_min;
     long range_max;
     long symbol_spridx;
     short tooltip_stridx;
+    TbBool no_animation_loop;
     // Refer to creature_instances_validate_func_list
     uint8_t validate_source_func;
     int32_t validate_source_func_params[2];
@@ -123,6 +127,8 @@ struct InstanceInfo {
     // Refer to creature_instances_search_targets_func_list
     uint8_t search_func;
     int32_t search_func_params[2];
+    TbBool fp_allow_self_cast_while_frozen;
+    TbBool fp_allow_self_cast_when_chicken;
 };
 
 /******************************************************************************/
@@ -147,15 +153,13 @@ TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
 TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum);
 
 TbBool creature_choose_first_available_instance(struct Thing *thing);
-void creature_increase_available_instances(struct Thing *thing);
+TbBool creature_increase_available_instances(struct Thing *thing);
 TbBool creature_has_ranged_weapon(const struct Thing *thing);
 TbBool creature_has_disarming_weapon(const struct Thing* creatng);
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 TbBool creature_has_weapon_for_postal(const struct Thing *creatng);
 TbBool creature_has_melee_attack(const struct Thing *creatng);
 
-int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
-int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
 TbBool instance_draws_possession_swipe(CrInstance inum);
@@ -180,6 +184,7 @@ TbBool validate_target_benefits_from_wind(struct Thing *source, struct Thing *ta
 TbBool validate_target_benefits_from_healing(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_takes_gas_damage(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1, int32_t param2);
+TbBool validate_target_requires_cleansing(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1, int32_t param2);
 
 TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, uint16_t *found_count, int32_t param1, int32_t param2);
 TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, uint16_t *found_count, int32_t param1, int32_t param2);

@@ -43,7 +43,7 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
+unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
 {
     SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -65,9 +65,24 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         allowed = true;
     }
     unsigned char line_color = allowed;
-    if (player->render_roomspace.untag_mode && allowed)
+    if (allowed)
     {
-        line_color = SLC_YELLOW;
+        if (player->render_roomspace.untag_mode)
+        {
+            line_color = SLC_YELLOW;
+        }
+        else
+        {
+            struct Dungeon* dungeon = get_players_dungeon(player);
+            if ( (player->render_roomspace.drag_mode) && (dungeon->task_count + player->boxsize > MAPTASKS_COUNT) )
+            {
+                line_color = SLC_REDFLASH;
+            }
+            else if (dungeon->task_count >= MAPTASKS_COUNT)
+            {
+                line_color = SLC_REDYELLOW;
+            }
+        }
     }
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
     {
@@ -80,6 +95,7 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         map_volume_box.floor_height_z = floor_height_z;
         player->render_roomspace.is_roomspace_a_single_subtile = !full_slab;
     }
+    return line_color;
 }
 
 void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool is_special_digger, TbBool full_slab)

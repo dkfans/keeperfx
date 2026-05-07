@@ -1,0 +1,60 @@
+name: Release Patches (Unsigned)
+
+on:
+  workflow_call:
+    outputs:
+      artifact-id:
+        description: "The ID of the uploaded artifact"
+        value: ${{ jobs.build-release-patch-unsigned.outputs.artifact-id }}
+      zip-name:
+        description: "The name of the ZIP file without extension"
+        value: ${{ jobs.build-release-patch-unsigned.outputs.zip-name }}
+  workflow_dispatch:
+
+jobs:
+  build-release-patch-unsigned:
+
+    name: "Build Release Patch (Unsigned)"
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - uses: dkfans/setup-cpp@master
+
+    - name: Update system
+      run: |
+        set -eux
+        sudo apt update
+        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64 7zip
+
+    - name: Build gfx
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        PACKAGE_SUFFIX=
+        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-enginegfx
+
+    - name: Build
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        PACKAGE_SUFFIX=
+        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
+        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
+        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
+        rm pkg/keeperfx*.7z
+
+    - name: Upload artifact
+      id: upload-artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ZIP_NAME }}
+        path: pkg/**
+      
+    outputs:
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
+      zip-name: ${{ env.ZIP_NAME }}

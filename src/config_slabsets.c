@@ -95,13 +95,13 @@ static TbBool load_slabset_config_file(const char *fname, unsigned short flags)
     
     if (!load_toml_file(fname,&file_root,flags))
         return false;
-    
-    char key[64];
+
+    char key[64] = "";
     VALUE *slb_section;
     // Create sections
     for (int slab_kind = 0; slab_kind < game.conf.slab_conf.slab_types_count; slab_kind++)
     {
-        sprintf(key, "slab%d", slab_kind);
+        snprintf(key, sizeof(key), "slab%d", slab_kind);
         slb_section = value_dict_get(&file_root, key);
         if (value_type(slb_section) == VALUE_DICT)
         {
@@ -121,7 +121,7 @@ static TbBool load_slabset_config_file(const char *fname, unsigned short flags)
                     }
                 }
 
-                sprintf(key, "%s_objects", slab_styles_commands[slabstyle_no].name);
+                snprintf(key, sizeof(key), "%s_objects", slab_styles_commands[slabstyle_no].name);
                 VALUE * objects_arr = value_dict_get(slb_section, key);
                 if(value_type(section) == VALUE_DICT && value_array_size(objects_arr) == 0)
                 {
@@ -173,7 +173,7 @@ static TbBool load_columns_config_file(const char *fname, unsigned short flags)
     for (int col_no = 0; col_no < COLUMNS_COUNT; col_no++)
     {
         {
-            sprintf(key, "column%d", col_no);
+            snprintf(key, sizeof(key), "column%d", col_no);
             section = value_dict_get(&file_root, key);
         }
         if (value_type(section) == VALUE_DICT)

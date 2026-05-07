@@ -122,7 +122,7 @@ FTestActionResult ftest_bug_pathing_stair_treasury_action003__check_imps_stuck(s
     ftest_util_move_camera_to_slab(vars->slb_x_stair_start, vars->slb_y_stair_start, PLAYER0);
 
     // allow camera to sit for a moment so we can view the imps behaviour
-    if(game.play_gameturn < args->actual_started_at_game_turn + 100)
+    if(get_gameturn() < args->actual_started_at_game_turn + 100)
     {
         return FTRs_Repeat_Current_Action;
     }

@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_guibtns.h"
 #include "gui_frontmenu.h"
+#include "game_saves.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,8 +31,8 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        86
-#define MENU_LIST_ITEMS_COUNT       51
-#define FRONTEND_BUTTON_INFO_COUNT 119
+#define MENU_LIST_ITEMS_COUNT       52
+#define FRONTEND_BUTTON_INFO_COUNT 115
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
 // Sprite limits
@@ -59,7 +60,7 @@ enum FrontendMenuStates {
   FeSt_NET_START, /**< Network game start screen (the menu with chat), when created new session or joined existing session. */
   FeSt_START_KPRLEVEL,
   FeSt_START_MPLEVEL,
-  FeSt_UNKNOWN09,
+  FeSt_QUIT_GAME,
   FeSt_LOAD_GAME, // 10
   FeSt_INTRO,
   FeSt_STORY_POEM,
@@ -70,21 +71,22 @@ enum FrontendMenuStates {
   FeSt_LEVEL_STATS,
   FeSt_HIGH_SCORES,
   FeSt_TORTURE,
-  FeSt_UNKNOWN20, // 20
+  FeSt_UNUSED_STATE1, // 20 - Unused state, draws GUI but not used
   FeSt_OUTRO,
-  FeSt_UNKNOWN22,
-  FeSt_UNKNOWN23,
+  FeSt_UNUSED_STATE2, // Unused state
+  FeSt_UNUSED_STATE3, // Unused state
   FeSt_NETLAND_VIEW,
   FeSt_PACKET_DEMO,
   FeSt_FEDEFINE_KEYS,
   FeSt_FEOPTIONS,
-  FeSt_UNKNOWN28,
+  FeSt_UNUSED_STATE4, // Unused state
   FeSt_STORY_BIRTHDAY,
   FeSt_LEVEL_SELECT, //30
   FeSt_CAMPAIGN_SELECT,
   FeSt_DRAG,
   FeSt_CAMPAIGN_INTRO,
   FeSt_MAPPACK_SELECT,
+  FeSt_MP_MAPPACK_SELECT,
   // Special testing states
   FeSt_FONT_TEST          = 255,
 };
@@ -224,7 +226,8 @@ enum IngameButtonDesignationIDs {
     BID_MNFCT_TD31,
     BID_MNFCT_TD32,
     BID_MNFCT_NXPG,
-    BID_QUERY_2
+    BID_QUERY_2,
+    BID_ASSIST
 };
 
 struct GuiMenu;
@@ -232,7 +235,7 @@ struct GuiButton;
 struct TbLoadFiles;
 
 struct DemoItem { //sizeof = 5
-    uint8_t numfield_0;
+    uint8_t kind;
     union {
       FrontendMenuState state;
       const char *fname;
@@ -250,13 +253,12 @@ extern char room_tag;
 extern char spell_tag;
 extern char trap_tag;
 extern char creature_tag;
-extern char input_string[8][16];
+extern char input_string[8][SAVE_TEXTNAME_LEN + 1];
 extern char gui_error_text[256];
 extern long net_service_scroll_offset;
 extern long net_number_of_services;
 extern long net_number_of_players;
 extern long net_number_of_enum_players;
-extern long net_map_slap_frame;
 extern long net_level_hilighted;
 extern struct NetMessage net_message[NET_MESSAGES_COUNT];
 extern long net_number_of_messages;
@@ -274,6 +276,8 @@ extern int frontend_menu_state;
 extern int load_game_scroll_offset;
 extern unsigned char video_gamma_correction;
 extern MenuID vid_change_query_menu;
+extern TbBool right_click_tag_mode_toggle;
+extern unsigned char default_tag_mode;
 
 // *** SPRITES ***
 extern struct TbSpriteSheet *font_sprites;
@@ -302,6 +306,7 @@ extern struct GuiMenu frontend_statistics_menu;
 extern struct GuiMenu frontend_high_score_table_menu;
 extern struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT];
 extern char gui_message_text[];
+extern TbClockMSec gui_message_timeout;
 
 extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
 
@@ -359,6 +364,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn);
 void frontend_draw_small_menu_button(struct GuiButton *gbtn);
 void frontend_toggle_computer_players(struct GuiButton *gbtn);
 void frontend_draw_computer_players(struct GuiButton *gbtn);
+void frontend_draw_mp_mappack(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
 void gui_go_to_event(struct GuiButton *gbtn);
@@ -373,6 +379,7 @@ void frontend_ldcampaign_change_state(struct GuiButton *gbtn);
 void frontend_netservice_change_state(struct GuiButton *gbtn);
 void frontend_start_new_game(struct GuiButton *gbtn);
 void frontend_load_mappacks(struct GuiButton *gbtn);
+void frontend_load_mp_mappacks(struct GuiButton *gbtn);
 void frontend_load_continue_game(struct GuiButton *gbtn);
 short frontend_save_continue_game(short allow_lvnum_grow);
 void frontend_continue_game_maintain(struct GuiButton *gbtn);
@@ -415,15 +422,13 @@ short game_is_busy_doing_gui(void);
 void set_gui_visible(TbBool visible);
 void toggle_gui(void);
 void add_message(long plyr_idx, char *msg);
-TbBool validate_versions(void);
-void versions_different_error(void);
 unsigned long toggle_status_menu(short visib);
 TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);
 
 void update_player_objectives(PlayerNumber plyr_idx);
 void set_level_objective(const char *msg_text);
-void display_objectives(PlayerNumber plyr_idx,long x,long y);
+void display_objectives(PlayerNumber plyr_idx,MapSubtlCoord x,MapSubtlCoord y);
 
 short toggle_main_cheat_menu(void);
 TbBool close_main_cheat_menu(void);

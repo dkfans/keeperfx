@@ -20,7 +20,6 @@
 #ifndef BFLIB_NETSP_H
 #define BFLIB_NETSP_H
 
-#include <basetyps.h>
 #include "bflib_basics.h"
 #include "bflib_netsession.h"
 
@@ -37,18 +36,17 @@ protected:
     unsigned long nextPlayerId;
     unsigned long localPlayerId; //local player ID
 
-    TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
+    TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *context);
 
     //session management
     struct TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
     void ClearSessions(void);
     long SessionIndex(unsigned long sess_id);
 
-    TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *a2);
+    TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *context);
     long PlayerIndex(unsigned long plyr_id);
-    TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4);
+    TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long player_flags, unsigned long unused_param);
     TbError DeletePlayer(unsigned long plyr_id);
-    void ClearPlayers(void);
 
     /**
      * Reads a message from some player.
@@ -58,12 +56,12 @@ protected:
      * modified to contain the actual length of the message (including header).
      * @return True if a message was read (which implies there may be more to read).
      */
-    virtual bool ReadMessage(unsigned long * playerId, void * msgBuffer, unsigned long * len) = 0;
+    virtual bool ReadMessage(uint32_t * playerId, void * msgBuffer, uint32_t * len) = 0;
 
     /**
      * Same as ReadMessage but does not remove the received message (if any), which means it can still be Read.
      */
-    virtual bool PeekMessage(unsigned long * playerId, void * msgBuffer, unsigned long * len) = 0;
+    virtual bool PeekMessage(uint32_t * playerId, void * msgBuffer, uint32_t * len) = 0;
 
     /**
      * Sends a message to a specific player.
@@ -76,17 +74,9 @@ protected:
 public:
     ServiceProvider();
     virtual ~ServiceProvider();
-    static unsigned long GetRequestCompositeExchangeDataMsgSize(void);
-    static void EncodeMessageStub(void *enc_msg, unsigned long a2, unsigned char a3, unsigned long a4);
-    static void EncodeDeletePlayerMsg(unsigned char *buf, unsigned long val);
-    static void EncodeRequestExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2);
-    static void EncodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2);
-    static unsigned long DecodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long &a1);
-    static void DecodeMessageStub(const void *enc_msg, unsigned long *a2, unsigned char *a3, unsigned long *a4);
+    static void DecodeMessageStub(const void *enc_msg, uint32_t *a2, unsigned char *a3, uint32_t *a4);
     TbError Send(unsigned long a1, void *a2);
     TbError Receive(unsigned long a1);
-    unsigned long GetAddPlayerMsgSize(char *msg_str);
-    void EncodeAddPlayerMsg(unsigned char *enc_buf, unsigned long id, const char *msg_str);
     TbBool DecodeAddPlayerMsg(const unsigned char *enc_buf, unsigned long &id, char *msg_str);
     TbError SystemAddPlayerHandler(const void *enc_buf);
     TbError SystemDeletePlayerHandler(const void *enc_buf);
@@ -106,11 +96,11 @@ public:
     virtual void update() = 0; //in case SP needs execution time once per frame
 
     struct TbNetworkSessionNameEntry nsnames[SESSION_ENTRIES_COUNT];
-    unsigned long field_7A4;
-    unsigned long field_7A8;
-    char field_D50[32];
+    unsigned long reference_count;
+    unsigned long status_flags;
+    char session_identifier[32];
     struct ReceiveCallbacks *recvCallbacks;
-    void *field_D78;
+    void *callback_context;
 };
 
 /******************************************************************************/

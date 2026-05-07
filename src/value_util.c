@@ -29,8 +29,7 @@ TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags)
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
-    if (buf == false)
-        return false;
+    if (!buf) return false;
     // Loading file data
     long fsize = LbFileLoadAt(fname, buf);
 
@@ -40,11 +39,8 @@ TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags)
         free(buf);
         return false;
     }
-    
-    if (buf == false)
-        return false;
+
     char err[255];
-    
 
     if (toml_parse((char*)buf, err, sizeof(err), value))
     {
