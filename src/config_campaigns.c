@@ -46,7 +46,6 @@ const char deeper_mappack_file[]="deepdngn.cfg";
 const struct NamedCommand cmpgn_common_commands[] = {
   {"NAME",                1},
   {"SINGLE_LEVELS",       2},
-  {"MULTI_LEVELS",        3},
   {"BONUS_LEVELS",        4},
   {"EXTRA_LEVELS",        5},
   {"HIGH_SCORES",         6},
@@ -457,27 +456,6 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           if (campgn->single_levels_count <= 0)
               CONFWRNLOG("Levels list empty in \"%s\" command of %s %s file.",
                 COMMAND_TEXT(cmd_num),campgn->name,config_textname);
-          break;
-      case 3: // MULTI_LEVELS
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
-            {
-              if (add_multi_level_to_campaign(campgn,k) < 0)
-                  CONFWRNLOG("No free slot to add level %d from \"%s\" command of %s %s file.",
-                      k,COMMAND_TEXT(cmd_num),campgn->name,config_textname);
-            } else
-            {
-                CONFWRNLOG("Couldn't recognize level in \"%s\" command of %s %s file.",
-                  COMMAND_TEXT(cmd_num),campgn->name,config_textname);
-            }
-          }
-          if (campgn->multi_levels_count <= 0)
-          {
-              CONFWRNLOG("Levels list empty in \"%s\" command of %s %s file.",
-                COMMAND_TEXT(cmd_num),campgn->name,config_textname);
-          }
           break;
       case 4: // BONUS_LEVELS
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
