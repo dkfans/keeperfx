@@ -992,7 +992,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         return 0;
     }
     struct Thing *overtng = thing_get(player->thing_under_hand);
-    if (thing_is_object(droptng) && object_is_gold_pile(droptng))
+    if (object_is_gold_pile(droptng))
     {
         if (thing_is_creature(overtng) && creature_able_to_get_salary(overtng))
         {
@@ -1004,7 +1004,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
                 play_non_3d_sample(88);
             }
         }
-        delete_thing_structure(droptng, 0);
+        destroy_object(droptng);
     } else
     if (thing_is_object(droptng) && object_is_mature_food(droptng))
     {

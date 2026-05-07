@@ -2937,8 +2937,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
         roomst = get_room_kind_stats(room->kind);
         if ((roomst->storage_height < 0) || (get_map_floor_filled_subtiles(mapblk) == roomst->storage_height))
         {
-            struct Thing *gldtng;
-            gldtng = find_gold_hoard_at(stl_x, stl_y);
+            struct Thing *gldtng = find_gold_hoard_at(stl_x, stl_y);
             while (!thing_is_invalid(gldtng)) //Normally there is just a single hoard at a slab, but mapmakers may place more.
             {
                 room->capacity_used_for_storage -= gldtng->valuable.gold_stored;
@@ -2947,7 +2946,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     dungeon->total_money_owned -= gldtng->valuable.gold_stored;
                 }
                 drop_gold_pile(gldtng->valuable.gold_stored, &gldtng->mappos);
-                delete_thing_structure(gldtng, 0);
+                destroy_object(gldtng);
                 gldtng = find_gold_hoard_at(stl_x, stl_y);
             }
         }
@@ -3001,7 +3000,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                             }
                             remove_power_from_player(spl_idx, thing->owner);
                         }
-                        delete_thing_structure(thing, 0);
+                        destroy_thing(thing);
                     }
                 }
             }
@@ -3090,7 +3089,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             if (thing_is_object(thing))
             {
                 if (object_is_infant_food(thing) || object_is_mature_food(thing) || object_is_growing_food(thing)) {
-                    delete_thing_structure(thing, 0);
+                    destroy_object(thing);
                 }
             }
             // Per thing code end

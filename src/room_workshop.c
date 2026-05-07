@@ -835,7 +835,7 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
                     remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
                 }
             }
-            delete_thing_structure(thing, 0);
+            destroy_object(thing);
         }
         // Per thing code ends
         k++;

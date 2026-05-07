@@ -322,9 +322,9 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
 }
 
 /* @comment
- *     The loading items of init_custom_sprites and load_sprites_for_mod_one need to be consistent.
+ *     The loading items of init_custom_sprites and load_sprites_for_mod need to be consistent.
  */
-static void load_sprites_for_mod_one(LevelNumber lvnum, const struct ModConfigItem *mod_item)
+static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *mod_item)
 {
 
     const struct ModExistState *mod_state = &mod_item->state;
@@ -371,12 +371,12 @@ static void load_sprites_for_mod_list(LevelNumber lvnum, const struct ModConfigI
         if (mod_item->state.mod_dir == 0)
             continue;
 
-        load_sprites_for_mod_one(lvnum, mod_item);
+        load_sprites_for_mod(lvnum, mod_item);
     }
 }
 
 /* @comment
- *     The loading items of init_custom_sprites and load_sprites_for_mod_one need to be consistent.
+ *     The loading items of init_custom_sprites and load_sprites_for_mod need to be consistent.
  */
 void init_custom_sprites(LevelNumber lvnum)
 {

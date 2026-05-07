@@ -346,13 +346,13 @@ void process_player_research(PlayerNumber plyr_idx)
             if (room_is_invalid(room))
             {
                 ERRORLOG("There should be %s for %s artifact, but not found",room_role_code_name(RoRoF_PowersStorage),power_code_name(pwkind));
-                delete_thing_structure(spelltng, 0);
+                destroy_object(spelltng);
                 return;
             }
             if (!find_random_valid_position_for_thing_in_room_avoiding_object(spelltng, room, &pos))
             {
                 ERRORLOG("Could not find position in %s for %s artifact",room_code_name(room->kind),power_code_name(pwkind));
-                delete_thing_structure(spelltng, 0);
+                destroy_object(spelltng);
                 return;
             }
             pos.z.val = get_thing_height_at(spelltng, &pos);
@@ -494,7 +494,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
                         remove_power_from_player(spl_idx, room->owner);
                     }
                 }
-                delete_thing_structure(thing, 0);
+                destroy_object(thing);
             }
         }
         // Per thing code ends
@@ -562,7 +562,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
                         {
                             remove_power_from_player(book_thing_to_power_kind(spelltng), plyr_idx);
                         }
-                        delete_thing_structure(spelltng, 0);
+                        destroy_object(spelltng);
                     }
                     else
                     {
@@ -649,7 +649,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                             remove_power_from_player(spl_idx, thing->owner);
                         }
                         SYNCLOG("Deleting from %s of player %d duplicate object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
-                        delete_thing_structure(thing, 0);
+                        destroy_thing(thing);
                     }
 
                 } else // we have capacity to spare, so it can stay unless it's stuck

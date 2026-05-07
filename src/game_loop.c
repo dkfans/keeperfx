@@ -159,7 +159,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             else if (dungeon->heart_destroy_turn == 30)
             {
                 dungeon->free_soul_idx = 0;
-                delete_thing_structure(soultng, 0);
+                destroy_object(soultng);
             }
         }
         dungeon->heart_destroy_turn++;
@@ -215,7 +215,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
         destroy_dungeon_heart_room(plyr_idx, heartng);
-        delete_thing_structure(heartng, 0);
+        destroy_object(heartng);
     }
     { // If there is another heart owned by this player, set it to "working" heart
         struct PlayerInfo* player;

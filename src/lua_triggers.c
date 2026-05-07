@@ -168,6 +168,22 @@ void lua_on_creature_death(struct Thing *crtng)
 	}
 }
 
+void lua_on_object_destroyed(struct Thing* objtng)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnObjectDestroyed");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushThing(Lvl_script, objtng);
+
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnObjectDestroyed");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
+}
+
 void lua_on_creature_rebirth(struct Thing* crtng)
 {
     SYNCDBG(6, "Starting");

@@ -440,7 +440,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
     if ( creatng->active_state != CrSt_CreatureInPrison )
         internal_set_thing_state(creatng, CrSt_CreatureInPrison);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
-    delete_thing_structure(foodtng, 0);
+    destroy_object(foodtng);
 
     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
     dungeon->lvstats.chickens_eaten++;

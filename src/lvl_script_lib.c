@@ -103,7 +103,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
     {
         if (!move_creature_to_nearest_valid_position(thing)) {
             ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
-            delete_thing_structure(thing, 0);
+            destroy_object(thing);
             return INVALID_THING;
         }
     }

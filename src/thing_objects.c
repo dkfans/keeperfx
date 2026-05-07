@@ -17,42 +17,44 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_objects.h"
 
+#include "thing_objects.h"
 #include "globals.h"
+
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_sound.h"
 #include "bflib_planar.h"
-
-#include "config_strings.h"
-#include "config_objects.h"
-#include "config_terrain.h"
+#include "bflib_sound.h"
 #include "config_creature.h"
 #include "config_effects.h"
 #include "config_magic.h"
-#include "thing_stats.h"
+#include "config_objects.h"
+#include "config_spritecolors.h"
+#include "config_strings.h"
+#include "config_terrain.h"
+#include "creature_states_pray.h"
+#include "engine_arrays.h"
+#include "game_legacy.h"
+#include "game_loop.h"
+#include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
+#include "keeperfx.hpp"
+#include "local_camera.h"
+#include "lua_cfg_funcs.h"
+#include "lua_triggers.h"
+#include "magic_powers.h"
+#include "map_columns.h"
+#include "map_data.h"
+#include "map_utils.h"
+#include "player_instances.h"
+#include "power_hand.h"
+#include "room_entrance.h"
+#include "sounds.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
-#include "power_hand.h"
-#include "player_instances.h"
-#include "map_data.h"
-#include "map_columns.h"
-#include "map_utils.h"
-#include "magic_powers.h"
-#include "room_entrance.h"
-#include "gui_topmsg.h"
-#include "gui_soundmsgs.h"
-#include "engine_arrays.h"
-#include "sounds.h"
-#include "creature_states_pray.h"
-#include "game_legacy.h"
-#include "local_camera.h"
-#include "keeperfx.hpp"
-#include "game_loop.h"
-#include "config_spritecolors.h"
-#include "lua_cfg_funcs.h"
+#include "thing_stats.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -270,6 +272,7 @@ void destroy_food(struct Thing *foodtng)
 
 void destroy_object(struct Thing *thing)
 {
+    lua_on_object_destroyed(thing);
     if (object_is_mature_food(thing) || object_is_growing_food(thing))
     {
         destroy_food(thing);
@@ -651,7 +654,7 @@ TbBool delete_lair_totem(struct Thing *lairtng)
     } else {
         ERRORLOG("No totem owner");
     }
-    delete_thing_structure(lairtng, 0);
+    destroy_object(lairtng);
     return true;
 }
 
@@ -954,7 +957,7 @@ GoldAmount gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room
     thing->valuable.gold_stored = gold_store;
     if (thing->valuable.gold_stored <= 0)
     {
-        delete_thing_structure(thing, 0);
+        destroy_object(thing);
         return -1;
     }
     return 0;
@@ -1094,14 +1097,14 @@ static long object_being_dropped(struct Thing *thing)
     {
         struct Room* room = get_room_thing_is_on(thing);
         process_object_sacrifice(thing, room->owner);
-        delete_thing_structure(thing, 0);
+        destroy_thing(thing);
         return TUFRet_Deleted;
     }
     if (object_is_gold_pile(thing))
     {
         if (thing->valuable.gold_stored <= 0)
         {
-            delete_thing_structure(thing, 0);
+            destroy_object(thing);
             return TUFRet_Deleted;
         }
         struct Room* room = get_room_thing_is_on(thing);
@@ -1117,14 +1120,14 @@ static long object_being_dropped(struct Thing *thing)
         if (thing->model == ObjMdl_SpinningCoin)
         {
             drop_gold_pile(thing->valuable.gold_stored, &thing->mappos);
-            delete_thing_structure(thing, 0);
+            destroy_thing(thing);
             return TUFRet_Deleted;
         }
         struct Thing* gldtng = find_base_thing_on_mapwho_excluding_self(thing);
         if (!thing_is_invalid(gldtng))
         {
             add_gold_to_pile(gldtng, thing->valuable.gold_stored);
-            delete_thing_structure(thing, 0);
+            destroy_thing(thing);
             return TUFRet_Deleted;
         }
     }
@@ -1262,7 +1265,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             destroy_dungeon_heart_room(heartng->owner, heartng);
             if (!thing_is_invalid(heartng))
             {
-                delete_thing_structure(heartng, 0);
+                destroy_object(heartng);
             }
         }
         return TUFRet_Deleted; //Also when it is not deleted, to stop the heart from flashing
@@ -2044,7 +2047,7 @@ GoldAmount remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, Gold
 
     if (gldtng->valuable.gold_stored <= 0)
     {
-        delete_thing_structure(gldtng, 0);
+        destroy_object(gldtng);
         return amount;
     }
     // Add new wealth size

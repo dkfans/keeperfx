@@ -133,7 +133,7 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
         {
             if ( room_has_lair_enemy )
             {
-                return 0;
+                return 1;
             }
             else
             {
@@ -145,7 +145,7 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
     {
         if ( room_has_lair_enemy )
         {
-            return 1;
+            return 0;
         }
         else
         {
