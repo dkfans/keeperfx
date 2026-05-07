@@ -160,6 +160,15 @@ int create_directory_for_file(const char * fname)
   return 1;
 }
 
+void path_join(char *out, size_t out_size, const char *dir, const char *fname)
+{
+  if (dir == NULL || dir[0] == '\0') {
+    snprintf(out, out_size, "%s", fname);
+  } else {
+    snprintf(out, out_size, "%s/%s", dir, fname);
+  }
+}
+
 TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 {
   unsigned char mode = accmode;

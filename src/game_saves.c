@@ -54,6 +54,8 @@
 #include <time.h>
 #include <zlib.h>
 
+#define FULL_PATH_BUFFER_SIZE 2048
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -224,7 +226,11 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             // Zero wasteful fields
             struct Configs *conf_backup = (struct Configs *)malloc(sizeof(struct Configs));
             void *nav_backup = malloc(sizeof(game.navigation_map));
-            if (conf_backup && nav_backup) {
+            if (!conf_backup || !nav_backup) {
+                WARNLOG("Failed to allocate backup buffers for packet save compression");
+                free(conf_backup);
+                free(nav_backup);
+            } else {
                 memcpy(conf_backup, &game.conf, sizeof(struct Configs));
                 memcpy(nav_backup, game.navigation_map, sizeof(game.navigation_map));
                 memset(&game.conf, 0, sizeof(struct Configs));
@@ -251,9 +257,9 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 }
                 memcpy(&game.conf, conf_backup, sizeof(struct Configs));
                 memcpy(game.navigation_map, nav_backup, sizeof(game.navigation_map));
+                free(conf_backup);
+                free(nav_backup);
             }
-            free(conf_backup);
-            free(nav_backup);
         }
     }
     { // Packet file data start indicator
@@ -685,7 +691,7 @@ static TbBool migrate_file(const char *src, const char *dst)
         SYNCLOG("Migrated save: %s -> %s", src, dst);
         return true;
     } else {
-        WARNLOG("Failed to migrate save: %s -> %s (errno %d)", src, dst, errno);
+        WARNLOG("Failed to migrate save: %s -> %s (errno %d: %s)", src, dst, errno, strerror(errno));
         return false;
     }
 }
@@ -746,7 +752,7 @@ void migrate_saves_to_campaign_dirs(void)
         char *new_path = prepare_file_path(FGrp_Save, dest_fname);
 
         // Copy new_path to a local buffer since prepare_file_path uses a static buffer
-        char new_path_buf[2048];
+        char new_path_buf[FULL_PATH_BUFFER_SIZE];
         snprintf(new_path_buf, sizeof(new_path_buf), "%s", new_path);
 
         // Re-resolve old_path since prepare_file_path overwrote the static buffer
@@ -780,13 +786,13 @@ void migrate_saves_to_campaign_dirs(void)
                 }
 
                 char *old_path = prepare_file_path(FGrp_Save, fn);
-                char old_buf[2048];
+                char old_buf[FULL_PATH_BUFFER_SIZE];
                 snprintf(old_buf, sizeof(old_buf), "%s", old_path);
 
                 char dest_fname[DISKPATH_SIZE];
                 path_join(dest_fname, sizeof(dest_fname), safe_dir, continue_game_filename);
                 char *new_path = prepare_file_path(FGrp_Save, dest_fname);
-                char new_buf[2048];
+                char new_buf[FULL_PATH_BUFFER_SIZE];
                 snprintf(new_buf, sizeof(new_buf), "%s", new_path);
 
                 if (!LbFileExists(new_buf)) {
@@ -822,13 +828,13 @@ void migrate_saves_to_campaign_dirs(void)
                 }
 
                 char *old_path = prepare_file_path(FGrp_Save, fn);
-                char old_buf[2048];
+                char old_buf[FULL_PATH_BUFFER_SIZE];
                 snprintf(old_buf, sizeof(old_buf), "%s", old_path);
 
                 char dest_fname[DISKPATH_SIZE];
                 path_join(dest_fname, sizeof(dest_fname), safe_dir, fn);
                 char *new_path = prepare_file_path(FGrp_Save, dest_fname);
-                char new_buf[2048];
+                char new_buf[FULL_PATH_BUFFER_SIZE];
                 snprintf(new_buf, sizeof(new_buf), "%s", new_path);
 
                 if (!LbFileExists(new_buf)) {
@@ -839,7 +845,7 @@ void migrate_saves_to_campaign_dirs(void)
         }
     }
 
-    SYNCLOG("Save migration complete: %d files moved.", migrated);
+    SYNCLOG("Save migration complete: %s files moved.", migrated ? "some" : "no");
 
     // Write sentinel file
     TbFileHandle sfh = LbFileOpen(sentinel, Lb_FILE_MODE_NEW);
@@ -887,7 +893,7 @@ void migrate_freeplay_saves(void)
             char old_subpath[DISKPATH_SIZE];
             path_join(old_subpath, sizeof(old_subpath), old_dir, slot_name);
             char *old_full = prepare_file_path(FGrp_Save, old_subpath);
-            char old_buf[2048];
+            char old_buf[FULL_PATH_BUFFER_SIZE];
             snprintf(old_buf, sizeof(old_buf), "%s", old_full);
 
             if (!LbFileExists(old_buf))
@@ -896,7 +902,7 @@ void migrate_freeplay_saves(void)
             char new_subpath[DISKPATH_SIZE];
             path_join(new_subpath, sizeof(new_subpath), new_dir, slot_name);
             char *new_full = prepare_file_path(FGrp_Save, new_subpath);
-            char new_buf[2048];
+            char new_buf[FULL_PATH_BUFFER_SIZE];
             snprintf(new_buf, sizeof(new_buf), "%s", new_full);
 
             if (!LbFileExists(new_buf))
@@ -908,7 +914,7 @@ void migrate_freeplay_saves(void)
             char old_subpath[DISKPATH_SIZE];
             path_join(old_subpath, sizeof(old_subpath), old_dir, continue_game_filename);
             char *old_full = prepare_file_path(FGrp_Save, old_subpath);
-            char old_buf[2048];
+            char old_buf[FULL_PATH_BUFFER_SIZE];
             snprintf(old_buf, sizeof(old_buf), "%s", old_full);
 
             if (LbFileExists(old_buf))
@@ -916,7 +922,7 @@ void migrate_freeplay_saves(void)
                 char new_subpath[DISKPATH_SIZE];
                 path_join(new_subpath, sizeof(new_subpath), new_dir, continue_game_filename);
                 char *new_full = prepare_file_path(FGrp_Save, new_subpath);
-                char new_buf[2048];
+                char new_buf[FULL_PATH_BUFFER_SIZE];
                 snprintf(new_buf, sizeof(new_buf), "%s", new_full);
 
                 if (!LbFileExists(new_buf))
@@ -929,7 +935,7 @@ void migrate_freeplay_saves(void)
             char old_subpath[DISKPATH_SIZE];
             path_join(old_subpath, sizeof(old_subpath), old_dir, "progress.json");
             char *old_full = prepare_file_path(FGrp_Save, old_subpath);
-            char old_buf[2048];
+            char old_buf[FULL_PATH_BUFFER_SIZE];
             snprintf(old_buf, sizeof(old_buf), "%s", old_full);
 
             if (LbFileExists(old_buf))
@@ -937,7 +943,7 @@ void migrate_freeplay_saves(void)
                 char new_subpath[DISKPATH_SIZE];
                 path_join(new_subpath, sizeof(new_subpath), new_dir, "progress.json");
                 char *new_full = prepare_file_path(FGrp_Save, new_subpath);
-                char new_buf[2048];
+                char new_buf[FULL_PATH_BUFFER_SIZE];
                 snprintf(new_buf, sizeof(new_buf), "%s", new_full);
 
                 if (!LbFileExists(new_buf))
@@ -951,7 +957,7 @@ void migrate_freeplay_saves(void)
             char old_subpath[DISKPATH_SIZE];
             path_join(old_subpath, sizeof(old_subpath), old_dir, cmpgn->hiscore_fname);
             char *old_full = prepare_file_path(FGrp_Save, old_subpath);
-            char old_buf[2048];
+            char old_buf[FULL_PATH_BUFFER_SIZE];
             snprintf(old_buf, sizeof(old_buf), "%s", old_full);
 
             if (LbFileExists(old_buf))
@@ -959,7 +965,7 @@ void migrate_freeplay_saves(void)
                 char new_subpath[DISKPATH_SIZE];
                 path_join(new_subpath, sizeof(new_subpath), new_dir, cmpgn->hiscore_fname);
                 char *new_full = prepare_file_path(FGrp_Save, new_subpath);
-                char new_buf[2048];
+                char new_buf[FULL_PATH_BUFFER_SIZE];
                 snprintf(new_buf, sizeof(new_buf), "%s", new_full);
 
                 if (!LbFileExists(new_buf))
@@ -969,7 +975,7 @@ void migrate_freeplay_saves(void)
     }
 
     if (migrated)
-        SYNCLOG("Freeplay save migration complete: %d files moved.", migrated);
+        SYNCLOG("Freeplay save migration complete.");
 
     TbFileHandle sfh = LbFileOpen(sentinel, Lb_FILE_MODE_NEW);
     if (sfh) {
@@ -1001,7 +1007,7 @@ void scan_all_campaign_saves(void)
 
     // Scan both campaigns and mappacks
     struct CampaignsList *lists[] = { &campaigns_list, &mappacks_list };
-    for (int li = 0; li < 2; li++)
+    for (int li = 0; li < (int)(sizeof(lists)/sizeof(lists[0])); li++)
     {
         struct CampaignsList *clist = lists[li];
         for (unsigned long ci = 0; ci < clist->items_num; ci++)
@@ -1155,7 +1161,7 @@ TbBool find_and_set_continue_campaign(void)
     char best_campaign_fname[CAMPAIGN_FNAME_LEN] = {0};
 
     const struct CampaignsList *lists[] = { &campaigns_list, &mappacks_list };
-    for (int li = 0; li < 2; li++)
+    for (int li = 0; li < (int)(sizeof(lists)/sizeof(lists[0])); li++)
     {
         const struct CampaignsList *list = lists[li];
         for (int ci = 0; ci < list->items_num; ci++)
@@ -1199,13 +1205,6 @@ TbBool initialise_load_game_slots(void)
     return (count_valid_saved_games() > 0);
 }
 
-/**
- * @brief Get the safe campaign name object
- * Removes characters which are not suitable for file names, as campaign name is used in continue game file name. 
- * It is not perfect, but should be good enough for most cases. If the name becomes empty after removing invalid characters, "default" is used instead.
- * 
- * @return const char* safe campaign name
- */
 /**
  * @brief Build the save subdirectory name for a given campaign filename.
  * Strips the .cfg extension and prefixes with "freeplay/" for mappacks.
