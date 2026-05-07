@@ -901,7 +901,7 @@ extern "C" void stop_streamed_samples()
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
 	const auto old_sample = std::exchange(g_streamed_sample, nullptr);
 	if (old_sample) {
-		Mix_FreeChunk(g_streamed_sample);
+		Mix_FreeChunk(old_sample);
 	}
 }
 
