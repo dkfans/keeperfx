@@ -227,10 +227,6 @@ struct Navigation {
   PlayerBitFlags owner_flags[2];
   struct Coord3d pos_next;
   struct Coord3d pos_final;
-  // Position history for circle detection
-  struct Coord3d position_history[8];
-  unsigned char history_index;
-  unsigned char loop_counter;
 };
 
 struct FOV { // sizeof=0x18
