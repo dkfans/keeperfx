@@ -472,14 +472,41 @@ void frontnet_reset_ping_stabilization(void)
     previous_player_count_for_ping_wait = -1;
 }
 
+
+void frontnet_send_campaign_change_message(const char* campaign_fname)
+{
+    char base_name[64];
+    if ((campaign_fname == NULL) || (campaign_fname[0] == '\0')) {
+        return;
+    }
+    strncpy(base_name, campaign_fname, sizeof(base_name)-1);
+    base_name[sizeof(base_name)-1] = '\0';
+    char* dot = strrchr(base_name, '.');
+    if (dot != NULL) {
+        *dot = '\0';
+    }
+
+    char msg[64];
+    snprintf(msg, sizeof(msg), "%s:_", base_name);
+    LbNetwork_SendChatMessageImmediate(my_player_number,msg);
+}
+
 void handle_autostart_multiplayer_messaging(void)
 {
     static TbBool send_pending = false;
+    static int previous_enum_players = 0;
+    TbBool player_joined = (net_number_of_enum_players > previous_enum_players);
+    previous_enum_players = net_number_of_enum_players;
 
     if (net_number_of_enum_players < 2) {
         send_pending = false;
         return;
     }
+
+    if (player_joined && my_player_number == get_host_player_id()) {
+        frontnet_send_campaign_change_message(campaign.fname);
+    }
+
     if (!send_pending && my_player_number == get_host_player_id() &&
         (autostart_multiplayer_campaign[0] != '\0' || autostart_multiplayer_level > 0)) {
         send_pending = true;
@@ -621,6 +648,7 @@ void frontnet_session_setup(void)
         snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.net_player_name);
         strcpy(tmp_net_player_name, net_config_info.net_player_name);
     }
+    set_default_mp_mappack();
     net_session_index_active = -1;
     fe_computer_players = 2;
     lbInkey = 0;

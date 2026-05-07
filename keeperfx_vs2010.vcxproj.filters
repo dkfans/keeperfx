@@ -288,6 +288,9 @@
     <ClCompile Include="src\front_landview.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\front_landview_multiplayer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\front_lvlstats.c">
       <Filter>Source Files</Filter>
     </ClCompile>

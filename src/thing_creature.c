@@ -3661,7 +3661,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     }
     // Compute shot damage
     damage = shotst->damage;
-    if (shotst->fixed_damage == 0)
+    if (!(shotst->model_flags & ShMF_FixedDamage))
     {
         if ((shotst->model_flags & ShMF_StrengthBased) != 0)
         {

@@ -116,7 +116,6 @@ extern "C" {
 /******************************************************************************/
 extern TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
-extern TbBool change_campaign(const char *cmpgn_fname);
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
 /******************************************************************************/
@@ -605,7 +604,7 @@ void process_chat_message_end(int player_id, const char *message)
     if (message[0] != '\0') {
         memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
         memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
-        if (frontend_menu_state == FeSt_NET_START) {
+        if (frontend_menu_state == FeSt_NET_START || frontend_menu_state == FeSt_MP_MAPPACK_SELECT) {
             if (!try_starting_level_from_chat(player->mp_message_text, player_id)) {
                 add_message(player_id, player->mp_message_text);
             }
@@ -1851,25 +1850,36 @@ TbBool try_starting_level_from_chat(char* message, long player_id)
     }
 
     char *level_str = separator_pos + 1;
-    if (!isdigit(level_str[0])) {
+    if (level_str[0] != '_' && !isdigit(level_str[0])) {
         return false;
     }
-
-    LevelNumber level_num = atoi(level_str);
-    if (level_num <= 0) {
-        return false;
+    
+    LevelNumber level_num;
+    if (level_str[0] == '_')
+    {
+        level_num = -1;
+    }
+    else
+    {
+        level_num = atoi(level_str);
+        if (level_num <= 0) {
+            return false;
+    }
     }
 
     char campaign_filename[80];
     snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
 
-    if (!change_campaign(campaign_filename)) {
+    if (!change_campaign(CampgnT_MultiplayerMappack, campaign_filename)) {
         ERRORLOG("Unable to load campaign '%.*s' for level %d", campaign_len, message, (int)level_num);
         return false;
     }
+    
+    if (level_num != -1) {
+        set_selected_level_number(level_num);
+        frontend_set_state(FeSt_START_MPLEVEL);
+    }
 
-    set_selected_level_number(level_num);
-    frontend_set_state(FeSt_START_MPLEVEL);
     return true;
 }
 

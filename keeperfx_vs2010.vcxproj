@@ -145,6 +145,7 @@
     <ClCompile Include="src\front_highscore.c" />
     <ClCompile Include="src\front_input.c" />
     <ClCompile Include="src\front_landview.c" />
+    <ClCompile Include="src\front_landview_multiplayer.c" />
     <ClCompile Include="src\front_lvlstats.c" />
     <ClCompile Include="src\front_lvlstats_data.cpp" />
     <ClCompile Include="src\front_network.c" />
