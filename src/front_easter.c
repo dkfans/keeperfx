@@ -55,8 +55,6 @@ const struct TbBirthday team_birthdays[] = {
     {13,11,"Alex Peters"},
     { 1,12,"Dene Carter"},
     {25, 5,"Tomasz Lis"},
-    {29,11,"Michael Chateauneuf"},
-    {23, 4, "Peter Lockett"},
     {0,0,NULL},
     };
 
