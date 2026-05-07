@@ -1243,7 +1243,6 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
     struct GameCampaign* campgn = &clist->items[clist->items_num];
     if (load_campaign(cmpgn_fname,campgn,CnfLd_ListOnly, fgroup))
     {
-      JUSTLOG("Loaded campaign file: %s",campgn->fname);
         switch(fgroup)
         {
          case FGrp_VarLevels:
