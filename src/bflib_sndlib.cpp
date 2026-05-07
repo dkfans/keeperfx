@@ -470,11 +470,57 @@ void SDLCALL on_music_finished() {
 } // local
 
 extern "C" void FreeAudio() {
+	SYNCDBG(6, "Starting audio cleanup");
+
+	// Check if SDL_mixer audio device is open before attempting to halt playback
+	int frequency = 0;
+	int channels = 0;
+	unsigned short format = 0;
+	int audio_opened = Mix_QuerySpec(&frequency, &format, &channels);
+
+	if (audio_opened > 0) {
+		// Stop playback before freeing chunks, so the audio thread isn't reading them
+		SYNCDBG(7, "SDL_mixer audio device is open, halting playback");
+		Mix_HaltMusic();
+		Mix_HaltChannel(-1);
+	}
+
+	// Free SDL_mixer resources
+	{
+		std::lock_guard<std::mutex> guard(g_mix_mutex);
+		if (auto music = g_mix_music.exchange(nullptr)) {
+			Mix_FreeMusic(music);
+			SYNCDBG(8, "Freed SDL_mixer music");
+		}
+		if (g_streamed_sample) {
+			Mix_FreeChunk(g_streamed_sample);
+			g_streamed_sample = nullptr;
+			SYNCDBG(8, "Freed SDL_mixer streamed sample");
+		}
+	}
+
+    // Sanity check again to see if the audio device is still open. If it is, then shut it down. If not, then it was already closed by SDL's inner workings or elsewhere and we can skip the shutdown to avoid double-freeing resources.
+    audio_opened = Mix_QuerySpec(&frequency, &format, &channels);
+	if (audio_opened > 0) {
+		ShutDownSDLAudio();
+		SYNCDBG(7, "SDL_mixer shutdown complete");
+	} else {
+		while (Mix_Init(0) != 0) {
+			Mix_Quit();
+		}
+		SYNCDBG(7, "SDL_mixer audio device already closed, skipped duplicate shutdown");
+	}
+
+	// Clear OpenAL sources and buffers while context is still current
 	g_sources.clear();
 	g_banks[0].clear();
 	g_banks[1].clear();
+	SYNCDBG(7, "Cleared OpenAL sources and sound banks");
+
+	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
 	g_openal_context = nullptr;
 	g_openal_device = nullptr;
+	SYNCDBG(6, "Audio cleanup complete");
 }
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
@@ -862,7 +908,7 @@ extern "C" void stop_streamed_samples()
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
 	const auto old_sample = std::exchange(g_streamed_sample, nullptr);
 	if (old_sample) {
-		Mix_FreeChunk(g_streamed_sample);
+		Mix_FreeChunk(old_sample);
 	}
 }
 
