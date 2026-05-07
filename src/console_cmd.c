@@ -336,7 +336,7 @@ TbBool cmd_frametime_max(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_network_stats(PlayerNumber plyr_idx, char * args)
 {
-    if (debug_display_network_stats == 1) {
+    if (debug_display_network_stats != 0) {
         debug_display_network_stats = 0;
     } else {
         debug_display_network_stats = 1;
