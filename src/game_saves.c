@@ -53,6 +53,8 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <zlib.h>
+#include <errno.h>
+#include <string.h>
 
 #define FULL_PATH_BUFFER_SIZE 2048
 
@@ -87,9 +89,14 @@ static const char* get_safe_campaign_name(void);
 /******************************************************************************/
 TbBool is_primitive_save_version(long filesize)
 {
+    // Compressed saves (ver=1) use chunk-based format; detect them by reading the first chunk id.
+    // This size-based check is only valid for the legacy flat (uncompressed) format.
     if (filesize < (char *)&game.loaded_level_number - (char *)&game)
         return false;
-    if (filesize <= 1382437) // sizeof(struct Game) - but it's better to use constant here
+    // A chunked save always starts with an SGC_InfoBlock header (id != 0).
+    // Primitive saves are raw dumps; they have no chunk header and are exactly sizeof(struct Game).
+    // We keep this check only for legacy files that predate the chunk format.
+    if (filesize <= (long)sizeof(struct FileChunkHeader))
         return true;
     return false;
 }
@@ -112,14 +119,20 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
         // Back up fields we'll zero (they're rebuilt on load)
         struct Configs *conf_backup = (struct Configs *)malloc(sizeof(struct Configs));
         void *nav_backup = malloc(sizeof(game.navigation_map));
-        if (!conf_backup || !nav_backup) {
+        void *log_backup = malloc(sizeof(game.log_snapshot));
+        void *chk_backup = malloc(sizeof(game.host_checksums));
+        if (!conf_backup || !nav_backup || !log_backup || !chk_backup) {
             ERRORLOG("Failed to allocate backup buffers for save compression");
             free(conf_backup);
             free(nav_backup);
+            free(log_backup);
+            free(chk_backup);
             return false;
         }
         memcpy(conf_backup, &game.conf, sizeof(struct Configs));
         memcpy(nav_backup, game.navigation_map, sizeof(game.navigation_map));
+        memcpy(log_backup, &game.log_snapshot, sizeof(game.log_snapshot));
+        memcpy(chk_backup, &game.host_checksums, sizeof(game.host_checksums));
 
         // Zero wasteful fields (~5.5 MB of data that's rebuilt on load)
         memset(&game.conf, 0, sizeof(struct Configs));
@@ -134,8 +147,12 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             ERRORLOG("Failed to allocate compression buffer");
             memcpy(&game.conf, conf_backup, sizeof(struct Configs));
             memcpy(game.navigation_map, nav_backup, sizeof(game.navigation_map));
+            memcpy(&game.log_snapshot, log_backup, sizeof(game.log_snapshot));
+            memcpy(&game.host_checksums, chk_backup, sizeof(game.host_checksums));
             free(conf_backup);
             free(nav_backup);
+            free(log_backup);
+            free(chk_backup);
             return false;
         }
 
@@ -146,8 +163,12 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
         // Restore zeroed fields immediately
         memcpy(&game.conf, conf_backup, sizeof(struct Configs));
         memcpy(game.navigation_map, nav_backup, sizeof(game.navigation_map));
+        memcpy(&game.log_snapshot, log_backup, sizeof(game.log_snapshot));
+        memcpy(&game.host_checksums, chk_backup, sizeof(game.host_checksums));
         free(conf_backup);
         free(nav_backup);
+        free(log_backup);
+        free(chk_backup);
 
         if (zret != Z_OK) {
             ERRORLOG("zlib compress failed: %d", zret);
@@ -226,13 +247,19 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             // Zero wasteful fields
             struct Configs *conf_backup = (struct Configs *)malloc(sizeof(struct Configs));
             void *nav_backup = malloc(sizeof(game.navigation_map));
-            if (!conf_backup || !nav_backup) {
+            void *log_backup = malloc(sizeof(game.log_snapshot));
+            void *chk_backup = malloc(sizeof(game.host_checksums));
+            if (!conf_backup || !nav_backup || !log_backup || !chk_backup) {
                 WARNLOG("Failed to allocate backup buffers for packet save compression");
                 free(conf_backup);
                 free(nav_backup);
+                free(log_backup);
+                free(chk_backup);
             } else {
                 memcpy(conf_backup, &game.conf, sizeof(struct Configs));
                 memcpy(nav_backup, game.navigation_map, sizeof(game.navigation_map));
+                memcpy(log_backup, &game.log_snapshot, sizeof(game.log_snapshot));
+                memcpy(chk_backup, &game.host_checksums, sizeof(game.host_checksums));
                 memset(&game.conf, 0, sizeof(struct Configs));
                 memset(game.navigation_map, 0, sizeof(game.navigation_map));
                 memset(&game.log_snapshot, 0, sizeof(game.log_snapshot));
@@ -257,8 +284,12 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 }
                 memcpy(&game.conf, conf_backup, sizeof(struct Configs));
                 memcpy(game.navigation_map, nav_backup, sizeof(game.navigation_map));
+                memcpy(&game.log_snapshot, log_backup, sizeof(game.log_snapshot));
+                memcpy(&game.host_checksums, chk_backup, sizeof(game.host_checksums));
                 free(conf_backup);
                 free(nav_backup);
+                free(log_backup);
+                free(chk_backup);
             }
         }
     }
@@ -333,6 +364,12 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 if (LbFileRead(fhandle, &comp_len, sizeof(unsigned long)) != sizeof(unsigned long))
                 {
                     WARNLOG("Could not read compressed size");
+                    break;
+                }
+                uLongf max_comp_len = (uLongf)compressBound(sizeof(struct Game));
+                if (comp_len == 0 || comp_len > max_comp_len)
+                {
+                    WARNLOG("Compressed GameOrig size %lu is out of range (max %lu)", comp_len, (unsigned long)max_comp_len);
                     break;
                 }
                 unsigned char *comp_data = (unsigned char *)malloc(comp_len);
@@ -705,7 +742,8 @@ static TbBool migrate_file(const char *src, const char *dst)
  */
 void migrate_saves_to_campaign_dirs(void)
 {
-    char *sentinel = prepare_file_path(FGrp_Save, ".migrated");
+    char sentinel[FULL_PATH_BUFFER_SIZE];
+    snprintf(sentinel, sizeof(sentinel), "%s", prepare_file_path(FGrp_Save, ".migrated"));
     if (LbFileExists(sentinel)) {
         return;
     }
@@ -734,7 +772,19 @@ void migrate_saves_to_campaign_dirs(void)
         LbFileClose(fh);
 
         char safe_dir[CAMPAIGN_FNAME_LEN];
+        TbBool found_in_list = false;
         if (got_info && centry.campaign_fname[0] != '\0') {
+            // Only accept campaign names that exist in the known campaign/mappack lists
+            for (long ci = 0; ci < (long)campaigns_list.items_num && !found_in_list; ci++) {
+                if (strcasecmp(campaigns_list.items[ci].fname, centry.campaign_fname) == 0)
+                    found_in_list = true;
+            }
+            for (long ci = 0; ci < (long)mappacks_list.items_num && !found_in_list; ci++) {
+                if (strcasecmp(mappacks_list.items[ci].fname, centry.campaign_fname) == 0)
+                    found_in_list = true;
+            }
+        }
+        if (found_in_list) {
             snprintf(safe_dir, sizeof(safe_dir), "%s", centry.campaign_fname);
             // Strip .cfg extension if present
             char *dot = strrchr(safe_dir, '.');
@@ -765,35 +815,54 @@ void migrate_saves_to_campaign_dirs(void)
 
     // Migrate old continue saves: fx1_*_contn_.sav and fx1contn.sav
     {
-        char *search_path = prepare_file_path(FGrp_Save, "fx1*contn*.sav");
+        char search_path_buf[FULL_PATH_BUFFER_SIZE];
+        snprintf(search_path_buf, sizeof(search_path_buf), "%s", prepare_file_path(FGrp_Save, "fx1*contn*.sav"));
         struct TbFileEntry fe;
-        struct TbFileFind *ff = LbFileFindFirst(search_path, &fe);
+        struct TbFileFind *ff = LbFileFindFirst(search_path_buf, &fe);
         if (ff) {
             do {
-                // Try to extract campaign name from filename pattern "fx1_{name}_contn_.sav"
+                // Read the continue file header to determine campaign, falling back to filename parsing
                 const char *fn = fe.Filename;
                 char safe_dir[CAMPAIGN_FNAME_LEN];
                 snprintf(safe_dir, sizeof(safe_dir), "unknown");
 
-                if (strncmp(fn, "fx1_", 4) == 0) {
-                    const char *end = strstr(fn + 4, "_contn_");
-                    if (end && end > fn + 4) {
-                        int len = (int)(end - (fn + 4));
-                        if (len >= (int)sizeof(safe_dir)) len = sizeof(safe_dir) - 1;
-                        memcpy(safe_dir, fn + 4, len);
-                        safe_dir[len] = '\0';
+                char old_buf_tmp[FULL_PATH_BUFFER_SIZE];
+                snprintf(old_buf_tmp, sizeof(old_buf_tmp), "%s", prepare_file_path(FGrp_Save, fn));
+                TbFileHandle cfh = LbFileOpen(old_buf_tmp, Lb_FILE_MODE_READ_ONLY);
+                if (cfh) {
+                    struct FileChunkHeader chdr;
+                    struct CatalogueEntry ccentry;
+                    memset(&ccentry, 0, sizeof(ccentry));
+                    if (LbFileRead(cfh, &chdr, sizeof(chdr)) == sizeof(chdr)) {
+                        load_catalogue_entry(cfh, &chdr, &ccentry);
+                    }
+                    LbFileClose(cfh);
+                    if (ccentry.campaign_fname[0] != '\0') {
+                        TbBool found = false;
+                        for (long ci = 0; ci < (long)campaigns_list.items_num && !found; ci++) {
+                            if (strcasecmp(campaigns_list.items[ci].fname, ccentry.campaign_fname) == 0)
+                                found = true;
+                        }
+                        for (long ci = 0; ci < (long)mappacks_list.items_num && !found; ci++) {
+                            if (strcasecmp(mappacks_list.items[ci].fname, ccentry.campaign_fname) == 0)
+                                found = true;
+                        }
+                        if (found) {
+                            snprintf(safe_dir, sizeof(safe_dir), "%s", ccentry.campaign_fname);
+                            char *dot = strrchr(safe_dir, '.');
+                            if (dot != NULL && strcasecmp(dot, ".cfg") == 0)
+                                *dot = '\0';
+                        }
                     }
                 }
 
-                char *old_path = prepare_file_path(FGrp_Save, fn);
                 char old_buf[FULL_PATH_BUFFER_SIZE];
-                snprintf(old_buf, sizeof(old_buf), "%s", old_path);
+                snprintf(old_buf, sizeof(old_buf), "%s", old_buf_tmp);
 
                 char dest_fname[DISKPATH_SIZE];
                 path_join(dest_fname, sizeof(dest_fname), safe_dir, continue_game_filename);
-                char *new_path = prepare_file_path(FGrp_Save, dest_fname);
                 char new_buf[FULL_PATH_BUFFER_SIZE];
-                snprintf(new_buf, sizeof(new_buf), "%s", new_path);
+                snprintf(new_buf, sizeof(new_buf), "%s", prepare_file_path(FGrp_Save, dest_fname));
 
                 if (!LbFileExists(new_buf)) {
                     migrated |= migrate_file(old_buf, new_buf);
@@ -862,7 +931,8 @@ void migrate_saves_to_campaign_dirs(void)
  */
 void migrate_freeplay_saves(void)
 {
-    char *sentinel = prepare_file_path(FGrp_Save, ".freeplay_migrated");
+    char sentinel[FULL_PATH_BUFFER_SIZE];
+    snprintf(sentinel, sizeof(sentinel), "%s", prepare_file_path(FGrp_Save, ".freeplay_migrated"));
     if (LbFileExists(sentinel))
         return;
 

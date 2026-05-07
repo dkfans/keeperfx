@@ -102,7 +102,7 @@ struct GlobalSaveEntry {
     char campaign_name[LINEMSG_SIZE];
     char campaign_fname[DISKPATH_SIZE];
     char save_textname[SAVE_TEXTNAME_LEN];
-    char save_dir[64];
+    char save_dir[DISKPATH_SIZE * 2];
     int  slot_num;
     long modified_time;
     TbBool in_use;
