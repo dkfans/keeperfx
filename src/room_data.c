@@ -1034,7 +1034,7 @@ struct Room *allocate_free_room_structure(void)
             memset(room, 0, sizeof(struct Room));
             room->alloc_flags |= RoF_Allocated;
             room->index = i;
-            room->creation_turn = game.play_gameturn;
+            room->creation_turn = get_gameturn();
             return room;
         }
     }

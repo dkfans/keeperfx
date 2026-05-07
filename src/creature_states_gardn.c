@@ -22,26 +22,28 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "creature_states.h"
-#include "creature_instances.h"
-#include "thing_list.h"
-#include "creature_control.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
-#include "thing_stats.h"
-#include "thing_objects.h"
-#include "thing_effects.h"
-#include "thing_navigate.h"
-#include "thing_creature.h"
+#include "creature_control.h"
+#include "creature_instances.h"
+#include "creature_states.h"
+#include "creature_states_prisn.h"
+#include "game_legacy.h"
+#include "gui_soundmsgs.h"
+#include "lua_triggers.h"
 #include "player_instances.h"
 #include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_list.h"
-#include "gui_soundmsgs.h"
-#include "creature_states_prisn.h"
-#include "game_legacy.h"
+#include "thing_creature.h"
+#include "thing_effects.h"
+#include "thing_list.h"
+#include "thing_navigate.h"
+#include "thing_objects.h"
+#include "thing_stats.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -93,14 +95,15 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
     } else
     {
         int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
+        lua_on_object_destroyed(foodtng);
         if (room->used_capacity >= required_cap)
         {
             room->used_capacity -= required_cap;
-            destroy_object(foodtng);
+            delete_thing_structure(foodtng, 0);
         } else
         {
             ERRORLOG("Trying to remove some food not in room");
-            destroy_object(foodtng);
+            delete_thing_structure(foodtng, 0);
             update_room_contents(room);
         }
     }

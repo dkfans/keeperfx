@@ -5,7 +5,7 @@
 ---@class Thing
 ---@field ThingIndex integer
 ---@field creation_turn integer
----@field class string
+---@field thing_class string
 ---@field model string
 ---@field anim_sprite string AnimationID or Custom sprite name
 ---@field anim_speed integer

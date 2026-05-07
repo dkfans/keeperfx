@@ -61,6 +61,10 @@ function Creature:level_up(levels) end
 ---sends the creature to the next level, similar to using the special box and selecting said unit
 function Creature:transfer() end
 
+---Checks if the creature is under enemy custody (e.g. in prison or torture chamber)
+---@return boolean in_enemy_custody If the creature is currently controlled by the enemy
+function Creature:in_enemy_custody() end
+
 ---makes the creature walk to a given subtile, combine with continue_state, so it knows what to do after it arrives.
 ---e.g cr:walk_to(5,5)
 ---    cr:continue_state = "CreatureDoingNothing"

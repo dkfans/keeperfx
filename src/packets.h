@@ -46,9 +46,9 @@ enum TbPacketAction {
         PckA_UserUpdate,
         PckA_Frame,
         PckA_Resync,
-        PckA_InitPlayerNum,//10
+        PckA_UnusedSlot010,//10
         PckA_UnusedSlot011,
-        PckA_LevelExactCheck,
+        PckA_UnusedSlot012,
         PckA_PlyrMsgBegin,
         PckA_PlyrMsgEnd,
         PckA_UnusedSlot015,//15
@@ -193,7 +193,7 @@ enum TbPacketAction {
         PckA_PlyrQueryCreature,
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
-        PckA_SpriteZipCountSync,
+        PckA_UnusedSlot157,
 };
 
 /** Packet flags for non-action player operation. */
@@ -323,13 +323,11 @@ void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
 void set_packet_pause_toggle(void);
 void force_application_close(void);
-void apply_default_flee_and_imprison_setting(void);
 TbBool process_dungeon_control_packet_clicks(long idx);
 TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
 void process_players_creature_passenger_packet_action(long idx);
 void process_players_creature_control_packet_action(long idx);
-void process_frontend_packets(void);
 void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
@@ -356,8 +354,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
 void set_tag_untag_mode(PlayerNumber plyr_idx);
 TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void send_sprite_zip_count_to_other_players(void);
-void process_sprite_zip_count_sync(long plyr_idx, long zip_count);
+void disable_packet_mode(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

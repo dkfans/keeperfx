@@ -216,7 +216,6 @@ struct CommandDesc { // sizeof = 14 // originally was 13
 enum ScriptVariables {
   SVar_MONEY                           =  1,
   SVar_GAME_TURN                       =  5,
-  SVar_BREAK_IN                        =  6,
   SVar_CREATURE_NUM                    =  7,
   SVar_TOTAL_DIGGERS                   =  8,
   SVar_TOTAL_CREATURES                 =  9,

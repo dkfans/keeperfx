@@ -206,6 +206,7 @@ struct GuiMenu *menu_list[] = {
     &spell_menu2,
     &room_menu2,
     &trap_menu2,
+    &frontend_select_mp_mappack_menu,
     NULL,
 };
 
@@ -226,7 +227,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuPlayIntro, 1},
     {GUIStr_NetServiceMenu, 0}, // [10]
     {GUIStr_NetSessionMenu, 0},
-    {GUIStr_MnuGameMenu, 0}, // [12]
+    {GUIStr_MnuOnlineLobbies, 0}, // [12]
     {GUIStr_NetJoinGame, 1}, // [13]
     {GUIStr_NetCreateGame, 1}, // [14]
     {GUIStr_NetStartGame, 1}, // [15]
@@ -327,6 +328,8 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuAddComputer, 1}, // [110]
     {GUIStr_MnuReturnToFreePlay, 1},
     {GUIStr_MnuMapPacks, 2},
+    {GUIStr_MnuMpMapPacks, 2},
+    {GUIStr_MnuReturnToLobby, 1},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
@@ -399,7 +402,6 @@ long net_comport_index_active;
 long net_speed_index_active;
 long net_number_of_players;
 long net_number_of_enum_players;
-long net_map_slap_frame;
 long net_level_hilighted;
 struct NetMessage net_message[NET_MESSAGES_COUNT];
 long net_number_of_messages;
@@ -626,73 +628,6 @@ void add_message(long plyr_idx, char *msg)
     net_number_of_messages = i;
     if (net_message_scroll_offset+4 < i)
       net_message_scroll_offset = i-4;
-}
-
-/**
- * Checks if all the network players are using compatible version of DK.
- */
-TbBool validate_versions(void)
-{
-    struct PlayerInfo *player;
-    long i;
-    long ver;
-    ver = -1;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      player = get_player(i);
-      if ((net_screen_packet[i].networkstatus_flags & 0x01) != 0)
-      {
-        if (ver == -1)
-          ver = player->game_version;
-        if (player->game_version != ver)
-          return false;
-      }
-    }
-    return true;
-}
-
-void versions_different_error(void)
-{
-    const char *plyr_nam;
-    struct ScreenPacket *nspckt;
-    char text[MESSAGE_TEXT_LEN];
-    int i;
-
-    NETMSG("Error: Players have different versions of DK");
-
-    if (LbNetwork_Stop())
-    {
-      ERRORLOG("LbNetwork_Stop() failed");
-    }
-    lbKeyOn[KC_ESCAPE] = 0;
-    lbKeyOn[KC_SPACE] = 0;
-    lbKeyOn[KC_RETURN] = 0;
-    text[0] = '\0';
-    // Preparing message
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      plyr_nam = network_player_name(i);
-      nspckt = &net_screen_packet[i];
-      if ((nspckt->networkstatus_flags & 0x01) != 0)
-      {
-        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->stored_data1, nspckt->stored_data2);
-      }
-    }
-    // Waiting for users reaction
-    while ( 1 )
-    {
-      if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_SPACE] || lbKeyOn[KC_RETURN])
-        break;
-      LbWindowsControl();
-      if (LbScreenLock() == Lb_SUCCESS)
-      {
-        draw_text_box(text);
-        LbScreenUnlock();
-      }
-      LbScreenSwap();
-    }
-    // Checking where to go back
-    init_menu_state_on_net_stats_exit();
 }
 
 /**
@@ -985,7 +920,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
     struct RoomConfigStats *roomst;
-    roomst = &game.conf.slab_conf.room_cfgstats[rkind];
+    roomst = get_room_kind_stats(rkind);
     game.chosen_room_kind = rkind;
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = tooltip_id;
@@ -1411,7 +1346,7 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
     get_gui_button_init(gmnu, BID_MOUSE_MUL)->content.lval = settings.first_person_move_sensitivity;
     if (!is_campaign_loaded())
     {
-        if (!change_campaign(""))
+        if (!change_campaign(CampgnT_Default,""))
         {
             ERRORLOG("Unable to load campaign");
         }
@@ -1518,10 +1453,10 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->networkstatus_flags & 0xF8) == 0)
+    if (screen_packet_action(nspck) == NetAct_None)
     {
-        nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x38;
-        nspck->param1 = (fe_computer_players == 0);
+        screen_packet_set_action(nspck, NetAct_SetComputerPlayers);
+        nspck->action_par1 = (fe_computer_players == 0);
     }
 }
 
@@ -1548,12 +1483,32 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
     lbDisplay.DrawFlags = 0;
 }
 
+
+void frontend_draw_mp_mappack(struct GuiButton *gbtn)
+{
+    int font_idx;
+    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    LbTextSetFont(frontend_font[font_idx]);
+    const char *text;
+    text = campaign.display_name;
+    
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    int ln_height;
+    ln_height = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
+    
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    lbDisplay.DrawFlags = 0;
+}
+
 void set_packet_start(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->networkstatus_flags & 0xF8) == 0)
-        nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x18;
+    if (screen_packet_action(nspck) == NetAct_None)
+        screen_packet_set_action(nspck, NetAct_HostStartLevel);
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -1700,7 +1655,7 @@ void frontend_ldcampaign_change_state(struct GuiButton *gbtn)
 {
   if (!is_campaign_loaded())
   {
-    if (!change_campaign(""))
+    if (!change_campaign(CampgnT_Default,""))
       return;
   }
   frontend_change_state(gbtn);
@@ -1725,7 +1680,7 @@ void frontend_netservice_change_state(struct GuiButton *gbtn)
     }
     if (set_cmpg)
     {
-        if (!change_campaign(""))
+        if (!change_campaign(CampgnT_MultiplayerMappack,""))
           return;
     }
     frontend_change_state(gbtn);
@@ -1737,7 +1692,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
     int i;
     SYNCDBG(7,"Starting");
     memset(&intralvl, 0, sizeof(struct IntralevelData));
-    if (!change_campaign(cmpgn_fname))
+    if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
         return false;
     set_continue_level_number(first_singleplayer_level());
     for (i=0; i < PLAYERS_COUNT; i++)
@@ -1793,7 +1748,7 @@ void frontend_load_mappacks(struct GuiButton *gbtn)
       cmpgn_fname = NULL;
     if (cmpgn_fname != NULL)
     { // If there's only one map pack, then just show the levels
-      if (!change_campaign(cmpgn_fname))
+      if (!change_campaign(CampgnT_Mappack, cmpgn_fname))
       {
         ERRORLOG("Unable to load map pack list");
         return;
@@ -1803,6 +1758,12 @@ void frontend_load_mappacks(struct GuiButton *gbtn)
     { // If there's more map packs, go to selection screen
       frontend_set_state(FeSt_MAPPACK_SELECT);
     }
+}
+
+void frontend_load_mp_mappacks(struct GuiButton *gbtn)
+{
+    SYNCDBG(6,"Clicked");
+    frontend_set_state(FeSt_MP_MAPPACK_SELECT);
 }
 
 /**
@@ -2116,6 +2077,7 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_MAPPACK_SELECT:
   case GMnu_FECAMPAIGN_SELECT:
   case GMnu_FEERROR_BOX:
+  case GMnu_MP_MAPPACK_SELECT:
       return false;
   default:
       return true;
@@ -2421,7 +2383,7 @@ unsigned long toggle_status_menu(short visible)
         set_menu_visible_on(GMnu_SPELL_LOST);
       if ( trap_on )
         set_menu_visible_on(GMnu_TRAP);
-    if ( trap_2_on )
+      if ( trap_2_on )
         set_menu_visible_on(GMnu_TRAP2);
       if ( event_on )
         set_menu_visible_on(GMnu_EVENT);
@@ -2797,6 +2759,9 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_CAMPAIGN_SELECT:
         turn_off_menu(GMnu_FECAMPAIGN_SELECT);
         break;
+    case FeSt_MP_MAPPACK_SELECT:
+        turn_off_menu(GMnu_MP_MAPPACK_SELECT);
+        break;
     case FeSt_START_KPRLEVEL:
     case FeSt_START_MPLEVEL:
     case FeSt_QUIT_GAME:
@@ -2874,7 +2839,8 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
-          frontnet_start_setup();
+          if (frontend_menu_state != FeSt_MP_MAPPACK_SELECT)
+            frontnet_start_setup();
           set_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
@@ -2920,8 +2886,12 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NETLAND_VIEW:
           set_pointer_graphic_none();
-          frontnet_init_level_descriptions();
-          frontnetmap_load();
+          if(!frontnetmap_load())
+          {
+                ERRORLOG("Failed to load netmap, going back to main menu");
+                frontend_set_state(FeSt_MAIN_MENU);
+                nstate = FeSt_MAIN_MENU;
+          }
           break;
       case FeSt_FEDEFINE_KEYS:
           defining_a_key = 0;
@@ -2946,6 +2916,11 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
     case FeSt_CAMPAIGN_SELECT:
         turn_on_menu(GMnu_FECAMPAIGN_SELECT);
         frontend_campaign_list_load();
+        set_pointer_graphic_menu();
+        break;
+    case FeSt_MP_MAPPACK_SELECT:
+        turn_on_menu(GMnu_MP_MAPPACK_SELECT);
+        frontend_mp_mappack_list_load();
         set_pointer_graphic_menu();
         break;
   #if (BFDEBUG_LEVEL > 0)
@@ -3000,6 +2975,7 @@ static const char * menu_state_str(FrontendMenuState state)
         case FeSt_DRAG: return "FeSt_DRAG";
         case FeSt_CAMPAIGN_INTRO: return "FeSt_CAMPAIGN_INTRO";
         case FeSt_MAPPACK_SELECT: return "FeSt_MAPPACK_SELECT";
+        case FeSt_MP_MAPPACK_SELECT: return "FeSt_MP_MAPPACK_SELECT";
         case FeSt_FONT_TEST: return "FeSt_FONT_TEST";
     }
     return "unknown";
@@ -3114,9 +3090,10 @@ TbBool frontscreen_end_input(TbBool force)
 
 short get_frontend_global_inputs(void)
 {
-    if (is_key_pressed(KC_X, KMod_ALT))
+    int32_t val;
+    if (is_game_key_pressed(Gkey_ExitGame, &val ,false))
     {
-        clear_key_pressed(KC_X);
+        clear_key_pressed(val);
         exit_keeper = true;
     } else {
         return false;
@@ -3348,7 +3325,7 @@ void spangle_button(struct GuiButton *gbtn)
     unsigned long i;
     x = gbtn->pos_x + (gbtn->width >> 1)  - ((spr->SWidth*bs_units_per_px/16) / 2);
     y = gbtn->pos_y + (gbtn->height >> 1) - ((spr->SHeight*bs_units_per_px/16) / 2);
-    i = GBS_guisymbols_new_function_1+((game.play_gameturn >> 1) & 7);
+    i = GBS_guisymbols_new_function_1+((get_gameturn() >> 1) & 7);
     spr = get_button_sprite(i);
     LbSpriteDrawResized(x, y, bs_units_per_px, spr);
 }
@@ -3498,6 +3475,7 @@ short frontend_draw(void)
     case FeSt_LEVEL_SELECT:
     case FeSt_MAPPACK_SELECT:
     case FeSt_CAMPAIGN_SELECT:
+    case FeSt_MP_MAPPACK_SELECT:
         frontend_copy_background();
         draw_gui();
         break;
@@ -3599,9 +3577,9 @@ void update_player_objectives(PlayerNumber plyr_idx)
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
       if ((!player->display_objective_turn) && (player->victory_state != VicS_Undecided))
-        player->display_objective_turn = game.play_gameturn+1;
+        player->display_objective_turn = get_gameturn()+1;
     }
-    if (player->display_objective_turn == game.play_gameturn)
+    if (player->display_objective_turn == get_gameturn())
     {
       switch (player->victory_state)
       {
@@ -3720,6 +3698,13 @@ void frontend_update(short *finish_menu)
     case FeSt_MAPPACK_SELECT:
         frontend_mappack_select_update();
         break;
+    case FeSt_MP_MAPPACK_SELECT:
+        frontend_mp_mappack_select_update();
+        if (net_service_index_selected != FrontendNetSvc_Skirmish)
+        {
+            frontnet_start_update();
+        }
+        break;
     case FeSt_HIGH_SCORES:
         frontend_high_scores_update();
         break;
@@ -3769,6 +3754,17 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
         return FeSt_START_KPRLEVEL;
     case FeSt_NET_START:
         return FeSt_NET_SESSION;
+    case FeSt_MP_MAPPACK_SELECT:
+        if (net_service_index_selected == FrontendNetSvc_Skirmish)
+        {
+            return FeSt_NET_SERVICE;
+        }
+        else
+        {
+            return FeSt_NET_START;
+        }
+    case FeSt_LEVEL_SELECT:
+         return FeSt_MAPPACK_SELECT;
     case FeSt_NET_SESSION:
     case FeSt_NETLAND_VIEW:
         return FeSt_NET_SERVICE;
@@ -3814,7 +3810,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(NS_ENET_UDP))
+      if (setup_network_service(FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3826,7 +3822,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(NS_ENET_UDP))
+      if (setup_network_service(FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3958,8 +3954,13 @@ void frontend_draw_error_text_box(struct GuiButton *gbtn)
 
 void frontend_maintain_error_text_box(struct GuiButton *gbtn)
 {
-    if (LbTimerClock() > gui_message_timeout)
-    {
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
+        clear_key_pressed(KC_ESCAPE);
+        gui_message_timeout = 0;
+        turn_off_menu(GMnu_FEERROR_BOX);
+        return;
+    }
+    if (LbTimerClock() > gui_message_timeout) {
         turn_off_menu(GMnu_FEERROR_BOX);
     }
 }

@@ -103,10 +103,10 @@ TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
         return false;
     }
 
-    if ( (game.armageddon_cast_turn == 0) || (game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn > game.play_gameturn) )
+    if ( (game.armageddon_cast_turn == 0) || (game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn > get_gameturn()) )
     {
         if ( (dungeon->turns_between_entrance_generation != -1) &&
-             (game.play_gameturn - dungeon->last_entrance_generation_gameturn >= dungeon->turns_between_entrance_generation) ) {
+             (get_gameturn() - dungeon->last_entrance_generation_gameturn >= dungeon->turns_between_entrance_generation) ) {
             SYNCDBG(9,"Due confirmed");
             return true;
         }
@@ -120,7 +120,7 @@ TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
     SYNCDBG(9,"Starting");
     if (!dungeon_has_room_of_role(dungeon, RoRoF_CrPoolSpawn))
         return false;
-    if (((game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn) > game.play_gameturn) && (game.armageddon_cast_turn > 0)) //No new creatures during armageddon
+    if (((game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn) > get_gameturn()) && (game.armageddon_cast_turn > 0)) //No new creatures during armageddon
         return false;
     return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
@@ -406,7 +406,7 @@ void process_entrance_generation(void)
                     if (generation_available_to_dungeon(dungeon)) {
                         generate_creature_for_dungeon(dungeon);
                     }
-                    dungeon->last_entrance_generation_gameturn = game.play_gameturn;
+                    dungeon->last_entrance_generation_gameturn = get_gameturn();
                     dungeon->portal_scavenge_boost = 0;
                 }
             }

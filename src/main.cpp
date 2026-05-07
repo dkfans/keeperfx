@@ -121,7 +121,6 @@
 #include "ariadne.h"
 #include "sounds.h"
 #include "vidfade.h"
-#include "KeeperSpeech.h"
 #include "config_settings.h"
 #include "config_keeperfx.h"
 #include "game_legacy.h"
@@ -148,11 +147,11 @@ short default_loc_player = 0;
 struct StartupParameters start_params;
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
-int32_t game_num_fps;
+int32_t turns_per_second;
 
-int32_t game_num_fps_draw_current = 0;
-int32_t game_num_fps_draw_main = 0; // -1 if auto
-int32_t game_num_fps_draw_secondary = 0;
+int32_t turns_per_second_draw_current = 0;
+int32_t turns_per_second_draw_main = 0; // -1 if auto
+int32_t turns_per_second_draw_secondary = 0;
 
 
 unsigned char *blue_palette;
@@ -214,7 +213,6 @@ extern void faststartup_saved_packet_game(void);
 extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 extern void startup_network_game(CoroutineLoop *context, TbBool local);
-void first_gameturn_actions(void);
 /******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
@@ -252,6 +250,7 @@ TbBool should_use_delta_time_on_menu()
         case FeSt_LEVEL_SELECT:
         case FeSt_CAMPAIGN_SELECT:
         case FeSt_MAPPACK_SELECT:
+        case FeSt_MP_MAPPACK_SELECT:
         case FeSt_LAND_VIEW:
         case FeSt_NETLAND_VIEW:
         case FeSt_TORTURE:
@@ -312,7 +311,7 @@ long get_foot_creature_has_down(struct Thing *thing)
         return 0;
     unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
     n = get_creature_model_graphics(thing->model, frame);
-    i = convert_td_iso(n);
+    i = get_td_animation_sprite(n);
     if (i != thing->anim_sprite)
         return 0;
     if (val == 1)
@@ -403,7 +402,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
                     if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0))
                     {
                         thing->continue_state = CrSt_ArriveAtAlarm;
-                        cctrl->alarm_over_turn = game.play_gameturn + 800;
+                        cctrl->alarm_over_turn = get_gameturn() + 800;
                         cctrl->alarm_stl_x = traptng->mappos.x.stl.num;
                         cctrl->alarm_stl_y = traptng->mappos.y.stl.num;
                     }
@@ -868,7 +867,7 @@ void update_thing_animation(struct Thing *thing)
             thing->anim_time %= i;
           }
         }
-        thing->current_frame = (thing->anim_time >> 8) & 0xFF;
+        thing->current_frame = thing->anim_time >> 8;
     }
     if (thing->transformation_speed != 0)
     {
@@ -914,7 +913,7 @@ void init_keeper(void)
 {
     SYNCDBG(8,"Starting");
     engine_init();
-    init_iso_3d_conversion_tables();
+    init_fp_td_animation_conversion_tables();
     init_colours();
     init_spiral_steps();
     init_key_to_strings();
@@ -1173,19 +1172,6 @@ short setup_game(void)
       setup_stuff();
   }
 
-  if (result == 1)
-  {
-      KEEPERSPEECH_REASON reason = KeeperSpeechInit();
-      if (reason == KSR_NO_LIB_INSTALLED) {
-          SYNCLOG("Speech recognition disabled: %s",
-              KeeperSpeechErrorMessage(reason));
-      } else
-      if (reason != KSR_OK) {
-          ERRORLOG("Failed to initialize Speech recognition module: %s",
-              KeeperSpeechErrorMessage(reason));
-      }
-  }
-
   return result;
 }
 
@@ -1348,7 +1334,7 @@ void update_creatr_model_activities_list(TbBool forced)
         int write_idx = 1;
         for (int i = 1; i < num_breeds; i++)
         {
-            crconf = &game.conf.crtr_conf.model[breed_activities[i]];
+            crconf = creature_stats_get(breed_activities[i]);
             if (any_flag_is_set(crconf->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger)))
             {
                 temp = breed_activities[i];
@@ -1372,7 +1358,7 @@ void toggle_hero_health_flowers(void)
       do_sound_menu_click();
       statstr = "on";
     }
-    show_onscreen_msg(2*game_num_fps, "Hero health flowers %s", statstr);
+    show_onscreen_msg(2*turns_per_second, "Hero health flowers %s", statstr);
 }
 
 void reset_gui_based_on_player_mode(void)
@@ -2055,7 +2041,7 @@ void set_mouse_light(struct PlayerInfo *player)
     SYNCDBG(6,"Starting");
     struct Packet *pckt;
     if (is_my_player(player)) {
-        pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+        pckt = get_local_input_lag_packet_for_turn(get_gameturn());
     } else {
         pckt = get_packet_direct(player->packet_num);
     }
@@ -2198,7 +2184,7 @@ static void process_dungeon_devastation_effects(void)
         dungeon = get_players_num_dungeon(plyr_idx);
         if (dungeon->devastation_turn == 0)
             continue;
-        if ((game.play_gameturn & 1) != 0)
+        if ((get_gameturn() & 1) != 0)
             continue;
         dungeon->devastation_turn++;
         if (dungeon->devastation_turn >= max(game.map_tiles_x,game.map_tiles_y))
@@ -2547,7 +2533,7 @@ long update_cave_in(struct Thing *thing)
     struct Coord3d pos;
     PlayerNumber owner;
     owner = thing->owner;
-    if ((game.play_gameturn % 3) == 0)
+    if ((get_gameturn() % 3) == 0)
     {
         int n;
         n = GAME_RANDOM(AROUND_TILES_COUNT);
@@ -2566,7 +2552,7 @@ long update_cave_in(struct Thing *thing)
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
     turns_between = powerst->duration / 5;
-    turns_alive = game.play_gameturn - thing->creation_turn;
+    turns_alive = get_gameturn() - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
         pos.x.val = thing->mappos.x.val + THING_RANDOM(thing, 128);
@@ -2663,7 +2649,7 @@ void update_global_lighting()
 void update(void)
 {
     struct PlayerInfo *player;
-    SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
+    SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
 
     process_packets();
     api_update_server();
@@ -2687,7 +2673,7 @@ void update(void)
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
-        if ((game.play_gameturn & 0x01) != 0)
+        if ((get_gameturn() & 0x01) != 0)
             update_animating_texture_maps();
         update_things();
         process_rooms();
@@ -2724,12 +2710,11 @@ void update(void)
     message_update();
     update_all_players_cameras();
     update_player_sounds();
-    first_gameturn_actions();
     SYNCDBG(6,"Finished");
 }
 
 void intentional_desync() {
-    if (game.play_gameturn != 50 || !is_my_player_number(0)) {
+    if (get_gameturn() != 50 || !is_my_player_number(0)) {
         return;
     }
     for (struct Room* room = start_rooms; room < end_rooms; room += 1) {
@@ -2746,14 +2731,6 @@ void intentional_desync() {
         }
     }
     get_player(0)->instance_remain_turns += 1;
-}
-
-void first_gameturn_actions() {
-    if (game.play_gameturn == 1) {
-        apply_default_flee_and_imprison_setting();
-        send_sprite_zip_count_to_other_players();
-    }
-    //intentional_desync();
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
@@ -3232,11 +3209,11 @@ short display_should_be_updated_this_turn(void)
     if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) )
     {
       find_frame_rate();
-      if ( (game.frame_skip == 0) || ((game.play_gameturn % game.frame_skip) == 0))
+      if ( (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0))
         return true;
     } else
-    if ( ((game.play_gameturn & 0x3F)==0) ||
-         ((game.packet_loading_in_progress) && ((game.play_gameturn & 7)==0)) )
+    if ( ((get_gameturn() & 0x3F)==0) ||
+         ((game.packet_loading_in_progress) && ((get_gameturn() & 7)==0)) )
     {
       packet_load_find_frame_rate(64);
       return true;
@@ -3283,7 +3260,7 @@ TbBool keeper_wait_for_next_turn(void)
     if (game.frame_skip >= 0)
     {
         // Standard delaying system
-        long num_fps = game_num_fps;
+        long num_fps = turns_per_second;
         if (game.frame_skip > 0)
             num_fps *= game.frame_skip;
 
@@ -3314,10 +3291,10 @@ TbBool keeper_wait_for_next_turn(void)
 TbBool keeper_wait_for_next_draw(void)
 {
     // fps.draw is currently unable to work properly with frame_skip
-    if (game_num_fps_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
+    if (turns_per_second_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
-        const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw_current;
+        const long double tick_ns_one_frame = tick_ns_one_sec/turns_per_second_draw_current;
 
         static long double tick_ns_last_draw = 0;
         long double tick_ns_cur = get_time_tick_ns();
@@ -3339,24 +3316,24 @@ TbBool keeper_wait_for_next_draw(void)
 
 void redetect_screen_refresh_rate_for_draw()
 {
-    game_num_fps_draw_current = 0;
+    turns_per_second_draw_current = 0;
 
-    if (game_num_fps_draw_main == -1) {
-        if (game_num_fps_draw_secondary > 0)
-            game_num_fps_draw_current = game_num_fps_draw_secondary;
+    if (turns_per_second_draw_main == -1) {
+        if (turns_per_second_draw_secondary > 0)
+            turns_per_second_draw_current = turns_per_second_draw_secondary;
 
         if (lbWindow != NULL) {
             int display_index = SDL_GetWindowDisplayIndex(lbWindow);
             if (display_index >= 0) {
                 SDL_DisplayMode mode;
                 if (SDL_GetCurrentDisplayMode(display_index, &mode) == 0 && mode.refresh_rate > 0) {
-                    game_num_fps_draw_current = mode.refresh_rate;
+                    turns_per_second_draw_current = mode.refresh_rate;
                 }
             }
         }
 
-    } else if (game_num_fps_draw_main > 0) {
-        game_num_fps_draw_current = game_num_fps_draw_main;
+    } else if (turns_per_second_draw_main > 0) {
+        turns_per_second_draw_current = turns_per_second_draw_main;
     }
 }
 
@@ -3384,7 +3361,7 @@ void gameplay_loop_logic()
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
     {
         static GameTurn previous_gameturn = 0;
-        if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
+        if(get_gameturn() >= start_params.pause_at_gameturn && get_gameturn() != previous_gameturn)
         {
             if(!game.paused_at_gameturn)
             {
@@ -3398,7 +3375,7 @@ void gameplay_loop_logic()
                 set_packet_pause_toggle();
             }
         }
-        previous_gameturn = game.play_gameturn;
+        previous_gameturn = get_gameturn();
     }
 
     if (is_feature_on(Ft_DeltaTime) == true) {
@@ -3518,14 +3495,14 @@ void gameplay_loop_timestep()
         }
     }
 
-    if (game.turns_packetoff == game.play_gameturn) {
+    if (game.turns_packetoff == get_gameturn()) {
         exit_keeper = 1;
     }
 
-    if (game_num_fps_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true) {
+    if (turns_per_second_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true) {
         keeper_wait_for_next_draw();
 
-        if (game.turns_packetoff == game.play_gameturn) {
+        if (game.turns_packetoff == get_gameturn()) {
             exit_keeper = 1;
         }
     }
@@ -3543,7 +3520,6 @@ void keeper_gameplay_loop(void)
         initialise_eye_lenses();
     }
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
-    KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
 
     initial_time_point();
@@ -3562,7 +3538,7 @@ void keeper_gameplay_loop(void)
 
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
-    SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
+    SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)get_gameturn());
 
     // Reset the game kind because we are not in a game anymore at this point
     game.game_kind = GKind_Unset;
@@ -3672,20 +3648,24 @@ static TbBool wait_at_frontend(void)
     }
     game.save_game_slot = -1;
     // Make sure campaigns are loaded
-    if (!load_campaigns_list())
+    if (!load_campaigns_list(&campaigns_list ,FGrp_Campgn ,"campaigns","campgn_order.txt"))
     {
       ERRORLOG("No valid campaign files found");
       exit_keeper = 1;
       return true;
     }
     // Make sure mappacks are loaded
-    if (!load_mappacks_list())
+    if (!load_campaigns_list(&mappacks_list,FGrp_VarLevels,"mappacks","mappck_order.txt"))
     {
       WARNMSG("No valid mappack files found");
     }
     // Migrate old flat saves to per-campaign directories (one-time)
     migrate_saves_to_campaign_dirs();
     migrate_freeplay_saves();
+    if (!load_campaigns_list(&mp_mappacks_list,FGrp_MpLevels,"multiplayer mappacks","mp_mappck_order.txt"))
+    {
+      WARNMSG("No valid multiplayer mappack files found");
+    }
     //Set level number and campaign (for single level mode: GOF_SingleLevel)
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)
     {
@@ -3693,10 +3673,10 @@ static TbBool wait_at_frontend(void)
         if (start_params.selected_campaign[0] != '\0')
         {
             str_append(start_params.selected_campaign, sizeof(start_params.selected_campaign), ".cfg");
-            result = change_campaign(start_params.selected_campaign);
+            result = change_campaign(CampgnT_Default, start_params.selected_campaign);
         }
         if (!result) {
-            if (!change_campaign("")) {
+            if (!change_campaign(CampgnT_Default,"")) {
                 WARNMSG("Unable to load default campaign for the specified level CMD Line parameter");
             }
             else if (start_params.selected_campaign[0] != '\0') { // only show this log message if the user actually specified a campaign
@@ -3828,8 +3808,10 @@ static TbBool wait_at_frontend(void)
         if (is_feature_on(Ft_DeltaTime) == true && should_use_delta_time_on_menu()) {
           game.delta_time = get_delta_time();
         } else {
+          int32_t frame_time;
+          frame_time = max(1, 1000 / turns_per_second);
           game.delta_time = 1;
-          LbSleepUntil(fe_last_loop_time + 30);
+          LbSleepUntil(fe_last_loop_time + frame_time);
         }
       }
       fe_last_loop_time = LbTimerClock();
@@ -3989,7 +3971,7 @@ void game_loop(void)
           exit_keeper=true;
       playtime += endtime-starttime;
       SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
-      total_play_turns += game.play_gameturn;
+      total_play_turns += get_gameturn();
       reset_eye_lenses();
       close_packet_file();
       game.packet_load_enable = false;
@@ -4007,8 +3989,6 @@ void game_loop(void)
 short reset_game(void)
 {
     SYNCDBG(6,"Starting");
-
-    KeeperSpeechExit();
 
     LbMouseSuspend();
     LbIKeyboardClose();
@@ -4185,6 +4165,10 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "mplog") == 0)
       {
           detailed_multiplayer_logging = true;
+      } else
+      if (strcasecmp(parstr, "netstats") == 0)
+      {
+          debug_display_network_stats = 1;
       } else
       if (strcasecmp(parstr, "compuchat") == 0)
       {
@@ -4448,8 +4432,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         SYNCDBG(0,"finished properly");
     }
 
-    LbErrorLogClose();
     steam_api_shutdown();
+    LbErrorLogClose();
     return 0;
 }
 

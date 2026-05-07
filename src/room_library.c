@@ -419,7 +419,7 @@ void process_player_research(PlayerNumber plyr_idx)
         break;
     }
     dungeon->research_progress -= (rsrchval->req_amount << 8);
-    dungeon->last_research_complete_gameturn = game.play_gameturn;
+    dungeon->last_research_complete_gameturn = get_gameturn();
 
     dungeon->current_research_idx = get_next_research_item(dungeon);
     dungeon->lvstats.things_researched++;
@@ -467,7 +467,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
             PowerKind spl_idx = book_thing_to_power_kind(thing);
             if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
-                if (game.play_gameturn > 10) //Function is used to place books in rooms before dungeons are intialized
+                if (get_gameturn() > 10) //Function is used to place books in rooms before dungeons are intialized
                 {
                     dungeon = get_players_num_dungeon(room->owner);
                     if (dungeon->magic_level[spl_idx] < 2)
@@ -630,7 +630,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         if (thing_is_spellbook(thing))
         {
             PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
+            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || get_gameturn() < 10))//Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
                 if (room->used_capacity > room->total_capacity)

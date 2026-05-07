@@ -138,7 +138,7 @@ FTestActionResult ftest_bug_invisible_units_cant_select_action001__spawn_unit(st
     ftest_util_center_cursor_over_dungeon_view();
     //ftest_util_move_camera(vars->unit->mappos.x.val, vars->unit->mappos.y.val, PLAYER0);
 
-    vars->unit_spawned_at_turn = game.play_gameturn;
+    vars->unit_spawned_at_turn = get_gameturn();
     vars->is_unit_spawned = true;
 
     return FTRs_Go_To_Next_Action;
@@ -204,7 +204,7 @@ FTestActionResult ftest_bug_invisible_units_cant_select_action003__pickup_unit(s
             return FTRs_Go_To_Next_Action;
         }
 
-        vars->unit_grabbed_at_turn = game.play_gameturn;
+        vars->unit_grabbed_at_turn = get_gameturn();
         vars->is_unit_in_hand = true;
         return FTRs_Go_To_Next_Action;
     }
@@ -232,7 +232,7 @@ FTestActionResult ftest_bug_invisible_units_cant_select_action004__drop_unit(str
     else
     {
         vars->is_unit_in_hand = false;
-        vars->unit_dropped_at_turn = game.play_gameturn;
+        vars->unit_dropped_at_turn = get_gameturn();
     }
 
     return FTRs_Go_To_Next_Action;
