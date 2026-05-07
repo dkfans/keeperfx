@@ -2823,7 +2823,9 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_none();
           if ( !frontmap_load() ) {
               // Fallback in case of error
-              nstate = FeSt_START_KPRLEVEL;
+                ERRORLOG("Failed to load campaign landview, going back to main menu");
+                frontend_set_state(FeSt_MAIN_MENU);
+                nstate = FeSt_MAIN_MENU;
           }
           break;
       case FeSt_NET_SERVICE:
