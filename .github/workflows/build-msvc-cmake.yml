@@ -1,0 +1,122 @@
+name: CI Build
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  build-mingw-x86:
+    name: "MinGW Windows x86"
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - uses: dkfans/setup-cpp@master
+
+    - name: Update system
+      run: |
+        set -eux
+        sudo apt update
+        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64
+
+    - name: Build
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        make BUILD_NUMBER=$BUILD_NUMBER standard
+
+  build-linux-x86_64:
+    name: "Linux x86_64"
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Update system
+      run: |
+        set -eux
+        sudo apt update
+        sudo apt install -y \
+          build-essential \
+          pkg-config \
+          curl \
+          libavcodec-dev \
+          libavformat-dev \
+          libavutil-dev \
+          libopenal-dev \
+          libluajit-5.1-dev \
+          libminizip-dev \
+          libnatpmp-dev \
+          libspng-dev \
+          libsdl2-dev \
+          libsdl2-image-dev \
+          libsdl2-mixer-dev \
+          libsdl2-net-dev \
+          libswresample-dev \
+          libminiupnpc-dev \
+          zlib1g-dev
+
+    - name: Build
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        make BUILD_NUMBER=$BUILD_NUMBER -f linux.mk
+
+  build-msvc-x86:
+    name: "MSVC x86 Release"
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Export GitHub Actions cache environment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+    - name: Setup vcpkg binary caching via GitHub Packages
+      shell: pwsh
+      env:
+        GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        $owner = "${{ github.repository_owner }}"
+        $source = "https://nuget.pkg.github.com/${owner}/index.json"
+        nuget sources add -Name "GitHub" -Source $source -Username $owner -Password $env:GH_PACKAGES_TOKEN -StorePasswordInClearText
+        nuget setapikey $env:GH_PACKAGES_TOKEN -Source "GitHub"
+        $mode = if ("${{ github.event_name }}" -eq "push") { "readwrite" } else { "read" }
+        echo "VCPKG_BINARY_SOURCES=clear;x-gha,readwrite;nuget,GitHub,${mode}" >> $env:GITHUB_ENV
+
+    - name: Init vcpkg submodule
+      run: git submodule update --init external/vcpkg
+
+    - name: Bootstrap vcpkg
+      shell: cmd
+      run: .\external\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+
+    - uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x86
+
+    - name: Configure
+      run: cmake --preset x86-windows-static-release
+
+    - name: Build
+      run: cmake --build --preset x86-windows-static-release

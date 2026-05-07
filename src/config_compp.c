@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
 #include "pre_inc.h"
 #include "config_compp.h"
 #include "globals.h"
@@ -67,15 +68,25 @@ static int computer_type_add_event(struct ComputerType *cpt, unsigned char event
 /******************************************************************************/
 
 static const struct NamedField compp_common_named_fields[] = {
-  {"ComputerAssists",        0, field(comp_player_conf.computer_assist_types[0]), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
-  {"ComputerAssists",        1, field(comp_player_conf.computer_assist_types[1]), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
-  {"ComputerAssists",        2, field(comp_player_conf.computer_assist_types[2]), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
-  {"ComputerAssists",        3, field(comp_player_conf.computer_assist_types[3]), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
-  {"SkirmishFirst",          0, field(comp_player_conf.skirmish_first),           0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
-  {"SkirmishLast",           0, field(comp_player_conf.skirmish_last),            0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
-  {"DefaultComputerAssist",  0, field(comp_player_conf.player_assist_default),    0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"ComputerAssists",        0, field_a(struct ComputerPlayerConfig, computer_assist_types, 0), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"ComputerAssists",        1, field_a(struct ComputerPlayerConfig, computer_assist_types, 1), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"ComputerAssists",        2, field_a(struct ComputerPlayerConfig, computer_assist_types, 2), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"ComputerAssists",        3, field_a(struct ComputerPlayerConfig, computer_assist_types, 3), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"SkirmishFirst",          0, field_t(struct ComputerPlayerConfig, skirmish_first),           0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"SkirmishLast",           0, field_t(struct ComputerPlayerConfig, skirmish_last),            0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"DefaultComputerAssist",  0, field_t(struct ComputerPlayerConfig, player_assist_default),    0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
   {NULL},
 };
+
+static void* get_compp_common_base(void) { return &comp_player_conf; }
+static int32_t* get_processes_count(void) { return &comp_player_conf.processes_count; }
+static void* get_processes_base(void) { return comp_player_conf.process_types; }
+static int32_t* get_checks_count(void) { return &comp_player_conf.checks_count; }
+static void* get_checks_base(void) { return comp_player_conf.check_types; }
+static int32_t* get_events_count(void) { return &comp_player_conf.events_count; }
+static void* get_events_base(void) { return comp_player_conf.event_types; }
+static int32_t* get_computers_count(void) { return &comp_player_conf.computers_count; }
+static void* get_computers_base(void) { return comp_player_conf.computer_types; }
 
 const struct NamedFieldSet compp_common_named_fields_set = {
   NULL,
@@ -84,124 +95,124 @@ const struct NamedFieldSet compp_common_named_fields_set = {
   NULL,
   0,
   0,
-  NULL,
+  get_compp_common_base,
 };
 
 static const struct NamedField compp_process_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",        -1, field(comp_player_conf.process_types[0].name),          0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mnemonic),      0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
-  {"VALUES",       0, field(comp_player_conf.process_types[0].priority     ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       1, field(comp_player_conf.process_types[0].process_configuration_value_2    ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       2, field(comp_player_conf.process_types[0].process_configuration_value_3    ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       3, field(comp_player_conf.process_types[0].process_configuration_value_4    ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       4, field(comp_player_conf.process_types[0].process_configuration_value_5    ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"FUNCTIONS",    0, field(comp_player_conf.process_types[0].func_check   ), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
-  {"FUNCTIONS",    1, field(comp_player_conf.process_types[0].func_setup   ), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
-  {"FUNCTIONS",    2, field(comp_player_conf.process_types[0].func_task    ), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
-  {"FUNCTIONS",    3, field(comp_player_conf.process_types[0].func_complete), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
-  {"FUNCTIONS",    4, field(comp_player_conf.process_types[0].func_pause   ), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
-  {"PARAMS",       0, field(comp_player_conf.process_types[0].process_parameter_1      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       1, field(comp_player_conf.process_types[0].process_parameter_2      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       2, field(comp_player_conf.process_types[0].process_parameter_3      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       3, field(comp_player_conf.process_types[0].last_run_turn), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       4, field(comp_player_conf.process_types[0].process_parameter_5      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       5, field(comp_player_conf.process_types[0].flags        ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"NAME",        -1, field_t(struct ComputerProcess, name),          0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field_t(struct ComputerProcess, mnemonic),      0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field_t(struct ComputerProcess, priority), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field_t(struct ComputerProcess, process_configuration_value_2), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       2, field_t(struct ComputerProcess, process_configuration_value_3), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       3, field_t(struct ComputerProcess, process_configuration_value_4), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       4, field_t(struct ComputerProcess, process_configuration_value_5), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field_t(struct ComputerProcess, func_check), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    1, field_t(struct ComputerProcess, func_setup), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    2, field_t(struct ComputerProcess, func_task), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    3, field_t(struct ComputerProcess, func_complete), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    4, field_t(struct ComputerProcess, func_pause), 0, INT32_MIN,UINT32_MAX, computer_process_func_type, value_default, assign_default},
+  {"PARAMS",       0, field_t(struct ComputerProcess, process_parameter_1), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       1, field_t(struct ComputerProcess, process_parameter_2), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       2, field_t(struct ComputerProcess, process_parameter_3), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       3, field_t(struct ComputerProcess, last_run_turn), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       4, field_t(struct ComputerProcess, process_parameter_5), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       5, field_t(struct ComputerProcess, flags), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
   {NULL},
 };
 
 const struct NamedFieldSet compp_process_named_fields_set = {
-  &comp_player_conf.processes_count,
+  get_processes_count,
   "process",
   compp_process_named_fields,
   NULL,
   COMPUTER_PROCESS_TYPES_COUNT,
   sizeof(comp_player_conf.process_types[0]),
-  comp_player_conf.process_types,
+  get_processes_base,
 };
 
 static const struct NamedField compp_check_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",        -1, field(comp_player_conf.check_types[0].name          ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.check_types[0].mnemonic      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
-  {"VALUES",       0, field(comp_player_conf.check_types[0].flags         ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       1, field(comp_player_conf.check_types[0].turns_interval), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"FUNCTIONS",    0, field(comp_player_conf.check_types[0].func          ), 0, INT32_MIN,UINT32_MAX, computer_check_func_type,   value_default, assign_default},
-  {"PARAMS",       0, field(comp_player_conf.check_types[0].primary_parameter        ), 0, INT32_MIN,UINT32_MAX, NULL,            value_default, assign_default},
-  {"PARAMS",       1, field(comp_player_conf.check_types[0].secondary_parameter        ), 0, INT32_MIN,UINT32_MAX, NULL,          value_default, assign_default},
-  {"PARAMS",       2, field(comp_player_conf.check_types[0].tertiary_parameter        ), 0, INT32_MIN,UINT32_MAX, NULL,           value_default, assign_default},
-  {"PARAMS",       3, field(comp_player_conf.check_types[0].last_run_turn ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"NAME",        -1, field_t(struct ComputerCheck, name), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field_t(struct ComputerCheck, mnemonic), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field_t(struct ComputerCheck, flags), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field_t(struct ComputerCheck, turns_interval), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field_t(struct ComputerCheck, func), 0, INT32_MIN,UINT32_MAX, computer_check_func_type,   value_default, assign_default},
+  {"PARAMS",       0, field_t(struct ComputerCheck, primary_parameter), 0, INT32_MIN,UINT32_MAX, NULL,            value_default, assign_default},
+  {"PARAMS",       1, field_t(struct ComputerCheck, secondary_parameter), 0, INT32_MIN,UINT32_MAX, NULL,          value_default, assign_default},
+  {"PARAMS",       2, field_t(struct ComputerCheck, tertiary_parameter), 0, INT32_MIN,UINT32_MAX, NULL,           value_default, assign_default},
+  {"PARAMS",       3, field_t(struct ComputerCheck, last_run_turn), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
   {NULL},
 };
 
 
 const struct NamedFieldSet compp_check_named_fields_set = {
-  &comp_player_conf.checks_count,
+  get_checks_count,
   "check",
   compp_check_named_fields,
   NULL,
   COMPUTER_CHECKS_TYPES_COUNT,
   sizeof(comp_player_conf.check_types[0]),
-  comp_player_conf.check_types,
+  get_checks_base,
 };
 
 static const struct NamedField compp_event_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",        -1, field(comp_player_conf.event_types[0].name               ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.event_types[0].mnemonic           ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
-  {"VALUES",       0, field(comp_player_conf.event_types[0].cetype             ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       1, field(comp_player_conf.event_types[0].mevent_kind        ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"VALUES",       2, field(comp_player_conf.event_types[0].test_interval      ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"FUNCTIONS",    0, field(comp_player_conf.event_types[0].func_event         ), 0, INT32_MIN,UINT32_MAX, computer_event_func_type,   value_default, assign_default},
-  {"FUNCTIONS",    0, field(comp_player_conf.event_types[0].func_test          ), 0, INT32_MIN,UINT32_MAX, computer_event_test_func_type,   value_default, assign_default},
-  {"PROCESS",      0, field(comp_player_conf.event_types[0].process            ), 0, INT32_MIN,UINT32_MAX, NULL,              value_process_mnemonic, assign_default},
-  {"PARAMS",       0, field(comp_player_conf.event_types[0].primary_parameter             ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       1, field(comp_player_conf.event_types[0].secondary_parameter             ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       2, field(comp_player_conf.event_types[0].tertiary_parameter             ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
-  {"PARAMS",       3, field(comp_player_conf.event_types[0].last_test_gameturn ), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"NAME",        -1, field_t(struct ComputerEvent, name), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field_t(struct ComputerEvent, mnemonic), 0, INT32_MIN,UINT32_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field_t(struct ComputerEvent, cetype), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field_t(struct ComputerEvent, mevent_kind), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       2, field_t(struct ComputerEvent, test_interval), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field_t(struct ComputerEvent, func_event), 0, INT32_MIN,UINT32_MAX, computer_event_func_type,   value_default, assign_default},
+  {"FUNCTIONS",    0, field_t(struct ComputerEvent, func_test), 0, INT32_MIN,UINT32_MAX, computer_event_test_func_type,   value_default, assign_default},
+  {"PROCESS",      0, field_t(struct ComputerEvent, process), 0, INT32_MIN,UINT32_MAX, NULL,              value_process_mnemonic, assign_default},
+  {"PARAMS",       0, field_t(struct ComputerEvent, primary_parameter), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       1, field_t(struct ComputerEvent, secondary_parameter), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       2, field_t(struct ComputerEvent, tertiary_parameter), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       3, field_t(struct ComputerEvent, last_test_gameturn), 0, INT32_MIN,UINT32_MAX, NULL,                       value_default, assign_default},
   {NULL},
 };
 
 
 const struct NamedFieldSet compp_event_named_fields_set = {
-  &comp_player_conf.events_count,
+  get_events_count,
   "event",
   compp_event_named_fields,
   NULL,
   COMPUTER_EVENTS_TYPES_COUNT,
   sizeof(comp_player_conf.event_types[0]),
-  comp_player_conf.event_types,
+  get_events_base,
 };
 
 
 
 static const struct NamedField compp_computer_named_fields[] = {
   //name           //pos    //field                                                    //default //min     //max    //NamedCommand
-  {"NAME",             -1, field(comp_player_conf.computer_types[0].name),                     0, INT32_MIN,UINT32_MAX, NULL,         value_name,    assign_null},
-  {"TOOLTIPTEXTID",     0, field(comp_player_conf.computer_types[0].tooltip_stridx),GUIStr_Empty, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
-  {"ASSISTANTICON",     0, field(comp_player_conf.computer_types[0].sprite_idx),               0, INT32_MIN,UINT32_MAX, NULL,         value_icon,    assign_icon},
-  {"VALUES",            0, field(comp_player_conf.computer_types[0].dig_stack_size ),          0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            1, field(comp_player_conf.computer_types[0].processes_time ),          0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            2, field(comp_player_conf.computer_types[0].click_rate),               0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            3, field(comp_player_conf.computer_types[0].max_room_build_tasks),     0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            4, field(comp_player_conf.computer_types[0].turn_begin         ),      0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            5, field(comp_player_conf.computer_types[0].sim_before_dig     ),      0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            5, field(comp_player_conf.computer_types[0].drop_delay         ),      0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
-  {"PROCESSES",        -1, field(comp_player_conf.computer_types[0].processes          ),      0, INT32_MIN,UINT32_MAX, NULL,         value_processes, assign_null},
-  {"CHECKS",           -1, field(comp_player_conf.computer_types[0].checks             ),      0, INT32_MIN,UINT32_MAX, NULL,         value_checks, assign_null},
-  {"EVENTS",           -1, field(comp_player_conf.computer_types[0].events             ),      0, INT32_MIN,UINT32_MAX, NULL,         value_events, assign_null},
+  {"NAME",             -1, field_t(struct ComputerType, name),                     0, INT32_MIN,UINT32_MAX, NULL,         value_name,    assign_null},
+  {"TOOLTIPTEXTID",     0, field_t(struct ComputerType, tooltip_stridx),GUIStr_Empty, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"ASSISTANTICON",     0, field_t(struct ComputerType, sprite_idx),               0, INT32_MIN,UINT32_MAX, NULL,         value_icon,    assign_icon},
+  {"VALUES",            0, field_t(struct ComputerType, dig_stack_size),          0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            1, field_t(struct ComputerType, processes_time),          0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            2, field_t(struct ComputerType, click_rate),               0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            3, field_t(struct ComputerType, max_room_build_tasks),     0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            4, field_t(struct ComputerType, turn_begin),      0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            5, field_t(struct ComputerType, sim_before_dig),      0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            5, field_t(struct ComputerType, drop_delay),      0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"PROCESSES",        -1, field_t(struct ComputerType, processes),      0, INT32_MIN,UINT32_MAX, NULL,         value_processes, assign_null},
+  {"CHECKS",           -1, field_t(struct ComputerType, checks),      0, INT32_MIN,UINT32_MAX, NULL,         value_checks, assign_null},
+  {"EVENTS",           -1, field_t(struct ComputerType, events),      0, INT32_MIN,UINT32_MAX, NULL,         value_events, assign_null},
   {NULL},
 };
 
 
 const struct NamedFieldSet compp_computer_named_fields_set = {
-  &comp_player_conf.computers_count,
+  get_computers_count,
   "computer",
   compp_computer_named_fields,
   NULL,
   COMPUTER_MODELS_COUNT,
   sizeof(comp_player_conf.computer_types[0]),
-  comp_player_conf.computer_types,
+  get_computers_base,
 };
 
 /******************************************************************************/

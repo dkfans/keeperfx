@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
 #include "pre_inc.h"
 #include "config_magic.h"
 #include "globals.h"
@@ -450,60 +451,67 @@ static void assign_strength_before_last(const struct NamedField* named_field, in
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
 }
 
+#pragma push_macro("game")
+#undef game
 static const struct NamedField magic_powers_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
-    {"NAME",           0, field(game.conf.magic_conf.power_cfgstats[0].code_name),              0, INT32_MIN,UINT32_MAX, power_desc,                          value_name,      assign_null},
-    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          1, field(game.conf.magic_conf.power_cfgstats[0].strength[1]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          2, field(game.conf.magic_conf.power_cfgstats[0].strength[2]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          3, field(game.conf.magic_conf.power_cfgstats[0].strength[3]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          4, field(game.conf.magic_conf.power_cfgstats[0].strength[4]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          5, field(game.conf.magic_conf.power_cfgstats[0].strength[5]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          6, field(game.conf.magic_conf.power_cfgstats[0].strength[6]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          7, field(game.conf.magic_conf.power_cfgstats[0].strength[7]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[8]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_strength_before_last},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[9]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           1, field(game.conf.magic_conf.power_cfgstats[0].cost[1]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           2, field(game.conf.magic_conf.power_cfgstats[0].cost[2]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           3, field(game.conf.magic_conf.power_cfgstats[0].cost[3]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           4, field(game.conf.magic_conf.power_cfgstats[0].cost[4]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           5, field(game.conf.magic_conf.power_cfgstats[0].cost[5]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           6, field(game.conf.magic_conf.power_cfgstats[0].cost[6]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0,         0,UINT64_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
-    {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, INT32_MIN,UINT32_MAX, object_desc,                         value_default,   assign_artifact},
-    {"NAMETEXTID",     0, field(game.conf.magic_conf.power_cfgstats[0].name_stridx),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"TOOLTIPTEXTID",  0, field(game.conf.magic_conf.power_cfgstats[0].tooltip_stridx),         0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"SYMBOLSPRITES",  0, field(game.conf.magic_conf.power_cfgstats[0].bigsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
-    {"SYMBOLSPRITES",  1, field(game.conf.magic_conf.power_cfgstats[0].medsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
-    {"POINTERSPRITES", 0, field(game.conf.magic_conf.power_cfgstats[0].pointer_sprite_idx),     0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
-    {"PANELTABINDEX",  0, field(game.conf.magic_conf.power_cfgstats[0].panel_tab_idx),          0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"SOUNDSAMPLES",   0, field(game.conf.magic_conf.power_cfgstats[0].select_sample_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"PROPERTIES",     0, field(game.conf.magic_conf.power_cfgstats[0].config_flags),           0, INT32_MIN,UINT32_MAX, powermodel_properties_commands,      value_flagsfield,assign_default},
-    {"CASTEXPANDFUNC", 0, field(game.conf.magic_conf.power_cfgstats[0].overcharge_check_idx),   0, INT32_MIN,UINT32_MAX, powermodel_expand_check_func_type,   value_default,   assign_default},
-    {"PLAYERSTATE",    0, field(game.conf.magic_conf.power_cfgstats[0].work_state),             0, INT32_MIN,UINT32_MAX, player_state_commands,               value_default,   assign_default},
-    {"PARENTPOWER",    0, field(game.conf.magic_conf.power_cfgstats[0].parent_power),           0, INT32_MIN,UINT32_MAX, power_desc,                          value_default,   assign_default},
-    {"SOUNDPLAYED",    0, field(game.conf.magic_conf.power_cfgstats[0].select_sound_idx),       0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COOLDOWN",       0, field(game.conf.magic_conf.power_cfgstats[0].cast_cooldown),          0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"SPELL",          0, field(game.conf.magic_conf.power_cfgstats[0].spell_idx),              0, INT32_MIN,UINT32_MAX, spell_desc,                          value_default,   assign_default},
-    {"EFFECT",         0, field(game.conf.magic_conf.power_cfgstats[0].effect_id),              0, INT32_MIN,UINT32_MAX, NULL,                                value_effOrEffEl,assign_default},
-    {"USEFUNCTION",    0, field(game.conf.magic_conf.power_cfgstats[0].magic_use_func_idx),     0, INT32_MIN,UINT32_MAX, magic_use_func_commands,             value_function,  assign_default},
-    {"CREATURETYPE",   0, field(game.conf.magic_conf.power_cfgstats[0].creature_model),         0, INT32_MIN,UINT32_MAX, creature_desc,                       value_default,   assign_default},
-    {"COSTFORMULA",    0, field(game.conf.magic_conf.power_cfgstats[0].cost_formula),           0, INT32_MIN,UINT32_MAX, magic_cost_formula_commands,         value_default,   assign_default},
+    {"NAME",           0, field_t(struct PowerConfigStats, code_name),              0, INT32_MIN,UINT32_MAX, power_desc,                          value_name,      assign_null},
+    {"POWER",          0, field_a(struct PowerConfigStats, strength, 0),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          1, field_a(struct PowerConfigStats, strength, 1),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          2, field_a(struct PowerConfigStats, strength, 2),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          3, field_a(struct PowerConfigStats, strength, 3),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          4, field_a(struct PowerConfigStats, strength, 4),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          5, field_a(struct PowerConfigStats, strength, 5),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          6, field_a(struct PowerConfigStats, strength, 6),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          7, field_a(struct PowerConfigStats, strength, 7),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          8, field_a(struct PowerConfigStats, strength, 8),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_strength_before_last},
+    {"POWER",          8, field_a(struct PowerConfigStats, strength, 9),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           0, field_a(struct PowerConfigStats, cost, 0),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           1, field_a(struct PowerConfigStats, cost, 1),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           2, field_a(struct PowerConfigStats, cost, 2),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           3, field_a(struct PowerConfigStats, cost, 3),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           4, field_a(struct PowerConfigStats, cost, 4),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           5, field_a(struct PowerConfigStats, cost, 5),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           6, field_a(struct PowerConfigStats, cost, 6),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field_a(struct PowerConfigStats, cost, 7),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field_a(struct PowerConfigStats, cost, 8),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"DURATION",       0, field_t(struct PowerConfigStats, duration),               0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"CASTABILITY",   -1, field_t(struct PowerConfigStats, can_cast_flags),         0,         0,UINT64_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
+    {"ARTIFACT",       0, field_t(struct PowerConfigStats, artifact_model),         0, INT32_MIN,UINT32_MAX, object_desc,                         value_default,   assign_artifact},
+    {"NAMETEXTID",     0, field_t(struct PowerConfigStats, name_stridx),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"TOOLTIPTEXTID",  0, field_t(struct PowerConfigStats, tooltip_stridx),         0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"SYMBOLSPRITES",  0, field_t(struct PowerConfigStats, bigsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
+    {"SYMBOLSPRITES",  1, field_t(struct PowerConfigStats, medsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
+    {"POINTERSPRITES", 0, field_t(struct PowerConfigStats, pointer_sprite_idx),     0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
+    {"PANELTABINDEX",  0, field_t(struct PowerConfigStats, panel_tab_idx),          0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"SOUNDSAMPLES",   0, field_t(struct PowerConfigStats, select_sample_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"PROPERTIES",     0, field_t(struct PowerConfigStats, config_flags),           0, INT32_MIN,UINT32_MAX, powermodel_properties_commands,      value_flagsfield,assign_default},
+    {"CASTEXPANDFUNC", 0, field_t(struct PowerConfigStats, overcharge_check_idx),   0, INT32_MIN,UINT32_MAX, powermodel_expand_check_func_type,   value_default,   assign_default},
+    {"PLAYERSTATE",    0, field_t(struct PowerConfigStats, work_state),             0, INT32_MIN,UINT32_MAX, player_state_commands,               value_default,   assign_default},
+    {"PARENTPOWER",    0, field_t(struct PowerConfigStats, parent_power),           0, INT32_MIN,UINT32_MAX, power_desc,                          value_default,   assign_default},
+    {"SOUNDPLAYED",    0, field_t(struct PowerConfigStats, select_sound_idx),       0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"COOLDOWN",       0, field_t(struct PowerConfigStats, cast_cooldown),          0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"SPELL",          0, field_t(struct PowerConfigStats, spell_idx),              0, INT32_MIN,UINT32_MAX, spell_desc,                          value_default,   assign_default},
+    {"EFFECT",         0, field_t(struct PowerConfigStats, effect_id),              0, INT32_MIN,UINT32_MAX, NULL,                                value_effOrEffEl,assign_default},
+    {"USEFUNCTION",    0, field_t(struct PowerConfigStats, magic_use_func_idx),     0, INT32_MIN,UINT32_MAX, magic_use_func_commands,             value_function,  assign_default},
+    {"CREATURETYPE",   0, field_t(struct PowerConfigStats, creature_model),         0, INT32_MIN,UINT32_MAX, creature_desc,                       value_default,   assign_default},
+    {"COSTFORMULA",    0, field_t(struct PowerConfigStats, cost_formula),           0, INT32_MIN,UINT32_MAX, magic_cost_formula_commands,         value_default,   assign_default},
     {NULL},
 };
+#pragma pop_macro("game")
+
+static int32_t* get_powers_count(void) { return &game.conf.magic_conf.power_types_count; }
+static void* get_powers_base(void) { return game.conf.magic_conf.power_cfgstats; }
+
 
 const struct NamedFieldSet magic_powers_named_fields_set = {
-    &game.conf.magic_conf.power_types_count,
+    get_powers_count,
     "power",
     magic_powers_named_fields,
     power_desc,
     MAGIC_ITEMS_MAX,
     sizeof(game.conf.magic_conf.power_cfgstats[0]),
-    game.conf.magic_conf.power_cfgstats,
+    get_powers_base,
 };
 
 #ifdef __cplusplus

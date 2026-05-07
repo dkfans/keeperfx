@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
 #include "pre_inc.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -51,29 +52,36 @@ static const struct NamedCommand cubes_properties_flags[] = {
     {NULL,             0},
 };
 
+#pragma push_macro("game")
+#undef game
 static const struct NamedField cubes_named_fields[] = {
     //name           //pos    //field                                               //default //min     //max           //NamedCommand
-    {"Name",            0, field(game.conf.cube_conf.cube_cfgstats[0].code_name),         0,  0,                     0, cube_desc,                 value_name,      assign_null},
-    {"Textures",        0, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[0]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
-    {"Textures",        1, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[1]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
-    {"Textures",        2, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[2]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
-    {"Textures",        3, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[3]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
-    {"Textures",        4, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[4]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
-    {"Textures",        5, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[5]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
-    {"OwnershipGroup",  0, field(game.conf.cube_conf.cube_cfgstats[0].ownershipGroup),    0,  0, CUBE_OWNERSHIP_GROUPS, NULL,                      value_default,   assign_default},
-    {"Owner",           0, field(game.conf.cube_conf.cube_cfgstats[0].owner),             0,  0,         PLAYERS_COUNT, cmpgn_human_player_options,value_default,   assign_owner},
-    {"Properties",     -1, field(game.conf.cube_conf.cube_cfgstats[0].properties_flags),  0,  0,             UCHAR_MAX, cubes_properties_flags,    value_flagsfield,assign_default},
+    {"Name",            0, field_t(struct CubeConfigStats, code_name),         0,  0,                     0, cube_desc,                 value_name,      assign_null},
+    {"Textures",        0, field_a(struct CubeConfigStats, texture_id, 0),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        1, field_a(struct CubeConfigStats, texture_id, 1),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        2, field_a(struct CubeConfigStats, texture_id, 2),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        3, field_a(struct CubeConfigStats, texture_id, 3),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        4, field_a(struct CubeConfigStats, texture_id, 4),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        5, field_a(struct CubeConfigStats, texture_id, 5),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"OwnershipGroup",  0, field_t(struct CubeConfigStats, ownershipGroup),    0,  0, CUBE_OWNERSHIP_GROUPS, NULL,                      value_default,   assign_default},
+    {"Owner",           0, field_t(struct CubeConfigStats, owner),             0,  0,         PLAYERS_COUNT, cmpgn_human_player_options,value_default,   assign_owner},
+    {"Properties",     -1, field_t(struct CubeConfigStats, properties_flags),  0,  0,             UCHAR_MAX, cubes_properties_flags,    value_flagsfield,assign_default},
     {NULL},
 };
+#pragma pop_macro("game")
+
+static int32_t* get_cubes_count(void) { return &game.conf.cube_conf.cube_types_count; }
+static void* get_cubes_base(void) { return game.conf.cube_conf.cube_cfgstats; }
+
 
 const struct NamedFieldSet cubes_named_fields_set = {
-    &game.conf.cube_conf.cube_types_count,
+    get_cubes_count,
     "cube",
     cubes_named_fields,
     cube_desc,
     CUBE_ITEMS_MAX,
     sizeof(game.conf.cube_conf.cube_cfgstats[0]),
-    game.conf.cube_conf.cube_cfgstats,
+    get_cubes_base,
 };
 
 

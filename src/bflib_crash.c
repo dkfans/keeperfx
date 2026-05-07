@@ -33,7 +33,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <excpt.h>
-#include <imagehlp.h>
 #include <dbghelp.h>
 #include <psapi.h>
 #endif
