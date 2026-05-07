@@ -442,36 +442,127 @@ static void assign_artifact(const struct NamedField* named_field, int64_t value,
     game.conf.object_conf.object_to_power_artifact[value] = idx;
 }
 
-static void assign_strength_before_last(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+static int64_t value_strength(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    // Old power max is one short for spell max, so duplicate final power value to use for lvl10 creatures.
-    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
-    named_field++;
-    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    char word_buf[COMMAND_WORD_LEN];
+
+    int32_t pos = 0;
+    long len = strlen(value_text);
+    int num_params = 0;
+    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
+    {
+        num_params++;
+    }
+    
+    pos = 0;
+
+    if (num_params == 2)
+    {
+        get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf));
+        int32_t strength_value = atoi(word_buf);
+        get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf));
+        int32_t slot = atoi(word_buf) - 1;
+        if (flag_is_set(flags,ccf_SplitExecution))
+        {
+            return strength_value | ((int64_t)slot << 32);
+        }
+        else
+        {
+            struct PowerConfigStats* powerst = get_power_model_stats(idx);
+            powerst->strength[slot] = strength_value;
+            return 0;
+        }
+
+    }
+    
+    if (flag_is_set(flags,ccf_SplitExecution) || (num_params != 9 && num_params != 10))
+    {
+        ERRORLOG("Invalid strength value \"%s\" for power %d", value_text, idx);
+        return -1;
+    }
+
+    int32_t i = 0;
+    struct PowerConfigStats* powerst = get_power_model_stats(idx);
+    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
+    {
+        int32_t strength_value = atoi(word_buf);
+        powerst->strength[i] = strength_value;
+        i++;
+    }
+
+    if (num_params == 9)
+    {
+        powerst->strength[9] = powerst->strength[8];
+    }
+    return 0;
+
+}
+
+static int64_t value_cost(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    char word_buf[COMMAND_WORD_LEN];
+
+    int32_t pos = 0;
+    long len = strlen(value_text);
+    int num_params = 0;
+    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
+    {
+        num_params++;
+    }
+    
+    pos = 0;
+
+    if (num_params == 2)
+    {
+        get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf));
+        int32_t cost_value = atoi(word_buf);
+        get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf));
+        int32_t slot = atoi(word_buf) - 1;
+        if (flag_is_set(flags,ccf_SplitExecution))
+        {
+            return cost_value | ((int64_t)slot << 32);
+        }
+        else
+        {
+            struct PowerConfigStats* powerst = get_power_model_stats(idx);
+            powerst->cost[slot] = cost_value;
+            return 0;
+        }
+
+    }
+    
+    if (flag_is_set(flags,ccf_SplitExecution) || (num_params != 9))
+    {
+        ERRORLOG("Invalid cost value \"%s\" for power %d", value_text, idx);
+        return -1;
+    }
+
+    int32_t i = 0;
+    struct PowerConfigStats* powerst = get_power_model_stats(idx);
+    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
+    {
+        int32_t cost_value = atoi(word_buf);
+        powerst->cost[i] = cost_value;
+        i++;
+    }
+    return 0;
+}
+
+static void assign_strength_cost(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    if (flag_is_set(flags,ccf_SplitExecution))
+    {
+        int32_t assign_value = value & 0xFFFFFFFF;
+        int32_t slot = (value >> 32) & 0xFFFFFFFF;
+        ((int32_t*)named_field->field)[slot] = assign_value;
+    }
 }
 
 static const struct NamedField magic_powers_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
     {"NAME",           0, field(game.conf.magic_conf.power_cfgstats[0].code_name),              0, INT32_MIN,UINT32_MAX, power_desc,                          value_name,      assign_null},
-    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          1, field(game.conf.magic_conf.power_cfgstats[0].strength[1]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          2, field(game.conf.magic_conf.power_cfgstats[0].strength[2]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          3, field(game.conf.magic_conf.power_cfgstats[0].strength[3]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          4, field(game.conf.magic_conf.power_cfgstats[0].strength[4]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          5, field(game.conf.magic_conf.power_cfgstats[0].strength[5]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          6, field(game.conf.magic_conf.power_cfgstats[0].strength[6]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          7, field(game.conf.magic_conf.power_cfgstats[0].strength[7]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[8]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_strength_before_last},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[9]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           1, field(game.conf.magic_conf.power_cfgstats[0].cost[1]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           2, field(game.conf.magic_conf.power_cfgstats[0].cost[2]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           3, field(game.conf.magic_conf.power_cfgstats[0].cost[3]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           4, field(game.conf.magic_conf.power_cfgstats[0].cost[4]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           5, field(game.conf.magic_conf.power_cfgstats[0].cost[5]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           6, field(game.conf.magic_conf.power_cfgstats[0].cost[6]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",         -1, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, INT32_MIN,UINT32_MAX, NULL,                                value_strength,  assign_strength_cost},
+    {"COST",          -1, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, INT32_MIN,UINT32_MAX, NULL,                                value_cost,      assign_strength_cost},
     {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
     {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0,         0,UINT64_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
     {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, INT32_MIN,UINT32_MAX, object_desc,                         value_default,   assign_artifact},
@@ -482,7 +573,7 @@ static const struct NamedField magic_powers_named_fields[] = {
     {"POINTERSPRITES", 0, field(game.conf.magic_conf.power_cfgstats[0].pointer_sprite_idx),     0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
     {"PANELTABINDEX",  0, field(game.conf.magic_conf.power_cfgstats[0].panel_tab_idx),          0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
     {"SOUNDSAMPLES",   0, field(game.conf.magic_conf.power_cfgstats[0].select_sample_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"PROPERTIES",     0, field(game.conf.magic_conf.power_cfgstats[0].config_flags),           0, INT32_MIN,UINT32_MAX, powermodel_properties_commands,      value_flagsfield,assign_default},
+    {"PROPERTIES",    -1, field(game.conf.magic_conf.power_cfgstats[0].config_flags),           0, INT32_MIN,UINT32_MAX, powermodel_properties_commands,      value_flagsfield,assign_default},
     {"CASTEXPANDFUNC", 0, field(game.conf.magic_conf.power_cfgstats[0].overcharge_check_idx),   0, INT32_MIN,UINT32_MAX, powermodel_expand_check_func_type,   value_default,   assign_default},
     {"PLAYERSTATE",    0, field(game.conf.magic_conf.power_cfgstats[0].work_state),             0, INT32_MIN,UINT32_MAX, player_state_commands,               value_default,   assign_default},
     {"PARENTPOWER",    0, field(game.conf.magic_conf.power_cfgstats[0].parent_power),           0, INT32_MIN,UINT32_MAX, power_desc,                          value_default,   assign_default},

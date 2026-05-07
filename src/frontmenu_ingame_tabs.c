@@ -2879,6 +2879,21 @@ void update_powers_tab_to_config(void)
         ibtn->draw_call = gui_area_spell_button;
         ibtn->maintain_call = maintain_spell;
     }
+
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_DungeonTop)
+    {
+        if (menu_is_active(GMnu_SPELL))
+        {
+            turn_off_menu(GMnu_SPELL);
+            turn_on_menu(GMnu_SPELL);
+        }
+        else if (menu_is_active(GMnu_SPELL2))
+        {
+            turn_off_menu(GMnu_SPELL2);
+            turn_on_menu(GMnu_SPELL2);
+        }
+    }
 }
 
 void draw_placefiller(long scr_x, long scr_y, long units_per_px)
