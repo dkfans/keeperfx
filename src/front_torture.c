@@ -360,7 +360,7 @@ void fronttorture_update(void)
             {
                 volume = 0;
                 doorsnd->volume_step = 0;
-                stop_sample(emit_id, door->smptbl_id, 0);
+                stop_sample(emit_id, door->smptbl_id);
             } else
             if (volume >= FULL_LOUDNESS)
             {

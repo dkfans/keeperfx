@@ -265,7 +265,7 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     for (long i = 0; i < crsound->count; i++)
     {
-        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i))
           return true;
     }
     return false;
@@ -281,9 +281,9 @@ void stop_creature_sound(struct Thing *thing, long snd_idx)
 
     for (int i = 0; i < crsound->count; i++)
     {
-        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i))
         {
-            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, crsound->index+i, 0);
+            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, crsound->index+i);
         }
     }
 }
@@ -295,16 +295,29 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
       return;
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
-    if (crsound->index <= 0) {
+    if (crsound->index == 0) {
         SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
     long i = SOUND_RANDOM(crsound->count);
-    SYNCDBG(18,"Playing sample %ld (index %ld) for creature %d",snd_idx,crsound->index+i,thing->model);
-    if ( use_flags ) {
-        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 8, priority, FULL_LOUDNESS);
+    
+    // Handle negative indices (custom sounds) differently
+    // For custom sounds: -1, -2, -3, etc. represent sequential custom bank samples
+    // We subtract the offset to keep them negative
+    SoundSmplTblID sample_idx;
+    if (crsound->index < 0) {
+        sample_idx = crsound->index - i;  // -1, -2, -3, etc.
     } else {
-        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 0, priority, FULL_LOUDNESS);
+        sample_idx = crsound->index + i;  // Regular positive indices
+    }
+    
+    SYNCDBG(18,"Playing sample %d (sound type %ld, index %d) for creature %d",
+            sample_idx, snd_idx, crsound->index, thing->model);
+    
+    if ( use_flags ) {
+        thing_play_sample(thing, sample_idx, NORMAL_PITCH, 0, 3, 8, priority, FULL_LOUDNESS);
+    } else {
+        thing_play_sample(thing, sample_idx, NORMAL_PITCH, 0, 3, 0, priority, FULL_LOUDNESS);
     }
 }
 

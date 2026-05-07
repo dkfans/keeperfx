@@ -24,6 +24,7 @@
 #include "bflib_dernc.h"
 #include "config.h"
 #include "config_creature.h"
+#include "config_sounds.h"
 #include "config_crtrmodel.h"
 #include "config_cubes.h"
 #include "config_effects.h"
@@ -725,6 +726,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
+              if (k == 0 && word_buf[0] != '0')
+                  k = (int)get_sound_id(word_buf);
               spconf->caster_affect_sound = k;
               n++;
           }

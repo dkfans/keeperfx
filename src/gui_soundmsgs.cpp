@@ -18,9 +18,12 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "gui_soundmsgs.h"
+#include "config_sounds.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "bflib_sndlib.h"
+#include "bflib_fileio.h"
 #include "bflib_planar.h"
 #include <deque>
 #include <algorithm>
@@ -169,6 +172,26 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 		} else if (played_recently(sample_id)) {
 			SYNCDBG(8, "Sample ID (%d) played recently, skipping", sample_id);
 			return false;
+		}
+		if (g_speech_overrides[sample_id][0] != '\0') {
+			const char* path = g_speech_overrides[sample_id];
+			// Split path into directory and filename so we can insert a language subdir.
+			// e.g. "speech/vampire.ogg" -> try "speech/eng/vampire.ogg" first.
+			const char* slash = strrchr(path, '/');
+			const char* lang   = get_language_lwrstr(install_info.lang_id);
+			const char* resolved = nullptr;
+			if (slash != nullptr && lang != nullptr && lang[0] != '\0') {
+				// Build lang-specific candidate: dir/<lang>/filename
+				char lang_path[512];
+				snprintf(lang_path, sizeof(lang_path), "%.*s/%s/%s",
+					(int)(slash - path), path, lang, slash + 1);
+				const char* candidate = prepare_file_fmtpath(FGrp_Main, "%s", lang_path);
+				if (candidate != nullptr && LbFileExists(candidate))
+					resolved = candidate;
+			}
+			if (resolved == nullptr)
+				resolved = prepare_file_fmtpath(FGrp_Main, "%s", path);
+			return output_custom_message(resolved, duration);
 		}
 		auto msg = std::make_unique<DefaultMessage>(sample_id, duration);
 		if (speech_sample_playing()) {

@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "config_creature.h"
+#include "config_sounds.h"
 #include "config_terrain.h"
 #include "custom_sprites.h"
 #include "thing_effects.h"
@@ -107,7 +108,7 @@ static const struct NamedField objects_named_fields[] = {
     {"PICKUPOFFSET",             1, field(game.conf.object_conf.object_cfgstats[0].object_picked_up_offset.delta_y), 0,SHRT_MIN,SHRT_MAX, NULL,                        value_default,   assign_default},
     {"TOOLTIPTEXTID",            0, field(game.conf.object_conf.object_cfgstats[0].tooltip_stridx),     GUIStr_Empty, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
     {"TOOLTIPTEXTID",            1, field(game.conf.object_conf.object_cfgstats[0].tooltip_optional),              0,        0,        1, NULL,                        value_default,   assign_default},
-    {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0,        0,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0,        0,UINT32_MAX, NULL,                        value_sound_id,  assign_default},
     {"UPDATEFUNCTION",           0, field(game.conf.object_conf.object_cfgstats[0].updatefn_idx),                  0, INT32_MIN,UINT32_MAX, object_update_functions_desc,value_function,  assign_default},
     {"DRAWCLASS",                0, field(game.conf.object_conf.object_cfgstats[0].draw_class),          ODC_Default, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"PERSISTENCE",              0, field(game.conf.object_conf.object_cfgstats[0].persistence),                   0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},

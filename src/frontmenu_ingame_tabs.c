@@ -24,6 +24,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_guibtns.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
@@ -2896,7 +2897,7 @@ void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
     {
         struct Packet* pckt = get_packet(player->id_number);
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
-        play_non_3d_sample(62);
+        play_non_3d_sample(snd_tab_click);
     }
 }
 
@@ -2909,7 +2910,7 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
     {
         struct Packet* pckt = get_packet(player->id_number);
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
-        play_non_3d_sample(62);
+        play_non_3d_sample(snd_tab_click);
     }
 }
 

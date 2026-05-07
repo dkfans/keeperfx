@@ -72,6 +72,7 @@ src/config_objects.c \
 src/config_players.c \
 src/config_powerhands.c \
 src/config_rules.c \
+src/config_sounds.c \
 src/config_settings.c \
 src/config_slabsets.c \
 src/config_strings.c \
@@ -182,6 +183,7 @@ src/lua_api_player.c \
 src/lua_api_room.c \
 src/lua_api_things.c \
 src/lua_api_slabs.c \
+src/lua_api_sound.c \
 src/lua_base.c \
 src/lua_cfg_funcs.c \
 src/lua_params.c \
@@ -249,6 +251,7 @@ src/roomspace_detection.c \
 src/scrcapt.c \
 src/slab_data.c \
 src/sounds.c \
+src/sound_manager.cpp \
 src/spdigger_stack.c \
 src/spritesheet.cpp \
 src/tasks_list.c \

@@ -1081,8 +1081,8 @@ TbBool frontmap_load(void)
     {
         // don't use play_non_3d_sample; we want looping, fading, and volume control
         SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
-        play_sample(emit_id, campaign.ambient_good, 0, 0x40, NORMAL_PITCH, -1, 2, 0);
-        play_sample(emit_id, campaign.ambient_bad, 0, 0x40, NORMAL_PITCH, -1, 2, 0);
+        play_sample(emit_id, campaign.ambient_good, 0, 0x40, NORMAL_PITCH, -1, 2);
+        play_sample(emit_id, campaign.ambient_bad, 0, 0x40, NORMAL_PITCH, -1, 2);
     }
     set_music_volume(settings.music_volume);
     frontmap_start_music();
