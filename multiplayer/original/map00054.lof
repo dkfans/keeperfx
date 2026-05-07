@@ -1,0 +1,10 @@
+; KeeperFX Level Overview File (LOF)
+KIND = MULTI
+NAME_TEXT = Multiplayer 5
+ENSIGN_POS = 879 654
+ENSIGN_ZOOM = 879 654
+PLAYERS = 2
+OPTIONS = 
+AUTHOR = Bullfrog
+DESCRIPTION = Original Dungeon Keeper multiplayer level
+DATE = 1997-06-01
