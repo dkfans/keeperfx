@@ -653,139 +653,6 @@ long creature_model_id(const char * name)
     return -1;
 }
 
-TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "experience");
-
-        case 1: // PAYINCREASEONEXP
-                game.conf.crtr_conf.exp.pay_increase_on_exp = k;
-        case 2: // SPELLDAMAGEINCREASEONEXP
-                game.conf.crtr_conf.exp.spell_damage_increase_on_exp = k;
-        case 3: // RANGEINCREASEONEXP
-                game.conf.crtr_conf.exp.range_increase_on_exp = k;
-        case 4: // JOBVALUEINCREASEONEXP
-                game.conf.crtr_conf.exp.job_value_increase_on_exp = k;
-        case 5: // HEALTHINCREASEONEXP
-                game.conf.crtr_conf.exp.health_increase_on_exp = k;
-        case 6: // STRENGTHINCREASEONEXP
-                game.conf.crtr_conf.exp.strength_increase_on_exp = k;
-        case 7: // DEXTERITYINCREASEONEXP
-                game.conf.crtr_conf.exp.dexterity_increase_on_exp = k;
-        case 8: // DEFENSEINCREASEONEXP
-                game.conf.crtr_conf.exp.defense_increase_on_exp = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 9: // LOYALTYINCREASEONEXP
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.exp.loyalty_increase_on_exp = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 10: // ARMOURINCREASEONEXP
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.exp.armour_increase_on_exp = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 11: // SIZEINCREASEONEXP
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.exp.size_increase_on_exp = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 12: // EXPFORHITTINGINCREASEONEXP
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 13: // TRAININGCOSTINCREASEONEXP
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.exp.training_cost_increase_on_exp = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case 14: // SCAVENGINGCOSTINCREASEONEXP
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num, block_name, config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    if (game.conf.crtr_conf.model_count < 1)
-    {
-        WARNLOG("No creature species defined in [%s] block of %s file.",
-            block_name, config_textname);
-    }
-    return true;
-}
-
 TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct CreatureInstanceConfig * inst_cfg;
@@ -1571,54 +1438,16 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_creaturetypes_common_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-          WARNMSG("Parsing file \"%s\" common blocks failed.",fname);
-    }
-    if ((result) && ((flags & CnfLd_ListOnly) == 0)) // This block doesn't have anything we'd like to parse in list mode
-    {
-        result = parse_creaturetype_experience_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-          WARNMSG("Parsing file \"%s\" experience block failed.",fname);
-    }
-    if (result)
-    {
-        result = parse_creaturetype_instance_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-          WARNMSG("Parsing file \"%s\" instance blocks failed.",fname);
-    }
-    if (result)
-    {
-        result = parse_creaturetype_job_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-          WARNMSG("Parsing file \"%s\" job blocks failed.",fname);
-    }
-    if (result)
-    {
-        result = parse_creaturetype_angerjob_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-          WARNMSG("Parsing file \"%s\" angerjob blocks failed.",fname);
-    }
-    if (result)
-    {
-        result = parse_creaturetype_attackpref_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-          WARNMSG("Parsing file \"%s\" attackpref blocks failed.",fname);
-    }
+    parse_named_field_blocks(buf, len, fname, flags, &creaturetype_common_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &creaturetype_experience_named_fields_set);
+    parse_creaturetype_instance_blocks(buf, len, fname, flags);
+    parse_creaturetype_job_blocks(buf, len, fname, flags);
+    //parse_named_field_blocks(buf, len, fname, flags, &creaturetype_instance_named_fields_set);
+    //parse_named_field_blocks(buf, len, fname, flags, &creaturetype_job_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &creaturetype_angerjob_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &creaturetype_attackpref_named_fields_set);
+
+
     //Freeing and exiting
     free(buf);
     return result;
