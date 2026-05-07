@@ -470,11 +470,52 @@ void SDLCALL on_music_finished() {
 } // local
 
 extern "C" void FreeAudio() {
+	SYNCDBG(6, "Starting audio cleanup");
+
+	// Check if SDL_mixer audio device is open before attempting to halt playback
+	int frequency = 0;
+	int channels = 0;
+	unsigned short format = 0;
+	int audio_opened = Mix_QuerySpec(&frequency, &format, &channels);
+
+	if (audio_opened > 0) {
+		SYNCDBG(7, "SDL_mixer audio device is open, halting playback");
+		// Stop all SDL_mixer playback first
+		Mix_HaltMusic();
+		Mix_HaltChannel(-1);
+	} else {
+		SYNCDBG(7, "SDL_mixer audio device already closed, skipping Mix_Halt calls");
+	}
+
+	// Free SDL_mixer resources before OpenAL cleanup
+	{
+		std::lock_guard<std::mutex> guard(g_mix_mutex);
+		if (auto music = g_mix_music.exchange(nullptr)) {
+			Mix_FreeMusic(music);
+			SYNCDBG(8, "Freed SDL_mixer music");
+		}
+		if (g_streamed_sample) {
+			Mix_FreeChunk(g_streamed_sample);
+			g_streamed_sample = nullptr;
+			SYNCDBG(8, "Freed SDL_mixer streamed sample");
+		}
+	}
+
+	// Properly shutdown SDL_mixer before clearing OpenAL resources
+	ShutDownSDLAudio();
+	SYNCDBG(7, "SDL_mixer shutdown complete");
+
+	// Clear OpenAL sources and buffers while context is still current
+	// The unique_ptr destructors will handle proper OpenAL cleanup
 	g_sources.clear();
 	g_banks[0].clear();
 	g_banks[1].clear();
+	SYNCDBG(7, "Cleared OpenAL sources and sound banks");
+
+	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
 	g_openal_context = nullptr;
 	g_openal_device = nullptr;
+	SYNCDBG(6, "Audio cleanup complete");
 }
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
