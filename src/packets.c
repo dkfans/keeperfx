@@ -1666,7 +1666,7 @@ static void replace_disconnected_players_with_ai(void) {
         return;
     }
     TbBool host_disconnected = (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED);
-    for (int player_index = 0; player_index < NET_PLAYERS_COUNT; player_index++) {
+    for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
         struct PlayerInfo* player = get_player(player_index);
         if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
             continue;

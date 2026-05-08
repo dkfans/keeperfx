@@ -30,7 +30,6 @@
 #include "net_game.h"
 #include "front_landview.h"
 #include "front_network.h"
-#include "net_received_packets.h"
 #include "net_matchmaking.h"
 #include "net_lan.h"
 #include "keeperfx.hpp"
@@ -68,15 +67,45 @@ void UpdateLocalPlayerInfo(NetUserId id) {
     strcpy(localPlayerInfoPtr[id].name, netstate.users[id].name);
 }
 
+char* begin_net_message(enum NetMessageType msg_type) {
+    char *ptr = netstate.msg_buffer;
+    *ptr = msg_type;
+    return ptr + 1;
+}
+
+void send_message_buffer(NetUserId dest, const char* end_ptr) {
+    netstate.sp->sendmsg_single(dest, netstate.msg_buffer, end_ptr - netstate.msg_buffer);
+}
+
 void SendUserUpdate(NetUserId dest, NetUserId updated_user) {
-    char * ptr = InitMessageBuffer(NETMSG_USERUPDATE);
+    char * ptr = begin_net_message(NETMSG_USERUPDATE);
     *ptr = updated_user;
     ptr += 1;
     *ptr = netstate.users[updated_user].progress;
     ptr += 1;
     strcpy(ptr, netstate.users[updated_user].name);
     ptr += strlen(netstate.users[updated_user].name) + 1;
-    SendMessage(dest, ptr);
+    send_message_buffer(dest, ptr);
+}
+
+void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
+    char *ptr = begin_net_message(NETMSG_CHATMESSAGE);
+    *ptr = player_id;
+    ptr += 1;
+    strcpy(ptr, message);
+    ptr += strlen(message) + 1;
+    if (netstate.my_id != SERVER_ID) {
+        if (IsUserActive(SERVER_ID)) {
+            send_message_buffer(SERVER_ID, ptr);
+        }
+        return;
+    }
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+        if (id == netstate.my_id || !IsUserActive(id)) {
+            continue;
+        }
+        send_message_buffer(id, ptr);
+    }
 }
 
 void LbNetwork_SetServerPort(int port) {

@@ -49,11 +49,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
+struct TbNetworkPlayerInfo net_player_info[MAX_NET_USERS];
 struct TbNetworkSessionNameEntry *net_session[32];
 long net_number_of_sessions;
 long net_session_index_active;
-struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
+struct TbNetworkPlayerName net_player[MAX_NET_USERS];
 struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
@@ -76,13 +76,13 @@ struct StartupSyncPacket {
 short setup_network_service(enum FrontendNetService service)
 {
   struct ServiceInitData *init_data = NULL;
-  SYNCMSG("Initializing 4-players type %d network", service);
+  SYNCMSG("Initializing %d-players type %d network", MAX_NET_USERS, service);
   memset(net_player_info, 0, sizeof(net_player_info));
   if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
     process_network_error(-800);
     return 0;
   }
-  if ( LbNetwork_Init(NS_ENET_UDP, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(NS_ENET_UDP, MAX_NET_USERS, &net_player_info[0], init_data) )
   {
     process_network_error(-800);
     return 0;
@@ -109,10 +109,10 @@ int setup_old_network_service(void)
 }
 
 
-static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
     int k = 0;
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+    for (int i = 0; i < MAX_NET_USERS; i++) {
         const struct StartupSyncPacket *sync = &startup_sync_packets[i];
         if (!net_player_info[i].network_user_active) {
             continue;
@@ -144,23 +144,23 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
     }
 }
 
-static void sync_startup_input_lag(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+static void sync_startup_input_lag(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
     game.input_lag_turns = startup_sync_packets[get_host_player_id()].input_lag_turns;
     game.skip_initial_input_turns = calculate_skip_input();
     NETLOG("Startup input lag synced: input_lag=%d", game.input_lag_turns);
 }
 
-static void sync_startup_zoom_distance(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+static void sync_startup_zoom_distance(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
     zoom_distance_setting = startup_sync_packets[get_host_player_id()].zoom_distance_setting;
     frontview_zoom_distance_setting = startup_sync_packets[get_host_player_id()].frontview_zoom_distance_setting;
 }
 
-static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
     const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].map_checksum;
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+    for (int i = 0; i < MAX_NET_USERS; i++) {
         if (net_player_info[i].network_user_active && startup_sync_packets[i].map_checksum != host_checksum) {
             ERRORLOG("Level checksums %08x(Host) != %08x(Client) for player %d", host_checksum, startup_sync_packets[i].map_checksum, i);
             return false;
@@ -170,9 +170,9 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
     return true;
 }
 
-static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[NET_PLAYERS_COUNT])
+static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+    for (int i = 0; i < MAX_NET_USERS; i++) {
         if (net_player_info[i].network_user_active && startup_sync_packets[i].sprite_zip_checksum != sprite_zip_combined_checksum) {
             message_add_fmt(MsgType_Player, 0, "Verify /fxdata/ is the same across all PCs.");
             message_add_fmt(MsgType_Player, 0, "WARNING: Custom sprite mismatch with %s!", network_player_name(i));
@@ -181,7 +181,7 @@ static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket s
 }
 
 static struct StartupSyncPacket s_local_startup_sync;
-static struct StartupSyncPacket s_startup_sync_packets[NET_PLAYERS_COUNT];
+static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
 
 static void build_local_startup_sync(void)
 {
@@ -203,7 +203,7 @@ static void build_local_startup_sync(void)
 
 static TbBool all_human_players_sent_startup_sync(void)
 {
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
+    for (int i = 0; i < MAX_NET_USERS; i++) {
         if (net_player_info[i].network_user_active && !s_startup_sync_packets[i].startup_sync_packet_valid) {
             return false;
         }
@@ -241,7 +241,7 @@ static void setup_network_player_numbers(void)
     TbBool is_set = false;
     int k = 0;
     SYNCDBG(6, "Starting");
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+    for (int i = 0; i < MAX_NET_USERS; i++)
     {
         struct PlayerInfo* player = get_player(i);
         if (net_player_info[i].network_user_active)
@@ -268,7 +268,7 @@ void setup_count_players(void)
   } else
   {
     game.active_players_count = 0;
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+    for (int i = 0; i < MAX_NET_USERS; i++)
     {
       if (net_player_info[i].network_user_active)
         game.active_players_count++;
@@ -292,14 +292,14 @@ void init_players_network_game(CoroutineLoop *context)
  */
 TbBool network_player_active(int plyr_idx)
 {
-    if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT))
+    if ((plyr_idx < 0) || (plyr_idx >= MAX_NET_USERS))
         return false;
     return (net_player_info[plyr_idx].network_user_active != 0);
 }
 
 const char *network_player_name(int plyr_idx)
 {
-    if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT))
+    if ((plyr_idx < 0) || (plyr_idx >= MAX_NET_USERS))
         return NULL;
     return net_player_info[plyr_idx].name;
 }

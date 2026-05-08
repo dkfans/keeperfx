@@ -50,24 +50,14 @@ extern "C" {
 
 #define NETWORK_FPS 60
 
-char* InitMessageBuffer(enum NetMessageType msg_type) {
-    char* ptr = netstate.msg_buffer;
-    *ptr = msg_type;
-    return ptr + 1;
-}
-
 static TbBool can_exchange_with_peer(NetUserId peer_id) {
     return (peer_id != netstate.my_id) &&
         (netstate.users[peer_id].progress != USER_UNUSED) &&
         (my_player_number == get_host_player_id() || peer_id == SERVER_ID);
 }
 
-void SendMessage(NetUserId dest, const char* end_ptr) {
-    netstate.sp->sendmsg_single(dest, netstate.msg_buffer, end_ptr - netstate.msg_buffer);
-}
-
 void SendFrameToPeers(NetUserId source_id, const void * send_buf, size_t buf_size, int seq_nbr, enum NetMessageType msg_type) {
-    char * ptr = InitMessageBuffer(msg_type);
+    char * ptr = begin_net_message(msg_type);
     *ptr = source_id;
     ptr += 1;
     *(int *) ptr = seq_nbr;
@@ -87,7 +77,7 @@ void SendFrameToPeers(NetUserId source_id, const void * send_buf, size_t buf_siz
             netstate.sp->sendmsg_single_unsequenced(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
             netstate.sp->sendmsg_single(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
         } else {
-            SendMessage(id, ptr);
+            send_message_buffer(id, ptr);
         }
     }
     if (msg_type == NETMSG_GAMEPLAY) {
@@ -96,7 +86,8 @@ void SendFrameToPeers(NetUserId source_id, const void * send_buf, size_t buf_siz
 }
 
 TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
-    if (netstate.sp->readmsg(source, netstate.msg_buffer, sizeof(netstate.msg_buffer)) <= 0) {
+    size_t message_size = netstate.sp->readmsg(source, netstate.msg_buffer, sizeof(netstate.msg_buffer));
+    if (message_size <= 0) {
         ERRORLOG("Problem reading message from %u", source);
         return Lb_FAIL;
     }
@@ -146,12 +137,12 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
         NETMSG("User %s successfully logged in", netstate.users[source].name);
         netstate.users[source].progress = USER_LOGGEDIN;
         play_non_3d_sample(76);
-        char * msg_ptr = InitMessageBuffer(NETMSG_LOGIN);
+        char * msg_ptr = begin_net_message(NETMSG_LOGIN);
         *msg_ptr = source;
         msg_ptr += 1;
         memcpy(msg_ptr, &netstate.users[SERVER_ID].version, sizeof(netstate.users[SERVER_ID].version));
         msg_ptr += sizeof(netstate.users[SERVER_ID].version);
-        SendMessage(source, msg_ptr);
+        send_message_buffer(source, msg_ptr);
         NetUserId uid;
         for (uid = 0; uid < netstate.max_players; uid += 1) {
             if (netstate.users[uid].progress == USER_UNUSED) {
@@ -236,6 +227,14 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
             return Lb_OK;
         }
         process_chat_message_end(player_id, ptr);
+        if (netstate.my_id == SERVER_ID && source != SERVER_ID) {
+            for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+                if (id == netstate.my_id || id == source || !IsUserActive(id)) {
+                    continue;
+                }
+                netstate.sp->sendmsg_single(id, netstate.msg_buffer, message_size);
+            }
+        }
         return Lb_OK;
     }
     return Lb_OK;
@@ -247,14 +246,14 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name) {
         ERRORLOG("Login credentials too long");
         return Lb_FAIL;
     }
-    char * ptr = InitMessageBuffer(NETMSG_LOGIN);
+    char * ptr = begin_net_message(NETMSG_LOGIN);
     strcpy(ptr, netstate.password);
     ptr += strlen(netstate.password) + 1;
     strcpy(ptr, plyr_name);
     ptr += strlen(plyr_name) + 1;
     memcpy(ptr, &net_current_version, sizeof(net_current_version));
     ptr += sizeof(net_current_version);
-    SendMessage(SERVER_ID, ptr);
+    send_message_buffer(SERVER_ID, ptr);
     TbClockMSec start = LbTimerClock();
     while (true) {
         TbClockMSec elapsed = LbTimerClock() - start;
@@ -402,21 +401,9 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     return Lb_OK;
 }
 
-void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
-    char* ptr = InitMessageBuffer(NETMSG_CHATMESSAGE);
-    *ptr = player_id;
-    ptr += 1;
-    strcpy(ptr, message);
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
-        if (id != netstate.my_id && IsUserActive(id)) {
-            netstate.sp->sendmsg_single(id, netstate.msg_buffer, 3 + strlen(message));
-        }
-    }
-}
-
 void LbNetwork_BroadcastUnpauseTimesync(void) {
     MULTIPLAYER_LOG("LbNetwork_BroadcastUnpauseTimesync");
-    InitMessageBuffer(NETMSG_UNPAUSE);
+    begin_net_message(NETMSG_UNPAUSE);
     for (NetUserId id = 0; id < netstate.max_players; id += 1) {
         if (id != netstate.my_id && IsUserActive(id)) {
             netstate.sp->sendmsg_single(id, netstate.msg_buffer, 1);

@@ -338,7 +338,7 @@ static TbBool check_frontend_version_mismatch(void)
   if (netstate.my_id != SERVER_ID) {
     remote_id = my_player_number;
   }
-  for (int32_t i = 0; i < NET_PLAYERS_COUNT; i++) {
+  for (int32_t i = 0; i < MAX_NET_USERS; i++) {
     if (!network_player_active(i)) {
       continue;
     }
@@ -371,7 +371,7 @@ static TbBool check_frontend_version_mismatch(void)
 static void process_frontend_packets(void)
 {
   int32_t i;
-  for (i = 0; i < NET_PLAYERS_COUNT; i++) {
+  for (i = 0; i < MAX_NET_USERS; i++) {
     net_screen_packet[i].networkstatus_flags &= ~NetStat_PlayerConnected;
   }
   struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
@@ -394,7 +394,7 @@ static void process_frontend_packets(void)
   write_debug_screenpackets();
 #endif
   TbBool version_mismatch_found = check_frontend_version_mismatch();
-  for (i = 0; i < NET_PLAYERS_COUNT; i++) {
+  for (i = 0; i < MAX_NET_USERS; i++) {
     nspckt = &net_screen_packet[i];
     if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) != 0) {
         switch (screen_packet_action(nspckt)) {
@@ -435,7 +435,7 @@ static void process_frontend_packets(void)
   if (frontend_alliances == -1) {
     frontend_alliances = 0;
   }
-  for (i = 0; i < NET_PLAYERS_COUNT; i++) {
+  for (i = 0; i < MAX_NET_USERS; i++) {
     nspckt = &net_screen_packet[i];
     if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) == 0) {
       if (frontend_is_player_allied(my_player_number, i)) {
