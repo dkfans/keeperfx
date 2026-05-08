@@ -1171,9 +1171,11 @@ TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
     }
     
 
-
-    find_and_load_lof_files();
-    find_and_load_lif_files();
+    if (fgroup != FGrp_Campgn)
+    {
+        find_and_load_lof_files();
+        find_and_load_lif_files();
+    }
     load_or_create_high_score_table();
     // Update GUI arrays to new config
     update_room_tab_to_config();
@@ -1243,7 +1245,6 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
     struct GameCampaign* campgn = &clist->items[clist->items_num];
     if (load_campaign(cmpgn_fname,campgn,CnfLd_ListOnly, fgroup))
     {
-      JUSTLOG("Loaded campaign file: %s",campgn->fname);
         switch(fgroup)
         {
          case FGrp_VarLevels:
