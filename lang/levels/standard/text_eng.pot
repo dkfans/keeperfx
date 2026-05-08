@@ -861,16 +861,6 @@ msgctxt "In-game message"
 msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
 msgstr ""
 
-#: guitext:142
-msgctxt "In-game message"
-msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-msgstr ""
-
-#: guitext:143
-msgctxt "In-game message"
-msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-msgstr ""
-
 #: guitext:144
 msgctxt "In-game message"
 msgid "You have found the rival Keeper. He is currently minding his own business, unaware of your presence. Keep him oblivious until you have an army at his door."
