@@ -1171,7 +1171,7 @@ TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
     }
     
 
-    if (pack == CampgnT_MultiplayerMappack)
+    if (fgroup != FGrp_Campgn)
     {
         find_and_load_lof_files();
         find_and_load_lif_files();
