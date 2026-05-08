@@ -718,13 +718,11 @@ namespace
     }
 
     /**
-     * Completely reads a message. Blocks until entire message has been read.
-     * Will not block if msgready has returned > 0.
+     * Reads and removes the oldest queued message from a user.
      * @param source The source user.
-     * @param buffer
-     * @param max_size The maximum size of the message to be received.
-     * @return The actual size of the message received, <= max_size. If 0, an
-     *  error occurred.
+     * @param buffer Output buffer for the received message.
+     * @param max_size Maximum number of bytes copied into the buffer.
+     * @return Number of bytes copied, or 0 if no message is queued.
      */
     size_t bf_enet_readmsg(NetUserId source, char *buffer, size_t max_size)
     {
