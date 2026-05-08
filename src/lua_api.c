@@ -1003,6 +1003,33 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
     }
 }
 
+static int lua_New_creature_type(lua_State* L)
+{
+    const char* creature_name = luaL_checkstring(L, 1);
+
+    if (game.conf.crtr_conf.model_count >= CREATURE_TYPES_MAX)
+    {
+        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", creature_name, CREATURE_TYPES_MAX);
+        return 0;
+    }
+
+    int i = game.conf.crtr_conf.model_count;
+    game.conf.crtr_conf.model_count++;
+    snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", creature_name);
+    creature_desc[i - 1].name = game.conf.crtr_conf.model[i].name;
+    creature_desc[i - 1].num = i;
+
+    if (load_default_creaturemodel_config(i, 0))
+    {
+        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
+    }
+    else
+    {
+        SCRPTERRLOG("Failed to load config for creature '%s'(%d).", game.conf.crtr_conf.model[i].name, i);
+    }
+    return 0;
+}
+
 static int lua_Set_door_configuration(lua_State *L)
 {
     set_configuration(L, &trapdoor_door_named_fields_set, "SET_DOOR_CONFIGURATION");
@@ -2232,7 +2259,7 @@ static const luaL_Reg global_methods[] = {
    {"HideHeroGate"                        ,lua_Hide_hero_gate                  },
 
 //Manipulating Configs
-    //{"NewCreatureType"                    ,lua_New_creature_type               },
+    {"NewCreatureType"                      ,lua_New_creature_type               },
     //{"NewObjectType"                      ,lua_New_object_type                 },
     //{"NewTrapType"                        ,lua_New_trap_type                   },
     //{"NewRoomType"                        ,lua_New_room_type                   },
