@@ -36,14 +36,17 @@ extern "C" {
 #define TIMEOUT_JOIN_LOBBY 2000
 #define TIMEOUT_LOBBY_EXCHANGE 3000
 #define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
+#define PEER_TIMEOUT_LIMIT 0
+#define PEER_TIMEOUT_MIN_MS 5000
+#define PEER_TIMEOUT_MAX_MS 30000
 /******************************************************************************/
 #pragma pack(1)
 
 // New Declarations Here ======================================================
 
-#define MAX_N_USERS 4
-#define MAX_N_PEERS (MAX_N_USERS - 1)
-#define SERVER_ID   0
+#define MAX_NET_USERS 2
+#define MAX_NET_PEERS (MAX_NET_USERS - 1)
+#define SERVER_ID     0
 
 typedef int NetUserId;
 
@@ -255,6 +258,7 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
+void    LbNetwork_SendChatMessageImmediate(int player_id, const char *message);
 void    LbNetwork_UpdateInputLagIfHost(void);
 /******************************************************************************/
 #ifdef __cplusplus

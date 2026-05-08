@@ -106,7 +106,7 @@ extern struct TbSpriteSheet *map_hand;
 extern long map_sound_fade;
 extern unsigned char *map_screen;
 extern long fe_net_level_selected;
-extern struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
+extern struct ScreenPacket net_screen_packet[MAX_NET_USERS];
 
 #pragma pack()
 /******************************************************************************/

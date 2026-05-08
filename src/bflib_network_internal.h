@@ -60,7 +60,7 @@ struct NetFrame {
 
 struct NetState {
     const struct NetSP *sp;
-    struct NetUser users[MAX_N_USERS];
+    struct NetUser users[MAX_NET_USERS];
     struct NetFrame *exchg_queue;
     char password[32];
     NetUserId my_id;
@@ -87,8 +87,8 @@ TbBool OnNewUser(NetUserId *assigned_id);
 void OnDroppedUser(NetUserId id, enum NetDropReason reason);
 TbBool IsUserActive(NetUserId id);
 void UpdateLocalPlayerInfo(NetUserId id);
-char* InitMessageBuffer(enum NetMessageType msg_type);
-void SendMessage(NetUserId dest, const char* end_ptr);
+char* begin_net_message(enum NetMessageType msg_type);
+void send_message_buffer(NetUserId dest, const char* end_ptr);
 void SendUserUpdate(NetUserId dest, NetUserId updated_user);
 
 #ifdef __cplusplus
