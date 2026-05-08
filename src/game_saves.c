@@ -1262,7 +1262,7 @@ TbBool find_and_set_continue_campaign(void)
     if (best_campaign_fname[0] != '\0')
     {
         SYNCLOG("Most recent continue file found for campaign %s", best_campaign_fname);
-        return change_campaign(best_campaign_fname);
+        return change_campaign(CampgnT_Campaign, best_campaign_fname);
     }
 
     SYNCLOG("No continue files found in any campaign directory");
