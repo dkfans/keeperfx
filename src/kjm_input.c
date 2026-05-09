@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kjm_input.h"
+#include <math.h>
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -25,8 +26,12 @@
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
+#include "bflib_joyst.h"
+#include "bflib_planar.h"
 #include "bflib_math.h"
 #include "bflib_sprfnt.h"
+#include "bflib_inputctrl.h"
+#include "bflib_datetm.h"
 
 #include "config_settings.h"
 #include "config_strings.h"
@@ -178,6 +183,173 @@ struct KeyToStringInit key_to_string_init[] = {
 // it should be highlighted in font color #3 in the list, to show that it was swapped
 TbBool defined_keys_that_have_been_swapped[GAME_KEYS_COUNT] = { false };
 /******************************************************************************/
+
+float movement_accum_x = 0.0f;
+float movement_accum_y = 0.0f;
+
+
+static TbClockMSec delta_time_previous_msec = 0;
+static float input_delta_time = 0.0f;
+
+static float get_input_delta_time()
+{
+    if (LbTimerClock == NULL) {
+        return 0.0f;
+    }
+
+    TbClockMSec current_msec = LbTimerClock();
+    if (delta_time_previous_msec == 0 || current_msec < delta_time_previous_msec) {
+        delta_time_previous_msec = current_msec;
+        return 0.0f;
+    }
+
+    TbClockMSec elapsed_msec = current_msec - delta_time_previous_msec;
+    delta_time_previous_msec = current_msec;
+    float calculated_delta_time = ((float)elapsed_msec / 1000.0f) * turns_per_second;
+    return min(calculated_delta_time, 1.0f);
+}
+
+#define STICK_DEADZONE      0.15f
+
+static void poll_controller_movement(Sint16 lx, Sint16 ly)
+{
+    float nx = lx / 32768.0f;
+    float ny = ly / 32768.0f;
+    
+    // Handle horizontal movement - just accumulate for local camera
+    float move_mag_x = fabsf(nx);
+    if (move_mag_x > STICK_DEADZONE) {
+        float norm_mag = (move_mag_x - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
+        float curved = norm_mag * norm_mag;
+        float presses_this_frame = curved * input_delta_time;
+        
+        movement_accum_x += (nx > 0 ? presses_this_frame : -presses_this_frame);
+
+        struct PlayerInfo* player = get_my_player();
+        if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect) {
+            struct Packet* packet = get_packet(my_player_number);
+            while (movement_accum_x >= 1.0f) {
+                set_packet_control(packet, PCtr_MoveRight);
+                movement_accum_x -= 1.0f;
+            }
+            while (movement_accum_x <= -1.0f) {
+                set_packet_control(packet, PCtr_MoveLeft);
+                movement_accum_x += 1.0f;
+            }
+        }
+    }
+    
+    // Handle vertical movement - just accumulate for local camera
+    float move_mag_y = fabsf(ny);
+    if (move_mag_y > STICK_DEADZONE) {
+        float norm_mag = (move_mag_y - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
+        float curved = norm_mag * norm_mag;
+        float presses_this_frame = curved * input_delta_time;
+        
+        movement_accum_y += (ny > 0 ? presses_this_frame : -presses_this_frame);
+        
+        struct PlayerInfo* player = get_my_player();
+        if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect) {
+            struct Packet* packet = get_packet(my_player_number);
+            while (movement_accum_y >= 1.0f) {
+                set_packet_control(packet, PCtr_MoveDown);
+                movement_accum_y -= 1.0f;
+            }
+            while (movement_accum_y <= -1.0f) {
+                set_packet_control(packet, PCtr_MoveUp);
+                movement_accum_y += 1.0f;
+            }
+        }
+    }
+    // Packets will be sent by send_camera_catchup_packets() based on position difference
+}
+
+void poll_controller_mouse_clicks()
+{
+    static TbControllerButtons previous_controller_button_state;
+    TbControllerButtons left_buttons = get_game_key_controller_buttons(Gkey_LeftClick);
+    TbControllerButtons right_buttons = get_game_key_controller_buttons(Gkey_RightClick);
+    
+    struct TbPoint delta = {0, 0};
+    
+    if ((controller_button_state & left_buttons) != (previous_controller_button_state & left_buttons)) {
+        if (controller_button_state & left_buttons) {
+            mouseControl(MActn_LBUTTONDOWN, &delta);
+        } else {
+            mouseControl(MActn_LBUTTONUP, &delta);
+        }
+    }
+    if ((controller_button_state & right_buttons) != (previous_controller_button_state & right_buttons)) {
+        if (controller_button_state & right_buttons) {
+            mouseControl(MActn_RBUTTONDOWN, &delta);
+        } else {
+            mouseControl(MActn_RBUTTONUP, &delta);
+        }
+    }
+    previous_controller_button_state = controller_button_state;
+}
+
+#define SECONDS_TO_CROSS   20.0f
+static void poll_controller_mouse_movement(Sint16 rx, Sint16 ry)
+{
+    static float mouse_accum_x;
+    static float mouse_accum_y;
+    float nx = rx / 32768.0f;
+    float ny = ry / 32768.0f;
+    float mag = sqrtf(nx * nx + ny * ny);
+
+    if (mag < STICK_DEADZONE)
+        return;
+
+    nx /= mag;
+    ny /= mag;
+
+    float norm_mag = (mag - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
+    float curved = norm_mag * norm_mag;
+    float pixels_per_second = lbDisplay.GraphicsWindowWidth / SECONDS_TO_CROSS;
+    float pixels_this_frame = pixels_per_second * input_delta_time;
+
+    mouse_accum_x += nx * curved * pixels_this_frame;
+    mouse_accum_y += ny * curved * pixels_this_frame;
+
+    int dx = (int)mouse_accum_x;
+    int dy = (int)mouse_accum_y;
+
+    mouse_accum_x -= dx;
+    mouse_accum_y -= dy;
+
+    if (dx != 0 || dy != 0) {
+        struct TbPoint mouseDelta = { dx, dy };
+        mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+    }
+}
+
+void update_controller_inputs()
+{
+    if (!controller_connected())
+    {
+        return;
+    }
+    input_delta_time = get_input_delta_time();
+
+    poll_controller_mouse_clicks();
+    int16_t mouse_x = 0;
+    int16_t mouse_y = 0;
+    poll_controller_mouse_movement(mouse_x, mouse_y);
+    int16_t movement_x = 0;
+    int16_t movement_y = 0;
+    poll_controller_movement(movement_x, movement_y);
+
+}
+
+TbBool poll_inputs(void)
+{
+    TbBool user_not_quit = LbPollInputs();
+    update_controller_inputs();
+
+    return user_not_quit;
+}
+
 /**
  * Returns X position of mouse cursor on screen.
  */

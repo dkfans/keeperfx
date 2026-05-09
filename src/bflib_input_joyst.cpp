@@ -20,8 +20,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_joyst.h"
-#include <math.h>
-#include <chrono>
 #include "bflib_inputctrl.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
@@ -49,19 +47,6 @@ static SDL_GameController *controller = NULL;
 
 static TbControllerButtons internal_button_state = 0;
 TbControllerButtons controller_button_state = 0;
-
-//static float mouse_accum_x = 0.0f;
-//static float mouse_accum_y = 0.0f;
-float movement_accum_x = 0.0f;
-float movement_accum_y = 0.0f;
-
-#define TimePoint std::chrono::high_resolution_clock::time_point
-#define TimeNow std::chrono::high_resolution_clock::now()
-
-static TimePoint delta_time_previous_timepoint = TimeNow;
-static float input_delta_time = 0.0f;
-
-
 
 static void open_controller(int device_index)
 {
@@ -216,146 +201,6 @@ void controller_rumble(long ms)
     }
 }
 
-/*7
-#define STICK_DEADZONE      0.15f
-
-static void poll_controller_movement(Sint16 lx, Sint16 ly)
-{
-    float nx = lx / 32768.0f;
-    float ny = ly / 32768.0f;
-    
-    // Handle horizontal movement - just accumulate for local camera
-    float move_mag_x = fabsf(nx);
-    if (move_mag_x > STICK_DEADZONE) {
-        float norm_mag = (move_mag_x - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
-        float curved = norm_mag * norm_mag;
-        float presses_this_frame = curved * input_delta_time;
-        
-        movement_accum_x += (nx > 0 ? presses_this_frame : -presses_this_frame);
-
-        struct PlayerInfo* player = get_my_player();
-        if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect) {
-            struct Packet* packet = get_packet(my_player_number);
-            while (movement_accum_x >= 1.0f) {
-                set_packet_control(packet, PCtr_MoveRight);
-                movement_accum_x -= 1.0f;
-            }
-            while (movement_accum_x <= -1.0f) {
-                set_packet_control(packet, PCtr_MoveLeft);
-                movement_accum_x += 1.0f;
-            }
-        }
-    }
-    
-    // Handle vertical movement - just accumulate for local camera
-    float move_mag_y = fabsf(ny);
-    if (move_mag_y > STICK_DEADZONE) {
-        float norm_mag = (move_mag_y - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
-        float curved = norm_mag * norm_mag;
-        float presses_this_frame = curved * input_delta_time;
-        
-        movement_accum_y += (ny > 0 ? presses_this_frame : -presses_this_frame);
-        
-        struct PlayerInfo* player = get_my_player();
-        if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect) {
-            struct Packet* packet = get_packet(my_player_number);
-            while (movement_accum_y >= 1.0f) {
-                set_packet_control(packet, PCtr_MoveDown);
-                movement_accum_y -= 1.0f;
-            }
-            while (movement_accum_y <= -1.0f) {
-                set_packet_control(packet, PCtr_MoveUp);
-                movement_accum_y += 1.0f;
-            }
-        }
-    }
-    // Packets will be sent by send_camera_catchup_packets() based on position difference
-}
-
-#define SECONDS_TO_CROSS   20.0f
-static void poll_controller_mouse(Sint16 rx, Sint16 ry)
-{
-    float nx = rx / 32768.0f;
-    float ny = ry / 32768.0f;
-    float mag = sqrtf(nx * nx + ny * ny);
-
-    if (mag < STICK_DEADZONE)
-        return;
-
-    nx /= mag;
-    ny /= mag;
-
-    float norm_mag = (mag - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
-    float curved = norm_mag * norm_mag;
-    float pixels_per_second = lbDisplay.GraphicsWindowWidth / SECONDS_TO_CROSS;
-    float pixels_this_frame = pixels_per_second * input_delta_time;
-
-    mouse_accum_x += nx * curved * pixels_this_frame;
-    mouse_accum_y += ny * curved * pixels_this_frame;
-
-    int dx = (int)mouse_accum_x;
-    int dy = (int)mouse_accum_y;
-
-    mouse_accum_x -= dx;
-    mouse_accum_y -= dy;
-
-    if (dx != 0 || dy != 0) {
-        struct TbPoint mouseDelta = { dx, dy };
-        mouseControl(MActn_MOUSEMOVE, &mouseDelta);
-    }
-}
-*/
-
-static float get_input_delta_time()
-{
-    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
-    delta_time_previous_timepoint = TimeNow;
-    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * turns_per_second;
-    return min(calculated_delta_time, 1.0f);
-}
-void poll_controller()
-{
-    input_delta_time = get_input_delta_time();
-    if (controller != NULL) {
-        
-        //analog sticks and dpad, layout based on what's available, with mouse being most important, then movement, then cam rotation/zoom
-/*
-        
-        Sint16 leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
-        Sint16 leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
-        poll_controller_movement(leftX, leftY);
-
-        Sint16 rx = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
-        Sint16 ry = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
-        poll_controller_mouse(rx, ry);
-
-
-
-        // Handle triggers for mouse buttons
-        Sint16 lt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
-        Sint16 rt = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-        struct TbPoint delta = {0, 0};
-        if (lt > 10000 && !lt_pressed) {
-            lt_pressed = true;
-            mouseControl(MActn_RBUTTONDOWN, &delta);
-        } else if (lt <= 10000 && lt_pressed) {
-            lt_pressed = false;
-            mouseControl(MActn_RBUTTONUP, &delta);
-        }
-        if (rt > 10000 && !rt_pressed) {
-            rt_pressed = true;
-            mouseControl(MActn_LBUTTONDOWN, &delta);
-        } else if (rt <= 10000 && rt_pressed) {
-            rt_pressed = false;
-            mouseControl(MActn_LBUTTONUP, &delta);
-        }
-
-*/
-    }
-        
-}
-
-
 void init_controller_input()
 {
     if (SDL_Init(SDL_INIT_GAMECONTROLLER) < 0) {
@@ -381,7 +226,7 @@ void init_controller_input()
     }
 }
 
-float cbtn_axis_value(ControllerButtons btn)
+float cbtn_axis_value(TbControllerButtons btn)
 {
     if (btn & (CBtn_LS_LEFT|CBtn_LS_RIGHT|CBtn_LS_UP|CBtn_LS_DOWN|CBtn_RS_LEFT|CBtn_RS_RIGHT|CBtn_RS_UP|CBtn_RS_DOWN))
     {
@@ -391,6 +236,11 @@ float cbtn_axis_value(ControllerButtons btn)
         return 1.0;
     else
         return 0.0;
+}
+
+TbBool controller_connected()
+{
+    return controller != NULL;
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -98,10 +98,10 @@ long old_mx;
 long old_my;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
-    {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_RS_UP,               BMV_Visible,        },       // Gkey_MoveUp
-    {"MoveDown",              GUIStr_CtrlDown,                KC_S, KMod_NONE,               CBtn_RS_DOWN,             BMV_Visible,        },       // Gkey_MoveDown
-    {"MoveLeft",              GUIStr_CtrlLeft,                KC_A, KMod_NONE,               CBtn_RS_LEFT,             BMV_Visible,        },       // Gkey_MoveLeft
-    {"MoveRight",             GUIStr_CtrlRight,               KC_D, KMod_NONE,               CBtn_RS_RIGHT,            BMV_Visible,        },       // Gkey_MoveRight
+    {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
+    {"MoveDown",              GUIStr_CtrlDown,                KC_S, KMod_NONE,               CBtn_LS_DOWN,             BMV_Visible,        },       // Gkey_MoveDown
+    {"MoveLeft",              GUIStr_CtrlLeft,                KC_A, KMod_NONE,               CBtn_LS_LEFT,             BMV_Visible,        },       // Gkey_MoveLeft
+    {"MoveRight",             GUIStr_CtrlRight,               KC_D, KMod_NONE,               CBtn_LS_RIGHT,            BMV_Visible,        },       // Gkey_MoveRight
     {"RotateMod",             GUIStr_CtrlRotate,              KC_LCONTROL, KMod_NONE,        CBtn_B,                   BMV_Visible,        },       // Gkey_RotateMod
     {"SpeedMod",              GUIStr_CtrlSpeed,               KC_LSHIFT, KMod_NONE,          CBtn_A,                   BMV_Visible,        },       // Gkey_SpeedMod
     {"RotateCW",              GUIStr_CtrlRotateLeft,          KC_DELETE, KMod_NONE,          CBtn_A|CBtn_DPAD_LEFT,    BMV_Visible,        },       // Gkey_RotateCW
@@ -165,13 +165,20 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"LVShowAllEnsigns",      GUIStr_MnuUnused,               KC_F11, KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVShowAllEnsigns,
     {"LVNextLevel",           GUIStr_MnuUnused,               KC_F10, KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVNextLevel,
     {"LVPrevLevel",           GUIStr_MnuUnused,               KC_F9,  KMod_CONTROL,          CBtn_NONE,                BMV_Hidden,         },       // Gkey_LVPrevLevel,
-    {"NextInstance",          GUIStr_NextInstance,            KC_UNASSIGNED,  KMod_NONE,     CBtn_RIGHTSHOULDER,       BMV_ControllerOnly, },       // Gkey_NextInstance,
-    {"PrevInstance",          GUIStr_PrevInstance,            KC_UNASSIGNED,  KMod_NONE,     CBtn_LEFTSHOULDER,        BMV_ControllerOnly, },       // Gkey_PrevInstance,
-    {"ButtonSnapLeft",        GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_LEFT,           BMV_ControllerOnly, },       // Gkey_ButtonSnapLeft,
-    {"ButtonSnapRight",       GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_RIGHT,          BMV_ControllerOnly, },       // Gkey_ButtonSnapRight,
-    {"ButtonSnapUp",          GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_UP,             BMV_ControllerOnly, },       // Gkey_ButtonSnapUp,
-    {"ButtonSnapDown",        GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_DPAD_DOWN,           BMV_ControllerOnly, },       // Gkey_ButtonSnapDown,
-    {"PauseMenu",             GUIStr_Keeper,                  KC_UNASSIGNED,  KMod_NONE,     CBtn_START,               BMV_ControllerOnly, },       // Gkey_PauseMenu,
+    //TODO these are currently fixed, as controllers can't be reconfigured yet
+    {"NextInstance",          GUIStr_NextInstance,            KC_UNASSIGNED, KMod_NONE,      CBtn_RIGHTSHOULDER,       BMV_ControllerOnly, },       // Gkey_NextInstance,
+    {"PrevInstance",          GUIStr_PrevInstance,            KC_UNASSIGNED, KMod_NONE,      CBtn_LEFTSHOULDER,        BMV_ControllerOnly, },       // Gkey_PrevInstance,
+    {"ButtonSnapLeft",        GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_DPAD_LEFT,           BMV_ControllerOnly, },       // Gkey_ButtonSnapLeft,
+    {"ButtonSnapRight",       GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_DPAD_RIGHT,          BMV_ControllerOnly, },       // Gkey_ButtonSnapRight,
+    {"ButtonSnapUp",          GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_DPAD_UP,             BMV_ControllerOnly, },       // Gkey_ButtonSnapUp,
+    {"ButtonSnapDown",        GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_DPAD_DOWN,           BMV_ControllerOnly, },       // Gkey_ButtonSnapDown,
+    {"PauseMenu",             GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_START,               BMV_ControllerOnly, },       // Gkey_PauseMenu,
+    {"LeftClick",             GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_R2,                  BMV_ControllerOnly, },       // GKey_LeftClick,
+    {"RightClick",            GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_L2,                  BMV_ControllerOnly, },       // GKey_RightClick,
+    {"MouseUp",               GUIStr_CtrlUp,                  KC_UNASSIGNED, KMod_NONE,      CBtn_RS_UP,               BMV_ControllerOnly, },       // Gkey_MouseUp
+    {"MouseDown",             GUIStr_CtrlDown,                KC_UNASSIGNED, KMod_NONE,      CBtn_RS_DOWN,             BMV_ControllerOnly, },       // Gkey_MouseDown
+    {"MouseLeft",             GUIStr_CtrlLeft,                KC_UNASSIGNED, KMod_NONE,      CBtn_RS_LEFT,             BMV_ControllerOnly, },       // Gkey_MouseLeft
+    {"MouseRight",            GUIStr_CtrlRight,               KC_UNASSIGNED, KMod_NONE,      CBtn_RS_RIGHT,            BMV_ControllerOnly, },       // Gkey_MouseRight
 };
 
 
@@ -356,6 +363,13 @@ int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods)
         controller_button_state &= ~settings.kbkeys[key_id].controller_buttons;
 
   return result;
+}
+
+TbControllerButtons get_game_key_controller_buttons(long key_id)
+{
+    if ((key_id < 0) || (key_id >= GAME_KEYS_COUNT))
+        return 0;
+    return settings.kbkeys[key_id].controller_buttons;
 }
 
 /**

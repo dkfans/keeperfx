@@ -25,7 +25,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
-#include "bflib_inputctrl.h"
+#include "bflib_joyst.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "thing_data.h"

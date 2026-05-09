@@ -20,7 +20,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_inputctrl.h"
+#include "bflib_joyst.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"

@@ -103,7 +103,9 @@ enum GameKeys {
     Gkey_ButtonSnapRight,
     Gkey_ButtonSnapUp,
     Gkey_ButtonSnapDown,
-    Gkey_Pause_Menu,
+    Gkey_PauseMenu,
+    Gkey_LeftClick,
+    Gkey_RightClick,
     GAME_KEYS_COUNT
 };
 
@@ -159,6 +161,7 @@ short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];
 TbBool check_current_gui_layer(long layer_id);
 TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health);
+TbControllerButtons get_game_key_controller_buttons(long key_id);
 
 /******************************************************************************/
 #ifdef __cplusplus

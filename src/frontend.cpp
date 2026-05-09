@@ -3436,7 +3436,7 @@ void draw_debug_messages() {
  */
 short frontend_draw(void)
 {
-    LbWindowsControl();
+    poll_inputs();
     short result;
     switch (frontend_menu_state)
     {

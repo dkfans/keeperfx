@@ -63,6 +63,11 @@ enum ControllerButtons {
 
 extern TbControllerButtons controller_button_state;
 
+void controller_rumble(long ms);
+void init_controller_input();
+float cbtn_axis_value(TbControllerButtons btn);
+TbBool controller_connected();
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
