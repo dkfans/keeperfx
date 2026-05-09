@@ -105,7 +105,11 @@ enum GameKeys {
     Gkey_ButtonSnapDown,
     Gkey_PauseMenu,
     Gkey_LeftClick,
-    Gkey_RightClick,
+    Gkey_RightClick,    
+    Gkey_MouseUp,
+    Gkey_MouseDown,
+    Gkey_MouseLeft,
+    Gkey_MouseRight,
     GAME_KEYS_COUNT
 };
 
