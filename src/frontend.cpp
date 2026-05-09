@@ -36,7 +36,7 @@
 #include "bflib_fileio.h"
 #include "bflib_filelst.h"
 #include "bflib_sound.h"
-#include "bflib_network.h"
+#include "net_lobby.h"
 #include "config.h"
 #include "config_strings.h"
 #include "config_campaigns.h"

@@ -22,7 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
-#include "bflib_network.h"
+#include "net_main.h"
+#include "net_lobby.h"
 #include "front_network.h"
 
 #ifdef __cplusplus
@@ -36,6 +37,15 @@ extern "C" {
 #pragma pack(1)
 
 struct TbNetworkSessionNameEntry;
+
+struct ConfigInfo {
+    char str_join[20];
+    char net_player_name[20];
+};
+
+struct TbNetworkPlayerName {
+    char name[20];
+};
 
 /******************************************************************************/
 extern struct TbNetworkPlayerInfo net_player_info[MAX_NET_USERS];

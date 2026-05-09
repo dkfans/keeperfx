@@ -43,8 +43,9 @@ src/bflib_mshandler.cpp \
 src/bflib_mspointer.cpp \
 src/bflib_netsession.c \
 src/bflib_netsp.cpp \
-src/bflib_network.cpp \
 src/bflib_network_exchange.cpp \
+src/net_main.c \
+src/net_lobby.c \
 src/bflib_planar.c \
 src/bflib_render.c \
 src/bflib_render_gpoly.c \

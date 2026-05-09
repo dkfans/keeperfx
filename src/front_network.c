@@ -22,9 +22,10 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_network.h"
 #include "bflib_network_exchange.h"
-#include "bflib_network_internal.h"
+#include "net_main.h"
+#include "net_lobby.h"
+#include "net_input_lag.h"
 #include "bflib_netsession.h"
 #include "bflib_guibtns.h"
 #include "bflib_keybrd.h"

@@ -29,7 +29,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
-#include "bflib_network.h"
+#include "net_lobby.h"
 #include "bflib_network_exchange.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"

@@ -34,7 +34,7 @@
 #include "bflib_mouse.h"
 #include "bflib_mshandler.hpp"
 #include "bflib_filelst.h"
-#include "bflib_network.h"
+#include "net_lobby.h"
 #include "net_resync.h"
 #include "bflib_planar.h"
 

@@ -61,6 +61,12 @@ struct TbNetworkPlayerEntry {
   char name[32];
 };
 
+struct TbNetworkCallbackData {
+  char svc_name[12];
+  char plyr_name[20];
+  char session_data[32];
+};
+
 struct ReceiveCallbacks {
   void (*addMsg)(unsigned long, char *, void *);
   void (*deleteMsg)(unsigned long, void *);
