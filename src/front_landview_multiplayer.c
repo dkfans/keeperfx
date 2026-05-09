@@ -23,7 +23,8 @@
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
 #include "bflib_mouse.h"
-#include "bflib_network.h"
+#include "net_main.h"
+#include "net_lobby.h"
 #include "bflib_network_exchange.h"
 #include "bflib_sndlib.h"
 #include "bflib_sound.h"
@@ -103,8 +104,8 @@ const int32_t hand_limp_yoffset[] = { -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, 
 
 long fe_net_level_selected;
 static struct NetLandLocalState net_map_local;
-static struct NetLandRemoteSlap net_map_remote_slap[NET_PLAYERS_COUNT];
-struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
+static struct NetLandRemoteSlap net_map_remote_slap[MAX_NET_USERS];
+struct ScreenPacket net_screen_packet[MAX_NET_USERS];
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -298,7 +299,7 @@ static void draw_netmap_players_hands(void)
 
     now = LbTimerClock();
     anim_frame = now / 150;
-    for (i=0; i < NET_PLAYERS_COUNT; i++) {
+    for (i=0; i < MAX_NET_USERS; i++) {
         int32_t slap_frame;
 
         if (!is_connected_screen_packet(&net_screen_packet[i])) {
@@ -450,7 +451,7 @@ TbBool frontnetmap_load(void)
     frontmap_start_music();
     if (fe_network_active) {
         net_number_of_players = 0;
-        for (long i = 0; i < NET_PLAYERS_COUNT; i++) {
+        for (long i = 0; i < MAX_NET_USERS; i++) {
             struct ScreenPacket* nspck = &net_screen_packet[i];
             if (is_connected_screen_packet(nspck)) {
                 net_number_of_players++;
@@ -495,7 +496,7 @@ static TbBool frontnetmap_update_players(struct NetLandPlayersState * nmps)
     struct ScreenPacket* my_nspck = &net_screen_packet[my_player_number];
     TbBool slap_hit_confirmed = false;
     int32_t leading_votes = -1;
-    for (int32_t i = 0; i < NET_PLAYERS_COUNT; i++) {
+    for (int32_t i = 0; i < MAX_NET_USERS; i++) {
         struct ScreenPacket* nspck = &net_screen_packet[i];
         unsigned char action;
         TbBool remote_player;

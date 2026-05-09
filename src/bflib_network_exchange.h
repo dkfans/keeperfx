@@ -20,16 +20,15 @@
 #define DK_NET_EXCHANGE_H
 
 #include "bflib_basics.h"
-#include "bflib_network.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t buf_size);
-TbError LbNetwork_ExchangeLogin(char *plyr_name);
+TbError ProcessMessage(NetUserId source, void *server_buf, size_t frame_size);
 void LbNetwork_WaitForMissingPackets(void* server_buf, size_t client_frame_size);
-void LbNetwork_SendChatMessageImmediate(int player_id, const char *message);
 void LbNetwork_BroadcastUnpauseTimesync(void);
 
 #ifdef __cplusplus

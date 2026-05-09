@@ -34,8 +34,8 @@
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_network.h"
-#include "bflib_network_internal.h"
+#include "net_main.h"
+#include "net_lobby.h"
 #include "bflib_network_exchange.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -51,6 +51,7 @@
 #include "frontmenu_net.h"
 #include "frontend.h"
 #include "vidmode.h"
+#include "config.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_effects.h"
@@ -1665,7 +1666,7 @@ static void replace_disconnected_players_with_ai(void) {
         return;
     }
     TbBool host_disconnected = (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED);
-    for (int player_index = 0; player_index < NET_PLAYERS_COUNT; player_index++) {
+    for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
         struct PlayerInfo* player = get_player(player_index);
         if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
             continue;
@@ -1850,32 +1851,40 @@ TbBool try_starting_level_from_chat(char* message, long player_id)
     }
 
     char *level_str = separator_pos + 1;
+    while (*level_str == ' ') {
+        level_str++;
+    }
     if (level_str[0] != '_' && !isdigit(level_str[0])) {
         return false;
     }
     
     LevelNumber level_num;
-    if (level_str[0] == '_')
-    {
+    if (level_str[0] == '_') {
         level_num = -1;
-    }
-    else
-    {
+    } else {
         level_num = atoi(level_str);
         if (level_num <= 0) {
             return false;
-    }
+        }
     }
 
     char campaign_filename[80];
-    snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
+    if ((campaign_len >= 4) && (strncasecmp(message + campaign_len - 4, ".cfg", 4) == 0)) {
+        snprintf(campaign_filename, sizeof(campaign_filename), "%.*s", campaign_len, message);
+    } else {
+        snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
+    }
 
-    if (!change_campaign(CampgnT_MultiplayerMappack, campaign_filename)) {
+    if (!change_campaign(CampgnT_Default, campaign_filename)
+     || (strcasecmp(campaign.fname, campaign_filename) != 0)) {
         ERRORLOG("Unable to load campaign '%.*s' for level %d", campaign_len, message, (int)level_num);
         return false;
     }
     
     if (level_num != -1) {
+        if (!is_campaign_level(level_num) && !is_freeplay_level(level_num)) {
+            return false;
+        }
         set_selected_level_number(level_num);
         frontend_set_state(FeSt_START_MPLEVEL);
     }

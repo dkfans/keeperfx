@@ -501,6 +501,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->hand_blocked_turns);
         } else if (strcmp(key, "state") == 0) {
             lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, thing->active_state));
+        } else if (strcmp(key, "state_besides_interruptions") == 0) {
+            lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, get_creature_state_besides_interruptions(thing)));
         } else if (strcmp(key, "continue_state") == 0) {
             lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, thing->continue_state));
         } else if (strcmp(key, "workroom") == 0) {

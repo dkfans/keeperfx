@@ -18,13 +18,12 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_network_exchange.h"
-#include "bflib_network.h"
-#include "bflib_network_internal.h"
 #include "bflib_datetm.h"
-#include "bflib_sound.h"
 #include "globals.h"
 #include "player_data.h"
 #include "net_game.h"
+#include "net_lobby.h"
+#include "net_main.h"
 #include "front_landview.h"
 #include "net_received_packets.h"
 #include "net_redundant_packets.h"
@@ -50,24 +49,14 @@ extern "C" {
 
 #define NETWORK_FPS 60
 
-char* InitMessageBuffer(enum NetMessageType msg_type) {
-    char* ptr = netstate.msg_buffer;
-    *ptr = msg_type;
-    return ptr + 1;
-}
-
 static TbBool can_exchange_with_peer(NetUserId peer_id) {
     return (peer_id != netstate.my_id) &&
         (netstate.users[peer_id].progress != USER_UNUSED) &&
         (my_player_number == get_host_player_id() || peer_id == SERVER_ID);
 }
 
-void SendMessage(NetUserId dest, const char* end_ptr) {
-    netstate.sp->sendmsg_single(dest, netstate.msg_buffer, end_ptr - netstate.msg_buffer);
-}
-
 void SendFrameToPeers(NetUserId source_id, const void * send_buf, size_t buf_size, int seq_nbr, enum NetMessageType msg_type) {
-    char * ptr = InitMessageBuffer(msg_type);
+    char * ptr = begin_net_message(msg_type);
     *ptr = source_id;
     ptr += 1;
     *(int *) ptr = seq_nbr;
@@ -87,7 +76,7 @@ void SendFrameToPeers(NetUserId source_id, const void * send_buf, size_t buf_siz
             netstate.sp->sendmsg_single_unsequenced(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
             netstate.sp->sendmsg_single(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
         } else {
-            SendMessage(id, ptr);
+            send_message_buffer(id, ptr);
         }
     }
     if (msg_type == NETMSG_GAMEPLAY) {
@@ -96,95 +85,19 @@ void SendFrameToPeers(NetUserId source_id, const void * send_buf, size_t buf_siz
 }
 
 TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
-    if (netstate.sp->readmsg(source, netstate.msg_buffer, sizeof(netstate.msg_buffer)) <= 0) {
+    size_t message_size = netstate.sp->readmsg(source, netstate.msg_buffer, sizeof(netstate.msg_buffer));
+    if (message_size <= 0) {
         ERRORLOG("Problem reading message from %u", source);
         return Lb_FAIL;
     }
     char *ptr = netstate.msg_buffer;
     enum NetMessageType type = (enum NetMessageType)*ptr;
-    TbBool from_server = (source == SERVER_ID);
     ptr += 1;
     if (type == NETMSG_LOGIN) {
-        if (from_server) {
-            netstate.my_id = (NetUserId)*ptr;
-            ptr += 1;
-            netstate.users[netstate.my_id].version = net_current_version;
-            netstate.users[SERVER_ID].version = *(const struct GameVersionPacket *)ptr;
-            return Lb_OK;
-        }
-        if (netstate.users[source].progress != USER_CONNECTED) {
-            NETMSG("Peer was not in connected state");
-            return Lb_OK;
-        }
-        size_t max_read = sizeof(netstate.msg_buffer) - (ptr - netstate.msg_buffer);
-        size_t password_len = strnlen(ptr, max_read);
-        if (password_len >= max_read || password_len > sizeof(netstate.password)) {
-            NETDBG(6, "Connected peer sent invalid password");
-            netstate.sp->drop_user(source);
-            return Lb_OK;
-        }
-        if (netstate.password[0] != 0 && strncmp(ptr, netstate.password, sizeof(netstate.password)) != 0) {
-            NETMSG("Peer chose wrong password");
-            return Lb_OK;
-        }
-        ptr += password_len + 1;
-        max_read = sizeof(netstate.msg_buffer) - (ptr - netstate.msg_buffer);
-        size_t name_len = strnlen(ptr, max_read);
-        if (name_len == 0 || name_len >= max_read || name_len >= sizeof(netstate.users[source].name)) {
-            NETDBG(6, "Connected peer sent invalid name");
-            netstate.sp->drop_user(source);
-            return Lb_OK;
-        }
-        snprintf(netstate.users[source].name, sizeof(netstate.users[source].name), "%s", ptr);
-        if (!isalnum(netstate.users[source].name[0])) {
-            NETDBG(6, "Connected peer had bad name starting with %c", netstate.users[source].name[0]);
-            netstate.sp->drop_user(source);
-            return Lb_OK;
-        }
-        ptr += name_len + 1;
-        netstate.users[source].version = *(const struct GameVersionPacket *)ptr;
-        NETMSG("User %s successfully logged in", netstate.users[source].name);
-        netstate.users[source].progress = USER_LOGGEDIN;
-        play_non_3d_sample(76);
-        char * msg_ptr = InitMessageBuffer(NETMSG_LOGIN);
-        *msg_ptr = source;
-        msg_ptr += 1;
-        memcpy(msg_ptr, &netstate.users[SERVER_ID].version, sizeof(netstate.users[SERVER_ID].version));
-        msg_ptr += sizeof(netstate.users[SERVER_ID].version);
-        SendMessage(source, msg_ptr);
-        NetUserId uid;
-        for (uid = 0; uid < netstate.max_players; uid += 1) {
-            if (netstate.users[uid].progress == USER_UNUSED) {
-                continue;
-            }
-            SendUserUpdate(source, uid);
-            if (uid != netstate.my_id && uid != source) {
-                SendUserUpdate(uid, source);
-            }
-        }
-        UpdateLocalPlayerInfo(source);
-        return Lb_OK;
+        return process_login_message(source, ptr);
     }
     if (type == NETMSG_USERUPDATE) {
-        if (!from_server) {
-            WARNLOG("Unexpected USERUPDATE");
-            return Lb_OK;
-        }
-        NetUserId id = (NetUserId)*ptr;
-        if (id < 0 || id >= netstate.max_players) {
-            ERRORLOG("Critical error: Out of range user ID %i received from server, could be used for buffer overflow attack", id);
-            abort();
-        }
-        ptr += 1;
-        netstate.users[id].progress = (enum NetUserProgress)*ptr;
-        ptr += 1;
-        if (strnlen(ptr, sizeof(netstate.msg_buffer) - (ptr - netstate.msg_buffer)) >= sizeof(netstate.msg_buffer) - (ptr - netstate.msg_buffer)) {
-            ERRORLOG("Critical error: Unterminated name in USERUPDATE");
-            abort();
-        }
-        snprintf(netstate.users[id].name, sizeof(netstate.users[id].name), "%s", ptr);
-        UpdateLocalPlayerInfo(id);
-        return Lb_OK;
+        return process_user_update_message(source, ptr);
     }
     if (type == NETMSG_FRONTEND || type == NETMSG_STARTUP_SYNC || type == NETMSG_GAMEPLAY) {
         NetUserId peer_id = (NetUserId)*ptr;
@@ -236,55 +149,15 @@ TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size) {
             return Lb_OK;
         }
         process_chat_message_end(player_id, ptr);
+        if (netstate.my_id == SERVER_ID && source != SERVER_ID) {
+            for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+                if (id == netstate.my_id || id == source || !IsUserActive(id)) {
+                    continue;
+                }
+                netstate.sp->sendmsg_single(id, netstate.msg_buffer, message_size);
+            }
+        }
         return Lb_OK;
-    }
-    return Lb_OK;
-}
-
-TbError LbNetwork_ExchangeLogin(char *plyr_name) {
-    NETMSG("Logging in as %s", plyr_name);
-    if (1 + strlen(netstate.password) + 1 + strlen(plyr_name) + 1 + sizeof(net_current_version) >= sizeof(netstate.msg_buffer)) {
-        ERRORLOG("Login credentials too long");
-        return Lb_FAIL;
-    }
-    char * ptr = InitMessageBuffer(NETMSG_LOGIN);
-    strcpy(ptr, netstate.password);
-    ptr += strlen(netstate.password) + 1;
-    strcpy(ptr, plyr_name);
-    ptr += strlen(plyr_name) + 1;
-    memcpy(ptr, &net_current_version, sizeof(net_current_version));
-    ptr += sizeof(net_current_version);
-    SendMessage(SERVER_ID, ptr);
-    TbClockMSec start = LbTimerClock();
-    while (true) {
-        TbClockMSec elapsed = LbTimerClock() - start;
-        if (elapsed >= TIMEOUT_JOIN_LOBBY) {
-            NETMSG("ExchangeLogin: timed out waiting for login response (%dms)", (int)TIMEOUT_JOIN_LOBBY);
-            break;
-        }
-        unsigned wait_ms = (unsigned)(TIMEOUT_JOIN_LOBBY - elapsed);
-        if (!netstate.sp->msgready(SERVER_ID, wait_ms)) {
-            NETMSG("ExchangeLogin: msgready returned false");
-            break;
-        }
-        if (ProcessMessage(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket)) == Lb_FAIL) {
-            NETMSG("ExchangeLogin: ProcessMessage failed");
-            break;
-        }
-        if (netstate.msg_buffer[0] == NETMSG_LOGIN) {
-            break;
-        }
-    }
-    if (netstate.msg_buffer[0] != NETMSG_LOGIN) {
-        NETMSG("ExchangeLogin: login rejected (msg_buffer[0]=%d)", (int)netstate.msg_buffer[0]);
-        return Lb_FAIL;
-    }
-    if (netstate.sp->msgready(SERVER_ID, TIMEOUT_JOIN_LOBBY)) {
-        ProcessMessage(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket));
-    }
-    if (netstate.my_id == INVALID_USER_ID) {
-        NETMSG("ExchangeLogin: login unsuccessful, still INVALID_USER_ID");
-        return Lb_FAIL;
     }
     return Lb_OK;
 }
@@ -402,21 +275,9 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     return Lb_OK;
 }
 
-void LbNetwork_SendChatMessageImmediate(int player_id, const char *message) {
-    char* ptr = InitMessageBuffer(NETMSG_CHATMESSAGE);
-    *ptr = player_id;
-    ptr += 1;
-    strcpy(ptr, message);
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
-        if (id != netstate.my_id && IsUserActive(id)) {
-            netstate.sp->sendmsg_single(id, netstate.msg_buffer, 3 + strlen(message));
-        }
-    }
-}
-
 void LbNetwork_BroadcastUnpauseTimesync(void) {
     MULTIPLAYER_LOG("LbNetwork_BroadcastUnpauseTimesync");
-    InitMessageBuffer(NETMSG_UNPAUSE);
+    begin_net_message(NETMSG_UNPAUSE);
     for (NetUserId id = 0; id < netstate.max_players; id += 1) {
         if (id != netstate.my_id && IsUserActive(id)) {
             netstate.sp->sendmsg_single(id, netstate.msg_buffer, 1);
