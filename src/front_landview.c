@@ -34,7 +34,7 @@
 #include "bflib_sndlib.h"
 #include "bflib_sound.h"
 #include "bflib_vidraw.h"
-#include "bflib_network.h"
+#include "net_lobby.h"
 #include "bflib_network_exchange.h"
 
 #include "config_strings.h"

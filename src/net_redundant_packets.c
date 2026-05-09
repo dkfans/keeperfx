@@ -20,7 +20,7 @@
 #include "net_redundant_packets.h"
 #include "packets.h"
 #include "net_received_packets.h"
-#include "bflib_network.h"
+#include "net_main.h"
 #include <string.h>
 #include "post_inc.h"
 

@@ -20,7 +20,8 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "front_torture.h"
-#include "bflib_network.h"
+#include "net_main.h"
+#include "net_lobby.h"
 #include "bflib_network_exchange.h"
 #include "globals.h"
 #include "bflib_basics.h"

@@ -18,8 +18,8 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "net_resync.h"
-#include "bflib_network_internal.h"
-#include "bflib_network.h"
+#include "net_main.h"
+#include "net_lobby.h"
 #include "bflib_datetm.h"
 #include "bflib_network_exchange.h"
 #include <zlib.h>

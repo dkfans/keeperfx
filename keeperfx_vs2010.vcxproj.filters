@@ -561,7 +561,10 @@
     <ClCompile Include="src\bflib_netsp_tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_network.cpp">
+    <ClCompile Include="src\net_lobby.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_magic_data.cpp">
@@ -887,7 +890,10 @@
     <ClInclude Include="src\bflib_netsp_tcp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\bflib_network.h">
+    <ClInclude Include="src\net_lobby.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_planar.h">
