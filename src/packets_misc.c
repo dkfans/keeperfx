@@ -18,8 +18,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
-#include "net_received_packets.h"
-#include "net_redundant_packets.h"
 
 #include "bflib_fileio.h"
 #include "net_exchange_gameplay.h"
