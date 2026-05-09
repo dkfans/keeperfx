@@ -564,6 +564,9 @@
     <ClCompile Include="src\net_exchange_common.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\net_exchange_gameplay.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\net_lobby.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -894,6 +897,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\net_exchange_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_exchange_gameplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\net_lobby.h">

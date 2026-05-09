@@ -119,6 +119,7 @@ obj/bflib_mspointer.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/net_exchange_common.o \
+obj/net_exchange_gameplay.o \
 obj/net_main.o \
 obj/net_lobby.o \
 obj/net_resync.o \

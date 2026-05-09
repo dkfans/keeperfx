@@ -15,11 +15,10 @@
 #include "game_legacy.h"
 #include "globals.h"
 #include "keeperfx.hpp"
+#include "net_exchange_gameplay.h"
 #include "net_game.h"
 #include "net_lobby.h"
 #include "net_main.h"
-#include "net_received_packets.h"
-#include "net_redundant_packets.h"
 #include "packets.h"
 #include "player_data.h"
 #include "post_inc.h"
@@ -61,7 +60,7 @@ static void send_frame_to_peers(NetUserId source_id, const void *send_buf, size_
     *(int *)ptr = seq_nbr;
     ptr += 4;
     if (msg_type == NETMSG_GAMEPLAY) {
-        size_t bundled_size = bundle_packets((PlayerNumber)source_id, (const struct Packet *)send_buf, ptr);
+        size_t bundled_size = write_gameplay_frame_payload(source_id, send_buf, ptr);
         ptr += bundled_size;
     } else {
         memcpy(ptr, send_buf, buf_size);
@@ -75,14 +74,13 @@ static void send_frame_to_peers(NetUserId source_id, const void *send_buf, size_
             continue;
         }
         if (msg_type == NETMSG_GAMEPLAY) {
-            netstate.sp->sendmsg_single_unsequenced(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
-            netstate.sp->sendmsg_single(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
+            send_gameplay_frame_to_peer(id, netstate.msg_buffer, ptr - netstate.msg_buffer);
         } else {
             send_message_buffer(id, ptr);
         }
     }
     if (msg_type == NETMSG_GAMEPLAY) {
-        store_sent_packet((PlayerNumber)source_id, (const struct Packet *)send_buf);
+        store_sent_gameplay_frame(source_id, send_buf);
     }
 }
 
@@ -96,14 +94,11 @@ static TbError process_frame_message(enum NetMessageType type, char *read_pos, v
     read_pos += 1;
     netstate.users[peer_id].ack = *(int *)read_pos;
     read_pos += 4;
-    char *peer_buf = ((char *)server_buf) + peer_id * frame_size;
     if (type == NETMSG_GAMEPLAY) {
-        struct BundledPacket *bundled = (struct BundledPacket *)read_pos;
-        memcpy(peer_buf, &bundled->packets[0], frame_size);
-        unbundle_packets(read_pos, (PlayerNumber)peer_id);
-    } else {
-        memcpy(peer_buf, read_pos, frame_size);
+        return process_gameplay_frame_payload(peer_id, read_pos, server_buf, frame_size);
     }
+    char *peer_buf = ((char *)server_buf) + peer_id * frame_size;
+    memcpy(peer_buf, read_pos, frame_size);
     return Lb_OK;
 }
 
@@ -172,53 +167,6 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
         return process_chat_message(source, read_pos, message_size);
     default:
         return Lb_OK;
-    }
-}
-
-void LbNetwork_WaitForMissingPackets(void *server_buf, size_t client_frame_size)
-{
-    if (game.skip_initial_input_turns > 0) {
-        return;
-    }
-    GameTurn historical_turn = get_gameturn() - game.input_lag_turns;
-    const struct Packet *received_packets = get_received_packets_for_turn(historical_turn);
-    if (received_packets == NULL) {
-        MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Missing packets for turn=%lu, waiting...", (unsigned long)historical_turn);
-        TbClockMSec start = LbTimerClock();
-        while (true) {
-            int elapsed = LbTimerClock() - start;
-            TbBool has_remote_peer = false;
-            if (elapsed >= TIMEOUT_GAMEPLAY_MISSING_PACKET) {
-                MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Timeout waiting for turn=%lu packets", (unsigned long)historical_turn);
-                break;
-            }
-
-            netstate.sp->update(OnNewUser);
-            const int wait_time = min(TIMEOUT_GAMEPLAY_MISSING_PACKET - elapsed, 100);
-            for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
-                if (!can_send_to_peer(peer_id)) {
-                    continue;
-                }
-
-                has_remote_peer = true;
-                if (netstate.sp->msgready(peer_id, wait_time)) {
-                    while (netstate.sp->msgready(peer_id, 0)) {
-                        process_network_message(peer_id, server_buf, client_frame_size);
-                    }
-                }
-            }
-            if (!has_remote_peer) {
-                break;
-            }
-
-            received_packets = get_received_packets_for_turn(historical_turn);
-            if (received_packets != NULL) {
-                MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Successfully received packets for turn=%lu after %dms", (unsigned long)historical_turn, elapsed);
-                break;
-            }
-
-            network_yield_draw_gameplay();
-        }
     }
 }
 
@@ -296,13 +244,3 @@ TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *s
     return Lb_OK;
 }
 
-void LbNetwork_BroadcastUnpauseTimesync(void)
-{
-    MULTIPLAYER_LOG("LbNetwork_BroadcastUnpauseTimesync");
-    begin_net_message(NETMSG_UNPAUSE);
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
-        if (id != netstate.my_id && IsUserActive(id)) {
-            netstate.sp->sendmsg_single(id, netstate.msg_buffer, 1);
-        }
-    }
-}

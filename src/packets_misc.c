@@ -22,7 +22,7 @@
 #include "net_redundant_packets.h"
 
 #include "bflib_fileio.h"
-#include "net_exchange_common.h"
+#include "net_exchange_gameplay.h"
 #include "bflib_datetm.h"
 #include "front_landview.h"
 #include "frontend.h"

@@ -21,8 +21,6 @@ TbBool read_network_message_text(char **read_pos, const char **text, size_t max_
 TbBool can_send_to_peer(NetUserId peer_id);
 TbError process_network_message(NetUserId source, void *server_buf, size_t frame_size);
 TbError LbNetwork_Exchange(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t buf_size);
-void LbNetwork_WaitForMissingPackets(void *server_buf, size_t client_frame_size);
-void LbNetwork_BroadcastUnpauseTimesync(void);
 
 #ifdef __cplusplus
 }
