@@ -5582,8 +5582,6 @@ TbBool setup_move_off_lava(struct Thing* thing)
     return false;
 }
 
-//todo CAVE_IN_NEAR_FLEE_POSITION into config file
-#define CAVE_IN_NEAR_FLEE_POSITION 200
 TbBool setup_move_out_of_cave_in(struct Thing* thing)
 {
     MapSlabCoord bx = 0;
@@ -5609,14 +5607,17 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
     }
     if (valid_flee_pos) // If a flee position is found, go there.
     {
-        long dist = LbDiagonalLength(abs(thing->mappos.x.val - cctrl->flee_pos.x.val), abs(thing->mappos.y.val - cctrl->flee_pos.y.val));
-        // If you're too close to the flee position, no point in going there to escape cave in damage.
-        if (dist <= CAVE_IN_NEAR_FLEE_POSITION)
+        // If you're too close to the flee position, no point in going there to escape cave in damage. Creatures will not go to flee pos when they within slab_coord(2), so we use slab_coord(3) here.
+        if (get_chessboard_distance(&thing->mappos, &cctrl->flee_pos) <= slab_coord(3))
         {
             // Heroes that are near to a hero gate, should escape through it if they can.
             if (is_hero_thing(thing))
             {
                 if (good_leave_through_exit_door(thing))
+                {
+                    return true;
+                }
+                if (good_setup_wander_to_exit(thing))
                 {
                     return true;
                 }
@@ -5638,8 +5639,9 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
         }
         else
         {
-            if (setup_person_move_to_coord(thing, &cctrl->flee_pos, 0))
+            if (external_set_thing_state(thing, CrSt_CreatureCombatFlee))
             {
+                cctrl->flee_start_turn = get_gameturn();
                 return true;
             }
         }
