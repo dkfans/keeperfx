@@ -561,6 +561,9 @@
     <ClCompile Include="src\bflib_netsp_tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\net_exchange_common.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\net_lobby.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -888,6 +891,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_netsp_tcp.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_exchange_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\net_lobby.h">

@@ -47,6 +47,7 @@
     <ClCompile Include="src\bflib_netsession.c" />
     <ClCompile Include="src\bflib_netsp.cpp" />
     <ClCompile Include="src\bflib_netsp_tcp.cpp" />
+    <ClCompile Include="src\net_exchange_common.c" />
     <ClCompile Include="src\bflib_planar.c" />
     <ClCompile Include="src\bflib_render.c" />
     <ClCompile Include="src\bflib_render_gpoly.c" />
@@ -307,6 +308,7 @@
     <ClInclude Include="src\bflib_netsession.h" />
     <ClInclude Include="src\bflib_netsp.hpp" />
     <ClInclude Include="src\bflib_netsp_tcp.hpp" />
+    <ClInclude Include="src\net_exchange_common.h" />
     <ClInclude Include="src\bflib_planar.h" />
     <ClInclude Include="src\bflib_render.h" />
     <ClInclude Include="src\bflib_sndlib.h" />

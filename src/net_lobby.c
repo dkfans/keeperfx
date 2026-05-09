@@ -10,7 +10,7 @@
 
 #include "bflib_datetm.h"
 #include "bflib_enet.h"
-#include "bflib_network_exchange.h"
+#include "net_exchange_common.h"
 #include "bflib_sound.h"
 #include "front_landview.h"
 #include "front_network.h"
@@ -87,32 +87,29 @@ TbError process_login_message(NetUserId source, char *read_pos)
         NETMSG("Peer was not in connected state");
         return Lb_OK;
     }
-    size_t max_read = sizeof(netstate.msg_buffer) - (read_pos - netstate.msg_buffer);
-    size_t password_len = strnlen(read_pos, max_read);
-    if (password_len >= max_read || password_len > sizeof(netstate.password)) {
+    const char *password;
+    if (!read_network_message_text(&read_pos, &password, sizeof(netstate.password))) {
         NETDBG(6, "Connected peer sent invalid password");
         netstate.sp->drop_user(source);
         return Lb_OK;
     }
-    if (netstate.password[0] != 0 && strncmp(read_pos, netstate.password, sizeof(netstate.password)) != 0) {
+    if (netstate.password[0] != 0 && strncmp(password, netstate.password, sizeof(netstate.password)) != 0) {
         NETMSG("Peer chose wrong password");
         return Lb_OK;
     }
-    read_pos += password_len + 1;
-    max_read = sizeof(netstate.msg_buffer) - (read_pos - netstate.msg_buffer);
-    size_t name_len = strnlen(read_pos, max_read);
-    if (name_len == 0 || name_len >= max_read || name_len >= sizeof(netstate.users[source].name)) {
+
+    const char *name;
+    if (!read_network_message_text(&read_pos, &name, sizeof(netstate.users[source].name) - 1) || name[0] == '\0') {
         NETDBG(6, "Connected peer sent invalid name");
         netstate.sp->drop_user(source);
         return Lb_OK;
     }
-    snprintf(netstate.users[source].name, sizeof(netstate.users[source].name), "%s", read_pos);
+    snprintf(netstate.users[source].name, sizeof(netstate.users[source].name), "%s", name);
     if (!isalnum(netstate.users[source].name[0])) {
         NETDBG(6, "Connected peer had bad name starting with %c", netstate.users[source].name[0]);
         netstate.sp->drop_user(source);
         return Lb_OK;
     }
-    read_pos += name_len + 1;
     netstate.users[source].version = *(const struct GameVersionPacket *)read_pos;
     NETMSG("User %s successfully logged in", netstate.users[source].name);
     netstate.users[source].progress = USER_LOGGEDIN;
@@ -150,11 +147,12 @@ TbError process_user_update_message(NetUserId source, char *read_pos)
     read_pos += 1;
     netstate.users[user_id].progress = (enum NetUserProgress)*read_pos;
     read_pos += 1;
-    if (strnlen(read_pos, sizeof(netstate.msg_buffer) - (read_pos - netstate.msg_buffer)) >= sizeof(netstate.msg_buffer) - (read_pos - netstate.msg_buffer)) {
+    const char *name;
+    if (!read_network_message_text(&read_pos, &name, sizeof(netstate.users[user_id].name) - 1)) {
         ERRORLOG("Critical error: Unterminated name in USERUPDATE");
         abort();
     }
-    snprintf(netstate.users[user_id].name, sizeof(netstate.users[user_id].name), "%s", read_pos);
+    snprintf(netstate.users[user_id].name, sizeof(netstate.users[user_id].name), "%s", name);
     UpdateLocalPlayerInfo(user_id);
     return Lb_OK;
 }
@@ -201,8 +199,8 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name)
             NETMSG("ExchangeLogin: msgready returned false");
             break;
         }
-        if (ProcessMessage(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket)) == Lb_FAIL) {
-            NETMSG("ExchangeLogin: ProcessMessage failed");
+        if (process_network_message(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket)) == Lb_FAIL) {
+            NETMSG("ExchangeLogin: process_network_message failed");
             break;
         }
         if (netstate.msg_buffer[0] == NETMSG_LOGIN) {
@@ -214,7 +212,7 @@ TbError LbNetwork_ExchangeLogin(char *plyr_name)
         return Lb_FAIL;
     }
     if (netstate.sp->msgready(SERVER_ID, TIMEOUT_JOIN_LOBBY)) {
-        ProcessMessage(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket));
+        process_network_message(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket));
     }
     if (netstate.my_id == INVALID_USER_ID) {
         NETMSG("ExchangeLogin: login unsuccessful, still INVALID_USER_ID");

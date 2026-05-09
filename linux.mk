@@ -43,7 +43,7 @@ src/bflib_mshandler.cpp \
 src/bflib_mspointer.cpp \
 src/bflib_netsession.c \
 src/bflib_netsp.cpp \
-src/bflib_network_exchange.cpp \
+src/net_exchange_common.c \
 src/net_main.c \
 src/net_lobby.c \
 src/bflib_planar.c \

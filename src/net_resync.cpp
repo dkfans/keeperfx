@@ -21,7 +21,7 @@
 #include "net_main.h"
 #include "net_lobby.h"
 #include "bflib_datetm.h"
-#include "bflib_network_exchange.h"
+#include "net_exchange_common.h"
 #include <zlib.h>
 #include "globals.h"
 #include "frontend.h"
