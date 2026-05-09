@@ -198,20 +198,6 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
     }
 }
 
-
-static void command_display_information(long msg_num, const char *where, long x, long y)
-{
-    TbMapLocation location;
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
-    {
-      SCRPTERRLOG("Invalid TEXT number");
-      return;
-    }
-    if (!get_map_location_id(where, &location))
-      return;
-    command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
-}
-
 static void command_dead_creatures_return_to_pool(long val)
 {
     command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, ALL_PLAYERS, val, 0, 0);
@@ -1361,12 +1347,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_DOOR_AVAILABLE:
         command_door_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
-    case Cmd_DISPLAY_INFORMATION:
-        if (file_version > 0)
-          command_display_information(scline->np[0], scline->tp[1], 0, 0);
-        else
-          command_display_information(scline->np[0], "ALL_PLAYERS", 0, 0);
-        break;
     case Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL:
         command_add_tunneller_party_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->tp[3], scline->np[4], scline->np[5], scline->np[6]);
         break;
@@ -1411,9 +1391,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
         command_dead_creatures_return_to_pool(scline->np[0]);
-        break;
-    case Cmd_DISPLAY_INFORMATION_WITH_POS:
-        command_display_information(scline->np[0], NULL, scline->np[1], scline->np[2]);
         break;
     case Cmd_BONUS_LEVEL_TIME:
         command_bonus_level_time(scline->np[0], scline->np[1]);
