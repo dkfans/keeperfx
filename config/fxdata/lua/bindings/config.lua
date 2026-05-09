@@ -6,7 +6,7 @@
 ---@param val1 integer
 function SetGameRule(rulename,val1) end
 
----Allows you to load a new creature_type. Creature name will not be recognized in DKscript.
+---Creates a new creature type by loading in a creature config file with this name present in the creatures folder and adds it to the creature list. Creature name will not be recognized in DKscript.
 ---@param creaturename string the name of the creature config file you want to load
 function NewCreatureType(name) end
 
