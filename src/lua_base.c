@@ -19,6 +19,7 @@
 #include "config_effects.h"
 #include "config_objects.h"
 #include "config_trapdoor.h"
+#include "config_crtrstates.h"
 
 #include "post_inc.h"
 
@@ -440,6 +441,7 @@ void generate_lua_types_file()
     GENERATE_ALIAS("effect_type", effect_desc);
     GENERATE_ALIAS("spell_type", spell_desc);
     GENERATE_ALIAS("slab_type", slab_desc);
+    GENERATE_ALIAS("creature_state", creatrstate_desc);
     fprintf(out, "\n");
 
     GENERATE_FIELDS("roomfields", room_desc);
