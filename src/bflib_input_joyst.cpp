@@ -381,9 +381,16 @@ void init_controller_input()
     }
 }
 
-TbBool btn_is_axis()
+float cbtn_axis_value(ControllerButtons btn)
 {
-    return true;
+    if (btn & (CBtn_LS_LEFT|CBtn_LS_RIGHT|CBtn_LS_UP|CBtn_LS_DOWN|CBtn_RS_LEFT|CBtn_RS_RIGHT|CBtn_RS_UP|CBtn_RS_DOWN))
+    {
+        return .5f;
+    }
+    else if (btn == controller_button_state)
+        return 1.0;
+    else
+        return 0.0;
 }
 /******************************************************************************/
 #ifdef __cplusplus
