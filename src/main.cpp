@@ -1912,15 +1912,12 @@ void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x,
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player;
-    long pos_x;
-    long pos_y;
-    player = get_my_player();
-    find_map_location_coords(target, &x, &y, my_player_number, __func__);
-    pos_x = 0;
-    pos_y = 0;
+    struct PlayerInfo *player = get_player(plyr_idx);
+    long pos_x = 0;
+    long pos_y = 0;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
         pos_y = subtile_coord_center(y);
@@ -1929,22 +1926,17 @@ void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, M
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
+void set_general_objective(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, long x, long y)
 {
-    process_objective(get_string(msg_id), target, x, y);
+    process_objective(get_string(msg_id), plyr_idx, target, x, y);
 }
 
-void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void process_objective(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player;
-    MapSubtlCoord pos_x;
-    MapSubtlCoord pos_y;
-    player = get_my_player();
-    find_map_location_coords(target, &x, &y, my_player_number, __func__);
-    pos_y = y;
-    pos_x = x;
-    set_level_objective(msg_text);
-    display_objectives(player->id_number, pos_x, pos_y);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
+    set_level_objective(player->id_number, msg_text);
+    display_objectives(player->id_number, x, y);
 }
 
 short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count)

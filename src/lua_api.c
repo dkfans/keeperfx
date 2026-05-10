@@ -530,7 +530,7 @@ static int lua_Display_objective(lua_State *L)
     long msg_id    = luaL_checkinteger(L, 1);
     TbMapLocation zoom_location = luaL_optLocation(L,2);
 
-    set_general_objective(msg_id,zoom_location,0,0);
+    set_general_objective(msg_id,my_player_number,zoom_location,0,0);
     return 0;
 }
 
@@ -540,7 +540,7 @@ static int lua_Display_objective_with_pos(lua_State *L)
     long stl_x    = luaL_checkstl_x(L, 2);
     long stl_y    = luaL_checkstl_y(L, 3);
 
-    set_general_objective(msg_id,0,stl_x,stl_y);
+    set_general_objective(msg_id, my_player_number, 0,stl_x,stl_y);
     return 0;
 }
 
@@ -559,7 +559,7 @@ static int lua_Display_information_with_pos(lua_State *L)
     long stl_x    = luaL_checkstl_x(L, 2);
     long stl_y    = luaL_checkstl_y(L, 3);
 
-    set_general_objective(msg_id,0,stl_x,stl_y);
+    set_general_objective(msg_id, my_player_number, 0,stl_x,stl_y);
     return 0;
 }
 
@@ -568,7 +568,7 @@ static int lua_Quick_objective(lua_State *L)
     const char *msg_text = lua_tostring(L, 1);
     TbMapLocation target = luaL_optLocation(L, 2);
 
-    process_objective(msg_text, target, 0, 0);
+    process_objective(msg_text, my_player_number, target, 0, 0);
     return 0;
 }
 
@@ -579,7 +579,7 @@ static int lua_Quick_information(lua_State *L)
     TbMapLocation target = luaL_optLocation(L, 3);
     snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
 
-    set_quick_information(slot, target, 0, 0);
+    set_quick_information(slot,my_player_number, target, 0, 0);
     return 0;
 }
 
@@ -589,7 +589,7 @@ static int lua_Quick_objective_with_pos(lua_State *L)
     MapSubtlCoord stl_x = luaL_checkstl_x(L, 2);
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 3);
 
-    process_objective(msg_text, 0, stl_x, stl_y);
+    process_objective(msg_text, my_player_number, 0, stl_x, stl_y);
     return 0;
 }
 
@@ -601,7 +601,7 @@ static int lua_Quick_information_with_pos(lua_State *L)
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
     snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
 
-    set_quick_information(slot, 0, stl_x, stl_y);
+    set_quick_information(slot,my_player_number, 0, stl_x, stl_y);
     return 0;
 }
 

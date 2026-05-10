@@ -824,13 +824,11 @@ static void display_objective_check(const struct ScriptLine *scline)
 
 static void display_objective_process(struct ScriptContext *context)
 {
-    if (my_player_number == context->player_idx)
-    {
-        set_general_objective(context->value->shorts[0],
-        context->value->ulongs[1],
-        context->value->shorts[3],
-        context->value->shorts[4]);
-    }
+    set_general_objective(context->value->shorts[0],
+    context->player_idx,
+    context->value->ulongs[1],
+    context->value->shorts[3],
+    context->value->shorts[4]);
 }
 
 static void quick_objective_check(const struct ScriptLine* scline)
@@ -886,12 +884,8 @@ static void quick_objective_check(const struct ScriptLine* scline)
 
 static void quick_objective_process(struct ScriptContext* context)
 {
-    if (my_player_number == context->player_idx)
-    {
-        process_objective(game.quick_messages[context->value->shorts[0] % QUICK_MESSAGES_COUNT],context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
-    }
+    process_objective(game.quick_messages[context->value->shorts[0] % QUICK_MESSAGES_COUNT],context->player_idx, context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
 }
-
 
 static void quick_player_objective_check(const struct ScriptLine* scline)
 {
@@ -997,10 +991,58 @@ static void quick_information_check(const struct ScriptLine* scline)
 
 static void quick_information_process(struct ScriptContext* context)
 {
-    if (my_player_number == context->player_idx)
+    set_quick_information(context->value->shorts[0], context->player_idx, context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
+}
+
+static void quick_player_information_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
+
+    int16_t idx = scline->np[0];
+    if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
     {
-        set_quick_information(context->value->shorts[0], context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
+        SCRPTERRLOG("Invalid information ID number (%d)", idx);
+        return;
     }
+    const char* msgtext = scline->tp[2];
+
+    if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+    }
+    if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx], msgtext) != 0))
+    {
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+    }
+    MapSubtlCoord x = 0, y = 0;
+    TbMapLocation location = 0;
+    const char* where = "ALL_PLAYERS";
+
+    snprintf(game.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
+
+    if (scline->command == Cmd_QUICK_PLAYER_INFORMATION)
+    {
+        if (scline->tp[2][0] != '\0')
+        {
+            where = scline->tp[3];
+        }
+    }
+    else
+    {
+        x = scline->np[3];
+        y = scline->np[4];
+    }
+    if (!get_map_location_id(where, &location))
+    {
+        SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
+        return;
+    }
+
+    value->shorts[0] = idx;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_information_check(const struct ScriptLine* scline)
@@ -6605,6 +6647,9 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, &quick_objective_check, &quick_objective_process},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, &quick_information_check, &quick_information_process},
   {"QUICK_PLAYER_OBJECTIVE",            "NPAl    ", Cmd_QUICK_PLAYER_OBJECTIVE, &quick_player_objective_check, &quick_objective_process},
+  {"QUICK_PLAYER_INFORMATION",          "NPAl    ", Cmd_QUICK_PLAYER_INFORMATION, &quick_player_information_check, &quick_information_process},
+  {"QUICK_PLAYER_OBJECTIVE_WITH_POS",   "NPANN   ", Cmd_QUICK_PLAYER_OBJECTIVE_WITH_POS, &quick_player_objective_check, &quick_objective_process},
+  {"QUICK_PLAYER_INFORMATION_WITH_POS", "NPANN   ", Cmd_QUICK_PLAYER_INFORMATION_WITH_POS, &quick_player_information_check, &quick_information_process},
   {"SWAP_CREATURE",                     "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},

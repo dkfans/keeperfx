@@ -198,6 +198,9 @@ enum TbScriptCommands {
     Cmd_HIDE_BONUS_LEVEL                   = 186,
     Cmd_HIDE_HERO_GATE                     = 187,
     Cmd_QUICK_PLAYER_OBJECTIVE             = 188,
+    Cmd_QUICK_PLAYER_INFORMATION           = 189,
+    Cmd_QUICK_PLAYER_OBJECTIVE_WITH_POS    = 190,
+    Cmd_QUICK_PLAYER_INFORMATION_WITH_POS  = 191,
 };
 
 struct ScriptLine {
