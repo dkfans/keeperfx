@@ -892,6 +892,58 @@ static void quick_objective_process(struct ScriptContext* context)
     }
 }
 
+
+static void quick_player_objective_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
+
+    int16_t idx = scline->np[0];
+    if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid objective ID number (%d)", idx);
+        return;
+    }
+    const char* msgtext = scline->tp[2];
+
+    if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+    }
+    if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx], msgtext) != 0))
+    {
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+    }
+    MapSubtlCoord x = 0, y = 0;
+    TbMapLocation location = 0;
+    const char* where = "ALL_PLAYERS";
+
+    snprintf(game.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
+
+    if (scline->command == Cmd_QUICK_PLAYER_OBJECTIVE)
+    {
+        if (scline->tp[3][0] != '\0')
+        {
+            where = scline->tp[3];
+        }
+    }
+    else
+    {
+        x = scline->np[3];
+        y = scline->np[4];
+    }
+    if (!get_map_location_id(where, &location))
+    {
+        SCRPTERRLOG("Invalid location (%s)", scline->tp[3]);
+        return;
+    }
+
+    value->shorts[0] = idx;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
 static void quick_information_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
@@ -6552,6 +6604,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, &quick_information_check, &quick_information_process},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, &quick_objective_check, &quick_objective_process},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, &quick_information_check, &quick_information_process},
+  {"QUICK_PLAYER_OBJECTIVE",            "NPAl    ", Cmd_QUICK_PLAYER_OBJECTIVE, &quick_player_objective_check, &quick_objective_process},
   {"SWAP_CREATURE",                     "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
