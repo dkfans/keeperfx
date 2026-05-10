@@ -876,7 +876,6 @@ static void quick_objective_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
         return;
     }
-    get_map_location_id(where, &location);
 
     value->shorts[0] = idx;
     value->ulongs[1] = location;
@@ -936,7 +935,6 @@ static void quick_information_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
         return;
     }
-    get_map_location_id(where, &location);
 
     value->shorts[0] = idx;
     value->ulongs[1] = location;
@@ -981,7 +979,11 @@ static void display_information_check(const struct ScriptLine* scline)
         x = scline->np[1];
         y = scline->np[2];
     }
-    get_map_location_id(where, &location);
+    if (!get_map_location_id(where, &location))
+    {
+        SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
+        return;
+    }
 
     value->shorts[0] = msg_num;
     value->ulongs[1] = location;
