@@ -22,14 +22,14 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
-#include "bflib_network.h"
+#include "net_main.h"
+#include "net_lobby.h"
 #include "front_network.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define NET_PLAYERS_COUNT       4
 #define NET_SERVICE_LEN        64
 #define PACKETS_COUNT           9
 
@@ -38,12 +38,21 @@ extern "C" {
 
 struct TbNetworkSessionNameEntry;
 
+struct ConfigInfo {
+    char str_join[20];
+    char net_player_name[20];
+};
+
+struct TbNetworkPlayerName {
+    char name[20];
+};
+
 /******************************************************************************/
-extern struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
+extern struct TbNetworkPlayerInfo net_player_info[MAX_NET_USERS];
 extern struct TbNetworkSessionNameEntry *net_session[32];
 extern long net_number_of_sessions;
 extern long net_session_index_active;
-extern struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
+extern struct TbNetworkPlayerName net_player[MAX_NET_USERS];
 extern struct ConfigInfo net_config_info;
 extern char net_service[16][NET_SERVICE_LEN];
 extern char net_player_name[20];

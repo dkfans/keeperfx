@@ -18,7 +18,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
-#include "net_received_packets.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
 
@@ -34,9 +33,10 @@
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_network.h"
-#include "bflib_network_internal.h"
-#include "bflib_network_exchange.h"
+#include "net_main.h"
+#include "net_lobby.h"
+#include "net_exchange_common.h"
+#include "net_exchange_gameplay.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
@@ -1666,7 +1666,7 @@ static void replace_disconnected_players_with_ai(void) {
         return;
     }
     TbBool host_disconnected = (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED);
-    for (int player_index = 0; player_index < NET_PLAYERS_COUNT; player_index++) {
+    for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
         struct PlayerInfo* player = get_player(player_index);
         if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
             continue;

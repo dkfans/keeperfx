@@ -47,7 +47,8 @@
     <ClCompile Include="src\bflib_netsession.c" />
     <ClCompile Include="src\bflib_netsp.cpp" />
     <ClCompile Include="src\bflib_netsp_tcp.cpp" />
-    <ClCompile Include="src\bflib_network.cpp" />
+    <ClCompile Include="src\net_exchange_common.c" />
+    <ClCompile Include="src\net_exchange_gameplay.c" />
     <ClCompile Include="src\bflib_planar.c" />
     <ClCompile Include="src\bflib_render.c" />
     <ClCompile Include="src\bflib_render_gpoly.c" />
@@ -211,6 +212,8 @@
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_holepunch.c" />
     <ClCompile Include="src\net_lan.c" />
+    <ClCompile Include="src\net_lobby.c" />
+    <ClCompile Include="src\net_main.c" />
     <ClCompile Include="src\net_matchmaking.c" />
     <ClCompile Include="src\net_portforward.cpp" />
     <ClCompile Include="src\net_resync.cpp" />
@@ -306,7 +309,8 @@
     <ClInclude Include="src\bflib_netsession.h" />
     <ClInclude Include="src\bflib_netsp.hpp" />
     <ClInclude Include="src\bflib_netsp_tcp.hpp" />
-    <ClInclude Include="src\bflib_network.h" />
+    <ClInclude Include="src\net_exchange_common.h" />
+    <ClInclude Include="src\net_exchange_gameplay.h" />
     <ClInclude Include="src\bflib_planar.h" />
     <ClInclude Include="src\bflib_render.h" />
     <ClInclude Include="src\bflib_sndlib.h" />
@@ -451,6 +455,8 @@
     <ClInclude Include="src\net_game.h" />
     <ClInclude Include="src\net_holepunch.h" />
     <ClInclude Include="src\net_lan.h" />
+    <ClInclude Include="src\net_lobby.h" />
+    <ClInclude Include="src\net_main.h" />
     <ClInclude Include="src\net_matchmaking.h" />
     <ClInclude Include="src\net_portforward.h" />
     <ClInclude Include="src\net_resync.h" />

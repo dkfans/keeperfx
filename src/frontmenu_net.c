@@ -42,7 +42,7 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "bflib_enet.h"
-#include "bflib_network_exchange.h"
+#include "net_exchange_common.h"
 #include "packets.h"
 #include "post_inc.h"
 
@@ -353,7 +353,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         long subplyr_idx;
         for (subplyr_idx = 0; subplyr_idx < net_number_of_enum_players; subplyr_idx++)
         {
-            if (subplyr_idx >= NET_PLAYERS_COUNT)
+            if (subplyr_idx >= MAX_NET_USERS)
                 break;
             if (net_player_info[subplyr_idx].network_user_active)
             {
@@ -414,7 +414,7 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
     pos_x = gbtn->scr_pos_x;
     spr = get_frontend_sprite(GFS_slidrect_indicator_std0);
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -423,7 +423,7 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
     pos_x = gbtn->scr_pos_x;
     spr = get_frontend_sprite(GFS_slidrect_indicator_std1);
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -432,7 +432,7 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
     pos_x = gbtn->scr_pos_x;
     spr = get_frontend_sprite(GFS_slidrect_indicator_std2);
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -441,7 +441,7 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
     pos_x = gbtn->scr_pos_x;
     spr = get_frontend_sprite(GFS_slidrect_indicator_std2);
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;

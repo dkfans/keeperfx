@@ -6,6 +6,10 @@
 ---@param val1 integer
 function SetGameRule(rulename,val1) end
 
+---Creates a new creature type by loading in a creature config file with this name present in the creatures folder and adds it to the creature list. Creature name will not be recognized in DKscript.
+---@param creaturename string the name of the creature config file you want to load
+function NewCreatureType(name) end
+
 ---Allows you to make changes to door values set in trapdoor.cfg. Look in that file for explanations on the numbers.
 ---@param doorname door_type The name of the door as defined in trapdoor.cfg
 ---@param property string The name of the door property you want to change, as found in trapdoor.cfg. E.g. ManufactureRequired.
