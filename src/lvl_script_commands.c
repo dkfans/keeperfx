@@ -845,7 +845,7 @@ static void quick_objective_check(const struct ScriptLine* scline)
     }
     const char* msgtext = scline->tp[1];
 
-    if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+    if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
     {
         SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
     }
@@ -853,7 +853,7 @@ static void quick_objective_check(const struct ScriptLine* scline)
     {
         SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
     }
-    MapSubtlCoord x, y = 0;
+    MapSubtlCoord x = 0, y = 0;
     TbMapLocation location = 0;
     const char* where = "ALL_PLAYERS";
 
