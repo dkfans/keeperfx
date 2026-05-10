@@ -1895,15 +1895,12 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player;
-    long pos_x;
-    long pos_y;
-    player = get_my_player();
-    find_map_location_coords(target, &x, &y, my_player_number, __func__);
-    pos_x = 0;
-    pos_y = 0;
+    struct PlayerInfo *player = get_player(plyr_idx);
+    long pos_x = 0;
+    long pos_y = 0;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
         pos_y = subtile_coord_center(y);

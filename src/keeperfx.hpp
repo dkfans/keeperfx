@@ -273,7 +273,7 @@ short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count);
 short lose_level(struct PlayerInfo *player);
 short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
-void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
 void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
 void process_objective(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
 void set_general_objective(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, long x, long y);

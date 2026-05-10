@@ -549,7 +549,7 @@ static int lua_Display_information(lua_State *L)
     long msg_id    = luaL_checkinteger(L, 1);
     TbMapLocation zoom_location = luaL_optLocation(L,2);
 
-    set_general_information(msg_id,zoom_location,0,0);
+    set_general_information(msg_id,my_player_number,zoom_location,0,0);
     return 0;
 }
 

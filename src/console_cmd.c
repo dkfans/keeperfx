@@ -2102,7 +2102,7 @@ TbBool cmd_string_show(PlayerNumber plyr_idx, char * args)
     long msg_id = pr2str != NULL ? atoi(pr2str) : 0;
     if (msg_id >= 0)
     {
-        set_general_information(msg_id, 0, 0, 0);
+        set_general_information(msg_id, plyr_idx, 0, 0, 0);
     }
     return true;
 }
