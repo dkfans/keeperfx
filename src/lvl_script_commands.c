@@ -793,39 +793,43 @@ static void delete_from_party_check(const struct ScriptLine *scline)
 
 static void display_objective_check(const struct ScriptLine *scline)
 {
-  long msg_num = scline->np[0];
-  long x, y;
-  TbMapLocation location = 0;
-  if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
-  {
-    SCRPTERRLOG("Invalid TEXT number");
-    return;
-  }
-  if (scline->command == Cmd_DISPLAY_OBJECTIVE)
-  {
-    const char *where = scline->tp[1];
-    if (!get_map_location_id(where, &location))
+    ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
+    int16_t  msg_num = scline->np[0];
+    int16_t  x, y = 0;
+    TbMapLocation location = 0;
+    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
     {
-      return;
+        SCRPTERRLOG("Invalid TEXT number");
+        return;
     }
-    command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, 0);
-  }
-  else
-  {
-    x = scline->np[1];
-    y = scline->np[2];
-    command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
-  }
+    if (scline->command == Cmd_DISPLAY_OBJECTIVE)
+    {
+        const char *where = scline->tp[1];
+        if (!get_map_location_id(where, &location))
+        {
+            return;
+        }
+    }
+    else
+    {
+        x = scline->np[1];
+        y = scline->np[2];
+    }
+    value->shorts[0] = msg_num;
+    value->shorts[1] = location;
+    value->shorts[2] = x;
+    value->shorts[3] = y;
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_objective_process(struct ScriptContext *context)
 {
     if (my_player_number == context->player_idx)
     {
-        set_general_objective(context->value->longs[0],
-        context->value->longs[1],
-        stl_num_decode_x(context->value->longs[2]),
-        stl_num_decode_y(context->value->longs[2]));
+        set_general_objective(context->value->shorts[0],
+        context->value->shorts[1],
+        context->value->shorts[2],
+        context->value->shorts[3]);
     }
 }
 
