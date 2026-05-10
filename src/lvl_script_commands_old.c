@@ -697,28 +697,6 @@ static void command_ally_players(long plr1_range_id, long plr2_range_id, TbBool 
     command_add_value(Cmd_ALLY_PLAYERS, plr1_range_id, plr2_id, ally, 0);
 }
 
-static void command_quick_objective(int idx, const char *msgtext, const char *where, long x, long y)
-{
-  TbMapLocation location;
-  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
-  {
-    SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%d)", idx);
-    return;
-  }
-  if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx],msgtext) != 0))
-  {
-      SCRPTWRNLOG("Quick Objective no %d overwritten by different text", idx);
-  }
-  snprintf(game.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
-  if (!get_map_location_id(where, &location))
-    return;
-  command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
-}
-
 static void command_add_gold_to_player(long plr_range_id, long amount)
 {
     command_add_value(Cmd_ADD_GOLD_TO_PLAYER, plr_range_id, amount, 0, 0);
@@ -1372,9 +1350,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_BONUS_LEVEL_TIME:
         command_bonus_level_time(scline->np[0], scline->np[1]);
-        break;
-    case Cmd_QUICK_OBJECTIVE:
-        command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
         break;
     case Cmd_PRINT:
         command_message(scline->tp[0],80);
