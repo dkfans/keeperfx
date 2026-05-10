@@ -795,7 +795,7 @@ static void display_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
     int16_t  msg_num = scline->np[0];
-    int16_t  x, y = 0;
+    MapSubtlCoord x = 0, y = 0;
     TbMapLocation location = 0;
     if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
     {
@@ -913,7 +913,7 @@ static void quick_information_check(const struct ScriptLine* scline)
     {
         SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
     }
-    MapSubtlCoord x, y = 0;
+    MapSubtlCoord x = 0, y = 0;
     TbMapLocation location = 0;
     const char* where = "ALL_PLAYERS";
 
@@ -964,7 +964,7 @@ static void display_information_check(const struct ScriptLine* scline)
         return;
     }
 
-    MapSubtlCoord x,y = 0;
+    MapSubtlCoord x = 0,y = 0;
     TbMapLocation location = 0;
     const char* where = "ALL_PLAYERS";
 
