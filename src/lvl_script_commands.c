@@ -816,9 +816,9 @@ static void display_objective_check(const struct ScriptLine *scline)
         y = scline->np[2];
     }
     value->shorts[0] = msg_num;
-    value->shorts[1] = location;
-    value->shorts[2] = x;
-    value->shorts[3] = y;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -827,9 +827,9 @@ static void display_objective_process(struct ScriptContext *context)
     if (my_player_number == context->player_idx)
     {
         set_general_objective(context->value->shorts[0],
-        context->value->shorts[1],
-        context->value->shorts[2],
-        context->value->shorts[3]);
+        context->value->ulongs[1],
+        context->value->shorts[3],
+        context->value->shorts[4]);
     }
 }
 
@@ -879,9 +879,9 @@ static void quick_objective_check(const struct ScriptLine* scline)
     get_map_location_id(where, &location);
 
     value->shorts[0] = idx;
-    value->shorts[1] = location;
-    value->shorts[2] = x;
-    value->shorts[3] = y;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -889,7 +889,7 @@ static void quick_objective_process(struct ScriptContext* context)
 {
     if (my_player_number == context->player_idx)
     {
-        process_objective(game.quick_messages[context->value->shorts[0] % QUICK_MESSAGES_COUNT],context->value->shorts[1], context->value->shorts[2], context->value->shorts[3]);
+        process_objective(game.quick_messages[context->value->shorts[0] % QUICK_MESSAGES_COUNT],context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
     }
 }
 
@@ -905,7 +905,7 @@ static void quick_information_check(const struct ScriptLine* scline)
     }
     const char* msgtext = scline->tp[1];
 
-    if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+    if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
     {
         SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
     }
@@ -939,9 +939,9 @@ static void quick_information_check(const struct ScriptLine* scline)
     get_map_location_id(where, &location);
 
     value->shorts[0] = idx;
-    value->shorts[1] = location;
-    value->shorts[2] = x;
-    value->shorts[3] = y;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -949,7 +949,7 @@ static void quick_information_process(struct ScriptContext* context)
 {
     if (my_player_number == context->player_idx)
     {
-        set_quick_information(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->shorts[3]);
+        set_quick_information(context->value->shorts[0], context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
     }
 }
 
@@ -984,9 +984,9 @@ static void display_information_check(const struct ScriptLine* scline)
     get_map_location_id(where, &location);
 
     value->shorts[0] = msg_num;
-    value->shorts[1] = location;
-    value->shorts[2] = x;
-    value->shorts[3] = y;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -995,7 +995,7 @@ static void display_information_process(struct ScriptContext* context)
     if (my_player_number == context->player_idx)
     {
         set_general_information(context->value->shorts[0],
-            context->value->shorts[1], context->value->shorts[2], context->value->shorts[3]);
+            context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
     }
 }
 
@@ -4653,16 +4653,16 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
         return;
     }
     value->shorts[0] = (short)gen_id;
-    value->shorts[1] = location;
-    value->shorts[2] = range * COORD_PER_STL;
+    value->ulongs[1] = location;
+    value->shorts[3] = range * COORD_PER_STL;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_effectgen_to_level_process(struct ScriptContext* context)
 {
     ThingModel gen_id = context->value->shorts[0];
-    short location = context->value->shorts[1];
-    short range = context->value->shorts[2];
+    TbMapLocation location = context->value->ulongs[1];
+    short range = context->value->shorts[3];
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
         script_process_new_effectgen(gen_id, location, range);
