@@ -793,39 +793,211 @@ static void delete_from_party_check(const struct ScriptLine *scline)
 
 static void display_objective_check(const struct ScriptLine *scline)
 {
-  long msg_num = scline->np[0];
-  long x, y;
-  TbMapLocation location = 0;
-  if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
-  {
-    SCRPTERRLOG("Invalid TEXT number");
-    return;
-  }
-  if (scline->command == Cmd_DISPLAY_OBJECTIVE)
-  {
-    const char *where = scline->tp[1];
-    if (!get_map_location_id(where, &location))
+    ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
+    int16_t  msg_num = scline->np[0];
+    MapSubtlCoord x = 0, y = 0;
+    TbMapLocation location = 0;
+    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
     {
-      return;
+        SCRPTERRLOG("Invalid TEXT number");
+        return;
     }
-    command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, 0);
-  }
-  else
-  {
-    x = scline->np[1];
-    y = scline->np[2];
-    command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
-  }
+    if (scline->command == Cmd_DISPLAY_OBJECTIVE)
+    {
+        const char *where = scline->tp[1];
+        if (!get_map_location_id(where, &location))
+        {
+            return;
+        }
+    }
+    else
+    {
+        x = scline->np[1];
+        y = scline->np[2];
+    }
+    value->shorts[0] = msg_num;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_objective_process(struct ScriptContext *context)
 {
     if (my_player_number == context->player_idx)
     {
-        set_general_objective(context->value->longs[0],
-        context->value->longs[1],
-        stl_num_decode_x(context->value->longs[2]),
-        stl_num_decode_y(context->value->longs[2]));
+        set_general_objective(context->value->shorts[0],
+        context->value->ulongs[1],
+        context->value->shorts[3],
+        context->value->shorts[4]);
+    }
+}
+
+static void quick_objective_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
+
+    int16_t idx = scline->np[0];
+    if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid objective ID number (%d)", idx);
+        return;
+    }
+    const char* msgtext = scline->tp[1];
+
+    if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+    }
+    if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx], msgtext) != 0))
+    {
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+    }
+    MapSubtlCoord x = 0, y = 0;
+    TbMapLocation location = 0;
+    const char* where = "ALL_PLAYERS";
+
+    snprintf(game.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
+
+    if (scline->command == Cmd_QUICK_OBJECTIVE)
+    {
+        if (scline->tp[2][0] != '\0')
+        {
+            where = scline->tp[2];
+        }
+    }
+    else
+    {
+        x = scline->np[2];
+        y = scline->np[3];
+    }
+    if (!get_map_location_id(where, &location))
+    {
+        SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
+        return;
+    }
+
+    value->shorts[0] = idx;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void quick_objective_process(struct ScriptContext* context)
+{
+    if (my_player_number == context->player_idx)
+    {
+        process_objective(game.quick_messages[context->value->shorts[0] % QUICK_MESSAGES_COUNT],context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
+    }
+}
+
+static void quick_information_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
+
+    int16_t idx = scline->np[0];
+    if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid information ID number (%d)", idx);
+        return;
+    }
+    const char* msgtext = scline->tp[1];
+
+    if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+    }
+    if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx], msgtext) != 0))
+    {
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+    }
+    MapSubtlCoord x = 0, y = 0;
+    TbMapLocation location = 0;
+    const char* where = "ALL_PLAYERS";
+
+    snprintf(game.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
+
+    if (scline->command == Cmd_QUICK_INFORMATION)
+    {
+        if (scline->tp[2][0] != '\0')
+        {
+            where = scline->tp[2];
+        }
+    }
+    else
+    {
+        x = scline->np[2];
+        y = scline->np[3];
+    }
+    if (!get_map_location_id(where, &location))
+    {
+        SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
+        return;
+    }
+
+    value->shorts[0] = idx;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void quick_information_process(struct ScriptContext* context)
+{
+    if (my_player_number == context->player_idx)
+    {
+        set_quick_information(context->value->shorts[0], context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
+    }
+}
+
+static void display_information_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
+
+    long msg_num = scline->np[0];
+    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    {
+        SCRPTERRLOG("Invalid TEXT number");
+        return;
+    }
+
+    MapSubtlCoord x = 0,y = 0;
+    TbMapLocation location = 0;
+    const char* where = "ALL_PLAYERS";
+
+    
+    if (scline->command == Cmd_DISPLAY_INFORMATION)
+    {
+        if (scline->tp[1][0] != '\0')
+        {
+            where = scline->tp[1];
+        }
+    }
+    else
+    {
+        x = scline->np[1];
+        y = scline->np[2];
+    }
+    if (!get_map_location_id(where, &location))
+    {
+        SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
+        return;
+    }
+
+    value->shorts[0] = msg_num;
+    value->ulongs[1] = location;
+    value->shorts[3] = x;
+    value->shorts[4] = y;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void display_information_process(struct ScriptContext* context)
+{
+    if (my_player_number == context->player_idx)
+    {
+        set_general_information(context->value->shorts[0],
+            context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
     }
 }
 
@@ -4483,16 +4655,16 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
         return;
     }
     value->shorts[0] = (short)gen_id;
-    value->shorts[1] = location;
-    value->shorts[2] = range * COORD_PER_STL;
+    value->ulongs[1] = location;
+    value->shorts[3] = range * COORD_PER_STL;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_effectgen_to_level_process(struct ScriptContext* context)
 {
     ThingModel gen_id = context->value->shorts[0];
-    short location = context->value->shorts[1];
-    short range = context->value->shorts[2];
+    TbMapLocation location = context->value->ulongs[1];
+    short range = context->value->shorts[3];
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
         script_process_new_effectgen(gen_id, location, range);
@@ -6352,8 +6524,8 @@ const struct CommandDesc command_desc[] = {
   {"DOOR_AVAILABLE",                    "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
   {"DISPLAY_OBJECTIVE",                 "Nl      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
   {"DISPLAY_OBJECTIVE_WITH_POS",        "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
-  {"DISPLAY_INFORMATION",               "Nl      ", Cmd_DISPLAY_INFORMATION, NULL, NULL},
-  {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
+  {"DISPLAY_INFORMATION",               "Nl      ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
+  {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",                "Na      ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
@@ -6376,10 +6548,10 @@ const struct CommandDesc command_desc[] = {
   {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL",     "B       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
   {"BONUS_LEVEL_TIME",                  "Nb      ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
-  {"QUICK_OBJECTIVE",                   "NAl     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
-  {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, NULL, NULL},
-  {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
-  {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, NULL, NULL},
+  {"QUICK_OBJECTIVE",                   "NAl     ", Cmd_QUICK_OBJECTIVE, &quick_objective_check, &quick_objective_process},
+  {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, &quick_information_check, &quick_information_process},
+  {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, &quick_objective_check, &quick_objective_process},
+  {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, &quick_information_check, &quick_information_process},
   {"SWAP_CREATURE",                     "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
@@ -6516,8 +6688,8 @@ const struct CommandDesc dk1_command_desc[] = {
   {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
   {"DISPLAY_OBJECTIVE",            "NA      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
   {"DISPLAY_OBJECTIVE_WITH_POS",   "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
-  {"DISPLAY_INFORMATION",          "N       ", Cmd_DISPLAY_INFORMATION, NULL, NULL},
-  {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
+  {"DISPLAY_INFORMATION",          "N       ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
+  {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
@@ -6536,8 +6708,8 @@ const struct CommandDesc dk1_command_desc[] = {
   {"ALLY_PLAYERS",                 "PP      ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL","N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
   {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
-  {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
-  {"QUICK_INFORMATION",            "NA      ", Cmd_QUICK_INFORMATION, NULL, NULL},
+  {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE, &quick_objective_check, &quick_objective_process},
+  {"QUICK_INFORMATION",            "NA      ", Cmd_QUICK_INFORMATION, &quick_information_check, &quick_information_process},
   {"SWAP_CREATURE",                "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                        "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                      "A       ", Cmd_MESSAGE, NULL, NULL},

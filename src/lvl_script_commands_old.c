@@ -198,20 +198,6 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
     }
 }
 
-
-static void command_display_information(long msg_num, const char *where, long x, long y)
-{
-    TbMapLocation location;
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
-    {
-      SCRPTERRLOG("Invalid TEXT number");
-      return;
-    }
-    if (!get_map_location_id(where, &location))
-      return;
-    command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
-}
-
 static void command_dead_creatures_return_to_pool(long val)
 {
     command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, ALL_PLAYERS, val, 0, 0);
@@ -709,50 +695,6 @@ static void command_ally_players(long plr1_range_id, long plr2_range_id, TbBool 
         return;
     }
     command_add_value(Cmd_ALLY_PLAYERS, plr1_range_id, plr2_id, ally, 0);
-}
-
-static void command_quick_objective(int idx, const char *msgtext, const char *where, long x, long y)
-{
-  TbMapLocation location;
-  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
-  {
-    SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%d)", idx);
-    return;
-  }
-  if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx],msgtext) != 0))
-  {
-      SCRPTWRNLOG("Quick Objective no %d overwritten by different text", idx);
-  }
-  snprintf(game.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
-  if (!get_map_location_id(where, &location))
-    return;
-  command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
-}
-
-static void command_quick_information(int idx, const char *msgtext, const char *where, long x, long y)
-{
-  TbMapLocation location;
-  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
-  {
-    SCRPTERRLOG("Invalid information ID number (%d)", idx);
-    return;
-  }
-  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx],msgtext) != 0))
-  {
-      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
-  }
-  snprintf(game.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
-  if (!get_map_location_id(where, &location))
-    return;
-  command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
 static void command_add_gold_to_player(long plr_range_id, long amount)
@@ -1361,12 +1303,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_DOOR_AVAILABLE:
         command_door_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
-    case Cmd_DISPLAY_INFORMATION:
-        if (file_version > 0)
-          command_display_information(scline->np[0], scline->tp[1], 0, 0);
-        else
-          command_display_information(scline->np[0], "ALL_PLAYERS", 0, 0);
-        break;
     case Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL:
         command_add_tunneller_party_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->tp[3], scline->np[4], scline->np[5], scline->np[6]);
         break;
@@ -1412,26 +1348,8 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
         command_dead_creatures_return_to_pool(scline->np[0]);
         break;
-    case Cmd_DISPLAY_INFORMATION_WITH_POS:
-        command_display_information(scline->np[0], NULL, scline->np[1], scline->np[2]);
-        break;
     case Cmd_BONUS_LEVEL_TIME:
         command_bonus_level_time(scline->np[0], scline->np[1]);
-        break;
-    case Cmd_QUICK_OBJECTIVE:
-        command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
-        break;
-    case Cmd_QUICK_INFORMATION:
-        if (file_version > 0)
-          command_quick_information(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
-        else
-          command_quick_information(scline->np[0], scline->tp[1], "ALL_PLAYERS", 0, 0);
-        break;
-    case Cmd_QUICK_OBJECTIVE_WITH_POS:
-        command_quick_objective(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
-        break;
-    case Cmd_QUICK_INFORMATION_WITH_POS:
-        command_quick_information(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
         break;
     case Cmd_PRINT:
         command_message(scline->tp[0],80);
