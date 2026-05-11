@@ -395,6 +395,10 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             }
             if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
                 ensign_sprite_index++;
+            if (lvinfo->ensign_type == EnsCoop)
+            {
+                ensign_sprite_index = ensign_sprite_index + 6;
+            }
         }
         else
         {

@@ -93,6 +93,7 @@ enum Ensigns {
     EnsDisMulti2    = 46,
     EnsDisMulti3    = 47,
     EnsDisMulti4    = 48,
+    EnsCoop         = 49,
 };
 
 enum TbLevelState {
