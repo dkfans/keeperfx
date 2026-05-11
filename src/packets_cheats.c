@@ -901,6 +901,14 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
 		{
 			player = get_player(plyr_idx);
 			struct Thing* thing = thing_get(player->controlled_thing_idx);
+			struct SpellConfig* spconf = get_spell_config(pckt->actn_par1);
+			if (spconf->caster_affected)
+			{
+				if (spconf->caster_affect_sound > 0)
+				{
+					thing_play_sample(thing, spconf->caster_affect_sound + SOUND_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+				}
+			}
 			apply_spell_effect_to_thing(thing, pckt->actn_par1, SPELL_MAX_LEVEL, plyr_idx);
 			return false;
 		}
