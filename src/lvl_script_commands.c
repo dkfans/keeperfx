@@ -1053,7 +1053,7 @@ static void quick_player_information_check(const struct ScriptLine* scline)
 
     if (scline->command == Cmd_QUICK_PLAYER_INFORMATION)
     {
-        if (scline->tp[2][0] != '\0')
+        if (scline->tp[3][0] != '\0')
         {
             where = scline->tp[3];
         }
@@ -1065,7 +1065,7 @@ static void quick_player_information_check(const struct ScriptLine* scline)
     }
     if (!get_map_location_id(where, &location))
     {
-        SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
+        SCRPTERRLOG("Invalid location (%s)", scline->tp[3]);
         return;
     }
 
