@@ -409,10 +409,7 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
       inter_val *= 3;
 
     if (is_local_camera && !game.packet_load_enable)
-    {
-        movement_accum_x = clamp(movement_accum_x, -1.0f, 1.0f);
-        movement_accum_y = clamp(movement_accum_y, -1.0f, 1.0f);
-        
+    {        
         // Apply same scaling as packet-based movement for consistency
         if (movement_accum_y != 0.0f) {
             long delta = (long)(movement_accum_y * inter_val / 4.0f);

@@ -33,6 +33,7 @@
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
 
+#include "button_snapping.h"
 #include "config_settings.h"
 #include "config_strings.h"
 #include "frontend.h"
@@ -186,13 +187,31 @@ TbBool defined_keys_that_have_been_swapped[GAME_KEYS_COUNT] = { false };
 
 float movement_accum_x = 0.0f;
 float movement_accum_y = 0.0f;
-
-
-static TbClockMSec delta_time_previous_msec = 0;
 static float input_delta_time = 0.0f;
+
+static void get_button_snapping_inputs(void)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (player->view_type == PVT_CreatureContrl)
+        return;
+
+    TbControllerButtons snapbtns = get_game_key_controller_buttons(Gkey_ButtonSnapRight)|get_game_key_controller_buttons(Gkey_ButtonSnapLeft)|get_game_key_controller_buttons(Gkey_ButtonSnapUp)|get_game_key_controller_buttons(Gkey_ButtonSnapDown);
+    TbControllerButtons relevant_buttons = controller_button_state & snapbtns;
+    if ((relevant_buttons == 0) || (relevant_buttons != controller_button_state)) {
+        return;
+    }
+
+    float snap_x = get_game_key_axis_value(Gkey_ButtonSnapRight) - get_game_key_axis_value(Gkey_ButtonSnapLeft);
+    float snap_y = get_game_key_axis_value(Gkey_ButtonSnapDown)  - get_game_key_axis_value(Gkey_ButtonSnapUp);
+    
+    snap_to_direction(GetMouseX(), GetMouseY(), snap_x, snap_y);
+
+    controller_button_state = 0;
+}
 
 static float get_input_delta_time()
 {
+    static TbClockMSec delta_time_previous_msec = 0;
     if (LbTimerClock == NULL) {
         return 0.0f;
     }
@@ -209,59 +228,27 @@ static float get_input_delta_time()
     return min(calculated_delta_time, 1.0f);
 }
 
-#define STICK_DEADZONE      0.15f
-
-static void poll_controller_movement(Sint16 lx, Sint16 ly)
+static void poll_controller_movement(float nx, float ny)
 {
-    float nx = lx / 32768.0f;
-    float ny = ly / 32768.0f;
-    
     // Handle horizontal movement - just accumulate for local camera
     float move_mag_x = fabsf(nx);
-    if (move_mag_x > STICK_DEADZONE) {
-        float norm_mag = (move_mag_x - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
-        float curved = norm_mag * norm_mag;
+    if (move_mag_x > 0.0f) {
+        float curved = move_mag_x * move_mag_x;
         float presses_this_frame = curved * input_delta_time;
         
         movement_accum_x += (nx > 0 ? presses_this_frame : -presses_this_frame);
-
-        struct PlayerInfo* player = get_my_player();
-        if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect) {
-            struct Packet* packet = get_packet(my_player_number);
-            while (movement_accum_x >= 1.0f) {
-                set_packet_control(packet, PCtr_MoveRight);
-                movement_accum_x -= 1.0f;
-            }
-            while (movement_accum_x <= -1.0f) {
-                set_packet_control(packet, PCtr_MoveLeft);
-                movement_accum_x += 1.0f;
-            }
-        }
     }
     
     // Handle vertical movement - just accumulate for local camera
     float move_mag_y = fabsf(ny);
-    if (move_mag_y > STICK_DEADZONE) {
-        float norm_mag = (move_mag_y - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
-        float curved = norm_mag * norm_mag;
+    if (move_mag_y > 0.0f) {
+        float curved = move_mag_y * move_mag_y;
         float presses_this_frame = curved * input_delta_time;
         
         movement_accum_y += (ny > 0 ? presses_this_frame : -presses_this_frame);
-        
-        struct PlayerInfo* player = get_my_player();
-        if(player->work_state == PSt_FreeCtrlDirect || player->work_state == PSt_CtrlDirect) {
-            struct Packet* packet = get_packet(my_player_number);
-            while (movement_accum_y >= 1.0f) {
-                set_packet_control(packet, PCtr_MoveDown);
-                movement_accum_y -= 1.0f;
-            }
-            while (movement_accum_y <= -1.0f) {
-                set_packet_control(packet, PCtr_MoveUp);
-                movement_accum_y += 1.0f;
-            }
-        }
     }
-    // Packets will be sent by send_camera_catchup_packets() based on position difference
+    movement_accum_x = clamp(movement_accum_x, -1.0f, 1.0f);
+    movement_accum_y = clamp(movement_accum_y, -1.0f, 1.0f);
 }
 
 void poll_controller_mouse_clicks()
@@ -290,21 +277,19 @@ void poll_controller_mouse_clicks()
 }
 
 #define SECONDS_TO_CROSS   20.0f
-static void poll_controller_mouse_movement(Sint16 rx, Sint16 ry)
+static void poll_controller_mouse_movement(float nx, float ny)
 {
     static float mouse_accum_x;
     static float mouse_accum_y;
-    float nx = rx / 32768.0f;
-    float ny = ry / 32768.0f;
     float mag = sqrtf(nx * nx + ny * ny);
 
-    if (mag < STICK_DEADZONE)
+    if (mag <= 0.0f)
         return;
 
     nx /= mag;
     ny /= mag;
 
-    float norm_mag = (mag - STICK_DEADZONE) / (1.0f - STICK_DEADZONE);
+    float norm_mag = min(mag, 1.0f);
     float curved = norm_mag * norm_mag;
     float pixels_per_second = lbDisplay.GraphicsWindowWidth / SECONDS_TO_CROSS;
     float pixels_this_frame = pixels_per_second * input_delta_time;
@@ -333,13 +318,13 @@ void update_controller_inputs()
     input_delta_time = get_input_delta_time();
 
     poll_controller_mouse_clicks();
-    int16_t mouse_x = 0;
-    int16_t mouse_y = 0;
+    float mouse_x = get_game_key_axis_value(Gkey_MouseRight) - get_game_key_axis_value(Gkey_MouseLeft);
+    float mouse_y = get_game_key_axis_value(Gkey_MouseDown) - get_game_key_axis_value(Gkey_MouseUp);
     poll_controller_mouse_movement(mouse_x, mouse_y);
-    int16_t movement_x = 0;
-    int16_t movement_y = 0;
+    float movement_x = get_game_key_axis_value(Gkey_MoveRight) - get_game_key_axis_value(Gkey_MoveLeft);
+    float movement_y = get_game_key_axis_value(Gkey_MoveDown) - get_game_key_axis_value(Gkey_MoveUp);
     poll_controller_movement(movement_x, movement_y);
-
+    get_button_snapping_inputs();
 }
 
 TbBool poll_inputs(void)

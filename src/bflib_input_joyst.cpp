@@ -25,7 +25,6 @@
 #include "bflib_mouse.h"
 #include "bflib_video.h"
 #include "bflib_planar.h"
-#include "button_snapping.h"
 #include "config_keeperfx.h"
 #include "config.h"
 #include "config_settings.h"
@@ -228,14 +227,68 @@ void init_controller_input()
 
 float cbtn_axis_value(TbControllerButtons btn)
 {
+    if (controller == NULL) {
+        return 0.0f;
+    }
+
+    const float deadzone = 10000.0f;
+    const float max_axis = 32767.0f;
+
+    float value = 0.0f;
+
+    auto sample_direction = [&](Sint16 axis_value, float sign) {
+        float directional = ((float)axis_value) * sign;
+        if (directional <= deadzone) {
+            return 0.0f;
+        }
+        float normalized = directional / max_axis;
+        if (normalized > 1.0f) {
+            normalized = 1.0f;
+        }
+        return normalized;
+    };
+
     if (btn & (CBtn_LS_LEFT|CBtn_LS_RIGHT|CBtn_LS_UP|CBtn_LS_DOWN|CBtn_RS_LEFT|CBtn_RS_RIGHT|CBtn_RS_UP|CBtn_RS_DOWN))
     {
-        return .5f;
+        const Sint16 left_x = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+        const Sint16 left_y = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+        const Sint16 right_x = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
+        const Sint16 right_y = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
+
+        if (btn & CBtn_LS_LEFT) {
+            value = std::max(value, sample_direction(left_x, -1.0f));
+        }
+        if (btn & CBtn_LS_RIGHT) {
+            value = std::max(value, sample_direction(left_x, 1.0f));
+        }
+        if (btn & CBtn_LS_UP) {
+            value = std::max(value, sample_direction(left_y, -1.0f));
+        }
+        if (btn & CBtn_LS_DOWN) {
+            value = std::max(value, sample_direction(left_y, 1.0f));
+        }
+        if (btn & CBtn_RS_LEFT) {
+            value = std::max(value, sample_direction(right_x, -1.0f));
+        }
+        if (btn & CBtn_RS_RIGHT) {
+            value = std::max(value, sample_direction(right_x, 1.0f));
+        }
+        if (btn & CBtn_RS_UP) {
+            value = std::max(value, sample_direction(right_y, -1.0f));
+        }
+        if (btn & CBtn_RS_DOWN) {
+            value = std::max(value, sample_direction(right_y, 1.0f));
+        }
+
+        if (value > 0.0f) {
+            return value;
+        }
     }
-    else if (btn == controller_button_state)
+
+    if ((controller_button_state & btn) != 0)
         return 1.0;
-    else
-        return 0.0;
+
+    return 0.0;
 }
 
 TbBool controller_connected()

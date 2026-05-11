@@ -22,7 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_planar.h"
-
+#include "bflib_joyst.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
@@ -351,16 +351,17 @@ int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods)
         return result;
     }
 
-    if (settings.kbkeys[key_id].controller_buttons == 0 || controller_button_state == 0)
+    const TbControllerButtons ctrl_buttons_gamekey = settings.kbkeys[key_id].controller_buttons;
+    if (ctrl_buttons_gamekey == 0 || controller_button_state == 0)
         return 0;
 
-    if (ignore_mods )
-        result = (controller_button_state & settings.kbkeys[key_id].controller_buttons) != 0;
-    else
-        result = (controller_button_state & settings.kbkeys[key_id].controller_buttons) == controller_button_state;
+        
+    const TbControllerButtons mod_buttons = CBtn_A|CBtn_B|CBtn_X|CBtn_Y;
+    if (ignore_mods || (controller_button_state & mod_buttons) == (ctrl_buttons_gamekey & mod_buttons))
+        result = (controller_button_state & ctrl_buttons_gamekey) == ctrl_buttons_gamekey;
 
     if (result && clear_pressed)
-        controller_button_state &= ~settings.kbkeys[key_id].controller_buttons;
+        controller_button_state &= ~ctrl_buttons_gamekey;
 
   return result;
 }
@@ -370,6 +371,11 @@ TbControllerButtons get_game_key_controller_buttons(long key_id)
     if ((key_id < 0) || (key_id >= GAME_KEYS_COUNT))
         return 0;
     return settings.kbkeys[key_id].controller_buttons;
+}
+
+float get_game_key_axis_value(long key_id)
+{
+    return cbtn_axis_value(get_game_key_controller_buttons(key_id));
 }
 
 /**
@@ -1482,13 +1488,26 @@ static void set_possession_instance(struct PlayerInfo* player, struct Thing* thi
         }
     }
 
+    int8_t count = 0;
+    for (int pos = 0; pos < LEARNED_INSTANCES_COUNT; pos++)
+    {
+        if (creature_instance_is_available(thing, crconf->learned_instance_id[pos]))
+        {
+            count++;
+        }
+        if (pos == final_pos)
+        {
+            break;
+        }
+    }
 
-    if (menu_is_active(GMnu_CREATURE_QUERY1) && final_pos > 5)
+
+    if (menu_is_active(GMnu_CREATURE_QUERY1) && count > 5)
     {
         turn_off_menu(GMnu_CREATURE_QUERY1);
         turn_on_menu(GMnu_CREATURE_QUERY2);
     }
-    else if (menu_is_active(GMnu_CREATURE_QUERY2) && final_pos <= 5)
+    else if (menu_is_active(GMnu_CREATURE_QUERY2) && count <= 5)
     {
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY1);
@@ -2572,14 +2591,39 @@ static void get_creature_control_nonaction_inputs(void)
             right_button_clicked = 0;
             right_button_released = 0;
         }
-        if (is_game_key_pressed(Gkey_MoveLeft, false, true) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
-            set_packet_control(pckt, PCtr_MoveLeft);
-        if (is_game_key_pressed(Gkey_MoveRight, false, true) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
-            set_packet_control(pckt, PCtr_MoveRight);
-        if (is_game_key_pressed(Gkey_MoveUp, false, true) || is_key_pressed(KC_UP, KMod_DONTCARE))
-            set_packet_control(pckt, PCtr_MoveUp);
-        if (is_game_key_pressed(Gkey_MoveDown, false, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
-            set_packet_control(pckt, PCtr_MoveDown);
+
+        struct Packet* packet = get_packet(my_player_number);
+        if (movement_accum_x >= 1.0f) {
+            set_packet_control(packet, PCtr_MoveRight);
+            movement_accum_x = 0.0f;
+        }
+        else if (movement_accum_x <= -1.0f) {
+            set_packet_control(packet, PCtr_MoveLeft);
+            movement_accum_x = 0.0f;
+        }
+
+        if (movement_accum_y >= 1.0f) {
+            set_packet_control(packet, PCtr_MoveDown);
+            movement_accum_y = 0.0f;
+        }
+        else if (movement_accum_y <= -1.0f) {
+            set_packet_control(packet, PCtr_MoveUp);
+            movement_accum_y = 0.0f;
+        }
+        
+
+        //if (is_game_key_pressed(Gkey_MoveLeft, false, true) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+        //    set_packet_control(pckt, PCtr_MoveLeft);
+        //if (is_game_key_pressed(Gkey_MoveRight, false, true) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+        //    set_packet_control(pckt, PCtr_MoveRight);
+        //if (is_game_key_pressed(Gkey_MoveUp, false, true) || is_key_pressed(KC_UP, KMod_DONTCARE))
+        //    set_packet_control(pckt, PCtr_MoveUp);
+        //if (is_game_key_pressed(Gkey_MoveDown, false, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+        //    set_packet_control(pckt, PCtr_MoveDown);
+
+
+
+
         if (flag_is_set(thing->movement_flags, TMvF_Flying))
         {
             if (is_game_key_pressed(Gkey_Ascend, false, true))
@@ -2611,7 +2655,6 @@ static TbBool active_menu_functions_while_paused(void)
     return (menu_is_active(GMnu_QUIT) || menu_is_active(GMnu_OPTIONS) || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE)
          || menu_is_active(GMnu_VIDEO) || menu_is_active(GMnu_SOUND) || menu_is_active(GMnu_ERROR_BOX) || menu_is_active(GMnu_AUTOPILOT));
 }
-
 
 /** Fill packet struct with game action information.
  */
