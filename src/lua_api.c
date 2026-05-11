@@ -559,7 +559,7 @@ static int lua_Display_information_with_pos(lua_State *L)
     long stl_x    = luaL_checkstl_x(L, 2);
     long stl_y    = luaL_checkstl_y(L, 3);
 
-    set_general_objective(msg_id, my_player_number, 0,stl_x,stl_y);
+    set_general_information(msg_id, my_player_number, 0,stl_x,stl_y);
     return 0;
 }
 
