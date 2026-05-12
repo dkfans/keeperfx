@@ -771,7 +771,7 @@
     <ClCompile Include="src\lua_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lua_api_camera.c">      
+    <ClCompile Include="src\lua_api_camera.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\local_camera.c">
@@ -796,6 +796,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_datetm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_room.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_lens.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1497,6 +1503,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\net_matchmaking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_api_lens.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
