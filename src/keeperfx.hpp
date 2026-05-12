@@ -274,11 +274,11 @@ short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count);
 short lose_level(struct PlayerInfo *player);
 short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
-void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
-void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
-void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
-void set_general_objective(long msg_id, TbMapLocation target, long x, long y);
-void turn_off_power_sight_of_evil(PlayerNumber plridx);
+void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void process_objective(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void set_general_objective(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, long x, long y);
+void turn_off_power_sight_of_evil(PlayerNumber plyr_idx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
 
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand);

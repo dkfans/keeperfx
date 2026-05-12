@@ -324,7 +324,7 @@ struct Game {
     GameTurnDelta pay_day_progress[PLAYERS_COUNT];
     struct SoundSettings sound_settings;
     struct CreatureBattle battles[BATTLES_COUNT];
-    char evntbox_text_objective[MESSAGE_TEXT_LEN];
+    char evntbox_text_objective[PLAYERS_COUNT][MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
     int32_t flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */

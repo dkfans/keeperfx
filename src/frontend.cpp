@@ -3560,14 +3560,14 @@ void gui_set_autopilot(struct GuiButton *gbtn)
   set_players_packet_action(player, PckA_SetComputerKind, ntype, 0, 0, 0);
 }
 
-void set_level_objective(const char *msg_text)
+void set_level_objective(PlayerNumber plyr_idx, const char *msg_text)
 {
     if (msg_text == NULL)
     {
         ERRORLOG("Invalid message pointer");
         return;
     }
-    snprintf(game.evntbox_text_objective, MESSAGE_TEXT_LEN, "%s", msg_text);
+    snprintf(game.evntbox_text_objective[plyr_idx], MESSAGE_TEXT_LEN, "%s", msg_text);
     new_objective = 1;
 }
 
@@ -3586,13 +3586,11 @@ void update_player_objectives(PlayerNumber plyr_idx)
       switch (player->victory_state)
       {
       case VicS_WonLevel:
-          if (plyr_idx == my_player_number)
-            set_level_objective(get_string(CpgStr_SuccessLandIsYours));
+          set_level_objective(player->id_number,get_string(CpgStr_SuccessLandIsYours));
           display_objectives(player->id_number, 0, 0);
           break;
       case VicS_LostLevel:
-          if (plyr_idx == my_player_number)
-            set_level_objective(get_string(CpgStr_LevelLost));
+          set_level_objective(player->id_number, get_string(CpgStr_LevelLost));
           display_objectives(player->id_number, 0, 0);
           break;
       }
@@ -3633,10 +3631,10 @@ void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
             cor_x = creatng->mappos.x.val;
             cor_y = creatng->mappos.y.val;
         }
-        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index);
+        event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index);
     } else
     {
-        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
+        event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
     }
 }
 
