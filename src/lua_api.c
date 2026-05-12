@@ -912,16 +912,23 @@ static int lua_Add_corpse_to_level(lua_State* L)
 {
     ThingModel crtr_id = luaL_checkNamedCommand(L, 1, creature_desc);
     TbMapLocation location = luaL_checkLocation(L, 2);
-    PlayerNumber plr_idx = luaL_checkPlayerSingle(L, 3);
-    CrtrExpLevel exp_level = lua_tointeger(L, 4);
-    TbBool dying = lua_toboolean(L, 5);
+    CrtrExpLevel crtr_level = lua_tointeger(L, 3);
+    TbBool dying = lua_toboolean(L, 4);
+    PlayerNumber plr_idx = luaL_optPlayerSingle(L, 5);
 
     struct Coord3d pos;
     if (!get_coords_at_location(&pos, location, true))
     {
         return 0;
     }
-    lua_pushThing(L, script_process_new_corpse(crtr_id, pos.x.stl.num, pos.y.stl.num, plr_idx, exp_level, dying));
+
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return 0;
+    }
+
+    lua_pushThing(L, script_process_new_corpse(crtr_id, pos.x.stl.num, pos.y.stl.num, plr_idx, crtr_level-1, dying));
     return 1;
 }
 
