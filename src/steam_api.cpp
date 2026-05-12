@@ -143,11 +143,21 @@ int steam_api_init()
     SteamErrMsg error;
     ESteamAPIInitResult result = SteamAPI_Init(&error);
 
-    // Check if initialization is successful
-    if (result != ESteamAPIInitResult::k_ESteamAPIInitResult_OK)
-    {
-        ERRORLOG("Steam API Failure: %s", error);
+    // Check if initialization was successful
+    if(result == ESteamAPIInitResult::k_ESteamAPIInitResult_OK) {
+        JUSTLOG("Steam API connected");
+    } else {
+        if(result == ESteamAPIInitResult::k_ESteamAPIInitResult_NoSteamClient) {
+            JUSTLOG("Cannot connect to the Steam client. Steam is probably not running");
+        } else if(result == ESteamAPIInitResult::k_ESteamAPIInitResult_VersionMismatch) {
+            WARNLOG("Steam API version mismatch. Steam client appears to be out of date");
+        } else {
+            ERRORLOG("Steam API Failure: %s", error);
+        }
         FreeLibrary(steam_lib);
+        steam_lib = nullptr;
+        SteamAPI_Init = nullptr;
+        SteamAPI_Shutdown = nullptr;
         return 1;
     }
 
