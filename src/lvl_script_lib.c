@@ -24,6 +24,7 @@
 #include "lvl_script_commands.h"
 #include "magic_powers.h"
 #include "room_util.h"
+#include "thing_corpses.h"
 #include "thing_factory.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
@@ -158,6 +159,39 @@ struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation lo
         if (!move_creature_to_nearest_valid_position(thing)) {
             ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
             delete_thing_structure(thing, 0);
+            return INVALID_THING;
+        }
+    }
+    return thing;
+}
+
+struct Thing* script_process_new_corpse(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, CrtrExpLevel exp_level, TbBool dying)
+{
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height_at(&pos);
+
+    int16_t crpscondition = DCrSt_Dead;
+    if (dying)
+    {
+        crpscondition = DCrSt_Dying;
+    }
+
+    struct Thing* thing = create_dead_creature(&pos, tngmodel, crpscondition, plyr_idx, exp_level);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create %s at location %d, %d", thing_class_and_model_name(TCls_DeadCreature, tngmodel), stl_x, stl_y);
+        return INVALID_THING;
+    }
+    
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing))
+        {
+            ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
+            destroy_thing(thing);
             return INVALID_THING;
         }
     }

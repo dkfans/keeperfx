@@ -54,3 +54,12 @@ function ChangeCreatureOwner(creature,new_owner) end
 ---@param operation any
 ---@param annoyance integer
 function ChangeCreaturesAnnoyance(player,creature,operation,annoyance) end
+
+---Place any corpse at a specific place on the map
+---@param creature creature_type
+---@param location location
+---@param player playersingle The owner of the corpse
+---@param experience integer The experience level of the Tunneller.
+---@param dying? boolean It the corpse is still falling down when spawned
+---@return Thing object
+function AddCorpseToLevel(creature,location,player,experience,dying) local ob return ob end
