@@ -508,16 +508,6 @@ struct Room* luaL_checkRoom(lua_State *L, int idx)
     return room;
 }
 
-int luaL_checkHitType(lua_State* L, int index)
-{
-    if ((index < THit_None) || (index >= THit_TypesCount))
-    {
-        luaL_argerror(L, index, "Invalid hittype");
-        return THit_None;
-    }
-    return index;
-}
-
 void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
 {
     if (lua_istable(L, index)) {

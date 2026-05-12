@@ -28,3 +28,4 @@
 ---@alias thing_class "Object"|"Shot"|"EffectElem"|"DeadCreature"|"Creature"|"Effect"|"EffectGen"|"Trap"|"Door"|"AmbientSnd"|"CaveIn"
 ---@alias effect_or_effelem_type integer|string|effect_type|effect_element_type -- I allow string here because there are too many entries for the language server to handle
 ---@alias anger_reason "NOT_PAID"|"HUNGRY"|"NO_LAIR"|"OTHER"
+---@alias hit_type "None"|"CreaturesAndObjects"|"CreaturesOnly"|"CreaturesAndObjectsNotOwn"|"CreaturesOnlyNotOwn"|"CreaturesNotArmourNotOwn"|"All"|"HeartOnly"|"HeartOnlyNotOwn"|"CreaturesAndObjectsAndShots"|"TrapsAll"|"CreaturesOnlyOwn"

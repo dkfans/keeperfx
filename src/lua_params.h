@@ -50,7 +50,6 @@ MapSubtlCoord luaL_checkstl_x(lua_State *L, int index);
 MapSubtlCoord luaL_checkstl_y(lua_State *L, int index);
 MapSlabCoord luaL_checkslb_x(lua_State *L, int index);
 MapSlabCoord luaL_checkslb_y(lua_State *L, int index);
-int luaL_checkHitType(lua_State* L, int index);
 ActionPointId luaL_checkActionPoint(lua_State *L, int index);
 unsigned char luaL_checkCrtLevel(lua_State *L, int index);
 unsigned char luaL_checkParty(lua_State *L, int index);
