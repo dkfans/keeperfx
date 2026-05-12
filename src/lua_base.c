@@ -442,6 +442,7 @@ void generate_lua_types_file()
     GENERATE_ALIAS("spell_type", spell_desc);
     GENERATE_ALIAS("slab_type", slab_desc);
     GENERATE_ALIAS("creature_state", creatrstate_desc);
+    GENERATE_ALIAS("shot_type", shot_desc);
     fprintf(out, "\n");
 
     GENERATE_FIELDS("roomfields", room_desc);
