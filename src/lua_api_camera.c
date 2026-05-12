@@ -88,7 +88,7 @@ static const struct luaL_Reg camera_methods[] = {
 
     const char* key = luaL_checkstring(L, 2);
 
-    if (try_get_c_method(L, key, slab_methods))
+    if (try_get_c_method(L, key, camera_methods))
     {
         return 1;
     }
