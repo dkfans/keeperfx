@@ -912,7 +912,7 @@ static int lua_Add_corpse_to_level(lua_State* L)
 {
     ThingModel crtr_id = luaL_checkNamedCommand(L, 1, creature_desc);
     TbMapLocation location = luaL_checkLocation(L, 2);
-    PlayerNumber plr_idx = luaL_optPlayerSingle(L, 3);
+    PlayerNumber plr_idx = luaL_checkPlayerSingle(L, 3);
     CrtrExpLevel exp_level = lua_tointeger(L, 4);
     TbBool dying = lua_toboolean(L, 5);
 

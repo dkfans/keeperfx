@@ -59,7 +59,7 @@ function ChangeCreaturesAnnoyance(player,creature,operation,annoyance) end
 ---@param creature creature_type
 ---@param location location
 ---@param player playersingle The owner of the corpse
----@param experience integer The experience level of the Tunneller.
+---@param experience integer The experience level of the corpse. Determines the size.
 ---@param dying? boolean It the corpse is still falling down when spawned
 ---@return Thing object
 function AddCorpseToLevel(creature,location,player,experience,dying) local ob return ob end
