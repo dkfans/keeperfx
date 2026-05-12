@@ -38,7 +38,7 @@ int luaL_checkCamera(lua_State *L, int idx)
     return playerId;
 }
 
-static const struct luaL_Reg slab_methods[] = {
+static const struct luaL_Reg camera_methods[] = {
      {NULL, NULL}
  };
 
