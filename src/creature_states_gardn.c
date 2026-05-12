@@ -83,11 +83,10 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
     creatng->continue_state = CrSt_CreatureToGarden;
     {
         // TODO ANGER Maybe better either zero the hunger anger or apply annoy_eat_food points, based on the annoy_eat_food value?
-        /*struct CreatureModelConfig *crconf;
-        crconf = creature_stats_get_from_thing(creatng);
-        anger_apply_anger_to_creature(creatng, crconf->annoy_eat_food, AngR_Other, 1);*/
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        anger_apply_anger_to_creature(creatng, -cctrl->annoyance_level[AngR_Hungry], AngR_Hungry, 1);
+        anger_apply_anger_to_creature(creatng, -cctrl->annoyance_level[AngR_Hungry], AngR_Hungry, 0); // `annoyance_level[AngR_Hungry]` value may be large, so no extend other
+        struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
+        anger_apply_anger_to_creature(creatng, crconf->annoy_eat_food, AngR_Other, 1);
     }
     if (thing_is_creature(foodtng))
     {
