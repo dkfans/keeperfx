@@ -175,20 +175,15 @@ void steam_api_shutdown()
 {
 #ifdef _WIN32
 
-    JUSTLOG("Shutting down Steam API");
-
     if (SteamAPI_Shutdown != nullptr) {
+        JUSTLOG("Shutting down Steam API");
         SteamAPI_Shutdown();
-    } else {
-        WARNLOG("Steam API could not be shut down. SteamAPI_Shutdown() is a null pointer");
     }
 
     // Unload the Steam DLL
     if (steam_lib != nullptr) {
         FreeLibrary(steam_lib);
         steam_lib = nullptr;
-    } else {
-        WARNLOG("Steam API library could not be unloaded");
     }
 
     // Reset function pointers
