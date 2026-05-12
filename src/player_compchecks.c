@@ -187,7 +187,7 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
             oprel->hate_amount += 5;
         }
         // If no reason to hate the player - hate him randomly for just surviving that long
-        if ((hate_reasons <= 0) && (check->primary_parameter < game.play_gameturn))
+        if ((hate_reasons <= 0) && (check->primary_parameter < get_gameturn()))
         {
             if (PLAYER_RANDOM(compdngn->owner, 100) < 20) {
                 oprel->hate_amount++;
@@ -572,7 +572,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         {
             if ((game.computer_chat_flags & CChat_TasksScarce) != 0) {
                 struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
-                struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
+                struct CreatureModelConfig* crconf = creature_stats_get(get_players_special_digger_model(dungeon->owner));
                 message_add_fmt(MsgType_Player, comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
             }
             if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > Lb_OK) {
@@ -1143,7 +1143,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             {
                 n = oprel->next_idx;
                 oprel->next_idx = (n + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
-                oprel->last_interaction_turn = game.play_gameturn;
+                oprel->last_interaction_turn = get_gameturn();
                 struct Coord3d* pos = &oprel->pos_A[n];
                 pos->x.val = subtile_coord(room->central_stl_x,0);
                 pos->y.val = subtile_coord(room->central_stl_y,0);

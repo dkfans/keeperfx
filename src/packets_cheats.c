@@ -103,7 +103,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_hero_kind];
+            struct CreatureModelConfig* crconf = creature_stats_get(player->cheatselection.chosen_hero_kind);
             snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
@@ -122,7 +122,7 @@ TbBool packets_process_cheats(
                         {
                             continue;
                         }
-                        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
+                        struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
                         if ((crconf->model_flags & CMF_IsSpectator) != 0)
                         {
                             continue;
@@ -260,7 +260,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_creature_kind];
+            struct CreatureModelConfig* crconf = creature_stats_get(player->cheatselection.chosen_creature_kind);
             snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
@@ -275,7 +275,7 @@ TbBool packets_process_cheats(
                     while (1)
                     {
                         crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
-                        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
+                        struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
                         if ((crconf->model_flags & CMF_IsSpectator) != 0) {
                             continue;
                         }
@@ -771,7 +771,7 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
   {
       case PckA_CheatEnter:
     //      game.???[my_player_number].cheat_mode = 1;
-          show_onscreen_msg(2*game_num_fps, "Cheat mode activated by player %d", plyr_idx);
+          show_onscreen_msg(2*turns_per_second, "Cheat mode activated by player %d", plyr_idx);
           return true;
       case PckA_CheatAllFree:
           make_all_creatures_free();

@@ -76,7 +76,7 @@ struct DefaultMessage : Message {
 	void play() const noexcept override
 	{
 		play_speech_sample(sample_id);
-		g_recent_samples[sample_id] = game.play_gameturn + duration;
+		g_recent_samples[sample_id] = get_gameturn() + duration;
 	}
 };
 
@@ -97,7 +97,7 @@ struct CustomMessage : Message {
 	void play() const noexcept override
 	{
 		play_streamed_sample(fname.c_str(), settings.mentor_volume);
-		g_recent_filenames[fname] = game.play_gameturn + duration;
+		g_recent_filenames[fname] = get_gameturn() + duration;
 	}
 };
 
@@ -136,7 +136,7 @@ bool played_recently(SoundSmplTblID sample_id)
 {
 	const auto it = g_recent_samples.find(sample_id);
 	if (it != g_recent_samples.end()) {
-		return it->second >= game.play_gameturn;
+		return it->second >= get_gameturn();
 	}
 	return false;
 }
@@ -145,7 +145,7 @@ bool played_recently(const char * fname)
 {
 	const auto it = g_recent_filenames.find(fname);
 	if (it != g_recent_filenames.end()) {
-		return it->second >= game.play_gameturn;
+		return it->second >= get_gameturn();
 	}
 	return false;
 }

@@ -440,7 +440,7 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, int32_t timer_id)
         return false;
     }
     dungeon->turn_timers[timer_id].state = 1;
-    dungeon->turn_timers[timer_id].count = game.play_gameturn;
+    dungeon->turn_timers[timer_id].count = get_gameturn();
     return true;
 }
 

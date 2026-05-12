@@ -8,8 +8,9 @@
 ---@field name string name visible in possession or query menu
 ---@field party Creature[] list of creatures in the party, first entry is the leader
 ---@field workroom Room the room the creature is currently working in
----@field state string
----@field continue_state string
+---@field state creature_state
+---@field state_besides_interruptions creature_state the state the creature is in, ignoring interruption states like moving around or being slapped. Used for checking what the creature is actually doing instead of just what state it is in. read-only
+---@field continue_state creature_state
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
 ---@field flee_pos Pos3d The position the creature will flee too. For keeper creatures this is their lair
 ---@field max_speed integer the movement speed of the creature after spell modifications
@@ -60,6 +61,10 @@ function Creature:level_up(levels) end
 
 ---sends the creature to the next level, similar to using the special box and selecting said unit
 function Creature:transfer() end
+
+---Checks if the creature is under enemy custody (e.g. in prison or torture chamber)
+---@return boolean in_enemy_custody If the creature is currently controlled by the enemy
+function Creature:in_enemy_custody() end
 
 ---makes the creature walk to a given subtile, combine with continue_state, so it knows what to do after it arrives.
 ---e.g cr:walk_to(5,5)

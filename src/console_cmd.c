@@ -291,7 +291,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", game_num_fps, game_num_fps_draw_current);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", turns_per_second, turns_per_second_draw_current);
     return true;
 }
 
@@ -299,17 +299,17 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
-        game_num_fps = start_params.num_fps;
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %d fps", game_num_fps);
+        turns_per_second = start_params.num_fps;
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %d fps", turns_per_second);
     } else {
-        game_num_fps = atoi(pr2str);
+        turns_per_second = atoi(pr2str);
     }
     return true;
 }
 
 TbBool cmd_fps_draw(PlayerNumber plyr_idx, char * args)
 {
-    parse_draw_fps_config_val(args, &game_num_fps_draw_main, &game_num_fps_draw_secondary);
+    parse_draw_fps_config_val(args, &turns_per_second_draw_main, &turns_per_second_draw_secondary);
     redetect_screen_refresh_rate_for_draw();
     return true;
 }
@@ -336,7 +336,7 @@ TbBool cmd_frametime_max(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_network_stats(PlayerNumber plyr_idx, char * args)
 {
-    if (debug_display_network_stats == 1) {
+    if (debug_display_network_stats != 0) {
         debug_display_network_stats = 0;
     } else {
         debug_display_network_stats = 1;
@@ -355,8 +355,8 @@ TbBool cmd_time(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
     char * pr3str = strsep(&args, " ");
-    GameTurn turn = (pr2str != NULL) ? (GameTurn) atoi(pr2str) : game.play_gameturn;
-    long frames = (pr3str != NULL) ? (long) atoi(pr3str) : game_num_fps;
+    GameTurn turn = (pr2str != NULL) ? (GameTurn) atoi(pr2str) : get_gameturn();
+    long frames = (pr3str != NULL) ? (long) atoi(pr3str) : turns_per_second;
     show_game_time_taken(frames, turn);
     return true;
 }
@@ -385,7 +385,7 @@ TbBool cmd_timer_switch(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_turn(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn %ld", game.play_gameturn);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn %ld", get_gameturn());
     return true;
 }
 
@@ -976,7 +976,7 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
         while (1) {
             crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
             // Accept only evil creatures
-            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
+            struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
             if ((crconf->model_flags & CMF_IsSpectator) != 0) {
                 continue;
             }
@@ -2102,7 +2102,7 @@ TbBool cmd_string_show(PlayerNumber plyr_idx, char * args)
     long msg_id = pr2str != NULL ? atoi(pr2str) : 0;
     if (msg_id >= 0)
     {
-        set_general_information(msg_id, 0, 0, 0);
+        set_general_information(msg_id, plyr_idx, 0, 0, 0);
     }
     return true;
 }
@@ -2113,7 +2113,7 @@ TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
     long msg_id = pr2str != NULL ? atoi(pr2str) : 0;
     if (msg_id >= 0)
     {
-        set_quick_information(msg_id, 0, 0, 0);
+        set_quick_information(msg_id, plyr_idx, 0, 0, 0);
     }
     return true;
 }
@@ -2179,6 +2179,25 @@ TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
     if (menu_type == 3)
         toggle_instance_cheat_menu();
 
+    return true;
+}
+
+TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
+{
+    if (game.easter_eggs_enabled == false) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
+    }
+    struct PlayerInfo * player = get_player(plyr_idx);
+    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    if (!thing_is_creature(thing)) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
+        return false;
+    }
+    struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CHICKEN);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 27, 8, plyr_idx); // 27 was 'SplK_Chicken' in the enum.
     return true;
 }
 
@@ -2293,6 +2312,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "lua", cmd_lua},
     { "luatypedump", cmd_luatypedump},
     { "cheat.menu", cmd_cheat_menu},
+    { "creature.chicken", cmd_chicken_creature},
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 

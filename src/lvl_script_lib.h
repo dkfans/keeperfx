@@ -197,6 +197,14 @@ enum TbScriptCommands {
     Cmd_SHOW_BONUS_LEVEL                   = 185,
     Cmd_HIDE_BONUS_LEVEL                   = 186,
     Cmd_HIDE_HERO_GATE                     = 187,
+    Cmd_DISPLAY_PLAYER_OBJECTIVE           = 188,
+    Cmd_DISPLAY_PLAYER_INFORMATION         = 189,
+    Cmd_DISPLAY_PLAYER_OBJECTIVE_WITH_POS  = 190,
+    Cmd_DISPLAY_PLAYER_INFORMATION_WITH_POS  = 191,
+    Cmd_QUICK_PLAYER_OBJECTIVE             = 192,
+    Cmd_QUICK_PLAYER_INFORMATION           = 193,
+    Cmd_QUICK_PLAYER_OBJECTIVE_WITH_POS    = 194,
+    Cmd_QUICK_PLAYER_INFORMATION_WITH_POS  = 195,
 };
 
 struct ScriptLine {
@@ -216,7 +224,6 @@ struct CommandDesc { // sizeof = 14 // originally was 13
 enum ScriptVariables {
   SVar_MONEY                           =  1,
   SVar_GAME_TURN                       =  5,
-  SVar_BREAK_IN                        =  6,
   SVar_CREATURE_NUM                    =  7,
   SVar_TOTAL_DIGGERS                   =  8,
   SVar_TOTAL_CREATURES                 =  9,

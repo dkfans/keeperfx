@@ -493,6 +493,12 @@ static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos
 static int render_sprite_debug_level = 0;
 static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf);
 static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
+
+static TbBool animation_sprite_id_invalid(unsigned short animation_sprite)
+{
+    return ((animation_sprite >= CREATURE_FRAMELIST_LENGTH) && (animation_sprite < KEEPERSPRITE_ADD_OFFSET))
+        || (animation_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM);
+}
 /******************************************************************************/
 
 static void calculate_hud_scale(struct Camera *cam) {
@@ -554,7 +560,7 @@ void interpolate_thing(struct Thing *thing)
 {
     // Note: if delta_time is off the interpolated position will also reflect that
 
-    if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thing->last_turn_drawn > 1 ) {
+    if (thing->creation_turn == get_gameturn()-1 || get_gameturn() - thing->last_turn_drawn > 1 ) {
         // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
         thing->interp_mappos = thing->mappos;
         thing->interp_floor_height = thing->floor_height;
@@ -3870,6 +3876,8 @@ static long find_fade_S(struct EngineCoord *ecor)
 
 static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
 {
+    unsigned short animation_sprite;
+    unsigned char current_frame;
     short mv_angle;
     short sh_angle;
     short sprite_angle;
@@ -3879,7 +3887,12 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     struct EngineCoord ecor3;
     struct EngineCoord ecor4;
 
-    struct KeeperSprite *spr = keepersprite_array(thing->anim_sprite);
+    animation_sprite = get_render_animation_sprite(thing->anim_sprite);
+    current_frame = thing->current_frame;
+    struct KeeperSprite *spr = keepersprite_array(animation_sprite);
+    if (spr == NULL) {
+        return;
+    }
 
     mv_angle = thing->move_angle_xy;
     sh_angle = get_angle_xy_to(pos, &thing->mappos);
@@ -3895,11 +3908,11 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     short dim_oh;
     short dim_th;
     short dim_tw;
-    get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    get_keepsprite_unscaled_dimensions(animation_sprite, sprite_angle, current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
     if (dim_ow <= 0 || dim_oh <= 0 || dim_ow > 256 || dim_oh > 256)
     {
         WARNLOG("[md10 crash investigation] Invalid shadow dimensions dim_ow=%d dim_oh=%d for thing %d (anim=%d frame=%d)",
-                dim_ow, dim_oh, thing->index, thing->anim_sprite, thing->current_frame);
+                dim_ow, dim_oh, thing->index, animation_sprite, current_frame);
         return;
     }
     {
@@ -3988,8 +4001,8 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     // overall
     kspr->vertex_first.S = dist_sq;
     kspr->angle = sprite_angle;
-    kspr->anim_sprite = thing->anim_sprite;
-    kspr->current_frame = thing->current_frame;
+    kspr->anim_sprite = animation_sprite;
+    kspr->current_frame = current_frame;
 }
 
 // Creature status flower above head in isometric view
@@ -4820,6 +4833,8 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     struct ObjectConfigStats* objst;
     struct TrapConfigStats* trapst;
     struct FlameProperties flame;
+    unsigned short animation_sprite;
+    unsigned char current_frame;
     unsigned long nframe;
     long add_x, add_y;
     long scale = 0;
@@ -4863,7 +4878,9 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     if (flag_is_set(thing->rendering_flags, TRF_Transpar_Alpha))
         EngineSpriteDrawUsingAlpha = 1;
-    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
+    animation_sprite = get_render_animation_sprite(thing->anim_sprite);
+    current_frame = thing->current_frame;
+    process_keeper_sprite(jspr->scr_x, jspr->scr_y, animation_sprite, angle, current_frame, base_sprite_size);
 
     //Flame
     lbDisplay.DrawFlags = 0;
@@ -4880,8 +4897,12 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     {
         EngineSpriteDrawUsingAlpha = 1;
     }
-    nframe = (thing->index + game.play_gameturn * flame.anim_speed / 256) % keepersprite_frames(flame.animation_id);
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, flame.animation_id, angle, nframe, scale);
+    unsigned short flame_sprite = get_render_animation_sprite(flame.animation_id);
+    unsigned char flame_frames = keepersprite_frames(flame_sprite);
+    if (flame_frames > 0) {
+        nframe = (thing->index + get_gameturn() * flame.anim_speed / 256) % flame_frames;
+        process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, flame_sprite, angle, nframe, scale);
+    }
 }
 
 static unsigned short get_thing_shade(struct Thing* thing);
@@ -4892,10 +4913,14 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     struct PlayerInfo *player = get_my_player();
     struct ObjectConfigStats* objst;
     struct Thing *thing = jspr->thing;
+    unsigned short animation_sprite;
+    unsigned char current_frame;
     short angle;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
-    if (keepersprite_rotable(thing->anim_sprite))
+    animation_sprite = get_render_animation_sprite(thing->anim_sprite);
+    current_frame = thing->current_frame;
+    if (keepersprite_rotable(animation_sprite))
     {
         angle = thing->move_angle_xy - cam->rotation_angle_x; // rotation_angle_x maybe short
     }
@@ -4957,7 +4982,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         || (thing->class_id == TCls_DeadCreature)
         || (player->work_state == PSt_QueryAll))
     {
-        if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
+        if ((player->thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = white_pal;
@@ -4982,12 +5007,9 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         thing_being_displayed = NULL;
     }
 
-    if (
-            ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
-            || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
-            )
+    if (animation_sprite_id_invalid(animation_sprite))
     {
-        ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
+        ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)animation_sprite, (int)thing->model, (int)thing->class_id);
         lbDisplay.DrawFlags = flg_mem;
         EngineSpriteDrawUsingAlpha = alpha_mem;
         return;
@@ -5027,7 +5049,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     {
         if (is_shown || get_my_player()->id_number == thing->owner || thing->trap.revealed)
         {
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, size_on_screen);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, animation_sprite, angle, current_frame, size_on_screen);
         }
     }
     lbDisplay.DrawFlags = flg_mem;
@@ -5160,17 +5182,17 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
     if (is_my_player_number(thing->owner))
     {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-        if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
+        if (get_gameturn() - cctrl->thought_bubble_last_turn_drawn == 1)
         {
             if (cctrl->thought_bubble_display_timer < 40) {
                 cctrl->thought_bubble_display_timer++;
             }
         } else {
-            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
+            if (get_gameturn() - cctrl->thought_bubble_last_turn_drawn > 1) {
                 cctrl->thought_bubble_display_timer = 0;
             }
         }
-        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+        cctrl->thought_bubble_last_turn_drawn = get_gameturn();
         if (cctrl->thought_bubble_display_timer >= 40)
         {
             struct CreatureStateConfig *stati;
@@ -5287,7 +5309,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     {
         if (player->thing_under_hand != thing->index)
         {
-            cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+            cctrl->thought_bubble_last_turn_drawn = get_gameturn();
             if (cctrl->force_health_flower_displayed == false)
             {
                 return;
@@ -5335,7 +5357,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    if (((game.play_gameturn % (8 * gui_blink_rate)) < 4 * gui_blink_rate) && (anger_spridx > 0))
+    if (((get_gameturn() % (8 * gui_blink_rate)) < 4 * gui_blink_rate) && (anger_spridx > 0))
     {
         spr = get_button_sprite(anger_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
@@ -5353,12 +5375,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         h_add += h;
     }
 
-    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate))
+    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
     {
         int flash_color = get_player_color_idx(thing->owner);
         if (flash_color == PLAYER_NEUTRAL)
         {
-            flash_color = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
+            flash_color = (get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate;
         }
         spr = get_button_sprite_for_player(health_spridx, thing->owner);
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
@@ -5442,7 +5464,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
-    roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
+    roomst = get_room_kind_stats(room->kind);
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = get_panel_sprite(roomst->medsym_sprite_idx);
@@ -5517,8 +5539,8 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
 {
     if ((x1 == x2) && (y1 == y2)) return; // todo if distance is 0, provide a red square
 
-    // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
-    unsigned char color_index = game.play_gameturn & 0xf;
+    // get the 4 least significant bits of get_gameturn(), to loop through the starting index of the color array, using numbers 0-15.
+    unsigned char color_index = get_gameturn() & 0xf;
 
     // get engine window width and height
     struct PlayerInfo *player = get_my_player();
@@ -7736,6 +7758,15 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     SYNCDBG(17, "At (%d,%d) opts %d %d %d %d", (int)x, (int)y, (int)kspr_base, (int)kspr_angle, (int)sprgroup, (int)scale);
     player = get_my_player();
     creature_sprites = keepersprite_array(kspr_base);
+    if (creature_sprites == NULL) {
+        return;
+    }
+    if (creature_sprites->FramesCount == 0) {
+        return;
+    }
+    if (sprgroup >= creature_sprites->FramesCount) {
+        sprgroup = creature_sprites->FramesCount - 1;
+    }
 
     if (((kspr_angle & ANGLE_MASK) <= 1151) || ((kspr_angle & ANGLE_MASK) >= 1919) || (creature_sprites->Rotable != 2) )
         needs_xflip = 0;
@@ -7779,7 +7810,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         }
         if ( (thing_being_displayed->movement_flags & TMvF_BeingSacrificed) != 0 )
         {
-            get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+            get_keepsprite_unscaled_dimensions(kspr_base, thing_being_displayed->move_angle_xy, sprgroup, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
             lltemp = dim_oh * (48 - (long)cctrl->sacrifice.animation_counter);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
@@ -7928,12 +7959,16 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     unsigned char alpha_mem;
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
+    unsigned short animation_sprite;
+    unsigned char current_frame;
     long angle;
     int32_t scaled_size;
     struct ObjectConfigStats* objst;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
-    if (keepersprite_rotable(thing->anim_sprite))
+    animation_sprite = get_render_animation_sprite(thing->anim_sprite);
+    current_frame = thing->current_frame;
+    if (keepersprite_rotable(animation_sprite))
     {
       angle = thing->move_angle_xy - spr_map_angle;
       angle += DEGREES_45 * (long)((thing->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
@@ -7959,7 +7994,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 
     if (!thing_is_invalid(thing))
     {
-        if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
+        if ((player->thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
           struct Camera *active_cam = get_player_active_camera(player);
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
@@ -8018,12 +8053,9 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         render_sprite_debug_fn(thing, jspr->scr_x, jspr->scr_y);
     }
 
-    if (
-        ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
-        || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
-    )
+    if (animation_sprite_id_invalid(animation_sprite))
     {
-        ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
+        ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)animation_sprite, (int)thing->model, (int)thing->class_id);
     } else
     {
         struct TrapConfigStats *trapst;
@@ -8036,7 +8068,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                 process_keeper_flame_on_sprite(jspr, angle, scaled_size);
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, animation_sprite, angle, current_frame, scaled_size);
             break;
         case TCls_Trap:
             trapst = get_trap_model_stats(thing->model);
@@ -8049,10 +8081,10 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                 process_keeper_flame_on_sprite(jspr, angle, scaled_size);
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, animation_sprite, angle, current_frame, scaled_size);
             break;
         default:
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, animation_sprite, angle, current_frame, scaled_size);
             break;
         }
     }
@@ -8213,8 +8245,17 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         flip_range = true;
     i = ((angle + DEGREES_22_5) & ANGLE_MASK);
     quarter = abs(4 - (i >> 8)); // i is restricted by "&" so (i>>8) is 0..7
-    kspr_idx = keepersprite_index(kspr_n);
     kspr_arr = keepersprite_array(kspr_n);
+    if (kspr_arr == NULL) {
+        return;
+    }
+    if (kspr_arr->FramesCount == 0) {
+        return;
+    }
+    if (current_frame >= kspr_arr->FramesCount) {
+        current_frame = kspr_arr->FramesCount - 1;
+    }
+    kspr_idx = keepersprite_index(kspr_n);
 
     if (kspr_arr->Rotable == 0)
     {
@@ -8707,8 +8748,9 @@ static void do_map_who_for_thing(struct Thing *thing)
             int count;
             int i;
 
-            struct KeeperSprite *spr = keepersprite_array(thing->anim_sprite);
-            if ((spr->frame_flags & FFL_NoShadows) == 0)
+            unsigned short animation_sprite = get_render_animation_sprite(thing->anim_sprite);
+            struct KeeperSprite *spr = keepersprite_array(animation_sprite);
+            if ((spr != NULL) && ((spr->frame_flags & FFL_NoShadows) == 0))
             {
                 count = find_closest_lights(&thing->mappos, &nearlgt);
                 for (i = 0; i < count; i++)
@@ -8775,17 +8817,17 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
+            if (get_gameturn() - thing->roomflag2.last_turn_drawn == 1)
             {
                 if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
-                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1) {
+                if (get_gameturn() - thing->roomflag2.last_turn_drawn > 1) {
                     thing->roomflag2.display_timer = 0;
                 }
             }
-            thing->roomflag2.last_turn_drawn = game.play_gameturn;
+            thing->roomflag2.last_turn_drawn = get_gameturn();
             if (thing->roomflag2.display_timer == 10)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
@@ -8809,7 +8851,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     default:
         break;
     }
-    thing->last_turn_drawn = game.play_gameturn;
+    thing->last_turn_drawn = get_gameturn();
 }
 
 static void do_map_who(short tnglist_idx)
@@ -8890,17 +8932,17 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-            if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
+            if (get_gameturn() - thing->roomflag2.last_turn_drawn == 1)
             {
                 if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
-                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1) {
+                if (get_gameturn() - thing->roomflag2.last_turn_drawn > 1) {
                     thing->roomflag2.display_timer = 0;
                 }
             }
-            thing->roomflag2.last_turn_drawn = game.play_gameturn;
+            thing->roomflag2.last_turn_drawn = get_gameturn();
             if (thing->roomflag2.display_timer == 10)
             {
                 add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
@@ -8921,7 +8963,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     default:
         break;
     }
-    thing->last_turn_drawn = game.play_gameturn;
+    thing->last_turn_drawn = get_gameturn();
 }
 
 static void draw_frontview_things_on_element(struct Map *mapblk, struct Camera *cam)

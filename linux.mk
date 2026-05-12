@@ -43,8 +43,10 @@ src/bflib_mshandler.cpp \
 src/bflib_mspointer.cpp \
 src/bflib_netsession.c \
 src/bflib_netsp.cpp \
-src/bflib_network.cpp \
-src/bflib_network_exchange.cpp \
+src/net_exchange_common.c \
+src/net_exchange_gameplay.c \
+src/net_main.c \
+src/net_lobby.c \
 src/bflib_planar.c \
 src/bflib_render.c \
 src/bflib_render_gpoly.c \
@@ -123,6 +125,7 @@ src/front_fmvids.c \
 src/front_highscore.c \
 src/front_input.c \
 src/front_landview.c \
+src/front_landview_multiplayer.c \
 src/front_lvlstats.c \
 src/front_lvlstats_data.cpp \
 src/front_network.c \
@@ -162,7 +165,6 @@ src/gui_soundmsgs.cpp \
 src/gui_tooltips.c \
 src/gui_topmsg.c \
 src/highscores.c \
-src/KeeperSpeechImp.c \
 src/kjm_input.c \
 src/lens_api.c \
 src/config_effects.c \
@@ -211,8 +213,6 @@ src/net_holepunch.c \
 src/net_matchmaking.c \
 src/net_lan.c \
 src/net_input_lag.c \
-src/net_received_packets.c \
-src/net_redundant_packets.c \
 src/net_resync.cpp \
 src/packets.c \
 src/packets_cheats.c \

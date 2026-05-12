@@ -103,7 +103,7 @@ void process_room_surrounding_flames(struct Room *room)
     // Create new element
     if (room->owner == game.neutral_player_num)
     {
-      create_room_surrounding_flame(room,&pos,game.play_gameturn & 3,game.neutral_player_num);
+      create_room_surrounding_flame(room,&pos,get_gameturn() & 3,game.neutral_player_num);
     } else
     if (room_effect_elements[get_player_color_idx(room->owner)] != 0)
     {
@@ -460,7 +460,7 @@ TbBool check_and_asimilate_thing_by_room(struct Thing *thing)
         room = get_room_thing_is_on(thing);
         if (room->owner != game.neutral_player_num)
         {
-            if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (game.play_gameturn >= 10)))
+            if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (get_gameturn() >= 10)))
             {
                 // No room - oh well, leave it as free spell
                 if (((game.conf.rules[room->owner].game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {

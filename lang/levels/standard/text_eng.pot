@@ -571,7 +571,7 @@ msgstr ""
 #. Ghost in the Machine (lv458)
 #: guitext:90
 msgctxt "In-game message"
-msgid "You have an old version of KeeperFX. You need to update to play this map. Visit www.keeperklan.com "
+msgid "You have an old version of KeeperFX. You need to update to play this map."
 msgstr ""
 
 #. Ghost in the Machine (lv458)
@@ -857,16 +857,6 @@ msgid "The Keeper to the north has heard of the collapse of the hero fort and is
 msgstr ""
 
 #: guitext:141
-msgctxt "In-game message"
-msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-msgstr ""
-
-#: guitext:142
-msgctxt "In-game message"
-msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-msgstr ""
-
-#: guitext:143
 msgctxt "In-game message"
 msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
 msgstr ""

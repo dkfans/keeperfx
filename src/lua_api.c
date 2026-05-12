@@ -347,7 +347,7 @@ static int lua_Bonus_level_time(lua_State *L)
     TbBool clocktime = lua_toboolean(L, 2);
     if (turns > 0)
     {
-        game.bonus_time = game.play_gameturn + turns;
+        game.bonus_time = get_gameturn() + turns;
         set_flag(game.flags_gui, GGUI_CountdownTimer);
     }
     else
@@ -531,7 +531,10 @@ static int lua_Display_objective(lua_State *L)
     long msg_id    = luaL_checkinteger(L, 1);
     TbMapLocation zoom_location = luaL_optLocation(L,2);
 
-    set_general_objective(msg_id,zoom_location,0,0);
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        set_general_objective(msg_id, plyr_idx, zoom_location, 0, 0);
+    }
     return 0;
 }
 
@@ -541,7 +544,11 @@ static int lua_Display_objective_with_pos(lua_State *L)
     long stl_x    = luaL_checkstl_x(L, 2);
     long stl_y    = luaL_checkstl_y(L, 3);
 
-    set_general_objective(msg_id,0,stl_x,stl_y);
+
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        set_general_objective(msg_id, plyr_idx, 0, stl_x, stl_y);
+    }
     return 0;
 }
 
@@ -550,7 +557,10 @@ static int lua_Display_information(lua_State *L)
     long msg_id    = luaL_checkinteger(L, 1);
     TbMapLocation zoom_location = luaL_optLocation(L,2);
 
-    set_general_information(msg_id,zoom_location,0,0);
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        set_general_information(msg_id, plyr_idx, zoom_location, 0, 0);
+    }
     return 0;
 }
 
@@ -560,7 +570,10 @@ static int lua_Display_information_with_pos(lua_State *L)
     long stl_x    = luaL_checkstl_x(L, 2);
     long stl_y    = luaL_checkstl_y(L, 3);
 
-    set_general_objective(msg_id,0,stl_x,stl_y);
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        set_general_information(msg_id, plyr_idx, 0, stl_x, stl_y);
+    }
     return 0;
 }
 
@@ -569,7 +582,10 @@ static int lua_Quick_objective(lua_State *L)
     const char *msg_text = lua_tostring(L, 1);
     TbMapLocation target = luaL_optLocation(L, 2);
 
-    process_objective(msg_text, target, 0, 0);
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        process_objective(msg_text, plyr_idx, target, 0, 0);
+    }
     return 0;
 }
 
@@ -580,7 +596,10 @@ static int lua_Quick_information(lua_State *L)
     TbMapLocation target = luaL_optLocation(L, 3);
     snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
 
-    set_quick_information(slot, target, 0, 0);
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        set_quick_information(slot, plyr_idx, target, 0, 0);
+    }
     return 0;
 }
 
@@ -590,7 +609,10 @@ static int lua_Quick_objective_with_pos(lua_State *L)
     MapSubtlCoord stl_x = luaL_checkstl_x(L, 2);
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 3);
 
-    process_objective(msg_text, 0, stl_x, stl_y);
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        process_objective(msg_text, plyr_idx, 0, stl_x, stl_y);
+    }
     return 0;
 }
 
@@ -602,7 +624,10 @@ static int lua_Quick_information_with_pos(lua_State *L)
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
     snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
 
-    set_quick_information(slot, 0, stl_x, stl_y);
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        set_quick_information(slot, plyr_idx, 0, stl_x, stl_y);
+    }
     return 0;
 }
 
@@ -640,7 +665,7 @@ static int lua_Clear_message(lua_State* L)
     }
     for (int k = game.active_messages_count - 1; k >= (game.active_messages_count - count); k--)
     {
-        game.messages[k].expiration_turn = game.play_gameturn;
+        game.messages[k].expiration_turn = get_gameturn();
     }
     return 0;
 }
@@ -1025,6 +1050,33 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
             i++;
         }
     }
+}
+
+static int lua_New_creature_type(lua_State* L)
+{
+    const char* creature_name = luaL_checkstring(L, 1);
+
+    if (game.conf.crtr_conf.model_count >= CREATURE_TYPES_MAX)
+    {
+        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", creature_name, CREATURE_TYPES_MAX);
+        return 0;
+    }
+
+    int i = game.conf.crtr_conf.model_count;
+    game.conf.crtr_conf.model_count++;
+    snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", creature_name);
+    creature_desc[i - 1].name = game.conf.crtr_conf.model[i].name;
+    creature_desc[i - 1].num = i;
+
+    if (load_default_creaturemodel_config(i, 0))
+    {
+        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
+    }
+    else
+    {
+        SCRPTERRLOG("Failed to load config for creature '%s'(%d).", game.conf.crtr_conf.model[i].name, i);
+    }
+    return 0;
 }
 
 static int lua_Set_door_configuration(lua_State *L)
@@ -2257,7 +2309,7 @@ static const luaL_Reg global_methods[] = {
    {"HideHeroGate"                        ,lua_Hide_hero_gate                  },
 
 //Manipulating Configs
-    //{"NewCreatureType"                    ,lua_New_creature_type               },
+    {"NewCreatureType"                      ,lua_New_creature_type               },
     //{"NewObjectType"                      ,lua_New_object_type                 },
     //{"NewTrapType"                        ,lua_New_trap_type                   },
     //{"NewRoomType"                        ,lua_New_room_type                   },

@@ -17,6 +17,7 @@ struct Packet* get_local_input_lag_packet_for_turn(GameTurn target_turn);
 TbBool input_lag_skips_initial_processing(void);
 void clear_input_lag_queue(void);
 unsigned short calculate_skip_input(void);
+void LbNetwork_UpdateInputLagIfHost(void);
 
 #ifdef __cplusplus
 }

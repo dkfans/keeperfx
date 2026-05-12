@@ -54,9 +54,6 @@
     <ClCompile Include="src\bflib_crash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_datetm.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_dernc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -291,6 +288,9 @@
     <ClCompile Include="src\front_landview.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\front_landview_multiplayer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\front_lvlstats.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -367,9 +367,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gui_topmsg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\KeeperSpeechImp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\kjm_input.c">
@@ -564,7 +561,16 @@
     <ClCompile Include="src\bflib_netsp_tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_network.cpp">
+    <ClCompile Include="src\net_exchange_common.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_exchange_gameplay.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_lobby.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_magic_data.cpp">
@@ -789,6 +795,9 @@
     <ClCompile Include="src\net_matchmaking.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\bflib_datetm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -890,7 +899,16 @@
     <ClInclude Include="src\bflib_netsp_tcp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\bflib_network.h">
+    <ClInclude Include="src\net_exchange_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_exchange_gameplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_lobby.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_planar.h">
@@ -1176,9 +1194,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\keeperfx.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\KeeperSpeech.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\kjm_input.h">

@@ -6,8 +6,7 @@
 #include "player_data.h"
 #include "net_game.h"
 #include "game_legacy.h"
-#include "bflib_network.h"
-#include "bflib_network_internal.h"
+#include "net_main.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
 #include "frontend.h"
@@ -25,7 +24,7 @@ void store_local_packet_in_input_lag_queue(PlayerNumber my_packet_num) {
     if (game.input_lag_turns + 1 <= 0) {
         return;
     }
-    int slot = game.play_gameturn % (game.input_lag_turns + 1);
+    int slot = get_gameturn() % (game.input_lag_turns + 1);
     local_input_lag_packets[slot] = game.packets[my_packet_num];
     const char* player_name;
     if (my_packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
@@ -60,7 +59,7 @@ unsigned short calculate_skip_input(void) {
     if (get_gameturn() <= heartZoomTime) {
         return game.input_lag_turns + heartZoomTime;
     }
-    return game.input_lag_turns + (game_num_fps * 0.25);
+    return game.input_lag_turns + (turns_per_second * 0.25);
 }
 
 void clear_input_lag_queue(void) {
@@ -127,7 +126,7 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     int input_lag;
     
     
-    int turn_time_ms = (1000/game_num_fps);
+    int turn_time_ms = (1000/turns_per_second);
     const int extra_turn_processing_time = 30;
     int combined_time = turn_time_ms + extra_turn_processing_time;
     input_lag = max(1, average_ping / combined_time);

@@ -288,9 +288,9 @@ static TbBool load_effects_config_file(const char *fname, unsigned short flags)
     VALUE file_root;
     if (!load_toml_file(fname,&file_root,flags))
         return false;
+    load_effectelements(&file_root, flags);
     load_effects(&file_root,flags);
     load_effectsgenerators(&file_root,flags);
-    load_effectelements(&file_root,flags);
 
     value_fini(&file_root);
 

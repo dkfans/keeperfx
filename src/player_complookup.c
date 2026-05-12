@@ -181,8 +181,39 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
         struct GoldLookup* gldlook = get_gold_lookup(gold_idx);
         memset(gldlook, 0, sizeof(struct GoldLookup));
         gldlook->flags |= 0x01;
-        gldlook->stl_x = slab_subtile_center(accumulated_x_coordinate / coordinate_sample_count);
-        gldlook->stl_y = slab_subtile_center(accumulated_y_coordinate / coordinate_sample_count);
+
+        MapSlabCoord centerslb_x = accumulated_x_coordinate / coordinate_sample_count;
+        MapSlabCoord centerslb_y = accumulated_y_coordinate / coordinate_sample_count;
+        SlabCodedCoords center_slb = get_slab_number(centerslb_x, centerslb_y);
+
+        MapSubtlCoord stl_x = slab_subtile_center(centerslb_x);
+        MapSubtlCoord stl_y = slab_subtile_center(centerslb_y);
+        if (!(treasure_map[center_slb] & 0x02)) //Center slab is not in treasure map. Can happen on donut shaped gold veins.
+        {
+            // Find nearest vein slab
+            long best_dist = LONG_MAX;
+
+            for (long i = vein_total; i > 0; i--)
+            {
+                MapSlabCoord vein_x = slb_num_decode_x(vein_list[i]);
+                MapSlabCoord vein_y = slb_num_decode_y(vein_list[i]);
+
+                long dx = vein_x - centerslb_x;
+                long dy = vein_y - centerslb_y;
+
+                long dist = dx * dx + dy * dy;
+
+                if (dist < best_dist)
+                {
+                    best_dist = dist;
+                    stl_x = slab_subtile_center(vein_x);
+                    stl_y = slab_subtile_center(vein_y);
+                }
+            }
+        }
+
+        gldlook->stl_x = stl_x;
+        gldlook->stl_y = stl_y;
         gldlook->num_gold_slabs = gold_slabs;
         gldlook->num_gem_slabs = gem_slabs;
         SYNCDBG(8,"Added vein %d at (%d,%d)",(int)gold_idx,(int)gldlook->stl_x,(int)gldlook->stl_y);
@@ -233,6 +264,6 @@ void check_map_for_gold(void)
         }
     }
     SYNCDBG(8,"Found %d possible digging locations",gold_next_idx);
-    game.turn_last_checked_for_gold = game.play_gameturn;
+    game.turn_last_checked_for_gold = get_gameturn();
 }
 /******************************************************************************/

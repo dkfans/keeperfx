@@ -505,7 +505,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
             continue;
         }
-        struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[bldroom->rkind];
+        struct RoomConfigStats* roomst = get_room_kind_stats(bldroom->rkind);
         int tiles = get_room_slabs_count(comp->dungeon->owner,bldroom->rkind);
         if ((tiles >= cevent->tertiary_parameter) && !(cevent->tertiary_parameter == 0)) // Room has reached the preconfigured maximum size
         {
