@@ -1125,12 +1125,12 @@ static int lua_Set_sacrifice_recipe(lua_State *L)
 {
 
     int command = luaL_checkNamedCommand(L,1,rules_sacrifices_commands);
-    const char * reward_str = luaL_checkstring(L,1);
+    const char * reward_str = luaL_checkstring(L,2);
     int reward =  0;
     ThingModel victims[MAX_SACRIFICE_VICTIMS];
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-        ThingModel crtr_model  = luaL_optNamedCommand(L,i + 1,creature_desc);
+        ThingModel crtr_model  = luaL_optNamedCommand(L,i + 3,creature_desc);
         victims[i] = crtr_model;
     }
 
