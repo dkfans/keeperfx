@@ -24,7 +24,7 @@
 #include "config.h"
 
 /** Count of creature states, originally 147. */
-#define CREATURE_STATES_COUNT CrSt_ListEnd
+#define CREATURE_STATES_COUNT DCrSt_ListEnd
 
 #define FIGHT_FEAR_DELAY 160
 #define STATE_TYPES_COUNT CrStTyp_ListEnd
@@ -189,6 +189,13 @@ enum CreatureStates {
     CrSt_CreatureDropBodyInLair,
     CrSt_CreatureSaveUnconsciousCreature,
     CrSt_ListEnd,
+};
+
+enum DeadCreatureStates
+{
+    DCrSt_Dying = CrSt_ListEnd + 1,
+    DCrSt_Dead,
+    DCrSt_ListEnd
 };
 
 enum CreatureTrainingModes {
