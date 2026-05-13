@@ -1611,6 +1611,8 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
         creature_stop_affected_by_call_to_arms(creatng);
         return false;
     }
+
+    TbBool is_sleeping = creature_is_sleeping(creatng);
     if (!creature_is_called_to_arms(creatng))
     {
         if (!external_set_thing_state(creatng, CrSt_ArriveAtCallToArms))
@@ -1618,6 +1620,11 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
             return false;
         }
     }
+    if (is_sleeping) {
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+        anger_apply_anger_to_creature(creatng, crconf->annoy_woken_up, AngR_Other, 1);
+    }
+
     setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
     creatng->continue_state = CrSt_ArriveAtCallToArms;
     cctrl->called_to_arms = true;
@@ -1835,7 +1842,9 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
         {
             if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos))
             {
-                creature_mark_if_woken_up(creatng);
+                // Move the relevant code into the update_creature_influenced_by_call_to_arms_at_pos function, as the creature state here cannot be sleeping
+                // creature_mark_if_woken_up(creatng);
+
                 return true;
             }
         }
