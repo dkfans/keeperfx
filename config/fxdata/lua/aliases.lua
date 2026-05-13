@@ -28,3 +28,4 @@
 ---@alias thing_class "Object"|"Shot"|"EffectElem"|"DeadCreature"|"Creature"|"Effect"|"EffectGen"|"Trap"|"Door"|"AmbientSnd"|"CaveIn"
 ---@alias effect_or_effelem_type integer|string|effect_type|effect_element_type -- I allow string here because there are too many entries for the language server to handle
 ---@alias anger_reason "NOT_PAID"|"HUNGRY"|"NO_LAIR"|"OTHER"
+---@alias sacrifice_reward "ALL_CREATRS_ANGRY"|"ALL_CREATRS_HAPPY"|"COMPLETE_RESEARCH"|"COMPLETE_MANUFACTR"|"KILL_ALL_CHICKENS"|"CHEAPER_IMPS"|"COSTLIER_IMPS"|"ALL_CREATRS_VER_ANGRY"
