@@ -123,8 +123,8 @@ unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *
 struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);
 TbBool thing_can_be_eaten(struct Thing *thing);
 void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
-void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotive reason, long should_extend_other, const char *func_name);
-#define anger_apply_anger_to_creature(thing, anger, reason, should_extend_other) anger_apply_anger_to_creature_f(thing, anger, reason, should_extend_other, __func__)
+void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotive reason, long a3, const char *func_name);
+#define anger_apply_anger_to_creature(thing, anger, reason, a3) anger_apply_anger_to_creature_f(thing, anger, reason, a3, __func__)
 HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);
