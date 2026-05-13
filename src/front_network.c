@@ -22,7 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_network_exchange.h"
+#include "net_exchange_common.h"
 #include "net_main.h"
 #include "net_lobby.h"
 #include "net_input_lag.h"

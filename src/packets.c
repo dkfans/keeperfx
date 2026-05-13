@@ -18,7 +18,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
-#include "net_received_packets.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
 
@@ -36,7 +35,8 @@
 #include "bflib_dernc.h"
 #include "net_main.h"
 #include "net_lobby.h"
-#include "bflib_network_exchange.h"
+#include "net_exchange_common.h"
+#include "net_exchange_gameplay.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"

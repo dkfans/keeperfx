@@ -23,7 +23,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
-#include "bflib_network_exchange.h"
+#include "net_exchange_common.h"
 #include "net_resync.h"
 
 #include "player_data.h"

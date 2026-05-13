@@ -409,7 +409,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             break;
         case EvKind_Objective:
         {
-            strcpy(game.evntbox_scroll_window.text, game.evntbox_text_objective);
+            strcpy(game.evntbox_scroll_window.text, game.evntbox_text_objective[plyr_idx]);
             int k;
             for (i = EVENT_BUTTONS_COUNT; i >= 0; i--)
             {
@@ -635,8 +635,8 @@ void maintain_my_event_list(struct Dungeon *dungeon)
 
 void kill_oldest_my_event(struct Dungeon *dungeon)
 {
-    long old_idx = -1;
-    long old_birth = 2147483647;
+    int32_t old_idx = -1;
+    int32_t old_birth = INT_MAX;
     for (long i = EVENT_BUTTONS_COUNT; i > 0; i--)
     {
         long k = dungeon->event_button_index[i];
@@ -811,7 +811,7 @@ void clear_events(void)
     }
     memset(&game.evntbox_scroll_window, 0, sizeof(struct TextScrollWindow));
     memset(&game.evntbox_text_buffer, 0, MESSAGE_TEXT_LEN);
-    memset(&game.evntbox_text_objective, 0, MESSAGE_TEXT_LEN);
+    memset(&game.evntbox_text_objective, 0, sizeof(game.evntbox_text_objective));
     for (i=0; i < 5; i++)
     {
       memset(&game.bookmark[i], 0, sizeof(struct Bookmark));

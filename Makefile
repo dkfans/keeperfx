@@ -118,7 +118,8 @@ obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
-obj/bflib_network_exchange.o \
+obj/net_exchange_common.o \
+obj/net_exchange_gameplay.o \
 obj/net_main.o \
 obj/net_lobby.o \
 obj/net_resync.o \
@@ -284,8 +285,6 @@ obj/map_utils.o \
 obj/moonphase.o \
 obj/net_game.o \
 obj/net_input_lag.o \
-obj/net_received_packets.o \
-obj/net_redundant_packets.o \
 obj/net_checksums.o \
 obj/net_matchmaking.o \
 obj/net_lan.o \

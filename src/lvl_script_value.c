@@ -243,11 +243,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           set_door_buildable_and_add_to_amount(i, param1, param2, param3);
       }
       break;
-  case Cmd_DISPLAY_INFORMATION:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end)) {
-          set_general_information(param1, param2, stl_num_decode_x(param3), stl_num_decode_y(param3));
-      }
-      break;
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(param1, param2);
       break;
@@ -615,14 +610,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       {
           game.timer_real = false;
       }
-      break;
-  case Cmd_QUICK_OBJECTIVE:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-          process_objective(game.quick_messages[param1%QUICK_MESSAGES_COUNT], param2, stl_num_decode_x(param3), stl_num_decode_y(param3));
-      break;
-  case Cmd_QUICK_INFORMATION:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-          set_quick_information(param1, param2, stl_num_decode_x(param3), stl_num_decode_y(param3));
       break;
   case Cmd_ADD_GOLD_TO_PLAYER:
       for (i=plr_start; i < plr_end; i++)
