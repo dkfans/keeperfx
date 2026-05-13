@@ -4965,6 +4965,8 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
         return (next_stati->override_call2arms);
     case CrStTyp_Follow:
         return (next_stati->override_follow);
+    case CrStTyp_DeepWork:
+        return (next_stati->override_deep_work);
     default:
         return true;
     }
