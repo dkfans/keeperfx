@@ -209,6 +209,8 @@
     <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
     <ClCompile Include="src\moonphase.c" />
+    <ClCompile Include="src\net_exchange_common.c" />
+    <ClCompile Include="src\net_exchange_gameplay.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_holepunch.c" />
     <ClCompile Include="src\net_lan.c" />
@@ -452,6 +454,8 @@
     <ClInclude Include="src\map_utils.h" />
     <ClInclude Include="src\moonphase.h" />
     <ClInclude Include="src\mutex.hpp" />
+    <ClInclude Include="src\net_exchange_common.h" />
+    <ClInclude Include="src\net_exchange_gameplay.h" />
     <ClInclude Include="src\net_game.h" />
     <ClInclude Include="src\net_holepunch.h" />
     <ClInclude Include="src\net_lan.h" />

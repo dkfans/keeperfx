@@ -4,265 +4,482 @@
 /** @file net_exchange_gameplay.c
  *     Gameplay packet exchange for Dungeon Keeper multiplayer.
  * @par Purpose:
- *     Gameplay-specific packet bundling and missing-packet recovery.
+ *     Packet redundancy and repair for multiplayer turns.
+ * @author   KeeperFX Team
+ * @date     30 Apr 2026
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
  */
 /******************************************************************************/
 #include "pre_inc.h"
 #include "net_exchange_gameplay.h"
-
+#include "bflib_enet.h"
 #include "bflib_datetm.h"
-#include "game_legacy.h"
-#include "keeperfx.hpp"
+#include "bflib_video.h"
+#include "config_keeperfx.h"
+#include "console_cmd.h"
+#include "engine_redraw.h"
+#include "globals.h"
+#include "gui_msgs.h"
 #include "net_exchange_common.h"
+#include "net_input_lag.h"
+#include "net_main.h"
+#include "player_data.h"
 #include "net_game.h"
 #include "packets.h"
-#include "player_data.h"
+#include "lua_triggers.h"
+#include "keeperfx.hpp"
+#include <zlib.h>
 #include "post_inc.h"
 
-extern void network_yield_draw_gameplay(void);
+extern void network_yield_waiting_gameplay_packets(void);
+extern int32_t multiplayer_speed_adjustment_ns;
+
 /******************************************************************************/
 
-#define RECEIVED_PACKETS_HISTORY_TURNS 40
-#define RECEIVED_PACKETS_HISTORY_SIZE (RECEIVED_PACKETS_HISTORY_TURNS * PACKETS_COUNT)
-#define REDUNDANT_PACKET_HISTORY_SIZE 2
-
-struct ReceivedPacketEntry {
-    GameTurn turn;
-    PlayerNumber player;
-    TbBool valid;
-    struct Packet packet;
-};
-
-struct ReceivedPacketHistory {
-    struct ReceivedPacketEntry entries[RECEIVED_PACKETS_HISTORY_SIZE];
-    int head;
-};
+// PACKET_HISTORY_SIZE affects how far apart two player's turns can be (if they divert too far then there's no easy recovering). It should be set as high as possible while still being safe to send, so less than 1300 bytes at once.
+#define PACKET_HISTORY_SIZE 40
+#define REPAIR_HISTORY_RESEND_INTERVAL 200
+#define SPEED_ADJUST_INTERVAL 500
+#define FINAL_RESORT_RESYNC_RECOVERY 10000
+#define TURN_SPEED_UP_NS -1000000
+#define TURN_SLOW_DOWN_NS 1000000
 
 struct PacketHistory {
-    struct Packet packets[REDUNDANT_PACKET_HISTORY_SIZE];
-    unsigned char write_index;
-    unsigned char valid_count;
+    struct Packet entries[PACKET_HISTORY_SIZE];
 };
 
-static struct ReceivedPacketHistory received_packets_history;
+#pragma pack(1)
+struct RedundantPacketBundle {
+    unsigned char valid_count;
+    struct Packet packets[PACKET_HISTORY_SIZE];
+};
+
+struct PacketHistoryHeader {
+    PlayerNumber player;
+    unsigned int compressed_length;
+    unsigned int original_length;
+};
+#pragma pack()
+
+struct PeerTurnEstimate {
+    TbClockMSec received_at;
+    GameTurn estimated_turn;
+};
+
 static struct PacketHistory packet_history[MAX_NET_USERS];
+static struct PeerTurnEstimate peer_turn_estimates[MAX_NET_USERS];
+static TbClockMSec last_repair_history_send = 0;
+static TbClockMSec last_turn_sync_send = 0;
 
-void clear_packet_tracking(void) {
-    for (int i = 0; i < RECEIVED_PACKETS_HISTORY_SIZE; i += 1) {
-        struct ReceivedPacketEntry *entry = &received_packets_history.entries[i];
-        entry->turn = 10000000;
-        entry->player = 0;
-        entry->valid = false;
-        memset(&entry->packet, 0, sizeof(entry->packet));
+static int32_t peer_turn_speed_adjustment(const struct PeerTurnEstimate *peer_estimate)
+{
+    GameTurnDelta peer_turn_delta = (GameTurnDelta)(peer_estimate->estimated_turn - get_gameturn());
+    if (peer_turn_delta > 0) {
+        return TURN_SPEED_UP_NS;
     }
-    received_packets_history.head = 0;
+    if (peer_turn_delta < 0) {
+        return TURN_SLOW_DOWN_NS;
+    }
+    return 0;
 }
 
-void initialize_packet_tracking(void) {
-    clear_packet_tracking();
-}
-
-void store_received_packet(GameTurn turn, PlayerNumber player, const struct Packet *packet) {
-    if (is_packet_empty(packet)) {
-        MULTIPLAYER_LOG("store_received_packet: Skipping empty packet for player %d turn %lu", player, (unsigned long)turn);
+static void send_turn_sync_if_due(void)
+{
+    TbClockMSec current_time = LbTimerClock();
+    if (last_turn_sync_send != 0 && current_time - last_turn_sync_send < SPEED_ADJUST_INTERVAL) {
         return;
     }
-    int index = received_packets_history.head;
-    struct ReceivedPacketEntry *entry = &received_packets_history.entries[index];
-    entry->turn = turn;
-    entry->player = player;
-    entry->valid = true;
-    memcpy(&entry->packet, packet, sizeof(struct Packet));
-    received_packets_history.head = (index + 1) % RECEIVED_PACKETS_HISTORY_SIZE;
-}
-
-void store_received_packets(void) {
-    MULTIPLAYER_LOG("store_received_packets: RECEIVED packets from network");
-    struct PlayerInfo *player = get_my_player();
-    PlayerNumber my_packet_num = 0;
-    if (player_exists(player)) {
-        my_packet_num = player->packet_num;
-    }
-    for (int i = 0; i < PACKETS_COUNT; i += 1) {
-        if (i != my_packet_num) {
-            if (is_packet_empty(&game.packets[i])) {
-                MULTIPLAYER_LOG("store_received_packets: RECEIVED packet[%d] is EMPTY", i);
-            } else {
-                MULTIPLAYER_LOG("store_received_packets: RECEIVED packet[%d] turn=%lu checksum=%08lx", i, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
-                store_received_packet(game.packets[i].turn, (PlayerNumber)i, &game.packets[i]);
-            }
-        }
+    last_turn_sync_send = current_time;
+    char *write_pos = begin_net_message(NETMSG_GAMEPLAY_TURN_SYNC);
+    GameTurn current_turn = get_gameturn();
+    memcpy(write_pos, &current_turn, sizeof(current_turn));
+    write_pos += sizeof(current_turn);
+    size_t message_size = write_pos - netstate.msg_buffer;
+    if (netstate.my_id == SERVER_ID) {
+        send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, INVALID_USER_ID, INVALID_USER_ID);
+    } else if (can_send_to_peer(SERVER_ID)) {
+        netstate.sp->sendmsg_single_unsequenced(SERVER_ID, netstate.msg_buffer, message_size);
     }
 }
 
-const struct Packet *get_received_packets_for_turn(GameTurn turn) {
-    static struct Packet packets_for_turn[PACKETS_COUNT];
-    TbBool found = false;
-    memset(packets_for_turn, 0, sizeof(packets_for_turn));
-
-    for (int i = 0; i < RECEIVED_PACKETS_HISTORY_SIZE; i += 1) {
-        const struct ReceivedPacketEntry *entry = &received_packets_history.entries[i];
-        if (entry->valid && entry->turn == turn && entry->player >= 0 && entry->player < PACKETS_COUNT && entry->turn != 10000000) {
-            packets_for_turn[entry->player] = entry->packet;
-            found = true;
-        }
-    }
-
-    if (!found) {
-        return NULL;
-    }
-    return packets_for_turn;
-}
-
-const struct Packet *get_received_packet_for_player(GameTurn turn, PlayerNumber player) {
-    for (int i = 0; i < RECEIVED_PACKETS_HISTORY_SIZE; i += 1) {
-        const struct ReceivedPacketEntry *entry = &received_packets_history.entries[i];
-        if (entry->valid && entry->turn == turn && entry->player == player) {
-            return &entry->packet;
-        }
-    }
-    return NULL;
-}
-
-void clear_redundant_packets(void) {
-    memset(packet_history, 0, sizeof(packet_history));
-}
-
-void initialize_redundant_packets(void) {
-    clear_redundant_packets();
-}
-
-void store_sent_packet(PlayerNumber player, const struct Packet *packet) {
-    if (player < 0 || player >= MAX_NET_USERS) {
-        return;
-    }
-    struct PacketHistory *history = &packet_history[player];
-    memcpy(&history->packets[history->write_index], packet, sizeof(struct Packet));
-    history->write_index = (history->write_index + 1) % REDUNDANT_PACKET_HISTORY_SIZE;
-    if (history->valid_count < REDUNDANT_PACKET_HISTORY_SIZE) {
-        history->valid_count += 1;
-    }
-}
-
-size_t bundle_packets(PlayerNumber player, const struct Packet *current_packet, char *out_buffer) {
-    if (player < 0 || player >= MAX_NET_USERS) {
-        return 0;
-    }
-    struct PacketHistory *history = &packet_history[player];
-    struct BundledPacket bundled;
-    bundled.valid_count = 1;
-    memcpy(&bundled.packets[0], current_packet, sizeof(struct Packet));
-    if (history->valid_count >= 1) {
-        int prev_index = (history->write_index - 1 + REDUNDANT_PACKET_HISTORY_SIZE) % REDUNDANT_PACKET_HISTORY_SIZE;
-        memcpy(&bundled.packets[1], &history->packets[prev_index], sizeof(struct Packet));
-        bundled.valid_count += 1;
-    }
-    if (history->valid_count >= 2) {
-        int prev_prev_index = (history->write_index - 2 + REDUNDANT_PACKET_HISTORY_SIZE) % REDUNDANT_PACKET_HISTORY_SIZE;
-        memcpy(&bundled.packets[2], &history->packets[prev_prev_index], sizeof(struct Packet));
-        bundled.valid_count += 1;
-    }
-    memcpy(out_buffer, &bundled, sizeof(struct BundledPacket));
-    return sizeof(struct BundledPacket);
-}
-
-void unbundle_packets(const char *bundled_buffer, PlayerNumber source_player) {
-    if (source_player < 0 || source_player >= MAX_NET_USERS) {
-        return;
-    }
-    struct BundledPacket bundled;
-    memcpy(&bundled, bundled_buffer, sizeof(struct BundledPacket));
-    if (bundled.valid_count > REDUNDANT_PACKET_COUNT) {
-        return;
-    }
-    for (int i = 0; i < bundled.valid_count; i += 1) {
-        const struct Packet *packet = &bundled.packets[i];
-        const struct Packet *existing = get_received_packet_for_player(packet->turn, source_player);
-        if (existing == NULL) {
-            store_received_packet(packet->turn, source_player, packet);
-        }
-    }
-}
-
-size_t write_gameplay_frame_payload(NetUserId source_id, const void *send_buf, char *write_pos)
+void LbNetwork_BroadcastUnpause(void)
 {
-    return bundle_packets((PlayerNumber)source_id, (const struct Packet *)send_buf, write_pos);
+    MULTIPLAYER_LOG("LbNetwork_BroadcastUnpause");
+    char *write_pos = begin_net_message(NETMSG_UNPAUSE);
+    send_remote_buffer(write_pos);
 }
 
-void send_gameplay_frame_to_peer(NetUserId peer_id, const char *buffer, size_t message_size)
+TbError process_network_unpause_message(void)
 {
-    netstate.sp->sendmsg_single_unsequenced(peer_id, buffer, message_size);
-    netstate.sp->sendmsg_single(peer_id, buffer, message_size);
-}
-
-void store_sent_gameplay_frame(NetUserId source_id, const void *send_buf)
-{
-    store_sent_packet((PlayerNumber)source_id, (const struct Packet *)send_buf);
-}
-
-TbError process_gameplay_frame_payload(NetUserId peer_id, char *read_pos, void *server_buf, size_t frame_size)
-{
-    char *peer_buf = ((char *)server_buf) + peer_id * frame_size;
-    struct BundledPacket *bundled = (struct BundledPacket *)read_pos;
-    memcpy(peer_buf, &bundled->packets[0], frame_size);
-    unbundle_packets(read_pos, (PlayerNumber)peer_id);
+    if ((game.operation_flags & GOF_Paused) == 0) {
+        MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE: ignoring, not paused");
+        return Lb_OK;
+    }
+    MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE: applying unpause");
+    unpausing_in_progress = 1;
+    keeper_screen_redraw();
+    LbScreenSwap();
+    if (my_player_number == get_host_player_id()) {
+        LbNetwork_BroadcastUnpause();
+    }
+    process_pause_packet(0, 0);
+    unpausing_in_progress = 0;
     return Lb_OK;
 }
 
-void LbNetwork_WaitForMissingPackets(void *server_buf, size_t client_frame_size)
+void process_gameplay_chat_message(int player_id, const char *message)
 {
-    if (game.skip_initial_input_turns > 0) {
+    struct PlayerInfo *player = prepare_network_chat_message(player_id, message);
+    if (message[0] != '\0') {
+        lua_on_chatmsg(player_id, player->mp_message_text);
+        if (player->mp_message_text[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || (game.system_flags & GSF_NetworkActive) != 0) {
+            message_add(MsgType_Player, player_id, player->mp_message_text);
+        }
+    }
+    memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+}
+
+TbError process_network_turn_sync_message(NetUserId source, const char *buffer, size_t buffer_size)
+{
+    if (buffer_size != sizeof(GameTurn)) {
+        WARNLOG("Invalid gameplay turn sync message from peer %i (%u bytes)", source, (unsigned)buffer_size);
+        return Lb_OK;
+    }
+    if (source < 0 || source >= (NetUserId)netstate.max_players) {
+        WARNLOG("Invalid gameplay speed adjust peer %i", source);
+        return Lb_OK;
+    }
+    struct PeerTurnEstimate *peer_estimate = &peer_turn_estimates[source];
+    TbBool refresh_applied_server_adjustment = false;
+    if (source == SERVER_ID) {
+        int32_t previous_server_adjustment_ns = 0;
+        if (peer_estimate->received_at != 0) {
+            previous_server_adjustment_ns = peer_turn_speed_adjustment(peer_estimate);
+        }
+        if (multiplayer_speed_adjustment_ns == previous_server_adjustment_ns) {
+            refresh_applied_server_adjustment = true;
+        }
+    }
+    memcpy(&peer_estimate->estimated_turn, buffer, sizeof(peer_estimate->estimated_turn));
+    if (turns_per_second > 0) {
+        uint32_t ping = GetPing(source);
+        GameTurn ping_turns = (GameTurn)(((uint64_t)ping * (uint64_t)turns_per_second + 1999) / 2000);
+        peer_estimate->estimated_turn += ping_turns;
+    }
+    if (refresh_applied_server_adjustment) {
+        multiplayer_speed_adjustment_ns = peer_turn_speed_adjustment(peer_estimate);
+    }
+    peer_estimate->received_at = LbTimerClock();
+    return Lb_OK;
+}
+
+void store_packet_history(PlayerNumber player, const struct Packet *packet)
+{
+    if (player < 0 || player >= MAX_NET_USERS || is_packet_empty(packet)) {
         return;
     }
-    GameTurn historical_turn = get_gameturn() - game.input_lag_turns;
-    const struct Packet *received_packets = get_received_packets_for_turn(historical_turn);
-    if (received_packets == NULL) {
-        MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Missing packets for turn=%lu, waiting...", (unsigned long)historical_turn);
-        TbClockMSec start = LbTimerClock();
-        while (true) {
-            int elapsed = LbTimerClock() - start;
-            TbBool has_remote_peer = false;
-            if (elapsed >= TIMEOUT_GAMEPLAY_MISSING_PACKET) {
-                MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Timeout waiting for turn=%lu packets", (unsigned long)historical_turn);
-                break;
-            }
+    struct Packet *entry = &packet_history[player].entries[packet->turn % PACKET_HISTORY_SIZE];
+    if (!is_packet_empty(entry) && (GameTurnDelta)(entry->turn - packet->turn) > 0) {
+        return;
+    }
+    *entry = *packet;
+}
 
-            netstate.sp->update(OnNewUser);
-            const int wait_time = min(TIMEOUT_GAMEPLAY_MISSING_PACKET - elapsed, 100);
-            for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
-                if (!can_send_to_peer(peer_id)) {
-                    continue;
-                }
+const struct Packet *get_history_packet(PlayerNumber player, GameTurn turn)
+{
+    if (player < 0 || player >= MAX_NET_USERS) {
+        return NULL;
+    }
+    const struct Packet *packet = &packet_history[player].entries[turn % PACKET_HISTORY_SIZE];
+    if (is_packet_empty(packet) || packet->turn != turn) {
+        return NULL;
+    }
+    return packet;
+}
 
-                has_remote_peer = true;
-                if (netstate.sp->msgready(peer_id, wait_time)) {
-                    while (netstate.sp->msgready(peer_id, 0)) {
-                        process_network_message(peer_id, server_buf, client_frame_size);
-                    }
-                }
-            }
-            if (!has_remote_peer) {
-                break;
-            }
-
-            received_packets = get_received_packets_for_turn(historical_turn);
-            if (received_packets != NULL) {
-                MULTIPLAYER_LOG("LbNetwork_WaitForMissingPackets: Successfully received packets for turn=%lu after %dms", (unsigned long)historical_turn, elapsed);
-                break;
-            }
-
-            network_yield_draw_gameplay();
+TbBool read_repair_packet_history(NetUserId source, const char *buffer, size_t buffer_size)
+{
+    size_t header_size = sizeof(struct PacketHistoryHeader);
+    if (buffer_size < header_size) {
+        WARNLOG("Gameplay repair history from peer %i was too small (%u bytes)", source, (unsigned)buffer_size);
+        return false;
+    }
+    struct PacketHistoryHeader header;
+    memcpy(&header, buffer, sizeof(header));
+    if (header.player < 0 || header.player >= netstate.max_players) {
+        WARNLOG("Gameplay repair history from peer %i had invalid player %d", source, (int)header.player);
+        return false;
+    }
+    if (source != SERVER_ID && source != header.player) {
+        WARNLOG("Peer %i tried to send gameplay repair history for peer %i", source, (int)header.player);
+        return false;
+    }
+    if (buffer_size != sizeof(struct PacketHistoryHeader) + header.compressed_length) {
+        WARNLOG("Gameplay repair history from peer %i had size mismatch (%u != %u + %u)",
+            source, (unsigned)buffer_size, (unsigned)sizeof(struct PacketHistoryHeader), header.compressed_length);
+        return false;
+    }
+    if (header.original_length > sizeof(struct RedundantPacketBundle) || header.original_length < sizeof(unsigned char)) {
+        WARNLOG("Gameplay repair history from peer %i had invalid original length %u", source, header.original_length);
+        return false;
+    }
+    char packet_history_buffer[sizeof(struct RedundantPacketBundle)];
+    uLongf packet_history_size = header.original_length;
+    Bytef *packet_history_data = (Bytef *)packet_history_buffer;
+    const Bytef *compressed_data = (const Bytef *)(buffer + header_size);
+    int uncompress_result = uncompress(packet_history_data, &packet_history_size, compressed_data, header.compressed_length);
+    if (uncompress_result != Z_OK || packet_history_size != header.original_length) {
+        WARNLOG("Gameplay repair history decompression from peer %i failed: zlib error %d", source, uncompress_result);
+        return false;
+    }
+    const struct RedundantPacketBundle *packet_bundle = (const struct RedundantPacketBundle *)packet_history_buffer;
+    if (packet_bundle->valid_count < 1 || packet_bundle->valid_count > PACKET_HISTORY_SIZE) {
+        WARNLOG("Gameplay repair history from peer %i had invalid packet count %u", source, (unsigned)packet_bundle->valid_count);
+        return false;
+    }
+    if (header.original_length < sizeof(unsigned char) + packet_bundle->valid_count * sizeof(struct Packet)) {
+        WARNLOG("Gameplay repair history from peer %i was truncated for player %d", source, (int)header.player);
+        return false;
+    }
+    for (unsigned char i = 0; i < packet_bundle->valid_count; i += 1) {
+        const struct Packet *packet = &packet_bundle->packets[i];
+        if (is_packet_empty(packet)) {
+            MULTIPLAYER_LOG("read_repair_packet_history: Skipping empty packet for player %d turn %lu", header.player, (unsigned long)packet->turn);
+            continue;
         }
+        store_packet_history(header.player, packet);
+    }
+    return true;
+}
+
+void initialize_packet_history(void)
+{
+    memset(packet_history, 0, sizeof(packet_history));
+    memset(peer_turn_estimates, 0, sizeof(peer_turn_estimates));
+    multiplayer_speed_adjustment_ns = 0;
+    last_repair_history_send = 0;
+    last_turn_sync_send = 0;
+}
+
+static TbBool have_all_turn_packets(PlayerNumber local_packet_player)
+{
+    GameTurn expected_turn = get_gameturn() - game.input_lag_turns;
+    for (PlayerNumber player = 0; player < MAX_NET_USERS; player += 1) {
+        const struct Packet *packet = get_history_packet(player, expected_turn);
+        if (player != local_packet_player && network_player_active(player) && packet == NULL) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static TbBool host_lost(GameTurn turn, const char *state)
+{
+    if (netstate.my_id == SERVER_ID || netstate.users[SERVER_ID].progress != USER_UNUSED) {
+        return false;
+    }
+    MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Host disconnected while %s turn=%lu", state, (unsigned long)turn);
+    netstate.seq_nbr += 1;
+    return true;
+}
+
+static void send_player_repair_history(PlayerNumber player)
+{
+    if (player < 0 || player >= MAX_NET_USERS || !network_player_active(player)) {
+        return;
+    }
+    struct RedundantPacketBundle packet_bundle;
+    packet_bundle.valid_count = 0;
+    const struct PacketHistory *history = &packet_history[player];
+    GameTurn latest_turn = 0;
+    TbBool have_turn = false;
+    for (int i = 0; i < PACKET_HISTORY_SIZE; i += 1) {
+        const struct Packet *packet = &history->entries[i];
+        if (is_packet_empty(packet)) {
+            continue;
+        }
+        if (!have_turn || (GameTurnDelta)(packet->turn - latest_turn) > 0) {
+            latest_turn = packet->turn;
+            have_turn = true;
+        }
+    }
+    if (!have_turn) {
+        return;
+    }
+    for (GameTurnDelta offset = 0; offset < PACKET_HISTORY_SIZE; offset += 1) {
+        if ((GameTurn)offset > latest_turn) {
+            break;
+        }
+        GameTurn turn = latest_turn - offset;
+        const struct Packet *packet = &history->entries[turn % PACKET_HISTORY_SIZE];
+        if (is_packet_empty(packet) || packet->turn != turn) {
+            continue;
+        }
+        packet_bundle.packets[packet_bundle.valid_count] = *packet;
+        packet_bundle.valid_count += 1;
+    }
+    size_t packet_history_size = sizeof(unsigned char) + packet_bundle.valid_count * sizeof(struct Packet);
+    char *write_pos = begin_net_message(NETMSG_GAMEPLAY_REPAIR);
+    char *header_pos = write_pos;
+    write_pos += sizeof(struct PacketHistoryHeader);
+    uLongf compressed_size = sizeof(netstate.msg_buffer) - (write_pos - netstate.msg_buffer);
+    int compress_result = compress((Bytef *)write_pos, &compressed_size, (const Bytef *)&packet_bundle, packet_history_size);
+    if (compress_result != Z_OK) {
+        ERRORLOG("Gameplay repair history compression failed for player %d: zlib error %d", (int)player, compress_result);
+        return;
+    }
+    struct PacketHistoryHeader header;
+    header.player = player;
+    header.compressed_length = (unsigned int)compressed_size;
+    header.original_length = (unsigned int)packet_history_size;
+    memcpy(header_pos, &header, sizeof(header));
+    size_t message_size = (write_pos - netstate.msg_buffer) + compressed_size;
+    if (netstate.my_id != SERVER_ID) {
+        if (can_send_to_peer(SERVER_ID)) {
+            MULTIPLAYER_LOG("Sending unreliable compressed gameplay repair history for player=%d to host (%lu -> %lu bytes)",
+                (int)player, (unsigned long)packet_history_size, (unsigned long)compressed_size);
+            netstate.sp->sendmsg_single_unsequenced(SERVER_ID, netstate.msg_buffer, message_size);
+        }
+        return;
+    }
+    NetUserId skip_peer_id = INVALID_USER_ID;
+    if ((NetUserId)player != SERVER_ID) {
+        skip_peer_id = (NetUserId)player;
+    }
+    MULTIPLAYER_LOG("Sending unreliable compressed gameplay repair history for player=%d to clients (skip=%d) (%lu -> %lu bytes)",
+        (int)player, (int)skip_peer_id, (unsigned long)packet_history_size, (unsigned long)compressed_size);
+    send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, skip_peer_id, INVALID_USER_ID);
+}
+
+static void send_repair_history_if_due(void)
+{
+    TbClockMSec current_time = LbTimerClock();
+    if (last_repair_history_send != 0 && current_time - last_repair_history_send < REPAIR_HISTORY_RESEND_INTERVAL) {
+        return;
+    }
+    last_repair_history_send = current_time;
+    if (netstate.my_id != SERVER_ID) {
+        send_player_repair_history((PlayerNumber)netstate.my_id);
+        return;
+    }
+    for (PlayerNumber player = 0; player < netstate.max_players; player += 1) {
+        send_player_repair_history(player);
     }
 }
 
-void LbNetwork_BroadcastUnpauseTimesync(void)
+static void update_wait_speed_adjustment(void)
 {
-    MULTIPLAYER_LOG("LbNetwork_BroadcastUnpauseTimesync");
-    begin_net_message(NETMSG_UNPAUSE);
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
-        if (id != netstate.my_id && IsUserActive(id)) {
-            netstate.sp->sendmsg_single(id, netstate.msg_buffer, 1);
+    int32_t speed_adjustment_ns = 0;
+    if (netstate.my_id != SERVER_ID && peer_turn_estimates[SERVER_ID].received_at != 0) {
+        speed_adjustment_ns = peer_turn_speed_adjustment(&peer_turn_estimates[SERVER_ID]);
+    }
+    for (PlayerNumber player = 0; player < netstate.max_players; player += 1) {
+        const struct PeerTurnEstimate *peer_estimate = &peer_turn_estimates[player];
+        if (peer_estimate->received_at == 0) {
+            continue;
+        }
+        if (netstate.my_id != SERVER_ID && player != SERVER_ID) {
+            continue;
+        }
+        speed_adjustment_ns = peer_turn_speed_adjustment(peer_estimate);
+        if (speed_adjustment_ns == 0) {
+            if (UNSYNC_RANDOM(2) == 0) {
+                speed_adjustment_ns = TURN_SPEED_UP_NS;
+            } else {
+                speed_adjustment_ns = TURN_SLOW_DOWN_NS;
+            }
+        }
+        break;
+    }
+    multiplayer_speed_adjustment_ns = speed_adjustment_ns;
+}
+
+static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, PlayerNumber local_packet_player)
+{
+    GameTurn expected_turn = get_gameturn() - game.input_lag_turns;
+    TbClockMSec wait_start_time = LbTimerClock();
+    TbBool turn_complete = false;
+    TbBool wait_timed_out = false;
+    MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Missing packets for turn=%lu, collecting...", (unsigned long)expected_turn);
+    while (!turn_complete) {
+        send_turn_sync_if_due();
+        send_repair_history_if_due();
+        netstate.sp->update(OnNewUser);
+        if (host_lost(expected_turn, "waiting for")) {
+            return Lb_OK;
+        }
+        turn_complete = have_all_turn_packets(local_packet_player);
+        for (NetUserId peer_id = 0; peer_id < netstate.max_players && !turn_complete; peer_id += 1) {
+            const struct Packet *packet = get_history_packet(peer_id, expected_turn);
+            if (!can_send_to_peer(peer_id)) {
+                continue;
+            }
+            if (netstate.my_id == SERVER_ID && packet != NULL) {
+                continue;
+            }
+            process_peer_msgs(peer_id, server_buf, frame_size);
+            if (host_lost(expected_turn, "collecting")) {
+                return Lb_OK;
+            }
+            turn_complete = have_all_turn_packets(local_packet_player);
+        }
+        if (turn_complete) {
+            break;
+        }
+        if (LbTimerClock() - wait_start_time >= FINAL_RESORT_RESYNC_RECOVERY) {
+            set_flag(game.system_flags, GSF_NetGameNoSync);
+            clear_flag(game.system_flags, GSF_NetSeedNoSync);
+            wait_timed_out = true;
+            break;
+        }
+        network_yield_waiting_gameplay_packets();
+        if (quit_game || exit_keeper) {
+            netstate.seq_nbr += 1;
+            return Lb_OK;
         }
     }
+    update_wait_speed_adjustment();
+    TbClockMSec wait_time = LbTimerClock() - wait_start_time;
+    if (wait_timed_out) {
+        WARNLOG("LbNetwork_ExchangeGameplay: Timed out waiting for turn=%lu after %dms; continuing so resync can recover",
+            (unsigned long)expected_turn, (int32_t)wait_time);
+    } else {
+        MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Completed wait for turn=%lu after %dms", (unsigned long)expected_turn, (int32_t)wait_time);
+    }
+    netstate.seq_nbr += 1;
+    return Lb_OK;
+}
+
+TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t frame_size)
+{
+    if (exchange_frame_message(send_buf, server_buf, frame_size, NETMSG_GAMEPLAY_UNSEQUENCED) != Lb_OK) {
+        return Lb_FAIL;
+    }
+    send_turn_sync_if_due();
+    send_repair_history_if_due();
+    for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
+        if (can_send_to_peer(peer_id)) {
+            process_peer_msgs(peer_id, server_buf, frame_size);
+        }
+    }
+    if (game.skip_initial_input_turns <= 0) {
+        struct PlayerInfo *my_player = get_my_player();
+        if (player_exists(my_player)) {
+            PlayerNumber local_packet_player = my_player->packet_num;
+            if (!have_all_turn_packets(local_packet_player)) {
+                return wait_for_missing_packets(server_buf, frame_size, local_packet_player);
+            }
+            int32_t speed_adjustment_ns = 0;
+            if (netstate.my_id != SERVER_ID && peer_turn_estimates[SERVER_ID].received_at != 0) {
+                speed_adjustment_ns = peer_turn_speed_adjustment(&peer_turn_estimates[SERVER_ID]);
+            }
+            multiplayer_speed_adjustment_ns = speed_adjustment_ns;
+        }
+    }
+    netstate.seq_nbr += 1;
+    return Lb_OK;
 }

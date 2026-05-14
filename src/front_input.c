@@ -29,8 +29,9 @@
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
-#include "net_lobby.h"
 #include "net_exchange_common.h"
+#include "net_exchange_gameplay.h"
+#include "net_lobby.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -345,7 +346,7 @@ static short get_players_message_inputs(void)
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
         if ((game.system_flags & GSF_NetworkActive) != 0) {
-            LbNetwork_SendChatMessageImmediate(player->id_number, player->mp_message_text);
+            send_network_chat_message(player->id_number, player->mp_message_text);
         }
         player->allocflags &= ~PlaF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);

@@ -95,7 +95,6 @@
 extern "C" {
 #endif
 
-extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 extern long double last_draw_completed_time;
 long double get_time_tick_ns();
 /******************************************************************************/
@@ -853,11 +852,6 @@ void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
     gbtn->flags |= LbBtnF_Enabled;
 }
 
-TbBool frontend_should_all_players_quit(void)
-{
-    return (net_service_index_selected <= 1);
-}
-
 TbBool frontend_is_player_allied(long idx1, long idx2)
 {
     if (idx1 == idx2)
@@ -1508,7 +1502,7 @@ void set_packet_start(struct GuiButton *gbtn)
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
     if (screen_packet_action(nspck) == NetAct_None)
-        screen_packet_set_action(nspck, NetAct_HostStartLevel);
+        screen_packet_set_action(nspck, NetAct_OpenLandView);
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)

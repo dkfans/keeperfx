@@ -23,7 +23,10 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
+#include "bflib_datetm.h"
 #include "net_exchange_common.h"
+#include "net_lobby.h"
+#include "net_main.h"
 #include "net_resync.h"
 
 #include "player_data.h"
@@ -49,14 +52,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct TbNetworkPlayerInfo net_player_info[MAX_NET_USERS];
-struct TbNetworkSessionNameEntry *net_session[32];
-long net_number_of_sessions;
-long net_session_index_active;
-struct TbNetworkPlayerName net_player[MAX_NET_USERS];
-struct ConfigInfo net_config_info;
-char net_service[16][NET_SERVICE_LEN];
-char net_player_name[20];
 /******************************************************************************/
+
 #pragma pack(1)
 struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
@@ -75,7 +72,7 @@ struct StartupSyncPacket {
 short setup_network_service(enum FrontendNetService service)
 {
   struct ServiceInitData *init_data = NULL;
-  SYNCMSG("Initializing %d-players type %d network", MAX_NET_USERS, service);
+  SYNCMSG("Initializing 4-players type %d network", service);
   memset(net_player_info, 0, sizeof(net_player_info));
   if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
     process_network_error(-800);
@@ -143,19 +140,6 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
     }
 }
 
-static void sync_startup_input_lag(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
-{
-    game.input_lag_turns = startup_sync_packets[get_host_player_id()].input_lag_turns;
-    game.skip_initial_input_turns = calculate_skip_input();
-    NETLOG("Startup input lag synced: input_lag=%d", game.input_lag_turns);
-}
-
-static void sync_startup_zoom_distance(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
-{
-    zoom_distance_setting = startup_sync_packets[get_host_player_id()].zoom_distance_setting;
-    frontview_zoom_distance_setting = startup_sync_packets[get_host_player_id()].frontview_zoom_distance_setting;
-}
-
 static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
     const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].map_checksum;
@@ -200,39 +184,34 @@ static void build_local_startup_sync(void)
     s_local_startup_sync.frontview_zoom_distance_setting = frontview_zoom_distance_setting;
 }
 
-static TbBool all_human_players_sent_startup_sync(void)
+static TbBool net_startup_sync_exchange_and_apply(void)
 {
+    memset(s_startup_sync_packets, 0, sizeof(s_startup_sync_packets));
+    if (exchange_frame_block(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket)) != Lb_OK) {
+        ERRORLOG("Startup sync exchange failed");
+        return false;
+    }
+
     for (int i = 0; i < MAX_NET_USERS; i++) {
         if (net_player_info[i].network_user_active && !s_startup_sync_packets[i].startup_sync_packet_valid) {
+            ERRORLOG("Startup sync exchange missed one or more peers");
             return false;
         }
     }
-    return true;
-}
-
-static CoroutineLoopState net_startup_wait_for_players_and_exchange(CoroutineLoop *context)
-{
-    (void)context;
-    memset(s_startup_sync_packets, 0, sizeof(s_startup_sync_packets));
-    LbNetwork_Exchange(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket));
-    if (!all_human_players_sent_startup_sync()) {
-        return CLS_REPEAT;
-    }
-    return CLS_CONTINUE;
-}
-
-static CoroutineLoopState net_startup_sync_apply(CoroutineLoop *context)
-{
     if (!verify_map_checksums(s_startup_sync_packets)) {
         create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
-        coroutine_clear(context, true);
-        return CLS_ABORT;
+        return false;
     }
+
     verify_startup_sprite_zip_checksums(s_startup_sync_packets);
-    sync_startup_input_lag(s_startup_sync_packets);
-    sync_startup_zoom_distance(s_startup_sync_packets);
+    const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[get_host_player_id()];
+    game.input_lag_turns = host_sync->input_lag_turns;
+    game.skip_initial_input_turns = calculate_skip_input();
+    NETLOG("Startup input lag synced: input_lag=%d", game.input_lag_turns);
+    zoom_distance_setting = host_sync->zoom_distance_setting;
+    frontview_zoom_distance_setting = host_sync->frontview_zoom_distance_setting;
     setup_players_from_startup_packets(s_startup_sync_packets);
-    return CLS_CONTINUE;
+    return true;
 }
 
 static void setup_network_player_numbers(void)
@@ -275,13 +254,12 @@ void setup_count_players(void)
   }
 }
 
-void init_players_network_game(CoroutineLoop *context)
+TbBool init_players_network_game(void)
 {
     SYNCDBG(4,"Starting");
     setup_network_player_numbers();
     build_local_startup_sync();
-    coroutine_add(context, &net_startup_wait_for_players_and_exchange);
-    coroutine_add(context, &net_startup_sync_apply);
+    return net_startup_sync_exchange_and_apply();
 }
 
 /** Check whether a network player is active.
@@ -301,6 +279,156 @@ const char *network_player_name(int plyr_idx)
     if ((plyr_idx < 0) || (plyr_idx >= MAX_NET_USERS))
         return NULL;
     return net_player_info[plyr_idx].name;
+}
+
+static void resolve_network_quit_outcome(struct PlayerInfo *player)
+{
+    if (player->victory_state != VicS_Undecided) {
+        return;
+    }
+    if (player_cannot_win(player->id_number)) {
+        set_player_as_lost_level(player);
+        return;
+    }
+    set_player_as_won_level(player);
+}
+
+static TbBool network_has_connected_human_opponents(void)
+{
+    for (int i = 0; i < PLAYERS_COUNT; i++) {
+        struct PlayerInfo *player = get_player(i);
+        if (player_exists(player) && !is_my_player(player) && player->is_active == 1 && (player->allocflags & PlaF_CompCtrl) == 0 && network_player_active(player->packet_num)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static TbBool replace_network_player_with_ai(struct PlayerInfo *player, const char *departure_message)
+{
+    if (is_my_player(player) || (player->allocflags & PlaF_CompCtrl) != 0 || player->victory_state != VicS_Undecided) {
+        return false;
+    }
+    player->allocflags |= PlaF_CompCtrl;
+    toggle_computer_player(player->id_number);
+    if (player->player_name[0] != '\0') {
+        message_add_fmt(MsgType_Player, player->id_number, "%s %s", player->player_name, departure_message);
+        JUSTLOG("p:%d %s %s", player->id_number, player->player_name, departure_message);
+    }
+    message_add(MsgType_Player, player->id_number, "I am the computer now!");
+    JUSTLOG("p:%d I am the computer now!", player->id_number);
+    return true;
+}
+
+static void stop_network_game_and_quit(short complete_quit)
+{
+    LbNetwork_Stop();
+    quit_game = 1;
+    if (complete_quit) {
+        exit_keeper = 1;
+    }
+}
+
+static void stop_network_game_and_continue_locally(void)
+{
+    LbNetwork_Stop();
+    game.input_lag_turns = 0;
+    game.skip_initial_input_turns = 0;
+    memset(net_player_info, 0, sizeof(net_player_info));
+    clear_flag(game.system_flags, GSF_NetworkActive);
+    fe_network_active = 0;
+    game.game_kind = GKind_LocalGame;
+    setup_count_players();
+    get_my_player()->display_objective_turn = get_gameturn() + 1;
+}
+
+void process_quit_packet(struct PlayerInfo *player, short complete_quit)
+{
+    struct PlayerInfo *myplyr = get_my_player();
+    if ((game.system_flags & GSF_NetworkActive) == 0) {
+        player->allocflags &= ~PlaF_Allocated;
+        if (player == myplyr) {
+            quit_game = 1;
+            if (complete_quit) {
+                exit_keeper = 1;
+            }
+        }
+        return;
+    }
+
+    int32_t plyr_count = 0;
+    short winning_quit = winning_player_quitting(player, &plyr_count);
+    TbBool replaced_with_ai = replace_network_player_with_ai(player, "has left the game.");
+    if (player != myplyr) {
+        OnDroppedUser(player->packet_num, NETDROP_MANUAL);
+    }
+    TbBool has_human_opponents = network_has_connected_human_opponents();
+    if (has_human_opponents && replaced_with_ai) {
+        return;
+    }
+
+    if (winning_quit) {
+        for (int i = 0; i < PLAYERS_COUNT; i++) {
+            struct PlayerInfo *swplyr = get_player(i);
+            if (player_exists(swplyr) && (swplyr->is_active == 1)) {
+                resolve_network_quit_outcome(swplyr);
+            }
+        }
+    }
+
+    if (player == myplyr || player->id_number == get_host_player_id() || !has_human_opponents) {
+        if (player != myplyr) {
+            resolve_network_quit_outcome(myplyr);
+        }
+        if (winning_quit && (plyr_count > 1)) {
+            myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
+        }
+        if ((player != myplyr) && (myplyr->victory_state == VicS_WonLevel)) {
+            stop_network_game_and_continue_locally();
+        } else {
+            stop_network_game_and_quit(complete_quit);
+        }
+    }
+
+    if (!replaced_with_ai) {
+        player->allocflags &= ~PlaF_Allocated;
+    }
+}
+
+void process_disconnected_network_players(void)
+{
+    if ((game.system_flags & GSF_NetworkActive) == 0) {
+        return;
+    }
+    TbBool host_disconnected = false;
+    if ((netstate.my_id != SERVER_ID) && (netstate.users[SERVER_ID].progress == USER_UNUSED)) {
+        host_disconnected = true;
+    }
+    for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
+        struct PlayerInfo *player = get_player(player_index);
+        if (!player_exists(player) || is_my_player(player) || (!host_disconnected && network_player_active(player->packet_num))) {
+            continue;
+        }
+        if (!replace_network_player_with_ai(player, "has disconnected.") && player->victory_state != VicS_Undecided) {
+            player->allocflags &= ~PlaF_Allocated;
+        }
+    }
+
+    if (!host_disconnected && network_has_connected_human_opponents()) {
+        return;
+    }
+    struct PlayerInfo *myplyr = get_my_player();
+    resolve_network_quit_outcome(myplyr);
+    const char *message = "Opponent disconnected";
+    if (host_disconnected) {
+        message = "Network connection to host lost";
+    }
+    message_add(MsgType_Player, my_player_number, message);
+    if (myplyr->victory_state == VicS_WonLevel) {
+        stop_network_game_and_continue_locally();
+    } else {
+        stop_network_game_and_quit(false);
+    }
 }
 
 long network_session_join(void)

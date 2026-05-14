@@ -34,8 +34,6 @@
 #include "bflib_sndlib.h"
 #include "bflib_sound.h"
 #include "bflib_vidraw.h"
-#include "net_lobby.h"
-#include "net_exchange_common.h"
 
 #include "config_strings.h"
 #include "config_campaigns.h"

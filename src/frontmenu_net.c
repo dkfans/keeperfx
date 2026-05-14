@@ -43,6 +43,7 @@
 #include "custom_sprites.h"
 #include "bflib_enet.h"
 #include "net_exchange_common.h"
+#include "net_lobby.h"
 #include "packets.h"
 #include "post_inc.h"
 
@@ -121,9 +122,9 @@ TbBool frontnet_start_input(void)
     }
     if (lbInkey == KC_RETURN) {
         if (player->mp_message_text[0] != '\0') {
-            LbNetwork_SendChatMessageImmediate(my_player_number, player->mp_message_text);
+            send_network_chat_message(my_player_number, player->mp_message_text);
         }
-        process_chat_message_end(my_player_number, player->mp_message_text);
+        process_frontend_chat_message(my_player_number, player->mp_message_text);
     } else if (lbInkey == KC_ESCAPE) {
         player->mp_message_text[0] = '\0';
     } else if (lbInkey == KC_BACK || frontend_font_string_width(1, player->mp_message_text) < 420) {
@@ -305,18 +306,21 @@ void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
         spr = get_frontend_sprite(GFS_bullfrog_red_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth*fs_units_per_px/16;
+        pos_x += (4 * fs_units_per_px + 8) / 16;
     }
     if (net_number_of_enum_players > 1)
     {
         spr = get_frontend_sprite(GFS_bullfrog_blue_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth*fs_units_per_px/16;
+        pos_x += (4 * fs_units_per_px + 8) / 16;
     }
     if (net_number_of_enum_players > 2)
     {
         spr = get_frontend_sprite(GFS_bullfrog_green_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth*fs_units_per_px/16;
+        pos_x += (4 * fs_units_per_px + 8) / 16;
     }
     if (net_number_of_enum_players > 3)
     {

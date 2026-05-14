@@ -21,9 +21,9 @@
 #include "local_camera.h"
 #include "engine_camera.h"
 #include "engine_render.h"
+#include "net_exchange_gameplay.h"
 #include "packets.h"
 #include "player_data.h"
-#include "net_input_lag.h"
 #include "config_creature.h"
 #include "thing_creature.h"
 #include "game_legacy.h"
@@ -59,12 +59,16 @@ TbBool local_camera_ready;
 static struct Packet* get_packet_for_local_camera_update(void)
 {
     GameTurn turn;
+    struct PlayerInfo *player = get_my_player();
+    if (player_invalid(player)) {
+        return NULL;
+    }
     if (flag_is_set(game.operation_flags, GOF_Paused) && game.game_kind == GKind_LocalGame) {
         turn = get_gameturn();
     } else {
         turn = get_gameturn() - 1;
     }
-    return get_local_input_lag_packet_for_turn(turn);
+    return (struct Packet *)get_history_packet(player->packet_num, turn);
 }
 
 void send_camera_catchup_packets(struct PlayerInfo *player)
