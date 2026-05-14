@@ -425,9 +425,14 @@ void wait_for_all_players(void)
                 continue;
             }
             while (result != Lb_OK && netstate.sp->msgready(peer_id, 0)) {
-                size_t message_size = netstate.sp->readmsg(peer_id, netstate.msg_buffer, sizeof(netstate.msg_buffer));
-                if (message_size == 0) {
-                    ERRORLOG("Initial startup wait failed: could not read startup wait packet from peer %d", (int)peer_id);
+                enum NetMessageType expected_message_type;
+                if (is_host) {
+                    expected_message_type = NETMSG_CLIENT_IS_READY;
+                } else {
+                    expected_message_type = NETMSG_HOST_DECLARES_START;
+                }
+                if (process_network_message(peer_id, NULL, 0, expected_message_type, NULL) != Lb_OK) {
+                    ERRORLOG("Initial startup wait failed: could not process startup wait packet from peer %d", (int)peer_id);
                     return;
                 }
                 enum NetMessageType message_type = (enum NetMessageType)netstate.msg_buffer[0];
