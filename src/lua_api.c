@@ -911,23 +911,6 @@ static int lua_Add_object_to_level_at_pos(lua_State *L)
 
 static int lua_Add_shot_to_level(lua_State *L)
 {
-
-static const struct NamedCommand hit_type_desc[] = {
-     {"None", THit_None},
-     {"CreaturesAndObjects", THit_CrtrsNObjcts},
-     {"CreaturesOnly", THit_CrtrsOnly},
-     {"CreaturesAndObjectsNotOwn", THit_CrtrsNObjctsNotOwn},
-     {"CreaturesOnlyNotOwn", THit_CrtrsOnlyNotOwn},
-     {"CreaturesNotArmourNotOwn", THit_CrtrsNotArmourNotOwn},
-     {"All", THit_All},
-     {"HeartOnly", THit_HeartOnly},
-     {"HeartOnlyNotOwn", THit_HeartOnlyNotOwn},
-     {"CreaturesAndObjectsAndShots", THit_CrtrsNObjctsNShot},
-     {"TrapsAll", THit_TrapsAll},
-     {"CreaturesOnlyOwn", THit_CrtrsOnlyOwn},
-     {NULL, 0}
- };
-
     ThingModel shot_id     = luaL_checkNamedCommand(L,1,shot_desc);
     TbMapLocation location = luaL_checkLocation(L,  2);
     PlayerNumber owner     = luaL_checkPlayerSingle(L, 3);

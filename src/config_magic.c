@@ -211,7 +211,7 @@ const struct NamedField magic_shot_named_fields[] = {
   {"HEALTH",                0, field(game.conf.magic_conf.shot_cfgstats[0].health),                      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"DAMAGE",                0, field(game.conf.magic_conf.shot_cfgstats[0].damage),                      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"ISMAGICAL",             0, field(game.conf.magic_conf.shot_cfgstats[0].is_magical),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
-  {"HITTYPE",               0, field(game.conf.magic_conf.shot_cfgstats[0].area_hit_type),  THit_CrtrsOnly,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITTYPE",               0, field(game.conf.magic_conf.shot_cfgstats[0].area_hit_type),  THit_CrtrsOnly,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default}, //todo allow hittype names
   {"AREADAMAGE",            0, field(game.conf.magic_conf.shot_cfgstats[0].area_range),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"AREADAMAGE",            1, field(game.conf.magic_conf.shot_cfgstats[0].area_damage),                 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"AREADAMAGE",            2, field(game.conf.magic_conf.shot_cfgstats[0].area_blow),                   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
@@ -392,6 +392,22 @@ const struct NamedCommand powermodel_expand_check_func_type[] = {
   {"call_to_arms_expand",      OcC_CallToArms_expand},
   {"do_not_expand",            OcC_do_not_expand},
   {NULL,                       OcC_Null},
+};
+
+static const struct NamedCommand hit_type_desc[] = {
+     {"None",                       THit_None},
+     {"CreaturesAndObjects",        THit_CrtrsNObjcts},
+     {"CreaturesOnly",              THit_CrtrsOnly},
+     {"CreaturesAndObjectsNotOwn",  THit_CrtrsNObjctsNotOwn},
+     {"CreaturesOnlyNotOwn",        THit_CrtrsOnlyNotOwn},
+     {"CreaturesNotArmourNotOwn",   THit_CrtrsNotArmourNotOwn},
+     {"All",                        THit_All},
+     {"HeartOnly",                  THit_HeartOnly},
+     {"HeartOnlyNotOwn",            THit_HeartOnlyNotOwn},
+     {"CreaturesAndObjectsAndShots",THit_CrtrsNObjctsNShot},
+     {"TrapsAll",                   THit_TrapsAll},
+     {"CreaturesOnlyOwn",           THit_CrtrsOnlyOwn},
+     {NULL, 0}
 };
 
 const struct NamedCommand magic_cost_formula_commands[] = {

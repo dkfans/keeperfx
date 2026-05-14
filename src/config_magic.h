@@ -419,6 +419,7 @@ extern const struct ConfigFileData keeper_magic_file_data;
 extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
+extern struct NamedCommand hit_type_desc[];
 extern struct SpellConfig spell_config[];
 extern const struct NamedCommand spell_effect_flags[];
 extern const struct NamedCommand powermodel_properties_commands[];
