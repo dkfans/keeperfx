@@ -71,7 +71,7 @@ static int lua_set_velocity (lua_State *L)
     if (angle_xy == 0)
         angle_xy = thing->move_angle_xy;
     if (angle_z == 0)
-        angle_xy = thing->move_angle_z;
+        angle_z = thing->move_angle_z;
 
     struct ComponentVector cvect;
     angles_to_vector(angle_xy, angle_z, dist, &cvect);
