@@ -1842,9 +1842,6 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
         {
             if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos))
             {
-                // Move the relevant code into the update_creature_influenced_by_call_to_arms_at_pos function, as the creature state here cannot be sleeping
-                // creature_mark_if_woken_up(creatng);
-
                 return true;
             }
         }
