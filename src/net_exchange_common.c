@@ -394,6 +394,15 @@ void wait_for_all_players(void)
     const TbClockMSec resend_interval = 50;
     TbBool has_received_frame[MAX_NET_USERS] = {false};
     TbBool is_host = (my_player_number == get_host_player_id());
+    enum NetMessageType send_message_type;
+    enum NetMessageType expected_message_type;
+    if (is_host) {
+        send_message_type = NETMSG_HOST_DECLARES_START;
+        expected_message_type = NETMSG_CLIENT_IS_READY;
+    } else {
+        send_message_type = NETMSG_CLIENT_IS_READY;
+        expected_message_type = NETMSG_HOST_DECLARES_START;
+    }
     TbClockMSec wait_start_time = LbTimerClock();
     TbClockMSec last_send_time = wait_start_time - resend_interval;
     TbError result = Lb_FAIL;
@@ -401,20 +410,16 @@ void wait_for_all_players(void)
         TbClockMSec now = LbTimerClock();
         if (now - last_send_time >= resend_interval) {
             if (!is_host || all_expected_exchange_frames_received(has_received_frame, is_host)) {
-                if (is_host) {
-                    netstate.msg_buffer[0] = NETMSG_HOST_DECLARES_START;
-                } else {
-                    netstate.msg_buffer[0] = NETMSG_CLIENT_IS_READY;
-                }
-                if (is_host) {
-                    send_to_active_peers(1, NetSend_Reliable, netstate.msg_buffer, 1, netstate.my_id, INVALID_USER_ID);
-                    result = Lb_OK;
-                } else {
+                netstate.msg_buffer[0] = send_message_type;
+                if (!is_host) {
                     if (!can_send_to_peer(SERVER_ID)) {
                         ERRORLOG("Initial startup wait failed: could not send NETMSG_CLIENT_IS_READY packet");
                         return;
                     }
                     netstate.sp->sendmsg_single_unsequenced(SERVER_ID, netstate.msg_buffer, 1);
+                } else {
+                    send_to_active_peers(1, NetSend_Reliable, netstate.msg_buffer, 1, netstate.my_id, INVALID_USER_ID);
+                    result = Lb_OK;
                 }
             }
             last_send_time = now;
@@ -425,29 +430,20 @@ void wait_for_all_players(void)
                 continue;
             }
             while (result != Lb_OK && netstate.sp->msgready(peer_id, 0)) {
-                enum NetMessageType expected_message_type;
-                if (is_host) {
-                    expected_message_type = NETMSG_CLIENT_IS_READY;
-                } else {
-                    expected_message_type = NETMSG_HOST_DECLARES_START;
-                }
                 if (process_network_message(peer_id, NULL, 0, expected_message_type, NULL) != Lb_OK) {
                     ERRORLOG("Initial startup wait failed: could not process startup wait packet from peer %d", (int)peer_id);
                     return;
                 }
                 enum NetMessageType message_type = (enum NetMessageType)netstate.msg_buffer[0];
+                if (message_type != expected_message_type) {
+                    continue;
+                }
                 if (is_host) {
-                    if (message_type != NETMSG_CLIENT_IS_READY) {
-                        continue;
-                    }
                     if (peer_id == SERVER_ID) {
                         WARNLOG("Peer %i sent invalid NETMSG_CLIENT_IS_READY", (int)peer_id);
                         continue;
                     }
                     has_received_frame[peer_id] = true;
-                    continue;
-                }
-                if (message_type != NETMSG_HOST_DECLARES_START) {
                     continue;
                 }
                 if (peer_id != SERVER_ID) {
