@@ -256,16 +256,18 @@ static int thing_set_field(lua_State *L) {
     const char* key = luaL_checkstring(L, 2);
 
     //Fields working for all thing classes
-    if (strcmp(key, "orientation") == 0) {
+    if (strcmp(key, "orientation") == 0)
+    {
         thing->move_angle_xy = luaL_checkinteger(L, 3);
-
+    } else if (strcmp(key, "pitch") == 0) 
+    {
+        thing->move_angle_z = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "owner") == 0) {
         PlayerNumber new_owner = luaL_checkPlayerSingle(L, 3);
         if (is_thing_some_way_controlled(thing)) {
             prepare_to_controlled_creature_death(thing);
         }
         change_creature_owner(thing, new_owner);
-
     } else if (strcmp(key, "health") == 0)
     {
         thing->health = luaL_checkinteger(L, 3);
@@ -445,6 +447,8 @@ static int thing_get_field(lua_State *L) {
         lua_pushPos(L, &thing->mappos);
     } else if (strcmp(key, "orientation") == 0) {
         lua_pushinteger(L, thing->move_angle_xy);
+    } else if (strcmp(key, "pitch") == 0) {
+        lua_pushinteger(L, thing->move_angle_z);
     } else if (strcmp(key, "health") == 0) {
         lua_pushinteger(L, thing->health);
     } else if (strcmp(key, "anim_sprite") == 0) {

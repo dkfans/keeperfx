@@ -19,6 +19,7 @@
 ---@field solid_size_z integer Vertical size for navigation.
 ---@field pos Pos3d
 ---@field orientation integer
+---@field pitch integer
 ---@field owner Player
 ---@field health integer
 ---@field max_health integer If the health gets beyond this point, it will be decreased.
@@ -51,7 +52,7 @@ function Thing:isValid() return false end
 function Thing:delete() end
 
 ---sets the velocity of the thing
----@param angle_xy integer 0-2047, the angle to move in the X/Y plane
----@param angle_z integer 0-2047, the angle to move in the Z plane
+---@param orientation integer 0-2047, the angle to move in the X/Y plane.
+---@param pitch integer 0-2047, the angle to move in the Z plane
 ---@param dist integer speed/ how far to move every tick
-function Thing:set_velocity(angle_xy,angle_z,dist) end
+function Thing:set_velocity(orientation,pitch,dist) end
