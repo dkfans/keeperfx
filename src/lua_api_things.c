@@ -65,13 +65,13 @@ static int lua_set_velocity (lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
     int32_t speed = luaL_checkinteger(L, 2);
-    int16_t angle_xy = luaL_optCheckinteger(L, 3);
-    int16_t angle_z = luaL_optCheckinteger(L, 4);
+    int16_t angle_xy = thing->move_angle_xy;
+    int16_t angle_z = thing->move_angle_z;
 
-    if (angle_xy == 0)
-        angle_xy = thing->move_angle_xy;
-    if (angle_z == 0)
-        angle_z = thing->move_angle_z;
+    if (!lua_isnoneornil(L, 3))
+        angle_xy = luaL_optCheckinteger(L, 3);
+    if (!lua_isnoneornil(L, 4))
+        angle_z = luaL_optCheckinteger(L, 4);
 
     struct ComponentVector cvect;
     angles_to_vector(angle_xy, angle_z, speed, &cvect);
