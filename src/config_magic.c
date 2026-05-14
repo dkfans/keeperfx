@@ -394,7 +394,7 @@ const struct NamedCommand powermodel_expand_check_func_type[] = {
   {NULL,                       OcC_Null},
 };
 
-static const struct NamedCommand hit_type_desc[] = {
+const struct NamedCommand hit_type_desc[] = {
      {"None",                       THit_None},
      {"CreaturesAndObjects",        THit_CrtrsNObjcts},
      {"CreaturesOnly",              THit_CrtrsOnly},

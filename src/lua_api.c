@@ -916,6 +916,7 @@ static int lua_Add_shot_to_level(lua_State *L)
     PlayerNumber owner     = luaL_checkPlayerSingle(L, 3);
     int hittype            = luaL_checkNamedCommand(L, 4, hit_type_desc);
     struct Thing *target   = luaL_optCheckThing(L, 5);
+    int32_t speed          = luaL_optCheckinteger(L, 6);
 
     ThingIndex target_index;
 
@@ -927,8 +928,25 @@ static int lua_Add_shot_to_level(lua_State *L)
     {
         target_index = target->index;
     }
-
-    lua_pushThing(L,script_process_new_shot(shot_id, location, owner, target_index, hittype));
+    struct Thing* shottng = script_process_new_shot(shot_id, location, owner, target_index, hittype);
+    lua_pushThing(L, shottng);
+    if (!thing_is_invalid(target))
+    {
+        if (!thing_is_invalid(shottng))
+        {
+            shottng->move_angle_xy = get_angle_xy_to(&shottng->mappos, &target->mappos);
+            shottng->move_angle_z = get_angle_yz_to(&shottng->mappos, &target->mappos);
+            if (speed != 0)
+            {
+                struct ComponentVector cvect;
+                angles_to_vector(shottng->move_angle_xy, shottng->move_angle_z, speed, &cvect);
+                shottng->veloc_push_add.x.val += cvect.x;
+                shottng->veloc_push_add.y.val += cvect.y;
+                shottng->veloc_push_add.z.val += cvect.z;
+                shottng->state_flags |= TF1_PushAdd;
+            }
+        }
+    }
     return 1;
 }
 
