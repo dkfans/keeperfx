@@ -64,7 +64,7 @@ static int make_thing_zombie (lua_State *L)
 static int lua_set_velocity (lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
-    int32_t dist = luaL_checkinteger(L, 2);
+    int32_t speed = luaL_checkinteger(L, 2);
     int16_t angle_xy = luaL_optCheckinteger(L, 3);
     int16_t angle_z = luaL_optCheckinteger(L, 4);
 
@@ -74,7 +74,7 @@ static int lua_set_velocity (lua_State *L)
         angle_z = thing->move_angle_z;
 
     struct ComponentVector cvect;
-    angles_to_vector(angle_xy, angle_z, dist, &cvect);
+    angles_to_vector(angle_xy, angle_z, speed, &cvect);
     thing->veloc_push_add.x.val += cvect.x;
     thing->veloc_push_add.y.val += cvect.y;
     thing->veloc_push_add.z.val += cvect.z;
@@ -82,10 +82,6 @@ static int lua_set_velocity (lua_State *L)
 
     return 0;
 }
-
-
-
-
 
 static int lua_delete_thing(lua_State *L)
 {
