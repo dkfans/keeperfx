@@ -55,11 +55,11 @@ function ChangeCreatureOwner(creature,new_owner) end
 ---@param annoyance integer
 function ChangeCreaturesAnnoyance(player,creature,operation,annoyance) end
 
----Place any object at a specific place on the map
+---Place any shot at a specific place on the map
 ---@param shot_type shot_type The shot name from fxdata\magic.cfg
----@param location location
----@param player playersingle When used it sets the owner of the object.
----@param hit_type hit_type What the shot can hit
+---@param location location Where the shot is spawned.
+---@param player playersingle The owner of the shot.
+---@param hit_type hit_type What the shot can hit.
 ---@param target? Thing When used the shot will target the thing. If not, use Thing:set_velocity to move the shot.
 ---@param speed? integer speed / the distance it moves to the target every tick
 ---@return Thing shot
