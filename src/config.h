@@ -114,6 +114,7 @@ enum TbConfigLoadFlags {
     CnfLd_ListOnly      =  0x01, /**< Load only list of items and their names, don't parse actual options (when applicable). */
     CnfLd_AcceptPartial =  0x02, /**< Accept partial files (with only some options set), and don't clear previous configuration. */
     CnfLd_IgnoreErrors  =  0x04, /**< Do not log error message on failures (still, return with error). */
+    CnfLd_PreListed     =  0x08, /**< Already parsed the names. */
 };
 
 #pragma pack(1)
