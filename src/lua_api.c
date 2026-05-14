@@ -908,6 +908,30 @@ static int lua_Add_object_to_level_at_pos(lua_State *L)
     return 1;
 }
 
+static int lua_Add_corpse_to_level(lua_State* L)
+{
+    ThingModel crtr_id = luaL_checkNamedCommand(L, 1, creature_desc);
+    TbMapLocation location = luaL_checkLocation(L, 2);
+    CrtrExpLevel crtr_level = lua_tointeger(L, 3);
+    TbBool dying = lua_toboolean(L, 4);
+    PlayerNumber plr_idx = luaL_optPlayerSingle(L, 5);
+
+    struct Coord3d pos;
+    if (!get_coords_at_location(&pos, location, true))
+    {
+        return 0;
+    }
+
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return 0;
+    }
+
+    lua_pushThing(L, script_process_new_corpse(crtr_id, pos.x.stl.num, pos.y.stl.num, plr_idx, crtr_level-1, dying));
+    return 1;
+}
+
 static int lua_Add_effect_generator_to_level(lua_State *L)
 {
     ThingModel gen_id      = luaL_checkNamedCommand(L,1,effectgen_desc);
@@ -2276,6 +2300,7 @@ static const luaL_Reg global_methods[] = {
    {"AddObjectToLevel"                    ,lua_Add_object_to_level             },
    {"AddObjectToLevelAtPos"               ,lua_Add_object_to_level_at_pos      },
    {"AddEffectGeneratorToLevel"           ,lua_Add_effect_generator_to_level   },
+   {"AddCorpseToLevel"                    ,lua_Add_corpse_to_level             },
    {"PlaceDoor"                           ,lua_Place_door                      },
    {"PlaceTrap"                           ,lua_Place_trap                      },
    {"ChangeSlabOwner"                     ,lua_Change_slab_owner               },

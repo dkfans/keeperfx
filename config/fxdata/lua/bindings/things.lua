@@ -54,3 +54,12 @@ function ChangeCreatureOwner(creature,new_owner) end
 ---@param operation any
 ---@param annoyance integer
 function ChangeCreaturesAnnoyance(player,creature,operation,annoyance) end
+
+---Place any corpse at a specific place on the map
+---@param creature creature_type
+---@param location location
+---@param experience integer The experience level of the corpse. Determines the size.
+---@param dying? boolean If the corpse is still falling down when spawned.
+---@param owner? playersingle The owner of the corpse.
+---@return Thing object
+function AddCorpseToLevel(creature,location,experience,dying,owner) local ob return ob end
