@@ -287,7 +287,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     if (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
         delete_thing_structure(thing, 0);
-        create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->corpse.exp_level);
+        create_dead_creature(&thing->mappos, thing->model, DCrSt_Dead, thing->owner, thing->corpse.exp_level);
         return TUFRet_Deleted;
     }
     return move_dead_creature(thing);;
@@ -470,6 +470,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         k = get_creature_anim(thing, CGI_DeadSplat);
         set_thing_draw(thing, k, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
         break;
+    case DCrSt_Dying:
     default:
         thing->active_state = DCrSt_Dying;
         k = get_creature_anim(thing, CGI_Scream);
