@@ -27,6 +27,7 @@
 #include "net_lobby.h"
 #include "packets.h"
 #include "player_data.h"
+#include <SDL2/SDL.h>
 #include "post_inc.h"
 /******************************************************************************/
 

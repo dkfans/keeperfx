@@ -29,6 +29,7 @@
 #include "net_matchmaking.h"
 #include "packets.h"
 #include "player_data.h"
+#include <SDL2/SDL.h>
 #include "post_inc.h"
 /******************************************************************************/
 
