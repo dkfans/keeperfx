@@ -837,8 +837,12 @@ long instf_eat(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->hunger_amount > 0)
+    if (cctrl->hunger_amount > 0) {
         cctrl->hunger_amount--;
+    } else
+    if (cctrl->hunger_loss < 255) {
+        cctrl->hunger_loss++;
+    }
     apply_health_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].health.food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
