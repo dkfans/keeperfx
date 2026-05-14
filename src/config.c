@@ -1018,7 +1018,7 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
 {
     int32_t pos = 0;
     // Initialize the array
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    if ((flags & (CnfLd_AcceptPartial|CnfLd_PreListed)) == 0)
     {
         set_defaults(named_fields_set,config_textname);
     }
