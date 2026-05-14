@@ -2003,7 +2003,6 @@ struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation locatio
         ERRORLOG("Couldn't create shot at %d %s", (int)location, thing_class_and_model_name(TCls_Shot, tngmodel));
         return INVALID_THING;
     }
-    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     thing->shot.hit_type = hittype;
     thing->shot.target_idx = target;
     
