@@ -172,7 +172,7 @@ struct Thing* script_process_new_corpse(ThingModel tngmodel, MapSubtlCoord stl_x
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_floor_height_at(&pos);
 
-    int16_t crpscondition = DCrSt_Dead;
+    int16_t crpscondition = DCrSt_LongDead;
     if (dying)
     {
         crpscondition = DCrSt_Dying;

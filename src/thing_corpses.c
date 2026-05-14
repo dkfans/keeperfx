@@ -478,6 +478,10 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
+    case DCrSt_LongDead:
+        thing->active_state = DCrSt_Dead;
+        long i = get_creature_anim(thing, CGI_DropDead);
+        set_thing_draw(thing, i, 64, -1, 1, get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed), ODC_Default);
     }
     thing->sprite_size = (game.conf.crtr_conf.sprite_size * (long)thing->corpse.exp_level) / 20 + game.conf.crtr_conf.sprite_size;
     return thing;
