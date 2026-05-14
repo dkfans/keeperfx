@@ -52,6 +52,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct TbNetworkPlayerInfo net_player_info[MAX_NET_USERS];
+extern int32_t multiplayer_speed_adjustment_ns;
 /******************************************************************************/
 
 #pragma pack(1)
@@ -334,6 +335,7 @@ static void stop_network_game_and_continue_locally(void)
     LbNetwork_Stop();
     game.input_lag_turns = 0;
     game.skip_initial_input_turns = 0;
+    multiplayer_speed_adjustment_ns = 0;
     memset(net_player_info, 0, sizeof(net_player_info));
     clear_flag(game.system_flags, GSF_NetworkActive);
     fe_network_active = 0;
