@@ -211,7 +211,7 @@ const struct NamedField magic_shot_named_fields[] = {
   {"HEALTH",                0, field(game.conf.magic_conf.shot_cfgstats[0].health),                      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"DAMAGE",                0, field(game.conf.magic_conf.shot_cfgstats[0].damage),                      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"ISMAGICAL",             0, field(game.conf.magic_conf.shot_cfgstats[0].is_magical),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
-  {"HITTYPE",               0, field(game.conf.magic_conf.shot_cfgstats[0].area_hit_type),  THit_CrtrsOnly,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default}, //todo allow hittype names
+  {"HITTYPE",               0, field(game.conf.magic_conf.shot_cfgstats[0].area_hit_type),  THit_CrtrsOnly,  INT32_MIN,  UINT32_MAX, hit_type_desc,                value_default,   assign_default},
   {"AREADAMAGE",            0, field(game.conf.magic_conf.shot_cfgstats[0].area_range),                  0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"AREADAMAGE",            1, field(game.conf.magic_conf.shot_cfgstats[0].area_damage),                 0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"AREADAMAGE",            2, field(game.conf.magic_conf.shot_cfgstats[0].area_blow),                   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
