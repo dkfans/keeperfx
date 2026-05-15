@@ -31,17 +31,15 @@
 #include "post_inc.h"
 /******************************************************************************/
 
-// Both of these include the current packet in the count (plus extra packets)
-// Both of them help at 0 input_lag_turns, most effective when used in combination.
-// When set too high the downside is they increase bandwidth usage and possibly congestion
-// When set too low you get slowdown/stutters (pay attention to "Slowdown Avg")
+// When set too high the downside is these increase bandwidth usage and possibly congestion. When set too low you get slowdown/stutters (pay attention to "Slowdown Avg").
+#define SEND_DUPLICATE_PACKETS 3
+#define REDUNDANT_PACKET_BUNDLE 3
+
 // Tested at 10% packet loss:
 // 4 duplicate and 4 redundant = Diminishing returns (no difference)
 // 3 duplicate and 3 redundant = Good
 // 2 duplicate and 3 redundant = Micro slowdown
 // 3 duplicate and 2 redundant = Micro slowdown
-#define SEND_DUPLICATE_PACKETS 3
-#define REDUNDANT_PACKET_BUNDLE 3
 
 extern void network_yield_draw_frontend(void);
 extern void network_yield_draw_gameplay(void);
