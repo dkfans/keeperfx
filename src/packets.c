@@ -119,6 +119,8 @@ extern TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx,
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
+float camera_movement_x = 0.0f;
+float camera_movement_y = 0.0f;
 /******************************************************************************/
 #define RESYNC_LIMIT_BEFORE_COOLDOWN 5
 #define RESYNC_COOLDOWN_MS (5 * 60 * 1000)
@@ -411,18 +413,18 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
     if (is_local_camera && !game.packet_load_enable)
     {        
         // Apply same scaling as packet-based movement for consistency
-        if (movement_accum_y != 0.0f) {
-            long delta = (long)(movement_accum_y * inter_val / 4.0f);
-            long limit = (long)(movement_accum_y * inter_val);
+        if (camera_movement_y != 0.0f) {
+            long delta = (long)(camera_movement_y * inter_val / 4.0f);
+            long limit = (long)(camera_movement_y * inter_val);
             view_set_camera_y_inertia(cam, delta, limit);
         }
-        if (movement_accum_x != 0.0f) {
-            long delta = (long)(movement_accum_x * inter_val / 4.0f);
-            long limit = (long)(movement_accum_x * inter_val);
+        if (camera_movement_x != 0.0f) {
+            long delta = (long)(camera_movement_x * inter_val / 4.0f);
+            long limit = (long)(camera_movement_x * inter_val);
             view_set_camera_x_inertia(cam, delta, limit);
         }
-        movement_accum_x = 0.0f;
-        movement_accum_y = 0.0f;
+        camera_movement_x = 0.0f;
+        camera_movement_y = 0.0f;
     }
     else
     {

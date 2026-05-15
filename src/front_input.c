@@ -194,6 +194,28 @@ static void process_cheat_mode_selection_inputs(void);
 }
 #endif
 /******************************************************************************/
+static void get_movement_inputs(float* out_movement_x, float* out_movement_y, TbBool ignore_mods)
+{
+    float movement_x = get_game_key_axis_value(Gkey_MoveRight,ignore_mods) - get_game_key_axis_value(Gkey_MoveLeft,ignore_mods);
+    float movement_y = get_game_key_axis_value(Gkey_MoveDown, ignore_mods) - get_game_key_axis_value(Gkey_MoveUp, ignore_mods);
+
+    // Handle horizontal movement - just accumulate for local camera
+    float move_mag_x = fabsf(movement_x);
+    if (move_mag_x > 0.0f) {
+        float curved = move_mag_x * move_mag_x;
+        *out_movement_x = (movement_x > 0 ? curved : -curved);
+    }
+    
+    // Handle vertical movement - just accumulate for local camera
+    float move_mag_y = fabsf(movement_y);
+    if (move_mag_y > 0.0f) {
+        float curved = move_mag_y * move_mag_y;
+        *out_movement_y = (movement_y > 0 ? curved : -curved);
+    }
+    *out_movement_x = clamp(*out_movement_x, -1.0f, 1.0f);
+    *out_movement_y = clamp(*out_movement_y, -1.0f, 1.0f);
+}
+
 static long get_current_gui_layer()
 {
     return gui_layer.current_gui_layer;
@@ -373,8 +395,17 @@ TbControllerButtons get_game_key_controller_buttons(long key_id)
     return settings.kbkeys[key_id].controller_buttons;
 }
 
-float get_game_key_axis_value(long key_id)
+float get_game_key_axis_value(long key_id, TbBool ignore_mods)
 {
+    if ((key_id == Gkey_MoveRight && is_key_pressed(KC_RIGHT, KMod_DONTCARE)) ||
+        (key_id == Gkey_MoveLeft  && is_key_pressed(KC_LEFT, KMod_DONTCARE)) ||
+        (key_id == Gkey_MoveDown  && is_key_pressed(KC_DOWN, KMod_DONTCARE)) ||
+        (key_id == Gkey_MoveUp    && is_key_pressed(KC_UP, KMod_DONTCARE)) ||
+    (is_key_pressed(settings.kbkeys[key_id].code, ignore_mods?KMod_DONTCARE:settings.kbkeys[key_id].mods))) 
+    {
+            return 1.0f;
+    }
+
     return cbtn_axis_value(get_game_key_controller_buttons(key_id));
 }
 
@@ -2097,7 +2128,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            movement_accum_x = -1.0f;
+            camera_movement_x = -1.0f;
         }
         if (mx >= MyScreenWidth-edge_scrolling_border)
         {
@@ -2106,7 +2137,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            movement_accum_x = 1.0f;
+            camera_movement_x = 1.0f;
         }
         if (my <= edge_scrolling_border)
         {
@@ -2115,7 +2146,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            movement_accum_y = -1.0f;
+            camera_movement_y = -1.0f;
         }
         if (my >= MyScreenHeight-edge_scrolling_border)
         {
@@ -2124,7 +2155,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            movement_accum_y = 1.0f;
+            camera_movement_y = 1.0f;
         }
     }
 }
@@ -2179,23 +2210,8 @@ static void get_isometric_view_nonaction_inputs(void)
                 set_packet_control(packet, PCtr_ViewTiltDown);
             if (is_game_key_pressed(Gkey_TiltReset, false, false))
                 set_packet_control(packet, PCtr_ViewTiltReset);
-            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
-            {
-                movement_accum_x = -1.0f;
-            }
-            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
-            {
-                movement_accum_x = 1.0f;
-            }
-            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
-            {
-                movement_accum_y = -1.0f;
-            }
-            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
-            {
-                movement_accum_y = 1.0f;
-            }
-            // Packets will be sent by send_camera_catchup_packets() based on position difference
+
+            get_movement_inputs(&camera_movement_x, &camera_movement_y, no_mods);
         }
     }
 }
@@ -2300,22 +2316,8 @@ static void get_front_view_nonaction_inputs(void)
                     last_rotate_right_time = LbTimerClock();
                 }
             }
-            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
-            {
-                movement_accum_x = -1.0f;
-            }
-            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
-            {
-                movement_accum_x = 1.0f;
-            }
-            if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
-            {
-                movement_accum_y = -1.0f;
-            }
-            if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
-            {
-                movement_accum_y = 1.0f;
-            }
+
+            get_movement_inputs(&camera_movement_x, &camera_movement_y, no_mods);
         }
         if (is_game_key_pressed(Gkey_ZoomIn, false, false))
             set_packet_control(pckt, PCtr_ViewZoomIn);
@@ -2593,37 +2595,32 @@ static void get_creature_control_nonaction_inputs(void)
         }
 
         struct Packet* packet = get_packet(my_player_number);
-        if (movement_accum_x >= 1.0f) {
+        static float creature_movement_accum_x = 0.0f;
+        static float creature_movement_accum_y = 0.0f;
+        float movement_delta_x = 0.0f;
+        float movement_delta_y = 0.0f;
+        get_movement_inputs(&movement_delta_x, &movement_delta_y, true);
+        creature_movement_accum_x += movement_delta_x;
+        creature_movement_accum_y += movement_delta_y;
+
+        if (creature_movement_accum_x >= 1.0f) {
             set_packet_control(packet, PCtr_MoveRight);
-            movement_accum_x = 0.0f;
+            creature_movement_accum_x = 0.0f;
         }
-        else if (movement_accum_x <= -1.0f) {
+        else if (creature_movement_accum_x <= -1.0f) {
             set_packet_control(packet, PCtr_MoveLeft);
-            movement_accum_x = 0.0f;
+            creature_movement_accum_x = 0.0f;
         }
 
-        if (movement_accum_y >= 1.0f) {
+        if (creature_movement_accum_y >= 1.0f) {
             set_packet_control(packet, PCtr_MoveDown);
-            movement_accum_y = 0.0f;
+            creature_movement_accum_y = 0.0f;
         }
-        else if (movement_accum_y <= -1.0f) {
+        else if (creature_movement_accum_y <= -1.0f) {
             set_packet_control(packet, PCtr_MoveUp);
-            movement_accum_y = 0.0f;
+            creature_movement_accum_y = 0.0f;
         }
         
-
-        //if (is_game_key_pressed(Gkey_MoveLeft, false, true) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
-        //    set_packet_control(pckt, PCtr_MoveLeft);
-        //if (is_game_key_pressed(Gkey_MoveRight, false, true) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
-        //    set_packet_control(pckt, PCtr_MoveRight);
-        //if (is_game_key_pressed(Gkey_MoveUp, false, true) || is_key_pressed(KC_UP, KMod_DONTCARE))
-        //    set_packet_control(pckt, PCtr_MoveUp);
-        //if (is_game_key_pressed(Gkey_MoveDown, false, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
-        //    set_packet_control(pckt, PCtr_MoveDown);
-
-
-
-
         if (flag_is_set(thing->movement_flags, TMvF_Flying))
         {
             if (is_game_key_pressed(Gkey_Ascend, false, true))

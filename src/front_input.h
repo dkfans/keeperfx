@@ -166,7 +166,7 @@ extern unsigned short const zoom_key_room_order[];
 TbBool check_current_gui_layer(long layer_id);
 TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health);
 TbControllerButtons get_game_key_controller_buttons(long key_id);
-float get_game_key_axis_value(long key_id);
+float get_game_key_axis_value(long key_id, TbBool ignore_mods);
 
 /******************************************************************************/
 #ifdef __cplusplus

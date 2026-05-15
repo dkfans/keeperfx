@@ -50,8 +50,6 @@ extern volatile TbBool lbMouseGrabbed;
 extern volatile TbBool lbAppActive;
 extern unsigned char last_used_input_device;
 
-extern float movement_accum_x;
-extern float movement_accum_y;
 /******************************************************************************/
 TbBool LbPollInputs(void);
 TbBool LbIsActive(void);

@@ -185,10 +185,6 @@ struct KeyToStringInit key_to_string_init[] = {
 TbBool defined_keys_that_have_been_swapped[GAME_KEYS_COUNT] = { false };
 /******************************************************************************/
 
-float movement_accum_x = 0.0f;
-float movement_accum_y = 0.0f;
-static float input_delta_time = 0.0f;
-
 static void get_button_snapping_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
@@ -201,8 +197,8 @@ static void get_button_snapping_inputs(void)
         return;
     }
 
-    float snap_x = get_game_key_axis_value(Gkey_ButtonSnapRight) - get_game_key_axis_value(Gkey_ButtonSnapLeft);
-    float snap_y = get_game_key_axis_value(Gkey_ButtonSnapDown)  - get_game_key_axis_value(Gkey_ButtonSnapUp);
+    float snap_x = get_game_key_axis_value(Gkey_ButtonSnapRight, false) - get_game_key_axis_value(Gkey_ButtonSnapLeft, false);
+    float snap_y = get_game_key_axis_value(Gkey_ButtonSnapDown, false)  - get_game_key_axis_value(Gkey_ButtonSnapUp, false);
     
     snap_to_direction(GetMouseX(), GetMouseY(), snap_x, snap_y);
 
@@ -223,29 +219,6 @@ static float get_input_delta_time()
     delta_time_previous_msec = current_msec;
     float calculated_delta_time = ((float)elapsed_msec / 1000.0f) * turns_per_second;
     return min(calculated_delta_time, 1.0f);
-}
-
-static void poll_controller_movement(float nx, float ny)
-{
-    // Handle horizontal movement - just accumulate for local camera
-    float move_mag_x = fabsf(nx);
-    if (move_mag_x > 0.0f) {
-        float curved = move_mag_x * move_mag_x;
-        float presses_this_frame = curved * input_delta_time;
-        
-        movement_accum_x += (nx > 0 ? presses_this_frame : -presses_this_frame);
-    }
-    
-    // Handle vertical movement - just accumulate for local camera
-    float move_mag_y = fabsf(ny);
-    if (move_mag_y > 0.0f) {
-        float curved = move_mag_y * move_mag_y;
-        float presses_this_frame = curved * input_delta_time;
-        
-        movement_accum_y += (ny > 0 ? presses_this_frame : -presses_this_frame);
-    }
-    movement_accum_x = clamp(movement_accum_x, -1.0f, 1.0f);
-    movement_accum_y = clamp(movement_accum_y, -1.0f, 1.0f);
 }
 
 void poll_controller_mouse_clicks()
@@ -278,6 +251,8 @@ static void poll_controller_mouse_movement(float nx, float ny)
 {
     static float mouse_accum_x;
     static float mouse_accum_y;
+    static float input_delta_time = 0.0f;
+    input_delta_time = get_input_delta_time();
     float mag = sqrtf(nx * nx + ny * ny);
 
     if (mag <= 0.0f)
@@ -312,15 +287,11 @@ void update_controller_inputs()
     {
         return;
     }
-    input_delta_time = get_input_delta_time();
 
     poll_controller_mouse_clicks();
-    float mouse_x = get_game_key_axis_value(Gkey_MouseRight) - get_game_key_axis_value(Gkey_MouseLeft);
-    float mouse_y = get_game_key_axis_value(Gkey_MouseDown) - get_game_key_axis_value(Gkey_MouseUp);
+    float mouse_x = get_game_key_axis_value(Gkey_MouseRight, false) - get_game_key_axis_value(Gkey_MouseLeft, false);
+    float mouse_y = get_game_key_axis_value(Gkey_MouseDown, false) - get_game_key_axis_value(Gkey_MouseUp, false);
     poll_controller_mouse_movement(mouse_x, mouse_y);
-    float movement_x = get_game_key_axis_value(Gkey_MoveRight) - get_game_key_axis_value(Gkey_MoveLeft);
-    float movement_y = get_game_key_axis_value(Gkey_MoveDown) - get_game_key_axis_value(Gkey_MoveUp);
-    poll_controller_movement(movement_x, movement_y);
     get_button_snapping_inputs();
 }
 
