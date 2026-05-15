@@ -25,6 +25,7 @@
 #include "bflib_basics.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
+#include "bflib_joyst.h"
 #include "bflib_video.h"
 #include "bflib_planar.h"
 #include "bflib_sndlib.h"
@@ -56,11 +57,8 @@ static TbBool firstTimeMouseInit = true;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
-static uint16_t num_keys_down = 0;
-
-void init_controller_input();
+//defined here instead of bflib_joyst.h to avoid making header depend on SDL
 void JEvent(const SDL_Event *ev);
-void poll_controller();
 /******************************************************************************/
 
 /**
@@ -301,9 +299,6 @@ static void process_event(const SDL_Event *ev)
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
         {
-            if (ev->key.repeat == 0)
-                num_keys_down++;
-            
             keyboardControl(KActn_KEYDOWN,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
         }
         last_used_input_device = ID_Keyboard_Mouse;
@@ -313,8 +308,6 @@ static void process_event(const SDL_Event *ev)
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
         {
-            if (num_keys_down > 0)
-                num_keys_down--;
             keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
         }
         last_used_input_device = ID_Keyboard_Mouse;
@@ -469,16 +462,13 @@ static void process_event(const SDL_Event *ev)
 }
 
 /******************************************************************************/
-TbBool LbWindowsControl(void)
+TbBool LbPollInputs(void)
 {
     SDL_Event ev;
     //process events until event queue is empty
     while (SDL_PollEvent(&ev)) {
         process_event(&ev);
     }
-    
-    if (num_keys_down == 0)
-        poll_controller();
 
     return (lbUserQuit < 1);
 }

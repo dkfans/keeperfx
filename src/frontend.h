@@ -417,7 +417,6 @@ void try_restore_frontend_error_box(); // Restore error box if frontend state wa
 
 short menu_is_active(short idx);
 TbBool a_menu_window_is_active(void);
-void get_player_gui_clicks(void);
 short game_is_busy_doing_gui(void);
 void set_gui_visible(TbBool visible);
 void toggle_gui(void);

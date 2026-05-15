@@ -75,6 +75,7 @@ extern TbBool defined_keys_that_have_been_swapped[];
 extern TbBool wheel_scrolled_up;
 extern TbBool wheel_scrolled_down;
 
+TbBool poll_inputs(void);
 
 long GetMouseX(void);
 long GetMouseY(void);

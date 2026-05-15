@@ -25,7 +25,7 @@
 #include "game_legacy.h"
 #include "player_instances.h"
 #include "gui_soundmsgs.h"
-#include "bflib_inputctrl.h"
+#include "bflib_joyst.h"
 #include "post_inc.h"
 
 /******************************************************************************/

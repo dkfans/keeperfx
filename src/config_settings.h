@@ -29,12 +29,13 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct GameKey { // sizeof = 2
+struct GameKey {
   unsigned char code;
   unsigned char mods;
+  TbControllerButtons controller_buttons;
 };
 
-struct GameSettings { // KFX settings
+struct GameSettings {
     unsigned char video_detail_level;
     unsigned char video_shadows;
     unsigned char view_distance;
