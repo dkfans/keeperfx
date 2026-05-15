@@ -121,6 +121,7 @@ HitPoints reduce_damage_for_midas(PlayerNumber owner, HitPoints damage, short mu
 long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng, const struct SlabMap *slb);
 GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, const struct SlabMap *slb);
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng);
+HitPoints collide_door_and_boulder(struct Thing* doortng, struct Thing *boulder);
 
 long get_radially_decaying_value(long magnitude, long decay_start, long decay_length, long distance);
 long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long acceleration);

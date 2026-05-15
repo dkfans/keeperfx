@@ -567,10 +567,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
         if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
         {
             struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-            HitPoints door_health = doortng->health;
-            doortng->health -= boulder->health; // decrease door health
-            boulder->health -= door_health; // decrease boulder health
-            if (doortng->health <= 0)
+            if (collide_door_and_boulder(doortng, boulder) <= 0)
             {
                 return 2; // door destroyed
             }
