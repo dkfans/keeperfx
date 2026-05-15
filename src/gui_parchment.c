@@ -791,8 +791,10 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
 
 void draw_zoom_box_things(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y, int subtile_size)
 {
-    LbScreenSetGraphicsWindow(scrtop_x + 2*units_per_pixel/16, scrtop_y + 2*units_per_pixel/16,
-        draw_tiles_x*subtile_size - 4*units_per_pixel/16, draw_tiles_y*subtile_size - 4*units_per_pixel/16);
+    scrtop_x += 4 * units_per_pixel / 16;
+    scrtop_y -= 4 * units_per_pixel / 16;
+    LbScreenSetGraphicsWindow(scrtop_x , scrtop_y ,
+        draw_tiles_x*subtile_size, draw_tiles_y*subtile_size);
     int scr_y = 0;
     for (int map_dy = 0; map_dy < draw_tiles_y; map_dy++)
     {
