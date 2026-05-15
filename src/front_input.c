@@ -173,8 +173,8 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"ButtonSnapUp",          GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_DPAD_UP,             BMV_ControllerOnly, },       // Gkey_ButtonSnapUp,
     {"ButtonSnapDown",        GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_DPAD_DOWN,           BMV_ControllerOnly, },       // Gkey_ButtonSnapDown,
     {"PauseMenu",             GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_START,               BMV_ControllerOnly, },       // Gkey_PauseMenu,
-    {"LeftClick",             GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_R2,                  BMV_ControllerOnly, },       // GKey_LeftClick,
-    {"RightClick",            GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_L2,                  BMV_ControllerOnly, },       // GKey_RightClick,
+    {"LeftClick",             GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_R2,                  BMV_ControllerOnly, },       // Gkey_LeftClick,
+    {"RightClick",            GUIStr_Keeper,                  KC_UNASSIGNED, KMod_NONE,      CBtn_L2,                  BMV_ControllerOnly, },       // Gkey_RightClick,
     {"MouseUp",               GUIStr_CtrlUp,                  KC_UNASSIGNED, KMod_NONE,      CBtn_RS_UP,               BMV_ControllerOnly, },       // Gkey_MouseUp
     {"MouseDown",             GUIStr_CtrlDown,                KC_UNASSIGNED, KMod_NONE,      CBtn_RS_DOWN,             BMV_ControllerOnly, },       // Gkey_MouseDown
     {"MouseLeft",             GUIStr_CtrlLeft,                KC_UNASSIGNED, KMod_NONE,      CBtn_RS_LEFT,             BMV_ControllerOnly, },       // Gkey_MouseLeft
