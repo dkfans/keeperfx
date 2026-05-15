@@ -103,11 +103,11 @@ extern float get_delta_time();
 
 extern struct FrametimeMeasurements frametime_measurements;
 
-int get_current_slowdown_percentage(void);
+int get_current_stutter_percentage(void);
 
-extern int slowdown_current;
-extern int slowdown_average;
-extern int slowdown_max;
+extern int stutter_detection_current;
+extern int stutter_detection_average;
+extern int stutter_detection_max;
 /******************************************************************************/
 #ifdef __cplusplus
 }
