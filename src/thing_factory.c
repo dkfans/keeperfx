@@ -99,7 +99,7 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingMo
         thing = create_effect_element(pos, tngmodel, owner);
         break;
     case TCls_DeadCreature:
-        thing = create_dead_creature(pos, tngmodel, 1, owner, 0);
+        thing = create_dead_creature(pos, tngmodel, DCrSt_Dying, owner, 0);
         break;
     case TCls_Creature:
         thing = create_creature(pos, tngmodel, owner);
