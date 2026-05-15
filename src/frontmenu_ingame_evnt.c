@@ -47,6 +47,8 @@
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
+extern int32_t multiplayer_speed_adjustment_ns;
+
 unsigned long TimerTurns = 0;
 unsigned short battle_creature_over;
 int debug_display_network_stats = 0;
@@ -883,6 +885,14 @@ void draw_network_stats()
     unsigned int incoming_rate_kb10 = (GetDownloadRateBytesPerSecond() * 10) / 1024;
     int input_lag = game.input_lag_turns;
     int input_lag_ms = input_lag * 50;
+    int32_t turn_length_ms = 0;
+    if (turns_per_second > 0) {
+        int64_t turn_length_ns = 1000000000 / turns_per_second;
+        turn_length_ns += multiplayer_speed_adjustment_ns;
+        if (turn_length_ns > 0) {
+            turn_length_ms = (int32_t)((turn_length_ns + 500000) / 1000000);
+        }
+    }
 
     snprintf(text, sizeof(text), "Full ping: %lums", ping);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
@@ -909,7 +919,9 @@ void draw_network_stats()
     LbTextDrawResized(0, tx_units_per_px * 9, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Slowdown max: %d%%", slowdown_max);
     LbTextDrawResized(0, tx_units_per_px * 10, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    snprintf(text, sizeof(text), "Turn length: %dms", turn_length_ms);
     LbTextDrawResized(0, tx_units_per_px * 11, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    LbTextDrawResized(0, tx_units_per_px * 12, tx_units_per_px, text);
 }
 /******************************************************************************/
