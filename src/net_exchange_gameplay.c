@@ -41,12 +41,13 @@ extern int32_t multiplayer_speed_adjustment_ns;
 /******************************************************************************/
 
 // PACKET_HISTORY_SIZE affects how far apart two player's turns can be (if they divert too far then there's no easy recovering). It should be set as high as possible while still being safe to send, so less than 1300 bytes at once.
+// TURN_SYNC_MAX_ADJUSTMENT_NS being set too high causes stutters.
 #define PACKET_HISTORY_SIZE 40
 #define REPAIR_HISTORY_RESEND_INTERVAL 200
-#define SPEED_ADJUST_INTERVAL 500
 #define FINAL_RESORT_RESYNC_RECOVERY 10000
-#define TURN_SPEED_UP_NS -1000000
-#define TURN_SLOW_DOWN_NS 1000000
+#define TURN_SYNC_INTERVAL_MS 250
+#define TURN_SYNC_MAX_ADJUSTMENT_NS 1000000
+#define TURN_SYNC_ADJUST_FACTOR 64
 
 struct PacketHistory {
     struct Packet entries[PACKET_HISTORY_SIZE];
@@ -65,45 +66,61 @@ struct PacketHistoryHeader {
 };
 #pragma pack()
 
-struct PeerTurnEstimate {
-    TbClockMSec received_at;
-    GameTurn estimated_turn;
-};
-
 static struct PacketHistory packet_history[MAX_NET_USERS];
-static struct PeerTurnEstimate peer_turn_estimates[MAX_NET_USERS];
+static TbClockMSec server_turn_received_at = 0;
+static int64_t server_turn_position_ns = 0;
 static TbClockMSec last_repair_history_send = 0;
 static TbClockMSec last_turn_sync_send = 0;
 
-static int32_t peer_turn_speed_adjustment(const struct PeerTurnEstimate *peer_estimate)
+static int64_t get_current_turn_position_ns(void)
 {
-    GameTurnDelta peer_turn_delta = (GameTurnDelta)(peer_estimate->estimated_turn - get_gameturn());
-    if (peer_turn_delta > 0) {
-        return TURN_SPEED_UP_NS;
+    if (turns_per_second <= 0) {
+        return 0;
     }
-    if (peer_turn_delta < 0) {
-        return TURN_SLOW_DOWN_NS;
+    uint64_t turns_per_second_u = (uint64_t)turns_per_second;
+    uint64_t nanoseconds_per_turn = (1000000000ULL + turns_per_second_u / 2) / turns_per_second_u;
+    int64_t position_ns = (int64_t)get_gameturn() * (int64_t)nanoseconds_per_turn;
+    if (is_feature_on(Ft_DeltaTime) == true && game.process_turn_time > 0) {
+        uint64_t turn_phase_ns = (uint64_t)(game.process_turn_time * nanoseconds_per_turn + 0.5);
+        if (turn_phase_ns >= nanoseconds_per_turn) {
+            turn_phase_ns = nanoseconds_per_turn - 1;
+        }
+        position_ns += (int64_t)turn_phase_ns;
     }
-    return 0;
+    return position_ns;
+}
+
+static void update_turn_speed_adjustment(void)
+{
+    TbClockMSec sync_age_ms = LbTimerClock() - server_turn_received_at;
+    multiplayer_speed_adjustment_ns = 0;
+    if (netstate.my_id == SERVER_ID || server_turn_received_at == 0 || turns_per_second <= 0
+        || sync_age_ms > TURN_SYNC_INTERVAL_MS * 3) {
+        return;
+    }
+    int64_t server_position_now_ns = server_turn_position_ns + (int64_t)sync_age_ms * 1000000;
+    int64_t target_adjustment_ns = (get_current_turn_position_ns() - server_position_now_ns) / TURN_SYNC_ADJUST_FACTOR;
+    target_adjustment_ns = clamp(target_adjustment_ns, -TURN_SYNC_MAX_ADJUSTMENT_NS, TURN_SYNC_MAX_ADJUSTMENT_NS);
+    multiplayer_speed_adjustment_ns = (int32_t)target_adjustment_ns;
 }
 
 static void send_turn_sync_if_due(void)
 {
+    if (netstate.my_id != SERVER_ID) {
+        return;
+    }
+    multiplayer_speed_adjustment_ns = 0;
     TbClockMSec current_time = LbTimerClock();
-    if (last_turn_sync_send != 0 && current_time - last_turn_sync_send < SPEED_ADJUST_INTERVAL) {
+    if (last_turn_sync_send != 0 && current_time - last_turn_sync_send < TURN_SYNC_INTERVAL_MS) {
         return;
     }
     last_turn_sync_send = current_time;
+    int64_t position_ns = get_current_turn_position_ns();
     char *write_pos = begin_net_message(NETMSG_GAMEPLAY_TURN_SYNC);
-    GameTurn current_turn = get_gameturn();
-    memcpy(write_pos, &current_turn, sizeof(current_turn));
-    write_pos += sizeof(current_turn);
+    memcpy(write_pos, &position_ns, sizeof(position_ns));
+    write_pos += sizeof(position_ns);
     size_t message_size = write_pos - netstate.msg_buffer;
-    if (netstate.my_id == SERVER_ID) {
-        send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, INVALID_USER_ID, INVALID_USER_ID);
-    } else if (can_send_to_peer(SERVER_ID)) {
-        netstate.sp->sendmsg_single_unsequenced(SERVER_ID, netstate.msg_buffer, message_size);
-    }
+    send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, INVALID_USER_ID, INVALID_USER_ID);
 }
 
 void LbNetwork_BroadcastUnpause(void)
@@ -145,35 +162,24 @@ void process_gameplay_chat_message(int player_id, const char *message)
 
 TbError process_network_turn_sync_message(NetUserId source, const char *buffer, size_t buffer_size)
 {
-    if (buffer_size != sizeof(GameTurn)) {
+    if (buffer_size != sizeof(int64_t)) {
         WARNLOG("Invalid gameplay turn sync message from peer %i (%u bytes)", source, (unsigned)buffer_size);
         return Lb_OK;
     }
-    if (source < 0 || source >= (NetUserId)netstate.max_players) {
-        WARNLOG("Invalid gameplay speed adjust peer %i", source);
+    if (netstate.my_id == SERVER_ID) {
+        multiplayer_speed_adjustment_ns = 0;
         return Lb_OK;
     }
-    struct PeerTurnEstimate *peer_estimate = &peer_turn_estimates[source];
-    TbBool refresh_applied_server_adjustment = false;
-    if (source == SERVER_ID) {
-        int32_t previous_server_adjustment_ns = 0;
-        if (peer_estimate->received_at != 0) {
-            previous_server_adjustment_ns = peer_turn_speed_adjustment(peer_estimate);
-        }
-        if (multiplayer_speed_adjustment_ns == previous_server_adjustment_ns) {
-            refresh_applied_server_adjustment = true;
-        }
+    if (source != SERVER_ID) {
+        WARNLOG("Ignoring gameplay turn sync message from peer %i", source);
+        return Lb_OK;
     }
-    memcpy(&peer_estimate->estimated_turn, buffer, sizeof(peer_estimate->estimated_turn));
-    if (turns_per_second > 0) {
-        uint32_t ping = GetPing(source);
-        GameTurn ping_turns = (GameTurn)(((uint64_t)ping * (uint64_t)turns_per_second + 1999) / 2000);
-        peer_estimate->estimated_turn += ping_turns;
-    }
-    if (refresh_applied_server_adjustment) {
-        multiplayer_speed_adjustment_ns = peer_turn_speed_adjustment(peer_estimate);
-    }
-    peer_estimate->received_at = LbTimerClock();
+    int64_t received_position_ns;
+    memcpy(&received_position_ns, buffer, sizeof(received_position_ns));
+    int64_t one_way_latency_ns = (int64_t)(((uint64_t)GetPing(source) * 1000000 + 1) / 2);
+    server_turn_position_ns = received_position_ns + one_way_latency_ns;
+    server_turn_received_at = LbTimerClock();
+    update_turn_speed_adjustment();
     return Lb_OK;
 }
 
@@ -259,7 +265,8 @@ TbBool read_repair_packet_history(NetUserId source, const char *buffer, size_t b
 void initialize_packet_history(void)
 {
     memset(packet_history, 0, sizeof(packet_history));
-    memset(peer_turn_estimates, 0, sizeof(peer_turn_estimates));
+    server_turn_received_at = 0;
+    server_turn_position_ns = 0;
     multiplayer_speed_adjustment_ns = 0;
     last_repair_history_send = 0;
     last_turn_sync_send = 0;
@@ -371,33 +378,6 @@ static void send_repair_history_if_due(void)
     }
 }
 
-static void update_wait_speed_adjustment(void)
-{
-    int32_t speed_adjustment_ns = 0;
-    if (netstate.my_id != SERVER_ID && peer_turn_estimates[SERVER_ID].received_at != 0) {
-        speed_adjustment_ns = peer_turn_speed_adjustment(&peer_turn_estimates[SERVER_ID]);
-    }
-    for (PlayerNumber player = 0; player < netstate.max_players; player += 1) {
-        const struct PeerTurnEstimate *peer_estimate = &peer_turn_estimates[player];
-        if (peer_estimate->received_at == 0) {
-            continue;
-        }
-        if (netstate.my_id != SERVER_ID && player != SERVER_ID) {
-            continue;
-        }
-        speed_adjustment_ns = peer_turn_speed_adjustment(peer_estimate);
-        if (speed_adjustment_ns == 0) {
-            if (UNSYNC_RANDOM(2) == 0) {
-                speed_adjustment_ns = TURN_SPEED_UP_NS;
-            } else {
-                speed_adjustment_ns = TURN_SLOW_DOWN_NS;
-            }
-        }
-        break;
-    }
-    multiplayer_speed_adjustment_ns = speed_adjustment_ns;
-}
-
 static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, PlayerNumber local_packet_player)
 {
     GameTurn expected_turn = get_gameturn() - game.input_lag_turns;
@@ -436,13 +416,13 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
             wait_timed_out = true;
             break;
         }
+        update_turn_speed_adjustment();
         network_yield_waiting_gameplay_packets();
         if (quit_game || exit_keeper) {
             netstate.seq_nbr += 1;
             return Lb_OK;
         }
     }
-    update_wait_speed_adjustment();
     TbClockMSec wait_time = LbTimerClock() - wait_start_time;
     if (wait_timed_out) {
         WARNLOG("LbNetwork_ExchangeGameplay: Timed out waiting for turn=%lu after %dms; continuing so resync can recover",
@@ -466,6 +446,7 @@ TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t fram
             process_peer_msgs(peer_id, server_buf, frame_size);
         }
     }
+    update_turn_speed_adjustment();
     if (game.skip_initial_input_turns <= 0) {
         struct PlayerInfo *my_player = get_my_player();
         if (player_exists(my_player)) {
@@ -473,11 +454,6 @@ TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t fram
             if (!have_all_turn_packets(local_packet_player)) {
                 return wait_for_missing_packets(server_buf, frame_size, local_packet_player);
             }
-            int32_t speed_adjustment_ns = 0;
-            if (netstate.my_id != SERVER_ID && peer_turn_estimates[SERVER_ID].received_at != 0) {
-                speed_adjustment_ns = peer_turn_speed_adjustment(&peer_turn_estimates[SERVER_ID]);
-            }
-            multiplayer_speed_adjustment_ns = speed_adjustment_ns;
         }
     }
     netstate.seq_nbr += 1;
