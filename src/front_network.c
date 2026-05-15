@@ -86,41 +86,35 @@ static int32_t previous_active_players = 0;
 /******************************************************************************/
 static TbBool try_starting_level_from_chat(const char *message, int32_t player_id)
 {
-    if (player_id != get_host_player_id()) {
-        return false;
-    }
     const char *separator_pos = strchr(message, ':');
     if (separator_pos == NULL) {
         separator_pos = strchr(message, ' ');
     }
-    if (separator_pos == NULL || separator_pos == message) {
+    if ((separator_pos == NULL) || (separator_pos == message)) {
         return false;
     }
-    int campaign_len = separator_pos - message;
-    if (campaign_len <= 0 || campaign_len >= 64) {
+    int32_t campaign_len = separator_pos - message;
+    if (campaign_len >= 64) {
         return false;
     }
     const char *level_str = separator_pos + 1;
     while (*level_str == ' ') {
         level_str++;
     }
-    if (level_str[0] != '_' && !isdigit(level_str[0])) {
-        return false;
-    }
-    LevelNumber level_num;
-    if (level_str[0] == '_') {
-        level_num = -1;
-    } else {
+    LevelNumber level_num = -1;
+    if (level_str[0] != '_') {
+        if (!isdigit(level_str[0]) || (player_id != get_host_player_id())) {
+            return false;
+        }
         level_num = atoi(level_str);
         if (level_num <= 0) {
             return false;
         }
     }
     char campaign_filename[80];
-    if ((campaign_len >= 4) && (strncasecmp(message + campaign_len - 4, ".cfg", 4) == 0)) {
-        snprintf(campaign_filename, sizeof(campaign_filename), "%.*s", campaign_len, message);
-    } else {
-        snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
+    snprintf(campaign_filename, sizeof(campaign_filename), "%.*s", campaign_len, message);
+    if ((campaign_len < 4) || (strncasecmp(message + campaign_len - 4, ".cfg", 4) != 0)) {
+        strcat(campaign_filename, ".cfg");
     }
     return frontnet_start_level(campaign_filename, level_num);
 }
@@ -130,7 +124,11 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
     if (campaign_fname == NULL || campaign_fname[0] == '\0') {
         return false;
     }
-    if (!change_campaign(CampgnT_Default, campaign_fname)
+    uint8_t pack = CampgnT_Default;
+    if (lvnum <= 0) {
+        pack = CampgnT_MultiplayerMappack;
+    }
+    if (!change_campaign(pack, campaign_fname)
      || (strcasecmp(campaign.fname, campaign_fname) != 0)) {
         ERRORLOG("Unable to load campaign '%s' for level %d", campaign_fname, (int)lvnum);
         return false;

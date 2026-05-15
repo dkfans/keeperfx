@@ -1127,52 +1127,51 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 
 TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
 {
-    TbBool result = false;
+    static short campaign_fgroup = FGrp_None;
     SYNCDBG(8,"Starting");
-    if ((campaign.fname[0] != '\0') && (strcasecmp(campaign.fname,cmpgn_fname) == 0))
-        return true;
-    free_campaign(&campaign);
-
     short fgroup = FGrp_None;
-    switch (pack)
-    {
+    switch (pack) {
     case CampgnT_Mappack:
-        if (is_campaign_in_list(cmpgn_fname, &mappacks_list))
+        if (is_campaign_in_list(cmpgn_fname, &mappacks_list)) {
             fgroup = FGrp_VarLevels;
+        }
         break;
     case CampgnT_Campaign:
-        if (is_campaign_in_list(cmpgn_fname, &campaigns_list))
+        if (is_campaign_in_list(cmpgn_fname, &campaigns_list)) {
             fgroup = FGrp_Campgn;
+        }
         break;
     case CampgnT_MultiplayerMappack:
-        if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list))
+        if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list)) {
             fgroup = FGrp_MpLevels;
+        }
         break;
     case CampgnT_Default:
     default:
-        if (is_campaign_in_list(cmpgn_fname, &campaigns_list))
+        if (is_campaign_in_list(cmpgn_fname, &campaigns_list)) {
             fgroup = FGrp_Campgn;
-        else if (is_campaign_in_list(cmpgn_fname, &mappacks_list))
+        } else if (is_campaign_in_list(cmpgn_fname, &mappacks_list)) {
             fgroup = FGrp_VarLevels;
-        else if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list))
+        } else if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list)) {
             fgroup = FGrp_MpLevels;
-
+        }
         break;
     }
-    if (fgroup != FGrp_None)
-    {
-        result = load_campaign(cmpgn_fname,&campaign,CnfLd_Standard, fgroup);
+    if ((fgroup != FGrp_None) && (campaign_fgroup == fgroup) && (strcasecmp(campaign.fname,cmpgn_fname) == 0)) {
+        return true;
     }
-    
-    if (!result)
-    {
+    free_campaign(&campaign);
+    campaign_fgroup = FGrp_None;
+    TbBool result = (fgroup != FGrp_None) && load_campaign(cmpgn_fname,&campaign,CnfLd_Standard, fgroup);
+    if (!result) {
         WARNMSG("Loading campaign file \"%s\" failed falling back to default campaign.", cmpgn_fname);
-        result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard, FGrp_Campgn);
+        fgroup = FGrp_Campgn;
+        result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard, fgroup);
     }
-    
-
-    if (fgroup != FGrp_Campgn)
-    {
+    if (result) {
+        campaign_fgroup = fgroup;
+    }
+    if (fgroup != FGrp_Campgn) {
         find_and_load_lof_files();
         find_and_load_lif_files();
     }
