@@ -293,6 +293,15 @@ void update_controller_inputs()
     float mouse_y = get_game_key_axis_value(Gkey_MouseDown, false) - get_game_key_axis_value(Gkey_MouseUp, false);
     poll_controller_mouse_movement(mouse_x, mouse_y);
     get_button_snapping_inputs();
+
+    static TbBool last_pause_menu_state = false;
+    TbBool pause_menu_pressed = is_game_key_pressed(Gkey_PauseMenu, false, true);
+
+    if (pause_menu_pressed && !last_pause_menu_state) {
+        lbKeyOn[KC_ESCAPE] = pause_menu_pressed;
+    }
+    last_pause_menu_state = pause_menu_pressed;
+        
 }
 
 TbBool poll_inputs(void)

@@ -445,6 +445,26 @@ static short get_players_message_inputs(void)
     return true;
 }
 
+static void get_options_menu_inputs(void)
+{
+    if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE))
+    {
+        clear_key_pressed(KC_ESCAPE);
+        if ( a_menu_window_is_active() )
+        {
+            turn_off_all_window_menus();
+        }
+        else
+        {
+            if (menu_is_active(GMnu_MAIN))
+            {
+                fake_button_click(BID_OPTIONS);
+            }
+            turn_on_menu(GMnu_OPTIONS);
+        }
+    }
+}
+
 /**
  * Captures the screen to make a gameplay movie or screenshot image.
  * @return Returns true if packet was created, false otherwise.
@@ -743,8 +763,29 @@ static short get_global_inputs(void)
   if ((player->instance_num != PI_MapFadeTo) &&
       (player->instance_num != PI_MapFadeFrom) &&
       (!game_is_busy_doing_gui_string_input()))
-  {
-      if ( is_game_key_pressed(Gkey_TogglePause, true, false) )
+    {
+
+        TbBool toggle_pause = is_game_key_pressed(Gkey_TogglePause, true, false);
+        
+        if (is_game_key_pressed(Gkey_PauseMenu, true, false))
+        {
+            TbBool active_menu_closed = false;
+            if ( a_menu_window_is_active() )
+            {
+                turn_off_all_window_menus();
+                active_menu_closed = true;
+                clear_key_pressed(KC_ESCAPE);
+            }
+            if ((game.operation_flags & GOF_Paused)) {
+                toggle_pause = true;
+                clear_key_pressed(KC_ESCAPE);
+            }
+            else if (!active_menu_closed) {
+                toggle_pause = true;
+            }
+        }
+
+      if ( toggle_pause )
       {
         long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave);// the paused flag is currently set to the current pause state, not the state we are about to enter
         LbGrabMouseCheck(grab_check_flags);
@@ -906,22 +947,8 @@ static TbBool get_level_lost_inputs(void)
         }
       }
     }
-    if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE))
-    {
-      clear_key_pressed(KC_ESCAPE);
-      if ( a_menu_window_is_active() )
-      {
-        turn_off_all_window_menus();
-      }
-      else
-      {
-          if (menu_is_active(GMnu_MAIN))
-          {
-            fake_button_click(BID_OPTIONS);
-          }
-        turn_on_menu(GMnu_OPTIONS);
-      }
-    }
+    get_options_menu_inputs();
+
     TbBool inp_done=false;
     switch (player->view_type)
     {
@@ -2422,27 +2449,11 @@ static void get_dungeon_control_nonaction_inputs(void)
       set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
       pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
   }
-  if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
+  if (is_game_key_pressed(Gkey_ExitGame, true, false))
   {
-    clear_key_pressed(KC_X);
     turn_on_menu(GMnu_QUIT);
   }
-  if (lbKeyOn[KC_ESCAPE])
-  {
-      lbKeyOn[KC_ESCAPE] = 0;
-      if (a_menu_window_is_active())
-      {
-          turn_off_all_window_menus();
-      }
-      else
-      {
-          if (menu_is_active(GMnu_MAIN))
-          {
-              fake_button_click(BID_OPTIONS);
-          }
-          turn_on_menu(GMnu_OPTIONS);
-      }
-  }
+  get_options_menu_inputs();
   if ((player->allocflags & PlaF_NewMPMessage) == 0)
   {
       switch (player->view_mode)
@@ -2629,22 +2640,125 @@ static void get_creature_control_nonaction_inputs(void)
                 set_packet_control(pckt, PCtr_Descend);
         }
     }
-    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
-    {
-        clear_key_pressed(KC_ESCAPE);
-        if (a_menu_window_is_active())
+    get_options_menu_inputs();
+}
+
+static void get_player_gui_clicks(void)
+{
+  if ( ((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
+    return;
+  struct PlayerInfo *player = get_my_player();
+  switch (player->view_type)
+  {
+  case PVT_CreaturePasngr:
+      if (right_button_released)
+      {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        if (thing->class_id == TCls_Creature)
         {
+          if (a_menu_window_is_active())
+          {
+            game.view_mode_flags &= ~GNFldD_CreaturePasngr;
+            player->allocflags &= ~PlaF_CreaturePassengerMode;
             turn_off_all_window_menus();
+          } else
+          {
+            game.view_mode_flags |= GNFldD_CreaturePasngr;
+            player->allocflags |= PlaF_CreaturePassengerMode;
+            turn_on_menu(GMnu_QUERY);
+          }
         }
-        else
+      }
+      break;
+  case PVT_CreatureContrl:
+  case PVT_MapScreen:
+  case PVT_MapFadeIn:
+  case PVT_MapFadeOut:
+      break;
+  default:
+      if (right_button_clicked)
+      {
+          if (right_click_tag_mode_toggle)
+          {
+              if (player->work_state == PSt_CtrlDungeon)
+              {
+                  switch (player->primary_cursor_state)
+                  {
+                      case CSt_PickAxe:
+                      {
+                          if (!a_menu_window_is_active())
+                          {
+                              if (!left_button_held)
+                              {
+                                  long mode = settings.highlight_mode;
+                                  mode ^= 1;
+                                  set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
+                              }
+                              else
+                              {
+                                  set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                  right_button_clicked = 0;
+                              }
+                          }
+                      break;
+                      }
+                      case CSt_PowerHand:
+                      {
+                         if (player->thing_under_hand == 0)
+                         {
+                             if (!a_menu_window_is_active())
+                             {
+                                if (flag_is_set(player->additional_flags, PlaAF_ChosenSubTileIsHigh))
+                                {
+                                    if (!left_button_held)
+                                    {
+                                        long mode = settings.highlight_mode;
+                                        mode ^= 1;
+                                        set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
+                                    }
+                                    else
+                                    {
+                                        set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                    }
+                                    right_button_clicked = 0;
+                                }
+                             }
+                          }
+                         break;
+                       } 
+                  }
+              }
+          }
+        // do NOT do right_button_clicked = 0 here: it breaks dropping creatures!
+      }
+      if (right_button_released)
+      {
+        if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
         {
-            if (menu_is_active(GMnu_MAIN))
+          if ( !turn_off_all_window_menus() )
+          {
+            if (player->work_state == PSt_CreatrQuery)
             {
-                fake_button_click(BID_OPTIONS);
+              turn_off_query_menus();
+              set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
+              right_button_released = 0;
+            } else
+            if ((player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CreatrInfoAll) && (player->work_state != PSt_CtrlDungeon))
+            {
+              set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
+              right_button_released = 0;
             }
-            turn_on_menu(GMnu_OPTIONS);
+          }
         }
-    }
+      } else
+        get_options_menu_inputs();
+      break;
+  }
+
+  if ( game_is_busy_doing_gui() )
+  {
+    set_players_packet_control(player, PCtr_Gui);
+  }
 }
 
 static TbBool active_menu_functions_while_paused(void)
@@ -2677,7 +2791,7 @@ static short get_inputs(void)
         set_players_packet_position(get_packet(my_player_number), 0, 0 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
-            if (is_game_key_pressed(Gkey_TogglePause, true, false))
+            if (is_game_key_pressed(Gkey_PauseMenu, true, false) || is_game_key_pressed(Gkey_TogglePause, true, false))
             {
                 set_packet_pause_toggle();
             }
