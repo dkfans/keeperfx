@@ -1870,6 +1870,14 @@ void turn_off_query(PlayerNumber plyr_idx)
     set_player_instance(player, PI_UnqueryCrtr, 0);
 }
 
+long filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterParam, long)
+{
+    if (player_is_keeper(thing->owner)) {
+        return INT32_MAX;
+    }
+    return -1;
+}
+
 void level_lost_go_first_person(PlayerNumber plyr_idx)
 {
     struct CreatureControl *cctrl;
@@ -1886,11 +1894,19 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     }
     spectator_breed = get_players_spectator_model(plyr_idx);
     player->dungeon_camera_zoom = get_camera_zoom(get_player_active_camera(player));
-    thing = create_and_control_creature_as_controller(player, spectator_breed, &dungeon->mappos);
+    struct CompoundTngFilterParam param = {};
+    param.class_id = TCls_Creature;
+    struct Thing *spawn_creatng = get_random_thing_of_class_with_filter(filter_creatures_owned_by_keepers, &param, plyr_idx);
+    if (!thing_exists(spawn_creatng)) {
+        return;
+    }
+    struct Coord3d mappos = spawn_creatng->mappos;
+    thing = create_and_control_creature_as_controller(player, spectator_breed, &mappos);
     if (thing_is_invalid(thing)) {
         ERRORLOG("Unable to create spectator creature");
         return;
     }
+    move_creature_to_nearest_valid_position(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->creature_control_flags |= CCFlg_NoCompControl;
     SYNCDBG(8,"Finished");
