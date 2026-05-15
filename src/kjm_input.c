@@ -212,9 +212,6 @@ static void get_button_snapping_inputs(void)
 static float get_input_delta_time()
 {
     static TbClockMSec delta_time_previous_msec = 0;
-    if (LbTimerClock == NULL) {
-        return 0.0f;
-    }
 
     TbClockMSec current_msec = LbTimerClock();
     if (delta_time_previous_msec == 0 || current_msec < delta_time_previous_msec) {
