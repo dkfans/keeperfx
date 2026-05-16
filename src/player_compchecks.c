@@ -432,7 +432,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
         priority += 10000 * cctrl->exp_level; // experience earned by the creature has a big value
         if (get_creature_state_type(thing) == CrStTyp_Work)
             priority += 500; // aborted work valued at this many gold
-        if (get_creature_state_type(thing) == CrStTyp_DeepWork)
+        else if (get_creature_state_type(thing) == CrStTyp_DeepWork)
             priority += 2000; // aborted important work valued at this many gold
         if (anger_is_creature_angry(thing))
             priority /= 2; // angry creatures have lower value
