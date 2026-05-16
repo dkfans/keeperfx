@@ -955,12 +955,17 @@ static int lua_Add_corpse_to_level(lua_State* L)
     ThingModel crtr_id = luaL_checkNamedCommand(L, 1, creature_desc);
     TbMapLocation location = luaL_checkLocation(L, 2);
     CrtrExpLevel crtr_level = lua_tointeger(L, 3);
-    TbBool dying = lua_toboolean(L, 4);
+    TbBool dying = false;
     PlayerNumber plr_idx = luaL_optPlayerSingle(L, 5);
 
+    if (!lua_isnoneornil(L, 4))
+    {
+        dying = lua_toboolean(L, 4);
+    }
     struct Coord3d pos;
     if (!get_coords_at_location(&pos, location, true))
     {
+        SCRPTERRLOG("Invalid location");
         return 0;
     }
 
