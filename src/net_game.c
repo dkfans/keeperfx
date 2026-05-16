@@ -321,9 +321,24 @@ static TbBool replace_network_player_with_ai(struct PlayerInfo *player, const ch
     return true;
 }
 
+static void stop_network_game_state(void)
+{
+    memset(net_player_info, 0, sizeof(net_player_info));
+    clear_flag(game.system_flags, GSF_NetworkActive);
+    clear_flag(game.system_flags, GSF_NetGameNoSync);
+    clear_flag(game.system_flags, GSF_NetSeedNoSync);
+    fe_network_active = 0;
+    game.game_kind = GKind_LocalGame;
+    game.input_lag_turns = 0;
+    game.skip_initial_input_turns = 0;
+    multiplayer_speed_adjustment_ns = 0;
+    setup_count_players();
+}
+
 static void stop_network_game_and_quit(short complete_quit)
 {
     LbNetwork_Stop();
+    stop_network_game_state();
     quit_game = 1;
     if (complete_quit) {
         exit_keeper = 1;
@@ -333,14 +348,7 @@ static void stop_network_game_and_quit(short complete_quit)
 static void stop_network_game_and_continue_locally(void)
 {
     LbNetwork_Stop();
-    game.input_lag_turns = 0;
-    game.skip_initial_input_turns = 0;
-    multiplayer_speed_adjustment_ns = 0;
-    memset(net_player_info, 0, sizeof(net_player_info));
-    clear_flag(game.system_flags, GSF_NetworkActive);
-    fe_network_active = 0;
-    game.game_kind = GKind_LocalGame;
-    setup_count_players();
+    stop_network_game_state();
     get_my_player()->display_objective_turn = get_gameturn() + 1;
 }
 
