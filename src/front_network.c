@@ -236,15 +236,17 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
 
 void setup_alliances(void)
 {
-    for (int i = 0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo* player = get_player(i);
-        if (!is_my_player_number(i) && player_exists(player))
-        {
-            if (frontend_is_player_allied(my_player_number, i))
-            {
-                set_ally_with_player(my_player_number, i, true);
-                set_ally_with_player(i, my_player_number, true);
+    for (int i = 0; i < MAX_NET_USERS; i++) {
+        if (!player_exists(get_player(i))) {
+            continue;
+        }
+        for (int k = i + 1; k < MAX_NET_USERS; k++) {
+            if (!player_exists(get_player(k))) {
+                continue;
+            }
+            if (frontend_is_player_allied(i, k)) {
+                set_ally_with_player(i, k, true);
+                set_ally_with_player(k, i, true);
             }
         }
     }
@@ -522,8 +524,7 @@ static void process_frontend_packets(void)
     frontend_alliances = 0;
   }
   for (i = 0; i < MAX_NET_USERS; i++) {
-    nspckt = &net_screen_packet[i];
-    if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) == 0) {
+    if (!network_player_active(i)) {
       if (frontend_is_player_allied(my_player_number, i)) {
         frontend_set_alliance(my_player_number, i);
       }
