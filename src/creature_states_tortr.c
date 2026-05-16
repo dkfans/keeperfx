@@ -467,10 +467,10 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
 }
 
 /*
- * Make spell effects permanent.
- * Torture is also a form of damage, effects caused by spells should be permanent and should not be lost when the spell ends.
+ * Accumulate the extra torture progress gained while temporary Speed or Slap effects are active,
+ * so that the bonus progress already earned is not lost once those effects expire.
  */
-void update_torture_effect_extern_turn(const struct Thing *thing)
+void update_torture_effect_extend_turn(const struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     const long ext_fac = 300; // Unit 1 is too small, integer division will lose precision, so use factor
@@ -549,7 +549,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     {
         return CrCkRet_Available;
     }
-    update_torture_effect_extern_turn(creatng);
+    update_torture_effect_extend_turn(creatng);
     // Torture must take some time before it has any affect.
     long convert_time = compute_torture_convert_time(creatng, room);
     if ((convert_time < crconf->torture_break_time) || (cctrl->tortured.assigned_torturer == 0))
