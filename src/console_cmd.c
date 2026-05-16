@@ -107,7 +107,31 @@ extern TbBool process_players_global_packet_action(PlayerNumber plyr_idx);
 
 static struct GuiBoxOption cmd_comp_procs_data[COMPUTER_PROCESSES_COUNT + 3] = {
   {"!", 1, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0 }
-  };
+};
+
+static struct NamedCommand creature_model_command_aliases[] = {
+    {"beetle", 24},
+    {"mistress", 20},
+    {"biledemon", 22},
+    {"hound", 27},
+    {"priestess", 9},
+    {"warlock", 21},
+    {"sorcerer", 21},
+    {"reaper", 14},
+    {"hornedreaper", 14},
+    {"dwarf", 5},
+    {"mountaindwarf", 5},
+    {"spirit", 31},
+    {"floatingspirit", 31},
+    {"any_creature", CREATURE_ANY},
+    {"any", CREATURE_ANY},
+    {"evil_creature", 250},
+    {"evil", 250},
+    {"good_creature", 249},
+    {"good", 249},
+    {"hero", 249},
+    {NULL, 0}
+};
 
 static char cmd_comp_procs_label[COMPUTER_PROCESSES_COUNT + 2][COMMAND_WORD_LEN + 8];
 
@@ -1057,29 +1081,13 @@ void param_auto_completion_for_create_creature(PlayerNumber plyr_idx, char *args
     memset(suggested_key_list, 0, sizeof(suggested_key_list));
 
     // refer to get_creature_model_for_command function
-    suggested_key_list[suggested_key_cnt++] = "beetle";
-    suggested_key_list[suggested_key_cnt++] = "mistress";
-    suggested_key_list[suggested_key_cnt++] = "biledemon";
-    suggested_key_list[suggested_key_cnt++] = "hound";
-    suggested_key_list[suggested_key_cnt++] = "priestess";
-    suggested_key_list[suggested_key_cnt++] = "warlock";
-    suggested_key_list[suggested_key_cnt++] = "sorcerer";
-    suggested_key_list[suggested_key_cnt++] = "reaper";
-    suggested_key_list[suggested_key_cnt++] = "hornedreaper";
-    suggested_key_list[suggested_key_cnt++] = "dwarf";
-    suggested_key_list[suggested_key_cnt++] = "mountaindwarf";
-    suggested_key_list[suggested_key_cnt++] = "spirit";
-    suggested_key_list[suggested_key_cnt++] = "floatingspirit";
-    suggested_key_list[suggested_key_cnt++] = "any_creature";
-    suggested_key_list[suggested_key_cnt++] = "any";
-    suggested_key_list[suggested_key_cnt++] = "evil_creature";
-    suggested_key_list[suggested_key_cnt++] = "evil";
-    suggested_key_list[suggested_key_cnt++] = "good_creature";
-    suggested_key_list[suggested_key_cnt++] = "good";
-    suggested_key_list[suggested_key_cnt++] = "hero";
+    long i = 0;
+    for (i=0; creature_model_command_aliases[i].name != NULL && suggested_key_cnt < suggested_key_max; i++)
+    {
+        suggested_key_list[suggested_key_cnt++] = creature_model_command_aliases[i].name;
+    }
 
     suggested_key_list[suggested_key_cnt++] = "RANDOM";
-    long i;
     for (i = 0; creature_desc[i].name != NULL && suggested_key_cnt < suggested_key_max; i++)
     {
         suggested_key_list[suggested_key_cnt++] = creature_desc[i].name;
@@ -2587,58 +2595,14 @@ static long get_creature_model_for_command(char *msg)
     }
     else
     {
-        if (strcasecmp(msg, "beetle") == 0)
+        long i = 0;
+        for (i=0; creature_model_command_aliases[i].name != NULL; i++)
         {
-            return 24;
+            if (strcasecmp(msg, creature_model_command_aliases[i].name) == 0)
+                return creature_model_command_aliases[i].num;
         }
-        else if (strcasecmp(msg, "mistress") == 0)
-        {
-            return 20;
-        }
-        else if (strcasecmp(msg, "biledemon") == 0)
-        {
-            return 22;
-        }
-        else if (strcasecmp(msg, "hound") == 0)
-        {
-            return 27;
-        }
-        else if (strcasecmp(msg, "priestess") == 0)
-        {
-            return 9;
-        }
-        else if ( (strcasecmp(msg, "warlock") == 0) || (strcasecmp(msg, "sorcerer") == 0) )
-        {
-            return 21;
-        }
-        else if ( (strcasecmp(msg, "reaper") == 0) || (strcasecmp(msg, "hornedreaper") == 0) )
-        {
-            return 14;
-        }
-        else if ( (strcasecmp(msg, "dwarf") == 0) || (strcasecmp(msg, "mountaindwarf") == 0) )
-        {
-            return 5;
-        }
-        else if ( (strcasecmp(msg, "spirit") == 0) || (strcasecmp(msg, "floatingspirit") == 0) )
-        {
-            return 31;
-        }
-        else if ( (strcasecmp (msg, "any_creature") == 0) || (strcasecmp(msg, "any") == 0))
-        {
-            return CREATURE_ANY;
-        }
-        else if ( (strcasecmp(msg, "evil_creature") == 0) || (strcasecmp(msg, "evil") == 0))
-        {
-            return 250;
-        }
-        else if ( (strcasecmp(msg, "good_creature") == 0) || (strcasecmp(msg, "good") == 0) || (strcasecmp(msg, "hero") == 0))
-        {
-            return 249;
-        }
-        else
-        {
-            return -1;
-        }
+
+        return -1;
     }
 }
 
