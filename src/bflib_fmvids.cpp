@@ -575,7 +575,7 @@ struct movie_t {
 			}
 			wait_for_pts();
 			output_video_frame();
-			if (!LbWindowsControl()) {
+			if (!poll_inputs()) {
 				return false;
 			} else if (m_flags & SMK_NoStopOnUserInput) {
 				return true;

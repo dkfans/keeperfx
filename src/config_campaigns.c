@@ -94,6 +94,7 @@ const struct NamedCommand cmpgn_map_ensign_flag_options[] = {
   {"BONUS",           EnsBonus},
   {"FULL_MOON",       EnsFullMoon},
   {"NEW_MOON",        EnsNewMoon},
+  {"COOP",            EnsCoop},
   {NULL,              0},
   };
 

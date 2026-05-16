@@ -54,3 +54,22 @@ function ChangeCreatureOwner(creature,new_owner) end
 ---@param operation any
 ---@param annoyance integer
 function ChangeCreaturesAnnoyance(player,creature,operation,annoyance) end
+
+---Place any shot at a specific place on the map
+---@param shot_type shot_type The shot name from fxdata\magic.cfg
+---@param location location Where the shot is spawned.
+---@param player playersingle The owner of the shot.
+---@param hit_type hit_type What the shot can hit.
+---@param target? Thing When used the shot will target the thing. If not, use Thing:set_velocity to move the shot.
+---@param speed? integer speed / the distance it moves to the target every tick
+---@return Thing shot
+function AddShotToLevel(shot_type,location,player, hit_type,target,speed) local shot return shot end
+
+---Place any corpse at a specific place on the map
+---@param creature creature_type
+---@param location location
+---@param experience integer The experience level of the corpse. Determines the size.
+---@param dying? boolean If the corpse is still falling down when spawned.
+---@param owner? playersingle The owner of the corpse.
+---@return Thing object
+function AddCorpseToLevel(creature,location,experience,dying,owner) local ob return ob end

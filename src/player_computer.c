@@ -1222,11 +1222,13 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         WARNLOG("Tried to setup player %d which can't be used this way",(int)plyr_idx);
         return false;
     }
+    struct PlayerInfo* player = get_player(plyr_idx);
     if(!player_is_keeper(plyr_idx))
     {
-        struct PlayerInfo* player = get_player(plyr_idx);
         player->player_type = PT_Keeper;
     }
+    if (player->generate_speed == 0)
+        player->generate_speed = game.conf.rules[player->id_number].rooms.default_generate_speed;
     struct Computer2* comp = get_computer_player(plyr_idx);
     if (computer_player_invalid(comp)) {
         ERRORLOG("Tried to setup player %d which has no computer capability",(int)plyr_idx);
