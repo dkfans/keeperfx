@@ -7543,3 +7543,13 @@ msgstr "Teleport Standard"
 msgctxt "Menu interface item"
 msgid "Multiplayer Map Packs"
 msgstr "Mehrspieler-Kartenpakete"
+
+#: guitext:1111
+msgctxt "Menu interface item"
+msgid "Return to Lobby"
+msgstr "Zurück zur Lobby"
+
+#: guitext:1112
+msgctxt "In-game message"
+msgid "You have been defeated. As host, keep the game running until the match concludes."
+msgstr "Ihr wurdet besiegt. Als Host müsst Ihr das Spiel weiterlaufen lassen, bis die Partie endet."

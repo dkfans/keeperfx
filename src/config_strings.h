@@ -460,6 +460,7 @@ enum GUIStrings {
     GUIStr_TeleportDefault,
     GUIStr_MnuMpMapPacks,
     GUIStr_MnuReturnToLobby,
+    GUIStr_NetHostLostWaitingForPlayers,
     GuiStrEnd
 };
 

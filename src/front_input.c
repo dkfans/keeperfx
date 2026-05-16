@@ -31,6 +31,7 @@
 #include "bflib_fileio.h"
 #include "net_exchange_common.h"
 #include "net_exchange_gameplay.h"
+#include "net_game.h"
 #include "net_lobby.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
@@ -736,6 +737,11 @@ static short get_global_inputs(void)
   {
       if (player->victory_state != VicS_Undecided)
       {
+        if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()))
+        {
+            clear_key_pressed(KC_SPACE);
+            return true;
+        }
         if ( timer_enabled() )
         {
             update_time();

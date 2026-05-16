@@ -7493,3 +7493,8 @@ msgstr ""
 msgctxt "Menu interface item"
 msgid "Return to Lobby"
 msgstr ""
+
+#: guitext:1112
+msgctxt "In-game message"
+msgid "You have been defeated. As host, keep the game running until the match concludes."
+msgstr "Você foi derrotado. Como host, mantenha o jogo em execução até a partida terminar."

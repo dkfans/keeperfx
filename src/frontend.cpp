@@ -61,6 +61,7 @@
 #include "front_lvlstats.h"
 #include "front_easter.h"
 #include "front_network.h"
+#include "net_game.h"
 #include "frontmenu_net.h"
 #include "frontmenu_options.h"
 #include "frontmenu_specials.h"
@@ -3584,7 +3585,11 @@ void update_player_objectives(PlayerNumber plyr_idx)
           display_objectives(player->id_number, 0, 0);
           break;
       case VicS_LostLevel:
-          set_level_objective(player->id_number, get_string(CpgStr_LevelLost));
+          TextStringId msg_idx = CpgStr_LevelLost;
+          if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id())) {
+              msg_idx = GUIStr_NetHostLostWaitingForPlayers;
+          }
+          set_level_objective(player->id_number, get_string(msg_idx));
           display_objectives(player->id_number, 0, 0);
           break;
       }

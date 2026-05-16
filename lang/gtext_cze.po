@@ -7261,3 +7261,8 @@ msgstr ""
 msgctxt "Menu interface item"
 msgid "Return to Lobby"
 msgstr ""
+
+#: guitext:1112
+msgctxt "In-game message"
+msgid "You have been defeated. As host, keep the game running until the match concludes."
+msgstr "Byl jsi poražen. Jako hostitel ponech hru spuštěnou, dokud zápas neskončí."

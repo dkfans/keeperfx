@@ -647,6 +647,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_NoOperation:
       return 1;
   case PckA_FinishGame:
+      if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()) && (player->victory_state != VicS_Undecided))
+      {
+        return 0;
+      }
       if (is_my_player(player))
       {
         turn_off_all_menus();
