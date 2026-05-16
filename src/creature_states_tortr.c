@@ -69,6 +69,7 @@ short at_kinky_torture_room(struct Thing *thing)
     cctrl->turns_at_job = get_gameturn();
     cctrl->tortured.start_gameturn = get_gameturn();
     cctrl->tortured.state_start_turn = get_gameturn();
+    cctrl->tortured.effect_extend_turn_x300 = 0;
     cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
     cctrl->tortured.torturer_start_turn = get_gameturn();
     internal_set_thing_state(thing, get_continue_state_for_job(Job_KINKY_TORTURE));
@@ -103,6 +104,7 @@ short at_torture_room(struct Thing *thing)
     cctrl->turns_at_job = get_gameturn();
     cctrl->tortured.start_gameturn = get_gameturn();
     cctrl->tortured.state_start_turn = get_gameturn();
+    cctrl->tortured.effect_extend_turn_x300 = 0;
     cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
     cctrl->tortured.torturer_start_turn = get_gameturn();
     internal_set_thing_state(thing, get_continue_state_for_job(Job_PAINFUL_TORTURE));
@@ -464,6 +466,30 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     return 1;
 }
 
+/*
+ * Make spell effects permanent.
+ * Torture is also a form of damage, effects caused by spells should be permanent and should not be lost when the spell ends.
+ */
+void update_torture_effect_extern_turn(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    const long ext_fac = 300; // Unit 1 is too small, integer division will lose precision, so use factor
+    long ext_val = ext_fac;
+    // same as process_work_speed_on_work_value and get_creature_instance_times
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
+    {
+        ext_val = ext_val * 2;
+    }
+    if (creature_affected_by_slap(thing))
+    {
+        ext_val = ext_val * 4 / 3;
+    }
+
+    ext_val -= ext_fac;
+    if (ext_val > 0)
+        cctrl->tortured.effect_extend_turn_x300 += ext_val;
+}
+
 /**
  * Computes the average time required for a torture victim to be converted in given room.
  *
@@ -473,35 +499,19 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
 long compute_torture_convert_time(const struct Thing *thing, const struct Room *room)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    long i = ((long)get_gameturn() - cctrl->tortured.start_gameturn) * room->efficiency / ROOM_EFFICIENCY_MAX;
-    if (creature_under_spell_effect(thing, CSAfF_Speed))
-    {
-        i = (4 * i) / 3;
-    }
-    if (creature_affected_by_slap(thing))
-    {
-        i = (5 * i) / 4;
-    }
-    return i;
-}
 
-/**
- * Computes the average time required for a torture victim to start revealing information.
- *
- * @param thing The victim creature.
- * @param room The torture chamber room.
- */
-long compute_torture_broke_chance(const struct Thing *thing)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    long i = ((long)get_gameturn() - cctrl->tortured.start_gameturn) - (long)crconf->torture_break_time;
-    return (i/64 + 1);
+    long torture_turns = (long)get_gameturn() - (long)cctrl->tortured.start_gameturn;
+    if (cctrl->tortured.effect_extend_turn_x300 > 0) {
+        const long ext_fac = 300;
+        torture_turns += cctrl->tortured.effect_extend_turn_x300 / ext_fac;
+    }
+
+    long convert_time = torture_turns * room->efficiency / ROOM_EFFICIENCY_MAX;
+    return convert_time;
 }
 
 CrCheckRet process_torture_function(struct Thing *creatng)
 {
-    long i;
     struct Room *room = get_room_creature_works_in(creatng);
     if (!room_still_valid_as_type_for_thing(room, RoRoF_Torture, creatng))
     {
@@ -539,14 +549,16 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     {
         return CrCkRet_Available;
     }
+    update_torture_effect_extern_turn(creatng);
     // Torture must take some time before it has any affect.
-    i = compute_torture_convert_time(creatng, room);
-    if ((i < crconf->torture_break_time) || (cctrl->tortured.assigned_torturer == 0))
+    long convert_time = compute_torture_convert_time(creatng, room);
+    if ((convert_time < crconf->torture_break_time) || (cctrl->tortured.assigned_torturer == 0))
     {
         return CrCkRet_Available;
     }
+    long broke_chance = (convert_time - (long)crconf->torture_break_time)/64 + 1;
     // After that, every time broke chance is hit, do something.
-    if (THING_RANDOM(creatng, 100) < compute_torture_broke_chance(creatng))
+    if (THING_RANDOM(creatng, 100) < broke_chance)
     {
         if (THING_RANDOM(creatng, 100) >= (int)game.conf.rules[room->owner].rooms.torture_death_chance)
         {
@@ -559,6 +571,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
             else
             { // Revealing information about enemy and continuing the torture.
                 cctrl->tortured.start_gameturn = (long)get_gameturn() - (long)crconf->torture_break_time / 2;
+		cctrl->tortured.effect_extend_turn_x300 = 0;
                 reveal_players_map_to_player(creatng, room->owner);
                 return CrCkRet_Available;
             }

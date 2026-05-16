@@ -243,6 +243,7 @@ struct CreatureControl {
         GameTurn start_gameturn;
         GameTurn state_start_turn;
         GameTurn torturer_start_turn;
+        long effect_extend_turn_x300;
         ThingIndex assigned_torturer;
         unsigned char vis_state;
       } tortured;
