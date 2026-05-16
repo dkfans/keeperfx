@@ -24,6 +24,7 @@
 #include "power_specials.h"
 #include "thing_creature.h"
 #include "thing_effects.h"
+#include "thing_shots.h"
 #include "magic_powers.h"
 
 #include "lua_base.h"
@@ -908,17 +909,64 @@ static int lua_Add_object_to_level_at_pos(lua_State *L)
     return 1;
 }
 
+static int lua_Add_shot_to_level(lua_State *L)
+{
+    ThingModel shot_id     = luaL_checkNamedCommand(L,1,shot_desc);
+    TbMapLocation location = luaL_checkLocation(L,  2);
+    PlayerNumber owner     = luaL_checkPlayerSingle(L, 3);
+    int hittype            = luaL_checkNamedCommand(L, 4, hit_type_desc);
+    struct Thing *target   = luaL_optCheckThing(L, 5);
+    int32_t speed          = luaL_optCheckinteger(L, 6);
+
+    ThingIndex target_index;
+
+    if (thing_is_invalid(target))
+    {
+        target_index = 0;
+    }
+    else
+    {
+        target_index = target->index;
+    }
+    struct Thing* shottng = script_process_new_shot(shot_id, location, owner, target_index, hittype);
+    lua_pushThing(L, shottng);
+    if (!thing_is_invalid(target))
+    {
+        if (!thing_is_invalid(shottng))
+        {
+            shottng->move_angle_xy = get_angle_xy_to(&shottng->mappos, &target->mappos);
+            shottng->move_angle_z = get_angle_yz_to(&shottng->mappos, &target->mappos);
+            if (speed != 0)
+            {
+                struct ComponentVector cvect;
+                angles_to_vector(shottng->move_angle_xy, shottng->move_angle_z, speed, &cvect);
+                shottng->veloc_push_add.x.val += cvect.x;
+                shottng->veloc_push_add.y.val += cvect.y;
+                shottng->veloc_push_add.z.val += cvect.z;
+                shottng->state_flags |= TF1_PushAdd;
+            }
+        }
+    }
+    return 1;
+}
+
 static int lua_Add_corpse_to_level(lua_State* L)
 {
     ThingModel crtr_id = luaL_checkNamedCommand(L, 1, creature_desc);
     TbMapLocation location = luaL_checkLocation(L, 2);
     CrtrExpLevel crtr_level = lua_tointeger(L, 3);
-    TbBool dying = lua_toboolean(L, 4);
-    PlayerNumber plr_idx = luaL_optPlayerSingle(L, 5);
+    TbBool dying = false;
+    PlayerNumber plr_idx = PLAYER_NEUTRAL;
+    if (!lua_isnoneornil(L, 4))
+    {
+        dying = lua_toboolean(L, 4);
+        plr_idx = luaL_optPlayerSingle(L, 5);
+    }
 
     struct Coord3d pos;
     if (!get_coords_at_location(&pos, location, true))
     {
+        SCRPTERRLOG("Invalid location");
         return 0;
     }
 
@@ -2299,6 +2347,7 @@ static const luaL_Reg global_methods[] = {
    {"AddHeartHealth"                      ,lua_Add_heart_health                },
    {"AddObjectToLevel"                    ,lua_Add_object_to_level             },
    {"AddObjectToLevelAtPos"               ,lua_Add_object_to_level_at_pos      },
+   {"AddShotToLevel"                      ,lua_Add_shot_to_level               },
    {"AddEffectGeneratorToLevel"           ,lua_Add_effect_generator_to_level   },
    {"AddCorpseToLevel"                    ,lua_Add_corpse_to_level             },
    {"PlaceDoor"                           ,lua_Place_door                      },
@@ -2402,7 +2451,7 @@ static const luaL_Reg game_meta[] = {
     {NULL, NULL}
 };
 */
-static void global_register(lua_State *L)
+static void Global_register(lua_State *L)
 {
     //luaL_newlib(L, global_methods);
     for (size_t i = 0; i < (sizeof(global_methods)/sizeof(global_methods[0])); i++)
@@ -2416,15 +2465,17 @@ static void global_register(lua_State *L)
 void Player_register(lua_State *L);
 void Thing_register(lua_State *L);
 void Slab_register(lua_State *L);
-void room_register(lua_State *L);
+void Room_register(lua_State *L);
+void Camera_register(lua_State *L);
 void Lens_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
     Player_register(L);
-    global_register(L);
+    Global_register(L);
     Thing_register(L);
     Slab_register(L);
-    room_register(L);
+    Room_register(L);
+    Camera_register(L);
     Lens_register(L);
 }
