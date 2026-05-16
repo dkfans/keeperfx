@@ -296,9 +296,11 @@ static void resolve_network_quit_outcome(struct PlayerInfo *player)
 
 static TbBool network_has_connected_human_opponents(void)
 {
+    struct PlayerInfo *myplyr = get_my_player();
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo *player = get_player(i);
-        if (player_exists(player) && !is_my_player(player) && player->is_active == 1 && (player->allocflags & PlaF_CompCtrl) == 0 && network_player_active(player->packet_num)) {
+        if (player_exists(player) && !is_my_player(player) && player->is_active == 1 && (player->allocflags & PlaF_CompCtrl) == 0
+         && network_player_active(player->packet_num) && players_are_enemies(myplyr->id_number, player->id_number)) {
             return true;
         }
     }
