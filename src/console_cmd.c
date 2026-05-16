@@ -95,12 +95,6 @@ char *strsep(char ** stringp, const char * delim) {
 
 
 
-struct ConsoleCommand {
-    const char * name;
-    TbBool (* function)(PlayerNumber, char *);
-    void (* param_auto_completion)(PlayerNumber, char *, size_t);
-};
-
 #define AUTO_COMP_FLAG_DONE -1
 #define AUTO_COMP_FLAG_ZERO_POSS -2
 #define AUTO_COMP_FLAG_MULTI_POSS -3
@@ -2283,6 +2277,13 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+
+
+struct ConsoleCommand {
+    const char * name;
+    TbBool (* function)(PlayerNumber, char *);
+    void (* param_auto_completion)(PlayerNumber, char *, size_t);
+};
 
 static const struct ConsoleCommand console_commands[] = {
     { "stats", cmd_stats, NULL },
