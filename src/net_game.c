@@ -393,7 +393,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         if (winning_quit && (plyr_count > 1)) {
             myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
         }
-        if ((player != myplyr) && (myplyr->victory_state == VicS_WonLevel)) {
+        if ((player != myplyr) && (myplyr->victory_state != VicS_Undecided)) {
             stop_network_game_and_continue_locally();
         } else {
             stop_network_game_and_quit(complete_quit);
@@ -434,7 +434,7 @@ void process_disconnected_network_players(void)
         message = "Network connection to host lost";
     }
     message_add(MsgType_Player, my_player_number, message);
-    if (myplyr->victory_state == VicS_WonLevel) {
+    if (myplyr->victory_state != VicS_Undecided) {
         stop_network_game_and_continue_locally();
     } else {
         stop_network_game_and_quit(false);
