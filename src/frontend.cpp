@@ -3772,10 +3772,12 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_LEVEL_STATS:
         if ((game.system_flags & GSF_NetworkActive) != 0)
             return FeSt_NET_SESSION;
+        lvnum = get_loaded_level_number();
+        if (is_multiplayer_level(lvnum))
+            return get_menu_state_based_on_last_level(lvnum);
         player = get_my_player();
         if (player->victory_state == VicS_WonLevel)
             return FeSt_HIGH_SCORES;
-        lvnum = get_loaded_level_number();
         return get_menu_state_based_on_last_level(lvnum);
     case FeSt_HIGH_SCORES:
         if (fe_high_score_table_from_main_menu)
