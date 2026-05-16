@@ -2408,7 +2408,7 @@ int do_auto_completion_from_suggested_key(const char *key_list[], int key_cnt, c
     int same_count = 0;
     int *same_idx = NULL;
     if (!check_for_param)
-        same_idx = (int *)calloc(sizeof(int), key_cnt); // alloc and free only need for check_for_cmd
+        same_idx = (int *)calloc(key_cnt, sizeof(int)); // alloc and free only need for check_for_cmd
 
     for (int i = 0; i < key_cnt; ++i)
     {
@@ -2475,7 +2475,7 @@ int do_auto_completion_from_suggested_key(const char *key_list[], int key_cnt, c
         if (poss_str_ret != NULL)
         {
             // multiple possibilities, list these
-            char *poss_str = (char *)calloc(64, same_count);
+            char *poss_str = (char *)calloc(same_count, 64);
             for (int i=0; i<same_count; i++)
             {
                 int idx = same_idx[i];
