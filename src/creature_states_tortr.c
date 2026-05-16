@@ -571,7 +571,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
             else
             { // Revealing information about enemy and continuing the torture.
                 cctrl->tortured.start_gameturn = (long)get_gameturn() - (long)crconf->torture_break_time / 2;
-		cctrl->tortured.effect_extend_turn_x300 = 0;
+                cctrl->tortured.effect_extend_turn_x300 = 0;
                 reveal_players_map_to_player(creatng, room->owner);
                 return CrCkRet_Available;
             }
