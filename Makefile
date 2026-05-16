@@ -137,6 +137,7 @@ obj/bflib_vidraw_spr_norm.o \
 obj/bflib_vidraw_spr_onec.o \
 obj/bflib_vidraw_spr_remp.o \
 obj/bflib_vidsurface.o \
+obj/button_snapping.o \
 obj/cdrom.o \
 obj/config.o \
 obj/config_campaigns.o \
@@ -653,7 +654,6 @@ libexterns: libexterns.mk
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
 	-$(RM) -rf deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl
-	-$(RM) deps/libcurl-mingw32.tar.gz
 	-$(RM) libexterns
 
 deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl:

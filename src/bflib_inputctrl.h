@@ -50,16 +50,13 @@ extern volatile TbBool lbMouseGrabbed;
 extern volatile TbBool lbAppActive;
 extern unsigned char last_used_input_device;
 
-extern float movement_accum_x;
-extern float movement_accum_y;
 /******************************************************************************/
-TbBool LbWindowsControl(void);
+TbBool LbPollInputs(void);
 TbBool LbIsActive(void);
 TbBool LbIsMouseActive(void);
 void LbGrabMouseCheck(long grab_event);
 void LbGrabMouseInit(void);
 void LbSetMouseGrab(TbBool grab_mouse);
-void controller_rumble(long ms);
 /******************************************************************************/
 #ifdef __cplusplus
 }

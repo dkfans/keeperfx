@@ -267,7 +267,7 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
         tmdelta = 10;
     while (LbTimerClock() < end_time)
     {
-        LbWindowsControl();
+        poll_inputs();
         copy_raw8_image_to_screen_center(raw, width, height);
         if (is_key_pressed(KC_SPACE, KMod_DONTCARE)
          || is_key_pressed(KC_ESCAPE, KMod_DONTCARE)
@@ -483,7 +483,7 @@ TbBool wait_for_installation_files(void)
         redraw_bitmap_screen(&nocd_bmp);
         do
         {
-            if (!LbWindowsControl())
+            if (!poll_inputs())
                 exit_keeper = 1;
             if ((exit_keeper) || (quit_game))
               break;
