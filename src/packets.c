@@ -647,7 +647,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_NoOperation:
       return 1;
   case PckA_FinishGame:
-      if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()) && (player->victory_state != VicS_Undecided))
+      if ((player->victory_state == VicS_LostLevel) && ((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()))
       {
         return 0;
       }

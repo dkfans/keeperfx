@@ -737,7 +737,7 @@ static short get_global_inputs(void)
   {
       if (player->victory_state != VicS_Undecided)
       {
-        if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()))
+        if ((player->victory_state == VicS_LostLevel) && ((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()))
         {
             clear_key_pressed(KC_SPACE);
             return true;
