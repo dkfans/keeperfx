@@ -97,6 +97,19 @@ enum GameKeys {
     Gkey_LVShowAllEnsigns,
     Gkey_LVNextLevel,
     Gkey_LVPrevLevel,
+    Gkey_NextInstance,
+    Gkey_PrevInstance,
+    Gkey_ButtonSnapLeft,
+    Gkey_ButtonSnapRight,
+    Gkey_ButtonSnapUp,
+    Gkey_ButtonSnapDown,
+    Gkey_PauseMenu,
+    Gkey_LeftClick,
+    Gkey_RightClick,    
+    Gkey_MouseUp,
+    Gkey_MouseDown,
+    Gkey_MouseLeft,
+    Gkey_MouseRight,
     GAME_KEYS_COUNT
 };
 
@@ -132,6 +145,7 @@ struct GamekeySettings {
     TextStringId string_id; // For display in the key binding menu
     uint8_t default_code;
     uint8_t default_mods;
+    TbControllerButtons default_controller_buttons;
     uint8_t binding_menu_visibility;
 
 };
@@ -145,12 +159,14 @@ extern long old_my;
 /******************************************************************************/
 void input(void);
 short get_screen_capture_inputs(void);
-int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods);
+int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);
 short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];
 TbBool check_current_gui_layer(long layer_id);
 TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health);
+TbControllerButtons get_game_key_controller_buttons(long key_id);
+float get_game_key_axis_value(long key_id, TbBool ignore_mods);
 
 /******************************************************************************/
 #ifdef __cplusplus

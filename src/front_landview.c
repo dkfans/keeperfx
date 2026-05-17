@@ -393,6 +393,10 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             }
             if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
                 ensign_sprite_index++;
+            if (lvinfo->ensign_type == EnsCoop)
+            {
+                ensign_sprite_index = ensign_sprite_index + 6;
+            }
         }
         else
         {
@@ -1111,7 +1115,7 @@ void frontmap_draw(void)
 void check_mouse_scroll(void)
 {
     long mx = GetMouseX();
-    if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, NULL, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
+    if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, false, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
     {
         map_info.velocity_x -= LANDVIEW_PAN_ACCEL * game.delta_time;
         if (map_info.velocity_x < -LANDVIEW_PAN_MAX_SPEED)
@@ -1119,7 +1123,7 @@ void check_mouse_scroll(void)
         if (map_info.velocity_x > LANDVIEW_PAN_MAX_SPEED)
             map_info.velocity_x = LANDVIEW_PAN_MAX_SPEED;
   } else
-  if ( (mx >= lbDisplay.PhysicalScreenWidth-8) || ( (is_game_key_pressed(Gkey_MoveRight, NULL, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
+  if ( (mx >= lbDisplay.PhysicalScreenWidth-8) || ( (is_game_key_pressed(Gkey_MoveRight, false, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
   {
     map_info.velocity_x += LANDVIEW_PAN_ACCEL * game.delta_time;
     if (map_info.velocity_x < -LANDVIEW_PAN_MAX_SPEED)
@@ -1128,7 +1132,7 @@ void check_mouse_scroll(void)
       map_info.velocity_x = LANDVIEW_PAN_MAX_SPEED;
   }
   long my = GetMouseY();
-  if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, NULL, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
+  if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, false, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
   {
     map_info.velocity_y -= LANDVIEW_PAN_ACCEL * game.delta_time;
     if (map_info.velocity_y < -LANDVIEW_PAN_MAX_SPEED)
@@ -1136,7 +1140,7 @@ void check_mouse_scroll(void)
     if (map_info.velocity_y > LANDVIEW_PAN_MAX_SPEED)
       map_info.velocity_y = LANDVIEW_PAN_MAX_SPEED;
   } else
-  if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, NULL, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
+  if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, false, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
   {
     map_info.velocity_y += LANDVIEW_PAN_ACCEL * game.delta_time;
     if (map_info.velocity_y < -LANDVIEW_PAN_MAX_SPEED)
@@ -1258,18 +1262,16 @@ void frontmap_input(void)
     }
     if (zoom_done)
     {
-         int32_t val;
       check_mouse_scroll();
-      if (is_game_key_pressed(Gkey_LVShowAllEnsigns, &val, false))
+      if (is_game_key_pressed(Gkey_LVShowAllEnsigns, true, false))
       {
         if (game.easter_eggs_enabled == true)
         {
           set_all_ensigns_state(LvSt_Visible);
-          clear_key_pressed(val);
           return;
         }
       }
-      if (is_game_key_pressed(Gkey_LVNextLevel, &val, false))
+      if (is_game_key_pressed(Gkey_LVNextLevel, true, false))
       {
         if (game.easter_eggs_enabled == true)
         {
@@ -1277,11 +1279,10 @@ void frontmap_input(void)
           frontmap_unload();
           frontmap_load();
           //update_ensigns_visibility();
-          clear_key_pressed(val);
           return;
         }
       }
-      if (is_game_key_pressed(Gkey_LVPrevLevel, &val, false))
+      if (is_game_key_pressed(Gkey_LVPrevLevel, true, false))
       {
         if (game.easter_eggs_enabled == true)
         {
@@ -1289,7 +1290,6 @@ void frontmap_input(void)
           frontmap_unload();
           frontmap_load();
           //update_ensigns_visibility();
-          clear_key_pressed(val);
           return;
         }
       }

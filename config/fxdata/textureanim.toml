@@ -244,3 +244,7 @@ frames = [1073,1074,1074,1071,1071,1072,1072,1073]
 [texture603]
 name = "intermediate_gold_near_lava3"
 frames = [1072,1072,1073,1073,1074,1074,1071,1071]
+
+[texture604]
+name = "rock_near_water"
+frames = [1075,1076,1077,1078,1079,1080,1081,1082]

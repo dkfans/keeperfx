@@ -568,10 +568,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
         if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
         {
             struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-            HitPoints door_health = doortng->health;
-            doortng->health -= boulder->health; // decrease door health
-            boulder->health -= door_health; // decrease boulder health
-            if (doortng->health <= 0)
+            if (collide_door_and_boulder(doortng, boulder) <= 0)
             {
                 return 2; // door destroyed
             }
@@ -3356,7 +3353,7 @@ void redetect_screen_refresh_rate_for_draw()
 TbBool keeper_wait_for_screen_focus(void)
 {
     do {
-        if ( !LbWindowsControl() )
+        if ( !poll_inputs() )
         {
           force_application_close();
           break;
@@ -3418,7 +3415,7 @@ void gameplay_loop_logic()
     }
 #endif // FUNCTESTING
     do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
-    LbWindowsControl();
+    poll_inputs();
     input_eastegg();
     input();
     update();
@@ -3515,7 +3512,7 @@ extern "C" void network_yield_draw_frontend()
         fronttorture_update();
     }
     if (frontend_menu_state == FeSt_NET_START) {
-        LbWindowsControl();
+        poll_inputs();
         frontnet_start_input();
     }
     frontend_draw();
@@ -3791,7 +3788,7 @@ static TbBool wait_at_frontend(void)
     frontend_set_state(get_startup_menu_state());
     try_restore_frontend_error_box();
 
-    LbWindowsControl();
+    poll_inputs();
     clear_mouse_pressed_lrbutton();
 
     short finish_menu = 0;
@@ -3801,7 +3798,7 @@ static TbBool wait_at_frontend(void)
     long fe_last_loop_time = LbTimerClock();
     do
     {
-      if (!LbWindowsControl())
+      if (!poll_inputs())
       {
         force_application_close();
         SYNCDBG(0,"Windows Control exit condition invoked");

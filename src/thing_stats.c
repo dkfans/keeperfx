@@ -20,7 +20,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_inputctrl.h"
+#include "bflib_joyst.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"
@@ -1065,6 +1065,52 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
         }
     }
     return dmg;
+}
+
+HitPoints collide_door_and_boulder(struct Thing* doortng, struct Thing* boulder)
+{
+    const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+    TbBool is_magic = flag_is_set(doorst->model_flags, DoMF_ResistNonMagic);
+    TbBool is_midas = flag_is_set(doorst->model_flags, DoMF_Midas);
+
+    HitPoints boulder_damage = boulder->health;
+    HitPoints door_health = doortng->health;
+    HitPoints boulder_health = boulder->health;
+    HitPoints absorbed = 0;
+
+    if (is_magic)
+    {
+        boulder_damage /= 8;
+        if (boulder_damage < 1)
+            boulder_damage = 1;
+    }
+
+    if (is_midas)
+    {
+        absorbed = reduce_damage_for_midas(doortng->owner, max(door_health, boulder_damage), doorst->health);
+    }
+
+    // Generate effects for the gold taken.
+    for (int i = absorbed; i > 0; i -= 32)
+    {
+        create_effect(&doortng->mappos, TngEff_CoinFountain, doortng->owner);
+    }
+    //Door health is reduced by the damage done by the boulder, what is not absorbed by midas. But never more than it has health.
+    door_health -= min((boulder_damage - absorbed), door_health);
+
+    if (is_magic)
+    {
+        absorbed *= 8;
+    }
+    boulder_health -= ((doortng->health - door_health)*(1+(is_magic*7)) + absorbed);
+
+    doortng->health = door_health;
+    boulder->health = boulder_health;
+    if (door_health > 0 && boulder_health > 0)
+    {
+        ERRORLOG("%s (health %d) and %s (health %d) both survived a collision. Only one should have health remaining.", thing_model_name(doortng), doortng->health, thing_model_name(boulder), boulder->health);
+    }
+    return doortng->health;
 }
 
 /**
