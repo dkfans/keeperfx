@@ -81,6 +81,7 @@
 ---@field PLAYER_SCORE integer The highest level score reached, only set when the level is won. Before that it is 0
 ---@field MANAGE_SCORE integer Part of level score, based on quality of the dungeon
 ---@field heart Thing The player's primary dungeon heart
+---@field camera Camera The player's camera
 if not Player then Player = {} end
 
 

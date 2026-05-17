@@ -61,6 +61,7 @@ src/bflib_vidraw_spr_norm.c \
 src/bflib_vidraw_spr_onec.c \
 src/bflib_vidraw_spr_remp.c \
 src/bflib_vidsurface.c \
+src/button_snapping.c \
 src/config.c \
 src/config_campaigns.c \
 src/config_creature.c \
@@ -185,6 +186,7 @@ src/lua_api_room.c \
 src/lua_api_things.c \
 src/lua_api_slabs.c \
 src/lua_base.c \
+src/lua_api_camera.c \
 src/lua_cfg_funcs.c \
 src/lua_params.c \
 src/lua_triggers.c \

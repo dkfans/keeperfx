@@ -409,7 +409,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             break;
         case EvKind_Objective:
         {
-            strcpy(game.evntbox_scroll_window.text, game.evntbox_text_objective);
+            strcpy(game.evntbox_scroll_window.text, game.evntbox_text_objective[plyr_idx]);
             int k;
             for (i = EVENT_BUTTONS_COUNT; i >= 0; i--)
             {
@@ -811,7 +811,7 @@ void clear_events(void)
     }
     memset(&game.evntbox_scroll_window, 0, sizeof(struct TextScrollWindow));
     memset(&game.evntbox_text_buffer, 0, MESSAGE_TEXT_LEN);
-    memset(&game.evntbox_text_objective, 0, MESSAGE_TEXT_LEN);
+    memset(&game.evntbox_text_objective, 0, sizeof(game.evntbox_text_objective));
     for (i=0; i < 5; i++)
     {
       memset(&game.bookmark[i], 0, sizeof(struct Bookmark));

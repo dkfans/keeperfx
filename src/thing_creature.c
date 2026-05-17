@@ -609,9 +609,13 @@ TbBool set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
     return true;
 }
 
+/*
+ * hand-feeding, or creatures picking up nearby food randomly
+ */
 void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    long old_hunger_level = cctrl->hunger_level;
     if (cctrl->instance_id == CrInst_NULL)
     {
         set_creature_instance(creatng, CrInst_EAT, 0, 0);
@@ -628,8 +632,14 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     }
     // Food is destroyed just below, so the sound must be made by creature
     thing_play_sample(creatng, 112+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+
+    anger_set_creature_anger(creatng, 0, AngR_Hungry);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    anger_apply_anger_to_creature(creatng, crconf->annoy_eat_food, AngR_Hungry, 1);
+    if (crconf->annoy_eat_food > 0 || old_hunger_level > (long)crconf->hunger_rate) {
+        // As food(It means <0), happiness can only be obtained when a creature is hungry. But for those who dislike it(It means >0), every time is torture.
+        anger_apply_anger_to_creature(creatng, crconf->annoy_eat_food, AngR_Other, 1);
+    }
+
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.chickens_eaten++;

@@ -567,10 +567,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
         if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
         {
             struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-            HitPoints door_health = doortng->health;
-            doortng->health -= boulder->health; // decrease door health
-            boulder->health -= door_health; // decrease boulder health
-            if (doortng->health <= 0)
+            if (collide_door_and_boulder(doortng, boulder) <= 0)
             {
                 return 2; // door destroyed
             }
@@ -1895,15 +1892,12 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player;
-    long pos_x;
-    long pos_y;
-    player = get_my_player();
-    find_map_location_coords(target, &x, &y, my_player_number, __func__);
-    pos_x = 0;
-    pos_y = 0;
+    struct PlayerInfo *player = get_player(plyr_idx);
+    long pos_x = 0;
+    long pos_y = 0;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
         pos_y = subtile_coord_center(y);
@@ -1912,15 +1906,12 @@ void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x,
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player;
-    long pos_x;
-    long pos_y;
-    player = get_my_player();
-    find_map_location_coords(target, &x, &y, my_player_number, __func__);
-    pos_x = 0;
-    pos_y = 0;
+    struct PlayerInfo *player = get_player(plyr_idx);
+    long pos_x = 0;
+    long pos_y = 0;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
         pos_y = subtile_coord_center(y);
@@ -1929,22 +1920,17 @@ void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, M
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
+void set_general_objective(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, long x, long y)
 {
-    process_objective(get_string(msg_id), target, x, y);
+    process_objective(get_string(msg_id), plyr_idx, target, x, y);
 }
 
-void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void process_objective(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player;
-    MapSubtlCoord pos_x;
-    MapSubtlCoord pos_y;
-    player = get_my_player();
-    find_map_location_coords(target, &x, &y, my_player_number, __func__);
-    pos_y = y;
-    pos_x = x;
-    set_level_objective(msg_text);
-    display_objectives(player->id_number, pos_x, pos_y);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
+    set_level_objective(player->id_number, msg_text);
+    display_objectives(player->id_number, x, y);
 }
 
 short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count)
@@ -3340,7 +3326,7 @@ void redetect_screen_refresh_rate_for_draw()
 TbBool keeper_wait_for_screen_focus(void)
 {
     do {
-        if ( !LbWindowsControl() )
+        if ( !poll_inputs() )
         {
           force_application_close();
           break;
@@ -3402,7 +3388,7 @@ void gameplay_loop_logic()
     }
 #endif // FUNCTESTING
     do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
-    LbWindowsControl();
+    poll_inputs();
     input_eastegg();
     input();
     update();
@@ -3472,7 +3458,7 @@ extern "C" void network_yield_draw_frontend()
         fronttorture_update();
     }
     if (frontend_menu_state == FeSt_NET_START) {
-        LbWindowsControl();
+        poll_inputs();
         frontnet_start_input();
     }
     frontend_draw();
@@ -3750,7 +3736,7 @@ static TbBool wait_at_frontend(void)
     frontend_set_state(get_startup_menu_state());
     try_restore_frontend_error_box();
 
-    LbWindowsControl();
+    poll_inputs();
     clear_mouse_pressed_lrbutton();
 
     short finish_menu = 0;
@@ -3760,7 +3746,7 @@ static TbBool wait_at_frontend(void)
     long fe_last_loop_time = LbTimerClock();
     do
     {
-      if (!LbWindowsControl())
+      if (!poll_inputs())
       {
         force_application_close();
         SYNCDBG(0,"Windows Control exit condition invoked");

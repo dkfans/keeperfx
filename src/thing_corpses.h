@@ -37,6 +37,7 @@ enum DeadCreatureStates {
     DCrSt_Unused = 0,
     DCrSt_Dying,
     DCrSt_Dead,
+    DCrSt_LongDead,
 };
 
 #pragma pack()

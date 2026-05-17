@@ -197,6 +197,14 @@ enum TbScriptCommands {
     Cmd_SHOW_BONUS_LEVEL                   = 185,
     Cmd_HIDE_BONUS_LEVEL                   = 186,
     Cmd_HIDE_HERO_GATE                     = 187,
+    Cmd_DISPLAY_PLAYER_OBJECTIVE           = 188,
+    Cmd_DISPLAY_PLAYER_INFORMATION         = 189,
+    Cmd_DISPLAY_PLAYER_OBJECTIVE_WITH_POS  = 190,
+    Cmd_DISPLAY_PLAYER_INFORMATION_WITH_POS  = 191,
+    Cmd_QUICK_PLAYER_OBJECTIVE             = 192,
+    Cmd_QUICK_PLAYER_INFORMATION           = 193,
+    Cmd_QUICK_PLAYER_OBJECTIVE_WITH_POS    = 194,
+    Cmd_QUICK_PLAYER_INFORMATION_WITH_POS  = 195,
 };
 
 struct ScriptLine {
@@ -330,6 +338,7 @@ ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle);
 struct Thing* script_process_new_effectgen(ThingModel crmodel, TbMapLocation location, long range);
+struct Thing* script_process_new_corpse(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, CrtrExpLevel exp_level, TbBool dying);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3);
 void set_variable(int player_idx, long var_type, long var_idx, long new_val);
