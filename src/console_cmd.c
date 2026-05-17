@@ -93,12 +93,45 @@ char *strsep(char ** stringp, const char * delim) {
 }
 #endif
 
+
+
+#define AUTO_COMP_FLAG_DONE -1
+#define AUTO_COMP_FLAG_ZERO_POSS -2
+#define AUTO_COMP_FLAG_MULTI_POSS -3
+int do_auto_completion_from_suggested_key(const char *key_list[], int key_cnt, char *completion_str, size_t completion_len, size_t completion_size, TbBool check_for_param, char **poss_str_ret);
+
+
+
 extern void render_set_sprite_debug(int level);
 extern TbBool process_players_global_packet_action(PlayerNumber plyr_idx);
 
 static struct GuiBoxOption cmd_comp_procs_data[COMPUTER_PROCESSES_COUNT + 3] = {
   {"!", 1, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0 }
-  };
+};
+
+static struct NamedCommand creature_model_command_aliases[] = {
+    {"beetle", 24},
+    {"mistress", 20},
+    {"biledemon", 22},
+    {"hound", 27},
+    {"priestess", 9},
+    {"warlock", 21},
+    {"sorcerer", 21},
+    {"reaper", 14},
+    {"hornedreaper", 14},
+    {"dwarf", 5},
+    {"mountaindwarf", 5},
+    {"spirit", 31},
+    {"floatingspirit", 31},
+    {"any_creature", CREATURE_ANY},
+    {"any", CREATURE_ANY},
+    {"evil_creature", 250},
+    {"evil", 250},
+    {"good_creature", 249},
+    {"good", 249},
+    {"hero", 249},
+    {NULL, 0}
+};
 
 static char cmd_comp_procs_label[COMPUTER_PROCESSES_COUNT + 2][COMMAND_WORD_LEN + 8];
 
@@ -1026,6 +1059,57 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
     }
     return true;
 }
+
+void param_auto_completion_for_create_creature(PlayerNumber plyr_idx, char *args_str, size_t args_size)
+{
+    char *pr2_str = args_str + strspn(args_str, " ");
+    char *pr3_str = strchr(pr2_str, ' ');
+    if (pr3_str != NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion is only supported for parameter 1 as creature model");
+        return;
+    }
+
+    size_t pr2_len = strlen(pr2_str);
+    if (parameter_is_number(pr2_str)) {
+         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion for numeric creature model is not supported");
+        return;
+    }
+
+    const int suggested_key_max = 1024;
+    int suggested_key_cnt = 0;
+    const char *suggested_key_list[suggested_key_max];
+    memset(suggested_key_list, 0, sizeof(suggested_key_list));
+
+    // refer to get_creature_model_for_command function
+    long i = 0;
+    for (i=0; creature_model_command_aliases[i].name != NULL && suggested_key_cnt < suggested_key_max; i++)
+    {
+        suggested_key_list[suggested_key_cnt++] = creature_model_command_aliases[i].name;
+    }
+
+    suggested_key_list[suggested_key_cnt++] = "RANDOM";
+    for (i = 0; creature_desc[i].name != NULL && suggested_key_cnt < suggested_key_max; i++)
+    {
+        suggested_key_list[suggested_key_cnt++] = creature_desc[i].name;
+    }
+
+    char *poss_str = NULL;
+    TbBool check_for_param = false;
+    int ret = do_auto_completion_from_suggested_key(suggested_key_list, suggested_key_cnt, pr2_str, pr2_len, args_size-(pr2_str-args_str), check_for_param, &poss_str);
+
+    if (poss_str != NULL) {
+        if (ret == AUTO_COMP_FLAG_MULTI_POSS)
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Possible creature model: %s", poss_str);
+        free(poss_str);
+    }
+    if (ret == AUTO_COMP_FLAG_DONE)
+        return;
+    if (ret == AUTO_COMP_FLAG_ZERO_POSS) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unsupported creature model");
+        return;
+    }
+}
+
 
 TbBool cmd_create_thing(PlayerNumber plyr_idx, char * args)
 {
@@ -2202,169 +2286,172 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
 }
 
 
+
 struct ConsoleCommand {
     const char * name;
     TbBool (* function)(PlayerNumber, char *);
+    void (* param_auto_completion)(PlayerNumber, char *, size_t);
 };
-// the name must have consistent capitalization to support auto completion functionality.
-// currently all are in lowercase.
+
 static const struct ConsoleCommand console_commands[] = {
-    { "stats", cmd_stats },
-    { "fps", cmd_fps_turn },
-    { "fps.draw", cmd_fps_draw },
-    { "frametime", cmd_frametime },
-    { "ft", cmd_frametime },
-    { "frametime.max", cmd_frametime_max },
-    { "ft.max", cmd_frametime_max },
-    { "netstats", cmd_network_stats },
-    { "quit", cmd_quit },
-    { "time", cmd_time },
-    { "timer.toggle", cmd_timer_toggle },
-    { "timer.switch", cmd_timer_switch },
-    { "turn", cmd_turn },
-    { "pause", cmd_pause },
-    { "step", cmd_step },
-    { "game.save", cmd_game_save },
-    { "game.load", cmd_game_load },
-    { "cls", cmd_cls },
-    { "ver", cmd_ver },
-    { "volume", cmd_volume },
-    { "volume.sound", cmd_volume_sound },
-    { "volume.sfx", cmd_volume_sound },
-    { "volume.music", cmd_volume_music },
-    { "volume.soundtrack", cmd_volume_music },
-    { "compuchat", cmd_compuchat },
-    { "comp.procs", cmd_comp_procs },
-    { "comp.events", cmd_comp_events },
-    { "comp.checks", cmd_comp_checks },
-    { "reveal", cmd_reveal },
-    { "conceal", cmd_conceal },
-    { "comp.kill", cmd_comp_kill },
-    { "player.score", cmd_player_score },
-    { "player.flag", cmd_player_flag },
-    { "comp.me", cmd_comp_me },
-    { "magic.instance", cmd_magic_instance },
-    { "give.trap", cmd_give_trap },
-    { "trap.give", cmd_give_trap },
-    { "give.door", cmd_give_door },
-    { "door.give", cmd_give_door },
-    { "map.pool", cmd_map_pool },
-    { "creature.pool", cmd_map_pool },
-    { "gold.create", cmd_create_gold },
-    { "create.gold", cmd_create_gold },
-    { "look", cmd_look },
-    { "object.create", cmd_create_object },
-    { "create.object", cmd_create_object },
-    { "creature.create", cmd_create_creature },
-    { "create.creature", cmd_create_creature },
-    { "thing.create", cmd_create_thing },
-    { "create.thing", cmd_create_thing },
-    { "slab.place", cmd_place_slab },
-    { "place.slab", cmd_place_slab },
-    { "room.available", cmd_room_available },
-    { "power.give", cmd_give_power },
-    { "spell.give", cmd_give_power },
-    { "player.heart.health", cmd_player_heart_health },
-    { "creature.available", cmd_creature_available },
-    { "creature.addhealth", cmd_creature_add_health },
-    { "creature.health.add", cmd_creature_add_health },
-    { "creature.subhealth", cmd_creature_sub_health },
-    { "creature.health.sub", cmd_creature_sub_health },
-    { "digger.sendto", cmd_send_digger_to },
-    { "creature.instance.set", cmd_set_creature_instance },
-    { "creature.state.set", cmd_set_creature_state },
-    { "creature.job.set", cmd_set_creature_job },
-    { "mapwho.info", cmd_mapwho_info },
-    { "thing.info", cmd_thing_info },
-    { "creature.attackheart", cmd_creature_attack_heart },
-    { "player.addgold", cmd_player_gold_add },
-    { "player.gold.add", cmd_player_gold_add },
-    { "cursor.pos", cmd_cursor_pos },
-    { "thing.get", cmd_get_thing },
-    { "thing.show_id", cmd_thing_show_id },
-    { "thing.health", cmd_thing_health },
-    { "thing.move", cmd_move_thing },
-    { "thing.destroy", cmd_destroy_thing },
-    { "room.get", cmd_get_room },
-    { "room.health", cmd_room_health },
-    { "slab.health", cmd_slab_health },
-    { "creature.pool.add", cmd_creature_pool_add },
-    { "creature.pool.sub", cmd_creature_pool_sub },
-    { "creature.pool.remove", cmd_creature_pool_sub },
-    { "creature.level", cmd_creature_level },
-    { "creature.freeze", cmd_freeze_creature },
-    { "creature.slow", cmd_slow_creature },
-    { "music.set", cmd_set_music },
-    { "zoomto", cmd_zoom_to },
-    { "bug.toggle", cmd_toggle_classic_bug },
-    { "actionpoint.pos", cmd_get_action_point_pos },
-    { "actionpoint.zoomto", cmd_zoom_to_action_point },
-    { "actionpoint.reset", cmd_reset_action_point },
-    { "herogate.zoomto", cmd_zoom_to_hero_gate },
-    { "sound.test", cmd_sound_test },
-    { "speech.test", cmd_speech_test },
-    { "player.color", cmd_player_colour},
-    { "player.colour", cmd_player_colour},
-    { "possession.lock", cmd_possession_lock},
-    { "possession.unlock", cmd_possession_unlock},
-    { "string.show", cmd_string_show},
-    { "quick.show", cmd_quick_show},
-    { "lua", cmd_lua},
-    { "luatypedump", cmd_luatypedump},
-    { "cheat.menu", cmd_cheat_menu},
-    { "creature.chicken", cmd_chicken_creature},
+    { "stats", cmd_stats, NULL },
+    { "fps", cmd_fps_turn, NULL },
+    { "fps.draw", cmd_fps_draw, NULL },
+    { "frametime", cmd_frametime, NULL },
+    { "ft", cmd_frametime, NULL },
+    { "frametime.max", cmd_frametime_max, NULL },
+    { "ft.max", cmd_frametime_max, NULL },
+    { "netstats", cmd_network_stats, NULL },
+    { "quit", cmd_quit, NULL },
+    { "time", cmd_time, NULL },
+    { "timer.toggle", cmd_timer_toggle, NULL },
+    { "timer.switch", cmd_timer_switch, NULL },
+    { "turn", cmd_turn, NULL },
+    { "pause", cmd_pause, NULL },
+    { "step", cmd_step, NULL },
+    { "game.save", cmd_game_save, NULL },
+    { "game.load", cmd_game_load, NULL },
+    { "cls", cmd_cls, NULL },
+    { "ver", cmd_ver, NULL },
+    { "volume", cmd_volume, NULL },
+    { "volume.sound", cmd_volume_sound, NULL },
+    { "volume.sfx", cmd_volume_sound, NULL },
+    { "volume.music", cmd_volume_music, NULL },
+    { "volume.soundtrack", cmd_volume_music, NULL },
+    { "compuchat", cmd_compuchat, NULL },
+    { "comp.procs", cmd_comp_procs, NULL },
+    { "comp.events", cmd_comp_events, NULL },
+    { "comp.checks", cmd_comp_checks, NULL },
+    { "reveal", cmd_reveal, NULL },
+    { "conceal", cmd_conceal, NULL },
+    { "comp.kill", cmd_comp_kill, NULL },
+    { "player.score", cmd_player_score, NULL },
+    { "player.flag", cmd_player_flag, NULL },
+    { "comp.me", cmd_comp_me, NULL },
+    { "magic.instance", cmd_magic_instance, NULL },
+    { "give.trap", cmd_give_trap, NULL },
+    { "trap.give", cmd_give_trap, NULL },
+    { "give.door", cmd_give_door, NULL },
+    { "door.give", cmd_give_door, NULL },
+    { "map.pool", cmd_map_pool, NULL },
+    { "creature.pool", cmd_map_pool, NULL },
+    { "gold.create", cmd_create_gold, NULL },
+    { "create.gold", cmd_create_gold, NULL },
+    { "look", cmd_look, NULL },
+    { "object.create", cmd_create_object, NULL },
+    { "create.object", cmd_create_object, NULL },
+    { "creature.create", cmd_create_creature, param_auto_completion_for_create_creature },
+    { "create.creature", cmd_create_creature, param_auto_completion_for_create_creature },
+    { "thing.create", cmd_create_thing, NULL },
+    { "create.thing", cmd_create_thing, NULL },
+    { "slab.place", cmd_place_slab, NULL },
+    { "place.slab", cmd_place_slab, NULL },
+    { "room.available", cmd_room_available, NULL },
+    { "power.give", cmd_give_power, NULL },
+    { "spell.give", cmd_give_power, NULL },
+    { "player.heart.health", cmd_player_heart_health, NULL },
+    { "creature.available", cmd_creature_available, NULL },
+    { "creature.addhealth", cmd_creature_add_health, NULL },
+    { "creature.health.add", cmd_creature_add_health, NULL },
+    { "creature.subhealth", cmd_creature_sub_health, NULL },
+    { "creature.health.sub", cmd_creature_sub_health, NULL },
+    { "digger.sendto", cmd_send_digger_to, NULL },
+    { "creature.instance.set", cmd_set_creature_instance, NULL },
+    { "creature.state.set", cmd_set_creature_state, NULL },
+    { "creature.job.set", cmd_set_creature_job, NULL },
+    { "mapwho.info", cmd_mapwho_info, NULL },
+    { "thing.info", cmd_thing_info, NULL },
+    { "creature.attackheart", cmd_creature_attack_heart, NULL },
+    { "player.addgold", cmd_player_gold_add, NULL },
+    { "player.gold.add", cmd_player_gold_add, NULL },
+    { "cursor.pos", cmd_cursor_pos, NULL },
+    { "thing.get", cmd_get_thing, NULL },
+    { "thing.show_id", cmd_thing_show_id, NULL },
+    { "thing.health", cmd_thing_health, NULL },
+    { "thing.move", cmd_move_thing, NULL },
+    { "thing.destroy", cmd_destroy_thing, NULL },
+    { "room.get", cmd_get_room, NULL },
+    { "room.health", cmd_room_health, NULL },
+    { "slab.health", cmd_slab_health, NULL },
+    { "creature.pool.add", cmd_creature_pool_add, NULL },
+    { "creature.pool.sub", cmd_creature_pool_sub, NULL },
+    { "creature.pool.remove", cmd_creature_pool_sub, NULL },
+    { "creature.level", cmd_creature_level, NULL },
+    { "creature.freeze", cmd_freeze_creature, NULL },
+    { "creature.slow", cmd_slow_creature, NULL },
+    { "music.set", cmd_set_music, NULL },
+    { "zoomto", cmd_zoom_to, NULL },
+    { "bug.toggle", cmd_toggle_classic_bug, NULL },
+    { "actionpoint.pos", cmd_get_action_point_pos, NULL },
+    { "actionpoint.zoomto", cmd_zoom_to_action_point, NULL },
+    { "actionpoint.reset", cmd_reset_action_point, NULL },
+    { "herogate.zoomto", cmd_zoom_to_hero_gate, NULL },
+    { "sound.test", cmd_sound_test, NULL },
+    { "speech.test", cmd_speech_test, NULL },
+    { "player.color", cmd_player_colour, NULL },
+    { "player.colour", cmd_player_colour, NULL },
+    { "possession.lock", cmd_possession_lock, NULL },
+    { "possession.unlock", cmd_possession_unlock, NULL },
+    { "string.show", cmd_string_show, NULL },
+    { "quick.show", cmd_quick_show, NULL },
+    { "lua", cmd_lua, NULL },
+    { "luatypedump", cmd_luatypedump, NULL },
+    { "cheat.menu", cmd_cheat_menu, NULL },
+    { "creature.chicken", cmd_chicken_creature, NULL },
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 
-void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
+
+
+int do_auto_completion_from_suggested_key(const char *key_list[], int key_cnt, char *completion_str, size_t completion_len, size_t completion_size, TbBool check_for_param, char **poss_str_ret)
 {
-    SYNCDBG(2, "Command auto completion %s", cmd_str);
-
-    char *space = strchr(cmd_str, ' ');
-    if (space != NULL){
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameters do not support auto completion");
-        return;
-    }
-
-    size_t cmd_len = strlen(cmd_str);
-
-    int *same_idx = (int *)calloc(console_command_count, sizeof(int));
     int same_count = 0;
-    for (int i = 0; i < console_command_count; ++i) {
-        if (strncasecmp(cmd_str, console_commands[i].name, cmd_len) == 0) {
-            same_idx[same_count] = i;
-            same_count++;
+    int *same_idx = NULL;
+    if (!check_for_param)
+        same_idx = (int *)calloc(key_cnt, sizeof(int)); // alloc and free only need for check_for_cmd
+
+    for (int i = 0; i < key_cnt; ++i)
+    {
+        if (strncasecmp(completion_str, key_list[i], completion_len) != 0)
+            continue;
+
+        if (check_for_param) {
+            // do parameter auto completion
+            if (strlen(key_list[i]) == completion_len) {
+                return i;
+            }
+            continue;
         }
+
+        same_idx[same_count] = i;
+        same_count++;
     }
 
-    if (same_count == 0){
-        free(same_idx);
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unsupported command");
-        return;
+    if (same_count == 0 || check_for_param) {
+        if (same_idx)
+            free(same_idx);
+        return AUTO_COMP_FLAG_ZERO_POSS;
     }
 
     int end_flag = 0;
     int auto_len = 0;
 
     // calculate the length that can be automatically completed.
-    // since name of console_commands are all lowercase, there is no need to consider capitalization.
     while(1)
     {
         int last_char = -1;
         for (int i=0; i<same_count; i++)
         {
             int idx = same_idx[i];
-            int cur_char = console_commands[idx].name[cmd_len+auto_len];
-            if (cur_char == 0)
-            {
+            int cur_char = tolower(key_list[idx][completion_len+auto_len]);
+            if (cur_char == 0) {
                 end_flag = 1;
                 break;
             }
 
             if (last_char < 0)
                 last_char = cur_char;
-            else if (last_char != cur_char)
-            {
+            else if (last_char != cur_char) {
                 end_flag = 1;
                 break;
             }
@@ -2374,30 +2461,86 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
         auto_len++;
     }
 
+    int ret = 0;
     if (auto_len != 0)
     {
         int idx = same_idx[0];
-        int len = cmd_size-1 < cmd_len+auto_len ? cmd_size-1 : cmd_len+auto_len;
-        memcpy(cmd_str, console_commands[idx].name, len); // cover all, uniform capitalization.
-        cmd_str[len] = 0;
+        int len = completion_size-1 < completion_len+auto_len ? completion_size-1 : completion_len+auto_len;
+        memcpy(completion_str, key_list[idx], len); // cover all, uniform capitalization.
+        completion_str[len] = 0;
+        ret = AUTO_COMP_FLAG_DONE;
     }
     else
     {
-        // multiple possibilities, list these
-        char *poss_str = (char *)calloc(64, same_count);
-        for (int i=0; i<same_count; i++)
+        if (poss_str_ret != NULL)
         {
-            int idx = same_idx[i];
-            if (i != 0)
-                strcat(poss_str, ", ");
-            strcat(poss_str, console_commands[idx].name);
+            // multiple possibilities, list these
+            char *poss_str = (char *)calloc(same_count, 64);
+            for (int i=0; i<same_count; i++)
+            {
+                int idx = same_idx[i];
+                if (i != 0)
+                    strcat(poss_str, ", ");
+                strcat(poss_str, key_list[idx]);
+            }
+            *poss_str_ret = poss_str;
         }
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Possible commands: %s", poss_str);
-        free(poss_str);
+        ret = AUTO_COMP_FLAG_MULTI_POSS;
     }
 
     free(same_idx);
+
+    return ret;
 }
+
+void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
+{
+    SYNCDBG(2, "Command auto completion %s", cmd_str);
+
+    char *space = strchr(cmd_str, ' ');
+    size_t cmd_len = 0;
+    if (space == NULL)
+        cmd_len = strlen(cmd_str);
+    else
+        cmd_len = space - cmd_str;
+
+    const int suggested_key_max = 1024;
+    int suggested_key_cnt = 0;
+    const char *suggested_key_list[suggested_key_max];
+    memset(suggested_key_list, 0, sizeof(suggested_key_list));
+
+    long i;
+    for (i = 0; i < console_command_count && suggested_key_cnt < suggested_key_max; i++)
+    {
+        suggested_key_list[suggested_key_cnt++] = console_commands[i].name;
+    }
+
+    char *poss_str = NULL;
+    TbBool check_for_param = space != NULL;
+    int ret = do_auto_completion_from_suggested_key(suggested_key_list, suggested_key_cnt, cmd_str, cmd_len, cmd_size, check_for_param, &poss_str);
+
+    if (poss_str != NULL) {
+        if (ret == AUTO_COMP_FLAG_MULTI_POSS)
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Possible commands: %s", poss_str);
+        free(poss_str);
+    }
+    if (ret == AUTO_COMP_FLAG_DONE)
+        return;
+    if (ret == AUTO_COMP_FLAG_ZERO_POSS) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unsupported command");
+        return;
+    }
+    if (ret >= 0) {
+        // do parameter auto completion
+        if (console_commands[ret].param_auto_completion != NULL) {
+            console_commands[ret].param_auto_completion(plyr_idx, space+1, cmd_size-(space+1-cmd_str));
+        } else {
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Command '%s' does not support parameter auto completion", console_commands[ret].name);
+        }
+    }
+}
+
+
 
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
@@ -2452,58 +2595,14 @@ static long get_creature_model_for_command(char *msg)
     }
     else
     {
-        if (strcasecmp(msg, "beetle") == 0)
+        long i = 0;
+        for (i=0; creature_model_command_aliases[i].name != NULL; i++)
         {
-            return 24;
+            if (strcasecmp(msg, creature_model_command_aliases[i].name) == 0)
+                return creature_model_command_aliases[i].num;
         }
-        else if (strcasecmp(msg, "mistress") == 0)
-        {
-            return 20;
-        }
-        else if (strcasecmp(msg, "biledemon") == 0)
-        {
-            return 22;
-        }
-        else if (strcasecmp(msg, "hound") == 0)
-        {
-            return 27;
-        }
-        else if (strcasecmp(msg, "priestess") == 0)
-        {
-            return 9;
-        }
-        else if ( (strcasecmp(msg, "warlock") == 0) || (strcasecmp(msg, "sorcerer") == 0) )
-        {
-            return 21;
-        }
-        else if ( (strcasecmp(msg, "reaper") == 0) || (strcasecmp(msg, "hornedreaper") == 0) )
-        {
-            return 14;
-        }
-        else if ( (strcasecmp(msg, "dwarf") == 0) || (strcasecmp(msg, "mountaindwarf") == 0) )
-        {
-            return 5;
-        }
-        else if ( (strcasecmp(msg, "spirit") == 0) || (strcasecmp(msg, "floatingspirit") == 0) )
-        {
-            return 31;
-        }
-        else if ( (strcasecmp (msg, "any_creature") == 0) || (strcasecmp(msg, "any") == 0))
-        {
-            return CREATURE_ANY;
-        }
-        else if ( (strcasecmp(msg, "evil_creature") == 0) || (strcasecmp(msg, "evil") == 0))
-        {
-            return 250;
-        }
-        else if ( (strcasecmp(msg, "good_creature") == 0) || (strcasecmp(msg, "good") == 0) || (strcasecmp(msg, "hero") == 0))
-        {
-            return 249;
-        }
-        else
-        {
-            return -1;
-        }
+
+        return -1;
     }
 }
 
