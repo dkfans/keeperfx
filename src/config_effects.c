@@ -109,7 +109,8 @@ static void load_effects(VALUE *value, unsigned short flags)
             struct EffectConfigStats *effcst = &game.conf.effects_conf.effect_cfgstats[id];
 
             SET_NAME(section,effect_desc,effcst->code_name);
-            max_effect_id = id;
+            if (max_effect_id < id)
+                max_effect_id = id;
 
             CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelXYRange",effcst->accel_xy_min,effcst->accel_xy_max);
             CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelZRange", effcst->accel_z_min, effcst->accel_z_max);
@@ -132,9 +133,12 @@ static void load_effects(VALUE *value, unsigned short flags)
     // Set sentinel NULL entry to mark the end of valid entries
     if (max_effect_id >= 0)
     {
-        if (max_effect_id + 1 < EFFECTS_TYPES_MAX)
+        if ((flags & CnfLd_AcceptPartial) == 0)
         {
-            effect_desc[max_effect_id + 1].name = NULL;
+            if (max_effect_id + 1 < EFFECTS_TYPES_MAX)
+            {
+                effect_desc[max_effect_id + 1].name = NULL;
+            }
         }
         // Fill any gaps with placeholder entries so get_id() won't terminate early
         for (int id = 0; id <= max_effect_id; id++)
@@ -165,7 +169,8 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
             struct EffectGeneratorConfigStats *effgencst = &game.conf.effects_conf.effectgen_cfgstats[id];
 
             SET_NAME(section,effectgen_desc,effgencst->code_name);
-            max_effectgen_id = id;
+            if (max_effectgen_id < id)
+                max_effectgen_id = id;
 
             CONDITIONAL_ASSIGN_INT(section,"GenerationDelayMin",effgencst->generation_delay_min);
             CONDITIONAL_ASSIGN_INT(section,"GenerationDelayMax",effgencst->generation_delay_max);
@@ -180,12 +185,16 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_ARR2_INT(section,"Sound",effgencst->sound_sample_idx,effgencst->sound_sample_rng);
         }
     }
+
     // Set sentinel NULL entry to mark the end of valid entries
     if (max_effectgen_id >= 0)
     {
-        if (max_effectgen_id + 1 < EFFECTSGEN_TYPES_MAX)
+        if ((flags & CnfLd_AcceptPartial) == 0)
         {
-            effectgen_desc[max_effectgen_id + 1].name = NULL;
+            if (max_effectgen_id + 1 < EFFECTSGEN_TYPES_MAX)
+            {
+                effectgen_desc[max_effectgen_id + 1].name = NULL;
+            }
         }
         // Fill any gaps with placeholder entries so get_id() won't terminate early
         for (int id = 0; id <= max_effectgen_id; id++)
@@ -216,7 +225,8 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             struct EffectElementConfigStats *effelcst = &game.conf.effects_conf.effectelement_cfgstats[id];
 
             SET_NAME(section,effectelem_desc,effelcst->code_name);
-            max_effectelement_id = id;
+            if (max_effectelement_id < id)
+                max_effectelement_id = id;
 
             CONDITIONAL_ASSIGN_INT(section,"DrawClass", effelcst->draw_class);
             CONDITIONAL_ASSIGN_INT(section,"MoveType",  effelcst->move_type);
@@ -263,12 +273,16 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind", effelcst->affected_by_wind );
         }
     }
+
     // Set sentinel NULL entry to mark the end of valid entries
     if (max_effectelement_id >= 0)
     {
-        if (max_effectelement_id + 1 < EFFECTSELLEMENTS_TYPES_MAX)
+        if ((flags & CnfLd_AcceptPartial) == 0)
         {
-            effectelem_desc[max_effectelement_id + 1].name = NULL;
+            if (max_effectelement_id + 1 < EFFECTSELLEMENTS_TYPES_MAX)
+            {
+                effectelem_desc[max_effectelement_id + 1].name = NULL;
+            }
         }
         // Fill any gaps with placeholder entries so get_id() won't terminate early
         for (int id = 0; id <= max_effectelement_id; id++)
