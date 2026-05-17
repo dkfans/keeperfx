@@ -134,6 +134,12 @@ struct CastedSpellData {
     PlayerNumber caster_owner;
 };
 
+
+// As a factor of `tortured.torture_accum_val` for 1 turn, to avoid precision loss caused by integer division, it should be designed as a common multiple that is divisible by all divisors.
+// Now the possible divisors are: 3
+// Note: Since torture_accum_val includes `room->efficiency`, if factor increases in the future, we need to consider switching to int64_t to prevent overflow issues
+#define TORTURE_ACCUM_FAC 3
+
 struct CreatureControl {
     CctrlIndex index;
     unsigned short creature_control_flags;
@@ -240,10 +246,9 @@ struct CreatureControl {
   union // Jobs union
   {
       struct {
-        GameTurn start_gameturn;
         GameTurn state_start_turn;
         GameTurn torturer_start_turn;
-        GameTurnDelta effect_extend_turn_x300;
+        int32_t torture_accum_val;
         ThingIndex assigned_torturer;
         unsigned char vis_state;
       } tortured;
