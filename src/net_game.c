@@ -158,8 +158,8 @@ static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket s
 {
     for (int i = 0; i < MAX_NET_USERS; i++) {
         if (net_player_info[i].network_user_active && startup_sync_packets[i].sprite_zip_checksum != sprite_zip_combined_checksum) {
-            message_add_fmt(MsgType_Player, 0, "Verify /fxdata/ is the same across all PCs.");
-            message_add_fmt(MsgType_Player, 0, "WARNING: Custom sprite mismatch with %s!", network_player_name(i));
+            message_add(MsgType_Player, 0, get_string(GUIStr_NetVerifyFxdataSame));
+            message_add_fmt(MsgType_Player, 0, get_string(GUIStr_NetCustomSpriteMismatch), network_player_name(i));
         }
     }
 }
@@ -308,18 +308,18 @@ static TbBool network_has_connected_human_opponents(void)
     return false;
 }
 
-static TbBool replace_network_player_with_ai(struct PlayerInfo *player, const char *departure_message)
+static TbBool replace_network_player_with_ai(struct PlayerInfo *player, const char *departure_message_format)
 {
     if (is_my_player(player) || (player->allocflags & PlaF_CompCtrl) != 0 || player->victory_state != VicS_Undecided) {
         return false;
     }
     player->allocflags |= PlaF_CompCtrl;
     toggle_computer_player(player->id_number);
-    message_add(MsgType_Player, player->id_number, "I am the computer now!");
-    JUSTLOG("p:%d I am the computer now!", player->id_number);
-    if (departure_message != NULL && player->player_name[0] != '\0') {
-        message_add_fmt(MsgType_Blank, 0, "%s %s", player->player_name, departure_message);
-        JUSTLOG("p:%d %s %s", player->id_number, player->player_name, departure_message);
+    message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
+    JUSTLOG("p:%d computer took over", player->id_number);
+    if (departure_message_format != NULL && player->player_name[0] != '\0') {
+        message_add_fmt(MsgType_Blank, 0, departure_message_format, player->player_name);
+        JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
     }
     return true;
 }
@@ -371,7 +371,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 
     int32_t plyr_count = 0;
     short winning_quit = winning_player_quitting(player, &plyr_count);
-    TbBool replaced_with_ai = replace_network_player_with_ai(player, "has left the game.");
+    TbBool replaced_with_ai = replace_network_player_with_ai(player, get_string(GUIStr_NetPlayerLeftGame));
     if (player != myplyr) {
         OnDroppedUser(player->packet_num, NETDROP_MANUAL);
     }
@@ -414,16 +414,16 @@ void process_disconnected_network_players(void)
         return;
     }
     TbBool host_disconnected = (netstate.my_id != SERVER_ID) && (netstate.users[SERVER_ID].progress == USER_UNUSED);
-    const char *departure_message = "has disconnected.";
+    const char *departure_message_format = get_string(GUIStr_NetPlayerDisconnected);
     if (host_disconnected) {
-        departure_message = NULL;
+        departure_message_format = NULL;
     }
     for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
         struct PlayerInfo *player = get_player(player_index);
         if (!player_exists(player) || is_my_player(player) || (!host_disconnected && network_player_active(player->packet_num))) {
             continue;
         }
-        if (!replace_network_player_with_ai(player, departure_message) && player->victory_state != VicS_Undecided) {
+        if (!replace_network_player_with_ai(player, departure_message_format) && player->victory_state != VicS_Undecided) {
             player->allocflags &= ~PlaF_Allocated;
         }
     }
@@ -433,9 +433,9 @@ void process_disconnected_network_players(void)
     }
     struct PlayerInfo *myplyr = get_my_player();
     resolve_network_quit_outcome(myplyr);
-    const char *message = "Opponent disconnected";
+    const char *message = get_string(GUIStr_NetOpponentDisconnected);
     if (host_disconnected) {
-        message = "Network connection to host lost";
+        message = get_string(GUIStr_NetHostConnectionLost);
     }
     message_add(MsgType_Blank, 0, message);
     if (myplyr->victory_state != VicS_Undecided) {

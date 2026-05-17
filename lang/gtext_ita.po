@@ -7386,3 +7386,38 @@ msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "Sei stato sconfitto. Come host, mantieni il gioco in esecuzione finché la partita non si conclude."
 
+
+#: guitext:1113
+msgctxt "Network game message"
+msgid "Verify /fxdata/ is the same across all PCs."
+msgstr "Verifica che /fxdata/ sia uguale su tutti i PC."
+
+#: guitext:1114
+msgctxt "Network game message"
+msgid "WARNING: Custom sprite mismatch with %s!"
+msgstr "ATTENZIONE: sprite personalizzati non corrispondenti con %s!"
+
+#: guitext:1115
+msgctxt "Network game message"
+msgid "I am the computer now!"
+msgstr "Ora il computer prende il controllo!"
+
+#: guitext:1116
+msgctxt "Network game message"
+msgid "%s has left the game."
+msgstr "%s ha lasciato la partita."
+
+#: guitext:1117
+msgctxt "Network game message"
+msgid "%s has disconnected."
+msgstr "%s si è disconnesso."
+
+#: guitext:1118
+msgctxt "Network game message"
+msgid "Opponent disconnected"
+msgstr "Avversario disconnesso"
+
+#: guitext:1119
+msgctxt "Network game message"
+msgid "Network connection to host lost"
+msgstr "Connessione di rete con l'host persa"

@@ -7274,3 +7274,38 @@ msgstr ""
 msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
 msgstr "패배했습니다. 호스트는 경기가 끝날 때까지 게임을 계속 실행해 주세요."
+
+#: guitext:1113
+msgctxt "Network game message"
+msgid "Verify /fxdata/ is the same across all PCs."
+msgstr "모든 PC의 /fxdata/가 동일한지 확인하십시오."
+
+#: guitext:1114
+msgctxt "Network game message"
+msgid "WARNING: Custom sprite mismatch with %s!"
+msgstr "경고: %s와 사용자 지정 스프라이트가 일치하지 않습니다!"
+
+#: guitext:1115
+msgctxt "Network game message"
+msgid "I am the computer now!"
+msgstr "이제 컴퓨터가 조종합니다!"
+
+#: guitext:1116
+msgctxt "Network game message"
+msgid "%s has left the game."
+msgstr "%s 님이 게임을 떠났습니다."
+
+#: guitext:1117
+msgctxt "Network game message"
+msgid "%s has disconnected."
+msgstr "%s 님의 연결이 끊겼습니다."
+
+#: guitext:1118
+msgctxt "Network game message"
+msgid "Opponent disconnected"
+msgstr "상대의 연결이 끊겼습니다"
+
+#: guitext:1119
+msgctxt "Network game message"
+msgid "Network connection to host lost"
+msgstr "호스트와의 네트워크 연결이 끊겼습니다"
