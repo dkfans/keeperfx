@@ -124,11 +124,13 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
     if (campaign_fname == NULL || campaign_fname[0] == '\0') {
         return false;
     }
-    uint8_t pack = CampgnT_Default;
-    if (lvnum <= 0) {
-        pack = CampgnT_MultiplayerMappack;
+    TbBool campaign_loaded;
+    if ((lvnum <= 0) || is_campaign_in_list(campaign_fname, &mp_mappacks_list)) {
+        campaign_loaded = change_campaign(CampgnT_MultiplayerMappack, campaign_fname);
+    } else {
+        campaign_loaded = change_campaign(CampgnT_Default, campaign_fname);
     }
-    if (!change_campaign(pack, campaign_fname)
+    if (!campaign_loaded
      || (strcasecmp(campaign.fname, campaign_fname) != 0)) {
         ERRORLOG("Unable to load campaign '%s' for level %d", campaign_fname, (int)lvnum);
         return false;
