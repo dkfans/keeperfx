@@ -39,7 +39,9 @@
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
+#include "net_exchange_common.h"
 #include "net_game.h"
+#include "frontmenu_ingame_evnt.h"
 #include "net_resync.h"
 #include "room_library.h"
 #include "room_list.h"
@@ -147,6 +149,7 @@ static void init_level(void)
     lens_mode = 0;
     setup_heap_manager();
 
+    wait_for_all_players();
     init_seeds();
     sync_initial_network_seed();
 
@@ -350,7 +353,10 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     } else
     {
         game.game_kind = GKind_MultiGame;
-        init_players_network_game(context);
+        if (!init_players_network_game()) {
+            coroutine_clear(context, true);
+            return;
+        }
     }
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};

@@ -23,9 +23,7 @@
 #include "bflib_basics.h"
 
 #include "net_exchange_common.h"
-#include "net_main.h"
 #include "net_lobby.h"
-#include "net_input_lag.h"
 #include "bflib_netsession.h"
 #include "bflib_guibtns.h"
 #include "bflib_keybrd.h"
@@ -47,7 +45,9 @@
 #include "game_legacy.h"
 #include "net_matchmaking.h"
 #include "net_lan.h"
+#include "net_input_lag.h"
 #include "bflib_enet.h"
+#include "config_campaigns.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -67,6 +67,13 @@ const struct ConfigInfo default_net_config_info = {
 
 int fe_network_active;
 int net_service_index_selected;
+struct TbNetworkSessionNameEntry *net_session[SESSION_ENTRIES_COUNT];
+long net_number_of_sessions;
+long net_session_index_active;
+struct TbNetworkPlayerName net_player[MAX_NET_USERS];
+struct ConfigInfo net_config_info;
+char net_service[16][NET_SERVICE_LEN];
+char net_player_name[20];
 char tmp_net_player_name[24];
 static TbClockMSec frontnet_ping_stabilization_end_time = 0;
 static int previous_player_count_for_ping_wait = -1;
@@ -77,6 +84,79 @@ static int32_t previous_active_players = 0;
 }
 #endif
 /******************************************************************************/
+static TbBool try_starting_level_from_chat(const char *message, int32_t player_id)
+{
+    const char *separator_pos = strchr(message, ':');
+    if (separator_pos == NULL) {
+        separator_pos = strchr(message, ' ');
+    }
+    if ((separator_pos == NULL) || (separator_pos == message)) {
+        return false;
+    }
+    int32_t campaign_len = separator_pos - message;
+    if (campaign_len >= 64) {
+        return false;
+    }
+    const char *level_str = separator_pos + 1;
+    while (*level_str == ' ') {
+        level_str++;
+    }
+    LevelNumber level_num = -1;
+    if (level_str[0] != '_') {
+        if (!isdigit(level_str[0]) || (player_id != get_host_player_id())) {
+            return false;
+        }
+        level_num = atoi(level_str);
+        if (level_num <= 0) {
+            return false;
+        }
+    }
+    char campaign_filename[80];
+    snprintf(campaign_filename, sizeof(campaign_filename), "%.*s", campaign_len, message);
+    if ((campaign_len < 4) || (strncasecmp(message + campaign_len - 4, ".cfg", 4) != 0)) {
+        strcat(campaign_filename, ".cfg");
+    }
+    return frontnet_start_level(campaign_filename, level_num);
+}
+
+TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
+{
+    if (campaign_fname == NULL || campaign_fname[0] == '\0') {
+        return false;
+    }
+    TbBool campaign_loaded;
+    if ((lvnum <= 0) || is_campaign_in_list(campaign_fname, &mp_mappacks_list)) {
+        campaign_loaded = change_campaign(CampgnT_MultiplayerMappack, campaign_fname);
+    } else {
+        campaign_loaded = change_campaign(CampgnT_Default, campaign_fname);
+    }
+    if (!campaign_loaded
+     || (strcasecmp(campaign.fname, campaign_fname) != 0)) {
+        ERRORLOG("Unable to load campaign '%s' for level %d", campaign_fname, (int)lvnum);
+        return false;
+    }
+    if (lvnum <= 0) {
+        return true;
+    }
+    if (get_level_info(lvnum) == NULL) {
+        ERRORLOG("Campaign '%s' does not contain level %d", campaign_fname, (int)lvnum);
+        return false;
+    }
+    set_selected_level_number(lvnum);
+    fe_network_active = 1;
+    frontend_set_state(FeSt_START_MPLEVEL);
+    return true;
+}
+
+void process_frontend_chat_message(int player_id, const char *message)
+{
+    struct PlayerInfo *player = prepare_network_chat_message(player_id, message);
+    if (message[0] != '\0' && !try_starting_level_from_chat(player->mp_message_text, player_id)) {
+        add_message(player_id, player->mp_message_text);
+    }
+    memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+}
+
 TbBool frontnet_service_selected(enum FrontendNetService service)
 {
     return (net_service_index_selected == service);
@@ -158,15 +238,17 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
 
 void setup_alliances(void)
 {
-    for (int i = 0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo* player = get_player(i);
-        if (!is_my_player_number(i) && player_exists(player))
-        {
-            if (frontend_is_player_allied(my_player_number, i))
-            {
-                set_ally_with_player(my_player_number, i, true);
-                set_ally_with_player(i, my_player_number, true);
+    for (int i = 0; i < MAX_NET_USERS; i++) {
+        if (!player_exists(get_player(i))) {
+            continue;
+        }
+        for (int k = i + 1; k < MAX_NET_USERS; k++) {
+            if (!player_exists(get_player(k))) {
+                continue;
+            }
+            if (frontend_is_player_allied(i, k)) {
+                set_ally_with_player(i, k, true);
+                set_ally_with_player(k, i, true);
             }
         }
     }
@@ -188,7 +270,7 @@ void frontnet_service_update(void)
     }
 }
 
-void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+static void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
     if (net_number_of_enum_players >= 4)
     {
@@ -380,7 +462,7 @@ static void process_frontend_packets(void)
   nspckt->frontend_alliances = frontend_alliances;
   nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
   nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
-  if (LbNetwork_Exchange(NETMSG_FRONTEND, nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
+  if (LbNetwork_ExchangeFrontend(nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
       ERRORLOG("LbNetwork_Exchange failed");
       net_service_index_selected = -1;
   }
@@ -410,6 +492,13 @@ static void process_frontend_packets(void)
                 frontend_set_state(FeSt_NETLAND_VIEW);
             }
             break;
+        case NetAct_OpenLandView:
+            if (version_mismatch_found) {
+                break;
+            }
+            fe_network_active = 1;
+            frontend_set_state(FeSt_NETLAND_VIEW);
+            break;
         case NetAct_SetAlliance:
             frontend_set_alliance(nspckt->action_par1, nspckt->action_par2);
             break;
@@ -437,8 +526,7 @@ static void process_frontend_packets(void)
     frontend_alliances = 0;
   }
   for (i = 0; i < MAX_NET_USERS; i++) {
-    nspckt = &net_screen_packet[i];
-    if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) == 0) {
+    if (!network_player_active(i)) {
       if (frontend_is_player_allied(my_player_number, i)) {
         frontend_set_alliance(my_player_number, i);
       }
@@ -489,7 +577,7 @@ void frontnet_send_campaign_change_message(const char* campaign_fname)
 
     char msg[64];
     snprintf(msg, sizeof(msg), "%s:_", base_name);
-    LbNetwork_SendChatMessageImmediate(my_player_number,msg);
+    send_network_chat_message(my_player_number, msg);
 }
 
 void handle_autostart_multiplayer_messaging(void)

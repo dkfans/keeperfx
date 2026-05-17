@@ -29,8 +29,10 @@
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
-#include "net_lobby.h"
 #include "net_exchange_common.h"
+#include "net_exchange_gameplay.h"
+#include "net_game.h"
+#include "net_lobby.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -419,7 +421,7 @@ static short get_players_message_inputs(void)
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
         if ((game.system_flags & GSF_NetworkActive) != 0) {
-            LbNetwork_SendChatMessageImmediate(player->id_number, player->mp_message_text);
+            send_network_chat_message(player->id_number, player->mp_message_text);
         }
         player->allocflags &= ~PlaF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
@@ -829,7 +831,11 @@ static short get_global_inputs(void)
   if (get_screen_capture_inputs())
       return true;
   if (player->victory_state != VicS_Undecided && is_game_key_pressed(Gkey_FinishLevel, true, false))
-  {
+      {
+        if ((player->victory_state == VicS_LostLevel) && ((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()))
+        {
+            return true;
+        }
         if ( timer_enabled() )
         {
             update_time();

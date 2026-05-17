@@ -7262,3 +7262,43 @@ msgctxt "Menu interface item"
 msgid "Return to Lobby"
 msgstr ""
 
+#: guitext:1112
+msgctxt "In-game message"
+msgid "You have been defeated. As host, keep the game running until the match concludes."
+msgstr "Je bent verslagen. Houd als host het spel draaiende tot de wedstrijd is afgelopen."
+
+
+#: guitext:1113
+msgctxt "Network game message"
+msgid "Verify /fxdata/ is the same across all PCs."
+msgstr "Controleer of /fxdata/ op alle pc's hetzelfde is."
+
+#: guitext:1114
+msgctxt "Network game message"
+msgid "WARNING: Custom sprite mismatch with %s!"
+msgstr "WAARSCHUWING: aangepaste sprites komen niet overeen met %s!"
+
+#: guitext:1115
+msgctxt "Network game message"
+msgid "I am the computer now!"
+msgstr "De computer neemt het nu over!"
+
+#: guitext:1116
+msgctxt "Network game message"
+msgid "%s has left the game."
+msgstr "%s heeft het spel verlaten."
+
+#: guitext:1117
+msgctxt "Network game message"
+msgid "%s has disconnected."
+msgstr "%s is losgekoppeld."
+
+#: guitext:1118
+msgctxt "Network game message"
+msgid "Opponent disconnected"
+msgstr "Tegenstander is losgekoppeld"
+
+#: guitext:1119
+msgctxt "Network game message"
+msgid "Network connection to host lost"
+msgstr "Netwerkverbinding met host verloren"

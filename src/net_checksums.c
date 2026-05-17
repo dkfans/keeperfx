@@ -204,7 +204,8 @@ short checksums_different(void) {
         }
         struct Packet* packet = get_packet_direct(player->packet_num);
         if (is_packet_empty(packet)) {
-            MULTIPLAYER_LOG("checksums_different: packet[%d] is EMPTY", i);
+            ERRORLOG("Missing checksum packet for player %d packet %d; host turn: %d", i, player->packet_num, host_packet->turn);
+            desync_turn = host_packet->turn;
             mismatch = true;
             continue;
         }

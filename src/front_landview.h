@@ -75,7 +75,8 @@ enum NetAction {
     NetAct_Slapping           = 0x08,
     NetAct_Limping            = 0x10,
     NetAct_HostStartLevel     = 0x18,
-    NetAct_SetAlliance        = 0x20,
+    NetAct_OpenLandView       = 0x20,
+    NetAct_SetAlliance        = 0x28,
     NetAct_SetComputerPlayers = 0x38,
 };
 

@@ -460,6 +460,14 @@ enum GUIStrings {
     GUIStr_TeleportDefault,
     GUIStr_MnuMpMapPacks,
     GUIStr_MnuReturnToLobby,
+    GUIStr_NetHostLostWaitingForPlayers,
+    GUIStr_NetVerifyFxdataSame,
+    GUIStr_NetCustomSpriteMismatch,
+    GUIStr_NetAiTookOver,
+    GUIStr_NetPlayerLeftGame,
+    GUIStr_NetPlayerDisconnected,
+    GUIStr_NetOpponentDisconnected,
+    GUIStr_NetHostConnectionLost,
     GuiStrEnd
 };
 
