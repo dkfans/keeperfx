@@ -33,9 +33,6 @@
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "net_main.h"
-#include "net_lobby.h"
-#include "net_exchange_common.h"
 #include "net_exchange_gameplay.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -537,7 +534,7 @@ void update_box_lag_compensation(struct PlayerInfo* player) {
     box_lag_compensation_y = 0;
     if (is_my_player(player)) {
         struct Packet* auth_pckt = get_packet_direct(player->packet_num);
-        struct Packet* visual_pckt = get_local_input_lag_packet_for_turn(get_gameturn());
+        const struct Packet *visual_pckt = get_history_packet(player->packet_num, get_gameturn());
         if (visual_pckt != NULL) {
             box_lag_compensation_x = coord_slab(auth_pckt->pos_x) - coord_slab(visual_pckt->pos_x);
             box_lag_compensation_y = coord_slab(auth_pckt->pos_y) - coord_slab(visual_pckt->pos_y);
@@ -597,111 +594,6 @@ void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif)
     }
 }
 
-void process_chat_message_end(int player_id, const char *message)
-{
-    struct PlayerInfo *player = get_player(player_id);
-    player->allocflags &= ~PlaF_NewMPMessage;
-    if (message[0] != '\0') {
-        memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
-        memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
-        if (frontend_menu_state == FeSt_NET_START || frontend_menu_state == FeSt_MP_MAPPACK_SELECT) {
-            if (!try_starting_level_from_chat(player->mp_message_text, player_id)) {
-                add_message(player_id, player->mp_message_text);
-            }
-        } else {
-            lua_on_chatmsg(player_id, player->mp_message_text);
-            if (message[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || (game.system_flags & GSF_NetworkActive) != 0) {
-                message_add(MsgType_Player, player_id, player->mp_message_text);
-            }
-        }
-    }
-    memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
-}
-
-void process_quit_packet(struct PlayerInfo *player, short complete_quit)
-{
-    struct PlayerInfo *swplyr;
-    struct PlayerInfo* myplyr = get_my_player();
-    int32_t plyr_count;
-    plyr_count = 0;
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-    {
-        short winning_quit = winning_player_quitting(player, &plyr_count);
-        if (winning_quit)
-        {
-            // Set other players as losers
-            for (int i = 0; i < PLAYERS_COUNT; i++)
-            {
-                swplyr = get_player(i);
-                if (player_exists(swplyr))
-                {
-                    if (swplyr->is_active == 1)
-                        if (swplyr->victory_state == VicS_Undecided)
-                            swplyr->victory_state = VicS_WonLevel;
-                }
-            }
-      }
-
-      if ((player == myplyr) || (frontend_should_all_players_quit()))
-      {
-        if ((!winning_quit) || (plyr_count <= 1))
-          LbNetwork_Stop();
-        else
-          myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
-      } else
-      {
-        if (!winning_quit)
-        {
-          if (player->victory_state != VicS_Undecided)
-          {
-            player->allocflags &= ~PlaF_Allocated;
-          } else
-          {
-            player->allocflags |= PlaF_CompCtrl;
-            toggle_computer_player(player->id_number);
-          }
-          if (player == myplyr)
-          {
-            quit_game = 1;
-            if (complete_quit)
-              exit_keeper = 1;
-          }
-          return;
-        } else
-        if (plyr_count <= 1)
-          LbNetwork_Stop();
-        else
-          myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
-      }
-      quit_game = 1;
-      if (complete_quit)
-        exit_keeper = 1;
-      if (frontend_should_all_players_quit())
-      {
-        for (int i=0; i < PLAYERS_COUNT; i++)
-        {
-          swplyr = get_player(i);
-          if (player_exists(swplyr))
-          {
-            swplyr->allocflags &= ~PlaF_Allocated;
-            swplyr->display_flags |= PlaF6_PlyrHasQuit;
-          }
-        }
-      } else
-      {
-        player->allocflags &= ~PlaF_Allocated;
-      }
-      return;
-    }
-    player->allocflags &= ~PlaF_Allocated;
-    if (player == myplyr)
-    {
-        quit_game = 1;
-        if (complete_quit)
-          exit_keeper = 1;
-    }
-}
-
 TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
 {
   //TODO PACKET add commands from beta
@@ -754,6 +646,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_NoOperation:
       return 1;
   case PckA_FinishGame:
+      if ((player->victory_state == VicS_LostLevel) && ((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()))
+      {
+        return 0;
+      }
       if (is_my_player(player))
       {
         turn_off_all_menus();
@@ -783,7 +679,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_PlyrMsgEnd:
-      process_chat_message_end(player->id_number, player->mp_pending_message);
+      process_gameplay_chat_message(player->id_number, player->mp_pending_message);
       player->mp_pending_message[0] = '\0';
       return 0;
   case PckA_PlyrMsgClear:
@@ -1660,90 +1556,28 @@ void process_players_creature_control_packet_action(long plyr_idx)
   }
 }
 
-static void replace_disconnected_players_with_ai(void) {
-    if ((game.system_flags & GSF_NetworkActive) == 0) {
-        return;
-    }
-    TbBool host_disconnected = (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED);
-    for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
-        struct PlayerInfo* player = get_player(player_index);
-        if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
-            continue;
-        }
-        if (host_disconnected && player_index == my_player_number) {
-            continue;
-        }
-        if (!host_disconnected && network_player_active(player_index)) {
-            continue;
-        }
-        if (player->victory_state != VicS_Undecided) {
-            player->allocflags &= ~PlaF_Allocated;
-            continue;
-        }
-        message_add(MsgType_Player, player->id_number, "I am the computer now!");
-        JUSTLOG("p:%d I am the computer now!", player->id_number);
-        player->allocflags |= PlaF_CompCtrl;
-        toggle_computer_player(player->id_number);
-    }
-    if (!host_disconnected) {
-        return;
-    }
-    message_add(MsgType_Player, my_player_number, "Network connection to host lost");
-    game.input_lag_turns = 0;
-    game.skip_initial_input_turns = 0;
-    LbNetwork_Stop();
-    memset(net_player_info, 0, sizeof(net_player_info));
-    clear_flag(game.system_flags, GSF_NetworkActive);
-    fe_network_active = 0;
-    game.game_kind = GKind_LocalGame;
-    setup_count_players();
-}
-
-static void load_old_packets(PlayerNumber my_packet_num) {
+static void load_old_packets(void)
+{
     GameTurn historical_turn = get_gameturn() - game.input_lag_turns;
-    const struct Packet* received_packets = get_received_packets_for_turn(historical_turn);
-    const char* received_packets_status;
-    if (received_packets != NULL) {
-        received_packets_status = "found";
-    } else {
-        received_packets_status = "NULL";
-    }
-    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%lu historical_turn=%lu received_packets=%s", (unsigned long)get_gameturn(), (unsigned long)historical_turn, received_packets_status);
+    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%lu historical_turn=%lu", (unsigned long)get_gameturn(), (unsigned long)historical_turn);
 
     for (int i = 0; i < PACKETS_COUNT; i++) {
-        const char* player_name;
-        if (i == 0) {player_name = "Host";} else {player_name = "Client";}
-
-        if (i == my_packet_num) {
-            struct Packet* local_packet = get_local_input_lag_packet_for_turn(historical_turn);
-            if (local_packet != NULL) {
-                game.packets[i] = *local_packet;
-            } else {
-                MULTIPLAYER_LOG("load_input_lag_packets: NOT FOUND - no local packet for historical_turn=%lu", (unsigned long)historical_turn);
-            }
+        const char* player_name = (i == 0) ? "Host" : "Client";
+        const struct Packet *packet = get_history_packet(i, historical_turn);
+        if (packet != NULL) {
+            game.packets[i] = *packet;
             if (i <= 1) {
                 if (is_packet_empty(&game.packets[i])) {
-                    MULTIPLAYER_LOG("load_input_lag_packets: loaded local packet[%s] is EMPTY", player_name);
+                    MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] is EMPTY", player_name);
                 } else {
-                    MULTIPLAYER_LOG("load_input_lag_packets: loaded local packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
+                    MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
                 }
             }
-        } else {
-            if (received_packets != NULL) {
-                game.packets[i] = received_packets[i];
-                if (i <= 1) {
-                    if (is_packet_empty(&game.packets[i])) {
-                        MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] is EMPTY", player_name);
-                    } else {
-                        MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
-                    }
-                }
-            } else {
-                memset(&game.packets[i], 0, sizeof(struct Packet));
-                if (i <= 1) {
-                    MULTIPLAYER_LOG("load_input_lag_packets: cleared packet[%s] (no received packets)", player_name);
-                }
-            }
+            continue;
+        }
+        memset(&game.packets[i], 0, sizeof(struct Packet));
+        if (i <= 1) {
+            MULTIPLAYER_LOG("load_input_lag_packets: cleared packet[%s] (no stored packet)", player_name);
         }
     }
 }
@@ -1767,8 +1601,7 @@ void process_packets(void)
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
     set_local_packet_turn();
     update_turn_checksums();
-    store_local_packet_in_input_lag_queue(player->packet_num);
-
+    store_packet_history(player->packet_num, get_packet_direct(player->packet_num));
     if (game.game_kind != GKind_LocalGame)
     {
         if (!game.packet_load_enable || game.packet_load_initialized)
@@ -1777,17 +1610,14 @@ void process_packets(void)
             const char* player_name;
             if (player->packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
             MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_packet->turn, (unsigned long)my_packet->checksum);
-            TbError exchange_result = LbNetwork_Exchange(NETMSG_GAMEPLAY, my_packet, game.packets, sizeof(struct Packet));
-            if (exchange_result != Lb_OK) {
-                ERRORLOG("LbNetwork_Exchange failed");
+            if (LbNetwork_ExchangeGameplay(my_packet, game.packets, sizeof(struct Packet)) != Lb_OK) {
+                ERRORLOG("LbNetwork_ExchangeGameplay failed");
             }
-            LbNetwork_WaitForMissingPackets(game.packets, sizeof(struct Packet));
         }
-        replace_disconnected_players_with_ai();
+        process_disconnected_network_players();
     }
-
-    MULTIPLAYER_LOG("process_packets: Loading packets from input lag queue");
-    load_old_packets(player->packet_num);
+    MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
+    load_old_packets();
 
     if (input_lag_skips_initial_processing())
     {
@@ -1829,66 +1659,9 @@ void process_packets(void)
             resync_game();
         }
     }
-    get_current_slowdown_percentage();
+    get_current_stutter_percentage();
     MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)get_gameturn());
     SYNCDBG(7,"Finished");
-}
-
-TbBool try_starting_level_from_chat(char* message, long player_id)
-{
-    char *separator_pos = strchr(message, ':');
-    if (!separator_pos) {
-        separator_pos = strchr(message, ' ');
-    }
-    if (!separator_pos || separator_pos == message) {
-        return false;
-    }
-
-    int campaign_len = separator_pos - message;
-    if (campaign_len <= 0 || campaign_len >= 64) {
-        return false;
-    }
-
-    char *level_str = separator_pos + 1;
-    while (*level_str == ' ') {
-        level_str++;
-    }
-    if (level_str[0] != '_' && !isdigit(level_str[0])) {
-        return false;
-    }
-    
-    LevelNumber level_num;
-    if (level_str[0] == '_') {
-        level_num = -1;
-    } else {
-        level_num = atoi(level_str);
-        if (level_num <= 0) {
-            return false;
-        }
-    }
-
-    char campaign_filename[80];
-    if ((campaign_len >= 4) && (strncasecmp(message + campaign_len - 4, ".cfg", 4) == 0)) {
-        snprintf(campaign_filename, sizeof(campaign_filename), "%.*s", campaign_len, message);
-    } else {
-        snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
-    }
-
-    if (!change_campaign(CampgnT_Default, campaign_filename)
-     || (strcasecmp(campaign.fname, campaign_filename) != 0)) {
-        ERRORLOG("Unable to load campaign '%.*s' for level %d", campaign_len, message, (int)level_num);
-        return false;
-    }
-    
-    if (level_num != -1) {
-        if (!is_campaign_level(level_num) && !is_freeplay_level(level_num)) {
-            return false;
-        }
-        set_selected_level_number(level_num);
-        frontend_set_state(FeSt_START_MPLEVEL);
-    }
-
-    return true;
 }
 
 // Using Alt-F4, or similar operating system close requests

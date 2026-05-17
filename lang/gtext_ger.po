@@ -7543,3 +7543,48 @@ msgstr "Teleport Standard"
 msgctxt "Menu interface item"
 msgid "Multiplayer Map Packs"
 msgstr "Mehrspieler-Kartenpakete"
+
+#: guitext:1111
+msgctxt "Menu interface item"
+msgid "Return to Lobby"
+msgstr "Zurück zur Lobby"
+
+#: guitext:1112
+msgctxt "In-game message"
+msgid "You have been defeated. As host, keep the game running until the match concludes."
+msgstr "Ihr wurdet besiegt. Als Host müsst Ihr das Spiel weiterlaufen lassen, bis die Partie endet."
+
+#: guitext:1113
+msgctxt "Network game message"
+msgid "Verify /fxdata/ is the same across all PCs."
+msgstr "Stelle sicher, dass /fxdata/ auf allen PCs gleich ist."
+
+#: guitext:1114
+msgctxt "Network game message"
+msgid "WARNING: Custom sprite mismatch with %s!"
+msgstr "WARNUNG: Benutzerdefinierte Sprites stimmen nicht mit %s überein!"
+
+#: guitext:1115
+msgctxt "Network game message"
+msgid "I am the computer now!"
+msgstr "Der Computer übernimmt jetzt!"
+
+#: guitext:1116
+msgctxt "Network game message"
+msgid "%s has left the game."
+msgstr "%s hat das Spiel verlassen."
+
+#: guitext:1117
+msgctxt "Network game message"
+msgid "%s has disconnected."
+msgstr "%s wurde getrennt."
+
+#: guitext:1118
+msgctxt "Network game message"
+msgid "Opponent disconnected"
+msgstr "Gegner getrennt"
+
+#: guitext:1119
+msgctxt "Network game message"
+msgid "Network connection to host lost"
+msgstr "Netzwerkverbindung zum Host verloren"

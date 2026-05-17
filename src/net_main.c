@@ -3,12 +3,20 @@
 /******************************************************************************/
 /** @file net_main.c
  *     Shared network support for Dungeon Keeper multiplayer.
+ * @author   KeeperFX Team
+ * @date     09 May 2026
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
  */
 /******************************************************************************/
 #include "pre_inc.h"
 #include "net_main.h"
 
 #include "bflib_enet.h"
+#include "keeperfx.hpp"
 #include "post_inc.h"
 
 static struct TbNetworkPlayerInfo *local_player_info;
@@ -52,7 +60,7 @@ void send_remote_buffer(const char *end_ptr)
         }
         return;
     }
-    for (NetUserId id = 0; id < (NetUserId)netstate.max_players; id += 1) {
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id || !IsUserActive(id)) {
             continue;
         }
@@ -127,7 +135,7 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     }
     memset(&netstate.users[id], 0, sizeof(netstate.users[id]));
     netstate.users[id].id = id;
-    if (id != SERVER_ID) {
+    if (netstate.my_id == SERVER_ID && id != SERVER_ID) {
         for (NetUserId user_id = 0; user_id < (NetUserId)netstate.max_players; user_id += 1) {
             if (user_id == netstate.my_id) {
                 continue;

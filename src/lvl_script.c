@@ -1129,9 +1129,18 @@ void process_level_script(void)
   SYNCDBG(6,"Starting");
   struct PlayerInfo *player;
   player = get_my_player();
-  // Do NOT stop executing scripts after winning if the RUN_AFTER_VICTORY(1) script command has been issued
-  if ((player->victory_state == VicS_Undecided) || (game.system_flags & GSF_RunAfterVictory))
-  {
+  TbBool process_script = false;
+  if ((game.system_flags & GSF_NetworkActive) != 0) {
+      process_script = true;
+  }
+  if (player->victory_state == VicS_Undecided) {
+      process_script = true;
+  }
+  if ((game.system_flags & GSF_RunAfterVictory) != 0) {
+      process_script = true;
+  }
+  // In network games every peer must keep executing scripts after the local player's defeat.
+  if (process_script) {
       process_conditions();
       process_check_new_creature_parties();
     //script_process_messages(); is not here, but it is in beta - check why

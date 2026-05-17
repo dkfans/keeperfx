@@ -35,6 +35,7 @@
 #include "frontend.h"
 #include "front_landview.h"
 #include "net_game.h"
+#include "net_lobby.h"
 #include "sprites.h"
 #include "custom_sprites.h"
 #include "post_inc.h"

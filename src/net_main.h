@@ -4,32 +4,39 @@
 /** @file net_main.h
  *     Header file for net_main.c.
  * @par Purpose:
- *     Shared multiplayer network state and support routines.
+ *     Public declarations for shared multiplayer network support routines.
+ * @par Comment:
+ *     None.
+ * @author   KeeperFX Team
+ * @date     09 May 2026
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
  */
 /******************************************************************************/
 #ifndef DK_NET_MAIN_H
 #define DK_NET_MAIN_H
 
 #include "bflib_basics.h"
-#include "globals.h"
 #include "ver_defs.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
 
 #define TIMEOUT_CONNECT_HOLEPUNCH 5000
 #define TIMEOUT_CONNECT_DIRECT_IPV6 5000
 #define TIMEOUT_CONNECT_DIRECT_IPV4 5000
 #define TIMEOUT_JOIN_LOBBY 2000
-#define TIMEOUT_LOBBY_EXCHANGE 3000
-#define TIMEOUT_GAMEPLAY_MISSING_PACKET 8000
+#define TIMEOUT_LOBBY_EXCHANGE 5000
+#define TIMEOUT_WAIT_FOR_ALL_PLAYERS 30000
 #define PEER_TIMEOUT_LIMIT 0
 #define PEER_TIMEOUT_MIN_MS 5000
 #define PEER_TIMEOUT_MAX_MS 30000
 
-#define MAX_NET_USERS 2
+#define MAX_NET_USERS 4
 #define MAX_NET_PEERS (MAX_NET_USERS - 1)
 #define SERVER_ID 0
 #define NET_MSG_BUFFER_SIZE 5000
@@ -46,23 +53,24 @@ enum NetMessageType {
     NETMSG_LOGIN,
     NETMSG_USERUPDATE,
     NETMSG_FRONTEND,
+    NETMSG_CLIENT_IS_READY,
+    NETMSG_HOST_DECLARES_START,
     NETMSG_STARTUP_SYNC,
-    NETMSG_GAMEPLAY,
+    NETMSG_GAMEPLAY_UNSEQUENCED,
     NETMSG_RESYNC_DATA,
-    NETMSG_RESYNC_RESUME,
-    NETMSG_TIMESYNC_REQUEST,
-    NETMSG_TIMESYNC_REPLY,
-    NETMSG_TIMESYNC_COMPLETE,
     NETMSG_UNPAUSE,
     NETMSG_CHATMESSAGE,
+    NETMSG_GAMEPLAY_REPAIR,
+    NETMSG_GAMEPLAY_TURN_SYNC,
 };
 
 typedef TbBool (*NetNewUserCallback)(NetUserId *assigned_id);
 typedef void (*NetDropCallback)(NetUserId id, enum NetDropReason reason);
 
-struct NetSP {
+struct NetSP
+{
     TbError (*init)(NetDropCallback drop_callback);
-    void (*exit)(void);
+    void (*exit)();
     TbError (*host)(const char *session, void *options);
     TbError (*join)(const char *session, void *options);
     void (*update)(NetNewUserCallback new_user);
@@ -153,7 +161,6 @@ void send_message_buffer(NetUserId dest, const char *end_ptr);
 void send_remote_buffer(const char *end_ptr);
 void SendUserUpdate(NetUserId dest, NetUserId updated_user);
 
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

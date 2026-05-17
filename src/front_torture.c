@@ -20,9 +20,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "front_torture.h"
-#include "net_main.h"
 #include "net_lobby.h"
-#include "net_exchange_common.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "config_settings.h"
@@ -241,7 +239,7 @@ void fronttorture_input(void)
     // Exchange packet with other players
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-        if (LbNetwork_Exchange(NETMSG_FRONTEND, pckt, game.packets, sizeof(struct Packet)))
+        if (LbNetwork_ExchangeFrontend(pckt, game.packets, sizeof(struct Packet)))
             ERRORLOG("LbNetwork_Exchange failed");
     }
     // Determine the controlling player and get his mouse coords

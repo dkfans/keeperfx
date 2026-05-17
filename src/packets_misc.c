@@ -43,7 +43,6 @@ extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
 extern unsigned long get_host_player_id(void);
-extern void LbNetwork_TimesyncBarrier(void);
 extern TbBool keeper_screen_redraw(void);
 extern TbResult LbScreenSwap(void);
 /******************************************************************************/
@@ -172,8 +171,7 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 void post_init_packets(void)
 {
     SYNCDBG(6,"Starting");
-    initialize_packet_tracking();
-    initialize_redundant_packets();
+    initialize_packet_history();
     if ((game.packet_load_enable) && (game.packet_load_initialized))
     {
         struct CatalogueEntry centry;
@@ -405,13 +403,12 @@ void set_packet_pause_toggle()
         return;
     }
     if (game.game_kind != GKind_LocalGame) {
-        MULTIPLAYER_LOG("set_packet_pause_toggle: Initiating unpause timesync");
+        MULTIPLAYER_LOG("set_packet_pause_toggle: broadcasting unpause");
         unpausing_in_progress = 1;
         keeper_screen_redraw();
         LbScreenSwap();
-        LbNetwork_BroadcastUnpauseTimesync();
+        LbNetwork_BroadcastUnpause();
         if (my_player_number == get_host_player_id()) {
-            LbNetwork_TimesyncBarrier();
             process_pause_packet(0, 0);
         }
         unpausing_in_progress = 0;

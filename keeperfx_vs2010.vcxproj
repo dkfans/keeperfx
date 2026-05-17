@@ -49,8 +49,6 @@
     <ClCompile Include="src\bflib_netsp_tcp.cpp" />
     <ClCompile Include="src\lua_api_lens.c" />
     <ClCompile Include="src\lua_api_room.c" />
-    <ClCompile Include="src\net_exchange_common.c" />
-    <ClCompile Include="src\net_exchange_gameplay.c" />
     <ClCompile Include="src\bflib_planar.c" />
     <ClCompile Include="src\bflib_render.c" />
     <ClCompile Include="src\bflib_render_gpoly.c" />
@@ -212,6 +210,8 @@
     <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
     <ClCompile Include="src\moonphase.c" />
+    <ClCompile Include="src\net_exchange_common.c" />
+    <ClCompile Include="src\net_exchange_gameplay.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_holepunch.c" />
     <ClCompile Include="src\net_lan.c" />

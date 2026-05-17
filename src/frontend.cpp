@@ -61,6 +61,7 @@
 #include "front_lvlstats.h"
 #include "front_easter.h"
 #include "front_network.h"
+#include "net_game.h"
 #include "frontmenu_net.h"
 #include "frontmenu_options.h"
 #include "frontmenu_specials.h"
@@ -95,7 +96,6 @@
 extern "C" {
 #endif
 
-extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 extern long double last_draw_completed_time;
 long double get_time_tick_ns();
 /******************************************************************************/
@@ -721,11 +721,6 @@ void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn)
 void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags |= LbBtnF_Enabled;
-}
-
-TbBool frontend_should_all_players_quit(void)
-{
-    return (net_service_index_selected <= 1);
 }
 
 TbBool frontend_is_player_allied(long idx1, long idx2)
@@ -1378,7 +1373,7 @@ void set_packet_start(struct GuiButton *gbtn)
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
     if (screen_packet_action(nspck) == NetAct_None)
-        screen_packet_set_action(nspck, NetAct_HostStartLevel);
+        screen_packet_set_action(nspck, NetAct_OpenLandView);
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -3458,7 +3453,11 @@ void update_player_objectives(PlayerNumber plyr_idx)
           display_objectives(player->id_number, 0, 0);
           break;
       case VicS_LostLevel:
-          set_level_objective(player->id_number, get_string(CpgStr_LevelLost));
+          TextStringId msg_idx = CpgStr_LevelLost;
+          if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id())) {
+              msg_idx = GUIStr_NetHostLostWaitingForPlayers;
+          }
+          set_level_objective(player->id_number, get_string(msg_idx));
           display_objectives(player->id_number, 0, 0);
           break;
       }
@@ -3646,10 +3645,12 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_LEVEL_STATS:
         if ((game.system_flags & GSF_NetworkActive) != 0)
             return FeSt_NET_SESSION;
+        lvnum = get_loaded_level_number();
+        if (is_multiplayer_level(lvnum))
+            return get_menu_state_based_on_last_level(lvnum);
         player = get_my_player();
         if (player->victory_state == VicS_WonLevel)
             return FeSt_HIGH_SCORES;
-        lvnum = get_loaded_level_number();
         return get_menu_state_based_on_last_level(lvnum);
     case FeSt_HIGH_SCORES:
         if (fe_high_score_table_from_main_menu)
