@@ -828,10 +828,8 @@ static short get_global_inputs(void)
       return true;
   if (get_screen_capture_inputs())
       return true;
-  if (is_key_pressed(KC_SPACE,KMod_NONE))
+  if (player->victory_state != VicS_Undecided && is_game_key_pressed(Gkey_FinishLevel, true, false))
   {
-      if (player->victory_state != VicS_Undecided)
-      {
         if ( timer_enabled() )
         {
             update_time();
@@ -840,9 +838,7 @@ static short get_global_inputs(void)
                 game.loaded_level_number, get_gameturn(), GameT.Hours, GameT.Minutes, GameT.Seconds, turns_per_second, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
-        clear_key_pressed(KC_SPACE);
         return true;
-      }
   }
   if ( is_game_key_pressed(Gkey_DumpToOldPos, true, false) )
   {
