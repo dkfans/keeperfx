@@ -315,7 +315,7 @@ static TbBool replace_network_player_with_ai(struct PlayerInfo *player, const ch
     }
     player->allocflags |= PlaF_CompCtrl;
     toggle_computer_player(player->id_number);
-    if (player->player_name[0] != '\0') {
+    if (departure_message != NULL && player->player_name[0] != '\0') {
         message_add_fmt(MsgType_Blank, 0, "%s %s", player->player_name, departure_message);
         JUSTLOG("p:%d %s %s", player->id_number, player->player_name, departure_message);
     }
@@ -417,12 +417,16 @@ void process_disconnected_network_players(void)
     if ((netstate.my_id != SERVER_ID) && (netstate.users[SERVER_ID].progress == USER_UNUSED)) {
         host_disconnected = true;
     }
+    const char *departure_message = NULL;
+    if (!host_disconnected) {
+        departure_message = "has disconnected.";
+    }
     for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
         struct PlayerInfo *player = get_player(player_index);
         if (!player_exists(player) || is_my_player(player) || (!host_disconnected && network_player_active(player->packet_num))) {
             continue;
         }
-        if (!replace_network_player_with_ai(player, "has disconnected.") && player->victory_state != VicS_Undecided) {
+        if (!replace_network_player_with_ai(player, departure_message) && player->victory_state != VicS_Undecided) {
             player->allocflags &= ~PlaF_Allocated;
         }
     }
