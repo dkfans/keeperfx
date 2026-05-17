@@ -68,8 +68,8 @@ short at_kinky_torture_room(struct Thing *thing)
     cctrl->tortured.assigned_torturer = 0;
     cctrl->turns_at_job = get_gameturn();
     cctrl->tortured.state_start_turn = get_gameturn();
-    cctrl->tortured.torture_accum_val = 0;
-    cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
+    cctrl->tortured.accumulated_torture_points = 0;
+    cctrl->tortured.visual_state = CTVS_TortureGoToDevice;
     cctrl->tortured.torturer_start_turn = get_gameturn();
     internal_set_thing_state(thing, get_continue_state_for_job(Job_KINKY_TORTURE));
     return 1;
@@ -102,8 +102,8 @@ short at_torture_room(struct Thing *thing)
     cctrl->tortured.assigned_torturer = 0;
     cctrl->turns_at_job = get_gameturn();
     cctrl->tortured.state_start_turn = get_gameturn();
-    cctrl->tortured.torture_accum_val = 0;
-    cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
+    cctrl->tortured.accumulated_torture_points = 0;
+    cctrl->tortured.visual_state = CTVS_TortureGoToDevice;
     cctrl->tortured.torturer_start_turn = get_gameturn();
     internal_set_thing_state(thing, get_continue_state_for_job(Job_PAINFUL_TORTURE));
     return 1;
@@ -182,11 +182,11 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
     struct Thing *sectng;
     cctrl = creature_control_get_from_thing(creatng);
     GameTurnDelta dturn;
-    switch (cctrl->tortured.vis_state)
+    switch (cctrl->tortured.visual_state)
     {
     case CTVS_TortureRandMove:
         if (get_gameturn() - cctrl->tortured.state_start_turn > 100) {
-            cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
+            cctrl->tortured.visual_state = CTVS_TortureGoToDevice;
         }
         if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, jobpref)) {
             return CrStRet_Unchanged;
@@ -195,11 +195,11 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         return 1;
     case CTVS_TortureGoToDevice:
         if (!setup_torture_move_to_device(creatng, room, jobpref)) {
-            cctrl->tortured.vis_state = CTVS_TortureRandMove;
+            cctrl->tortured.visual_state = CTVS_TortureRandMove;
             cctrl->tortured.state_start_turn = get_gameturn();
             return CrStRet_Unchanged;
         }
-        cctrl->tortured.vis_state = CTVS_TortureInDevice;
+        cctrl->tortured.visual_state = CTVS_TortureInDevice;
         cctrl->tortured.state_start_turn = get_gameturn();
         return 1;
     case CTVS_TortureInDevice:
@@ -228,7 +228,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
     default:
         WARNLOG("Invalid creature state in torture room");
         cctrl->tortured.state_start_turn = get_gameturn();
-        cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
+        cctrl->tortured.visual_state = CTVS_TortureGoToDevice;
         break;
     }
     return CrStRet_Unchanged;
@@ -467,7 +467,7 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
 /*
  * Accumulate the torture progress related to speed / slap / room efficiency
  */
-void update_torture_accum_val(const struct Thing *thing, const struct Room *room)
+void update_torture_points(const struct Thing *thing, const struct Room *room)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
 
@@ -484,13 +484,17 @@ void update_torture_accum_val(const struct Thing *thing, const struct Room *room
         turn_val = turn_val * 4 / 3;
     }
 
-    cctrl->tortured.torture_accum_val += turn_val * room->efficiency;
+    cctrl->tortured.accumulated_torture_points += turn_val * room->efficiency;
 }
 
-void reset_torture_accum_val_from_turn(const struct Thing *thing, int time_turn)
+/**
+ * After a creature is broken from torture and it does not convert, it needs to be broken again starting from the time_turn value.
+ * Increases it with a multiplecation factor to prevent rounding errors.
+ */
+void set_torture_points_to_value(const struct Thing *thing, int time_turn)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    cctrl->tortured.torture_accum_val = (long)time_turn * TORTURE_ACCUM_FAC * ROOM_EFFICIENCY_MAX;
+    cctrl->tortured.accumulated_torture_points = (int32_t)time_turn * TORTURE_ACCUM_FAC * ROOM_EFFICIENCY_MAX;
 }
 
 /**
@@ -502,7 +506,7 @@ void reset_torture_accum_val_from_turn(const struct Thing *thing, int time_turn)
 long compute_torture_convert_time(const struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    long convert_time = (long)cctrl->tortured.torture_accum_val / (TORTURE_ACCUM_FAC * ROOM_EFFICIENCY_MAX);
+    long convert_time = (long)cctrl->tortured.accumulated_torture_points / (TORTURE_ACCUM_FAC * ROOM_EFFICIENCY_MAX);
     return convert_time;
 }
 
@@ -546,7 +550,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         return CrCkRet_Available;
     }
 
-    update_torture_accum_val(creatng, room);
+    update_torture_points(creatng, room);
     // Torture must take some time before it has any affect.
     long convert_time = compute_torture_convert_time(creatng);
     if ((convert_time < crconf->torture_break_time) || (cctrl->tortured.assigned_torturer == 0))
@@ -567,7 +571,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
             }
             else
             { // Revealing information about enemy and continuing the torture.
-                reset_torture_accum_val_from_turn(creatng, crconf->torture_break_time/2);
+                set_torture_points_to_value(creatng, crconf->torture_break_time/2);
                 reveal_players_map_to_player(creatng, room->owner);
                 return CrCkRet_Available;
             }
