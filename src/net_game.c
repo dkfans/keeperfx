@@ -315,12 +315,12 @@ static TbBool replace_network_player_with_ai(struct PlayerInfo *player, const ch
     }
     player->allocflags |= PlaF_CompCtrl;
     toggle_computer_player(player->id_number);
+    message_add(MsgType_Player, player->id_number, "I am the computer now!");
+    JUSTLOG("p:%d I am the computer now!", player->id_number);
     if (departure_message != NULL && player->player_name[0] != '\0') {
         message_add_fmt(MsgType_Blank, 0, "%s %s", player->player_name, departure_message);
         JUSTLOG("p:%d %s %s", player->id_number, player->player_name, departure_message);
     }
-    message_add(MsgType_Player, player->id_number, "I am the computer now!");
-    JUSTLOG("p:%d I am the computer now!", player->id_number);
     return true;
 }
 
@@ -413,13 +413,10 @@ void process_disconnected_network_players(void)
     if ((game.system_flags & GSF_NetworkActive) == 0) {
         return;
     }
-    TbBool host_disconnected = false;
-    if ((netstate.my_id != SERVER_ID) && (netstate.users[SERVER_ID].progress == USER_UNUSED)) {
-        host_disconnected = true;
-    }
-    const char *departure_message = NULL;
-    if (!host_disconnected) {
-        departure_message = "has disconnected.";
+    TbBool host_disconnected = (netstate.my_id != SERVER_ID) && (netstate.users[SERVER_ID].progress == USER_UNUSED);
+    const char *departure_message = "has disconnected.";
+    if (host_disconnected) {
+        departure_message = NULL;
     }
     for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
         struct PlayerInfo *player = get_player(player_index);
