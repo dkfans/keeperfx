@@ -3489,7 +3489,7 @@ extern "C" void network_yield_waiting_gameplay_packets()
 {
     frametime_end_measurement(Frametime_Logic);
     do_draw = true;
-    LbWindowsControl();
+    poll_inputs();
     gameplay_loop_draw();
     gameplay_loop_timestep();
     frametime_start_measurement(Frametime_Logic);
