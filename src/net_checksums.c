@@ -98,6 +98,7 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing) {
         CHECKSUM_ADD(checksum, cctrl->digger.stack_update_turn);
         CHECKSUM_ADD(checksum, cctrl->digger.working_stl);
         CHECKSUM_ADD(checksum, cctrl->digger.task_stl);
+        CHECKSUM_ADD(checksum, cctrl->digger.task_idx);
         CHECKSUM_ADD(checksum, cctrl->digger.consecutive_reinforcements);
         CHECKSUM_ADD(checksum, cctrl->digger.last_did_job);
         CHECKSUM_ADD(checksum, cctrl->digger.task_stack_pos);
