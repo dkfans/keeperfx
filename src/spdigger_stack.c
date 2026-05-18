@@ -1132,38 +1132,33 @@ long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx
 {
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
-    long i;
-    long n;
-    long tsk_max;
-    tsk_max = dungeon->highest_task_number;
-    if (tsk_max > MAPTASKS_COUNT)
-        tsk_max = MAPTASKS_COUNT;
-    if (tsk_max > 1)
-        n = PLAYER_RANDOM(plyr_idx, tsk_max);
-    else
-        n = 0;
-    for (i=0; i < tsk_max; i++,n=(n+1)%tsk_max)
-    {
+    int32_t eligible_tasks[MAPTASKS_COUNT];
+    SubtlCodedCoords eligible_stl[MAPTASKS_COUNT];
+    int32_t eligible_count;
+    eligible_count = 0;
+    for (int32_t task_idx = find_next_dig_in_dungeon_task_list(dungeon, -1); task_idx >= 0; task_idx = find_next_dig_in_dungeon_task_list(dungeon, task_idx)) {
         struct MapTask *mtask;
-        mtask = &dungeon->task_list[n];
-        if (mtask->kind == SDDigTask_None)
+        mtask = get_dungeon_task_list_entry(dungeon, task_idx);
+        if (mtask->kind != SDDigTask_MineGold)
             continue;
-        if (mtask->kind == SDDigTask_MineGold)
-        {
-            MapSubtlCoord tsk_stl_x;
-            MapSubtlCoord tsk_stl_y;
-            if (check_place_to_dig_and_get_drop_position(plyr_idx, mtask->coords, &tsk_stl_x, &tsk_stl_y))
-            {
-                if (can_drop_thing_here(tsk_stl_x, tsk_stl_y, plyr_idx, 1))
-                {
-                    *retstl_x = tsk_stl_x;
-                    *retstl_y = tsk_stl_y;
-                    return n;
-                }
-            }
-        }
+        MapSubtlCoord tsk_stl_x;
+        MapSubtlCoord tsk_stl_y;
+        if (!check_place_to_dig_and_get_drop_position(plyr_idx, mtask->coords, &tsk_stl_x, &tsk_stl_y))
+            continue;
+        if (!can_drop_thing_here(tsk_stl_x, tsk_stl_y, plyr_idx, 1))
+            continue;
+        eligible_tasks[eligible_count] = task_idx;
+        eligible_stl[eligible_count] = get_subtile_number(tsk_stl_x, tsk_stl_y);
+        eligible_count++;
     }
-    return -1;
+    if (eligible_count <= 0)
+        return -1;
+
+    int32_t chosen_task;
+    chosen_task = PLAYER_RANDOM(plyr_idx, eligible_count);
+    *retstl_x = stl_num_decode_x(eligible_stl[chosen_task]);
+    *retstl_y = stl_num_decode_y(eligible_stl[chosen_task]);
+    return eligible_tasks[chosen_task];
 }
 
 #define UNDUG_MAX_DIST 24
@@ -1174,11 +1169,7 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
     dungeon = get_dungeon(thing->owner);
     cctrl = creature_control_get_from_thing(thing);
     struct MapTask *mtask;
-    long i;
-    long tsk_max;
-    tsk_max = dungeon->highest_task_number;
-    if (tsk_max > MAPTASKS_COUNT)
-        tsk_max = MAPTASKS_COUNT;
+    int32_t i;
     MapSubtlCoord digstl_y;
     MapSubtlCoord digstl_x;
     digstl_x = stl_num_decode_x(cctrl->digger.task_stl);
@@ -1191,23 +1182,17 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
     best_tsk_id = -1;
     best_stl_x = -1;
     best_stl_y = -1;
-    for (i=0; i < tsk_max; i++)
-    {
-        mtask = &dungeon->task_list[i];
-        if (mtask->kind == SDDigTask_None)
-            continue;
-        if (mtask->kind != SDDigTask_MineGems)
-        {
+    for (i = find_next_dig_in_dungeon_task_list(dungeon, -1); i >= 0; i = find_next_dig_in_dungeon_task_list(dungeon, i)) {
+        mtask = get_dungeon_task_list_entry(dungeon, i);
+        if (mtask->kind != SDDigTask_MineGems) {
             SubtlCodedCoords tsk_stl_num;
             MapSubtlCoord tsk_dist;
             tsk_stl_num = mtask->coords;
             tsk_dist = chessboard_distance(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
-            if (tsk_dist < best_dist)
-            {
+            if (tsk_dist < best_dist) {
                 MapSubtlCoord tsk_stl_x;
                 MapSubtlCoord tsk_stl_y;
-                if (check_place_to_dig_and_get_position(thing, tsk_stl_num, &tsk_stl_x, &tsk_stl_y))
-                {
+                if (check_place_to_dig_and_get_position(thing, tsk_stl_num, &tsk_stl_x, &tsk_stl_y)) {
                     best_dist = tsk_dist;
                     best_tsk_id = i;
                     best_stl_x = tsk_stl_x;

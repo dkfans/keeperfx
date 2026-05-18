@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_planar.h"
 
 #include "spdigger_stack.h"
 #include "map_data.h"
@@ -136,7 +137,7 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
     for (long i = 0; i < imax; i++)
     {
         struct MapTask* mtask = &dungeon->task_list[i];
-        if (mtask->coords == srch_tsk)
+        if ((mtask->kind != SDDigTask_None) && (mtask->coords == srch_tsk))
             return i;
     }
     return -1;
@@ -144,16 +145,43 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 
 long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig)
 {
-    long mtasks_num = dungeon->highest_task_number;
+    int32_t mtasks_num = dungeon->highest_task_number;
     if (mtasks_num > MAPTASKS_COUNT)
         mtasks_num = MAPTASKS_COUNT;
-    for (long i = last_dig + 1; i < mtasks_num; i++)
-    {
-        struct MapTask* mtask = &dungeon->task_list[i];
-        if ((mtask->kind != SDDigTask_None))
-            return i;
+
+    if (last_dig >= mtasks_num)
+        return -1;
+
+    const struct Coord3d* heart_pos = dungeon_get_essential_pos(dungeon->owner);
+    int32_t heart_x = heart_pos->x.stl.num;
+    int32_t heart_y = heart_pos->y.stl.num;
+    int32_t task_order_stride = (MAX_SUBTILES_X + 2) * (MAX_SUBTILES_Y + 2);
+    int32_t last_order = -1;
+    if (last_dig >= 0) {
+        SubtlCodedCoords last_coords = dungeon->task_list[last_dig].coords;
+        int32_t last_task_x = stl_num_decode_x(last_coords);
+        int32_t last_task_y = stl_num_decode_y(last_coords);
+        int32_t last_task_dist = chessboard_distance(heart_x, heart_y, last_task_x, last_task_y);
+        last_order = last_task_dist * task_order_stride + last_coords;
     }
-    return -1;
+
+    // Task slots can differ between multiplayer peers, so scan from the dungeon heart outwards.
+    int32_t best_task_idx = -1;
+    int32_t best_order = INT_MAX;
+    for (int32_t i = 0; i < mtasks_num; i++) {
+        struct MapTask* mtask = &dungeon->task_list[i];
+        if (mtask->kind == SDDigTask_None)
+            continue;
+        int32_t task_x = stl_num_decode_x(mtask->coords);
+        int32_t task_y = stl_num_decode_y(mtask->coords);
+        int32_t task_dist = chessboard_distance(heart_x, heart_y, task_x, task_y);
+        int32_t task_order = task_dist * task_order_stride + mtask->coords;
+        if ((task_order <= last_order) || (task_order >= best_order))
+            continue;
+        best_task_idx = i;
+        best_order = task_order;
+    }
+    return best_task_idx;
 }
 
 long remove_from_task_list(long plyr_idx, long stack_pos)
