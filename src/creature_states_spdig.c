@@ -48,7 +48,6 @@
 #include "map_utils.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
-#include "tasks_list.h"
 #include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -1101,13 +1100,7 @@ short imp_digs_mines(struct Thing *spdigtng)
         cctrl->exp_points += digger_work_experience(spdigtng);
         check_experience_upgrade(spdigtng);
     }
-    int32_t task_idx = find_dig_from_task_list(spdigtng->owner, cctrl->digger.task_stl);
-    if (task_idx < 0) {
-        clear_creature_instance(spdigtng);
-        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
-        return 1;
-    }
-    struct MapTask* mtask = get_task_list_entry(spdigtng->owner, task_idx);
+    struct MapTask* mtask = get_task_list_entry(spdigtng->owner, cctrl->digger.task_idx);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.task_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -1115,7 +1108,8 @@ short imp_digs_mines(struct Thing *spdigtng)
     // Check if we've arrived at the destination
     MapSubtlDelta delta_x = abs(spdigtng->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
     MapSubtlDelta delta_y = abs(spdigtng->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
-    if ((delta_x > 0) || (delta_y > 0)) {
+    if ((mtask->coords != cctrl->digger.task_stl) || (delta_x > 0) || (delta_y > 0))
+    {
         clear_creature_instance(spdigtng);
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
@@ -1135,6 +1129,13 @@ short imp_digs_mines(struct Thing *spdigtng)
     if (creature_turn_to_face(spdigtng, &pos) > 0)
     {
       return 1;
+    }
+
+    if (mtask->kind == SDDigTask_None)
+    {
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+        return 1;
     }
 
     if (cctrl->instance_id == CrInst_NULL)
