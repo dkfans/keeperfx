@@ -50,7 +50,6 @@ void add_task_list_entry(PlayerNumber plyr_idx, unsigned char kind, SubtlCodedCo
 long find_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk);
 long find_from_task_list_by_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 long find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, MapSlabCoord stl_y);
-long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk);
 long remove_from_task_list(long a1, long a2);
 long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig);
 

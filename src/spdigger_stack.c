@@ -1067,7 +1067,7 @@ TbBool is_digging_indestructible_place(const struct Thing *creatng)
     // Note that digger task position stores the central subtile on slab to be excavated
     // which happens to be the same subtile as one stored in keeper map tasks
     long task_idx;
-    task_idx = find_dig_from_task_list(creatng->owner, cctrl->digger.task_stl);
+    task_idx = find_from_task_list(creatng->owner, cctrl->digger.task_stl);
     if (task_idx != -1)
     {
         struct SlabMap *slb;
@@ -1101,7 +1101,7 @@ long check_out_undug_place(struct Thing *creatng)
         slb_x = subtile_slab(base_stl_x)+small_around[n].delta_x;
         slb_y = subtile_slab(base_stl_y)+small_around[n].delta_y;
         task_pos = get_subtile_number_at_slab_center(slb_x, slb_y);
-        task_idx = find_dig_from_task_list(creatng->owner, task_pos);
+        task_idx = find_from_task_list(creatng->owner, task_pos);
         if (task_idx != -1)
         {
             MapSubtlCoord mv_x;
@@ -1256,72 +1256,53 @@ long check_out_undug_area(struct Thing *thing)
     return 1;
 }
 
-int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
+enum DigTaskStackFilter {
+    DigTaskStack_Undug,
+    DigTaskStack_Gems,
+};
+
+static int add_dig_tasks_to_imp_stack(struct Thing *anchor_imp, struct Dungeon *dungeon, int max_tasks, enum DigTaskStackFilter filter)
 {
-    struct MapTask* mtask;
-    long stl_x;
-    long stl_y;
-    long i;
     SYNCDBG(18,"Starting");
-    int remain_num;
-    remain_num = max_tasks;
-    i = -1;
-    while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
-    {
-        i = find_next_dig_in_dungeon_task_list(dungeon, i);
-        if (i < 0)
-            break;
-        mtask = get_dungeon_task_list_entry(dungeon, i);
-        stl_x = stl_num_decode_x(mtask->coords);
-        stl_y = stl_num_decode_y(mtask->coords);
-        struct SlabMap *slb;
-        slb = get_slabmap_for_subtile(stl_x, stl_y);
-        if (!slab_kind_is_indestructible(slb->kind)) // Add only blocks which can be destroyed by digging
-        {
-            if ( block_has_diggable_side(subtile_slab(stl_x), subtile_slab(stl_y)) )
-            {
-                add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
-                remain_num--;
-            }
+    int32_t tsk_max = dungeon->highest_task_number;
+    if (tsk_max > MAPTASKS_COUNT)
+        tsk_max = MAPTASKS_COUNT;
+    int added_num = 0;
+    while ((added_num < max_tasks) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT)) {
+        struct MapTask* best_task = NULL;
+        int32_t best_dist = 0;
+        SubtlCodedCoords best_coords = 0;
+        for (int32_t i = 0; i < tsk_max; i++) {
+            struct MapTask* mtask = &dungeon->task_list[i];
+            if (mtask->kind == SDDigTask_None)
+                continue;
+            MapSubtlCoord stl_x = stl_num_decode_x(mtask->coords);
+            MapSubtlCoord stl_y = stl_num_decode_y(mtask->coords);
+            if ((filter == DigTaskStack_Gems) && !subtile_revealed(stl_x, stl_y, dungeon->owner))
+                continue;
+            struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
+            if (slab_kind_is_indestructible(slb->kind) != (filter == DigTaskStack_Gems))
+                continue;
+            if (!block_has_diggable_side(subtile_slab(stl_x), subtile_slab(stl_y)))
+                continue;
+            if (find_in_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon) >= 0)
+                continue;
+            int32_t dist = chessboard_distance(anchor_imp->mappos.x.stl.num, anchor_imp->mappos.y.stl.num, stl_x, stl_y);
+            if ((best_task != NULL) && (dist > best_dist))
+                continue;
+            if ((best_task != NULL) && (dist == best_dist) && (mtask->coords >= best_coords))
+                continue;
+            best_task = mtask;
+            best_dist = dist;
+            best_coords = mtask->coords;
         }
-    }
-    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
-    return (max_tasks-remain_num);
-}
-int add_gems_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
-{
-    struct MapTask* mtask;
-    long stl_x;
-    long stl_y;
-    long i;
-    SYNCDBG(18,"Starting");
-    int remain_num;
-    remain_num = max_tasks;
-    i = -1;
-    while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
-    {
-        i = find_next_dig_in_dungeon_task_list(dungeon, i);
-        if (i < 0)
+        if (best_task == NULL)
             break;
-        mtask = get_dungeon_task_list_entry(dungeon, i);
-        stl_x = stl_num_decode_x(mtask->coords);
-        stl_y = stl_num_decode_y(mtask->coords);
-        if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
-        {
-            struct SlabMap *slb;
-            slb = get_slabmap_for_subtile(stl_x, stl_y);
-            if (slab_kind_is_indestructible(slb->kind)) // Add only blocks which cannot be destroyed by digging
-            {
-                if ( block_has_diggable_side(subtile_slab(stl_x), subtile_slab(stl_y)) )
-                {
-                    add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
-                    remain_num--;
-                }
-            }
-        }
+        add_to_imp_stack_using_pos(best_task->coords, DigTsk_DigOrMine, dungeon);
+        added_num++;
     }
-    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
-    return (max_tasks-remain_num);
+    SYNCDBG(8,"Done, added %d tasks",(int)added_num);
+    return added_num;
 }
 
 TbBool add_to_reinforce_stack(long slb_x, long slb_y, SpDiggerTaskType task_type)
@@ -2622,7 +2603,7 @@ long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlab
     SubtlCodedCoords task_pos;
     long task_idx;
     task_pos = get_subtile_number_at_slab_center(slb_x, slb_y);
-    task_idx = find_dig_from_task_list(creatng->owner, task_pos);
+    task_idx = find_from_task_list(creatng->owner, task_pos);
     if (task_idx != -1) {
         return -1;
     }
@@ -2881,11 +2862,11 @@ TbBool imp_stack_update(struct Thing *creatng)
     add_unclaimed_spells_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
     add_empty_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/6);
     add_pretty_and_convert_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/64);
-    add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/16 - 1);
+    add_dig_tasks_to_imp_stack(creatng, dungeon, DIGGER_TASK_MAX_COUNT/16 - 1, DigTaskStack_Undug);
     add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/64);
-    add_gems_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
+    add_dig_tasks_to_imp_stack(creatng, dungeon, DIGGER_TASK_MAX_COUNT*5/8, DigTaskStack_Gems);
     add_unclaimed_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4);
-    add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
+    add_dig_tasks_to_imp_stack(creatng, dungeon, DIGGER_TASK_MAX_COUNT*5/8, DigTaskStack_Undug);
     add_pretty_and_convert_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
     add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/3);
     add_reinforce_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT);
@@ -3335,7 +3316,7 @@ long check_out_worker_dig_or_mine(struct Thing *thing, struct DiggerStack *dstac
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     long i;
-    i = find_dig_from_task_list(thing->owner, dstack->stl_num);
+    i = find_from_task_list(thing->owner, dstack->stl_num);
     if (i == -1)
     {
         dstack->task_type = DigTsk_None;

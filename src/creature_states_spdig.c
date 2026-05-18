@@ -48,6 +48,7 @@
 #include "map_utils.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
+#include "tasks_list.h"
 #include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -493,7 +494,7 @@ static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
 
         stl_num =  get_subtile_number(check_stl_x,check_stl_y);
 
-        task_idx = find_dig_from_task_list(spdigtng->owner, stl_num);
+        task_idx = find_from_task_list(spdigtng->owner, stl_num);
         if ( task_idx != -1
             && check_place_to_dig_and_get_position(spdigtng, stl_num, &dig_place_stl_x, &dig_place_stl_y)
             && setup_person_move_to_position(spdigtng, dig_place_stl_x, dig_place_stl_y, 0) )
@@ -1100,7 +1101,13 @@ short imp_digs_mines(struct Thing *spdigtng)
         cctrl->exp_points += digger_work_experience(spdigtng);
         check_experience_upgrade(spdigtng);
     }
-    struct MapTask* mtask = get_task_list_entry(spdigtng->owner, cctrl->digger.task_idx);
+    int32_t task_idx = find_from_task_list(spdigtng->owner, cctrl->digger.task_stl);
+    if (task_idx < 0) {
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+        return 1;
+    }
+    struct MapTask* mtask = get_task_list_entry(spdigtng->owner, task_idx);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.task_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -1129,13 +1136,6 @@ short imp_digs_mines(struct Thing *spdigtng)
     if (creature_turn_to_face(spdigtng, &pos) > 0)
     {
       return 1;
-    }
-
-    if (mtask->kind == SDDigTask_None)
-    {
-        clear_creature_instance(spdigtng);
-        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
-        return 1;
     }
 
     if (cctrl->instance_id == CrInst_NULL)

@@ -95,8 +95,6 @@ long find_in_imp_stack_task_other_than_starting_at(SpDiggerTaskType excl_task_ty
 TbBool add_to_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon);
 TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
 void setup_imp_stack(struct Dungeon *dungeon);
-int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
-int add_gems_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 int add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
