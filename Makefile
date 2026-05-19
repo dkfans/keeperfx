@@ -118,8 +118,10 @@ obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
-obj/bflib_network.o \
-obj/bflib_network_exchange.o \
+obj/net_exchange_common.o \
+obj/net_exchange_gameplay.o \
+obj/net_main.o \
+obj/net_lobby.o \
 obj/net_resync.o \
 obj/bflib_planar.o \
 obj/bflib_render.o \
@@ -135,6 +137,7 @@ obj/bflib_vidraw_spr_norm.o \
 obj/bflib_vidraw_spr_onec.o \
 obj/bflib_vidraw_spr_remp.o \
 obj/bflib_vidsurface.o \
+obj/button_snapping.o \
 obj/cdrom.o \
 obj/config.o \
 obj/config_campaigns.o \
@@ -201,6 +204,7 @@ obj/front_fmvids.o \
 obj/front_highscore.o \
 obj/front_input.o \
 obj/front_landview.o \
+obj/front_landview_multiplayer.o \
 obj/front_lvlstats.o \
 obj/front_lvlstats_data.o \
 obj/front_network.o \
@@ -253,6 +257,7 @@ obj/PaletteEffect.o \
 obj/LuaLensEffect.o \
 obj/light_data.o \
 obj/lua_api.o \
+obj/lua_api_camera.o \
 obj/lua_api_lens.o \
 obj/lua_api_player.o \
 obj/lua_api_room.o \
@@ -282,8 +287,6 @@ obj/map_utils.o \
 obj/moonphase.o \
 obj/net_game.o \
 obj/net_input_lag.o \
-obj/net_received_packets.o \
-obj/net_redundant_packets.o \
 obj/net_checksums.o \
 obj/net_matchmaking.o \
 obj/net_lan.o \
@@ -343,7 +346,6 @@ obj/value_util.o \
 obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
-obj/KeeperSpeechImp.o \
 obj/spritesheet.o \
 obj/windows.o \
 $(FTEST_OBJS) \
@@ -655,7 +657,6 @@ libexterns: libexterns.mk
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
 	-$(RM) -rf deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl
-	-$(RM) deps/libcurl-mingw32.tar.gz
 	-$(RM) libexterns
 
 deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl:
@@ -669,6 +670,7 @@ deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
 src/bflib_sndlib.cpp: deps/openal/include/AL/al.h
+src/net_exchange_gameplay.c: deps/zlib/include/zlib.h
 src/net_resync.cpp: deps/zlib/include/zlib.h
 src/console_cmd.c: deps/luajit/include/lua.h
 src/net_portforward.cpp: deps/miniupnpc/include/miniupnpc/miniupnpc.h deps/libnatpmp/include/natpmp/natpmp.h

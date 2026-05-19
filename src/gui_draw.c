@@ -644,7 +644,13 @@ TbBool draw_text_box(const char *text)
     int tx_units_per_px = ((box_height / 4) * 13 / 11) * 16 / LbTextLineHeight();
     LbTextSetWindow(startx, starty, box_width, box_height);
     n = LbTextLineHeight() * tx_units_per_px / 16;
-    return LbTextDrawResized(0, (box_height - spritesy * n) / 2, tx_units_per_px, text);
+    int line_count = 1;
+    for (const char *p = text; *p; p++) {
+        if (*p == '\n') {
+            line_count++;
+        }
+    }
+    return LbTextDrawResized(0, (box_height - line_count * n) / 2, tx_units_per_px, text);
 }
 
 TbBool draw_text_box_top(const char* text, ushort drawflags)

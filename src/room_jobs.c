@@ -101,6 +101,10 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
     {
         clean_spell_effect(creatng, CSAfF_Invisibility);
     }
+    if (creature_under_spell_effect(creatng, CSAfF_SpellBlocks))
+    {
+        clean_spell_effect(creatng, CSAfF_SpellBlocks);
+    }
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(room->owner);

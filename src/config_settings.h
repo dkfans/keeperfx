@@ -21,8 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
-#define GAME_KEYS_COUNT        45
+#include "front_input.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,12 +29,13 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct GameKey { // sizeof = 2
+struct GameKey {
   unsigned char code;
   unsigned char mods;
+  TbControllerButtons controller_buttons;
 };
 
-struct GameSettings { // KFX settings
+struct GameSettings {
     unsigned char video_detail_level;
     unsigned char video_shadows;
     unsigned char view_distance;

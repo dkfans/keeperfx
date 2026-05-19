@@ -888,12 +888,12 @@ short good_doing_nothing(struct Thing *creatng)
         return 0;
     }
     // Respect the idle time - just wander around some time
-    long nturns = game.play_gameturn - cctrl->idle.start_gameturn;
+    long nturns = get_gameturn() - cctrl->idle.start_gameturn;
     if (nturns <= 1) {
         return 1;
     }
     // Do some wandering also if can't find any task to do
-    if (cctrl->wait_to_turn > game.play_gameturn)
+    if (cctrl->wait_to_turn > get_gameturn())
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_GoodDoingNothing;
@@ -901,14 +901,14 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // Done wandering - if we had job assigned, get back to it
-    if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))
+    if ((cctrl->job_assigned != Job_NULL) && (get_gameturn() - cctrl->job_assigned_check_turn > 128))
     {
         if (attempt_job_preference(creatng, cctrl->job_assigned)) {
             SYNCDBG(8,"The %s index %d will do assigned job with state %s",thing_model_name(creatng),
                 (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return 1;
         }
-        cctrl->job_assigned_check_turn = game.play_gameturn;
+        cctrl->job_assigned_check_turn = get_gameturn();
     }
     // Now go the standard hero path - find a target player
     PlayerNumber target_plyr_idx = cctrl->party.target_plyr_idx;
@@ -924,7 +924,7 @@ short good_doing_nothing(struct Thing *creatng)
         }
         if ((player->victory_state != VicS_LostLevel) && players_are_enemies(creatng->owner, target_plyr_idx))
         {
-            nturns = game.play_gameturn - cctrl->hero.wait_time;
+            nturns = get_gameturn() - cctrl->hero.wait_time;
             if (nturns > 400)
             {
                 // Go to the previously chosen dungeon
@@ -969,16 +969,16 @@ short good_doing_nothing(struct Thing *creatng)
     }
     if (target_plyr_idx == -1)
     {
-        nturns = game.play_gameturn - cctrl->hero.wait_time;
+        nturns = get_gameturn() - cctrl->hero.wait_time;
         if ((nturns > 400) && (cctrl->hero.look_for_enemy_dungeon_turn != 0))
         {
-            cctrl->hero.wait_time = game.play_gameturn;
+            cctrl->hero.wait_time = get_gameturn();
             cctrl->hero.ready_for_attack_flag = 1;
         }
-        nturns = game.play_gameturn - cctrl->hero.look_for_enemy_dungeon_turn;
+        nturns = get_gameturn() - cctrl->hero.look_for_enemy_dungeon_turn;
         if (nturns > 64)
         {
-            cctrl->hero.look_for_enemy_dungeon_turn = game.play_gameturn;
+            cctrl->hero.look_for_enemy_dungeon_turn = get_gameturn();
             cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
         }
         target_plyr_idx = cctrl->party.target_plyr_idx;
@@ -990,7 +990,7 @@ short good_doing_nothing(struct Thing *creatng)
             {
                 cctrl->party.objective = cctrl->party.original_objective;
             }
-            cctrl->wait_to_turn = game.play_gameturn + 16;
+            cctrl->wait_to_turn = get_gameturn() + 16;
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
             {
                 creatng->continue_state = CrSt_GoodDoingNothing;
@@ -1003,7 +1003,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // If there are problems with the task, do a break before re-trying
-    cctrl->wait_to_turn = game.play_gameturn + 200;
+    cctrl->wait_to_turn = get_gameturn() + 200;
     return 0;
 }
 
@@ -1328,7 +1328,7 @@ short tunneller_doing_nothing(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     PlayerNumber CurrentTarget = cctrl->party.target_plyr_idx;
     // Wait for some time
-    if (game.play_gameturn - cctrl->idle.start_gameturn <= 1) {
+    if (get_gameturn() - cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
     /* Sometimes we may have no target dungeon. In that case, destination dungeon
@@ -1509,7 +1509,7 @@ short tunnelling(struct Thing *creatng)
         return 0;
     }
     // Once per 128 turns, check if we've done digging and can now walk to the place
-    if (((game.play_gameturn + creatng->index) & 0x7F) == 0)
+    if (((get_gameturn() + creatng->index) & 0x7F) == 0)
     {
         if (creature_can_navigate_to(creatng, pos, NavRtF_Default))
         {

@@ -81,7 +81,7 @@ DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
 DOOR_AVAILABLE(ALL_PLAYERS,MAGIC,1,0)
 
 CREATE_PARTY(HERO_WAVES)
-	ADD_TO_PARTY(HERO_WAVES,BARBARIAN,5,250,ATTACK_ENEMIES,0)	
+	ADD_TO_PARTY(HERO_WAVES,BARBARIAN,5,250,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(HERO_WAVES,DWARFA,5,250,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(HERO_WAVES,WIZARD,5,250,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(HERO_WAVES,FAIRY,5,250,ATTACK_ENEMIES,0)
@@ -469,27 +469,18 @@ ENDIF
 
 REM when appropriate rooms are under your control, explain
 IF(PLAYER0,PRISON>0)
-	IF(PLAYER0,FLAG3==0)
-		REM "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-		DISPLAY_INFORMATION(141,ALL_PLAYERS)
-		SET_FLAG(PLAYER0,FLAG3,1)
-	ENDIF
+	SET_FLAG(PLAYER0,FLAG3,1)
 ENDIF
 IF(PLAYER0,TORTURE>0)
-	IF(PLAYER0,FLAG3==0)
-		REM "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-		DISPLAY_INFORMATION(142,ALL_PLAYERS)
-		SET_FLAG(PLAYER0,FLAG3,1)
-	ENDIF
+	SET_FLAG(PLAYER0,FLAG3,1)
 ENDIF
 IF(PLAYER0,GRAVEYARD>0)
-	IF(PLAYER0,FLAG3==0)
-		REM "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-		DISPLAY_INFORMATION(143,ALL_PLAYERS)
-		SET_FLAG(PLAYER0,FLAG3,1)
-	ENDIF
+	SET_FLAG(PLAYER0,FLAG3,1)
 ENDIF
-
+IF(PLAYER0,FLAG3>=1)
+	REM "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
+	DISPLAY_INFORMATION(141,ALL_PLAYERS)
+ENDIF
 
 IF_ACTION_POINT(10,PLAYER0)
 	REM "You have found the rival Keeper. He is currently minding his own business, unaware of your presence. Keep him oblivious until you have an army at his door."

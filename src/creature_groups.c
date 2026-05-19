@@ -718,7 +718,7 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
     } else if (recompute_interval < 4) {
         recompute_interval = 4;
     }
-    if ((cctrl->group_member_count == group_len) && (((game.play_gameturn + leadtng->index) % recompute_interval) != 0))
+    if ((cctrl->group_member_count == group_len) && (((get_gameturn() + leadtng->index) % recompute_interval) != 0))
     {
         SYNCDBG(7,"Reusing positions for %d followers of %s index %d owned by player %d",
             group_len,thing_model_name(leadtng),(int)leadtng->index,(int)leadtng->owner);
@@ -874,8 +874,8 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
               cctrl->party.objective = member->objectv;
               cctrl->party.target_plyr_idx = member->target;
               cctrl->party.original_objective = cctrl->party.objective;
-              cctrl->wait_to_turn = game.play_gameturn + member->countdown;
-              cctrl->hero.wait_time = game.play_gameturn + member->countdown;
+              cctrl->wait_to_turn = get_gameturn() + member->countdown;
+              cctrl->hero.wait_time = get_gameturn() + member->countdown;
               if (thing_is_invalid(grptng))
               {
                   // If it is the first creature - set it as only group member and leader

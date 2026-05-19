@@ -76,6 +76,7 @@ struct TrapConfigStats {
     unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
     unsigned char trigger_type;
     unsigned char activation_type;
+    FuncIdx activation_lua_func_idx;
     unsigned short created_itm_model; // Shot model, effect model, slab kind.
     unsigned char activation_level;
     unsigned char hit_type;

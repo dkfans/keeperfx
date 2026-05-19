@@ -67,7 +67,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, ThingModel cimodel, unsigned s
     thing->parent_idx = thing->index;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
     struct PowerConfigStats * powerst = get_power_model_stats(PwrK_CAVEIN);
     thing->cave_in.time = powerst->duration;
     thing->cave_in.x = pos->x.stl.num;
@@ -99,7 +99,7 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingMo
         thing = create_effect_element(pos, tngmodel, owner);
         break;
     case TCls_DeadCreature:
-        thing = create_dead_creature(pos, tngmodel, 1, owner, 0);
+        thing = create_dead_creature(pos, tngmodel, DCrSt_Dying, owner, 0);
         break;
     case TCls_Creature:
         thing = create_creature(pos, tngmodel, owner);

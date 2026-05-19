@@ -136,6 +136,12 @@ struct CastedSpellData {
     PlayerNumber caster_owner;
 };
 
+
+// As a factor of `tortured.accumulated_torture_points` for 1 turn, to avoid precision loss caused by integer division, it should be designed as a common multiple that is divisible by all divisors.
+// Now the possible divisors are: 3
+// Note: Since accumulated_torture_points includes `room->efficiency`, if factor increases in the future, we need to consider switching to int64_t to prevent overflow issues
+#define TORTURE_ACCUM_FAC 3
+
 struct CreatureControl {
     CctrlIndex index;
     unsigned short creature_control_flags;
@@ -196,6 +202,7 @@ struct CreatureControl {
     int32_t turns_at_job;
     short blocking_door_id;
     unsigned char move_flags;
+    unsigned long cleanse_flags;
 
   union // Union on diggers, heroes and normal creatures
   {
@@ -241,11 +248,11 @@ struct CreatureControl {
   union // Jobs union
   {
       struct {
-        GameTurn start_gameturn;
         GameTurn state_start_turn;
         GameTurn torturer_start_turn;
+        int32_t accumulated_torture_points;
         ThingIndex assigned_torturer;
-        unsigned char vis_state;
+        unsigned char visual_state;
       } tortured;
       struct {
         GameTurn start_gameturn;
@@ -365,7 +372,7 @@ struct CreatureControl {
     unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
     short countdown; // signed
-    unsigned short damage_wall_coords;
+    SubtlCodedCoords damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
     char creature_name[CREATURE_NAME_MAX];
@@ -466,7 +473,6 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
 void stop_creature_sound(struct Thing *thing, long snd_idx);
 void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2);
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
-void reset_creature_eye_lens(struct Thing *thing);
 TbBool creature_can_gain_experience(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus

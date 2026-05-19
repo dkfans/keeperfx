@@ -42,7 +42,8 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "bflib_enet.h"
-#include "bflib_network_exchange.h"
+#include "net_exchange_common.h"
+#include "net_lobby.h"
 #include "packets.h"
 #include "post_inc.h"
 
@@ -121,9 +122,9 @@ TbBool frontnet_start_input(void)
     }
     if (lbInkey == KC_RETURN) {
         if (player->mp_message_text[0] != '\0') {
-            LbNetwork_SendChatMessageImmediate(my_player_number, player->mp_message_text);
+            send_network_chat_message(my_player_number, player->mp_message_text);
         }
-        process_chat_message_end(my_player_number, player->mp_message_text);
+        process_frontend_chat_message(my_player_number, player->mp_message_text);
     } else if (lbInkey == KC_ESCAPE) {
         player->mp_message_text[0] = '\0';
     } else if (lbInkey == KC_BACK || frontend_font_string_width(1, player->mp_message_text) < 420) {
@@ -305,18 +306,21 @@ void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
         spr = get_frontend_sprite(GFS_bullfrog_red_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth*fs_units_per_px/16;
+        pos_x += (4 * fs_units_per_px + 8) / 16;
     }
     if (net_number_of_enum_players > 1)
     {
         spr = get_frontend_sprite(GFS_bullfrog_blue_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth*fs_units_per_px/16;
+        pos_x += (4 * fs_units_per_px + 8) / 16;
     }
     if (net_number_of_enum_players > 2)
     {
         spr = get_frontend_sprite(GFS_bullfrog_green_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth*fs_units_per_px/16;
+        pos_x += (4 * fs_units_per_px + 8) / 16;
     }
     if (net_number_of_enum_players > 3)
     {
@@ -353,9 +357,9 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         long subplyr_idx;
         for (subplyr_idx = 0; subplyr_idx < net_number_of_enum_players; subplyr_idx++)
         {
-            if (subplyr_idx >= NET_PLAYERS_COUNT)
+            if (subplyr_idx >= MAX_NET_USERS)
                 break;
-            if (net_player_info[subplyr_idx].active)
+            if (net_player_info[subplyr_idx].network_user_active)
             {
                 if (subplyr_idx == netplyr_idx)
                     break;
@@ -393,11 +397,11 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet[my_player_number];
-        if ((nspck->networkstatus_flags & 0xF8) == 0)
+        if (screen_packet_action(nspck) == NetAct_None)
         {
-            nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x20;
-            nspck->param1 = plyr1_idx;
-            nspck->param2 = plyr2_idx;
+            screen_packet_set_action(nspck, NetAct_SetAlliance);
+            nspck->action_par1 = plyr1_idx;
+            nspck->action_par2 = plyr2_idx;
         }
     }
 }
@@ -414,7 +418,7 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
     pos_x = gbtn->scr_pos_x;
     spr = get_frontend_sprite(GFS_slidrect_indicator_std0);
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -423,7 +427,7 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
     pos_x = gbtn->scr_pos_x;
     spr = get_frontend_sprite(GFS_slidrect_indicator_std1);
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -432,7 +436,7 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
     pos_x = gbtn->scr_pos_x;
     spr = get_frontend_sprite(GFS_slidrect_indicator_std2);
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -441,7 +445,7 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
     pos_x = gbtn->scr_pos_x;
     spr = get_frontend_sprite(GFS_slidrect_indicator_std2);
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -594,7 +598,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
         int i;
         for (i = nmsg->plyr_idx; i > 0; i--)
         {
-          if ( net_player_info[i].active)
+          if ( net_player_info[i].network_user_active)
             num_active++;
         }
 
@@ -693,8 +697,10 @@ void frontnet_service_select(struct GuiButton *gbtn)
   if ( ((game.system_flags & GSF_AllowOnePlayer) != 0)
      && (srvidx+1 >= net_number_of_services) )
   {
+      frontend_set_player_number(default_loc_player);
       fe_network_active = 0;
-      frontend_set_state(FeSt_NETLAND_VIEW);
+      net_service_index_selected = FrontendNetSvc_Skirmish;
+      frontend_set_state(FeSt_MP_MAPPACK_SELECT);
   } else
   if (srvidx < 0)
   {

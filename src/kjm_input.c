@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kjm_input.h"
+#include <math.h>
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -25,8 +26,14 @@
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
+#include "bflib_joyst.h"
+#include "bflib_planar.h"
 #include "bflib_math.h"
+#include "bflib_sprfnt.h"
+#include "bflib_inputctrl.h"
+#include "bflib_datetm.h"
 
+#include "button_snapping.h"
 #include "config_settings.h"
 #include "config_strings.h"
 #include "frontend.h"
@@ -77,32 +84,33 @@ long key_to_string[256];
 
 /** Initialization array, used to create array which stores index of text name of keyboard keys. */
 struct KeyToStringInit key_to_string_init[] = {
-  {KC_A,  -65},
-  {KC_B,  -66},
-  {KC_C,  -67},
-  {KC_D,  -68},
-  {KC_E,  -69},
-  {KC_F,  -70},
-  {KC_G,  -71},
-  {KC_H,  -72},
-  {KC_I,  -73},
-  {KC_J,  -74},
-  {KC_K,  -75},
-  {KC_L,  -76},
-  {KC_M,  -77},
-  {KC_N,  -78},
-  {KC_O,  -79},
-  {KC_P,  -80},
-  {KC_Q,  -81},
-  {KC_R,  -82},
-  {KC_S,  -83},
-  {KC_T,  -84},
-  {KC_U,  -85},
-  {KC_V,  -86},
-  {KC_W,  -87},
-  {KC_X,  -88},
-  {KC_Y,  -89},
-  {KC_Z,  -90},
+
+  {KC_A,  -DKChr_Upper_A},
+  {KC_B,  -DKChr_Upper_B},
+  {KC_C,  -DKChr_Upper_C},
+  {KC_D,  -DKChr_Upper_D},
+  {KC_E,  -DKChr_Upper_E},
+  {KC_F,  -DKChr_Upper_F},
+  {KC_G,  -DKChr_Upper_G},
+  {KC_H,  -DKChr_Upper_H},
+  {KC_I,  -DKChr_Upper_I},
+  {KC_J,  -DKChr_Upper_J},
+  {KC_K,  -DKChr_Upper_K},
+  {KC_L,  -DKChr_Upper_L},
+  {KC_M,  -DKChr_Upper_M},
+  {KC_N,  -DKChr_Upper_N},
+  {KC_O,  -DKChr_Upper_O},
+  {KC_P,  -DKChr_Upper_P},
+  {KC_Q,  -DKChr_Upper_Q},
+  {KC_R,  -DKChr_Upper_R},
+  {KC_S,  -DKChr_Upper_S},
+  {KC_T,  -DKChr_Upper_T},
+  {KC_U,  -DKChr_Upper_U},
+  {KC_V,  -DKChr_Upper_V},
+  {KC_W,  -DKChr_Upper_W},
+  {KC_X,  -DKChr_Upper_X},
+  {KC_Y,  -DKChr_Upper_Y},
+  {KC_Z,  -DKChr_Upper_Z},
   {KC_F1,  GUIStr_KeyF1},
   {KC_F2,  GUIStr_KeyF2},
   {KC_F3,  GUIStr_KeyF3},
@@ -149,7 +157,6 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_RIGHT,  GUIStr_KeyRight},
   {KC_LALT,   GUIStr_KeyLeftAlt},
   {KC_RALT,   GUIStr_KeyRightAlt},
-// [mouse buttons as keybinds - quick fix]
   {KC_MOUSE3,          GUIStr_MouseButton},
   {KC_MOUSEWHEEL_UP,   GUIStr_MouseScrollWheelUp},
   {KC_MOUSEWHEEL_DOWN, GUIStr_MouseScrollWheelDown},
@@ -159,6 +166,17 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_MOUSE7,          GUIStr_MouseButton},
   {KC_MOUSE8,          GUIStr_MouseButton},
   {KC_MOUSE9,          GUIStr_MouseButton},
+  {KC_ADD,             -DKChr_Plus},
+  {KC_SUBTRACT,        -DKChr_Hyphen},
+  {KC_GRAVE,           GUIStr_KeyGrave},
+  {KC_SEMICOLON,       -DKChr_Semicolon},
+  {KC_SLASH,           -DKChr_Slash},
+  {KC_COMMA,           -DKChr_Comma},
+  {KC_TAB,             GUIStr_KeyTab},
+  {KC_SPACE,           GUIStr_KeySpace},
+  {KC_COLON,           -DKChr_Colon},
+  {KC_EQUALS,          -DKChr_Equals},
+  {KC_MINUS,           -DKChr_Hyphen},
   {  0,     0},
 };
 
@@ -166,6 +184,134 @@ struct KeyToStringInit key_to_string_init[] = {
 // it should be highlighted in font color #3 in the list, to show that it was swapped
 TbBool defined_keys_that_have_been_swapped[GAME_KEYS_COUNT] = { false };
 /******************************************************************************/
+
+static void get_button_snapping_inputs(void)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (player->view_type == PVT_CreatureContrl)
+        return;
+
+    TbControllerButtons snapbtns = get_game_key_controller_buttons(Gkey_ButtonSnapRight)|get_game_key_controller_buttons(Gkey_ButtonSnapLeft)|get_game_key_controller_buttons(Gkey_ButtonSnapUp)|get_game_key_controller_buttons(Gkey_ButtonSnapDown);
+    TbControllerButtons relevant_buttons = controller_button_state & snapbtns;
+    if ((relevant_buttons == 0) || (relevant_buttons != controller_button_state)) {
+        return;
+    }
+
+    float snap_x = get_game_key_axis_value(Gkey_ButtonSnapRight, false) - get_game_key_axis_value(Gkey_ButtonSnapLeft, false);
+    float snap_y = get_game_key_axis_value(Gkey_ButtonSnapDown, false)  - get_game_key_axis_value(Gkey_ButtonSnapUp, false);
+    
+    snap_to_direction(GetMouseX(), GetMouseY(), snap_x, snap_y);
+
+    controller_button_state = 0;
+}
+
+static float get_input_delta_time()
+{
+    static TbClockMSec delta_time_previous_msec = 0;
+
+    TbClockMSec current_msec = LbTimerClock();
+    if (delta_time_previous_msec == 0 || current_msec < delta_time_previous_msec) {
+        delta_time_previous_msec = current_msec;
+        return 0.0f;
+    }
+
+    TbClockMSec elapsed_msec = current_msec - delta_time_previous_msec;
+    delta_time_previous_msec = current_msec;
+    float calculated_delta_time = ((float)elapsed_msec / 1000.0f) * turns_per_second;
+    return min(calculated_delta_time, 1.0f);
+}
+
+void poll_controller_mouse_clicks()
+{
+    static TbControllerButtons previous_controller_button_state;
+    TbControllerButtons left_buttons = get_game_key_controller_buttons(Gkey_LeftClick);
+    TbControllerButtons right_buttons = get_game_key_controller_buttons(Gkey_RightClick);
+    
+    struct TbPoint delta = {0, 0};
+    
+    if ((controller_button_state & left_buttons) != (previous_controller_button_state & left_buttons)) {
+        if (controller_button_state & left_buttons) {
+            mouseControl(MActn_LBUTTONDOWN, &delta);
+        } else {
+            mouseControl(MActn_LBUTTONUP, &delta);
+        }
+    }
+    if ((controller_button_state & right_buttons) != (previous_controller_button_state & right_buttons)) {
+        if (controller_button_state & right_buttons) {
+            mouseControl(MActn_RBUTTONDOWN, &delta);
+        } else {
+            mouseControl(MActn_RBUTTONUP, &delta);
+        }
+    }
+    previous_controller_button_state = controller_button_state;
+}
+
+#define SECONDS_TO_CROSS   20.0f
+static void poll_controller_mouse_movement(float nx, float ny)
+{
+    static float mouse_accum_x;
+    static float mouse_accum_y;
+    static float input_delta_time = 0.0f;
+    input_delta_time = get_input_delta_time();
+    float mag = sqrtf(nx * nx + ny * ny);
+
+    if (mag <= 0.0f)
+        return;
+
+    nx /= mag;
+    ny /= mag;
+
+    float norm_mag = min(mag, 1.0f);
+    float curved = norm_mag * norm_mag;
+    float pixels_per_second = lbDisplay.GraphicsWindowWidth / SECONDS_TO_CROSS;
+    float pixels_this_frame = pixels_per_second * input_delta_time;
+
+    mouse_accum_x += nx * curved * pixels_this_frame;
+    mouse_accum_y += ny * curved * pixels_this_frame;
+
+    int dx = (int)mouse_accum_x;
+    int dy = (int)mouse_accum_y;
+
+    mouse_accum_x -= dx;
+    mouse_accum_y -= dy;
+
+    if (dx != 0 || dy != 0) {
+        struct TbPoint mouseDelta = { dx, dy };
+        mouseControl(MActn_MOUSEMOVE, &mouseDelta);
+    }
+}
+
+void update_controller_inputs()
+{
+    if (!controller_connected())
+    {
+        return;
+    }
+
+    poll_controller_mouse_clicks();
+    float mouse_x = get_game_key_axis_value(Gkey_MouseRight, false) - get_game_key_axis_value(Gkey_MouseLeft, false);
+    float mouse_y = get_game_key_axis_value(Gkey_MouseDown, false) - get_game_key_axis_value(Gkey_MouseUp, false);
+    poll_controller_mouse_movement(mouse_x, mouse_y);
+    get_button_snapping_inputs();
+
+    static TbBool last_pause_menu_state = false;
+    TbBool pause_menu_pressed = is_game_key_pressed(Gkey_PauseMenu, false, true);
+
+    if (pause_menu_pressed && !last_pause_menu_state) {
+        lbKeyOn[KC_ESCAPE] = pause_menu_pressed;
+    }
+    last_pause_menu_state = pause_menu_pressed;
+        
+}
+
+TbBool poll_inputs(void)
+{
+    TbBool user_not_quit = LbPollInputs();
+    update_controller_inputs();
+
+    return user_not_quit;
+}
+
 /**
  * Returns X position of mouse cursor on screen.
  */

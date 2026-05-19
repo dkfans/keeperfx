@@ -17,7 +17,15 @@ extern "C" {
 #endif
 
 
-struct ModsConfig mods_conf = {0};
+static struct ModsConfig stored_mods_conf = {0};
+
+const struct ModsConfig *get_loaded_mods_conf(void)
+{
+    static const struct ModsConfig empty_mods_conf = {0};
+    if (game.system_flags & GSF_NetworkActive)
+        return &empty_mods_conf;
+    return &stored_mods_conf;
+}
 
 static TbBool parse_block_mods(char *buf, long len, const char *block_name, struct ModConfigItem* mod_items, int32_t *mod_cnt, long mod_max)
 {
@@ -165,9 +173,9 @@ static void recheck_block_mod_list_exist(struct ModConfigItem *mod_items, long m
 void recheck_all_mod_exist()
 {
     SYNCDBG(8,"Check mods starts");
-    recheck_block_mod_list_exist(mods_conf.after_base_item, mods_conf.after_base_cnt, MODS_AFTER_BASE_BLOCK_NAME);
-    recheck_block_mod_list_exist(mods_conf.after_campaign_item, mods_conf.after_campaign_cnt, MODS_AFTER_CAMPAIGN_BLOCK_NAME);
-    recheck_block_mod_list_exist(mods_conf.after_map_item, mods_conf.after_map_cnt, MODS_AFTER_CAMPAIGN_BLOCK_NAME);
+    recheck_block_mod_list_exist(stored_mods_conf.after_base_item, stored_mods_conf.after_base_cnt, MODS_AFTER_BASE_BLOCK_NAME);
+    recheck_block_mod_list_exist(stored_mods_conf.after_campaign_item, stored_mods_conf.after_campaign_cnt, MODS_AFTER_CAMPAIGN_BLOCK_NAME);
+    recheck_block_mod_list_exist(stored_mods_conf.after_map_item, stored_mods_conf.after_map_cnt, MODS_AFTER_CAMPAIGN_BLOCK_NAME);
     SYNCDBG(8,"Check mods end");
 }
 
@@ -175,7 +183,7 @@ TbBool load_mods_order_config_file()
 {
     SYNCDBG(8, "Starting");
 
-    memset(&mods_conf, 0, sizeof(mods_conf));
+    memset(&stored_mods_conf, 0, sizeof(stored_mods_conf));
 
     const char *sname = MODS_DIR_NAME "/" MODS_LOAD_ORDER_FILE_NAME;
     const char *fname = prepare_file_path(FGrp_Main, sname);
@@ -198,9 +206,9 @@ TbBool load_mods_order_config_file()
     len = LbFileLoadAt(fname, buf);
     if (len>0)
     {
-        parse_block_mods(buf, len, MODS_AFTER_BASE_BLOCK_NAME, mods_conf.after_base_item, &mods_conf.after_base_cnt, MOD_ITEM_MAX);
-        parse_block_mods(buf, len, MODS_AFTER_CAMPAIGN_BLOCK_NAME, mods_conf.after_campaign_item, &mods_conf.after_campaign_cnt, MOD_ITEM_MAX);
-        parse_block_mods(buf, len, MODS_AFTER_MAP_BLOCK_NAME, mods_conf.after_map_item, &mods_conf.after_map_cnt, MOD_ITEM_MAX);
+        parse_block_mods(buf, len, MODS_AFTER_BASE_BLOCK_NAME, stored_mods_conf.after_base_item, &stored_mods_conf.after_base_cnt, MOD_ITEM_MAX);
+        parse_block_mods(buf, len, MODS_AFTER_CAMPAIGN_BLOCK_NAME, stored_mods_conf.after_campaign_item, &stored_mods_conf.after_campaign_cnt, MOD_ITEM_MAX);
+        parse_block_mods(buf, len, MODS_AFTER_MAP_BLOCK_NAME, stored_mods_conf.after_map_item, &stored_mods_conf.after_map_cnt, MOD_ITEM_MAX);
     }
     free(buf);
 

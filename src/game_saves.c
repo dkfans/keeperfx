@@ -152,7 +152,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             chunks_done |= SGF_InfoBlock;
     }
     // If it's not start of a level, save progress data too
-    if (game.play_gameturn != 0)
+    if (get_gameturn() != 0)
     {
         { // Game data chunk
             hdr.id = SGC_GameOrig;
@@ -189,7 +189,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             if (load_catalogue_entry(fhandle, &hdr, centry))
             {
                 chunks_done |= SGF_InfoBlock;
-                if (!change_campaign(centry->campaign_fname)) {
+                if (!change_campaign(CampgnT_Default, centry->campaign_fname)) {
                     ERRORLOG("Unable to load campaign");
                     return GLoad_Failed;
                 }
@@ -593,7 +593,7 @@ TbBool continue_game_available(void)
         WARNLOG("Can't read continue game file head");
         return false;
     }
-    if (!change_campaign(cmpgn_fname))
+    if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
     {
         ERRORLOG("Unable to load campaign");
         return false;
@@ -624,7 +624,7 @@ short load_continue_game(void)
         return false;
     }
     cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
-    if (!change_campaign(cmpgn_fname))
+    if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
     {
         ERRORLOG("Unable to load campaign");
         return false;
