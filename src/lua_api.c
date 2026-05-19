@@ -1739,6 +1739,27 @@ static int lua_Set_digger(lua_State *L)
     return 0;
 }
 
+static int lua_Set_texture(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long texture_id = luaL_checkNamedCommand(L,2,texture_pack_desc);
+
+    if (texture_id == -1)
+    {
+        texture_id = 0;
+    }
+    else if (texture_id < 0)
+    {
+        return luaL_argerror(L, 2, "invalid texture id");
+    }
+
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        set_player_texture(i, texture_id);
+    }
+    return 0;
+}
+
 static int lua_Use_power_on_creature(lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
@@ -2424,6 +2445,7 @@ static const luaL_Reg global_methods[] = {
     {"ZoomToLocation",                      lua_Zoom_to_location                },
     {"LockPossession",                      lua_Lock_possession                 },
     {"SetDigger",                           lua_Set_digger                      },
+    {"SetTexture",                          lua_Set_texture                     },
 
 //debug stuff
     {"print"                             ,lua_print                     },
