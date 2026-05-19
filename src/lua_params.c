@@ -673,6 +673,26 @@ void lua_pushPartyTable(lua_State *L, struct Thing* thing) {
     }
 }
 
+//takes the creature
+//pushes a table of all the summoned creatures onto the stack
+void lua_pushFamiliarTable(lua_State* L, struct Thing* thing) {
+    lua_newtable(L);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* famlrtng;
+    for (short j = 0; j < FAMILIAR_MAX; j++)
+    {
+        if (cctrl->familiar_idx[j])
+        {
+            famlrtng = thing_get(cctrl->familiar_idx[j]);
+            if (!thing_is_invalid(famlrtng))
+            {
+                lua_pushThing(L, thing);
+                lua_rawseti(L, -2, j + 1);
+            }
+        }
+    }
+}
+
 void lua_pushRoom(lua_State *L, struct Room* room) {
     if (room_is_invalid(room)) {
         lua_pushnil(L);

@@ -554,6 +554,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->conscious_back_turns);
         } else if (strcmp(key, "unsummon_turn") == 0) {
             lua_pushinteger(L, cctrl->unsummon_turn);
+        } else if (strcmp(key, "familiars") == 0) {
+            lua_pushFamiliarTable(L, thing);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }
