@@ -296,7 +296,6 @@ TbBool ftest_setup_test(struct FTestConfig* const test_config)
     strcpy(start_params.selected_campaign, test_config->level_file);
     LevelNumber selected_level = test_config->level;
 
-    str_append(start_params.selected_campaign, sizeof(start_params.selected_campaign), ".cfg");
     TbBool result = change_campaign(CampgnT_Default, start_params.selected_campaign);
     if(!result)
     {

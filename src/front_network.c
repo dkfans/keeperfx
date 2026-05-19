@@ -113,9 +113,6 @@ static TbBool try_starting_level_from_chat(const char *message, int32_t player_i
     }
     char campaign_filename[80];
     snprintf(campaign_filename, sizeof(campaign_filename), "%.*s", campaign_len, message);
-    if ((campaign_len < 4) || (strncasecmp(message + campaign_len - 4, ".cfg", 4) != 0)) {
-        strcat(campaign_filename, ".cfg");
-    }
     return frontnet_start_level(campaign_filename, level_num);
 }
 
@@ -124,14 +121,13 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
     if (campaign_fname == NULL || campaign_fname[0] == '\0') {
         return false;
     }
-    TbBool campaign_loaded;
-    if ((lvnum <= 0) || is_campaign_in_list(campaign_fname, &mp_mappacks_list)) {
-        campaign_loaded = change_campaign(CampgnT_MultiplayerMappack, campaign_fname);
-    } else {
-        campaign_loaded = change_campaign(CampgnT_Default, campaign_fname);
+    char campaign_file[DISKPATH_SIZE];
+    uint8_t pack = prepare_campaign_file_name(campaign_fname, campaign_file, sizeof(campaign_file));
+    if ((pack == CampgnT_Default) && ((lvnum <= 0) || is_campaign_in_list(campaign_file, &mp_mappacks_list))) {
+        pack = CampgnT_MultiplayerMappack;
     }
-    if (!campaign_loaded
-     || (strcasecmp(campaign.fname, campaign_fname) != 0)) {
+    if (!change_campaign(pack, campaign_file)
+     || (strcasecmp(campaign.fname, campaign_file) != 0)) {
         ERRORLOG("Unable to load campaign '%s' for level %d", campaign_fname, (int)lvnum);
         return false;
     }
