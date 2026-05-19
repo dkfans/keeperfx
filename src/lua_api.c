@@ -1744,6 +1744,15 @@ static int lua_Set_texture(lua_State *L)
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     long texture_id = luaL_checkNamedCommand(L,2,texture_pack_desc);
 
+    if (texture_id == -1)
+    {
+        texture_id = 0;
+    }
+    else if (texture_id < 0)
+    {
+        return luaL_argerror(L, 2, "invalid texture id");
+    }
+
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         set_player_texture(i, texture_id);
