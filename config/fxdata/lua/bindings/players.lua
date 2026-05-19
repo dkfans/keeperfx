@@ -31,7 +31,7 @@ function SetDigger(player,creature) end
 
 ---Changes the slabs belonging to a specific player to a custom texture
 ---@param player playerrange  The name of the player who's slabs are changed.
----@param texture string The name or number of the texture to use for the player, like 'STONE_FACE'. Accepts 'None' or '-1'.
+---@param texture texture_pack The name or number of the texture to use for the player, like 'STONE_FACE'. Accepts 'None' or '-1'.
 function SetTexture(player,texture) end
 
 

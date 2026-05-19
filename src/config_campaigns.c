@@ -1126,46 +1126,52 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     return result;
 }
 
+uint8_t prepare_campaign_file_name(const char *cmpgn_fname, char *cmpgn_file, int cmpgn_file_len)
+{
+    cmpgn_file[0] = '\0';
+    if (cmpgn_fname == NULL)
+        return CampgnT_Default;
+    uint8_t pack = CampgnT_Default;
+    if (strncasecmp(cmpgn_fname, "campgns/", 8) == 0) {
+        pack = CampgnT_Campaign;
+        cmpgn_fname += 8;
+    } else if (strncasecmp(cmpgn_fname, "levels/", 7) == 0) {
+        pack = CampgnT_Mappack;
+        cmpgn_fname += 7;
+    } else if (strncasecmp(cmpgn_fname, "multiplayer/", 12) == 0) {
+        pack = CampgnT_MultiplayerMappack;
+        cmpgn_fname += 12;
+    }
+    snprintf(cmpgn_file, cmpgn_file_len, "%s", cmpgn_fname);
+    int len = strlen(cmpgn_file);
+    if ((len > 0) && ((len < 4) || (strcasecmp(cmpgn_file + len - 4, ".cfg") != 0)))
+        str_append(cmpgn_file, cmpgn_file_len, ".cfg");
+    return pack;
+}
+
 TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
 {
     static short campaign_fgroup = FGrp_None;
     SYNCDBG(8,"Starting");
+    char cmpgn_file[DISKPATH_SIZE];
+    uint8_t prefix_pack = prepare_campaign_file_name(cmpgn_fname, cmpgn_file, sizeof(cmpgn_file));
+    if (prefix_pack != CampgnT_Default)
+        pack = prefix_pack;
     short fgroup = FGrp_None;
-    switch (pack) {
-    case CampgnT_Mappack:
-        if (is_campaign_in_list(cmpgn_fname, &mappacks_list)) {
-            fgroup = FGrp_VarLevels;
-        }
-        break;
-    case CampgnT_Campaign:
-        if (is_campaign_in_list(cmpgn_fname, &campaigns_list)) {
-            fgroup = FGrp_Campgn;
-        }
-        break;
-    case CampgnT_MultiplayerMappack:
-        if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list)) {
-            fgroup = FGrp_MpLevels;
-        }
-        break;
-    case CampgnT_Default:
-    default:
-        if (is_campaign_in_list(cmpgn_fname, &campaigns_list)) {
-            fgroup = FGrp_Campgn;
-        } else if (is_campaign_in_list(cmpgn_fname, &mappacks_list)) {
-            fgroup = FGrp_VarLevels;
-        } else if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list)) {
-            fgroup = FGrp_MpLevels;
-        }
-        break;
-    }
-    if ((fgroup != FGrp_None) && (campaign_fgroup == fgroup) && (strcasecmp(campaign.fname,cmpgn_fname) == 0)) {
+    if (((pack == CampgnT_Campaign) || (pack == CampgnT_Default)) && is_campaign_in_list(cmpgn_file, &campaigns_list))
+        fgroup = FGrp_Campgn;
+    else if (((pack == CampgnT_Mappack) || (pack == CampgnT_Default)) && is_campaign_in_list(cmpgn_file, &mappacks_list))
+        fgroup = FGrp_VarLevels;
+    else if (((pack == CampgnT_MultiplayerMappack) || (pack == CampgnT_Default)) && is_campaign_in_list(cmpgn_file, &mp_mappacks_list))
+        fgroup = FGrp_MpLevels;
+    if ((fgroup != FGrp_None) && (campaign_fgroup == fgroup) && (strcasecmp(campaign.fname,cmpgn_file) == 0)) {
         return true;
     }
     free_campaign(&campaign);
     campaign_fgroup = FGrp_None;
-    TbBool result = (fgroup != FGrp_None) && load_campaign(cmpgn_fname,&campaign,CnfLd_Standard, fgroup);
+    TbBool result = (fgroup != FGrp_None) && load_campaign(cmpgn_file,&campaign,CnfLd_Standard, fgroup);
     if (!result) {
-        WARNMSG("Loading campaign file \"%s\" failed falling back to default campaign.", cmpgn_fname);
+        WARNMSG("Loading campaign file \"%s\" failed falling back to default campaign.", cmpgn_file);
         fgroup = FGrp_Campgn;
         result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard, fgroup);
     }
