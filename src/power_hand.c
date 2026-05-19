@@ -709,8 +709,10 @@ void draw_power_hand(void)
 
 TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
 {
-    if (thing->owner == plyr_idx) {
-        return (object_is_mature_food(thing));
+    if (thing->owner == plyr_idx) 
+    {
+        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        return ((objst->model_flags & OMF_Slappable) != 0);
     }
     return false;
 }
@@ -1510,7 +1512,7 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
 
 TbBool slap_object(struct Thing *thing)
 {
-  if (object_is_mature_food(thing)) {
+  if (object_is_slappable(thing,thing->owner)) {
       destroy_object(thing);
       return true;
   }
