@@ -191,6 +191,7 @@ TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char
 TbBool change_campaign(uint8_t pack, const char *cmpgn_fname);
 TbBool is_campaign_loaded(void);
 TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist);
+uint8_t prepare_campaign_file_name(const char *cmpgn_fname, char *cmpgn_file, int cmpgn_file_len);
 TbBool is_map_pack(void);
 void set_default_mp_mappack(void);
 /******************************************************************************/
