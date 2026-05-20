@@ -1460,7 +1460,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         model_command = shot_desc;
         break;
     default:
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unknown this class");
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unknown thing class");
         return;
     }
 
