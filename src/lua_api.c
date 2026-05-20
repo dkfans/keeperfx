@@ -637,7 +637,7 @@ static int lua_Display_message(lua_State *L)
     const char *msg =  get_string(msg_id);
     char id;
     char type;
-    luaL_checkMessageIcon(L, 1, &type, &id);
+    luaL_checkMessageIcon(L, 2, &type, &id);
 
     message_add(type,id, msg);
 
