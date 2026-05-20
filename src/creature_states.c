@@ -545,7 +545,7 @@ const CreatureStateCheck move_check_func_list[] = {
  */
 long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
     CrGUIJob_Wandering, CrGUIJob_Working, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Fighting, CrGUIJob_Wandering, CrGUIJob_Wandering,
-    CrGUIJob_Working, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Fighting, CrGUIJob_Fighting,CrGUIJob_Working, CrGUIJob_Working, CrGUIJob_Working
+    CrGUIJob_Working, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Fighting, CrGUIJob_Fighting, CrGUIJob_Working, CrGUIJob_Working, CrGUIJob_Working
 };
 
 /******************************************************************************/
