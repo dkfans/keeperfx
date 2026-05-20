@@ -479,7 +479,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         angle = thing->move_angle_xy;
         if ( (angle) && ( (angle <= ANGLE_EAST) || (angle > ANGLE_WEST) ) )
         {
-          unsigned short y = thing->mappos.y.val;
+          MapCoord y = thing->mappos.y.val;
           pos2.x.val = thing->mappos.x.val;
           pos2.z.val = 0;
           pos2.y.val = y - STL_PER_SLB * speed;
@@ -508,7 +508,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         }
         else
         {
-          unsigned short x = thing->mappos.x.val;
+          MapCoord x = thing->mappos.x.val;
           pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val;
           pos2.x.val = x - STL_PER_SLB * speed;
@@ -552,7 +552,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
                 }
             }
             delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0); // destroy guardpost
-            for (long k = 0; k < AROUND_TILES_COUNT; k++)
+            for (int16_t k = 0; k < AROUND_TILES_COUNT; k++)
             {
                 create_dirt_rubble_for_dug_block(stl_x + around[k].delta_x, stl_y + around[k].delta_y, 4, room->owner);
             }
