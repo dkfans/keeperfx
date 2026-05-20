@@ -302,7 +302,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((powerst->can_cast_flags & PwCast_OwnedObjects) != 0)
         {
             if (thing->owner == plyr_idx) {
-                if (object_is_pickable_by_hand_to_hold(thing)) {
+                if (object_is_pickable_by_hand_to_hold(thing) || object_is_slappable(thing,plyr_idx)) {
                     return true;
                 }
             }
@@ -310,7 +310,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((powerst->can_cast_flags & PwCast_NeutrlObjects) != 0)
         {
             if (is_neutral_thing(thing)) {
-                if (object_is_pickable_by_hand_to_hold(thing)) {
+                if (object_is_pickable_by_hand_to_hold(thing) || object_is_slappable(thing, plyr_idx)) {
                     return true;
                 }
             }
@@ -318,7 +318,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((powerst->can_cast_flags & PwCast_EnemyObjects) != 0)
         {
             if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
-                if (object_is_pickable_by_hand_to_hold(thing)) {
+                if (object_is_pickable_by_hand_to_hold(thing) || object_is_slappable(thing, plyr_idx)) {
                     return true;
                 }
             }
