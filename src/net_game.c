@@ -330,7 +330,7 @@ static TbBool replace_network_player_with_ai(struct PlayerInfo *player, const ch
         message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
         JUSTLOG("p:%d computer took over", player->id_number);
     }
-    if (departure_message_format != NULL && player->player_name[0] != '\0') {
+    if (departure_message_format != NULL && player->id_number != get_host_player_id() && player->player_name[0] != '\0') {
         message_add_fmt(MsgType_Blank, 0, departure_message_format, player->player_name);
         JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
     }
