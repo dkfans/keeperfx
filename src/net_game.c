@@ -384,7 +384,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 
     int32_t plyr_count = 0;
     short winning_quit = winning_player_quitting(player, &plyr_count);
-    TbBool replaced_with_ai = replace_network_player_with_ai(player, get_string(GUIStr_NetPlayerLeftGame));
+    TbBool replaced_with_ai = replace_network_player_with_ai(player, get_string(GUIStr_NetPlayerDisconnected));
     if (player != myplyr) {
         OnDroppedUser(player->packet_num, NETDROP_MANUAL);
     }
