@@ -58,7 +58,7 @@ enum ObjectModelFlags {
     OMF_Heart                = 0x0040, // Functions as the heart of the dungeon
     OMF_HoldInHand           = 0x0080, // Object can be picked up to hold
     OMF_IgnoredByImps        = 0x0100, // Specialdiggers don't dragging this object
-    OMF_Slappable            = 0x0200, // Object can be picked up to hold
+    OMF_Slappable            = 0x0200, // Object can be slapped
 };
 
 
