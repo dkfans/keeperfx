@@ -707,7 +707,7 @@ void draw_power_hand(void)
     }
 }
 
-TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
+TbBool object_is_slappable_by_player(const struct Thing *thing, long plyr_idx)
 {
     if (thing->owner == plyr_idx) 
     {
@@ -781,9 +781,9 @@ TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
     switch (thing->class_id)
     {
     case TCls_Object:
-        return object_is_slappable(thing, plyr_idx);
+        return object_is_slappable_by_player(thing, plyr_idx);
     case TCls_Shot:
-        return shot_is_slappable(thing, plyr_idx);
+        return shot_is_slappable_by_player(thing, plyr_idx);
     case TCls_Creature:
         return creature_is_slappable(thing, plyr_idx);
     case TCls_Trap:
@@ -1513,7 +1513,7 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
 #define HAND_TO_OBJECT_SLAP_DAMAGE 10
 TbBool slap_object(struct Thing *thing)
 {
-  if (object_is_slappable(thing,thing->owner)) 
+  if (object_is_slappable_by_player(thing,thing->owner)) 
   {
       apply_damage_to_thing(thing, HAND_TO_OBJECT_SLAP_DAMAGE, thing->owner);
       return true;

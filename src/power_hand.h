@@ -68,7 +68,7 @@ TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr
 long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx);
 
 TbBool slap_object(struct Thing *thing);
-TbBool object_is_slappable(const struct Thing *thing, long plyr_idx);
+TbBool object_is_slappable_by_player(const struct Thing *thing, long plyr_idx);
 TbBool thing_slappable(const struct Thing *thing, long plyr_idx);
 
 struct Thing *create_power_hand(PlayerNumber owner);
