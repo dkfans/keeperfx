@@ -395,9 +395,9 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "conscious_back_turns") == 0)
         {
             cctrl->conscious_back_turns = luaL_checkinteger(L, 3);
-        } else if (strcmp(key, "unsummon_turn") == 0)
+        } else if (strcmp(key, "unsummon_duration") == 0)
         {
-            cctrl->unsummon_turn = luaL_checkinteger(L, 3);
+            cctrl->unsummon_turn = (get_gameturn() + luaL_checkinteger(L, 3));
         } else
         {
             return luaL_error(L, "Field '%s' is not writable on Creature thing", key);
@@ -552,8 +552,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushPlayer(L, cctrl->party.target_plyr_idx);
         } else if (strcmp(key, "conscious_back_turns") == 0) {
             lua_pushinteger(L, cctrl->conscious_back_turns);
-        } else if (strcmp(key, "unsummon_turn") == 0) {
-            lua_pushinteger(L, cctrl->unsummon_turn);
+        } else if (strcmp(key, "unsummon_duration") == 0) {
+            lua_pushinteger(L, (cctrl->unsummon_turn - get_gameturn()));
         } else if (strcmp(key, "familiars") == 0) {
             lua_pushFamiliarTable(L, thing);
         } else {
