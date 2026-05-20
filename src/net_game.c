@@ -452,11 +452,9 @@ void process_disconnected_network_players(void)
     if (!host_disconnected && network_has_connected_remote_users()) {
         return;
     }
-    const char *message = get_string(GUIStr_NetOpponentDisconnected);
     if (host_disconnected) {
-        message = get_string(GUIStr_NetHostConnectionLost);
+        message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
     }
-    message_add(MsgType_Blank, 0, message);
     if (myplyr->victory_state != VicS_Undecided) {
         stop_network_game_and_continue_locally();
     } else {
