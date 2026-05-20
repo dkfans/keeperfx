@@ -2232,9 +2232,11 @@ TbBool remove_creature_from_summoner(const struct Thing* famlrtng)
             if (sumcctrl->familiar_idx[j] == famlrtng->index)
             {
                 sumcctrl->familiar_idx[j] = 0;
+                return true;
             }
         }
     }
+    return false;
 }
 
 /**
