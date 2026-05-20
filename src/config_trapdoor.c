@@ -43,6 +43,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 
@@ -63,6 +64,8 @@ static const struct NamedCommand door_properties_commands[] = {
     {"SECRET",               DoMF_Secret},
     {"THICK",                DoMF_Thick},
     {"MIDAS",                DoMF_Midas},
+    {"FREESTANDING",         DoMF_Freestanding},
+    {"ALWAYS_LOCKED",        DoMF_AlwaysLocked},
     {NULL,                   0},
   };
 
