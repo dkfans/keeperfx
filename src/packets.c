@@ -652,9 +652,19 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         turn_off_all_menus();
         free_swipe_graphic();
       }
-      if ((game.system_flags & GSF_NetworkActive) != 0 && (!my_player
-       || ((player->victory_state == VicS_LostLevel) && (player->id_number == get_host_player_id())))) {
-        return 0;
+      if ((game.system_flags & GSF_NetworkActive) != 0) {
+        TbBool host_packet = player->packet_num == get_host_player_id();
+        if (!my_player) {
+          if (host_packet && (player->victory_state != VicS_LostLevel)) {
+            get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+            quit_game = 1;
+          }
+          return 0;
+        } else if (host_packet && (player->victory_state == VicS_LostLevel)) {
+          return 0;
+        } else if (host_packet && (player->victory_state == VicS_WonLevel)) {
+          player->additional_flags &= ~PlaAF_UnlockedLordTorture;
+        }
       }
       switch (player->victory_state)
       {
