@@ -707,12 +707,17 @@ void draw_power_hand(void)
     }
 }
 
-TbBool object_is_slappable_by_player(const struct Thing *thing, long plyr_idx)
+TbBool object_is_slappable(const struct Thing* thing)
+{
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return ((objst->model_flags & OMF_Slappable) != 0);
+}
+
+TbBool object_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     if (thing->owner == plyr_idx) 
     {
-        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-        return ((objst->model_flags & OMF_Slappable) != 0);
+        return object_is_slappable(thing);
     }
     return false;
 }
@@ -776,7 +781,7 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
     return -1;
 }
 
-TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
+TbBool thing_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     switch (thing->class_id)
     {
@@ -1513,7 +1518,7 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
 #define HAND_TO_OBJECT_SLAP_DAMAGE 10
 TbBool slap_object(struct Thing *thing)
 {
-  if (object_is_slappable_by_player(thing,thing->owner)) 
+  if (object_is_slappable(thing))
   {
       apply_damage_to_thing(thing, HAND_TO_OBJECT_SLAP_DAMAGE, thing->owner);
       return true;
