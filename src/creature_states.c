@@ -544,7 +544,8 @@ const CreatureStateCheck move_check_func_list[] = {
  * - 2: Fighting.
  */
 long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
-    0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1,
+    CrGUIJob_Wandering, CrGUIJob_Working, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Fighting, CrGUIJob_Wandering, CrGUIJob_Wandering,
+    CrGUIJob_Working, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Fighting, CrGUIJob_Fighting, CrGUIJob_Working, CrGUIJob_Working, CrGUIJob_Working
 };
 
 /******************************************************************************/
@@ -4965,6 +4966,8 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
         return (next_stati->override_call2arms);
     case CrStTyp_Follow:
         return (next_stati->override_follow);
+    case CrStTyp_DeepWork:
+        return (next_stati->override_deep_work);
     default:
         return true;
     }
