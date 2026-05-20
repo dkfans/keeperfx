@@ -787,7 +787,7 @@ TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
     case TCls_Creature:
         return creature_is_slappable(thing, plyr_idx);
     case TCls_Trap:
-        return trap_is_slappable(thing, plyr_idx);
+        return trap_is_slappable_by_player(thing, plyr_idx);
     default:
         return false;
     }
