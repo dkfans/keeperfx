@@ -679,7 +679,8 @@ void lua_pushFamiliarTable(lua_State* L, struct Thing* thing) {
     lua_newtable(L);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* famlrtng;
-    for (short j = 0; j < FAMILIAR_MAX; j++)
+    int k = 1;
+    for (int j = 0; j < FAMILIAR_MAX; j++)
     {
         if (cctrl->familiar_idx[j])
         {
@@ -687,7 +688,8 @@ void lua_pushFamiliarTable(lua_State* L, struct Thing* thing) {
             if (!thing_is_invalid(famlrtng))
             {
                 lua_pushThing(L, famlrtng);
-                lua_rawseti(L, -2, j + 1);
+                lua_rawseti(L, -2, k);
+                k++;
             }
         }
     }
