@@ -349,7 +349,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, size_t args_size)
 {
     char *pr2_str = NULL, *pr3_str = NULL, *pr4_str = NULL, *pr5_str = NULL;
-    size_t pr2_len = 0, pr3_len = 0, pr4_len;
+    size_t pr2_len = 0, pr3_len = 0, pr4_len = 0;
     pr2_str = args_str + strspn(args_str, " ");
 
     pr3_str = strchr(pr2_str, ' ');
@@ -1420,6 +1420,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
             suggested_key_list[suggested_key_cnt++] = creature_model_command_aliases[i].name;
         }
         secondary_cnt = suggested_key_cnt - primary_cnt;
+
         prio_threshold_len = 4;
         break;
     case TCls_Trap:
@@ -1468,6 +1469,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
             suggested_key_list[suggested_key_cnt++] = model_command[i].name;
         }
         primary_cnt = suggested_key_cnt;
+        secondary_cnt = 0;
     }
 
     memset(str_buf, 0, sizeof(str_buf));
