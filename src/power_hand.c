@@ -1510,10 +1510,12 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
     }
 }
 
+#define HAND_TO_OBJECT_SLAP_DAMAGE 10
 TbBool slap_object(struct Thing *thing)
 {
-  if (object_is_slappable(thing,thing->owner)) {
-      destroy_object(thing);
+  if (object_is_slappable(thing,thing->owner)) 
+  {
+      apply_damage_to_thing(thing, HAND_TO_OBJECT_SLAP_DAMAGE, thing->owner);
       return true;
   }
   return false;
