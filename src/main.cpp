@@ -2665,7 +2665,7 @@ void update(void)
     }
     if (game.game_kind == GKind_NonInteractiveState)
     {
-        game.map_changed_for_nagivation = 0;
+        game.map_changed_for_navigation = 0;
         return;
     }
     player = get_my_player();
