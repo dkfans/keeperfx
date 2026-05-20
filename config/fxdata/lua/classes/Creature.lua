@@ -34,7 +34,7 @@
 ---@field patrol_countdown integer When this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
 ---@field conscious_back_turns integer Turns until the creature wakes up from stun.
 ---@field unsummon_turn integer Turn when the creature will unsummon. It's set on temporary creatures/familiars.
----@field familiar Creature[] list of familiars of the creature.
+---@field familiars Creature[] list of familiars of the creature.
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
