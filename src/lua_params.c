@@ -686,7 +686,7 @@ void lua_pushFamiliarTable(lua_State* L, struct Thing* thing) {
             famlrtng = thing_get(cctrl->familiar_idx[j]);
             if (!thing_is_invalid(famlrtng))
             {
-                lua_pushThing(L, thing);
+                lua_pushThing(L, famlrtng);
                 lua_rawseti(L, -2, j + 1);
             }
         }
