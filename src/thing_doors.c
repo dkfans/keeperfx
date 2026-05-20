@@ -831,4 +831,21 @@ void script_place_door(PlayerNumber plyridx, ThingModel doorkind, MapSlabCoord s
         }
     }
 }
+
+void update_navigation_around_all_doors()
+{
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Door);
+    for(int i = slist->index; i > 0;)
+    {
+        struct Thing* doortng = thing_get(i);
+        i = doortng->next_of_class;
+        if (thing_is_invalid(doortng))
+            continue;
+        MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
+        MapSubtlCoord stl_y = doortng->mappos.y.stl.num;
+        game.map_changed_for_nagivation = 1;
+        update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
+    }
+
+}
 /******************************************************************************/

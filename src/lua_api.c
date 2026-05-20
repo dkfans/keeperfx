@@ -115,6 +115,7 @@ static int lua_Ally_players(lua_State *L)
         set_player_ally_locked(i, player_idx, (state & 2) ? true : false);
         set_player_ally_locked(player_idx, i, (state & 2) ? true : false);
     }
+    update_navigation_around_all_doors();
     return 0;
 }
 
