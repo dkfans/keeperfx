@@ -846,14 +846,14 @@ void update_navigation_around_all_doors()
         }
         MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
         MapSubtlCoord stl_y = doortng->mappos.y.stl.num;
-        game.map_changed_for_navigation = 1;
         update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
         i = doortng->next_of_class;
         k++;
-        if (k > slist->count)        {
+        if (k > slist->count){
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
         }
     }
+    game.map_changed_for_navigation = 1;
 }
 /******************************************************************************/
