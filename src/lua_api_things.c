@@ -553,7 +553,7 @@ static int thing_get_field(lua_State *L) {
         } else if (strcmp(key, "conscious_back_turns") == 0) {
             lua_pushinteger(L, cctrl->conscious_back_turns);
         } else if (strcmp(key, "unsummon_duration") == 0) {
-            lua_pushinteger(L, (cctrl->unsummon_turn - get_gameturn()));
+            lua_pushinteger(L, (max((cctrl->unsummon_turn - get_gameturn()),0)));
         } else if (strcmp(key, "familiars") == 0) {
             lua_pushFamiliarTable(L, thing);
         } else {
