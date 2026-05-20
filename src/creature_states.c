@@ -4895,6 +4895,10 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     {
         remove_creature_from_group(creatng);
     }
+    if (creature_is_familiar(creatng))
+    {
+        remove_creature_from_summoner(creatng);
+    }
     remove_events_thing_is_attached_to(creatng);
     // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
     if (creature_under_spell_effect(creatng, CSAfF_Armour))

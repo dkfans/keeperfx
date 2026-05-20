@@ -2183,6 +2183,12 @@ void level_up_familiar(struct Thing* famlrtng)
     }
 }
 
+TbBool creature_is_familiar(const struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return (cctrl->summoner_idx > 0);
+}
+
 void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
 {
     if (dungeon->num_summon < MAX_SUMMONS)
@@ -2213,6 +2219,24 @@ void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrt
         }
     }
 }
+
+TbBool remove_creature_from_summoner(const struct Thing* famlrtng)
+{
+    struct CreatureControl* famcctrl = creature_control_get_from_thing(famlrtng);
+    struct Thing* summonertng = thing_get(famcctrl->summoner_idx);
+    if (thing_is_creature(summonertng))
+    {
+        struct CreatureControl* sumcctrl = creature_control_get_from_thing(summonertng);
+        for (short j = 0; j < FAMILIAR_MAX; j++)
+        {
+            if (sumcctrl->familiar_idx[j] == famlrtng->index)
+            {
+                sumcctrl->familiar_idx[j] = 0;
+            }
+        }
+    }
+}
+
 /**
  * @brief Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
  *
