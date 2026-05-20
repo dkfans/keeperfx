@@ -646,6 +646,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_NoOperation:
       return 1;
   case PckA_FinishGame:
+      {
       TbBool my_player = is_my_player(player);
       if (my_player) {
         turn_off_all_menus();
@@ -672,6 +673,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         frontend_save_continue_game(false);
       }
       return 0;
+      }
   case PckA_PlyrMsgEnd:
       process_gameplay_chat_message(player->id_number, player->mp_pending_message);
       player->mp_pending_message[0] = '\0';
