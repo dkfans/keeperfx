@@ -323,18 +323,18 @@ static TbBool replace_network_player_with_ai(struct PlayerInfo *player, const ch
     if (is_my_player(player) || (player->allocflags & PlaF_CompCtrl) != 0) {
         return false;
     }
-    TbBool replaced_with_ai = (player->victory_state == VicS_Undecided);
-    if (replaced_with_ai) {
-        player->allocflags |= PlaF_CompCtrl;
-        toggle_computer_player(player->id_number);
-        message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
-        JUSTLOG("p:%d computer took over", player->id_number);
-    }
     if (departure_message_format != NULL && player->id_number != get_host_player_id() && player->player_name[0] != '\0') {
         message_add_fmt(MsgType_Blank, 0, departure_message_format, player->player_name);
         JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
     }
-    return replaced_with_ai;
+    if (player->victory_state != VicS_Undecided) {
+        return false;
+    }
+    player->allocflags |= PlaF_CompCtrl;
+    toggle_computer_player(player->id_number);
+    message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
+    JUSTLOG("p:%d computer took over", player->id_number);
+    return true;
 }
 
 static void stop_network_game_state(void)
