@@ -981,7 +981,7 @@ TbBool cmd_give_door(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
-void param_completion_for_door_trap(PlayerNumber plyr_idx, char *args_str, size_t args_size)
+void param_completion_for_give_door(PlayerNumber plyr_idx, char *args_str, size_t args_size)
 {
     do_param1_completion_for_name_command(plyr_idx, args_str, args_size, "door model", door_desc, door_model_command_aliases, -1, false);
 }
@@ -1354,7 +1354,8 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
     }
 
     memset(str_buf, 0, sizeof(str_buf));
-    memcpy(str_buf, pr2_str, pr2_len);
+    int copy_len =  pr2_len < (sizeof(str_buf) - 1) ? pr2_len : (sizeof(str_buf) - 1);
+    memcpy(str_buf, pr2_str, copy_len);
     TbBool is_pr2_num = parameter_is_number(str_buf);
     if (pr3_str == NULL) {
         if (is_pr2_num) {
@@ -1473,7 +1474,8 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
     }
 
     memset(str_buf, 0, sizeof(str_buf));
-    memcpy(str_buf, pr3_str, pr3_len);
+    copy_len =  pr3_len < (sizeof(str_buf) - 1) ? pr3_len : (sizeof(str_buf) - 1);
+    memcpy(str_buf, pr3_str, copy_len);
     TbBool is_pr3_num = parameter_is_number(str_buf);
     if (pr4_str == NULL) {
         if (is_pr3_num) {
@@ -2665,8 +2667,8 @@ static const struct ConsoleCommand console_commands[] = {
     { "magic.instance", cmd_magic_instance, param_completion_for_magic_instance },
     { "give.trap", cmd_give_trap, param_completion_for_give_trap },
     { "trap.give", cmd_give_trap, param_completion_for_give_trap },
-    { "give.door", cmd_give_door, param_completion_for_door_trap },
-    { "door.give", cmd_give_door, param_completion_for_door_trap },
+    { "give.door", cmd_give_door, param_completion_for_give_door },
+    { "door.give", cmd_give_door, param_completion_for_give_door },
     { "map.pool", cmd_map_pool, NULL },
     { "creature.pool", cmd_map_pool, NULL },
     { "gold.create", cmd_create_gold, NULL },
@@ -2861,7 +2863,7 @@ int do_complete_from_prioritized_candidates(const char *key_list[], int primary_
 
                         const char *auto_str = key_list[ret1];
                         int auto_len = (int)strlen(auto_str);
-                        int len = completion_size-1 < completion_len+auto_len ? completion_size-1 : completion_len+auto_len;
+                        int len = (int)completion_size-1 < auto_len ? (int)completion_size-1 : auto_len;
                         memcpy(completion_str, auto_str, len); // cover all, uniform capitalization.
                         completion_str[len] = 0;
 
@@ -2878,9 +2880,9 @@ int do_complete_from_prioritized_candidates(const char *key_list[], int primary_
             }
         }
 
-        if (i == 0 && ret == AUTO_COMP_RET_DONE && completion_len < prio_threshold_len) {
-            completion_len = (int)strlen(completion_str);
-            if (prio_threshold_len >= 0 && completion_len >= prio_threshold_len) {
+        if (i == 0 && ret == AUTO_COMP_RET_DONE && prio_threshold_len >= 0 && (int)completion_len < prio_threshold_len) {
+            completion_len = strlen(completion_str);
+            if ((int)completion_len >= prio_threshold_len) {
                 // after the first default completion, completion_len exceeds the prio_threshold_len limit, try another primary/secondary completion
                 continue;
             }
@@ -3046,6 +3048,9 @@ static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const
 
 static long get_creature_model_for_command(char *msg)
 {
+    if (msg == NULL || msg[0] == 0)
+        return -1;
+
     long rid = get_rid(creature_desc, msg);
     if (rid >= 1)
     {
@@ -3087,6 +3092,9 @@ static PlayerNumber get_player_number_for_command(char *msg)
 
 static char get_trap_number_for_command(char* msg)
 {
+    if (msg == NULL || msg[0] == 0)
+        return -1;
+
     char id = get_rid(trap_desc, msg);
     if (id < 0)
     {
@@ -3107,6 +3115,9 @@ static char get_trap_number_for_command(char* msg)
 
 static char get_door_number_for_command(char* msg)
 {
+    if (msg == NULL || msg[0] == 0)
+        return -1;
+
     long id = get_rid(door_desc, msg);
     if (id < 0)
     {
