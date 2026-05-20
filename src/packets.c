@@ -945,6 +945,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
          {
             panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
          }
+        update_navigation_around_all_doors();
       }
       return false;
   case PckA_SaveViewType:
