@@ -382,17 +382,21 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         return;
     }
 
-    int32_t plyr_count = 0;
-    short winning_quit = winning_player_quitting(player, &plyr_count);
     TbBool replaced_with_ai = replace_network_player_with_ai(player, get_string(GUIStr_NetPlayerDisconnected));
     if (player != myplyr) {
         OnDroppedUser(player->packet_num, NETDROP_MANUAL);
+        if (player->id_number == get_host_player_id()) {
+            process_disconnected_network_players();
+            return;
+        }
     }
     TbBool has_enemies_to_defeat = network_has_connected_enemies_to_defeat();
     if (has_enemies_to_defeat && replaced_with_ai) {
         return;
     }
 
+    int32_t plyr_count = 0;
+    short winning_quit = winning_player_quitting(player, &plyr_count);
     if (winning_quit) {
         for (int i = 0; i < PLAYERS_COUNT; i++) {
             struct PlayerInfo *swplyr = get_player(i);
