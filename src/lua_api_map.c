@@ -20,11 +20,6 @@
 
 /**********************************************/
 
-//guard against writings
-static int map_readonly(lua_State *L) {
-    return luaL_error(L, "MAP and its sub-tables are read-only");
-}
-
 static int map_tostring(lua_State *L) {
     lua_pushfstring(L, "Map(%dx%d)", game.map_tiles_x, game.map_tiles_y);
     return 1;
@@ -40,12 +35,8 @@ static void push_map_pool(lua_State *L) {
         lua_pushinteger(L, n);
         lua_rawset(L, -3);
     }
-    // Read-only
-    lua_newtable(L);
-    lua_pushcfunction(L, map_readonly);
-    lua_setfield(L, -2, "__newindex");
-    lua_setmetatable(L,-2);
 }
+
 
 //read map fields
 static int map_get_field(lua_State *L){
@@ -56,23 +47,13 @@ static int map_get_field(lua_State *L){
     const char *map_name = "";
     unsigned long ltype  = 0;
     if (lv_inf) {
-        if (lv_inf->name_stridx > 0) {
-        map_name = get_string(lv_inf->name_stridx);
-        } else {
         map_name = lv_inf->name;
-        }
-        lv_number    = lv_inf->lvnum;
         ltype    = lv_inf->level_type;
     }
 
     if (strcmp(key, "creature_pool") == 0)           
         push_map_pool(L);
-    else if (strcmp(key, "map_name") == 0) {
-        if (lv_inf->name_stridx > 0) {
-            map_name = get_string(lv_inf->name_stridx);
-        } else {
-            map_name = lv_inf->name;
-        }          
+    else if (strcmp(key, "map_name") == 0) {     
         lua_pushstring(L, map_name);
     } else if (strcmp(key, "map_number") == 0)          
         lua_pushinteger(L, lv_number);
