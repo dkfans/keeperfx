@@ -12,6 +12,18 @@ function DisplayObjective(msg_id,zoom_location) end
 ---@param zoom_location? location
 function DisplayInformation(msg_id,zoom_location) end
 
+---Displays one of the text messages stored in gtext_***.dat in an Objective Box.
+---This file comes in various language version, so messages from it are always in the language configured in the settings.
+---@param msg_id integer
+---@param stl_x integer zoom location x in subtiles
+---@param stl_y integer zoom location y in subtiles
+function DisplayObjectiveWithPos(msg_id,stl_x,stl_y) end
+
+---@param msg_id integer
+---@param stl_x integer zoom location x in subtiles
+---@param stl_y integer zoom location y in subtiles
+function DisplayInformationWithPos(msg_id,stl_x,stl_y) end
+
 ---Works like Display_objective, but instead of using a string from translations, allows to type it directly.
 ---@param message string
 ---@param zoom_location? location
