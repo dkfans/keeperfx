@@ -42,6 +42,7 @@
 #include "dungeon_data.h"
 #include "game_legacy.h"
 #include "gui_msgs.h"
+#include "net_exchange_gameplay.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
 #include "keeperfx.hpp"
@@ -435,6 +436,18 @@ void process_disconnected_network_players(void)
     const char *departure_message_format = get_string(GUIStr_NetPlayerDisconnected);
     if (host_disconnected) {
         departure_message_format = NULL;
+        GameTurn newest_turn = get_gameturn();
+        for (GameTurnDelta offset = 0; offset <= game.input_lag_turns; offset += 1) {
+            if ((GameTurn)offset > newest_turn) {
+                break;
+            }
+            const struct Packet *host_packet = get_history_packet(get_host_player_id(), newest_turn - offset);
+            if (host_packet != NULL && host_packet->action == PckA_FinishGame && host_packet->actn_par1 == VicS_WonLevel) {
+                get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+                quit_game = 1;
+                return;
+            }
+        }
     }
     TbBool disconnected = host_disconnected;
     for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
