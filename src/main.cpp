@@ -1912,8 +1912,8 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
 void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    MapSubtlCoord pos_x = 0;
-    MapSubtlCoord pos_y = 0;
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
@@ -1926,8 +1926,8 @@ void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocatio
 void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    MapSubtlCoord pos_x = 0;
-    MapSubtlCoord pos_y = 0;
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
