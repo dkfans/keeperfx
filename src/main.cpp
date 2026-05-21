@@ -1909,11 +1909,11 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    long pos_x = 0;
-    long pos_y = 0;
+    MapSubtlCoord pos_x = 0;
+    MapSubtlCoord pos_y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
@@ -1923,11 +1923,11 @@ void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation t
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    long pos_x = 0;
-    long pos_y = 0;
+    MapSubtlCoord pos_x = 0;
+    MapSubtlCoord pos_y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
@@ -1937,7 +1937,7 @@ void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation tar
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, long x, long y)
+void set_general_objective(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     process_objective(get_string(msg_id), plyr_idx, target, x, y);
 }

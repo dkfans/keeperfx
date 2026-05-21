@@ -48,6 +48,60 @@ function QuickInformation(slot,message,zoom_location) end
 ---@param stl_y integer zoom location y in subtiles
 function QuickInformationWithPos(slot,message,stl_x,stl_y) end
 
+---Displays one of the text messages stored in gtext_***.dat in an Objective Box.
+---This file comes in various language version, so messages from it are always in the language configured in the settings.
+---@param msg_id integer
+---@param player Player Target player who receives the message.
+---@param zoom_location? location
+function DisplayPlayerObjective(msg_id,player,zoom_location) end
+
+---@param msg_id integer
+---@param player Player Target player who receives the message.
+---@param zoom_location? location
+function DisplayPlayerInformation(msg_id,player,zoom_location) end
+
+---Works like Display_objective, but instead of using a string from translations, allows to type it directly.
+---@param player Player Target player who receives the message.
+---@param message string
+---@param zoom_location? location
+function QuickPlayerObjective(player,message,zoom_location) end
+
+---Works like Display_objective, but instead of using a string from translations, allows to type it directly.
+---@param message string
+---@param player Player Target player who receives the message.
+---@param stl_x integer zoom location x in subtiles
+---@param stl_y integer zoom location y in subtiles
+function QuickPlayerObjectiveWithPos(player,message,stl_x,stl_y) end
+
+---Works like Display_information, but instead of using a string from translations, allows to type it directly.
+---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
+---@param player Player Target player who receives the message.
+---@param message string
+---@param zoom_location? location
+function QuickPlayerInformation(player,slot,message,zoom_location) end
+
+---Works like Display_information, but instead of using a string from translations, allows to type it directly.
+---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
+---@param player Player Target player who receives the message.
+---@param message string
+---@param stl_x integer zoom location x in subtiles
+---@param stl_y integer zoom location y in subtiles
+function QuickPlayerInformationWithPos(slot,player,message,stl_x,stl_y) end
+
+---Displays one of the text messages stored in gtext_***.dat in an Objective Box.
+---This file comes in various language version, so messages from it are always in the language configured in the settings.
+---@param msg_id integer
+---@param player Player Target player who receives the message.
+---@param stl_x integer zoom location x in subtiles
+---@param stl_y integer zoom location y in subtiles
+function DisplayPlayerObjectiveWithPos(msg_id,player,stl_x,stl_y) end
+
+---@param msg_id integer
+---@param player Player Target player who receives the message.
+---@param stl_x integer zoom location x in subtiles
+---@param stl_y integer zoom location y in subtiles
+function DisplayPlayerInformationWithPos(msg_id,player,stl_x,stl_y) end
+
 ---Plays a sound message or sound effect.
 ---@param player Player The name of the player who gets to hear the sound.
 ---@param type "SPEECH"|"SOUND" If it is a sound effect or a speech. Speeches queue, sounds play at the same time.
