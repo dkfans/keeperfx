@@ -42,6 +42,7 @@
 #include "dungeon_data.h"
 #include "game_legacy.h"
 #include "gui_msgs.h"
+#include "net_exchange_gameplay.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
 #include "keeperfx.hpp"
@@ -294,7 +295,7 @@ static void resolve_network_quit_outcome(struct PlayerInfo *player)
     set_player_as_won_level(player);
 }
 
-static TbBool network_has_connected_human_opponents(void)
+static TbBool network_has_connected_enemies_to_defeat(void)
 {
     struct PlayerInfo *myplyr = get_my_player();
     for (int i = 0; i < PLAYERS_COUNT; i++) {
@@ -308,19 +309,32 @@ static TbBool network_has_connected_human_opponents(void)
     return false;
 }
 
+static TbBool network_has_connected_remote_users(void)
+{
+    for (NetUserId user_id = 0; user_id < (NetUserId)netstate.max_players; user_id += 1) {
+        if (user_id != netstate.my_id && netstate.users[user_id].progress != USER_UNUSED) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static TbBool replace_network_player_with_ai(struct PlayerInfo *player, const char *departure_message_format)
 {
-    if (is_my_player(player) || (player->allocflags & PlaF_CompCtrl) != 0 || player->victory_state != VicS_Undecided) {
+    if (is_my_player(player) || (player->allocflags & PlaF_CompCtrl) != 0) {
+        return false;
+    }
+    if (departure_message_format != NULL && player->id_number != get_host_player_id() && player->player_name[0] != '\0') {
+        message_add_fmt(MsgType_Blank, 0, departure_message_format, player->player_name);
+        JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
+    }
+    if (player->victory_state != VicS_Undecided) {
         return false;
     }
     player->allocflags |= PlaF_CompCtrl;
     toggle_computer_player(player->id_number);
     message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
     JUSTLOG("p:%d computer took over", player->id_number);
-    if (departure_message_format != NULL && player->player_name[0] != '\0') {
-        message_add_fmt(MsgType_Blank, 0, departure_message_format, player->player_name);
-        JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
-    }
     return true;
 }
 
@@ -369,17 +383,21 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         return;
     }
 
-    int32_t plyr_count = 0;
-    short winning_quit = winning_player_quitting(player, &plyr_count);
-    TbBool replaced_with_ai = replace_network_player_with_ai(player, get_string(GUIStr_NetPlayerLeftGame));
+    TbBool replaced_with_ai = replace_network_player_with_ai(player, get_string(GUIStr_NetPlayerDisconnected));
     if (player != myplyr) {
         OnDroppedUser(player->packet_num, NETDROP_MANUAL);
+        if (player->id_number == get_host_player_id()) {
+            process_disconnected_network_players();
+            return;
+        }
     }
-    TbBool has_human_opponents = network_has_connected_human_opponents();
-    if (has_human_opponents && replaced_with_ai) {
+    TbBool has_enemies_to_defeat = network_has_connected_enemies_to_defeat();
+    if (has_enemies_to_defeat && replaced_with_ai) {
         return;
     }
 
+    int32_t plyr_count = 0;
+    short winning_quit = winning_player_quitting(player, &plyr_count);
     if (winning_quit) {
         for (int i = 0; i < PLAYERS_COUNT; i++) {
             struct PlayerInfo *swplyr = get_player(i);
@@ -388,18 +406,19 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
             }
         }
     }
-
-    if (player == myplyr || player->id_number == get_host_player_id() || !has_human_opponents) {
+    if (player == myplyr || player->id_number == get_host_player_id() || !has_enemies_to_defeat) {
         if (player != myplyr) {
             resolve_network_quit_outcome(myplyr);
         }
         if (winning_quit && (plyr_count > 1)) {
             myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
         }
-        if ((player != myplyr) && (myplyr->victory_state != VicS_Undecided)) {
-            stop_network_game_and_continue_locally();
-        } else {
-            stop_network_game_and_quit(complete_quit);
+        if (player == myplyr || has_enemies_to_defeat || !network_has_connected_remote_users()) {
+            if ((player != myplyr) && (myplyr->victory_state != VicS_Undecided)) {
+                stop_network_game_and_continue_locally();
+            } else {
+                stop_network_game_and_quit(complete_quit);
+            }
         }
     }
 
@@ -417,27 +436,42 @@ void process_disconnected_network_players(void)
     const char *departure_message_format = get_string(GUIStr_NetPlayerDisconnected);
     if (host_disconnected) {
         departure_message_format = NULL;
+        GameTurn newest_turn = get_gameturn();
+        for (GameTurnDelta offset = 0; offset <= game.input_lag_turns; offset += 1) {
+            if ((GameTurn)offset > newest_turn) {
+                break;
+            }
+            const struct Packet *host_packet = get_history_packet(get_host_player_id(), newest_turn - offset);
+            if (host_packet != NULL && host_packet->action == PckA_FinishGame && host_packet->actn_par1 == VicS_WonLevel) {
+                get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+                quit_game = 1;
+                return;
+            }
+        }
     }
+    TbBool disconnected = host_disconnected;
     for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
         struct PlayerInfo *player = get_player(player_index);
         if (!player_exists(player) || is_my_player(player) || (!host_disconnected && network_player_active(player->packet_num))) {
             continue;
         }
+        disconnected = true;
         if (!replace_network_player_with_ai(player, departure_message_format) && player->victory_state != VicS_Undecided) {
             player->allocflags &= ~PlaF_Allocated;
         }
     }
 
-    if (!host_disconnected && network_has_connected_human_opponents()) {
+    if (!disconnected || (!host_disconnected && network_has_connected_enemies_to_defeat())) {
         return;
     }
     struct PlayerInfo *myplyr = get_my_player();
     resolve_network_quit_outcome(myplyr);
-    const char *message = get_string(GUIStr_NetOpponentDisconnected);
-    if (host_disconnected) {
-        message = get_string(GUIStr_NetHostConnectionLost);
+    if (!host_disconnected && network_has_connected_remote_users()) {
+        return;
     }
-    message_add(MsgType_Blank, 0, message);
+    if (host_disconnected) {
+        message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
+    }
     if (myplyr->victory_state != VicS_Undecided) {
         stop_network_game_and_continue_locally();
     } else {

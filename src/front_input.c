@@ -843,7 +843,7 @@ static short get_global_inputs(void)
             SYNCMSG("Finished level %d. Total turns taken: %u (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
                 game.loaded_level_number, get_gameturn(), GameT.Hours, GameT.Minutes, GameT.Seconds, turns_per_second, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
-        set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
+        set_players_packet_action(player, PckA_FinishGame, player->victory_state, 0, 0, 0);
         return true;
   }
   if ( is_game_key_pressed(Gkey_DumpToOldPos, true, false) )
@@ -884,7 +884,7 @@ static TbBool get_level_lost_inputs(void)
         return true;
     if (is_game_key_pressed(Gkey_FinishLevel, true, false))
     {
-        set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
+        set_players_packet_action(player, PckA_FinishGame, player->victory_state, 0, 0, 0);
     }
     if (player->view_type == PVT_MapScreen)
     {

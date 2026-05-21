@@ -466,7 +466,7 @@ enum GUIStrings {
     GUIStr_NetAiTookOver,
     GUIStr_NetPlayerLeftGame,
     GUIStr_NetPlayerDisconnected,
-    GUIStr_NetOpponentDisconnected,
+    GUIStr_NetUnused,
     GUIStr_NetHostConnectionLost,
     GuiStrEnd
 };

@@ -7324,9 +7324,9 @@ msgid "%s has disconnected."
 msgstr "%s disiunctus est."
 
 #: guitext:1118
-msgctxt "Network game message"
-msgid "Opponent disconnected"
-msgstr "Adversarius disiunctus est"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1119
 msgctxt "Network game message"
