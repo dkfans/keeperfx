@@ -7257,9 +7257,9 @@ msgid "%s has disconnected."
 msgstr "%s の接続が切断されました。"
 
 #: guitext:1118
-msgctxt "Network game message"
-msgid "Opponent disconnected"
-msgstr "対戦相手の接続が切断されました"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1119
 msgctxt "Network game message"

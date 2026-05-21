@@ -646,21 +646,28 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_NoOperation:
       return 1;
   case PckA_FinishGame:
-      if ((player->victory_state == VicS_LostLevel) && ((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()))
       {
-        return 0;
-      }
-      if (is_my_player(player))
-      {
+      TbBool my_player = is_my_player(player);
+      int32_t victory_state = pckt->actn_par1;
+      if (my_player) {
         turn_off_all_menus();
         free_swipe_graphic();
       }
-      if ((game.system_flags & GSF_NetworkActive) != 0)
-      {
-        process_quit_packet(player, 0);
-        return 0;
+      if ((game.system_flags & GSF_NetworkActive) != 0) {
+        TbBool host_packet = player->packet_num == get_host_player_id();
+        if (!my_player) {
+          if ((victory_state == VicS_WonLevel) || (host_packet && (player->victory_state != VicS_LostLevel))) {
+            get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+            quit_game = 1;
+          }
+          return 0;
+        } else if (host_packet && (victory_state == VicS_LostLevel)) {
+          return 0;
+        } else if (host_packet && (victory_state == VicS_WonLevel)) {
+          player->additional_flags &= ~PlaAF_UnlockedLordTorture;
+        }
       }
-      switch (player->victory_state)
+      switch (victory_state)
       {
       case VicS_WonLevel:
           complete_level(player);
@@ -673,11 +680,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           break;
       }
       player->allocflags &= ~PlaF_Allocated;
-      if (is_my_player(player))
-      {
+      if (my_player) {
         frontend_save_continue_game(false);
       }
       return 0;
+      }
   case PckA_PlyrMsgEnd:
       process_gameplay_chat_message(player->id_number, player->mp_pending_message);
       player->mp_pending_message[0] = '\0';
@@ -1616,6 +1623,10 @@ void process_packets(void)
             }
         }
         process_disconnected_network_players();
+        if (quit_game || exit_keeper) {
+            clear_packets();
+            return;
+        }
     }
     MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
     load_old_packets();
@@ -1652,6 +1663,9 @@ void process_packets(void)
     }
     // Clear all packets
     clear_packets();
+    if (quit_game || exit_keeper) {
+        return;
+    }
     if (((game.system_flags & GSF_NetworkActive) != 0)
      && ((game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
     {
