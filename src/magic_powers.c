@@ -1161,7 +1161,7 @@ static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx
         return Lb_FAIL;
     else if (place_thing_in_power_hand(thing, plyr_idx))
     {
-        lua_on_pick_up(thing);
+        lua_on_pick_up(thing, plyr_idx);
         return Lb_SUCCESS;
     }
     else
@@ -1753,7 +1753,7 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
-    lua_on_slap(thing);
+    lua_on_slap(thing, plyr_idx);
     if (!thing_exists(thing)) {
         return Lb_FAIL;
     }
