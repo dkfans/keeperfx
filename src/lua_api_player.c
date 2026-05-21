@@ -206,7 +206,7 @@ static int player_get_field(lua_State *L) {
         lua_pushcclosure(L, player_get_available, 1);
     } else if (strcmp(key, "type") == 0) {
         if (player_invalid(player)) {
-            lua_pushstring(L, "None");
+            lua_pushnil(L);
         } else if (player_is_roaming(plyr_idx)) {
             lua_pushstring(L, "Roaming");
         } else if (player->allocflags & PlaF_CompCtrl) {
