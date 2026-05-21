@@ -101,9 +101,10 @@ enum AutoCompletionFlags {
     ACF_UniquePrefixIndex // get key index when only one prefix match, without completion
 };
 
-#define AUTO_COMP_RET_DONE -1
-#define AUTO_COMP_RET_ZERO_POSS -2
-#define AUTO_COMP_RET_MULTI_POSS -3
+#define AUTO_COMP_RET_COMPLETE_PARTIAL -1
+#define AUTO_COMP_RET_COMPLETE_UNIQUE -2
+#define AUTO_COMP_RET_NOT_FOUND -3 // zero possibility
+#define AUTO_COMP_RET_AMBIGUOUS -4 // multiple possibilities
 int do_complete_from_candidates(const char *key_list[], int key_cnt, char *completion_str, size_t completion_len, size_t completion_size, enum AutoCompletionFlags check_flag, char **poss_str_ret);
 int do_complete_from_prioritized_candidates(const char *key_list[], int primary_cnt, int secondary_cnt, int prio_threshold_len, char *completion_str, size_t completion_len, size_t completion_size, char **poss_str_ret);
 void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str, size_t args_size, const char *desc_str, struct NamedCommand *primary_name_desc, struct NamedCommand *secondary_name_desc, int prio_threshold_len, TbBool add_random);
@@ -398,15 +399,15 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
         enum AutoCompletionFlags check_flag = pr3_str != NULL ? ACF_ExactMatchIndex : ACF_DoDefaultCompletion ;
         int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr2_str, pr2_len, args_size-(pr2_str-args_str), check_flag, &poss_str);
         if (poss_str != NULL) {
-            if (ret == AUTO_COMP_RET_MULTI_POSS)
+            if (ret == AUTO_COMP_RET_AMBIGUOUS)
                 targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible creature model: %s", poss_str);
             free(poss_str);
             return;
         }
 
-        if (ret == AUTO_COMP_RET_DONE)
+        if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE)
             return;
-        if (ret == AUTO_COMP_RET_ZERO_POSS) {
+        if (ret == AUTO_COMP_RET_NOT_FOUND) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Unsupported creature model");
             return;
         }
@@ -438,15 +439,15 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
         enum AutoCompletionFlags check_flag = pr5_str != NULL ? ACF_ExactMatchIndex : ACF_DoDefaultCompletion ;
         int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr4_str, pr4_len, args_size-(pr4_str-args_str), check_flag, &poss_str);
         if (poss_str != NULL) {
-            if (ret == AUTO_COMP_RET_MULTI_POSS)
+            if (ret == AUTO_COMP_RET_AMBIGUOUS)
                 targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 3: Possible magic instance: %s", poss_str);
             free(poss_str);
             return;
         }
 
-        if (ret == AUTO_COMP_RET_DONE)
+        if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
             return;
-        if (ret == AUTO_COMP_RET_ZERO_POSS) {
+        if (ret == AUTO_COMP_RET_NOT_FOUND) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 3: Unsupported magic instance");
             return;
         }
@@ -1372,15 +1373,15 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         enum AutoCompletionFlags check_flag = pr3_str != NULL ? ACF_ExactMatchIndex : ACF_DoDefaultCompletion ;
         int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr2_str, pr2_len, args_size-(pr2_str-args_str), check_flag, &poss_str);
         if (poss_str != NULL) {
-            if (ret == AUTO_COMP_RET_MULTI_POSS)
+            if (ret == AUTO_COMP_RET_AMBIGUOUS)
                 targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible thing class: %s", poss_str);
             free(poss_str);
             return;
         }
 
-        if (ret == AUTO_COMP_RET_DONE)
+        if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
             return;
-        if (ret == AUTO_COMP_RET_ZERO_POSS) {
+        if (ret == AUTO_COMP_RET_NOT_FOUND) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Unsupported thing class");
             return;
         }
@@ -1493,15 +1494,15 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
             ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr3_str, pr3_len, args_size-(pr3_str-args_str), ACF_ExactMatchIndex, &poss_str);
         }
         if (poss_str != NULL) {
-            if (ret == AUTO_COMP_RET_MULTI_POSS)
+            if (ret == AUTO_COMP_RET_AMBIGUOUS)
                 targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Possible thing model: %s", poss_str);
             free(poss_str);
             return;
         }
 
-        if (ret == AUTO_COMP_RET_DONE)
+        if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
             return;
-        if (ret == AUTO_COMP_RET_ZERO_POSS) {
+        if (ret == AUTO_COMP_RET_NOT_FOUND) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Unsupported thing model");
             return;
         }
@@ -2767,12 +2768,12 @@ int do_complete_from_candidates(const char *key_list[], int key_cnt, char *compl
     }
 
     if (same_count == 0 || check_flag == ACF_ExactMatchIndex || check_flag == ACF_UniquePrefixIndex) {
-        int ret = AUTO_COMP_RET_ZERO_POSS;
+        int ret = AUTO_COMP_RET_NOT_FOUND;
         if (check_flag == ACF_UniquePrefixIndex) {
             if (same_count == 1)
                 ret = same_idx[0];
             else if (same_count > 1)
-                ret = AUTO_COMP_RET_MULTI_POSS;
+                ret = AUTO_COMP_RET_AMBIGUOUS;
         }
 
         if (same_idx)
@@ -2812,13 +2813,23 @@ int do_complete_from_candidates(const char *key_list[], int key_cnt, char *compl
     if (auto_len != 0)
     {
         int idx = same_idx[0];
-        int len = completion_size-1 < completion_len+auto_len ? completion_size-1 : completion_len+auto_len;
+        int len = (completion_size - 1) < (completion_len + auto_len) ? (completion_size - 1) : (completion_len + auto_len);
         memcpy(completion_str, key_list[idx], len); // cover all, uniform capitalization.
         completion_str[len] = 0;
-        ret = AUTO_COMP_RET_DONE;
+        completion_len = len;
+        ret = AUTO_COMP_RET_COMPLETE_PARTIAL;
     }
-    else
-    {
+
+    if (same_count == 1) {
+        if (completion_len + 1 < completion_size) {
+            completion_str[completion_len] = ' ';
+            completion_len++;
+            completion_str[completion_len] = 0;
+            ret = AUTO_COMP_RET_COMPLETE_UNIQUE;
+        }
+    }
+
+    if (ret == 0) {
         if (poss_str_ret != NULL)
         {
             // multiple possibilities, list these
@@ -2832,7 +2843,7 @@ int do_complete_from_candidates(const char *key_list[], int key_cnt, char *compl
             }
             *poss_str_ret = poss_str;
         }
-        ret = AUTO_COMP_RET_MULTI_POSS;
+        ret = AUTO_COMP_RET_AMBIGUOUS;
     }
 
     free(same_idx);
@@ -2848,7 +2859,7 @@ int do_complete_from_prioritized_candidates(const char *key_list[], int primary_
     for (i=0; i<2; i++) {
         ret = do_complete_from_candidates(key_list, primary_cnt+secondary_cnt, completion_str, completion_len, completion_size, ACF_DoDefaultCompletion, &poss_str);
         if (poss_str != NULL) {
-            if (ret == AUTO_COMP_RET_MULTI_POSS) {
+            if (ret == AUTO_COMP_RET_AMBIGUOUS) {
                 if (prio_threshold_len >= 0 && completion_len >= prio_threshold_len && primary_cnt > 0 && secondary_cnt > 0) {
 
                     // split up the list to primary names and secondary names, and if there's only a primary and a secondary name left, pick the primary name.
@@ -2866,21 +2877,29 @@ int do_complete_from_prioritized_candidates(const char *key_list[], int primary_
                         int len = (int)completion_size-1 < auto_len ? (int)completion_size-1 : auto_len;
                         memcpy(completion_str, auto_str, len); // cover all, uniform capitalization.
                         completion_str[len] = 0;
+                        completion_len = len;
 
                         // primary/secondary completion successfully, whether it was the first time or the second time, it was considered a success.
-                        ret = AUTO_COMP_RET_DONE;
+                        ret = AUTO_COMP_RET_COMPLETE_PARTIAL;
+
+                        if (completion_len + 1 < completion_size) {
+                            completion_str[completion_len] = ' ';
+                            completion_len++;
+                            completion_str[completion_len] = 0;
+                            ret = AUTO_COMP_RET_COMPLETE_UNIQUE;
+                        }
                     } else if (i == 1) {
                         free(poss_str);
                         poss_str = NULL;
 
-                        // another primary/secondary completion failed, ignore it and use the first time result, which must be AUTO_COMP_RET_DONE.
-                        ret = AUTO_COMP_RET_DONE;
+                        // another primary/secondary completion failed, ignore it and use the first time result, which must be AUTO_COMP_RET_COMPLETE_PARTIAL.
+                        ret = AUTO_COMP_RET_COMPLETE_PARTIAL;
                     }
                 }
             }
         }
 
-        if (i == 0 && ret == AUTO_COMP_RET_DONE && prio_threshold_len >= 0 && (int)completion_len < prio_threshold_len) {
+        if (i == 0 && ret == AUTO_COMP_RET_COMPLETE_PARTIAL && prio_threshold_len >= 0 && (int)completion_len < prio_threshold_len) {
             completion_len = strlen(completion_str);
             if ((int)completion_len >= prio_threshold_len) {
                 // after the first default completion, completion_len exceeds the prio_threshold_len limit, try another primary/secondary completion
@@ -2941,13 +2960,13 @@ void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str
     int ret = do_complete_from_prioritized_candidates(suggested_key_list, primary_cnt, secondary_cnt, prio_threshold_len, pr2_str, pr2_len, args_size-(pr2_str-args_str), &poss_str);
 
     if (poss_str != NULL) {
-        if (ret == AUTO_COMP_RET_MULTI_POSS)
+        if (ret == AUTO_COMP_RET_AMBIGUOUS)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible %s: %s", desc_str, poss_str);
         free(poss_str);
     }
-    if (ret == AUTO_COMP_RET_DONE)
+    if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
         return;
-    if (ret == AUTO_COMP_RET_ZERO_POSS) {
+    if (ret == AUTO_COMP_RET_NOT_FOUND) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Unsupported %s", desc_str);
         return;
     }
@@ -2980,13 +2999,13 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
     int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, cmd_str, cmd_len, cmd_size, check_flag, &poss_str);
 
     if (poss_str != NULL) {
-        if (ret == AUTO_COMP_RET_MULTI_POSS)
+        if (ret == AUTO_COMP_RET_AMBIGUOUS)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Possible commands: %s", poss_str);
         free(poss_str);
     }
-    if (ret == AUTO_COMP_RET_DONE)
+    if (ret == AUTO_COMP_RET_COMPLETE_PARTIAL || ret == AUTO_COMP_RET_COMPLETE_UNIQUE )
         return;
-    if (ret == AUTO_COMP_RET_ZERO_POSS) {
+    if (ret == AUTO_COMP_RET_NOT_FOUND) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unsupported command");
         return;
     }
