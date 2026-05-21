@@ -82,6 +82,8 @@
 ---@field MANAGE_SCORE integer Part of level score, based on quality of the dungeon
 ---@field heart Thing The player's primary dungeon heart
 ---@field camera Camera The player's camera
+---@field type string The type of player (Human, Computer, Roaming, Inactive)
+---@field max_creatures integer The maximum number of creatures the player can have from portals
 if not Player then Player = {} end
 
 

@@ -11,6 +11,7 @@
 #include "player_data.h"
 #include "lvl_script_lib.h"
 #include "player_utils.h"
+#include "dungeon_data.h"
 
 #include "post_inc.h"
 
@@ -159,7 +160,9 @@ static int player_set_field(lua_State *L) {
 static int player_get_field(lua_State *L) {
     const char* key = luaL_checkstring(L, 2);
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
-
+    struct PlayerInfo *player = get_player(plyr_idx);
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    
     int32_t variable_type, variable_id;
 
     // C method lookup
@@ -177,8 +180,27 @@ static int player_get_field(lua_State *L) {
     } else if (strcmp(key, "available") == 0) {
         lua_pushinteger(L, plyr_idx);
         lua_pushcclosure(L, player_get_available, 1);
-    }
-    else if (parse_get_varib(key, &variable_id, &variable_type, 1)) {
+    } else if (strcmp(key, "type") == 0) {
+        if (player_invalid(player)) {
+            lua_pushstring(L, "None");
+        } else if (player_is_roaming(plyr_idx)) {
+            lua_pushstring(L, "Roaming");
+        } else if (player->allocflags & PlaF_CompCtrl) {
+            lua_pushstring(L, "Computer");
+        } else if (player->is_active) {
+            lua_pushstring(L, "Human");
+        } else {
+            lua_pushstring(L, "Inactive");
+        }
+    } else if (strcmp(key, "max_creatures") == 0) {
+        if (dungeon_invalid(dungeon)) {
+            lua_pushinteger(L, 0);
+        } else {
+            lua_pushinteger(L, dungeon->max_creatures_attracted);
+        }
+    } else if (strcmp(key, "player_name") == 0) {
+        lua_pushstring(L, player_invalid(player) ? "" : player->player_name);
+    } else if (parse_get_varib(key, &variable_id, &variable_type, 1)) {
         lua_pushinteger(L, get_condition_value(plyr_idx, variable_type, variable_id));
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
