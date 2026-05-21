@@ -84,6 +84,8 @@
 ---@field camera Camera The player's camera
 ---@field type string The type of player (Human, Computer, Roaming, Inactive)
 ---@field max_creatures integer The maximum number of creatures the player can have from portals
+---@field colour string The colour of the player
+---@field player_name string The name of the player
 if not Player then Player = {} end
 
 
