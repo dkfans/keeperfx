@@ -53,6 +53,7 @@ const struct NamedCommand creature_state_types_commands[] = {
     {"FightObj",    CrStTyp_FightObj},
     {"Called2Arms", CrStTyp_Called2Arms},
     {"Follow",      CrStTyp_Follow},
+    {"DeepWork",    CrStTyp_DeepWork},
     {NULL,0}
 };
 
@@ -84,6 +85,7 @@ int64_t value_overrides(const struct NamedField* named_field, const char* value_
     state->override_fight_door    = 0;
     state->override_call2arms     = 0;
     state->override_follow        = 0;
+    state->override_deep_work     = 0;
 
     char buffer[256];
     strncpy(buffer, value_text, sizeof(buffer) - 1);
@@ -105,6 +107,7 @@ int64_t value_overrides(const struct NamedField* named_field, const char* value_
         else if (strcasecmp(token, "FIGHT_DOOR") == 0) state->override_fight_door = 1;
         else if (strcasecmp(token, "CALL2ARMS") == 0) state->override_call2arms = 1;
         else if (strcasecmp(token, "FOLLOW") == 0) state->override_follow = 1;
+        else if (strcasecmp(token, "DEEP_WORK") == 0) state->override_deep_work = 1;
         else {
             WARNLOG("Unknown override name: '%s' in '%s'", token, src_str);
         }

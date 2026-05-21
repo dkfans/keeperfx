@@ -590,6 +590,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
           }
       }
+      update_navigation_around_all_doors();
       break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
       set_flag_value(game.mode_flags, MFlg_DeadBackToPool, param1);

@@ -115,6 +115,7 @@ static int lua_Ally_players(lua_State *L)
         set_player_ally_locked(i, player_idx, (state & 2) ? true : false);
         set_player_ally_locked(player_idx, i, (state & 2) ? true : false);
     }
+    update_navigation_around_all_doors();
     return 0;
 }
 
@@ -637,7 +638,7 @@ static int lua_Display_message(lua_State *L)
     const char *msg =  get_string(msg_id);
     char id;
     char type;
-    luaL_checkMessageIcon(L, 1, &type, &id);
+    luaL_checkMessageIcon(L, 2, &type, &id);
 
     message_add(type,id, msg);
 

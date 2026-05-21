@@ -1134,7 +1134,7 @@ void update_things(void)
     update_things_in_list(&game.thing_lists[TngList_Doors]);
     update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
     update_cave_in_things();
-    game.map_changed_for_nagivation = 0;
+    game.map_changed_for_navigation = 0;
     SYNCDBG(9,"Finished");
 }
 
