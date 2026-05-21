@@ -90,7 +90,6 @@ function OnApplyDamage(thing, damage, dealing_player)
     ProcessEvent("ApplyDamage",eventData)
 end
 
-
 --- Called when a creature levels up
 ---@param creature Creature
 function OnLevelUp(creature)
@@ -113,14 +112,6 @@ function OnSlap(thing)
     local eventData = {}
     eventData.thing = thing
     ProcessEvent("Slap",eventData)
-end
-
---- Called when a creature levels up
----@param creature Creature
-function OnLevelUp(creature)
-    local eventData = {}
-    eventData.creature = creature
-    ProcessEvent("LevelUp",eventData)
 end
 
 --- Called when a unit resurrects from his rebirth ability (like a vampire)
