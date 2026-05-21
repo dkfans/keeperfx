@@ -1461,8 +1461,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     }
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
     {
-        ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
-        return Lb_OK;
+        return Lb_FAIL;
     }
     if (thing_is_special_box(thing))
     {
