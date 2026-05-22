@@ -1367,7 +1367,7 @@ void process_players_creature_control_packet_control(long idx)
         cctng->move_angle_z = new_vertical;
         ccctrl->roll = new_roll;
     }
-    if ((!creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
+    if ((thing_is_creature(cctng) && !creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
     {
         TbBool allowed;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
