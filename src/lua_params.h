@@ -65,6 +65,7 @@ struct Thing *luaL_checkCreature(lua_State *L, int index);
 struct Thing* luaL_checkObject(lua_State* L, int index);
 void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos);
 long luaL_checkAnimationId(lua_State* L, int index);
+void luaL_checkVariable(lua_State* L, int index, int32_t* varib_id, int32_t* varib_type);
 
 /****   Outputs  *******/
 void lua_pushThing(lua_State *L, struct Thing* thing);

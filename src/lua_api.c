@@ -858,13 +858,18 @@ static int lua_Display_countdown(lua_State *L)
 static int lua_Display_variable(lua_State *L)
 {
     PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
-    int variable = luaL_checkinteger(L,2);
-    int target = luaL_checkinteger(L,3);
+    int32_t varib_id, varib_type;
+    luaL_checkVariable(L, 2, &varib_id, &varib_type);
+    int target = luaL_optinteger(L,3,0);
+    unsigned char target_type = luaL_optinteger(L,4,0);
 
     game.script_variable_player = player;
-    game.script_value_type = variable;
-    game.script_value_id = target;
+    game.script_value_type = varib_type;
+    game.script_value_id = varib_id;
+    game.script_variable_target = target;
+    game.script_variable_target_type = target_type;
     game.flags_gui |= GGUI_Variable;
+
     return 0;
 }
 
