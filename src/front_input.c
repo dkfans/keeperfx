@@ -1200,13 +1200,38 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
     {
         if (!close_instance_cheat_menu())
+        {
             toggle_main_cheat_menu();
+        }
     }
 
     if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
-        // Note that we're using "close", not "toggle". Menu can't be opened here.
-        close_creature_cheat_menu();
+		if ( (player->continue_work_state == PSt_CreatrQuery) || (player->continue_work_state == PSt_QueryAll) )
+		{
+			struct Thing *creatng = thing_get(player->controlled_thing_idx);
+			if (thing_is_creature(creatng))
+			{
+				if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+				{
+					toggle_creature_cheat_menu();
+				}
+			}
+			else
+			{
+				if (!close_creature_cheat_menu())
+				{
+					toggle_secondary_cheat_menu();
+				}
+			}
+		}
+		else
+		{
+			if (!close_creature_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+			{
+				toggle_secondary_cheat_menu();
+			}
+		}
     }
     if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
@@ -1584,15 +1609,17 @@ static short get_creature_control_action_inputs(void)
         get_gui_inputs(1);
     if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
     {
-        // Note that we're using "close", not "toggle". Menu can't be opened here.
-        if (!close_main_cheat_menu())
+        if (!close_main_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
         {
             toggle_instance_cheat_menu();
         }
     }
     if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
-        toggle_creature_cheat_menu();
+        if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+		{
+			toggle_creature_cheat_menu();
+		}
     }
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
