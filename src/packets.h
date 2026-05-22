@@ -98,7 +98,7 @@ enum TbPacketAction {
         PckA_UnusedSlot059,
         PckA_CheatEnter,//60
         PckA_CheatAllFree,
-        PckA_CheatCrtSpells,
+        PckA_CheatCrtSpells, // unused
         PckA_CheatRevealMap,
         PckA_CheatCrAllSpls,
         PckA_CheatUnusedPlaceholder065,//65
