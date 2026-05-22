@@ -100,7 +100,7 @@ enum TbPacketAction {
         PckA_CheatAllFree,
         PckA_CheatCrtSpells, // unused
         PckA_CheatRevealMap,
-        PckA_CheatCrAllSpls,
+        PckA_CheatCrAllSpls, // unused
         PckA_CheatUnusedPlaceholder065,//65
         PckA_CheatAllMagic,
         PckA_CheatAllRooms,

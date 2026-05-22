@@ -57,7 +57,6 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, uns
 long gf_change_creature_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
-long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
@@ -176,7 +175,6 @@ struct GuiBoxOption gui_secondary_cheat_option_list[] = {
 	{"Increment doors and traps count", 1,    		 NULL,           gf_give_door_trap, 0, 0, 0,               0, 0, 0, 0, 0},
 	{"Win level",   					1,           NULL,           gf_decide_victory, 0, 0, 0,               1, 0, 0, 0, 0},
 	{"Lose level",  					1,           NULL,           gf_decide_victory, 0, 0, 0,               0, 0, 0, 0, 0},
-	{"Give all creatures spells", 		1,           NULL,gf_give_all_creatures_spells, 0, 0, 0,               0, 0, 0, 0, 0},
 	{"!",                         		0,           NULL,                        NULL, 0, 0, 0,               0, 0, 0, 0, 0},
 };
 
@@ -243,14 +241,6 @@ long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, un
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
     set_players_packet_action(player, PckA_CheatAllFree, 0, 0, 0, 0);
-    return 1;
-}
-
-long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
-{
-    struct PlayerInfo* player = get_my_player();
-    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-    set_players_packet_action(player, PckA_CheatCrAllSpls, 0, 0, 0, 0);
     return 1;
 }
 
