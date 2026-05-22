@@ -549,7 +549,7 @@ void luaL_checkVariable(lua_State* L, int index, int32_t* varib_id, int32_t* var
     const char* variable = luaL_checkstring(L, index);
     if (!parse_get_varib(variable, varib_id, varib_type, 1))
     {
-        luaL_argerror(L, 2, lua_pushfstring(L, "Unknown variable, '%s'", variable));
+        luaL_argerror(L, index, lua_pushfstring(L, "Unknown variable, '%s'", variable));
     }
 }
 
