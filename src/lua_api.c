@@ -2570,6 +2570,7 @@ static const luaL_Reg game_meta[] = {
     {NULL, NULL}
 };
 */
+
 static void Global_register(lua_State *L)
 {
     //luaL_newlib(L, global_methods);
@@ -2587,6 +2588,7 @@ void Slab_register(lua_State *L);
 void Room_register(lua_State *L);
 void Camera_register(lua_State *L);
 void Lens_register(lua_State *L);
+void Map_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
@@ -2597,4 +2599,5 @@ void reg_host_functions(lua_State *L)
     Room_register(L);
     Camera_register(L);
     Lens_register(L);
+    Map_register(L);
 }
