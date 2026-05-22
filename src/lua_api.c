@@ -508,7 +508,7 @@ static int lua_Add_tunneller_party_to_level(lua_State *L)
 static int lua_Add_party_to_level(lua_State *L)
 {
     PlayerNumber owner     = luaL_checkPlayerSingle(L, 1);
-    long prty_id           = luaL_checkParty(L,  2);
+    int32_t prty_id        = luaL_checkParty(L,  2);
     TbMapLocation location = luaL_checkLocation(L,  3);
 
     // Recognize place where party is created
@@ -529,7 +529,7 @@ static int lua_Add_party_to_level(lua_State *L)
 
 static int lua_Display_objective(lua_State *L)
 {
-    long msg_id    = luaL_checkinteger(L, 1);
+    int32_t msg_id    = luaL_checkinteger(L, 1);
     TbMapLocation zoom_location = luaL_optLocation(L,2);
 
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
@@ -541,9 +541,9 @@ static int lua_Display_objective(lua_State *L)
 
 static int lua_Display_objective_with_pos(lua_State *L)
 {
-    long msg_id   = luaL_checkinteger(L, 1);
-    long stl_x    = luaL_checkstl_x(L, 2);
-    long stl_y    = luaL_checkstl_y(L, 3);
+    int32_t msg_id   = luaL_checkinteger(L, 1);
+    MapSubtlCoord stl_x    = luaL_checkstl_x(L, 2);
+    MapSubtlCoord stl_y    = luaL_checkstl_y(L, 3);
 
 
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
@@ -555,7 +555,7 @@ static int lua_Display_objective_with_pos(lua_State *L)
 
 static int lua_Display_information(lua_State *L)
 {
-    long msg_id    = luaL_checkinteger(L, 1);
+    int32_t msg_id    = luaL_checkinteger(L, 1);
     TbMapLocation zoom_location = luaL_optLocation(L,2);
 
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
@@ -567,9 +567,9 @@ static int lua_Display_information(lua_State *L)
 
 static int lua_Display_information_with_pos(lua_State *L)
 {
-    long msg_id    = luaL_checkinteger(L, 1);
-    long stl_x    = luaL_checkstl_x(L, 2);
-    long stl_y    = luaL_checkstl_y(L, 3);
+    int32_t msg_id    = luaL_checkinteger(L, 1);
+    MapSubtlCoord  stl_x    = luaL_checkstl_x(L, 2);
+    MapSubtlCoord  stl_y    = luaL_checkstl_y(L, 3);
 
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -592,7 +592,7 @@ static int lua_Quick_objective(lua_State *L)
 
 static int lua_Quick_information(lua_State *L)
 {
-    long slot = luaL_checkIntMinMax(L, 1, 0,QUICK_MESSAGES_COUNT-1);
+    int32_t slot = luaL_checkIntMinMax(L, 1, 0,QUICK_MESSAGES_COUNT-1);
     const char *msg_text = lua_tostring(L, 2);
     TbMapLocation target = luaL_optLocation(L, 3);
     snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
@@ -619,7 +619,7 @@ static int lua_Quick_objective_with_pos(lua_State *L)
 
 static int lua_Quick_information_with_pos(lua_State *L)
 {
-    long slot = luaL_checkIntMinMax(L, 1, 0,QUICK_MESSAGES_COUNT-1);
+    int32_t slot = luaL_checkIntMinMax(L, 1, 0,QUICK_MESSAGES_COUNT-1);
     const char *msg_text = lua_tostring(L, 2);
     MapSubtlCoord stl_x = luaL_checkstl_x(L, 3);
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
@@ -632,9 +632,97 @@ static int lua_Quick_information_with_pos(lua_State *L)
     return 0;
 }
 
+static int lua_Display_player_objective(lua_State* L)
+{
+    int32_t msg_id = luaL_checkinteger(L, 1);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 2);
+    TbMapLocation zoom_location = luaL_optLocation(L, 3);
+
+    set_general_objective(msg_id, plyr_idx, zoom_location, 0, 0);
+    return 0;
+}
+
+static int lua_Display_player_objective_with_pos(lua_State* L)
+{
+    int32_t msg_id = luaL_checkinteger(L, 1);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 2);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 3);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
+
+    set_general_objective(msg_id, plyr_idx, 0, stl_x, stl_y);
+    return 0;
+}
+
+static int lua_Display_player_information(lua_State* L)
+{
+    int32_t msg_id = luaL_checkinteger(L, 1);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 2);
+    TbMapLocation zoom_location = luaL_optLocation(L, 3);
+
+    set_general_information(msg_id, plyr_idx, zoom_location, 0, 0);
+    return 0;
+}
+
+static int lua_Display_player_information_with_pos(lua_State* L)
+{
+    int32_t msg_id = luaL_checkinteger(L, 1);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 2);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 3);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
+
+    set_general_information(msg_id, plyr_idx, 0, stl_x, stl_y);
+    return 0;
+}
+
+static int lua_Quick_player_objective(lua_State* L)
+{
+    const char* msg_text = lua_tostring(L, 1);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 2);
+    TbMapLocation target = luaL_optLocation(L, 3);
+
+    process_objective(msg_text, plyr_idx, target, 0, 0);
+    return 0;
+}
+
+static int lua_Quick_player_information(lua_State* L)
+{
+    int32_t slot = luaL_checkIntMinMax(L, 1, 0, QUICK_MESSAGES_COUNT - 1);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 2);
+    const char* msg_text = lua_tostring(L, 3);
+    TbMapLocation target = luaL_optLocation(L, 4);
+    snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
+
+    set_quick_information(slot, plyr_idx, target, 0, 0);
+    return 0;
+}
+
+static int lua_Quick_player_objective_with_pos(lua_State* L)
+{
+    const char* msg_text = lua_tostring(L, 1);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 2);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 3);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
+
+    process_objective(msg_text, plyr_idx, 0, stl_x, stl_y);
+    return 0;
+}
+
+static int lua_Quick_player_information_with_pos(lua_State* L)
+{
+    int32_t slot = luaL_checkIntMinMax(L, 1, 0, QUICK_MESSAGES_COUNT - 1);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 2);
+    const char* msg_text = lua_tostring(L, 3);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 4);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 5);
+    snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
+
+    set_quick_information(slot, plyr_idx, 0, stl_x, stl_y);
+    return 0;
+}
+
 static int lua_Display_message(lua_State *L)
 {
-    int msg_id = luaL_checkinteger(L, 1);
+    int32_t msg_id = luaL_checkinteger(L, 1);
     const char *msg =  get_string(msg_id);
     char id;
     char type;
@@ -2350,6 +2438,14 @@ static const luaL_Reg global_methods[] = {
    {"QuickObjectiveWithPos"                 ,lua_Quick_objective_with_pos        },
    {"QuickInformation"                      ,lua_Quick_information               },
    {"QuickInformationWithPos"               ,lua_Quick_information_with_pos      },
+   {"DisplayPlayerObjective"                ,lua_Display_player_objective               },
+   {"DisplayPlayerObjectiveWithPos"         ,lua_Display_player_objective_with_pos      },
+   {"DisplayPlayerInformation"              ,lua_Display_player_information             },
+   {"DisplayPlayerInformationWithPos"       ,lua_Display_player_information_with_pos    },
+   {"QuickPlayerObjective"                  ,lua_Quick_player_objective                 },
+   {"QuickPlayerObjectiveWithPos"           ,lua_Quick_player_objective_with_pos        },
+   {"QuickPlayerInformation"                ,lua_Quick_player_information               },
+   {"QuickPlayerInformationWithPos"         ,lua_Quick_player_information_with_pos      },
    {"DisplayMessage"                        ,lua_Display_message                 },
    {"QuickMessage"                          ,lua_Quick_message                   },
    {"ClearMessage"                          ,lua_Clear_message                   },
@@ -2474,6 +2570,7 @@ static const luaL_Reg game_meta[] = {
     {NULL, NULL}
 };
 */
+
 static void Global_register(lua_State *L)
 {
     //luaL_newlib(L, global_methods);
@@ -2491,6 +2588,7 @@ void Slab_register(lua_State *L);
 void Room_register(lua_State *L);
 void Camera_register(lua_State *L);
 void Lens_register(lua_State *L);
+void Map_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
@@ -2501,4 +2599,5 @@ void reg_host_functions(lua_State *L)
     Room_register(L);
     Camera_register(L);
     Lens_register(L);
+    Map_register(L);
 }
