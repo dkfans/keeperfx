@@ -169,6 +169,8 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_armour_effects_attached_to_creature(struct Thing *thing);
 void delete_disease_effects_attached_to_creature(struct Thing *thing);
 void delete_familiars_attached_to_creature(struct Thing* sumntng);
+TbBool creature_is_familiar(const struct Thing* thing);
+TbBool remove_creature_from_summoner(const struct Thing* famlrtng);
 
 CrInstance get_available_instance_with_spell_effect(const struct Thing *thing, unsigned long spell_flags);
 SpellKind get_spell_kind_from_instance(CrInstance inst_idx);

@@ -479,7 +479,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         angle = thing->move_angle_xy;
         if ( (angle) && ( (angle <= ANGLE_EAST) || (angle > ANGLE_WEST) ) )
         {
-          unsigned short y = thing->mappos.y.val;
+          MapCoord y = thing->mappos.y.val;
           pos2.x.val = thing->mappos.x.val;
           pos2.z.val = 0;
           pos2.y.val = y - STL_PER_SLB * speed;
@@ -508,7 +508,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         }
         else
         {
-          unsigned short x = thing->mappos.x.val;
+          MapCoord x = thing->mappos.x.val;
           pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val;
           pos2.x.val = x - STL_PER_SLB * speed;
@@ -552,7 +552,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
                 }
             }
             delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0); // destroy guardpost
-            for (long k = 0; k < AROUND_TILES_COUNT; k++)
+            for (int16_t k = 0; k < AROUND_TILES_COUNT; k++)
             {
                 create_dirt_rubble_for_dug_block(stl_x + around[k].delta_x, stl_y + around[k].delta_y, 4, room->owner);
             }
@@ -1909,11 +1909,11 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    long pos_x = 0;
-    long pos_y = 0;
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
@@ -1923,11 +1923,11 @@ void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation t
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    long pos_x = 0;
-    long pos_y = 0;
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
@@ -1937,7 +1937,7 @@ void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation tar
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, long x, long y)
+void set_general_objective(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     process_objective(get_string(msg_id), plyr_idx, target, x, y);
 }
@@ -2665,7 +2665,7 @@ void update(void)
     }
     if (game.game_kind == GKind_NonInteractiveState)
     {
-        game.map_changed_for_nagivation = 0;
+        game.map_changed_for_navigation = 0;
         return;
     }
     player = get_my_player();

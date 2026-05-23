@@ -6922,9 +6922,9 @@ msgid "%s has disconnected."
 msgstr "%s 已断开连接。"
 
 #: guitext:1118
-msgctxt "Network game message"
-msgid "Opponent disconnected"
-msgstr "对手已断开连接"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1119
 msgctxt "Network game message"

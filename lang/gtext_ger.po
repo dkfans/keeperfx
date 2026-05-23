@@ -7580,9 +7580,9 @@ msgid "%s has disconnected."
 msgstr "%s wurde getrennt."
 
 #: guitext:1118
-msgctxt "Network game message"
-msgid "Opponent disconnected"
-msgstr "Gegner getrennt"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1119
 msgctxt "Network game message"

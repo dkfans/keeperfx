@@ -181,6 +181,7 @@ src/light_data.c \
 src/linux.cpp \
 src/lua_api.c \
 src/lua_api_lens.c \
+src/lua_api_map.c \
 src/lua_api_player.c \
 src/lua_api_room.c \
 src/lua_api_things.c \

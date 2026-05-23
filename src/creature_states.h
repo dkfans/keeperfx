@@ -217,6 +217,7 @@ enum CreatureStateTypes {
     CrStTyp_FightObj,
     CrStTyp_Called2Arms,
     CrStTyp_Follow,
+    CrStTyp_DeepWork,
     CrStTyp_ListEnd,
 };
 

@@ -3062,7 +3062,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
                     {
                         long state_type;
                         state_type = get_creature_state_type(thing);
-                        if (state_type == CrStTyp_Work)
+                        if ((state_type == CrStTyp_Work) || (state_type == CrStTyp_DeepWork))
                         {
                             if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, thing->index, 0) > Lb_OK)
                             {
