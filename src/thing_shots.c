@@ -68,7 +68,7 @@ TbBool thing_is_shot(const struct Thing *thing)
     return true;
 }
 
-TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
+TbBool shot_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     if (thing->owner == plyr_idx)
     {
@@ -606,7 +606,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             if (shotng->model == ShM_Lizard)
             {
-                if (shotng->shot_lizard2.range >= THING_RANDOM(shotng, 90))
+                if (shotng->shot_lizard.range >= THING_RANDOM(shotng, 90))
                 {
                     struct Coord3d target_pos;
                     target_pos.x.val = shotng->shot_lizard.x;
@@ -1741,7 +1741,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                 **/
             case ShUL_Lizard:
                 thing->move_angle_xy = (thing->move_angle_xy + DEGREES_20) & ANGLE_MASK;
-                int skill = thing->shot_lizard2.range;
+                int skill = thing->shot_lizard.range;
                 target = thing_get(thing->shot_lizard.target_idx);
                 if (thing_is_invalid(target)) break;
                 MapCoordDelta dist;

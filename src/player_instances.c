@@ -281,7 +281,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, int32_t *n)
       case TCls_Object:
       {
           struct Thing* efftng;
-          if (object_is_slappable(thing, player->id_number))
+          if (object_is_slappable_by_player(thing, player->id_number))
           {
             efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
             if (!thing_is_invalid(efftng))
@@ -1099,6 +1099,7 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     case PI_WhipEnd:
         return (thing->index == player->controlled_thing_idx);
     case PI_PsngrCtLeave: // Leaving the possessed creature
+    case PI_ZoomToPos:
         break;
     default:
         ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
