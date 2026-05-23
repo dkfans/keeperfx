@@ -76,6 +76,7 @@ void gui_load_game(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     long slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
+    TbBool restore_pause = player->paused_state_restore;
     if (!load_game(slot_num))
     {
         ERRORLOG("Loading game %d failed; quitting.", (int)slot_num);
@@ -84,7 +85,11 @@ void gui_load_game(struct GuiButton *gbtn)
         quit_game = 1;
         return;
     }
-    set_players_packet_action(player, PckA_UpdatePause, player->paused_state_restore, 0, 0, 0);
+    clear_flag(game.operation_flags, GOF_Paused);
+    clear_flag(game.operation_flags, GOF_WorldInfluence);
+    if (restore_pause) {
+        set_flag(game.operation_flags, GOF_Paused);
+    }
 }
 
 void draw_load_button(struct GuiButton *gbtn)
