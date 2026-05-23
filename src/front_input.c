@@ -1368,6 +1368,10 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
     {
+      if (((game.operation_flags & GOF_Paused) != 0) && (game.game_kind != GKind_LocalGame))
+      {
+          return true;
+      }
       if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != 2))
       {
           turn_off_all_window_menus();
