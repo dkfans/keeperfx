@@ -3513,7 +3513,10 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
                 }
                 anger_apply_anger_to_creature(creatng, annoy_val, AngR_Other, 1);
             }
-            cctrl->bloody_footsteps_turns = 20;
+            if (creature_model_bleeds(thing->model))
+            {
+                cctrl->bloody_footsteps_turns = 20;
+            }
             cctrl->corpse_to_piss_on = thing->index;
             // Stop after one body was found
             break;
