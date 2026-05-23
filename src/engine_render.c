@@ -4982,7 +4982,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         || (thing->class_id == TCls_DeadCreature)
         || (player->work_state == PSt_QueryAll))
     {
-        if ((player->thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
+        if ((thing_under_hand_local == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = white_pal;
@@ -5307,7 +5307,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         return;
     if (flag_is_set(game.mode_flags,MFlg_NoHeroHealthFlower))
     {
-        if (player->thing_under_hand != thing->index)
+        if (thing_under_hand_local != thing->index)
         {
             cctrl->thought_bubble_last_turn_drawn = get_gameturn();
             if (cctrl->force_health_flower_displayed == false)
@@ -5390,7 +5390,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     else
     {
         // Determine if the creature is under the player's hand (being hovered over).
-        TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
+        TbBool is_thing_under_hand = (thing_under_hand_local == thing->index);
         // Check if the creature is an enemy and is visible.
         TbBool is_enemy_and_visible = players_are_enemies(player->id_number, thing->owner) && !creature_is_invisible(thing);
         // Check if the creature belongs to the player, is hurt but not unconscious.
@@ -7994,7 +7994,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 
     if (!thing_is_invalid(thing))
     {
-        if ((player->thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
+        if ((thing_under_hand_local == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
           struct Camera *active_cam = get_player_active_camera(player);
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
@@ -8016,7 +8016,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   }
                   else if (thing_is_trap_crate(dragtng))
                   {
-                      struct Thing *handthing = thing_get(player->thing_under_hand);
+                      struct Thing *handthing = thing_get(thing_under_hand_local);
                       if (thing_exists(handthing))
                       {
                           if (handthing->class_id == TCls_Trap)
