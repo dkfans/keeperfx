@@ -8817,18 +8817,18 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            if (get_gameturn() - thing->roomflag2.last_turn_drawn == 1)
+            if (get_gameturn() - thing->roomflag.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 10) {
-                    thing->roomflag2.display_timer++;
+                if (thing->roomflag.display_timer < 10) {
+                    thing->roomflag.display_timer++;
                 }
             } else {
-                if (get_gameturn() - thing->roomflag2.last_turn_drawn > 1) {
-                    thing->roomflag2.display_timer = 0;
+                if (get_gameturn() - thing->roomflag.last_turn_drawn > 1) {
+                    thing->roomflag.display_timer = 0;
                 }
             }
-            thing->roomflag2.last_turn_drawn = get_gameturn();
-            if (thing->roomflag2.display_timer == 10)
+            thing->roomflag.last_turn_drawn = get_gameturn();
+            if (thing->roomflag.display_timer == 10)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
                 add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
@@ -8932,18 +8932,18 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-            if (get_gameturn() - thing->roomflag2.last_turn_drawn == 1)
+            if (get_gameturn() - thing->roomflag.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 10) {
-                    thing->roomflag2.display_timer++;
+                if (thing->roomflag.display_timer < 10) {
+                    thing->roomflag.display_timer++;
                 }
             } else {
-                if (get_gameturn() - thing->roomflag2.last_turn_drawn > 1) {
-                    thing->roomflag2.display_timer = 0;
+                if (get_gameturn() - thing->roomflag.last_turn_drawn > 1) {
+                    thing->roomflag.display_timer = 0;
                 }
             }
-            thing->roomflag2.last_turn_drawn = get_gameturn();
-            if (thing->roomflag2.display_timer == 10)
+            thing->roomflag.last_turn_drawn = get_gameturn();
+            if (thing->roomflag.display_timer == 10)
             {
                 add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
                 if (is_free_space_in_poly_pool(1))
