@@ -67,6 +67,8 @@ void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
 
 void set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 long element_top_face_texture(struct Map *map);
+
+TbBool subtile_is_cluedo_wall(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }
