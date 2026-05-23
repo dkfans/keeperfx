@@ -3589,7 +3589,7 @@ static void shot_init_lizard(const struct Thing *target, short angle_xy, unsigne
         int posint = y / game.conf.crtr_conf.sprite_size;
         shotng->shot_lizard.x = x;
         shotng->shot_lizard.posint = posint;
-        shotng->shot_lizard2.range = range / 10;
+        shotng->shot_lizard.range = range / 10;
     }
 }
 
