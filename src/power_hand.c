@@ -275,7 +275,7 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
     }
 }
 
-struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
+struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Thing *picktng = INVALID_THING;
     struct Coord3d pos;
@@ -309,7 +309,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     {
         picktng = create_gold_for_hand_grab(thing, plyr_idx);
     }
-    else if (object_is_pickable_by_hand_to_hold_by_player(thing, plyr_idx))
+    else if (object_is_pickable_by_hand_to_hold(thing))
     {
             picktng = thing;
     }
