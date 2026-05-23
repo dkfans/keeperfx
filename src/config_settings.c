@@ -25,6 +25,7 @@
 #include "bflib_dernc.h"
 #include "bflib_keybrd.h"
 #include "bflib_video.h"
+#include "bflib_joyst.h"
 #include "frontmenu_options.h"
 #include "config.h"
 #include "front_input.h"
@@ -158,6 +159,40 @@ static const struct { unsigned char code; const char *name; } keycode_table[] = 
 };
 #define KEYCODE_TABLE_SIZE ((int)(sizeof(keycode_table)/sizeof(keycode_table[0])))
 
+static const struct { TbControllerButtons button; const char *name; } controller_button_table[] = {
+    { CBtn_A,              "A" },
+    { CBtn_B,              "B" },
+    { CBtn_X,              "X" },
+    { CBtn_Y,              "Y" },
+    { CBtn_BACK,           "BACK" },
+    { CBtn_START,          "START" },
+    { CBtn_LEFTSTICK,      "LEFTSTICK" },
+    { CBtn_RIGHTSTICK,     "RIGHTSTICK" },
+    { CBtn_LEFTSHOULDER,   "LEFTSHOULDER" },
+    { CBtn_RIGHTSHOULDER,  "RIGHTSHOULDER" },
+    { CBtn_DPAD_UP,        "DPAD_UP" },
+    { CBtn_DPAD_DOWN,      "DPAD_DOWN" },
+    { CBtn_DPAD_LEFT,      "DPAD_LEFT" },
+    { CBtn_DPAD_RIGHT,     "DPAD_RIGHT" },
+    { CBtn_MISC1,          "MISC1" },
+    { CBtn_PADDLE1,        "PADDLE1" },
+    { CBtn_PADDLE2,        "PADDLE2" },
+    { CBtn_PADDLE3,        "PADDLE3" },
+    { CBtn_PADDLE4,        "PADDLE4" },
+    { CBtn_TOUCHPAD,       "TOUCHPAD" },
+    { CBtn_L2,             "L2" },
+    { CBtn_R2,             "R2" },
+    { CBtn_LS_UP,          "LS_UP" },
+    { CBtn_LS_DOWN,        "LS_DOWN" },
+    { CBtn_LS_LEFT,        "LS_LEFT" },
+    { CBtn_LS_RIGHT,       "LS_RIGHT" },
+    { CBtn_RS_UP,          "RS_UP" },
+    { CBtn_RS_DOWN,        "RS_DOWN" },
+    { CBtn_RS_LEFT,        "RS_LEFT" },
+    { CBtn_RS_RIGHT,       "RS_RIGHT" },
+};
+#define CONTROLLER_BUTTON_TABLE_SIZE ((int)(sizeof(controller_button_table)/sizeof(controller_button_table[0])))
+
 static const char *keycode_to_name(unsigned char code)
 {
     for (int i = 0; i < KEYCODE_TABLE_SIZE; i++)
@@ -235,6 +270,90 @@ static unsigned char name_to_kmod(const char *name)
     }
 
     return mods;
+}
+
+static void controller_buttons_to_name(TbControllerButtons buttons, char *buf, size_t buflen)
+{
+    size_t len = 0;
+
+    if (buflen == 0)
+        return;
+
+    if (buttons == CBtn_NONE)
+    {
+        snprintf(buf, buflen, "NONE");
+        return;
+    }
+
+    buf[0] = '\0';
+    for (int i = 0; i < CONTROLLER_BUTTON_TABLE_SIZE; i++)
+    {
+        int written;
+
+        if ((buttons & controller_button_table[i].button) == 0)
+            continue;
+
+        if (len >= buflen)
+            break;
+
+        written = snprintf(buf + len, buflen - len, "%s%s", (len > 0) ? "|" : "", controller_button_table[i].name);
+        if (written < 0)
+            break;
+        if ((size_t)written >= buflen - len)
+        {
+            len = buflen;
+            break;
+        }
+        len += (size_t)written;
+    }
+
+    if (len == 0)
+        snprintf(buf, buflen, "NONE");
+}
+
+static TbControllerButtons name_to_controller_buttons(const char *name)
+{
+    TbControllerButtons buttons = CBtn_NONE;
+    char token[32];
+    int token_len = 0;
+
+    if (name == NULL)
+        return buttons;
+
+    for (const char *p = name;; p++)
+    {
+        unsigned char c = (unsigned char)(*p);
+        TbBool token_end = (c == '\0' || c == '|' || c == '+' || c == ',' || isspace(c));
+
+        if (!token_end)
+        {
+            if (token_len < (int)sizeof(token) - 1)
+                token[token_len++] = (char)toupper(c);
+            continue;
+        }
+
+        if (token_len > 0)
+        {
+            token[token_len] = '\0';
+            if (strcmp(token, "NONE") != 0)
+            {
+                for (int i = 0; i < CONTROLLER_BUTTON_TABLE_SIZE; i++)
+                {
+                    if (strcmp(token, controller_button_table[i].name) == 0)
+                    {
+                        buttons |= controller_button_table[i].button;
+                        break;
+                    }
+                }
+            }
+            token_len = 0;
+        }
+
+        if (c == '\0')
+            break;
+    }
+
+    return buttons;
 }
 
 #ifdef __cplusplus
@@ -363,10 +482,18 @@ TbBool load_settings(void)
             {
                 VALUE *vcode = value_dict_get(val, "code");
                 VALUE *vmods = value_dict_get(val, "mods");
+                VALUE *vcontroller_buttons = value_dict_get(val, "controller_buttons");
                 if (vcode && value_type(vcode) == VALUE_STRING)
                     settings.kbkeys[i].code = name_to_keycode(value_string(vcode));
                 if (vmods && value_type(vmods) == VALUE_STRING)
                     settings.kbkeys[i].mods = name_to_kmod(value_string(vmods));
+                if (vcontroller_buttons)
+                {
+                    if (value_type(vcontroller_buttons) == VALUE_STRING)
+                        settings.kbkeys[i].controller_buttons = name_to_controller_buttons(value_string(vcontroller_buttons));
+                    else if (value_type(vcontroller_buttons) == VALUE_INT32)
+                        settings.kbkeys[i].controller_buttons = (TbControllerButtons)(unsigned int)value_int32(vcontroller_buttons);
+                }
             }
         }
     }
@@ -433,11 +560,14 @@ short save_settings(void)
     for (int i = 0; i < GAME_KEYS_COUNT; i++)
     {
         char mods_buf[32];
+        char controller_buttons_buf[192];
         kmod_to_name(settings.kbkeys[i].mods, mods_buf, sizeof(mods_buf));
-        TOSAVE("%s = { code = \"%s\", mods = \"%s\" }\n",
+        controller_buttons_to_name(settings.kbkeys[i].controller_buttons, controller_buttons_buf, sizeof(controller_buttons_buf));
+        TOSAVE("%s = { code = \"%s\", mods = \"%s\", controller_buttons = \"%s\" }\n",
             game_key_settings[i].toml_name,
             keycode_to_name(settings.kbkeys[i].code),
-            mods_buf);
+            mods_buf,
+            controller_buttons_buf);
     }
 #undef TOSAVE
 
