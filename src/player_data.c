@@ -47,6 +47,7 @@ struct PlayerInfo bad_player;
 
 /** The current player's number. */
 unsigned char my_player_number;
+short thing_under_hand_local;
 /******************************************************************************/
 
 struct Camera *get_player_active_camera(const struct PlayerInfo *player)
