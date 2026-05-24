@@ -377,14 +377,6 @@ const struct LongNamedCommand powermodel_castability_commands[] = {
   {"OWNED_OBJECTS",    PwCast_OwnedObjects},
   {"NEUTRL_OBJECTS",   PwCast_NeutrlObjects},
   {"ENEMY_OBJECTS",    PwCast_EnemyObjects},
-  {"ALL_OBJECTS_PICKUP",      PwCast_AllObjectsPickup},
-  {"OWNED_OBJECTS_PICKUP",    PwCast_OwnedObjectsPickup},
-  {"NEUTRL_OBJECTS_PICKUP",   PwCast_NeutrlObjectsPickup},
-  {"ENEMY_OBJECTS_PICKUP",    PwCast_EnemyObjectsPickup},
-  {"ALL_OBJECTS_SLAP",      PwCast_AllObjectsSlap},
-  {"OWNED_OBJECTS_SLAP",    PwCast_OwnedObjectsSlap},
-  {"NEUTRL_OBJECTS_SLAP",   PwCast_NeutrlObjectsSlap},
-  {"ENEMY_OBJECTS_SLAP",    PwCast_EnemyObjectsSlap},
   {NULL,                0},
   };
 

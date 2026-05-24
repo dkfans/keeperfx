@@ -58,7 +58,6 @@ const struct NamedCommand objects_properties_commands[] = {
   {"HEART",                   OMF_Heart               },
   {"HOLD_IN_HAND",            OMF_HoldInHand          },
   {"IGNORED_BY_IMPS",         OMF_IgnoredByImps       },
-  {"SLAPPABLE",               OMF_Slappable           },
   {NULL,                      0},
   };
 

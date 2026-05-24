@@ -106,7 +106,7 @@ long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, 
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
 int weight_calculated_push_strenght(int weight, int push_strength);
 
-TbBool shot_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool shot_model_is_navigable(long tngmodel);
 TbBool shot_model_makes_flesh_explosion(long shot_model);
 TbBool detonate_shot(struct Thing *shotng, TbBool destroy);

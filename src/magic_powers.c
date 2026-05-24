@@ -302,65 +302,23 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((powerst->can_cast_flags & PwCast_OwnedObjects) != 0)
         {
             if (thing->owner == plyr_idx) {
-                return true;
+                if (object_is_pickable_by_hand_to_hold(thing)) {
+                    return true;
+                }
             }
         }
         if ((powerst->can_cast_flags & PwCast_NeutrlObjects) != 0)
         {
             if (is_neutral_thing(thing)) {
-                return true;
+                if (object_is_pickable_by_hand_to_hold(thing)) {
+                    return true;
+                }
             }
         }
         if ((powerst->can_cast_flags & PwCast_EnemyObjects) != 0)
         {
             if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
-                return true;
-            }
-        }
-        if ((powerst->can_cast_flags & PwCast_OwnedObjectsPickup) != 0)
-        {
-            if (thing->owner == plyr_idx) {
                 if (object_is_pickable_by_hand_to_hold(thing)) {
-                    return true;
-                }
-            }
-        }
-        if ((powerst->can_cast_flags & PwCast_NeutrlObjectsPickup) != 0)
-        {
-            if (is_neutral_thing(thing)) {
-                if (object_is_pickable_by_hand_to_hold(thing)) {
-                    return true;
-                }
-            }
-        }
-        if ((powerst->can_cast_flags & PwCast_EnemyObjectsPickup) != 0)
-        {
-            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
-                if (object_is_pickable_by_hand_to_hold(thing)) {
-                    return true;
-                }
-            }
-        }
-        if ((powerst->can_cast_flags & PwCast_OwnedObjectsSlap) != 0)
-        {
-            if (thing->owner == plyr_idx) {
-                if (object_is_slappable(thing)) {
-                    return true;
-                }
-            }
-        }
-        if ((powerst->can_cast_flags & PwCast_NeutrlObjectsSlap) != 0)
-        {
-            if (is_neutral_thing(thing)) {
-                if (object_is_slappable(thing)) {
-                    return true;
-                }
-            }
-        }
-        if ((powerst->can_cast_flags & PwCast_EnemyObjectsSlap) != 0)
-        {
-            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
-                if (object_is_slappable(thing)) {
                     return true;
                 }
             }
@@ -379,7 +337,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((powerst->can_cast_flags & PwCast_OwnedBoulders) != 0)
         {
             if (thing->owner == plyr_idx) {
-                if (shot_is_slappable_by_player(thing, plyr_idx))  {
+                if (shot_is_slappable(thing, plyr_idx))  {
                     return true;
                 }
             }
