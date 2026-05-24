@@ -991,6 +991,10 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
 int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, enum DigTagMode dig_tag_mode, unsigned char *predicted_slab_tag_modes, int *predicted_task_count)
 {
     int dig_change_count = 0;
+    if ((predicted_slab_tag_modes == NULL) != (predicted_task_count == NULL)) {
+        ERRORLOG("Prediction slab tag modes and task count must be supplied together");
+        return dig_change_count;
+    }
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     int scan_start_x = roomspace->left;
