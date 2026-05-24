@@ -7,10 +7,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "game_legacy.h"
-#include "player_utils.h"
-#include "map_blocks.h"
 #include "map_data.h"
-#include "gui_soundmsgs.h"
 #include "cursor_tag.h"
 #include "engine_render.h"
 #include "player_data.h"
@@ -95,7 +92,7 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
     }
     struct PlayerInfo *player = get_my_player();
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
-    if ((cursor_context != CSt_PickAxe) && ((cursor_context != CSt_PowerHand) || (thing_under_hand_local != 0))) {
+    if ((cursor_context != CSt_PickAxe) && ((cursor_context != CSt_PowerHand) || (local_thing_under_hand != 0))) {
         return false;
     }
     int roomspace_width = player->user_defined_roomspace_width;
