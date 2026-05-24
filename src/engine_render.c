@@ -57,6 +57,7 @@
 #include "keeperfx.hpp"
 #include "kjm_input.h"
 #include "player_instances.h"
+#include "roomspace_prediction.h"
 #include "sprites.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
@@ -2826,15 +2827,16 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
+    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&current_player->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
     if ((current_player->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
-    if (current_player->render_roomspace.render_roomspace_as_box)
+    if (render_roomspace->render_roomspace_as_box)
     {
-        if (current_player->render_roomspace.is_roomspace_a_box)
+        if (render_roomspace->is_roomspace_a_box)
         {
             // This is a basic square box
             create_map_volume_box(x + box_lag_compensation_x, y + box_lag_compensation_y, z, line_color);
@@ -2844,13 +2846,13 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(current_player->render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_map_volume_box(*render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, (render_roomspace->slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_map_volume_box(current_player->render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, line_color, false);
+        create_fancy_map_volume_box(*render_roomspace, x + box_lag_compensation_x, y + box_lag_compensation_y, z, line_color, false);
     }
     map_volume_box.color = default_color;
 }
@@ -4445,6 +4447,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
     {
         struct Map *cur_mapblk;
         cur_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y);
+        unsigned char render_map_flags = get_local_dig_prediction_render_flags(stl_x + xaval + xidx, stl_y, cur_mapblk->flags);
         // Get solidmasks of sibling columns
         unsigned short solidmsk_cur_raw;
         unsigned short solidmsk_cur;
@@ -4574,13 +4577,13 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         {
             int ncor_raw;
             ncor_raw = floor_height_table[solidmsk_cur_raw];
-            if ( (cur_mapblk->flags & SlbAtFlg_Unexplored) != 0 )
+            if ( (render_map_flags & SlbAtFlg_Unexplored) != 0 )
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             } else
-            if ((cur_mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+            if ((render_map_flags & SlbAtFlg_TaggedValuable) != 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
@@ -4598,7 +4601,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             }
         } else
         {
-            if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
+            if ((render_map_flags & SlbAtFlg_Unexplored) == 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
@@ -4653,6 +4656,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
     {
         struct Map *cur_mapblk;
         cur_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y);
+        unsigned char render_map_flags = get_local_dig_prediction_render_flags(stl_x + xaval + xidx, stl_y, cur_mapblk->flags);
         // Get column to be drawn
         const struct Column *cur_colmn;
         cur_colmn = unrev_colmn;
@@ -4761,13 +4765,13 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         ncor = floor_height_table[solidmsk_cur];
         if (ncor > 0)
         {
-            if (cur_mapblk->flags & SlbAtFlg_Unexplored)
+            if (render_map_flags & SlbAtFlg_Unexplored)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
-            else if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
+            else if ((render_map_flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
                 struct CubeConfigStats * cubed;
                 cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->floor_texture + 2 * ncor + 1));
@@ -4776,7 +4780,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
             } else
-            if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
+            if ((render_map_flags & SlbAtFlg_Valuable) != 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
@@ -4784,7 +4788,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             }
         } else
         {
-            if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
+            if ((render_map_flags & SlbAtFlg_Unexplored) == 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
@@ -8656,31 +8660,32 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
+    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&current_player->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
     if ((current_player->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
-    if (current_player->render_roomspace.render_roomspace_as_box)
+    if (render_roomspace->render_roomspace_as_box)
     {
-        if (current_player->render_roomspace.is_roomspace_a_box)
+        if (render_roomspace->is_roomspace_a_box)
         {
             // This is a basic square box
-             create_frontview_map_volume_box(cam, stl_width, current_player->render_roomspace.is_roomspace_a_single_subtile, line_color);
+             create_frontview_map_volume_box(cam, stl_width, render_roomspace->is_roomspace_a_single_subtile, line_color);
         }
         else
         {
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_frontview_map_volume_box(current_player->render_roomspace, cam, stl_width, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_frontview_map_volume_box(*render_roomspace, cam, stl_width, (render_roomspace->slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_frontview_map_volume_box(current_player->render_roomspace, cam, stl_width, line_color, false);
+        create_fancy_frontview_map_volume_box(*render_roomspace, cam, stl_width, line_color, false);
     }
     map_volume_box.color = default_color;
 }
