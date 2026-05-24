@@ -1246,11 +1246,12 @@ static int lua_Set_effect_generator_configuration(lua_State *L)
     return 0;
 }
 
-//static int lua_Set_power_configuration(lua_State *L)
-//{
-//    set_configuration(L, &terrain_room_named_fields_set, "SET_POWER_CONFIGURATION");
-//    return 0;
-//}
+static int lua_Set_power_configuration(lua_State *L)
+{
+    set_configuration(L, &magic_powers_named_fields_set, "SET_POWER_CONFIGURATION");
+    update_powers_tab_to_config();
+    return 0;
+}
 
 static int lua_Set_room_configuration(lua_State *L)
 {
@@ -2490,7 +2491,7 @@ static const luaL_Reg global_methods[] = {
     {"SetTrapConfiguration",                 lua_Set_trap_configuration          },
     //{"SetCreatureConfiguration",           lua_Set_creature_configuration      },
     {"SetEffectGeneratorConfiguration",      lua_Set_effect_generator_configuration},
-    //{"SetPowerConfiguration",              lua_Set_power_configuration         },
+    {"SetPowerConfiguration",                lua_Set_power_configuration         },
     {"SetRoomConfiguration",                 lua_Set_room_configuration          },
     {"SetGameRule",                          lua_Set_game_rule                   },
     {"SetHandRule",                          lua_Set_hand_rule                   },
