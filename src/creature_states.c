@@ -1083,10 +1083,10 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, M
         return false;
     if (!find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
         return false;
-    if (!creature_can_navigate_to_with_storage(thing, &pos, NavRtF_NoOwner))
+    if (!creature_can_navigate_to_with_storage(thing, &pos, NavRtF_Default))
         return false;
 
-    if (!setup_head_for_room(thing, room, NavRtF_NoOwner))
+    if (!setup_head_for_room(thing, room, NavRtF_Default))
     {
         ERRORLOG("The %s cannot destroy %s because it can't reach it",thing_model_name(thing),room_code_name(room->kind));
         return false;

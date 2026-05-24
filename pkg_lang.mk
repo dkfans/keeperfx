@@ -112,6 +112,7 @@ pkg/levels/standard/text_chi.dat \
 pkg/levels/standard/text_fre.dat \
 pkg/levels/standard/text_ger.dat \
 pkg/levels/standard/text_por.dat \
+pkg/levels/standard/text_rus.dat \
 pkg/levels/standard/text_spa.dat \
 pkg/levels/lostlvls/text_eng.dat \
 pkg/levels/lostlvls/text_por.dat \

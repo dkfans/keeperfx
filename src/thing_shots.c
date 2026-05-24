@@ -68,7 +68,7 @@ TbBool thing_is_shot(const struct Thing *thing)
     return true;
 }
 
-TbBool shot_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     if (thing->owner == plyr_idx)
     {

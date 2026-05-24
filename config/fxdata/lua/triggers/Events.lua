@@ -119,10 +119,10 @@ end
 ---@param object? Object the object that triggers the event
 ---@return table
 function RegisterObjectDestroyedEvent(action, object)
-    local trigData = {thing = object}
+    local trigData = {object = object}
 
     local trigger = CreateTrigger("Destroyed",action,trigData)
-    if unit then
+    if object then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.object == triggerData.object end)
     end
     return trigger

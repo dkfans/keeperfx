@@ -4924,7 +4924,8 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 else
                 {
-                    char *flag = strtok(new_value," ");
+                    char *saveptr = NULL;
+                    char *flag = strtok_r(new_value," ",&saveptr);
                     while ( flag != NULL )
                     {
                         j = get_long_id(powermodel_castability_commands, flag);
@@ -4937,7 +4938,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                             DEALLOCATE_SCRIPT_VALUE
                             return;
                         }
-                        flag = strtok(NULL, " " );
+                        flag = strtok_r(NULL, " ", &saveptr);
                     }
                 }
                 value->chars[3] = -1;
@@ -4986,7 +4987,8 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 else
                 {
-                    char *flag = strtok(new_value," ");
+                    char *saveptr = NULL;
+                    char *flag = strtok_r(new_value," ",&saveptr);
                     while ( flag != NULL )
                     {
                         k = get_id(powermodel_properties_commands, flag);
@@ -4999,7 +5001,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                             DEALLOCATE_SCRIPT_VALUE
                             return;
                         }
-                        flag = strtok(NULL, " " );
+                        flag = strtok_r(NULL, " ", &saveptr);
                     }
                 }
                 value->chars[3] = -1;
@@ -5295,7 +5297,10 @@ static void set_player_colour_process(struct ScriptContext *context)
 
 static void set_game_rule_check(const struct ScriptLine* scline)
 {
-    char* rulevalue_str = strdup(scline->tp[1]);
+    char* rulevalue_str = malloc(MAX_TEXT_LENGTH);
+    if (rulevalue_str == NULL)
+        return;
+    snprintf(rulevalue_str, MAX_TEXT_LENGTH, "%s", scline->tp[1]);
     PlayerNumber plyr_idx;
     if (scline->tp[2][0] == '\0')
     {
