@@ -410,6 +410,7 @@ TbBool load_game(long slot_num)
     reinit_level_after_load();
     clear_packets();
     game.skip_initial_input_turns = 0;
+    process_pause_packet(0, 0);
     clear_flag(game.operation_flags, GOF_Paused);
     clear_flag(game.operation_flags, GOF_WorldInfluence);
     close_main_cheat_menu();
