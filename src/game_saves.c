@@ -42,6 +42,7 @@
 #include "game_merge.h"
 #include "frontmenu_ingame_map.h"
 #include "gui_boxmenu.h"
+#include "net_exchange_gameplay.h"
 #include "packets.h"
 #include "keeperfx.hpp"
 #include "api.h"
@@ -408,8 +409,8 @@ TbBool load_game(long slot_num)
     LbFileClose(fh);
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
+    initialize_packet_history();
     clear_packets();
-    game.skip_initial_input_turns = 0;
     process_pause_packet(0, 0);
     clear_flag(game.operation_flags, GOF_Paused);
     clear_flag(game.operation_flags, GOF_WorldInfluence);

@@ -1750,6 +1750,7 @@ void clear_game(void)
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
     clear_slabsets();
+    game.input_lag_turns = 0;
     game.skip_initial_input_turns = 0;
     initialize_packet_history();
 }

@@ -27,7 +27,6 @@ enum InputLagMode {
 TbBool input_lag_skips_initial_processing(void)
 {
     if ((game.system_flags & GSF_NetworkActive) == 0) {
-        game.skip_initial_input_turns = 0;
         return false;
     }
     if ((game.operation_flags & GOF_Paused) != 0) {
