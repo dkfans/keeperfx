@@ -266,7 +266,7 @@ struct PlayerInfo {
 /******************************************************************************/
 
 extern unsigned char my_player_number;
-extern short thing_under_hand_local;
+extern short local_thing_under_hand;
 
 #pragma pack()
 /******************************************************************************/

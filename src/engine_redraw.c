@@ -785,8 +785,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
           i = player->secondary_cursor_state;
         else
           i = player->primary_cursor_state;
-        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (thing_under_hand_local > 0))
-        {
+        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (local_thing_under_hand > 0)) {
             i = CSt_PowerHand;
         } else
         if ((i == CSt_PowerHand) && power_hand_is_empty(player))
@@ -805,9 +804,8 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             break;
         case CSt_PowerHand:
             thing_under_hand = player->thing_under_hand;
-            if (thing_under_hand_local > 0)
-            {
-                thing_under_hand = thing_under_hand_local;
+            if (local_thing_under_hand > 0) {
+                thing_under_hand = local_thing_under_hand;
             }
             thing = thing_get(thing_under_hand);
             TRACE_THING(thing);
