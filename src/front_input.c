@@ -1939,6 +1939,7 @@ static short get_creature_control_action_inputs(void)
             }
         }
         player->thing_under_hand = 0;
+        local_thing_under_hand = 0;
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
@@ -1987,6 +1988,7 @@ static short get_creature_control_action_inputs(void)
                     }
                 }
             }
+            local_thing_under_hand = player->thing_under_hand;
             if (player->selected_fp_thing_pickup != player->thing_under_hand)
             {
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
@@ -2451,9 +2453,8 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   if ((*context == CSt_PowerHand) && (!player->one_click_lock_cursor))
   {
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
-    if (!thing_is_invalid(thing))
-    {
-      thing_under_hand_local = thing->index;
+    if (!thing_is_invalid(thing)) {
+      local_thing_under_hand = thing->index;
     } else
     if (hand_is_empty)
     {
@@ -2477,7 +2478,7 @@ static void get_dungeon_control_nonaction_inputs(void)
   my_mouse_y = GetMouseY();
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet(my_player_number);
-  thing_under_hand_local = 0;
+  local_thing_under_hand = 0;
   unset_packet_control(pckt, PCtr_MapCoordsValid);
   if (player->work_state == PSt_CtrlDungeon)
   {
@@ -2492,6 +2493,10 @@ static void get_dungeon_control_nonaction_inputs(void)
     {
         set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
         pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
+        struct Thing* thing = get_thing_under_hand(player, pos.x.val, pos.y.val);
+        if (!thing_is_invalid(thing)) {
+            local_thing_under_hand = thing->index;
+        }
     }
   }
   if (is_game_key_pressed(Gkey_ExitGame, true, false))

@@ -581,8 +581,7 @@ void draw_power_hand(void)
     thing = thing_get(player->hand_thing_idx);
     if (!thing_exists(thing))
     {
-        if (thing_under_hand_local > 0)
-        {
+        if ((local_thing_under_hand > 0) && (player->work_state == PSt_CtrlDungeon)) {
             process_keeper_sprite(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY()+scale_ui_value(40*global_hand_scale),
               game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale));
         }
@@ -604,7 +603,7 @@ void draw_power_hand(void)
     }
     if (player->work_state != PSt_HoldInHand)
     {
-      TbBool draw_hand = (thing_under_hand_local > 0);
+      TbBool draw_hand = (local_thing_under_hand > 0);
       if ((player->work_state == PSt_CtrlDungeon) && !power_hand_is_empty(player))
       {
         draw_hand = (player->secondary_cursor_state == CSt_PowerHand) || ((player->secondary_cursor_state == CSt_DefaultArrow) && (player->primary_cursor_state == CSt_PowerHand));

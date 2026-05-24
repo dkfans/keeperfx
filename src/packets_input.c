@@ -80,6 +80,34 @@ void remember_cursor_subtile(struct PlayerInfo *player) {
     player->interpolated_tagging = player->mouse_on_map;
 }
 
+struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y)
+{
+    struct Thing *thing;
+
+    switch (player->work_state) {
+    case PSt_Slap:
+        return get_creature_near_to_be_keeper_power_target(x, y, PwrK_SLAP, player->id_number);
+    case PSt_CtrlPassngr:
+        return get_creature_near_and_owned_by(x, y, player->id_number, CREATURE_ANY);
+    case PSt_FreeCtrlPassngr:
+        return get_creature_near_and_owned_by(x, y, -1, CREATURE_ANY);
+    case PSt_CtrlDirect:
+        return get_creature_near_for_controlling(player->id_number, x, y);
+    case PSt_FreeCtrlDirect:
+        return get_creature_near(x, y);
+    case PSt_CreatrQuery:
+    case PSt_CreatrInfo:
+        thing = get_creature_near(x, y);
+        if (thing_is_creature(thing) && can_thing_be_queried(thing, player->id_number)) {
+            return thing;
+        }
+        break;
+    case PST_CastPowerOnTarget:
+        return get_creature_near_to_be_keeper_power_target(x, y, player->chosen_power_kind, player->id_number);
+    }
+    return INVALID_THING;
+}
+
 void set_tag_untag_mode(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -731,6 +759,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     pwkind = player->chosen_power_kind;
+    thing = get_thing_under_hand(player, x, y);
+    if (!thing_is_invalid(thing)) {
+        player->thing_under_hand = thing->index;
+    }
 
     switch (player->work_state)
     {
@@ -752,12 +784,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             break;
         case PSt_Slap:
-            thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_SLAP, plyr_idx);
-            if (thing_is_invalid(thing)) {
-                player->thing_under_hand = 0;
-            } else {
-                player->thing_under_hand = thing->index;
-            }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
                 magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
@@ -766,14 +792,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         case PSt_CtrlPassngr:
         case PSt_FreeCtrlPassngr:
-            if (player->work_state == PSt_CtrlPassngr)
-                thing = get_creature_near_and_owned_by(x, y, plyr_idx, CREATURE_ANY);
-            else
-                thing = get_creature_near_and_owned_by(x, y, -1, CREATURE_ANY);
-            if (thing_is_invalid(thing))
-                player->thing_under_hand = 0;
-            else
-                player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
                 if (player->thing_under_hand > 0)
@@ -795,14 +813,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         case PSt_CtrlDirect:
         case PSt_FreeCtrlDirect:
-            if (player->work_state == PSt_CtrlDirect)
-                thing = get_creature_near_for_controlling(plyr_idx, x, y);
-            else
-                thing = get_creature_near(x, y);
-            if (thing_is_invalid(thing))
-                player->thing_under_hand = 0;
-            else
-                player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
                 if (player->thing_under_hand > 0)
@@ -822,20 +832,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         case PSt_CreatrQuery:
         case PSt_CreatrInfo:
-            thing = get_creature_near(x, y);
-            TbBool CanQuery = false;
-            if (thing_is_creature(thing))
-            {
-                CanQuery = can_thing_be_queried(thing, plyr_idx);
-            }
-            if (!CanQuery)
-            {
-                player->thing_under_hand = 0;
-            }
-            else
-            {
-                player->thing_under_hand = thing->index;
-            }
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
                 if (player->thing_under_hand > 0)
@@ -905,13 +901,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         }
         case PST_CastPowerOnTarget:
-            thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
-                player->thing_under_hand = 0;
                 break;
             }
-            player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
                 i = get_power_overcharge_level(player);
