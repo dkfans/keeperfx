@@ -77,6 +77,7 @@
 #include "power_specials.h"
 #include "power_hand.h"
 #include "room_util.h"
+#include "roomspace_prediction.h"
 #include "room_workshop.h"
 #include "room_data.h"
 #include "thing_stats.h"
@@ -1613,6 +1614,7 @@ void process_packets(void)
     set_local_packet_turn();
     update_turn_checksums();
     store_packet_history(player->packet_num, get_packet_direct(player->packet_num));
+    update_local_dig_tag_prediction();
     if (game.game_kind != GKind_LocalGame)
     {
         if (!game.packet_load_enable || game.packet_load_initialized)
@@ -1664,6 +1666,7 @@ void process_packets(void)
             process_players_packet(i);
         }
     }
+    update_local_dig_prediction_cursor_preview();
     // Clear all packets
     clear_packets();
     if (quit_game || exit_keeper) {

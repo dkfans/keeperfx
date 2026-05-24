@@ -240,6 +240,7 @@
     <ClCompile Include="src\power_specials.c" />
     <ClCompile Include="src\roomspace.c" />
     <ClCompile Include="src\roomspace_detection.c" />
+    <ClCompile Include="src\roomspace_prediction.c" />
     <ClCompile Include="src\room_data.c" />
     <ClCompile Include="src\room_entrance.c" />
     <ClCompile Include="src\room_garden.c" />
@@ -476,6 +477,7 @@
     <ClInclude Include="src\power_specials.h" />
     <ClInclude Include="src\roomspace.h" />
     <ClInclude Include="src\roomspace_detection.h" />
+    <ClInclude Include="src\roomspace_prediction.h" />
     <ClInclude Include="src\room_data.h" />
     <ClInclude Include="src\room_entrance.h" />
     <ClInclude Include="src\room_garden.h" />
