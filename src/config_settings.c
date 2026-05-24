@@ -560,7 +560,7 @@ short save_settings(void)
     for (int i = 0; i < GAME_KEYS_COUNT; i++)
     {
         char mods_buf[32];
-        char controller_buttons_buf[192];
+        char controller_buttons_buf[512];
         kmod_to_name(settings.kbkeys[i].mods, mods_buf, sizeof(mods_buf));
         controller_buttons_to_name(settings.kbkeys[i].controller_buttons, controller_buttons_buf, sizeof(controller_buttons_buf));
         TOSAVE("%s = { code = \"%s\", mods = \"%s\", controller_buttons = \"%s\" }\n",
