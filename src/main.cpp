@@ -3955,7 +3955,6 @@ void game_loop(void)
         } else
         {
           game.save_game_slot = -1;
-          clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {
           for (int i = 0; i < PLAYERS_COUNT; i++) {

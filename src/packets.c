@@ -343,7 +343,10 @@ void process_pause_packet(long curr_pause, long new_pause)
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
-          game.skip_initial_input_turns = game.input_lag_turns + 1;
+          game.skip_initial_input_turns = 0;
+          if ((game.system_flags & GSF_NetworkActive) != 0) {
+              game.skip_initial_input_turns = game.input_lag_turns + 1;
+          }
       }
       if ( !SoundDisabled )
       {
