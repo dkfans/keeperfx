@@ -6571,10 +6571,10 @@ TbBool creature_can_see_invisible(const struct Thing *thing)
     return (creature_under_spell_effect(thing, CSAfF_Sight) || (crconf->can_see_invisible));
 }
 
-int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)
+int claim_neutral_creatures_in_sight(struct Thing *creatng, int can_see_slabs)
 {
-    MapSlabCoord slb_x = subtile_slab(pos->x.stl.num);
-    MapSlabCoord slb_y = subtile_slab(pos->y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     long n = 0;
     long i = game.nodungeon_creatr_list_start;
     unsigned long k = 0;
@@ -6588,7 +6588,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         int dy = abs(slb_y - subtile_slab(thing->mappos.y.stl.num));
         if ((dx <= can_see_slabs) && (dy <= can_see_slabs))
         {
-            if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
+            if (is_neutral_thing(thing) && creature_can_see_thing(thing,creatng))
             {
                 if (creature_is_leaving_and_cannot_be_stopped(thing) || creature_is_leaving_and_cannot_be_stopped(creatng))
                     return false;

@@ -2419,10 +2419,6 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
 {
     if (is_neutral_thing(creatng) || thing_is_invalid(creatng)) //heroes do explore, so mapmakers can cast hero powers
         return;
-    struct Coord3d pos;
-    pos.x.val = subtile_coord_center(stl_x);
-    pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = get_floor_height_at(&pos);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     slb_x = subtile_slab(stl_x);
@@ -2448,7 +2444,7 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
         clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
         if (!player_cannot_win(creatng->owner) && (!flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator)) && (!player_is_roaming(creatng->owner)))
         {
-            claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
+            claim_neutral_creatures_in_sight(creatng, can_see_slabs);
         }
     }
     clear_slab_dig(slb_x, slb_y, creatng->owner);
