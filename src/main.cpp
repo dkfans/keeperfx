@@ -3089,16 +3089,16 @@ void update_blocks_pointed(void)
     long y;
     long x_frac;
     long y_frac;
-    long hori_ptr_y;
-    long vert_ptr_y;
-    long hori_hdelta_y;
-    long vert_hdelta_y;
-    long hori_ptr_x;
-    long vert_ptr_x;
-    long hvdiv_x;
-    long hvdiv_y;
-    long long lltmp;
-    long k;
+    int64_t hori_ptr_y;
+    int64_t vert_ptr_y;
+    int64_t hori_hdelta_y;
+    int64_t vert_hdelta_y;
+    int64_t hori_ptr_x;
+    int64_t vert_ptr_x;
+    int64_t hvdiv_x;
+    int64_t hvdiv_y;
+    int64_t lltmp;
+    int64_t k;
     int i;
     SYNCDBG(19,"Starting");
     if ((!vert_offset[1]) && (!hori_offset[1]))
@@ -3108,16 +3108,16 @@ void update_blocks_pointed(void)
         me_pointed_at = INVALID_MAP_BLOCK;//get_map_block_at(0,0);
     } else
     {
-        hori_ptr_y = (long)hori_offset[0] * (pointer_y - y_init_off);
-        vert_ptr_y = (long)vert_offset[0] * (pointer_y - y_init_off);
-        hori_hdelta_y = (long)hori_offset[0] * ((long)high_offset[1] >> 8);
-        vert_hdelta_y = (long)vert_offset[0] * ((long)high_offset[1] >> 8);
-        vert_ptr_x = (long)(vert_offset[1] * (pointer_x - x_init_off)) >> 1;
-        hori_ptr_x = (long)(hori_offset[1] * (pointer_x - x_init_off)) >> 1;
-        lltmp = hori_offset[0] * (long long)vert_offset[1] - vert_offset[0] * (long long)hori_offset[1];
+        hori_ptr_y = (int64_t)hori_offset[0] * (pointer_y - y_init_off);
+        vert_ptr_y = (int64_t)vert_offset[0] * (pointer_y - y_init_off);
+        hori_hdelta_y = (int64_t)hori_offset[0] * ((long)high_offset[1] >> 8);
+        vert_hdelta_y = (int64_t)vert_offset[0] * ((long)high_offset[1] >> 8);
+        vert_ptr_x = ((int64_t)vert_offset[1] * (pointer_x - x_init_off)) >> 1;
+        hori_ptr_x = ((int64_t)hori_offset[1] * (pointer_x - x_init_off)) >> 1;
+        lltmp = hori_offset[0] * (int64_t)vert_offset[1] - vert_offset[0] * (int64_t)hori_offset[1];
         hvdiv_x = (lltmp >> 11);
         if (hvdiv_x == 0) hvdiv_x = 1;
-        lltmp = vert_offset[0] * (long long)hori_offset[1] - hori_offset[0] * (long long)vert_offset[1];
+        lltmp = vert_offset[0] * (int64_t)hori_offset[1] - hori_offset[0] * (int64_t)vert_offset[1];
         hvdiv_y = (lltmp >> 11);
         if (hvdiv_y == 0) hvdiv_y = 1;
         for (i=0; i < 8; i++)
