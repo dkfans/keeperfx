@@ -105,7 +105,7 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
     MapSlabCoord slb_y = subtile_slab(coord_subtile(pckt->pos_y));
     MapSlabCoord drag_start_slb_x = slb_x;
     MapSlabCoord drag_start_slb_y = slb_y;
-    if ((*highlight_mode == 1) && ((pckt->control_flags & PCtr_LBtnAnyAction) != 0) && (local_dig_tag_prediction.last_packet_turn != 0)) {
+    if ((*highlight_mode == drag_placement_mode) && ((pckt->control_flags & PCtr_LBtnAnyAction) != 0) && (local_dig_tag_prediction.last_packet_turn != 0)) {
         drag_start_slb_x = local_dig_tag_prediction.drag_start_slb_x;
         drag_start_slb_y = local_dig_tag_prediction.drag_start_slb_y;
     }
@@ -157,18 +157,18 @@ void update_local_dig_tag_prediction(void)
     if (start_selection) {
         local_dig_tag_prediction.last_packet_turn = pckt->turn;
     }
-    if ((highlight_mode == 1) && start_selection) {
+    if ((highlight_mode == drag_placement_mode) && start_selection) {
         memcpy(local_dig_tag_prediction.drag_base_slab_tag_modes, local_dig_tag_prediction.slab_tag_modes, sizeof(local_dig_tag_prediction.slab_tag_modes));
         local_dig_tag_prediction.drag_base_task_count = local_dig_tag_prediction.predicted_task_count;
     }
-    if (highlight_mode == 1) {
+    if (highlight_mode == drag_placement_mode) {
         memcpy(local_dig_tag_prediction.slab_tag_modes, local_dig_tag_prediction.drag_base_slab_tag_modes, sizeof(local_dig_tag_prediction.slab_tag_modes));
         local_dig_tag_prediction.predicted_task_count = local_dig_tag_prediction.drag_base_task_count;
     }
     int changed_slab_count = apply_roomspace_dig_tag_selection(my_player_number, &roomspace, local_dig_tag_prediction.previous_slb_x, local_dig_tag_prediction.previous_slb_y, highlight_mode, local_dig_tag_prediction.dig_tag_mode, local_dig_tag_prediction.slab_tag_modes, &local_dig_tag_prediction.predicted_task_count);
     local_dig_tag_prediction.previous_slb_x = slb_x;
     local_dig_tag_prediction.previous_slb_y = slb_y;
-    if ((changed_slab_count > 0) && ((highlight_mode != 1) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))) {
+    if ((changed_slab_count > 0) && ((highlight_mode != drag_placement_mode) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))) {
         local_dig_tag_prediction.last_packet_turn = pckt->turn;
         play_non_3d_sample(118);
     }

@@ -170,12 +170,12 @@ struct RoomSpace create_box_roomspace_from_drag(struct RoomSpace roomspace, MapS
 
 struct RoomSpace create_dig_highlight_roomspace(struct RoomSpace roomspace, unsigned char highlight_mode, int width, MapSlabCoord drag_start_x, MapSlabCoord drag_start_y, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    if (highlight_mode == 1) {
+    if (highlight_mode == drag_placement_mode) {
         roomspace = create_box_roomspace_from_drag(roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
         detect_roomspace_direction(&roomspace);
         return roomspace;
     }
-    if (highlight_mode == 2) {
+    if (highlight_mode == roomspace_detection_mode) {
         roomspace = create_box_roomspace(roomspace, width, width, slb_x, slb_y);
         roomspace.drag_direction = top_left_to_bottom_right;
         return roomspace;
@@ -562,7 +562,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
             untag_mode = true;
         }
     }
-    if ((player->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (player->roomspace_highlight_mode == 2) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
+    if ((player->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (player->roomspace_highlight_mode == roomspace_detection_mode) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
     {
         // Allow RMB + CTRL to work as expected over lowslabs (for tagging and untagging)
         // we reset swap_to_untag_mode whenever LMB is not pressed (i.e. we are still in preview mode)
@@ -576,7 +576,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
             player->swap_to_untag_mode = 1; // maybe
         }
     }
-    if (player->roomspace_highlight_mode == 1)
+    if (player->roomspace_highlight_mode == drag_placement_mode)
     {
         if (((pckt->control_flags & PCtr_LBtnHeld) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
@@ -599,7 +599,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
         }
         highlight_mode = true;
     }
-    else if (player->roomspace_highlight_mode == 2) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    else if (player->roomspace_highlight_mode == roomspace_detection_mode) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
         if ((pckt->control_flags & PCtr_HeldAnyButton) != 0) // Block camera zoom/rotate if Ctrl is held with LMB/RMB
         {
@@ -1003,14 +1003,14 @@ int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *r
     int scan_start_y = roomspace->top;
     int scan_end_y = roomspace->bottom;
     int scan_step_y = 1;
-    if ((highlight_mode != 0) && !get_roomspace_drag_scan_range(roomspace, roomspace->drag_direction, &scan_start_x, &scan_end_x, &scan_step_x, &scan_start_y, &scan_end_y, &scan_step_y)) {
+    if ((highlight_mode != box_placement_mode) && !get_roomspace_drag_scan_range(roomspace, roomspace->drag_direction, &scan_start_x, &scan_end_x, &scan_step_x, &scan_start_y, &scan_end_y, &scan_step_y)) {
         return dig_change_count;
     }
     for (int current_y = scan_start_y; current_y != scan_end_y + scan_step_y; current_y += scan_step_y) {
         for (int current_x = scan_start_x; current_x != scan_end_x + scan_step_x; current_x += scan_step_x) {
             MapSlabCoord path_slb_x = current_x;
             MapSlabCoord path_slb_y = current_y;
-            if (highlight_mode == 0) {
+            if (highlight_mode == box_placement_mode) {
                 path_slb_x = previous_slb_x;
                 path_slb_y = previous_slb_y;
             }
@@ -1453,7 +1453,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
             }
         }
         set_player_roomspace_size(player, par2);
-        set_players_packet_action(player, PckA_SetRoomspaceHighlight, 2, par2, 0, 0);
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, roomspace_detection_mode, par2, 0, 0);
         reset_roomspace = true;
         return;
     }
@@ -1477,7 +1477,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
         if (par2 > 1)
         {
             set_player_roomspace_size(player, par2);
-            set_players_packet_action(player, PckA_SetRoomspaceHighlight, 2, par2, 0, 0);
+            set_players_packet_action(player, PckA_SetRoomspaceHighlight, roomspace_detection_mode, par2, 0, 0);
             reset_roomspace = true;
             return;
         }

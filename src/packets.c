@@ -1043,7 +1043,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     case PckA_SetRoomspaceHighlight:
     {
         player->roomspace_mode = pckt->actn_par1;
-        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
+        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == roomspace_detection_mode) )
         {
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
@@ -1060,13 +1060,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         player->roomspace_highlight_mode = pckt->actn_par1;
         switch (pckt->actn_par1)
         {
-            case 0:
+            case box_placement_mode:
             {
                 reset_dungeon_build_room_ui_variables(plyr_idx);
                 player->roomspace_width = player->roomspace_height = pckt->actn_par2;
                 break;
             }
-            case 1: // drag
+            case drag_placement_mode: // drag
             {
                 if (pckt->actn_par2 == 1)
                 {
