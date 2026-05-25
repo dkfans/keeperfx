@@ -3431,7 +3431,10 @@ void set_level_objective(PlayerNumber plyr_idx, const char *msg_text)
         return;
     }
     snprintf(game.evntbox_text_objective[plyr_idx], MESSAGE_TEXT_LEN, "%s", msg_text);
-    new_objective = 1;
+    if (is_my_player_number(plyr_idx))
+    {
+        new_objective = 1;
+    }
 }
 
 void update_player_objectives(PlayerNumber plyr_idx)
