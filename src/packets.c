@@ -344,7 +344,6 @@ void process_pause_packet(long curr_pause, long new_pause)
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
-          game.skip_initial_input_turns = 0;
           if ((game.system_flags & GSF_NetworkActive) != 0) {
               game.skip_initial_input_turns = game.input_lag_turns + 1;
           }
@@ -1633,13 +1632,14 @@ void process_packets(void)
             return;
         }
     }
-    MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
-    load_old_packets();
-
-    if (input_lag_skips_initial_processing())
-    {
+    if (input_lag_skips_initial_processing()) {
         clear_packets();
         return;
+    }
+
+    if ((game.system_flags & GSF_NetworkActive) != 0) {
+        MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
+        load_old_packets();
     }
 
     if ((game.system_flags & GSF_NetworkActive) != 0 && checksums_different()) {
