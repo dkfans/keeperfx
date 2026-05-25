@@ -3085,10 +3085,10 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    long x;
-    long y;
-    long x_frac;
-    long y_frac;
+    int32_t x;
+    int32_t y;
+    int32_t x_frac;
+    int32_t y_frac;
     int64_t hori_ptr_y;
     int64_t vert_ptr_y;
     int64_t hori_hdelta_y;
