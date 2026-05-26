@@ -24,7 +24,6 @@
 #include "dungeon_data.h"
 #include "game_legacy.h"
 #include "roomspace.h"
-#include "roomspace_prediction.h"
 #include "engine_render.h"
 #include "slab_data.h"
 #include "power_hand.h"
@@ -44,21 +43,18 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
+unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, const struct Packet *pckt, struct RoomSpace *render_roomspace, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
 {
-    SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&player->render_roomspace);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)player->id_number,(int)stl_x,(int)stl_y);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
+    int floor_height_z = floor_height_for_volume_box(player->id_number, slb_x, slb_y);
     TbBool allowed = false;
     if (render_roomspace->slab_count > 0 && full_slab) // if roomspace is not empty
     {
         allowed = true;
     }
-    else if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) // else if not using roomspace, is current slab diggable
+    else if (subtile_is_diggable_for_player(player->id_number, stl_x, stl_y, false)) // else if not using roomspace, is current slab diggable
     {
         allowed = true;
     }
@@ -86,7 +82,7 @@ unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
             }
         }
     }
-    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+    if (is_my_player_number(player->id_number) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
     {
         map_volume_box.visible = 1;
         map_volume_box.color = line_color;
