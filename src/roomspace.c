@@ -30,6 +30,8 @@
 #include "config_settings.h"
 #include "slab_data.h"
 #include "tasks_list.h"
+#include "cursor_tag.h"
+#include "frontmenu_ingame_tabs.h"
 #include "roomspace_prediction.h"
 
 #include "keeperfx.hpp"
@@ -889,6 +891,82 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     }
     best_roomspace.one_click_mode_exclusive = player->one_click_mode_exclusive;
     *roomspace = best_roomspace; // make sure we can render the correct boundbox to the user
+}
+
+TbBool update_dungeon_build_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct PlayerInfo *player = get_player(plyr_idx);
+    player->full_slab_cursor = 1;
+    if (is_my_player(player)) {
+        gui_room_type_highlighted = player->chosen_room_kind;
+    }
+    get_dungeon_build_user_roomspace(&player->render_roomspace, player->id_number, player->chosen_room_kind, stl_x, stl_y, player->roomspace_mode);
+    return tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+}
+
+TbBool update_dungeon_sell_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct PlayerInfo *player = get_player(plyr_idx);
+    if (player->roomspace_mode != single_subtile_mode) {
+        player->full_slab_cursor = 1;
+    } else {
+        player->full_slab_cursor = 0;
+    }
+    get_dungeon_sell_user_roomspace(&player->render_roomspace, player->id_number, stl_x, stl_y);
+    return tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, player->full_slab_cursor);
+}
+
+void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packet *pckt)
+{
+    switch (pckt->action) {
+    case PckA_SetRoomspaceAuto:
+        player->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
+        player->roomspace_mode = roomspace_detection_mode;
+        player->one_click_mode_exclusive = false;
+        player->render_roomspace.highlight_mode = false;
+        return;
+    case PckA_SetRoomspaceMan:
+        player->user_defined_roomspace_width = pckt->actn_par1;
+        player->roomspace_width = pckt->actn_par1;
+        player->roomspace_height = pckt->actn_par1;
+        player->roomspace_mode = box_placement_mode;
+        player->one_click_mode_exclusive = false;
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_no_default = true;
+        return;
+    case PckA_SetRoomspaceDragPaint:
+    case PckA_SetRoomspaceDrag:
+        player->roomspace_drag_paint_mode = false;
+        if (pckt->action == PckA_SetRoomspaceDragPaint) {
+            player->roomspace_height = 1;
+            player->roomspace_width = 1;
+            player->roomspace_drag_paint_mode = true;
+        }
+        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        player->roomspace_mode = drag_placement_mode;
+        player->one_click_mode_exclusive = true;
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_no_default = false;
+        return;
+    case PckA_SetRoomspaceDefault:
+        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        player->roomspace_width = pckt->actn_par1;
+        player->roomspace_height = pckt->actn_par1;
+        player->roomspace_mode = box_placement_mode;
+        player->one_click_mode_exclusive = false;
+        player->roomspace_no_default = false;
+        return;
+    case PckA_SetRoomspaceWholeRoom:
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_mode = roomspace_detection_mode;
+        return;
+    case PckA_SetRoomspaceSubtile:
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_mode = single_subtile_mode;
+        return;
+    }
 }
 
 static void sell_at_point(struct RoomSpace *roomspace)

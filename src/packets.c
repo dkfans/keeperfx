@@ -970,62 +970,15 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->view_mode_restore);
       return false;
-  case PckA_SetRoomspaceAuto:
-    {
-        player->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
-        player->roomspace_mode = roomspace_detection_mode;
-        player->one_click_mode_exclusive = false;
-        player->render_roomspace.highlight_mode = false;
-        return false;
-    }
-   case PckA_SetRoomspaceMan:
-    {
-        player->user_defined_roomspace_width = pckt->actn_par1;
-        player->roomspace_width = pckt->actn_par1;
-        player->roomspace_height = pckt->actn_par1;
-        player->roomspace_mode = box_placement_mode;
-        player->one_click_mode_exclusive = false;
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_no_default = true;
-        return false;
-    }
+    case PckA_SetRoomspaceAuto:
+    case PckA_SetRoomspaceMan:
     case PckA_SetRoomspaceDragPaint:
-    {
-        player->roomspace_height = 1;
-        player->roomspace_width = 1;
-    }
-    // fall through
     case PckA_SetRoomspaceDrag:
-    {
-        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        player->roomspace_mode = drag_placement_mode;
-        player->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_no_default = false;
-        player->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
-        return false;
-    }
     case PckA_SetRoomspaceDefault:
-    {
-        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        player->roomspace_width = player->roomspace_height = pckt->actn_par1;
-        player->roomspace_mode = box_placement_mode;
-        player->one_click_mode_exclusive = false;
-        player->roomspace_no_default = false;
-        return false;
-    }
     case PckA_SetRoomspaceWholeRoom:
-    {
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_mode = roomspace_detection_mode;
-        return false;
-    }
     case PckA_SetRoomspaceSubtile:
     {
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_mode = single_subtile_mode;
+        apply_roomspace_packet_action(player, pckt);
         return false;
     }
     case PckA_RoomspaceHighlightToggle:

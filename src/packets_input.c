@@ -125,13 +125,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
         }
         return false;
     }
-    player->full_slab_cursor = 1; // always use full slabs, not single subtiles
-    if (is_my_player(player))
-    {
-        gui_room_type_highlighted = player->chosen_room_kind;
-    }
-    get_dungeon_build_user_roomspace(&player->render_roomspace, player->id_number, player->chosen_room_kind, stl_x, stl_y, player->roomspace_mode);
-    long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+    TbBool can_place_room = update_dungeon_build_roomspace_preview(plyr_idx, stl_x, stl_y);
     if ( (player->roomspace_mode == drag_placement_mode) && (player->roomspace_drag_paint_mode == false) )
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
@@ -158,7 +152,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
             return false; //stops attempts at invalid rooms, if left mouse button held (i.e. don't repeat failure sound repeatedly in paint mode)
         }
     }
-    if (i == 0)
+    if (!can_place_room)
     {
         if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab(stl_x), subtile_slab(stl_y)))
         {
@@ -560,9 +554,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    player->full_slab_cursor = (player->roomspace_mode != single_subtile_mode);
-    get_dungeon_sell_user_roomspace(&player->render_roomspace, player->id_number, stl_x, stl_y);
-    tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, player->full_slab_cursor);
+    update_dungeon_sell_roomspace_preview(plyr_idx, stl_x, stl_y);
     if (player->roomspace_mode == drag_placement_mode)
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)

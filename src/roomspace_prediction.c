@@ -91,6 +91,33 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
     return true;
 }
 
+static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace *roomspace, PlayerNumber plyr_idx, const struct Packet *pckt)
+{
+    if ((pckt == NULL) || ((pckt->control_flags & PCtr_MapCoordsValid) == 0)) {
+        return false;
+    }
+    struct PlayerInfo *player = get_player(plyr_idx);
+    if ((player->work_state != PSt_BuildRoom) && (player->work_state != PSt_Sell)) {
+        return false;
+    }
+    struct Packet *direct_packet = get_packet_direct(player->packet_num);
+    struct PlayerInfo saved_player = *player;
+    struct Packet saved_packet = *direct_packet;
+    *direct_packet = *pckt;
+    apply_roomspace_packet_action(player, pckt);
+    MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
+    MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+    if (player->work_state == PSt_BuildRoom) {
+        update_dungeon_build_roomspace_preview(plyr_idx, stl_x, stl_y);
+    } else {
+        update_dungeon_sell_roomspace_preview(plyr_idx, stl_x, stl_y);
+    }
+    *roomspace = player->render_roomspace;
+    *player = saved_player;
+    *direct_packet = saved_packet;
+    return true;
+}
+
 void update_local_dig_tag_prediction(void)
 {
     struct Packet *pckt = get_packet(my_player_number);
@@ -189,6 +216,12 @@ void update_local_dig_prediction_cursor_preview(void)
     struct RoomSpace roomspace;
     struct PlayerInfo predicted_player;
     if (!get_local_dig_prediction_roomspace(pckt, &predicted_player, &roomspace)) {
+        if (local_dig_prediction_is_enabled() && update_predicted_build_or_sell_roomspace_preview(&local_dig_render_roomspace, player->id_number, pckt)) {
+            local_dig_render_roomspace_active = true;
+            box_lag_compensation_x = 0;
+            box_lag_compensation_y = 0;
+            return;
+        }
         local_dig_render_roomspace_active = false;
         if (!local_dig_prediction_is_enabled()) {
             return;
