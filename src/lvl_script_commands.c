@@ -5950,6 +5950,9 @@ static void computer_player_process(struct ScriptContext* context)
         }
         if (playertype == PT_Roaming)
         {
+            //kill the old computer first, in case he was already active.
+            script_support_setup_player_as_zombie_keeper(i);
+
             player = get_player(i);
             player->player_type = PT_Roaming;
             player->allocflags |= PlaF_Allocated;
