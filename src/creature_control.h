@@ -135,8 +135,8 @@ struct CastedSpellData {
 };
 
 
-// As a factor of `tortured.accumulated_torture_points` for 1 turn, to avoid precision loss caused by integer division, it should be designed as a common multiple that is divisible by all divisors.
-// Now the possible divisors are: 3
+// As a factor of `tortured.accumulated_torture_points` for 1 turn, to avoid precision loss caused by integer division, it should be designed as the product of all divisors. Note: This must be the product, not the Least Common Multiple (LCM).
+// Now the divisors are: 3
 // Note: Since accumulated_torture_points includes `room->efficiency`, if factor increases in the future, we need to consider switching to int64_t to prevent overflow issues
 #define TORTURE_ACCUM_FAC 3
 
@@ -476,3 +476,4 @@ TbBool creature_can_gain_experience(const struct Thing *thing);
 }
 #endif
 #endif
+
