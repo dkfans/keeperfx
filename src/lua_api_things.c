@@ -599,7 +599,8 @@ static int lua_set_tint(lua_State *L) {
     if (R < 0 || R > 255 || G < 0 || G > 255 || B < 0 || B > 255) {
         return luaL_error(L, "RGB values must be between 0 and 255");
     }
-    TbPixel tint = colours[R/4][G/4][B/4];
+    TbPixel tint = LbPaletteFindColour(engine_palette, R, G, B);
+
     thing->tint_override = true;
     tint_thing(thing, tint, 1);
     return 0;
