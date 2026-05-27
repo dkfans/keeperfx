@@ -286,6 +286,7 @@ struct Thing {
     unsigned char draw_class; /**< See enum ObjectsDrawClasses for valid values. */
     unsigned char size_change; /**< See enum ThingSizeChange for valid values. */
     unsigned char tint_colour;
+    TbBool tint_override;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;

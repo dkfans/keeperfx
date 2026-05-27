@@ -59,3 +59,12 @@ function Thing:delete() end
 ---@param orientation? integer 0-2047, the angle to move in the X/Y plane.
 ---@param pitch? integer 0-2047, the angle to move in the Z plane
 function Thing:set_velocity(speed,orientation,pitch) end
+
+---tints the thing with a color
+---@param R integer Red tint value, 0-255
+---@param G integer Green tint value, 0-255
+---@param B integer Blue tint value, 0-255
+function Thing:set_tint(R, G, B) end
+
+---clears the tint set by set_tint
+function Thing:unset_tint() end
