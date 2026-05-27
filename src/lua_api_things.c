@@ -26,6 +26,7 @@
 #include "magic_powers.h"
 #include "config_crtrstates.h"
 #include "creature_states_mood.h"
+#include "vidfade.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -592,21 +593,14 @@ static int lua_is_in_enemy_custody(lua_State *L) {
 static int lua_set_tint(lua_State *L) {
     struct Thing* thing = luaL_checkThing(L, 1);
 
-    char R = luaL_checkinteger(L, 2);
-    char G = luaL_checkinteger(L, 3);
-    char B = luaL_checkinteger(L, 4);
+    int32_t R = luaL_checkinteger(L, 2);
+    int32_t G = luaL_checkinteger(L, 3);
+    int32_t B = luaL_checkinteger(L, 4);
     if (R < 0 || R > 255 || G < 0 || G > 255 || B < 0 || B > 255) {
         return luaL_error(L, "RGB values must be between 0 and 255");
     }
     TbPixel tint = colours[R/4][G/4][B/4];
-
-    if (thing_is_creature(thing)) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl)) {
-            return luaL_error(L, "Invalid creature control block");
-        }
-        cctrl->override_tint = true;
-    } 
+    thing->tint_override = true;
     tint_thing(thing, tint, 1);
     return 0;
 }
@@ -614,13 +608,7 @@ static int lua_set_tint(lua_State *L) {
 static int lua_unset_tint(lua_State *L) {
     struct Thing* thing = luaL_checkThing(L, 1);
 
-    if (thing_is_creature(thing)) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl)) {
-            return luaL_error(L, "Invalid creature control block");
-        }
-        cctrl->override_tint = false;
-    } 
+    thing->tint_override = false;
     untint_thing(thing);
     return 0;
 }

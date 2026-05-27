@@ -583,7 +583,7 @@ void update_creature_graphic_tint(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
 
-    if (cctrl->tint_override)
+    if (thing->tint_override)
     {
         return;
     }
