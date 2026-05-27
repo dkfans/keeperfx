@@ -20,6 +20,7 @@
 #include "packets.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
+#include "net_lobby.h"
 
 #include <math.h>
 
@@ -656,6 +657,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           return 0;
         } else if (host_packet && (victory_state == VicS_WonLevel)) {
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;
+          LbNetwork_Stop();
           quit_game = 1;
           return 0;
         }
