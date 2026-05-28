@@ -1608,7 +1608,7 @@ ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct
         nextslb_x = subtile_slab(*nextstl_x);
         nextslb_y = subtile_slab(*nextstl_y);
         slb = get_slabmap_block(nextslb_x, nextslb_y);
-        if (slab_good_for_computer_dig_path(slb) && (slb->kind != SlbT_WATER))
+        if (slab_good_for_computer_dig_path(slb) && !slab_kind_is_liquid(slb->kind))
         {
             SubtlCodedCoords stl_num;
             stl_num = get_subtile_number_at_slab_center(nextslb_x,nextslb_y);
@@ -1623,11 +1623,11 @@ ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct
             if ((digflags & ToolDig_AllowLiquidWBridge) != 0) {
                 break;
             }
-            if ( slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) != IAvail_Now) {
-                break;
+            if ( slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now) {
+                break; // only leave this function if we want to bridge over water, otherwise the water slab will be treated as passable.
             }
-            if ( slb->kind == SlbT_LAVA &&  computer_check_room_of_role_available(comp, RoRoF_PassLava) != IAvail_Now) {
-                break;
+            if ( slb->kind == SlbT_LAVA) {
+                break; // leave this function, because we will either bridge over the lava, or lava is impassable and should be hugged like a wall
             }
         }
         if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) != dungeon->owner)) {
