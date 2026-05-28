@@ -118,7 +118,7 @@ msgid ""
 msgstr ""
 "Bravo pour votre avidité, Gardien. Vous devez maintenant transformer une "
 "partie de votre Donjon en Antre où les créatures se reposeront et pourront "
-"récupéré. La zone que vos lutins ont fini d'exploiter serait idéale. "
+"récupérer. La zone que vos lutins ont fini d'exploiter serait idéale. "
 "Sélectionnez l'icône Antre dans le panneau des salles."
 
 #. Level Eversmile objective after Lair built

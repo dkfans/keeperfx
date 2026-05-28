@@ -20,6 +20,7 @@
 #include "packets.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
+#include "net_lobby.h"
 
 #include <math.h>
 
@@ -616,36 +617,24 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         free_swipe_graphic();
       }
       player->display_flags |= PlaF6_PlyrHasQuit;
-      process_quit_packet(player, 0);
+      process_player_leave_game_packet(player);
       return 1;
   case PckA_ForceApplicationClose:
       {
-        extern unsigned char exit_keeper;
         if (is_my_player(player))
         {
           turn_off_all_menus();
           frontend_save_continue_game(true);
           free_swipe_graphic();
-          // For ALT+F4, just exit directly without network cleanup
           exit_keeper = 1;
         }
         else
         {
-          // Other player force-quit, just mark them as quit
           player->display_flags |= PlaF6_PlyrHasQuit;
-          process_quit_packet(player, 0);
+          process_player_leave_game_packet(player);
         }
         return 1;
       }
-  case PckA_SaveGameAndQuit:
-      if (is_my_player(player))
-      {
-        turn_off_all_menus();
-        frontend_save_continue_game(true);
-      }
-      player->display_flags |= PlaF6_PlyrHasQuit;
-      process_quit_packet(player, 1);
-      return 1;
   case PckA_NoOperation:
       return 1;
   case PckA_FinishGame:
@@ -668,6 +657,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           return 0;
         } else if (host_packet && (victory_state == VicS_WonLevel)) {
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;
+          LbNetwork_Stop();
+          quit_game = 1;
+          return 0;
         }
       }
       switch (victory_state)
@@ -1641,10 +1633,8 @@ void process_packets(void)
 // Using Alt-F4, or similar operating system close requests
 void force_application_close()
 {
-    extern unsigned char exit_keeper;
     extern int frontend_menu_state;
 
-    // Check if we're in gameplay vs frontend
     if (frontend_menu_state == 0)
     {
         struct PlayerInfo* player = get_my_player();
@@ -1659,7 +1649,6 @@ void force_application_close()
     }
     else
     {
-        // We're in the frontend, just exit directly
         exit_keeper = 1;
     }
 }
