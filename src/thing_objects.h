@@ -151,6 +151,7 @@ struct CallToArmsGraphics {
     int birth_anim_idx;
     int alive_anim_idx;
     int leave_anim_idx;
+    int big_flame_anim_idx;
 };
 
 /******************************************************************************/
@@ -224,6 +225,8 @@ void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 
 struct PickedUpOffset* get_object_picked_up_offset(struct Thing* thing);
+
+extern struct CallToArmsGraphics call_to_arms_graphics[10];
 /******************************************************************************/
 #ifdef __cplusplus
 }

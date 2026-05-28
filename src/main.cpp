@@ -2176,7 +2176,12 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
       pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
       pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
       pos.z.val = get_floor_height_at(&pos);
-      create_effect_element(&pos, TngEffElm_RedFlameBig, plyr_idx);
+      struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(plyr_idx)];
+      struct Thing * efftng = create_effect_element(&pos, TngEffElm_RedFlameBig, plyr_idx);
+      if (!thing_is_invalid(efftng))
+      {
+          set_thing_draw(efftng, ctagfx->big_flame_anim_idx, -1, -1, 0, 0, ODC_Default);
+      }
     }
 }
 
