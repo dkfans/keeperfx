@@ -2161,7 +2161,7 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
 {
     for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = find_room_of_kind_creature_can_navigate_to(thing, owner, rkind, NavRtF_NoOwner);
+        struct Room* room = find_room_of_kind_creature_can_navigate_to(thing, owner, rkind, NavRtF_Default);
         if (!room_is_invalid(room))
             return true;
     }
@@ -3270,7 +3270,7 @@ void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y
 
 struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    game.map_changed_for_nagivation = 1;
+    game.map_changed_for_navigation = 1;
     if (subtile_coords_invalid(stl_x, stl_y))
         return INVALID_ROOM;
     long slb_x = subtile_slab(stl_x);

@@ -84,7 +84,6 @@ void gui_load_game(struct GuiButton *gbtn)
         quit_game = 1;
         return;
     }
-    set_players_packet_action(player, PckA_UpdatePause, player->paused_state_restore, 0, 0, 0);
 }
 
 void draw_load_button(struct GuiButton *gbtn)
@@ -248,7 +247,6 @@ void init_load_menu(struct GuiMenu *gmnu)
 {
   SYNCDBG(6,"Starting");
   struct PlayerInfo* player = get_my_player();
-  player->paused_state_restore = flag_is_set(game.operation_flags, GOF_Paused);
   set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);

@@ -7320,9 +7320,9 @@ msgid "%s has disconnected."
 msgstr "%s har kopplats från."
 
 #: guitext:1118
-msgctxt "Network game message"
-msgid "Opponent disconnected"
-msgstr "Motståndare frånkopplad"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1119
 msgctxt "Network game message"

@@ -503,6 +503,9 @@ static TbBool hand_packet_overlaps_position(const struct ScreenPacket *hand_nspc
 
 static LevelNumber frontnetmap_update_players(void)
 {
+    if (!fe_network_active && (fe_net_level_selected > SINGLEPLAYER_NOTSTARTED)) {
+        return fe_net_level_selected;
+    }
     const PlayerNumber host_player_number = get_host_player_id();
     const TbBool can_start_level = (my_player_number == host_player_number) && (get_selected_level_number() <= SINGLEPLAYER_NOTSTARTED);
     struct ScreenPacket* my_nspck = &net_screen_packet[my_player_number];

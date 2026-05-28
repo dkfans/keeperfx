@@ -544,6 +544,15 @@ long luaL_checkAnimationId(lua_State* L, int index)
     return 0;
 }
 
+void luaL_checkVariable(lua_State* L, int index, int32_t* varib_id, int32_t* varib_type)
+{
+    const char* variable = luaL_checkstring(L, index);
+    if (!parse_get_varib(variable, varib_id, varib_type, 1))
+    {
+        luaL_argerror(L, index, lua_pushfstring(L, "Unknown variable, '%s'", variable));
+    }
+}
+
 /***************************************************************************************************/
 /************    Outputs   *************************************************************************/
 /***************************************************************************************************/
@@ -669,6 +678,28 @@ void lua_pushPartyTable(lua_State *L, struct Thing* thing) {
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
+        }
+    }
+}
+
+//takes the creature
+//pushes a table of all the summoned creatures onto the stack
+void lua_pushFamiliarTable(lua_State* L, struct Thing* thing) {
+    lua_newtable(L);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* famlrtng;
+    int k = 1;
+    for (int j = 0; j < FAMILIAR_MAX; j++)
+    {
+        if (cctrl->familiar_idx[j])
+        {
+            famlrtng = thing_get(cctrl->familiar_idx[j]);
+            if (!thing_is_invalid(famlrtng))
+            {
+                lua_pushThing(L, famlrtng);
+                lua_rawseti(L, -2, k);
+                k++;
+            }
         }
     }
 }

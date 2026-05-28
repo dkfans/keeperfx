@@ -44,7 +44,6 @@ enum PlayerInitFlags {
     PlaF_NewMPMessage            = 0x04,
     PlaF_CreaturePassengerMode   = 0x08,
     PlaF_KeyboardInputDisabled   = 0x10,
-    PlaF_ChosenSlabHasActiveTask = 0x20, // Enabled when there are active tasks for the current slab. Used to determine if a high slab is tagged for digging (or not).
     PlaF_CompCtrl                = 0x40,
     PlaF_MouseInputDisabled      = 0x80,
 };
@@ -244,7 +243,7 @@ struct PlayerInfo {
     TbBool one_click_lock_cursor;
     TbBool ignore_next_PCtr_RBtnRelease;
     TbBool ignore_next_PCtr_LBtnRelease;
-    char swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
+    char swap_to_untag_mode;
     unsigned char roomspace_highlight_mode;
     TbBool roomspace_no_default;
     MapSubtlCoord cursor_subtile_x;
@@ -266,6 +265,7 @@ struct PlayerInfo {
 /******************************************************************************/
 
 extern unsigned char my_player_number;
+extern short local_thing_under_hand;
 
 #pragma pack()
 /******************************************************************************/

@@ -2184,6 +2184,12 @@ void level_up_familiar(struct Thing* famlrtng)
     }
 }
 
+TbBool creature_is_familiar(const struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return (cctrl->summoner_idx > 0);
+}
+
 void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
 {
     if (dungeon->num_summon < MAX_SUMMONS)
@@ -2214,6 +2220,26 @@ void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrt
         }
     }
 }
+
+TbBool remove_creature_from_summoner(const struct Thing* famlrtng)
+{
+    struct CreatureControl* famcctrl = creature_control_get_from_thing(famlrtng);
+    struct Thing* summonertng = thing_get(famcctrl->summoner_idx);
+    if (thing_is_creature(summonertng))
+    {
+        struct CreatureControl* sumcctrl = creature_control_get_from_thing(summonertng);
+        for (short j = 0; j < FAMILIAR_MAX; j++)
+        {
+            if (sumcctrl->familiar_idx[j] == famlrtng->index)
+            {
+                sumcctrl->familiar_idx[j] = 0;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 /**
  * @brief Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
  *
@@ -3488,7 +3514,10 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
                 }
                 anger_apply_anger_to_creature(creatng, annoy_val, AngR_Other, 1);
             }
-            cctrl->bloody_footsteps_turns = 20;
+            if (creature_model_bleeds(thing->model))
+            {
+                cctrl->bloody_footsteps_turns = 20;
+            }
             cctrl->corpse_to_piss_on = thing->index;
             // Stop after one body was found
             break;
@@ -3561,7 +3590,7 @@ static void shot_init_lizard(const struct Thing *target, short angle_xy, unsigne
         int posint = y / game.conf.crtr_conf.sprite_size;
         shotng->shot_lizard.x = x;
         shotng->shot_lizard.posint = posint;
-        shotng->shot_lizard2.range = range / 10;
+        shotng->shot_lizard.range = range / 10;
     }
 }
 
@@ -6341,7 +6370,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     if (cctrl->hand_blocked_turns > 0)
         cctrl->hand_blocked_turns--;
     if (cctrl->regular_creature.navigation_map_changed == 0)
-        cctrl->regular_creature.navigation_map_changed = game.map_changed_for_nagivation;
+        cctrl->regular_creature.navigation_map_changed = game.map_changed_for_navigation;
     if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT))
     {
         process_creature_instance(thing);
@@ -6543,10 +6572,10 @@ TbBool creature_can_see_invisible(const struct Thing *thing)
     return (creature_under_spell_effect(thing, CSAfF_Sight) || (crconf->can_see_invisible));
 }
 
-int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)
+int claim_neutral_creatures_in_sight(struct Thing *creatng, int can_see_slabs)
 {
-    MapSlabCoord slb_x = subtile_slab(pos->x.stl.num);
-    MapSlabCoord slb_y = subtile_slab(pos->y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     long n = 0;
     long i = game.nodungeon_creatr_list_start;
     unsigned long k = 0;
@@ -6560,7 +6589,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         int dy = abs(slb_y - subtile_slab(thing->mappos.y.stl.num));
         if ((dx <= can_see_slabs) && (dy <= can_see_slabs))
         {
-            if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
+            if (is_neutral_thing(thing) && creature_can_see_thing(thing,creatng))
             {
                 if (creature_is_leaving_and_cannot_be_stopped(thing) || creature_is_leaving_and_cannot_be_stopped(creatng))
                     return false;

@@ -77,6 +77,7 @@
 #include "power_specials.h"
 #include "power_hand.h"
 #include "room_util.h"
+#include "roomspace_prediction.h"
 #include "room_workshop.h"
 #include "room_data.h"
 #include "thing_stats.h"
@@ -343,7 +344,9 @@ void process_pause_packet(long curr_pause, long new_pause)
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
-          game.skip_initial_input_turns = game.input_lag_turns + 1;
+          if ((game.system_flags & GSF_NetworkActive) != 0) {
+              game.skip_initial_input_turns = game.input_lag_turns + 1;
+          }
       }
       if ( !SoundDisabled )
       {
@@ -646,21 +649,28 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_NoOperation:
       return 1;
   case PckA_FinishGame:
-      if ((player->victory_state == VicS_LostLevel) && ((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()))
       {
-        return 0;
-      }
-      if (is_my_player(player))
-      {
+      TbBool my_player = is_my_player(player);
+      int32_t victory_state = pckt->actn_par1;
+      if (my_player) {
         turn_off_all_menus();
         free_swipe_graphic();
       }
-      if ((game.system_flags & GSF_NetworkActive) != 0)
-      {
-        process_quit_packet(player, 0);
-        return 0;
+      if ((game.system_flags & GSF_NetworkActive) != 0) {
+        TbBool host_packet = player->packet_num == get_host_player_id();
+        if (!my_player) {
+          if ((victory_state == VicS_WonLevel) || (host_packet && (player->victory_state != VicS_LostLevel))) {
+            get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+            quit_game = 1;
+          }
+          return 0;
+        } else if (host_packet && (victory_state == VicS_LostLevel)) {
+          return 0;
+        } else if (host_packet && (victory_state == VicS_WonLevel)) {
+          player->additional_flags &= ~PlaAF_UnlockedLordTorture;
+        }
       }
-      switch (player->victory_state)
+      switch (victory_state)
       {
       case VicS_WonLevel:
           complete_level(player);
@@ -673,11 +683,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           break;
       }
       player->allocflags &= ~PlaF_Allocated;
-      if (is_my_player(player))
-      {
+      if (my_player) {
         frontend_save_continue_game(false);
       }
       return 0;
+      }
   case PckA_PlyrMsgEnd:
       process_gameplay_chat_message(player->id_number, player->mp_pending_message);
       player->mp_pending_message[0] = '\0';
@@ -945,6 +955,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
          {
             panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
          }
+        update_navigation_around_all_doors();
       }
       return false;
   case PckA_SaveViewType:
@@ -959,62 +970,15 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->view_mode_restore);
       return false;
-  case PckA_SetRoomspaceAuto:
-    {
-        player->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
-        player->roomspace_mode = roomspace_detection_mode;
-        player->one_click_mode_exclusive = false;
-        player->render_roomspace.highlight_mode = false;
-        return false;
-    }
-   case PckA_SetRoomspaceMan:
-    {
-        player->user_defined_roomspace_width = pckt->actn_par1;
-        player->roomspace_width = pckt->actn_par1;
-        player->roomspace_height = pckt->actn_par1;
-        player->roomspace_mode = box_placement_mode;
-        player->one_click_mode_exclusive = false;
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_no_default = true;
-        return false;
-    }
+    case PckA_SetRoomspaceAuto:
+    case PckA_SetRoomspaceMan:
     case PckA_SetRoomspaceDragPaint:
-    {
-        player->roomspace_height = 1;
-        player->roomspace_width = 1;
-    }
-    // fall through
     case PckA_SetRoomspaceDrag:
-    {
-        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        player->roomspace_mode = drag_placement_mode;
-        player->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_no_default = false;
-        player->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
-        return false;
-    }
     case PckA_SetRoomspaceDefault:
-    {
-        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        player->roomspace_width = player->roomspace_height = pckt->actn_par1;
-        player->roomspace_mode = box_placement_mode;
-        player->one_click_mode_exclusive = false;
-        player->roomspace_no_default = false;
-        return false;
-    }
     case PckA_SetRoomspaceWholeRoom:
-    {
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_mode = roomspace_detection_mode;
-        return false;
-    }
     case PckA_SetRoomspaceSubtile:
     {
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_mode = single_subtile_mode;
+        apply_roomspace_packet_action(player, pckt);
         return false;
     }
     case PckA_RoomspaceHighlightToggle:
@@ -1032,7 +996,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     case PckA_SetRoomspaceHighlight:
     {
         player->roomspace_mode = pckt->actn_par1;
-        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
+        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == roomspace_detection_mode) )
         {
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
@@ -1049,13 +1013,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         player->roomspace_highlight_mode = pckt->actn_par1;
         switch (pckt->actn_par1)
         {
-            case 0:
+            case box_placement_mode:
             {
                 reset_dungeon_build_room_ui_variables(plyr_idx);
                 player->roomspace_width = player->roomspace_height = pckt->actn_par2;
                 break;
             }
-            case 1: // drag
+            case drag_placement_mode: // drag
             {
                 if (pckt->actn_par2 == 1)
                 {
@@ -1359,7 +1323,7 @@ void process_players_creature_control_packet_control(long idx)
         cctng->move_angle_z = new_vertical;
         ccctrl->roll = new_roll;
     }
-    if ((!creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
+    if ((thing_is_creature(cctng) && !creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
     {
         TbBool allowed;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
@@ -1602,6 +1566,7 @@ void process_packets(void)
     set_local_packet_turn();
     update_turn_checksums();
     store_packet_history(player->packet_num, get_packet_direct(player->packet_num));
+    update_local_dig_tag_prediction();
     if (game.game_kind != GKind_LocalGame)
     {
         if (!game.packet_load_enable || game.packet_load_initialized)
@@ -1615,14 +1580,19 @@ void process_packets(void)
             }
         }
         process_disconnected_network_players();
+        if (quit_game || exit_keeper) {
+            clear_packets();
+            return;
+        }
     }
-    MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
-    load_old_packets();
-
-    if (input_lag_skips_initial_processing())
-    {
+    if (input_lag_skips_initial_processing()) {
         clear_packets();
         return;
+    }
+
+    if ((game.system_flags & GSF_NetworkActive) != 0) {
+        MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
+        load_old_packets();
     }
 
     if ((game.system_flags & GSF_NetworkActive) != 0 && checksums_different()) {
@@ -1649,8 +1619,12 @@ void process_packets(void)
             process_players_packet(i);
         }
     }
+    update_local_dig_prediction_cursor_preview();
     // Clear all packets
     clear_packets();
+    if (quit_game || exit_keeper) {
+        return;
+    }
     if (((game.system_flags & GSF_NetworkActive) != 0)
      && ((game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
     {

@@ -545,7 +545,8 @@ const CreatureStateCheck move_check_func_list[] = {
  * - 2: Fighting.
  */
 long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
-    0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1,
+    CrGUIJob_Wandering, CrGUIJob_Working, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Fighting, CrGUIJob_Wandering, CrGUIJob_Wandering,
+    CrGUIJob_Working, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Fighting, CrGUIJob_Fighting, CrGUIJob_Working, CrGUIJob_Working, CrGUIJob_Working
 };
 
 /******************************************************************************/
@@ -1083,10 +1084,10 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, M
         return false;
     if (!find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
         return false;
-    if (!creature_can_navigate_to_with_storage(thing, &pos, NavRtF_NoOwner))
+    if (!creature_can_navigate_to_with_storage(thing, &pos, NavRtF_Default))
         return false;
 
-    if (!setup_head_for_room(thing, room, NavRtF_NoOwner))
+    if (!setup_head_for_room(thing, room, NavRtF_Default))
     {
         ERRORLOG("The %s cannot destroy %s because it can't reach it",thing_model_name(thing),room_code_name(room->kind));
         return false;
@@ -4896,6 +4897,10 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     {
         remove_creature_from_group(creatng);
     }
+    if (creature_is_familiar(creatng))
+    {
+        remove_creature_from_summoner(creatng);
+    }
     remove_events_thing_is_attached_to(creatng);
     // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
     if (creature_under_spell_effect(creatng, CSAfF_Armour))
@@ -4966,6 +4971,8 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
         return (next_stati->override_call2arms);
     case CrStTyp_Follow:
         return (next_stati->override_follow);
+    case CrStTyp_DeepWork:
+        return (next_stati->override_deep_work);
     default:
         return true;
     }

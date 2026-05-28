@@ -78,6 +78,8 @@ long count_player_deployed_traps_of_model(PlayerNumber owner, ThingModel model);
 long count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel model);
 long count_player_available_traps_of_model(PlayerNumber plyr_idx, ThingModel model);
 
+void update_navigation_around_all_doors();
+
 void update_all_door_stats();
 /******************************************************************************/
 #ifdef __cplusplus

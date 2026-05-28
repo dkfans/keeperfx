@@ -7401,9 +7401,9 @@ msgid "%s has disconnected."
 msgstr "%s rozłączył się."
 
 #: guitext:1118
-msgctxt "Network game message"
-msgid "Opponent disconnected"
-msgstr "Przeciwnik rozłączył się"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1119
 msgctxt "Network game message"

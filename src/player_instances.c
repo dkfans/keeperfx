@@ -1100,6 +1100,7 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     case PI_WhipEnd:
         return (thing->index == player->controlled_thing_idx);
     case PI_PsngrCtLeave: // Leaving the possessed creature
+    case PI_ZoomToPos:
         break;
     default:
         ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);

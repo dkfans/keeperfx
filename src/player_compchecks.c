@@ -348,7 +348,7 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
         {
             long state_type = get_creature_state_type(thing);
 
-            if ((state_type == CrStTyp_Work)
+            if (((state_type == CrStTyp_Work) || (state_type == CrStTyp_DeepWork))
                 && (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
                 && is_digging_indestructible_place(thing))
             {
@@ -432,6 +432,8 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
         priority += 10000 * cctrl->exp_level; // experience earned by the creature has a big value
         if (get_creature_state_type(thing) == CrStTyp_Work)
             priority += 500; // aborted work valued at this many gold
+        else if (get_creature_state_type(thing) == CrStTyp_DeepWork)
+            priority += 2000; // aborted important work valued at this many gold
         if (anger_is_creature_angry(thing))
             priority /= 2; // angry creatures have lower value
         if (anger_is_creature_livid(thing))
@@ -792,7 +794,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
         {
             long n = get_creature_state_besides_move(thing);
             struct CreatureStateConfig* stati = get_thing_state_info_num(n);
-            if (stati->state_type == CrStTyp_Work)
+            if ((stati->state_type == CrStTyp_Work) || (stati->state_type == CrStTyp_DeepWork))
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
@@ -832,7 +834,7 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
         {
             long n = get_creature_state_besides_move(thing);
             struct CreatureStateConfig* stati = get_thing_state_info_num(n);
-            if (stati->state_type == CrStTyp_Work)
+            if ((stati->state_type == CrStTyp_Work) || (stati->state_type == CrStTyp_DeepWork))
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
@@ -872,7 +874,7 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
         {
             long n = get_creature_state_besides_move(thing);
             struct CreatureStateConfig* stati = get_thing_state_info_num(n);
-            if (stati->state_type == CrStTyp_Work)
+            if ((stati->state_type == CrStTyp_Work) || (stati->state_type == CrStTyp_DeepWork))
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {

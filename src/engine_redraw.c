@@ -777,6 +777,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         return;
     }
     long i;
+    short thing_under_hand;
     switch (plrst_cfg_stat->pointer_group)
     {
     case PsPg_CtrlDungeon:
@@ -784,21 +785,32 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
           i = player->secondary_cursor_state;
         else
           i = player->primary_cursor_state;
+        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (local_thing_under_hand > 0)) {
+            i = CSt_PowerHand;
+        } else
+        if ((i == CSt_PowerHand) && power_hand_is_empty(player))
+        {
+            i = CSt_DefaultArrow;
+        }
         switch (i)
         {
         case CSt_PickAxe:
         {
-            set_pointer_graphic((player->roomspace_highlight_mode == 1) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
+            set_pointer_graphic((player->roomspace_highlight_mode == drag_placement_mode) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
             break;
         }
         case CSt_DoorKey:
             set_pointer_graphic(MousePG_LockMark);
             break;
         case CSt_PowerHand:
-            thing = thing_get(player->thing_under_hand);
+            thing_under_hand = player->thing_under_hand;
+            if (local_thing_under_hand > 0) {
+                thing_under_hand = local_thing_under_hand;
+            }
+            thing = thing_get(thing_under_hand);
             TRACE_THING(thing);
             TbBool can_cast = false;
-            if ((player->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
+            if ((player->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != thing_under_hand))
             {
                 PowerKind pwkind = PwrK_POSSESS;
                 if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
@@ -829,7 +841,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
 
                 player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
-            if (((player->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
+            if (((player->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(MousePG_Query);
@@ -837,7 +849,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             } else
             {
                 if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) {
-                  set_pointer_graphic((player->roomspace_highlight_mode == 1) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
+                  set_pointer_graphic((player->roomspace_highlight_mode == drag_placement_mode) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
                 } else {
                   set_pointer_graphic(MousePG_Invisible);
                 }

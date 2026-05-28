@@ -2858,7 +2858,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {
-                            if (cctrl->dropped_turn < (COMPUTER_REDROP_DELAY + get_gameturn()))
+                            if ((cctrl->dropped_turn + COMPUTER_REDROP_DELAY) < get_gameturn())
                             {
                                 struct PerExpLevelValues* expvalues;
                                 struct CreatureModelConfig* crconf = creature_stats_get(thing->model);
@@ -3062,7 +3062,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
                     {
                         long state_type;
                         state_type = get_creature_state_type(thing);
-                        if (state_type == CrStTyp_Work)
+                        if ((state_type == CrStTyp_Work) || (state_type == CrStTyp_DeepWork))
                         {
                             if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, thing->index, 0) > Lb_OK)
                             {

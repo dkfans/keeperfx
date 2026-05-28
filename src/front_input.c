@@ -844,7 +844,7 @@ static short get_global_inputs(void)
             SYNCMSG("Finished level %d. Total turns taken: %u (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
                 game.loaded_level_number, get_gameturn(), GameT.Hours, GameT.Minutes, GameT.Seconds, turns_per_second, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
-        set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
+        set_players_packet_action(player, PckA_FinishGame, player->victory_state, 0, 0, 0);
         return true;
   }
   if ( is_game_key_pressed(Gkey_DumpToOldPos, true, false) )
@@ -885,7 +885,7 @@ static TbBool get_level_lost_inputs(void)
         return true;
     if (is_game_key_pressed(Gkey_FinishLevel, true, false))
     {
-        set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
+        set_players_packet_action(player, PckA_FinishGame, player->victory_state, 0, 0, 0);
     }
     if (player->view_type == PVT_MapScreen)
     {
@@ -1201,13 +1201,38 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
     {
         if (!close_instance_cheat_menu())
+        {
             toggle_main_cheat_menu();
+        }
     }
 
     if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
-        // Note that we're using "close", not "toggle". Menu can't be opened here.
-        close_creature_cheat_menu();
+		if ( (player->continue_work_state == PSt_CreatrQuery) || (player->continue_work_state == PSt_QueryAll) )
+		{
+			struct Thing *creatng = thing_get(player->controlled_thing_idx);
+			if (thing_is_creature(creatng))
+			{
+				if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+				{
+					toggle_creature_cheat_menu();
+				}
+			}
+			else
+			{
+				if (!close_creature_cheat_menu())
+				{
+					toggle_secondary_cheat_menu();
+				}
+			}
+		}
+		else
+		{
+			if (!close_creature_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+			{
+				toggle_secondary_cheat_menu();
+			}
+		}
     }
     if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
@@ -1344,6 +1369,10 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
     {
+      if (((game.operation_flags & GOF_Paused) != 0) && (game.game_kind != GKind_LocalGame))
+      {
+          return true;
+      }
       if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != 2))
       {
           turn_off_all_window_menus();
@@ -1585,15 +1614,17 @@ static short get_creature_control_action_inputs(void)
         get_gui_inputs(1);
     if (is_game_key_pressed(Gkey_CheatMenu1, true, false))
     {
-        // Note that we're using "close", not "toggle". Menu can't be opened here.
-        if (!close_main_cheat_menu())
+        if (!close_main_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
         {
             toggle_instance_cheat_menu();
         }
     }
     if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
-        toggle_creature_cheat_menu();
+        if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+		{
+			toggle_creature_cheat_menu();
+		}
     }
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
@@ -1909,6 +1940,7 @@ static short get_creature_control_action_inputs(void)
             }
         }
         player->thing_under_hand = 0;
+        local_thing_under_hand = 0;
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
@@ -1957,6 +1989,7 @@ static short get_creature_control_action_inputs(void)
                     }
                 }
             }
+            local_thing_under_hand = player->thing_under_hand;
             if (player->selected_fp_thing_pickup != player->thing_under_hand)
             {
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
@@ -2365,6 +2398,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   unsigned long x;
   unsigned long y;
   struct PlayerInfo* player = get_my_player();
+  TbBool hand_is_empty = power_hand_is_empty(player);
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= player->engine_window_width/pixel_size)
    || (pointer_y >= player->engine_window_height/pixel_size))
@@ -2388,7 +2422,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (!power_hand_is_empty(player))
+  if (!hand_is_empty)
   {
     *context = CSt_PowerHand;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -2415,11 +2449,18 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   {
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
+    *context = CSt_PowerHand;
+  }
+  if ((*context == CSt_PowerHand) && (!player->one_click_lock_cursor))
+  {
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
-    if (!thing_is_invalid(thing))
-      *context = CSt_PowerHand;
-    else
+    if (!thing_is_invalid(thing)) {
+      local_thing_under_hand = thing->index;
+    } else
+    if (hand_is_empty)
+    {
       *context = CSt_DefaultArrow;
+    }
   }
   if (pos->x.val >= (game.map_subtiles_x << 8))
     pos->x.val = (game.map_subtiles_x << 8)-1;
@@ -2438,6 +2479,7 @@ static void get_dungeon_control_nonaction_inputs(void)
   my_mouse_y = GetMouseY();
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet(my_player_number);
+  local_thing_under_hand = 0;
   unset_packet_control(pckt, PCtr_MapCoordsValid);
   if (player->work_state == PSt_CtrlDungeon)
   {
@@ -2447,10 +2489,16 @@ static void get_dungeon_control_nonaction_inputs(void)
           set_players_packet_position(pckt, pos.x.val, pos.y.val, context);
     }
   } else
-    if (screen_to_map(get_local_camera(get_player_active_camera(player)), my_mouse_x, my_mouse_y, &pos))
   {
-      set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
-      pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
+    if (screen_to_map(get_local_camera(get_player_active_camera(player)), my_mouse_x, my_mouse_y, &pos))
+    {
+        set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
+        pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
+        struct Thing* thing = get_thing_under_hand(player, pos.x.val, pos.y.val);
+        if (!thing_is_invalid(thing)) {
+            local_thing_under_hand = thing->index;
+        }
+    }
   }
   if (is_game_key_pressed(Gkey_ExitGame, true, false))
   {

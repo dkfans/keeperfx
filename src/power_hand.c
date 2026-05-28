@@ -581,7 +581,13 @@ void draw_power_hand(void)
     }
     thing = thing_get(player->hand_thing_idx);
     if (!thing_exists(thing))
+    {
+        if ((local_thing_under_hand > 0) && (player->work_state == PSt_CtrlDungeon)) {
+            process_keeper_sprite(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY()+scale_ui_value(40*global_hand_scale),
+              game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale));
+        }
         return;
+    }
     if (player->hand_busy_until_turn > get_gameturn())
     {
         SYNCDBG(7,"Drawing hand %s index %d, busy state", thing_model_name(thing), (int)thing->index);
@@ -598,10 +604,14 @@ void draw_power_hand(void)
     }
     if (player->work_state != PSt_HoldInHand)
     {
-      if ( (player->work_state != PSt_CtrlDungeon)
-        || ((player->secondary_cursor_state != CSt_PowerHand) && ((player->work_state != PSt_CtrlDungeon) || (player->secondary_cursor_state != CSt_DefaultArrow) || (player->primary_cursor_state != CSt_PowerHand))) )
+      TbBool draw_hand = (local_thing_under_hand > 0);
+      if ((player->work_state == PSt_CtrlDungeon) && !power_hand_is_empty(player))
       {
-        if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop))
+        draw_hand = (player->secondary_cursor_state == CSt_PowerHand) || ((player->secondary_cursor_state == CSt_DefaultArrow) && (player->primary_cursor_state == CSt_PowerHand));
+      }
+      if ((player->work_state != PSt_CtrlDungeon) || !draw_hand)
+      {
+        if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop) && (player->instance_num != PI_Whip) && (player->instance_num != PI_WhipEnd))
         {
           if (player->work_state == PSt_Slap)
           {

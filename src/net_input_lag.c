@@ -24,8 +24,14 @@ enum InputLagMode {
     INPUT_LAG_MODE_RELAY,
 };
 
-TbBool input_lag_skips_initial_processing(void) {
-    if ((game.operation_flags & GOF_Paused) != 0 && game.game_kind != GKind_LocalGame) {return true;}
+TbBool input_lag_skips_initial_processing(void)
+{
+    if ((game.system_flags & GSF_NetworkActive) == 0) {
+        return false;
+    }
+    if ((game.operation_flags & GOF_Paused) != 0) {
+        return true;
+    }
 
     if (game.skip_initial_input_turns > 0) {
         game.skip_initial_input_turns--;

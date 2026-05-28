@@ -98,9 +98,9 @@ enum TbPacketAction {
         PckA_UnusedSlot059,
         PckA_CheatEnter,//60
         PckA_CheatAllFree,
-        PckA_CheatCrtSpells,
+        PckA_CheatCrtSpells, // unused
         PckA_CheatRevealMap,
-        PckA_CheatCrAllSpls,
+        PckA_CheatCrAllSpls, // unused
         PckA_CheatUnusedPlaceholder065,//65
         PckA_CheatAllMagic,
         PckA_CheatAllRooms,
@@ -194,6 +194,12 @@ enum TbPacketAction {
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
         PckA_UnusedSlot157,
+		PckA_CheatWinLevel,
+		PckA_CheatLoseLevel,
+		PckA_CheatLevelUp,
+		PckA_CheatLevelDown,
+		PckA_CheatApplySpell,
+		PckA_CheatKillCreature,
 };
 
 /** Packet flags for non-action player operation. */
@@ -325,6 +331,7 @@ void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
 void set_packet_pause_toggle(void);
 void force_application_close(void);
+struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y);
 TbBool process_dungeon_control_packet_clicks(long idx);
 TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
@@ -350,7 +357,6 @@ void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
 struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
-void set_tag_untag_mode(PlayerNumber plyr_idx);
 TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void disable_packet_mode(void);

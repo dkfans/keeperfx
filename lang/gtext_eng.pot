@@ -5903,8 +5903,8 @@ msgid "%s has disconnected."
 msgstr ""
 
 #: guitext:1118
-msgctxt "Network game message"
-msgid "Opponent disconnected"
+msgctxt "Unused"
+msgid "unused"
 msgstr ""
 
 #: guitext:1119

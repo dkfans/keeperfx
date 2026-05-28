@@ -7301,9 +7301,9 @@ msgid "%s has disconnected."
 msgstr "%s 님의 연결이 끊겼습니다."
 
 #: guitext:1118
-msgctxt "Network game message"
-msgid "Opponent disconnected"
-msgstr "상대의 연결이 끊겼습니다"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1119
 msgctxt "Network game message"
