@@ -100,13 +100,13 @@ FTestActionResult ftest_template_action002__slap_imp_to_death(struct FTestAction
     struct ftest_template__variables* const vars = args->data;
 
     // delay the test for a bit as an example
-    if(game.play_gameturn < 100)
+    if(get_gameturn() < 100)
     {
         return FTRs_Repeat_Current_Action;
     }
 
     // delay the test after each slap
-    if(game.play_gameturn < vars->turn_delay_counter)
+    if(get_gameturn() < vars->turn_delay_counter)
     {
         return FTRs_Repeat_Current_Action;
     }
@@ -118,7 +118,7 @@ FTestActionResult ftest_template_action002__slap_imp_to_death(struct FTestAction
     {
         message_add_fmt(MsgType_Player, PLAYER0, "Slap %d", ++vars->slap_counter);
 
-        vars->turn_delay_counter = game.play_gameturn + 20;
+        vars->turn_delay_counter = get_gameturn() + 20;
         return FTRs_Repeat_Current_Action;
     }
 

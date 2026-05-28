@@ -444,9 +444,10 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
     TbBool my_player = (is_my_player(player));
     if (thing->class_id == TCls_Creature)
     {
-        load_swipe_graphic_for_creature(thing);
-        if (my_player)
-        {
+        if (my_player) {
+            load_swipe_graphic_for_creature(thing);
+        }
+        if (my_player) {
             if (creature_under_spell_effect(thing, CSAfF_Freeze))
             {
                 PaletteSetPlayerPalette(player, blue_palette);
@@ -466,7 +467,9 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     if (thing_exists(thing))
     {
-        load_swipe_graphic_for_creature(thing);
+        if (is_my_player(player)) {
+            load_swipe_graphic_for_creature(thing);
+        }
         control_creature_as_passenger(player, thing);
     }
     set_player_instance(player, PI_CrCtrlFade, false);
@@ -489,7 +492,6 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   }
   player->allocflags |= PlaF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
-  reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
       PaletteSetPlayerPalette(player, engine_palette);
@@ -533,7 +535,6 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   }
   player->allocflags |= PlaF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
-  reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
     PaletteSetPlayerPalette(player, engine_palette);
@@ -1099,6 +1100,7 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     case PI_WhipEnd:
         return (thing->index == player->controlled_thing_idx);
     case PI_PsngrCtLeave: // Leaving the possessed creature
+    case PI_ZoomToPos:
         break;
     default:
         ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);

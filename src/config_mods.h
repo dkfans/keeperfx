@@ -14,6 +14,7 @@
  *     hzzdev - 18 Sep 2025, Add sprite loading for mods.
  *     hzzdev - 30 Oct 2025, Add multi-lang string loading for mods.
  *     hzzdev - 23 Feb 2026, Add texture loading for mods.
+ *     hzzdev - 20 Apr 2026, Add lua loading for mods.
  *
  */
 /******************************************************************************/
@@ -80,7 +81,8 @@ struct ModsConfig {
     struct ModConfigItem after_map_item[MOD_ITEM_MAX];
 };
 
-extern struct ModsConfig mods_conf;
+const struct ModsConfig *get_loaded_mods_conf(void);
+#define mods_conf (*get_loaded_mods_conf())
 void recheck_all_mod_exist();
 TbBool load_mods_order_config_file();
 

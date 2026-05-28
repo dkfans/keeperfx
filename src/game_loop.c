@@ -233,7 +233,7 @@ void process_dungeon_destroy(struct Thing* heartng)
                 if (is_my_player_number(dungeon->owner))
                 {
                     const char* objective = (game.heart_lost_quick_message) ? game.quick_messages[game.heart_lost_message_id] : get_string(game.heart_lost_message_id);
-                    process_objective(objective, game.heart_lost_message_target, 0, 0);
+                    process_objective(objective,dungeon->owner, game.heart_lost_message_target, 0, 0);
                 }
             }
             // If this is the last heart the player had, finish him

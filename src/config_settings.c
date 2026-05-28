@@ -25,8 +25,10 @@
 #include "bflib_dernc.h"
 #include "bflib_keybrd.h"
 #include "bflib_video.h"
+#include "bflib_joyst.h"
 #include "frontmenu_options.h"
 #include "config.h"
+#include "front_input.h"
 #include "engine_camera.h"
 #include "game_merge.h"
 #include "vidmode.h"
@@ -157,53 +159,39 @@ static const struct { unsigned char code; const char *name; } keycode_table[] = 
 };
 #define KEYCODE_TABLE_SIZE ((int)(sizeof(keycode_table)/sizeof(keycode_table[0])))
 
-static const char *game_key_names[GAME_KEYS_COUNT] = {
-    "MoveUp",                   // Gkey_MoveUp
-    "MoveDown",                 // Gkey_MoveDown
-    "MoveLeft",                 // Gkey_MoveLeft
-    "MoveRight",                // Gkey_MoveRight
-    "RotateMod",                // Gkey_RotateMod
-    "SpeedMod",                 // Gkey_SpeedMod
-    "RotateCW",                 // Gkey_RotateCW
-    "RotateCCW",                // Gkey_RotateCCW
-    "ZoomIn",                   // Gkey_ZoomIn
-    "ZoomOut",                  // Gkey_ZoomOut
-    "ZoomRoomTreasure",         // Gkey_ZoomRoomTreasure
-    "ZoomRoomLibrary",          // Gkey_ZoomRoomLibrary
-    "ZoomRoomLair",             // Gkey_ZoomRoomLair
-    "ZoomRoomPrison",           // Gkey_ZoomRoomPrison
-    "ZoomRoomTorture",          // Gkey_ZoomRoomTorture
-    "ZoomRoomTraining",         // Gkey_ZoomRoomTraining
-    "ZoomRoomHeart",            // Gkey_ZoomRoomHeart
-    "ZoomRoomWorkshop",         // Gkey_ZoomRoomWorkshop
-    "ZoomRoomScavenger",        // Gkey_ZoomRoomScavenger
-    "ZoomRoomTemple",           // Gkey_ZoomRoomTemple
-    "ZoomRoomGraveyard",        // Gkey_ZoomRoomGraveyard
-    "ZoomRoomBarracks",         // Gkey_ZoomRoomBarracks
-    "ZoomRoomHatchery",         // Gkey_ZoomRoomHatchery
-    "ZoomRoomGuardPost",        // Gkey_ZoomRoomGuardPost
-    "ZoomRoomBridge",           // Gkey_ZoomRoomBridge
-    "ZoomRoomPortal",           // Gkey_ZoomRoomPortal
-    "ZoomToFight",              // Gkey_ZoomToFight
-    "ZoomCrAnnoyed",            // Gkey_ZoomCrAnnoyed
-    "CrtrContrlMod",            // Gkey_CrtrContrlMod
-    "CrtrQueryMod",             // Gkey_CrtrQueryMod
-    "DumpToOldPos",             // Gkey_DumpToOldPos
-    "TogglePause",              // Gkey_TogglePause
-    "SwitchToMap",              // Gkey_SwitchToMap
-    "ToggleMessage",            // Gkey_ToggleMessage
-    "SnapCamera",               // Gkey_SnapCamera
-    "BestRoomSpace",            // Gkey_BestRoomSpace
-    "SquareRoomSpace",          // Gkey_SquareRoomSpace
-    "RoomSpaceIncSize",         // Gkey_RoomSpaceIncSize
-    "RoomSpaceDecSize",         // Gkey_RoomSpaceDecSize
-    "SellTrapOnSubtile",        // Gkey_SellTrapOnSubtile
-    "TiltUp",                   // Gkey_TiltUp
-    "TiltDown",                 // Gkey_TiltDown
-    "TiltReset",                // Gkey_TiltReset
-    "Ascend",                   // Gkey_Ascend
-    "Descend",                  // Gkey_Descend
+static const struct { TbControllerButtons button; const char *name; } controller_button_table[] = {
+    { CBtn_A,              "A" },
+    { CBtn_B,              "B" },
+    { CBtn_X,              "X" },
+    { CBtn_Y,              "Y" },
+    { CBtn_BACK,           "BACK" },
+    { CBtn_START,          "START" },
+    { CBtn_LEFTSTICK,      "LEFTSTICK" },
+    { CBtn_RIGHTSTICK,     "RIGHTSTICK" },
+    { CBtn_LEFTSHOULDER,   "LEFTSHOULDER" },
+    { CBtn_RIGHTSHOULDER,  "RIGHTSHOULDER" },
+    { CBtn_DPAD_UP,        "DPAD_UP" },
+    { CBtn_DPAD_DOWN,      "DPAD_DOWN" },
+    { CBtn_DPAD_LEFT,      "DPAD_LEFT" },
+    { CBtn_DPAD_RIGHT,     "DPAD_RIGHT" },
+    { CBtn_MISC1,          "MISC1" },
+    { CBtn_PADDLE1,        "PADDLE1" },
+    { CBtn_PADDLE2,        "PADDLE2" },
+    { CBtn_PADDLE3,        "PADDLE3" },
+    { CBtn_PADDLE4,        "PADDLE4" },
+    { CBtn_TOUCHPAD,       "TOUCHPAD" },
+    { CBtn_L2,             "L2" },
+    { CBtn_R2,             "R2" },
+    { CBtn_LS_UP,          "LS_UP" },
+    { CBtn_LS_DOWN,        "LS_DOWN" },
+    { CBtn_LS_LEFT,        "LS_LEFT" },
+    { CBtn_LS_RIGHT,       "LS_RIGHT" },
+    { CBtn_RS_UP,          "RS_UP" },
+    { CBtn_RS_DOWN,        "RS_DOWN" },
+    { CBtn_RS_LEFT,        "RS_LEFT" },
+    { CBtn_RS_RIGHT,       "RS_RIGHT" },
 };
+#define CONTROLLER_BUTTON_TABLE_SIZE ((int)(sizeof(controller_button_table)/sizeof(controller_button_table[0])))
 
 static const char *keycode_to_name(unsigned char code)
 {
@@ -284,84 +272,123 @@ static unsigned char name_to_kmod(const char *name)
     return mods;
 }
 
+static void controller_buttons_to_name(TbControllerButtons buttons, char *buf, size_t buflen)
+{
+    size_t len = 0;
+
+    if (buflen == 0)
+        return;
+
+    if (buttons == CBtn_NONE)
+    {
+        snprintf(buf, buflen, "NONE");
+        return;
+    }
+
+    buf[0] = '\0';
+    for (int i = 0; i < CONTROLLER_BUTTON_TABLE_SIZE; i++)
+    {
+        int written;
+
+        if ((buttons & controller_button_table[i].button) == 0)
+            continue;
+
+        if (len >= buflen)
+            break;
+
+        written = snprintf(buf + len, buflen - len, "%s%s", (len > 0) ? "|" : "", controller_button_table[i].name);
+        if (written < 0)
+            break;
+        if ((size_t)written >= buflen - len)
+        {
+            len = buflen;
+            break;
+        }
+        len += (size_t)written;
+    }
+
+    if (len == 0)
+        snprintf(buf, buflen, "NONE");
+}
+
+static TbControllerButtons name_to_controller_buttons(const char *name)
+{
+    TbControllerButtons buttons = CBtn_NONE;
+    char token[32];
+    int token_len = 0;
+
+    if (name == NULL)
+        return buttons;
+
+    for (const char *p = name;; p++)
+    {
+        unsigned char c = (unsigned char)(*p);
+        TbBool token_end = (c == '\0' || c == '|' || c == '+' || c == ',' || isspace(c));
+
+        if (!token_end)
+        {
+            if (token_len < (int)sizeof(token) - 1)
+                token[token_len++] = (char)toupper(c);
+            continue;
+        }
+
+        if (token_len > 0)
+        {
+            token[token_len] = '\0';
+            if (strcmp(token, "NONE") != 0)
+            {
+                for (int i = 0; i < CONTROLLER_BUTTON_TABLE_SIZE; i++)
+                {
+                    if (strcmp(token, controller_button_table[i].name) == 0)
+                    {
+                        buttons |= controller_button_table[i].button;
+                        break;
+                    }
+                }
+            }
+            token_len = 0;
+        }
+
+        if (c == '\0')
+            break;
+    }
+
+    return buttons;
+}
+
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
 void setup_default_settings(void)
 {
-    // CPU status variable
-    const struct GameSettings default_settings = {
-     0,                         // unusedfield_0
-     4,                         // video_shadows
-     3,                         // view_distance
-     0,                         // video_rotate_mode
-     1,                         // video_textures
-     0,                         // video_cluedo_mode
-     127,                       // sound_volume
-     90,                        // music_volume
-     1,                         // unusedfield_8
-     0,                         // gamma_correction
-     Lb_SCREEN_MODE_INVALID,    // Screen mode, set to correct value below
-     {
-          {KC_W, KMod_NONE},                 // Gkey_MoveUp
-          {KC_S, KMod_NONE},                 // Gkey_MoveDown
-          {KC_A, KMod_NONE},                 // Gkey_MoveLeft
-          {KC_D, KMod_NONE},                 // Gkey_MoveRight
-          {KC_LCONTROL, KMod_NONE},          // Gkey_RotateMod
-          {KC_LSHIFT, KMod_NONE},            // Gkey_SpeedMod
-          {KC_DELETE, KMod_NONE},            // Gkey_RotateCW
-          {KC_PGDOWN, KMod_NONE},            // Gkey_RotateCCW
-          {KC_HOME, KMod_NONE},              // Gkey_ZoomIn
-          {KC_END, KMod_NONE},               // Gkey_ZoomOut
-          {KC_T, KMod_NONE},                 // Gkey_ZoomRoomTreasure
-          {KC_L, KMod_NONE},                 // Gkey_ZoomRoomLibrary
-          {KC_L, KMod_SHIFT},                // Gkey_ZoomRoomLair
-          {KC_P, KMod_SHIFT},                // Gkey_ZoomRoomPrison
-          {KC_T, KMod_ALT},                  // Gkey_ZoomRoomTorture
-          {KC_T, KMod_SHIFT},                // Gkey_ZoomRoomTraining
-          {KC_H, KMod_NONE},                 // Gkey_ZoomRoomHeart
-          {KC_W, KMod_ALT},                  // Gkey_ZoomRoomWorkshop
-          {KC_S, KMod_ALT},                  // Gkey_ZoomRoomScavenger
-          {KC_T, KMod_CONTROL},              // Gkey_ZoomRoomTemple
-          {KC_G, KMod_NONE},                 // Gkey_ZoomRoomGraveyard
-          {KC_B, KMod_NONE},                 // Gkey_ZoomRoomBarracks
-          {KC_H, KMod_SHIFT},                // Gkey_ZoomRoomHatchery
-          {KC_G, KMod_SHIFT},                // Gkey_ZoomRoomGuardPost
-          {KC_B, KMod_SHIFT},                // Gkey_ZoomRoomBridge
-          {KC_P, KMod_CONTROL},              // Gkey_ZoomRoomPortal
-          {KC_F, KMod_NONE},                 // Gkey_ZoomToFight
-          {KC_A, KMod_ALT},                  // Gkey_ZoomCrAnnoyed
-          {KC_LSHIFT, KMod_NONE},            // Gkey_CrtrContrlMod
-          {KC_Q, KMod_NONE},                 // Gkey_CrtrQueryMod
-          {KC_BACK, KMod_NONE},              // Gkey_DumpToOldPos
-          {KC_P, KMod_NONE},                 // Gkey_TogglePause
-          {KC_M, KMod_NONE},                 // Gkey_SwitchToMap
-          {KC_E, KMod_NONE},                 // Gkey_ToggleMessage
-          {KC_MOUSE3, KMod_NONE},            // Gkey_SnapCamera
-          {KC_LSHIFT, KMod_NONE},            // Gkey_BestRoomSpace
-          {KC_LCONTROL, KMod_NONE},          // Gkey_SquareRoomSpace
-          {KC_MOUSEWHEEL_DOWN, KMod_NONE},   // Gkey_RoomSpaceIncSize
-          {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
-          {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
-          {KC_PGUP, KMod_SHIFT},             // Gkey_TiltUp
-          {KC_PGDOWN, KMod_SHIFT},           // Gkey_TiltDown
-          {KC_INSERT, KMod_SHIFT},           // Gkey_TiltReset
-          {KC_X, KMod_NONE},                 // Gkey_Ascend
-          {KC_Z, KMod_NONE},                 // Gkey_Descend
-     },                         // kbkeys
-     true,                      // tooltips_on
-     0,                         // first_person_move_invert
-     6,                         // first_person_move_sensitivity
-     256,                       // minimap_zoom
-     8192,                      // isometric_view_zoom_level
-     FRONTVIEW_CAMERA_ZOOM_MAX, // frontview_zoom_level
-     127,                       // mentor_volume
-     CAMERA_TILT_DEFAULT,       // isometric_tilt
-     false,                     // highlight_mode
-    };
-    memcpy(&settings, &default_settings, sizeof(struct GameSettings));
-    settings.switching_vidmodes_index = 0;
+    settings.video_detail_level            = 0;
+    settings.video_shadows                 = 4;
+    settings.view_distance                 = 3;
+    settings.video_rotate_mode             = 0;
+    settings.video_textures                = 1;
+    settings.video_cluedo_mode             = 0;
+    settings.sound_volume                  = 127;
+    settings.music_volume                  = 90;
+    settings.roomflags_on                  = 1;
+    settings.gamma_correction              = 0;
+    settings.switching_vidmodes_index      = Lb_SCREEN_MODE_INVALID;
+    settings.tooltips_on                   = true;
+    settings.first_person_move_invert      = 0;
+    settings.first_person_move_sensitivity = 6;
+    settings.minimap_zoom                  = 256;
+    settings.isometric_view_zoom_level     = 8192;
+    settings.frontview_zoom_level          = FRONTVIEW_CAMERA_ZOOM_MAX;
+    settings.mentor_volume                 = 127;
+    settings.isometric_tilt                = CAMERA_TILT_DEFAULT;
+    settings.highlight_mode                = false;
+
+    for (int i = 0; i < GAME_KEYS_COUNT; i++)
+    {
+        settings.kbkeys[i].code = game_key_settings[i].default_code;
+        settings.kbkeys[i].mods = game_key_settings[i].default_mods;
+        settings.kbkeys[i].controller_buttons = game_key_settings[i].default_controller_buttons;
+    }
 }
 
 TbBool load_settings(void)
@@ -450,15 +477,23 @@ TbBool load_settings(void)
     {
         for (int i = 0; i < GAME_KEYS_COUNT; i++)
         {
-            val = value_dict_get(vsec, game_key_names[i]);
+            val = value_dict_get(vsec, game_key_settings[i].toml_name);
             if (val && value_type(val) == VALUE_DICT)
             {
                 VALUE *vcode = value_dict_get(val, "code");
                 VALUE *vmods = value_dict_get(val, "mods");
+                VALUE *vcontroller_buttons = value_dict_get(val, "controller_buttons");
                 if (vcode && value_type(vcode) == VALUE_STRING)
                     settings.kbkeys[i].code = name_to_keycode(value_string(vcode));
                 if (vmods && value_type(vmods) == VALUE_STRING)
                     settings.kbkeys[i].mods = name_to_kmod(value_string(vmods));
+                if (vcontroller_buttons)
+                {
+                    if (value_type(vcontroller_buttons) == VALUE_STRING)
+                        settings.kbkeys[i].controller_buttons = name_to_controller_buttons(value_string(vcontroller_buttons));
+                    else if (value_type(vcontroller_buttons) == VALUE_INT32)
+                        settings.kbkeys[i].controller_buttons = (TbControllerButtons)(unsigned int)value_int32(vcontroller_buttons);
+                }
             }
         }
     }
@@ -525,11 +560,14 @@ short save_settings(void)
     for (int i = 0; i < GAME_KEYS_COUNT; i++)
     {
         char mods_buf[32];
+        char controller_buttons_buf[512];
         kmod_to_name(settings.kbkeys[i].mods, mods_buf, sizeof(mods_buf));
-        TOSAVE("%s = { code = \"%s\", mods = \"%s\" }\n",
-            game_key_names[i],
+        controller_buttons_to_name(settings.kbkeys[i].controller_buttons, controller_buttons_buf, sizeof(controller_buttons_buf));
+        TOSAVE("%s = { code = \"%s\", mods = \"%s\", controller_buttons = \"%s\" }\n",
+            game_key_settings[i].toml_name,
             keycode_to_name(settings.kbkeys[i].code),
-            mods_buf);
+            mods_buf,
+            controller_buttons_buf);
     }
 #undef TOSAVE
 

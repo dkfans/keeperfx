@@ -176,12 +176,9 @@ struct Thing {
       } disease;
       struct {
         int32_t room_idx;
+        int32_t last_turn_drawn;
+        unsigned char display_timer;
       } roomflag;
-      struct {
-      short unused3;
-      int32_t last_turn_drawn;
-      unsigned char display_timer;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn
 //TCls_Shot
       struct {
         unsigned char dexterity;
@@ -197,10 +194,8 @@ struct Thing {
         int32_t x;
         short target_idx;
         unsigned char posint;
-      } shot_lizard;
-      struct {
         unsigned char range;
-      } shot_lizard2;// both shot_lizard and shot_lizard2 are used in same function on same object but have 1 byte overlapping between x and range
+      } shot_lizard;
 //TCls_EffectElem
 //TCls_DeadCreature
       struct {
@@ -352,6 +347,7 @@ TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 
+void set_thing_animation(struct Thing *thing, long animation_index, long speed);
 void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class);
 
 void query_thing(struct Thing *thing);

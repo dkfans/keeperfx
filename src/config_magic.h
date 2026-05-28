@@ -55,6 +55,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Teleport     = 0x008000,
     CSAfF_Timebomb     = 0x010000,
     CSAfF_Wind         = 0x020000,
+    CSAfF_SpellBlocks  = 0x040000,
 };
 
 enum SpellPropertiesFlags {
@@ -123,6 +124,10 @@ enum ShotModelFlags {
     ShMF_Penetrating    = 0x8000,
     ShMF_NeverBlock     = 0x10000,
     ShMF_WallPierce     = 0x20000,
+    ShMF_NoAirDamage     = 0x40000,
+    ShMF_WindImmune      = 0x80000,
+    ShMF_FixedDamage     = 0x100000,
+    ShMF_HiddenProjectile = 0x200000,
 };
 
 #define PwCast_None           (0LL)
@@ -224,7 +229,7 @@ struct SpellConfigStats {
 };
 
 struct ShotHitConfig {
-    ThingModel effect_model; /**< Effect kind to be created when the shot hits. */
+    EffectOrEffElModel effect_model; /**< Effect kind to be created when the shot hits. */
     short sndsample_idx; /**< Base sound sample to be played on hit. */
     unsigned char sndsample_range; /**< Range for random sound sample selection. */
     unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
@@ -285,17 +290,13 @@ struct ShotConfigStats {
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
     char push_on_hit;
-    unsigned char hidden_projectile;
     unsigned char destroy_on_first_hit;
     short experience_given_to_shooter;
     short inertia_floor;
     short inertia_air;
     short bounce_angle;
-    short wind_immune;
-    short no_air_damage;
     unsigned char target_hitstop_turns;
     short animation_transparency;
-    short fixed_damage;
     short light_radius;
     unsigned char light_intensity;
     unsigned char light_flags;
@@ -312,6 +313,7 @@ struct ShotConfigStats {
     short spread_xy;
     short spread_z;
     short speed_deviation;
+    FuncIdx hit_thing_lua_func_idx;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -418,6 +420,7 @@ extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 extern struct SpellConfig spell_config[];
+extern const struct NamedCommand hit_type_desc[];
 extern const struct NamedCommand spell_effect_flags[];
 extern const struct NamedCommand powermodel_properties_commands[];
 extern const struct LongNamedCommand powermodel_castability_commands[];

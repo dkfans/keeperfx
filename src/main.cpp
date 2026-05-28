@@ -35,7 +35,8 @@
 #include "bflib_mouse.h"
 #include "bflib_mshandler.hpp"
 #include "bflib_filelst.h"
-#include "bflib_network.h"
+#include "net_exchange_gameplay.h"
+#include "net_lobby.h"
 #include "net_resync.h"
 #include "bflib_planar.h"
 
@@ -122,7 +123,6 @@
 #include "ariadne.h"
 #include "sounds.h"
 #include "vidfade.h"
-#include "KeeperSpeech.h"
 #include "config_settings.h"
 #include "config_keeperfx.h"
 #include "game_legacy.h"
@@ -149,11 +149,11 @@ short default_loc_player = 0;
 struct StartupParameters start_params;
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
-int32_t game_num_fps;
+int32_t turns_per_second;
 
-int32_t game_num_fps_draw_current = 0;
-int32_t game_num_fps_draw_main = 0; // -1 if auto
-int32_t game_num_fps_draw_secondary = 0;
+int32_t turns_per_second_draw_current = 0;
+int32_t turns_per_second_draw_main = 0; // -1 if auto
+int32_t turns_per_second_draw_secondary = 0;
 
 
 unsigned char *blue_palette;
@@ -215,7 +215,6 @@ extern void faststartup_saved_packet_game(void);
 extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 extern void startup_network_game(CoroutineLoop *context, TbBool local);
-void first_gameturn_actions(void);
 /******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
@@ -253,6 +252,7 @@ TbBool should_use_delta_time_on_menu()
         case FeSt_LEVEL_SELECT:
         case FeSt_CAMPAIGN_SELECT:
         case FeSt_MAPPACK_SELECT:
+        case FeSt_MP_MAPPACK_SELECT:
         case FeSt_LAND_VIEW:
         case FeSt_NETLAND_VIEW:
         case FeSt_TORTURE:
@@ -313,7 +313,7 @@ long get_foot_creature_has_down(struct Thing *thing)
         return 0;
     unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
     n = get_creature_model_graphics(thing->model, frame);
-    i = convert_td_iso(n);
+    i = get_td_animation_sprite(n);
     if (i != thing->anim_sprite)
         return 0;
     if (val == 1)
@@ -404,7 +404,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
                     if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0))
                     {
                         thing->continue_state = CrSt_ArriveAtAlarm;
-                        cctrl->alarm_over_turn = game.play_gameturn + 800;
+                        cctrl->alarm_over_turn = get_gameturn() + 800;
                         cctrl->alarm_stl_x = traptng->mappos.x.stl.num;
                         cctrl->alarm_stl_y = traptng->mappos.y.stl.num;
                     }
@@ -480,7 +480,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         angle = thing->move_angle_xy;
         if ( (angle) && ( (angle <= ANGLE_EAST) || (angle > ANGLE_WEST) ) )
         {
-          unsigned short y = thing->mappos.y.val;
+          MapCoord y = thing->mappos.y.val;
           pos2.x.val = thing->mappos.x.val;
           pos2.z.val = 0;
           pos2.y.val = y - STL_PER_SLB * speed;
@@ -509,7 +509,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         }
         else
         {
-          unsigned short x = thing->mappos.x.val;
+          MapCoord x = thing->mappos.x.val;
           pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val;
           pos2.x.val = x - STL_PER_SLB * speed;
@@ -553,7 +553,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
                 }
             }
             delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0); // destroy guardpost
-            for (long k = 0; k < AROUND_TILES_COUNT; k++)
+            for (int16_t k = 0; k < AROUND_TILES_COUNT; k++)
             {
                 create_dirt_rubble_for_dug_block(stl_x + around[k].delta_x, stl_y + around[k].delta_y, 4, room->owner);
             }
@@ -569,10 +569,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
         if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
         {
             struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-            HitPoints door_health = doortng->health;
-            doortng->health -= boulder->health; // decrease door health
-            boulder->health -= door_health; // decrease boulder health
-            if (doortng->health <= 0)
+            if (collide_door_and_boulder(doortng, boulder) <= 0)
             {
                 return 2; // door destroyed
             }
@@ -869,7 +866,7 @@ void update_thing_animation(struct Thing *thing)
             thing->anim_time %= i;
           }
         }
-        thing->current_frame = (thing->anim_time >> 8) & 0xFF;
+        thing->current_frame = thing->anim_time >> 8;
     }
     if (thing->transformation_speed != 0)
     {
@@ -915,7 +912,7 @@ void init_keeper(void)
 {
     SYNCDBG(8,"Starting");
     engine_init();
-    init_iso_3d_conversion_tables();
+    init_fp_td_animation_conversion_tables();
     init_colours();
     init_spiral_steps();
     init_key_to_strings();
@@ -1174,19 +1171,6 @@ short setup_game(void)
       setup_stuff();
   }
 
-  if (result == 1)
-  {
-      KEEPERSPEECH_REASON reason = KeeperSpeechInit();
-      if (reason == KSR_NO_LIB_INSTALLED) {
-          SYNCLOG("Speech recognition disabled: %s",
-              KeeperSpeechErrorMessage(reason));
-      } else
-      if (reason != KSR_OK) {
-          ERRORLOG("Failed to initialize Speech recognition module: %s",
-              KeeperSpeechErrorMessage(reason));
-      }
-  }
-
   return result;
 }
 
@@ -1349,7 +1333,7 @@ void update_creatr_model_activities_list(TbBool forced)
         int write_idx = 1;
         for (int i = 1; i < num_breeds; i++)
         {
-            crconf = &game.conf.crtr_conf.model[breed_activities[i]];
+            crconf = creature_stats_get(breed_activities[i]);
             if (any_flag_is_set(crconf->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger)))
             {
                 temp = breed_activities[i];
@@ -1373,7 +1357,7 @@ void toggle_hero_health_flowers(void)
       do_sound_menu_click();
       statstr = "on";
     }
-    show_onscreen_msg(2*game_num_fps, "Hero health flowers %s", statstr);
+    show_onscreen_msg(2*turns_per_second, "Hero health flowers %s", statstr);
 }
 
 void reset_gui_based_on_player_mode(void)
@@ -1768,7 +1752,7 @@ void clear_game(void)
     init_animating_texture_maps();
     clear_slabsets();
     game.skip_initial_input_turns = 0;
-    clear_input_lag_queue();
+    initialize_packet_history();
 }
 
 void clear_game_for_save(void)
@@ -1884,6 +1868,14 @@ void turn_off_query(PlayerNumber plyr_idx)
     set_player_instance(player, PI_UnqueryCrtr, 0);
 }
 
+long filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterParam, long)
+{
+    if (player_is_keeper(thing->owner)) {
+        return INT32_MAX;
+    }
+    return -1;
+}
+
 void level_lost_go_first_person(PlayerNumber plyr_idx)
 {
     struct CreatureControl *cctrl;
@@ -1900,25 +1892,30 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     }
     spectator_breed = get_players_spectator_model(plyr_idx);
     player->dungeon_camera_zoom = get_camera_zoom(get_player_active_camera(player));
-    thing = create_and_control_creature_as_controller(player, spectator_breed, &dungeon->mappos);
+    struct CompoundTngFilterParam param = {};
+    param.class_id = TCls_Creature;
+    struct Thing *spawn_creatng = get_random_thing_of_class_with_filter(filter_creatures_owned_by_keepers, &param, plyr_idx);
+    if (!thing_exists(spawn_creatng)) {
+        return;
+    }
+    struct Coord3d mappos = spawn_creatng->mappos;
+    thing = create_and_control_creature_as_controller(player, spectator_breed, &mappos);
     if (thing_is_invalid(thing)) {
         ERRORLOG("Unable to create spectator creature");
         return;
     }
+    move_creature_to_nearest_valid_position(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->creature_control_flags |= CCFlg_NoCompControl;
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player;
-    long pos_x;
-    long pos_y;
-    player = get_my_player();
-    find_map_location_coords(target, &x, &y, my_player_number, __func__);
-    pos_x = 0;
-    pos_y = 0;
+    struct PlayerInfo *player = get_player(plyr_idx);
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
         pos_y = subtile_coord_center(y);
@@ -1927,15 +1924,12 @@ void set_general_information(long msg_id, TbMapLocation target, MapSubtlCoord x,
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player;
-    long pos_x;
-    long pos_y;
-    player = get_my_player();
-    find_map_location_coords(target, &x, &y, my_player_number, __func__);
-    pos_x = 0;
-    pos_y = 0;
+    struct PlayerInfo *player = get_player(plyr_idx);
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
         pos_y = subtile_coord_center(y);
@@ -1944,22 +1938,17 @@ void set_quick_information(long msg_id, TbMapLocation target, MapSubtlCoord x, M
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
+void set_general_objective(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    process_objective(get_string(msg_id), target, x, y);
+    process_objective(get_string(msg_id), plyr_idx, target, x, y);
 }
 
-void process_objective(const char *msg_text, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void process_objective(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player;
-    MapSubtlCoord pos_x;
-    MapSubtlCoord pos_y;
-    player = get_my_player();
-    find_map_location_coords(target, &x, &y, my_player_number, __func__);
-    pos_y = y;
-    pos_x = x;
-    set_level_objective(msg_text);
-    display_objectives(player->id_number, pos_x, pos_y);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
+    set_level_objective(player->id_number, msg_text);
+    display_objectives(player->id_number, x, y);
 }
 
 short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count)
@@ -2056,7 +2045,10 @@ void set_mouse_light(struct PlayerInfo *player)
     SYNCDBG(6,"Starting");
     struct Packet *pckt;
     if (is_my_player(player)) {
-        pckt = get_local_input_lag_packet_for_turn(game.play_gameturn);
+        pckt = (struct Packet *)get_history_packet(player->packet_num, get_gameturn());
+        if (pckt == NULL) {
+            pckt = get_packet_direct(player->packet_num);
+        }
     } else {
         pckt = get_packet_direct(player->packet_num);
     }
@@ -2199,7 +2191,7 @@ static void process_dungeon_devastation_effects(void)
         dungeon = get_players_num_dungeon(plyr_idx);
         if (dungeon->devastation_turn == 0)
             continue;
-        if ((game.play_gameturn & 1) != 0)
+        if ((get_gameturn() & 1) != 0)
             continue;
         dungeon->devastation_turn++;
         if (dungeon->devastation_turn >= max(game.map_tiles_x,game.map_tiles_y))
@@ -2548,7 +2540,7 @@ long update_cave_in(struct Thing *thing)
     struct Coord3d pos;
     PlayerNumber owner;
     owner = thing->owner;
-    if ((game.play_gameturn % 3) == 0)
+    if ((get_gameturn() % 3) == 0)
     {
         int n;
         n = GAME_RANDOM(AROUND_TILES_COUNT);
@@ -2567,7 +2559,7 @@ long update_cave_in(struct Thing *thing)
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
     turns_between = powerst->duration / 5;
-    turns_alive = game.play_gameturn - thing->creation_turn;
+    turns_alive = get_gameturn() - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
         pos.x.val = thing->mappos.x.val + THING_RANDOM(thing, 128);
@@ -2664,7 +2656,7 @@ void update_global_lighting()
 void update(void)
 {
     struct PlayerInfo *player;
-    SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
+    SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
 
     process_packets();
     api_update_server();
@@ -2674,7 +2666,7 @@ void update(void)
     }
     if (game.game_kind == GKind_NonInteractiveState)
     {
-        game.map_changed_for_nagivation = 0;
+        game.map_changed_for_navigation = 0;
         return;
     }
     player = get_my_player();
@@ -2688,7 +2680,7 @@ void update(void)
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
-        if ((game.play_gameturn & 0x01) != 0)
+        if ((get_gameturn() & 0x01) != 0)
             update_animating_texture_maps();
         update_things();
         process_rooms();
@@ -2725,12 +2717,11 @@ void update(void)
     message_update();
     update_all_players_cameras();
     update_player_sounds();
-    first_gameturn_actions();
     SYNCDBG(6,"Finished");
 }
 
 void intentional_desync() {
-    if (game.play_gameturn != 50 || !is_my_player_number(0)) {
+    if (get_gameturn() != 50 || !is_my_player_number(0)) {
         return;
     }
     for (struct Room* room = start_rooms; room < end_rooms; room += 1) {
@@ -2747,14 +2738,6 @@ void intentional_desync() {
         }
     }
     get_player(0)->instance_remain_turns += 1;
-}
-
-void first_gameturn_actions() {
-    if (game.play_gameturn == 1) {
-        apply_default_flee_and_imprison_setting();
-        send_sprite_zip_count_to_other_players();
-    }
-    //intentional_desync();
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
@@ -3103,20 +3086,20 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    long x;
-    long y;
-    long x_frac;
-    long y_frac;
-    long hori_ptr_y;
-    long vert_ptr_y;
-    long hori_hdelta_y;
-    long vert_hdelta_y;
-    long hori_ptr_x;
-    long vert_ptr_x;
-    long hvdiv_x;
-    long hvdiv_y;
-    long long lltmp;
-    long k;
+    int32_t x;
+    int32_t y;
+    int32_t x_frac;
+    int32_t y_frac;
+    int64_t hori_ptr_y;
+    int64_t vert_ptr_y;
+    int64_t hori_hdelta_y;
+    int64_t vert_hdelta_y;
+    int64_t hori_ptr_x;
+    int64_t vert_ptr_x;
+    int64_t hvdiv_x;
+    int64_t hvdiv_y;
+    int64_t lltmp;
+    int64_t k;
     int i;
     SYNCDBG(19,"Starting");
     if ((!vert_offset[1]) && (!hori_offset[1]))
@@ -3126,16 +3109,16 @@ void update_blocks_pointed(void)
         me_pointed_at = INVALID_MAP_BLOCK;//get_map_block_at(0,0);
     } else
     {
-        hori_ptr_y = (long)hori_offset[0] * (pointer_y - y_init_off);
-        vert_ptr_y = (long)vert_offset[0] * (pointer_y - y_init_off);
-        hori_hdelta_y = (long)hori_offset[0] * ((long)high_offset[1] >> 8);
-        vert_hdelta_y = (long)vert_offset[0] * ((long)high_offset[1] >> 8);
-        vert_ptr_x = (long)(vert_offset[1] * (pointer_x - x_init_off)) >> 1;
-        hori_ptr_x = (long)(hori_offset[1] * (pointer_x - x_init_off)) >> 1;
-        lltmp = hori_offset[0] * (long long)vert_offset[1] - vert_offset[0] * (long long)hori_offset[1];
+        hori_ptr_y = (int64_t)hori_offset[0] * (pointer_y - y_init_off);
+        vert_ptr_y = (int64_t)vert_offset[0] * (pointer_y - y_init_off);
+        hori_hdelta_y = (int64_t)hori_offset[0] * ((long)high_offset[1] >> 8);
+        vert_hdelta_y = (int64_t)vert_offset[0] * ((long)high_offset[1] >> 8);
+        vert_ptr_x = ((int64_t)vert_offset[1] * (pointer_x - x_init_off)) >> 1;
+        hori_ptr_x = ((int64_t)hori_offset[1] * (pointer_x - x_init_off)) >> 1;
+        lltmp = hori_offset[0] * (int64_t)vert_offset[1] - vert_offset[0] * (int64_t)hori_offset[1];
         hvdiv_x = (lltmp >> 11);
         if (hvdiv_x == 0) hvdiv_x = 1;
-        lltmp = vert_offset[0] * (long long)hori_offset[1] - hori_offset[0] * (long long)vert_offset[1];
+        lltmp = vert_offset[0] * (int64_t)hori_offset[1] - hori_offset[0] * (int64_t)vert_offset[1];
         hvdiv_y = (lltmp >> 11);
         if (hvdiv_y == 0) hvdiv_y = 1;
         for (i=0; i < 8; i++)
@@ -3233,11 +3216,11 @@ short display_should_be_updated_this_turn(void)
     if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) )
     {
       find_frame_rate();
-      if ( (game.frame_skip == 0) || ((game.play_gameturn % game.frame_skip) == 0))
+      if ( (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0))
         return true;
     } else
-    if ( ((game.play_gameturn & 0x3F)==0) ||
-         ((game.packet_loading_in_progress) && ((game.play_gameturn & 7)==0)) )
+    if ( ((get_gameturn() & 0x3F)==0) ||
+         ((game.packet_loading_in_progress) && ((get_gameturn() & 7)==0)) )
     {
       packet_load_find_frame_rate(64);
       return true;
@@ -3272,6 +3255,10 @@ TbBool keeper_screen_swap(void)
  * Waits until the next game turn. Delay is usually controlled by
  * num_fps variable.
  */
+extern "C" {
+int32_t multiplayer_speed_adjustment_ns;
+}
+
 TbBool keeper_wait_for_next_turn(void)
 {
     const long double tick_ns_one_sec = 1000000000.0;
@@ -3284,7 +3271,7 @@ TbBool keeper_wait_for_next_turn(void)
     if (game.frame_skip >= 0)
     {
         // Standard delaying system
-        long num_fps = game_num_fps;
+        int32_t num_fps = turns_per_second;
         if (game.frame_skip > 0)
             num_fps *= game.frame_skip;
 
@@ -3297,6 +3284,9 @@ TbBool keeper_wait_for_next_turn(void)
         long double tick_ns_cur = get_time_tick_ns();
         long double tick_ns_used = tick_ns_cur - tick_ns_last_turn;
         long double tick_ns_delay = tick_ns_one_frame - tick_ns_used;
+        if (multiplayer_speed_adjustment_ns != 0) {
+            tick_ns_delay += multiplayer_speed_adjustment_ns;
+        }
 
         long double tick_ns_end = tick_ns_cur;
         // tick_ns_used: every level, initialized_time_point will be reset, so tick_ns_used may be less than 0 when enter level for the non-first time, Skip it directly to solve the problem.
@@ -3315,10 +3305,10 @@ TbBool keeper_wait_for_next_turn(void)
 TbBool keeper_wait_for_next_draw(void)
 {
     // fps.draw is currently unable to work properly with frame_skip
-    if (game_num_fps_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
+    if (turns_per_second_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
-        const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw_current;
+        const long double tick_ns_one_frame = tick_ns_one_sec/turns_per_second_draw_current;
 
         static long double tick_ns_last_draw = 0;
         long double tick_ns_cur = get_time_tick_ns();
@@ -3340,31 +3330,31 @@ TbBool keeper_wait_for_next_draw(void)
 
 void redetect_screen_refresh_rate_for_draw()
 {
-    game_num_fps_draw_current = 0;
+    turns_per_second_draw_current = 0;
 
-    if (game_num_fps_draw_main == -1) {
-        if (game_num_fps_draw_secondary > 0)
-            game_num_fps_draw_current = game_num_fps_draw_secondary;
+    if (turns_per_second_draw_main == -1) {
+        if (turns_per_second_draw_secondary > 0)
+            turns_per_second_draw_current = turns_per_second_draw_secondary;
 
         if (lbWindow != NULL) {
             int display_index = SDL_GetWindowDisplayIndex(lbWindow);
             if (display_index >= 0) {
                 SDL_DisplayMode mode;
                 if (SDL_GetCurrentDisplayMode(display_index, &mode) == 0 && mode.refresh_rate > 0) {
-                    game_num_fps_draw_current = mode.refresh_rate;
+                    turns_per_second_draw_current = mode.refresh_rate;
                 }
             }
         }
 
-    } else if (game_num_fps_draw_main > 0) {
-        game_num_fps_draw_current = game_num_fps_draw_main;
+    } else if (turns_per_second_draw_main > 0) {
+        turns_per_second_draw_current = turns_per_second_draw_main;
     }
 }
 
 TbBool keeper_wait_for_screen_focus(void)
 {
     do {
-        if ( !LbWindowsControl() )
+        if ( !poll_inputs() )
         {
           force_application_close();
           break;
@@ -3385,7 +3375,7 @@ void gameplay_loop_logic()
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
     {
         static GameTurn previous_gameturn = 0;
-        if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
+        if(get_gameturn() >= start_params.pause_at_gameturn && get_gameturn() != previous_gameturn)
         {
             if(!game.paused_at_gameturn)
             {
@@ -3399,7 +3389,7 @@ void gameplay_loop_logic()
                 set_packet_pause_toggle();
             }
         }
-        previous_gameturn = game.play_gameturn;
+        previous_gameturn = get_gameturn();
     }
 
     if (is_feature_on(Ft_DeltaTime) == true) {
@@ -3426,7 +3416,7 @@ void gameplay_loop_logic()
     }
 #endif // FUNCTESTING
     do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
-    LbWindowsControl();
+    poll_inputs();
     input_eastegg();
     input();
     update();
@@ -3474,11 +3464,38 @@ void gameplay_loop_draw()
     last_draw_completed_time = get_time_tick_ns();
 }
 
-extern "C" void network_yield_draw_gameplay()
+static void update_gameplay_delta_time()
 {
     game.delta_time = get_delta_time();
-    game.process_turn_time += game.delta_time;
+    float process_delta_time = game.delta_time;
+    if (multiplayer_speed_adjustment_ns != 0 && turns_per_second > 0) {
+        double tick_ns_one_turn = 1000000000.0 / turns_per_second;
+        double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
+        if (tick_ns_adjusted_turn > 0) {
+            process_delta_time = (float)(process_delta_time * tick_ns_one_turn / tick_ns_adjusted_turn);
+        }
+    }
+    game.process_turn_time += process_delta_time;
+}
+
+extern "C" void network_yield_draw_gameplay()
+{
+    update_gameplay_delta_time();
     gameplay_loop_draw();
+}
+
+void gameplay_loop_timestep();
+
+extern "C" void network_yield_waiting_gameplay_packets()
+{
+    frametime_end_measurement(Frametime_Logic);
+    do_draw = true;
+    poll_inputs();
+    gameplay_loop_draw();
+    gameplay_loop_timestep();
+    frametime_start_measurement(Frametime_Logic);
+    if (frametime_enabled())
+        framerate_measurement_capture(Framerate_Logic);
 }
 
 extern "C" void update_velocity(void);
@@ -3496,7 +3513,7 @@ extern "C" void network_yield_draw_frontend()
         fronttorture_update();
     }
     if (frontend_menu_state == FeSt_NET_START) {
-        LbWindowsControl();
+        poll_inputs();
         frontnet_start_input();
     }
     frontend_draw();
@@ -3507,8 +3524,7 @@ void gameplay_loop_timestep()
 {
     frametime_start_measurement(Frametime_Sleep);
     if (is_feature_on(Ft_DeltaTime) == true) {
-        game.delta_time = get_delta_time();
-        game.process_turn_time += game.delta_time;
+        update_gameplay_delta_time();
     } else {
         // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
         game.delta_time = 1;
@@ -3519,14 +3535,14 @@ void gameplay_loop_timestep()
         }
     }
 
-    if (game.turns_packetoff == game.play_gameturn) {
+    if (game.turns_packetoff == get_gameturn()) {
         exit_keeper = 1;
     }
 
-    if (game_num_fps_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true) {
+    if (turns_per_second_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true) {
         keeper_wait_for_next_draw();
 
-        if (game.turns_packetoff == game.play_gameturn) {
+        if (game.turns_packetoff == get_gameturn()) {
             exit_keeper = 1;
         }
     }
@@ -3544,12 +3560,10 @@ void keeper_gameplay_loop(void)
         initialise_eye_lenses();
     }
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
-    KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
 
     initial_time_point();
     LbSleepExtInit();
-    LbNetwork_TimesyncBarrier();
 
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
@@ -3563,7 +3577,7 @@ void keeper_gameplay_loop(void)
 
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
-    SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
+    SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)get_gameturn());
 
     // Reset the game kind because we are not in a game anymore at this point
     game.game_kind = GKind_Unset;
@@ -3673,16 +3687,20 @@ static TbBool wait_at_frontend(void)
     }
     game.save_game_slot = -1;
     // Make sure campaigns are loaded
-    if (!load_campaigns_list())
+    if (!load_campaigns_list(&campaigns_list ,FGrp_Campgn ,"campaigns","campgn_order.txt"))
     {
       ERRORLOG("No valid campaign files found");
       exit_keeper = 1;
       return true;
     }
     // Make sure mappacks are loaded
-    if (!load_mappacks_list())
+    if (!load_campaigns_list(&mappacks_list,FGrp_VarLevels,"mappacks","mappck_order.txt"))
     {
       WARNMSG("No valid mappack files found");
+    }
+    if (!load_campaigns_list(&mp_mappacks_list,FGrp_MpLevels,"multiplayer mappacks","mp_mappck_order.txt"))
+    {
+      WARNMSG("No valid multiplayer mappack files found");
     }
     //Set level number and campaign (for single level mode: GOF_SingleLevel)
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)
@@ -3690,11 +3708,10 @@ static TbBool wait_at_frontend(void)
         TbBool result = false;
         if (start_params.selected_campaign[0] != '\0')
         {
-            str_append(start_params.selected_campaign, sizeof(start_params.selected_campaign), ".cfg");
-            result = change_campaign(start_params.selected_campaign);
+            result = change_campaign(CampgnT_Default, start_params.selected_campaign);
         }
         if (!result) {
-            if (!change_campaign("")) {
+            if (!change_campaign(CampgnT_Default,"")) {
                 WARNMSG("Unable to load default campaign for the specified level CMD Line parameter");
             }
             else if (start_params.selected_campaign[0] != '\0') { // only show this log message if the user actually specified a campaign
@@ -3771,7 +3788,7 @@ static TbBool wait_at_frontend(void)
     frontend_set_state(get_startup_menu_state());
     try_restore_frontend_error_box();
 
-    LbWindowsControl();
+    poll_inputs();
     clear_mouse_pressed_lrbutton();
 
     short finish_menu = 0;
@@ -3781,7 +3798,7 @@ static TbBool wait_at_frontend(void)
     long fe_last_loop_time = LbTimerClock();
     do
     {
-      if (!LbWindowsControl())
+      if (!poll_inputs())
       {
         force_application_close();
         SYNCDBG(0,"Windows Control exit condition invoked");
@@ -3826,8 +3843,10 @@ static TbBool wait_at_frontend(void)
         if (is_feature_on(Ft_DeltaTime) == true && should_use_delta_time_on_menu()) {
           game.delta_time = get_delta_time();
         } else {
+          int32_t frame_time;
+          frame_time = max(1, 1000 / turns_per_second);
           game.delta_time = 1;
-          LbSleepUntil(fe_last_loop_time + 30);
+          LbSleepUntil(fe_last_loop_time + frame_time);
         }
       }
       fe_last_loop_time = LbTimerClock();
@@ -3937,7 +3956,6 @@ void game_loop(void)
         } else
         {
           game.save_game_slot = -1;
-          clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {
           for (int i = 0; i < PLAYERS_COUNT; i++) {
@@ -3987,7 +4005,7 @@ void game_loop(void)
           exit_keeper=true;
       playtime += endtime-starttime;
       SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
-      total_play_turns += game.play_gameturn;
+      total_play_turns += get_gameturn();
       reset_eye_lenses();
       close_packet_file();
       game.packet_load_enable = false;
@@ -4005,8 +4023,6 @@ void game_loop(void)
 short reset_game(void)
 {
     SYNCDBG(6,"Starting");
-
-    KeeperSpeechExit();
 
     LbMouseSuspend();
     LbIKeyboardClose();
@@ -4183,6 +4199,10 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "mplog") == 0)
       {
           detailed_multiplayer_logging = true;
+      } else
+      if (strcasecmp(parstr, "netstats") == 0)
+      {
+          debug_display_network_stats = 1;
       } else
       if (strcasecmp(parstr, "compuchat") == 0)
       {
@@ -4446,8 +4466,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         SYNCDBG(0,"finished properly");
     }
 
-    LbErrorLogClose();
     steam_api_shutdown();
+    LbErrorLogClose();
     return 0;
 }
 

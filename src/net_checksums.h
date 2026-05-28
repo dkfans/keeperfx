@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +35,7 @@ void pack_desync_history_for_resync(void);
 void compare_desync_history_from_host(void);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short checksums_different(void);
-CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
+TbBigChecksum calculate_network_startup_map_checksum(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

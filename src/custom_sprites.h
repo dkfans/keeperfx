@@ -31,6 +31,7 @@ struct ObjectConfigStats;
 void init_custom_sprites(LevelNumber level_no);
 
 extern int total_sprite_zip_count;
+extern uint32_t sprite_zip_combined_checksum;
 
 short get_anim_id(const char *name, struct ObjectConfigStats* objst);
 short get_anim_id_(const char* name);

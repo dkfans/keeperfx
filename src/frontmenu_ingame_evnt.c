@@ -47,6 +47,8 @@
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
+extern int32_t multiplayer_speed_adjustment_ns;
+
 unsigned long TimerTurns = 0;
 unsigned short battle_creature_over;
 int debug_display_network_stats = 0;
@@ -214,7 +216,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
     int curscr_y = scr_y - (spr->SHeight * ps_units_per_px / 16) / 2;
-    if ((thing->creature.health_bar_turns) && ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate)) {
+    if ((thing->creature.health_bar_turns) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
         LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[get_player_color_idx(thing->owner)]);
     } else {
         LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
@@ -269,9 +271,9 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
             draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
-              if ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
+              if ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
               {
-                  TbPixel col = player_flash_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
+                  TbPixel col = player_flash_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);
@@ -332,9 +334,9 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
             draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
-              if ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
+              if ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
               {
-                  TbPixel col = player_flash_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
+                  TbPixel col = player_flash_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);
@@ -361,11 +363,11 @@ short zoom_to_fight(PlayerNumber plyr_idx)
 
 void draw_bonus_timer(void)
 {
-    int nturns = game.bonus_time - game.play_gameturn;
+    int nturns = game.bonus_time - get_gameturn();
     char text[32];
     if (game.timer_real)
     {
-        unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
+        unsigned long total_seconds = ((nturns) / turns_per_second) + 1;
         unsigned char seconds = total_seconds % 60;
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
@@ -446,7 +448,7 @@ void draw_timer(void)
     {
         if (get_my_player()->victory_state != VicS_WonLevel)
         {
-            TimerTurns = game.play_gameturn;
+            TimerTurns = get_gameturn();
         }
         snprintf(text, sizeof(text), "%08ld", TimerTurns);
     }
@@ -509,14 +511,14 @@ void draw_timer(void)
 
 void draw_gameturn_timer(void)
 {
-    int nturns = game.play_gameturn;
+    int nturns = get_gameturn();
     char text[32];
     {
         if (nturns < 0)
         {
             nturns = 0;
         }
-        snprintf(text, sizeof(text), "GameTurn %u", game.play_gameturn);
+        snprintf(text, sizeof(text), "GameTurn %u", get_gameturn());
     }
     LbTextSetFont(winfont);
     int textLength = strlen(text);
@@ -579,11 +581,6 @@ TbBool consolelog_enabled(void)
     return (debug_display_consolelog != 0);
 }
 
-TbBool network_stats_enabled(void)
-{
-    return (debug_display_network_stats != 0);
-}
-
 TbBool script_timer_enabled(void)
 {
   return ((game.flags_gui & GGUI_ScriptTimer) != 0);
@@ -597,7 +594,7 @@ TbBool gameturn_timer_enabled(void)
 void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    int nturns = (limit > 0) ? limit - (game.play_gameturn - dungeon->turn_timers[timer_id].count) : game.play_gameturn - dungeon->turn_timers[timer_id].count;
+    int nturns = (limit > 0) ? limit - (get_gameturn() - dungeon->turn_timers[timer_id].count) : get_gameturn() - dungeon->turn_timers[timer_id].count;
     if (nturns < 0)
     {
         game.flags_gui &= ~GGUI_ScriptTimer;
@@ -606,7 +603,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     char text[32];
     if (real)
     {
-        unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
+        unsigned long total_seconds = ((nturns) / turns_per_second) + 1;
         unsigned char seconds = total_seconds % 60;
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
@@ -870,7 +867,8 @@ void draw_frametime()
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
 }
 
-void draw_network_stats() {
+void draw_network_stats()
+{
     char text[128];
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
@@ -880,27 +878,46 @@ void draw_network_stats() {
 
     unsigned long ping = GetPing(my_player_number);
     unsigned long half_ping = ping / 2;
-    unsigned long variance = GetPingVariance(my_player_number);
-    unsigned int packet_loss = GetPacketLoss(my_player_number);
+    unsigned int packet_loss_percent = GetPacketLoss(my_player_number);
     unsigned int transit = GetClientDataInTransit();
-    unsigned int queue_size = GetIncomingPacketQueueSize();
-    unsigned int packets_lost = GetClientPacketsLost();
-    unsigned int outgoing_total_bytes = GetClientOutgoingDataTotal();
-    unsigned int incoming_total_bytes = GetClientIncomingDataTotal();
-    unsigned int outgoing_total_kb = outgoing_total_bytes / 1024;
-    unsigned int incoming_total_kb = incoming_total_bytes / 1024;
-    unsigned int reliable_commands = GetClientReliableCommandsInFlight();
+    unsigned int lost_packet_count = GetClientPacketsLost();
+    unsigned int outgoing_rate_kb10 = (GetUploadRateBytesPerSecond() * 10) / 1024;
+    unsigned int incoming_rate_kb10 = (GetDownloadRateBytesPerSecond() * 10) / 1024;
     int input_lag = game.input_lag_turns;
-    snprintf(text, sizeof(text), "Full ping: %lums | Half ping: %lums | Jitter: %lums", ping, half_ping, variance);
-    LbTextDrawResized(0, 0, tx_units_per_px, text);
     int input_lag_ms = input_lag * 50;
-    snprintf(text, sizeof(text), "Queue: %u | Reliable: %u | Input Lag: %d turns (%dms)", queue_size, reliable_commands, input_lag, input_lag_ms);
+    int64_t turn_length_ns = 0;
+    if (turns_per_second > 0) {
+        turn_length_ns = 1000000000 / turns_per_second;
+        turn_length_ns += multiplayer_speed_adjustment_ns;
+        if (turn_length_ns < 0) {
+            turn_length_ns = 0;
+        }
+    }
+
+    snprintf(text, sizeof(text), "Full ping: %lums", ping);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Half ping: %lums", half_ping);
     LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Transit: %u bytes | In: %u KB | Out: %u KB | Lost: %u | Loss: %u%%", transit, incoming_total_kb, outgoing_total_kb, packets_lost, packet_loss);
+    snprintf(text, sizeof(text), "Input lag: %d turns (%dms)",
+        input_lag, input_lag_ms);
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Slowdown: %d%% | Slowdown average: %d%% | Max slowdown: %d%%", slowdown_current, slowdown_average, slowdown_max);
+    snprintf(text, sizeof(text), "Download: %u.%u KB/s",
+        incoming_rate_kb10 / 10, incoming_rate_kb10 % 10);
     LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Current gameturn: %u", game.play_gameturn);
+    snprintf(text, sizeof(text), "Upload: %u.%u KB/s",
+        outgoing_rate_kb10 / 10, outgoing_rate_kb10 % 10);
     LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Congestion: %u bytes", transit);
+    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Loss rate: %u%%", packet_loss_percent);
+    LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Lost packets: %u", lost_packet_count);
+    LbTextDrawResized(0, tx_units_per_px * 7, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Micro stutters: %d%%", stutter_detection_average);
+    LbTextDrawResized(0, tx_units_per_px * 8, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
+    LbTextDrawResized(0, tx_units_per_px * 9, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    LbTextDrawResized(0, tx_units_per_px * 10, tx_units_per_px, text);
 }
 /******************************************************************************/

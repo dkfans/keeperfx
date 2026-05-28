@@ -3114,6 +3114,18 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
+        // Scanline OOB check — skip if any pixel would land outside the framebuffer
+        {
+            unsigned char *fb_start = poly_screen + vec_screen_width;
+            unsigned char *fb_end   = poly_screen + vec_screen_width * (vec_window_height + 1);
+            if (o < fb_start || o + point_y_a > fb_end)
+            {
+                ERRORLOG("[md10] scanline ptr %p..%p out of bounds (%p..%p)",
+                         o, o + point_y_a, fb_start, fb_end);
+                continue;
+            }
+        }
+
         // Per-pixel scanline loop
         for (; point_y_a > 0; point_y_a--, o++)
         {
@@ -4454,6 +4466,24 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
     opt_a = point_a;
     opt_b = point_b;
     opt_c = point_c;
+
+    // Reject triangles whose coords would overflow 16.16 fixed-point
+    {
+        long max_x = max(max(point_a->X, point_b->X), point_c->X);
+        long min_x = min(min(point_a->X, point_b->X), point_c->X);
+        long max_y = max(max(point_a->Y, point_b->Y), point_c->Y);
+        long min_y = min(min(point_a->Y, point_b->Y), point_c->Y);
+        if ((max_x - min_x > 32767) || (max_y - min_y > 32767) ||
+            (max_x > 32767) || (min_x < -32767) ||
+            (max_y > 32767) || (min_y < -32767))
+        {
+            SYNCDBG(8, "Triangle coords exceed 16.16 fixed-point range: "
+                    "X[%ld..%ld] Y[%ld..%ld], skipping",
+                    min_x, max_x, min_y, max_y);
+            return;
+        }
+    }
+
     start_type = trig_reorder_input_points(&opt_a, &opt_b, &opt_c);
 
     NOLOG("start type %d",(int)start_type);

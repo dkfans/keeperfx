@@ -81,6 +81,11 @@
 ---@field PLAYER_SCORE integer The highest level score reached, only set when the level is won. Before that it is 0
 ---@field MANAGE_SCORE integer Part of level score, based on quality of the dungeon
 ---@field heart Thing The player's primary dungeon heart
+---@field camera Camera The player's camera
+---@field type string The type of player (Human, Computer, Roaming, Neutral, Inactive)
+---@field max_creatures integer The maximum number of creatures the player can have from portals
+---@field colour string The colour of the player
+---@field player_name string The name of the player
 if not Player then Player = {} end
 
 

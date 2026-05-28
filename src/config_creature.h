@@ -210,6 +210,7 @@ struct CreatureStateConfig {
     TbBool override_fight_door;
     TbBool override_call2arms;
     TbBool override_follow;
+    TbBool override_deep_work;
     unsigned char state_type;
     TbBool captive;
     TbBool transition;

@@ -275,6 +275,19 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
         *unsc_h = 0;
         return;
     }
+    int32_t frames = kspr->FramesCount;
+    if (frames <= 0) {
+        *orig_w = 0;
+        *orig_h = 0;
+        *unsc_w = 0;
+        *unsc_h = 0;
+        return;
+    }
+    if (frame < 0) {
+        frame = 0;
+    } else if (frame >= frames) {
+        frame = frames - 1;
+    }
     if (((angle & ANGLE_MASK) <= DEGREES_202_5) || ((angle & ANGLE_MASK) >= DEGREES_337_5) )
         val_in_range = 0;
     else
@@ -361,7 +374,7 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
 short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
     short idx = get_creature_model_graphics(thing->model, seq_idx);
-    return convert_td_iso(idx);
+    return get_td_animation_sprite(idx);
 }
 
 void untint_thing(struct Thing *thing)
@@ -393,9 +406,9 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
     return false;
 }
 
-TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
+TbBool update_creature_animation_by_sprite(struct Thing *thing, long speed, long anim_idx)
 {
-    unsigned long i = convert_td_iso(td_idx);
+    unsigned long i = get_td_animation_sprite(anim_idx);
     // Only update when it's a different sprite, or a different animation speed.
     if ((i != thing->anim_sprite) || ((speed != thing->anim_speed) && (speed != -1)))
     {
@@ -458,7 +471,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-
+    struct InstanceInfo* inst_inf;
     if ((thing->size_change & TSC_ChangeSize) != 0)
     {
       thing->size_change &= ~TSC_ChangeSize;
@@ -469,19 +482,20 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     if (!creature_under_spell_effect(thing, CSAfF_Chicken))
     {
+        inst_inf = creature_instance_info_get(cctrl->instance_id);
         if (cctrl->instance_id != CrInst_NULL)
         {
           if (cctrl->instance_id == CrInst_TORTURED)
           {
               thing->rendering_flags &= ~(TRF_Transpar_Flags);
           }
-          struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
-          if (creature_under_spell_effect(thing, CSAfF_Freeze))
+          if (!creature_under_spell_effect(thing, CSAfF_Freeze))
           {
-               update_creature_anim(thing, 0, inst_inf->graphics_idx);
-          } else
+              update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
+          }
+          else
           {
-               update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
+              update_creature_anim(thing, 0, inst_inf->graphics_idx);
           }
         } else
         if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_under_spell_effect(thing, CSAfF_Freeze))
@@ -544,19 +558,19 @@ void update_creature_graphic_anim(struct Thing *thing)
         thing->rendering_flags &= ~(TRF_Transpar_Flags);
         if (cctrl->distance_to_destination == 0)
         {
-            update_creature_anim_td(thing, 256, 820);
+            update_creature_animation_by_sprite(thing, 256, 820);
         } else
         if (thing->floor_height < thing->mappos.z.val)
         {
-            update_creature_anim_td(thing, 256, 820);
+            update_creature_animation_by_sprite(thing, 256, 820);
         } else
         if (crconf->fixed_anim_speed)
         {
-            update_creature_anim_td(thing, 256, 819);
+            update_creature_animation_by_sprite(thing, 256, 819);
         } else
         {
             i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed+1);
-            if (!update_creature_anim_td(thing, i, 819))
+            if (!update_creature_animation_by_sprite(thing, i, 819))
             {
                 thing->anim_speed = i;
             }
@@ -576,7 +590,7 @@ void update_creature_graphic_tint(struct Thing *thing)
     {
         untint_thing(thing);
     } else
-    if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
+    if (((get_gameturn() % 3) == 0) || is_hero_thing(thing))
     {
         untint_thing(thing);
     } else

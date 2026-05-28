@@ -62,6 +62,8 @@ static void toml_free(VALUE *val)
 static char *STRNDUP(const char *s, size_t n)
 {
     size_t len = strnlen(s, n);
+    if (len == (size_t)-1)
+        return NULL;
     char *p = MALLOC(len + 1);
     if (p)
     {

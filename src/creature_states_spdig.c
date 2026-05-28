@@ -49,6 +49,7 @@
 #include "map_utils.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
+#include "tasks_list.h"
 #include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -1000,7 +1001,7 @@ short imp_birth(struct Thing *thing)
         }
         return 1;
     }
-    long i = game.play_gameturn - thing->creation_turn;
+    long i = get_gameturn() - thing->creation_turn;
     if ((i % 2) == 0) {
       create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
     }
@@ -1101,7 +1102,13 @@ short imp_digs_mines(struct Thing *spdigtng)
         cctrl->exp_points += digger_work_experience(spdigtng);
         check_experience_upgrade(spdigtng);
     }
-    struct MapTask* mtask = get_task_list_entry(spdigtng->owner, cctrl->digger.task_idx);
+    int32_t task_idx = find_dig_from_task_list(spdigtng->owner, cctrl->digger.task_stl);
+    if (task_idx < 0) {
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+        return 1;
+    }
+    struct MapTask* mtask = get_task_list_entry(spdigtng->owner, task_idx);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.task_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -1150,13 +1157,13 @@ short imp_digs_mines(struct Thing *spdigtng)
         // If the creature holds more gold than its able
         if (spdigtng->creature.gold_carried > crconf->gold_hold)
         {
-            if (game.play_gameturn - cctrl->tasks_check_turn > 128)
+            if (get_gameturn() - cctrl->tasks_check_turn > 128)
             {
                 if (check_out_imp_has_money_for_treasure_room(spdigtng)) {
                     // Note - do not increase cctrl->digger.task_repeats here; the task is to mine, not to return gold.
                     return 1;
                 }
-                cctrl->tasks_check_turn = game.play_gameturn;
+                cctrl->tasks_check_turn = get_gameturn();
             }
             drop_gold_pile(spdigtng->creature.gold_carried - crconf->gold_hold, &spdigtng->mappos);
             spdigtng->creature.gold_carried = crconf->gold_hold;
@@ -1178,13 +1185,13 @@ short imp_doing_nothing(struct Thing *spdigtng)
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (game.play_gameturn-cctrl->idle.start_gameturn <= 1) {
+    if (get_gameturn()-cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
     if (check_out_imp_last_did(spdigtng)) {
         return 1;
     }
-    cctrl->healing_sleep_check_turn = game.play_gameturn; //imp is now free to check if he needs healing, since there is no assigned job to do.
+    cctrl->healing_sleep_check_turn = get_gameturn(); //imp is now free to check if he needs healing, since there is no assigned job to do.
     if (check_out_available_imp_tasks(spdigtng)) {
         return 1;
     }

@@ -127,7 +127,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->rendering_flags |= TRF_Invisible;
     doortng->door.orientation = orient;
     doortng->active_state = DorSt_Closed;
-    doortng->creation_turn = game.play_gameturn;
+    doortng->creation_turn = get_gameturn();
     doortng->health = doorst->health;
     doortng->door.is_locked = is_locked;
     if (doorst->model_flags & DoMF_Thick)
@@ -219,7 +219,7 @@ TbBool add_key_on_door(struct Thing *thing)
 void unlock_door(struct Thing *thing)
 {
     thing->door.is_locked = false;
-    game.map_changed_for_nagivation = 1;
+    game.map_changed_for_navigation = 1;
     update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
       thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);
     panel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, STL_PER_SLB, STL_PER_SLB);
@@ -236,7 +236,7 @@ void lock_door(struct Thing *doortng)
     doortng->active_state = DorSt_Closed;
     doortng->door.closing_counter = 0;
     doortng->door.is_locked = 1;
-    game.map_changed_for_nagivation = 1;
+    game.map_changed_for_navigation = 1;
     place_animating_slab_type_on_map(doorst->slbkind[doortng->door.orientation], 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
     panel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
@@ -831,5 +831,30 @@ void script_place_door(PlayerNumber plyridx, ThingModel doorkind, MapSlabCoord s
             }
         }
     }
+}
+
+void update_navigation_around_all_doors()
+{
+    const struct StructureList *slist = get_list_for_thing_class(TCls_Door);
+    ThingIndex i = slist->index;
+    int16_t k = 0;
+    while (i > 0)
+    {
+        struct Thing *doortng = thing_get(i);
+        if (thing_is_invalid(doortng))
+        {
+            break;
+        }
+        MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
+        MapSubtlCoord stl_y = doortng->mappos.y.stl.num;
+        update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
+        i = doortng->next_of_class;
+        k++;
+        if (k > slist->count){
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    game.map_changed_for_navigation = 1;
 }
 /******************************************************************************/

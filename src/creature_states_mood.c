@@ -73,10 +73,10 @@ short creature_moan(struct Thing *thing)
         }
         return 0;
     }
-    if (game.play_gameturn - cctrl->mood.last_mood_sound_turn > 32)
+    if (get_gameturn() - cctrl->mood.last_mood_sound_turn > 32)
     {
         play_creature_sound(thing, CrSnd_Sad, 2, 0);
-        cctrl->mood.last_mood_sound_turn = game.play_gameturn;
+        cctrl->mood.last_mood_sound_turn = get_gameturn();
     }
     if (cctrl->instance_id == CrInst_NULL) {
         set_creature_instance(thing, CrInst_MOAN, 0, 0);
@@ -93,14 +93,14 @@ short creature_roar(struct Thing *thing)
     }
     if (cctrl->countdown <= 0)
     {
-        cctrl->last_roar_turn = game.play_gameturn;
+        cctrl->last_roar_turn = get_gameturn();
         set_start_state(thing);
         return 0;
     }
-    if (game.play_gameturn - cctrl->mood.last_mood_sound_turn > 32)
+    if (get_gameturn() - cctrl->mood.last_mood_sound_turn > 32)
     {
         play_creature_sound(thing, CrSnd_Sad, 2, 0);
-        cctrl->mood.last_mood_sound_turn = game.play_gameturn;
+        cctrl->mood.last_mood_sound_turn = get_gameturn();
     }
     return 1;
 }
@@ -118,10 +118,10 @@ short creature_be_happy(struct Thing *thing)
       }
       return 0;
     }
-    if (game.play_gameturn - cctrl->mood.last_mood_sound_turn > 32)
+    if (get_gameturn() - cctrl->mood.last_mood_sound_turn > 32)
     {
         play_creature_sound(thing, CrSnd_Happy, 2, 0);
-        cctrl->mood.last_mood_sound_turn = game.play_gameturn;
+        cctrl->mood.last_mood_sound_turn = get_gameturn();
     }
     if (cctrl->instance_id == CrInst_NULL) {
         set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 0, 0);
@@ -145,7 +145,7 @@ short creature_piss(struct Thing *thing)
     if (i > 0) {
         return 1;
     }
-    cctrl->last_piss_turn = game.play_gameturn;
+    cctrl->last_piss_turn = get_gameturn();
     set_start_state(thing);
     return 0;
 }
@@ -173,7 +173,7 @@ short mad_killing_psycho(struct Thing *creatng)
       return 1;
     if (setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
     {
-        if (game.play_gameturn - cctrl->last_roar_turn <= 200)
+        if (get_gameturn() - cctrl->last_roar_turn <= 200)
         {
             creatng->continue_state = CrSt_MadKillingPsycho;
         } else
@@ -183,7 +183,7 @@ short mad_killing_psycho(struct Thing *creatng)
         }
     } else
     {
-        if (game.play_gameturn - cctrl->last_roar_turn > 200)
+        if (get_gameturn() - cctrl->last_roar_turn > 200)
         {
             cctrl->countdown = 50;
             internal_set_thing_state(creatng, CrSt_CreatureRoar);
@@ -569,7 +569,7 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng)
     }
     // Process the stress once per 20 turns
     //TODO CONFIG export amount of turns to config file
-    if (((game.play_gameturn + creatng->index) % 20) != 0) {
+    if (((get_gameturn() + creatng->index) % 20) != 0) {
         return false;
     }
     struct Room* room = get_room_creature_works_in(creatng);

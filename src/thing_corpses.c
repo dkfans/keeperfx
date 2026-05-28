@@ -254,14 +254,14 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 }
             } else
             {
-                if (game.play_gameturn - thing->creation_turn > game.conf.rules[thing->owner].creature.body_remains_for) {
+                if (get_gameturn() - thing->creation_turn > game.conf.rules[thing->owner].creature.body_remains_for) {
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
             }
         } else
         {
-            corpse_age = game.play_gameturn - thing->creation_turn;
+            corpse_age = get_gameturn() - thing->creation_turn;
             #define VANISH_EFFECT_DELAY 60
             if (((corpse_age > game.conf.rules[thing->owner].creature.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
                 && !(is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing)))
@@ -287,7 +287,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     if (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
         delete_thing_structure(thing, 0);
-        create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->corpse.exp_level);
+        create_dead_creature(&thing->mappos, thing->model, DCrSt_Dead, thing->owner, thing->corpse.exp_level);
         return TUFRet_Deleted;
     }
     return move_dead_creature(thing);;
@@ -454,7 +454,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->inertia_air = 51;
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_ZeroVerticalVelocity;
-    thing->creation_turn = game.play_gameturn;
+    thing->creation_turn = get_gameturn();
     struct CreatureModelConfig* crconf = creature_stats_get(model);
     if (crconf->transparency_flags != 0)
     {
@@ -470,6 +470,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         k = get_creature_anim(thing, CGI_DeadSplat);
         set_thing_draw(thing, k, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
         break;
+    case DCrSt_Dying:
     default:
         thing->active_state = DCrSt_Dying;
         k = get_creature_anim(thing, CGI_Scream);
@@ -478,6 +479,10 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
 
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
+    case DCrSt_LongDead:
+        thing->active_state = DCrSt_Dead;
+        long i = get_creature_anim(thing, CGI_DropDead);
+        set_thing_draw(thing, i, 64, -1, 1, get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed), ODC_Default);
     }
     thing->sprite_size = (game.conf.crtr_conf.sprite_size * (long)thing->corpse.exp_level) / 20 + game.conf.crtr_conf.sprite_size;
     return thing;

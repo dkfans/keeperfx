@@ -30,6 +30,7 @@
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "creature_states_prisn.h"
+#include "creature_states_mood.h"
 #include "game_legacy.h"
 #include "gui_soundmsgs.h"
 #include "lua_triggers.h"
@@ -76,19 +77,24 @@ TbBool hunger_is_creature_hungry(const struct Thing *creatng)
     return ((crconf->hunger_rate != 0) && (cctrl->hunger_level > crconf->hunger_rate));
 }
 
+/*
+ * Creatures actively feeding in the Hatchery
+ */
 void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room)
 {
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    long old_hunger_level = cctrl->hunger_level;
     thing_play_sample(creatng, snd_chicken_cluck + SOUND_RANDOM(snd_chicken_cluck_count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
     creatng->continue_state = CrSt_CreatureToGarden;
     {
-        // TODO ANGER Maybe better either zero the hunger anger or apply annoy_eat_food points, based on the annoy_eat_food value?
-        /*struct CreatureModelConfig *crconf;
-        crconf = creature_stats_get_from_thing(creatng);
-        anger_apply_anger_to_creature(creatng, crconf->annoy_eat_food, AngR_Other, 1);*/
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        anger_apply_anger_to_creature(creatng, -cctrl->annoyance_level[AngR_Hungry], AngR_Hungry, 1);
+        anger_set_creature_anger(creatng, 0, AngR_Hungry);
+        struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
+        if (crconf->annoy_eat_food > 0 || old_hunger_level > (long)crconf->hunger_rate) {
+            // As food(It means <0), happiness can only be obtained when a creature is hungry. But for those who dislike it(It means >0), every time is torture.
+            anger_apply_anger_to_creature(creatng, crconf->annoy_eat_food, AngR_Other, 1);
+        }
     }
     if (thing_is_creature(foodtng))
     {
