@@ -255,13 +255,15 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     creature_sound_overrides_.push_back(override);
     
     // Modify the creature configuration to use custom sound(s)
-    // Negative index indicates custom bank: -1 = sample 0, -2 = sample 1, etc.
-    target_sound->index = -(it->second.sample_id + 1);  // Negative = custom bank
+    // Negative index encodes custom bank INDEX only: -1 = bank index 0, -2 = bank index 1, etc.
+    // it->second.sample_id is the unified ID (custom_offset + bank_index), so strip custom_offset first.
+    SoundSmplTblID bank_index = it->second.sample_id - get_custom_offset();
+    target_sound->index = -(bank_index + 1);
     target_sound->count = count;  // Set count for multiple sounds
     
-    SYNCLOG("Set creature sound: %s.%s -> '%s' (custom bank index %d, count %d)",
+    SYNCLOG("Set creature sound: %s.%s -> '%s' (unified id %d, bank index %d, stored index %d, count %d)",
            creature_model.c_str(), sound_type.c_str(), custom_sound_name.c_str(),
-           it->second.sample_id, count);
+           (int)it->second.sample_id, (int)bank_index, (int)target_sound->index, count);
     
     return true;
 }
