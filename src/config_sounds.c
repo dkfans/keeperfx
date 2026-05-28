@@ -26,6 +26,7 @@
 #include "gui_soundmsgs.h"
 #include "globals.h"
 #include "game_legacy.h"
+#include <ctype.h>
 
 #include "post_inc.h"
 
@@ -103,7 +104,6 @@ SoundSmplTblID snd_tunnel_dig      = 69;   // creature_spells/dig6.wav
 int            snd_tunnel_dig_count = 3;
 
 /* UI */
-SoundSmplTblID snd_button_click    = 60;   // spit.wav
 SoundSmplTblID snd_button_click2   = 61;   // gui/button1.wav
 SoundSmplTblID snd_buzzer          = 89;   // coindrop.wav
 SoundSmplTblID snd_tab_fall        = 947;  // null.wav
@@ -350,6 +350,10 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
     {
         return false;  // Empty line or comment
     }
+
+    // Normalize to uppercase so config names are case-insensitive
+    for (int i = 0; name_buf[i] != '\0'; i++)
+        name_buf[i] = (char)toupper((unsigned char)name_buf[i]);
     
     // Skip if it's a section header or comment
     if (name_buf[0] == '[' || name_buf[0] == ';' || name_buf[0] == '#')
@@ -510,7 +514,7 @@ static TbBool parse_sounds_section(char* buf, long len, const char* config_textn
  */
 static TbBool load_sounds_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0, "%s file \"%s\".", ((flags & CnfLd_ListOnly) == 0) ? "Reading" : "Parsing", fname);
+    WARNLOG("load_sounds_config_file: attempting \"%s\"", fname);
     
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
@@ -539,7 +543,7 @@ static TbBool load_sounds_config_file(const char *fname, unsigned short flags)
     TbBool result = true;
     
     // Parse known sections
-    const char* sections[] = {"common", "ui", "creatures", "powers", "effects", "doors", NULL};
+    const char* sections[] = {"common", "ui", "traps", "creatures", "powers", "effects", "doors", NULL};
     
     for (int i = 0; sections[i] != NULL; i++)
     {
@@ -568,21 +572,23 @@ TbBool load_campaign_sounds_config(const char* levels_location)
 {
     if (levels_location == NULL || levels_location[0] == '\0')
     {
+        WARNLOG("load_campaign_sounds_config: no location provided");
         return false;
     }
 
-    // levels_location is like "campgns/ami2019" — look for sounds.cfg in it
     char filepath[512];
     snprintf(filepath, sizeof(filepath), "%s/sounds.cfg", levels_location);
 
     const char* fullpath = prepare_file_path(FGrp_Main, filepath);
+    WARNLOG("load_campaign_sounds_config: dir='%s' -> full='%s'", levels_location, fullpath ? fullpath : "(null)");
     if (fullpath == NULL)
     {
         return false;
     }
 
-    // Optional — campaigns don't need to supply sounds
-    return load_sounds_config_file(fullpath, CnfLd_Standard | CnfLd_IgnoreErrors);
+    TbBool result = load_sounds_config_file(fullpath, CnfLd_Standard | CnfLd_IgnoreErrors);
+    cache_common_sound_ids();
+    return result;
 }
 
 TbBool load_mod_sounds_config(const char* mod_name)
@@ -601,7 +607,9 @@ TbBool load_mod_sounds_config(const char* mod_name)
         return false;
     }
 
-    return load_sounds_config_file(fullpath, CnfLd_Standard | CnfLd_IgnoreErrors);
+    TbBool result = load_sounds_config_file(fullpath, CnfLd_Standard | CnfLd_IgnoreErrors);
+    cache_common_sound_ids();
+    return result;
 }
 
 TbBool load_level_sounds_config(const char* level_name)
@@ -620,8 +628,9 @@ TbBool load_level_sounds_config(const char* level_name)
         return false;
     }
     
-    // Load with IgnoreErrors since level sounds are optional
-    return load_sounds_config_file(fullpath, CnfLd_Standard | CnfLd_IgnoreErrors);
+    TbBool result = load_sounds_config_file(fullpath, CnfLd_Standard | CnfLd_IgnoreErrors);
+    cache_common_sound_ids();
+    return result;
 }
 
 SoundSmplTblID get_sound_id(const char* name)
@@ -639,7 +648,7 @@ TbBool cache_common_sound_ids(void)
     SoundSmplTblID id;
     int count;
 
-    #define CACHE_SND(var, name)           id = sound_manager_get_id(name); if (id > 0) { var = id; }
+    #define CACHE_SND(var, name)           id = sound_manager_get_id(name); if (id > 0) { WARNLOG("cache_common_sound_ids: %s -> %d (was %d)", name, id, var); var = id; }
     #define CACHE_SND_COUNT(var, cvar, nm) id = sound_manager_get_id(nm);   if (id > 0) { var = id; count = sound_manager_get_count(nm); if (count > 0) cvar = count; }
 
     CACHE_SND(snd_refusal,         "REFUSAL")

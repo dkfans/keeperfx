@@ -1187,9 +1187,15 @@ TbBool change_campaign(const char *cmpgn_fname)
     update_trap_tab_to_config();
     update_powers_tab_to_config();
     // Load campaign-specific and mod sound overrides (optional; errors are ignored)
+    // Prefer CONFIGS_LOCATION for sounds.cfg (it's a config), fall back to LEVELS_LOCATION.
     if (result)
     {
-        load_campaign_sounds_config(campaign.levels_location);
+        const char* sounds_dir = (campaign.configs_location[0] != '\0')
+            ? campaign.configs_location
+            : campaign.levels_location;
+        WARNLOG("Campaign sounds: configs_location='%s' levels_location='%s' -> using='%s'",
+            campaign.configs_location, campaign.levels_location, sounds_dir);
+        load_campaign_sounds_config(sounds_dir);
         for (int i = 0; i < mods_conf.after_base_cnt; i++)
             load_mod_sounds_config(mods_conf.after_base_item[i].name);
         for (int i = 0; i < mods_conf.after_campaign_cnt; i++)

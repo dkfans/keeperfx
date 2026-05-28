@@ -69,7 +69,7 @@ void do_sound_menu_click(void)
 void do_sound_button_click(struct GuiButton *gbtn)
 {
     if (gbtn->gbtype == LbBtnT_RadioBtn)
-        play_non_3d_sample(snd_button_click);
+        play_non_3d_sample(snd_tab_click);
     else
         play_non_3d_sample(snd_button_click2);
 }

@@ -57,6 +57,7 @@ const struct TbBirthday team_birthdays[] = {
     { 1,12,"Dene Carter"},
     {25, 5,"Tomasz Lis"},
     {29,11,"Michael Chateauneuf"},
+    {23,4, "Peter Lockett"},
     {0,0,NULL},
     };
 
@@ -150,7 +151,7 @@ void input_eastegg(void)
     short allow = (lbKeyOn[KC_LSHIFT] != 0);
     unsigned short state = input_eastegg_keycodes(&game.eastegg01_cntr, allow, &eastegg_feckoff_codes);
     if ((state == 2) || (state == 3)) {
-      play_non_3d_sample(snd_button_click);
+      play_non_3d_sample(snd_tab_click);
     }
     // Maintain the JLW cheat
     if (game.easter_eggs_enabled == true)

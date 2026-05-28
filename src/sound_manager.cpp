@@ -32,47 +32,50 @@ SoundManager::SoundManager()
     , total_plays_(0)
     , total_custom_sounds_(0)
 {
-    printf("[SoundManager] Constructor called\n");
+    SYNCLOG("Constructor called");
 }
 
 // Destructor
 SoundManager::~SoundManager() {
-    printf("[SoundManager] Destructor called - played %d sounds total\n", total_plays_);
+    SYNCLOG("Destructor called - played %d sounds total", total_plays_);
 }
 
 // Initialize
 bool SoundManager::initialize() {
     if (initialized_) {
-        printf("[SoundManager] Already initialized\n");
         return true;
     }
-    
-    printf("[SoundManager] Initializing...\n");
-    
-    // Call existing init function
+
+    // If init_sound() was already called (e.g. from main()), adopt that state
+    // rather than calling it again — a second call would try to re-open the
+    // audio device and corrupt the SDL_mixer / OpenAL state.
+    if (GetSoundInstalled()) {
+        initialized_ = true;
+        return true;
+    }
+
     if (!init_sound()) {
-        printf("[SoundManager] Failed to initialize sound system\n");
+        WARNLOG("SoundManager: failed to initialize sound system");
         return false;
     }
-    
+
     initialized_ = true;
-    printf("[SoundManager] Initialized successfully\n");
     return true;
 }
 
 // Play sound effect
 SoundEmitterID SoundManager::playEffect(SoundSmplTblID sample_id, long priority, SoundVolume volume) {
     if (!initialized_) {
-        printf("[SoundManager] Not initialized, cannot play sound %d\n", sample_id);
+        SYNCLOG("Not initialized, cannot play sound %d", sample_id);
         return 0;
     }
     
     if (SoundDisabled) {
-        printf("[SoundManager] Sound disabled, skipping sample %d\n", sample_id);
+        SYNCLOG("Sound disabled, skipping sample %d", sample_id);
         return 0;
     }
     
-    printf("[SoundManager] Playing effect: sample=%d, priority=%ld, volume=%ld\n", 
+    SYNCLOG("Playing effect: sample=%d, priority=%ld, volume=%ld",
            sample_id, priority, volume);
     
     total_plays_++;
@@ -85,12 +88,12 @@ SoundEmitterID SoundManager::playEffect(SoundSmplTblID sample_id, long priority,
 // Play creature sound
 void SoundManager::playCreatureSound(struct Thing* thing, long sound_type, long priority) {
     if (!initialized_ || thing_is_invalid(thing)) {
-        printf("[SoundManager] Cannot play creature sound (initialized=%d, thing_valid=%d)\n",
+        SYNCLOG("Cannot play creature sound (initialized=%d, thing_valid=%d)",
                initialized_, !thing_is_invalid(thing));
         return;
     }
     
-    printf("[SoundManager] Playing creature sound: thing_idx=%d, type=%ld, priority=%ld\n",
+    SYNCLOG("Playing creature sound: thing_idx=%d, type=%ld, priority=%ld",
            thing->index, sound_type, priority);
     
     total_plays_++;
@@ -105,7 +108,7 @@ void SoundManager::stopEffect(SoundEmitterID emitter_id) {
         return;
     }
     
-    printf("[SoundManager] Stopping sound: emitter_id=%ld\n", emitter_id);
+    SYNCLOG("Stopping sound: emitter_id=%ld", emitter_id);
     
     S3DDestroySoundEmitterAndSamples(emitter_id);
 }
@@ -117,7 +120,7 @@ bool SoundManager::isEffectPlaying(SoundEmitterID emitter_id) const {
     }
     
     bool playing = S3DEmitterIsPlayingAnySample(emitter_id);
-    printf("[SoundManager] Checking if playing: emitter_id=%ld, playing=%d\n", 
+    SYNCLOG("Checking if playing: emitter_id=%ld, playing=%d",
            emitter_id, playing);
     return playing;
 }
@@ -125,11 +128,11 @@ bool SoundManager::isEffectPlaying(SoundEmitterID emitter_id) const {
 // Play music
 bool SoundManager::playMusic(int track_number) {
     if (!initialized_) {
-        printf("[SoundManager] Not initialized, cannot play music\n");
+        SYNCLOG("Not initialized, cannot play music");
         return false;
     }
     
-    printf("[SoundManager] Playing music track %d\n", track_number);
+    SYNCLOG("Playing music track %d", track_number);
     
     if (track_number == 0) {
         stopMusic();
@@ -141,7 +144,7 @@ bool SoundManager::playMusic(int track_number) {
 
 // Stop music
 void SoundManager::stopMusic() {
-    printf("[SoundManager] Stopping music\n");
+    SYNCLOG("Stopping music");
     stop_music();
 }
 
@@ -150,7 +153,7 @@ SoundSmplTblID SoundManager::loadCustomSound(const std::string& name, const std:
     // Check if already loaded
     auto it = custom_sounds_.find(name);
     if (it != custom_sounds_.end() && it->second.loaded) {
-        printf("[SoundManager] Custom sound '%s' already loaded as bank index %d\n",
+        SYNCLOG("Custom sound '%s' already loaded as bank index %d",
                name.c_str(), it->second.sample_id);
         return it->second.sample_id;
     }
@@ -160,21 +163,21 @@ SoundSmplTblID SoundManager::loadCustomSound(const std::string& name, const std:
     
     // Try to load the WAV file (this adds it to g_custom_bank)
     if (!loadWavFile(filepath, bank_index)) {
-        printf("[SoundManager] Failed to load custom sound '%s' from %s\n",
+        SYNCLOG("Failed to load custom sound '%s' from %s",
                name.c_str(), filepath.c_str());
         return -1;  // Return -1 on error (0 is a valid bank index)
     }
     
-    // Register in map
+    // Register in map — store the full unified ID so the "already loaded" path returns it correctly
     CustomSoundEntry entry;
     entry.filepath = filepath;
-    entry.sample_id = bank_index;  // Index in g_custom_bank
+    entry.sample_id = get_custom_offset() + bank_index;
     entry.loaded = true;
     custom_sounds_[name] = entry;
     
     total_custom_sounds_++;
     
-    printf("[SoundManager] Loaded custom sound '%s' as bank index %d (filepath: %s)\n",
+    SYNCLOG("Loaded custom sound '%s' as bank index %d (filepath: %s)",
            name.c_str(), bank_index, filepath.c_str());
     
     return get_custom_offset() + bank_index;
@@ -189,11 +192,11 @@ bool SoundManager::loadWavFile(const std::string& filepath, SoundSmplTblID sampl
     // Try to load WAV file (no LbFileExists check - prepare_file_path already resolved it)
     // Use bridge function to load WAV
     if (!custom_sound_load_wav(full_path, sample_id)) {
-        printf("[SoundManager] Failed to load WAV: %s\n", full_path);
+        SYNCLOG("Failed to load WAV: %s", full_path);
         return false;
     }
     
-    printf("[SoundManager] Successfully loaded WAV file: %s (sample %d, bank index %d)\n", 
+    SYNCLOG("Successfully loaded WAV file: %s (sample %d, bank index %d)",
            full_path, sample_id, custom_sound_bank_size() - 1);
     return true;
 }
@@ -210,7 +213,7 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     // Check if custom sound exists
     auto it = custom_sounds_.find(custom_sound_name);
     if (it == custom_sounds_.end() || !it->second.loaded) {
-        printf("[SoundManager] Cannot set creature sound: custom sound '%s' not found or not loaded\n",
+        SYNCLOG("Cannot set creature sound: custom sound '%s' not found or not loaded",
                custom_sound_name.c_str());
         return false;
     }
@@ -218,7 +221,7 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     // Get creature model ID
     long crmodel = get_rid(creature_desc, creature_model.c_str());
     if (crmodel < 0 || crmodel >= game.conf.crtr_conf.model_count) {
-        printf("[SoundManager] Invalid creature model: %s\n", creature_model.c_str());
+        SYNCLOG("Invalid creature model: %s", creature_model.c_str());
         return false;
     }
     
@@ -240,7 +243,7 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     else if (sound_type == "Fight") target_sound = &sounds->fight;
     else if (sound_type == "Piss") target_sound = &sounds->piss;
     else {
-        printf("[SoundManager] Invalid sound type: %s\n", sound_type.c_str());
+        SYNCLOG("Invalid sound type: %s", sound_type.c_str());
         return false;
     }
     
@@ -256,7 +259,7 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     target_sound->index = -(it->second.sample_id + 1);  // Negative = custom bank
     target_sound->count = count;  // Set count for multiple sounds
     
-    printf("[SoundManager] Set creature sound: %s.%s -> '%s' (custom bank index %d, count %d)\n",
+    SYNCLOG("Set creature sound: %s.%s -> '%s' (custom bank index %d, count %d)",
            creature_model.c_str(), sound_type.c_str(), custom_sound_name.c_str(),
            it->second.sample_id, count);
     
@@ -277,11 +280,11 @@ size_t SoundManager::getTotalCustomSounds() const {
 SoundSmplTblID SoundManager::getCustomSoundId(const std::string& name) const {
     auto it = custom_sounds_.find(name);
     if (it == custom_sounds_.end()) {
-        printf("[SoundManager] Custom sound '%s' not found\n", name.c_str());
+        SYNCLOG("Custom sound '%s' not found", name.c_str());
         return 0;
     }
     
-    printf("[SoundManager] Found custom sound '%s' as sample %d\n",
+    SYNCLOG("Found custom sound '%s' as sample %d",
            name.c_str(), it->second.sample_id);
     return it->second.sample_id;
 }
@@ -296,31 +299,29 @@ SoundSmplTblID SoundManager::getSoundId(const char* name) const {
     
     std::string name_str(name);
     
-    // First check the built-in sound registry
+    // Custom sounds take priority — they are campaign/mod/level overrides.
+    auto cit = custom_sounds_.find(name_str);
+    if (cit != custom_sounds_.end() && cit->second.loaded) {
+        return cit->second.sample_id;
+    }
+
+    // Fall back to built-in sound registry (numeric IDs from fxdata/sounds.cfg etc.)
     auto it = sound_registry_.find(name_str);
     if (it != sound_registry_.end()) {
         SoundSmplTblID id = it->second.sample_id;
-        // If count > 1, pick a random sample from consecutive IDs
         if (it->second.count > 1) {
             id = it->second.sample_id + (UNSYNC_RANDOM(it->second.count));
         }
         return id;
     }
     
-    // Fall back to custom sounds
-    auto cit = custom_sounds_.find(name_str);
-    if (cit != custom_sounds_.end() && cit->second.loaded) {
-        return cit->second.sample_id;
-    }
-    
-    printf("[SoundManager] Sound '%s' not found in registry\n", name);
     return 0;
 }
 
 // Register a sound name → ID mapping
 bool SoundManager::registerSound(const char* name, SoundSmplTblID id, int count) {
     if (name == nullptr || name[0] == '\0') {
-        printf("[SoundManager] Cannot register sound with empty name\n");
+        SYNCLOG("Cannot register sound with empty name");
         return false;
     }
     
@@ -332,7 +333,7 @@ bool SoundManager::registerSound(const char* name, SoundSmplTblID id, int count)
     
     sound_registry_[name_str] = entry;
     
-    printf("[SoundManager] Registered sound '%s' -> ID %d (count %d)\n",
+    SYNCLOG("Registered sound '%s' -> ID %d (count %d)",
            name, id, entry.count);
     return true;
 }
@@ -380,7 +381,7 @@ int SoundManager::getSoundCount(const char* name) const {
 SoundEmitterID SoundManager::playEffectNamed(const char* name, long priority, SoundVolume volume) {
     SoundSmplTblID id = getSoundId(name);
     if (id == 0) {
-        printf("[SoundManager] Cannot play unknown sound '%s'\n", name);
+        SYNCLOG("Cannot play unknown sound '%s'", name);
         return 0;
     }
     
@@ -389,17 +390,17 @@ SoundEmitterID SoundManager::playEffectNamed(const char* name, long priority, So
 
 // Print statistics
 void SoundManager::printStats() const {
-    printf("\n=== SoundManager Statistics ===\n");
-    printf("Initialized: %s\n", initialized_ ? "YES" : "NO");
-    printf("Total sounds played: %d\n", total_plays_);
-    printf("Named sounds registered: %zu\n", sound_registry_.size());
-    printf("Custom sounds loaded: %zu\n", total_custom_sounds_);
-    printf("Next custom sample ID: %d\n", next_custom_sample_id_);
+    SYNCLOG("=== SoundManager Statistics ===");
+    SYNCLOG("Initialized: %s", initialized_ ? "YES" : "NO");
+    SYNCLOG("Total sounds played: %d", total_plays_);
+    SYNCLOG("Named sounds registered: %u", (unsigned)sound_registry_.size());
+    SYNCLOG("Custom sounds loaded: %u", (unsigned)total_custom_sounds_);
+    SYNCLOG("Next custom sample ID: %d", next_custom_sample_id_);
     
     if (!sound_registry_.empty()) {
-        printf("\nNamed sound registry:\n");
+        SYNCLOG("Named sound registry:");
         for (const auto& pair : sound_registry_) {
-            printf("  - '%s' -> ID %d (count %d)\n",
+            SYNCLOG("  - '%s' -> ID %d (count %d)",
                    pair.first.c_str(),
                    pair.second.sample_id,
                    pair.second.count);
@@ -407,9 +408,9 @@ void SoundManager::printStats() const {
     }
     
     if (!custom_sounds_.empty()) {
-        printf("\nCustom sounds:\n");
+        SYNCLOG("Custom sounds:");
         for (const auto& pair : custom_sounds_) {
-            printf("  - '%s' -> sample %d (path: %s) [%s]\n",
+            SYNCLOG("  - '%s' -> sample %d (path: %s) [%s]",
                    pair.first.c_str(),
                    pair.second.sample_id,
                    pair.second.filepath.c_str(),
@@ -418,15 +419,15 @@ void SoundManager::printStats() const {
     }
     
     if (!creature_sound_overrides_.empty()) {
-        printf("\nCreature sound overrides:\n");
+        SYNCLOG("Creature sound overrides:");
         for (const auto& override : creature_sound_overrides_) {
-            printf("  - %s.%s -> '%s'\n",
+            SYNCLOG("  - %s.%s -> '%s'",
                    override.creature_model.c_str(),
                    override.sound_type.c_str(),
                    override.custom_sound_name.c_str());
         }
     }
-    printf("=====================================\n\n");
+    SYNCLOG("=====================================");
 }
 
 // Forward declaration for C function in bflib_sndlib.cpp
@@ -554,19 +555,22 @@ static bool resolve_creature_sound_path(const char* path_in, char* out_path, siz
 
 // Resolve a sound file path specified in sounds.cfg (or any other non-creature cfg).
 // Search order:
-//   1. FGrp_FxData/<path>   (base game fxdata/)
-//   2. FGrp_CmpgConfig/<path> (campaign config folder)
-//   3. FGrp_Main/<path>     (game root directory)
+//   1. FGrp_FxData/<path>      (base game fxdata/)
+//   3. FGrp_CmpgMedia/<path>   (campaign MEDIA_LOCATION)
+//   4. FGrp_Main/<path>        (game root directory)
 // If the path has no extension, each location is tried with .wav, .mp3, .ogg, .flac.
 // Returns true and fills out_path (size 2048) on success.
 static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, size_t out_size)
 {
-    static const TbFileGroups groups[] = { FGrp_FxData, FGrp_CmpgConfig, FGrp_Main };
+    static const TbFileGroups groups[] = { FGrp_FxData, FGrp_CmpgMedia, FGrp_Main };
+    static const char* group_names[]   = { "FGrp_FxData", "FGrp_CmpgMedia", "FGrp_Main" };
     static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
 
     const char* dot   = strrchr(path_in, '.');
     const char* slash = strrchr(path_in, '/');
     bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
+
+    WARNLOG("Sound path search for '%s' (has_ext=%d)", path_in, (int)has_ext);
 
     for (int gi = 0; gi < (int)(sizeof(groups)/sizeof(groups[0])); gi++) {
         for (int ei = 0; exts[ei] != NULL; ei++) {
@@ -576,14 +580,18 @@ static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, s
             char candidate[2048];
             snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
             const char* resolved = prepare_file_path((TbFileGroups)groups[gi], candidate);
-            if (resolved != NULL && LbFileExists(resolved)) {
-                SYNCDBG(7, "Named sound path resolved: '%s' -> '%s'", path_in, resolved);
+            bool exists = (resolved != NULL) && LbFileExists(resolved);
+            WARNLOG("  [%s] '%s' -> '%s' (%s)",
+                group_names[gi], candidate,
+                resolved ? resolved : "(null)",
+                exists ? "FOUND" : "not found");
+            if (exists) {
                 snprintf(out_path, out_size, "%s", resolved);
                 return true;
             }
         }
     }
-    SYNCDBG(5, "Named sound path not found: '%s'", path_in);
+    WARNLOG("Sound path NOT resolved: '%s'", path_in);
     return false;
 }
 
@@ -613,7 +621,8 @@ SoundSmplTblID sound_manager_load_named_sound(const char* name, const char* path
             WARNLOG("Failed to load named sound '%s' from '%s'", name, full_path);
             return 0;
         }
-        sm.registerSound(name, id, 1);
+        // Custom sounds live in custom_sounds_ which takes priority in getSoundId —
+        // do NOT also register in sound_registry_ or a later base-config reload will overwrite it.
         SYNCDBG(5, "Named sound '%s' loaded from '%s' -> ID %d", name, full_path, id);
         return id;
     }

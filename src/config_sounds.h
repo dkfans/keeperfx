@@ -169,7 +169,6 @@ extern SoundSmplTblID snd_tunnel_dig;
 extern int            snd_tunnel_dig_count;
 
 /* UI */
-extern SoundSmplTblID snd_button_click;
 extern SoundSmplTblID snd_button_click2;
 extern SoundSmplTblID snd_buzzer;           /* error buzz */
 extern SoundSmplTblID snd_tab_fall;         /* event notification tab fall */
