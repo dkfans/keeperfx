@@ -1998,7 +1998,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
     return 1;
 }
 
-SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, SmallAroundIndex direction_around, TbBool revside)
+SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, SmallAroundIndex direction_around, TbBool revside, unsigned short digflags)
 {
     long round_change;
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
@@ -2012,7 +2012,7 @@ SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x,
     {
         MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
         MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
-        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx))
+        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
         {
             SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
             SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
@@ -2025,7 +2025,7 @@ SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x,
 
 // used only by AI (get_hug_side, tool_dig_to_pos2)
 static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y, int dirctn, PlayerNumber plyr_idx,
-    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, SmallAroundIndex *round, int *maxdist)
+    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, SmallAroundIndex *round, int *maxdist, unsigned short digflags)
 {
     MapSubtlCoord curr_stl_x = *ostl_x;
     MapSubtlCoord curr_stl_y = *ostl_y;
@@ -2034,7 +2034,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     int dx = small_around[round_idx].delta_x;
     int dy = small_around[round_idx].delta_y;
     // If we can follow direction straight to the target, and we will get closer to it, then do it
-    if ((dist <= *maxdist) && !is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
+    if ((dist <= *maxdist) && !is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
     {
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
@@ -2054,7 +2054,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         {
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
-            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
+            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB * dx, curr_stl_y + STL_PER_SLB * dy, plyr_idx, digflags))
             {
                 break;
             }
@@ -2076,12 +2076,11 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
 
 // used only by AI (get_hug_side, tool_dig_to_pos2)
 short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y,
-    SmallAroundIndex direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y)
+    SmallAroundIndex direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y, unsigned short digflags)
 {
     SYNCDBG(4,"Starting");
 
     int dist = chessboard_distance(src_stl_x, src_stl_y, dst_stl_x, dst_stl_y);
-
     char state_a = WaHSS_Initial;
     MapSubtlCoord stl_a_x = src_stl_x;
     MapSubtlCoord stl_a_y = src_stl_y;
@@ -2101,7 +2100,16 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
         }
         if (state_a != WaHSS_Completed)
         {
-            get_hug_side_next_step(dst_stl_x, dst_stl_y, -1, plyr_idx, &state_a, &stl_a_x, &stl_a_y, &round_a, &maxdist_a);
+            get_hug_side_next_step(dst_stl_x, dst_stl_y, -1, plyr_idx, &state_a, &stl_a_x, &stl_a_y, &round_a, &maxdist_a, digflags);
+            if (slab_is_liquid(subtile_slab(stl_a_x), subtile_slab(stl_a_y)))
+            {
+                // exit path early if water found, so that a bridge will be built here
+                *ostla_x = stl_a_x;
+                *ostla_y = stl_a_y;
+                *ostlb_x = stl_b_x;
+                *ostlb_y = stl_b_y;
+                return 1;
+            }
             if ((stl_a_x == dst_stl_x) && (stl_a_y == dst_stl_y)) {
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
@@ -2112,7 +2120,16 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
         }
         if (state_b != WaHSS_Completed)
         {
-            get_hug_side_next_step(dst_stl_x, dst_stl_y, 1, plyr_idx, &state_b, &stl_b_x, &stl_b_y, &round_b, &maxdist_b);
+            get_hug_side_next_step(dst_stl_x, dst_stl_y, 1, plyr_idx, &state_b, &stl_b_x, &stl_b_y, &round_b, &maxdist_b, digflags);
+            if (slab_is_liquid(subtile_slab(stl_b_x), subtile_slab(stl_b_y)))
+            {
+                // exit path early if water found, so that a bridge will be built here
+                *ostla_x = stl_a_x;
+                *ostla_y = stl_a_y;
+                *ostlb_x = stl_b_x;
+                *ostlb_y = stl_b_y;
+                return 0;
+            }
             if ((stl_b_x == dst_stl_x) && (stl_b_y == dst_stl_y)) {
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
