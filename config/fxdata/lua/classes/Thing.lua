@@ -24,6 +24,7 @@
 ---@field health integer
 ---@field max_health integer If the health gets beyond this point, it will be decreased.
 ---@field picked_up boolean
+---@field lua_data table A table that can be used to store any Lua data on the thing. arbitrary data accessible from all Lua code.
 if not Thing then Thing = {} end
 
 ---@class Object: Thing
