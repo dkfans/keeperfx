@@ -477,10 +477,9 @@ static void process_frontend_packets(void)
     nspckt = &net_screen_packet[i];
     if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) != 0) {
       if (frontend_alliances == -1) {
-        frontend_alliances = nspckt->frontend_alliances;
-      }
-      if (frontend_alliances == -1) {
-        frontend_alliances = 0;
+        if (nspckt->frontend_alliances != -1) {
+          frontend_alliances = nspckt->frontend_alliances;
+        }
       }
         switch (screen_packet_action(nspckt)) {
         case NetAct_HostStartLevel:
@@ -518,6 +517,9 @@ static void process_frontend_packets(void)
       }
     }
     screen_packet_set_action(nspckt, NetAct_None);
+  }
+  if (frontend_alliances == -1) {
+    frontend_alliances = 0;
   }
   for (i = 0; i < MAX_NET_USERS; i++) {
     if (!network_player_active(i)) {
