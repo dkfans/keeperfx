@@ -2,7 +2,7 @@
 -- Entry points for engine-triggered events (e.g. OnPowerCast, OnGameTick).
 -- These functions are called by the C engine and dispatch event data to the Lua trigger system.
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"Rebirth"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"Rebirth"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"|"ThingDeleted"
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -153,4 +153,12 @@ function OnShotHit(shot, shooter, target, next_stl_x, next_stl_y, rebound_hit)
     eventData.next_stl_y = next_stl_y
     eventData.rebound_hit = rebound_hit
     ProcessEvent("ShotHitThing",eventData)
+end
+
+--- Called when a thing is deleted
+---@param thing Thing the thing being deleted.
+function OnThingDeleted(thing)
+    local eventData = {}
+    eventData.thing = thing
+    ProcessEvent("ThingDeleted",eventData)
 end

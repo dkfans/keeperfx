@@ -40,32 +40,6 @@
 static int thing_set_field(lua_State *L);
 static int thing_get_field(lua_State *L);
 
-void delete_lua_thing_data(struct Thing* thing) {
-    if (Lvl_script == NULL) return;
-    lua_delete_thing_data(Lvl_script, thing);
-}
-
-
-static void lua_delete_thing_data(lua_State *L, struct Thing* thing) {
-
-    // Get Game.LuaData.Thing table
-    lua_getglobal(L, "Game");
-    if (!lua_istable(L, -1)) { lua_pop(L, 1); return; }
-    lua_getfield(L, -1, "LuaData");
-    if (!lua_istable(L, -1)) { lua_pop(L, 2); return; }
-    lua_getfield(L, -1, "Thing");
-    if (!lua_istable(L, -1)) { lua_pop(L, 3); return; }
-
-    // Create key and set field to nil
-    char key[40];
-    snprintf(key, sizeof(key), "thing_%d_%d", thing->index, thing->creation_turn);
-    lua_pushnil(L);
-    lua_setfield(L, -2, key);
-
-    // Pop tables
-    lua_pop(L, 3);
-}
-
 static void get_or_create_lua_data_table(lua_State *L, struct Thing* thing) {
     // Get the global Game table
     lua_getglobal(L, "Game");
