@@ -33,6 +33,11 @@ GameTurn get_gameturn()
 {
     return game.play_gameturn;
 }
+
+TbBool network_is_active(void)
+{
+    return flag_is_set(game.system_flags, GSF_NetworkActive);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
