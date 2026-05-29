@@ -237,7 +237,7 @@ void update_turn_checksums(void) {
     snapshot_info->thing_count = 0;
     snapshot_info->player_count = 0;
     snapshot_info->room_count = 0;
-    if ((game.system_flags & GSF_NetworkActive) != 0) {
+    if (network_is_active()) {
         for (int i = 1; i < SYNCED_THINGS_COUNT; i++) {
             struct Thing* thing = thing_get(i);
             if (!thing_exists(thing) || is_non_synchronized_thing_class(thing->class_id)) {

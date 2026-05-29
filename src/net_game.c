@@ -399,12 +399,12 @@ static TbBool host_already_won_level(void)
 void process_player_leave_game_packet(struct PlayerInfo *player)
 {
     if (player != get_my_player()) {
-        if ((game.system_flags & GSF_NetworkActive) != 0) {
+        if (network_is_active()) {
             OnDroppedUser(player->packet_num, NETDROP_MANUAL);
             process_disconnected_network_players();
             return;
         }
-    } else if ((game.system_flags & GSF_NetworkActive) != 0) {
+    } else if (network_is_active()) {
         stop_network_game_and_quit_to_main_menu();
     } else {
         quit_game = 1;
@@ -414,7 +414,7 @@ void process_player_leave_game_packet(struct PlayerInfo *player)
 
 void process_disconnected_network_players(void)
 {
-    if ((game.system_flags & GSF_NetworkActive) == 0) {
+    if (!network_is_active()) {
         return;
     }
     struct PlayerInfo *myplyr = get_my_player();
@@ -514,7 +514,7 @@ long network_session_join(void)
 
 void sync_initial_network_seed(void)
 {
-   if ((game.system_flags & GSF_NetworkActive) == 0) {
+   if (!network_is_active()) {
       return;
    }
    if (!LbNetwork_Resync(&game.action_random_seed, sizeof(game.action_random_seed))) {

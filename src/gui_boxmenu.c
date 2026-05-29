@@ -974,7 +974,7 @@ TbBool point_is_over_gui_box(ScreenCoord x, ScreenCoord y)
 
 long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, int32_t * tag)
 {
-    return ((game.system_flags & GSF_NetworkActive) == 0);
+    return !network_is_active();
 }
 
 TbBool cheat_menu_is_active()

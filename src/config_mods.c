@@ -22,7 +22,7 @@ static struct ModsConfig stored_mods_conf = {0};
 const struct ModsConfig *get_loaded_mods_conf(void)
 {
     static const struct ModsConfig empty_mods_conf = {0};
-    if (game.system_flags & GSF_NetworkActive)
+    if (network_is_active())
         return &empty_mods_conf;
     return &stored_mods_conf;
 }

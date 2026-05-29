@@ -264,7 +264,7 @@ static void update_gui_layer(void)
 {
     // Determine the current/correct GUI Layer to use at this moment
 
-    if ((game.system_flags & GSF_NetworkActive) == 1) // no one click on multiplayer.
+    if (network_is_active()) // no one click on multiplayer.
     {
         //todo Make multiplayer work with 1-click
         set_current_gui_layer(GuiLayer_Default);
@@ -420,7 +420,7 @@ static short get_players_message_inputs(void)
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
-        if ((game.system_flags & GSF_NetworkActive) != 0) {
+        if (network_is_active()) {
             send_network_chat_message(player->id_number, player->mp_message_text);
         }
         player->allocflags &= ~PlaF_NewMPMessage;
@@ -567,7 +567,7 @@ static short get_packet_load_game_control_inputs(void)
 {
   if (is_game_key_pressed(Gkey_ExitGame, true, false))
   {
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
       LbNetwork_Stop();
     quit_game = 1;
     exit_keeper = 1;
@@ -731,7 +731,7 @@ static short get_global_inputs(void)
     return true;
   }
   if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl))
-  && (((game.system_flags & GSF_NetworkActive) != 0) ||
+  && (network_is_active() ||
      ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
   {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
@@ -832,7 +832,7 @@ static short get_global_inputs(void)
       return true;
   if (player->victory_state != VicS_Undecided && is_game_key_pressed(Gkey_FinishLevel, true, false))
       {
-        if ((player->victory_state == VicS_LostLevel) && ((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()) && network_human_contenders_remain())
+        if ((player->victory_state == VicS_LostLevel) && network_is_active() && (player->id_number == get_host_player_id()) && network_human_contenders_remain())
         {
             return true;
         }
@@ -865,7 +865,7 @@ static TbBool get_level_lost_inputs(void)
       get_players_message_inputs();
       return true;
     }
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
@@ -933,7 +933,7 @@ static TbBool get_level_lost_inputs(void)
         {
           turn_off_all_window_menus();
           set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-          if (((game.system_flags & GSF_NetworkActive) != 0)
+          if (network_is_active()
             || (lbDisplay.PhysicalScreenWidth > 320))
           {
                 if (toggle_status_menu(0))
@@ -2925,7 +2925,7 @@ static short get_inputs(void)
     case PVT_MapFadeIn:
         if (player->view_mode != PVM_ParchFadeIn)
         {
-          if ((game.system_flags & GSF_NetworkActive) == 0)
+          if (!network_is_active())
             game.operation_flags &= ~GOF_Paused;
           player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
           set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
