@@ -262,6 +262,7 @@ obj/lua_api_lens.o \
 obj/lua_api_map.o \
 obj/lua_api_player.o \
 obj/lua_api_room.o \
+obj/lua_api_sound.o \
 obj/lua_api_things.o \
 obj/lua_api_slabs.o \
 obj/lua_base.o \
