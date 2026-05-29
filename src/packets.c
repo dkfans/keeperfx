@@ -653,7 +653,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             quit_game = 1;
           }
           return 0;
-        } else if (host_packet && (victory_state == VicS_LostLevel)) {
+        } else if (host_packet && (victory_state == VicS_LostLevel) && network_human_contenders_remain()) {
           return 0;
         } else if (host_packet && (victory_state == VicS_WonLevel)) {
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;

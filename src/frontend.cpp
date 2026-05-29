@@ -3457,7 +3457,7 @@ void update_player_objectives(PlayerNumber plyr_idx)
           break;
       case VicS_LostLevel:
           TextStringId msg_idx = CpgStr_LevelLost;
-          if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id())) {
+          if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()) && network_human_contenders_remain()) {
               msg_idx = GUIStr_NetHostLostWaitingForPlayers;
           }
           set_level_objective(player->id_number, get_string(msg_idx));
