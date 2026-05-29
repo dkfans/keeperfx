@@ -531,20 +531,16 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 short game_is_busy_doing_gui(void)
 {
     struct PlayerInfo *player = get_my_player();
-    if (player->one_click_lock_cursor)
-      return false;
-    if (!busy_doing_gui)
-      return false;
-    if (battle_creature_over <= 0)
-      return true;
-    PowerKind pwkind = player->chosen_power_kind;
-    struct Thing *thing;
-    thing = thing_get(battle_creature_over);
-    if (!thing_is_invalid(thing) && can_cast_power_on_thing(player->id_number, thing, pwkind))
-    {
+    if (battle_creature_over > 0) {
         return true;
     }
-    return false;
+    if (player->one_click_lock_cursor) {
+        return false;
+    }
+    if (!busy_doing_gui) {
+        return false;
+    }
+    return true;
 }
 
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
