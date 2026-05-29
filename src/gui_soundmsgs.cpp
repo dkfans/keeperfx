@@ -175,19 +175,33 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 		}
 		if (g_speech_overrides[sample_id][0] != '\0') {
 			const char* path = g_speech_overrides[sample_id];
+			// Search order: campaign config dir, campaign levels dir, game root.
+			static const TbFileGroups search_groups[] = { FGrp_CmpgConfig, FGrp_CmpgLvls, FGrp_Main };
 			// Split path into directory and filename so we can insert a language subdir.
 			// e.g. "speech/vampire.ogg" -> try "speech/eng/vampire.ogg" first.
 			const char* slash = strrchr(path, '/');
-			const char* lang   = get_language_lwrstr(install_info.lang_id);
+			const char* lang  = get_language_lwrstr(install_info.lang_id);
 			const char* resolved = nullptr;
 			if (slash != nullptr && lang != nullptr && lang[0] != '\0') {
-				// Build lang-specific candidate: dir/<lang>/filename
 				char lang_path[512];
 				snprintf(lang_path, sizeof(lang_path), "%.*s/%s/%s",
 					(int)(slash - path), path, lang, slash + 1);
-				const char* candidate = prepare_file_fmtpath(FGrp_Main, "%s", lang_path);
-				if (candidate != nullptr && LbFileExists(candidate))
-					resolved = candidate;
+				for (unsigned int g = 0; g < sizeof(search_groups)/sizeof(search_groups[0]); g++) {
+					const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", lang_path);
+					if (candidate != nullptr && LbFileExists(candidate)) {
+						resolved = candidate;
+						break;
+					}
+				}
+			}
+			if (resolved == nullptr) {
+				for (unsigned int g = 0; g < sizeof(search_groups)/sizeof(search_groups[0]); g++) {
+					const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", path);
+					if (candidate != nullptr && LbFileExists(candidate)) {
+						resolved = candidate;
+						break;
+					}
+				}
 			}
 			if (resolved == nullptr)
 				resolved = prepare_file_fmtpath(FGrp_Main, "%s", path);
