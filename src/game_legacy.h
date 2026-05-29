@@ -415,6 +415,8 @@ extern int32_t turns_per_second_draw_current;
 extern int32_t turns_per_second_draw_main;
 extern int32_t turns_per_second_draw_secondary;
 
+TbBool network_is_active(void);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

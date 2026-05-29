@@ -385,7 +385,7 @@ void process_peer_msgs(NetUserId peer_id, void *server_buf, size_t frame_size)
 
 void wait_for_all_players(void)
 {
-    if ((game.system_flags & GSF_NetworkActive) == 0) {
+    if (!network_is_active()) {
         return;
     }
 

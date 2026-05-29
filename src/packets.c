@@ -345,7 +345,7 @@ void process_pause_packet(long curr_pause, long new_pause)
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
-          if ((game.system_flags & GSF_NetworkActive) != 0) {
+          if (network_is_active()) {
               game.skip_initial_input_turns = game.input_lag_turns + 1;
           }
       }
@@ -645,7 +645,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         turn_off_all_menus();
         free_swipe_graphic();
       }
-      if ((game.system_flags & GSF_NetworkActive) != 0) {
+      if (network_is_active()) {
         TbBool host_packet = player->packet_num == get_host_player_id();
         if (!my_player) {
           if ((victory_state == VicS_WonLevel) || (host_packet && (player->victory_state != VicS_LostLevel))) {
@@ -773,7 +773,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].rotation_angle_x = 0;
       player->cameras[CamIV_FrontView].rotation_angle_x = 0;
       player->cameras[CamIV_Isometric].rotation_angle_x = 0;
-      if (((game.system_flags & GSF_NetworkActive) != 0)
+      if (network_is_active()
           || (lbDisplay.PhysicalScreenWidth > 320))
       {
         if (is_my_player_number(plyr_idx))
@@ -1582,12 +1582,12 @@ void process_packets(void)
         return;
     }
 
-    if ((game.system_flags & GSF_NetworkActive) != 0) {
+    if (network_is_active()) {
         MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
         load_old_packets();
     }
 
-    if ((game.system_flags & GSF_NetworkActive) != 0 && checksums_different()) {
+    if (network_is_active() && checksums_different()) {
         set_flag(game.system_flags, GSF_NetGameNoSync);
         clear_flag(game.system_flags, GSF_NetSeedNoSync);
     } else {
@@ -1617,7 +1617,7 @@ void process_packets(void)
     if (quit_game || exit_keeper) {
         return;
     }
-    if (((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active()
      && ((game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
     {
         if (resync_game_allowed()) {

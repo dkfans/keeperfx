@@ -1983,7 +1983,7 @@ short lose_level(struct PlayerInfo *player)
 {
     if (!is_my_player(player))
         return false;
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
         LbNetwork_Stop();
     }
@@ -1995,7 +1995,7 @@ short resign_level(struct PlayerInfo *player)
 {
     if (!is_my_player(player))
         return false;
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
         LbNetwork_Stop();
     }
@@ -2008,7 +2008,7 @@ short complete_level(struct PlayerInfo *player)
     SYNCDBG(6,"Starting");
     if (!is_my_player(player))
         return false;
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
         LbNetwork_Stop();
         quit_game = 1;
@@ -2077,7 +2077,7 @@ void check_players_won(void)
 {
   SYNCDBG(8,"Starting");
 
-    if (!flag_is_set(game.system_flags,GSF_NetworkActive))
+    if (!network_is_active())
         return;
 
     struct PlayerInfo* curPlayer;
@@ -3360,7 +3360,7 @@ TbBool keeper_wait_for_screen_focus(void)
         }
         if (LbIsActive())
           return true;
-        if ((game.system_flags & GSF_NetworkActive) != 0)
+        if (network_is_active())
           return true;
         if (!freeze_game_on_focus_lost())
           return true;

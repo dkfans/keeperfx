@@ -62,7 +62,7 @@ static TbBool prevent_local_dig_prediction(const struct Packet *pckt)
 
 TbBool local_dig_prediction_is_enabled(void)
 {
-    return ((game.system_flags & GSF_NetworkActive) != 0) && !game.packet_load_enable && (game.input_lag_turns > 0);
+    return network_is_active() && !game.packet_load_enable && (game.input_lag_turns > 0);
 }
 
 struct RoomSpace *get_local_dig_prediction_render_roomspace(struct RoomSpace *roomspace)

@@ -124,7 +124,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
-  if ((game.system_flags & GSF_NetworkActive) == 0)
+  if (!network_is_active())
     player->display_objective_turn = get_gameturn() + 300;
   if (my_player)
   {
@@ -197,9 +197,9 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         }
     }
     set_player_state(player, PSt_CtrlDungeon, 0);
-    if ((game.system_flags & GSF_NetworkActive) == 0)
+    if (!network_is_active())
         player->display_objective_turn = get_gameturn() + 300;
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
         reveal_whole_map(player);
     if ((dungeon->computer_enabled & 0x01) != 0)
         toggle_computer_player(player->id_number);
@@ -208,7 +208,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
 long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)
 {
     long i;
-    if (((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active()
       || !is_singleplayer_level(game.loaded_level_number)) {
         i = 2 * gameplay_score;
     } else {

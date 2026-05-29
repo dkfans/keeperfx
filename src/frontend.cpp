@@ -633,7 +633,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 
 void maintain_loadsave(struct GuiButton *gbtn)
 {
-    if ((game.system_flags & GSF_NetworkActive) == 0)
+    if (!network_is_active())
         gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &= ~LbBtnF_Enabled;
@@ -1659,7 +1659,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
     set_flag_value(player->additional_flags, PlaAF_UnlockedLordTorture, flg_mem);
     // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
-    if (((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active()
      || ((game.operation_flags & GOF_SingleLevel) != 0)
      || (game.packet_load_enable)
      || (is_freeplay_level(lvnum))
@@ -3438,7 +3438,7 @@ void update_player_objectives(PlayerNumber plyr_idx)
     struct PlayerInfo *player;
     SYNCDBG(6,"Starting for player %d",(int)plyr_idx);
     player = get_player(plyr_idx);
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
       if ((!player->display_objective_turn) && (player->victory_state != VicS_Undecided))
         player->display_objective_turn = get_gameturn()+1;
@@ -3453,7 +3453,7 @@ void update_player_objectives(PlayerNumber plyr_idx)
           break;
       case VicS_LostLevel:
           TextStringId msg_idx = CpgStr_LevelLost;
-          if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id())) {
+          if (network_is_active() && player->id_number == get_host_player_id()) {
               msg_idx = GUIStr_NetHostLostWaitingForPlayers;
           }
           set_level_objective(player->id_number, get_string(msg_idx));
@@ -3642,7 +3642,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_DRAG:
         return FeSt_TORTURE;
     case FeSt_LEVEL_STATS:
-        if ((game.system_flags & GSF_NetworkActive) != 0)
+        if (network_is_active())
             return FeSt_NET_SESSION;
         lvnum = get_loaded_level_number();
         if (is_multiplayer_level(lvnum))
@@ -3729,7 +3729,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
     player = get_my_player();
     lvnum = get_loaded_level_number();
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     { // If played real network game, then resulting screen isn't changed based on victory
         SYNCLOG("Network game summary state selected");
         if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
