@@ -324,6 +324,17 @@ static TbBool network_has_remote_enemies_remaining(void)
     return false;
 }
 
+TbBool network_human_contenders_remain(void)
+{
+    for (PlayerNumber player_idx = 0; player_idx < PLAYERS_COUNT; player_idx++) {
+        struct PlayerInfo *player = get_player(player_idx);
+        if (player_exists(player) && (player->is_active == 1) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_cannot_win(player_idx)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static TbBool network_has_remote_users_remaining(void)
 {
     for (NetUserId user_id = 0; user_id < (NetUserId)netstate.max_players; user_id += 1) {

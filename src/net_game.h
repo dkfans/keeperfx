@@ -50,6 +50,7 @@ long network_session_join(void);
 
 TbBool network_player_active(int plyr_idx);
 const char *network_player_name(int plyr_idx);
+TbBool network_human_contenders_remain(void);
 void process_player_leave_game_packet(struct PlayerInfo *player);
 void process_disconnected_network_players(void);
 void sync_initial_network_seed(void);
