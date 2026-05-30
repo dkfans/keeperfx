@@ -1083,8 +1083,8 @@ static void display_information_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
 
-    long msg_num = scline->np[0];
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    int16_t  msg_num = get_string_id_by_alias(scline->tp[0]);
+    if ((msg_num < 0))
     {
         SCRPTERRLOG("Invalid TEXT number");
         return;
@@ -1109,7 +1109,7 @@ static void display_information_check(const struct ScriptLine* scline)
     }
     if (!get_map_location_id(where, &location))
     {
-        SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
+        SCRPTERRLOG("Invalid location (%s)", scline->tp[1]);
         return;
     }
 
@@ -6698,8 +6698,8 @@ const struct CommandDesc command_desc[] = {
   {"DOOR_AVAILABLE",                    "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
   {"DISPLAY_OBJECTIVE",                 "Al      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
   {"DISPLAY_OBJECTIVE_WITH_POS",        "ANN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
-  {"DISPLAY_INFORMATION",               "Nl      ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
-  {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
+  {"DISPLAY_INFORMATION",               "Al      ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
+  {"DISPLAY_INFORMATION_WITH_POS",      "ANN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
   {"DISPLAY_PLAYER_OBJECTIVE",          "NPl     ", Cmd_DISPLAY_PLAYER_OBJECTIVE, &display_player_objective_check, &display_objective_process},
   {"DISPLAY_PLAYER_OBJECTIVE_WITH_POS", "NPNN    ", Cmd_DISPLAY_PLAYER_OBJECTIVE_WITH_POS, &display_player_objective_check, &display_objective_process},
   {"DISPLAY_PLAYER_INFORMATION",        "NPl     ", Cmd_DISPLAY_PLAYER_INFORMATION, &display_player_information_check, &display_information_process},

@@ -31,6 +31,7 @@
 #include "config_terrain.h"
 #include "config_strings.h"
 #include "config_crtrstates.h"
+#include "config_translation.h"
 #include "thing_doors.h"
 #include "thing_creature.h"
 #include "creature_instances.h"
@@ -1160,7 +1161,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         case 9: // TOOLTIPTEXTID
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
+              k = get_string_id_by_alias(word_buf);
               if (k > 0)
               {
                   inst_inf->tooltip_stridx = k;

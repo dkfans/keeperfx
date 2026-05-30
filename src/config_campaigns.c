@@ -28,6 +28,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "config_keeperfx.h"
+#include "config_translation.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
@@ -853,7 +854,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
         case 2: // NAME_ID
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
+              k = get_string_id_by_alias(word_buf);
               if (k > 0)
               {
                 lvinfo->name_stridx = k;

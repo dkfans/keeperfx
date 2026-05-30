@@ -39,6 +39,7 @@
 
 #include "config_campaigns.h"
 #include "config_keeperfx.h"
+#include "config_translation.h"
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
@@ -589,6 +590,11 @@ int64_t value_animid(const struct NamedField* named_field, const char* value_tex
   {
       return get_anim_id_(value_text);
   }
+}
+
+int64_t value_stringId(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    return get_string_id_by_alias(value_text);
 }
 
 int64_t value_effOrEffEl(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
@@ -1551,7 +1557,7 @@ short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;
-    int k = atoi(stridx);
+    int k = get_string_id_by_alias(stridx);
     if (k > 0)
     {
         lvinfo->name_stridx = k;

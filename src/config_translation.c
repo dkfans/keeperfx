@@ -57,6 +57,41 @@ typedef struct {
     const char *language_code;
 } WalkContext;
 
+static void codepoint_to_utf8(unsigned long codepoint, char out[5])
+{
+    if (codepoint <= 0x7F)
+    {
+        out[0] = (char)codepoint;
+        out[1] = '\0';
+    }
+    else if (codepoint <= 0x7FF)
+    {
+        out[0] = (char)(0xC0 | ((codepoint >> 6) & 0x1F));
+        out[1] = (char)(0x80 | (codepoint & 0x3F));
+        out[2] = '\0';
+    }
+    else if (codepoint <= 0xFFFF)
+    {
+        out[0] = (char)(0xE0 | ((codepoint >> 12) & 0x0F));
+        out[1] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+        out[2] = (char)(0x80 | (codepoint & 0x3F));
+        out[3] = '\0';
+    }
+    else if (codepoint <= 0x10FFFF)
+    {
+        out[0] = (char)(0xF0 | ((codepoint >> 18) & 0x07));
+        out[1] = (char)(0x80 | ((codepoint >> 12) & 0x3F));
+        out[2] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+        out[3] = (char)(0x80 | (codepoint & 0x3F));
+        out[4] = '\0';
+    }
+    else
+    {
+        out[0] = '?';
+        out[1] = '\0';
+    }
+}
+
 static unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
 {
     if (codepoint < 0x80)
@@ -115,7 +150,9 @@ static unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
         if (codepage_map[i].unicode == codepoint)
             return codepage_map[i].byte;
     }
-    ERRORLOG("Warning: No mapping for Unicode codepoint U+%04lX in internal codepage; using '?'", codepoint);
+    char utf8_char[5];
+    codepoint_to_utf8(codepoint, utf8_char);
+    ERRORLOG("No mapping for Unicode codepoint U+%04lX ('%s') in internal codepage; using '?'", codepoint, utf8_char);
     return '?';
 }
 
@@ -258,19 +295,24 @@ void read_translation_file(const char* filepath, const char* language_code)
     value_fini(&root);
 }
 
-//rest of the code will reference it by number, when loading I'll get the allias so eg HELLO_WORLD would be 1
 int32_t get_string_id_by_alias(const char* alias)
 {
-    JUSTLOG("Looking up translation alias \"%s\"", alias);
+    if (parameter_is_number(alias))
+    {
+        int32_t id = atoi(alias);
+        if (id > 0 && id <= STRINGS_MAX)
+            return id;
+        ERRORLOG("Invalid string ID \"%s\".", alias);
+        return -1;
+    }
     for (int32_t i = 0; i < translation_count; i++)
     {
         if (strcmp(translation_table[i].alias, alias) == 0)
         {
-            JUSTLOG("Found alias \"%s\" at ID %d", alias, STRINGS_MAX + GUI_STRINGS_COUNT + i + 1);
             return STRINGS_MAX + GUI_STRINGS_COUNT + i + 1; // 1-based ID
         }
     }
-    JUSTLOG("Alias \"%s\" not found in translation table", alias);
+    ERRORLOG("No translation entry found for alias \"%s\".", alias);
     return -1;
 }
 

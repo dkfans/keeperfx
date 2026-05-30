@@ -178,7 +178,7 @@ const struct NamedFieldSet compp_event_named_fields_set = {
 static const struct NamedField compp_computer_named_fields[] = {
   //name           //pos    //field                                                    //default //min     //max    //NamedCommand
   {"NAME",             -1, field(comp_player_conf.computer_types[0].name),                     0, INT32_MIN,UINT32_MAX, NULL,         value_name,    assign_null},
-  {"TOOLTIPTEXTID",     0, field(comp_player_conf.computer_types[0].tooltip_stridx),GUIStr_Empty, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
+  {"TOOLTIPTEXTID",     0, field(comp_player_conf.computer_types[0].tooltip_stridx),GUIStr_Empty, INT32_MIN,UINT32_MAX, NULL,         value_stringId, assign_default},
   {"ASSISTANTICON",     0, field(comp_player_conf.computer_types[0].sprite_idx),               0, INT32_MIN,UINT32_MAX, NULL,         value_icon,    assign_icon},
   {"VALUES",            0, field(comp_player_conf.computer_types[0].dig_stack_size ),          0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
   {"VALUES",            1, field(comp_player_conf.computer_types[0].processes_time ),          0, INT32_MIN,UINT32_MAX, NULL,         value_default, assign_default},
