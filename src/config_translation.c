@@ -284,6 +284,35 @@ static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t
     dst[out_len] = '\0';
 }
 
+static const char *get_language_value_case_insensitive(VALUE *section, const char *language_code)
+{
+    VALUE *lang_val = value_dict_get(section, language_code);
+    if (lang_val && value_type(lang_val) == VALUE_STRING)
+        return value_string(lang_val);
+
+    if (strlen(language_code) != 3)
+        return NULL;
+
+    char alt_code[4] = {0,0,0,0};
+    for (size_t i = 0; i < 3; ++i)
+    {
+        unsigned char c = (unsigned char)language_code[i];
+        if (c >= 'a' && c <= 'z')
+            alt_code[i] = (char)(c - ('a' - 'A'));
+        else if (c >= 'A' && c <= 'Z')
+            alt_code[i] = (char)(c + ('a' - 'A'));
+        else
+            return NULL;
+    }
+    if (ascii_string_equal_nocase(language_code, alt_code, 3))
+    {
+        lang_val = value_dict_get(section, alt_code);
+        if (lang_val && value_type(lang_val) == VALUE_STRING)
+            return value_string(lang_val);
+    }
+    return NULL;
+}
+
 static int translation_section_visitor(const VALUE *key, VALUE *section, void *ctx)
 {
     if (translation_count >= MAX_TRANSLATION_ENTRIES)
@@ -299,10 +328,7 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
     WalkContext *wctx = (WalkContext *)ctx;
 
     // Try the requested language first, fall back to English
-    const char *text = NULL;
-    VALUE *lang_val = value_dict_get(section, wctx->language_code);
-    if (lang_val && value_type(lang_val) == VALUE_STRING)
-        text = value_string(lang_val);
+    const char *text = get_language_value_case_insensitive(section, wctx->language_code);
 
     if (!text)
     {
