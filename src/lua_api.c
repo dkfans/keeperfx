@@ -179,7 +179,7 @@ static int lua_Creature_available(lua_State *L)
 
 static int lua_Dead_creatures_return_to_pool(lua_State *L)
 {
-    TbBool return_to_pool         = lua_toboolean(L, 3);
+    TbBool return_to_pool         = lua_toboolean(L, 1);
     set_flag_value(game.mode_flags, MFlg_DeadBackToPool, return_to_pool);
     return 0;
 }
