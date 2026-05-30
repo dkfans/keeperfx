@@ -28,6 +28,7 @@
 #include "config_mods.h"
 #include "config_keeperfx.h"
 #include "config_campaigns.h"
+#include "config_translation.h"
 #include "game_merge.h"
 #include "lvl_filesdk1.h"
 #include "post_inc.h"
@@ -366,8 +367,10 @@ const char * get_string(TextStringId stridx)
         }
         return cmpgn_string(stridx);
     }
-    else
+    else if (stridx <= STRINGS_MAX + GUI_STRINGS_COUNT)
         return gui_string(stridx-STRINGS_MAX);
+    else
+        return get_translation_file_string(stridx);
 }
 
 unsigned long count_strings(char *strings, int size)

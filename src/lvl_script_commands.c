@@ -24,6 +24,7 @@
 #include "config_settings.h"
 #include "config_spritecolors.h"
 #include "config_trapdoor.h"
+#include "config_translation.h"
 #include "console_cmd.h"
 #include "config_rules.h"
 #include "creature_instances.h"
@@ -794,10 +795,12 @@ static void delete_from_party_check(const struct ScriptLine *scline)
 static void display_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
-    int16_t  msg_num = scline->np[0];
+
+    int16_t  msg_num = get_string_id_by_alias(scline->tp[0]);
+
     MapSubtlCoord x = 0, y = 0;
     TbMapLocation location = 0;
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    if ((msg_num < 0))
     {
         SCRPTERRLOG("Invalid TEXT number");
         return;
@@ -834,10 +837,10 @@ static void display_objective_process(struct ScriptContext *context)
 static void display_player_objective_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
-    int16_t  msg_num = scline->np[0];
+    int16_t  msg_num = get_string_id_by_alias(scline->tp[0]);
     MapSubtlCoord x = 0, y = 0;
     TbMapLocation location = 0;
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    if ((msg_num < 0))
     {
         SCRPTERRLOG("Invalid TEXT number");
         return;
@@ -6693,8 +6696,8 @@ const struct CommandDesc command_desc[] = {
   {"MAX_CREATURES",                     "PN      ", Cmd_MAX_CREATURES, NULL, NULL},
   {"NEXT_COMMAND_REUSABLE",             "        ", Cmd_NEXT_COMMAND_REUSABLE, NULL, NULL},
   {"DOOR_AVAILABLE",                    "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
-  {"DISPLAY_OBJECTIVE",                 "Nl      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
-  {"DISPLAY_OBJECTIVE_WITH_POS",        "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
+  {"DISPLAY_OBJECTIVE",                 "Al      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
+  {"DISPLAY_OBJECTIVE_WITH_POS",        "ANN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
   {"DISPLAY_INFORMATION",               "Nl      ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
   {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
   {"DISPLAY_PLAYER_OBJECTIVE",          "NPl     ", Cmd_DISPLAY_PLAYER_OBJECTIVE, &display_player_objective_check, &display_objective_process},
@@ -6865,8 +6868,8 @@ const struct CommandDesc dk1_command_desc[] = {
   {"MAX_CREATURES",                "PN      ", Cmd_MAX_CREATURES, NULL, NULL},
   {"NEXT_COMMAND_REUSABLE",        "        ", Cmd_NEXT_COMMAND_REUSABLE, NULL, NULL},
   {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
-  {"DISPLAY_OBJECTIVE",            "NA      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
-  {"DISPLAY_OBJECTIVE_WITH_POS",   "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
+  {"DISPLAY_OBJECTIVE",            "AA      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
+  {"DISPLAY_OBJECTIVE_WITH_POS",   "ANN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
   {"DISPLAY_INFORMATION",          "N       ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
   {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},

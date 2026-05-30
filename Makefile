@@ -158,6 +158,7 @@ obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_cubes.o \
 obj/config_textures.o \
+obj/config_translation.o \
 obj/config_trapdoor.o \
 obj/config_spritecolors.o \
 obj/console_cmd.o \
