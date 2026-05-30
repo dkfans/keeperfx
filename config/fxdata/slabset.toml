@@ -7832,8 +7832,15 @@ Subtype = 115
 EffectRange = 0
 
 [slab53.W]
-Columns = [365, 365, 365, 365, 365, 365, 365, 365, 365]
-Objects = []
+Columns = [1060, 1061, 1059, 1061, 1062, 1061, 1059, 1061, 1060]
+
+[[slab53.W_objects]]
+IsLight = 0
+Subtile = 4
+RelativePosition = [160, 128, 512]
+ThingType = 1
+Subtype = 115
+EffectRange = 0
 
 [slab53.N]
 Columns = [365, 365, 365, 365, 365, 365, 365, 365, 365]
