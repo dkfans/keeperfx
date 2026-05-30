@@ -766,10 +766,20 @@ namespace
      * Disconnects a user.
      * @param id User to be dropped.
      */
-    void bf_enet_drop_user(NetUserId)
+    void bf_enet_drop_user(NetUserId id)
     {
-        fprintf(stderr, "enet_drop_user not implemented\n");
-        ERRORLOG("enet_drop_user not implemented");
+        destroy_incoming_queue(id);
+        if (host) {
+            for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer += 1) {
+                if (peer->state == ENET_PEER_STATE_CONNECTED && NetUserId(reinterpret_cast<ptrdiff_t>(peer->data)) == id) {
+                    enet_peer_disconnect_now(peer, 0);
+                    break;
+                }
+            }
+        }
+        if (g_drop_callback != nullptr) {
+            g_drop_callback(id, NETDROP_MANUAL);
+        }
     }
 
 }
