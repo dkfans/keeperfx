@@ -245,6 +245,7 @@ TbBool should_use_delta_time_on_menu()
         case FeSt_NET_SERVICE: /**< Network service selection, where player can select Serial/Modem/IPX/TCP IP/1 player. */
         case FeSt_NET_SESSION: /**< Network session selection screen, where list of games is displayed, with possibility to join or create own game. */
         case FeSt_NET_START: /**< Network game start screen (the menu with chat), when created new session or joined existing session. */
+        case FeSt_LEVEL_STATS:
         case FeSt_HIGH_SCORES:
         case FeSt_FEDEFINE_KEYS:
         case FeSt_FEOPTIONS:
@@ -3883,6 +3884,7 @@ static TbBool wait_at_frontend(void)
           break;
     case FeSt_START_MPLEVEL:
           set_flag(game.system_flags, GSF_NetworkActive);
+          skip_high_score_screen = 1;
           game.game_kind = GKind_MultiGame;
           player = get_my_player();
           player->is_active = 1;
