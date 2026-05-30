@@ -768,6 +768,7 @@ namespace
      */
     void bf_enet_drop_user(NetUserId id)
     {
+        ERRORLOG("Dropping ENet user %d", (int)id);
         destroy_incoming_queue(id);
         if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer += 1) {
