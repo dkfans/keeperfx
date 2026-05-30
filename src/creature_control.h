@@ -48,7 +48,7 @@ extern "C" {
 #define INSTANCE_TYPES_MAX 2000
 #define LAIR_ENEMY_MAX 5
 
-#define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
+#define INVALID_CRTR_CONTROL (&game.cctrl_data[0])
 /******************************************************************************/
 #pragma pack(1)
 
@@ -57,18 +57,17 @@ struct PlayerInfo;
 
 enum CreatureSoundTypes {
     CrSnd_None      = 0,
-    CrSnd_Hurt      = 1,
-    CrSnd_Hit       = 2,
-    CrSnd_Happy     = 3,
-    CrSnd_Sad       = 4,
-    CrSnd_Hang      = 5,
-    CrSnd_Drop      = 6,
-    CrSnd_Torture   = 7,
-    CrSnd_Slap      = 8,
-    CrSnd_Die       = 9,
-    CrSnd_Foot      = 10,
-    CrSnd_Fight     = 11,
-    CrSnd_Piss      = 12,
+    CrSnd_Hit       = 1,
+    CrSnd_Happy     = 2,
+    CrSnd_Sad       = 3,
+    CrSnd_Hang      = 4,
+    CrSnd_Drop      = 5,
+    CrSnd_Torture   = 6,
+    CrSnd_Slap      = 7,
+    CrSnd_Die       = 8,
+    CrSnd_Foot      = 9,
+    CrSnd_Fight     = 10,
+    CrSnd_Piss      = 11,
 };
 
 enum CreatureControlFlags {
@@ -135,12 +134,18 @@ struct CastedSpellData {
     PlayerNumber caster_owner;
 };
 
+
+// As a factor of `tortured.accumulated_torture_points` for 1 turn, to avoid precision loss caused by integer division, it should be designed as the product of all divisors. Note: This must be the product, not the Least Common Multiple (LCM).
+// Now the divisors are: 3
+// Note: Since accumulated_torture_points includes `room->efficiency`, if factor increases in the future, we need to consider switching to int64_t to prevent overflow issues
+#define TORTURE_ACCUM_FAC 3
+
 struct CreatureControl {
     CctrlIndex index;
     unsigned short creature_control_flags;
     unsigned char creature_state_flags;
     unsigned char combat_flags;
-    unsigned long wait_to_turn;
+    GameTurn wait_to_turn;
     short distance_to_destination;
     ThingIndex opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
     ThingIndex opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
@@ -150,26 +155,26 @@ struct CreatureControl {
     ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
     CrtrExpLevel exp_level;
-    long exp_points;
-    long prev_exp_points;
+    int32_t exp_points;
+    int32_t prev_exp_points;
     struct Coord3d moveto_pos;
-    long hunger_level;
-    long temple_cure_gameturn;
+    int32_t hunger_level;
+    int32_t temple_cure_gameturn;
     unsigned char hunger_amount;
     unsigned char hunger_loss;
-    long thought_bubble_last_turn_drawn;
+    int32_t thought_bubble_last_turn_drawn;
     unsigned char thought_bubble_display_timer;
     TbBool force_health_flower_displayed;
     TbBool force_health_flower_hidden;
     unsigned char paydays_owed;
     char paydays_advanced;
-    long annoy_untrained_turn;
-    unsigned long last_roar_turn;
+    int32_t annoy_untrained_turn;
+    uint32_t last_roar_turn;
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
     * When the highest value is above CreatureModelConfig->annoy_level, the creature becomes angry/livid,
     * depending on how high the highest value is.
     */
-    long annoyance_level[5];
+    int32_t annoyance_level[5];
     unsigned char mood_flags;
     unsigned char footstep_variant;
     unsigned char footstep_counter;
@@ -185,20 +190,22 @@ struct CreatureControl {
     ThingIndex pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
-    unsigned long group_info;// offset 7A
+    ThingIndex group_leader_idx;
+    uint16_t group_member_count;
     short last_work_room_id;
     /** Work room index, used when creature is working in a room. */
     short work_room_id;
     /** Target room index, used when creature is moving to a room or is attacking a room. */
     short target_room_id;
-    long turns_at_job;
+    int32_t turns_at_job;
     short blocking_door_id;
     unsigned char move_flags;
+    unsigned long cleanse_flags;
 
   union // Union on diggers, heroes and normal creatures
   {
       struct {
-        long stack_update_turn;
+        int32_t stack_update_turn;
         SubtlCodedCoords working_stl;
         SubtlCodedCoords task_stl;
         unsigned short task_idx;
@@ -212,8 +219,8 @@ struct CreatureControl {
         unsigned char hero_gate_creation_turn;
         TbBool hero_state_reset_flag;
         TbBool ready_for_attack_flag;
-        long look_for_enemy_dungeon_turn;
-        long wait_time;
+        int32_t look_for_enemy_dungeon_turn;
+        int32_t wait_time;
       } hero;
       struct {
         char unusedparam;
@@ -227,7 +234,7 @@ struct CreatureControl {
       unsigned char original_objective;
       char target_plyr_idx;
       PlayerBitFlags player_broken_into_flags;
-      long tunnel_steps_counter;
+      int32_t tunnel_steps_counter;
       unsigned char tunnel_dig_direction;
       SubtlCodedCoords member_pos_stl[5];
   } party;
@@ -239,11 +246,11 @@ struct CreatureControl {
   union // Jobs union
   {
       struct {
-        GameTurn start_gameturn;
         GameTurn state_start_turn;
         GameTurn torturer_start_turn;
+        int32_t accumulated_torture_points;
         ThingIndex assigned_torturer;
-        unsigned char vis_state;
+        unsigned char visual_state;
       } tortured;
       struct {
         GameTurn start_gameturn;
@@ -262,11 +269,11 @@ struct CreatureControl {
         MapSubtlCoord pole_stl_y;
         unsigned char search_timeout;
         short partner_idx;
-        long partner_creation;
+        int32_t partner_creation;
       } training;
       struct {
         GameTurn seen_enemy_turn;
-        long battle_enemy_crtn;
+        int32_t battle_enemy_crtn;
         ThingIndex battle_enemy_idx;
         ThingIndex seen_enemy_idx;
         unsigned char state_id;
@@ -289,7 +296,7 @@ struct CreatureControl {
       } eating;
       struct {
         unsigned char job_stage;
-        long random_thinking_angle;
+        int32_t random_thinking_angle;
       } research;
       struct {
         short enemy_idx;
@@ -316,10 +323,10 @@ struct CreatureControl {
     TbBool called_to_arms;
     TbBool exp_level_up;
     unsigned char stateblock_flags;
-    unsigned long spell_flags;
+    uint32_t spell_flags;
     short force_visible;
     unsigned char frozen_on_hit;
-    long last_piss_turn;
+    int32_t last_piss_turn;
     unsigned char disease_caster_plyridx;
     MapSubtlCoord teleport_x;
     MapSubtlCoord teleport_y;
@@ -334,7 +341,7 @@ struct CreatureControl {
     short move_speed;
     short orthogn_speed;
     short roll;
-    unsigned long anim_time;
+    uint32_t anim_time;
     CrInstance instance_id;
     TbBool inst_repeat;
     unsigned short inst_turn;
@@ -343,7 +350,7 @@ struct CreatureControl {
     unsigned short targtng_idx;
     MapSubtlCoord targtstl_x;
     MapSubtlCoord targtstl_y;
-    unsigned long instance_use_turn[INSTANCE_TYPES_MAX];
+    uint32_t instance_use_turn[INSTANCE_TYPES_MAX];
     TbBool instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
@@ -363,12 +370,12 @@ struct CreatureControl {
     unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
     short countdown; // signed
-    unsigned short damage_wall_coords;
+    SubtlCodedCoords damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
     char creature_name[CREATURE_NAME_MAX];
     struct Coord3d flee_pos;
-    long flee_start_turn;
+    int32_t flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;
@@ -380,29 +387,29 @@ struct CreatureControl {
     short shot_shift_x;
     short shot_shift_y;
     short shot_shift_z;
-    unsigned long tasks_check_turn;
-    unsigned long wander_around_check_turn;
-    unsigned long job_primary_check_turn;
-    unsigned long job_secondary_check_turn;
-    unsigned long healing_sleep_check_turn;
-    unsigned long garden_eat_check_turn;
-    unsigned long temple_pray_check_turn;
-    unsigned long sulking_sleep_check_turn;
-    unsigned long job_assigned_check_turn;
-    unsigned long disease_start_turn;
-    unsigned long armageddon_teleport_turn;
-    short battle_prev_creatr;
-    short battle_next_creatr;
+    GameTurn tasks_check_turn;
+    GameTurn wander_around_check_turn;
+    GameTurn job_primary_check_turn;
+    GameTurn job_secondary_check_turn;
+    GameTurn healing_sleep_check_turn;
+    GameTurn garden_eat_check_turn;
+    GameTurn temple_pray_check_turn;
+    GameTurn sulking_sleep_check_turn;
+    GameTurn job_assigned_check_turn;
+    GameTurn disease_start_turn;
+    GameTurn armageddon_teleport_turn;
+    ThingIndex battle_prev_creatr;
+    ThingIndex battle_next_creatr;
     BattleIndex battle_id;
     MapSubtlCoord alarm_stl_x;
     MapSubtlCoord alarm_stl_y;
-    unsigned long alarm_over_turn;
-    unsigned long lava_escape_since;
+    GameTurn alarm_over_turn;
+    uint32_t lava_escape_since;
     unsigned char stopped_for_hand_turns;
-    long following_leader_since;
+    int32_t following_leader_since;
     unsigned char follow_leader_fails;
     GameTurn dropped_turn;
-    unsigned long timebomb_countdown;
+    uint32_t timebomb_countdown;
     ThingIndex timebomb_countdown_id;
     ThingIndex timebomb_target_id;
     GameTurn unsummon_turn;
@@ -422,8 +429,8 @@ struct Persons {
 };
 
 struct CreatureSound {
-    long index;
-    long count;
+    int32_t index;
+    int16_t count;
 };
 
 struct CreatureSounds {
@@ -431,7 +438,6 @@ struct CreatureSounds {
     struct CreatureSound hit;
     struct CreatureSound happy;
     struct CreatureSound sad;
-    struct CreatureSound hurt;
     struct CreatureSound die;
     struct CreatureSound hang;
     struct CreatureSound drop;
@@ -445,12 +451,12 @@ extern int creature_swap_idx[CREATURE_TYPES_MAX];
 
 #pragma pack()
 /******************************************************************************/
-struct CreatureControl *creature_control_get(long cctrl_idx);
+struct CreatureControl *creature_control_get(CctrlIndex cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);
 TbBool creature_control_invalid(const struct CreatureControl *cctrl);
 TbBool creature_control_exists(const struct CreatureControl *cctrl);
 void clear_creature_instance(struct Thing *thing);
-long i_can_allocate_free_control_structure(void);
+CctrlIndex i_can_allocate_free_control_structure(void);
 struct CreatureControl *allocate_free_control_structure(void);
 void delete_control_structure(struct CreatureControl *cctrl);
 void delete_all_control_structures(void);
@@ -464,10 +470,10 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
 void stop_creature_sound(struct Thing *thing, long snd_idx);
 void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2);
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
-void reset_creature_eye_lens(struct Thing *thing);
 TbBool creature_can_gain_experience(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 #endif
+

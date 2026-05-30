@@ -113,6 +113,8 @@ void maintain_spell_next_page_button(struct GuiButton *gbtn);
 void maintain_room_next_page_button(struct GuiButton *gbtn);
 void maintain_trap_next_page_button(struct GuiButton *gbtn);
 void gui_switch_players_visible(struct GuiButton* gbtn);
+
+void go_to_adjacent_menu_tab(int direction);
 /******************************************************************************/
 #ifdef __cplusplus
 }

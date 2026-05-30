@@ -32,3 +32,10 @@ function CreateEffectAtCoords(effect,val_x,val_y,val_z) local ef return ef end
 ---@param speed integer The delay between effects. The number represents 'number of effects per 4 game turns', set it to '2' to spawn 10 effects per second. Use 0 to spawn all effects at once. Max value is 127.
 ---@param effect effect_or_effelem_type The effect to spawn. Can be any effect or effect element that is in game, like the hearts that appear when healing, or the red smoke when claiming a room. Also accepts the names as provided in effects.toml
 function CreateEffectsLine(origin,destination,curvature,distance, speed, effect) end
+
+
+---Place any Effect Generator at a specific place on the map.
+---@param effect_generator effect_generator_type The effect generator name from effects.toml.
+---@param location location The location you want the generator to spawn.
+---@param range integer The range within which the generator will spawn effects.
+function AddEffectGeneratorToLevel(effect_generator,location,range) end

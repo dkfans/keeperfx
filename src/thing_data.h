@@ -124,13 +124,13 @@ struct Thing {
     unsigned char owner;
     unsigned char active_state;
     unsigned char continue_state;
-    long creation_turn;
+    int32_t creation_turn;
     struct Coord3d mappos;
     union {
 //TCls_Empty
 //TCls_Object
       struct {
-        long gold_stored;
+        int32_t gold_stored;
         short unusedparam;
       } valuable;
       struct {
@@ -175,13 +175,10 @@ struct Thing {
         unsigned char effect_slot;
       } disease;
       struct {
-        long room_idx;
+        int32_t room_idx;
+        int32_t last_turn_drawn;
+        unsigned char display_timer;
       } roomflag;
-      struct {
-      short unused3;
-      long last_turn_drawn;
-      unsigned char display_timer;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn
 //TCls_Shot
       struct {
         unsigned char dexterity;
@@ -194,13 +191,11 @@ struct Thing {
         CctrlIndex wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
       } shot;
       struct {
-        long x;
+        int32_t x;
         short target_idx;
         unsigned char posint;
-      } shot_lizard;
-      struct {
         unsigned char range;
-      } shot_lizard2;// both shot_lizard and shot_lizard2 are used in same function on same object but have 1 byte overlapping between x and range
+      } shot_lizard;
 //TCls_EffectElem
 //TCls_DeadCreature
       struct {
@@ -209,7 +204,7 @@ struct Thing {
       } corpse;
 //TCls_Creature
       struct {
-        long gold_carried;
+        int32_t gold_carried;
         short health_bar_turns;
         short volley_repeat;
         TbBool volley_fire;
@@ -221,12 +216,12 @@ struct Thing {
         unsigned char hit_type;
       } shot_effect;
       struct {
-        long number;
+        int32_t number;
       } price_effect;
 //TCls_EffectGen
       struct {
       short range;
-      long generation_delay;
+      int32_t generation_delay;
       } effect_generator;
 //TCls_Trap
       struct {
@@ -279,7 +274,7 @@ struct Thing {
     struct CoordDelta3d velocity;
     // Push when moving; needs to be signed
     short anim_speed;
-    long anim_time; // animation time (measured in 1/256 of a frame)
+    int32_t anim_time; // animation time (measured in 1/256 of a frame)
     unsigned short anim_sprite;
     unsigned short sprite_size;
     unsigned char current_frame;
@@ -304,23 +299,23 @@ struct Thing {
     unsigned char snd_emitter_id;
     short next_of_class;
     short prev_of_class;
-    unsigned long flags; //ThingAddFlags
-    long last_turn_drawn;
+    uint32_t flags; //ThingAddFlags
+    int32_t last_turn_drawn;
     float time_spent_displaying_hurt_colour; // Used for delta time interpolated render position
     unsigned short previous_floor_height;
     unsigned short interp_floor_height;
     struct Coord3d previous_mappos;
     struct Coord3d interp_mappos;
-    long interp_minimap_pos_x;
-    long interp_minimap_pos_y;
-    long previous_minimap_pos_x;
-    long previous_minimap_pos_y;
+    int32_t interp_minimap_pos_x;
+    int32_t interp_minimap_pos_y;
+    int32_t previous_minimap_pos_x;
+    int32_t previous_minimap_pos_y;
     uint32_t random_seed;
-    long interp_minimap_update_turn;
+    int32_t interp_minimap_update_turn;
     PlayerNumber holding_player;
 };
 
-#define INVALID_THING (game.things.lookup[0])
+#define INVALID_THING (&game.things_data[0])
 
 /** Macro used for debugging problems related to things.
  * Should be executed in every function which changes a thing.
@@ -339,11 +334,11 @@ enum ThingAddFlags //named this way because they were part of the ThingAdd struc
 #define allocate_free_thing_structure(class_id) allocate_free_thing_structure_f(class_id, __func__)
 struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name);
 TbBool i_can_allocate_free_thing_structure(unsigned char class_id);
-#define delete_thing_structure(thing, a2) delete_thing_structure_f(thing, a2, __func__)
-void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name);
+#define delete_thing_structure(thing, deleting_everything) delete_thing_structure_f(thing, deleting_everything, __func__)
+void delete_thing_structure_f(struct Thing *thing, TbBool deleting_everything, const char *func_name);
 
 #define thing_get(tng_idx) thing_get_f(tng_idx, __func__)
-struct Thing *thing_get_f(long tng_idx, const char *func_name);
+struct Thing *thing_get_f(ThingIndex tng_idx, const char *func_name);
 TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
 struct Thing* get_parent_thing(const struct Thing* thing);
@@ -352,6 +347,7 @@ TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 
+void set_thing_animation(struct Thing *thing, long animation_index, long speed);
 void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class);
 
 void query_thing(struct Thing *thing);

@@ -49,6 +49,8 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "engine_arrays.h"
+#include "engine_camera.h"
+#include "local_camera.h"
 #include "engine_redraw.h"
 #include "sounds.h"
 #include "config_settings.h"
@@ -59,6 +61,7 @@
 #include "bflib_inputctrl.h"
 #include "map_blocks.h"
 #include "lua_triggers.h"
+#include "lens_api.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -158,7 +161,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, int32_t *n)
         return 0;
     }
     struct Thing* handtng = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(handtng))
+    if (thing_exists(handtng))
     {
         set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
@@ -171,7 +174,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, int32_t *n)
     struct Thing* thing = thing_get(player->hand_thing_idx);
     player->influenced_thing_idx = dungeon->things_in_hand[0];
     player->influenced_thing_creation = thing->creation_turn;
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
@@ -181,7 +184,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, int32_t *n)
 long pinstfe_hand_drop(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Hover);
     }
@@ -193,7 +196,7 @@ long pinstfe_hand_drop(struct PlayerInfo *player, int32_t *n)
 long pinstfs_hand_whip(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_Slap);
     }
@@ -229,7 +232,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, int32_t *n)
           if ( creature_model_bleeds(thing->model) )
               create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
           thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-          struct Camera* cam = player->acamera;
+          struct Camera* cam = get_player_active_camera(player);
           if (cam != NULL)
           {
             thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, cam->rotation_angle_x);
@@ -242,7 +245,11 @@ long pinstfe_hand_whip(struct PlayerInfo *player, int32_t *n)
       shotst = get_shot_model_stats(thing->model);
       if (shotst->model_flags & ShMF_Boulder)
       {
-          thing->move_angle_xy = player->acamera->rotation_angle_x;
+          struct Camera* camera = get_player_active_camera(player);
+          if (camera != NULL)
+          {
+              thing->move_angle_xy = camera->rotation_angle_x;
+          }
           if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
           {
               thing->health -= game.conf.rules[thing->owner].game.boulder_reduce_health_slap;
@@ -291,7 +298,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, int32_t *n)
 long pinstfs_hand_whip_end(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_SideSlap);
     }
@@ -301,7 +308,7 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, int32_t *n)
 long pinstfe_hand_whip_end(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         set_power_hand_graphic(player->id_number, HndA_SideHover);
     }
@@ -318,7 +325,7 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
   }
-  struct Camera* cam = player->acamera;
+    struct Camera* cam = get_player_active_camera(player);
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->dungeon_camera_zoom = get_camera_zoom(cam);
   // Play possession sound
@@ -345,11 +352,11 @@ long pinstfs_direct_control_creature(struct PlayerInfo *player, int32_t *n)
 
 long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
 {
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_player_active_camera(player);
     if (cam == NULL)
         return 0;
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (thing_is_invalid(thing) || (thing->class_id == TCls_DeadCreature) || creature_is_dying(thing))
+    if (!thing_exists(thing) || (thing->class_id == TCls_DeadCreature) || creature_is_dying(thing))
     {
         set_camera_zoom(cam, player->dungeon_camera_zoom);
         if (is_my_player(player))
@@ -408,6 +415,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
         {
           cam->rotation_angle_x -= DEGREES_360;
         }
+        set_local_camera_destination(player);
     }
     return 0;
 }
@@ -423,7 +431,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
     }
     if (!thing_exists(thing))
     {
-        set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+        set_camera_zoom(get_player_active_camera(player), player->dungeon_camera_zoom);
         if (is_my_player(player)) {
             PaletteSetPlayerPalette(player, engine_palette);
         }
@@ -435,9 +443,10 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
     TbBool my_player = (is_my_player(player));
     if (thing->class_id == TCls_Creature)
     {
-        load_swipe_graphic_for_creature(thing);
-        if (my_player)
-        {
+        if (my_player) {
+            load_swipe_graphic_for_creature(thing);
+        }
+        if (my_player) {
             if (creature_under_spell_effect(thing, CSAfF_Freeze))
             {
                 PaletteSetPlayerPalette(player, blue_palette);
@@ -455,9 +464,11 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
 long pinstfe_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
-        load_swipe_graphic_for_creature(thing);
+        if (is_my_player(player)) {
+            load_swipe_graphic_for_creature(thing);
+        }
         control_creature_as_passenger(player, thing);
     }
     set_player_instance(player, PI_CrCtrlFade, false);
@@ -480,7 +491,6 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   }
   player->allocflags |= PlaF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
-  reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
       PaletteSetPlayerPalette(player, engine_palette);
@@ -505,10 +515,12 @@ long pinstfm_leave_creature(struct PlayerInfo *player, int32_t *n)
 {
     if (player->view_mode != PVM_FrontView)
     {
-        view_zoom_camera_out(player->acamera, 30000, 0);
-        if (get_camera_zoom(player->acamera) < player->dungeon_camera_zoom) {
-            set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+        struct Camera* camera = get_player_active_camera(player);
+        view_zoom_camera_out(camera, 30000, 0);
+        if (get_camera_zoom(camera) < player->dungeon_camera_zoom) {
+            set_camera_zoom(camera, player->dungeon_camera_zoom);
         }
+        set_local_camera_destination(player);
     }
     return 0;
 }
@@ -522,7 +534,6 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   }
   player->allocflags |= PlaF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
-  reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
     PaletteSetPlayerPalette(player, engine_palette);
@@ -544,9 +555,10 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
 
 long pinstfe_leave_creature(struct PlayerInfo *player, int32_t *n)
 {
-  set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
-  if (is_my_player(player))
+    set_camera_zoom(get_player_active_camera(player), player->dungeon_camera_zoom);
+  if (is_my_player(player)) {
     PaletteSetPlayerPalette(player, engine_palette);
+  }
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
@@ -555,7 +567,7 @@ long pinstfe_leave_creature(struct PlayerInfo *player, int32_t *n)
 long pinstfs_query_creature(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
+    player->dungeon_camera_zoom = get_camera_zoom(get_player_active_camera(player));
     set_selected_creature(player, thing);
     unsigned char state = ( (player->work_state == PSt_QueryAll) || (player->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
     set_player_state(player, state, 0);
@@ -596,11 +608,8 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 
 long pinstfm_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 {
-    if (is_my_player_number(player->id_number)) {
-        reset_interpolation_of_camera(player);
-    }
     struct Thing* thing = thing_get(player->controlled_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
     {
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
@@ -627,14 +636,14 @@ long pinstfe_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->controlled_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_exists(thing))
         leave_creature_as_controller(player, thing);
     set_player_mode(player, PVT_DungeonTop);
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_player_active_camera(player);
     if (cam == NULL)
         return 0;
     thing = get_player_soul_container(player->id_number);
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
     {
         cam->mappos.x.val = subtile_coord_center(game.map_subtiles_x / 2);
         cam->mappos.y.val = subtile_coord_center(game.map_subtiles_y / 2);
@@ -653,6 +662,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
     cam->zoom = 24000;
   }
   cam->rotation_angle_x = 0;
+  sync_local_camera(player);
   if (!TimerNoReset)
   {
      timerstarttime = LbTimerClock();
@@ -665,7 +675,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
     if (player->view_mode != PVM_FrontView)
     {
-        struct Camera* cam = player->acamera;
+        struct Camera* cam = get_player_active_camera(player);
         struct Thing* thing = get_player_soul_container(player->id_number);
         long deltax;
         long deltay;
@@ -689,6 +699,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
         dstcam = &player->cameras[CamIV_FrontView];
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
+        set_local_camera_destination(player);
     }
     if (is_my_player_number(player->id_number) && (player->instance_remain_turns >= 8))
         LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
@@ -700,11 +711,12 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
   if (is_my_player(player)) {
     LbPaletteStopOpenFade();
   }
-  struct Camera* cam = player->acamera;
+    struct Camera* cam = get_player_active_camera(player);
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
     cam->zoom = player->isometric_view_zoom_level;
     cam->rotation_angle_x = DEGREES_45;
+    set_local_camera_destination(player);
   }
   light_turn_light_on(player->cursor_light_idx);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
@@ -739,7 +751,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n)
 
 long pinstfs_fade_to_map(struct PlayerInfo *player, int32_t *n)
 {
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_player_active_camera(player);
     player->palette_fade_step_map = 0;
     player->allocflags |= PlaF_MouseInputDisabled;
     player->view_mode_restore = cam->view_mode;
@@ -833,7 +845,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, int32_t *n)
     player->controlled_thing_creatrn = 0;
     player->allocflags |= PlaF_MouseInputDisabled;
     player->allocflags |= PlaF_KeyboardInputDisabled;
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_player_active_camera(player);
     int dt_x = (player->zoom_to_pos_x - (int)cam->mappos.x.val) / 8;
     int dt_y = (player->zoom_to_pos_y - (int)cam->mappos.y.val) / 8;
     if (dt_x < 0)
@@ -862,7 +874,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, int32_t *n)
 long pinstfm_zoom_to_position(struct PlayerInfo *player, int32_t *n)
 {
     MapCoord x, y;
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_player_active_camera(player);
     cam->inertia_x = 0;
     cam->inertia_y = 0;
     if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
@@ -877,6 +889,7 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, int32_t *n)
         player->instance_remain_turns = 0;
     cam->mappos.x.val = x;
     cam->mappos.y.val = y;
+    set_local_camera_destination(player);
     return 0;
 }
 
@@ -961,16 +974,21 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
         player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
         player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
+        sync_local_camera(player);
         clear_selected_thing(player);
         return;
     }
     clear_selected_thing(player);
     set_player_mode(player, PVT_DungeonTop);
+    if (is_my_player(player)) {
+        setup_eye_lens(0);
+    }
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->rendering_flags &= ~TRF_Invisible;
     player->allocflags &= ~PlaF_CreaturePassengerMode;
     set_engine_view(player, player->view_mode_restore);
-    long i = player->acamera->rotation_angle_x;
+    struct Camera* cam = get_player_active_camera(player);
+    long i = (cam != NULL) ? cam->rotation_angle_x : 0;
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long k = thing->mappos.z.val + get_creature_eye_height(thing);
@@ -978,6 +996,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
     player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
     player->cameras[CamIV_FrontView].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+    sync_local_camera(player);
     if (thing->class_id == TCls_Creature)
     {
         set_start_state(thing);
@@ -1009,6 +1028,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
     player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
     player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
+    sync_local_camera(player);
     clear_selected_thing(player);
     return;
   }
@@ -1016,12 +1036,14 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   thing->rendering_flags &= ~TRF_Invisible;
   player->allocflags &= ~PlaF_CreaturePassengerMode;
   set_engine_view(player, player->view_mode_restore);
-  long i = player->acamera->rotation_angle_x;
+    struct Camera* cam = get_player_active_camera(player);
+    long i = (cam != NULL) ? cam->rotation_angle_x : 0;
   long k = thing->mappos.z.val + get_creature_eye_height(thing);
   player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   player->cameras[CamIV_FrontView].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+  sync_local_camera(player);
   clear_selected_thing(player);
 }
 
@@ -1077,6 +1099,7 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     case PI_WhipEnd:
         return (thing->index == player->controlled_thing_idx);
     case PI_PsngrCtLeave: // Leaving the possessed creature
+    case PI_ZoomToPos:
         break;
     default:
         ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);

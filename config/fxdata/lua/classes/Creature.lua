@@ -8,8 +8,9 @@
 ---@field name string name visible in possession or query menu
 ---@field party Creature[] list of creatures in the party, first entry is the leader
 ---@field workroom Room the room the creature is currently working in
----@field state string
----@field continue_state string
+---@field state creature_state
+---@field state_besides_interruptions creature_state the state the creature is in, ignoring interruption states like moving around or being slapped. Used for checking what the creature is actually doing instead of just what state it is in. read-only
+---@field continue_state creature_state
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
 ---@field flee_pos Pos3d The position the creature will flee too. For keeper creatures this is their lair
 ---@field max_speed integer the movement speed of the creature after spell modifications
@@ -30,7 +31,10 @@
 ---@field party_original_objective string The originally assigned Hero party objective, returns to this when failing an alternative objective.
 ---@field party_target_player integer The player the hero party is targetting
 ---@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
----@field patrol_countdown integer when this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
+---@field patrol_countdown integer When this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
+---@field conscious_back_turns integer Turns until the creature wakes up from stun.
+---@field unsummon_duration integer Turns until the creature will unsummon. It's set on temporary creatures/familiars.
+---@field familiars Creature[] list of familiars of the creature.
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
@@ -46,7 +50,12 @@ end
 function Creature:teleport(location,effect) end
 
 ---Kills the creature
-function Creature:kill() end
+--- @param killer? Creature that gets credited with the kill of the creature
+function Creature:kill(killer) end
+
+---Stuns the creature
+---@param turns ? Sets conscious_back_turns; the duration of the stun.
+function Creature:stun(turns) end
 
 ---increases creatures level by a given amount
 ---@param levels integer
@@ -55,6 +64,10 @@ function Creature:level_up(levels) end
 ---sends the creature to the next level, similar to using the special box and selecting said unit
 function Creature:transfer() end
 
+---Checks if the creature is under enemy custody (e.g. in prison or torture chamber)
+---@return boolean in_enemy_custody If the creature is currently controlled by the enemy
+function Creature:in_enemy_custody() end
+
 ---makes the creature walk to a given subtile, combine with continue_state, so it knows what to do after it arrives.
 ---e.g cr:walk_to(5,5)
 ---    cr:continue_state = "CreatureDoingNothing"
@@ -62,3 +75,14 @@ function Creature:transfer() end
 ---@param stl_x integer
 ---@param stl_y integer
 function Creature:walk_to(stl_x,stl_y) end
+
+---Returns the annoyance value for a specific reason
+---@param reason anger_reason The reason to query
+---@return integer annoyance The current annoyance value for that reason
+---@nodiscard
+function Creature:get_annoyance(reason) end
+
+---Sets the annoyance value for a specific reason
+---@param reason anger_reason The reason to set
+---@param value integer The annoyance value to set
+function Creature:set_annoyance(reason, value) end

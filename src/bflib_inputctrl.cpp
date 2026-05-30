@@ -19,19 +19,23 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include <math.h>
 #include <map>
 #include "bflib_inputctrl.h"
 #include "bflib_basics.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
+#include "bflib_joyst.h"
 #include "bflib_video.h"
 #include "bflib_planar.h"
 #include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
+#include "frontmenu_ingame_tabs.h"
 #include "config_keeperfx.h"
-#include "sounds.h"
-#include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
-#include "keeperfx.hpp" // for start_params
+#include "config_settings.h"
+#include "front_input.h"
+#include "game_legacy.h"
+#include "keeperfx.hpp"
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
@@ -41,12 +45,10 @@ using namespace std;
 extern "C" {
 #endif
 /******************************************************************************/
-extern volatile TbBool lbScreenInitialised;
-extern volatile TbBool lbHasSecondSurface;
-extern SDL_Color lbPaletteColors[PALETTE_COLORS];
-
 volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
+
+unsigned char last_used_input_device = 0;
 
 static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
@@ -55,15 +57,16 @@ static TbBool firstTimeMouseInit = true;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
+//defined here instead of bflib_joyst.h to avoid making header depend on SDL
+void JEvent(const SDL_Event *ev);
 /******************************************************************************/
+
 /**
  * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
  * @param eventType SDL event type.
  * @param button SDL button definition.
  * @return
  */
- 
-
 static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
 {
     if (eventType == SDL_MOUSEBUTTONDOWN) {
@@ -219,6 +222,8 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MENU, KC_APPS));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_POWER, KC_POWER));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
+
+    init_controller_input();
 }
 
 static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
@@ -275,6 +280,13 @@ TbBool LbIsFrozenOrPaused(void)
     return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
 }
 
+static TbKeyCode mousebutton_to_keycode(const Uint8 *button)
+{
+    if (button == NULL || *button < 1 || *button > 9)
+        return KC_UNASSIGNED;
+    return (KC_MOUSE1 + 1 - *button);
+}
+
 static void process_event(const SDL_Event *ev)
 {
     struct TbPoint mouseDelta;
@@ -286,13 +298,19 @@ static void process_event(const SDL_Event *ev)
     case SDL_KEYDOWN:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
+        {
             keyboardControl(KActn_KEYDOWN,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        }
+        last_used_input_device = ID_Keyboard_Mouse;
         break;
 
     case SDL_KEYUP:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
+        {
             keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        }
+        last_used_input_device = ID_Keyboard_Mouse;
         break;
 
     case SDL_MOUSEMOTION:
@@ -323,16 +341,36 @@ static void process_event(const SDL_Event *ev)
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
-        if (!isMouseActive)
+        last_used_input_device = ID_Keyboard_Mouse;
+
+        if(ev->button.button == SDL_BUTTON_LEFT || ev->button.button == SDL_BUTTON_RIGHT || ev->button.button == SDL_BUTTON_MIDDLE)
         {
-          return;
+            if (!isMouseActive)
+            {
+            return;
+            }
+            mouseDelta.x = 0;
+            mouseDelta.y = 0;
+            mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
         }
-        mouseDelta.x = 0;
-        mouseDelta.y = 0;
-        mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
+        else
+        {
+            x = mousebutton_to_keycode(&ev->button.button);
+            if (x != KC_UNASSIGNED)
+            {
+                if (ev->type == SDL_MOUSEBUTTONDOWN)
+                {
+                    lbKeyOn[x] = 1;
+                    lbInkey = x;
+                }
+                else
+                    lbKeyOn[x] = 0;
+            }
+        }
         break;
 
     case SDL_MOUSEWHEEL:
+        last_used_input_device = ID_Keyboard_Mouse;
         mouseDelta.x = 0;
         mouseDelta.y = 0;
         mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mouseDelta);
@@ -399,16 +437,22 @@ static void process_event(const SDL_Event *ev)
              // todo (allow window to be freely scaled): add window resize function that does what is needed, and call this new function from window init function too
         } */
         break;
+    case SDL_SYSWMEVENT:
+    case SDL_WINDOWEVENT_RESIZED:
+        break;
+
+    case SDL_CONTROLLERAXISMOTION:
+    case SDL_CONTROLLERBUTTONDOWN:
+    case SDL_CONTROLLERBUTTONUP:
+    case SDL_JOYDEVICEADDED:
+    case SDL_JOYDEVICEREMOVED:    
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:
     case SDL_JOYHATMOTION:
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
-        //TODO INPUT make joypad support
-        break;
-
-    case SDL_SYSWMEVENT:
-    case SDL_WINDOWEVENT_RESIZED:
+        last_used_input_device = ID_Controller;
+        JEvent(ev);
         break;
 
     case SDL_QUIT:
@@ -416,14 +460,16 @@ static void process_event(const SDL_Event *ev)
         break;
     }
 }
+
 /******************************************************************************/
-TbBool LbWindowsControl(void)
+TbBool LbPollInputs(void)
 {
     SDL_Event ev;
     //process events until event queue is empty
     while (SDL_PollEvent(&ev)) {
         process_event(&ev);
     }
+
     return (lbUserQuit < 1);
 }
 

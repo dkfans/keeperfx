@@ -6,6 +6,10 @@
 ---@param val1 integer
 function SetGameRule(rulename,val1) end
 
+---Creates a new creature type by loading in a creature config file with this name present in the creatures folder and adds it to the creature list. Creature name will not be recognized in DKscript.
+---@param creaturename string the name of the creature config file you want to load
+function NewCreatureType(name) end
+
 ---Allows you to make changes to door values set in trapdoor.cfg. Look in that file for explanations on the numbers.
 ---@param doorname door_type The name of the door as defined in trapdoor.cfg
 ---@param property string The name of the door property you want to change, as found in trapdoor.cfg. E.g. ManufactureRequired.
@@ -64,9 +68,9 @@ function SetRoomConfiguration(room_type,property,value,value2,value3) end
 
 
 ---Creates or modifies a Temple recipe.
----@param command string The possible commands as listed in the sacrifices section in rules.cfg. Additionally, CUSTOMREWARD and CUSTOMPUNISH may be used. These play the respective sounds, and may increase the flag as configured for the reward parameter.
----@param reward string The Creature, Spell or Unique function that is triggered when the Sacrifice completes, as seen in rules.cfg. Use FLAG0-FLAG7 to indicate which flag is raised when a player completes the sacrifice.
----@param creature creature_type [creature1] to [creature5] are creature names, like HORNY. Only the first one is mandatory.
+---@param command "MKCREATURE"|"MKGOODHERO"|"NEGSPELLALL"|"POSSPELLALL"|"NEGUNIQFUNC"|"POSUNIQFUNC"|"CUSTOMREWARD"|"CUSTOMPUNISH" What happens when the sacrifice completes: create a creature/hero, grant a positive or negative spell, trigger a predefined unique effect, or use a custom reward/punish entry from rules.cfg.
+---@param reward flag_desc|creature_type|spell_type|sacrifice_reward|creature_type|"none" The creature, spell, or unique sacrifice effect triggered by the selected command; for CUSTOMREWARD and CUSTOMPUNISH, this is the custom reward/punish identifier defined in rules.cfg.
+---@param creature creature_type the creatures to sacrifce; up to 5 entries, first one is required, the rest are optional.
 function SetSacrificeRecipe(command, reward, creature, ...) end
 
 ---Removes a Temple recipe.

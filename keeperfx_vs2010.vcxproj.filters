@@ -54,9 +54,6 @@
     <ClCompile Include="src\bflib_crash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_datetm.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_dernc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -103,9 +100,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_string.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_tcpsp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_video.c">
@@ -294,6 +288,9 @@
     <ClCompile Include="src\front_landview.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\front_landview_multiplayer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\front_lvlstats.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -370,9 +367,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gui_topmsg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\KeeperSpeechImp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\kjm_input.c">
@@ -540,12 +534,6 @@
     <ClCompile Include="src\vidmode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_base_tcp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_client_tcp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_inputctrl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -573,10 +561,16 @@
     <ClCompile Include="src\bflib_netsp_tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_network.cpp">
+    <ClCompile Include="src\net_exchange_common.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_server_tcp.cpp">
+    <ClCompile Include="src\net_exchange_gameplay.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_lobby.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_magic_data.cpp">
@@ -612,10 +606,28 @@
     <ClCompile Include="src\frontmenu_select_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lens_flyeye.cpp">
+    <ClCompile Include="src\kfx\lense\DisplacementEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lens_mist.cpp">
+    <ClCompile Include="src\kfx\lense\FlyeyeEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\LensEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\LensManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\LuaLensEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\MistEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\OverlayEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kfx\lense\PaletteEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
@@ -631,6 +643,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\roomspace_detection.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\roomspace_prediction.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine_render_data.cpp">
@@ -740,6 +755,8 @@
     </ClCompile>
     <ClCompile Include="src\lua_api_slabs.c">
       <Filter>Source Files</Filter>
+    <ClCompile Include="src\lua_api_map.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\lua_api_things.c">
       <Filter>Source Files</Filter>
@@ -757,6 +774,39 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\lua_utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_camera.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\local_camera.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_portforward.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_resync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_input_joyst.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_holepunch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_lan.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_matchmaking.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_datetm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_room.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_lens.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -791,13 +841,7 @@
     <ClInclude Include="src\ariadne_wallhug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\bflib_base_tcp.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\bflib_basics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_client_tcp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_cpu.h">
@@ -866,16 +910,22 @@
     <ClInclude Include="src\bflib_netsp_tcp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\bflib_network.h">
+    <ClInclude Include="src\net_exchange_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_exchange_gameplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_lobby.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_planar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_server_tcp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_sndlib.h">
@@ -1157,19 +1207,34 @@
     <ClInclude Include="src\keeperfx.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\KeeperSpeech.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\kjm_input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\lens_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lens_flyeye.h">
+    <ClInclude Include="src\kfx\lense\DisplacementEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lens_mist.h">
+    <ClInclude Include="src\kfx\lense\FlyeyeEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\LensEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\LensManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\LuaLensEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\MistEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\OverlayEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kfx\lense\PaletteEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\light_data.h">
@@ -1331,6 +1396,9 @@
     <ClInclude Include="src\roomspace_detection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\roomspace_prediction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\game_loop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1425,6 +1493,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\lua_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\local_camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_portforward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_resync.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_holepunch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_lan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_matchmaking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_api_lens.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

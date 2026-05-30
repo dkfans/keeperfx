@@ -8,19 +8,21 @@
 
 #include "bflib_basics.h"
 #include "config_rules.h"
-#include "globals.h"
-#include "thing_data.h"
 #include "creature_states.h"
+#include "custom_sprites.h"
+#include "game_legacy.h"
+#include "globals.h"
 #include "gui_msgs.h"
 #include "thing_navigate.h"
-#include "map_data.h"
-#include "game_legacy.h"
-#include "player_utils.h"
-#include "lvl_script_lib.h"
-#include "room_library.h"
+#include "thing_effects.h"
 #include "keeperfx.hpp"
 #include "lua_base.h"
-
+#include "lvl_script_lib.h"
+#include "map_data.h"
+#include "player_utils.h"
+#include "room_library.h"
+#include "thing_data.h"
+#include "thing_navigate.h"
 
 #include "post_inc.h"
 
@@ -109,13 +111,12 @@ long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * 
     }
     luaL_argerror(L,index,"unrecognized command");
     return 0;
-
 }
 
 long luaL_optCheckinteger(lua_State* L, int index)
 {
     if (lua_isnone(L, index))
-        return -1;
+        return 0;
     return luaL_checkinteger(L, index);
 }
 
@@ -126,18 +127,25 @@ long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * co
     return luaL_checkNamedCommand(L,index,commanddesc);
 }
 
+struct Thing *luaL_optCheckThing(lua_State* L, int index)
+{
+    if (lua_isnone(L, index))
+        return 0;
+    return luaL_checkThing(L, index);
+}
+
 struct Thing *luaL_checkThing(lua_State *L, int index)
 {
     if (!lua_istable(L, index)) {
         luaL_argerror(L,index, "Expected a table");
-        return NULL;
+        return INVALID_THING;
     }
 
     // Get idx field
     lua_getfield(L, index, "ThingIndex");
     if (!lua_isnumber(L, -1)) {
         luaL_argerror(L,index, "Expected 'index' to be an integer");
-        return NULL;
+        return INVALID_THING;
     }
     int idx = lua_tointeger(L, -1);
     lua_pop(L, 1);  // Pop the idx value off the stack
@@ -146,7 +154,7 @@ struct Thing *luaL_checkThing(lua_State *L, int index)
     lua_getfield(L, index, "creation_turn");
     if (!lua_isnumber(L, -1)) {
         luaL_argerror(L,index, "Expected 'creation_turn' to be an integer");
-        return NULL;
+        return INVALID_THING;
     }
     int creation_turn = lua_tointeger(L, -1);
     lua_pop(L, 1);  // Pop the creation_turn value off the stack
@@ -154,7 +162,7 @@ struct Thing *luaL_checkThing(lua_State *L, int index)
     struct Thing* thing = thing_get(idx);
     if (thing_is_invalid(thing) || thing->creation_turn != creation_turn) {
         luaL_argerror(L,index, "Failed to resolve thing");
-        return NULL;
+        return INVALID_THING;
     }
     return thing;
 }
@@ -165,6 +173,17 @@ struct Thing *luaL_checkCreature(lua_State *L, int index)
     if (thing->class_id != TCls_Creature)
     {
         luaL_argerror(L,index, "Expected a creature");
+        return NULL;
+    }
+    return thing;
+}
+
+struct Thing* luaL_checkObject(lua_State* L, int index)
+{
+    struct Thing* thing = luaL_checkThing(L, index);
+    if (thing->class_id != TCls_Object)
+    {
+        luaL_argerror(L, index, "Expected an object");
         return NULL;
     }
     return thing;
@@ -506,6 +525,34 @@ void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
     return;
 }
 
+long luaL_checkAnimationId(lua_State* L, int index)
+{
+    if (lua_isnumber(L, index))
+    {
+        return lua_tointeger(L, index);
+    }
+    else if (lua_isstring(L, index))
+    {
+        const char* text = lua_tostring(L, index);
+        long id = get_anim_id_(text);
+
+        luaL_argcheck(L, id != -1, index, "unrecognized command");
+
+        return id;
+    }
+    luaL_argerror(L, index, "unrecognized command");
+    return 0;
+}
+
+void luaL_checkVariable(lua_State* L, int index, int32_t* varib_id, int32_t* varib_type)
+{
+    const char* variable = luaL_checkstring(L, index);
+    if (!parse_get_varib(variable, varib_id, varib_type, 1))
+    {
+        luaL_argerror(L, index, lua_pushfstring(L, "Unknown variable, '%s'", variable));
+    }
+}
+
 /***************************************************************************************************/
 /************    Outputs   *************************************************************************/
 /***************************************************************************************************/
@@ -544,6 +591,21 @@ void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
     lua_setfield(L, -2, "__class");
 
     luaL_getmetatable(L, "Player");
+    lua_setmetatable(L, -2);  
+}
+
+void lua_pushCamera(lua_State *L, PlayerNumber plr_idx) {
+
+    lua_createtable(L, 0, 2);
+
+    lua_pushinteger(L, plr_idx);
+    lua_setfield(L, -2, "playerId");
+
+    // Store a class name for Bitser
+    lua_pushstring(L, "Camera");
+    lua_setfield(L, -2, "__class");
+
+    luaL_getmetatable(L, "Camera");
     lua_setmetatable(L, -2);  
 }
 
@@ -616,6 +678,28 @@ void lua_pushPartyTable(lua_State *L, struct Thing* thing) {
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
+        }
+    }
+}
+
+//takes the creature
+//pushes a table of all the summoned creatures onto the stack
+void lua_pushFamiliarTable(lua_State* L, struct Thing* thing) {
+    lua_newtable(L);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* famlrtng;
+    int k = 1;
+    for (int j = 0; j < FAMILIAR_MAX; j++)
+    {
+        if (cctrl->familiar_idx[j])
+        {
+            famlrtng = thing_get(cctrl->familiar_idx[j]);
+            if (!thing_is_invalid(famlrtng))
+            {
+                lua_pushThing(L, famlrtng);
+                lua_rawseti(L, -2, k);
+                k++;
+            }
         }
     }
 }

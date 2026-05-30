@@ -65,7 +65,7 @@ struct Light {
   unsigned char min_radius;
   unsigned short index;
   unsigned short shadow_index;
-  long attached_slb;
+  SlabCodedCoords attached_slb;
   unsigned short radius;
   unsigned short force_render_update;
   unsigned short radius_delta;//seems never assigned
@@ -77,8 +77,8 @@ struct Light {
   TbBool interp_has_been_initialized;
   struct Coord3d previous_mappos;
   struct Coord3d interp_mappos;
-  long last_turn_drawn;
-  long disable_interp_for_turns;
+  GameTurn last_turn_drawn;
+  GameTurnDelta disable_interp_for_turns;
 };
 
 struct InitLight { // sizeof=0x14
@@ -91,14 +91,14 @@ struct InitLight { // sizeof=0x14
 };
 
 struct LightSystemState {
-    long bitmask[32];
-    long static_light_needs_updating;
-    long total_dynamic_lights;
-    long total_stat_lights;
-    long rendered_dynamic_lights;
-    long rendered_optimised_dynamic_lights;
-    long updated_stat_lights;
-    long out_of_date_stat_lights;
+    int32_t bitmask[32];
+    int32_t static_light_needs_updating;
+    int32_t total_dynamic_lights;
+    int32_t total_stat_lights;
+    int32_t rendered_dynamic_lights;
+    int32_t rendered_optimised_dynamic_lights;
+    int32_t updated_stat_lights;
+    int32_t out_of_date_stat_lights;
 };
 
 /******************************************************************************/

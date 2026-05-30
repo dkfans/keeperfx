@@ -46,7 +46,7 @@ TbBool load_stats_files(void)
     TbBool result = true;
 
     clear_research_for_all_players();
-    init_creature_model_stats();
+    init_all_creature_model_stats();
     init_creature_model_graphics();
 
     //first preload some configs which contain names that are used in other cfgs in ListOnly mode
@@ -61,27 +61,27 @@ TbBool load_stats_files(void)
     load_config(&keeper_playerstates_file_data, CnfLd_ListOnly);
 
     //then load everything for real
-    load_config(&keeper_terrain_file_data,      CnfLd_Standard);
-    load_config(&keeper_objects_file_data,      CnfLd_Standard);
-    load_config(&keeper_trapdoor_file_data,     CnfLd_Standard);
-    load_config(&keeper_effects_file_data,      CnfLd_Standard);
-    load_config(&keeper_lenses_file_data,       CnfLd_Standard);
-    load_config(&keeper_magic_file_data,        CnfLd_Standard);
-    load_config(&keeper_creaturetp_file_data,   CnfLd_Standard);
-    load_config(&creature_states_file_data,     CnfLd_Standard);
+    load_config(&keeper_terrain_file_data,      CnfLd_Standard|CnfLd_PreListed);
+    load_config(&keeper_objects_file_data,      CnfLd_Standard|CnfLd_PreListed);
+    load_config(&keeper_trapdoor_file_data,     CnfLd_Standard|CnfLd_PreListed);
+    load_config(&keeper_effects_file_data,      CnfLd_Standard|CnfLd_PreListed);
+    load_config(&keeper_lenses_file_data,       CnfLd_Standard|CnfLd_PreListed);
+    load_config(&keeper_magic_file_data,        CnfLd_Standard|CnfLd_PreListed);
+    load_config(&keeper_creaturetp_file_data,   CnfLd_Standard|CnfLd_PreListed);
+    load_config(&creature_states_file_data,     CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_rules_file_data,        CnfLd_Standard);
     load_config(&keeper_textureanim_file_data,  CnfLd_Standard);
     load_config(&keeper_powerhands_file_data,   CnfLd_Standard);
     load_config(&keeper_spritecolors_file_data, CnfLd_Standard);
     load_config(&keeper_cubes_file_data,        CnfLd_Standard);
-    load_config(&keeper_playerstates_file_data, CnfLd_Standard);
+    load_config(&keeper_playerstates_file_data, CnfLd_Standard|CnfLd_PreListed);
     load_config(&keeper_keepcomp_file_data,     CnfLd_Standard);
     load_config(&keeper_slabset_file_data,      CnfLd_Standard);
     load_config(&keeper_columns_file_data,      CnfLd_Standard);
 
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {
-        if (!load_creaturemodel_config(i,0))
+        if (!load_default_creaturemodel_config(i,0))
             result = false;
     }
     SYNCDBG(3,"Finished");

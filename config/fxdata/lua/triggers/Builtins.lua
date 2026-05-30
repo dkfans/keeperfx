@@ -2,7 +2,7 @@
 -- Entry points for engine-triggered events (e.g. OnPowerCast, OnGameTick).
 -- These functions are called by the C engine and dispatch event data to the Lua trigger system.
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"Rebirth"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"Rebirth"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -28,6 +28,14 @@ function OnCreatureDeath(unit)
     local eventData = {}
     eventData.unit = unit
     ProcessEvent("Death",eventData)
+end
+
+--- Called when an object is destroyed
+--- @param object Object The object that is destroyed
+function OnObjectDestroyed(object)
+    local eventData = {}
+    eventData.object = object
+    ProcessEvent("Destroyed",eventData)
 end
 
 --- Called on each game tick to process timer events
@@ -70,7 +78,7 @@ function OnDungeonDestroyed(player)
     ProcessEvent("DungeonDestroyed",eventData)
 end
 
---- Called when a thing taked damage
+--- Called when a thing took damage
 ---@param thing Thing
 ---@param damage integer
 ---@param dealing_player Player
@@ -97,4 +105,52 @@ function OnCreatureRebirth(unit)
     local eventData = {}
     eventData.unit = unit
     ProcessEvent("Rebirth",eventData)
+end
+
+--- Called when a slab changed
+---@param slab Slab
+---@param old_slab_kind slab_type
+function OnSlabKindChange(slab, old_slab_kind)
+    local eventData = {}
+    eventData.Slab = slab
+    eventData.old_slab_kind = old_slab_kind
+    ProcessEvent("SlabKindChange",eventData)
+end
+
+--- Called when a slab owner changed
+---@param slab Slab
+---@param old_owner Player
+function OnSlabOwnerChange(slab, old_owner)
+    local eventData = {}
+    eventData.Slab = slab
+    eventData.old_owner = old_owner
+    ProcessEvent("SlabOwnerChange",eventData)
+end
+
+--- Called when a room changes owner
+---@param room Room
+---@param old_owner Player
+function OnRoomOwnerChange(room, old_owner)
+    local eventData = {}
+    eventData.Room = room
+    eventData.old_owner = old_owner
+    ProcessEvent("RoomOwnerChange",eventData)
+end
+
+--- Called when a shot hits a thing
+---@param shot Thing the shot hitting something.
+---@param shooter Thing|nil the shooter of the shot.
+---@param target Thing|nil what was hit, will be nil if the shot hit a wall. 
+---@param next_stl_x integer where the shot would have been had it not hit something. Useful if the shot hit a wall.
+---@param next_stl_y integer where the shot would have been had it not hit something. Useful if the shot hit a wall.
+---@param rebound_hit boolean true if the target was under the effect of rebound and the shot was not rebound immune.
+function OnShotHit(shot, shooter, target, next_stl_x, next_stl_y, rebound_hit)
+    local eventData = {}
+    eventData.shot = shot
+    eventData.shooter = shooter
+    eventData.target = target
+    eventData.next_stl_x = next_stl_x
+    eventData.next_stl_y = next_stl_y
+    eventData.rebound_hit = rebound_hit
+    ProcessEvent("ShotHitThing",eventData)
 end

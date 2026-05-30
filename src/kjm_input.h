@@ -75,6 +75,7 @@ extern TbBool defined_keys_that_have_been_swapped[];
 extern TbBool wheel_scrolled_up;
 extern TbBool wheel_scrolled_down;
 
+TbBool poll_inputs(void);
 
 long GetMouseX(void);
 long GetMouseY(void);
@@ -91,6 +92,8 @@ void define_key_input(void);
 void init_key_to_strings(void);
 
 TbBool mouse_is_over_panel_map(ScreenCoord x, ScreenCoord y);
+TbBool mouse_is_over_side_panel_bottom();
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

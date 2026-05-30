@@ -85,10 +85,10 @@ struct FlameProperties {
 
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    unsigned long model_flags;
-    long genre;
-    long map_icon;
-    long hand_icon;
+    uint32_t model_flags;
+    int32_t genre;
+    int32_t map_icon;
+    int32_t hand_icon;
     struct PickedUpOffset object_picked_up_offset;
     short tooltip_stridx;
     TbBool tooltip_optional;
@@ -109,13 +109,15 @@ struct ObjectConfigStats {
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     ThingModel related_creatr_model;
     unsigned char persistence;
-    unsigned char destroy_on_liquid;
+    TbBool destroy_on_liquid;
     unsigned char rotation_flag;
     FuncIdx updatefn_idx;
     unsigned char initial_state;
     unsigned char random_start_frame;
     unsigned char transparency_flags;  // Lower 2 bits are transparency flags.
     struct Effects effect;
+    EffectOrEffElModel lava_burn_effect;
+    EffectOrEffElModel water_splash_effect;
     struct FlameProperties flame;
 };
 

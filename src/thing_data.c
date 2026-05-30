@@ -103,7 +103,7 @@ static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const ch
     memset(thing, 0, sizeof(struct Thing));
     thing->alloc_flags |= TAlF_Exists;
     thing->index = thing_idx;
-    thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
+    thing->random_seed = thing->index * 9377 + 9439 + get_gameturn();
     TRACE_THING(thing);
 
     return thing;
@@ -148,17 +148,17 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
         return true;
     }
 
-    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d slots used.", SYNCED_THINGS_COUNT - game.synced_free_things_count, SYNCED_THINGS_COUNT);
+    show_onscreen_msg(2 * turns_per_second, "Warning: Cannot create thing, %d/%d slots used.", SYNCED_THINGS_COUNT - game.synced_free_things_count, SYNCED_THINGS_COUNT);
     return false;
 }
 
-void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
+void delete_thing_structure_f(struct Thing *thing, TbBool deleting_everything, const char *func_name)
 {
     TRACE_THING(thing);
     if ((thing->alloc_flags & TAlF_InDungeonList) != 0) {
         remove_first_creature(thing);
     }
-    if (!a2) {
+    if (!deleting_everything) {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_invalid(cctrl)) {
             if (creature_under_spell_effect(thing, CSAfF_Armour)) {
@@ -204,23 +204,25 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
  * @param tng_idx
  * @return Returns thing, or invalid thing pointer if not found.
  */
-struct Thing *thing_get_f(long tng_idx, const char *func_name)
+struct Thing *thing_get_f(ThingIndex tng_idx, const char *func_name)
 {
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT)) {
-        return game.things.lookup[tng_idx];
+        return &game.things_data[tng_idx];
     }
-    if ((tng_idx < 0) || (tng_idx >= THINGS_COUNT)) {
+    if (tng_idx >= THINGS_COUNT) {
         ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)tng_idx);
     }
     return INVALID_THING;
 }
 
 /**
- * Returns true if thing pointer address is inside game.things.lookup. May be true on an empty (0) thing.
+ * Returns true if thing pointer address is inside &game.things_data. May be true on an empty (0) thing.
  */
 short thing_is_invalid(const struct Thing *thing)
 {
-    return (thing <= game.things.lookup[0]) || (thing > game.things.lookup[THINGS_COUNT-1]) || (thing == NULL);
+    if (thing == NULL)
+        return true;
+    return (thing <= &game.things_data[0]) || (thing > &game.things_data[THINGS_COUNT-1]);
 }
 
 /**
@@ -277,15 +279,20 @@ struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
     return get_player(thing->owner);
 }
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class)
+void set_thing_animation(struct Thing *thing, long animation_index, long speed)
 {
-    unsigned long i;
-    thing->anim_sprite = convert_td_iso(anim);
-    thing->draw_class = draw_class;
+    thing->anim_sprite = get_td_animation_sprite(animation_index);
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
         thing->anim_speed = speed;
     }
+}
+
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class)
+{
+    unsigned char current_frame;
+    set_thing_animation(thing, anim, speed);
+    thing->draw_class = draw_class;
     if (scale != -1)
     {
         thing->sprite_size = scale;
@@ -297,23 +304,21 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     if (animate_once != -1) {
         set_flag_value(thing->rendering_flags, TRF_AnimateOnce, animate_once);
     }
-    if (start_frame == -2)
-    {
-      i = keepersprite_frames(thing->anim_sprite) - 1;
-      thing->current_frame = i;
-      thing->anim_time = i << 8;
-    } else
-    if (start_frame == -1)
-    {
-      i = THING_RANDOM(thing, thing->max_frames);
-      thing->current_frame = i;
-      thing->anim_time = i << 8;
-    } else
-    {
-      i = start_frame;
-      thing->current_frame = i;
-      thing->anim_time = i << 8;
+    if (start_frame == -2) {
+        current_frame = 0;
+        if (thing->max_frames > 0) {
+            current_frame = thing->max_frames - 1;
+        }
+    } else if (start_frame == -1) {
+        current_frame = 0;
+        if (thing->max_frames > 0) {
+            current_frame = THING_RANDOM(thing, thing->max_frames);
+        }
+    } else {
+        current_frame = start_frame;
     }
+    thing->current_frame = current_frame;
+    thing->anim_time = current_frame << 8;
 }
 
 void query_thing(struct Thing *thing)
@@ -341,7 +346,7 @@ void query_thing(struct Thing *thing)
         if (querytng->class_id == TCls_Trap)
         {
             struct TrapConfigStats *trapst = get_trap_model_stats(querytng->model);
-            snprintf(health, sizeof(health), "Health: %ld", querytng->health);
+            snprintf(health, sizeof(health), "Health: %d", querytng->health);
             snprintf(amount, sizeof(amount), "Shots: %d/%d", querytng->trap.num_shots, trapst->shots);
         }
         else
@@ -351,27 +356,27 @@ void query_thing(struct Thing *thing)
                 struct ObjectConfigStats* objst = get_object_model_stats(querytng->model);
                 if (object_is_gold(querytng))
                 {
-                    snprintf(amount, sizeof(amount), "Amount: %ld", querytng->valuable.gold_stored);
+                    snprintf(amount, sizeof(amount), "Amount: %d", querytng->valuable.gold_stored);
                 }
-                snprintf(health, sizeof(health), "Health: %ld/%ld", querytng->health, objst->health);
+                snprintf(health, sizeof(health), "Health: %d/%d", querytng->health, objst->health);
             }
             else
             if (querytng->class_id == TCls_Door)
             {
                 struct DoorConfigStats *doorst = get_door_model_stats(querytng->model);
-                snprintf(health, sizeof(health), "Health: %ld/%ld", querytng->health, doorst->health);
+                snprintf(health, sizeof(health), "Health: %d/%d", querytng->health, doorst->health);
             }
             else
             if (querytng->class_id == TCls_Creature)
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(querytng);
-                snprintf(health, sizeof(health), "Health: %ld/%ld", querytng->health, cctrl->max_health);
+                snprintf(health, sizeof(health), "Health: %d/%d", querytng->health, cctrl->max_health);
                 snprintf(position, sizeof(position), "State: %s", creature_state_code_name(querytng->active_state));
                 snprintf(amount, sizeof(amount), "Continue: %s", creature_state_code_name(querytng->continue_state));
             }
             else
             {
-                snprintf(health, sizeof(health), "Health: %ld", querytng->health);
+                snprintf(health, sizeof(health), "Health: %d", querytng->health);
             }
         }
         create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&position, (const char*)&amount);

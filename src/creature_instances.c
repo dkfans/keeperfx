@@ -44,6 +44,7 @@
 #include "map_utils.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
+#include "tasks_list.h"
 #include "config_magic.h"
 #include "config_terrain.h"
 #include "gui_soundmsgs.h"
@@ -126,6 +127,7 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_target_benefits_from_wind",                      10},
     {"validate_target_non_idle",                                11},
     {"validate_target_takes_gas_damage",                        12},
+    {"validate_target_requires_cleansing",                      13},
     {NULL, 0},
 };
 
@@ -143,6 +145,7 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_target_benefits_from_wind,
     validate_target_non_idle,
     validate_target_takes_gas_damage,
+    validate_target_requires_cleansing,
     NULL,
 };
 
@@ -212,10 +215,14 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
     return false;
 }
 
-void creature_increase_available_instances(struct Thing *thing)
+TbBool creature_increase_available_instances(struct Thing *thing)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (!creature_control_exists(cctrl))
+    {
+        return false;
+    }
     for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
         int k = crconf->learned_instance_id[i];
@@ -230,6 +237,7 @@ void creature_increase_available_instances(struct Thing *thing)
             }
         }
     }
+    return true;
 }
 
 /**
@@ -491,7 +499,7 @@ long instf_creature_fire_shot(struct Thing *creatng, int32_t *param)
     }
     thing_fire_shot(creatng, target, *param, 1, hittype);
     // Start cooldown after shot is fired
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
+    cctrl->instance_use_turn[cctrl->instance_id] = get_gameturn();
     return 0;
 }
 
@@ -501,7 +509,7 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long spl_idx = param[0];
     struct SpellConfig* spconf = get_spell_config(spl_idx);
-    struct Thing* target = NULL;
+    struct Thing* target = INVALID_THING;
 
     SYNCDBG(8,"The %s(%d) casts %s at %d", thing_model_name(creatng), (int)creatng->index,
         spell_code_name(spl_idx), cctrl->targtng_idx);
@@ -511,10 +519,10 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
         // If the targtng_idx is just the caster itself, we can call creature_cast_spell
         // instead of creature_cast_spell_at_thing.
         target = thing_get(cctrl->targtng_idx);
-        if (thing_is_invalid(target)) target = NULL;
     }
-
-    if (target != NULL)
+    // Start cooldown after spell effect activates
+    cctrl->instance_use_turn[cctrl->instance_id] = get_gameturn();
+    if (!thing_is_invalid(target))
     {
         creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->exp_level);
     }
@@ -522,9 +530,6 @@ long instf_creature_cast_spell(struct Thing *creatng, int32_t *param)
     {
         creature_cast_spell(creatng, spl_idx, cctrl->exp_level, cctrl->targtstl_x, cctrl->targtstl_y);
     }
-
-    // Start cooldown after spell effect activates
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
 }
 
@@ -613,17 +618,14 @@ long instf_dig(struct Thing *creatng, int32_t *param)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    long task_idx = cctrl->digger.task_idx;
-    {
-        struct MapTask* task = get_dungeon_task_list_entry(dungeon, task_idx);
-        taskkind = task->kind;
-        if (task->coords != cctrl->digger.task_stl)
-        {
-            return 0;
-      }
-      stl_x = stl_num_decode_x(cctrl->digger.task_stl);
-      stl_y = stl_num_decode_y(cctrl->digger.task_stl);
+    long task_idx = find_dig_from_task_list(creatng->owner, cctrl->digger.task_stl);
+    if (task_idx < 0) {
+        return 0;
     }
+    struct MapTask* task = get_dungeon_task_list_entry(dungeon, task_idx);
+    taskkind = task->kind;
+    stl_x = stl_num_decode_x(cctrl->digger.task_stl);
+    stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb)) {
         return 0;
@@ -833,8 +835,12 @@ long instf_eat(struct Thing *creatng, int32_t *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->hunger_amount > 0)
+    if (cctrl->hunger_amount > 0) {
         cctrl->hunger_amount--;
+    } else
+    if (cctrl->hunger_loss < 255) {
+        cctrl->hunger_loss++;
+    }
     apply_health_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].health.food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
@@ -1104,13 +1110,13 @@ long instf_tunnel(struct Thing *creatng, int32_t *param)
 void delay_teleport(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
+    cctrl->instance_use_turn[CrInst_TELEPORT] = get_gameturn() + 100;
 }
 
 void delay_heal_sleep(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->healing_sleep_check_turn = game.play_gameturn + 600;
+    cctrl->healing_sleep_check_turn = get_gameturn() + 600;
 }
 
 /**
@@ -1147,8 +1153,9 @@ TbBool validate_source_basic
 
     if (!creature_instance_is_available(source, inst_idx) ||
         !creature_instance_has_reset(source, inst_idx) ||
-        creature_under_spell_effect(source, CSAfF_Freeze) ||
-        creature_is_fleeing_combat(source) || creature_under_spell_effect(source, CSAfF_Chicken) ||
+        ((creature_under_spell_effect(source, CSAfF_Freeze)) && (!flag_is_set(param1, CSAfF_Freeze))) ||
+        creature_is_fleeing_combat(source) || 
+        ((creature_under_spell_effect(source, CSAfF_Chicken)) && (!flag_is_set(param1, CSAfF_Chicken))) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
         creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
@@ -1824,6 +1831,39 @@ void script_set_creature_instance(ThingModel crmodel, short slot, int instance, 
 
 
     }
+}
+
+TbBool validate_target_requires_cleansing
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target) ||
+        !creature_requires_cleansing(target, param1))
+    {
+        return false;
+    }
+
+    if (source->index == target->index)
+    {
+        // Special case. The creature is always allowed to cleanse itself.
+        return true;
+    }
+    else
+    {
+        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured(source) || creature_is_kept_in_prison(source) ||
+            creature_under_spell_effect(source, CSAfF_Freeze) || creature_under_spell_effect(source, CSAfF_Chicken)) // not allowed to cleanse others (only itself) even if source param1 is set
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /******************************************************************************/

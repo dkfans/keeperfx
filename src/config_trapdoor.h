@@ -76,6 +76,7 @@ struct TrapConfigStats {
     unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
     unsigned char trigger_type;
     unsigned char activation_type;
+    FuncIdx activation_lua_func_idx;
     unsigned short created_itm_model; // Shot model, effect model, slab kind.
     unsigned char activation_level;
     unsigned char hit_type;
@@ -124,11 +125,11 @@ struct TrapConfigStats {
 struct ManufactureData {
     ThingClass tngclass; // Thing class created when manufactured design is placed.
     ThingModel tngmodel; // Thing model created when manufactured design is placed.
-    long work_state; // Work state used to place the manufactured item on map.
+    int32_t work_state; // Work state used to place the manufactured item on map.
     TextStringId tooltip_stridx;
-    long bigsym_sprite_idx;
-    long medsym_sprite_idx;
-    long panel_tab_idx;
+    int32_t bigsym_sprite_idx;
+    int32_t medsym_sprite_idx;
+    int32_t panel_tab_idx;
 };
 
 struct TrapDoorConfig {

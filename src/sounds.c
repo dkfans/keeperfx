@@ -29,6 +29,7 @@
 #include "engine_render.h"
 #include "map_utils.h"
 #include "engine_camera.h"
+#include "local_camera.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
 #include "front_landview.h"
@@ -117,7 +118,7 @@ void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID sm
 void play_thing_walking(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
-    struct Camera* cam = myplyr->acamera;
+    struct Camera* cam = get_local_camera(get_player_active_camera(myplyr));
     struct CreatureModelConfig* crconf;
     { // Skip the thing if its distance to camera is too big
         MapSubtlDelta dist_x = coord_subtile(abs(cam->mappos.x.val - (MapCoordDelta)thing->mappos.x.val));
@@ -221,7 +222,7 @@ void find_nearest_rooms_for_ambient_sound(void)
     if ((SoundDisabled) || (GetCurrentSoundMasterVolume() <= 0))
         return;
     struct PlayerInfo* player = get_my_player();
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_local_camera(get_player_active_camera(player));
     if (cam == NULL || LbIsFrozenOrPaused())
     {
         if (cam == NULL)
@@ -243,7 +244,7 @@ void find_nearest_rooms_for_ambient_sound(void)
             struct Room* room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
+            struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
             long k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
@@ -263,7 +264,7 @@ void find_nearest_rooms_for_ambient_sound(void)
 TbBool update_3d_sound_receiver(struct PlayerInfo* player)
 {
     SYNCDBG(7, "Starting");
-    struct Camera* cam = player->acamera;
+    struct Camera* cam = get_local_camera(get_player_active_camera(player));
     if (cam == NULL)
         return false;
     S3DSetSoundReceiverPosition(cam->mappos.x.val, cam->mappos.y.val, cam->mappos.z.val);
@@ -300,23 +301,23 @@ void update_player_sounds(void)
     }
     find_nearest_rooms_for_ambient_sound();
     process_3d_sounds();
-    int k = (game.bonus_time - game.play_gameturn) / 2;
+    int k = (game.bonus_time - get_gameturn()) / 2;
     if (bonus_timer_enabled())
     {
-        if ((game.bonus_time == game.play_gameturn) ||
-            ((game.bonus_time > game.play_gameturn) &&
+        if ((game.bonus_time == get_gameturn()) ||
+            ((game.bonus_time > get_gameturn()) &&
             (   ((k <= 100)  && ((k % 10) == 0)) ||
                 ((k <= 300)  && ((k % 50) == 0)) ||
                 ((k <= 5000) && ((k % 250) == 0)) ||
                                 ((k % 5000) == 0)    )  ))
         play_non_3d_sample(89);
     }
-    if (game.play_gameturn != 0)
+    if (get_gameturn() != 0)
     {
         // Easter Egg Speeches
 
         // Interval for easter egg speeches. Original DK value was 20000 (16.6 minutes)
-        if (game.conf.rules[0].game.easter_egg_speech_interval != 0 && (game.play_gameturn % game.conf.rules[0].game.easter_egg_speech_interval) == 0)
+        if (game.conf.rules[0].game.easter_egg_speech_interval != 0 && (get_gameturn() % game.conf.rules[0].game.easter_egg_speech_interval) == 0)
         {
             // The chance for the easter egg speech to trigger. Original DK value was 1/2000
             if (game.conf.rules[0].game.easter_egg_speech_chance != 0 && SOUND_RANDOM(game.conf.rules[0].game.easter_egg_speech_chance) == 0)
@@ -349,14 +350,14 @@ void update_player_sounds(void)
                 if (k == 1)
                 {
                     // No atmos sounds the first 3 minutes
-                    if (game.play_gameturn > 3600)
+                    if (get_gameturn() > 3600)
                     {
                         play_atmos_sound(AtmosStart + SOUND_RANDOM((AtmosEnd + 1) - AtmosStart));
                     }
                 } else
                 {
                     // No atmos drops the first 30 seconds
-                    if (game.play_gameturn > 600)
+                    if (get_gameturn() > 600)
                     {
                         // Roughly every 2 seconds drops sound
                         if ((k % 40) == 0)

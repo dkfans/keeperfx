@@ -15,9 +15,11 @@
 #include "bflib_fileio.h"
 #include "config.h"
 #include "config_magic.h"
+#include "config_terrain.h"
 #include "globals.h"
+#include "room_data.h"
 #include "thing_data.h"
-
+#include "config_mods.h"
 
 #include "post_inc.h"
 
@@ -40,7 +42,7 @@ void lua_on_dungeon_destroyed(PlayerNumber plyr_idx)
 void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg)
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnChatMsg");
+	lua_getglobal(Lvl_script, "OnChatMsg");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushPlayer(Lvl_script, plyr_idx);
@@ -55,10 +57,62 @@ void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg)
 }
 
 
+static void lua_on_start_for_mod(lua_State* L, const struct ModConfigItem *mod_item)
+{
+    // The Lua of mod might have a function called OnModGameStart_modname.
+    char call_name[256] = {0};
+    sprintf(call_name, "OnModGameStart_%s", mod_item->name);
+
+    // If the mod name contains characters that the identifier does not support, ignore it.
+    if (strpbrk(mod_item->name, " -") != NULL)
+        return;
+
+    lua_getglobal(L, call_name);
+    if (lua_isfunction(L, -1))
+    {
+        CheckLua(L, lua_pcall(L, 0, 0, 0), call_name);
+    }
+    else
+    {
+        lua_pop(L, 1);
+    }
+}
+
+// If lua_on_start_for_mod_list has performance issues, state can be pre-recorded in open_lua_script_for_mod_list.
+static void lua_on_start_for_mod_list(lua_State* L, const struct ModConfigItem *mod_items, long mod_cnt)
+{
+    for (long i=0; i<mod_cnt; i++)
+    {
+        const struct ModConfigItem *mod_item = mod_items + i;
+        lua_on_start_for_mod(L, mod_item);
+    }
+}
+
 void lua_on_game_start()
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnGameStart");
+
+	if (mods_conf.after_base_cnt > 0)
+	{
+		lua_on_start_for_mod_list(Lvl_script, mods_conf.after_base_item, mods_conf.after_base_cnt);
+	}
+
+	lua_getglobal(Lvl_script, "OnCampaignGameStart");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0),"OnCampaignGameStart");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+
+	if (mods_conf.after_campaign_cnt > 0)
+	{
+		lua_on_start_for_mod_list(Lvl_script, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
+	}
+
+	lua_getglobal(Lvl_script, "OnGameStart");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0),"OnGameStart");
@@ -67,12 +121,17 @@ void lua_on_game_start()
 	{
 		lua_pop(Lvl_script, 1);
 	}
+
+	if (mods_conf.after_map_cnt > 0)
+	{
+		lua_on_start_for_mod_list(Lvl_script, mods_conf.after_map_item, mods_conf.after_map_cnt);
+	}
 }
 
 void lua_on_game_tick()
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnGameTick");
+	lua_getglobal(Lvl_script, "OnGameTick");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0), "OnGameTick");
@@ -87,12 +146,12 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing)
 	{
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnPowerCast");
+	lua_getglobal(Lvl_script, "OnPowerCast");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushstring(Lvl_script,get_conf_parameter_text(power_desc,pwkind));
 		lua_pushPlayer(Lvl_script, plyr_idx);
-		lua_pushThing(Lvl_script, thing); 
+		lua_pushThing(Lvl_script, thing);
 		lua_pushinteger(Lvl_script, stl_x);
 		lua_pushinteger(Lvl_script, stl_y);
 		lua_pushinteger(Lvl_script, splevel + 1); // Lua is 1-based, so we add 1 to the level
@@ -108,7 +167,7 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
 void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnSpecialActivated");
+	lua_getglobal(Lvl_script, "OnSpecialActivated");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushPlayer(Lvl_script, plyr_idx);
@@ -126,7 +185,7 @@ void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
 void lua_on_trap_placed(struct Thing *traptng)
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnTrapPlaced");
+	lua_getglobal(Lvl_script, "OnTrapPlaced");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushThing(Lvl_script, traptng);
@@ -142,7 +201,7 @@ void lua_on_trap_placed(struct Thing *traptng)
 void lua_on_creature_death(struct Thing *crtng)
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnCreatureDeath");
+	lua_getglobal(Lvl_script, "OnCreatureDeath");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushThing(Lvl_script, crtng);
@@ -153,6 +212,22 @@ void lua_on_creature_death(struct Thing *crtng)
 	{
 		lua_pop(Lvl_script, 1);
 	}
+}
+
+void lua_on_object_destroyed(struct Thing* objtng)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnObjectDestroyed");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushThing(Lvl_script, objtng);
+
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnObjectDestroyed");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
 }
 
 void lua_on_creature_rebirth(struct Thing* crtng)
@@ -174,7 +249,7 @@ void lua_on_creature_rebirth(struct Thing* crtng)
 void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnApplyDamage");
+	lua_getglobal(Lvl_script, "OnApplyDamage");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushThing(Lvl_script, thing);
@@ -192,7 +267,7 @@ void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumb
 void lua_on_level_up(struct Thing *thing)
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnLevelUp");
+	lua_getglobal(Lvl_script, "OnLevelUp");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushThing(Lvl_script, thing);
@@ -202,4 +277,77 @@ void lua_on_level_up(struct Thing *thing)
 	{
 		lua_pop(Lvl_script, 1);
 	}
+}
+
+// Called when a slab type changes (e.g. pretty_path -> hatchery_area, path -> pretty_path)
+void lua_on_slab_kind_change(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind old_slab)
+{
+	SYNCDBG(6,"Starting");
+	lua_getglobal(Lvl_script, "OnSlabKindChange");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushSlab(Lvl_script, slb_x, slb_y);
+		lua_pushstring(Lvl_script, get_conf_parameter_text(slab_desc, old_slab));  // "DIRT", "PRETTY_PATH", etc.
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0),"OnSlabKindChange");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+}
+
+// Called when a single slab changes owner (e.g. claiming a path tile).
+void lua_on_slab_owner_change(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber old_owner)
+{
+	SYNCDBG(6,"Starting");
+	lua_getglobal(Lvl_script, "OnSlabOwnerChange");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushSlab(Lvl_script, slb_x, slb_y);
+		lua_pushPlayer(Lvl_script, old_owner);
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0),"OnSlabOwnerChange");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+}
+
+// Called once when an entire room changes owner
+void lua_on_room_owner_change(struct Room *room, PlayerNumber old_owner)
+{
+	SYNCDBG(6,"Starting");
+	lua_getglobal(Lvl_script, "OnRoomOwnerChange");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushRoom(Lvl_script, room);
+		lua_pushPlayer(Lvl_script, old_owner);
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0),"OnRoomOwnerChange");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+}
+
+void lua_on_shot_hit(struct Thing *shot, struct Thing *shooter, struct Thing *target, MapSubtlCoord next_stl_x, MapSubtlCoord next_stl_y, bool rebound_hit)
+{
+	SYNCDBG(6,"Starting");
+	lua_getglobal(Lvl_script, "OnShotHit");
+	
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushThing(Lvl_script, shot);
+		lua_pushThing(Lvl_script, shooter);
+		lua_pushThing(Lvl_script, target);
+		lua_pushinteger(Lvl_script, next_stl_x);
+		lua_pushinteger(Lvl_script, next_stl_y);
+		lua_pushboolean(Lvl_script, rebound_hit);
+
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 0),"OnShotHit");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	} 
 }

@@ -81,8 +81,8 @@ static unsigned char lbIInkeyFlags;
 static unsigned char lbIInkey;
 static int lbKeyboardLang;
 static unsigned char lbExtendedKeyPress;
-unsigned char lbKeyOn[256];
-unsigned char lbInkey;
+unsigned char lbKeyOn[KC_LIST_END];
+TbKeyCode lbInkey;
 
 /******************************************************************************/
 extern void init_inputcontrol(void);

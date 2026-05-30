@@ -80,7 +80,7 @@ extern long nav_map_initialised;
 #define navmap_tile_number(stl_x,stl_y) ((stl_y)*game.navigation_map_size_x+(stl_x))
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-struct Map *get_map_block_at_pos(long stl_num);
+struct Map *get_map_block_at_pos(SubtlCodedCoords stl_num);
 TbBool map_block_invalid(const struct Map *mapblk);
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);

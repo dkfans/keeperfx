@@ -129,7 +129,7 @@ struct SlabObj {
   short offset_y;
   short offset_z;
   ThingClass class_id;
-  unsigned char model; //for lights this is intencity
+  ThingModel model; //for lights this is intencity
   unsigned char range; //radius for lights / range for effect generators
 };
 

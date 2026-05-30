@@ -21,18 +21,19 @@ src/ariadne_points.c \
 src/ariadne_regions.c \
 src/ariadne_tringls.c \
 src/ariadne_wallhug.c \
-src/bflib_base_tcp.cpp \
 src/bflib_basics.c \
 src/bflib_coroutine.c \
-src/bflib_client_tcp.cpp \
 src/bflib_cpu.c \
+src/bflib_crash.c \
 src/bflib_datetm.cpp \
 src/bflib_dernc.c \
 src/bflib_enet.cpp \
+src/net_portforward.cpp \
 src/bflib_fileio.c \
 src/bflib_filelst.c \
 src/bflib_fmvids.cpp \
 src/bflib_guibtns.c \
+src/bflib_input_joyst.cpp \
 src/bflib_inputctrl.cpp \
 src/bflib_keybrd.c \
 src/bflib_main.cpp \
@@ -42,24 +43,25 @@ src/bflib_mshandler.cpp \
 src/bflib_mspointer.cpp \
 src/bflib_netsession.c \
 src/bflib_netsp.cpp \
-src/bflib_network.cpp \
-src/bflib_network_exchange.cpp \
+src/net_exchange_common.c \
+src/net_exchange_gameplay.c \
+src/net_main.c \
+src/net_lobby.c \
 src/bflib_planar.c \
 src/bflib_render.c \
 src/bflib_render_gpoly.c \
 src/bflib_render_trig.c \
-src/bflib_server_tcp.cpp \
 src/bflib_sndlib.cpp \
 src/bflib_sound.c \
 src/bflib_sprfnt.c \
 src/bflib_string.c \
-src/bflib_tcpsp.c \
 src/bflib_video.c \
 src/bflib_vidraw.c \
 src/bflib_vidraw_spr_norm.c \
 src/bflib_vidraw_spr_onec.c \
 src/bflib_vidraw_spr_remp.c \
 src/bflib_vidsurface.c \
+src/button_snapping.c \
 src/config.c \
 src/config_campaigns.c \
 src/config_creature.c \
@@ -112,6 +114,7 @@ src/dungeon_data.c \
 src/dungeon_stats.c \
 src/engine_arrays.c \
 src/engine_camera.c \
+src/local_camera.c \
 src/engine_lenses.c \
 src/engine_redraw.c \
 src/engine_render.c \
@@ -123,6 +126,7 @@ src/front_fmvids.c \
 src/front_highscore.c \
 src/front_input.c \
 src/front_landview.c \
+src/front_landview_multiplayer.c \
 src/front_lvlstats.c \
 src/front_lvlstats_data.cpp \
 src/front_network.c \
@@ -162,20 +166,28 @@ src/gui_soundmsgs.cpp \
 src/gui_tooltips.c \
 src/gui_topmsg.c \
 src/highscores.c \
-src/KeeperSpeechImp.c \
 src/kjm_input.c \
 src/lens_api.c \
 src/config_effects.c \
-src/lens_flyeye.cpp \
-src/lens_mist.cpp \
+src/kfx/lense/DisplacementEffect.cpp \
+src/kfx/lense/FlyeyeEffect.cpp \
+src/kfx/lense/LensEffect.cpp \
+src/kfx/lense/LensManager.cpp \
+src/kfx/lense/LuaLensEffect.cpp \
+src/kfx/lense/MistEffect.cpp \
+src/kfx/lense/OverlayEffect.cpp \
+src/kfx/lense/PaletteEffect.cpp \
 src/light_data.c \
 src/linux.cpp \
 src/lua_api.c \
+src/lua_api_lens.c \
+src/lua_api_map.c \
 src/lua_api_player.c \
 src/lua_api_room.c \
 src/lua_api_things.c \
 src/lua_api_slabs.c \
 src/lua_base.c \
+src/lua_api_camera.c \
 src/lua_cfg_funcs.c \
 src/lua_params.c \
 src/lua_triggers.c \
@@ -200,9 +212,10 @@ src/map_utils.c \
 src/moonphase.c \
 src/net_checksums.c \
 src/net_game.c \
+src/net_holepunch.c \
+src/net_matchmaking.c \
+src/net_lan.c \
 src/net_input_lag.c \
-src/net_received_packets.c \
-src/net_redundant_packets.c \
 src/net_resync.cpp \
 src/packets.c \
 src/packets_cheats.c \
@@ -236,6 +249,7 @@ src/room_util.c \
 src/room_workshop.c \
 src/roomspace.c \
 src/roomspace_detection.c \
+src/roomspace_prediction.c \
 src/scrcapt.c \
 src/slab_data.c \
 src/sounds.c \
@@ -270,6 +284,8 @@ KFX_INCLUDES = \
 	-Ideps/centijson/include \
 	-Ideps/centitoml \
 	-Ideps/astronomy/include \
+	-Ideps/enet6/include \
+	-Ideps/libcurl/include \
 	$(shell pkg-config --cflags-only-I luajit)
 
 KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
@@ -277,14 +293,15 @@ KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -
 
 KFX_LDFLAGS += \
 	-g \
+	-rdynamic \
 	-Wall -Wextra -Werror \
 	-Ldeps/astronomy -lastronomy \
 	-Ldeps/centijson -ljson \
+	-Ldeps/enet6 -lenet6 \
 	$(shell pkg-config --libs-only-l sdl2) \
 	$(shell pkg-config --libs-only-l SDL2_mixer) \
 	$(shell pkg-config --libs-only-l SDL2_net) \
 	$(shell pkg-config --libs-only-l SDL2_image) \
-	$(shell pkg-config --libs-only-l libenet) \
 	$(shell pkg-config --libs-only-l libavformat) \
 	$(shell pkg-config --libs-only-l libavcodec) \
 	$(shell pkg-config --libs-only-l libswresample) \
@@ -293,7 +310,11 @@ KFX_LDFLAGS += \
 	$(shell pkg-config --libs-only-l luajit) \
 	$(shell pkg-config --libs-only-l spng) \
 	$(shell pkg-config --libs-only-l minizip) \
-	$(shell pkg-config --libs-only-l zlib)
+	$(shell pkg-config --libs-only-l zlib) \
+	-lminiupnpc \
+	-lnatpmp \
+	-Ldeps/libcurl/lib -lcurl -lssl -lcrypto -lzstd \
+	-ldl
 
 TOML_SOURCES = \
 	deps/centitoml/toml_api.c
@@ -315,28 +336,34 @@ endif
 all: bin/keeperfx
 
 clean:
-	rm -rf obj bin src/ver_defs.h deps/astronomy deps/centijson
+	rm -rf obj bin src/ver_defs.h deps/astronomy deps/centijson deps/enet6 deps/libcurl
+	rm -f deps/libcurl-lin64.tar.gz
 
 .PHONY: all clean
 
-bin/keeperfx: $(KFX_OBJECTS) $(TOML_OBJECTS) | bin
+bin/keeperfx: $(KFX_OBJECTS) $(TOML_OBJECTS) deps/libcurl/lib/libcurl.a | bin
 	$(CXX) -o $@ $(KFX_OBJECTS) $(TOML_OBJECTS) $(KFX_LDFLAGS)
 
 $(KFX_C_OBJECTS): obj/%.o: src/%.c src/ver_defs.h | obj
+	$(MKDIR) $(dir $@)
 	$(CC) $(KFX_CFLAGS) -c $< -o $@
 
 $(KFX_CXX_OBJECTS): obj/%.o: src/%.cpp src/ver_defs.h | obj
+	$(MKDIR) $(dir $@)
 	$(CXX) $(KFX_CXXFLAGS) -c $< -o $@
 
 $(TOML_OBJECTS): obj/centitoml/%.o: deps/centitoml/%.c | obj/centitoml
 	$(CC) $(TOML_CFLAGS) -c $< -o $@
 
-bin obj deps/astronomy deps/centijson obj/centitoml:
+bin obj deps/astronomy deps/centijson deps/enet6 deps/libcurl obj/centitoml:
 	$(MKDIR) $@
 
 src/actionpt.c: deps/centijson/include/json.h
 src/api.c: deps/centijson/include/json.h
+src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
+src/net_holepunch.c: deps/enet6/include/enet6/enet.h
+src/net_matchmaking.c: deps/libcurl/include/curl/curl.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 
@@ -351,6 +378,20 @@ deps/centijson-lin64.tar.gz:
 
 deps/centijson/include/json.h: deps/centijson-lin64.tar.gz | deps/centijson
 	tar xzmf $< -C deps/centijson
+
+deps/enet6-lin64.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260213/enet6-lin64.tar.gz"
+
+deps/enet6/include/enet6/enet.h: deps/enet6-lin64.tar.gz | deps/enet6
+	tar xzmf $< -C deps/enet6
+
+deps/libcurl-lin64.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260310/libcurl-lin64.tar.gz"
+
+deps/libcurl/lib/libcurl.a: deps/libcurl-lin64.tar.gz | deps/libcurl
+	tar xzmf $< -C deps/libcurl
+
+deps/libcurl/include/curl/curl.h: deps/libcurl/lib/libcurl.a
 
 src/ver_defs.h: version.mk
 	$(ECHO) "#define VER_MAJOR   $(VER_MAJOR)" > $@.swp

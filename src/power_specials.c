@@ -237,7 +237,7 @@ void increase_level(struct PlayerInfo *player, int count)
     {
         struct Thing* famlrtng = thing_get(dungeon->summon_list[i]);
         cctrl = creature_control_get_from_thing(famlrtng);
-        if (thing_is_invalid(famlrtng))
+        if (!thing_exists(famlrtng))
         {
           ERRORLOG("Jump to invalid creature detected");
           continue;
@@ -525,7 +525,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             reveal_whole_map(player);
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
-            delete_thing_structure(cratetng, 0);
+            destroy_object(cratetng);
             break;
         case SpcKind_Resurrect:
             start_resurrect_creature(player, cratetng);
@@ -538,20 +538,20 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 remove_events_thing_is_attached_to(cratetng);
                 used = 1;
-                delete_thing_structure(cratetng, 0);
+                destroy_object(cratetng);
             }
             break;
         case SpcKind_MultplCrtr:
             multiply_creatures(player);
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
-            delete_thing_structure(cratetng, 0);
+            destroy_object(cratetng);
             break;
         case SpcKind_IncrseLvl:
             increase_level(player, 1);
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
-            delete_thing_structure(cratetng, 0);
+            destroy_object(cratetng);
             break;
         case SpcKind_MakeSafe:
             make_safe(player);
@@ -569,7 +569,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             }
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
-            delete_thing_structure(cratetng, 0);
+            destroy_object(cratetng);
             break;
         case SpcKind_HiddnWorld:
             activate_bonus_level(player);
@@ -581,13 +581,13 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             do_to_players_all_creatures_of_model(player->id_number, CREATURE_ANY, set_creature_health_to_max_with_heal_effect);
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
-            delete_thing_structure(cratetng, 0);
+            destroy_object(cratetng);
             break;
         case SpcKind_GetGold:
             throw_out_gold(cratetng, specst->value);
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
-            delete_thing_structure(cratetng, 0);
+            destroy_object(cratetng);
             break;
         case SpcKind_MakeAngry:
             for (long i = 0; i < PLAYERS_COUNT; i++)
@@ -599,26 +599,26 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             }
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
-            delete_thing_structure(cratetng, 0);
+            destroy_object(cratetng);
             break;
         case SpcKind_Custom:
         default:
             if (thing_is_custom_special_box(cratetng))
             {
-                if (game.current_player_turn == game.play_gameturn)
+                if (game.current_player_turn == get_gameturn())
                 {
-                    WARNLOG("box activation rejected turn:%lu", game.current_player_turn);
+                    WARNLOG("box activation rejected turn:%u", game.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }
-                game.current_player_turn = game.play_gameturn;
+                game.current_player_turn = get_gameturn();
                 game.script_current_player = player->id_number;
                 memcpy(&game.triggered_object_location, &pos, sizeof(struct Coord3d));
                 dungeon->box_info.activated[cratetng->custom_box.box_kind]++;
                 no_speech = true;
                 remove_events_thing_is_attached_to(cratetng);
                 used = 1;
-                delete_thing_structure(cratetng, 0);
+                destroy_object(cratetng);
                 break;
             }
             else
@@ -758,9 +758,9 @@ long create_transferred_creatures_on_level(void)
                 if (player_is_roaming(p))
                 {
                     plyr_idx = p;
-                    if (thing_is_invalid(srcetng))
+                    if (!thing_exists(srcetng))
                     {
-                        for (long n = 1; n < 16; n++)
+                        for (long n = 1; n < HERO_GATES_COUNT; n++)
                         {
                             srcetng = find_hero_gate_of_number(n);
                             if (!thing_is_invalid(srcetng))

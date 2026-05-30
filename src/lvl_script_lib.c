@@ -12,20 +12,23 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+
+#include "globals.h"
+#include "config_creature.h"
+#include "creature_states_pray.h"
+#include "dungeon_data.h"
+#include "gui_msgs.h"
+#include "lvl_filesdk1.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_commands.h"
-
-#include "globals.h"
-#include "thing_factory.h"
-#include "thing_physics.h"
-#include "thing_navigate.h"
-#include "dungeon_data.h"
-#include "lvl_filesdk1.h"
-#include "creature_states_pray.h"
 #include "magic_powers.h"
-#include "config_creature.h"
-#include "gui_msgs.h"
+#include "room_util.h"
+#include "thing_corpses.h"
+#include "thing_factory.h"
+#include "thing_navigate.h"
+#include "thing_physics.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -101,7 +104,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
     {
         if (!move_creature_to_nearest_valid_position(thing)) {
             ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
-            delete_thing_structure(thing, 0);
+            destroy_object(thing);
             return INVALID_THING;
         }
     }
@@ -117,6 +120,16 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
         case ObjMdl_GoldBag:
             thing->valuable.gold_stored = arg;
             break;
+        default:
+            struct ObjectConfigStats* objst = get_object_model_stats(tngmodel);
+            if (objst->genre == OCtg_GoldHoard)
+            {
+                if (arg > 0)
+                {
+                    thing->valuable.gold_stored = arg;
+                }
+                check_and_asimilate_thing_by_room(thing);
+            }
     }
     return thing;
 }
@@ -146,6 +159,39 @@ struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation lo
         if (!move_creature_to_nearest_valid_position(thing)) {
             ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
             delete_thing_structure(thing, 0);
+            return INVALID_THING;
+        }
+    }
+    return thing;
+}
+
+struct Thing* script_process_new_corpse(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, CrtrExpLevel exp_level, TbBool dying)
+{
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height_at(&pos);
+
+    int16_t crpscondition = DCrSt_LongDead;
+    if (dying)
+    {
+        crpscondition = DCrSt_Dying;
+    }
+
+    struct Thing* thing = create_dead_creature(&pos, tngmodel, crpscondition, plyr_idx, exp_level);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create %s at location %d, %d", thing_class_and_model_name(TCls_DeadCreature, tngmodel), stl_x, stl_y);
+        return INVALID_THING;
+    }
+    
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing))
+        {
+            ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
+            destroy_thing(thing);
             return INVALID_THING;
         }
     }
@@ -372,6 +418,45 @@ TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *f
       }
     }
     return true;
+}
+
+/**
+ * Returns hero objective, and also optionally checks the player name between brackets.
+ * @param target gets filled with player number, or -1.
+ * @return Hero Objective ID
+ */
+PlayerNumber get_objective_id_with_potential_target(const char* locname, PlayerNumber* target)
+{
+    char before_bracket[COMMAND_WORD_LEN];
+    char player_string[COMMAND_WORD_LEN];
+    const char* bracket = strchr(locname, '[');
+
+    if (bracket == NULL) {
+        strncpy(before_bracket, locname, sizeof(before_bracket) - 1);
+        before_bracket[sizeof(before_bracket) - 1] = '\0';
+        return get_rid(hero_objective_desc, before_bracket);
+    }
+
+    // Extract text before '['
+    size_t len = min((size_t)(bracket - locname), sizeof(before_bracket) - 1);
+    strncpy(before_bracket, locname, len);
+    before_bracket[len] = '\0';
+
+    // Extract text inside the brackets
+    const char* start = bracket + 1;
+    const char* end = strchr(start, ']');
+
+    if (end != NULL) {
+        size_t string_length = min((size_t)(end - start), sizeof(player_string) - 1);
+        strncpy(player_string, start, string_length);
+        player_string[string_length] = '\0';
+
+        PlayerNumber plyr_idx = get_rid(player_desc, player_string);
+        if (plyr_idx < 0)
+            plyr_idx = get_rid(cmpgn_human_player_options, player_string);
+        *target = plyr_idx;
+    }
+    return get_rid(hero_objective_desc, before_bracket);
 }
 
 #ifdef __cplusplus

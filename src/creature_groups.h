@@ -67,7 +67,7 @@ struct MemberPos {
     unsigned char flags;
 };
 
-struct PartyMember { // sizeof = 13
+struct PartyMember {
   unsigned char flags;
   ThingModel crtr_kind;
   unsigned char objectv;
@@ -75,6 +75,7 @@ struct PartyMember { // sizeof = 13
   CrtrExpLevel exp_level;
   unsigned short carried_gold;
   unsigned short is_active;
+  PlayerNumber target;
 };
 
 struct Party {
@@ -103,7 +104,7 @@ TbBool make_group_member_leader(struct Thing *leadtng);
 
 TbBool create_party(const char *prtname);
 int get_party_index_of_name(const char *prtname);
-TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level, long carried_gold, long objctv_id, long countdown);
+TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level, long carried_gold, long objctv_id, long countdown, PlayerNumber target);
 TbBool delete_member_from_party(int party_id, long crtr_model, CrtrExpLevel exp_level);
 long process_obey_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *leadtng);

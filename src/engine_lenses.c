@@ -47,8 +47,14 @@ RotPers_Func rotpers_routines[] = {
   rotpers_fisheye,
 };
 
+// Lens buffer dimensions
 unsigned int eye_lens_width = 0;
 unsigned int eye_lens_height = 0;
+
+// Shared lens buffers (allocated by LensManager)
+uint32_t *eye_lens_memory = NULL;
+TbPixel *eye_lens_spare_screen_memory = NULL;
+
 long lens;
 Perspect_Func perspective;
 RotPers_Func rotpers;

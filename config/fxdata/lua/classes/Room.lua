@@ -1,6 +1,7 @@
 -- Room.lua
 
 ---@class Room
+---@field room_idx integer unique index of this room
 ---@field type room_type
 ---@field owner Player the player that owns the room
 ---@field slabs Slab[] list of slabs in the room

@@ -82,16 +82,16 @@ struct ComputerCheck {
 struct ComputerEvent {
   char name[COMMAND_WORD_LEN];
   char mnemonic[COMMAND_WORD_LEN];
-  unsigned long cetype;
-  unsigned long mevent_kind;
+  uint32_t cetype;
+  uint32_t mevent_kind;
   FuncIdx func_event;
   FuncIdx func_test;
-  long test_interval;
+  int32_t test_interval;
   unsigned char process;
-  long primary_parameter;
-  long secondary_parameter;
-  long tertiary_parameter;
-  long last_test_gameturn; /**< event last checked time */
+  int32_t primary_parameter;
+  int32_t secondary_parameter;
+  int32_t tertiary_parameter;
+  int32_t last_test_gameturn; /**< event last checked time */
 };
 
 struct ComputerType {

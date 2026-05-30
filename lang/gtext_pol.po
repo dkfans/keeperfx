@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2025-10-15 18:44+0100\n"
+"PO-Revision-Date: 2026-01-04 19:42+0000\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -2023,7 +2023,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Muuuu"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -3002,8 +3002,8 @@ msgstr "Odtworzenie wstępu"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "Menu usług"
+msgid "Multiplayer Menu"
+msgstr "Menu gry wieloosobowej"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3228,8 +3228,8 @@ msgstr "Testerzy"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "Sesje"
+msgid "Game Lobbies"
+msgstr "Lobby gier"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3238,8 +3238,8 @@ msgstr "Nazwa"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "Usługi"
+msgid "Game Modes"
+msgstr "Tryby gry"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3248,13 +3248,13 @@ msgstr "Komunikaty"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "Utwórz grę"
+msgid "Create Lobby"
+msgstr "Utwórz lobby"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "Dołącz do gry"
+msgid "Join Lobby"
+msgstr "Dołącz do lobby"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3263,8 +3263,8 @@ msgstr "Rozpocznij grę"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "Menu gry"
+msgid "Online Lobbies"
+msgstr "Lobby online"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3967,8 +3967,8 @@ msgstr "W Prawo"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Inicjalizacja modemu"
+msgid "Game version mismatch"
+msgstr "Niezgodność wersji gry"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -5165,25 +5165,25 @@ msgid ""
 "Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
 "Zoom. [22.2.1]"
 msgstr ""
-"Wybierz najbardziej doświadczone stwory. LPM uaktywnia stwora. PPM "
+"Podnieś stwory: LPM dowolne stwór. Ctrl LPM doświadczone stwory. PPM "
 "przybliża. [22.2.1]"
 
 #: guitext:734
 msgctxt "In-game interface description"
 msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Wybierz bezczynne stwory. LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
+"Podnieś bezczynne stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
 
 #: guitext:735
 msgctxt "In-game interface description"
 msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Wybierz pracujące stwory. LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
+"Podnieś pracujące stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
 
 #: guitext:736
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "Wybierz walczące stwory. LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
+msgstr "Podnieś walczące stwory: LPM uaktywnia stwora. PPM przybliża. [22.2.1]"
 
 #: guitext:737
 msgctxt "In-game interface description"
@@ -5191,7 +5191,7 @@ msgid ""
 "Invert Mouse: Inverts the vertical mouse movements while possessing a "
 "creature. LMB toggle."
 msgstr ""
-"Odwrócenie myszy. Odwraca kierunek sterowania myszą w pionie podczas "
+"Odwrócenie myszy: Odwraca kierunek sterowania myszą w pionie podczas "
 "opętania stwora. LPM przełącza."
 
 #: guitext:738
@@ -5927,18 +5927,18 @@ msgstr "4 Graczy"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "Połączenie Szeregowe"
+msgid "Online"
+msgstr "Online"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "Modem"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "Potyczka"
 
 #: guitext:877
 msgctxt "World direction"
@@ -6680,7 +6680,7 @@ msgstr ""
 
 #: guitext:969
 msgctxt "Menu interface item"
-msgid "Map packs"
+msgid "Map Packs"
 msgstr ""
 
 #: guitext:970
@@ -7228,3 +7228,184 @@ msgstr ""
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "Strażnik"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr "Nagrywanie ekranu"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr "Zrzut ekranu"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "Zwiększ pomijanie klatek"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "Zmniejsz pomijanie klatek"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "Powiększ minimapę"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "Pomniejsz minimapę"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "Następna instancja"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "Poprzednia instancja"
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "Lobby online"
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "Lobby LAN"
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "Lobby LAN"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "Przełącz interfejs"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "Przełącz podpowiedzi"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "Wyjdź z gry"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "Wyłącz tryb pakietów"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "Zmień rozdzielczość"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "Przełącz konsolę"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "Zakończ poziom"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "Menu opcji"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "Przełącz kwiaty zdrowia bohaterów"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "Akcent grave"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "Teleport do ostatniego warsztatu"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "Teleport do wezwania do broni"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "Teleport domyślny"
+
+#: guitext:1110
+msgctxt "Menu interface item"
+msgid "Multiplayer Map Packs"
+msgstr ""
+
+#: guitext:1111
+msgctxt "Menu interface item"
+msgid "Return to Lobby"
+msgstr ""
+
+#: guitext:1112
+msgctxt "In-game message"
+msgid "You have been defeated. As host, keep the game running until the match concludes."
+msgstr "Zostałeś pokonany. Jako host utrzymaj grę uruchomioną, aż mecz się zakończy."
+
+
+#: guitext:1113
+msgctxt "Network game message"
+msgid "Verify /fxdata/ is the same across all PCs."
+msgstr "Sprawdź, czy /fxdata/ jest takie samo na wszystkich komputerach."
+
+#: guitext:1114
+msgctxt "Network game message"
+msgid "WARNING: Custom sprite mismatch with %s!"
+msgstr "OSTRZEŻENIE: niestandardowe sprite'y nie zgadzają się z %s!"
+
+#: guitext:1115
+msgctxt "Network game message"
+msgid "I am the computer now!"
+msgstr "Teraz steruje komputer!"
+
+#: guitext:1116
+msgctxt "Network game message"
+msgid "%s has left the game."
+msgstr "%s opuścił grę."
+
+#: guitext:1117
+msgctxt "Network game message"
+msgid "%s has disconnected."
+msgstr "%s rozłączył się."
+
+#: guitext:1118
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
+
+#: guitext:1119
+msgctxt "Network game message"
+msgid "Network connection to host lost"
+msgstr "Utracono połączenie sieciowe z hostem"

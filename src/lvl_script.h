@@ -103,6 +103,7 @@ struct PartyTrigger {
   {
       unsigned short ncopies;
       unsigned char objectv;
+      PlayerNumber target;
   };
 };
 
@@ -181,7 +182,7 @@ struct LevelScript {
     unsigned long lose_conditions_num;
 
     // Store strings used at level here
-    char strings[2048];
+    char strings[8192];
     long next_string_offset;
 };
 

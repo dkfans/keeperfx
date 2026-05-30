@@ -50,53 +50,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-const long definable_key_string[] = {
-    GUIStr_CtrlUp,
-    GUIStr_CtrlDown,
-    GUIStr_CtrlLeft,
-    GUIStr_CtrlRight,
-    GUIStr_CtrlRotate,
-    GUIStr_CtrlSpeed,
-    GUIStr_CtrlRotateLeft,
-    GUIStr_CtrlRotateRight,
-    GUIStr_CtrlZoomIn,
-    GUIStr_CtrlZoomOut,
-    CpgStr_RoomKind1+0,//TODO not GUI strings
-    CpgStr_RoomKind1+1,
-    CpgStr_RoomKind1+2,
-    CpgStr_RoomKind1+3,
-    CpgStr_RoomKind1+4,
-    CpgStr_RoomKind1+5,
-    CpgStr_RoomKind1+6,
-    CpgStr_RoomKind1+7,
-    CpgStr_RoomKind1+8,
-    CpgStr_RoomKind1+9,
-    CpgStr_RoomKind1+10,
-    CpgStr_RoomKind1+11,
-    CpgStr_RoomKind1+12,
-    CpgStr_RoomKind1+13,
-    CpgStr_RoomKind1+14,
-    CpgStr_RoomKind2,
-    GUIStr_StateFight,
-    GUIStr_StateAnnoyed,
-    CpgStr_PowerKind1,//TODO not GUI string
-    GUIStr_Query,
-    GUIStr_UndoPickup,
-    GUIStr_Pause,
-    GUIStr_Map,
-    GUIStr_ToggleMessage,
-    GUIStr_SnapCamera,
-    GUIStr_BestRoomSpace,
-    GUIStr_SquareRoomSpace,
-    GUIStr_RoomSpaceIncrease,
-    GUIStr_RoomSpaceDecrease,
-    GUIStr_SellTrapOnSubtile,
-    GUIStr_CtrlTiltUp,
-    GUIStr_CtrlTiltDown,
-    GUIStr_CtrlTiltReset,
-    GUIStr_CtrlAscend,
-    GUIStr_CtrlDescend,
-};
 
 char video_cluedo_mode;
 char video_shadows;
@@ -107,6 +60,20 @@ char video_view_distance_level;
 }
 #endif
 /******************************************************************************/
+
+static uint8_t num_definable_keys()
+{
+    uint8_t num = 0;
+
+    for (int i = 0; i < GAME_KEYS_COUNT; i++)
+    {
+        if (game_key_settings[i].binding_menu_visibility == BMV_Visible) {
+            num++;
+        }
+    }
+    return num;
+}
+
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset != 0)) & LbBtnF_Enabled;
@@ -118,8 +85,8 @@ void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Enabled;
-    if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)))
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < num_definable_keys()-1)) & LbBtnF_Enabled;
+    if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < num_definable_keys()-(frontend_define_keys_menu_items_visible-1)))
     {
         define_key_scroll_offset++;
     }
@@ -128,7 +95,7 @@ void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
     long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Enabled;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < num_definable_keys())) & LbBtnF_Enabled;
 }
 
 void frontend_define_key_up(struct GuiButton *gbtn)
@@ -140,14 +107,14 @@ void frontend_define_key_up(struct GuiButton *gbtn)
 
 void frontend_define_key_down(struct GuiButton *gbtn)
 {
-    if (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)) {
+    if (define_key_scroll_offset < num_definable_keys()-(frontend_define_keys_menu_items_visible-1)) {
         define_key_scroll_offset++;
     }
 }
 
 void frontend_define_key_scroll(struct GuiButton *gbtn)
 {
-    define_key_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_define_keys_menu_items_visible-2, GAME_KEYS_COUNT);
+    define_key_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_define_keys_menu_items_visible-2, num_definable_keys());
 }
 
 void frontend_define_key(struct GuiButton *gbtn)
@@ -160,14 +127,14 @@ void frontend_define_key(struct GuiButton *gbtn)
 
 void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 {
-    frontend_draw_scroll_tab(gbtn, define_key_scroll_offset, frontend_define_keys_menu_items_visible-2, GAME_KEYS_COUNT);
+    frontend_draw_scroll_tab(gbtn, define_key_scroll_offset, frontend_define_keys_menu_items_visible-2, num_definable_keys());
 }
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
 {
     long content = gbtn->content.lval;
     long key_id = define_key_scroll_offset - content - 1;
-    if (key_id >= GAME_KEYS_COUNT) {
+    if (key_id >= num_definable_keys()) {
         return;
     }
     if (frontend_mouse_over_button == content) {
@@ -182,7 +149,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     int tx_units_per_px = ((MyScreenHeight < 400) && (dbc_language > 0)) ? scale_value_menu(32) : scale_value_menu(16);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     int height = LbTextLineHeight() * tx_units_per_px / 14;
-    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(definable_key_string[key_id]));
+    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(game_key_settings[key_id].string_id));
     unsigned char mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
 
@@ -207,6 +174,9 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     char mouse_button_label[255] = "";
     switch (code)
     {
+      case KC_UNASSIGNED:
+        keytext = get_string(GUIStr_Empty);
+        break;
       case KC_LSHIFT:
       case KC_RSHIFT:
         keytext = get_string(GUIStr_KeyShift);

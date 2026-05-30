@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_keybrd.h"
+#include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
 #include "bflib_sprite.h"
 #include "bflib_guibtns.h"
@@ -50,6 +51,26 @@ long high_score_entry_input_active = -1;
 int highscore_scroll_offset = 0;
 unsigned long scores_count;
 /******************************************************************************/
+
+static void finalize_high_score_entry(TbBool restore_default_name)
+{
+    if ((high_score_entry_input_active < 0) || (high_score_entry_input_active >= campaign.hiscore_count))
+    {
+        return;
+    }
+    struct HighScore* hscore = &campaign.hiscore_table[high_score_entry_input_active];
+    if (restore_default_name)
+    {
+        snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", get_string(GUIStr_Keeper));
+    }
+    else
+    {
+        snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", high_score_entry);
+    }
+    highscore_scroll_offset = high_score_entry_input_active - (VISIBLE_HIGH_SCORES_COUNT-1);
+    high_score_entry_input_active = -1;
+    save_high_score_table();
+}
 
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
 {
@@ -152,6 +173,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
 
 void frontend_quit_high_score_table(struct GuiButton *gbtn)
 {
+    finalize_high_score_entry(false);
     FrontendMenuState nstate = get_menu_state_when_back_from_substate(FeSt_HIGH_SCORES);
     frontend_set_state(nstate);
 }
@@ -229,15 +251,7 @@ TbBool frontend_high_score_table_input(void)
     }
     if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
     {
-        struct HighScore* hscore = &campaign.hiscore_table[high_score_entry_input_active];
-        if (lbInkey == KC_ESCAPE) {
-            snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", get_string(GUIStr_TeamLeader));
-        } else {
-            snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", high_score_entry);
-        }
-        highscore_scroll_offset = high_score_entry_input_active - (VISIBLE_HIGH_SCORES_COUNT-1);
-        high_score_entry_input_active = -1;
-        save_high_score_table();
+        finalize_high_score_entry(lbInkey == KC_ESCAPE);
         clear_key_pressed(lbInkey);
         return true;
     }
@@ -277,7 +291,7 @@ TbBool frontend_high_score_table_input(void)
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 {
-    if (high_score_entry_input_active == -1)
+    if ((high_score_entry_input_active == -1) || (last_used_input_device == ID_Controller))
         gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &= ~LbBtnF_Enabled;
@@ -290,6 +304,10 @@ void add_score_to_high_score_table(void)
     int idx = add_high_score_entry(dungeon->lvstats.player_score, get_loaded_level_number(), "");
     if (idx >= 0)
     {
+        if (last_used_input_device == ID_Controller)
+        {
+            snprintf(high_score_entry, HISCORE_NAME_LENGTH, "%s", get_string(GUIStr_Keeper));
+        }
         // Preparing input in the new entry
         // Note that we're not clearing previous name - this way it may be easily kept unchanged
         high_score_entry_input_active = idx;

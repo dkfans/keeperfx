@@ -131,7 +131,7 @@ struct TbAlphaTables {
     unsigned char black[8*256];
     unsigned char orange[8*256];
     // This is to force the array to have 256x256 size
-    //unsigned char unused[191*256];
+    unsigned char unused[191*256];
 };
 
 /******************************************************************************/

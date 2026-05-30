@@ -756,28 +756,28 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
             *(unsigned int*)field = (unsigned int)value;
         break;
     case dt_long:
-        if (value < INT32_MIN || value > INT32_MAX)
+        if (value < LONG_MIN || value > LONG_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long: %" PRId64, value);
         else
-            *(int32_t *)field = (signed long)value;
+            *(signed long *)field = (signed long)value;
         break;
     case dt_ulong:
-        if (value < 0 || value > UINT32_MAX)
+        if (value < 0 || value > ULONG_MAX)
             NAMFIELDWRNLOG("Value out of range for unsigned long: %" PRId64, value);
         else
-            *(uint32_t *)field = (unsigned long)value;
+            *(unsigned long *)field = (unsigned long)value;
         break;
     case dt_longlong:
         if (value < INT64_MIN || value > INT64_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long long: %" PRId64, value);
         else
-            *(int64_t *)field = (signed long long)value;
+            *(signed long long *)field = (signed long long)value;
         break;
     case dt_ulonglong:
         if (value < 0)
             NAMFIELDWRNLOG("Value out of range for unsigned long long: %" PRId64, value);
         else
-            *(uint64_t *)field = (unsigned long long)value;
+            *(unsigned long long *)field = (unsigned long long)value;
         break;
     case dt_float:
         *(float*)field = (float)value;
@@ -1018,7 +1018,7 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
 {
     int32_t pos = 0;
     // Initialize the array
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    if ((flags & (CnfLd_AcceptPartial|CnfLd_PreListed)) == 0)
     {
         set_defaults(named_fields_set,config_textname);
     }
@@ -1344,6 +1344,10 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
   case FGrp_CrtrData:
       mdir=keeper_runtime_directory;
       sdir="creatrs";
+      break;
+  case FGrp_MpLevels:
+      mdir=keeper_runtime_directory;
+      sdir="multiplayer";
       break;
   default:
       mdir="./";
@@ -1719,11 +1723,11 @@ short is_bonus_level(LevelNumber lvnum)
   {
     if (campaign.bonus_levels[i] == lvnum)
     {
-        SYNCDBG(7,"Level %ld identified as bonus",lvnum);
+        SYNCDBG(7,"Level %d identified as bonus",lvnum);
         return true;
     }
   }
-  SYNCDBG(7,"Level %ld not recognized as bonus",lvnum);
+  SYNCDBG(7,"Level %d not recognized as bonus",lvnum);
   return false;
 }
 
@@ -1734,11 +1738,11 @@ short is_extra_level(LevelNumber lvnum)
   {
       if (campaign.extra_levels[i] == lvnum)
       {
-          SYNCDBG(7,"Level %ld identified as extra",lvnum);
+          SYNCDBG(7,"Level %d identified as extra",lvnum);
           return true;
       }
   }
-  SYNCDBG(7,"Level %ld not recognized as extra",lvnum);
+  SYNCDBG(7,"Level %d not recognized as extra",lvnum);
   return false;
 }
 
@@ -1850,7 +1854,7 @@ LevelNumber get_extra_level(unsigned short elv_kind)
     if ((i < 0) || (i >= EXTRA_LEVELS_COUNT))
         return LEVELNUMBER_ERROR;
     LevelNumber lvnum = campaign.extra_levels[i];
-    SYNCDBG(5, "Extra level kind %d has number %ld", (int)elv_kind, lvnum);
+    SYNCDBG(5, "Extra level kind %d has number %d", (int)elv_kind, lvnum);
     if (lvnum > 0)
     {
         return lvnum;
@@ -1991,18 +1995,18 @@ short is_singleplayer_level(LevelNumber lvnum)
 {
   if (lvnum < 1)
   {
-    SYNCDBG(17,"Level index %ld is not correct",lvnum);
+    SYNCDBG(17,"Level index %d is not correct",lvnum);
     return false;
   }
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == lvnum)
     {
-      SYNCDBG(17,"Level %ld identified as SP",lvnum);
+      SYNCDBG(17,"Level %d identified as SP",lvnum);
       return true;
     }
   }
-  SYNCDBG(17,"Level %ld not recognized as SP",lvnum);
+  SYNCDBG(17,"Level %d not recognized as SP",lvnum);
   return false;
 }
 
@@ -2014,11 +2018,11 @@ short is_multiplayer_level(LevelNumber lvnum)
   {
     if (campaign.multi_levels[i] == lvnum)
     {
-        SYNCDBG(17,"Level %ld identified as MP",lvnum);
+        SYNCDBG(17,"Level %d identified as MP",lvnum);
         return true;
     }
   }
-  SYNCDBG(17,"Level %ld not recognized as MP",lvnum);
+  SYNCDBG(17,"Level %d not recognized as MP",lvnum);
   return false;
 }
 
@@ -2046,11 +2050,11 @@ short is_freeplay_level(LevelNumber lvnum)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {
-        SYNCDBG(18,"%ld is freeplay",lvnum);
+        SYNCDBG(18,"%d is freeplay",lvnum);
         return true;
     }
   }
-  SYNCDBG(18,"%ld is NOT freeplay",lvnum);
+  SYNCDBG(18,"%d is NOT freeplay",lvnum);
   return false;
 }
 
@@ -2075,9 +2079,9 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
 
 
 /* @comment
- *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ *     The loading items of load_config and load_config_for_mod need to be consistent.
  */
-static void load_config_for_mod_one(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
+static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
 {
     set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
 
@@ -2098,7 +2102,7 @@ static void load_config_for_mod_one(const struct ConfigFileData* file_data, unsi
 
     if (mod_state->cmpg_config)
     {
-        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig,conf_fname);
+        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig, conf_fname);
         if (strlen(fname) > 0)
         {
             file_data->load_func(fname,flags);
@@ -2123,12 +2127,12 @@ static void load_config_for_mod_list(const struct ConfigFileData* file_data, uns
         if (mod_item->state.mod_dir == 0)
             continue;
 
-        load_config_for_mod_one(file_data, flags, mod_item);
+        load_config_for_mod(file_data, flags, mod_item);
     }
 }
 
 /* @comment
- *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ *     The loading items of load_config and load_config_for_mod need to be consistent.
  */
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
@@ -2147,7 +2151,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         load_config_for_mod_list(file_data, flags, mods_conf.after_base_item, mods_conf.after_base_cnt);
     }
 
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    fname = prepare_file_path(FGrp_CmpgConfig, conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);

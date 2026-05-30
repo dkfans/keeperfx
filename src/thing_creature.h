@@ -42,10 +42,6 @@ extern "C" {
 #define SWIPE_SPRITES_Y 2
 #define SWIPE_SPRITE_FRAMES 5
 
-/* Group leader index mask. Group leader is stored in every member and starts the group chain. */
-#define TngGroup_LeaderIndex 0x0FFF
-/* Group members count mask. Stored only in top of members chain (in group leader). */
-#define TngGroup_MemberCount 0xF000
 /******************************************************************************/
 #pragma pack(1)
 
@@ -173,6 +169,8 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_armour_effects_attached_to_creature(struct Thing *thing);
 void delete_disease_effects_attached_to_creature(struct Thing *thing);
 void delete_familiars_attached_to_creature(struct Thing* sumntng);
+TbBool creature_is_familiar(const struct Thing* thing);
+TbBool remove_creature_from_summoner(const struct Thing* famlrtng);
 
 CrInstance get_available_instance_with_spell_effect(const struct Thing *thing, unsigned long spell_flags);
 SpellKind get_spell_kind_from_instance(CrInstance inst_idx);
@@ -187,7 +185,7 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long breed_idx, long job_idx
 void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx, unsigned char pick_flags);
 struct Thing *find_creature_dragging_thing(const struct Thing *dragtng);
 struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, SpellKind spell_kind);
-int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs);
+int claim_neutral_creatures_in_sight(struct Thing *creatng, int can_see_slabs);
 TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng);
 
 void init_creature_scores(void);

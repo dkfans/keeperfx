@@ -122,14 +122,15 @@ static const struct NamedField rules_computer_named_fields[] = {
 
 static const struct NamedField rules_creatures_named_fields[] = {
     //name                    //param  //field                                           //default   //min     //max  //namedCommand //valueFunc
-  {"RECOVERYFREQUENCY",          0, field(game.conf.rules[0].creature.recovery_frequency    ),  10,        0, UCHAR_MAX,NULL,value_default, assign_default},
-  {"BODYREMAINSFOR",             0, field(game.conf.rules[0].creature.body_remains_for      ),1000,        0, USHRT_MAX,NULL,value_default, assign_default},
-  {"FLEEZONERADIUS",             0, field(game.conf.rules[0].creature.flee_zone_radius      ),2048,        0, UINT32_MAX,NULL,value_default, assign_default},
-  {"GAMETURNSINFLEE",            0, field(game.conf.rules[0].creature.game_turns_in_flee    ), 200,        0,  INT32_MAX,NULL,value_default, assign_default},
-  {"GAMETURNSUNCONSCIOUS",       0, field(game.conf.rules[0].creature.game_turns_unconscious),2000,        0, USHRT_MAX,NULL,value_default, assign_default},
-  {"CRITICALHEALTHPERCENTAGE",   0, field(game.conf.rules[0].creature.critical_health_permil), 125,        0,       100,NULL,value_x10    , assign_default},
-  {"STUNEVILENEMYCHANCE",        0, field(game.conf.rules[0].creature.stun_enemy_chance_evil), 100,        0,       100,NULL,value_default, assign_default},
-  {"STUNGOODENEMYCHANCE",        0, field(game.conf.rules[0].creature.stun_enemy_chance_good), 100,        0,       100,NULL,value_default, assign_default},
+  {"RECOVERYFREQUENCY",          0, field(game.conf.rules[0].creature.recovery_frequency    )    ,  10,        0, UCHAR_MAX,NULL,value_default, assign_default},
+  {"BODYREMAINSFOR",             0, field(game.conf.rules[0].creature.body_remains_for      )    ,1000,        0, USHRT_MAX,NULL,value_default, assign_default},
+  {"FLEEZONERADIUS",             0, field(game.conf.rules[0].creature.flee_zone_radius      )    ,2048,        0, UINT32_MAX,NULL,value_default, assign_default},
+  {"GAMETURNSINFLEE",            0, field(game.conf.rules[0].creature.game_turns_in_flee    )    , 200,        0,  INT32_MAX,NULL,value_default, assign_default},
+  {"GAMETURNSUNCONSCIOUS",       0, field(game.conf.rules[0].creature.game_turns_unconscious)    ,2000,        0, USHRT_MAX,NULL,value_default, assign_default},
+  {"CRITICALHEALTHPERCENTAGE",   0, field(game.conf.rules[0].creature.critical_health_permil)    , 125,        0,       100,NULL,value_x10    , assign_default},
+  {"STUNEVILENEMYCHANCE",        0, field(game.conf.rules[0].creature.stun_enemy_chance_evil)    , 100,        0,       100,NULL,value_default, assign_default},
+  {"STUNGOODENEMYCHANCE",        0, field(game.conf.rules[0].creature.stun_enemy_chance_good)    , 100,        0,       100,NULL,value_default, assign_default},
+  {"STUNWITHOUTPRISONCHANCE",    0, field(game.conf.rules[0].creature.stun_without_prison_chance),   0,        0,       100,NULL,value_default, assign_default},
   {NULL},
 };
 

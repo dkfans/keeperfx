@@ -44,7 +44,7 @@ extern "C" {
 long get_no_creatures_in_group(const struct Thing *grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    long i = cctrl->group_info & TngGroup_LeaderIndex;
+    long i = cctrl->group_leader_idx;
     if (i == 0) {
         // No group - just one creature
         return 1;
@@ -72,7 +72,7 @@ struct Thing *get_last_follower_creature_in_group(const struct Thing *grptng)
 {
     struct Thing* ctng = NULL;
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    long i = cctrl->group_info & TngGroup_LeaderIndex;
+    long i = cctrl->group_leader_idx;
     if (i == 0) {
         // No group - just one creature
         return INVALID_THING;
@@ -99,7 +99,7 @@ struct Thing *get_last_follower_creature_in_group(const struct Thing *grptng)
 struct Thing *get_first_follower_creature_in_group(const struct Thing *grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    long i = cctrl->group_info & TngGroup_LeaderIndex;
+    long i = cctrl->group_leader_idx;
     if (i == 0) {
         // No group - just one creature
         return INVALID_THING;
@@ -115,14 +115,14 @@ struct Thing *get_first_follower_creature_in_group(const struct Thing *grptng)
 struct Thing *get_group_leader(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct Thing* leadtng = thing_get(cctrl->group_info & TngGroup_LeaderIndex);
+    struct Thing* leadtng = thing_get(cctrl->group_leader_idx);
     return leadtng;
 }
 
 TbBool creature_is_group_member(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return ((cctrl->group_info & TngGroup_LeaderIndex) > 0);
+    return (cctrl->group_leader_idx > 0);
 }
 
 TbBool creature_is_group_leader(const struct Thing *thing)
@@ -146,7 +146,7 @@ void internal_update_leader_index_in_group(struct Thing *leadtng)
             break;
         i = cctrl->next_in_group;
         // Per-thing code
-        cctrl->group_info ^= (leadtng->index ^ cctrl->group_info) & TngGroup_LeaderIndex;
+        cctrl->group_leader_idx = leadtng->index;
         // Per-thing code ends
         k++;
         if (k > GROUP_MEMBERS_COUNT)
@@ -213,7 +213,7 @@ void internal_add_member_to_group_chain_head(struct Thing *creatng, struct Thing
     crctrl->next_in_group = leadtng->index;
     ldctrl->prev_in_group = creatng->index;
     // Remove member count from old leader; new leader will have it computed somewhere else
-    ldctrl->group_info &= ~TngGroup_MemberCount;
+    ldctrl->group_member_count = 0;
 }
 
 /**
@@ -240,8 +240,8 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
     // Set new next and previous things
     internal_remove_member_from_group_chain(creatng);
     // Finish removing the thing from group
-    cctrl->group_info &= ~TngGroup_LeaderIndex;
-    cctrl->group_info &= ~TngGroup_MemberCount;
+    cctrl->group_leader_idx = 0;
+    cctrl->group_member_count = 0;
     creatng->alloc_flags &= ~TAlF_IsFollowingLeader;
     // Find leader of the party
     struct Thing *leadtng;
@@ -258,12 +258,17 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
     {
         cctrl->next_in_group = 0;
         cctrl->prev_in_group = 0;
-        cctrl->group_info &= ~TngGroup_LeaderIndex;
-        cctrl->group_info &= ~TngGroup_MemberCount;
+        cctrl->group_leader_idx = 0;
+        cctrl->group_member_count = 0;
         if (creature_control_invalid(cctrl)) {
             WARNLOG("Group had only one member, %s index %d",thing_model_name(creatng),(int)creatng->index);
         }
         leadtng->alloc_flags &= ~TAlF_IsFollowingLeader;
+        CrtrStateId i = get_creature_state_besides_interruptions(leadtng);
+        if (i == CrSt_CreatureFollowLeader) 
+        {
+            set_start_state(leadtng);
+        }
         return false;
     }
     // If there is still more than one creature
@@ -312,7 +317,7 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     {
         return potential_leader;
     }
-    long i = cctrl->group_info & TngGroup_LeaderIndex;
+    long i = cctrl->group_leader_idx;
     unsigned long k = 0;
     if (i == 0)
     {
@@ -321,7 +326,7 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     while (i > 0)
     {
         ctng = thing_get(i);
-        if (thing_is_invalid(ctng))
+        if (!thing_is_creature(ctng))
         {
             ERRORLOG("Invalid creature in group %s index %d", thing_model_name(grptng), (int)grptng->index);
             return potential_leader;
@@ -357,7 +362,7 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
     short has_digger = 0;
     TbBool is_digger = 0;
     struct Thing* best_creatng = INVALID_THING;
-    long i = cctrl->group_info & TngGroup_LeaderIndex;
+    long i = cctrl->group_leader_idx;
     if (i == 0) {
         // One creature is not a group, but we may still get its experience
         i = grptng->index;
@@ -472,9 +477,9 @@ TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
         crctrl->prev_in_group = pvthing->index;
         struct CreatureControl* pvctrl = creature_control_get_from_thing(pvthing);
         pvctrl->next_in_group = creatng->index;
-        crctrl->group_info ^= (crctrl->group_info ^ pvctrl->group_info) & TngGroup_LeaderIndex;
+        crctrl->group_leader_idx = pvctrl->group_leader_idx;
         crctrl->next_in_group = 0;
-        crctrl->group_info &= ~TngGroup_MemberCount;
+        crctrl->group_member_count = 0;
     } else
     {
         // If there's no group, create new one made of both creatures
@@ -482,12 +487,12 @@ TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
         struct CreatureControl* grctrl = creature_control_get_from_thing(grptng);
         crctrl->prev_in_group = grptng->index;
         grctrl->next_in_group = creatng->index;
-        crctrl->group_info ^= (crctrl->group_info ^ grptng->index) & TngGroup_LeaderIndex;
-        grctrl->group_info ^= (grctrl->group_info ^ grptng->index) & TngGroup_LeaderIndex;
+        crctrl->group_leader_idx = grptng->index;
+        grctrl->group_leader_idx = grptng->index;
         crctrl->next_in_group = 0;
         grctrl->prev_in_group = 0;
         // Remove member count from non-leader creature; the leader will have it computed somewhere else
-        crctrl->group_info &= ~TngGroup_MemberCount;
+        crctrl->group_member_count = 0;
     }
     creatng->alloc_flags |= TAlF_IsFollowingLeader;
     return true;
@@ -503,7 +508,7 @@ long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng
         remove_creature_from_group(creatng);
     }
     struct Thing* leadtng = get_group_leader(grptng);
-    if (thing_is_invalid(leadtng))
+    if (!thing_is_creature(leadtng))
         leadtng = grptng;
     // Change old leader to normal group member, and add new one to chain as its head
     internal_add_member_to_group_chain_head(creatng, leadtng);
@@ -538,7 +543,7 @@ TbBool create_party(const char *prtname)
     return true;
 }
 
-TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level, long carried_gold, long objctv_id, long countdown)
+TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level, long carried_gold, long objctv_id, long countdown, PlayerNumber target)
 {
     if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
@@ -561,6 +566,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level
     member->objectv = objctv_id;
     member->countdown = countdown;
     party->members_num++;
+    member->target = target;
     return true;
 }
 
@@ -589,7 +595,7 @@ TbBool delete_member_from_party(int party_id, long crtr_model, CrtrExpLevel exp_
 TbBool make_group_member_leader(struct Thing *leadtng)
 {
     struct Thing* prvtng = get_group_leader(leadtng);
-    if (thing_is_invalid(prvtng))
+    if (!thing_is_creature(prvtng))
         return false;
     SYNCDBG(3,"Group owned by player %d leader change to %s index %d",
         (int)leadtng->owner,thing_model_name(leadtng),(int)leadtng->index);
@@ -605,7 +611,7 @@ TbBool make_group_member_leader(struct Thing *leadtng)
 TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *pos)
 {
     struct CreatureControl* leadctrl = creature_control_get_from_thing(leadtng);
-    int group_len = (leadctrl->group_info >> 12);
+    int group_len = leadctrl->group_member_count;
     for (int i = 0; i < group_len; i++)
     {
         struct MemberPos* avail_pos = &leadctrl->followers_pos[i];
@@ -626,7 +632,7 @@ TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *po
 long process_obey_leader(struct Thing *thing)
 {
     struct Thing* leadtng = get_group_leader(thing);
-    if (thing_is_invalid(leadtng)) {
+    if (!thing_is_creature(leadtng)) {
         WARNDBG(3,"Leader invalid, resetting %s index %d owned by player %d",
             thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
@@ -712,7 +718,7 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
     } else if (recompute_interval < 4) {
         recompute_interval = 4;
     }
-    if (((cctrl->group_info >> 12) == group_len) && (((game.play_gameturn + leadtng->index) % recompute_interval) != 0))
+    if ((cctrl->group_member_count == group_len) && (((get_gameturn() + leadtng->index) % recompute_interval) != 0))
     {
         SYNCDBG(7,"Reusing positions for %d followers of %s index %d owned by player %d",
             group_len,thing_model_name(leadtng),(int)leadtng->index,(int)leadtng->owner);
@@ -724,7 +730,7 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
     }
     SYNCDBG(7,"Finding positions for %d followers of %s index %d owned by player %d",
         group_len,thing_model_name(leadtng),(int)leadtng->index,(int)leadtng->owner);
-    cctrl->group_info = (group_len << 12) | (cctrl->group_info & ~TngGroup_MemberCount);
+    cctrl->group_member_count = group_len;
     memset(cctrl->followers_pos, 0, sizeof(cctrl->followers_pos));
 
     int len_xv = LbSinL(leadtng->move_angle_xy + DEGREES_180) << 8 >> 16;
@@ -866,9 +872,10 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
               cctrl->party.objective = member->objectv;
+              cctrl->party.target_plyr_idx = member->target;
               cctrl->party.original_objective = cctrl->party.objective;
-              cctrl->wait_to_turn = game.play_gameturn + member->countdown;
-              cctrl->hero.wait_time = game.play_gameturn + member->countdown;
+              cctrl->wait_to_turn = get_gameturn() + member->countdown;
+              cctrl->hero.wait_time = get_gameturn() + member->countdown;
               if (thing_is_invalid(grptng))
               {
                   // If it is the first creature - set it as only group member and leader

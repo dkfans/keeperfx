@@ -103,7 +103,7 @@ void process_room_surrounding_flames(struct Room *room)
     // Create new element
     if (room->owner == game.neutral_player_num)
     {
-      create_room_surrounding_flame(room,&pos,game.play_gameturn & 3,game.neutral_player_num);
+      create_room_surrounding_flame(room,&pos,get_gameturn() & 3,game.neutral_player_num);
     } else
     if (room_effect_elements[get_player_color_idx(room->owner)] != 0)
     {
@@ -406,7 +406,7 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
  * @note Used capacity of the room don't have to be updated here, as it is re-computed later.
  * @return True if the thing was either assimilated or left intact, false if it was deleted.
  */
-short check_and_asimilate_thing_by_room(struct Thing *thing)
+TbBool check_and_asimilate_thing_by_room(struct Thing *thing)
 {
     struct Room *room;
     if (thing_is_dragged_or_pulled(thing))
@@ -418,16 +418,24 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_gold_hoard(thing))
     {
         room = get_room_thing_is_on(thing);
-        long wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
-        unsigned long gold_value = wealth_size_holds * max(1, get_wealth_size_of_gold_hoard_object(thing));
-        unsigned long value_left;
-        unsigned long value_added;
+        GoldAmount wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
+        GoldAmount gold_value = thing->valuable.gold_stored;
+        if (gold_value == 0)
+        {
+            gold_value = wealth_size_holds* max(1, get_wealth_size_of_gold_hoard_object(thing));
+        }
+        else
+        {
+            thing->valuable.gold_stored = 0;
+        }
+        GoldAmount value_left;
+        GoldAmount value_added;
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
         {
             // No room - delete it, hoard cannot exist outside treasure room
             ERRORLOG("Found %s outside of %s room; removing",thing_model_name(thing),room_role_code_name(RoRoF_GoldStorage));
             create_gold_pile(&thing->mappos, thing->owner, gold_value);
-            delete_thing_structure(thing, 0);
+            destroy_object(thing);
             return false;
         }
         MapSubtlCoord stl_x = thing->mappos.x.stl.num - 1;
@@ -444,7 +452,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             return true;
         }
         create_gold_pile(&thing->mappos, thing->owner, gold_value);
-        delete_thing_structure(thing, 0);
+        destroy_object(thing);
         return false;
     }
     if (thing_is_spellbook(thing))
@@ -452,7 +460,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         room = get_room_thing_is_on(thing);
         if (room->owner != game.neutral_player_num)
         {
-            if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (game.play_gameturn >= 10)))
+            if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (get_gameturn() >= 10)))
             {
                 // No room - oh well, leave it as free spell
                 if (((game.conf.rules[room->owner].game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {

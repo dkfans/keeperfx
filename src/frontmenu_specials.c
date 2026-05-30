@@ -42,6 +42,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
+// Non-NULL no-op callback so that the controller snapping logic does not ignore the button
+static void no_op(struct GuiButton* gbtn) {}
+
 #define resurrect_creature_items_visible  6
 struct GuiButtonInit resurrect_creature_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, gui_area_text,                     1, GUIStr_SpecResurrectCreature,0,{0},             0, NULL },
@@ -53,7 +57,7 @@ struct GuiButtonInit resurrect_creature_buttons[] = {
   { 0,  0, 0, 0, select_resurrect_creature,NULL,  NULL,               5, 999, 202, 999, 202,250, 26, draw_resurrect_creature,           0, GUIStr_Empty,       0,       {0},               0, maintain_resurrect_creature_select },
   { 1,  0, 0, 0, select_resurrect_creature_up,NULL,NULL,              1, 305,  62, 305,  62, 22, 24, gui_area_new_normal_button,      278, GUIStr_Empty,       0,       {0},               0, maintain_resurrect_creature_scroll },
   { 1,  0, 0, 0, select_resurrect_creature_down,NULL,NULL,            2, 305, 204, 305, 204, 22, 24, gui_area_new_normal_button,      280, GUIStr_Empty,       0,       {0},               0, maintain_resurrect_creature_scroll },
-  { 0,  0, 0, 1, NULL,               NULL,        NULL,               0, 999, 258, 999, 258,100, 32, gui_area_text,                     1, GUIStr_MnuCancel,   0,       {0},               0, NULL },
+  { 0,  0, 0, 1, no_op,              NULL,        NULL,               0, 999, 258, 999, 258,100, 32, gui_area_text,                     1, GUIStr_MnuCancel,   0,       {0},               0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},               0, NULL },
 };
 
@@ -68,20 +72,20 @@ struct GuiButtonInit transfer_creature_buttons[] = {
   { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               5, 999, 202, 999, 202,250, 26, draw_transfer_creature,            5, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_select },
   { 1,  0, 0, 0, select_transfer_creature_up,NULL,NULL,               1, 305,  62, 305,  62, 22, 24, gui_area_new_normal_button,      278, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_scroll },
   { 1,  0, 0, 0, select_transfer_creature_down,NULL,NULL,             2, 305, 204, 305, 204, 22, 24, gui_area_new_normal_button,      280, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_scroll },
-  { 0,  0, 0, 1, NULL,               NULL,        NULL,               0, 999, 258, 999, 258,100, 32, gui_area_text,                     1, GUIStr_MnuCancel,   0,       {0},               0, NULL },
+  { 0,  0, 0, 1, no_op,              NULL,        NULL,               0, 999, 258, 999, 258,100, 32, gui_area_text,                     1, GUIStr_MnuCancel,   0,       {0},               0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},               0, NULL },
 };
 
 struct GuiButtonInit hold_audience_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, CpgStr_PowerKind1+4,0,       {0},               0, NULL },
-  { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, gui_area_normal_button,           46, GUIStr_Empty,       0,       {0},               0, NULL },
+  { 0,  0, 0, 1, no_op,              NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, gui_area_normal_button,           46, GUIStr_Empty,       0,       {0},               0, NULL },
   { 0,  0, 0, 1, choose_hold_audience,NULL,       NULL,               0, 116,  24, 118,  58, 46, 32, gui_area_normal_button,           48, GUIStr_Empty,       0,       {0},               0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},               0, NULL },
 };
 
 struct GuiButtonInit armageddon_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, CpgStr_PowerKind1+16,0,      {0},               0, NULL },
-  { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, gui_area_normal_button,           46, GUIStr_Empty,       0,       {0},               0, NULL },
+  { 0,  0, 0, 1, no_op,              NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, gui_area_normal_button,           46, GUIStr_Empty,       0,       {0},               0, NULL },
   { 0,  0, 0, 1, choose_armageddon,  NULL,        NULL,               0, 116,  24, 118,  58, 46, 32, gui_area_normal_button,           48, GUIStr_Empty,       0,       {0},               0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},               0, NULL },
 };
@@ -150,7 +154,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     if (i != -1)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[cstore->model];
+        struct CreatureModelConfig* crconf = creature_stats_get(cstore->model);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
@@ -240,7 +244,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     if (!thing_is_invalid(thing))
     {
         const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[thing->model];
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);

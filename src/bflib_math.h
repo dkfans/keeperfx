@@ -70,7 +70,7 @@ struct Proportion { // sizeof = 8
 long LbSinL(long x);
 long LbCosL(long x);
 long LbSqrL(long x);
-long LbArcTanAngle(long x,long n);
+int32_t LbArcTanAngle(int32_t x,int32_t y);
 long LbMathOperation(unsigned char opkind, long first_operand, long second_operand);
 unsigned long LbRandomSeries(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
 TbBool LbNumberSignsSame(long num_a, long num_b);

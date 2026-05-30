@@ -586,10 +586,10 @@ TbBool creature_can_freeze_prisoners_for_player(const struct Thing *creatng, Pla
 TbBool creature_can_join_fight_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
     struct Event* event = get_event_of_type_for_player(EvKind_EnemyFight, creatng->owner);
-    if (event_is_invalid(event)) {
+    if (!event_exists(event)) {
         event = get_event_of_type_for_player(EvKind_HeartAttacked, creatng->owner);
     }
-    return !event_is_invalid(event);
+    return event_exists(event);
 }
 
 TbBool creature_can_do_barracking_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
@@ -1213,10 +1213,10 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
 TbBool creature_try_doing_secondary_job(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (game.play_gameturn - cctrl->job_secondary_check_turn <= 128) {
+    if (get_gameturn() - cctrl->job_secondary_check_turn <= 128) {
         return false;
     }
-    cctrl->job_secondary_check_turn = game.play_gameturn;
+    cctrl->job_secondary_check_turn = get_gameturn();
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     return attempt_job_secondary_preference(creatng, crconf->job_secondary);
 }

@@ -100,7 +100,7 @@ TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng)
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
-        if (!thing_is_invalid(enmtng))
+        if (thing_exists(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -111,7 +111,7 @@ TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng)
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
-        if (!thing_is_invalid(enmtng))
+        if (thing_exists(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -130,7 +130,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
-        if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
+        if (thing_exists(enmtng) && !thing_is_creature_digger(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -141,7 +141,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
-        if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
+        if (thing_exists(enmtng) && !thing_is_creature_digger(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -217,7 +217,7 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
-        if (!thing_is_invalid(enmtng))
+        if (thing_exists(enmtng))
         {
             if (enmtng->model != enmodel) {
                 return true;
@@ -228,7 +228,7 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
-        if (!thing_is_invalid(enmtng))
+        if (thing_exists(enmtng))
         {
             if (enmtng->model != enmodel) {
                 return true;
@@ -281,11 +281,11 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     }
     if (creatng->health < (fear * (long long)crmaxhealth) / 1000)
     {
-        SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
+        SYNCDBG(8,"The %s index %d is scared due to low health (%d/%d)",thing_model_name(creatng),(int)creatng->index,creatng->health,crmaxhealth);
         return true;
     }
     // Units dropped will fight stronger units for a bit
-    if ((cctrl->dropped_turn + FIGHT_FEAR_DELAY) > game.play_gameturn)
+    if ((cctrl->dropped_turn + FIGHT_FEAR_DELAY) > get_gameturn())
     {
         return false;
     }
@@ -396,7 +396,7 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
         struct CreatureControl* fcctrl = creature_control_get_from_thing(fightng);
         fcctrl->combat.seen_enemy_los = can_see;
         fcctrl->combat.seen_enemy_idx = enmtng->index;
-        fcctrl->combat.seen_enemy_turn = game.play_gameturn;
+        fcctrl->combat.seen_enemy_turn = get_gameturn();
     }
     if (creature_has_ranged_weapon(fightng))
     {
@@ -451,7 +451,7 @@ CrAttackType creature_can_have_combat_with_object(struct Thing* fightng, struct 
         struct CreatureControl* fcctrl = creature_control_get_from_thing(fightng);
         fcctrl->combat.seen_enemy_los = can_see;
         fcctrl->combat.seen_enemy_idx = enmtng->index;
-        fcctrl->combat.seen_enemy_turn = game.play_gameturn;
+        fcctrl->combat.seen_enemy_turn = get_gameturn();
     }
     return AttckT_Ranged;
 }
@@ -598,8 +598,8 @@ TbBool cleanup_battle(BattleIndex battle_id)
         return true;
     } else
     {
-        return false;
         SYNCDBG(7,"There are still %d participants in battle %d",(int)count,(int)battle_id);
+        return false;
     }
 }
 
@@ -713,7 +713,7 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         {
             struct Thing* attcktng = thing_get(cctrl->combat.battle_enemy_idx);
             TRACE_THING(attcktng);
-            if (!thing_is_invalid(attcktng) && ((attcktng->index == tng1->index) || (attcktng->index == tng2->index)))
+            if (thing_exists(attcktng) && ((attcktng->index == tng1->index) || (attcktng->index == tng2->index)))
             {
                 return true;
             }
@@ -1352,7 +1352,7 @@ CrAttackType check_for_possible_combat_within_distance(struct Thing *creatng, st
 short creature_combat_flee(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->flee_start_turn;
+    GameTurnDelta turns_in_flee = get_gameturn() - (GameTurnDelta)cctrl->flee_start_turn;
     if (cctrl->flee_start_turn == 0)
     {
         turns_in_flee = 0;
@@ -1369,7 +1369,7 @@ short creature_combat_flee(struct Thing *creatng)
                 cctrl->flee_pos.y.val = creatng->mappos.y.val;
                 cctrl->flee_pos.z.val = creatng->mappos.z.val;
             }
-            cctrl->flee_start_turn = game.play_gameturn;
+            cctrl->flee_start_turn = get_gameturn();
         } else
         if ((turns_in_flee <= game.conf.rules[creatng->owner].creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
@@ -1435,7 +1435,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
         if (!(thing_is_deployed_trap(enmtng) && (enmtng->trap.num_shots <= 0))) //No error needed when trap fired it's final shot
         {
             ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enmtng->class_id,
-                (int)enmtng->model, (long)game.play_gameturn, (int)thing->creation_turn);
+                (int)enmtng->model, (long)get_gameturn(), (int)thing->creation_turn);
         }
         return false;
     }
@@ -1547,7 +1547,7 @@ CrAttackType check_for_possible_melee_combat_with_attacker_within_distance(struc
         else
             thing = INVALID_THING;
         TRACE_THING(thing);
-        if (thing_is_invalid(thing))
+        if (!thing_exists(thing))
             continue;
         // When counting distance, take size of creatures into account
         long distance = get_combat_distance(fightng, thing);
@@ -1583,7 +1583,7 @@ CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(stru
         else
             thing = INVALID_THING;
         TRACE_THING(thing);
-        if (thing_is_invalid(thing))
+        if (!thing_exists(thing))
             continue;
         // When counting distance, take size of creatures into account
         long distance = get_combat_distance(fightng, thing);
@@ -1736,7 +1736,7 @@ CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
     if (!creature_will_attack_creature_incl_til_death(fightng, enmtng)) {
         return AttckT_Unset;
     }
-    if (((game.play_gameturn + fightng->index) & 7) == 0) {
+    if (((get_gameturn() + fightng->index) & 7) == 0) {
         long dist = get_combat_distance(fightng, enmtng);
         attack_type = creature_can_have_combat_with_creature(fightng, enmtng, dist, 1, 1);
     }
@@ -1836,7 +1836,12 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->exp_level)) {
         creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
     }
-    return thing_in_field_of_view(thing, enmtng);
+    if (!thing_in_field_of_view(thing, enmtng))
+    {
+        creature_turn_to_face(thing, &enmtng->mappos);
+        return false;
+    }
+    return true;
 }
 
 TbBool creature_would_benefit_from_healing(const struct Thing* thing)
@@ -2169,9 +2174,9 @@ long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dis
 TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->combat.seen_enemy_turn != game.play_gameturn) || (cctrl->combat.seen_enemy_idx != enmtng->index))
+    if ((cctrl->combat.seen_enemy_turn != get_gameturn()) || (cctrl->combat.seen_enemy_idx != enmtng->index))
     {
-      cctrl->combat.seen_enemy_turn = game.play_gameturn;
+      cctrl->combat.seen_enemy_turn = get_gameturn();
       cctrl->combat.seen_enemy_idx = enmtng->index;
       cctrl->combat.seen_enemy_los = creature_can_see_combat_path(creatng, enmtng, enmdist);
     }
@@ -2697,7 +2702,7 @@ long check_for_better_combat(struct Thing *figtng)
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(figtng),(int)figtng->index);
     struct CreatureControl* figctrl = creature_control_get_from_thing(figtng);
     // Allow the switch only once per certain amount of turns
-    if (((game.play_gameturn + figtng->index) % BATTLE_CHECK_INTERVAL) != 0)
+    if (((get_gameturn() + figtng->index) % BATTLE_CHECK_INTERVAL) != 0)
         return 0;
     struct Thing* enmtng = INVALID_THING;
     CrAttackType attack_type = check_for_possible_combat(figtng, &enmtng);
@@ -2802,7 +2807,7 @@ void creature_in_combat_wait(struct Thing *creatng)
         return;
     }
     // Check to attack dungeon heart once every 8 turns
-    if (((game.play_gameturn+creatng->index) & 7) == 0)
+    if (((get_gameturn()+creatng->index) & 7) == 0)
     {
         if (creature_look_for_enemy_heart_combat(creatng)) {
             SYNCDBG(19,"Switching to heart combat");
@@ -2941,7 +2946,7 @@ short creature_in_combat(struct Thing *creatng)
             ERRORLOG("Cannot get %s index %d into flee",thing_model_name(creatng),(int)creatng->index);
             return 0;
         }
-        cctrl->flee_start_turn = game.play_gameturn;
+        cctrl->flee_start_turn = get_gameturn();
         return 0;
     }
     CombatState combat_func;
@@ -3172,7 +3177,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         }
         if (setup_combat_flee_position(creatng))
         {
-            cctrl->flee_start_turn = game.play_gameturn;
+            cctrl->flee_start_turn = get_gameturn();
             return true;
         }
         return false;
@@ -3200,7 +3205,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     }
 
     // If not too scared for combat, then do the combat
-    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->dropped_turn + FIGHT_FEAR_DELAY >= game.play_gameturn) )
+    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->dropped_turn + FIGHT_FEAR_DELAY >= get_gameturn()) )
     {
         set_creature_in_combat(creatng, enmtng, attack_type);
         return true;
@@ -3220,7 +3225,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     }
     if (setup_combat_flee_position(creatng))
     {
-        cctrl->flee_start_turn = game.play_gameturn;
+        cctrl->flee_start_turn = get_gameturn();
         return true;
     }
     return false;
@@ -3264,7 +3269,7 @@ struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, c
         {
             if (players_are_enemies(thing->owner, trpthing->owner))
             {
-                struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpthing->model];
+                struct TrapConfigStats* trapst = get_trap_model_stats(trpthing->model);
                 if (creature_can_see_invisible(thing) || (trapst->hidden == 0) || (trpthing->trap.revealed == 1))
                 {
                     return trpthing;
@@ -3317,8 +3322,12 @@ struct Thing *check_for_door_to_fight(struct Thing *thing)
         struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(doortng))
         {
-          if (thing->owner != doortng->owner)
-              return doortng;
+            if (thing->owner != doortng->owner)
+            {
+                //Dropping a creature next to the door, means the player saw it. Call to Arms uses this too.
+                reveal_secret_door_to_player(doortng, thing->owner);
+                return doortng;
+            }
         }
         m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
     }
@@ -3331,7 +3340,7 @@ TbBool creature_look_for_enemy_door_combat(struct Thing *thing)
     // Creatures which can pass doors shouldn't pick a fight with them, unless they are ordered to
     if (crconf->can_go_locked_doors) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (game.play_gameturn != cctrl->dropped_turn)
+        if (get_gameturn() != cctrl->dropped_turn)
         {
             return false;
         }
@@ -3492,6 +3501,25 @@ short creature_damage_walls(struct Thing *creatng)
     set_start_state(creatng);
     return 0;
 
+}
+
+TbBool creature_requires_cleansing(const struct Thing* thing, SpellKind spell_idx)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig* spconf = get_spell_config(spell_idx);
+    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        struct CastedSpellData *cspell = &cctrl->casted_spells[i];
+        struct SpellConfig* spconf2 = get_spell_config(cspell->spkind);
+        if (flag_is_set(spconf->cleanse_flags, spconf2->spell_flags))
+        {
+            if (creature_under_spell_effect(thing, spconf2->spell_flags))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /******************************************************************************/

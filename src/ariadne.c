@@ -329,7 +329,7 @@ long init_navigation(void)
     init_navigation_map();
     triangulate_map(IanMap);
     nav_rulesA2B = navigation_rule_normal;
-    game.map_changed_for_nagivation = 1;
+    game.map_changed_for_navigation = 1;
     return 1;
 }
 
@@ -1278,7 +1278,7 @@ void tag_open_closed_init(void)
 
 unsigned long nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy)
 {
-    NAVIDBG(19,"F=%lu Connect %03ld,%03ld %03ld,%03ld", game.play_gameturn, ptAx, ptAy, ptBx, ptBy);
+    NAVIDBG(19,"F=%u Connect %03ld,%03ld %03ld,%03ld", get_gameturn(), ptAx, ptAy, ptBx, ptBy);
     long tri1_id;
     long tri2_id;
     tri1_id = triangle_findSE8(ptAx, ptAy);
@@ -3077,6 +3077,16 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             ariadne_init_movement_to_current_waypoint(thing, arid);
             return AridRet_OK;
         }
+        if (hug_angle != thing->move_angle_xy)
+        {
+            struct Coord3d pos;
+            pos.x.val = arid->endpos.x.val;
+            pos.y.val = arid->endpos.y.val;
+            pos.z.val = arid->endpos.z.val;
+            if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags) == AridRet_OK) {
+                return AridRet_OK;
+            }
+        }
         arid->next_position.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
         arid->next_position.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
         arid->next_position.z.val = get_thing_height_at(thing, &arid->next_position);
@@ -3232,7 +3242,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long speed, AriadneRouteFlags flags)
 {
     SYNCDBG(18,"Starting");
-    if (game.map_changed_for_nagivation)
+    if (game.map_changed_for_navigation)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
@@ -3257,7 +3267,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
     long subroute, unsigned char nav_size, const char *func_name)
 {
     int32_t route_dist;
-    NAVIDBG(9,"%s: Path from %5ld,%5ld to %5ld,%5ld on turn %lu", func_name, start_x, start_y, end_x, end_y, game.play_gameturn);
+    NAVIDBG(9,"%s: Path from %5ld,%5ld to %5ld,%5ld on turn %u", func_name, start_x, start_y, end_x, end_y, get_gameturn());
     if (subroute == -1)
       WARNLOG("%s: implement random externally", func_name);
     path->start.x = start_x;

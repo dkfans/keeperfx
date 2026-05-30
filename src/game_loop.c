@@ -112,7 +112,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         {
             if ((dungeon->heart_destroy_turn == 10) && (dungeon->free_soul_idx == 0))
             {
-                if (thing_is_invalid(soultng))
+                if (!thing_exists(soultng))
                 {
                     soultng = create_creature(central_pos, get_players_spectator_model(plyr_idx), plyr_idx);
                 }
@@ -159,7 +159,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             else if (dungeon->heart_destroy_turn == 30)
             {
                 dungeon->free_soul_idx = 0;
-                delete_thing_structure(soultng, 0);
+                destroy_object(soultng);
             }
         }
         dungeon->heart_destroy_turn++;
@@ -215,7 +215,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
         destroy_dungeon_heart_room(plyr_idx, heartng);
-        delete_thing_structure(heartng, 0);
+        destroy_object(heartng);
     }
     { // If there is another heart owned by this player, set it to "working" heart
         struct PlayerInfo* player;
@@ -233,7 +233,7 @@ void process_dungeon_destroy(struct Thing* heartng)
                 if (is_my_player_number(dungeon->owner))
                 {
                     const char* objective = (game.heart_lost_quick_message) ? game.quick_messages[game.heart_lost_message_id] : get_string(game.heart_lost_message_id);
-                    process_objective(objective, game.heart_lost_message_target, 0, 0);
+                    process_objective(objective,dungeon->owner, game.heart_lost_message_target, 0, 0);
                 }
             }
             // If this is the last heart the player had, finish him

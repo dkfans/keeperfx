@@ -232,18 +232,18 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
 
 TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
 {
-    struct Room* room = find_nearest_room_to_vandalise(creatng, dngn_id, NavRtF_NoOwner);
+    struct Room* room = find_nearest_room_to_vandalise(creatng, dngn_id, NavRtF_Default);
     if (room_is_invalid(room))
     {
         return false;
     }
     struct Coord3d pos;
-    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_NoOwner))
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default))
     {
         ERRORLOG("The %s index %d cannot destroy %s because it cannot reach position within it",thing_model_name(creatng),(int)creatng->index,room_code_name(room->kind));
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, NavRtF_NoOwner))
+    if (!setup_random_head_for_room(creatng, room, NavRtF_Default))
     {
         ERRORLOG("The %s index %d cannot destroy %s because it cannot head for it",thing_model_name(creatng),(int)creatng->index,room_code_name(room->kind));
         return false;
@@ -256,18 +256,18 @@ TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
 
 TbBool good_setup_sabotage_rooms(struct Thing* creatng, short dngn_id)
 {
-    struct Room* room = find_nearest_room_to_vandalise(creatng, dngn_id, NavRtF_NoOwner);
+    struct Room* room = find_nearest_room_to_vandalise(creatng, dngn_id, NavRtF_Default);
     if (room_is_invalid(room))
     {
         return false;
     }
     struct Coord3d pos;
-    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_NoOwner))
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default))
     {
         ERRORLOG("The %s index %d cannot destroy %s because it cannot reach position within it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, NavRtF_NoOwner))
+    if (!setup_random_head_for_room(creatng, room, NavRtF_Default))
     {
         ERRORLOG("The %s index %d cannot destroy %s because it cannot head for it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
         return false;
@@ -621,7 +621,7 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         SYNCDBG(3,"The %s index %d cannot move to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -666,7 +666,7 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
@@ -698,7 +698,7 @@ TbBool good_setup_rush_to_dungeon_heart(struct Thing* creatng, PlayerNumber plyr
     }
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
         return false;
@@ -712,7 +712,7 @@ TbBool good_setup_wander_to_own_heart(struct Thing* creatng)
     SYNCDBG(7, "Starting");
     struct Thing* heartng = get_player_soul_container(creatng->owner);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, creatng->owner);
         return false;
@@ -888,12 +888,12 @@ short good_doing_nothing(struct Thing *creatng)
         return 0;
     }
     // Respect the idle time - just wander around some time
-    long nturns = game.play_gameturn - cctrl->idle.start_gameturn;
+    long nturns = get_gameturn() - cctrl->idle.start_gameturn;
     if (nturns <= 1) {
         return 1;
     }
     // Do some wandering also if can't find any task to do
-    if ((long)cctrl->wait_to_turn > (long)game.play_gameturn)
+    if (cctrl->wait_to_turn > get_gameturn())
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_GoodDoingNothing;
@@ -901,14 +901,14 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // Done wandering - if we had job assigned, get back to it
-    if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))
+    if ((cctrl->job_assigned != Job_NULL) && (get_gameturn() - cctrl->job_assigned_check_turn > 128))
     {
         if (attempt_job_preference(creatng, cctrl->job_assigned)) {
             SYNCDBG(8,"The %s index %d will do assigned job with state %s",thing_model_name(creatng),
                 (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return 1;
         }
-        cctrl->job_assigned_check_turn = game.play_gameturn;
+        cctrl->job_assigned_check_turn = get_gameturn();
     }
     // Now go the standard hero path - find a target player
     PlayerNumber target_plyr_idx = cctrl->party.target_plyr_idx;
@@ -924,7 +924,7 @@ short good_doing_nothing(struct Thing *creatng)
         }
         if ((player->victory_state != VicS_LostLevel) && players_are_enemies(creatng->owner, target_plyr_idx))
         {
-            nturns = game.play_gameturn - cctrl->hero.wait_time;
+            nturns = get_gameturn() - cctrl->hero.wait_time;
             if (nturns > 400)
             {
                 // Go to the previously chosen dungeon
@@ -969,16 +969,16 @@ short good_doing_nothing(struct Thing *creatng)
     }
     if (target_plyr_idx == -1)
     {
-        nturns = game.play_gameturn - cctrl->hero.wait_time;
+        nturns = get_gameturn() - cctrl->hero.wait_time;
         if ((nturns > 400) && (cctrl->hero.look_for_enemy_dungeon_turn != 0))
         {
-            cctrl->hero.wait_time = game.play_gameturn;
+            cctrl->hero.wait_time = get_gameturn();
             cctrl->hero.ready_for_attack_flag = 1;
         }
-        nturns = game.play_gameturn - cctrl->hero.look_for_enemy_dungeon_turn;
+        nturns = get_gameturn() - cctrl->hero.look_for_enemy_dungeon_turn;
         if (nturns > 64)
         {
-            cctrl->hero.look_for_enemy_dungeon_turn = game.play_gameturn;
+            cctrl->hero.look_for_enemy_dungeon_turn = get_gameturn();
             cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
         }
         target_plyr_idx = cctrl->party.target_plyr_idx;
@@ -990,7 +990,7 @@ short good_doing_nothing(struct Thing *creatng)
             {
                 cctrl->party.objective = cctrl->party.original_objective;
             }
-            cctrl->wait_to_turn = game.play_gameturn + 16;
+            cctrl->wait_to_turn = get_gameturn() + 16;
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
             {
                 creatng->continue_state = CrSt_GoodDoingNothing;
@@ -1003,7 +1003,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // If there are problems with the task, do a break before re-trying
-    cctrl->wait_to_turn = game.play_gameturn + 200;
+    cctrl->wait_to_turn = get_gameturn() + 200;
     return 0;
 }
 
@@ -1057,6 +1057,7 @@ short good_leave_through_exit_door(struct Thing *thing)
         creature_drop_dragged_object(thing, dragtng);
         destroy_object(dragtng);
     }
+    create_effect(&thing->mappos, ball_puff_effects[get_player_color_idx(thing->owner)], thing->owner);
     place_thing_in_creature_controlled_limbo(thing);
     internal_set_thing_state(thing, CrSt_GoodWaitInExitDoor);
     return 1;
@@ -1107,6 +1108,16 @@ short good_wait_in_exit_door(struct Thing *thing)
             if (cctrl->hero.hero_gate_creation_turn == tmptng->creation_turn)
             {
                 remove_thing_from_creature_controlled_limbo(thing);
+                set_flag(thing->movement_flags, TMvF_MagicFall);
+                if (flag_is_set(thing->movement_flags, TMvF_Flying))
+                {
+                    thing->veloc_push_add.z.val -= PLAYER_RANDOM(plyr_idx, 32);
+                }
+                else
+                {
+                    thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
+                }
+                set_flag(thing->state_flags, TF1_PushAdd);
                 set_start_state(thing);
                 return 1;
             }
@@ -1221,7 +1232,7 @@ TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNum
     SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng))
+    if (!thing_exists(heartng))
     {
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
@@ -1244,7 +1255,7 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
     SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
-    if (thing_is_invalid(heartng)) {
+    if (!thing_exists(heartng)) {
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
@@ -1317,7 +1328,7 @@ short tunneller_doing_nothing(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     PlayerNumber CurrentTarget = cctrl->party.target_plyr_idx;
     // Wait for some time
-    if (game.play_gameturn - cctrl->idle.start_gameturn <= 1) {
+    if (get_gameturn() - cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
     /* Sometimes we may have no target dungeon. In that case, destination dungeon
@@ -1498,7 +1509,7 @@ short tunnelling(struct Thing *creatng)
         return 0;
     }
     // Once per 128 turns, check if we've done digging and can now walk to the place
-    if (((game.play_gameturn + creatng->index) & 0x7F) == 0)
+    if (((get_gameturn() + creatng->index) & 0x7F) == 0)
     {
         if (creature_can_navigate_to(creatng, pos, NavRtF_Default))
         {

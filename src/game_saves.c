@@ -36,11 +36,14 @@
 #include "front_highscore.h"
 #include "front_lvlstats.h"
 #include "lens_api.h"
+#include "local_camera.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "frontmenu_ingame_map.h"
 #include "gui_boxmenu.h"
+#include "net_exchange_gameplay.h"
+#include "packets.h"
 #include "keeperfx.hpp"
 #include "api.h"
 #include "lvl_filesdk1.h"
@@ -149,7 +152,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             chunks_done |= SGF_InfoBlock;
     }
     // If it's not start of a level, save progress data too
-    if (game.play_gameturn != 0)
+    if (get_gameturn() != 0)
     {
         { // Game data chunk
             hdr.id = SGC_GameOrig;
@@ -186,7 +189,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             if (load_catalogue_entry(fhandle, &hdr, centry))
             {
                 chunks_done |= SGF_InfoBlock;
-                if (!change_campaign(centry->campaign_fname)) {
+                if (!change_campaign(CampgnT_Default, centry->campaign_fname)) {
                     ERRORLOG("Unable to load campaign");
                     return GLoad_Failed;
                 }
@@ -400,13 +403,21 @@ TbBool load_game(long slot_num)
             game.loaded_level_number = centry->level_num;
         }
         WARNMSG("Couldn't correctly load saved game in slot %d.",(int)slot_num);
-        init_lookups();
         return false;
     }
     my_player_number = game.local_plyr_idx;
     LbFileClose(fh);
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
+    initialize_packet_history();
+    clear_packets();
+    process_pause_packet(0, 0);
+    clear_flag(game.operation_flags, GOF_Paused);
+    clear_flag(game.operation_flags, GOF_WorldInfluence);
+    close_main_cheat_menu();
+    close_creature_cheat_menu();
+    close_instance_cheat_menu();
+    close_secondary_cheat_menu();
     output_message(SMsg_GameLoaded, 0);
     panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
     calculate_moon_phase(false,false);
@@ -417,8 +428,11 @@ TbBool load_game(long slot_num)
     player->palette_fade_step_pain = 0;
     player->palette_fade_step_possession = 0;
     player->lens_palette = 0;
-    PaletteSetPlayerPalette(player, engine_palette);
+    // Reinitialize lens first (restores lens_palette pointer from config)
     reinitialise_eye_lens(game.applied_lens_type);
+    // Apply the appropriate palette (lens palette if active, otherwise engine default)
+    PaletteSetPlayerPalette(player, player->lens_palette ? player->lens_palette : engine_palette);
+    init_local_cameras(player);
     // Update the lights system state
     light_import_system_state(&game.lightst);
     // Victory state
@@ -430,7 +444,7 @@ TbBool load_game(long slot_num)
       dungeon->lvstats.allow_save_score = 1;
     }
     game.loaded_swipe_idx = -1;
-    JUSTMSG("Loaded level %ld from %s", game.continue_level_number, campaign.name);
+    JUSTMSG("Loaded level %d from %s", game.continue_level_number, campaign.name);
 
     api_event("GAME_LOADED");
 
@@ -591,7 +605,7 @@ TbBool continue_game_available(void)
         WARNLOG("Can't read continue game file head");
         return false;
     }
-    if (!change_campaign(cmpgn_fname))
+    if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
     {
         ERRORLOG("Unable to load campaign");
         return false;
@@ -622,7 +636,7 @@ short load_continue_game(void)
         return false;
     }
     cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
-    if (!change_campaign(cmpgn_fname))
+    if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
     {
         ERRORLOG("Unable to load campaign");
         return false;
@@ -643,7 +657,7 @@ short load_continue_game(void)
         sizeof(struct IntralevelData));
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     update_extra_levels_visibility();
-    JUSTMSG("Continued level %ld from %s", lvnum, campaign.name);
+    JUSTMSG("Continued level %d from %s", lvnum, campaign.name);
     return true;
 }
 
@@ -680,7 +694,7 @@ LevelNumber move_campaign_to_next_level(void)
 {
     LevelNumber curr_lvnum = get_continue_level_number();
     LevelNumber lvnum = next_singleplayer_level(curr_lvnum, false);
-    SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
+    SYNCDBG(15,"Campaign move %d to %d",curr_lvnum,lvnum);
     {
         struct PlayerInfo* player = get_my_player();
         player->display_flags &= ~PlaF6_PlyrHasQuit;
@@ -688,7 +702,7 @@ LevelNumber move_campaign_to_next_level(void)
     if (lvnum != LEVELNUMBER_ERROR)
     {
         curr_lvnum = set_continue_level_number(lvnum);
-        SYNCDBG(8,"Continue level moved to %ld.",curr_lvnum);
+        SYNCDBG(8,"Continue level moved to %d.",curr_lvnum);
         return curr_lvnum;
     } else
     {
@@ -700,13 +714,13 @@ LevelNumber move_campaign_to_next_level(void)
 
 LevelNumber move_campaign_to_prev_level(void)
 {
-    long curr_lvnum = get_continue_level_number();
-    long lvnum = prev_singleplayer_level(curr_lvnum);
-    SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
+    LevelNumber curr_lvnum = get_continue_level_number();
+    LevelNumber lvnum = prev_singleplayer_level(curr_lvnum);
+    SYNCDBG(15,"Campaign move %d to %d",curr_lvnum,lvnum);
     if (lvnum != LEVELNUMBER_ERROR)
     {
         curr_lvnum = set_continue_level_number(lvnum);
-        SYNCDBG(8,"Continue level moved to %ld.",(long)curr_lvnum);
+        SYNCDBG(8,"Continue level moved to %d.",curr_lvnum);
         return curr_lvnum;
     } else
     {

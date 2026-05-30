@@ -41,6 +41,7 @@
 #include "config_players.h"
 #include "config_settings.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 #include <math.h>
@@ -203,7 +204,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                     if (game.box_tooltip[thing->custom_box.box_kind][0] == 0)
                     {
                         i = box_thing_to_special(thing);
-                        long strngindex = get_special_description_strindex(i);
+                        int32_t strngindex = get_special_description_strindex(i);
                         if (strngindex != GUIStr_Empty)
                         {
                             set_gui_tooltip_box_fmt(5, "%s", get_string(strngindex));
@@ -244,7 +245,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                 update_gui_tooltip_target(thing);
                 if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
                 {
-                    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[objst->related_creatr_model];
+                    struct CreatureModelConfig* crconf = creature_stats_get(objst->related_creatr_model);
                     const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);     //TODO use a separate string for creature lair object than for lair room
                     set_gui_tooltip_box_fmt(5, "%s %s", get_string(crconf->namestr_idx), get_string(roomst->name_stridx)); // (creature) Lair
                 }
@@ -274,7 +275,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   struct Thing *handthing = thing_get(player->thing_under_hand);
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
           return false;
       }
       if (help_tip_time <= 50) {
@@ -304,7 +305,7 @@ short setup_room_tooltips(struct Coord3d *pos)
 
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
-      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
           return false;
       }
       if (help_tip_time <= 50) {
@@ -372,7 +373,7 @@ void setup_gui_tooltip(struct GuiButton* gbtn)
             k = get_players_special_digger_model(my_player_number);
         if (k > 0)
         {
-            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[k];
+            struct CreatureModelConfig* crconf = creature_stats_get(k);
             set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crconf->namestr_idx), text);
         }
     }
@@ -403,6 +404,16 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
         } else {
             tooltip_delay = 10;
         }
+
+        struct GuiMenu* gmnu = get_active_menu(gbtn->gmenu_idx);
+        if (gmnu) {
+            long menu_id = gmnu->ident;
+            if (menu_id == GMnu_OPTIONS || menu_id == GMnu_VIDEO || menu_id == GMnu_SOUND ||
+                menu_id == GMnu_AUTOPILOT) {
+                tooltip_delay = 0;
+            }
+        }
+
         if ( (tool_tip_time > tooltip_delay) || (player->work_state == PSt_CreatrQuery) )
         {
           if (gbtn->has_shown_before == 0) {
@@ -437,13 +448,14 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
     struct PlayerInfo* player = get_my_player();
     if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
     {
-        if (player->acamera == NULL)
+      struct Camera *camera = get_player_active_camera(player);
+      if (camera == NULL)
         {
             ERRORLOG("No active camera");
             return false;
         }
         struct Coord3d mappos;
-        if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &mappos))
+      if (screen_to_map(get_local_camera(camera), GetMouseX(), GetMouseY(), &mappos))
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {
@@ -470,7 +482,7 @@ void toggle_tooltips(void)
   {
     statstr = "off";
   }
-  show_onscreen_msg(2*game_num_fps, "Tooltips %s", statstr);
+  show_onscreen_msg(2*turns_per_second, "Tooltips %s", statstr);
   save_settings();
 }
 

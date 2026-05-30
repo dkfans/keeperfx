@@ -39,7 +39,7 @@ void process_rooms(void);
 TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool is_destroyed);
 TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char slabkind);
 void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
-short check_and_asimilate_thing_by_room(struct Thing *thing);
+TbBool check_and_asimilate_thing_by_room(struct Thing *thing);
 EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomRole rrole);
 void query_room(struct Room *room);
 /******************************************************************************/

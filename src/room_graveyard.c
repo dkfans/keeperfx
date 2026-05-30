@@ -114,7 +114,7 @@ TbBool recreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubtl
             pos.x.val = subtile_coord_center(stl_x);
             pos.y.val = subtile_coord_center(stl_y);
             pos.z.val = 0;
-            struct Thing* bodytng = create_dead_creature(&pos, rrepos->models[ri], 0, room->owner, rrepos->exp_level[ri]);
+            struct Thing* bodytng = create_dead_creature(&pos, rrepos->models[ri], DCrSt_Dying, room->owner, rrepos->exp_level[ri]);
             if (!thing_is_invalid(bodytng))
             {
                 bodytng->corpse.laid_to_rest = 1;

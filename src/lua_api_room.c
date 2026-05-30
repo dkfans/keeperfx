@@ -160,7 +160,7 @@ static const struct luaL_Reg room_meta[] = {
     {NULL, NULL}
 };
 
-void room_register(lua_State *L) {
+void Room_register(lua_State *L) {
     // Create a metatable for thing and add it to the registry
     luaL_newmetatable(L, "Room");
 

@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "map_blocks.h"
 #include "map_data.h"
+#include "room_data.h"
 #include "thing_data.h"
 #include "thing_creature.h"
 #include "slab_data.h"
@@ -74,8 +75,8 @@ static const struct luaL_Reg slab_methods[] = {
     {"GET_CREATURES"                          ,lua_GET_CREATURES                     },
      {NULL, NULL}
  };
- 
- 
+
+
  static int slab_tostring(lua_State *L)
  {
     MapSlabCoord slb_x, slb_y;
@@ -85,14 +86,14 @@ static const struct luaL_Reg slab_methods[] = {
     lua_pushstring(L, buffer);
     return 1;
  }
- 
+
  // Function to set field values
  static int slab_set_field(lua_State *L) {
- 
+
     MapSlabCoord slb_x, slb_y;
     luaL_checkSlab(L, 1, &slb_x, &slb_y);
     const char* key = luaL_checkstring(L, 2);
- 
+
     if (strcmp(key, "revealed") == 0) {
         struct Map* mapblk = get_map_block_at(slb_x * STL_PER_SLB, slb_y * STL_PER_SLB);
         mapblk->revealed = lua_toboolean(L, 3);
@@ -107,7 +108,7 @@ static const struct luaL_Reg slab_methods[] = {
     }
     return 0;
  }
- 
+
  // Function to get field values
  static int slab_get_field(lua_State *L) {
 
@@ -140,6 +141,13 @@ static const struct luaL_Reg slab_methods[] = {
         centerpos.z.val = get_floor_height_at(&centerpos);
         lua_pushPos(L, &centerpos);
         return 1;
+    } else if (strcmp(key, "room") == 0) {
+        struct Room *room = slab_room_get(slb_x, slb_y);
+        if (room_is_invalid(room)) {
+            lua_pushnil(L);
+        } else {
+            lua_pushRoom(L, room);
+        }
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     } else {
@@ -147,9 +155,9 @@ static const struct luaL_Reg slab_methods[] = {
     }
 
     return 1;
- 
+
  }
- 
+
 static int slab_eq(lua_State *L) {
     MapSlabCoord slb_x1, slb_y1, slb_x2, slb_y2;
 
@@ -160,7 +168,7 @@ static int slab_eq(lua_State *L) {
     lua_pushboolean(L, (slb_x1 == slb_x2) && (slb_y1 == slb_y2));
     return 1;
 }
- 
+
  static const struct luaL_Reg slab_meta[] = {
      {"__tostring", slab_tostring},
      {"__index",    slab_get_field},
@@ -168,29 +176,29 @@ static int slab_eq(lua_State *L) {
      {"__eq",       slab_eq},
      {NULL, NULL}
  };
- 
+
  void Slab_register(lua_State *L) {
      // Create a metatable for thing and add it to the registry
      luaL_newmetatable(L, "Slab");
- 
+
      // Set the __index and __newindex metamethods
      luaL_setfuncs(L, slab_meta, 0);
- 
+
      // Create a methods table
      luaL_newlib(L, slab_methods);
- 
+
      for (int i = 0; slab_methods[i].name != NULL; i++) {
          const char *name = slab_methods[i].name;
          lua_pushcfunction(L, slab_methods[i].func);
          lua_setfield(L, -2, name);
      }
- 
+
      // Hide the metatable by setting the __metatable field to nil
      lua_pushliteral(L, "__metatable");
      lua_pushnil(L);
      lua_rawset(L, -3);
- 
+
      // Pop the metatable from the stack
-     lua_pop(L, 1);    
- 
+     lua_pop(L, 1);
+
  }

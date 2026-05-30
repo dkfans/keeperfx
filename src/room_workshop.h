@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /** Maximal count of manufactured boxes of specific kind. */
-#define MANUFACTURED_ITEMS_LIMIT 49
+#define MANUFACTURED_ITEMS_LIMIT 50
 
 /******************************************************************************/
 #pragma pack(1)

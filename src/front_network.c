@@ -22,7 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_network.h"
+#include "net_exchange_common.h"
+#include "net_lobby.h"
 #include "bflib_netsession.h"
 #include "bflib_guibtns.h"
 #include "bflib_keybrd.h"
@@ -38,11 +39,15 @@
 #include "frontend.h"
 #include "player_data.h"
 #include "net_game.h"
-#include "packets.h"
 #include "config.h"
 #include "config_strings.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "net_matchmaking.h"
+#include "net_lan.h"
+#include "net_input_lag.h"
+#include "bflib_enet.h"
+#include "config_campaigns.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -52,52 +57,6 @@ extern "C" {
 extern char autostart_multiplayer_campaign[80];
 extern int autostart_multiplayer_level;
 
-// Convert ASCII character to key code for typing automatic messages
-TbKeyCode ascii_to_keycode(char c)
-{
-    switch (c) {
-        case 'A': case 'a': return KC_A;
-        case 'B': case 'b': return KC_B;
-        case 'C': case 'c': return KC_C;
-        case 'D': case 'd': return KC_D;
-        case 'E': case 'e': return KC_E;
-        case 'F': case 'f': return KC_F;
-        case 'G': case 'g': return KC_G;
-        case 'H': case 'h': return KC_H;
-        case 'I': case 'i': return KC_I;
-        case 'J': case 'j': return KC_J;
-        case 'K': case 'k': return KC_K;
-        case 'L': case 'l': return KC_L;
-        case 'M': case 'm': return KC_M;
-        case 'N': case 'n': return KC_N;
-        case 'O': case 'o': return KC_O;
-        case 'P': case 'p': return KC_P;
-        case 'Q': case 'q': return KC_Q;
-        case 'R': case 'r': return KC_R;
-        case 'S': case 's': return KC_S;
-        case 'T': case 't': return KC_T;
-        case 'U': case 'u': return KC_U;
-        case 'V': case 'v': return KC_V;
-        case 'W': case 'w': return KC_W;
-        case 'X': case 'x': return KC_X;
-        case 'Y': case 'y': return KC_Y;
-        case 'Z': case 'z': return KC_Z;
-        case '0': return KC_0;
-        case '1': return KC_1;
-        case '2': return KC_2;
-        case '3': return KC_3;
-        case '4': return KC_4;
-        case '5': return KC_5;
-        case '6': return KC_6;
-        case '7': return KC_7;
-        case '8': return KC_8;
-        case '9': return KC_9;
-        case ' ': return KC_SPACE;
-        case '!': return KC_1; // with shift
-        case ':': return KC_SEMICOLON; // with shift
-        default: return KC_UNASSIGNED;
-    }
-}
 /******************************************************************************/
 const char *keeper_netconf_file = "fxconfig.net";
 
@@ -108,14 +67,97 @@ const struct ConfigInfo default_net_config_info = {
 
 int fe_network_active;
 int net_service_index_selected;
+struct TbNetworkSessionNameEntry *net_session[SESSION_ENTRIES_COUNT];
+long net_number_of_sessions;
+long net_session_index_active;
+struct TbNetworkPlayerName net_player[MAX_NET_USERS];
+struct ConfigInfo net_config_info;
+char net_service[16][NET_SERVICE_LEN];
+char net_player_name[20];
 char tmp_net_player_name[24];
 static TbClockMSec frontnet_ping_stabilization_end_time = 0;
 static int previous_player_count_for_ping_wait = -1;
+static TbBool attempting_to_join_cancelled = false;
+static int32_t previous_active_players = 0;
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+static TbBool try_starting_level_from_chat(const char *message, int32_t player_id)
+{
+    const char *separator_pos = strchr(message, ':');
+    if (separator_pos == NULL) {
+        separator_pos = strchr(message, ' ');
+    }
+    if ((separator_pos == NULL) || (separator_pos == message)) {
+        return false;
+    }
+    int32_t campaign_len = separator_pos - message;
+    if (campaign_len >= 64) {
+        return false;
+    }
+    const char *level_str = separator_pos + 1;
+    while (*level_str == ' ') {
+        level_str++;
+    }
+    LevelNumber level_num = -1;
+    if (level_str[0] != '_') {
+        if (!isdigit(level_str[0]) || (player_id != get_host_player_id())) {
+            return false;
+        }
+        level_num = atoi(level_str);
+        if (level_num <= 0) {
+            return false;
+        }
+    }
+    char campaign_filename[80];
+    snprintf(campaign_filename, sizeof(campaign_filename), "%.*s", campaign_len, message);
+    return frontnet_start_level(campaign_filename, level_num);
+}
+
+TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
+{
+    if (campaign_fname == NULL || campaign_fname[0] == '\0') {
+        return false;
+    }
+    char campaign_file[DISKPATH_SIZE];
+    uint8_t pack = prepare_campaign_file_name(campaign_fname, campaign_file, sizeof(campaign_file));
+    if ((pack == CampgnT_Default) && ((lvnum <= 0) || is_campaign_in_list(campaign_file, &mp_mappacks_list))) {
+        pack = CampgnT_MultiplayerMappack;
+    }
+    if (!change_campaign(pack, campaign_file)
+     || (strcasecmp(campaign.fname, campaign_file) != 0)) {
+        ERRORLOG("Unable to load campaign '%s' for level %d", campaign_fname, (int)lvnum);
+        return false;
+    }
+    if (lvnum <= 0) {
+        return true;
+    }
+    if (get_level_info(lvnum) == NULL) {
+        ERRORLOG("Campaign '%s' does not contain level %d", campaign_fname, (int)lvnum);
+        return false;
+    }
+    set_selected_level_number(lvnum);
+    fe_network_active = 1;
+    frontend_set_state(FeSt_START_MPLEVEL);
+    return true;
+}
+
+void process_frontend_chat_message(int player_id, const char *message)
+{
+    struct PlayerInfo *player = prepare_network_chat_message(player_id, message);
+    if (message[0] != '\0' && !try_starting_level_from_chat(player->mp_message_text, player_id)) {
+        add_message(player_id, player->mp_message_text);
+    }
+    memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+}
+
+TbBool frontnet_service_selected(enum FrontendNetService service)
+{
+    return (net_service_index_selected == service);
+}
+
 void process_network_error(long errcode)
 {
   const char *text;
@@ -190,21 +232,22 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     }
 }
 
-CoroutineLoopState setup_alliances(CoroutineLoop *loop)
+void setup_alliances(void)
 {
-    for (int i = 0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo* player = get_player(i);
-        if (!is_my_player_number(i) && player_exists(player))
-        {
-            if (frontend_is_player_allied(my_player_number, i))
-            {
-                set_ally_with_player(my_player_number, i, true);
-                set_ally_with_player(i, my_player_number, true);
+    for (int i = 0; i < MAX_NET_USERS; i++) {
+        if (!player_exists(get_player(i))) {
+            continue;
+        }
+        for (int k = i + 1; k < MAX_NET_USERS; k++) {
+            if (!player_exists(get_player(k))) {
+                continue;
+            }
+            if (frontend_is_player_allied(i, k)) {
+                set_ally_with_player(i, k, true);
+                set_ally_with_player(k, i, true);
             }
         }
     }
-    return CLS_CONTINUE; // Exit the loop
 }
 
 void frontnet_service_update(void)
@@ -223,7 +266,7 @@ void frontnet_service_update(void)
     }
 }
 
-void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+static void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
     if (net_number_of_enum_players >= 4)
     {
@@ -249,31 +292,8 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
     if (net_number_of_sessions == 0)
     {
         net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-        strcpy(&netcdat->svc_name[8],get_string(GUIStr_NetModem));
+        strcpy(&netcdat->svc_name[8],get_string(GUIStr_NetLan));
         net_number_of_sessions++;
-    }
-}
-
-// TODO: remove all this weird stuff
-static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
-{
-    if (net_number_of_services >= NET_SERVICES_COUNT)
-    {
-      ERRORLOG("Too many services in enumeration");
-      return;
-    }
-    if (strcasecmp("TCP", netcdat->svc_name) == 0)
-    {
-        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", "TCP/IP");//TODO TRANSLATION put this in GUI strings
-        net_number_of_services++;
-    }
-    else if (strcasecmp("ENET/UDP", netcdat->svc_name) == 0)
-    {
-        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", netcdat->svc_name);//TODO TRANSLATION put this in GUI strings
-        net_number_of_services++;
-    } else
-    {
-        ERRORLOG("Unrecognized Network Service");
     }
 }
 
@@ -288,6 +308,18 @@ void frontnet_session_update(void)
       memset(net_session, 0, sizeof(net_session));
       if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
         ERRORLOG("LbNetwork_EnumerateSessions() failed");
+      if (frontnet_service_selected(FrontendNetSvc_LAN))
+      {
+          lan_refresh_sessions();
+          for (int i = 0; i < lan_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
+              net_session[net_number_of_sessions++] = &lan_sessions[i];
+      }
+      if (frontnet_service_selected(FrontendNetSvc_Online))
+      {
+          matchmaking_refresh_sessions();
+          for (int i = 0; i < matchmaking_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
+              net_session[net_number_of_sessions++] = &matchmaking_sessions[i];
+      }
       last_enum_sessions = LbTimerClock();
 
       if (net_number_of_sessions == 0)
@@ -376,6 +408,127 @@ void frontnet_rewite_net_messages(void)
       memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
 }
 
+static TbBool check_frontend_version_mismatch(void)
+{
+  int32_t active_players = 0;
+  struct NetUser* host_user = &netstate.users[SERVER_ID];
+  NetUserId remote_id = -1;
+
+  if (netstate.my_id != SERVER_ID) {
+    remote_id = my_player_number;
+  }
+  for (int32_t i = 0; i < MAX_NET_USERS; i++) {
+    if (!network_player_active(i)) {
+      continue;
+    }
+    active_players++;
+    if (remote_id == -1 && i != SERVER_ID
+        && !net_versions_match(&host_user->version, &netstate.users[i].version)) {
+      remote_id = i;
+    }
+  }
+  TbBool player_joined = (active_players > previous_active_players);
+  previous_active_players = active_players;
+  if (remote_id == -1) {
+    return false;
+  }
+  struct NetUser* remote_user = &netstate.users[remote_id];
+  if (net_versions_match(&host_user->version, &remote_user->version)) {
+    return false;
+  }
+  if (player_joined) {
+    char text[MESSAGE_TEXT_LEN];
+    snprintf(text, sizeof(text), "%s\n%s: %d.%d.%d.%d\n%s: %d.%d.%d.%d",
+        get_string(GUIStr_VersionMismatch),
+        network_player_name(SERVER_ID), (int)host_user->version.major, (int)host_user->version.minor, (int)host_user->version.release, (int)host_user->version.build,
+        network_player_name(remote_id), (int)remote_user->version.major, (int)remote_user->version.minor, (int)remote_user->version.release, (int)remote_user->version.build);
+    create_frontend_error_box(10000, text);
+  }
+  return true;
+}
+
+static void process_frontend_packets(void)
+{
+  int32_t i;
+  for (i = 0; i < MAX_NET_USERS; i++) {
+    net_screen_packet[i].networkstatus_flags &= ~NetStat_PlayerConnected;
+  }
+  struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
+  nspckt->networkstatus_flags |= NetStat_PlayerConnected;
+  nspckt->frontend_alliances = frontend_alliances;
+  nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
+  nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
+  if (LbNetwork_ExchangeFrontend(nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
+      ERRORLOG("LbNetwork_Exchange failed");
+      net_service_index_selected = -1;
+  }
+  if (netstate.my_id != SERVER_ID && netstate.users[SERVER_ID].progress == USER_UNUSED) {
+    LbNetwork_Stop();
+    if (!setup_network_service(net_service_index_selected)) {
+      frontend_set_state(FeSt_MAIN_MENU);
+    }
+    return;
+  }
+#if DEBUG_NETWORK_PACKETS
+  write_debug_screenpackets();
+#endif
+  TbBool version_mismatch_found = check_frontend_version_mismatch();
+  for (i = 0; i < MAX_NET_USERS; i++) {
+    nspckt = &net_screen_packet[i];
+    if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) != 0) {
+      if (frontend_alliances == -1) {
+        if (nspckt->frontend_alliances != -1) {
+          frontend_alliances = nspckt->frontend_alliances;
+        }
+      }
+        switch (screen_packet_action(nspckt)) {
+        case NetAct_HostStartLevel:
+            if (version_mismatch_found) {
+                break;
+            }
+            fe_network_active = 1;
+            if (game_flags2 & GF2_Connect) {
+                frontend_set_state(FeSt_START_MPLEVEL);
+            } else {
+                frontend_set_state(FeSt_NETLAND_VIEW);
+            }
+            break;
+        case NetAct_OpenLandView:
+            if (version_mismatch_found) {
+                break;
+            }
+            fe_network_active = 1;
+            frontend_set_state(FeSt_NETLAND_VIEW);
+            break;
+        case NetAct_SetAlliance:
+            frontend_set_alliance(nspckt->action_par1, nspckt->action_par2);
+            break;
+        case NetAct_SetComputerPlayers:
+            fe_computer_players = nspckt->action_par1;
+            break;
+        default:
+            break;
+        }
+      if (fe_computer_players == 2) {
+        int32_t k = (nspckt->networkstatus_flags & NetStat_ComputerPlayersMask) >> NetStat_ComputerPlayersShift;
+        if (k != 2) {
+          fe_computer_players = k;
+        }
+      }
+    }
+    screen_packet_set_action(nspckt, NetAct_None);
+  }
+  if (frontend_alliances == -1) {
+    frontend_alliances = 0;
+  }
+  for (i = 0; i < MAX_NET_USERS; i++) {
+    if (!network_player_active(i)) {
+      const int32_t alliances_to_clear = alliance_grid[i][0] | alliance_grid[i][1] | alliance_grid[i][2] | alliance_grid[i][3];
+      frontend_alliances = frontend_alliances & ~alliances_to_clear;
+    }
+  }
+}
+
 TbBool frontnet_is_waiting_for_ping_stabilization(void)
 {
     TbClockMSec now;
@@ -403,85 +556,59 @@ void frontnet_reset_ping_stabilization(void)
     previous_player_count_for_ping_wait = -1;
 }
 
+
+void frontnet_send_campaign_change_message(const char* campaign_fname)
+{
+    char base_name[64];
+    if ((campaign_fname == NULL) || (campaign_fname[0] == '\0')) {
+        return;
+    }
+    strncpy(base_name, campaign_fname, sizeof(base_name)-1);
+    base_name[sizeof(base_name)-1] = '\0';
+    char* dot = strrchr(base_name, '.');
+    if (dot != NULL) {
+        *dot = '\0';
+    }
+
+    char msg[64];
+    snprintf(msg, sizeof(msg), "%s:_", base_name);
+    send_network_chat_message(my_player_number, msg);
+}
+
 void handle_autostart_multiplayer_messaging(void)
 {
-    static int previous_player_count = 1;
-    static int message_char_index = -1;
-    static char host_message[64] = "";
-    static TbBool message_prepared = false;
-    static int message_length = 0;
+    static TbBool send_pending = false;
+    static int previous_enum_players = 0;
+    TbBool player_joined = (net_number_of_enum_players > previous_enum_players);
+    previous_enum_players = net_number_of_enum_players;
 
-    if (previous_player_count == 1 && net_number_of_enum_players == 2) {
-        if (my_player_number == get_host_player_id() && message_char_index == -1 &&
-            (autostart_multiplayer_campaign[0] != '\0' || autostart_multiplayer_level > 0)) {
-          // Prepare the campaign:level message
-          if (!message_prepared) {
-            const char* camp_name;
-            if (autostart_multiplayer_campaign[0] != '\0') {
-              camp_name = autostart_multiplayer_campaign;
-            } else {
-              camp_name = "keeporig";
-            }
-            int level;
-            if (autostart_multiplayer_level > 0) {
-              level = autostart_multiplayer_level;
-            } else {
-              level = 1;
-            }
-            snprintf(host_message, sizeof(host_message), "%s:%d", camp_name, level);
-            message_length = strlen(host_message);
-            message_prepared = true;
-          }
-          // Schedule the message send
-          if (frontnet_is_waiting_for_ping_stabilization()) {
-            message_char_index = -2;
-          } else {
-            message_char_index = 0;
-          }
+    if (net_number_of_enum_players < 2) {
+        send_pending = false;
+        return;
+    }
+
+    if (player_joined && my_player_number == get_host_player_id()) {
+        frontnet_send_campaign_change_message(campaign.fname);
+    }
+
+    if (!send_pending && my_player_number == get_host_player_id() &&
+        (autostart_multiplayer_campaign[0] != '\0' || autostart_multiplayer_level > 0)) {
+        send_pending = true;
+    }
+    if (send_pending && !frontnet_is_waiting_for_ping_stabilization()) {
+        struct PlayerInfo *player = get_my_player();
+        const char* camp = "keeporig";
+        int level = 1;
+        if (autostart_multiplayer_campaign[0]) {
+            camp = autostart_multiplayer_campaign;
         }
-      }
-
-      if (net_number_of_enum_players < 2) {
-        if (message_char_index < 0) {
-          message_char_index = -1;
+        if (autostart_multiplayer_level > 0) {
+            level = autostart_multiplayer_level;
         }
-      }
-
-      if (message_char_index == -2 && !frontnet_is_waiting_for_ping_stabilization()) {
-        message_char_index = 0;
-      }
-
-      // Send message one character per frame
-      if (message_char_index >= 0 && my_player_number == get_host_player_id()) {
-        struct ScreenPacket *nspck;
-        nspck = &net_screen_packet[my_player_number];
-        if ((nspck->networkstatus_flags & 0xF8) == 0) {
-          if (message_char_index < message_length) {
-            // Send next character as key code
-            char c = host_message[message_char_index];
-            TbKeyCode keycode = ascii_to_keycode(c);
-            if (keycode != KC_UNASSIGNED) {
-              nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
-              nspck->param1 = keycode;
-              // Set shift modifier for uppercase letters and special chars
-              TbBool needs_shift = (c >= 'A' && c <= 'Z') || c == '!' || c == ':';
-              if (needs_shift) {
-                nspck->param2 = KMod_SHIFT;
-              } else {
-                nspck->param2 = KMod_NONE;
-              }
-            }
-            message_char_index++;
-          } else {
-            // Send KC_RETURN to finish the message
-            nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
-            nspck->param1 = KC_RETURN;
-            nspck->param2 = 0;
-            message_char_index = -1; // Reset for next time
-          }
-        }
-      }
-      previous_player_count = net_number_of_enum_players;
+        snprintf(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:%d", camp, level);
+        lbInkey = KC_RETURN;
+        send_pending = false;
+    }
 }
 
 void frontnet_start_update(void)
@@ -500,6 +627,7 @@ void frontnet_start_update(void)
       player_last_time = LbTimerClock();
     }
 
+    frontnet_is_waiting_for_ping_stabilization();
     handle_autostart_multiplayer_messaging();
 
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
@@ -514,16 +642,41 @@ void frontnet_start_update(void)
     frontnet_rewite_net_messages();
 
     LbNetwork_UpdateInputLagIfHost();
+    if (frontnet_service_selected(FrontendNetSvc_Online)) {
+        enet_matchmaking_host_update();
+    }
+    if (frontnet_service_selected(FrontendNetSvc_LAN)) {
+        lan_host_update();
+    }
 }
 
-void display_attempting_to_join_message(void)
+void display_attempting_to_join_message(int remaining_s)
 {
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    draw_text_box(get_string(GUIStr_NetAttemptingToJoin));
-    LbScreenUnlock();
-  }
-  LbScreenSwap();
+    char msg[128];
+    if (remaining_s >= 0)
+        snprintf(msg, sizeof(msg), "%s (%ds)", get_string(GUIStr_NetAttemptingToJoin), remaining_s);
+    else
+        snprintf(msg, sizeof(msg), "%s", get_string(GUIStr_NetAttemptingToJoin));
+    frontend_draw();
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
+        clear_key_pressed(KC_ESCAPE);
+        attempting_to_join_cancelled = true;
+    }
+    if (LbScreenLock() == Lb_SUCCESS) {
+        draw_text_box(msg);
+        LbScreenUnlock();
+    }
+    LbScreenSwap();
+}
+
+void reset_attempting_to_join_cancel(void)
+{
+    attempting_to_join_cancelled = false;
+}
+
+TbBool attempting_to_join_cancel_requested(void)
+{
+    return attempting_to_join_cancelled;
 }
 
 void net_load_config_file(void)
@@ -561,14 +714,12 @@ void frontnet_service_setup(void)
 {
     net_number_of_services = 0;
     memset(net_service, 0, sizeof(net_service));
-    // Create list of available services
-    if (LbNetwork_EnumerateServices(enum_services_callback, NULL)) {
-        ERRORLOG("LbNetwork_EnumerateServices() failed");
-    }
+    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetOnline));
+    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetLan));
     // Create skirmish option if it should be enabled
     if ((game.system_flags & GSF_AllowOnePlayer) != 0)
     {
-        snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_Net1Player));
+        snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetServiceSkirmish));
         net_number_of_services++;
     }
     net_load_config_file();
@@ -581,21 +732,26 @@ void frontnet_session_setup(void)
         snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.net_player_name);
         strcpy(tmp_net_player_name, net_config_info.net_player_name);
     }
+    set_default_mp_mappack();
     net_session_index_active = -1;
     fe_computer_players = 2;
     lbInkey = 0;
     net_session_index_active_id = -1;
+    if (frontnet_service_selected(FrontendNetSvc_Online)) {
+        matchmaking_connect_async();
+    }
 }
 
 void frontnet_start_setup(void)
 {
     frontnet_reset_ping_stabilization();
+    previous_active_players = 0;
+    memset(net_screen_packet, 0, sizeof(net_screen_packet));
     frontend_alliances = -1;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
     net_message_scroll_offset = 0;
     //net_old_number_of_players = 0;
-    players_currently_in_session = 0;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
