@@ -24,6 +24,7 @@
 #include "bflib_dernc.h"
 #include "config.h"
 #include "config_strings.h"
+#include "config_translation_dbc_tables.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -56,6 +57,74 @@ static int32_t          translation_count = 0;
 typedef struct {
     const char *language_code;
 } WalkContext;
+
+static TbBool ascii_string_equal_nocase(const char *a, const char *b, size_t length)
+{
+    for (size_t i = 0; i < length; ++i)
+    {
+        unsigned char ca = (unsigned char)a[i];
+        unsigned char cb = (unsigned char)b[i];
+        if (ca >= 'A' && ca <= 'Z')
+            ca += (unsigned char)('a' - 'A');
+        if (cb >= 'A' && cb <= 'Z')
+            cb += (unsigned char)('a' - 'A');
+        if (ca != cb)
+            return false;
+    }
+    return true;
+}
+
+static TbBool is_dbc_language_code(const char *language_code)
+{
+    if (language_code == NULL)
+        return false;
+    return (ascii_string_equal_nocase(language_code, "JPN", 3) && language_code[3] == '\0')
+        || (ascii_string_equal_nocase(language_code, "CHI", 3) && language_code[3] == '\0')
+        || (ascii_string_equal_nocase(language_code, "CHT", 3) && language_code[3] == '\0')
+        || (ascii_string_equal_nocase(language_code, "KOR", 3) && language_code[3] == '\0');
+}
+
+static int get_dbc_language_code(const char *language_code)
+{
+    if (language_code == NULL)
+        return 0;
+    if (ascii_string_equal_nocase(language_code, "JPN", 3) && language_code[3] == '\0')
+        return 1;
+    if (ascii_string_equal_nocase(language_code, "CHI", 3) && language_code[3] == '\0')
+        return 2;
+    if (ascii_string_equal_nocase(language_code, "CHT", 3) && language_code[3] == '\0')
+        return 3;
+    if (ascii_string_equal_nocase(language_code, "KOR", 3) && language_code[3] == '\0')
+        return 4;
+    return 0;
+}
+
+static unsigned short lookup_dbc_code(const DbcMapEntry *map, size_t count, unsigned long unicode)
+{
+    for (size_t i = 0; i < count; ++i)
+    {
+        if (map[i].unicode == unicode)
+            return map[i].code;
+    }
+    return 0;
+}
+
+static unsigned short convert_codepoint_to_dbc_code(int dbc_language, unsigned long codepoint)
+{
+    switch (dbc_language)
+    {
+    case 1:
+        return lookup_dbc_code(dbc_jpn_map, dbc_jpn_map_count, codepoint);
+    case 2:
+        return lookup_dbc_code(dbc_chi_map, dbc_chi_map_count, codepoint);
+    case 3:
+        return lookup_dbc_code(dbc_chi_map, dbc_chi_map_count, codepoint);
+    case 4:
+        return lookup_dbc_code(dbc_kor_map, dbc_kor_map_count, codepoint);
+    default:
+        return 0;
+    }
+}
 
 static void codepoint_to_utf8(unsigned long codepoint, char out[5])
 {
@@ -156,10 +225,12 @@ static unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
     return '?';
 }
 
-static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t dst_size)
+static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t dst_size, const char *language_code)
 {
     size_t out_len = 0;
     const unsigned char *text = (const unsigned char *)src;
+    TbBool use_dbc = is_dbc_language_code(language_code);
+    int dbc_language = get_dbc_language_code(language_code);
 
     while (*text != '\0' && out_len + 1 < dst_size)
     {
@@ -190,6 +261,21 @@ static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t
             dst[out_len++] = '?';
             text += 1;
             continue;
+        }
+
+        if (use_dbc && codepoint >= 0x80)
+        {
+            unsigned short dbc_code = convert_codepoint_to_dbc_code(dbc_language, codepoint);
+            if (dbc_code != 0)
+            {
+                if (out_len + 2 >= dst_size)
+                    break;
+                // Convert from DBC mapping file order (word value) into engine byte stream.
+                dst[out_len++] = (char)(dbc_code & 0xFF);
+                dst[out_len++] = (char)((dbc_code >> 8) & 0xFF);
+                text += seq_len;
+                continue;
+            }
         }
 
         dst[out_len++] = (char)convert_codepoint_to_internal_byte(codepoint);
@@ -234,9 +320,12 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
     entry->alias[MAX_ALIAS_LEN - 1] = '\0';
 
     size_t len = strlen(text);
-    entry->text = (char *)calloc(len + 1, 1);
+    size_t alloc_size = len + 1;
+    if (is_dbc_language_code(wctx->language_code))
+        alloc_size = len * 2 + 1;
+    entry->text = (char *)calloc(alloc_size, 1);
     if (entry->text)
-        convert_utf8_to_internal_codepage(text, entry->text, len + 1);
+        convert_utf8_to_internal_codepage(text, entry->text, alloc_size, wctx->language_code);
 
     translation_count++;
     return 0;
