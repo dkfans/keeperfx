@@ -1784,7 +1784,7 @@ static int lua_Set_music(lua_State *L)
 static int lua_Set_hand_graphic(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
-    long hand_idx = luaL_checkNamedCommand(L,1,powerhand_desc);
+    long hand_idx = luaL_checkNamedCommand(L,2,powerhand_desc);
 
     struct PlayerInfo * player = get_player(player_idx);
     player->hand_idx = hand_idx;
