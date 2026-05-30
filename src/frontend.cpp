@@ -416,6 +416,7 @@ short old_menu_mouse_y;
 unsigned char menu_ids[3];
 unsigned char new_objective;
 int frontend_menu_state;
+int skip_high_score_screen;
 int load_game_scroll_offset;
 unsigned char video_gamma_correction;
 
@@ -427,7 +428,7 @@ struct TbSpriteSheet * winfont = NULL;
 unsigned long playing_bad_descriptive_speech;
 unsigned long playing_good_descriptive_speech;
 long scrolling_index;
-long scrolling_offset;
+float scrolling_offset;
 long packet_left_button_double_clicked[6];
 long packet_left_button_click_space_count[6];
 char frontend_alliances;
@@ -2674,6 +2675,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           time_last_played_demo = LbTimerClock();
           fe_high_score_table_from_main_menu = true;
           clear_flag(game.system_flags, GSF_NetworkActive);
+          skip_high_score_screen = 0;
           set_pointer_graphic_menu();
           break;
       case FeSt_FELOAD_GAME:
@@ -3642,8 +3644,9 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_DRAG:
         return FeSt_TORTURE;
     case FeSt_LEVEL_STATS:
-        if (network_is_active())
+        if (network_is_active() || skip_high_score_screen) {
             return FeSt_NET_SESSION;
+        }
         lvnum = get_loaded_level_number();
         if (is_multiplayer_level(lvnum))
             return get_menu_state_based_on_last_level(lvnum);
