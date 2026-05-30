@@ -57,6 +57,86 @@ typedef struct {
     const char *language_code;
 } WalkContext;
 
+static unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
+{
+    if (codepoint < 0x100)
+        return (unsigned char)codepoint;
+
+    static const struct {
+        unsigned long unicode;
+        unsigned char byte;
+    } codepage_map[] = {
+        {0x0410, 0x41}, {0x0411, 0xB1}, {0x0412, 0x42}, {0x0413, 0xB2},
+        {0x0414, 0xB3}, {0x0415, 0x45}, {0x0416, 0xB4}, {0x0417, 0xC2},
+        {0x0418, 0xC3}, {0x0419, 0xC4}, {0x041A, 0x4B}, {0x041B, 0x7F},
+        {0x041C, 0x4D}, {0x041D, 0x48}, {0x041E, 0x4F}, {0x041F, 0x92},
+        {0x0420, 0x50}, {0x0421, 0x43}, {0x0422, 0x54}, {0x0423, 0xC5},
+        {0x0424, 0xC8}, {0x0425, 0x58}, {0x0426, 0xC9}, {0x0427, 0xCA},
+        {0x0428, 0xCB}, {0x0429, 0xCC}, {0x042A, 0x62}, {0x042B, 0xE8},
+        {0x042C, 0x62}, {0x042D, 0x9B}, {0x042E, 0x9C}, {0x042F, 0x9D},
+        {0x0430, 0x61}, {0x0431, 0xCD}, {0x0432, 0xCE}, {0x0433, 0xCF},
+        {0x0434, 0xD0}, {0x0435, 0x65}, {0x0436, 0xD1}, {0x0437, 0xD5},
+        {0x0438, 0xD9}, {0x0439, 0xDA}, {0x043A, 0x9E}, {0x043B, 0x9F},
+        {0x043C, 0xA6}, {0x043D, 0xA7}, {0x043E, 0x6F}, {0x043F, 0xA9},
+        {0x0440, 0x70}, {0x0441, 0x63}, {0x0442, 0xDB}, {0x0443, 0x79},
+        {0x0444, 0xDC}, {0x0445, 0x78}, {0x0446, 0xDD}, {0x0447, 0xDF},
+        {0x0448, 0xE6}, {0x0449, 0xE7}, {0x044A, 0xAA}, {0x044B, 0xAB},
+        {0x044C, 0xAC}, {0x044D, 0xAE}, {0x044E, 0xAF}, {0x044F, 0xB0},
+        {0x0407, 0xD8}, {0x0457, 0x8B}, {0x0456, 0x69}, {0x0406, 0x49},
+        {0x0404, 0x0F}, {0x0454, 0x10}, {0x0490, 0x11}, {0x0491, 0x12},
+        {0x2019, 0x27}, {0x2014, 0x2D}, {0x0451, 0x89}, {0x0401, 0xD3},
+    };
+    for (size_t i = 0; i < sizeof(codepage_map) / sizeof(codepage_map[0]); ++i)
+    {
+        if (codepage_map[i].unicode == codepoint)
+            return codepage_map[i].byte;
+    }
+    ERRORLOG("Warning: No mapping for Unicode codepoint U+%04lX in internal codepage; using '?'", codepoint);
+    return '?';
+}
+
+static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t dst_size)
+{
+    size_t out_len = 0;
+    const unsigned char *text = (const unsigned char *)src;
+
+    while (*text != '\0' && out_len + 1 < dst_size)
+    {
+        unsigned long codepoint;
+        size_t seq_len;
+        if (*text < 0x80)
+        {
+            codepoint = *text;
+            seq_len = 1;
+        }
+        else if ((*text & 0xE0) == 0xC0 && (text[1] & 0xC0) == 0x80)
+        {
+            codepoint = ((text[0] & 0x1F) << 6) | (text[1] & 0x3F);
+            seq_len = 2;
+        }
+        else if ((*text & 0xF0) == 0xE0 && (text[1] & 0xC0) == 0x80 && (text[2] & 0xC0) == 0x80)
+        {
+            codepoint = ((text[0] & 0x0F) << 12) | ((text[1] & 0x3F) << 6) | (text[2] & 0x3F);
+            seq_len = 3;
+        }
+        else if ((*text & 0xF8) == 0xF0 && (text[1] & 0xC0) == 0x80 && (text[2] & 0xC0) == 0x80 && (text[3] & 0xC0) == 0x80)
+        {
+            codepoint = ((text[0] & 0x07) << 18) | ((text[1] & 0x3F) << 12) | ((text[2] & 0x3F) << 6) | (text[3] & 0x3F);
+            seq_len = 4;
+        }
+        else
+        {
+            dst[out_len++] = '?';
+            text += 1;
+            continue;
+        }
+
+        dst[out_len++] = (char)convert_codepoint_to_internal_byte(codepoint);
+        text += seq_len;
+    }
+    dst[out_len] = '\0';
+}
+
 static int translation_section_visitor(const VALUE *key, VALUE *section, void *ctx)
 {
     if (translation_count >= MAX_TRANSLATION_ENTRIES)
@@ -95,7 +175,7 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
     size_t len = strlen(text);
     entry->text = (char *)calloc(len + 1, 1);
     if (entry->text)
-        memcpy(entry->text, text, len);
+        convert_utf8_to_internal_codepage(text, entry->text, len + 1);
 
     translation_count++;
     return 0;
