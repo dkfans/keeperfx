@@ -1584,8 +1584,7 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
         return 0;
     }
     SYNCDBG(18,"Starting");
-    // Legacy BUG: SPDIGGER - This restricts convert tasks to the area connected to heart, instead of connected to diggers.
-    // Fixed on May 31, 2026
+
     struct Thing *heartng;
     heartng = get_player_soul_container(dungeon->owner);
     TRACE_THING(heartng);
