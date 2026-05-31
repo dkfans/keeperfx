@@ -189,9 +189,9 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
 {
 }
 
-short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
+TbBool player_is_sole_remaining_contender(struct PlayerInfo *player)
 {
-    return 0;
+    return false;
 }
 
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx)

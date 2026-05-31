@@ -421,8 +421,7 @@ void process_disconnected_network_players(void)
     TbBool host_disconnected = (netstate.my_id != SERVER_ID) && (netstate.users[SERVER_ID].progress == USER_UNUSED);
     TbBool disconnected = host_disconnected;
     TbBool enemy_disconnected = false;
-    TbBool winning_quit = false;
-    int32_t plyr_count = 0;
+    struct PlayerInfo *winning_player = NULL;
     if (host_disconnected && host_already_won_level()) {
         myplyr->additional_flags &= ~PlaAF_UnlockedLordTorture;
         quit_game = 1;
@@ -436,8 +435,8 @@ void process_disconnected_network_players(void)
         disconnected = true;
         if (network_disconnect_victory_enabled && players_are_enemies(myplyr->id_number, player->id_number)) {
             enemy_disconnected = true;
-            if (!winning_quit && winning_player_quitting(player, &plyr_count)) {
-                winning_quit = true;
+            if ((winning_player == NULL) && player_is_sole_remaining_contender(player)) {
+                winning_player = player;
             }
         }
         if ((player->allocflags & PlaF_CompCtrl) == 0) {
@@ -466,7 +465,7 @@ void process_disconnected_network_players(void)
             return;
         }
     }
-    if (winning_quit) {
+    if (winning_player != NULL) {
         for (int i = 0; i < PLAYERS_COUNT; i++) {
             struct PlayerInfo *swplyr = get_player(i);
             if (player_exists(swplyr) && (swplyr->is_active == 1)) {
@@ -477,8 +476,10 @@ void process_disconnected_network_players(void)
     if (enemy_disconnected) {
         resolve_network_quit_outcome(myplyr);
     }
-    if (winning_quit && (plyr_count > 1)) {
+    if ((winning_player != NULL) && winning_player_outscores_losers(winning_player)) {
         myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
+    } else {
+        myplyr->additional_flags &= ~PlaAF_UnlockedLordTorture;
     }
     if (!host_disconnected && network_has_remote_users_remaining()) {
         return;

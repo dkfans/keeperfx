@@ -61,6 +61,8 @@
 
 /******************************************************************************/
 
+#define TORTURE_SCREEN_SCORE_REQUIREMENT 120
+
 TbBool player_has_lost(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -128,7 +130,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
     player->display_objective_turn = get_gameturn() + 300;
   if (my_player)
   {
-    if (lord_of_the_land_in_prison_or_tortured())
+    if (!network_is_active() && lord_of_the_land_in_prison_or_tortured())
     {
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
         player->additional_flags |= PlaAF_UnlockedLordTorture;
@@ -217,6 +219,55 @@ long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)
     if (player_has_lost(player->id_number))
         i /= 2;
     return i;
+}
+
+TbBool winning_player_outscores_losers(struct PlayerInfo *winner)
+{
+    struct Dungeon* dungeon;
+    if (player_invalid(winner) || dungeon_invalid(dungeon = get_dungeon(winner->id_number))) {
+        return false;
+    }
+    uint64_t winner_score = dungeon->lvstats.player_score;
+    if (winner_score == 0) {
+        winner_score = compute_player_final_score(winner, dungeon->max_gameplay_score);
+    }
+    if (winner_score == 0) {
+        return false;
+    }
+    TbBool loser_found = false;
+    int32_t score_player_id = 0;
+    uint64_t score_loser = 0;
+    uint64_t winning_score = winner_score * 100;
+    uint64_t required_score = 0;
+    for (int32_t i = 0; i < PLAYERS_COUNT; i++) {
+        struct PlayerInfo* player = get_player(i);
+        if ((player == winner) || !player_exists(player) || (player->is_active != 1) || (player->victory_state != VicS_LostLevel)) {
+            continue;
+        }
+        dungeon = get_dungeon(player->id_number);
+        if (dungeon_invalid(dungeon)) {
+            continue;
+        }
+        uint64_t loser_score = dungeon->lvstats.player_score;
+        if (loser_score == 0) {
+            loser_score = compute_player_final_score(player, dungeon->max_gameplay_score);
+        }
+        uint64_t loser_required_score = loser_score * TORTURE_SCREEN_SCORE_REQUIREMENT;
+        if (!loser_found || (loser_required_score > required_score)) {
+            score_player_id = player->id_number;
+            score_loser = loser_score;
+            required_score = loser_required_score;
+        }
+        loser_found = true;
+        if (winning_score < loser_required_score) {
+            SYNCLOG("Skipping Torture Screen (winner needs %d%% higher score). Winner p:%d score:%" PRIu64 ". Loser p:%d score:%" PRIu64 ".", TORTURE_SCREEN_SCORE_REQUIREMENT - 100, winner->id_number, winner_score, player->id_number, loser_score);
+            return false;
+        }
+    }
+    if (loser_found) {
+        SYNCLOG("Score requirement met for Torture Screen (winner has over %d%% higher score). Winner p:%d score:%" PRIu64 ". Loser p:%d score:%" PRIu64 ".", TORTURE_SCREEN_SCORE_REQUIREMENT - 100, winner->id_number, winner_score, score_player_id, score_loser);
+    }
+    return loser_found;
 }
 
 /**

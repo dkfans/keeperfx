@@ -1951,33 +1951,22 @@ void process_objective(const char *msg_text, PlayerNumber plyr_idx, TbMapLocatio
     display_objectives(player->id_number, x, y);
 }
 
-short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count)
+TbBool player_is_sole_remaining_contender(struct PlayerInfo *candidate)
 {
-    struct PlayerInfo *swplyr;
+    struct PlayerInfo *checked_player;
     int i;
-    int k;
-    int n;
-    if (player->victory_state == VicS_LostLevel)
-    {
-      return 0;
+    int remaining_contenders;
+    if (candidate->victory_state == VicS_LostLevel) {
+        return false;
     }
-    k = 0;
-    n = 0;
-    for (i=0; i < PLAYERS_COUNT; i++)
-    {
-      swplyr = get_player(i);
-      if (player_exists(swplyr))
-      {
-        if (swplyr->is_active == 1)
-        {
-          k++;
-          if (swplyr->victory_state == VicS_LostLevel)
-            n++;
+    remaining_contenders = 0;
+    for (i=0; i < PLAYERS_COUNT; i++) {
+        checked_player = get_player(i);
+        if (player_exists(checked_player) && (checked_player->is_active == 1) && (checked_player->victory_state != VicS_LostLevel)) {
+            remaining_contenders++;
         }
-      }
     }
-    *plyr_count = k;
-    return ((k - n) == 1);
+    return (remaining_contenders == 1);
 }
 
 short lose_level(struct PlayerInfo *player)
