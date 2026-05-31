@@ -245,6 +245,7 @@ TbBool should_use_delta_time_on_menu()
         case FeSt_NET_SERVICE: /**< Network service selection, where player can select Serial/Modem/IPX/TCP IP/1 player. */
         case FeSt_NET_SESSION: /**< Network session selection screen, where list of games is displayed, with possibility to join or create own game. */
         case FeSt_NET_START: /**< Network game start screen (the menu with chat), when created new session or joined existing session. */
+        case FeSt_LEVEL_STATS:
         case FeSt_HIGH_SCORES:
         case FeSt_FEDEFINE_KEYS:
         case FeSt_FEOPTIONS:
@@ -1909,11 +1910,11 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    long pos_x = 0;
-    long pos_y = 0;
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
@@ -1923,11 +1924,11 @@ void set_general_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation t
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    long pos_x = 0;
-    long pos_y = 0;
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x != 0) || (y != 0))
     {
@@ -1937,7 +1938,7 @@ void set_quick_information(long msg_id, PlayerNumber plyr_idx, TbMapLocation tar
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, PlayerNumber plyr_idx, TbMapLocation target, long x, long y)
+void set_general_objective(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
     process_objective(get_string(msg_id), plyr_idx, target, x, y);
 }
@@ -1983,7 +1984,7 @@ short lose_level(struct PlayerInfo *player)
 {
     if (!is_my_player(player))
         return false;
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
         LbNetwork_Stop();
     }
@@ -1995,7 +1996,7 @@ short resign_level(struct PlayerInfo *player)
 {
     if (!is_my_player(player))
         return false;
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
         LbNetwork_Stop();
     }
@@ -2008,7 +2009,7 @@ short complete_level(struct PlayerInfo *player)
     SYNCDBG(6,"Starting");
     if (!is_my_player(player))
         return false;
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
         LbNetwork_Stop();
         quit_game = 1;
@@ -2077,7 +2078,7 @@ void check_players_won(void)
 {
   SYNCDBG(8,"Starting");
 
-    if (!flag_is_set(game.system_flags,GSF_NetworkActive))
+    if (!network_is_active())
         return;
 
     struct PlayerInfo* curPlayer;
@@ -3085,20 +3086,20 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    long x;
-    long y;
-    long x_frac;
-    long y_frac;
-    long hori_ptr_y;
-    long vert_ptr_y;
-    long hori_hdelta_y;
-    long vert_hdelta_y;
-    long hori_ptr_x;
-    long vert_ptr_x;
-    long hvdiv_x;
-    long hvdiv_y;
-    long long lltmp;
-    long k;
+    int32_t x;
+    int32_t y;
+    int32_t x_frac;
+    int32_t y_frac;
+    int64_t hori_ptr_y;
+    int64_t vert_ptr_y;
+    int64_t hori_hdelta_y;
+    int64_t vert_hdelta_y;
+    int64_t hori_ptr_x;
+    int64_t vert_ptr_x;
+    int64_t hvdiv_x;
+    int64_t hvdiv_y;
+    int64_t lltmp;
+    int64_t k;
     int i;
     SYNCDBG(19,"Starting");
     if ((!vert_offset[1]) && (!hori_offset[1]))
@@ -3108,16 +3109,16 @@ void update_blocks_pointed(void)
         me_pointed_at = INVALID_MAP_BLOCK;//get_map_block_at(0,0);
     } else
     {
-        hori_ptr_y = (long)hori_offset[0] * (pointer_y - y_init_off);
-        vert_ptr_y = (long)vert_offset[0] * (pointer_y - y_init_off);
-        hori_hdelta_y = (long)hori_offset[0] * ((long)high_offset[1] >> 8);
-        vert_hdelta_y = (long)vert_offset[0] * ((long)high_offset[1] >> 8);
-        vert_ptr_x = (long)(vert_offset[1] * (pointer_x - x_init_off)) >> 1;
-        hori_ptr_x = (long)(hori_offset[1] * (pointer_x - x_init_off)) >> 1;
-        lltmp = hori_offset[0] * (long long)vert_offset[1] - vert_offset[0] * (long long)hori_offset[1];
+        hori_ptr_y = (int64_t)hori_offset[0] * (pointer_y - y_init_off);
+        vert_ptr_y = (int64_t)vert_offset[0] * (pointer_y - y_init_off);
+        hori_hdelta_y = (int64_t)hori_offset[0] * ((long)high_offset[1] >> 8);
+        vert_hdelta_y = (int64_t)vert_offset[0] * ((long)high_offset[1] >> 8);
+        vert_ptr_x = ((int64_t)vert_offset[1] * (pointer_x - x_init_off)) >> 1;
+        hori_ptr_x = ((int64_t)hori_offset[1] * (pointer_x - x_init_off)) >> 1;
+        lltmp = hori_offset[0] * (int64_t)vert_offset[1] - vert_offset[0] * (int64_t)hori_offset[1];
         hvdiv_x = (lltmp >> 11);
         if (hvdiv_x == 0) hvdiv_x = 1;
-        lltmp = vert_offset[0] * (long long)hori_offset[1] - hori_offset[0] * (long long)vert_offset[1];
+        lltmp = vert_offset[0] * (int64_t)hori_offset[1] - hori_offset[0] * (int64_t)vert_offset[1];
         hvdiv_y = (lltmp >> 11);
         if (hvdiv_y == 0) hvdiv_y = 1;
         for (i=0; i < 8; i++)
@@ -3360,7 +3361,7 @@ TbBool keeper_wait_for_screen_focus(void)
         }
         if (LbIsActive())
           return true;
-        if ((game.system_flags & GSF_NetworkActive) != 0)
+        if (network_is_active())
           return true;
         if (!freeze_game_on_focus_lost())
           return true;
@@ -3883,6 +3884,7 @@ static TbBool wait_at_frontend(void)
           break;
     case FeSt_START_MPLEVEL:
           set_flag(game.system_flags, GSF_NetworkActive);
+          skip_high_score_screen = 1;
           game.game_kind = GKind_MultiGame;
           player = get_my_player();
           player->is_active = 1;
@@ -3955,7 +3957,6 @@ void game_loop(void)
         } else
         {
           game.save_game_slot = -1;
-          clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {
           for (int i = 0; i < PLAYERS_COUNT; i++) {

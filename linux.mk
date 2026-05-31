@@ -181,6 +181,7 @@ src/light_data.c \
 src/linux.cpp \
 src/lua_api.c \
 src/lua_api_lens.c \
+src/lua_api_map.c \
 src/lua_api_player.c \
 src/lua_api_room.c \
 src/lua_api_things.c \
@@ -248,6 +249,7 @@ src/room_util.c \
 src/room_workshop.c \
 src/roomspace.c \
 src/roomspace_detection.c \
+src/roomspace_prediction.c \
 src/scrcapt.c \
 src/slab_data.c \
 src/sounds.c \

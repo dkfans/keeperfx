@@ -2858,7 +2858,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {
-                            if (cctrl->dropped_turn < (COMPUTER_REDROP_DELAY + get_gameturn()))
+                            if ((cctrl->dropped_turn + COMPUTER_REDROP_DELAY) < get_gameturn())
                             {
                                 struct PerExpLevelValues* expvalues;
                                 struct CreatureModelConfig* crconf = creature_stats_get(thing->model);

@@ -416,6 +416,7 @@ short old_menu_mouse_y;
 unsigned char menu_ids[3];
 unsigned char new_objective;
 int frontend_menu_state;
+int skip_high_score_screen;
 int load_game_scroll_offset;
 unsigned char video_gamma_correction;
 
@@ -427,7 +428,7 @@ struct TbSpriteSheet * winfont = NULL;
 unsigned long playing_bad_descriptive_speech;
 unsigned long playing_good_descriptive_speech;
 long scrolling_index;
-long scrolling_offset;
+float scrolling_offset;
 long packet_left_button_double_clicked[6];
 long packet_left_button_click_space_count[6];
 char frontend_alliances;
@@ -531,20 +532,16 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 short game_is_busy_doing_gui(void)
 {
     struct PlayerInfo *player = get_my_player();
-    if (player->one_click_lock_cursor)
-      return false;
-    if (!busy_doing_gui)
-      return false;
-    if (battle_creature_over <= 0)
-      return true;
-    PowerKind pwkind = player->chosen_power_kind;
-    struct Thing *thing;
-    thing = thing_get(battle_creature_over);
-    if (!thing_is_invalid(thing) && can_cast_power_on_thing(player->id_number, thing, pwkind))
-    {
+    if (battle_creature_over > 0) {
         return true;
     }
-    return false;
+    if (player->one_click_lock_cursor) {
+        return false;
+    }
+    if (!busy_doing_gui) {
+        return false;
+    }
+    return true;
 }
 
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
@@ -637,7 +634,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 
 void maintain_loadsave(struct GuiButton *gbtn)
 {
-    if ((game.system_flags & GSF_NetworkActive) == 0)
+    if (!network_is_active())
         gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &= ~LbBtnF_Enabled;
@@ -1663,7 +1660,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
     set_flag_value(player->additional_flags, PlaAF_UnlockedLordTorture, flg_mem);
     // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
-    if (((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active()
      || ((game.operation_flags & GOF_SingleLevel) != 0)
      || (game.packet_load_enable)
      || (is_freeplay_level(lvnum))
@@ -2678,6 +2675,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           time_last_played_demo = LbTimerClock();
           fe_high_score_table_from_main_menu = true;
           clear_flag(game.system_flags, GSF_NetworkActive);
+          skip_high_score_screen = 0;
           set_pointer_graphic_menu();
           break;
       case FeSt_FELOAD_GAME:
@@ -3431,7 +3429,10 @@ void set_level_objective(PlayerNumber plyr_idx, const char *msg_text)
         return;
     }
     snprintf(game.evntbox_text_objective[plyr_idx], MESSAGE_TEXT_LEN, "%s", msg_text);
-    new_objective = 1;
+    if (is_my_player_number(plyr_idx))
+    {
+        new_objective = 1;
+    }
 }
 
 void update_player_objectives(PlayerNumber plyr_idx)
@@ -3439,7 +3440,7 @@ void update_player_objectives(PlayerNumber plyr_idx)
     struct PlayerInfo *player;
     SYNCDBG(6,"Starting for player %d",(int)plyr_idx);
     player = get_player(plyr_idx);
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
       if ((!player->display_objective_turn) && (player->victory_state != VicS_Undecided))
         player->display_objective_turn = get_gameturn()+1;
@@ -3454,7 +3455,7 @@ void update_player_objectives(PlayerNumber plyr_idx)
           break;
       case VicS_LostLevel:
           TextStringId msg_idx = CpgStr_LevelLost;
-          if (((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id())) {
+          if (network_is_active() && (player->id_number == get_host_player_id()) && network_human_contenders_remain()) {
               msg_idx = GUIStr_NetHostLostWaitingForPlayers;
           }
           set_level_objective(player->id_number, get_string(msg_idx));
@@ -3643,8 +3644,9 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_DRAG:
         return FeSt_TORTURE;
     case FeSt_LEVEL_STATS:
-        if ((game.system_flags & GSF_NetworkActive) != 0)
+        if (network_is_active() || skip_high_score_screen) {
             return FeSt_NET_SESSION;
+        }
         lvnum = get_loaded_level_number();
         if (is_multiplayer_level(lvnum))
             return get_menu_state_based_on_last_level(lvnum);
@@ -3730,7 +3732,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
     player = get_my_player();
     lvnum = get_loaded_level_number();
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     { // If played real network game, then resulting screen isn't changed based on victory
         SYNCLOG("Network game summary state selected");
         if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)

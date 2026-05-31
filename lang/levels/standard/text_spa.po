@@ -27,7 +27,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.9\n"
 
 #. Generic victory message
 #: guitext:0
@@ -697,8 +697,12 @@ msgstr "¿Fue fácil? ¡Victoria!"
 #. Frozen Legion (lv455)
 #: guitext:72
 msgctxt "In-game message"
-msgid "To have a fighting chance, get a bigger army. Don't let the heroes whittle you down."
-msgstr "Para tener una oportunidad de luchar, reúne un ejército más grande. No dejes que los Héroes te debiliten."
+msgid ""
+"To have a fighting chance, get a bigger army. Don't let the heroes whittle "
+"you down."
+msgstr ""
+"Para tener una oportunidad de luchar, reúne un ejército más grande. No dejes "
+"que los Héroes te debiliten."
 
 #. Frozen Legion (lv455)
 #: guitext:73
@@ -786,7 +790,7 @@ msgstr "¡Están llegando!"
 msgctxt "In-game message"
 msgid ""
 "I give your performance 2 out of 5 spleens. But I guess it's the result that "
-"counts. Victory"
+"counts. Victory!"
 msgstr ""
 "Le doy a tu actuación 2 de 5 enojados. Pero supongo que es el resultado lo "
 "que cuenta. Victoria."
@@ -796,7 +800,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Welcome to SimDungeon. You can attract 25 evil creatures per portal. Heroes "
-"can be summoned at the spawner"
+"can be summoned at the spawner."
 msgstr ""
 "Bienvenido a SimDungeon. Puedes atraer a 25 criaturas malvadas por portal. "
 "Los héroes pueden ser generados desde el generador."
@@ -858,7 +862,7 @@ msgstr "Has hecho lo imposible. ¡Victoria!"
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have an old version of KeeperFX. You need to update to play this map. "
+"You have an old version of KeeperFX. You need to update to play this map."
 msgstr ""
 "Tiene una versión antigua de KeeperFX. Necesita actualizar el juego para "
 "poder jugar a este mapa."
@@ -1180,124 +1184,211 @@ msgstr ""
 "Perdiste a tu única criatura. Lo necesitabas para reclamar las baldosas "
 "alrededor de tu Corazón. Desesperanzado."
 
+#. Eruption (lv1228)
 #: guitext:123
 msgctxt "In-game message"
-msgid "You have entered the sacred chamber of the heroes which holds an artifact of great power. The good gods have sent a mighty force to stop you from stealing it."
+msgid ""
+"You have entered the sacred chamber of the heroes which holds an artifact of "
+"great power. The good gods have sent a mighty force to stop you from "
+"stealing it."
 msgstr ""
 
+#. Eruption (lv1228)
 #: guitext:124
 msgctxt "In-game message"
-msgid "A volcanic eruption has completely devastated this realm and destroyed your dungeon. Most of your creatures got buried alive by debris and the remaining ones got captured by the heroes and hidden in their secret caves. Fortunately, you still have one creature left. The enemy keepers are still weak, but are quickly getting stronger. Hurry up and free your captured creatures to dominate this realm again."
+msgid ""
+"A volcanic eruption has completely devastated this realm and destroyed your "
+"dungeon. Most of your creatures got buried alive by debris and the remaining "
+"ones got captured by the heroes and hidden in their secret caves. "
+"Fortunately, you still have one creature left. The enemy keepers are still "
+"weak, but are quickly getting stronger. Hurry up and free your captured "
+"creatures to dominate this realm again."
 msgstr ""
 
+#. Eruption (lv1228)
 #: guitext:125
 msgctxt "In-game message"
-msgid "Keep this ghost alive at all costs. His abilities are the key to free your creatures and rebuild your dungeon."
+msgid ""
+"Keep this ghost alive at all costs. His abilities are the key to free your "
+"creatures and rebuild your dungeon."
 msgstr ""
 
+#. Eruption (lv1228)
 #: guitext:126
 msgctxt "In-game message"
-msgid "Well done, Keeper! With these Imps you can rebuild your dungeon. Perhaps now is a good time to attack the heroes' dungeon heart. There are rumors that it is still very weak due to the volcanic eruption. Maybe even your little ghost is strong enough to destroy it. It is located to the east of your dungeon."
+msgid ""
+"Well done, Keeper! With these Imps you can rebuild your dungeon. Perhaps now "
+"is a good time to attack the heroes' dungeon heart. There are rumors that it "
+"is still very weak due to the volcanic eruption. Maybe even your little "
+"ghost is strong enough to destroy it. It is located to the east of your "
+"dungeon."
 msgstr ""
 
+#. Eruption (lv1228)
 #: guitext:127
 msgctxt "In-game message"
 msgid "Mjollnir: Hammer of Thor."
 msgstr ""
 
+#. Eruption (lv1228)
 #: guitext:128
 msgctxt "In-game message"
-msgid "You can feel the power of the thunder god Thor coursing through your veins. You are now able to cast Lightning Strike!"
+msgid ""
+"You can feel the power of the thunder god Thor coursing through your veins. "
+"You are now able to cast Lightning Strike!"
 msgstr ""
 
+#. Eruption (lv1228)
 #: guitext:129
 msgctxt "In-game message"
-msgid "Destroying the heroes' dungeon heart has given you the ability to build bridges again. There are probably more of your creatures hidden somewhere in this realm. Try to free them or maybe claim an entrance from one of the enemy keepers to build an army."
+msgid ""
+"Destroying the heroes' dungeon heart has given you the ability to build "
+"bridges again. There are probably more of your creatures hidden somewhere in "
+"this realm. Try to free them or maybe claim an entrance from one of the "
+"enemy keepers to build an army."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:130
 msgctxt "In-game message"
-msgid "This realm is waterlogged and infested with heroes ready to take advantage of any gaps in your dungeon. Dig carefully and trust your senses."
+msgid ""
+"This realm is waterlogged and infested with heroes ready to take advantage "
+"of any gaps in your dungeon. Dig carefully and trust your senses."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:131
 msgctxt "In-game message"
-msgid "There is another Keeper to the north, along with the Heroes' main force. Build yourself up carefully and grow your forces before moving towards the enemy."
+msgid ""
+"There is another Keeper to the north, along with the Heroes' main force. "
+"Build yourself up carefully and grow your forces before moving towards the "
+"enemy."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:132
 msgctxt "In-game message"
-msgid "There are many secrets hidden within the earth if you look carefully, but such secrets will not go unguarded."
+msgid ""
+"There are many secrets hidden within the earth if you look carefully, but "
+"such secrets will not go unguarded."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:133
 msgctxt "In-game message"
-msgid "You have found a Hellhound. These faithful pooches can smell the stench of your enemies through walls and alert you to their presence, a trait which will be most useful here."
+msgid ""
+"You have found a Hellhound. These faithful pooches can smell the stench of "
+"your enemies through walls and alert you to their presence, a trait which "
+"will be most useful here."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:134
 msgctxt "In-game message"
-msgid "You've found yourself at the outskirts of the hero fortress. The door leading there is sealed; it may be best to keep it that way until you're ready."
+msgid ""
+"You've found yourself at the outskirts of the hero fortress. The door "
+"leading there is sealed; it may be best to keep it that way until you're "
+"ready."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:135
 msgctxt "In-game message"
-msgid "The main hero stronghold now knows you're here and will be sending reinforcements. It may be best to strike before they can assemble too many."
+msgid ""
+"The main hero stronghold now knows you're here and will be sending "
+"reinforcements. It may be best to strike before they can assemble too many."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:136
 msgctxt "In-game message"
-msgid "The Heroes can no longer send reinforcements to handle you now you're knocking on their door, and will have to face you with their remaining forces."
+msgid ""
+"The Heroes can no longer send reinforcements to handle you now you're "
+"knocking on their door, and will have to face you with their remaining "
+"forces."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:137
 msgctxt "In-game message"
-msgid "Even with the Lord gone, the heroes make their last, desperate attempt to defend their Heart and keep their grip on this land. Pathetic, really."
+msgid ""
+"Even with the Lord gone, the heroes make their last, desperate attempt to "
+"defend their Heart and keep their grip on this land. Pathetic, really."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:138
 msgctxt "In-game message"
-msgid "The Lord of the Land has heard of the collapse of the rival Keeper and is coming to strike while you are licking your wounds."
+msgid ""
+"The Lord of the Land has heard of the collapse of the rival Keeper and is "
+"coming to strike while you are licking your wounds."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:139
 msgctxt "In-game message"
-msgid "Now the Lord has been dealt with, destroy the Heroes' Dungeon Heart to expel them for good."
+msgid ""
+"Now the Lord has been dealt with, destroy the Heroes' Dungeon Heart to expel "
+"them for good."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:140
 msgctxt "In-game message"
-msgid "The Keeper to the north has heard of the collapse of the hero fort and is coming to strike while your back is turned."
+msgid ""
+"The Keeper to the north has heard of the collapse of the hero fort and is "
+"coming to strike while your back is turned."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:141
 msgctxt "In-game message"
-msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
+msgid ""
+"This land is not kind to the undead. You may find it increasingly difficult "
+"to grow your ranks through imprisoning or torture, and it will be harder to "
+"attract Vampires."
 msgstr ""
 
+#. Happyglade (lv1268)
 #: guitext:144
 msgctxt "In-game message"
-msgid "You have found the rival Keeper. He is currently minding his own business, unaware of your presence. Keep him oblivious until you have an army at his door."
+msgid ""
+"You have found the rival Keeper. He is currently minding his own business, "
+"unaware of your presence. Keep him oblivious until you have an army at his "
+"door."
 msgstr ""
 
+#. Vulkaan (lv20202)
 #: guitext:145
 msgctxt "In-game message"
-msgid "It seems that destroying the heroes' heart at least rendered the bridge usable again."
+msgid ""
+"It seems that destroying the heroes' heart at least rendered the bridge "
+"usable again."
 msgstr ""
 
+#. Vulkaan (lv20202)
 #: guitext:146
 msgctxt "In-game message"
-msgid "It seems you've taken an interest in this volcano, Keeper. The other keeper here has no idea you've arrived, nor do those pesky heroes. You'll have to make due without much space in order to obliterate your opponents."
+msgid ""
+"It seems you've taken an interest in this volcano, Keeper. The other keeper "
+"here has no idea you've arrived, nor do those pesky heroes. You'll have to "
+"make due without much space in order to obliterate your opponents."
 msgstr ""
 
+#. Vulkaan (lv20202)
 #: guitext:147
 msgctxt "In-game message"
-msgid "Those pretentious heroes have found a way to block all dark research. Destroy them."
+msgid ""
+"Those pretentious heroes have found a way to block all dark research. "
+"Destroy them."
 msgstr ""
 
+#. Vulkaan (lv20202)
 #: guitext:148
 msgctxt "In-game message"
-msgid "You found a secret temple inhabited by a Horned Reaper. It has decided to join your evil cause."
+msgid ""
+"You found a secret temple inhabited by a Horned Reaper. It has decided to "
+"join your evil cause."
 msgstr ""
 
 #: guitext:202

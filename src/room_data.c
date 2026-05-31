@@ -2160,7 +2160,7 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
 {
     for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = find_room_of_kind_creature_can_navigate_to(thing, owner, rkind, NavRtF_NoOwner);
+        struct Room* room = find_room_of_kind_creature_can_navigate_to(thing, owner, rkind, NavRtF_Default);
         if (!room_is_invalid(room))
             return true;
     }

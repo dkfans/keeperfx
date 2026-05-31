@@ -42,6 +42,8 @@
 #include "game_merge.h"
 #include "frontmenu_ingame_map.h"
 #include "gui_boxmenu.h"
+#include "net_exchange_gameplay.h"
+#include "packets.h"
 #include "keeperfx.hpp"
 #include "api.h"
 #include "lvl_filesdk1.h"
@@ -407,6 +409,15 @@ TbBool load_game(long slot_num)
     LbFileClose(fh);
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
+    initialize_packet_history();
+    clear_packets();
+    process_pause_packet(0, 0);
+    clear_flag(game.operation_flags, GOF_Paused);
+    clear_flag(game.operation_flags, GOF_WorldInfluence);
+    close_main_cheat_menu();
+    close_creature_cheat_menu();
+    close_instance_cheat_menu();
+    close_secondary_cheat_menu();
     output_message(SMsg_GameLoaded, 0);
     panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
     calculate_moon_phase(false,false);

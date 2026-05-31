@@ -1717,7 +1717,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr ""
+msgstr "Му"
 
 #: guitext:202
 msgctxt "Level name"
@@ -3714,7 +3714,7 @@ msgstr "Shift"
 #: guitext:570
 msgctxt "Keyboard"
 msgid "Control"
-msgstr "Control"
+msgstr "Ctrl"
 
 #: guitext:571
 msgctxt "Keyboard"
@@ -6110,12 +6110,12 @@ msgstr "Потайная дверь"
 #: guitext:996
 msgctxt "Mouse"
 msgid "Scroll Wheel Up"
-msgstr "Колесо мыши вверх"
+msgstr "Прокрутка вверх"
 
 #: guitext:997
 msgctxt "Mouse"
 msgid "Scroll Wheel Down"
-msgstr "Колесо мыши вниз"
+msgstr "Прокрутка вниз"
 
 #: guitext:998
 msgctxt "Mouse"
@@ -6125,12 +6125,12 @@ msgstr "Кнопка мыши"
 #: guitext:999
 msgctxt "Game controls"
 msgid "Build Square Room"
-msgstr "Построить квадратную комнату"
+msgstr "Построить квадр. помещение"
 
 #: guitext:1000
 msgctxt "Game controls"
 msgid "Detect Room"
-msgstr "Выделить пространство комнаты"
+msgstr "Выделить простр. помещения"
 
 #: guitext:1001
 msgctxt "Game controls"
@@ -6208,7 +6208,7 @@ msgstr "Навьюченные бесы"
 #: guitext:1015
 msgctxt "Menu interface item"
 msgid "Conquest of the Arctic"
-msgstr "Завоевание Арктики"
+msgstr "Покорение Арктики"
 
 #: guitext:1016
 msgctxt "Menu interface item"
@@ -6601,12 +6601,12 @@ msgstr "Вкл./выкл. интерфейс"
 #: guitext:1095
 msgctxt "Game controls"
 msgid "Toggle Tooltips"
-msgstr "Вкл./выкл. всплывающие подсказки"
+msgstr "Вкл./выкл. всплыв. подсказки"
 
 #: guitext:1096 guitext:1097 guitext:1098
 msgctxt "Unused string"
 msgid "Moo"
-msgstr ""
+msgstr "Му"
 
 #: guitext:1099
 msgctxt "Game controls"
@@ -6616,7 +6616,7 @@ msgstr "Выход из игры"
 #: guitext:1100
 msgctxt "Game controls"
 msgid "Disable Packet Mode"
-msgstr "Режим реплея - Перехватить управление"
+msgstr "В реплее - Перехват управления"
 
 #: guitext:1101
 msgctxt "Game controls"
@@ -6626,7 +6626,7 @@ msgstr "Изменение разрешения"
 #: guitext:1102
 msgctxt "Game controls"
 msgid "Toggle Console"
-msgstr "Вкл./выкл. консоль"
+msgstr "Откр./закр. консоль"
 
 #: guitext:1103
 msgctxt "Game controls"
@@ -6646,52 +6646,52 @@ msgstr "Вкл./выкл. цветок здоровья"
 #: guitext:1106
 msgctxt "Keyboard"
 msgid "Grave"
-msgstr "Гравис/Тупое ударение"
+msgstr "Гравис"
 
 #: guitext:1107
 msgctxt "Game controls"
 msgid "Teleport Last Workroom"
-msgstr "В создании - К посл. рабочему месту"
+msgstr "В созд. - К посл. рабочему месту"
 
 #: guitext:1108
 msgctxt "Game controls"
 msgid "Teleport Call To Arms"
-msgstr "В создании - К знамени "К оружию!""
+msgstr "В созд. - К знамени "К оружию!""
 
 #: guitext:1109
 msgctxt "Game controls"
 msgid "Teleport Default"
-msgstr "В создании - К личному логову"
+msgstr "В созд. - К личному логову"
 
 #: guitext:1110
 msgctxt "Menu interface item"
 msgid "Multiplayer Map Packs"
-msgstr ""
+msgstr "Многопользовательские карты"
 
 #: guitext:1111
 msgctxt "Menu interface item"
 msgid "Return to Lobby"
-msgstr ""
+msgstr "Вернуться в лобби"
 
 #: guitext:1112
 msgctxt "In-game message"
 msgid "You have been defeated. As host, keep the game running until the match concludes."
-msgstr "Вы потерпели поражение. Как хост, оставьте игру запущенной до завершения матча."
+msgstr "Вы проиграли. Оставьте игру запущенной до окончания матча, поскольку вы её хост."
 
 #: guitext:1113
 msgctxt "Network game message"
 msgid "Verify /fxdata/ is the same across all PCs."
-msgstr "Проверьте, что /fxdata/ одинаков на всех ПК."
+msgstr "Убедитесь, что содержимое директории fxdata идентично у всех игроков."
 
 #: guitext:1114
 msgctxt "Network game message"
 msgid "WARNING: Custom sprite mismatch with %s!"
-msgstr "ВНИМАНИЕ: пользовательские спрайты не совпадают с %s!"
+msgstr "ВНИМАНИЕ! Несовпадение спрайтов с игроком %s! "
 
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"
-msgstr "Теперь управляет компьютер!"
+msgstr "За меня играет компьютер!"
 
 #: guitext:1116
 msgctxt "Network game message"
@@ -6701,14 +6701,14 @@ msgstr "%s покинул игру."
 #: guitext:1117
 msgctxt "Network game message"
 msgid "%s has disconnected."
-msgstr "%s отключился."
+msgstr "%s отсоединился."
 
 #: guitext:1118
 msgctxt "Unused"
 msgid "unused"
-msgstr "unused"
+msgstr "Не используется"
 
 #: guitext:1119
 msgctxt "Network game message"
 msgid "Network connection to host lost"
-msgstr "Сетевое соединение с хостом потеряно"
+msgstr "Соединение с хостом разорвано"

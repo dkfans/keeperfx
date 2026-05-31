@@ -237,7 +237,7 @@ void fronttorture_input(void)
         pckt->actn_par2 = GetMouseY();
     }
     // Exchange packet with other players
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
         if (LbNetwork_ExchangeFrontend(pckt, game.packets, sizeof(struct Packet)))
             ERRORLOG("LbNetwork_Exchange failed");
@@ -247,7 +247,7 @@ void fronttorture_input(void)
     {
         player = get_player(plyr_idx);
         pckt = get_packet(plyr_idx);
-        if ((pckt->action != 0) && (player->victory_state == VicS_WonLevel))
+        if (pckt->action != 0)
             break;
     }
     if (plyr_idx < PLAYERS_COUNT)
@@ -265,7 +265,7 @@ void fronttorture_input(void)
     if ((pckt->action & 0x01) != 0)
     {
         frontend_set_state(FeSt_LEVEL_STATS);
-        if ((game.system_flags & GSF_NetworkActive) != 0)
+        if (network_is_active())
             LbNetwork_Stop();
         return;
     }
