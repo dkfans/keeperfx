@@ -25,30 +25,20 @@
 #include "config.h"
 #include "config_strings.h"
 #include "config_translation_dbc_tables.h"
+#include "config_keeperfx.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-/*
-[HELLO_WORLD]
-ENG = "Hello World"
-FRE = "baçuéttè"
-RUS = "Привет, мир"
-JPN = "こんにちは世界"
-
-[GOODBYE]
-ENG = "Goodbye"
-FRE = "omelette du fromage"
-*/
 
 #define MAX_TRANSLATION_ENTRIES 4096
 #define MAX_ALIAS_LEN           64
 
 typedef struct {
     char  alias[MAX_ALIAS_LEN];
-    char *text; // heap-allocated; NULL means allocation failed
+    char *text;
 } TranslationEntry;
 
 static TranslationEntry translation_table[MAX_TRANSLATION_ENTRIES];
@@ -57,6 +47,15 @@ static int32_t          translation_count = 0;
 typedef struct {
     const char *language_code;
 } WalkContext;
+
+static TbBool load_translation_config_file(const char *fname, unsigned short flags);
+
+const struct ConfigFileData keeper_translation_file_data = {
+    .filename = "translation.toml",
+    .load_func = load_translation_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 static TbBool ascii_string_equal_nocase(const char *a, const char *b, size_t length)
 {
@@ -369,20 +368,21 @@ void clear_translation_table(void)
 }
 
 //will be read first, language doesn't change during run, so any other language is irrelevant
-void read_translation_file(const char* filepath, const char* language_code)
+static TbBool load_translation_config_file(const char* filepath, unsigned short flags)
 {
+    const char *language_code = get_language_lwrstr(install_info.lang_id);
     long len = LbFileLengthRnc(filepath);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         WARNMSG("Translation file \"%s\" does not exist or is too small.", filepath);
-        return;
+        return false;
     }
 
     char *buf = (char *)calloc(len + 256, 1);
     if (!buf)
     {
         ERRORLOG("Out of memory loading translation file \"%s\".", filepath);
-        return;
+        return false;
     }
 
     long fsize = LbFileLoadAt(filepath, buf);
@@ -390,7 +390,7 @@ void read_translation_file(const char* filepath, const char* language_code)
     {
         WARNMSG("Failed to read translation file \"%s\".", filepath);
         free(buf);
-        return;
+        return false;
     }
 
     char errbuf[256];
@@ -399,7 +399,7 @@ void read_translation_file(const char* filepath, const char* language_code)
     {
         WARNMSG("Failed to parse translation file \"%s\": %s", filepath, errbuf);
         free(buf);
-        return;
+        return false;
     }
     free(buf);
 
@@ -408,6 +408,7 @@ void read_translation_file(const char* filepath, const char* language_code)
     value_dict_walk_sorted(&root, translation_section_visitor, &ctx);
 
     value_fini(&root);
+    return true;
 }
 
 int32_t get_string_id_by_alias(const char* alias)

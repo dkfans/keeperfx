@@ -51,7 +51,7 @@ TbBool load_stats_files(void)
     init_all_creature_model_stats();
     init_creature_model_graphics();
 
-    read_translation_file("translation.toml", get_language_lwrstr(install_info.lang_id));
+    load_config(&keeper_translation_file_data, CnfLd_Standard);
 
     //first preload some configs which contain names that are used in other cfgs in ListOnly mode
     load_config(&keeper_creaturetp_file_data,   CnfLd_ListOnly);

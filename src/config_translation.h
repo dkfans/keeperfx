@@ -22,10 +22,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern void read_translation_file(const char* filepath, const char* language_code);
 extern int32_t get_string_id_by_alias(const char* alias);
 extern const char* get_translation_file_string(int32_t string_id);
 
+extern const struct ConfigFileData keeper_translation_file_data;
 
 /******************************************************************************/
 #ifdef __cplusplus
