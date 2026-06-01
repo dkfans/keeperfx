@@ -132,10 +132,10 @@ extern const struct ConfigFileData keeper_keepcomp_file_data;
 /******************************************************************************/
 struct ComputerType *get_computer_type_template(long cpt_idx);
 /******************************************************************************/
+extern struct ComputerPlayerConfig comp_player_conf;
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
-
-extern struct ComputerPlayerConfig comp_player_conf;
 
 #endif

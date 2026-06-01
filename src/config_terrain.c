@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
 #include "pre_inc.h"
 #include "config_terrain.h"
 #include "globals.h"
@@ -102,73 +103,87 @@ const struct NamedCommand terrain_room_total_capacity_func_type[] = {
     {NULL,                   0},
   };
 
+#pragma push_macro("game")
+#undef game
 static const struct NamedField terrain_slab_named_fields[] = {
     //name                //field                                                        //default      //min     //max    //NamedCommand
-    {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, INT32_MIN,UINT32_MAX, slab_desc,     value_name,       assign_null},
-    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),     GUIStr_Empty, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"BLOCKFLAGSHEIGHT",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_flags_height),            0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"BLOCKHEALTHINDEX",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_health_index),            0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"BLOCKFLAGS",       -1, field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, INT32_MIN,UINT32_MAX, terrain_flags, value_flagsfield, assign_default},
-    {"NOBLOCKFLAGS",     -1, field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, INT32_MIN,UINT32_MAX, terrain_flags, value_flagsfield, assign_default},
-    {"FILLSTYLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].fill_style),                    0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"CATEGORY",          0, field(game.conf.slab_conf.slab_cfgstats[0].category),                      0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"SLBID",             0, field(game.conf.slab_conf.slab_cfgstats[0].slb_id),                        0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"WIBBLE",            0, field(game.conf.slab_conf.slab_cfgstats[0].wibble),                        0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"ISSAFELAND",        0, field(game.conf.slab_conf.slab_cfgstats[0].is_safe_land),                  0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"ISDIGGABLE",        0, field(game.conf.slab_conf.slab_cfgstats[0].is_diggable),                   0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"WLBTYPE",           0, field(game.conf.slab_conf.slab_cfgstats[0].wlb_type),                      0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"ANIMATED",          0, field(game.conf.slab_conf.slab_cfgstats[0].animated),                      0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"ISOWNABLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].is_ownable),                    0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"INDESTRUCTIBLE",    0, field(game.conf.slab_conf.slab_cfgstats[0].indestructible),                0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
-    {"GOLDHELD",          0, field(game.conf.slab_conf.slab_cfgstats[0].gold_held),                     0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"NAME",              0, field_t(struct SlabConfigStats, code_name),                     0, INT32_MIN,UINT32_MAX, slab_desc,     value_name,       assign_null},
+    {"TOOLTIPTEXTID",     0, field_t(struct SlabConfigStats, tooltip_stridx),     GUIStr_Empty, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"BLOCKFLAGSHEIGHT",  0, field_t(struct SlabConfigStats, block_flags_height),            0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"BLOCKHEALTHINDEX",  0, field_t(struct SlabConfigStats, block_health_index),            0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"BLOCKFLAGS",       -1, field_t(struct SlabConfigStats, block_flags),                   0, INT32_MIN,UINT32_MAX, terrain_flags, value_flagsfield, assign_default},
+    {"NOBLOCKFLAGS",     -1, field_t(struct SlabConfigStats, noblck_flags),                  0, INT32_MIN,UINT32_MAX, terrain_flags, value_flagsfield, assign_default},
+    {"FILLSTYLE",         0, field_t(struct SlabConfigStats, fill_style),                    0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"CATEGORY",          0, field_t(struct SlabConfigStats, category),                      0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"SLBID",             0, field_t(struct SlabConfigStats, slb_id),                        0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"WIBBLE",            0, field_t(struct SlabConfigStats, wibble),                        0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"ISSAFELAND",        0, field_t(struct SlabConfigStats, is_safe_land),                  0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"ISDIGGABLE",        0, field_t(struct SlabConfigStats, is_diggable),                   0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"WLBTYPE",           0, field_t(struct SlabConfigStats, wlb_type),                      0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"ANIMATED",          0, field_t(struct SlabConfigStats, animated),                      0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"ISOWNABLE",         0, field_t(struct SlabConfigStats, is_ownable),                    0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"INDESTRUCTIBLE",    0, field_t(struct SlabConfigStats, indestructible),                0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
+    {"GOLDHELD",          0, field_t(struct SlabConfigStats, gold_held),                     0, INT32_MIN,UINT32_MAX, NULL,          value_default,    assign_default},
     {NULL},
 };
+#pragma pop_macro("game")
+
+static int32_t* get_slab_count(void) { return &game.conf.slab_conf.slab_types_count; }
+static void* get_slab_base(void) { return game.conf.slab_conf.slab_cfgstats; }
+
 
 const struct NamedFieldSet terrain_slab_named_fields_set = {
-    &game.conf.slab_conf.slab_types_count,
+    get_slab_count,
     "slab",
     terrain_slab_named_fields,
     slab_desc,
     TERRAIN_ITEMS_MAX,
     sizeof(game.conf.slab_conf.slab_cfgstats[0]),
-    game.conf.slab_conf.slab_cfgstats,
+    get_slab_base,
 };
 
+#pragma push_macro("game")
+#undef game
 static const struct NamedField terrain_room_named_fields[] = {
     //name           //pos    //field                                                               //default //min     //max    //NamedCommand
-    {"NAME",              0, field(game.conf.slab_conf.room_cfgstats[0].code_name),                     0, INT32_MIN,UINT32_MAX,      room_desc,                            value_name,      assign_null},
-    {"COST",              0, field(game.conf.slab_conf.room_cfgstats[0].cost),                          0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
-    {"HEALTH",            0, field(game.conf.slab_conf.room_cfgstats[0].health),                        0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
-    {"PROPERTIES",       -1, field(game.conf.slab_conf.room_cfgstats[0].flags),                         0, INT32_MIN,RoCFlg_ListEnd, terrain_room_properties_commands,     value_flagsfield,assign_default},
-    {"SLABASSIGN",        0, field(game.conf.slab_conf.room_cfgstats[0].assigned_slab),                 0, INT32_MIN,UINT32_MAX,      slab_desc,                            value_default,   assign_default},
-    {"CREATURECREATION",  0, field(game.conf.slab_conf.room_cfgstats[0].creature_creation_model),       0, INT32_MIN,UINT32_MAX,      creature_desc,                        value_default,   assign_default},
-    {"MESSAGES",          0, field(game.conf.slab_conf.room_cfgstats[0].msg_needed),                    0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
-    {"MESSAGES",          1, field(game.conf.slab_conf.room_cfgstats[0].msg_too_small),                 0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
-    {"MESSAGES",          2, field(game.conf.slab_conf.room_cfgstats[0].msg_no_route),                  0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
-    {"NAMETEXTID",        0, field(game.conf.slab_conf.room_cfgstats[0].name_stridx),        GUIStr_Empty, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
-    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.room_cfgstats[0].tooltip_stridx),     GUIStr_Empty, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_update_room_tab},
-    {"SYMBOLSPRITES",     0, field(game.conf.slab_conf.room_cfgstats[0].bigsym_sprite_idx),             0, INT32_MIN,UINT32_MAX,      NULL,                                 value_icon,      assign_icon},
-    {"SYMBOLSPRITES",     1, field(game.conf.slab_conf.room_cfgstats[0].medsym_sprite_idx),             0, INT32_MIN,UINT32_MAX,      NULL,                                 value_icon,      assign_icon_update_room_tab},
-    {"POINTERSPRITES",    0, field(game.conf.slab_conf.room_cfgstats[0].pointer_sprite_idx),            0, INT32_MIN,UINT32_MAX,      NULL,                                 value_icon,      assign_icon_update_room_tab},
-    {"PANELTABINDEX",     0, field(game.conf.slab_conf.room_cfgstats[0].panel_tab_idx),                 0,        0,       32,      NULL,                                 value_default,   assign_update_room_tab},
-    {"TOTALCAPACITY",     0, field(game.conf.slab_conf.room_cfgstats[0].update_total_capacity_idx),     0, INT32_MIN,UINT32_MAX,      terrain_room_total_capacity_func_type,value_default,   assign_reinitialise_rooms},
-    {"USEDCAPACITY",      0, field(game.conf.slab_conf.room_cfgstats[0].update_storage_in_room_idx),    0, INT32_MIN,UINT32_MAX,      terrain_room_used_capacity_func_type, value_default,   assign_default},
-    {"USEDCAPACITY",      1, field(game.conf.slab_conf.room_cfgstats[0].update_workers_in_room_idx),    0, INT32_MIN,UINT32_MAX,      terrain_room_used_capacity_func_type, value_default,   assign_reinitialise_rooms},
-    {"SLABSYNERGY",       0, field(game.conf.slab_conf.room_cfgstats[0].synergy_slab),                  0, INT32_MIN,UINT32_MAX,      slab_desc,                            value_synergy,   assign_recalculate_effeciency},
-    {"AMBIENTSNDSAMPLE",  0, field(game.conf.slab_conf.room_cfgstats[0].ambient_snd_smp_id),            0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
-    {"ROLES",            -1, field(game.conf.slab_conf.room_cfgstats[0].roles),                         0, INT32_MIN,UINT32_MAX,      room_roles_desc,                      value_flagsfield,assign_default},
-    {"STORAGEHEIGHT",     0, field(game.conf.slab_conf.room_cfgstats[0].storage_height),                0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"NAME",              0, field_t(struct RoomConfigStats, code_name),                     0, INT32_MIN,UINT32_MAX,      room_desc,                            value_name,      assign_null},
+    {"COST",              0, field_t(struct RoomConfigStats, cost),                          0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"HEALTH",            0, field_t(struct RoomConfigStats, health),                        0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"PROPERTIES",       -1, field_t(struct RoomConfigStats, flags),                         0, INT32_MIN,RoCFlg_ListEnd, terrain_room_properties_commands,     value_flagsfield,assign_default},
+    {"SLABASSIGN",        0, field_t(struct RoomConfigStats, assigned_slab),                 0, INT32_MIN,UINT32_MAX,      slab_desc,                            value_default,   assign_default},
+    {"CREATURECREATION",  0, field_t(struct RoomConfigStats, creature_creation_model),       0, INT32_MIN,UINT32_MAX,      creature_desc,                        value_default,   assign_default},
+    {"MESSAGES",          0, field_t(struct RoomConfigStats, msg_needed),                    0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"MESSAGES",          1, field_t(struct RoomConfigStats, msg_too_small),                 0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"MESSAGES",          2, field_t(struct RoomConfigStats, msg_no_route),                  0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"NAMETEXTID",        0, field_t(struct RoomConfigStats, name_stridx),        GUIStr_Empty, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"TOOLTIPTEXTID",     0, field_t(struct RoomConfigStats, tooltip_stridx),     GUIStr_Empty, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_update_room_tab},
+    {"SYMBOLSPRITES",     0, field_t(struct RoomConfigStats, bigsym_sprite_idx),             0, INT32_MIN,UINT32_MAX,      NULL,                                 value_icon,      assign_icon},
+    {"SYMBOLSPRITES",     1, field_t(struct RoomConfigStats, medsym_sprite_idx),             0, INT32_MIN,UINT32_MAX,      NULL,                                 value_icon,      assign_icon_update_room_tab},
+    {"POINTERSPRITES",    0, field_t(struct RoomConfigStats, pointer_sprite_idx),            0, INT32_MIN,UINT32_MAX,      NULL,                                 value_icon,      assign_icon_update_room_tab},
+    {"PANELTABINDEX",     0, field_t(struct RoomConfigStats, panel_tab_idx),                 0,        0,       32,      NULL,                                 value_default,   assign_update_room_tab},
+    {"TOTALCAPACITY",     0, field_t(struct RoomConfigStats, update_total_capacity_idx),     0, INT32_MIN,UINT32_MAX,      terrain_room_total_capacity_func_type,value_default,   assign_reinitialise_rooms},
+    {"USEDCAPACITY",      0, field_t(struct RoomConfigStats, update_storage_in_room_idx),    0, INT32_MIN,UINT32_MAX,      terrain_room_used_capacity_func_type, value_default,   assign_default},
+    {"USEDCAPACITY",      1, field_t(struct RoomConfigStats, update_workers_in_room_idx),    0, INT32_MIN,UINT32_MAX,      terrain_room_used_capacity_func_type, value_default,   assign_reinitialise_rooms},
+    {"SLABSYNERGY",       0, field_t(struct RoomConfigStats, synergy_slab),                  0, INT32_MIN,UINT32_MAX,      slab_desc,                            value_synergy,   assign_recalculate_effeciency},
+    {"AMBIENTSNDSAMPLE",  0, field_t(struct RoomConfigStats, ambient_snd_smp_id),            0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"ROLES",            -1, field_t(struct RoomConfigStats, roles),                         0, INT32_MIN,UINT32_MAX,      room_roles_desc,                      value_flagsfield,assign_default},
+    {"STORAGEHEIGHT",     0, field_t(struct RoomConfigStats, storage_height),                0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
     {NULL},
 };
+#pragma pop_macro("game")
+
+static int32_t* get_room_count(void) { return &game.conf.slab_conf.room_types_count; }
+static void* get_room_base(void) { return game.conf.slab_conf.room_cfgstats; }
+
 
 const struct NamedFieldSet terrain_room_named_fields_set = {
-    &game.conf.slab_conf.room_types_count,
+    get_room_count,
     "room",
     terrain_room_named_fields,
     room_desc,
     TERRAIN_ITEMS_MAX,
     sizeof(game.conf.slab_conf.room_cfgstats[0]),
-    game.conf.slab_conf.room_cfgstats,
+    get_room_base,
 };
 
 static void assign_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)

@@ -1,7 +1,7 @@
 {
   "default-registry": {
     "kind": "git",
-    "baseline": "9558037875497b9db8cf38fcd7db68ec661bffe7",
+    "baseline": "4b77da7fed37817f124936239197833469f1b9a8",
     "repository": "https://github.com/microsoft/vcpkg"
   },
   "registries": [
@@ -9,6 +9,12 @@
       "kind": "artifact",
       "location": "https://github.com/microsoft/vcpkg-ce-catalog/archive/refs/heads/main.zip",
       "name": "microsoft"
+    },
+    {
+      "kind": "git",
+      "repository": "https://github.com/cerwym/keeperfx-vcpkg-registry",
+      "baseline": "dcb6b8df162cf6925237292ab5471d4cc7b4987d",
+      "packages": ["astronomy", "centijson", "enet6", "libnatpmp"]
     }
   ]
 }

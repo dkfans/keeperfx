@@ -313,7 +313,7 @@ static void load_published_public_ips(int udp_ipv4_port, int udp_ipv6_port, Punc
         copy_public_ip(1, published_addresses->ipv6, sizeof(published_addresses->ipv6));
 }
 
-static int matchmaking_connect_thread(void *)
+static int matchmaking_connect_thread(void *userdata)
 {
     if (matchmaking_connect() == 0)
         matchmaking_request_list();

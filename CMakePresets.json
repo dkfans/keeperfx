@@ -1,4 +1,4 @@
-﻿{
+{
     "version": 3,
     "configurePresets": [
         {
@@ -11,10 +11,10 @@
             "installDir": "${sourceDir}/out/install/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_INSTALLED_DIR": "${sourceDir}/../vcpkg_installed"
             }
         },
-
         {
             "name": "x86",
             "hidden": true,
@@ -23,12 +23,13 @@
                 "strategy": "external"
             }
         },
-
         {
             "name": "Debug",
             "displayName": "Config Debug",
             "hidden": true,
-            "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
         },
         {
             "name": "Release",
@@ -38,7 +39,6 @@
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
-
         {
             "name": "MSVC",
             "hidden": true,
@@ -60,32 +60,210 @@
                 }
             }
         },
-
         {
             "name": "Debug-Clang",
             "displayName": "Debug Clang",
-            "inherits": [ "base", "x86", "Debug", "Clang" ],
+            "inherits": [
+                "base",
+                "x86",
+                "Debug",
+                "Clang"
+            ],
             "hidden": true
         },
         {
             "name": "Release-Clang",
             "displayName": "Release Clang",
-            "inherits": [ "base", "x86", "Release", "Clang" ],
+            "inherits": [
+                "base",
+                "x86",
+                "Release",
+                "Clang"
+            ],
             "hidden": true
         },
         {
             "name": "Debug-MSVC",
             "displayName": "Debug MSVC",
-            "inherits": [ "base", "x86", "Debug", "MSVC" ],
+            "inherits": [
+                "base",
+                "x86",
+                "Debug",
+                "MSVC"
+            ],
             "hidden": true
         },
         {
             "name": "Release-MSVC",
             "displayName": "Release MSVC",
-            "inherits": [ "base", "x86", "Release", "MSVC" ],
+            "inherits": [
+                "base",
+                "x86",
+                "Release",
+                "MSVC"
+            ],
             "hidden": true
         },
+        {
+            "name": "linux-base",
+            "displayName": "Linux Base",
+            "description": "Base for Linux native builds (no vcpkg toolchain; uses system packages)",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "installDir": "${sourceDir}/out/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+            }
+        },
+        {
+            "name": "x64",
+            "hidden": true,
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            }
+        },
+        {
+            "name": "MSVC-x86-Base",
+            "hidden": true,
+            "inherits": "base",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "installDir": "${sourceDir}/out/install/${presetName}",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe",
+                "VCPKG_TARGET_TRIPLET": "x86-windows-static",
+                "CMAKE_POLICY_VERSION_MINIMUM": "3.5",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+            }
+        },
+        {
+            "name": "MSVC-x64-Base",
+            "hidden": true,
+            "inherits": "base",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "installDir": "${sourceDir}/out/install/${presetName}",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe",
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+                "CMAKE_POLICY_VERSION_MINIMUM": "3.5",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+            }
+        },
+        {
+            "name": "x86-windows-static-debug",
+            "displayName": "MSVC x86 Debug (static)",
+            "description": "Windows x86 Debug build with MSVC, static runtime linking",
+            "inherits": [
+                "MSVC-x86-Base",
+                "Debug"
+            ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        },
+        {
+            "name": "x86-windows-static-release",
+            "displayName": "MSVC x86 Release (static)",
+            "description": "Windows x86 Release build with MSVC, static runtime linking, optimized",
+            "inherits": [
+                "MSVC-x86-Base",
+                "Release"
+            ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        },
+        {
+            "name": "x64-windows-static-debug",
+            "displayName": "MSVC x64 Debug (static)",
+            "description": "Windows x64 Debug build with MSVC, static runtime linking",
+            "inherits": [
+                "MSVC-x64-Base",
+                "Debug"
+            ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        },
+        {
+            "name": "x64-windows-static-release",
+            "displayName": "MSVC x64 Release (static)",
+            "description": "Windows x64 Release build with MSVC, static runtime linking, optimized",
+            "inherits": [
+                "MSVC-x64-Base",
+                "Release"
+            ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        },
+        {
+            "name": "x86-windows-static-debug-asan",
+            "displayName": "MSVC x86 Debug + ASan (static)",
+            "description": "Windows x86 Debug with AddressSanitizer for catching OOB/UAF bugs",
+            "inherits": [ "MSVC-x86-Base", "Debug" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "KEEPERFX_SANITIZERS": "ON"
+            }
+        },
 
+        {
+            "name": "x86-windows-static-reldebug-asan",
+            "displayName": "MSVC x86 RelDebug + ASan (static)",
+            "description": "Windows x86 RelWithDebInfo with AddressSanitizer (better perf than Debug)",
+            "inherits": [ "MSVC-x86-Base", "Release" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "KEEPERFX_SANITIZERS": "ON"
+            }
+        },
+
+        {
+            "name": "x64-windows-static-debug-asan",
+            "displayName": "MSVC x64 Debug + ASan (static)",
+            "description": "Windows x64 Debug with AddressSanitizer for catching OOB/UAF bugs",
+            "inherits": [ "MSVC-x64-Base", "Debug" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "KEEPERFX_SANITIZERS": "ON"
+            }
+        },
+
+        {
+            "name": "x64-windows-static-reldebug-asan",
+            "displayName": "MSVC x64 RelDebug + ASan (static)",
+            "description": "Windows x64 RelWithDebInfo with AddressSanitizer (better perf than Debug)",
+            "inherits": [ "MSVC-x64-Base", "Release" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "KEEPERFX_SANITIZERS": "ON"
+            }
+        },
+
+        {
+            "name": "cross-base",
+            "displayName": "Cross-Compile Base",
+            "description": "Base for Docker/Linux cross-compile builds (no vcpkg; toolchain set per-preset)",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "installDir": "${sourceDir}/out/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+            }
+        },
         {
             "name": "MingGW32-Base",
             "hidden": true,
@@ -104,11 +282,19 @@
                 }
             }
         },
-
         {
             "name": "x86-MinGW32-Debug",
             "displayName": "x86-MinGW32-Debug",
-            "inherits": [ "MingGW32-Base", "x86", "Debug" ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "inherits": [
+                "MingGW32-Base",
+                "x86",
+                "Debug"
+            ],
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
             }
@@ -116,8 +302,106 @@
         {
             "name": "x86-MinGW32-Release",
             "displayName": "x86-MinGW32-Release",
-            "inherits": [ "MingGW32-Base", "x86", "Release" ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "inherits": [
+                "MingGW32-Base",
+                "x86",
+                "Release"
+            ],
             "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        },
+        {
+            "name": "windows-x86-release",
+            "displayName": "Windows x86 Release (Docker/Linux cross-compile)",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "description": "Cross-compile for Windows x86 from Linux using i686-w64-mingw32. Designed for use inside the keeperfx-build-mingw32 Docker image.",
+            "inherits": [
+                "cross-base",
+                "Release"
+            ],
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/cmake/mingw32.cmake",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "windows-x86-debug",
+            "displayName": "Windows x86 Debug (Docker/Linux cross-compile)",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "description": "Cross-compile for Windows x86 from Linux using i686-w64-mingw32, with full debug symbols. For use inside the keeperfx-build-mingw32 Docker image.",
+            "inherits": [
+                "cross-base",
+                "Debug"
+            ],
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/cmake/mingw32.cmake",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        },
+        {
+            "name": "windows-x64-release",
+            "displayName": "Windows x64 Release (Docker/Linux cross-compile)",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "description": "Cross-compile for Windows x64 from Linux using x86_64-w64-mingw32. Designed for use inside the keeperfx-build-mingw64 Docker image.",
+            "inherits": [
+                "cross-base",
+                "Release"
+            ],
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/cmake/mingw64.cmake",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "linux-x64-release",
+            "displayName": "Linux x64 Release",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "description": "Linux native build using system packages",
+            "inherits": [
+                "linux-base",
+                "Release"
+            ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        },
+        {
+            "name": "linux-x64-asan",
+            "displayName": "Linux x64 ASAN",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "description": "Linux native build with AddressSanitizer + UndefinedBehaviorSanitizer",
+            "inherits": "linux-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "KEEPERFX_SANITIZERS": "ON",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
             }
         }
@@ -130,7 +414,6 @@
             "verbose": true,
             "configurePreset": "Debug"
         },
-
         {
             "name": "StandardLog",
             "hidden": true,
@@ -143,7 +426,6 @@
             "inherits": "Base",
             "targets": "keeperfx_hvlog"
         },
-
         {
             "name": "Debug-Clang-Standard",
             "displayName": "Debug Clang Standard",
@@ -192,7 +474,6 @@
             "inherits": "HeavyLog",
             "configurePreset": "Release-MSVC"
         },
-
         {
             "name": "Debug-MinGW32-Standard",
             "displayName": "Debug MinGW32 Standard",
@@ -216,6 +497,85 @@
             "displayName": "Release MinGW32 HeavyLog",
             "inherits": "HeavyLog",
             "configurePreset": "x86-MinGW32-Release"
+        },
+        {
+            "name": "windows-x86-release",
+            "displayName": "Windows x86 Release",
+            "inherits": "StandardLog",
+            "configurePreset": "windows-x86-release"
+        },
+        {
+            "name": "windows-x86-debug",
+            "displayName": "Windows x86 Debug",
+            "inherits": "StandardLog",
+            "configurePreset": "windows-x86-debug"
+        },
+        {
+            "name": "x86-windows-static-debug",
+            "displayName": "MSVC x86 Debug (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x86-windows-static-debug"
+        },
+        {
+            "name": "x86-windows-static-release",
+            "displayName": "MSVC x86 Release (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x86-windows-static-release"
+        },
+        {
+            "name": "x64-windows-static-debug",
+            "displayName": "MSVC x64 Debug (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x64-windows-static-debug"
+        },
+        {
+            "name": "x64-windows-static-release",
+            "displayName": "MSVC x64 Release (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x64-windows-static-release"
+        },
+        {
+            "name": "x86-windows-static-debug-asan",
+            "displayName": "MSVC x86 Debug + ASan (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x86-windows-static-debug-asan"
+        },
+        {
+            "name": "x86-windows-static-reldebug-asan",
+            "displayName": "MSVC x86 RelDebug + ASan (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x86-windows-static-reldebug-asan"
+        },
+        {
+            "name": "x64-windows-static-debug-asan",
+            "displayName": "MSVC x64 Debug + ASan (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x64-windows-static-debug-asan"
+        },
+        {
+            "name": "x64-windows-static-reldebug-asan",
+            "displayName": "MSVC x64 RelDebug + ASan (static)",
+            "inherits": "StandardLog",
+            "configurePreset": "x64-windows-static-reldebug-asan"
+        },
+
+        {
+            "name": "windows-x64-release",
+            "displayName": "Windows x64 Release",
+            "inherits": "StandardLog",
+            "configurePreset": "windows-x64-release"
+        },
+        {
+            "name": "linux-x64-release",
+            "displayName": "Linux x64 Release",
+            "inherits": "StandardLog",
+            "configurePreset": "linux-x64-release"
+        },
+        {
+            "name": "linux-x64-asan",
+            "displayName": "Linux x64 ASAN",
+            "inherits": "Base",
+            "configurePreset": "linux-x64-asan"
         }
     ]
 }

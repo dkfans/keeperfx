@@ -68,12 +68,12 @@ bool load_data_file(TbSpriteSheet & sheet, offset_list & offsets, const char * f
     if (LbFileLoadAt(fname, buffer.data()) != data_size) return false;
     // populate sprite data
     for (size_t i = 0; i < num_sprites; ++i) {
-        const auto first = buffer.begin() + offsets[i].first;
-        const auto last = buffer.begin() + offsets[i + 1].first;
+        const auto offset = offsets[i].first;
+        const auto size = offsets[i + 1].first - offset;
         const auto sprite_idx = offsets[i].second;
         auto & sprite = sheet.sprites[sprite_idx];
         auto & data = sheet.data[sprite_idx];
-        data = std::move(std::vector<unsigned char>(first, last));
+        data = std::vector<unsigned char>(buffer.data() + offset, buffer.data() + offset + size);
         sprite.Data = data.data();
     }
     return true;
@@ -150,4 +150,12 @@ extern "C" long num_sprites(const TbSpriteSheet * sheet)
         return 0;
     }
     return sheet->sprites.size();
+}
+
+extern "C" void trim_spritesheet(TbSpriteSheet *sheet, long count)
+{
+    if (!sheet || count < 0) return;
+    if ((size_t)count >= sheet->sprites.size()) return;
+    sheet->sprites.resize((size_t)count);
+    sheet->data.resize((size_t)count);
 }

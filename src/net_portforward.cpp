@@ -16,6 +16,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#ifdef _MSC_VER
+// Include winsock2 and windows before project headers to prevent include-order
+// conflicts that leave LPMSG/OLE types undefined (WIN32_LEAN_AND_MEAN race).
+#include <winsock2.h>
+#include <windows.h>
+#endif
+
+
 #include "pre_inc.h"
 #include "net_portforward.h"
 #include "bflib_basics.h"

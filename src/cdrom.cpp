@@ -1,3 +1,11 @@
+#ifdef _MSC_VER
+// MSVC: include windows.h before project headers to guarantee correct OLE/MSG
+// type ordering. Other project headers may pull in windows.h with WIN32_LEAN_AND_MEAN
+// which excludes winuser.h/ole types; going first prevents that race.
+#include <windows.h>
+#include <mmsystem.h>
+#endif
+
 #include "pre_inc.h"
 #include "bflib_sndlib.h"
 #include "game_legacy.h"
