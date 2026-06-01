@@ -247,7 +247,7 @@ void fronttorture_input(void)
     {
         player = get_player(plyr_idx);
         pckt = get_packet(plyr_idx);
-        if ((pckt->action != 0) && (player->victory_state == VicS_WonLevel))
+        if (pckt->action != 0)
             break;
     }
     if (plyr_idx < PLAYERS_COUNT)
