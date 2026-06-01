@@ -1557,7 +1557,7 @@ short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;
-    int k = get_string_id_by_alias(stridx);
+    int k = atoi(stridx);
     if (k > 0)
     {
         lvinfo->name_stridx = k;
