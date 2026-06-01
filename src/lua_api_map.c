@@ -95,11 +95,24 @@ static int map_set_field(lua_State *L) {
     const char *key = luaL_checkstring(L, 2);
 
     if (strcmp(key, "default_texture") == 0) {
-        long texture_id = luaL_checkNamedCommand(L, 3, texture_pack_desc);
-        game.texture_id = texture_id;                           
         LevelNumber lvnumb = get_loaded_level_number();
-        load_texture_map_file(texture_id, lvnumb, get_level_fgroup(lvnumb));
-
+        if (lua_isnumber(L, 3)) {
+            // Integer input is 0-based: ID 0 = tmapa000.dat, ID 15 = tmapa015.dat.
+            // load_texture_map_file uses the ID directly as the filename index.
+            // Negative values mean reset — skip the file load.
+            long texture_id = lua_tointeger(L, 3);
+            game.texture_id = texture_id;
+            if (texture_id >= 0)
+                load_texture_map_file(texture_id, lvnumb, get_level_fgroup(lvnumb));
+        } else {
+            // String input uses texture_pack_desc values ("STANDARD"=1, "ANCIENT"=2, ...).
+            // These are 1-based, so subtract 1 to get the 0-based filename index.
+            // "NONE"=0 has no file, so skip the load.
+            long texture_id = luaL_checkNamedCommand(L, 3, texture_pack_desc);
+            game.texture_id = texture_id;
+            if (texture_id > 0)
+                load_texture_map_file(texture_id - 1, lvnumb, get_level_fgroup(lvnumb));
+        }
         return 0;
     }
 
