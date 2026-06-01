@@ -98,6 +98,7 @@ static const struct NamedField rules_game_named_fields[] = {
   {"ALLIESSHAREVISION",         0, field(game.conf.rules[0].game.allies_share_vision       ),           0,        0,                  1,NULL,                           value_default, assign_AlliesShareVision_script},
   {"ALLIESSHAREDROP",           0, field(game.conf.rules[0].game.allies_share_drop         ),           0,        0,                  1,NULL,                           value_default, assign_default},
   {"ALLIESSHARECTA",            0, field(game.conf.rules[0].game.allies_share_cta          ),           0,        0,                  1,NULL,                           value_default, assign_default},
+  {"WINNERTORTURESLOSER",       0, field(game.conf.rules[0].game.winner_tortures_loser     ),           0,        0,                  1,NULL,                           value_default, assign_default},
   {"DISPLAYPORTALLIMIT",        0, field(game.conf.rules[0].game.display_portal_limit      ),           0,        0,                  1,NULL,                           value_default, assign_default},
   {"MAXTHINGSINHAND",           0, field(game.conf.rules[0].game.max_things_in_hand        ),           8,        0, MAX_THINGS_IN_HAND,NULL,                           value_default, assign_default},
   {"TORTUREPAYDAY",             0, field(game.conf.rules[0].game.torture_payday            ),          50,        0,          USHRT_MAX,NULL,                           value_default, assign_default},

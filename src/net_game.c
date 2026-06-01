@@ -478,7 +478,11 @@ void process_disconnected_network_players(void)
         resolve_network_quit_outcome(myplyr);
     }
     if (winning_quit && (plyr_count > 1)) {
-        myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
+        if (game.conf.rules[myplyr->id_number].game.winner_tortures_loser) {
+            myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
+        } else {
+            myplyr->additional_flags &= ~PlaAF_UnlockedLordTorture;
+        }
     }
     if (!host_disconnected && network_has_remote_users_remaining()) {
         return;
