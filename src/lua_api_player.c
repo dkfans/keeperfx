@@ -48,10 +48,10 @@ static int lua_Set_texture(lua_State *L)
         // set_player_texture uses slab_ext_data where slot 0 is the base map texture
         // and slot N+1 holds tmapaN.dat, so we add 1 to convert. -1 means reset.
         long n = lua_tointeger(L, 2);
-        if (n < 0)
+        if (n < 0) 
             texture_id = -1;
-        else
-            texture_id = n + 1;
+        else 
+            texture_id = n + 1; 
     } else {
         // String input uses texture_pack_desc values ("STANDARD"=1, "ANCIENT"=2, ...).
         // These values already match the slab_ext_data slot layout, so no offset needed.
