@@ -92,6 +92,7 @@ struct GameRulesConfig {
     TbBool allies_share_vision;
     TbBool allies_share_drop;
     TbBool allies_share_cta;
+    TbBool winner_tortures_loser;
     TbBool display_portal_limit;
     unsigned char max_things_in_hand;
     unsigned short torture_payday;
