@@ -124,11 +124,12 @@ long find_in_dungeon_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskT
     return find_in_imp_stack_using_pos(stl_num, task_type, dungeon->digger_stack, dungeon->digger_stack_length);
 }
 
-long find_in_dungeon_imp_stack_task_other_than_starting_at(SpDiggerTaskType excl_task_type, long start_pos, const struct Dungeon *dungeon)
+long find_reachable_imp_tasks_excluding_start(const struct Thing *creatng, SpDiggerTaskType excl_task_type, long start_pos)
 {
     long i;
     long n;
     long stack_len;
+    const struct Dungeon *dungeon = get_dungeon(creatng->owner);
     stack_len = dungeon->digger_stack_length;
     n = start_pos;
     for (i=0; i < stack_len; i++)
@@ -136,7 +137,17 @@ long find_in_dungeon_imp_stack_task_other_than_starting_at(SpDiggerTaskType excl
         const struct DiggerStack *dstack;
         dstack = &dungeon->digger_stack[n];
         if (dstack->task_type != excl_task_type) {
-            return n;
+            MapSubtlCoord stl_x = stl_num_decode_x(dstack->stl_num);
+            MapSubtlCoord stl_y = stl_num_decode_y(dstack->stl_num);
+
+            struct Coord3d pos;
+            pos.x.val = subtile_coord_center(stl_x);
+            pos.y.val = subtile_coord_center(stl_y);
+            pos.z.val = get_thing_height_at(creatng, &pos);
+
+            if (creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default)) {
+                return n;
+            }
         }
         n = (n+1) % stack_len;
     }
@@ -2757,20 +2768,20 @@ long check_out_imp_last_did(struct Thing *creatng)
   case SDLstJob_DigOrMine:
       if (is_digging_indestructible_place(creatng)) {
           dungeon = get_dungeon(creatng->owner);
-      //don't reassign if it's the first gem dig since other tasks
-      if (cctrl->digger.task_repeats != 0)
-      {
-        // If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
-        // This allows to switch to other important tasks and not consuming all the diggers workforce forever
-        if (( THING_RANDOM(creatng,20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
-        {
-          // Set position in digger tasks list to a random place
-          SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
-          cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
-          cctrl->digger.task_stack_pos = THING_RANDOM(creatng, dungeon->digger_stack_length);
-          break;
-        }
-      }
+          //don't reassign if it's the first gem dig since other tasks
+          if (cctrl->digger.task_repeats != 0)
+          {
+              // If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
+              // This allows to switch to other important tasks and not consuming all the diggers workforce forever
+              if (( THING_RANDOM(creatng,20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
+              {
+                // Set position in digger tasks list to a random place
+                SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
+                cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
+                cctrl->digger.task_stack_pos = THING_RANDOM(creatng, dungeon->digger_stack_length);
+                break;
+              }
+          }
       }
       if (check_out_undug_place(creatng) || check_out_undug_area(creatng))
       {
@@ -2818,13 +2829,12 @@ long check_out_imp_last_did(struct Thing *creatng)
       }
       break;
   case SDLstJob_ReinforceWallUnprompted:
-      dungeon = get_dungeon(creatng->owner);
       imp_stack_update(creatng);
       if (creature_task_needs_check_out_after_digger_stack_change(creatng))
       {
           // If there are other tasks besides reinforcing, do not continue reinforcing
           //TODO DIGGERS it would be smarter to include priorities for tasks, and use generic priority handling for all tasks
-          if (find_in_dungeon_imp_stack_task_other_than_starting_at(DigTsk_ReinforceWall, 0, dungeon) != -1)
+          if (find_reachable_imp_tasks_excluding_start(creatng, DigTsk_ReinforceWall, 0) != -1)
               break;
       }
       if (check_out_unreinforced_place(creatng))
