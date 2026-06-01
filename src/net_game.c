@@ -63,6 +63,8 @@ struct StartupSyncPacket {
     int32_t input_lag_turns;
     TbBigChecksum map_checksum;
     uint32_t sprite_zip_checksum;
+    uint8_t sprite_zip_entry_count;
+    struct SpriteZipEntry sprite_zip_entries[SPRITE_ZIP_ENTRY_COUNT];
     uint16_t initial_tendencies;
     uint32_t isometric_view_zoom_level;
     uint32_t frontview_zoom_level;
@@ -157,10 +159,54 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
 
 static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
+    int host_player_id = get_host_player_id();
+    const struct StartupSyncPacket *host_sync = &startup_sync_packets[host_player_id];
     for (int i = 0; i < MAX_NET_USERS; i++) {
-        if (net_player_info[i].network_user_active && startup_sync_packets[i].sprite_zip_checksum != sprite_zip_combined_checksum) {
-            message_add(MsgType_Player, 0, get_string(GUIStr_NetVerifyFxdataSame));
-            message_add_fmt(MsgType_Player, 0, get_string(GUIStr_NetCustomSpriteMismatch), network_player_name(i));
+        if (!net_player_info[i].network_user_active || i == host_player_id) {
+            continue;
+        }
+        const struct StartupSyncPacket *client_sync = &startup_sync_packets[i];
+        if (client_sync->sprite_zip_checksum == host_sync->sprite_zip_checksum) {
+            continue;
+        }
+        TbBool reported = false;
+        for (int pass = 0; pass < 2; pass++) {
+            const struct StartupSyncPacket *source_sync = host_sync;
+            const struct StartupSyncPacket *target_sync = client_sync;
+            int target_player_id = i;
+            if (pass == 1) {
+                source_sync = client_sync;
+                target_sync = host_sync;
+                target_player_id = host_player_id;
+            }
+            for (int source_idx = 0; source_idx < source_sync->sprite_zip_entry_count; source_idx++) {
+                const struct SpriteZipEntry *source_entry = &source_sync->sprite_zip_entries[source_idx];
+                TbBool found = false;
+                for (int target_idx = 0; target_idx < target_sync->sprite_zip_entry_count; target_idx++) {
+                    const struct SpriteZipEntry *target_entry = &target_sync->sprite_zip_entries[target_idx];
+                    if (strcasecmp(source_entry->filename, target_entry->filename) != 0) {
+                        continue;
+                    }
+                    found = true;
+                    if (pass == 0 && source_entry->checksum != target_entry->checksum) {
+                        WARNLOG("Custom sprite zip differs for %s: %s", network_player_name(host_player_id), source_entry->filename);
+                        message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s differs for %.12s", source_entry->filename, network_player_name(host_player_id));
+                        WARNLOG("Custom sprite zip differs for %s: %s", network_player_name(i), source_entry->filename);
+                        message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s differs for %.12s", source_entry->filename, network_player_name(i));
+                        reported = true;
+                    }
+                    break;
+                }
+                if (!found) {
+                    WARNLOG("Custom sprite zip missing for %s: %s", network_player_name(target_player_id), source_entry->filename);
+                    message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing for %.12s", source_entry->filename, network_player_name(target_player_id));
+                    reported = true;
+                }
+            }
+        }
+        if (!reported) {
+            WARNLOG("Custom sprite zip order or overflow mismatch for %s", network_player_name(i));
+            message_add_fmt(MsgType_Blank, 0, "/fxdata/ zip order error");
         }
     }
 }
@@ -177,6 +223,8 @@ static void build_local_startup_sync(void)
     s_local_startup_sync.input_lag_turns = game.input_lag_turns;
     s_local_startup_sync.map_checksum = calculate_network_startup_map_checksum();
     s_local_startup_sync.sprite_zip_checksum = sprite_zip_combined_checksum;
+    s_local_startup_sync.sprite_zip_entry_count = sprite_zip_entry_count;
+    memcpy(s_local_startup_sync.sprite_zip_entries, sprite_zip_entries, sizeof(s_local_startup_sync.sprite_zip_entries));
     uint16_t initial_tendencies = 0;
     if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
     if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
