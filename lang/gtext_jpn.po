@@ -7244,7 +7244,7 @@ msgstr "警告：%sとカスタムスプライトが一致しません！"
 #: guitext:1115
 msgctxt "Network game message"
 msgid "I am the computer now!"
-msgstr "これからはコンピューターが操作します！"
+msgstr "俺、CPUになりました！"
 
 #: guitext:1116
 msgctxt "Network game message"
