@@ -194,7 +194,8 @@ static struct ChecksumSnapshot* find_snapshot(GameTurn turn) {
     return NULL;
 }
 
-short checksums_different(void) {
+short checksums_different(void)
+{
     int host_player_id = get_host_player_id();
     struct Packet* host_packet = get_packet(host_player_id);
     TbBigChecksum host_checksum = host_packet->checksum;
@@ -202,7 +203,16 @@ short checksums_different(void) {
 
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo* player = get_player(i);
-        if (i == host_player_id || !player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
+        if (i == host_player_id) {
+            continue;
+        }
+        if (!player_exists(player)) {
+            continue;
+        }
+        if ((player->allocflags & PlaF_CompCtrl) != 0) {
+            continue;
+        }
+        if (!network_player_active(player->packet_num)) {
             continue;
         }
         struct Packet* packet = get_packet_direct(player->packet_num);
