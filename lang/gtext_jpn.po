@@ -5709,7 +5709,7 @@ msgstr "メモリ不足"
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr "解像度を変わり得ない"
+msgstr "解像度を変更できません"
 
 #: guitext:857
 msgctxt "Menu interface item"
