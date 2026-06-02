@@ -100,6 +100,7 @@ static int map_set_field(lua_State *L) {
             // Integer input is 0-based: ID 0 = tmapa000.dat
             // Store as 1-based internally (texture_id + 1) to match string input convention.
             // Negative values mean no-op — leave game.texture_id unchanged.
+            // TODO: align with PLAYER:set_texture() where negative values trigger a reset.
             long texture_id = lua_tointeger(L, 3);
             if (texture_id >= 0)
             {
