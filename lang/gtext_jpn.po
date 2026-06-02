@@ -7249,7 +7249,7 @@ msgstr "CPUになりました！"
 #: guitext:1116
 msgctxt "Network game message"
 msgid "%s has left the game."
-msgstr "%sがゲームを退出しました。"
+msgstr "%sが退出しました。"
 
 #: guitext:1117
 msgctxt "Network game message"
