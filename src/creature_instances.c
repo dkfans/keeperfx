@@ -446,6 +446,14 @@ void process_creature_instance(struct Thing *thing)
     }
 }
 
+void reset_creature_instance_cooldowns(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    for (long i = 1; i < game.conf.crtr_conf.instances_count; i++) {
+        cctrl->instance_use_turn[i] = get_gameturn();
+    }
+}
+
 long instf_creature_fire_shot(struct Thing *creatng, int32_t *param)
 {
     struct Thing *target;
