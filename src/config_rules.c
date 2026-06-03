@@ -132,7 +132,7 @@ static const struct NamedField rules_creatures_named_fields[] = {
   {"STUNEVILENEMYCHANCE",        0, field(game.conf.rules[0].creature.stun_enemy_chance_evil)    , 100,        0,       100,NULL,value_default, assign_default},
   {"STUNGOODENEMYCHANCE",        0, field(game.conf.rules[0].creature.stun_enemy_chance_good)    , 100,        0,       100,NULL,value_default, assign_default},
   {"STUNWITHOUTPRISONCHANCE",    0, field(game.conf.rules[0].creature.stun_without_prison_chance),   0,        0,       100,NULL,value_default, assign_default},
-  {"DELAYSKILLCOOLDOWNSONDROP", 0, field(game.conf.rules[0].creature.delay_skill_cooldowns_on_drop),   0,        0, INT32_MAX,NULL,value_default, assign_default},
+  {"INSTANCEDELAYONDROP",       0, field(game.conf.rules[0].creature.instance_delay_on_drop),   0,        0, INT32_MAX,NULL,value_default, assign_default},
   {NULL},
 };
 

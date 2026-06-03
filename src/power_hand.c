@@ -945,8 +945,8 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
     remove_thing_from_limbo(droptng);
     if (thing_is_creature(droptng))
     {
-        if (game.conf.rules[droptng->owner].creature.delay_skill_cooldowns_on_drop > 0) {
-            delay_creature_cooldowns(droptng);
+        if (game.conf.rules[droptng->owner].creature.instance_delay_on_drop > 0) {
+            delay_instances_on_drop(droptng);
         }
         initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
         stop_creature_sound(droptng, 5);
