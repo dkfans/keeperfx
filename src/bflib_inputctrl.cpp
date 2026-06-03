@@ -321,8 +321,16 @@ static void process_event(const SDL_Event *ev)
         }
         if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
         {
-            mouseDelta.x = ev->motion.xrel * lbDisplay.MouseMoveRatio / 256;
-            mouseDelta.y = ev->motion.yrel * lbDisplay.MouseMoveRatio / 256;
+            static int frac_x = 0, frac_y = 0;
+
+            int dx = ev->motion.xrel * lbDisplay.MouseMoveRatio + frac_x;
+            int dy = ev->motion.yrel * lbDisplay.MouseMoveRatio + frac_y;
+
+            mouseDelta.x = (dx + 128) >> 8;
+            mouseDelta.y = (dy + 128) >> 8;
+
+            frac_x = dx - (mouseDelta.x * 256);
+            frac_y = dy - (mouseDelta.y * 256);
         }
         else
         {
