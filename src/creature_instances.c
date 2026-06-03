@@ -455,11 +455,11 @@ void delay_creature_cooldowns(struct Thing *thing)
         struct InstanceInfo* inst_inf = creature_instance_info_get(i);
         GameTurnDelta cooldown_penalty_turns = min(drop_cooldown_penalty_turns, inst_inf->reset_time);
         GameTurnDelta cooldown_turns = inst_inf->reset_time + cctrl->inst_total_turns - cctrl->inst_action_turns;
-        GameTurnDelta cooldown_turns_elapsed = current_turn - cctrl->instance_use_turn[i];
-        if (cooldown_turns_elapsed > cooldown_turns) {
-            cooldown_turns_elapsed = cooldown_turns;
+        GameTurnDelta cooldown_turns_elapsed = (GameTurnDelta)(current_turn - cctrl->instance_use_turn[i]);
+        GameTurnDelta required_elapsed_turns = cooldown_turns - cooldown_penalty_turns;
+        if (cooldown_turns_elapsed > required_elapsed_turns) {
+            cctrl->instance_use_turn[i] = current_turn - required_elapsed_turns;
         }
-        cctrl->instance_use_turn[i] = current_turn - cooldown_turns_elapsed + cooldown_penalty_turns;
     }
 }
 
