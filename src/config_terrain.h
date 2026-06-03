@@ -71,7 +71,9 @@ enum RoomCfgFlags {
     RoCFlg_BuildTillBroke  = 0x04,
     RoCFlg_CannotBeSold    = 0x08,
     RoCFlg_CannotBeClaimed = 0x10,
-    RoCFlg_ListEnd         = 0x20,
+    RoCFlg_NonBuildable    = 0x20,
+    RoCFlg_NoFlames        = 0x40,
+    RoCFlg_ListEnd         = 0x80,
 };
 
 /**
