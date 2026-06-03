@@ -110,19 +110,28 @@ static unsigned short lookup_dbc_code(const DbcMapEntry *map, size_t count, unsi
 
 static unsigned short convert_codepoint_to_dbc_code(int dbc_language, unsigned long codepoint)
 {
+    unsigned short dbc_code = 0;
     switch (dbc_language)
     {
     case 1:
-        return lookup_dbc_code(dbc_jpn_map, dbc_jpn_map_count, codepoint);
+        dbc_code = lookup_dbc_code(dbc_jpn_map, dbc_jpn_map_count, codepoint);
+        break;
     case 2:
-        return lookup_dbc_code(dbc_chi_map, dbc_chi_map_count, codepoint);
+        dbc_code = lookup_dbc_code(dbc_chi_map, dbc_chi_map_count, codepoint);
+        break;
     case 3:
-        return lookup_dbc_code(dbc_chi_map, dbc_chi_map_count, codepoint);
+        dbc_code = lookup_dbc_code(dbc_chi_map, dbc_chi_map_count, codepoint);
+        break;
     case 4:
-        return lookup_dbc_code(dbc_kor_map, dbc_kor_map_count, codepoint);
+        dbc_code = lookup_dbc_code(dbc_kor_map, dbc_kor_map_count, codepoint);
+        break;
     default:
-        return 0;
+        dbc_code = 0;
+        break;
     }
+    if (dbc_code == 0)
+        return lookup_dbc_code(dbc_general_map, dbc_general_map_count, codepoint);
+    return dbc_code;
 }
 
 static void codepoint_to_utf8(unsigned long codepoint, char out[5])
@@ -218,6 +227,13 @@ static unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
         if (codepage_map[i].unicode == codepoint)
             return codepage_map[i].byte;
     }
+
+    for (size_t i = 0; i < sizeof(dbc_general_map) / sizeof(dbc_general_map[0]); ++i)
+    {
+        if (dbc_general_map[i].unicode == codepoint)
+            return dbc_general_map[i].code;
+    }
+
     char utf8_char[5];
     codepoint_to_utf8(codepoint, utf8_char);
     ERRORLOG("No mapping for Unicode codepoint U+%04lX ('%s') in internal codepage; using '?'", codepoint, utf8_char);
@@ -262,23 +278,48 @@ static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t
             continue;
         }
 
-        if (use_dbc && codepoint >= 0x80)
+        if (use_dbc && dbc_language != 0)
         {
-            unsigned short dbc_code = convert_codepoint_to_dbc_code(dbc_language, codepoint);
-            if (dbc_code != 0)
+            if (codepoint >= 0x80)
             {
-                if (out_len + 2 >= dst_size)
-                    break;
-                // Convert from DBC mapping file order (word value) into engine byte stream.
-                dst[out_len++] = (char)(dbc_code & 0xFF);
-                dst[out_len++] = (char)((dbc_code >> 8) & 0xFF);
+                unsigned short dbc_code = convert_codepoint_to_dbc_code(dbc_language, codepoint);
+                if (dbc_code == 0)
+                {
+                    dst[out_len++] = '?';
+                    text += seq_len;
+                    continue;
+                }
+                if (dbc_code <= 0xFF)
+                {
+                    dst[out_len++] = (char)dbc_code;
+                    text += seq_len;
+                    continue;
+                }
+                else
+                {
+                    if (out_len + 2 >= dst_size)
+                        break;
+                    // Convert from DBC mapping file order (word value) into engine byte stream.
+                    dst[out_len++] = (char)(dbc_code & 0xFF);
+                    dst[out_len++] = (char)((dbc_code >> 8) & 0xFF);
+                    text += seq_len;
+                    continue;
+                }
+            }
+            else
+            {
+                // ASCII characters are the same in DBC and internal codepage
+                dst[out_len++] = (char)codepoint;
                 text += seq_len;
                 continue;
             }
         }
+        else
+        {
+            dst[out_len++] = (char)convert_codepoint_to_internal_byte(codepoint);
+            text += seq_len;
+        }
 
-        dst[out_len++] = (char)convert_codepoint_to_internal_byte(codepoint);
-        text += seq_len;
     }
     dst[out_len] = '\0';
 }
