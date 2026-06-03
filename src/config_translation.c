@@ -313,6 +313,10 @@ static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t
                 text += seq_len;
                 continue;
             }
+
+            char utf8_char[5];
+            codepoint_to_utf8(codepoint, utf8_char);
+            ERRORLOG("No mapping for Unicode codepoint U+%04lX ('%s') in internal codepage; using '?'", codepoint, utf8_char);
         }
         else
         {
@@ -457,7 +461,7 @@ int32_t get_string_id_by_alias(const char* alias)
     if (parameter_is_number(alias))
     {
         int32_t id = atoi(alias);
-        if (id > 0 && id <= STRINGS_MAX)
+        if (id <= STRINGS_MAX)
             return id;
         ERRORLOG("Invalid string ID \"%s\".", alias);
         return -1;
