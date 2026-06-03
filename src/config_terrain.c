@@ -815,7 +815,7 @@ TbBool room_cannot_vandalise(RoomKind rkind)
 TbBool room_never_buildable(RoomKind rkind)
 {
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
-    return !flag_is_set(roomst->flags, RoCFlg_NonBuildable);
+    return flag_is_set(roomst->flags, RoCFlg_NonBuildable);
 }
 
 /**
