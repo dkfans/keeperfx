@@ -319,10 +319,9 @@ static void process_event(const SDL_Event *ev)
           SDL_GetMouseState(&prevMouseX, &prevMouseY);
           return;
         }
+        static int frac_x = 0, frac_y = 0;
         if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
         {
-            static int frac_x = 0, frac_y = 0;
-
             int dx = ev->motion.xrel * lbDisplay.MouseMoveRatio + frac_x;
             int dy = ev->motion.yrel * lbDisplay.MouseMoveRatio + frac_y;
 
@@ -342,6 +341,8 @@ static void process_event(const SDL_Event *ev)
                 pointerHandler.SetPosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
                 mouseDelta.x = 0;
                 mouseDelta.y = 0;
+                frac_x = 0;
+                frac_y = 0;
             }
         }
         mouseControl(MActn_MOUSEMOVE, &mouseDelta);
