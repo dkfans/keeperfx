@@ -73,7 +73,7 @@ static const struct NamedCommand terrain_room_properties_commands[] = {
     {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
     {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
     {"HAS_NO_FLAMES",     RoCFlg_NoFlames},
-    {"NOT_COUNTED",       RoCFlg_NonBuildable},
+    {"NOT_COUNTED",       RoCFlg_NotCounted},
     {NULL,                0},
 };
 
@@ -808,14 +808,13 @@ TbBool room_cannot_vandalise(RoomKind rkind)
 }
 
 /**
- * Returns if given room kind is by definition not buildable.
+ * Returns if given room kind is not counted as a room.
  * @param rkind The room kind to be checked.
- * @return True if given room kind is unconditionally not buildable, false otherwise.
  */
-TbBool room_never_buildable(RoomKind rkind)
+TbBool room_is_counted(RoomKind rkind)
 {
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
-    return flag_is_set(roomst->flags, RoCFlg_NonBuildable);
+    return !flag_is_set(roomst->flags, RoCFlg_NotCounted);
 }
 
 /**
