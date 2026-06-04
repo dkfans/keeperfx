@@ -120,6 +120,7 @@ struct CreatureRulesConfig {
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
     unsigned char stun_without_prison_chance;
+    GameTurnDelta instance_delay_on_drop;
 };
 
 struct MagicRulesConfig {
