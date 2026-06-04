@@ -6712,7 +6712,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_PLAYER_OBJECTIVE_WITH_POS",   "NPANN   ", Cmd_QUICK_PLAYER_OBJECTIVE_WITH_POS, &quick_player_objective_check, &quick_objective_process},
   {"QUICK_PLAYER_INFORMATION",          "NPAl    ", Cmd_QUICK_PLAYER_INFORMATION, &quick_player_information_check, &quick_information_process},
   {"QUICK_PLAYER_INFORMATION_WITH_POS", "NPANN   ", Cmd_QUICK_PLAYER_INFORMATION_WITH_POS, &quick_player_information_check, &quick_information_process},
-  {"DISPLAY_MESSAGE",                   "A      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
+  {"DISPLAY_MESSAGE",                   "AA      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, &quick_message_check, &quick_message_process},
   {"CLEAR_MESSAGE",                     "n       ", Cmd_CLEAR_MESSAGE, &clear_message_check, &clear_message_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
