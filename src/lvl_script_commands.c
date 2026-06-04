@@ -1130,8 +1130,8 @@ static void display_player_information_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
 
-    long msg_num = scline->np[0];
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    long msg_num = get_string_id_by_alias(scline->tp[0]);
+    if ((msg_num < 0))
     {
         SCRPTERRLOG("Invalid TEXT number");
         return;
@@ -3780,7 +3780,7 @@ static void set_box_tooltip_id_check(const struct ScriptLine *scline)
         return;
     }
     value->shorts[0] = scline->np[0];
-    value->shorts[1] = scline->np[1];
+    value->shorts[1] = get_string_id_by_alias(scline->tp[1]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5790,7 +5790,7 @@ static void quick_message_process(struct ScriptContext* context)
 static void display_message_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->ulongs[0] = scline->np[0];
+    value->ulongs[0] = get_string_id_by_alias(scline->tp[0]);
     get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -6700,10 +6700,10 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_OBJECTIVE_WITH_POS",        "ANN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
   {"DISPLAY_INFORMATION",               "Al      ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
   {"DISPLAY_INFORMATION_WITH_POS",      "ANN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
-  {"DISPLAY_PLAYER_OBJECTIVE",          "NPl     ", Cmd_DISPLAY_PLAYER_OBJECTIVE, &display_player_objective_check, &display_objective_process},
-  {"DISPLAY_PLAYER_OBJECTIVE_WITH_POS", "NPNN    ", Cmd_DISPLAY_PLAYER_OBJECTIVE_WITH_POS, &display_player_objective_check, &display_objective_process},
-  {"DISPLAY_PLAYER_INFORMATION",        "NPl     ", Cmd_DISPLAY_PLAYER_INFORMATION, &display_player_information_check, &display_information_process},
-  {"DISPLAY_PLAYER_INFORMATION_WITH_POS", "NPNN    ", Cmd_DISPLAY_PLAYER_INFORMATION_WITH_POS, &display_player_information_check, &display_information_process},
+  {"DISPLAY_PLAYER_OBJECTIVE",          "APl     ", Cmd_DISPLAY_PLAYER_OBJECTIVE, &display_player_objective_check, &display_objective_process},
+  {"DISPLAY_PLAYER_OBJECTIVE_WITH_POS", "APNN    ", Cmd_DISPLAY_PLAYER_OBJECTIVE_WITH_POS, &display_player_objective_check, &display_objective_process},
+  {"DISPLAY_PLAYER_INFORMATION",        "APl     ", Cmd_DISPLAY_PLAYER_INFORMATION, &display_player_information_check, &display_information_process},
+  {"DISPLAY_PLAYER_INFORMATION_WITH_POS", "APNN    ", Cmd_DISPLAY_PLAYER_INFORMATION_WITH_POS, &display_player_information_check, &display_information_process},
   {"QUICK_OBJECTIVE",                   "NAl     ", Cmd_QUICK_OBJECTIVE, &quick_objective_check, &quick_objective_process},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, &quick_objective_check, &quick_objective_process},
   {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, &quick_information_check, &quick_information_process},
@@ -6712,7 +6712,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_PLAYER_OBJECTIVE_WITH_POS",   "NPANN   ", Cmd_QUICK_PLAYER_OBJECTIVE_WITH_POS, &quick_player_objective_check, &quick_objective_process},
   {"QUICK_PLAYER_INFORMATION",          "NPAl    ", Cmd_QUICK_PLAYER_INFORMATION, &quick_player_information_check, &quick_information_process},
   {"QUICK_PLAYER_INFORMATION_WITH_POS", "NPANN   ", Cmd_QUICK_PLAYER_INFORMATION_WITH_POS, &quick_player_information_check, &quick_information_process},
-  {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
+  {"DISPLAY_MESSAGE",                   "A      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, &quick_message_check, &quick_message_process},
   {"CLEAR_MESSAGE",                     "n       ", Cmd_CLEAR_MESSAGE, &clear_message_check, &clear_message_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
@@ -6787,7 +6787,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip_check, &set_box_tooltip_process},
-  {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id_check, &set_box_tooltip_id_process},
+  {"SET_BOX_TOOLTIP_ID",                "NA      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id_check, &set_box_tooltip_id_process},
   {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, &change_slab_owner_check, &change_slab_owner_process},
   {"CHANGE_SLAB_TYPE",                  "NNSa    ", Cmd_CHANGE_SLAB_TYPE, &change_slab_type_check, &change_slab_type_process},
   {"CREATE_EFFECTS_LINE",               "LLNNNA  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
@@ -6870,8 +6870,8 @@ const struct CommandDesc dk1_command_desc[] = {
   {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
   {"DISPLAY_OBJECTIVE",            "AA      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
   {"DISPLAY_OBJECTIVE_WITH_POS",   "ANN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
-  {"DISPLAY_INFORMATION",          "N       ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
-  {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
+  {"DISPLAY_INFORMATION",          "A       ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
+  {"DISPLAY_INFORMATION_WITH_POS", "ANN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
