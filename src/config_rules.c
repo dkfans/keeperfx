@@ -206,6 +206,7 @@ static const struct NamedField rules_health_named_fields[] = {
   {NULL},
 };
 
+// Fields here are not inside game.conf.rules, so assign_default cannot be used.
 static const struct NamedField rules_script_only_named_fields[] = {
   //name            //field                   //min //max
 {"PayDayProgress",0,field(game.pay_day_progress[0]),0,0,INT32_MAX,NULL,value_default,assign_PayDayProgress_script},
