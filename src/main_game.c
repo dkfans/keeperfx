@@ -368,6 +368,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
     if (game.game_kind == GKind_MultiGame) {
         setup_alliances();
+        are_disconnect_victories_allowed();
     }
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {

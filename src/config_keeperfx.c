@@ -235,7 +235,7 @@ TbBool resize_movies_enabled(void)
  */
 TbBool freeze_game_on_focus_lost(void)
 {
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
         return false;
     }

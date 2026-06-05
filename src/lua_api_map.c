@@ -80,9 +80,9 @@ static int map_get_field(lua_State *L){
     } else if (strcmp(key, "default_texture") == 0) {
         const char *name = get_conf_parameter_text(texture_pack_desc, game.texture_id);
         if (name[0] != '\0') {
-            lua_pushstring(L, name);            // "STANDARD", "ANCIENT", ...
+            lua_pushstring(L, name);                    // "STANDARD", "ANCIENT", ...
         } else {
-            lua_pushinteger(L, game.texture_id); // 17, 20, ... (Custom)
+            lua_pushinteger(L, game.texture_id - 1);    // convert 1-based storage back to 0-based
         }
     } else {
         return luaL_error(L, "Unknown field '%s' for MAP", key);
@@ -95,11 +95,27 @@ static int map_set_field(lua_State *L) {
     const char *key = luaL_checkstring(L, 2);
 
     if (strcmp(key, "default_texture") == 0) {
-        long texture_id = luaL_checkNamedCommand(L, 3, texture_pack_desc);
-        game.texture_id = texture_id;                           
         LevelNumber lvnumb = get_loaded_level_number();
-        load_texture_map_file(texture_id, lvnumb, get_level_fgroup(lvnumb));
-
+        if (lua_isnumber(L, 3)) {
+            // Integer input is 0-based: ID 0 = tmapa000.dat
+            // Store as 1-based internally (texture_id + 1) to match string input convention.
+            // Negative values mean no-op — leave game.texture_id unchanged.
+            // TODO: align with PLAYER:set_texture() where negative values trigger a reset.
+            long texture_id = lua_tointeger(L, 3);
+            if (texture_id >= 0)
+            {
+                game.texture_id = texture_id + 1;
+                load_texture_map_file(texture_id, lvnumb, get_level_fgroup(lvnumb));
+            }
+        } else {
+            // String input is 1-based and uses texture_pack_desc values ("STANDARD"=1, "ANCIENT"=2, ...).
+            // Subtract 1 to get the 0-based filename index.
+            // "NONE"=0 has no file, so skip the load.
+            long texture_id = luaL_checkNamedCommand(L, 3, texture_pack_desc);
+            game.texture_id = texture_id;
+            if (texture_id > 0)
+                load_texture_map_file(texture_id - 1, lvnumb, get_level_fgroup(lvnumb));
+        }
         return 0;
     }
 

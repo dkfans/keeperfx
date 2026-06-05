@@ -935,7 +935,7 @@ void zoom_to_parchment_map(void)
     else
       set_flag(game.operation_flags, GOF_ShowPanel);
     struct PlayerInfo* player = get_my_player();
-    if (((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active()
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
       if (!toggle_status_menu(0))
@@ -952,7 +952,7 @@ void zoom_to_parchment_map(void)
 void zoom_from_parchment_map(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if (((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active()
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
         if ((game.operation_flags & GOF_ShowPanel) != 0)

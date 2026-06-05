@@ -329,7 +329,7 @@ void frontstats_set_timer(void)
 
 void frontstats_update(void)
 {
-    scrolling_offset++;
+    scrolling_offset += game.delta_time;
     LbTextSetFont(frontend_font[1]);
     int h = LbTextLineHeight();
     if (h+4 < scrolling_offset)

@@ -97,6 +97,8 @@ unsigned char base_pal[PALETTE_SIZE];
 
 int total_sprite_zip_count = 0;
 uint32_t sprite_zip_combined_checksum = 0;
+struct SpriteZipEntry sprite_zip_entries[SPRITE_ZIP_ENTRY_COUNT];
+uint8_t sprite_zip_entry_count = 0;
 
 // Used to cheaply detect mismatched custom sprites between players; makes file order matter when combining checksums, without this XOR alone gives the same result regardless of order.
 #define ROL32_5(x) (((uint32_t)(x) << 5) | ((uint32_t)(x) >> 27))
@@ -333,7 +335,20 @@ static int load_file_sprites(const char *path, const char *file_desc)
         }
     }
 
-    sprite_zip_combined_checksum = ROL32_5(sprite_zip_combined_checksum) ^ compute_zip_checksum(path);
+    uint32_t zip_checksum = compute_zip_checksum(path);
+    sprite_zip_combined_checksum = ROL32_5(sprite_zip_combined_checksum) ^ zip_checksum;
+    if (sprite_zip_entry_count < SPRITE_ZIP_ENTRY_COUNT) {
+        const char *filename = strrchr(path, '/');
+        if (filename == NULL) {
+            filename = path;
+        } else {
+            filename++;
+        }
+        struct SpriteZipEntry *entry = &sprite_zip_entries[sprite_zip_entry_count];
+        snprintf(entry->filename, sizeof(entry->filename), "%s", filename);
+        entry->checksum = zip_checksum;
+        sprite_zip_entry_count++;
+    }
     total_sprite_zip_count++;
 
     return add_flag;
@@ -430,6 +445,7 @@ void init_custom_sprites(LevelNumber lvnum)
     custom_sprites = create_spritesheet();
     total_sprite_zip_count = 0;
     sprite_zip_combined_checksum = 0;
+    sprite_zip_entry_count = 0;
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
