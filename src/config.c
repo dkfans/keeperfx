@@ -716,8 +716,8 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
     char* field = (char*)named_field->field + named_fields_set->struct_size * idx;
     char* base = (char*)named_fields_set->struct_base;
 
-    if (field < base || 
-        field >= base + named_fields_set->struct_size * named_fields_set->max_count)
+    if (named_fields_set->struct_base != NULL && idx >= 0 && idx < named_fields_set->max_count && (field < base || 
+        field >= base + named_fields_set->struct_size * named_fields_set->max_count))
     {
         NAMFIELDERRLOG("Field '%s' index %d out of bounds", named_field->name, idx);
         return;
