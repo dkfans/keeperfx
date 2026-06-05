@@ -28,6 +28,7 @@
 #include "value_util.h"
 #include <toml.h>
 #include "config.h"
+#include "config_sounds.h"
 #include "config_strings.h"
 #include "thing_effects.h"
 #include "game_legacy.h"
