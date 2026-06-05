@@ -28,6 +28,7 @@
 #include "bflib_mouse.h"
 #include "bflib_sound.h"
 #include "bflib_fmvids.h"
+#include "bflib_sprfnt.h"
 #include "config_campaigns.h"
 #include "engine_render.h"
 #include "frontend.h"
@@ -385,6 +386,8 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             break;
           }
           install_info.lang_id = i;
+          if (is_dbc_language(i))
+              dbc_set_language(i);
           break;
       case 4: // KEYBOARD
           // Works only in DK Premium
@@ -1012,37 +1015,6 @@ short load_configuration(void)
   load_file_configuration(fname, sname, config_textname, 0);
 
   load_configuration_for_mod_all();
-
-  // Updating game according to loaded settings
-  switch (install_info.lang_id)
-  {
-  case 1:
-      LbKeyboardSetLanguage(1);
-      break;
-  case 2:
-      LbKeyboardSetLanguage(2);
-      break;
-  case 3:
-      LbKeyboardSetLanguage(3);
-      break;
-  case 4:
-      LbKeyboardSetLanguage(4);
-      break;
-  case 5:
-      LbKeyboardSetLanguage(5);
-      break;
-  case 6:
-      LbKeyboardSetLanguage(6);
-      break;
-  case 7:
-      LbKeyboardSetLanguage(7);
-      break;
-  case 8:
-      LbKeyboardSetLanguage(8);
-      break;
-  default:
-      break;
-  }
 
   // Returning if the setting are valid
   return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');

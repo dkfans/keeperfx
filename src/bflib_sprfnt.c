@@ -31,6 +31,7 @@
 //TODO: this breaks my convention - non-bflib call from bflib (used for asian fonts)
 #include "frontend.h"
 #include "front_credits.h"
+#include "config_keeperfx.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -87,13 +88,11 @@ TbBool is_wide_charcode(unsigned long chr)
   {
     switch (dbc_language)
     {
-    case 1: //Japanese
+    case DbcId_Japanese:
         return ((chr >= 0x81) && (chr <= 0x9F)) || ((chr >= 0xE0) && (chr <= 0xFC));
-    case 2: //Chinese Int
-        return ((chr > 0x80) && (chr <= 0xFF));
-    case 3: //Chinese Tra
-        return ((chr > 0x80) && (chr <= 0xFF));
-    case 4: //Korean
+    case DbcId_ChineseInt:
+    case DbcId_ChineseTra:
+    case DbcId_Korean:
         return ((chr > 0x80) && (chr <= 0xFF));
     }
   }
@@ -142,7 +141,7 @@ unsigned short dbc_char_to_font_char(unsigned long chr)
     switch (dbc_language)
     {
     default:
-    case 1://Japanese
+    case DbcId_Japanese:
     {
         i = ((chr)&0xFF);
         if (i >= 128)
@@ -162,9 +161,9 @@ unsigned short dbc_char_to_font_char(unsigned long chr)
         font_char = 94 * ((n >> 8)&0xFF) + ((n)&0xFF);
         break;
     }
-    case 2://Chinese - int. and traditional
-    case 3:
-    case 4:
+    case DbcId_ChineseInt:
+    case DbcId_ChineseTra:
+    case DbcId_Korean:
         i = ((chr)&0xFF);
         k = ((chr>>8)&0xFF);
         font_char = 94 * (short)k + i - 15295;
@@ -289,13 +288,13 @@ int dbc_fonts_count(void)
 {
   switch (dbc_language)
   {
-  case 1:
+  case DbcId_Japanese:
        return (sizeof(dbcJapFonts)/sizeof(dbcJapFonts[0]));
-  case 2:
+  case DbcId_ChineseInt:
        return (sizeof(dbcChiFonts)/sizeof(dbcChiFonts[0]));
-  case 3:
+  case DbcId_ChineseTra:
        return (sizeof(dbcChtFonts)/sizeof(dbcChtFonts[0]));
-  case 4:
+  case DbcId_Korean:
       return (sizeof(dbcKorFonts) / sizeof(dbcKorFonts[0]));
   }
   return 0;
@@ -305,13 +304,13 @@ struct AsianFont *dbc_fonts_list(void)
 {
   switch (dbc_language)
   {
-  case 1:
+  case DbcId_Japanese:
        return dbcJapFonts;
-  case 2:
+  case DbcId_ChineseInt:
        return dbcChiFonts;
-  case 3:
+  case DbcId_ChineseTra:
        return dbcChtFonts;
-  case 4:
+  case DbcId_Korean:
       return dbcKorFonts;
   }
   return NULL;
@@ -1890,8 +1889,9 @@ void dbc_shutdown(void)
  */
 void dbc_set_language(short ilng)
 {
+  uint8_t dbc_id = get_dbc_id(ilng);
   if (!dbc_initialized)
-    dbc_language = ilng;
+    dbc_language = dbc_id;
 }
 
 char * prepare_font_filename(const char * fpath, const char * fname) {
@@ -1986,6 +1986,27 @@ short dbc_initialize(const char *fpath)
   }
   dbc_initialized = 1;
   return 0;
+}
+
+TbBool is_dbc_language(short language)
+{
+    return (language == Lang_Japanese) || (language == Lang_ChineseInt) || (language == Lang_ChineseTra) || (language == Lang_Korean);
+}
+
+uint8_t get_dbc_id(short language)
+{
+    switch (language)
+    {
+    case Lang_Japanese:
+        return DbcId_Japanese;
+    case Lang_ChineseInt:
+        return DbcId_ChineseInt;
+    case Lang_ChineseTra:
+        return DbcId_ChineseTra;
+    case Lang_Korean:
+        return DbcId_Korean;
+    }
+    return 0;
 }
 
 /******************************************************************************/

@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_sprfnt.h"
 #include "config.h"
 #include "config_strings.h"
 #include "config_translation_dbc_tables.h"
@@ -44,10 +45,6 @@ typedef struct {
 static TranslationEntry translation_table[MAX_TRANSLATION_ENTRIES];
 static int32_t          translation_count = 0;
 
-typedef struct {
-    const char *language_code;
-} WalkContext;
-
 static TbBool load_translation_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_translation_file_data = {
@@ -56,47 +53,6 @@ const struct ConfigFileData keeper_translation_file_data = {
     .pre_load_func = NULL,
     .post_load_func = NULL,
 };
-
-static TbBool ascii_string_equal_nocase(const char *a, const char *b, size_t length)
-{
-    for (size_t i = 0; i < length; ++i)
-    {
-        unsigned char ca = (unsigned char)a[i];
-        unsigned char cb = (unsigned char)b[i];
-        if (ca >= 'A' && ca <= 'Z')
-            ca += (unsigned char)('a' - 'A');
-        if (cb >= 'A' && cb <= 'Z')
-            cb += (unsigned char)('a' - 'A');
-        if (ca != cb)
-            return false;
-    }
-    return true;
-}
-
-static TbBool is_dbc_language_code(const char *language_code)
-{
-    if (language_code == NULL)
-        return false;
-    return (ascii_string_equal_nocase(language_code, "JPN", 3) && language_code[3] == '\0')
-        || (ascii_string_equal_nocase(language_code, "CHI", 3) && language_code[3] == '\0')
-        || (ascii_string_equal_nocase(language_code, "CHT", 3) && language_code[3] == '\0')
-        || (ascii_string_equal_nocase(language_code, "KOR", 3) && language_code[3] == '\0');
-}
-
-static int get_dbc_language_code(const char *language_code)
-{
-    if (language_code == NULL)
-        return 0;
-    if (ascii_string_equal_nocase(language_code, "JPN", 3) && language_code[3] == '\0')
-        return 1;
-    if (ascii_string_equal_nocase(language_code, "CHI", 3) && language_code[3] == '\0')
-        return 2;
-    if (ascii_string_equal_nocase(language_code, "CHT", 3) && language_code[3] == '\0')
-        return 3;
-    if (ascii_string_equal_nocase(language_code, "KOR", 3) && language_code[3] == '\0')
-        return 4;
-    return 0;
-}
 
 static unsigned short lookup_dbc_code(const DbcMapEntry *map, size_t count, unsigned long unicode)
 {
@@ -108,21 +64,20 @@ static unsigned short lookup_dbc_code(const DbcMapEntry *map, size_t count, unsi
     return 0;
 }
 
-static unsigned short convert_codepoint_to_dbc_code(int dbc_language, unsigned long codepoint)
+static unsigned short convert_codepoint_to_dbc_code(int dbc_id, unsigned long codepoint)
 {
+    JUSTLOG("Converting codepoint U+%04lX for DBC ID %d", codepoint, dbc_id);
     unsigned short dbc_code = 0;
-    switch (dbc_language)
+    switch (dbc_id)
     {
-    case 1:
+    case DbcId_Japanese:
         dbc_code = lookup_dbc_code(dbc_jpn_map, dbc_jpn_map_count, codepoint);
         break;
-    case 2:
+    case DbcId_ChineseInt:
+    case DbcId_ChineseTra:
         dbc_code = lookup_dbc_code(dbc_chi_map, dbc_chi_map_count, codepoint);
         break;
-    case 3:
-        dbc_code = lookup_dbc_code(dbc_chi_map, dbc_chi_map_count, codepoint);
-        break;
-    case 4:
+    case DbcId_Korean:
         dbc_code = lookup_dbc_code(dbc_kor_map, dbc_kor_map_count, codepoint);
         break;
     default:
@@ -240,12 +195,10 @@ static unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
     return '?';
 }
 
-static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t dst_size, const char *language_code)
+static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t dst_size)
 {
     size_t out_len = 0;
     const unsigned char *text = (const unsigned char *)src;
-    TbBool use_dbc = is_dbc_language_code(language_code);
-    int dbc_language = get_dbc_language_code(language_code);
 
     while (*text != '\0' && out_len + 1 < dst_size)
     {
@@ -278,7 +231,7 @@ static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t
             continue;
         }
 
-        if (use_dbc && dbc_language != 0)
+        if (dbc_language != 0)
         {
             if (codepoint >= 0x80)
             {
@@ -328,37 +281,18 @@ static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t
     dst[out_len] = '\0';
 }
 
-static const char *get_language_value_case_insensitive(VALUE *section, const char *language_code)
+static const char *get_language_value(VALUE *section, uint8_t lang_id)
 {
+    const char *language_code = get_conf_parameter_text(lang_type, lang_id);
     VALUE *lang_val = value_dict_get(section, language_code);
     if (lang_val && value_type(lang_val) == VALUE_STRING)
         return value_string(lang_val);
-
-    if (strlen(language_code) != 3)
-        return NULL;
-
-    char alt_code[4] = {0,0,0,0};
-    for (size_t i = 0; i < 3; ++i)
-    {
-        unsigned char c = (unsigned char)language_code[i];
-        if (c >= 'a' && c <= 'z')
-            alt_code[i] = (char)(c - ('a' - 'A'));
-        else if (c >= 'A' && c <= 'Z')
-            alt_code[i] = (char)(c + ('a' - 'A'));
-        else
-            return NULL;
-    }
-    if (ascii_string_equal_nocase(language_code, alt_code, 3))
-    {
-        lang_val = value_dict_get(section, alt_code);
-        if (lang_val && value_type(lang_val) == VALUE_STRING)
-            return value_string(lang_val);
-    }
     return NULL;
 }
 
 static int translation_section_visitor(const VALUE *key, VALUE *section, void *ctx)
 {
+    int current_language_id = install_info.lang_id;
     if (translation_count >= MAX_TRANSLATION_ENTRIES)
         return 1; // stop walking — table is full
 
@@ -369,20 +303,15 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
     if (!alias)
         return 0;
 
-    WalkContext *wctx = (WalkContext *)ctx;
+    const char *text = get_language_value(section, current_language_id);
 
-    // Try the requested language first, fall back to English
-    const char *text = get_language_value_case_insensitive(section, wctx->language_code);
-
-    if (!text)
+    if (!text && current_language_id == Lang_ChineseTra)
     {
-        VALUE *eng_val = value_dict_get(section, "ENG");
-        if (eng_val && value_type(eng_val) == VALUE_STRING)
-            text = value_string(eng_val);
+        text = get_language_value(section, Lang_ChineseInt);
     }
-
-    if (!text)
-        text = "";
+    if (!text) text = get_language_value(section, Lang_English);
+    
+    if (!text) text = alias;
 
     TranslationEntry *entry = &translation_table[translation_count];
 
@@ -391,11 +320,11 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
 
     size_t len = strlen(text);
     size_t alloc_size = len + 1;
-    if (is_dbc_language_code(wctx->language_code))
+    if (is_dbc_language(current_language_id))
         alloc_size = len * 2 + 1;
     entry->text = (char *)calloc(alloc_size, 1);
     if (entry->text)
-        convert_utf8_to_internal_codepage(text, entry->text, alloc_size, wctx->language_code);
+        convert_utf8_to_internal_codepage(text, entry->text, alloc_size);
 
     translation_count++;
     return 0;
@@ -412,10 +341,8 @@ void clear_translation_table(void)
     translation_count = 0;
 }
 
-//will be read first, language doesn't change during run, so any other language is irrelevant
 static TbBool load_translation_config_file(const char* filepath, unsigned short flags)
 {
-    const char *language_code = get_language_lwrstr(install_info.lang_id);
     long len = LbFileLengthRnc(filepath);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
@@ -448,9 +375,7 @@ static TbBool load_translation_config_file(const char* filepath, unsigned short 
     }
     free(buf);
 
-    WalkContext ctx;
-    ctx.language_code = language_code;
-    value_dict_walk_sorted(&root, translation_section_visitor, &ctx);
+    value_dict_walk_sorted(&root, translation_section_visitor, NULL);
 
     value_fini(&root);
     return true;
@@ -477,7 +402,6 @@ int32_t get_string_id_by_alias(const char* alias)
     return -1;
 }
 
-//so that 1 that's tied to HELLO_WORLD would turn into "Hello world" here
 const char* get_translation_file_string(int32_t string_id)
 {
     if (string_id < STRINGS_MAX + GUI_STRINGS_COUNT + 1 || string_id > STRINGS_MAX + GUI_STRINGS_COUNT + translation_count)
