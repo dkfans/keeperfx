@@ -34,7 +34,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#define MAX_TRANSLATION_ENTRIES 4096
 #define MAX_ALIAS_LEN           64
 
 typedef struct {
@@ -42,7 +41,7 @@ typedef struct {
     char *text;
 } TranslationEntry;
 
-static TranslationEntry translation_table[MAX_TRANSLATION_ENTRIES];
+static TranslationEntry translation_table[MAX_TOML_TRANSLATION_ENTRIES];
 static int32_t          translation_count = 0;
 
 static TbBool load_translation_config_file(const char *fname, unsigned short flags);
@@ -66,7 +65,6 @@ static unsigned short lookup_dbc_code(const DbcMapEntry *map, size_t count, unsi
 
 static unsigned short convert_codepoint_to_dbc_code(int dbc_id, unsigned long codepoint)
 {
-    JUSTLOG("Converting codepoint U+%04lX for DBC ID %d", codepoint, dbc_id);
     unsigned short dbc_code = 0;
     switch (dbc_id)
     {
@@ -293,7 +291,7 @@ static const char *get_language_value(VALUE *section, uint8_t lang_id)
 static int translation_section_visitor(const VALUE *key, VALUE *section, void *ctx)
 {
     int current_language_id = install_info.lang_id;
-    if (translation_count >= MAX_TRANSLATION_ENTRIES)
+    if (translation_count >= MAX_TOML_TRANSLATION_ENTRIES)
         return 1; // stop walking — table is full
 
     if (value_type(section) != VALUE_DICT)
@@ -346,7 +344,7 @@ static TbBool load_translation_config_file(const char* filepath, unsigned short 
     long len = LbFileLengthRnc(filepath);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
-        WARNMSG("Translation file \"%s\" does not exist or is too small.", filepath);
+        SYNCDBG(17,"Translation file \"%s\" does not exist or is too small.", filepath);
         return false;
     }
 
@@ -395,7 +393,7 @@ TextStringId get_string_id_by_alias(const char* alias)
     {
         if (strcmp(translation_table[i].alias, alias) == 0)
         {
-            return STRINGS_MAX + GUI_STRINGS_COUNT + i + 1; // 1-based ID
+            return TRANSLATION_STRINGS_START + i;
         }
     }
     ERRORLOG("No translation entry found for alias \"%s\".", alias);
@@ -404,9 +402,9 @@ TextStringId get_string_id_by_alias(const char* alias)
 
 const char* get_translation_file_string(TextStringId string_id)
 {
-    if (string_id < STRINGS_MAX + GUI_STRINGS_COUNT + 1 || string_id > STRINGS_MAX + GUI_STRINGS_COUNT + translation_count)
+    if (string_id < TRANSLATION_STRINGS_START || string_id >= TRANSLATION_STRINGS_START + translation_count)
         return "oh_crap_invalid_string_id";
-    const char *text = translation_table[string_id - STRINGS_MAX - GUI_STRINGS_COUNT - 1].text;
+    const char *text = translation_table[string_id - TRANSLATION_STRINGS_START].text;
     return text ? text : "oh_crap_null_string";
 }
 
