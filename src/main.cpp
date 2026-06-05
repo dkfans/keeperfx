@@ -3786,6 +3786,11 @@ static TbBool wait_at_frontend(void)
     memset(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
     frontend_set_state(get_startup_menu_state());
+
+    // Once the Mouse Sprite initialization is complete, the sprite's position needs to be reset because it defaults to (0, 0).
+    // Note that we cannot use LbMoveGameCursorToHostCursor for this, because the buffer position may remain unchanged.
+    LbMouseSetPositionInitial(lbDisplay.MMouseX, lbDisplay.MMouseY);
+
     try_restore_frontend_error_box();
 
     poll_inputs();
