@@ -44,6 +44,7 @@ static int64_t value_x10(const struct NamedField* named_field, const char* value
 
 static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static void assign_PayDayProgress_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
 /******************************************************************************/
 static TbBool load_rules_config_file(const char *fname, unsigned short flags);
@@ -207,7 +208,7 @@ static const struct NamedField rules_health_named_fields[] = {
 
 static const struct NamedField rules_script_only_named_fields[] = {
   //name            //field                   //min //max
-{"PayDayProgress",0,field(game.pay_day_progress[0]),0,0,INT32_MAX,NULL,value_default,assign_default},
+{"PayDayProgress",0,field(game.pay_day_progress[0]),0,0,INT32_MAX,NULL,value_default,assign_PayDayProgress_script},
 {NULL},
 };
 
@@ -286,6 +287,11 @@ static void assign_AlliesShareVision_script(const struct NamedField* named_field
     }
 }
 
+static void assign_PayDayProgress_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    game.pay_day_progress[idx] = value;
+}
+
 static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
 
@@ -339,9 +345,12 @@ static void set_rules_defaults()
     for (size_t i = 0; i < sizeof(ruleblocks) / sizeof(ruleblocks[0]); i++) {
         const struct NamedField* field = ruleblocks[i];
         while (field->name != NULL) {
-            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-            {
-                assign_default(field, field->default_value, &rules_named_fields_set, plyr_idx, "rules", ccf_SplitExecution | ccf_DuringLevel);
+            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+                if (ruleblocks[i] == rules_script_only_named_fields) {
+                    assign_named_field_value(field, field->default_value, &rules_named_fields_set, plyr_idx, "rules", ccf_SplitExecution | ccf_DuringLevel);
+                } else {
+                    assign_default(field, field->default_value, &rules_named_fields_set, plyr_idx, "rules", ccf_SplitExecution | ccf_DuringLevel);
+                }
             }
             field++;
         }
