@@ -71,14 +71,13 @@ unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, const struct Pack
         }
         else
         {
-            struct Dungeon* dungeon = get_players_dungeon(player);
-            if ( (render_roomspace->drag_mode) && (dungeon->task_count + render_roomspace->slab_count > MAPTASKS_COUNT) )
-            {
-                line_color = SLC_REDFLASH;
-            }
-            else if (dungeon->task_count >= MAPTASKS_COUNT)
-            {
-                line_color = SLC_REDYELLOW;
+            struct Dungeon* dungeon = get_dungeon(player->id_number);
+            if (!dungeon_invalid(dungeon)) {
+                if ((render_roomspace->drag_mode) && (dungeon->task_count + render_roomspace->slab_count > MAPTASKS_COUNT)) {
+                    line_color = SLC_REDFLASH;
+                } else if (dungeon->task_count >= MAPTASKS_COUNT) {
+                    line_color = SLC_REDYELLOW;
+                }
             }
         }
     }

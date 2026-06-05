@@ -44,6 +44,7 @@ static int64_t value_x10(const struct NamedField* named_field, const char* value
 
 static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static void assign_PayDayProgress_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
 /******************************************************************************/
 static TbBool load_rules_config_file(const char *fname, unsigned short flags);
@@ -98,6 +99,7 @@ static const struct NamedField rules_game_named_fields[] = {
   {"ALLIESSHAREVISION",         0, field(game.conf.rules[0].game.allies_share_vision       ),           0,        0,                  1,NULL,                           value_default, assign_AlliesShareVision_script},
   {"ALLIESSHAREDROP",           0, field(game.conf.rules[0].game.allies_share_drop         ),           0,        0,                  1,NULL,                           value_default, assign_default},
   {"ALLIESSHARECTA",            0, field(game.conf.rules[0].game.allies_share_cta          ),           0,        0,                  1,NULL,                           value_default, assign_default},
+  {"WINNERTORTURESLOSER",       0, field(game.conf.rules[0].game.winner_tortures_loser     ),           0,        0,                  1,NULL,                           value_default, assign_default},
   {"DISPLAYPORTALLIMIT",        0, field(game.conf.rules[0].game.display_portal_limit      ),           0,        0,                  1,NULL,                           value_default, assign_default},
   {"MAXTHINGSINHAND",           0, field(game.conf.rules[0].game.max_things_in_hand        ),           8,        0, MAX_THINGS_IN_HAND,NULL,                           value_default, assign_default},
   {"TORTUREPAYDAY",             0, field(game.conf.rules[0].game.torture_payday            ),          50,        0,          USHRT_MAX,NULL,                           value_default, assign_default},
@@ -131,6 +133,7 @@ static const struct NamedField rules_creatures_named_fields[] = {
   {"STUNEVILENEMYCHANCE",        0, field(game.conf.rules[0].creature.stun_enemy_chance_evil)    , 100,        0,       100,NULL,value_default, assign_default},
   {"STUNGOODENEMYCHANCE",        0, field(game.conf.rules[0].creature.stun_enemy_chance_good)    , 100,        0,       100,NULL,value_default, assign_default},
   {"STUNWITHOUTPRISONCHANCE",    0, field(game.conf.rules[0].creature.stun_without_prison_chance),   0,        0,       100,NULL,value_default, assign_default},
+  {"INSTANCEDELAYONDROP",       0, field(game.conf.rules[0].creature.instance_delay_on_drop),   0,        0, INT32_MAX,NULL,value_default, assign_default},
   {NULL},
 };
 
@@ -203,9 +206,10 @@ static const struct NamedField rules_health_named_fields[] = {
   {NULL},
 };
 
+// Fields here are not inside game.conf.rules, so assign_default cannot be used.
 static const struct NamedField rules_script_only_named_fields[] = {
   //name            //field                   //min //max
-{"PayDayProgress",0,field(game.pay_day_progress[0]),0,0,INT32_MAX,NULL,value_default,assign_default},
+{"PayDayProgress",0,field(game.pay_day_progress[0]),0,0,INT32_MAX,NULL,value_default,assign_PayDayProgress_script},
 {NULL},
 };
 
@@ -284,6 +288,11 @@ static void assign_AlliesShareVision_script(const struct NamedField* named_field
     }
 }
 
+static void assign_PayDayProgress_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    game.pay_day_progress[idx] = value;
+}
+
 static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
 
@@ -337,9 +346,12 @@ static void set_rules_defaults()
     for (size_t i = 0; i < sizeof(ruleblocks) / sizeof(ruleblocks[0]); i++) {
         const struct NamedField* field = ruleblocks[i];
         while (field->name != NULL) {
-            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-            {
-                assign_default(field, field->default_value, &rules_named_fields_set, plyr_idx, "rules", ccf_SplitExecution | ccf_DuringLevel);
+            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+                if (ruleblocks[i] == rules_script_only_named_fields) {
+                    assign_named_field_value(field, field->default_value, &rules_named_fields_set, plyr_idx, "rules", ccf_SplitExecution | ccf_DuringLevel);
+                } else {
+                    assign_default(field, field->default_value, &rules_named_fields_set, plyr_idx, "rules", ccf_SplitExecution | ccf_DuringLevel);
+                }
             }
             field++;
         }
