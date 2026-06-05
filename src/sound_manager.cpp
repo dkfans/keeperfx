@@ -557,15 +557,17 @@ static bool resolve_creature_sound_path(const char* path_in, char* out_path, siz
 
 // Resolve a sound file path specified in sounds.cfg (or any other non-creature cfg).
 // Search order:
-//   1. FGrp_FxData/<path>      (base game fxdata/)
-//   3. FGrp_CmpgMedia/<path>   (campaign MEDIA_LOCATION)
-//   4. FGrp_Main/<path>        (game root directory)
+//   1. FGrp_CmpgLvls/<path>    (map-level config folder)
+//   2. FGrp_CmpgConfig/<path>  (campaign config folder)
+//   3. FGrp_FxData/<path>      (base game fxdata/)
+//   4. FGrp_CmpgMedia/<path>   (campaign MEDIA_LOCATION)
+//   5. FGrp_Main/<path>        (game root directory)
 // If the path has no extension, each location is tried with .wav, .mp3, .ogg, .flac.
 // Returns true and fills out_path (size 2048) on success.
 static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, size_t out_size)
 {
-    static const TbFileGroups groups[] = { FGrp_FxData, FGrp_CmpgMedia, FGrp_Main };
-    static const char* group_names[]   = { "FGrp_FxData", "FGrp_CmpgMedia", "FGrp_Main" };
+    static const TbFileGroups groups[] = { FGrp_CmpgLvls, FGrp_CmpgConfig, FGrp_FxData, FGrp_CmpgMedia, FGrp_Main };
+    static const char* group_names[]   = { "FGrp_CmpgLvls", "FGrp_CmpgConfig", "FGrp_FxData", "FGrp_CmpgMedia", "FGrp_Main" };
     static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
 
     const char* dot   = strrchr(path_in, '.');

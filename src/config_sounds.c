@@ -698,6 +698,17 @@ TbBool cache_common_sound_ids(void)
 
 /******************************************************************************/
 
+static TbBool value_is_sound_filepath(const char* text)
+{
+    const char* dot = strrchr(text, '.');
+    if (dot == NULL) return false;
+    char ext[8]; int i;
+    for (i = 0; i < 7 && dot[i]; i++)
+        ext[i] = (char)tolower((unsigned char)dot[i]);
+    ext[i] = '\0';
+    return strcmp(ext, ".wav") == 0 || strcmp(ext, ".mp3") == 0;
+}
+
 int64_t value_sound_id(const struct NamedField* named_field, const char* value_text,
                        const struct NamedFieldSet* named_fields_set, int idx,
                        const char* src_str, unsigned char flags)
@@ -710,6 +721,16 @@ int64_t value_sound_id(const struct NamedField* named_field, const char* value_t
     if (id > 0)
     {
         return (int64_t)id;
+    }
+    if (value_is_sound_filepath(value_text))
+    {
+        SoundSmplTblID loaded_id = sound_manager_load_named_sound(value_text, value_text, 1);
+        if (loaded_id > 0)
+        {
+            return (int64_t)loaded_id;
+        }
+        NAMFIELDWRNLOG("Failed to load sound file for field '%s': '%s'", named_field->name, value_text);
+        return 0;
     }
     NAMFIELDWRNLOG("Unrecognized sound name for field '%s', got '%s'", named_field->name, value_text);
     return 0;

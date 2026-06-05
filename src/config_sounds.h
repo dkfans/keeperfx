@@ -190,11 +190,15 @@ extern SoundSmplTblID snd_scavenge;         /* scavenging room sound */
 extern char g_speech_overrides[SMsg_MAX][512];
 
 /**
- * @brief NamedField parse function that resolves a sound name or numeric ID.
+ * @brief NamedField parse function that resolves a sound name, numeric ID, or inline file path.
  *
- * If value_text is a number it behaves like value_default.  Otherwise it
- * looks the name up in the SoundManager registry (via sound_manager_get_id)
- * and returns the registered sample ID, or 0 if unknown.
+ * Resolution order:
+ *  1. Numeric value — behaves like value_default.
+ *  2. Registered name — looked up via sound_manager_get_id().
+ *  3. File path ending in .wav or .mp3 — loaded and registered on the fly
+ *     via sound_manager_load_named_sound(), using the path as the cache key.
+ *
+ * Returns the sample ID, or 0 on failure.
  */
 int64_t value_sound_id(const struct NamedField* named_field, const char* value_text,
                        const struct NamedFieldSet* named_fields_set, int idx,
