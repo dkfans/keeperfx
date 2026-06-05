@@ -65,20 +65,24 @@ TbBool is_mouse_on_map(struct Packet* pckt)
     return true;
 }
 
-void remember_cursor_subtile(struct PlayerInfo *player) {
+void remember_cursor_subtile(struct PlayerInfo *player)
+{
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    if (player->interpolated_tagging == true) {
-        player->previous_cursor_subtile_x = player->cursor_subtile_x;
-        player->previous_cursor_subtile_y = player->cursor_subtile_y;
-        player->cursor_subtile_x = coord_subtile((pckt->pos_x));
-        player->cursor_subtile_y = coord_subtile((pckt->pos_y));
-    } else {
-        player->cursor_subtile_x = coord_subtile((pckt->pos_x));
-        player->cursor_subtile_y = coord_subtile((pckt->pos_y));
-        player->previous_cursor_subtile_x = player->cursor_subtile_x;
-        player->previous_cursor_subtile_y = player->cursor_subtile_y;
+    MapSubtlCoord cursor_subtile_x = coord_subtile(pckt->pos_x);
+    MapSubtlCoord cursor_subtile_y = coord_subtile(pckt->pos_y);
+    player->previous_cursor_subtile_x = player->cursor_subtile_x;
+    player->previous_cursor_subtile_y = player->cursor_subtile_y;
+    if (!player->interpolated_tagging && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0)) {
+        player->previous_cursor_subtile_x = cursor_subtile_x;
+        player->previous_cursor_subtile_y = cursor_subtile_y;
     }
-    player->interpolated_tagging = player->mouse_on_map;
+    player->cursor_subtile_x = cursor_subtile_x;
+    player->cursor_subtile_y = cursor_subtile_y;
+    if (player->mouse_on_map && ((pckt->control_flags & (PCtr_LBtnClick | PCtr_LBtnHeld)) != 0)) {
+        player->interpolated_tagging = true;
+    } else {
+        player->interpolated_tagging = false;
+    }
 }
 
 struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y)

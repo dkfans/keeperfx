@@ -41,6 +41,7 @@
 #include "thing_stats.h"
 #include "thing_navigate.h"
 #include "creature_graphics.h"
+#include "creature_instances.h"
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "creature_states_combt.h"
@@ -945,6 +946,9 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
     remove_thing_from_limbo(droptng);
     if (thing_is_creature(droptng))
     {
+        if (game.conf.rules[droptng->owner].creature.instance_delay_on_drop > 0) {
+            delay_instances_on_drop(droptng);
+        }
         initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
         stop_creature_sound(droptng, 5);
         if (is_my_player_number(dungeon->owner)) {

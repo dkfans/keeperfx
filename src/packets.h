@@ -39,7 +39,7 @@ enum TbPacketAction {
         PckA_None = 0,
         PckA_QuitToMainMenu, // Quit
         PckA_ForceApplicationClose,
-        PckA_SaveGameAndQuit,
+        PckA_UnusedSlot003,
         PckA_NoOperation,
         PckA_FinishGame, // 5
         PckA_Login,      // From `enum NetMessageType`

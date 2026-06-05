@@ -28,10 +28,20 @@ extern "C" {
 struct ObjectConfigStats;
 
 #define SPRITE_LAST_LEVEL -1
+#define SPRITE_ZIP_ENTRY_COUNT 48
+#define SPRITE_ZIP_ENTRY_NAME_LEN 64
+
+struct SpriteZipEntry {
+    char filename[SPRITE_ZIP_ENTRY_NAME_LEN];
+    uint32_t checksum;
+};
+
 void init_custom_sprites(LevelNumber level_no);
 
 extern int total_sprite_zip_count;
 extern uint32_t sprite_zip_combined_checksum;
+extern struct SpriteZipEntry sprite_zip_entries[SPRITE_ZIP_ENTRY_COUNT];
+extern uint8_t sprite_zip_entry_count;
 
 short get_anim_id(const char *name, struct ObjectConfigStats* objst);
 short get_anim_id_(const char* name);

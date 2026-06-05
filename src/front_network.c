@@ -476,6 +476,11 @@ static void process_frontend_packets(void)
   for (i = 0; i < MAX_NET_USERS; i++) {
     nspckt = &net_screen_packet[i];
     if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) != 0) {
+      if (frontend_alliances == -1) {
+        if (nspckt->frontend_alliances != -1) {
+          frontend_alliances = nspckt->frontend_alliances;
+        }
+      }
         switch (screen_packet_action(nspckt)) {
         case NetAct_HostStartLevel:
             if (version_mismatch_found) {
@@ -504,11 +509,6 @@ static void process_frontend_packets(void)
         default:
             break;
         }
-      if (frontend_alliances == -1) {
-        if (nspckt->frontend_alliances != -1) {
-          frontend_alliances = nspckt->frontend_alliances;
-        }
-      }
       if (fe_computer_players == 2) {
         int32_t k = (nspckt->networkstatus_flags & NetStat_ComputerPlayersMask) >> NetStat_ComputerPlayersShift;
         if (k != 2) {
@@ -523,9 +523,8 @@ static void process_frontend_packets(void)
   }
   for (i = 0; i < MAX_NET_USERS; i++) {
     if (!network_player_active(i)) {
-      if (frontend_is_player_allied(my_player_number, i)) {
-        frontend_set_alliance(my_player_number, i);
-      }
+      const int32_t alliances_to_clear = alliance_grid[i][0] | alliance_grid[i][1] | alliance_grid[i][2] | alliance_grid[i][3];
+      frontend_alliances = frontend_alliances & ~alliances_to_clear;
     }
   }
 }

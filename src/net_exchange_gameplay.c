@@ -153,7 +153,7 @@ void process_gameplay_chat_message(int player_id, const char *message)
     struct PlayerInfo *player = prepare_network_chat_message(player_id, message);
     if (message[0] != '\0') {
         lua_on_chatmsg(player_id, player->mp_message_text);
-        if (player->mp_message_text[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || (game.system_flags & GSF_NetworkActive) != 0) {
+        if (player->mp_message_text[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || network_is_active()) {
             message_add(MsgType_Player, player_id, player->mp_message_text);
         }
     }

@@ -1130,7 +1130,7 @@ void process_level_script(void)
   struct PlayerInfo *player;
   player = get_my_player();
   TbBool process_script = false;
-  if ((game.system_flags & GSF_NetworkActive) != 0) {
+  if (network_is_active()) {
       process_script = true;
   }
   if (player->victory_state == VicS_Undecided) {

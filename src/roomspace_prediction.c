@@ -10,6 +10,7 @@
 #include "map_data.h"
 #include "cursor_tag.h"
 #include "engine_render.h"
+#include "frontmenu_ingame_evnt.h"
 #include "player_data.h"
 #include "player_utils.h"
 #include "slab_data.h"
@@ -45,9 +46,23 @@ static struct Packet local_dig_roomspace_prediction;
 static struct RoomSpace local_dig_render_roomspace;
 static TbBool local_dig_render_roomspace_active;
 
+static TbBool prevent_local_dig_prediction(const struct Packet *pckt)
+{
+    if (pckt == NULL) {
+        return true;
+    }
+    if ((pckt->control_flags & (PCtr_Gui | PCtr_MapCoordsValid)) != PCtr_MapCoordsValid) {
+        return true;
+    }
+    if ((pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing) || (battle_creature_over > 0)) {
+        return true;
+    }
+    return false;
+}
+
 TbBool local_dig_prediction_is_enabled(void)
 {
-    return ((game.system_flags & GSF_NetworkActive) != 0) && !game.packet_load_enable && (game.input_lag_turns > 0);
+    return network_is_active() && !game.packet_load_enable && (game.input_lag_turns > 0);
 }
 
 struct RoomSpace *get_local_dig_prediction_render_roomspace(struct RoomSpace *roomspace)
@@ -60,7 +75,7 @@ struct RoomSpace *get_local_dig_prediction_render_roomspace(struct RoomSpace *ro
 
 static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, struct PlayerInfo *predicted_player, struct RoomSpace *roomspace)
 {
-    if (!local_dig_prediction_is_enabled() || (pckt == NULL) || ((pckt->control_flags & PCtr_MapCoordsValid) == 0)) {
+    if (!local_dig_prediction_is_enabled() || prevent_local_dig_prediction(pckt)) {
         return false;
     }
     *predicted_player = *get_my_player();
@@ -93,7 +108,7 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
 
 static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace *roomspace, PlayerNumber plyr_idx, const struct Packet *pckt)
 {
-    if ((pckt == NULL) || ((pckt->control_flags & PCtr_MapCoordsValid) == 0)) {
+    if (prevent_local_dig_prediction(pckt)) {
         return false;
     }
     struct PlayerInfo *player = get_player(plyr_idx);

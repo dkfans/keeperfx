@@ -622,7 +622,12 @@ static void delete_attached_things_on_slab(long slb_x, long slb_y)
                     {
                         char class_id = thing->class_id;
                         if (class_id == TCls_Object || class_id == TCls_EffectGen)
-                            destroy_thing(thing);
+                        {
+                            if (thing_is_dungeon_heart(thing))
+                                thing->health = 0;
+                            else
+                                destroy_thing(thing);
+                        }
                     }
                     thing = next_thing;
                     k++;
@@ -1433,7 +1438,11 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                     }
                     if (delete_thing)
                     {
-                        destroy_thing(thing);
+                        // Hearts are normally attached, but you never know what a mapmaker does.
+                        if (thing_is_dungeon_heart(thing))
+                            thing->health = 0;
+                        else
+                            destroy_thing(thing);
                     }
                 }
                 thing = next_thing;
