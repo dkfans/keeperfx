@@ -190,6 +190,19 @@ extern SoundSmplTblID snd_scavenge;         /* scavenging room sound */
 extern char g_speech_overrides[SMsg_MAX][512];
 
 /**
+ * @brief Resolve a sound name or file path to a sample ID.
+ *
+ * Used by toml-based config parsers (e.g. effects.toml) via CONDITIONAL_ASSIGN_SOUND.
+ * Resolution order:
+ *  1. Registered name — looked up via sound_manager_get_id().
+ *  2. File path ending in .wav or .mp3 — loaded and registered on the fly.
+ *
+ * @param text Sound name or file path string
+ * @return Sample ID, or 0 if unresolvable
+ */
+int sound_id_from_text(const char* text);
+
+/**
  * @brief NamedField parse function that resolves a sound name, numeric ID, or inline file path.
  *
  * Resolution order:

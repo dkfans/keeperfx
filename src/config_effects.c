@@ -61,7 +61,7 @@ const struct NamedField effects_effectgenerator_named_fields[] = {
     {"ACCELERATIONMAX",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_max),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
     {"ACCELERATIONMAX",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_max),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
     {"ACCELERATIONMAX",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_max),            0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
-    {"SOUND",                  0, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_idx),     0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
+    {"SOUND",                  0, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_idx),     0,    INT32_MIN, UINT32_MAX, NULL,            value_sound_id,  assign_default},
     {"SOUND",                  1, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_rng),     0,    INT32_MIN, UINT32_MAX, NULL,            value_default,   assign_default},
     {NULL},
 };
@@ -118,7 +118,7 @@ static void load_effects(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"Health",        effcst->start_health);
             CONDITIONAL_ASSIGN_INT(section,"GenerationType",effcst->generation_type);
             CONDITIONAL_ASSIGN_INT(section,"AreaAffectType",effcst->area_affect_type);
-            CONDITIONAL_ASSIGN_INT(section,"Sound"         ,effcst->effect_sound    );
+            CONDITIONAL_ASSIGN_SOUND(section,"Sound"        ,effcst->effect_sound    );
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind",effcst->affected_by_wind);
             CONDITIONAL_ASSIGN_INT_SCALED(section,"LightRadius"   ,effcst->ilght.radius, COORD_PER_STL);
             CONDITIONAL_ASSIGN_INT(section,"LightIntensity",effcst->ilght.intensity );
@@ -182,7 +182,7 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
 
             CONDITIONAL_ASSIGN_ARR3_INT(section,"AccelerationMin",effgencst->acc_x_min,effgencst->acc_y_min,effgencst->acc_z_min);
             CONDITIONAL_ASSIGN_ARR3_INT(section,"AccelerationMax",effgencst->acc_x_max,effgencst->acc_y_max,effgencst->acc_z_max);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"Sound",effgencst->sound_sample_idx,effgencst->sound_sample_rng);
+            CONDITIONAL_ASSIGN_ARR2_SOUND(section,"Sound",effgencst->sound_sample_idx,effgencst->sound_sample_rng);
         }
     }
 
@@ -254,15 +254,15 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             if(effelcst->impacts)
             {
                 CONDITIONAL_ASSIGN_INT(section,"SolidGroundEffmodel", effelcst->solidgnd_effmodel);
-                CONDITIONAL_ASSIGN_INT(section,"SolidGroundSoundId", effelcst->solidgnd_snd_smpid);
+                CONDITIONAL_ASSIGN_SOUND(section,"SolidGroundSoundId", effelcst->solidgnd_snd_smpid);
                 CONDITIONAL_ASSIGN_INT(section,"SolidGroundLoudness", effelcst->solidgnd_loudness);
                 CONDITIONAL_ASSIGN_BOOL(section,"SolidGroundDestroyOnImpact", effelcst->solidgnd_destroy_on_impact);
                 CONDITIONAL_ASSIGN_INT(section,"WaterEffmodel", effelcst->water_effmodel);
-                CONDITIONAL_ASSIGN_INT(section,"WaterSoundId", effelcst->water_snd_smpid);
+                CONDITIONAL_ASSIGN_SOUND(section,"WaterSoundId", effelcst->water_snd_smpid);
                 CONDITIONAL_ASSIGN_INT(section,"WaterLoudness", effelcst->water_loudness);
                 CONDITIONAL_ASSIGN_BOOL(section,"WaterDestroyOnImpact", effelcst->water_destroy_on_impact);
                 CONDITIONAL_ASSIGN_INT(section,"LavaEffmodel", effelcst->lava_effmodel);
-                CONDITIONAL_ASSIGN_INT(section,"LavaSoundId", effelcst->lava_snd_smpid);
+                CONDITIONAL_ASSIGN_SOUND(section,"LavaSoundId", effelcst->lava_snd_smpid);
                 CONDITIONAL_ASSIGN_INT(section,"LavaLoudness", effelcst->lava_loudness);
                 CONDITIONAL_ASSIGN_BOOL(section,"LavaDestroyOnImpact", effelcst->lava_destroy_on_impact);
             }

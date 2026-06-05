@@ -709,6 +709,20 @@ static TbBool value_is_sound_filepath(const char* text)
     return strcmp(ext, ".wav") == 0 || strcmp(ext, ".mp3") == 0;
 }
 
+int sound_id_from_text(const char* text)
+{
+    int id = sound_manager_get_id(text);
+    if (id > 0)
+        return id;
+    if (value_is_sound_filepath(text))
+    {
+        SoundSmplTblID loaded_id = sound_manager_load_named_sound(text, text, 1);
+        if (loaded_id > 0)
+            return (int)loaded_id;
+    }
+    return 0;
+}
+
 int64_t value_sound_id(const struct NamedField* named_field, const char* value_text,
                        const struct NamedFieldSet* named_fields_set, int idx,
                        const char* src_str, unsigned char flags)
@@ -717,22 +731,19 @@ int64_t value_sound_id(const struct NamedField* named_field, const char* value_t
     {
         return value_default(named_field, value_text, named_fields_set, idx, src_str, flags);
     }
-    int id = sound_manager_get_id(value_text);
+    int id = sound_id_from_text(value_text);
     if (id > 0)
     {
         return (int64_t)id;
     }
     if (value_is_sound_filepath(value_text))
     {
-        SoundSmplTblID loaded_id = sound_manager_load_named_sound(value_text, value_text, 1);
-        if (loaded_id > 0)
-        {
-            return (int64_t)loaded_id;
-        }
         NAMFIELDWRNLOG("Failed to load sound file for field '%s': '%s'", named_field->name, value_text);
-        return 0;
     }
-    NAMFIELDWRNLOG("Unrecognized sound name for field '%s', got '%s'", named_field->name, value_text);
+    else
+    {
+        NAMFIELDWRNLOG("Unrecognized sound name for field '%s', got '%s'", named_field->name, value_text);
+    }
     return 0;
 }
 

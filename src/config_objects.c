@@ -121,7 +121,7 @@ static const struct NamedField objects_named_fields[] = {
     {"EFFECTEXPLOSION1",         0, field(game.conf.object_conf.object_cfgstats[0].effect.explosion1),             0, INT32_MIN,UINT32_MAX, NULL,                        value_effOrEffEl,assign_default},
     {"EFFECTEXPLOSION2",         0, field(game.conf.object_conf.object_cfgstats[0].effect.explosion2),             0, INT32_MIN,UINT32_MAX, NULL,                        value_effOrEffEl,assign_default},
     {"EFFECTSPACING",            0, field(game.conf.object_conf.object_cfgstats[0].effect.spacing),                0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
-    {"EFFECTSOUND",              0, field(game.conf.object_conf.object_cfgstats[0].effect.sound_idx),              0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
+    {"EFFECTSOUND",              0, field(game.conf.object_conf.object_cfgstats[0].effect.sound_idx),              0, INT32_MIN,UINT32_MAX, NULL,                        value_sound_id,  assign_default},
     {"EFFECTSOUND",              1, field(game.conf.object_conf.object_cfgstats[0].effect.sound_range),            0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
     {"FLAMEANIMATIONID",         0, field(game.conf.object_conf.object_cfgstats[0].flame.animation_id),            0, INT32_MIN,UINT32_MAX, NULL,                        value_animid,    assign_animid},
     {"FLAMEANIMATIONSPEED",      0, field(game.conf.object_conf.object_cfgstats[0].flame.anim_speed),              0, INT32_MIN,UINT32_MAX, NULL,                        value_default,   assign_default},
