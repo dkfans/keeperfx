@@ -244,7 +244,8 @@ static const struct NamedCommand speech_desc[] = {
  * Each line has the form:
  *   GraveyardMadeVampire = speech/custom_vampire.ogg
  *
- * Paths are relative to the game root directory (FGrp_Main) and are resolved at playback time.
+ * Paths are resolved at playback time, searching campaign configs, levels, media (MEDIA_LOCATION),
+ * and game root in that order. Language-specific variants are tried first (e.g. "eng/file.wav").
  */
 static TbBool parse_speech_section(char* buf, long len, const char* config_textname,
                                    unsigned short flags)

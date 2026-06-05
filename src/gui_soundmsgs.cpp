@@ -175,17 +175,22 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 		}
 		if (g_speech_overrides[sample_id][0] != '\0') {
 			const char* path = g_speech_overrides[sample_id];
-			// Search order: campaign config dir, campaign levels dir, game root.
-			static const TbFileGroups search_groups[] = { FGrp_CmpgConfig, FGrp_CmpgLvls, FGrp_Main };
-			// Split path into directory and filename so we can insert a language subdir.
-			// e.g. "speech/vampire.ogg" -> try "speech/eng/vampire.ogg" first.
+			// Search order: campaign configs, campaign levels, campaign media (MEDIA_LOCATION), game root.
+			static const TbFileGroups search_groups[] = { FGrp_CmpgConfig, FGrp_CmpgLvls, FGrp_CmpgMedia, FGrp_Main };
+			// Try a language-specific variant first, inserting the language code into the path.
+			// e.g. "speech/vampire.ogg"  -> "speech/eng/vampire.ogg"
+			//      "hsmail.wav"          -> "eng/hsmail.wav"
 			const char* slash = strrchr(path, '/');
 			const char* lang  = get_language_lwrstr(install_info.lang_id);
 			const char* resolved = nullptr;
-			if (slash != nullptr && lang != nullptr && lang[0] != '\0') {
+			if (lang != nullptr && lang[0] != '\0') {
 				char lang_path[512];
-				snprintf(lang_path, sizeof(lang_path), "%.*s/%s/%s",
-					(int)(slash - path), path, lang, slash + 1);
+				if (slash != nullptr) {
+					snprintf(lang_path, sizeof(lang_path), "%.*s/%s/%s",
+						(int)(slash - path), path, lang, slash + 1);
+				} else {
+					snprintf(lang_path, sizeof(lang_path), "%s/%s", lang, path);
+				}
 				for (unsigned int g = 0; g < sizeof(search_groups)/sizeof(search_groups[0]); g++) {
 					const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", lang_path);
 					if (candidate != nullptr && LbFileExists(candidate)) {
