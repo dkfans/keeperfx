@@ -796,7 +796,14 @@ static void display_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
 
-    int16_t  msg_num = get_string_id_by_alias(scline->tp[0]);
+    TextStringId  msg_num = get_string_id_by_alias(scline->tp[0]);
+
+    if ((msg_num < 0))
+    {
+        SCRPTERRLOG("Invalid TEXT number");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
 
     MapSubtlCoord x = 0, y = 0;
     TbMapLocation location = 0;
@@ -810,6 +817,7 @@ static void display_objective_check(const struct ScriptLine *scline)
         const char *where = scline->tp[1];
         if (!get_map_location_id(where, &location))
         {
+            DEALLOCATE_SCRIPT_VALUE
             return;
         }
     }
@@ -837,11 +845,12 @@ static void display_objective_process(struct ScriptContext *context)
 static void display_player_objective_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
-    int16_t  msg_num = get_string_id_by_alias(scline->tp[0]);
+    TextStringId  msg_num = get_string_id_by_alias(scline->tp[0]);
     MapSubtlCoord x = 0, y = 0;
     TbMapLocation location = 0;
     if ((msg_num < 0))
     {
+        DEALLOCATE_SCRIPT_VALUE
         SCRPTERRLOG("Invalid TEXT number");
         return;
     }
@@ -850,6 +859,7 @@ static void display_player_objective_check(const struct ScriptLine* scline)
         const char* where = scline->tp[2];
         if (!get_map_location_id(where, &location))
         {
+            DEALLOCATE_SCRIPT_VALUE
             return;
         }
     }
@@ -1083,9 +1093,10 @@ static void display_information_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
 
-    int16_t  msg_num = get_string_id_by_alias(scline->tp[0]);
+    TextStringId  msg_num = get_string_id_by_alias(scline->tp[0]);
     if ((msg_num < 0))
     {
+        DEALLOCATE_SCRIPT_VALUE
         SCRPTERRLOG("Invalid TEXT number");
         return;
     }
@@ -1130,9 +1141,10 @@ static void display_player_information_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
 
-    long msg_num = get_string_id_by_alias(scline->tp[0]);
+    TextStringId msg_num = get_string_id_by_alias(scline->tp[0]);
     if ((msg_num < 0))
     {
+        DEALLOCATE_SCRIPT_VALUE
         SCRPTERRLOG("Invalid TEXT number");
         return;
     }
@@ -3779,8 +3791,15 @@ static void set_box_tooltip_id_check(const struct ScriptLine *scline)
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
+    TextStringId str_id = get_string_id_by_alias(scline->tp[1]);
+    if (str_id < 0)
+    {
+        SCRPTERRLOG("Unknown string '%s'", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
     value->shorts[0] = scline->np[0];
-    value->shorts[1] = get_string_id_by_alias(scline->tp[1]);
+    value->shorts[1] = str_id;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5790,7 +5809,15 @@ static void quick_message_process(struct ScriptContext* context)
 static void display_message_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->ulongs[0] = get_string_id_by_alias(scline->tp[0]);
+
+    TextStringId msg_num = get_string_id_by_alias(scline->tp[0]);
+    if (msg_num < 0)
+    {
+        SCRPTERRLOG("Unknown string '%s'", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    value->ulongs[0] = msg_num;
     get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
