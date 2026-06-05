@@ -5308,6 +5308,9 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->force_health_flower_hidden == true)
         return;
+    if (flag_is_set(get_creature_model_flags(thing), CMF_NoHealthFlower)) {
+        return;
+    }
     if (flag_is_set(game.mode_flags,MFlg_NoHeroHealthFlower))
     {
         if (local_thing_under_hand != thing->index) {
