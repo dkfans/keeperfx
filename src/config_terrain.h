@@ -71,7 +71,9 @@ enum RoomCfgFlags {
     RoCFlg_BuildTillBroke  = 0x04,
     RoCFlg_CannotBeSold    = 0x08,
     RoCFlg_CannotBeClaimed = 0x10,
-    RoCFlg_ListEnd         = 0x20,
+    RoCFlg_NotCounted      = 0x20,
+    RoCFlg_NoFlames        = 0x40,
+    RoCFlg_ListEnd         = 0x80,
 };
 
 /**
@@ -204,7 +206,7 @@ RoomRole get_room_roles(RoomKind rkind);
 TbBool room_role_matches(RoomKind rkind, RoomRole rrole);
 TbBool room_has_surrounding_flames(RoomKind rkind);
 TbBool room_cannot_vandalise(RoomKind rkind);
-TbBool room_never_buildable(RoomKind rkind);
+TbBool room_is_counted(RoomKind rkind);
 TbBool room_can_have_ensign(RoomKind rkind);
 SlabKind room_corresponding_slab(RoomKind rkind);
 RoomKind slab_corresponding_room(SlabKind slbkind);

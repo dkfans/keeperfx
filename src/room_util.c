@@ -126,7 +126,7 @@ void recompute_rooms_count_in_dungeons(void)
         dungeon->total_rooms = 0;
         for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
         {
-            if (!room_never_buildable(rkind))
+            if (room_is_counted(rkind))
             {
                 dungeon->total_rooms += count_player_rooms_of_type(i, rkind);
             }
