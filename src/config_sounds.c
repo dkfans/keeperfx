@@ -748,6 +748,104 @@ int64_t value_sound_id(const struct NamedField* named_field, const char* value_t
 }
 
 /******************************************************************************/
+// SpeechRef helpers
+/******************************************************************************/
+
+/** Temporary path set by value_speech_ref() when a file-path value is detected. */
+static char s_speech_ref_pending_path[512];
+
+/** Sentinel returned by value_speech_ref() to signal a pending file path. */
+#define SPEECH_REF_PATH_SENTINEL INT64_MIN
+
+/**
+ * Parses a config text value into a SpeechRef.
+ * Accepts: numeric SMsg_* ID, named speech message (e.g. "LevelWon"), or file path (.wav/.mp3).
+ */
+void speech_ref_parse(SpeechRef* ref, const char* text)
+{
+    ref->id = 0;
+    ref->path[0] = '\0';
+    if (text == NULL || text[0] == '\0')
+        return;
+    char* endptr;
+    long id = strtol(text, &endptr, 10);
+    if (*endptr == '\0') {
+        if (id >= 0 && id < SMsg_MAX)
+            ref->id = (int32_t)id;
+        else
+            WARNLOG("Speech ID %ld out of range [0,%d], ignoring", id, SMsg_MAX - 1);
+        return;
+    }
+    int smsg = get_id(speech_desc, text);
+    if (smsg > 0) {
+        ref->id = (int32_t)smsg;
+        return;
+    }
+    if (!value_is_sound_filepath(text)) {
+        WARNLOG("Unrecognized speech value '%s': not a number, known name, or audio file path", text);
+        return;
+    }
+    snprintf(ref->path, sizeof(ref->path), "%s", text);
+}
+
+/**
+ * NamedField parse function for SpeechRef fields.
+ * Accepts numeric IDs, named speech messages, or file paths.
+ * Sets s_speech_ref_pending_path and returns SPEECH_REF_PATH_SENTINEL for file paths.
+ */
+int64_t value_speech_ref(const struct NamedField* named_field, const char* value_text,
+                         const struct NamedFieldSet* named_fields_set, int idx,
+                         const char* src_str, unsigned char flags)
+{
+    s_speech_ref_pending_path[0] = '\0';
+    char* endptr;
+    long id = strtol(value_text, &endptr, 10);
+    if (*endptr == '\0') {
+        if (id < 0 || id >= SMsg_MAX) {
+            NAMFIELDWRNLOG("Speech ID %ld out of range [0,%d] for field '%s'", id, SMsg_MAX - 1, named_field->name);
+            return 0;
+        }
+        return (int64_t)id;
+    }
+    int smsg = get_id(speech_desc, value_text);
+    if (smsg > 0)
+        return (int64_t)smsg;
+    if (!value_is_sound_filepath(value_text)) {
+        NAMFIELDWRNLOG("Unrecognized speech value '%s' for field '%s': not a number, known name, or audio file path",
+                       value_text, named_field->name);
+        return 0;
+    }
+    snprintf(s_speech_ref_pending_path, sizeof(s_speech_ref_pending_path), "%s", value_text);
+    return SPEECH_REF_PATH_SENTINEL;
+}
+
+/**
+ * NamedField assign function for SpeechRef fields.
+ * Expects the field pointer to point to the start of a SpeechRef struct.
+ */
+void assign_speech_ref(const struct NamedField* named_field, int64_t value,
+                       const struct NamedFieldSet* named_fields_set, int idx,
+                       const char* src_str, unsigned char flags)
+{
+    char* field_ptr = (char*)named_field->field + named_fields_set->struct_size * idx;
+    char* base = (char*)named_fields_set->struct_base;
+    if (named_fields_set->struct_base == NULL || idx < 0 || idx >= named_fields_set->max_count ||
+        field_ptr < base || field_ptr >= base + named_fields_set->struct_size * named_fields_set->max_count)
+    {
+        NAMFIELDERRLOG("Field '%s' index %d out of bounds", named_field->name, idx);
+        return;
+    }
+    SpeechRef* ref = (SpeechRef*)field_ptr;
+    if (value == SPEECH_REF_PATH_SENTINEL && s_speech_ref_pending_path[0] != '\0') {
+        ref->id = 0;
+        snprintf(ref->path, sizeof(ref->path), "%s", s_speech_ref_pending_path);
+    } else {
+        ref->id = (int32_t)value;
+        ref->path[0] = '\0';
+    }
+}
+
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

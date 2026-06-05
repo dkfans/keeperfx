@@ -1115,6 +1115,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           memset(specst->code_name, 0, COMMAND_WORD_LEN);
           specst->artifact_model = 0;
           specst->tooltip_stridx = 0;
+          memset(&specst->speech, 0, sizeof(SpeechRef));
           special_desc[i].name = specst->code_name;
           special_desc[i].num = i;
           game.conf.object_conf.object_to_special_artifact[i] = 0;
@@ -1201,12 +1202,8 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
       case 4: // SPEECHPLAYED
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  specst->speech = k;
-                  n++;
-              }
+              speech_ref_parse(&specst->speech, word_buf);
+              n++;
           }
           if (n < 1)
           {

@@ -226,6 +226,58 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 }
 
 /**
+ * Plays a speech file by searching campaign/level/media/root directories.
+ * Uses the same resolution logic as g_speech_overrides paths.
+ */
+extern "C" TbBool output_message_from_path(const char* path, long duration)
+{
+	static const TbFileGroups search_groups[] = { FGrp_CmpgConfig, FGrp_CmpgLvls, FGrp_CmpgMedia, FGrp_Main };
+	const char* slash = strrchr(path, '/');
+	const char* lang  = get_language_lwrstr(install_info.lang_id);
+	const char* resolved = nullptr;
+	if (lang != nullptr && lang[0] != '\0') {
+		char lang_path[512];
+		if (slash != nullptr) {
+			snprintf(lang_path, sizeof(lang_path), "%.*s/%s/%s",
+				(int)(slash - path), path, lang, slash + 1);
+		} else {
+			snprintf(lang_path, sizeof(lang_path), "%s/%s", lang, path);
+		}
+		for (unsigned int g = 0; g < sizeof(search_groups)/sizeof(search_groups[0]); g++) {
+			const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", lang_path);
+			if (candidate != nullptr && LbFileExists(candidate)) {
+				resolved = candidate;
+				break;
+			}
+		}
+	}
+	if (resolved == nullptr) {
+		for (unsigned int g = 0; g < sizeof(search_groups)/sizeof(search_groups[0]); g++) {
+			const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", path);
+			if (candidate != nullptr && LbFileExists(candidate)) {
+				resolved = candidate;
+				break;
+			}
+		}
+	}
+	if (resolved == nullptr)
+		resolved = prepare_file_fmtpath(FGrp_Main, "%s", path);
+	return output_custom_message(resolved, duration);
+}
+
+/**
+ * Plays a speech message from a SpeechRef, using path-based playback if a path is set.
+ */
+extern "C" TbBool play_speech_ref(const SpeechRef* ref, long duration)
+{
+	if (ref->path[0] != '\0')
+		return output_message_from_path(ref->path, duration);
+	if (ref->id > 0)
+		return output_message(ref->id, duration);
+	return false;
+}
+
+/**
  * Plays a custom in-game voice message.
  *
  * @param fname Name of file to play.
@@ -341,10 +393,10 @@ extern "C" TbBool output_room_message(
 	const auto roomst = get_room_kind_stats(rkind);
 	switch (msg_kind)
 	{
-		case OMsg_RoomNeeded: return output_message(roomst->msg_needed, MESSAGE_DURATION_ROOM_NEED);
-		case OMsg_RoomTooSmall: return output_message(roomst->msg_too_small, MESSAGE_DURATION_ROOM_SMALL);
-		case OMsg_RoomFull: return output_message(roomst->msg_too_small, MESSAGE_DURATION_WORSHOP_FULL);
-		case OMsg_RoomNoRoute: return output_message(roomst->msg_no_route, MESSAGE_DURATION_ROOM_NEED);
+		case OMsg_RoomNeeded: return play_speech_ref(&roomst->msg_needed, MESSAGE_DURATION_ROOM_NEED);
+		case OMsg_RoomTooSmall: return play_speech_ref(&roomst->msg_too_small, MESSAGE_DURATION_ROOM_SMALL);
+		case OMsg_RoomFull: return play_speech_ref(&roomst->msg_too_small, MESSAGE_DURATION_WORSHOP_FULL);
+		case OMsg_RoomNoRoute: return play_speech_ref(&roomst->msg_no_route, MESSAGE_DURATION_ROOM_NEED);
 	}
 	return false;
 }

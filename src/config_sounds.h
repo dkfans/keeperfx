@@ -217,6 +217,35 @@ int64_t value_sound_id(const struct NamedField* named_field, const char* value_t
                        const struct NamedFieldSet* named_fields_set, int idx,
                        const char* src_str, unsigned char flags);
 
+/**
+ * @brief Parses a config text value into a SpeechRef.
+ *
+ * Accepts a numeric SMsg_* ID, a named speech message (e.g. "LevelWon"), or a file path (.wav/.mp3).
+ * Used by manual config parsers (e.g. config_magic.c).
+ */
+void speech_ref_parse(SpeechRef* ref, const char* text);
+
+/**
+ * @brief NamedField parse function for SpeechRef fields.
+ *
+ * Accepts numeric IDs, named speech messages, or audio file paths.
+ * When a file path is detected, stores it in an internal buffer and returns a sentinel value.
+ * Must be paired with assign_speech_ref.
+ */
+int64_t value_speech_ref(const struct NamedField* named_field, const char* value_text,
+                         const struct NamedFieldSet* named_fields_set, int idx,
+                         const char* src_str, unsigned char flags);
+
+/**
+ * @brief NamedField assign function for SpeechRef fields.
+ *
+ * Expects named_field->field to point to a SpeechRef struct within the named field set.
+ * Must be paired with value_speech_ref.
+ */
+void assign_speech_ref(const struct NamedField* named_field, int64_t value,
+                       const struct NamedFieldSet* named_fields_set, int idx,
+                       const char* src_str, unsigned char flags);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
