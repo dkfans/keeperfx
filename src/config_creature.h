@@ -65,6 +65,7 @@ enum CreatureModelFlags {
     CMF_EventfulDeath     = 0x080000, // The LAST_DEATH_EVENT[] script location is updated on death.
     CMF_IsDiggingCreature = 0x100000, // unit still counts as a regular creature but can also do digger tasks (like tunneler)
     CMF_NoHealthFlower    = 0x200000,
+    CMF_CannotPickUp      = 0x400000,
 };
 
 // Before C23 standard, we cannot specify the underlaying type (in this case we want 64bit int) of enum.
