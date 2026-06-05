@@ -381,7 +381,7 @@ static TbBool load_translation_config_file(const char* filepath, unsigned short 
     return true;
 }
 
-int32_t get_string_id_by_alias(const char* alias)
+TextStringId get_string_id_by_alias(const char* alias)
 {
     if (parameter_is_number(alias))
     {
@@ -402,7 +402,7 @@ int32_t get_string_id_by_alias(const char* alias)
     return -1;
 }
 
-const char* get_translation_file_string(int32_t string_id)
+const char* get_translation_file_string(TextStringId string_id)
 {
     if (string_id < STRINGS_MAX + GUI_STRINGS_COUNT + 1 || string_id > STRINGS_MAX + GUI_STRINGS_COUNT + translation_count)
         return "oh_crap_invalid_string_id";
