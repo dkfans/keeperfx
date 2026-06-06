@@ -3943,6 +3943,10 @@ void game_loop(void)
       }
       if ( exit_keeper )
         break;
+
+      int32_t mspos_x_bak = lbDisplay.MMouseX;
+      int32_t mspos_y_bak = lbDisplay.MMouseY;
+
       if (game.game_kind == GKind_LocalGame)
       {
         if (game.save_game_slot == -1)
@@ -3971,6 +3975,12 @@ void game_loop(void)
               }
           }
       }
+
+      // Try to keep the mouse position unchanged when entering the level.
+      // The main considerations are:
+      // 1. Launch the level via command line and configure SKIP_HEART_ZOOM.
+      // 2. PI_HeartZoom will affect mouse position
+      LbMouseSetPositionInitial(mspos_x_bak, mspos_y_bak);
 
       unsigned long starttime;
       unsigned long endtime;
