@@ -292,6 +292,45 @@ static const char *get_language_value(VALUE *section, uint8_t lang_id)
     return NULL;
 }
 
+static void add_entry_to_translation_table(const char *alias, const char *text)
+{
+    int32_t entry_index = -1;
+    TbBool is_new_entry = true;
+    for (int32_t i = 0; i < translation_count; i++)
+    {
+        if (strcmp(translation_table[i].alias, alias) == 0)
+        {
+            entry_index = i;
+            is_new_entry = false;
+            break;
+        }
+    }
+
+    if (entry_index == -1)
+    {
+        entry_index = translation_count;
+        translation_count++;
+    }
+
+    TranslationEntry *entry = &translation_table[entry_index];
+    if (!is_new_entry)
+    {
+        free(entry->text);
+        entry->text = NULL;
+    }
+
+    strncpy(entry->alias, alias, MAX_ALIAS_LEN - 1);
+    entry->alias[MAX_ALIAS_LEN - 1] = '\0';
+
+    size_t len = strlen(text);
+    size_t alloc_size = len + 1;
+    if (is_dbc_language(install_info.lang_id))
+        alloc_size = len * 2 + 1;
+    entry->text = (char *)calloc(alloc_size, 1);
+    if (entry->text)
+        convert_utf8_to_internal_codepage(text, entry->text, alloc_size);
+}
+
 static int translation_section_visitor(const VALUE *key, VALUE *section, void *ctx)
 {
     int current_language_id = install_info.lang_id;
@@ -315,20 +354,8 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
     
     if (!text) text = alias;
 
-    TranslationEntry *entry = &translation_table[translation_count];
+    add_entry_to_translation_table(alias, text);
 
-    strncpy(entry->alias, alias, MAX_ALIAS_LEN - 1);
-    entry->alias[MAX_ALIAS_LEN - 1] = '\0';
-
-    size_t len = strlen(text);
-    size_t alloc_size = len + 1;
-    if (is_dbc_language(current_language_id))
-        alloc_size = len * 2 + 1;
-    entry->text = (char *)calloc(alloc_size, 1);
-    if (entry->text)
-        convert_utf8_to_internal_codepage(text, entry->text, alloc_size);
-
-    translation_count++;
     return 0;
 }
 
@@ -345,6 +372,11 @@ void clear_translation_table(void)
 
 static TbBool load_translation_config_file(const char* filepath, unsigned short flags)
 {
+    if (!flag_is_set(flags, CnfLd_AcceptPartial))
+    {
+        clear_translation_table();
+    }
+
     long len = LbFileLengthRnc(filepath);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
