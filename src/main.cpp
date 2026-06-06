@@ -3978,8 +3978,8 @@ void game_loop(void)
 
       // Try to keep the mouse position unchanged when entering the level.
       // The main considerations are:
-      // 1. Launch the level via command line and configure SKIP_HEART_ZOOM.
-      // 2. PI_HeartZoom will affect mouse position
+      // 1. SKIP_HEART_ZOOM: the mouse icon position will be reset to the top-left corner (0, 0), but the actual mouse position remains unchanged.
+      // 2. PI_HeartZoom: the mouse will be moved to the center of the screen.
       LbMouseSetPositionInitial(mspos_x_bak, mspos_y_bak);
 
       unsigned long starttime;
