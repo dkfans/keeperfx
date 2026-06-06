@@ -193,6 +193,35 @@ static unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
     return '?';
 }
 
+static uint32_t read_utf_8_codepoint(const char *text, size_t *out_seq_len)
+{
+    if ((text[0] & 0x80) == 0)
+    {
+        *out_seq_len = 1;
+        return text[0];
+    }
+    else if ((text[0] & 0xE0) == 0xC0 && text[1] != '\0' && (text[1] & 0xC0) == 0x80)
+    {
+        *out_seq_len = 2;
+        return ((text[0] & 0x1F) << 6) | (text[1] & 0x3F);
+    }
+    else if ((text[0] & 0xF0) == 0xE0 && text[1] != '\0' && text[2] != '\0' && (text[1] & 0xC0) == 0x80 && (text[2] & 0xC0) == 0x80)
+    {
+        *out_seq_len = 3;
+        return ((text[0] & 0x0F) << 12) | ((text[1] & 0x3F) << 6) | (text[2] & 0x3F);
+    }
+    else if ((text[0] & 0xF8) == 0xF0 && text[1] != '\0' && text[2] != '\0' && text[3] != '\0' && (text[1] & 0xC0) == 0x80 && (text[2] & 0xC0) == 0x80 && (text[3] & 0xC0) == 0x80)
+    {
+        *out_seq_len = 4;
+        return ((text[0] & 0x07) << 18) | ((text[1] & 0x3F) << 12) | ((text[2] & 0x3F) << 6) | (text[3] & 0x3F);
+    }
+    else
+    {
+        *out_seq_len = 1;
+        return '?';
+    }
+}
+
 static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t dst_size)
 {
     size_t out_len = 0;
@@ -202,32 +231,7 @@ static void convert_utf8_to_internal_codepage(const char *src, char *dst, size_t
     {
         unsigned long codepoint;
         size_t seq_len;
-        if (*text < 0x80)
-        {
-            codepoint = *text;
-            seq_len = 1;
-        }
-        else if ((*text & 0xE0) == 0xC0 && (text[1] & 0xC0) == 0x80)
-        {
-            codepoint = ((text[0] & 0x1F) << 6) | (text[1] & 0x3F);
-            seq_len = 2;
-        }
-        else if ((*text & 0xF0) == 0xE0 && (text[1] & 0xC0) == 0x80 && (text[2] & 0xC0) == 0x80)
-        {
-            codepoint = ((text[0] & 0x0F) << 12) | ((text[1] & 0x3F) << 6) | (text[2] & 0x3F);
-            seq_len = 3;
-        }
-        else if ((*text & 0xF8) == 0xF0 && (text[1] & 0xC0) == 0x80 && (text[2] & 0xC0) == 0x80 && (text[3] & 0xC0) == 0x80)
-        {
-            codepoint = ((text[0] & 0x07) << 18) | ((text[1] & 0x3F) << 12) | ((text[2] & 0x3F) << 6) | (text[3] & 0x3F);
-            seq_len = 4;
-        }
-        else
-        {
-            dst[out_len++] = '?';
-            text += 1;
-            continue;
-        }
+        codepoint = read_utf_8_codepoint((const char *)text, &seq_len);
 
         if (dbc_language != 0)
         {
