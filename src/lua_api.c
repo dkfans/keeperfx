@@ -1208,7 +1208,7 @@ static int lua_New_creature_type(lua_State* L)
         if (strcmp(creature_desc[j].name, creature_name) == 0)
         {
             SCRPTERRLOG("Trying to add creature type that already exists: %s", creature_name);
-            return;
+            return 0;
         }
     }
     int i = game.conf.crtr_conf.model_count;
