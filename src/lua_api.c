@@ -1203,7 +1203,14 @@ static int lua_New_creature_type(lua_State* L)
         SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", creature_name, CREATURE_TYPES_MAX);
         return 0;
     }
-
+    for (int j = 0; j < (game.conf.crtr_conf.model_count - 1); j++)
+    {
+        if (strcmp(creature_desc[j].name, creature_name) == 0)
+        {
+            SCRPTERRLOG("Trying to add creature type that already exists: %s", creature_name);
+            return;
+        }
+    }
     int i = game.conf.crtr_conf.model_count;
     game.conf.crtr_conf.model_count++;
     snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", creature_name);

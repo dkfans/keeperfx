@@ -1667,7 +1667,14 @@ static void new_creature_type_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", scline->tp[0], CREATURE_TYPES_MAX);
         return;
     }
-
+    for (int j = 0; j < (game.conf.crtr_conf.model_count-1); j++)
+    {
+        if (strcmp(creature_desc[j].name, scline->tp[0]) == 0)
+        {
+            SCRPTERRLOG("Trying to add creature type that already exists: %s", scline->tp[0]);
+            return;
+        }
+    }
     int i = game.conf.crtr_conf.model_count;
     game.conf.crtr_conf.model_count++;
     snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
