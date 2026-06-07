@@ -567,6 +567,7 @@ static bool resolve_creature_sound_path(const char* path_in, char* out_path, siz
 static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, size_t out_size)
 {
     static const TbFileGroups groups[] = { FGrp_CmpgLvls, FGrp_CmpgConfig, FGrp_FxData, FGrp_CmpgMedia, FGrp_Main };
+    [[maybe_unused]]
     static const char* group_names[]   = { "FGrp_CmpgLvls", "FGrp_CmpgConfig", "FGrp_FxData", "FGrp_CmpgMedia", "FGrp_Main" };
     static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
 
@@ -574,7 +575,7 @@ static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, s
     const char* slash = strrchr(path_in, '/');
     bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
 
-    WARNLOG("Sound path search for '%s' (has_ext=%d)", path_in, (int)has_ext);
+    SYNCDBG(7,"Sound path search for '%s' (has_ext=%d)", path_in, (int)has_ext);
 
     for (int gi = 0; gi < (int)(sizeof(groups)/sizeof(groups[0])); gi++) {
         for (int ei = 0; exts[ei] != NULL; ei++) {
@@ -585,7 +586,7 @@ static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, s
             snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
             const char* resolved = prepare_file_path((TbFileGroups)groups[gi], candidate);
             bool exists = (resolved != NULL) && LbFileExists(resolved);
-            WARNLOG("  [%s] '%s' -> '%s' (%s)",
+            SYNCDBG(7,"[%s] '%s' -> '%s' (%s)",
                 group_names[gi], candidate,
                 resolved ? resolved : "(null)",
                 exists ? "FOUND" : "not found");
