@@ -160,11 +160,11 @@ bool played_recently(const char * fname)
 
 // Helper: resolve a speech file path using a 5-step fallback strategy:
 //   1. Language-specific variant (e.g. speech/dut/file.ogg)
-//   2. English variant           (e.g. speech/eng/file.ogg)
-//   3. Base fallback path        (e.g. speech/file.ogg)
+//   2. Base fallback path        (e.g. speech/file.ogg)
+//   3. English variant           (e.g. speech/eng/file.ogg)
 //   4. First available language subdirectory
 //   5. Empty string (not found)
-enum class SpeechResolveResult { LanguageMatch, FallbackEng, FallbackBase, FallbackAnyLang, NotFound };
+enum class SpeechResolveResult { LanguageMatch, FallbackBase, FallbackEng, FallbackAnyLang, NotFound };
 
 static std::string resolve_speech_path(const char* path, const char* lang,
                                        SpeechResolveResult& result,
