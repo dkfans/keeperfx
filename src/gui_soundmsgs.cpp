@@ -158,12 +158,13 @@ bool played_recently(const char * fname)
 
 } // local
 
-// Helper: resolve a speech file path using a 4-step fallback strategy:
+// Helper: resolve a speech file path using a 5-step fallback strategy:
 //   1. Language-specific variant (e.g. speech/dut/file.ogg)
-//   2. Base fallback path     (e.g. speech/file.ogg)
-//   3. First available language subdirectory (e.g. speech/eng/file.ogg)
-//   4. Empty string (not found)
-enum class SpeechResolveResult { LanguageMatch, FallbackBase, FallbackAnyLang, NotFound };
+//   2. English variant           (e.g. speech/eng/file.ogg)
+//   3. Base fallback path        (e.g. speech/file.ogg)
+//   4. First available language subdirectory
+//   5. Empty string (not found)
+enum class SpeechResolveResult { LanguageMatch, FallbackEng, FallbackBase, FallbackAnyLang, NotFound };
 
 static std::string resolve_speech_path(const char* path, const char* lang,
                                        SpeechResolveResult& result,
@@ -194,7 +195,25 @@ static std::string resolve_speech_path(const char* path, const char* lang,
 		}
 	}
 
-	// Step 2: base fallback path
+	// Step 2: English variant (if not already English)
+	if (lang == nullptr || strcmp(lang, "eng") != 0) {
+		char eng_path[512];
+		if (slash != nullptr) {
+			snprintf(eng_path, sizeof(eng_path), "%.*s/eng/%s",
+				(int)(slash - path), path, slash + 1);
+		} else {
+			snprintf(eng_path, sizeof(eng_path), "eng/%s", path);
+		}
+		for (unsigned int g = 0; g < num_groups; g++) {
+			const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", eng_path);
+			if (candidate != nullptr && LbFileExists(candidate)) {
+				result = SpeechResolveResult::FallbackEng;
+				return std::string(candidate);
+			}
+		}
+	}
+
+	// Step 3: base fallback path
 	for (unsigned int g = 0; g < num_groups; g++) {
 		const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", path);
 		if (candidate != nullptr && LbFileExists(candidate)) {
@@ -203,7 +222,7 @@ static std::string resolve_speech_path(const char* path, const char* lang,
 		}
 	}
 
-	// Step 3: first available language subdirectory
+	// Step 4: first available language subdirectory
 	const char* filename = (slash != nullptr) ? (slash + 1) : path;
 	for (unsigned int g = 0; g < num_groups; g++) {
 		char base_dir[2048];
@@ -256,10 +275,12 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 			SpeechResolveResult resolve_result;
 			std::string found_lang;
 			std::string resolved = resolve_speech_path(spath, lang, resolve_result, found_lang);
-			if (resolve_result == SpeechResolveResult::FallbackBase) {
-				WARNLOG("No speech for language '%s', using base fallback: %s", lang, spath);
+			if (resolve_result == SpeechResolveResult::FallbackEng) {
+				WARNLOG("No speech for language '%s', using English fallback: %s", lang, spath);
+			} else if (resolve_result == SpeechResolveResult::FallbackBase) {
+				WARNLOG("No speech for language '%s' or English, using base fallback: %s", lang, spath);
 			} else if (resolve_result == SpeechResolveResult::FallbackAnyLang) {
-				WARNLOG("No speech for language '%s' or fallback, using first available language '%s': %s",
+				WARNLOG("No speech for language '%s', English, or base fallback, using first available language '%s': %s",
 					lang, found_lang.c_str(), spath);
 			} else if (resolve_result == SpeechResolveResult::NotFound) {
 				WARNLOG("Speech '%s' not found for language '%s' and no fallback or alternative language exists",
@@ -283,7 +304,7 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 
 /**
  * Plays a speech file by searching campaign/level/media/root directories.
- * Applies 4-step fallback: language variant -> base path -> any language -> nothing.
+ * Applies 5-step fallback: language variant -> eng -> base path -> any language -> nothing.
  */
 extern "C" TbBool output_message_from_path(const char* path, long duration)
 {
@@ -291,10 +312,12 @@ extern "C" TbBool output_message_from_path(const char* path, long duration)
 	SpeechResolveResult resolve_result;
 	std::string found_lang;
 	std::string resolved = resolve_speech_path(path, lang, resolve_result, found_lang);
-	if (resolve_result == SpeechResolveResult::FallbackBase) {
-		WARNLOG("No speech for language '%s', using base fallback: %s", lang, path);
+	if (resolve_result == SpeechResolveResult::FallbackEng) {
+		WARNLOG("No speech for language '%s', using English fallback: %s", lang, path);
+	} else if (resolve_result == SpeechResolveResult::FallbackBase) {
+		WARNLOG("No speech for language '%s' or English, using base fallback: %s", lang, path);
 	} else if (resolve_result == SpeechResolveResult::FallbackAnyLang) {
-		WARNLOG("No speech for language '%s' or fallback, using first available language '%s': %s",
+		WARNLOG("No speech for language '%s', English, or base fallback, using first available language '%s': %s",
 			lang, found_lang.c_str(), path);
 	} else if (resolve_result == SpeechResolveResult::NotFound) {
 		WARNLOG("Speech '%s' not found for language '%s' and no fallback or alternative language exists",
