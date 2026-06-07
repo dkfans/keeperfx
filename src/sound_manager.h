@@ -88,7 +88,7 @@ public:
     /**
      * @brief Play creature sound (uses existing system)
      * @param thing Creature thing
-     * @param sound_type Sound type (CrSnd_Hurt, CrSnd_Slap, etc.)
+     * @param sound_type Sound type (CrSnd_Hit, CrSnd_Slap, etc.)
      * @param priority Priority (default 3)
      */
     void playCreatureSound(struct Thing* thing, long sound_type, long priority = 3);

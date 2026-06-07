@@ -230,7 +230,6 @@ const struct NamedCommand creatmodel_jobs_commands[] = {
   };
 
 const struct NamedCommand creatmodel_sounds_commands[] = {
-  {"HURT",                 CrSnd_Hurt},
   {"HIT",                  CrSnd_Hit},
   {"HAPPY",                CrSnd_Happy},
   {"SAD",                  CrSnd_Sad},
@@ -242,7 +241,6 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
   {"FOOT",                 CrSnd_Foot},
   {"FIGHT",                CrSnd_Fight},
   {"PISS",                 CrSnd_Piss},
-  {"CUSTOMSOUND",          CrSnd_CustomSound},
   {NULL,                   0},
   };
 
@@ -2358,38 +2356,6 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
-        case CrSnd_Hurt:
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                if (is_sound_file_path(word_buf))
-                {
-                    char count_buf[COMMAND_WORD_LEN];
-                    int file_count = 1;
-                    if (get_conf_parameter_single(buf,&pos,len,count_buf,sizeof(count_buf)) > 0) { file_count = atoi(count_buf); n++; }
-                    load_creature_sound_from_path(crtr_model, "Hurt", word_buf, file_count, config_textname);
-                }
-                else
-                {
-                    if (is_sound_none_keyword(word_buf)) {
-                        game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = 0;
-                    } else {
-                        k = atoi(word_buf);
-                        game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = k;
-                        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
-                            k = atoi(word_buf);
-                            game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
-                            n++;
-                        }
-                    }
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
         case CrSnd_Hit:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
@@ -2753,85 +2719,6 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_name, config_textname);
-            }
-            break;
-        case CrSnd_CustomSound:
-            {
-                // Parse: CustomSound = <sound_type> [file1.wav, file2.wav, ...]
-                char sound_type[COMMAND_WORD_LEN];
-                char wav_paths[32][512];  // Support up to 32 WAV files
-                int wav_count = 0;
-                
-                // Read sound type
-                if (get_conf_parameter_single(buf,&pos,len,sound_type,sizeof(sound_type)) > 0)
-                {
-                    n++;
-                    
-                    // Check for array format [file1, file2, ...]
-                    // Skip whitespace
-                    while (pos < len && (buf[pos] == ' ' || buf[pos] == '\t')) pos++;
-                    
-                    if (pos < len && buf[pos] == '[')
-                    {
-                        // Array format - read comma-separated list
-                        pos++; // Skip opening bracket
-                        
-                        while (wav_count < 32 && pos < len)
-                        {
-                            // Skip whitespace
-                            while (pos < len && (buf[pos] == ' ' || buf[pos] == '\t')) pos++;
-                            
-                            // Check for closing bracket
-                            if (buf[pos] == ']') {
-                                pos++;
-                                break;
-                            }
-                            
-                            // Read filename
-                            int idx = 0;
-                            while (pos < len && buf[pos] != ',' && buf[pos] != ']' && buf[pos] != '\n' && buf[pos] != '\r' && idx < 511)
-                            {
-                                if (buf[pos] != ' ' || idx > 0) // Skip leading spaces but keep internal ones
-                                {
-                                    wav_paths[wav_count][idx++] = buf[pos];
-                                }
-                                pos++;
-                            }
-                            
-                            // Trim trailing spaces
-                            while (idx > 0 && wav_paths[wav_count][idx-1] == ' ') idx--;
-                            wav_paths[wav_count][idx] = '\0';
-                            
-                            if (idx > 0)
-                            {
-                                wav_count++;
-                                n++;
-                            }
-                            
-                            // Skip comma if present
-                            if (pos < len && buf[pos] == ',') pos++;
-                        }
-                    }
-                    else
-                    {
-                        // Legacy format - space-separated list
-                        while (wav_count < 32 && get_conf_parameter_single(buf,&pos,len,wav_paths[wav_count],sizeof(wav_paths[0])) > 0)
-                        {
-                            wav_count++;
-                            n++;
-                        }
-                    }
-                }
-                
-                if (n >= 2 && wav_count > 0)
-                {
-                    load_creature_custom_sounds(crtr_model, sound_type, (const char*)wav_paths, wav_count, config_textname);
-                }
-                else
-                {
-                    CONFWRNLOG("Incorrect CustomSound syntax in [%s] block of %s file. Expected: CustomSound = <type> [file1, file2, ...]",
-                        block_name, config_textname);
-                }
             }
             break;
         case ccr_comment:

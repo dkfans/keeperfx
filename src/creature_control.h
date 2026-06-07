@@ -56,20 +56,17 @@ struct Thing;
 struct PlayerInfo;
 
 enum CreatureSoundTypes {
-    CrSnd_None      = 0,
-    CrSnd_Hurt      = 1,
-    CrSnd_Hit       = 2,
-    CrSnd_Happy     = 3,
-    CrSnd_Sad       = 4,
-    CrSnd_Hang      = 5,
-    CrSnd_Drop      = 6,
-    CrSnd_Torture   = 7,
-    CrSnd_Slap      = 8,
-    CrSnd_Die       = 9,
-    CrSnd_Foot      = 10,
-    CrSnd_Fight     = 11,
-    CrSnd_Piss      = 12,
-    CrSnd_CustomSound = 13,
+    CrSnd_Hit = 1,
+    CrSnd_Happy = 2,
+    CrSnd_Sad = 3,
+    CrSnd_Hang = 4,
+    CrSnd_Drop = 5,
+    CrSnd_Torture = 6,
+    CrSnd_Slap = 7,
+    CrSnd_Die = 8,
+    CrSnd_Foot = 9,
+    CrSnd_Fight = 10,
+    CrSnd_Piss = 11,
 };
 
 enum CreatureControlFlags {
