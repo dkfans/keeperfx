@@ -97,6 +97,14 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
         if (dungeon->backup_heart_idx == 0)
         {
             dungeon->backup_heart_idx = thing->index;
+        } else
+        {
+            struct Thing* backup = thing_get(dungeon->backup_heart_idx);
+            if (!thing_is_dungeon_heart(backup))
+            {
+                ERRORLOG("%s had invalid backup heart %s", player_code_name(plyr_idx), thing_model_name(backup));
+                dungeon->backup_heart_idx = thing->index;
+            }
         }
     }
     // Try to move thing out of the solid wall if it's inside one
