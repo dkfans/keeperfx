@@ -177,7 +177,7 @@ SoundSmplTblID SoundManager::loadCustomSound(const std::string& name, const std:
     
     total_custom_sounds_++;
     
-    SYNCLOG("Loaded custom sound '%s' as bank index %d (filepath: %s)",
+    SYNCDBG(7,"Loaded custom sound '%s' as bank index %d (filepath: %s)",
            name.c_str(), bank_index, filepath.c_str());
     
     return get_custom_offset() + bank_index;
@@ -192,11 +192,11 @@ bool SoundManager::loadWavFile(const std::string& filepath, SoundSmplTblID sampl
     // Try to load WAV file (no LbFileExists check - prepare_file_path already resolved it)
     // Use bridge function to load WAV
     if (!custom_sound_load_wav(full_path, sample_id)) {
-        SYNCLOG("Failed to load WAV: %s", full_path);
+        WARNLOG("Failed to load WAV: %s", full_path);
         return false;
     }
     
-    SYNCLOG("Successfully loaded WAV file: %s (sample %d, bank index %d)",
+    SYNCDBG(7,"Successfully loaded WAV file: %s (sample %d, bank index %d)",
            full_path, sample_id, custom_sound_bank_size() - 1);
     return true;
 }
