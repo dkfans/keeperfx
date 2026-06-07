@@ -1195,7 +1195,7 @@ TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
         const char* sounds_dir = (campaign.configs_location[0] != '\0')
             ? campaign.configs_location
             : campaign.levels_location;
-        WARNLOG("Campaign sounds: configs_location='%s' levels_location='%s' -> using='%s'",
+        SYNCDBG(7,"Campaign sounds: configs_location='%s' levels_location='%s' -> using='%s'",
             campaign.configs_location, campaign.levels_location, sounds_dir);
         load_campaign_sounds_config(sounds_dir);
         for (int i = 0; i < mods_conf.after_base_cnt; i++)

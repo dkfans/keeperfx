@@ -515,7 +515,7 @@ static TbBool parse_sounds_section(char* buf, long len, const char* config_textn
  */
 static TbBool load_sounds_config_file(const char *fname, unsigned short flags)
 {
-    WARNLOG("load_sounds_config_file: attempting \"%s\"", fname);
+    SYNCDBG(0, "%s file \"%s\".", ((flags & CnfLd_ListOnly) == 0) ? "Reading" : "Parsing", fname);
     
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
@@ -573,7 +573,7 @@ TbBool load_campaign_sounds_config(const char* levels_location)
 {
     if (levels_location == NULL || levels_location[0] == '\0')
     {
-        WARNLOG("load_campaign_sounds_config: no location provided");
+        SYNCDBG(7,"load_campaign_sounds_config: no location provided");
         return false;
     }
 
@@ -581,7 +581,7 @@ TbBool load_campaign_sounds_config(const char* levels_location)
     snprintf(filepath, sizeof(filepath), "%s/sounds.cfg", levels_location);
 
     const char* fullpath = prepare_file_path(FGrp_Main, filepath);
-    WARNLOG("load_campaign_sounds_config: dir='%s' -> full='%s'", levels_location, fullpath ? fullpath : "(null)");
+    SYNCDBG(7,"load_campaign_sounds_config: dir='%s' -> full='%s'", levels_location, fullpath ? fullpath : "(null)");
     if (fullpath == NULL)
     {
         return false;
@@ -649,7 +649,7 @@ TbBool cache_common_sound_ids(void)
     SoundSmplTblID id;
     int count;
 
-    #define CACHE_SND(var, name)           id = sound_manager_get_id(name); if (id > 0) { WARNLOG("cache_common_sound_ids: %s -> %d (was %d)", name, id, var); var = id; }
+    #define CACHE_SND(var, name)           id = sound_manager_get_id(name); if (id > 0) { SYNCDBG(7,"cache_common_sound_ids: %s -> %d (was %d)", name, id, var); var = id; }
     #define CACHE_SND_COUNT(var, cvar, nm) id = sound_manager_get_id(nm);   if (id > 0) { var = id; count = sound_manager_get_count(nm); if (count > 0) cvar = count; }
 
     CACHE_SND(snd_refusal,         "REFUSAL")

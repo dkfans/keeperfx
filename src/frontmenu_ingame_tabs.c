@@ -2892,7 +2892,6 @@ void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
     {
         struct Packet* pckt = get_packet(player->id_number);
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
-        SYNCLOG("snd_tab_click id=%d (default=62)", (int)snd_tab_click);
         play_non_3d_sample(snd_tab_click);
     }
 }
@@ -2906,7 +2905,6 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
     {
         struct Packet* pckt = get_packet(player->id_number);
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
-        SYNCLOG("snd_tab_click id=%d (default=62)", (int)snd_tab_click);
         play_non_3d_sample(snd_tab_click);
     }
 }
