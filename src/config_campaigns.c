@@ -1192,14 +1192,10 @@ TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
     // Prefer CONFIGS_LOCATION for sounds.cfg (it's a config), fall back to LEVELS_LOCATION.
     if (result)
     {
-        const char* sounds_dir = (campaign.configs_location[0] != '\0')
-            ? campaign.configs_location
-            : campaign.levels_location;
-        SYNCDBG(7,"Campaign sounds: configs_location='%s' levels_location='%s' -> using='%s'",
-            campaign.configs_location, campaign.levels_location, sounds_dir);
-        load_campaign_sounds_config(sounds_dir);
+        const char* sounds_dir = campaign.configs_location;
         for (int i = 0; i < mods_conf.after_base_cnt; i++)
             load_mod_sounds_config(mods_conf.after_base_item[i].name);
+        load_campaign_sounds_config(sounds_dir);
         for (int i = 0; i < mods_conf.after_campaign_cnt; i++)
             load_mod_sounds_config(mods_conf.after_campaign_item[i].name);
     }
