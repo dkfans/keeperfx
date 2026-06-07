@@ -736,11 +736,7 @@ int64_t value_sound_id(const struct NamedField* named_field, const char* value_t
     {
         return (int64_t)id;
     }
-    if (value_is_sound_filepath(value_text))
-    {
-        NAMFIELDWRNLOG("Failed to load sound file for field '%s': '%s'", named_field->name, value_text);
-    }
-    else
+    if (!value_is_sound_filepath(value_text))
     {
         NAMFIELDWRNLOG("Unrecognized sound name for field '%s', got '%s'", named_field->name, value_text);
     }

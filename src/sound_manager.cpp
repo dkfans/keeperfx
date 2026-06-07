@@ -596,7 +596,7 @@ static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, s
             }
         }
     }
-    WARNLOG("Sound path NOT resolved: '%s'", path_in);
+    SYNCDBG(7,"Sound path NOT resolved : '%s'", path_in);
     return false;
 }
 
@@ -618,12 +618,12 @@ SoundSmplTblID sound_manager_load_named_sound(const char* name, const char* path
     if (count <= 1) {
         char full_path[2048];
         if (!resolve_sounds_cfg_sound_path(path_in, full_path, sizeof(full_path))) {
-            WARNLOG("Named sound file not found: '%s' (name '%s')", path_in, name);
+            SYNCDBG(7,"Named sound file not found: '%s' (name '%s')", path_in, name);
             return 0;
         }
         SoundSmplTblID id = sm.loadCustomSound(name, full_path);
         if (id <= 0) {
-            WARNLOG("Failed to load named sound '%s' from '%s'", name, full_path);
+            SYNCDBG(7,"Failed to load named sound '%s' from '%s'", name, full_path);
             return 0;
         }
         // Custom sounds live in custom_sounds_ which takes priority in getSoundId —

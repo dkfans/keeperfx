@@ -276,11 +276,11 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 			std::string found_lang;
 			std::string resolved = resolve_speech_path(spath, lang, resolve_result, found_lang);
 			if (resolve_result == SpeechResolveResult::FallbackEng) {
-				WARNLOG("No speech for language '%s', using English fallback: %s", lang, spath);
+                SYNCDBG(8, "No speech for language '%s', using English fallback: %s", lang, spath);
 			} else if (resolve_result == SpeechResolveResult::FallbackBase) {
-				WARNLOG("No speech for language '%s' or English, using base fallback: %s", lang, spath);
+                SYNCDBG(8, "No speech for language '%s' or English, using base fallback: %s", lang, spath);
 			} else if (resolve_result == SpeechResolveResult::FallbackAnyLang) {
-				WARNLOG("No speech for language '%s', English, or base fallback, using first available language '%s': %s",
+                SYNCDBG(8, "No speech for language '%s', English, or base fallback, using first available language '%s': %s",
 					lang, found_lang.c_str(), spath);
 			} else if (resolve_result == SpeechResolveResult::NotFound) {
 				WARNLOG("Speech '%s' not found for language '%s' and no fallback or alternative language exists",
@@ -313,11 +313,11 @@ extern "C" TbBool output_message_from_path(const char* path, long duration)
 	std::string found_lang;
 	std::string resolved = resolve_speech_path(path, lang, resolve_result, found_lang);
 	if (resolve_result == SpeechResolveResult::FallbackEng) {
-		WARNLOG("No speech for language '%s', using English fallback: %s", lang, path);
+        SYNCDBG(8, "No speech for language '%s', using English fallback: %s", lang, path);
 	} else if (resolve_result == SpeechResolveResult::FallbackBase) {
-		WARNLOG("No speech for language '%s' or English, using base fallback: %s", lang, path);
+        SYNCDBG(8, "No speech for language '%s' or English, using base fallback: %s", lang, path);
 	} else if (resolve_result == SpeechResolveResult::FallbackAnyLang) {
-		WARNLOG("No speech for language '%s', English, or base fallback, using first available language '%s': %s",
+        SYNCDBG(8, "No speech for language '%s', English, or base fallback, using first available language '%s': %s",
 			lang, found_lang.c_str(), path);
 	} else if (resolve_result == SpeechResolveResult::NotFound) {
 		WARNLOG("Speech '%s' not found for language '%s' and no fallback or alternative language exists",
