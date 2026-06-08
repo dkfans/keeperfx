@@ -1,0 +1,32 @@
+# translations 
+# the alliases can be used in cfgs anywhere a text id is used
+
+# DRUID_NAME is used in creatrs/druid.cfg
+[DRUID_NAME]
+ENG = "Druid"
+CHI = "德鲁伊"
+# if traditional chinese hasn't been translated it'll fallback on CHI
+#CHT = 
+# other languages (or when chi is also missing) will fallback on ENG 
+# so in this case the Czech,Polish and Swedish is technically redundant in this example as it's same word as ENG 
+CZE = "Druid"
+DUT = "Druïde"
+FRE = "Druide"
+GER = "Druide"
+ITA = "Druido"
+JPN = "ドルイド"
+KOR = "드루이드"
+LAT = "Druida"
+POL = "Druid"
+POR = "Druida"
+RUS = "Друид"
+SPA = "Druida"
+SWE = "Druid"
+UKR = "Друїд"
+
+
+[MY_MAP_OBJECTIVE]
+# this one is just an example for maps where multiline objectives are needed
+# toml can do multiline by using 3 quotes like this
+ENG = """Go kill some stuff
+oh and while you're at it, do something else too"""
