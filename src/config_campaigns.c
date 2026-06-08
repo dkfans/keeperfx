@@ -648,7 +648,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           else {
               k = atoi(word_buf);
                 if (k > 0) {
-                    const char* newname = get_string(STRINGS_MAX+k);
+                    const char* newname = get_string(GUI_STRINGS_START+k);
                     if (strcasecmp(newname,"") != 0) {
                         snprintf(campgn->display_name, LINEMSG_SIZE, "%s", newname); // use the index provided in the config file to get a specific UI string
                     }
