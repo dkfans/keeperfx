@@ -77,23 +77,20 @@ static void push_free_thing_index(unsigned short *free_list, ThingIndex *count, 
     }
 }
 
-void remove_thing_as_dungeon_heart(struct Thing *thing)
+static void remove_thing_as_dungeon_heart(struct Thing *thing)
 {
+    if (!thing_is_dungeon_heart(thing))
+        return;
+
     struct Dungeon *dungeon = get_dungeon(thing->owner);
-    if (!dungeon_invalid(dungeon))
-    {
-        if (thing_is_dungeon_heart(thing))
-        {
-            if (thing->index == dungeon->dnheart_idx)
-            {
-                dungeon->dnheart_idx = 0;
-            }
-            if (thing->index == dungeon->backup_heart_idx)
-            {
-                dungeon->backup_heart_idx = 0;
-            }
-        }
-    }
+    if (dungeon_invalid(dungeon))
+        return;
+
+    if (thing->index == dungeon->dnheart_idx)
+        dungeon->dnheart_idx = 0;
+            
+    if (thing->index == dungeon->backup_heart_idx)
+        dungeon->backup_heart_idx = 0;
 }
 
 static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const char *func_name)
