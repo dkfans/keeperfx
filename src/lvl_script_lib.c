@@ -206,6 +206,39 @@ struct Thing* script_process_new_corpse(ThingModel tngmodel, MapSubtlCoord stl_x
     return thing;
 }
 
+TbBool script_new_creature_type(const char *name)
+{
+    if (game.conf.crtr_conf.model_count >= CREATURE_TYPES_MAX)
+    {
+        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", name, CREATURE_TYPES_MAX);
+        return false;
+    }
+    for (int j = 0; j < (game.conf.crtr_conf.model_count - 1); j++)
+    {
+        if (strcmp(creature_desc[j].name, name) == 0)
+        {
+            SCRPTERRLOG("Trying to add creature type that already exists: %s", name);
+            return false;
+        }
+    }
+    int i = game.conf.crtr_conf.model_count;
+    game.conf.crtr_conf.model_count++;
+    snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", name);
+    creature_desc[i - 1].name = game.conf.crtr_conf.model[i].name;
+    creature_desc[i - 1].num = i;
+    
+    if (load_default_creaturemodel_config(i, 0))
+    {
+        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
+        return true;
+    }
+    else
+    {
+        SCRPTERRLOG("Failed to load config for creature '%s'(%d).", game.conf.crtr_conf.model[i].name, i);
+    }
+    return false;
+}
+
 void set_variable(int player_idx, long var_type, long var_idx, long new_val)
 {
     struct Dungeon *dungeon = get_dungeon(player_idx);

@@ -201,7 +201,7 @@ unsigned short find_column_height(struct Column *col)
  * Returns height of a floor, in map coordinates.
  * @param mapblk The map block for which floor height should be returned.
  */
-long get_map_floor_height(const struct Map *mapblk)
+MapCoord get_map_floor_height(const struct Map *mapblk)
 {
     const struct Column *colmn;
     long i;
@@ -220,21 +220,21 @@ long get_map_floor_height(const struct Map *mapblk)
  * Returns height of a floor, in map coordinates.
  * @param pos The coordinates of a block for which floor height should be returned.
  */
-long get_floor_height_at(const struct Coord3d *pos)
+MapCoord get_floor_height_at(const struct Coord3d *pos)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(pos->x.val >> 8, pos->y.val >> 8);
     return get_map_floor_height(mapblk);
 }
 
-long get_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+MapCoord get_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
     return get_map_floor_height(mapblk);
 }
 
-long get_map_ceiling_height(const struct Map *mapblk)
+MapCoord get_map_ceiling_height(const struct Map *mapblk)
 {
     const struct Column *colmn;
     long i;
@@ -249,14 +249,14 @@ long get_map_ceiling_height(const struct Map *mapblk)
     return cubes_height << 8;
 }
 
-long get_ceiling_height_at(const struct Coord3d *pos)
+MapCoord get_ceiling_height_at(const struct Coord3d *pos)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(pos->x.val >> 8, pos->y.val >> 8);
     return get_map_ceiling_height(mapblk);
 }
 
-long get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+MapCoord get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
