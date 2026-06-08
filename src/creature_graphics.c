@@ -582,6 +582,12 @@ void update_creature_graphic_anim(struct Thing *thing)
 void update_creature_graphic_tint(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+
+    if (thing->tint_override)
+    {
+        return;
+    }
+
     if (creature_under_spell_effect(thing, CSAfF_Freeze))
     {
         tint_thing(thing, colours[4][4][15], 1);

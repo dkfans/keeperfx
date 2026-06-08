@@ -324,7 +324,7 @@ typedef int16_t FuncIdx;
 typedef uint32_t TbMapLocation;
 /** Controller buttons state. flags field, each bit represents a button */
 typedef uint64_t TbControllerButtons; 
-
+typedef uint8_t TbPixel;
 /**
  * Stores a 2d coordinate (x,y).
  *

@@ -126,6 +126,9 @@ void update_creature_rendering_flags(struct Thing *thing);
 
 size_t creature_table_load_get_size(size_t disk_size);
 void creature_table_load_unpack(unsigned char *src, size_t disk_size);
+
+void untint_thing(struct Thing *thing);
+void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint);
 /******************************************************************************/
 #ifdef __cplusplus
 }
