@@ -75,3 +75,10 @@ function PlaceTrap(player,trapname,subtile_x,subtile_y,free) end
 ---@param healthdelta integer
 ---@param warn_on_damage boolean
 function AddHeartHealth(player,healthdelta,warn_on_damage) end
+
+---Gives height val_z for given stl_x,stl_y
+---@param stl_x integer
+---@param stl_y integer
+---@return integer val_z
+---@nodiscard
+function GetFloorHeight(stl_x,stl_y) end
