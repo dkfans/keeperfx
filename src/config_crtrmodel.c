@@ -754,11 +754,11 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_IsDiggingCreature;
                 n++;
                 break;
-            case 36:
+            case 36: // NO_HEALTH_FLOWER
                 crconf->model_flags |= CMF_NoHealthFlower;
                 n++;
                 break;
-            case 37:
+            case 37: // CANNOT_PICK_UP
                 crconf->model_flags |= CMF_CannotPickUp;
                 n++;
                 break;
