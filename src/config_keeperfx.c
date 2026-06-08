@@ -466,7 +466,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           {
             i = atoi(word_buf);
           }
-          if ((i >= 0) && (i <= 1000)) {
+          if ((i >= 0) && (i <= 10000)) {
               base_mouse_sensitivity = i*256/100;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",

@@ -77,6 +77,22 @@ static void push_free_thing_index(unsigned short *free_list, ThingIndex *count, 
     }
 }
 
+static void remove_thing_as_dungeon_heart(struct Thing *thing)
+{
+    if (!thing_is_dungeon_heart(thing))
+        return;
+
+    struct Dungeon *dungeon = get_dungeon(thing->owner);
+    if (dungeon_invalid(dungeon))
+        return;
+
+    if (thing->index == dungeon->dnheart_idx)
+        dungeon->dnheart_idx = 0;
+            
+    if (thing->index == dungeon->backup_heart_idx)
+        dungeon->backup_heart_idx = 0;
+}
+
 static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const char *func_name)
 {
     unsigned short *free_list;
@@ -185,6 +201,7 @@ void delete_thing_structure_f(struct Thing *thing, TbBool deleting_everything, c
     }
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
+    remove_thing_as_dungeon_heart(thing);
     if (thing->index > 0) {
         if (thing->index <= SYNCED_THINGS_COUNT) {
             push_free_thing_index(game.synced_free_things, &game.synced_free_things_count, SYNCED_THINGS_COUNT, thing->index);

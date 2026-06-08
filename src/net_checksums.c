@@ -18,12 +18,16 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "net_checksums.h"
+#include "bflib_dernc.h"
+#include "config.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "net_game.h"
 #include "packets.h"
 #include "player_data.h"
 #include "thing_data.h"
 #include "room_list.h"
+#include "slab_data.h"
 #include "creature_control.h"
 #include "thing_creature.h"
 #include "thing_list.h"
@@ -190,7 +194,8 @@ static struct ChecksumSnapshot* find_snapshot(GameTurn turn) {
     return NULL;
 }
 
-short checksums_different(void) {
+short checksums_different(void)
+{
     int host_player_id = get_host_player_id();
     struct Packet* host_packet = get_packet(host_player_id);
     TbBigChecksum host_checksum = host_packet->checksum;
@@ -198,7 +203,16 @@ short checksums_different(void) {
 
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo* player = get_player(i);
-        if (i == host_player_id || !player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
+        if (i == host_player_id) {
+            continue;
+        }
+        if (!player_exists(player)) {
+            continue;
+        }
+        if ((player->allocflags & PlaF_CompCtrl) != 0) {
+            continue;
+        }
+        if (!network_player_active(player->packet_num)) {
             continue;
         }
         struct Packet* packet = get_packet_direct(player->packet_num);
@@ -217,15 +231,37 @@ short checksums_different(void) {
     return mismatch;
 }
 
-TbBigChecksum calculate_network_startup_map_checksum(void) {
+TbBigChecksum calculate_network_startup_map_checksum(void)
+{
     TbBigChecksum checksum_mem = 0;
     for (int i = 1; i < THINGS_COUNT; i++) {
         struct Thing* thing = thing_get(i);
-        if (thing_exists(thing)) {
-            checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
+        if (thing_exists(thing) && !is_non_synchronized_thing_class(thing->class_id)) {
+            CHECKSUM_ADD(checksum_mem, get_thing_checksum(thing));
         }
     }
-    return checksum_mem + game.action_random_seed;
+    for (int32_t y = 0; y < game.map_tiles_y; y++) {
+        for (int32_t x = 0; x < game.map_tiles_x; x++) {
+            struct SlabMap* slb = get_slabmap_block(x, y);
+            CHECKSUM_ADD(checksum_mem, slb->kind);
+            CHECKSUM_ADD(checksum_mem, slb->owner);
+        }
+    }
+    LevelNumber lvnum = get_loaded_level_number();
+    short fgroup = get_level_fgroup(lvnum);
+    const char* script_exts[] = {"txt", "lua"};
+    for (int i = 0; i < sizeof(script_exts) / sizeof(script_exts[0]); i++) {
+        char* fname = prepare_file_fmtpath(fgroup, "map%05u.%s", lvnum, script_exts[i]);
+        int32_t file_size = (int32_t)LbFileLengthRnc(fname);
+        if (file_size > 0) {
+            unsigned char *file_buf = malloc(file_size);
+            if (file_buf != NULL && LbFileLoadAt(fname, file_buf) == file_size) {
+                CHECKSUM_ADD(checksum_mem, rnc_crc(file_buf, file_size));
+            }
+            free(file_buf);
+        }
+    }
+    return checksum_mem;
 }
 
 void update_turn_checksums(void) {

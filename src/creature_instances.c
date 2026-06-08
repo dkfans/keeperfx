@@ -446,6 +446,23 @@ void process_creature_instance(struct Thing *thing)
     }
 }
 
+void delay_instances_on_drop(struct Thing *thing)
+{
+    GameTurn current_turn = get_gameturn();
+    GameTurnDelta instance_delay_turns = game.conf.rules[thing->owner].creature.instance_delay_on_drop;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    for (int32_t i = 1; i < game.conf.crtr_conf.instances_count; i++) {
+        struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+        GameTurnDelta cooldown_penalty_turns = min(instance_delay_turns, inst_inf->reset_time);
+        GameTurnDelta cooldown_turns = inst_inf->reset_time + cctrl->inst_total_turns - cctrl->inst_action_turns;
+        GameTurnDelta cooldown_turns_elapsed = (GameTurnDelta)(current_turn - cctrl->instance_use_turn[i]);
+        GameTurnDelta required_elapsed_turns = cooldown_turns - cooldown_penalty_turns;
+        if (cooldown_turns_elapsed > required_elapsed_turns) {
+            cctrl->instance_use_turn[i] = current_turn - required_elapsed_turns;
+        }
+    }
+}
+
 long instf_creature_fire_shot(struct Thing *creatng, int32_t *param)
 {
     struct Thing *target;

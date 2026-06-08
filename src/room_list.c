@@ -129,7 +129,7 @@ long calculate_player_num_rooms_built(PlayerNumber plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        if (!room_never_buildable(rkind))
+        if (room_is_counted(rkind))
         {
             count += count_player_rooms_of_type(player->id_number, rkind);
         }

@@ -718,7 +718,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
         if ( check_place_to_reinforce(thing, slb_x, slb_y) > 0 )
         {
             stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
-            if ( check_out_uncrowded_reinforce_position(thing, stl_num, &dest_stl_x, &dest_stl_y) )
+            if ( check_out_uncrowded_reinforce_position(thing, stl_num, &dest_stl_x, &dest_stl_y) > 0)
             {
                 if ( setup_person_move_to_position(thing, dest_stl_x, dest_stl_y, NavRtF_Default) )
                 {
@@ -962,7 +962,7 @@ short imp_arrives_at_reinforce(struct Thing *spdigtng)
 
     if ( imp_already_reinforcing_at_excluding(spdigtng,spdigtng->mappos.x.stl.num,spdigtng->mappos.y.stl.num))
     {
-        if ( !check_out_uncrowded_reinforce_position(spdigtng, cctrl->digger.working_stl, &stl_x, &stl_y)
+        if ( check_out_uncrowded_reinforce_position(spdigtng, cctrl->digger.working_stl, &stl_x, &stl_y) <= 0
             || !setup_person_move_to_position(spdigtng, stl_x, stl_y, 0) )
         {
             internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
