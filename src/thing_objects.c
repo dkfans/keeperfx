@@ -1257,13 +1257,25 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         {
             if (dungeon->backup_heart_idx > 0)
             {
-                dungeon->dnheart_idx = dungeon->backup_heart_idx;
+                struct Thing* backupthing = thing_get(dungeon->backup_heart_idx);
                 dungeon->backup_heart_idx = 0;
+                if (thing_is_dungeon_heart(backupthing))
+                {
+                    dungeon->dnheart_idx = backupthing->index;
+                }
+                else
+                {
+                    ERRORLOG("%s has invalid backup heart %s", player_code_name(dungeon->owner), thing_model_name(backupthing));
+                }
                 struct Thing* scndthing = find_players_backup_dungeon_heart(heartng->owner);
                 {
-                    if (thing_exists(scndthing))
+                    if (thing_is_dungeon_heart(scndthing))
                     {
                         dungeon->backup_heart_idx = scndthing->index;
+                    }
+                    else
+                    {
+                        ERRORLOG("Tried to set %s as backup heart for %s", thing_model_name(scndthing), player_code_name(dungeon->owner));
                     }
                 }
             }

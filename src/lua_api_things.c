@@ -101,10 +101,6 @@ static int lua_delete_thing(lua_State *L)
     }
     else
     {
-        if (thing_is_dungeon_heart(thing))
-        {
-            find_players_backup_dungeon_heart(thing->owner);
-        }
         delete_thing_structure(thing, 0);
     }
     return 0;
