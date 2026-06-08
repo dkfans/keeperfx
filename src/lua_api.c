@@ -2375,8 +2375,8 @@ static int lua_get_floor_height(lua_State* L)
 {
     MapSubtlCoord stl_x = luaL_checkstl_x(L, 1);
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 2);
-    MapSubtlCoord stl_z = get_floor_height(stl_x, stl_y);
-    lua_pushinteger(L, stl_z);
+    MapCoord z_val = get_floor_height(stl_x, stl_y);
+    lua_pushinteger(L, z_val);
     return 1;
 }
 
