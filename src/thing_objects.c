@@ -1275,7 +1275,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
                     }
                     else
                     {
-                        ERRORLOG("Tried to set %s as backup heart for %s", thing_model_name(backupthing), player_code_name(dungeon->owner));
+                        ERRORLOG("Tried to set %s as backup heart for %s", thing_model_name(scndthing), player_code_name(dungeon->owner));
                     }
                 }
             }
