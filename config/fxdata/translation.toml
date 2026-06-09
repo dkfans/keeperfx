@@ -1,5 +1,5 @@
 # translations 
-# the alliases can be used in cfgs anywhere a text id is used
+# the aliases can be used in cfgs anywhere a text id is used
 
 # DRUID_NAME is used in creatrs/druid.cfg
 [DRUID_NAME]
