@@ -342,7 +342,8 @@ enum GUIStrings {
     GUIStr_OptionsPossessMouseSensitivity,
     GUIStr_OptionsMoreSensitive,
     GUIStr_OptionsLessSensitive = GUI_STRINGS_START+740,
-    GUIStr_StatisticsNames1 = GUI_STRINGS_START+741, // range 741..802
+    GUIStr_StatisticsNames1 = GUI_STRINGS_START+741,
+    GUIStr_Time = GUI_STRINGS_START+746,
     GUIStr_EasterPoems = GUI_STRINGS_START+803, // range 803..828
     GUIStr_GameHints = GUI_STRINGS_START+829, // range 829..839
     GUIStr_MnuRetToOptions = GUI_STRINGS_START+840,
