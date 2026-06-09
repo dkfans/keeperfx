@@ -26,6 +26,7 @@
 #include "magic_powers.h"
 #include "config_crtrstates.h"
 #include "creature_states_mood.h"
+#include "thing_stats.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -271,7 +272,20 @@ static int thing_set_field(lua_State *L) {
         change_creature_owner(thing, new_owner);
     } else if (strcmp(key, "health") == 0)
     {
-        thing->health = luaL_checkinteger(L, 3);
+    HitPoints new_health = luaL_checkinteger(L, 3);
+    if (thing_is_creature(thing))
+    {
+        HitPoints old_health = thing->health;
+        if (new_health > old_health) {
+            apply_health_to_thing_and_display_health(thing, new_health - old_health);
+        } else if (new_health < old_health) {
+            apply_damage_to_thing(thing, old_health - new_health, -1);
+        }
+    }
+    else
+    {
+        thing->health = new_health;     // Doors, Hearts, Traps, ...
+    }
     } else if (strcmp(key, "pos") == 0) 
     {
         struct Coord3d pos;
