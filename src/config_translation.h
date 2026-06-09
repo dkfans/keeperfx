@@ -17,6 +17,8 @@
 #ifndef DK_CFGTRANSLATION_H
 #define DK_CFGTRANSLATION_H
 
+#include "config.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
