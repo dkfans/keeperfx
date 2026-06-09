@@ -99,6 +99,8 @@ TbBool first_person_see_item_desc = false;
 long old_mx;
 long old_my;
 
+enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
+
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
     {"MoveDown",              GUIStr_CtrlDown,                KC_S, KMod_NONE,               CBtn_LS_DOWN,             BMV_Visible,        },       // Gkey_MoveDown
@@ -2142,10 +2144,14 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         {
             if (wheel_scrolled_up)
             {
+                if (zoom_to_mouse_option == ZoomToMouse_Wheel)
+                    set_packet_control(pckt, PCtr_ViewZoomPos);
                 set_packet_control(pckt, PCtr_ViewZoomIn);
             }
             if (wheel_scrolled_down)
             {
+                if (zoom_to_mouse_option == ZoomToMouse_Wheel)
+                    set_packet_control(pckt, PCtr_ViewZoomPos);
                 set_packet_control(pckt, PCtr_ViewZoomOut);
             }
         }
@@ -2504,6 +2510,8 @@ static void get_dungeon_control_nonaction_inputs(void)
     turn_on_menu(GMnu_QUIT);
   }
   get_options_menu_inputs();
+  if (zoom_to_mouse_option == ZoomToMouse_Always)
+      set_packet_control(pckt, PCtr_ViewZoomPos);
   if ((player->allocflags & PlaF_NewMPMessage) == 0)
   {
       switch (player->view_mode)

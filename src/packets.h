@@ -226,6 +226,7 @@ enum TbPacketControl {
         PCtr_ViewTiltReset  = 0x40000,
         PCtr_Ascend         = 0x80000,
         PCtr_Descend        = 0x100000,
+        PCtr_ViewZoomPos    = 0x200000
 };
 
 /**

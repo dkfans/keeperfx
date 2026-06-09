@@ -503,7 +503,8 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
     }
     const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
     const int32_t zoom_max = CAMERA_ZOOM_MAX;
-    const TbBool with_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0;
+    const TbBool with_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
+                         && (pckt->control_flags & PCtr_ViewZoomPos) != 0;
     const MapCoord zoom_x = with_pos ? pckt->pos_x : -1;
     const MapCoord zoom_y = with_pos ? pckt->pos_y : -1;
     if (pckt->control_flags & PCtr_ViewZoomIn)
