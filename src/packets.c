@@ -648,7 +648,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (network_is_active()) {
         if (victory_state == VicS_WonLevel) {
           player->victory_state = VicS_WonLevel;
-          get_my_player()->additional_flags |= PlaAF_UnlockedLordTorture;
+          if (game.conf.rules[player->id_number].game.winner_tortures_loser) {
+              get_my_player()->additional_flags |= PlaAF_UnlockedLordTorture;
+          } else {
+              get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+          }
           quit_game = 1;
           return 0;
         }

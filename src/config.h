@@ -222,6 +222,7 @@ struct NamedFieldSet {
 };
 
 #define NAMFIELDWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", src_str , text_line_number, ##__VA_ARGS__)
+#define NAMFIELDERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", src_str , text_line_number, ##__VA_ARGS__)
 
 extern TbBool AssignCpuKeepers;
 

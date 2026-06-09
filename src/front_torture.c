@@ -29,6 +29,7 @@
 #include "bflib_filelst.h"
 #include "bflib_dernc.h"
 #include "bflib_keybrd.h"
+#include "bflib_datetm.h"
 #include "bflib_video.h"
 #include "bflib_vidraw.h"
 #include "bflib_mouse.h"
@@ -61,11 +62,15 @@ static long torture_sprite_frame;
 static long torture_door_selected;
 static struct DoorSoundState door_sound_state[TORTURE_DOORS_COUNT];
 static struct TortureState torture_state;
+static TbClockMSec torture_idle_start;
+static TbClockMSec torture_screen_start;
 static unsigned char *torture_background;
 static unsigned char *torture_palette;
 extern struct DoorDesc doors[TORTURE_DOORS_COUNT];
 extern struct TbSpriteSheet *fronttor_sprites;
 long torture_doors_available = TORTURE_DOORS_COUNT;
+#define TORTURE_MULTIPLAYER_IDLE_TIMEOUT 10000
+#define TORTURE_MULTIPLAYER_MAX_TIME 45000
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -167,6 +172,8 @@ void fronttorture_load(void)
         LbMouseChangeSpriteAndHotspot(0, 0, 0);
     }
     torture_left_button = 0;
+    torture_idle_start = LbTimerClock();
+    torture_screen_start = torture_idle_start;
 }
 
 TbBool fronttorture_draw(void)
@@ -236,6 +243,18 @@ void fronttorture_input(void)
         pckt->actn_par1 = GetMouseX();
         pckt->actn_par2 = GetMouseY();
     }
+    if (network_is_active())
+    {
+        TbClockMSec now = LbTimerClock();
+        if (now - torture_idle_start >= TORTURE_MULTIPLAYER_IDLE_TIMEOUT)
+        {
+            pckt->action |= 0x01;
+        }
+        if (now - torture_screen_start >= TORTURE_MULTIPLAYER_MAX_TIME)
+        {
+            pckt->action |= 0x01;
+        }
+    }
     // Exchange packet with other players
     if (network_is_active())
     {
@@ -254,6 +273,7 @@ void fronttorture_input(void)
     {
         x = pckt->actn_par1;
         y = pckt->actn_par2;
+        torture_idle_start = LbTimerClock();
     } else
     {
         plyr_idx = my_player_number;

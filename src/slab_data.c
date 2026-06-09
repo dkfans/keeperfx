@@ -850,7 +850,11 @@ TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
 void set_player_texture(PlayerNumber plyr_idx, long texture_id)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    dungeon->texture_pack = texture_id;
+    TbBool reset = (texture_id < 0);
+    if (reset)
+        dungeon->texture_pack = 0;
+    else
+        dungeon->texture_pack = texture_id;
 
     for (MapSlabCoord slb_y=0; slb_y < game.map_tiles_y; slb_y++)
     {
@@ -859,7 +863,7 @@ void set_player_texture(PlayerNumber plyr_idx, long texture_id)
             struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
             if (slabmap_owner(slb) == plyr_idx)
             {
-                if (texture_id == 0)
+                if (reset)
                 {
                     game.slab_ext_data[get_slab_number(slb_x,slb_y)] = game.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
                 }

@@ -72,6 +72,8 @@ static const struct NamedCommand terrain_room_properties_commands[] = {
     {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
     {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
     {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
+    {"HAS_NO_FLAMES",     RoCFlg_NoFlames},
+    {"NOT_COUNTED",       RoCFlg_NotCounted},
     {NULL,                0},
 };
 
@@ -790,8 +792,8 @@ TbBool room_role_matches(RoomKind rkind, RoomRole rrole)
 
 TbBool room_has_surrounding_flames(RoomKind rkind)
 {
-    //TODO CONFIG Place this in room config data
-    return (rkind != RoK_DUNGHEART);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
+    return !flag_is_set(roomst->flags, RoCFlg_NoFlames);
 }
 
 /**
@@ -806,14 +808,13 @@ TbBool room_cannot_vandalise(RoomKind rkind)
 }
 
 /**
- * Returns if given room kind is by definition not buildable.
+ * Returns if given room kind is not counted as a room.
  * @param rkind The room kind to be checked.
- * @return True if given room kind is unconditionally not buildable, false otherwise.
  */
-TbBool room_never_buildable(RoomKind rkind)
+TbBool room_is_counted(RoomKind rkind)
 {
-    //TODO CONFIG Place this in room config data
-    return (rkind == RoK_DUNGHEART) || (rkind == RoK_ENTRANCE);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
+    return !flag_is_set(roomst->flags, RoCFlg_NotCounted);
 }
 
 /**
@@ -824,7 +825,7 @@ TbBool room_never_buildable(RoomKind rkind)
 TbBool room_can_have_ensign(RoomKind rkind)
 {
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
-    return ((roomst->flags & RoCFlg_NoEnsign) == 0);
+    return !flag_is_set(roomst->flags, RoCFlg_NoEnsign);
 }
 
 /**

@@ -132,7 +132,7 @@ bool MouseStateHandler::SetPosition(long x, long y)
       my = lbDisplay.MouseWindowHeight + lbDisplay.MouseWindowY - 1;
     }
     // If the coords are unchanged
-    if ((mx == lbDisplay.MMouseX) && (my == lbDisplay.MMouseY))
+    if ((mx == mspos.x) && (my == mspos.y))
       return true;
     //Change the position
     prev_x = mspos.x;
