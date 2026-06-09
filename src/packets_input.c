@@ -518,7 +518,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
                 if (player->primary_cursor_state == CSt_PowerHand && (!player->one_click_lock_cursor)) {
                     thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
-                    magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
+                    if(!thing_is_invalid(thing))
+                        magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
                 }
                 if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
                 {

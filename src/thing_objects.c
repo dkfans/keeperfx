@@ -1751,7 +1751,6 @@ TngUpdateRet update_object(struct Thing *thing)
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     TRACE_THING(thing);
 
-
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
 
     if (objst->updatefn_idx > 0)
@@ -1785,6 +1784,13 @@ TngUpdateRet update_object(struct Thing *thing)
             return TUFRet_Deleted;
         }
     }
+
+    if (thing->health < 0)
+    {
+        destroy_object(thing);
+        return TUFRet_Deleted;
+    }
+
     SYNCDBG(18,"Updating position");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;

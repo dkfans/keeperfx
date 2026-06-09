@@ -278,7 +278,7 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
     }
 }
 
-struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
+struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Thing *picktng = INVALID_THING;
     struct Coord3d pos;
@@ -312,7 +312,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     {
         picktng = create_gold_for_hand_grab(thing, plyr_idx);
     }
-    else if (object_is_pickable_by_hand_to_hold_by_player(thing, plyr_idx))
+    else if (object_is_pickable_by_hand_to_hold(thing))
     {
             picktng = thing;
     }
@@ -720,10 +720,17 @@ void draw_power_hand(void)
     }
 }
 
-TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
+TbBool object_is_slappable(const struct Thing* thing)
 {
-    if (thing->owner == plyr_idx) {
-        return (object_is_mature_food(thing));
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return ((objst->model_flags & OMF_Slappable) != 0);
+}
+
+TbBool object_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (thing->owner == plyr_idx) 
+    {
+        return object_is_slappable(thing);
     }
     return false;
 }
@@ -787,18 +794,18 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
     return -1;
 }
 
-TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
+TbBool thing_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     switch (thing->class_id)
     {
     case TCls_Object:
-        return object_is_slappable(thing, plyr_idx);
+        return object_is_slappable_by_player(thing, plyr_idx);
     case TCls_Shot:
-        return shot_is_slappable(thing, plyr_idx);
+        return shot_is_slappable_by_player(thing, plyr_idx);
     case TCls_Creature:
         return creature_is_slappable(thing, plyr_idx);
     case TCls_Trap:
-        return trap_is_slappable(thing, plyr_idx);
+        return trap_is_slappable_by_player(thing, plyr_idx);
     default:
         return false;
     }
@@ -1470,8 +1477,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     }
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
     {
-        ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
-        return Lb_OK;
+        return Lb_FAIL;
     }
     if (thing_is_special_box(thing))
     {
@@ -1524,10 +1530,12 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
     }
 }
 
+#define HAND_TO_OBJECT_SLAP_DAMAGE 10
 TbBool slap_object(struct Thing *thing)
 {
-  if (object_is_mature_food(thing)) {
-      destroy_object(thing);
+  if (object_is_slappable(thing))
+  {
+      apply_damage_to_thing(thing, HAND_TO_OBJECT_SLAP_DAMAGE, thing->owner);
       return true;
   }
   return false;
