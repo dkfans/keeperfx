@@ -27,11 +27,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define STRINGS_MAX       2000
-#define GUI_STRINGS_COUNT (GuiStrEnd - TRANSLATION_STRINGS_START)
 #define MAX_TOML_TRANSLATION_ENTRIES 2000
 
 #define TRANSLATION_STRINGS_START STRINGS_MAX
 #define GUI_STRINGS_START (STRINGS_MAX + MAX_TOML_TRANSLATION_ENTRIES)
+#define GUI_STRINGS_COUNT (GuiStrEnd - GUI_STRINGS_START)
 
 struct GameCampaign;
 
