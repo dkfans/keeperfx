@@ -1785,7 +1785,7 @@ TngUpdateRet update_object(struct Thing *thing)
         }
     }
 
-    if (thing->health < 0)
+    if (thing->health < 0 && !thing_is_dungeon_heart(thing))
     {
         destroy_object(thing);
         return TUFRet_Deleted;
