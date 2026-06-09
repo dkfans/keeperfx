@@ -356,7 +356,11 @@ const char * cmpgn_string(unsigned int index)
 
 const char * get_string(TextStringId stridx)
 {
-    if (stridx <= TRANSLATION_STRINGS_START)
+    if (stridx < 0)
+    {
+      return "invalid string id";
+    }
+    if (stridx < TRANSLATION_STRINGS_START)
     {
         if (level_strings[stridx] != NULL)
         {
@@ -367,7 +371,7 @@ const char * get_string(TextStringId stridx)
         }
         return cmpgn_string(stridx);
     }
-    else if (stridx <= GUI_STRINGS_START )
+    else if (stridx < GUI_STRINGS_START )
         return get_translation_file_string(stridx);
     else
         return gui_string(stridx - GUI_STRINGS_START);
