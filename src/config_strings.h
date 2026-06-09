@@ -85,7 +85,7 @@ enum GUIStrings {
     GUIStr_RecMovieDone,
     GUIStr_OptionSoundFx = GUI_STRINGS_START+340,
     GUIStr_OptionMusic,
-    GUIStr_SlotUnused = STRINGS_MAX+342,
+    GUIStr_SlotUnused = GUI_STRINGS_START+342,
     GUIStr_MnuMainMenu = GUI_STRINGS_START+343,
     GUIStr_MnuLoadMenu,
     GUIStr_MnuLoadGame,
