@@ -36,6 +36,7 @@
 #include "config_magic.h"
 #include "config_terrain.h"
 #include "config_lenses.h"
+#include "config_translation.h"
 #include "creature_control.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
@@ -762,7 +763,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       case 29: // NAMETEXTID
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
+            k = get_string_id_by_alias(word_buf);
             if (k > 0)
             {
               crconf->namestr_idx = k;
