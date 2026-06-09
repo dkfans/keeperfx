@@ -219,6 +219,9 @@ TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber
 
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
+    if (thing_is_creature(thing) && flag_is_set(get_creature_model_flags(thing), CMF_CannotPickUp)) {
+        return false;
+    }
     if (thing_is_creature(thing) && thing_pickup_is_blocked_by_hand_rule(thing, plyr_idx)) {
         return false;
     }
@@ -246,7 +249,6 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
     {
         return (thing_is_object(thing) && object_is_pickable_by_hand_for_use(thing, plyr_idx));
     }
-
     if ( (game.armageddon_cast_turn > 0) && ( (game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn) <= get_gameturn()) )
     {
         return false;
