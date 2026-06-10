@@ -338,7 +338,7 @@ static void process_event(const SDL_Event *ev)
             if (isMouseActivated)
             {
                 isMouseActivated = 0;
-                pointerHandler.SetPosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
+                pointerHandler.SetMousePosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
                 mouseDelta.x = 0;
                 mouseDelta.y = 0;
                 frac_x = 0;
