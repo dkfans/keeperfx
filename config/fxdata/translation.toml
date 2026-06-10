@@ -1,32 +1,108 @@
-# translations 
-# the aliases can be used in cfgs anywhere a text id is used
+# Extra strings 
+# The aliases in translation.toml can be used in cfgs anywhere a text id is used. Make sure they are unique or they will get overwritten.
+# It's possible to add additional translation.toml files in the CONFIGS_LOCATION folder of campaigns, maps and mods, or in LEVELS_LOCATION when named `map0####.translation.toml`
 
-# DRUID_NAME is used in creatrs/druid.cfg
-[DRUID_NAME]
-ENG = "Druid"
-CHI = "德鲁伊"
+# BEHOLDER_NAME could be used on the NameTextID for creatrs/beholder.cfg
+[BEHOLDER_NAME]
+ENG = "Beholder"
+CHI = "眼魔"
 # if traditional chinese hasn't been translated it'll fallback on CHI
 #CHT = 
 # other languages (or when chi is also missing) will fallback on ENG 
-# so in this case the Czech,Polish and Swedish is technically redundant in this example as it's same word as ENG 
-CZE = "Druid"
-DUT = "Druïde"
-FRE = "Druide"
-GER = "Druide"
-ITA = "Druido"
-JPN = "ドルイド"
-KOR = "드루이드"
-LAT = "Druida"
-POL = "Druid"
-POR = "Druida"
-RUS = "Друид"
-SPA = "Druida"
-SWE = "Druid"
-UKR = "Друїд"
+# so in this case the Dutch,German and Swedish are technically redundant in this example as it's same word as ENG 
+CZE = "Pozorovatel"
+DUT = "Beholder"
+FRE = "Œil maléfique"
+GER = "Beholder"
+ITA = "Osservatore"
+JPN = "ビホルダー"
+KOR = "비홀더"
+LAT = "Oculus Malignus"
+POL = "Obserwator"
+POR = "Observador"
+RUS = "Созерцатель"
+SPA = "Vigilante"
+SWE = "Beholder"
+UKR = "Спостерігач"
 
+[DARK_ANGEL_NAME]
+ENG = "Dark Angel"
+CHI = "黑暗天使"
+CZE = "Temný anděl"
+DUT = "Duistere Engel"
+FRE = "Ange déchu"
+GER = "Gefallener Engel"
+ITA = "Angelo oscuro"
+JPN = "ダークエンジェル"
+KOR = "다크 엔젤"
+LAT = "Angelus Obscurus"
+POL = "Upadły Anioł"
+POR = "Anjo Caído"
+RUS = "Падший ангел"
+SPA = "Ángel caído"
+SWE = "Fallen ängel"
+UKR = "Падший янгол"
 
-[MY_MAP_OBJECTIVE]
-# this one is just an example for maps where multiline objectives are needed
+[TORTURER_NAME]
+ENG = "Torturer"
+CHI = "拷问者"
+CZE = "Mučitel"
+DUT = "Folteraar"
+FRE = "Bourreau"
+GER = "Folterknecht"
+ITA = "Torturatore"
+JPN = "拷問官"
+KOR = "고문관"
+LAT = "Torturator"
+POL = "Oprawca"
+POR = "Torturador"
+RUS = "Палач"
+SPA = "Torturador"
+SWE = "Torterare"
+UKR = "Кат"
+
+# Strings can also be used in level scripts. Example:
+# IF(PLAYER0,BEHOLDER >= 1)
+#    DISPLAY_INFORMATION(BEHOLDER_JOIN)
+# ENDIF
+[TORTURER_JOIN]
+ENG = "A Torturer has escaped a torture room and joined your dungeon. Let's see what else he can do."
+GER = "Ein Folterknecht ist aus einem Folterraum entkommen und hat sich deinem Verlies angeschlossen. Mal sehen, was er sonst noch kann."
+DUT = "Een folteraar is uit een folterkamer ontsnapt en heeft zich bij je kerker aangesloten. Laten we eens kijken wat hij nog meer kan."
+CHI = "一个拷问者从拷问室逃了出来，加入了你的地下城。让我们看看他还能做些什么。"
+
+[BEHOLDER_JOIN]
+# this one is just an example for maps where multiline messages are needed
 # toml can do multiline by using 3 quotes like this
-ENG = """Go kill some stuff
-oh and while you're at it, do something else too"""
+ENG = """A Beholder has joined you. These large, orb-shaped beings have several eyestalks and one central eye, each containing powerful magic. 
+They feel an intense hatred for anything they can see, but especially for those that mock their lack of ears."""
+CHI = """一只眼魔加入了你。这个巨大、球状的生物长有多个眼梗和一只中央眼睛，每只眼睛都蕴含强大的魔法。  
+它们对一切能看见的东西都怀有强烈的憎恨，尤其是那些嘲笑它们没有耳朵的生物。"""
+CZE = """K tobě se připojil Pozorovatel. Tito velcí, kulovití tvorové mají několik očních stopkách a jedno centrální oko, z nichž každé obsahuje mocnou magii.  
+Cítí silnou nenávist ke všemu, co mohou spatřit, zejména k těm, kteří si tropí posměch z jejich absence uší."""
+DUT = """Een Beholder heeft zich bij je aangesloten. Deze grote, bolvormige wezens hebben meerdere oogstelen en één centraal oog, elk met krachtige magie.  
+Ze voelen een intense haat voor alles wat ze kunnen zien, vooral voor degenen die hun gebrek aan oren belachelijk maken."""
+FRE = """Un Œil maléfique vous a rejoint. Ces grandes créatures sphériques possèdent plusieurs pédoncules oculaires et un œil central, chacun contenant une puissante magie.  
+Ils éprouvent une haine intense envers tout ce qu’ils peuvent voir, surtout ceux qui se moquent de leur absence d’oreilles."""
+GER = """Ein Beholder hat sich dir angeschlossen. Diese großen, kugelförmigen Wesen besitzen mehrere Augenstiele und ein zentrales Auge, die jeweils mächtige Magie enthalten.  
+Sie empfinden einen intensiven Hass gegenüber allem, was sie sehen können, besonders gegenüber denen, die sich über ihre fehlenden Ohren lustig machen."""
+ITA = """Un Osservatore si è unito a te. Queste grandi creature sferiche possiedono numerosi peduncoli oculari e un occhio centrale, ciascuno contenente una potente magia.  
+Provano un odio intenso verso tutto ciò che possono vedere, soprattutto verso chi deride la loro mancanza di orecchie."""
+JPN = """ビホルダーがあなたに加わりました。これらの巨大な球状の存在は、複数の眼柄と一つの中心の目を持ち、それぞれが強力な魔法を宿しています。  
+彼らは自分が見えるあらゆるものに強い憎しみを抱き、とりわけ耳がないことを嘲る者を激しく嫌います。"""
+KOR = """비홀더가 당신에게 합류했습니다. 이 거대한 구형 생명체는 여러 개의 눈줄기와 하나의 중앙 눈을 가지고 있으며, 각각 강력한 마법을 품고 있습니다.  
+그들은 자신이 볼 수 있는 모든 것에 강한 증오를 느끼며, 특히 귀가 없다는 것을 조롱하는 존재를 가장 싫어합니다."""
+LAT = """Oculus Malignus te iunxit. Haec magnae, orbiculares creaturae multos oculorum stipites et unum oculum centralem habent, quorum quisque potentem magicam continet.  
+Intensum odium sentiunt erga omnia quae videre possunt, praesertim eos qui defectum aurium irrident."""
+POL = """Obserwator dołączył do ciebie. Te duże, kuliste istoty mają liczne oczodoły i jedno centralne oko, z których każde zawiera potężną magię.  
+Czują intensywną nienawiść do wszystkiego, co mogą zobaczyć, zwłaszcza do tych, którzy wyśmiewają się z ich braku uszu."""
+POR = """Um Observador juntou-se a ti. Estas grandes criaturas esféricas possuem vários pedúnculos oculares e um olho central, cada um contendo magia poderosa.  
+Sentem um ódio intenso por tudo o que conseguem ver, especialmente por aqueles que zombam da sua falta de orelhas."""
+RUS = """Созерцатель присоединился к вам. Эти большие шарообразные существа имеют несколько глазных отростков и один центральный глаз, каждый из которых содержит мощную магию.  
+Они испытывают сильную ненависть ко всему, что могут видеть, особенно к тем, кто насмехается над отсутствием у них ушей."""
+SPA = """Un Vigilante se ha unido a ti. Estas grandes criaturas esféricas tienen varios pedúnculos oculares y un ojo central, cada uno con poderosa magia.  
+Sienten un intenso odio hacia todo lo que pueden ver, especialmente hacia quienes se burlan de su falta de orejas."""
+SWE = """En Beholder har anslutit sig till dig. Dessa stora, klotformade varelser har flera ögonstjälkar och ett centralt öga, var och en med kraftfull magi.  
+De känner ett intensivt hat mot allt de kan se, särskilt mot dem som hånar deras avsaknad av öron."""
+UKR = """Спостерігач приєднався до вас. Ці великі кулясті істоти мають кілька очних відростків і одне центральне око, кожне з яких містить потужну магію.  
+Вони відчувають сильну ненавист до всього, що можуть бачити, особливо до тих, хто насміхається з їх відсутності вух."""
