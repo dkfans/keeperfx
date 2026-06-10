@@ -71,7 +71,7 @@ void do_sound_button_click(struct GuiButton *gbtn)
     if (gbtn->gbtype == LbBtnT_RadioBtn)
         play_non_3d_sample(snd_tab_click);
     else
-        play_non_3d_sample(snd_button_click2);
+        play_non_3d_sample(snd_button_click);
 }
 
 void setup_input_field(struct GuiButton *gbtn, const char * empty_text)

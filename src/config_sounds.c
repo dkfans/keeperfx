@@ -50,69 +50,66 @@ const struct ConfigFileData keeper_sounds_file_data = {
 // Cached common sound IDs
 /******************************************************************************/
 
-SoundSmplTblID snd_refusal         = 119;
-SoundSmplTblID snd_tab_click       = 62;
-SoundSmplTblID snd_zoom            = 177;
-SoundSmplTblID snd_room_claim      = 116;
-SoundSmplTblID snd_gold_pickup     = 32;
 int            snd_gold_pickup_count = 3;
-SoundSmplTblID snd_salary_full     = 34;
-SoundSmplTblID snd_salary_partial  = 33;
-SoundSmplTblID snd_salary_none     = 32;
-SoundSmplTblID snd_heart_beat_down = 150;  // rooms/beat1.wav
-SoundSmplTblID snd_heart_beat_up   = 151;  // rooms/beat2a.wav
-SoundSmplTblID snd_door_open       = 92;   // terrain/doorup2.wav
-SoundSmplTblID snd_door_close      = 91;   // traps/alarm.wav
-SoundSmplTblID snd_door_place      = 72;   // terrain/rocks1.wav, rocks2.wav, rocks3.wav
 int            snd_door_place_count = 3;
-SoundSmplTblID snd_dig_impact      = 72;   // terrain/rocks1.wav, rocks2.wav, rocks3.wav
+int            snd_tunnel_dig_count = 3;
+int            snd_dig_spell_count  = 6;
 int            snd_dig_impact_count = 3;
-SoundSmplTblID snd_dig_dirt        = 73;   // terrain/rocks2.wav
-
-/* Footstep variants */
-
-SoundSmplTblID snd_foot_spur       = 5;    // footsteps/spur1.wav
 int            snd_foot_spur_count = 4;
-SoundSmplTblID snd_foot_wet        = 21;   // footsteps/footwet1.wav
 int            snd_foot_wet_count  = 4;
-SoundSmplTblID snd_foot_snow       = 182;  // footsteps/snowft1.wav, snowft2.wav, snowft3.wav
 int            snd_foot_snow_count = 3;
-
-/* Creature ambient */
-SoundSmplTblID snd_insect_fly      = 26;   // creature_insect/fly.wav
-SoundSmplTblID snd_chicken_cluck   = 112;  // chicken/chick4a.wav
 int            snd_chicken_cluck_count = 3;
-
-/* Combat / impacts */
-SoundSmplTblID snd_splash          = 37;   // splash.wav
-SoundSmplTblID snd_explode         = 47;   // creature_spells/firepuff.wav
-SoundSmplTblID snd_strike_wall     = 128;  // strikes/swonarm3.wav, swonarm4.wav, swonarm5.wav
 int            snd_strike_wall_count = 3;
-SoundSmplTblID snd_reinforce_hit   = 1005; // impacts/slap2.wav, tap.wav, toasterstepa1-3.wav, toasterstepb1-2.wav
 int            snd_reinforce_hit_count = 7;
 
-/* Spells */
-SoundSmplTblID snd_spell_wall      = 41;   // creature_spells/wind3.wav
-SoundSmplTblID snd_spell_frozen    = 50;   // creature_spells/freeze.wav
-SoundSmplTblID snd_spell_stars     = 76;   // keeper_spells/slap.wav
-SoundSmplTblID snd_spell_armageddon = 180; // null.wav
+// Verified
+SoundSmplTblID snd_foot_spur       = 5;    // spur1.wav
+SoundSmplTblID snd_foot_wet        = 21;   // footwet1.wav
+SoundSmplTblID snd_insect_fly      = 25;   // creature_insect/fly.wav
 
-/* Digging */
-SoundSmplTblID snd_dig_spell       = 63;   // gui/button3.wav
-int            snd_dig_spell_count = 6;
-SoundSmplTblID snd_tunnel_dig      = 69;   // creature_spells/dig6.wav
-int            snd_tunnel_dig_count = 3;
+SoundSmplTblID snd_gold_pickup     = 32;
+SoundSmplTblID snd_salary_tiny     = 32;
+SoundSmplTblID snd_salary_partial  = 33;
+SoundSmplTblID snd_salary_full     = 34;
+SoundSmplTblID snd_splash          = 36;  
+SoundSmplTblID snd_spell_wall      = 41;
 
-/* UI */
-SoundSmplTblID snd_button_click2   = 61;   // gui/button1.wav
-SoundSmplTblID snd_buzzer          = 89;   // coindrop.wav
-SoundSmplTblID snd_tab_fall        = 947;  // null.wav
 
-/* Dungeon heart */
-SoundSmplTblID snd_heart_engine    = 93;   // terrain/doordown.wav
+SoundSmplTblID snd_spell_armageddon = 180;
 
-/* Scavenging */
-SoundSmplTblID snd_scavenge        = 156;  // rooms/prayers.wav
+SoundSmplTblID snd_explode         = 47;
+SoundSmplTblID snd_spell_frozen    = 50;
+SoundSmplTblID snd_tab_click       = 60;
+SoundSmplTblID snd_button_click    = 61; 
+SoundSmplTblID snd_dig_spell       = 63;
+SoundSmplTblID snd_tunnel_dig      = 69;   // dig6.wav
+SoundSmplTblID snd_door_place      = 72;   // rocks1.wav, rocks2.wav, rocks3.wav
+SoundSmplTblID snd_dig_impact      = 72;   // rocks1.wav, rocks2.wav, rocks3.wav
+SoundSmplTblID snd_dig_dirt        = 73;  
+SoundSmplTblID snd_spell_stars     = 76;
+
+
+SoundSmplTblID snd_buzzer          = 89;
+SoundSmplTblID snd_door_open       = 91; 
+SoundSmplTblID snd_door_close      = 92;
+SoundSmplTblID snd_heart_engine    = 93;
+
+SoundSmplTblID snd_chicken_cluck   = 112;  // chick4a.wav
+SoundSmplTblID snd_room_claim      = 116;
+SoundSmplTblID snd_refusal         = 119;
+SoundSmplTblID snd_strike_wall     = 128;  // strikes/swonarm3.wav, swonarm4.wav, swonarm5.wav
+
+SoundSmplTblID snd_heart_beat_down = 150;
+SoundSmplTblID snd_heart_beat_up   = 151;
+SoundSmplTblID snd_scavenge        = 156;
+SoundSmplTblID snd_foot_snow       = 182;  // footsteps/snowft1.wav, snowft2.wav, snowft3.wav
+
+SoundSmplTblID snd_tab_fall        = 947;
+SoundSmplTblID snd_reinforce_hit   = 1005;
+
+
+
+
 
 /******************************************************************************/
 
@@ -654,12 +651,11 @@ TbBool cache_common_sound_ids(void)
 
     CACHE_SND(snd_refusal,         "REFUSAL")
     CACHE_SND(snd_tab_click,       "TAB_CLICK")
-    CACHE_SND(snd_zoom,            "ZOOM")
     CACHE_SND(snd_room_claim,      "ROOM_CLAIM")
     CACHE_SND_COUNT(snd_gold_pickup, snd_gold_pickup_count, "GOLD_PICKUP")
     CACHE_SND(snd_salary_full,     "SALARY_FULL")
     CACHE_SND(snd_salary_partial,  "SALARY_PARTIAL")
-    CACHE_SND(snd_salary_none,     "SALARY_NONE")
+    CACHE_SND(snd_salary_tiny,     "SALARY_NONE")
     CACHE_SND(snd_heart_beat_down, "HEART_BEAT_DOWN")
     CACHE_SND(snd_heart_beat_up,   "HEART_BEAT_UP")
     CACHE_SND(snd_door_open,       "DOOR_OPEN")
@@ -683,7 +679,7 @@ TbBool cache_common_sound_ids(void)
     CACHE_SND(snd_spell_armageddon, "SPELL_ARMAGEDDON")
     CACHE_SND_COUNT(snd_dig_spell,   snd_dig_spell_count,   "DIG_SPELL")
     CACHE_SND_COUNT(snd_tunnel_dig,  snd_tunnel_dig_count,  "TUNNEL_DIG")
-    CACHE_SND(snd_button_click2,   "BUTTON_CLICK2")
+    CACHE_SND(snd_button_click,   "BUTTON_CLICK2")
     CACHE_SND(snd_buzzer,          "BUZZER")
     CACHE_SND(snd_tab_fall,        "TAB_FALL")
     CACHE_SND(snd_heart_engine,    "HEART_ENGINE")

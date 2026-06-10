@@ -108,7 +108,6 @@ TbBool cache_common_sound_ids(void);
 /* UI */
 extern SoundSmplTblID snd_refusal;
 extern SoundSmplTblID snd_tab_click;
-extern SoundSmplTblID snd_zoom;
 
 /* Room */
 extern SoundSmplTblID snd_room_claim;
@@ -118,7 +117,7 @@ extern SoundSmplTblID snd_gold_pickup;
 extern int            snd_gold_pickup_count;
 extern SoundSmplTblID snd_salary_full;
 extern SoundSmplTblID snd_salary_partial;
-extern SoundSmplTblID snd_salary_none;
+extern SoundSmplTblID snd_salary_tiny;
 
 /* Heart */
 extern SoundSmplTblID snd_heart_beat_down;
@@ -169,7 +168,7 @@ extern SoundSmplTblID snd_tunnel_dig;
 extern int            snd_tunnel_dig_count;
 
 /* UI */
-extern SoundSmplTblID snd_button_click2;
+extern SoundSmplTblID snd_button_click;
 extern SoundSmplTblID snd_buzzer;           /* error buzz */
 extern SoundSmplTblID snd_tab_fall;         /* event notification tab fall */
 

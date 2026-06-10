@@ -508,7 +508,6 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
   light_turn_light_on(player->cursor_light_idx);
-  play_non_3d_sample(snd_zoom);
   return 0;
 }
 
@@ -550,7 +549,6 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
   light_turn_light_on(player->cursor_light_idx);
-  play_non_3d_sample(snd_zoom);
   return 0;
 }
 

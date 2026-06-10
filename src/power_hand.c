@@ -891,7 +891,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     }
     else
     {
-        thing_play_sample(creatng, snd_salary_none, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
+        thing_play_sample(creatng, snd_salary_tiny, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
     }
     if ( !taking_salary )
     {
