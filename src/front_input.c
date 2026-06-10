@@ -449,7 +449,7 @@ static short get_players_message_inputs(void)
         if (chpos > 0)
             player->mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
-    } else
+    } else {
         LbTextSetFont(winfont);
         if (pixel_size * LbTextStringWidth(player->mp_message_text) < 450) {
             char text_input[64];
