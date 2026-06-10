@@ -157,7 +157,7 @@ enum TbPacketAction {
         PckA_PlyrToggleAlly,
         PckA_SaveViewType,
         PckA_LoadViewType,//120
-        PckA_PlyrMsgChar    =  121,
+        PckA_UnusedSlot121    =  121,
         PckA_PlyrMsgClear,
         PckA_PlyrMsgLast,
         PckA_PlyrMsgCmdAutoCompletion,
