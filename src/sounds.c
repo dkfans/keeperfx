@@ -320,7 +320,7 @@ void update_player_sounds(void)
                 ((k <= 300)  && ((k % 50) == 0)) ||
                 ((k <= 5000) && ((k % 250) == 0)) ||
                                 ((k % 5000) == 0)    )  ))
-        play_non_3d_sample(89);
+        play_non_3d_sample(snd_buzzer);
     }
     if (get_gameturn() != 0)
     {

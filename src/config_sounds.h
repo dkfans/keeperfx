@@ -178,6 +178,62 @@ extern SoundSmplTblID snd_heart_engine;     /* heartbeat engine hum (looping) */
 /* Room sounds */
 extern SoundSmplTblID snd_scavenge;         /* scavenging room sound */
 
+/* Gameplay actions */
+extern SoundSmplTblID snd_tile_place;       /* single room tile placed */
+extern SoundSmplTblID snd_tile_sell;        /* room/trap/door sold */
+extern SoundSmplTblID snd_tile_dig;         /* slab tagged for digging */
+extern SoundSmplTblID snd_coin_drop;        /* computer player drops gold coins */
+extern SoundSmplTblID snd_alarm;            /* alarm trap triggered */
+extern SoundSmplTblID snd_trap_place;       /* PlaceSound default for all traps and doors */
+extern SoundSmplTblID snd_trap_trigger;     /* TriggerSound for BOULDER/ALARM/GAS/LIGHTNING/WOP/LAVA traps */
+extern SoundSmplTblID snd_trap_trigger_tnt; /* TriggerSound for TNT trap */
+extern SoundSmplTblID snd_cheat_activated;  /* easter-egg cheat code entered */
+extern SoundSmplTblID snd_tab_hit;          /* event notification tab settles */
+extern SoundSmplTblID snd_larg_tile_up;     /* large room placed — rising note */
+extern SoundSmplTblID snd_larg_tile_down;   /* large room placed — falling note */
+
+/* Object sounds */
+extern SoundSmplTblID snd_torch_ambience;       /* AmbienceSound for TORCH, TEMPLE_STATUE, TORCHUN, CANDLESTCK */
+extern SoundSmplTblID snd_dungeon_heart_beam;   /* EffectSound for SOUL_CONTAINER destruction beam */
+extern SoundSmplTblID snd_hero_gate_ambience;   /* AmbienceSound for HERO_GATE */
+
+/* Shot projectile travel sounds (ShotSound in magic.cfg) */
+extern SoundSmplTblID snd_shot_freeze;            /* travel; ShotSound for SHOT_FREEZE / SHOT_SLOW */
+extern SoundSmplTblID snd_shot_homing_missile;    /* travel; ShotSound for SHOT_NAVI_MISSILE / SHOT_MISSILE */
+extern SoundSmplTblID snd_shot_bouncing_grenade;  /* travel; ShotSound for SHOT_GRENADE / SHOT_LIZARD */
+/* Shot impact sounds */
+extern SoundSmplTblID snd_shot_freeze_impact;     /* impact; creature frozen effect (same ID as snd_spell_frozen) */
+extern SoundSmplTblID snd_shot_splat;             /* impact; generic splat on hit */
+/* Power cast sounds (SoundPlayed in magic.cfg) */
+extern SoundSmplTblID snd_cast_heal;              /* cast; SoundPlayed for POWER_HEAL_CREATURE */
+extern SoundSmplTblID snd_cast_speed;             /* cast; SoundPlayed for POWER_SPEED */
+extern SoundSmplTblID snd_cast_lightning;         /* cast; SoundPlayed for POWER_LIGHTNING */
+extern SoundSmplTblID snd_cast_disease;           /* cast; SoundPlayed for POWER_DISEASE */
+/* Shot firing sounds (FiringSound in magic.cfg — played on the creature at moment of release) */
+extern SoundSmplTblID snd_shot_fire;              /* firing; FiringSound for SHOT_FIREBALL/FIREBOMB/POISON_CLOUD/DRAIN/GROUP/CHICKEN/TIME_BOMB/HAILSTORM */
+extern SoundSmplTblID snd_shot_bow;               /* firing; FiringSound for SHOT_ARROW and SHOT_BALLISTA */
+extern SoundSmplTblID snd_shot_wind;              /* firing; FiringSound for SHOT_WIND */
+extern SoundSmplTblID snd_shot_breath;            /* firing; FiringSound for SHOT_FLAME_BREATH */
+extern SoundSmplTblID snd_shot_freeze_fire;       /* firing; FiringSound for SHOT_FREEZE and SHOT_SLOW */
+
+/* Keeper power incantation voices */
+extern SoundSmplTblID snd_power_protect;
+extern SoundSmplTblID snd_power_call_to_arms;
+extern SoundSmplTblID snd_power_chicken;
+extern SoundSmplTblID snd_power_sight;
+extern SoundSmplTblID snd_power_heal;
+extern SoundSmplTblID snd_power_hold_audience;
+extern SoundSmplTblID snd_power_imp;
+extern SoundSmplTblID snd_power_conceal;
+extern SoundSmplTblID snd_power_lightning;
+extern SoundSmplTblID snd_power_obey;
+extern SoundSmplTblID snd_power_disease;
+extern SoundSmplTblID snd_power_possess;
+extern SoundSmplTblID snd_power_cave_in;
+extern SoundSmplTblID snd_power_speed;
+extern SoundSmplTblID snd_power_destroy_walls;
+extern SoundSmplTblID snd_power_armageddon;
+
 /******************************************************************************/
 
 /**

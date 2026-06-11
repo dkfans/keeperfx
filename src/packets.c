@@ -36,9 +36,9 @@
 #include "bflib_dernc.h"
 #include "net_exchange_gameplay.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
-#include "bflib_planar.h"
 #include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
@@ -302,7 +302,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     }
     delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
     if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(115);
+        play_non_3d_sample(snd_tile_sell);
     if (revenue != 0)
     {
         struct Coord3d pos;

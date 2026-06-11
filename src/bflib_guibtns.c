@@ -63,7 +63,7 @@ TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos
 
 void do_sound_menu_click(void)
 {
-    play_non_3d_sample_no_overlap(61);
+    play_non_3d_sample_no_overlap(snd_button_click);
 }
 
 void do_sound_button_click(struct GuiButton *gbtn)

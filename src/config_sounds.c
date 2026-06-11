@@ -87,31 +87,86 @@ SoundSmplTblID snd_door_place      = 72;   // rocks1.wav, rocks2.wav, rocks3.wav
 SoundSmplTblID snd_dig_impact      = 72;   // rocks1.wav, rocks2.wav, rocks3.wav
 SoundSmplTblID snd_dig_dirt        = 73;  
 SoundSmplTblID snd_spell_stars     = 76;
+SoundSmplTblID snd_tile_place     = 77;
+// strikes/swonarm3.wav, swonarm4.wav, swonarm5.wav
 
-
+SoundSmplTblID snd_coin_drop       = 88;
 SoundSmplTblID snd_buzzer          = 89;
+SoundSmplTblID snd_alarm           = 90;
 SoundSmplTblID snd_door_open       = 91; 
 SoundSmplTblID snd_door_close      = 92;
 SoundSmplTblID snd_heart_engine    = 93;
 
 SoundSmplTblID snd_chicken_cluck   = 112;  // chick4a.wav
+SoundSmplTblID snd_tile_sell       = 115;  
 SoundSmplTblID snd_room_claim      = 116;
+SoundSmplTblID snd_trap_place      = 117;  // PlaceSound default for all traps and doors in trapdoor.cfg
+SoundSmplTblID snd_tile_dig        = 118;
 SoundSmplTblID snd_refusal         = 119;
 SoundSmplTblID snd_strike_wall     = 128;  // strikes/swonarm3.wav, swonarm4.wav, swonarm5.wav
 
 SoundSmplTblID snd_heart_beat_down = 150;
 SoundSmplTblID snd_heart_beat_up   = 151;
 SoundSmplTblID snd_scavenge        = 156;
+SoundSmplTblID snd_cheat_activated = 159;
+SoundSmplTblID snd_tab_hit         = 175;  // tabhit1.wav, tabhit2.wav, tabhit3.wav
 SoundSmplTblID snd_foot_snow       = 182;  // footsteps/snowft1.wav, snowft2.wav, snowft3.wav
+
+SoundSmplTblID snd_larg_tile_up = 856;
+SoundSmplTblID snd_larg_tile_down = 959;
 
 SoundSmplTblID snd_tab_fall        = 947;
 SoundSmplTblID snd_reinforce_hit   = 1005;
 
+// Trap trigger sounds
+SoundSmplTblID snd_trap_trigger    = 176;  // TriggerSound for BOULDER, ALARM, POISON_GAS, LIGHTNING, WORD_OF_POWER, LAVA
+SoundSmplTblID snd_trap_trigger_tnt = 141; // TriggerSound for TNT trap
 
+// Object ambient / effect sounds
+SoundSmplTblID snd_torch_ambience       = 78;   // AmbienceSound for TORCH, TEMPLE_STATUE, TORCHUN, CANDLESTCK
+SoundSmplTblID snd_dungeon_heart_beam   = 157;  // EffectSound for SOUL_CONTAINER destruction beam
+SoundSmplTblID snd_hero_gate_ambience   = 973;  // AmbienceSound for HERO_GATE
 
+// Keeper power incantation voices
+SoundSmplTblID snd_power_protect         = 825;
+SoundSmplTblID snd_power_call_to_arms  = 826;
+SoundSmplTblID snd_power_chicken       = 827;
+SoundSmplTblID snd_power_sight         = 828;
+SoundSmplTblID snd_power_heal          = 829;
+SoundSmplTblID snd_power_hold_audience = 830;
+SoundSmplTblID snd_power_imp           = 831;
+SoundSmplTblID snd_power_conceal       = 832;
+SoundSmplTblID snd_power_lightning     = 833;
+SoundSmplTblID snd_power_obey          = 834;
+SoundSmplTblID snd_power_disease       = 835;
+SoundSmplTblID snd_power_possess       = 836;
+SoundSmplTblID snd_power_cave_in       = 837;
+SoundSmplTblID snd_power_speed         = 838;
+SoundSmplTblID snd_power_destroy_walls = 839;
+SoundSmplTblID snd_power_armageddon    = 824;
 
+// Shot projectile travel sounds (ShotSound field in magic.cfg)
+SoundSmplTblID snd_shot_freeze            = 49;  // travel; ShotSound for SHOT_FREEZE and SHOT_SLOW
+SoundSmplTblID snd_shot_homing_missile    = 53;  // travel; ShotSound for SHOT_NAVI_MISSILE and SHOT_MISSILE
+SoundSmplTblID snd_shot_bouncing_grenade  = 54;  // travel; ShotSound for SHOT_GRENADE and SHOT_LIZARD
 
-/******************************************************************************/
+// Shot impact sounds
+SoundSmplTblID snd_shot_freeze_impact     = 50;  // impact; creature frozen effect (same ID as snd_spell_frozen)
+SoundSmplTblID snd_shot_splat             = 57;  // impact; generic splat on hit
+
+// Power cast sounds (SoundPlayed field in magic.cfg — played when the power takes effect)
+SoundSmplTblID snd_cast_heal              = 37;  // cast; SoundPlayed for POWER_HEAL_CREATURE
+SoundSmplTblID snd_cast_speed             = 38;  // cast; SoundPlayed for POWER_SPEED
+SoundSmplTblID snd_cast_lightning         = 55;  // cast; SoundPlayed for POWER_LIGHTNING
+SoundSmplTblID snd_cast_disease           = 59;  // cast; SoundPlayed for POWER_DISEASE (disease spit on target)
+
+// Shot firing sounds (FiringSound field in magic.cfg — played on the creature at the moment of release)
+SoundSmplTblID snd_shot_fire              = 46;  // firing; FiringSound for SHOT_FIREBALL, SHOT_FIREBOMB, SHOT_POISON_CLOUD, SHOT_DRAIN, SHOT_GROUP, SHOT_CHICKEN, SHOT_TIME_BOMB, SHOT_HAILSTORM
+SoundSmplTblID snd_shot_bow               = 44;  // firing; FiringSound for SHOT_ARROW and SHOT_BALLISTA
+SoundSmplTblID snd_shot_wind              = 40;  // firing; FiringSound for SHOT_WIND
+SoundSmplTblID snd_shot_breath            = 56;  // firing; FiringSound for SHOT_FLAME_BREATH
+SoundSmplTblID snd_shot_freeze_fire       = 48;  // firing; FiringSound for SHOT_FREEZE and SHOT_SLOW
+
 
 /******************************************************************************/
 // Speech overrides
@@ -541,7 +596,7 @@ static TbBool load_sounds_config_file(const char *fname, unsigned short flags)
     TbBool result = true;
     
     // Parse known sections
-    const char* sections[] = {"common", "ui", "traps", "creatures", "powers", "effects", "doors", NULL};
+    const char* sections[] = {"common", "ui", "traps", "creatures", "powers", "effects", "doors", "objects", NULL};
     
     for (int i = 0; sections[i] != NULL; i++)
     {
@@ -684,6 +739,51 @@ TbBool cache_common_sound_ids(void)
     CACHE_SND(snd_tab_fall,        "TAB_FALL")
     CACHE_SND(snd_heart_engine,    "HEART_ENGINE")
     CACHE_SND(snd_scavenge,        "SCAVENGE")
+    CACHE_SND(snd_tile_place,      "ROOM_BUILD")
+    CACHE_SND(snd_coin_drop,       "COIN_DROP")
+    CACHE_SND(snd_alarm,           "TRAP_TRIGGER_ALARM")
+    CACHE_SND(snd_trap_place,      "TRAP_PLACE")
+    CACHE_SND(snd_trap_trigger,    "TRAP_TRIGGER")
+    CACHE_SND(snd_trap_trigger_tnt, "TRAP_TRIGGER_TNT")
+    CACHE_SND(snd_torch_ambience,       "TORCH_AMBIENCE")
+    CACHE_SND(snd_dungeon_heart_beam,   "DUNGEON_HEART_BEAM")
+    CACHE_SND(snd_hero_gate_ambience,   "HERO_GATE_AMBIENCE")
+    CACHE_SND(snd_tile_sell,       "TILE_SELL")
+    CACHE_SND(snd_tile_dig,        "TILE_DIG")
+    CACHE_SND(snd_cheat_activated, "CHEAT_ACTIVATED")
+    CACHE_SND(snd_tab_hit,         "TAB_HIT")
+    CACHE_SND(snd_larg_tile_up,    "LARG_TILE_UP")
+    CACHE_SND(snd_larg_tile_down,  "LARG_TILE_DOWN") 
+    CACHE_SND(snd_power_protect,         "POWER_PROTECT")
+    CACHE_SND(snd_power_call_to_arms,  "POWER_CALL_TO_ARMS")
+    CACHE_SND(snd_power_chicken,       "POWER_CHICKEN")
+    CACHE_SND(snd_power_sight,         "POWER_SIGHT")
+    CACHE_SND(snd_power_heal,          "POWER_HEAL")
+    CACHE_SND(snd_power_hold_audience, "POWER_HOLD_AUDIENCE")
+    CACHE_SND(snd_power_imp,           "POWER_IMP")
+    CACHE_SND(snd_power_conceal,       "POWER_CONCEAL")
+    CACHE_SND(snd_power_lightning,     "POWER_LIGHTNING")
+    CACHE_SND(snd_power_obey,          "POWER_OBEY")
+    CACHE_SND(snd_power_disease,       "POWER_DISEASE")
+    CACHE_SND(snd_power_possess,       "POWER_POSSESS")
+    CACHE_SND(snd_power_cave_in,       "POWER_CAVE_IN")
+    CACHE_SND(snd_power_speed,         "POWER_SPEED")
+    CACHE_SND(snd_power_destroy_walls, "POWER_DESTROY_WALLS")
+    CACHE_SND(snd_power_armageddon,    "POWER_ARMAGEDDON")
+    CACHE_SND(snd_shot_freeze,           "SHOT_FREEZE")
+    CACHE_SND(snd_shot_homing_missile,   "SHOT_HOMING_MISSILE")
+    CACHE_SND(snd_shot_bouncing_grenade, "SHOT_BOUNCING_GRENADE")
+    CACHE_SND(snd_shot_freeze_impact,    "SHOT_FREEZE_IMPACT")
+    CACHE_SND(snd_shot_splat,            "SHOT_SPLAT")
+    CACHE_SND(snd_cast_heal,             "CAST_HEAL")
+    CACHE_SND(snd_cast_speed,            "CAST_SPEED")
+    CACHE_SND(snd_cast_lightning,        "CAST_LIGHTNING")
+    CACHE_SND(snd_cast_disease,          "CAST_DISEASE")
+    CACHE_SND(snd_shot_fire,             "SHOT_FIRE")
+    CACHE_SND(snd_shot_bow,              "SHOT_BOW")
+    CACHE_SND(snd_shot_wind,             "SHOT_WIND")
+    CACHE_SND(snd_shot_breath,           "SHOT_BREATH")
+    CACHE_SND(snd_shot_freeze_fire,      "SHOT_FREEZE_FIRE")
 
     #undef CACHE_SND
     #undef CACHE_SND_COUNT

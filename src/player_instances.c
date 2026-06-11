@@ -1228,11 +1228,11 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         }
       if (is_my_player(player))
       {
-          play_non_3d_sample(77);
+          play_non_3d_sample(snd_tile_place);
           if (player->boxsize > 1)
           {
-              play_non_3d_sample(959);
-              play_non_3d_sample(856);
+              play_non_3d_sample(snd_larg_tile_down);
+              play_non_3d_sample(snd_larg_tile_up);
           }
       }
     }

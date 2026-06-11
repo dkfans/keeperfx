@@ -1010,7 +1010,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                     pos.z.val = subtile_coord_center(1);
                     if (is_my_player(player))
                     {
-                        play_non_3d_sample(76);
+                        play_non_3d_sample(snd_spell_stars);
                     }
                     create_effect(&pos, imp_spangle_effects[get_player_color_idx(id)], id);
                 }
@@ -1018,7 +1018,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                 {
                     if (is_my_player(player))
                     {
-                        play_non_3d_sample(41);
+                        play_non_3d_sample(snd_spell_wall);
                     }
                     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
                     {

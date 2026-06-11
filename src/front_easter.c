@@ -157,7 +157,7 @@ void input_eastegg(void)
       allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
       state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
       if ((state == 1) || (state == 2) || (state == 3)) {
-        play_non_3d_sample(159);
+        play_non_3d_sample(snd_cheat_activated);
       }
     }
     // Maintain the BBKING cheat
@@ -167,7 +167,7 @@ void input_eastegg(void)
       static unsigned char length = 0;
       state = input_eastegg_keycodes(&length, allow, &eastegg_bbking_codes);
       if (length == eastegg_bbking_codes.length) {
-        play_non_3d_sample(159);
+        play_non_3d_sample(snd_cheat_activated);
         toggle_bbking_mode();
         length = 0; // prevent re-trigger
       }
@@ -263,7 +263,7 @@ void draw_eastegg(void)
     {
       LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
     }
-    play_non_3d_sample_no_overlap(90);
+    play_non_3d_sample_no_overlap(snd_alarm);
   }
   if (game.easter_eggs_enabled == false)
     return;
@@ -303,7 +303,7 @@ void draw_eastegg(void)
     {
         LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
     }
-    play_non_3d_sample_no_overlap(90);
+    play_non_3d_sample_no_overlap(snd_alarm);
   }
 }
 

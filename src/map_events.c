@@ -349,7 +349,7 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
                     struct PlayerInfo* player = get_player(dungeon->owner);
                     if ( (get_gameturn() > 10) && (player->view_type != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
                     {
-                        play_non_3d_sample(947);
+                        play_non_3d_sample(snd_tab_fall);
                     }
                 }
                 SYNCDBG(1,"New button at position %d",(int)i);
