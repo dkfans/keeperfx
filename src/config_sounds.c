@@ -127,23 +127,54 @@ SoundSmplTblID snd_torch_ambience       = 78;   // AmbienceSound for TORCH, TEMP
 SoundSmplTblID snd_dungeon_heart_beam   = 157;  // EffectSound for SOUL_CONTAINER destruction beam
 SoundSmplTblID snd_hero_gate_ambience   = 973;  // AmbienceSound for HERO_GATE
 
-// Keeper power incantation voices
-SoundSmplTblID snd_power_protect         = 825;
-SoundSmplTblID snd_power_call_to_arms  = 826;
-SoundSmplTblID snd_power_chicken       = 827;
-SoundSmplTblID snd_power_sight         = 828;
-SoundSmplTblID snd_power_heal          = 829;
-SoundSmplTblID snd_power_hold_audience = 830;
-SoundSmplTblID snd_power_imp           = 831;
-SoundSmplTblID snd_power_conceal       = 832;
-SoundSmplTblID snd_power_lightning     = 833;
-SoundSmplTblID snd_power_obey          = 834;
-SoundSmplTblID snd_power_disease       = 835;
-SoundSmplTblID snd_power_possess       = 836;
-SoundSmplTblID snd_power_cave_in       = 837;
-SoundSmplTblID snd_power_speed         = 838;
-SoundSmplTblID snd_power_destroy_walls = 839;
-SoundSmplTblID snd_power_armageddon    = 824;
+// Keeper power sounds — voice (SoundSamples) paired with cast effect (SoundPlayed)
+SoundSmplTblID snd_power_imp           = 831;  // voice; POWER_IMP (no cast sound — just spawns an imp)
+
+SoundSmplTblID snd_power_possess       = 836;  // voice; POWER_POSSESS
+SoundSmplTblID snd_cast_possess        = 39;   // cast;  POWER_POSSESS
+
+SoundSmplTblID snd_power_sight         = 828;  // voice; POWER_SIGHT
+SoundSmplTblID snd_cast_sight          = 51;   // cast;  POWER_SIGHT
+
+SoundSmplTblID snd_power_obey          = 834;  // voice; POWER_OBEY
+SoundSmplTblID snd_power_hold_audience = 830;  // voice; POWER_HOLD_AUDIENCE
+SoundSmplTblID snd_cast_obey           = 58;   // cast;  POWER_OBEY and POWER_HOLD_AUDIENCE (shared)
+
+SoundSmplTblID snd_power_call_to_arms  = 826;  // voice; POWER_CALL_TO_ARMS
+SoundSmplTblID snd_cast_call_to_arms   = 83;   // cast;  POWER_CALL_TO_ARMS (battle fanfare)
+
+SoundSmplTblID snd_power_cave_in       = 837;  // voice; POWER_CAVE_IN
+SoundSmplTblID snd_cast_cave_in        = 927;  // cast;  POWER_CAVE_IN
+
+SoundSmplTblID snd_power_heal          = 829;  // voice; POWER_HEAL_CREATURE
+SoundSmplTblID snd_cast_heal           = 37;   // cast;  POWER_HEAL_CREATURE; also FiringSound for SHOT_RANGED_HEAL
+
+SoundSmplTblID snd_power_lightning     = 833;  // voice; POWER_LIGHTNING
+SoundSmplTblID snd_cast_lightning      = 55;   // cast;  POWER_LIGHTNING; also FiringSound for SHOT_LIGHTNING family
+
+SoundSmplTblID snd_power_speed         = 838;  // voice; POWER_SPEED
+SoundSmplTblID snd_cast_speed          = 38;   // cast;  POWER_SPEED; also FiringSound for SHOT_RANGED_SPEED
+
+SoundSmplTblID snd_power_protect       = 825;  // voice; POWER_PROTECT
+SoundSmplTblID snd_cast_armour         = 153;  // cast;  POWER_PROTECT; also FiringSound for SHOT_RANGED_ARMOUR
+
+SoundSmplTblID snd_power_conceal       = 832;  // voice; POWER_CONCEAL
+SoundSmplTblID snd_cast_conceal        = 154;  // cast;  POWER_CONCEAL
+
+SoundSmplTblID snd_power_disease       = 835;  // voice; POWER_DISEASE
+SoundSmplTblID snd_cast_disease        = 59;   // cast;  POWER_DISEASE (disease spit on target)
+
+SoundSmplTblID snd_power_chicken       = 827;  // voice; POWER_CHICKEN
+SoundSmplTblID snd_cast_pickup         = 109;  // cast;  POWER_CHICKEN, POWER_PICKUP_FOOD, POWER_PICKUP_OBJECT (shared)
+
+SoundSmplTblID snd_power_destroy_walls = 839;  // voice; POWER_DESTROY_WALLS (cast = snd_dig_dirt)
+SoundSmplTblID snd_power_armageddon    = 824;  // voice; POWER_ARMAGEDDON    (cast = snd_spell_armageddon)
+
+// Powers with no voice — cast effect only
+SoundSmplTblID snd_cast_slap           = 75;   // cast;  POWER_SLAP
+SoundSmplTblID snd_cast_rebound        = 926;  // cast;  POWER_REBOUND; also FiringSound for SHOT_RANGED_REBOUND
+SoundSmplTblID snd_cast_flight         = 953;  // cast;  POWER_FLIGHT
+SoundSmplTblID snd_cast_vision         = 923;  // cast;  POWER_VISION
 
 // Shot projectile travel sounds (ShotSound field in magic.cfg)
 SoundSmplTblID snd_shot_freeze            = 49;  // travel; ShotSound for SHOT_FREEZE and SHOT_SLOW
@@ -154,18 +185,37 @@ SoundSmplTblID snd_shot_bouncing_grenade  = 54;  // travel; ShotSound for SHOT_G
 SoundSmplTblID snd_shot_freeze_impact     = 50;  // impact; creature frozen effect (same ID as snd_spell_frozen)
 SoundSmplTblID snd_shot_splat             = 57;  // impact; generic splat on hit
 
-// Power cast sounds (SoundPlayed field in magic.cfg — played when the power takes effect)
-SoundSmplTblID snd_cast_heal              = 37;  // cast; SoundPlayed for POWER_HEAL_CREATURE
-SoundSmplTblID snd_cast_speed             = 38;  // cast; SoundPlayed for POWER_SPEED
-SoundSmplTblID snd_cast_lightning         = 55;  // cast; SoundPlayed for POWER_LIGHTNING
-SoundSmplTblID snd_cast_disease           = 59;  // cast; SoundPlayed for POWER_DISEASE (disease spit on target)
-
 // Shot firing sounds (FiringSound field in magic.cfg — played on the creature at the moment of release)
 SoundSmplTblID snd_shot_fire              = 46;  // firing; FiringSound for SHOT_FIREBALL, SHOT_FIREBOMB, SHOT_POISON_CLOUD, SHOT_DRAIN, SHOT_GROUP, SHOT_CHICKEN, SHOT_TIME_BOMB, SHOT_HAILSTORM
 SoundSmplTblID snd_shot_bow               = 44;  // firing; FiringSound for SHOT_ARROW and SHOT_BALLISTA
 SoundSmplTblID snd_shot_wind              = 40;  // firing; FiringSound for SHOT_WIND
 SoundSmplTblID snd_shot_breath            = 56;  // firing; FiringSound for SHOT_FLAME_BREATH
 SoundSmplTblID snd_shot_freeze_fire       = 48;  // firing; FiringSound for SHOT_FREEZE and SHOT_SLOW
+
+// Melee swing / misc shot sounds
+int            snd_melee_swing_count      = 6;   // variants; IDs 26–31 (matches FiringSoundVariants = 6 in magic.cfg)
+SoundSmplTblID snd_melee_swing            = 26;  // firing; FiringSound for SHOT_SWING_CLAW, SHOT_SWING_FIST, SHOT_DIG, SHOT_CRIPPLE
+SoundSmplTblID snd_boulder_roll           = 35;  // travel; ShotSound for SHOT_BOULDER
+SoundSmplTblID snd_shot_magic_travel      = 43;  // travel; ShotSound for many generic magic projectiles
+SoundSmplTblID snd_trap_tnt_fire          = 149; // firing; FiringSound for SHOT_TRAP_TNT
+SoundSmplTblID snd_fear_shriek            = 570; // firing; FiringSound for SHOT_FEAR
+SoundSmplTblID snd_cast_cleanse           = 161; // firing; FiringSound for SHOT_RANGED_CLEANSE
+
+// Hit impact sounds (HitXxxSound fields in magic.cfg)
+// Note: HitWallSound = 128 3 reuses STRIKE_WALL (already registered)
+// Note: HitWaterSound = 36 reuses SPLASH, HitWaterSound = 21 reuses FOOT_WET, DigHitSound = 63 reuses DIG_SPELL
+SoundSmplTblID snd_hit_creature_sword    = 120;  // HitCreatureSound for SHOT_SWING_SWORD (light slice)
+SoundSmplTblID snd_hit_creature          = 137;  // HitCreatureSound for fist/ranged shots (heavy hit)
+int            snd_hit_wall_count        = 3;    // variants; IDs 138–140
+SoundSmplTblID snd_hit_wall              = 138;  // HitWallSound for fist/ballista/sentry
+int            snd_hit_door_sword_count  = 3;    // variants; IDs 131–133
+SoundSmplTblID snd_hit_door_sword        = 131;  // HitDoorSound for sword/claw shots
+int            snd_hit_door_count        = 3;    // variants; IDs 141–143
+SoundSmplTblID snd_hit_door              = 141;  // HitDoorSound for fist/heavy shots
+SoundSmplTblID snd_hit_heart             = 136;  // HitHeartSound for sword/ballista/ranged shots
+int            snd_hit_heart_fist_count  = 3;    // variants; IDs 144–146
+SoundSmplTblID snd_hit_heart_fist        = 144;  // HitHeartSound for fist/heavy shots
+SoundSmplTblID snd_hit_wall_boulder      = 1000; // HitWallSound for SHOT_BOULDER crushing into wall
 
 
 /******************************************************************************/
@@ -754,36 +804,62 @@ TbBool cache_common_sound_ids(void)
     CACHE_SND(snd_tab_hit,         "TAB_HIT")
     CACHE_SND(snd_larg_tile_up,    "LARG_TILE_UP")
     CACHE_SND(snd_larg_tile_down,  "LARG_TILE_DOWN") 
+    CACHE_SND(snd_power_imp,             "POWER_IMP")
+    CACHE_SND(snd_power_possess,         "POWER_POSSESS")
+    CACHE_SND(snd_cast_possess,          "CAST_POSSESS")
+    CACHE_SND(snd_power_sight,           "POWER_SIGHT")
+    CACHE_SND(snd_cast_sight,            "CAST_SIGHT")
+    CACHE_SND(snd_power_obey,            "POWER_OBEY")
+    CACHE_SND(snd_power_hold_audience,   "POWER_HOLD_AUDIENCE")
+    CACHE_SND(snd_cast_obey,             "CAST_OBEY")
+    CACHE_SND(snd_power_call_to_arms,    "POWER_CALL_TO_ARMS")
+    CACHE_SND(snd_cast_call_to_arms,     "CAST_CALL_TO_ARMS")
+    CACHE_SND(snd_power_cave_in,         "POWER_CAVE_IN")
+    CACHE_SND(snd_cast_cave_in,          "CAST_CAVE_IN")
+    CACHE_SND(snd_power_heal,            "POWER_HEAL")
+    CACHE_SND(snd_cast_heal,             "CAST_HEAL")
+    CACHE_SND(snd_power_lightning,       "POWER_LIGHTNING")
+    CACHE_SND(snd_cast_lightning,        "CAST_LIGHTNING")
+    CACHE_SND(snd_power_speed,           "POWER_SPEED")
+    CACHE_SND(snd_cast_speed,            "CAST_SPEED")
     CACHE_SND(snd_power_protect,         "POWER_PROTECT")
-    CACHE_SND(snd_power_call_to_arms,  "POWER_CALL_TO_ARMS")
-    CACHE_SND(snd_power_chicken,       "POWER_CHICKEN")
-    CACHE_SND(snd_power_sight,         "POWER_SIGHT")
-    CACHE_SND(snd_power_heal,          "POWER_HEAL")
-    CACHE_SND(snd_power_hold_audience, "POWER_HOLD_AUDIENCE")
-    CACHE_SND(snd_power_imp,           "POWER_IMP")
-    CACHE_SND(snd_power_conceal,       "POWER_CONCEAL")
-    CACHE_SND(snd_power_lightning,     "POWER_LIGHTNING")
-    CACHE_SND(snd_power_obey,          "POWER_OBEY")
-    CACHE_SND(snd_power_disease,       "POWER_DISEASE")
-    CACHE_SND(snd_power_possess,       "POWER_POSSESS")
-    CACHE_SND(snd_power_cave_in,       "POWER_CAVE_IN")
-    CACHE_SND(snd_power_speed,         "POWER_SPEED")
-    CACHE_SND(snd_power_destroy_walls, "POWER_DESTROY_WALLS")
-    CACHE_SND(snd_power_armageddon,    "POWER_ARMAGEDDON")
+    CACHE_SND(snd_cast_armour,           "CAST_ARMOUR")
+    CACHE_SND(snd_power_conceal,         "POWER_CONCEAL")
+    CACHE_SND(snd_cast_conceal,          "CAST_CONCEAL")
+    CACHE_SND(snd_power_disease,         "POWER_DISEASE")
+    CACHE_SND(snd_cast_disease,          "CAST_DISEASE")
+    CACHE_SND(snd_power_chicken,         "POWER_CHICKEN")
+    CACHE_SND(snd_cast_pickup,           "CAST_PICKUP")
+    CACHE_SND(snd_power_destroy_walls,   "POWER_DESTROY_WALLS")
+    CACHE_SND(snd_power_armageddon,      "POWER_ARMAGEDDON")
+    CACHE_SND(snd_cast_slap,             "CAST_SLAP")
+    CACHE_SND(snd_cast_rebound,          "CAST_REBOUND")
+    CACHE_SND(snd_cast_flight,           "CAST_FLIGHT")
+    CACHE_SND(snd_cast_vision,           "CAST_VISION")
     CACHE_SND(snd_shot_freeze,           "SHOT_FREEZE")
     CACHE_SND(snd_shot_homing_missile,   "SHOT_HOMING_MISSILE")
     CACHE_SND(snd_shot_bouncing_grenade, "SHOT_BOUNCING_GRENADE")
     CACHE_SND(snd_shot_freeze_impact,    "SHOT_FREEZE_IMPACT")
     CACHE_SND(snd_shot_splat,            "SHOT_SPLAT")
-    CACHE_SND(snd_cast_heal,             "CAST_HEAL")
-    CACHE_SND(snd_cast_speed,            "CAST_SPEED")
-    CACHE_SND(snd_cast_lightning,        "CAST_LIGHTNING")
-    CACHE_SND(snd_cast_disease,          "CAST_DISEASE")
     CACHE_SND(snd_shot_fire,             "SHOT_FIRE")
     CACHE_SND(snd_shot_bow,              "SHOT_BOW")
     CACHE_SND(snd_shot_wind,             "SHOT_WIND")
     CACHE_SND(snd_shot_breath,           "SHOT_BREATH")
     CACHE_SND(snd_shot_freeze_fire,      "SHOT_FREEZE_FIRE")
+    CACHE_SND_COUNT(snd_melee_swing,     snd_melee_swing_count, "MELEE_SWING")
+    CACHE_SND(snd_boulder_roll,          "BOULDER_ROLL")
+    CACHE_SND(snd_shot_magic_travel,     "SHOT_MAGIC_TRAVEL")
+    CACHE_SND(snd_trap_tnt_fire,         "TRAP_TNT_FIRE")
+    CACHE_SND(snd_fear_shriek,           "FEAR_SHRIEK")
+    CACHE_SND(snd_cast_cleanse,          "CAST_CLEANSE")
+    CACHE_SND(snd_hit_creature_sword,    "HIT_CREATURE_SWORD")
+    CACHE_SND(snd_hit_creature,          "HIT_CREATURE")
+    CACHE_SND_COUNT(snd_hit_wall,          snd_hit_wall_count,       "HIT_WALL")
+    CACHE_SND_COUNT(snd_hit_door_sword,    snd_hit_door_sword_count, "HIT_DOOR_SWORD")
+    CACHE_SND_COUNT(snd_hit_door,          snd_hit_door_count,       "HIT_DOOR")
+    CACHE_SND(snd_hit_heart,             "HIT_HEART")
+    CACHE_SND_COUNT(snd_hit_heart_fist,    snd_hit_heart_fist_count, "HIT_HEART_FIST")
+    CACHE_SND(snd_hit_wall_boulder,      "HIT_WALL_BOULDER")
 
     #undef CACHE_SND
     #undef CACHE_SND_COUNT

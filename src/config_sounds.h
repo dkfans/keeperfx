@@ -197,6 +197,41 @@ extern SoundSmplTblID snd_torch_ambience;       /* AmbienceSound for TORCH, TEMP
 extern SoundSmplTblID snd_dungeon_heart_beam;   /* EffectSound for SOUL_CONTAINER destruction beam */
 extern SoundSmplTblID snd_hero_gate_ambience;   /* AmbienceSound for HERO_GATE */
 
+/* Keeper power sounds — voice (SoundSamples) paired with cast effect (SoundPlayed) */
+extern SoundSmplTblID snd_power_imp;              /* voice; POWER_IMP (no cast sound) */
+extern SoundSmplTblID snd_power_possess;          /* voice; POWER_POSSESS */
+extern SoundSmplTblID snd_cast_possess;           /* cast;  POWER_POSSESS */
+extern SoundSmplTblID snd_power_sight;            /* voice; POWER_SIGHT */
+extern SoundSmplTblID snd_cast_sight;             /* cast;  POWER_SIGHT */
+extern SoundSmplTblID snd_power_obey;             /* voice; POWER_OBEY */
+extern SoundSmplTblID snd_power_hold_audience;    /* voice; POWER_HOLD_AUDIENCE */
+extern SoundSmplTblID snd_cast_obey;              /* cast;  POWER_OBEY and POWER_HOLD_AUDIENCE (shared) */
+extern SoundSmplTblID snd_power_call_to_arms;     /* voice; POWER_CALL_TO_ARMS */
+extern SoundSmplTblID snd_cast_call_to_arms;      /* cast;  POWER_CALL_TO_ARMS (battle fanfare) */
+extern SoundSmplTblID snd_power_cave_in;          /* voice; POWER_CAVE_IN */
+extern SoundSmplTblID snd_cast_cave_in;           /* cast;  POWER_CAVE_IN */
+extern SoundSmplTblID snd_power_heal;             /* voice; POWER_HEAL_CREATURE */
+extern SoundSmplTblID snd_cast_heal;              /* cast;  POWER_HEAL_CREATURE; also FiringSound for SHOT_RANGED_HEAL */
+extern SoundSmplTblID snd_power_lightning;        /* voice; POWER_LIGHTNING */
+extern SoundSmplTblID snd_cast_lightning;         /* cast;  POWER_LIGHTNING; also FiringSound for SHOT_LIGHTNING family */
+extern SoundSmplTblID snd_power_speed;            /* voice; POWER_SPEED */
+extern SoundSmplTblID snd_cast_speed;             /* cast;  POWER_SPEED; also FiringSound for SHOT_RANGED_SPEED */
+extern SoundSmplTblID snd_power_protect;          /* voice; POWER_PROTECT */
+extern SoundSmplTblID snd_cast_armour;            /* cast;  POWER_PROTECT; also FiringSound for SHOT_RANGED_ARMOUR */
+extern SoundSmplTblID snd_power_conceal;          /* voice; POWER_CONCEAL */
+extern SoundSmplTblID snd_cast_conceal;           /* cast;  POWER_CONCEAL */
+extern SoundSmplTblID snd_power_disease;          /* voice; POWER_DISEASE */
+extern SoundSmplTblID snd_cast_disease;           /* cast;  POWER_DISEASE (disease spit on target) */
+extern SoundSmplTblID snd_power_chicken;          /* voice; POWER_CHICKEN */
+extern SoundSmplTblID snd_cast_pickup;            /* cast;  POWER_CHICKEN, POWER_PICKUP_FOOD, POWER_PICKUP_OBJECT (shared) */
+extern SoundSmplTblID snd_power_destroy_walls;    /* voice; POWER_DESTROY_WALLS (cast = snd_dig_dirt) */
+extern SoundSmplTblID snd_power_armageddon;       /* voice; POWER_ARMAGEDDON    (cast = snd_spell_armageddon) */
+/* Powers with no voice — cast effect only */
+extern SoundSmplTblID snd_cast_slap;              /* cast;  POWER_SLAP */
+extern SoundSmplTblID snd_cast_rebound;           /* cast;  POWER_REBOUND; also FiringSound for SHOT_RANGED_REBOUND */
+extern SoundSmplTblID snd_cast_flight;            /* cast;  POWER_FLIGHT */
+extern SoundSmplTblID snd_cast_vision;            /* cast;  POWER_VISION */
+
 /* Shot projectile travel sounds (ShotSound in magic.cfg) */
 extern SoundSmplTblID snd_shot_freeze;            /* travel; ShotSound for SHOT_FREEZE / SHOT_SLOW */
 extern SoundSmplTblID snd_shot_homing_missile;    /* travel; ShotSound for SHOT_NAVI_MISSILE / SHOT_MISSILE */
@@ -204,35 +239,34 @@ extern SoundSmplTblID snd_shot_bouncing_grenade;  /* travel; ShotSound for SHOT_
 /* Shot impact sounds */
 extern SoundSmplTblID snd_shot_freeze_impact;     /* impact; creature frozen effect (same ID as snd_spell_frozen) */
 extern SoundSmplTblID snd_shot_splat;             /* impact; generic splat on hit */
-/* Power cast sounds (SoundPlayed in magic.cfg) */
-extern SoundSmplTblID snd_cast_heal;              /* cast; SoundPlayed for POWER_HEAL_CREATURE */
-extern SoundSmplTblID snd_cast_speed;             /* cast; SoundPlayed for POWER_SPEED */
-extern SoundSmplTblID snd_cast_lightning;         /* cast; SoundPlayed for POWER_LIGHTNING */
-extern SoundSmplTblID snd_cast_disease;           /* cast; SoundPlayed for POWER_DISEASE */
 /* Shot firing sounds (FiringSound in magic.cfg — played on the creature at moment of release) */
 extern SoundSmplTblID snd_shot_fire;              /* firing; FiringSound for SHOT_FIREBALL/FIREBOMB/POISON_CLOUD/DRAIN/GROUP/CHICKEN/TIME_BOMB/HAILSTORM */
 extern SoundSmplTblID snd_shot_bow;               /* firing; FiringSound for SHOT_ARROW and SHOT_BALLISTA */
 extern SoundSmplTblID snd_shot_wind;              /* firing; FiringSound for SHOT_WIND */
 extern SoundSmplTblID snd_shot_breath;            /* firing; FiringSound for SHOT_FLAME_BREATH */
 extern SoundSmplTblID snd_shot_freeze_fire;       /* firing; FiringSound for SHOT_FREEZE and SHOT_SLOW */
-
-/* Keeper power incantation voices */
-extern SoundSmplTblID snd_power_protect;
-extern SoundSmplTblID snd_power_call_to_arms;
-extern SoundSmplTblID snd_power_chicken;
-extern SoundSmplTblID snd_power_sight;
-extern SoundSmplTblID snd_power_heal;
-extern SoundSmplTblID snd_power_hold_audience;
-extern SoundSmplTblID snd_power_imp;
-extern SoundSmplTblID snd_power_conceal;
-extern SoundSmplTblID snd_power_lightning;
-extern SoundSmplTblID snd_power_obey;
-extern SoundSmplTblID snd_power_disease;
-extern SoundSmplTblID snd_power_possess;
-extern SoundSmplTblID snd_power_cave_in;
-extern SoundSmplTblID snd_power_speed;
-extern SoundSmplTblID snd_power_destroy_walls;
-extern SoundSmplTblID snd_power_armageddon;
+/* Melee swing / misc shot sounds */
+extern SoundSmplTblID snd_melee_swing;            /* firing; FiringSound for melee shots (SWING_CLAW, SWING_FIST, DIG, CRIPPLE) */
+extern int            snd_melee_swing_count;      /* variants; 6 consecutive IDs (26-31) */
+extern SoundSmplTblID snd_boulder_roll;           /* travel; ShotSound for SHOT_BOULDER */
+extern SoundSmplTblID snd_shot_magic_travel;      /* travel; ShotSound for many generic magic projectiles */
+extern SoundSmplTblID snd_trap_tnt_fire;          /* firing; FiringSound for SHOT_TRAP_TNT */
+extern SoundSmplTblID snd_fear_shriek;            /* firing; FiringSound for SHOT_FEAR */
+extern SoundSmplTblID snd_cast_cleanse;           /* firing; FiringSound for SHOT_RANGED_CLEANSE */
+/* Hit impact sounds (HitXxxSound fields in magic.cfg) */
+/* Note: HitWallSound=128 3 reuses snd_strike_wall; HitWater=36 reuses snd_splash; HitWater=21 reuses snd_foot_wet */
+extern SoundSmplTblID snd_hit_creature_sword;     /* HitCreatureSound for sword/claw shots (light slice) */
+extern SoundSmplTblID snd_hit_creature;           /* HitCreatureSound for fist/ranged shots (heavy hit) */
+extern SoundSmplTblID snd_hit_wall;               /* HitWallSound for fist/ballista/sentry */
+extern int            snd_hit_wall_count;         /* variants; IDs 138-140 */
+extern SoundSmplTblID snd_hit_door_sword;         /* HitDoorSound for sword/claw shots */
+extern int            snd_hit_door_sword_count;   /* variants; IDs 131-133 */
+extern SoundSmplTblID snd_hit_door;               /* HitDoorSound for fist/heavy shots */
+extern int            snd_hit_door_count;         /* variants; IDs 141-143 */
+extern SoundSmplTblID snd_hit_heart;              /* HitHeartSound for sword/ballista/ranged shots */
+extern SoundSmplTblID snd_hit_heart_fist;         /* HitHeartSound for fist/heavy shots */
+extern int            snd_hit_heart_fist_count;   /* variants; IDs 144-146 */
+extern SoundSmplTblID snd_hit_wall_boulder;       /* HitWallSound for SHOT_BOULDER */
 
 /******************************************************************************/
 
