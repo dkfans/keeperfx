@@ -173,6 +173,9 @@
             "format": "c",
             "xstring": "c"
         },
-        "powershell.cwd": "keeperfx"
+        "powershell.cwd": "keeperfx",
+        "conventionalCommits.scopes": [
+            "sounds"
+        ]
     }
 }
