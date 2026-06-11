@@ -62,7 +62,7 @@ SWE = "Torterare"
 UKR = "Кат"
 
 # Strings can also be used in level scripts. Example:
-# IF(PLAYER0,TORTURER_JOIN >= 1)
+# IF(PLAYER0,TORTURER >= 1)
 #    DISPLAY_INFORMATION(TORTURER_JOIN)
 # ENDIF
 [TORTURER_JOIN]
