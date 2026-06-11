@@ -468,6 +468,8 @@ enum GUIStrings {
     GUIStr_NetPlayerDisconnected,
     GUIStr_NetUnused,
     GUIStr_NetHostConnectionLost,
+    GUIStr_MouseScrollWheelLeft,
+    GUIStr_MouseScrollWheelRight,
     GuiStrEnd
 };
 

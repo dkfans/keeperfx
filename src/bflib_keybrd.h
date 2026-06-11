@@ -168,6 +168,8 @@ enum KeyCodes {
         KC_WAKE        = 0xE3,    // System Wake
     // Add mouse buttons counting backwards from 0xFE
     // This allows them to be used as a bindable "key" by adding them to key_to_string_init[] [mouse buttons as keybinds - quick fix]
+        KC_MOUSEWHEEL_LEFT = 0xF2,    // Mouse Wheel Left tilt
+        KC_MOUSEWHEEL_RIGHT= 0xF3,    // Mouse Wheel Right tilt
         KC_MOUSE9          = 0xF4,    // Mouse button #9
         KC_MOUSE8          = 0xF5,    // Mouse button #8
         KC_MOUSE7          = 0xF6,    // Mouse button #7
