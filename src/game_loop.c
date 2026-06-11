@@ -99,6 +99,24 @@ void process_dungeon_destroy(struct Thing* heartng)
         return;
     }
     TbBool no_backup = !(dungeon->backup_heart_idx > 0);
+    if (!no_backup)
+    {
+        struct Thing* backup = thing_get(dungeon->backup_heart_idx);
+        if (!thing_is_dungeon_heart(backup))
+        {
+            ERRORLOG("%s had invalid backup heart %s during heart destruction", player_code_name(plyr_idx), thing_model_name(backup));
+            dungeon->backup_heart_idx = 0;
+            backup = find_players_backup_dungeon_heart(dungeon->owner);
+            if (thing_is_dungeon_heart(backup))
+            {
+                dungeon->backup_heart_idx = backup->index;
+            }
+            else
+            {
+                no_backup = true;
+            }
+        }
+    }
     powerful_magic_breaking_sparks(heartng);
     struct Coord3d* central_pos = &heartng->mappos;
     switch (dungeon->heart_destroy_state)

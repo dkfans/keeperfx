@@ -82,12 +82,12 @@ TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 long get_top_cube_at_pos(SubtlCodedCoords mpos);
 long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *cube_pos);
-long get_map_floor_height(const struct Map *mapblk);
-long get_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-long get_floor_height_at(const struct Coord3d *pos);
-long get_map_ceiling_height(const struct Map *mapblk);
-long get_ceiling_height_at(const struct Coord3d *pos);
-long get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+MapCoord get_map_floor_height(const struct Map *mapblk);
+MapCoord get_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+MapCoord get_floor_height_at(const struct Coord3d *pos);
+MapCoord get_map_ceiling_height(const struct Map *mapblk);
+MapCoord get_ceiling_height_at(const struct Coord3d *pos);
+MapCoord get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool cube_is_lava(long cube_id);
 TbBool cube_is_water(long cube_id);

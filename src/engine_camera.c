@@ -237,6 +237,35 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
     set_camera_zoom(cam, new_zoom);
 }
 
+static void view_move_camera_on_zoom(struct Camera *cam, int32_t a, int32_t b, MapCoord x, MapCoord y)
+{
+    if ((x | y) < 0 || b == 0)
+        return;
+
+    const int64_t dx = x - cam->mappos.x.val;
+    const int64_t dy = y - cam->mappos.y.val;
+    cam->mappos.x.val += dx * (b - a) / b;
+    cam->mappos.y.val += dy * (b - a) / b;
+    cam->mappos.x.val = clamp(cam->mappos.x.val, 0, game.map_subtiles_x * COORD_PER_STL - 1);
+    cam->mappos.y.val = clamp(cam->mappos.y.val, 0, game.map_subtiles_y * COORD_PER_STL - 1);
+}
+
+void view_zoom_camera_in_to(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y)
+{
+    const int32_t old_zoom = get_camera_zoom(cam);
+    view_zoom_camera_in(cam, limit_max, limit_min);
+    const int32_t new_zoom = get_camera_zoom(cam);
+    view_move_camera_on_zoom(cam, old_zoom, new_zoom, x, y);
+}
+
+void view_zoom_camera_out_from(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y)
+{
+    const int32_t old_zoom = get_camera_zoom(cam);
+    view_zoom_camera_out(cam, limit_max, limit_min);
+    const int32_t new_zoom = get_camera_zoom(cam);
+    view_move_camera_on_zoom(cam, old_zoom, new_zoom, x, y);
+}
+
 /**
  * Conducts clipping to zoom level of given camera, based on current screen mode.
  */
