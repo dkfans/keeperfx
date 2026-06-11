@@ -271,6 +271,10 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 		}
 		if (g_speech_overrides[sample_id][0] != '\0') {
 			const char* spath = g_speech_overrides[sample_id];
+			if (strcasecmp(spath, "none") == 0 || strcasecmp(spath, "null") == 0 || strcmp(spath, "0") == 0) {
+				SYNCDBG(8, "Sample ID (%d) silenced by override '%s', skipping", sample_id, spath);
+				return false;
+			}
 			const char* lang = get_language_lwrstr(install_info.lang_id);
 			SpeechResolveResult resolve_result;
 			std::string found_lang;
