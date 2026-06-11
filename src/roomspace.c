@@ -1141,6 +1141,9 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
     {
         if ((dig_change_count > 0) && !local_dig_prediction_is_enabled()) {
                 play_non_3d_sample(snd_tile_dig);
+        }
+    }
+}
 
 void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
 {
