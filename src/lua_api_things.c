@@ -260,9 +260,11 @@ static int thing_set_field(lua_State *L) {
     if (strcmp(key, "orientation") == 0)
     {
         thing->move_angle_xy = luaL_checkinteger(L, 3);
-        // re-sync fp-camera with creature orientation
+        // Re-sync first-person camera with creature orientation
         struct PlayerInfo* player = get_my_player();
-        if(player->controlled_thing_idx == thing->index && player->view_mode == PVM_CreatureView)
+        if (!player_invalid(player)
+            && player->controlled_thing_idx == thing->index
+            && player->view_mode == PVM_CreatureView)
         {
             set_local_camera_destination(player);
         }        
