@@ -852,25 +852,25 @@ void panel_map_update(long x, long y, long w, long h)
     }
 }
 
-static void do_map_rotate_stuff(float relpos_x, float relpos_y, float *stl_x, float *stl_y, long zoom)
+static void do_map_rotate_stuff(float relpos_x, float relpos_y, float *coord_x, float *coord_y, long zoom)
 {
     const struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = get_local_camera(get_player_active_camera(player));
-    int angle = cam->rotation_angle_x & ANGLE_MASK_4;
-    int shift_x = -LbSinL(angle);
-    int shift_y = LbCosL(angle);
-    float dx = (shift_y * relpos_x + shift_x * relpos_y) / (1UL << 24);
-    float dy = (shift_y * relpos_y - shift_x * relpos_x) / (1UL << 24);
-    *stl_x = zoom * dx + cam->mappos.x.stl.num;
-    *stl_y = zoom * dy + cam->mappos.y.stl.num;
+    const int angle = cam->rotation_angle_x & ANGLE_MASK_4;
+    const int shift_x = -LbSinL(angle);
+    const int shift_y = LbCosL(angle);
+    const float dx = (shift_y * relpos_x + shift_x * relpos_y) / (1UL << 16);
+    const float dy = (shift_y * relpos_y - shift_x * relpos_x) / (1UL << 16);
+    *coord_x = zoom * dx + cam->mappos.x.val;
+    *coord_y = zoom * dy + cam->mappos.y.val;
 }
 
-static void do_map_rotate_stuff_round(float relpos_x, float relpos_y, int32_t *stl_x, int32_t *stl_y, long zoom)
+static void do_map_rotate_stuff_subtile(float relpos_x, float relpos_y, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y, long zoom)
 {
     float tmp_x, tmp_y;
     do_map_rotate_stuff(relpos_x, relpos_y, &tmp_x, &tmp_y, zoom);
-    *stl_x = lroundf(tmp_x);
-    *stl_y = lroundf(tmp_y);
+    *stl_x = lroundf(tmp_x) / COORD_PER_STL;
+    *stl_y = lroundf(tmp_y) / COORD_PER_STL;
 }
 
 short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
@@ -893,20 +893,22 @@ short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_
     x = y = 0;
     frac_x = frac_y = 0;
   }
-  float stl_x, stl_y;
-  do_map_rotate_stuff(x, y, &stl_x, &stl_y, zoom);
-  stl_x += frac_x;
-  stl_y += frac_y;
-  curr_x = lroundf(stl_x);
-  curr_y = lroundf(stl_y);
-  frac_x = stl_x - curr_x;
-  frac_y = stl_y - curr_y;
+  float exact_x, exact_y;
+  do_map_rotate_stuff(x, y, &exact_x, &exact_y, zoom);
+  exact_x += frac_x;
+  exact_y += frac_y;
+  const MapCoord coord_x = lroundf(exact_x);
+  const MapCoord coord_y = lroundf(exact_y);
+  const MapSubtlCoord stl_x = coord_x / COORD_PER_STL;
+  const MapSubtlCoord stl_y = coord_y / COORD_PER_STL;
+  frac_x = exact_x - coord_x;
+  frac_y = exact_y - coord_y;
   player = get_my_player();
-  game.hand_over_subtile_x = curr_x;
-  game.hand_over_subtile_y = curr_y;
-  if (subtile_has_slab(curr_x, curr_y))
+  game.hand_over_subtile_x = stl_x;
+  game.hand_over_subtile_y = stl_y;
+  if (subtile_has_slab(stl_x, stl_y))
   {
-    set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
+    set_players_packet_action(player, PckA_BookmarkLoad, coord_x, coord_y, 0, 0);
   }
   return 1;
 }
@@ -926,13 +928,15 @@ short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr
         LbMouseSetPosition(begin_x + MapDiagonalLength/2, begin_y + MapDiagonalLength/2);
       } else
       {
-        do_map_rotate_stuff_round(curr_x - begin_x - MapDiagonalLength/2, curr_y - begin_y - MapDiagonalLength/2, &curr_x, &curr_y, zoom);
+        do_map_rotate_stuff_subtile(curr_x - begin_x - MapDiagonalLength/2, curr_y - begin_y - MapDiagonalLength/2, &curr_x, &curr_y, zoom);
         game.hand_over_subtile_x = curr_x;
         game.hand_over_subtile_y = curr_y;
         if (subtile_has_slab(curr_x, curr_y))
         {
+          const MapCoord x = subtile_coord_center(curr_x);
+          const MapCoord y = subtile_coord_center(curr_y);
+          set_players_packet_action(player, PckA_BookmarkLoad, x, y, 0, 0);
           result = 1;
-          set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
         }
       }
     grabbed_small_map = 0;
@@ -949,7 +953,7 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
     struct Thing *thing;
-    do_map_rotate_stuff_round(curr_mx - start_x - MapDiagonalLength/2, curr_my - start_y - MapDiagonalLength/2, &x, &y, zoom);
+    do_map_rotate_stuff_subtile(curr_mx - start_x - MapDiagonalLength/2, curr_my - start_y - MapDiagonalLength/2, &x, &y, zoom);
     game.hand_over_subtile_x = x;
     game.hand_over_subtile_y = y;
     player = get_my_player();
