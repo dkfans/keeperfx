@@ -33,6 +33,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
+#include "bflib_planar.h"
 #include "bflib_dernc.h"
 #include "net_exchange_gameplay.h"
 #include "bflib_sound.h"
