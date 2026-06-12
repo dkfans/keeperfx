@@ -786,6 +786,29 @@ TbBool load_level_sounds_config(const char* level_name)
     return result;
 }
 
+void sound_save_campaign_snapshot(void)
+{
+    sound_manager_save_snapshot();
+    sound_save_id_redirect_snapshot();
+    SYNCDBG(7, "sound_save_campaign_snapshot: snapshot saved");
+}
+
+void sound_restore_to_campaign_snapshot(void)
+{
+    sound_manager_restore_snapshot();
+    sound_restore_id_redirect_snapshot();
+    cache_common_sound_ids();
+    SYNCDBG(7, "sound_restore_to_campaign_snapshot: snapshot restored");
+}
+
+void sound_reset_to_fxdata_baseline(void)
+{
+    sound_manager_clear_custom_sounds();
+    sound_manager_clear_registry();
+    load_sounds_config();
+    SYNCDBG(7, "sound_reset_to_fxdata_baseline: reset to fxdata defaults");
+}
+
 SoundSmplTblID get_sound_id(const char* name)
 {
     return sound_manager_get_id(name);

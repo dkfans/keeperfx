@@ -77,6 +77,31 @@ TbBool load_mod_sounds_config(const char* mod_name);
 TbBool load_level_sounds_config(const char* level_name);
 
 /**
+ * @brief Reset the entire sound system back to the fxdata baseline.
+ *
+ * Clears all custom audio buffers, id redirects, and the name registry,
+ * then reloads fxdata/sounds.cfg. Call when returning to the main menu so
+ * that GUI sounds are not affected by a previous campaign or level.
+ */
+void sound_reset_to_fxdata_baseline(void);
+
+/**
+ * @brief Save a snapshot of all sound state after campaign + mod sounds have loaded.
+ *
+ * Call once at the end of campaign loading. The snapshot is restored at the
+ * start of each level load so that per-level sounds do not bleed across levels.
+ */
+void sound_save_campaign_snapshot(void);
+
+/**
+ * @brief Restore sound state to the campaign snapshot.
+ *
+ * Call at the start of each level load (before load_level_sounds_config).
+ * Discards any sounds registered or loaded for the previous level.
+ */
+void sound_restore_to_campaign_snapshot(void);
+
+/**
  * @brief Get the sample ID for a named sound
  * 
  * Convenience function that wraps sound_manager_get_id().
