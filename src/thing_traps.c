@@ -68,7 +68,7 @@ TbBool trap_is_active(const struct Thing *thing)
     return ((thing->trap.num_shots > 0) && (thing->trap.rearm_turn <= get_gameturn()));
 }
 
-TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
+TbBool trap_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct TrapConfigStats *trapst;
     if (thing->owner == plyr_idx)
