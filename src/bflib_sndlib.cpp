@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <utility>
 #include <array>
+#include <unordered_map>
 #include <deque>
 #include <mutex>
 #include <atomic>
@@ -432,6 +433,11 @@ std::vector<sound_sample> g_custom_bank;  // Third bank for custom sounds loaded
 SoundSmplTblID g_speech_offset = 0;  // Unified ID start of speech bank
 SoundSmplTblID g_custom_offset = 0;  // Unified ID start of custom bank
 
+// Redirect table: maps a raw sound.dat effect ID to a custom bank ID.
+// Populated by sound_register_id_redirect() when sounds.cfg contains a numeric-key entry.
+// Applied in play_sample() before bank dispatch — does not affect speech or already-custom IDs.
+static std::unordered_map<SoundSmplTblID, SoundSmplTblID> g_id_redirects;
+
 void load_sound_banks() {
 	char snd_fname[2048];
 	prepare_file_path_buf(snd_fname, sizeof(snd_fname), FGrp_LrgSound, "sound.dat");
@@ -529,6 +535,7 @@ extern "C" void FreeAudio() {
 	g_banks[0].clear();
 	g_banks[1].clear();
 	g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
+	g_id_redirects.clear(); // Clear raw-ID redirects alongside custom bank
 	SYNCDBG(7, "Cleared OpenAL sources and sound banks");
 
 	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
@@ -539,6 +546,16 @@ extern "C" void FreeAudio() {
 
 extern "C" void custom_sound_bank_clear() {
 	g_custom_bank.clear();
+	g_id_redirects.clear();
+}
+
+extern "C" void sound_register_id_redirect(SoundSmplTblID from_id, SoundSmplTblID to_id) {
+	g_id_redirects[from_id] = to_id;
+	SYNCDBG(7, "Registered ID redirect: %d -> %d", from_id, to_id);
+}
+
+extern "C" void sound_clear_id_redirects(void) {
+	g_id_redirects.clear();
 }
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
@@ -775,6 +792,13 @@ extern "C" SoundMilesID play_sample(
 	if (emit_id <= 0) {
 		ERRORLOG("Can't play sample %d, invalid emitter ID", smptbl_id);
 		return 0;
+	}
+	// Apply raw-ID redirect before bank dispatch (only for effect-bank IDs)
+	if (smptbl_id > 0 && smptbl_id < g_speech_offset) {
+		auto redir = g_id_redirects.find(smptbl_id);
+		if (redir != g_id_redirects.end()) {
+			smptbl_id = redir->second;
+		}
 	}
 	// Resolve sample data from unified ID space
 	const openal_buffer * buf = nullptr;

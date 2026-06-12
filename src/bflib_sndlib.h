@@ -46,6 +46,25 @@ void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
 void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch);
 void toggle_bbking_mode(void);
 
+/**
+ * @brief Register a raw sound.dat effect ID to be transparently redirected to a custom bank ID.
+ *
+ * Called by config_sounds.c when a numeric-key entry (e.g. "777 = custom/boom.wav") is parsed.
+ * The redirect is applied in play_sample() before bank dispatch; it only affects IDs in the
+ * effect bank (0..g_speech_offset-1) and has no effect on speech or already-custom IDs.
+ *
+ * @param from_id  Raw effect ID as it would appear in sound.dat (e.g. 777)
+ * @param to_id    Unified custom bank ID returned by sound_manager_load_named_sound()
+ */
+void sound_register_id_redirect(SoundSmplTblID from_id, SoundSmplTblID to_id);
+
+/**
+ * @brief Clear all registered raw-ID redirects.
+ *
+ * Called during audio teardown and alongside custom_sound_bank_clear() on level reload.
+ */
+void sound_clear_id_redirects(void);
+
 void set_music_volume(SoundVolume);
 TbBool play_music(const char * fname);
 TbBool play_music_track(int);
