@@ -23,9 +23,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <SDL2/SDL.h>
 #include "globals.h"
-#include "bflib_mouse.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
