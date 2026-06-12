@@ -450,24 +450,7 @@ static short get_players_message_inputs(void)
             player->mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
     } else {
-        LbTextSetFont(winfont);
-        if (pixel_size * LbTextStringWidth(player->mp_message_text) < 450) {
-            char text_input[64];
-            int text_len = LbGetTextInput(text_input, sizeof(text_input));
-            if (text_len > 0) {
-                int chpos = strlen(player->mp_message_text);
-                for (int ti = 0; ti < text_len && chpos < PLAYER_MP_MESSAGE_LEN - 1; ++ti) {
-                    unsigned char c = text_input[ti];
-                    //limit it to ascii characters, to ignore codepage differences and multibyte stuff
-                    if (c >= 0x20 && c < 0x7f) {
-                        player->mp_message_text[chpos++] = c;
-                        player->mp_message_text[chpos] = '\0';
-                    }
-                }
-                return true;
-            }
-        }
-        return false;
+        return add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
     }
     return true;
 }

@@ -751,6 +751,30 @@ TbBool mouse_is_over_side_panel_bottom()
     struct GuiMenu* gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     return ((GetMouseX() < status_panel_width) && (GetMouseY() > scale_ui_value(185)) && (GetMouseY() < gmnu->height));
 }
+
+TbBool add_input_text_to_message(char *message, int max_message_length, struct TbSpriteSheet *font, int max_width)
+{
+    LbTextSetFont(font);
+
+    if (pixel_size * LbTextStringWidth(message) < max_width) {
+        char text_input[64];
+        int text_len = LbGetTextInput(text_input, sizeof(text_input));
+        if (text_len > 0) {
+            int chpos = strlen(message);
+            for (int ti = 0; ti < text_len && chpos < max_message_length - 1; ++ti) {
+                unsigned char c = text_input[ti];
+                //limit it to ascii characters, to ignore codepage differences and multibyte stuff
+                if (c >= 0x20 && c < 0x7f) {
+                    message[chpos++] = c;
+                    message[chpos] = '\0';
+                }
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

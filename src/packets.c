@@ -588,20 +588,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     set_mouse_light(player);
 }
 
-void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif)
-{
-    int chpos = strlen(message);
-    if (key == KC_BACK && chpos > 0) {
-        message[chpos-1] = '\0';
-    } else if (chpos < PLAYER_MP_MESSAGE_LEN - 1) {
-        char chr = key_to_ascii(key, kmodif);
-        if (isalnum(chr) || strchr(" !:;()._'+=\\\"?/#<>^,-", chr)) {
-            message[chpos] = chr;
-            message[chpos+1] = '\0';
-        }
-    }
-}
-
 TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
 {
   //TODO PACKET add commands from beta
