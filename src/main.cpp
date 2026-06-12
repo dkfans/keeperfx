@@ -4001,6 +4001,9 @@ void game_loop(void)
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
+      // Reset sounds back to the fxdata baseline so the main menu (and any
+      // subsequent campaign/freeplay selection) hears unmodified defaults.
+      sound_reset_to_fxdata_baseline();
       endtime = LbTimerClock();
       quit_game = 0;
       if ((game.operation_flags & GOF_SingleLevel) != 0)
