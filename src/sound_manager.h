@@ -185,6 +185,25 @@ public:
      */
     void clearCustomSounds();
 
+    /**
+     * @brief Clear only the named-sound registry (name→ID numeric mappings).
+     * Does not touch custom audio buffers. Call before reloading fxdata baseline.
+     */
+    void clearRegistry();
+
+    /**
+     * @brief Save a snapshot of the full sound state (registry + custom sounds +
+     * creature overrides). Call after campaign + mod sounds finish loading.
+     */
+    void saveSnapshot();
+
+    /**
+     * @brief Restore sound state to the saved snapshot, discarding any sounds
+     * added at level scope. The bflib custom bank must be truncated separately
+     * via sound_restore_id_redirect_snapshot().
+     */
+    void restoreSnapshot();
+
 private:
     SoundManager();
     ~SoundManager();
@@ -219,6 +238,13 @@ private:
     bool initialized_;
     int total_plays_;
     size_t total_custom_sounds_;
+
+    // Snapshot saved after campaign + mod sounds load (restored at start of each level)
+    std::unordered_map<std::string, SoundEntry> snapshot_registry_;
+    std::unordered_map<std::string, CustomSoundEntry> snapshot_custom_sounds_;
+    std::vector<CreatureSoundOverride> snapshot_creature_overrides_;
+    size_t snapshot_total_custom_sounds_;
+    bool snapshot_valid_;
     
     // Helper methods
     bool loadWavFile(const std::string& filepath, SoundSmplTblID sample_id);
@@ -242,6 +268,9 @@ TbBool sound_manager_set_creature_sound(const char* creature_model, const char* 
 TbBool sound_manager_is_custom_sound_loaded(const char* name);
 void sound_manager_print_stats(void);
 void sound_manager_clear_custom_sounds(void);
+void sound_manager_clear_registry(void);
+void sound_manager_save_snapshot(void);
+void sound_manager_restore_snapshot(void);
 
 // Named sound registry C API
 SoundSmplTblID sound_manager_get_id(const char* name);

@@ -31,6 +31,8 @@ SoundManager::SoundManager()
     , initialized_(false)
     , total_plays_(0)
     , total_custom_sounds_(0)
+    , snapshot_total_custom_sounds_(0)
+    , snapshot_valid_(false)
 {
     SYNCLOG("Constructor called");
 }
@@ -323,7 +325,7 @@ SoundSmplTblID SoundManager::getSoundId(const char* name) const {
 // Register a sound name → ID mapping
 bool SoundManager::registerSound(const char* name, SoundSmplTblID id, int count) {
     if (name == nullptr || name[0] == '\0') {
-        SYNCLOG("Cannot register sound with empty name");
+        WARNLOG("Cannot register sound with empty name");
         return false;
     }
     
@@ -335,7 +337,7 @@ bool SoundManager::registerSound(const char* name, SoundSmplTblID id, int count)
     
     sound_registry_[name_str] = entry;
     
-    SYNCLOG("Registered sound '%s' -> ID %d (count %d)",
+    SYNCDBG(7,"Registered sound '%s' -> ID %d (count %d)",
            name, id, entry.count);
     return true;
 }
@@ -445,6 +447,37 @@ void SoundManager::clearCustomSounds() {
     custom_sound_bank_clear();
 }
 
+// Clear the named-sound registry only (leaves custom audio buffers intact)
+void SoundManager::clearRegistry() {
+    sound_registry_.clear();
+}
+
+// Save a snapshot of the current sound state (called after campaign + mod sounds load)
+void SoundManager::saveSnapshot() {
+    snapshot_registry_          = sound_registry_;
+    snapshot_custom_sounds_     = custom_sounds_;
+    snapshot_creature_overrides_= creature_sound_overrides_;
+    snapshot_total_custom_sounds_ = total_custom_sounds_;
+    snapshot_valid_ = true;
+    SYNCDBG(5, "Saved sound manager snapshot: %zu registry, %zu custom sounds",
+            snapshot_registry_.size(), snapshot_custom_sounds_.size());
+}
+
+// Restore sound state to the campaign snapshot (called at the start of each level load)
+void SoundManager::restoreSnapshot() {
+    if (!snapshot_valid_) {
+        SYNCDBG(5, "No sound snapshot to restore");
+        return;
+    }
+    sound_registry_           = snapshot_registry_;
+    custom_sounds_            = snapshot_custom_sounds_;
+    creature_sound_overrides_ = snapshot_creature_overrides_;
+    total_custom_sounds_      = snapshot_total_custom_sounds_;
+    // next_custom_sample_id_ is not used for lookup; leave as-is
+    SYNCDBG(5, "Restored sound manager snapshot: %zu registry, %zu custom sounds",
+            sound_registry_.size(), custom_sounds_.size());
+}
+
 } // namespace KeeperFX
 
 // C API wrappers
@@ -497,6 +530,18 @@ void sound_manager_print_stats(void) {
 
 void sound_manager_clear_custom_sounds(void) {
     KeeperFX::SoundManager::getInstance().clearCustomSounds();
+}
+
+void sound_manager_clear_registry(void) {
+    KeeperFX::SoundManager::getInstance().clearRegistry();
+}
+
+void sound_manager_save_snapshot(void) {
+    KeeperFX::SoundManager::getInstance().saveSnapshot();
+}
+
+void sound_manager_restore_snapshot(void) {
+    KeeperFX::SoundManager::getInstance().restoreSnapshot();
 }
 
 // Named sound registry C API wrappers
