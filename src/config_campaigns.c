@@ -29,6 +29,7 @@
 #include "config_strings.h"
 #include "config_keeperfx.h"
 #include "config_sounds.h"
+#include "sound_manager.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
@@ -1193,11 +1194,17 @@ TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
     if (result)
     {
         const char* sounds_dir = campaign.configs_location;
+        // Reset to fxdata baseline so sounds from a previous campaign don't bleed through.
+        sound_manager_clear_custom_sounds();
+        sound_manager_clear_registry();
+        load_sounds_config();
         for (int i = 0; i < mods_conf.after_base_cnt; i++)
             load_mod_sounds_config(mods_conf.after_base_item[i].name);
         load_campaign_sounds_config(sounds_dir);
         for (int i = 0; i < mods_conf.after_campaign_cnt; i++)
             load_mod_sounds_config(mods_conf.after_campaign_item[i].name);
+        // Save the campaign snapshot so per-level sounds can be cleanly undone.
+        sound_save_campaign_snapshot();
     }
     return result;
 }
