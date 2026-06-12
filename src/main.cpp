@@ -3494,9 +3494,11 @@ extern "C" void network_yield_waiting_gameplay_packets()
     poll_inputs();
     gameplay_loop_draw();
     gameplay_loop_timestep();
+    game.process_turn_time = min(game.process_turn_time, (long double)1.0);
     frametime_start_measurement(Frametime_Logic);
-    if (frametime_enabled())
+    if (frametime_enabled()) {
         framerate_measurement_capture(Framerate_Logic);
+    }
 }
 
 extern "C" void update_velocity(void);
@@ -3787,6 +3789,11 @@ static TbBool wait_at_frontend(void)
     memset(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
     frontend_set_state(get_startup_menu_state());
+
+    // Once the Mouse Sprite initialization is complete, the sprite's position needs to be reset because it defaults to (0, 0).
+    // Note that we cannot use LbMoveGameCursorToHostCursor for this, because the buffer position may remain unchanged.
+    LbMouseSetPositionInitial(lbDisplay.MMouseX, lbDisplay.MMouseY);
+
     try_restore_frontend_error_box();
 
     poll_inputs();
@@ -3939,6 +3946,10 @@ void game_loop(void)
       }
       if ( exit_keeper )
         break;
+
+      int32_t mspos_x_bak = lbDisplay.MMouseX;
+      int32_t mspos_y_bak = lbDisplay.MMouseY;
+
       if (game.game_kind == GKind_LocalGame)
       {
         if (game.save_game_slot == -1)
@@ -3967,6 +3978,12 @@ void game_loop(void)
               }
           }
       }
+
+      // Try to keep the mouse position unchanged when entering the level.
+      // The main considerations are:
+      // 1. SKIP_HEART_ZOOM: the mouse icon position will be reset to the top-left corner (0, 0), but the actual mouse position remains unchanged.
+      // 2. PI_HeartZoom: the mouse will be moved to the center of the screen.
+      LbMouseSetPositionInitial(mspos_x_bak, mspos_y_bak);
 
       unsigned long starttime;
       unsigned long endtime;

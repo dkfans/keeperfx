@@ -100,6 +100,8 @@ TbBool first_person_see_item_desc = false;
 long old_mx;
 long old_my;
 
+enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
+
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
     {"MoveDown",              GUIStr_CtrlDown,                KC_S, KMod_NONE,               CBtn_LS_DOWN,             BMV_Visible,        },       // Gkey_MoveDown
@@ -644,7 +646,9 @@ static short get_bookmark_inputs(void)
             clear_key_pressed(kcode);
             if ((bmark->flags & 0x01) != 0)
             {
-                set_players_packet_action(player, PckA_BookmarkLoad, bmark->x, bmark->y, 0, 0);
+                const MapCoord x = subtile_coord_center(bmark->x);
+                const MapCoord y = subtile_coord_center(bmark->y);
+                set_players_packet_action(player, PckA_BookmarkLoad, x, y, 0, 0);
                 return true;
             }
         }
@@ -2143,10 +2147,14 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         {
             if (wheel_scrolled_up)
             {
+                if (zoom_to_mouse_option == ZoomToMouse_Wheel)
+                    set_packet_control(pckt, PCtr_ViewZoomPos);
                 set_packet_control(pckt, PCtr_ViewZoomIn);
             }
             if (wheel_scrolled_down)
             {
+                if (zoom_to_mouse_option == ZoomToMouse_Wheel)
+                    set_packet_control(pckt, PCtr_ViewZoomPos);
                 set_packet_control(pckt, PCtr_ViewZoomOut);
             }
         }
@@ -2505,6 +2513,8 @@ static void get_dungeon_control_nonaction_inputs(void)
     turn_on_menu(GMnu_QUIT);
   }
   get_options_menu_inputs();
+  if (zoom_to_mouse_option == ZoomToMouse_Always)
+      set_packet_control(pckt, PCtr_ViewZoomPos);
   if ((player->allocflags & PlaF_NewMPMessage) == 0)
   {
       switch (player->view_mode)

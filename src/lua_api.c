@@ -1197,28 +1197,7 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
 
 static int lua_New_creature_type(lua_State* L)
 {
-    const char* creature_name = luaL_checkstring(L, 1);
-
-    if (game.conf.crtr_conf.model_count >= CREATURE_TYPES_MAX)
-    {
-        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", creature_name, CREATURE_TYPES_MAX);
-        return 0;
-    }
-
-    int i = game.conf.crtr_conf.model_count;
-    game.conf.crtr_conf.model_count++;
-    snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", creature_name);
-    creature_desc[i - 1].name = game.conf.crtr_conf.model[i].name;
-    creature_desc[i - 1].num = i;
-
-    if (load_default_creaturemodel_config(i, 0))
-    {
-        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
-    }
-    else
-    {
-        SCRPTERRLOG("Failed to load config for creature '%s'(%d).", game.conf.crtr_conf.model[i].name, i);
-    }
+    script_new_creature_type(luaL_checkstring(L, 1));
     return 0;
 }
 
@@ -2376,8 +2355,8 @@ static int lua_get_floor_height(lua_State* L)
 {
     MapSubtlCoord stl_x = luaL_checkstl_x(L, 1);
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 2);
-    MapSubtlCoord stl_z = get_floor_height(stl_x, stl_y);
-    lua_pushinteger(L, stl_z);
+    MapCoord z_val = get_floor_height(stl_x, stl_y);
+    lua_pushinteger(L, z_val);
     return 1;
 }
 

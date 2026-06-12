@@ -3299,10 +3299,6 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     if (rkind == RoK_BRIDGE) //todo Make configurable
     {
         place_animating_slab_type_on_map(roomst->assigned_slab, subtile_has_lava_on_top(stl_x, stl_y), stl_x, stl_y, owner);
-    }
-    else if (rkind == RoK_GUARDPOST)
-    {
-        place_animating_slab_type_on_map(roomst->assigned_slab, 0, stl_x, stl_y, owner);
     } else
     {
         place_slab_type_on_map(roomst->assigned_slab, stl_x, stl_y, owner, 0);

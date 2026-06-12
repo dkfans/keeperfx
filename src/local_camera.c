@@ -153,8 +153,8 @@ void init_local_cameras(struct PlayerInfo *player)
 
 void process_local_minimap_click(struct Packet* packet) {
     if (packet != NULL && packet->action == PckA_BookmarkLoad) {
-        long pos_x = subtile_coord_center(packet->actn_par1);
-        long pos_y = subtile_coord_center(packet->actn_par2);
+        const MapCoord pos_x = packet->actn_par1;
+        const MapCoord pos_y = packet->actn_par2;
         for (int i = CamIV_Isometric; i <= CamIV_FrontView; i++) {
             if (i != CamIV_FirstPerson) {
                 destination_local_cameras[i].mappos.x.val = pos_x;
