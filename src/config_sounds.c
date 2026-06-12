@@ -23,6 +23,7 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "sound_manager.h"
+#include "bflib_sndlib.h"
 #include "gui_soundmsgs.h"
 #include "globals.h"
 #include "game_legacy.h"
@@ -435,20 +436,21 @@ static TbBool parse_speech_section(char* buf, long len, const char* config_textn
 }
 
 /**
- * @brief Parse a single line in the format: NAME = ID [count]
- * 
- * Examples:
- *   REFUSAL = 119
- *   GOLD_PICKUP = 32 3    ; IDs 32, 33, 34
- *   CUSTOM_SOUND = sounds/explosion.wav
+ * @brief Parse a single line.
+ *
+ * Handles three formats:
+ *   NAME = id [count]            — register a named alias for a sound.dat ID
+ *   NAME = filepath [count]      — load a custom file and register it under NAME
+ *   id   = filepath [count] [ALIAS] — redirect a raw sound.dat ID to a custom file;
+ *                                     optionally also register ALIAS in the name registry
  */
 static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const char* config_textname)
 {
     char name_buf[COMMAND_WORD_LEN];
     char value_buf[COMMAND_WORD_LEN];
     char count_buf[COMMAND_WORD_LEN];
-    
-    // Get the sound name
+
+    // Get the key (either a NAME or a raw numeric ID)
     if (get_conf_parameter_single(buf, pos, len, name_buf, sizeof(name_buf)) <= 0)
     {
         return false;  // Empty line or comment
@@ -457,77 +459,129 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
     // Normalize to uppercase so config names are case-insensitive
     for (int i = 0; name_buf[i] != '\0'; i++)
         name_buf[i] = (char)toupper((unsigned char)name_buf[i]);
-    
+
     // Skip if it's a section header or comment
     if (name_buf[0] == '[' || name_buf[0] == ';' || name_buf[0] == '#')
     {
         return false;
     }
-    
-    // Expect '=' separator - check if next non-whitespace is '='
-    // The get_conf_parameter_single function should handle this, but let's verify
-    // Actually, the format is "NAME = VALUE" so we need to handle the '=' specially
-    
-    // Get the value (ID or filepath)
+
+    // --- Detect whether this is a numeric-key (raw ID redirect) line ---
+    char* key_endptr;
+    long raw_id = strtol(name_buf, &key_endptr, 10);
+    TbBool is_raw_id = (*key_endptr == '\0' && raw_id > 0);
+
+    // Get the value (ID or filepath), skipping the '=' separator
     if (get_conf_parameter_single(buf, pos, len, value_buf, sizeof(value_buf)) <= 0)
     {
-        // Skip the '=' if present
         while (*pos < len && (buf[*pos] == '=' || buf[*pos] == ' ' || buf[*pos] == '\t'))
-        {
             (*pos)++;
-        }
-        
         if (get_conf_parameter_single(buf, pos, len, value_buf, sizeof(value_buf)) <= 0)
         {
             WARNLOG("Sound '%s' has no value in %s", name_buf, config_textname);
             return false;
         }
     }
-    
-    // Handle '=' that might be captured as part of value
     if (value_buf[0] == '=')
     {
-        // The '=' was captured, get the actual value
         if (get_conf_parameter_single(buf, pos, len, value_buf, sizeof(value_buf)) <= 0)
         {
             WARNLOG("Sound '%s' has no value after '=' in %s", name_buf, config_textname);
             return false;
         }
     }
-    
+
     // Try to get optional count parameter
     int count = 1;
     if (get_conf_parameter_single(buf, pos, len, count_buf, sizeof(count_buf)) > 0)
     {
         int parsed_count = atoi(count_buf);
         if (parsed_count > 0)
-        {
             count = parsed_count;
-        }
     }
-    
-    // Determine if value is numeric ID or filepath
-    SoundSmplTblID sample_id;
+
+    // -----------------------------------------------------------------------
+    // Numeric-key path: redirect a raw sound.dat ID to a custom file
+    // -----------------------------------------------------------------------
+    if (is_raw_id)
+    {
+        // Only filepaths make sense as the target of a raw-ID redirect.
+        char* val_endptr;
+        long val_num = strtol(value_buf, &val_endptr, 10);
+        (void)val_num;
+        if (*val_endptr == '\0')
+        {
+            WARNLOG("Raw-ID redirect '%s' has a numeric value in %s; use a filepath instead",
+                    name_buf, config_textname);
+            return false;
+        }
+
+        // Optional alias token — must start with a letter or underscore
+        char alias_buf[COMMAND_WORD_LEN] = {0};
+        char next_buf[COMMAND_WORD_LEN];
+        if (get_conf_parameter_single(buf, pos, len, next_buf, sizeof(next_buf)) > 0)
+        {
+            if (isalpha((unsigned char)next_buf[0]) || next_buf[0] == '_')
+            {
+                // Normalize alias to uppercase
+                for (int i = 0; next_buf[i] != '\0'; i++)
+                    next_buf[i] = (char)toupper((unsigned char)next_buf[i]);
+                snprintf(alias_buf, sizeof(alias_buf), "%s", next_buf);
+            }
+            // If it wasn't an alpha token it was likely a stray comment — ignore it
+        }
+
+        // Build the internal name: use alias if given, else synthesise __RAW_<id>
+        char internal_name[COMMAND_WORD_LEN];
+        if (alias_buf[0] != '\0')
+            snprintf(internal_name, sizeof(internal_name), "%s", alias_buf);
+        else
+            snprintf(internal_name, sizeof(internal_name), "__RAW_%ld", raw_id);
+
+        // Load the custom file(s) and register under internal_name
+        SoundSmplTblID first_custom_id = sound_manager_load_named_sound(internal_name, value_buf, count);
+        if (first_custom_id <= 0)
+        {
+            WARNLOG("Raw-ID redirect %ld: failed to load '%s' in %s", raw_id, value_buf, config_textname);
+            return false;
+        }
+
+        // Register per-ID redirects: raw_id+i → first_custom_id+i
+        for (int i = 0; i < count; i++)
+            sound_register_id_redirect((SoundSmplTblID)(raw_id + i), (SoundSmplTblID)(first_custom_id + i));
+
+        if (alias_buf[0] != '\0') {
+            SYNCDBG(5, "Raw-ID redirect: %ld..%ld -> custom IDs %d..%d (alias '%s')",
+                    raw_id, raw_id + count - 1, first_custom_id, first_custom_id + count - 1, alias_buf);
+        } else {
+            SYNCDBG(5, "Raw-ID redirect: %ld..%ld -> custom IDs %d..%d",
+                    raw_id, raw_id + count - 1, first_custom_id, first_custom_id + count - 1);
+        }
+
+        return true;
+    }
+
+    // -----------------------------------------------------------------------
+    // Named-key path: NAME = id [count]  OR  NAME = filepath [count]
+    // -----------------------------------------------------------------------
     char* endptr;
     long id_value = strtol(value_buf, &endptr, 10);
-    
+
     if (*endptr == '\0' && id_value > 0)
     {
-        // Numeric ID - register directly
-        sample_id = (SoundSmplTblID)id_value;
-        
+        // Numeric ID — register name → ID mapping
+        SoundSmplTblID sample_id = (SoundSmplTblID)id_value;
         if (!sound_manager_register(name_buf, sample_id, count))
         {
-            WARNLOG("Failed to register sound '%s' with ID %d in %s", 
+            WARNLOG("Failed to register sound '%s' with ID %d in %s",
                     name_buf, sample_id, config_textname);
             return false;
         }
-        
         SYNCDBG(8, "Registered sound '%s' -> ID %d (count %d)", name_buf, sample_id, count);
     }
     else
     {
-        // Filepath - load as custom sound and register the name
+        // Filepath — load custom file and register under NAME
         SoundSmplTblID id = sound_manager_load_named_sound(name_buf, value_buf, count);
         if (id <= 0)
         {
@@ -538,7 +592,7 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
         SYNCDBG(8, "Registered custom sound '%s' -> ID %d (file '%s', count %d)",
                 name_buf, id, value_buf, count);
     }
-    
+
     return true;
 }
 
