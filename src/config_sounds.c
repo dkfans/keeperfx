@@ -48,175 +48,171 @@ const struct ConfigFileData keeper_sounds_file_data = {
 };
 
 /******************************************************************************/
-// Cached common sound IDs
+// Cached common sound IDs — defaults are defined in config/fxdata/sounds.cfg
+// These are populated at startup by cache_common_sound_ids() after sounds.cfg loads.
 /******************************************************************************/
 
-int            snd_gold_pickup_count = 3;
-int            snd_door_place_count = 3;
-int            snd_tunnel_dig_count = 3;
-int            snd_dig_spell_count  = 6;
-int            snd_dig_impact_count = 3;
-int            snd_foot_spur_count = 4;
-int            snd_foot_wet_count  = 4;
-int            snd_foot_snow_count = 3;
-int            snd_chicken_cluck_count = 3;
-int            snd_strike_wall_count = 3;
-int            snd_reinforce_hit_count = 7;
+int            snd_gold_pickup_count = 0;
+int            snd_door_place_count = 0;
+int            snd_tunnel_dig_count = 0;
+int            snd_dig_spell_count  = 0;
+int            snd_dig_impact_count = 0;
+int            snd_foot_spur_count = 0;
+int            snd_foot_wet_count  = 0;
+int            snd_foot_snow_count = 0;
+int            snd_chicken_cluck_count = 0;
+int            snd_strike_wall_count = 0;
+int            snd_reinforce_hit_count = 0;
 
-// Verified
-SoundSmplTblID snd_foot_spur       = 5;    // spur1.wav
-SoundSmplTblID snd_foot_wet        = 21;   // footwet1.wav
-SoundSmplTblID snd_insect_fly      = 25;   // creature_insect/fly.wav
+SoundSmplTblID snd_foot_spur       = 0;
+SoundSmplTblID snd_foot_wet        = 0;
+SoundSmplTblID snd_insect_fly      = 0;
 
-SoundSmplTblID snd_gold_pickup     = 32;
-SoundSmplTblID snd_salary_tiny     = 32;
-SoundSmplTblID snd_salary_partial  = 33;
-SoundSmplTblID snd_salary_full     = 34;
-SoundSmplTblID snd_splash          = 36;  
-SoundSmplTblID snd_spell_wall      = 41;
+SoundSmplTblID snd_gold_pickup     = 0;
+SoundSmplTblID snd_salary_tiny     = 0;
+SoundSmplTblID snd_salary_partial  = 0;
+SoundSmplTblID snd_salary_full     = 0;
+SoundSmplTblID snd_splash          = 0;
+SoundSmplTblID snd_spell_wall      = 0;
 
+SoundSmplTblID snd_spell_armageddon = 0;
 
-SoundSmplTblID snd_spell_armageddon = 180;
+SoundSmplTblID snd_explode         = 0;
+SoundSmplTblID snd_spell_frozen    = 0;
+SoundSmplTblID snd_tab_click       = 0;
+SoundSmplTblID snd_button_click    = 0;
+SoundSmplTblID snd_dig_spell       = 0;
+SoundSmplTblID snd_tunnel_dig      = 0;
+SoundSmplTblID snd_door_place      = 0;
+SoundSmplTblID snd_dig_impact      = 0;
+SoundSmplTblID snd_dig_dirt        = 0;
+SoundSmplTblID snd_spell_stars     = 0;
+SoundSmplTblID snd_tile_place      = 0;
 
-SoundSmplTblID snd_explode         = 47;
-SoundSmplTblID snd_spell_frozen    = 50;
-SoundSmplTblID snd_tab_click       = 60;
-SoundSmplTblID snd_button_click    = 61; 
-SoundSmplTblID snd_dig_spell       = 63;
-SoundSmplTblID snd_tunnel_dig      = 69;   // dig6.wav
-SoundSmplTblID snd_door_place      = 72;   // rocks1.wav, rocks2.wav, rocks3.wav
-SoundSmplTblID snd_dig_impact      = 72;   // rocks1.wav, rocks2.wav, rocks3.wav
-SoundSmplTblID snd_dig_dirt        = 73;  
-SoundSmplTblID snd_spell_stars     = 76;
-SoundSmplTblID snd_tile_place     = 77;
-// strikes/swonarm3.wav, swonarm4.wav, swonarm5.wav
+SoundSmplTblID snd_coin_drop       = 0;
+SoundSmplTblID snd_buzzer          = 0;
+SoundSmplTblID snd_alarm           = 0;
+SoundSmplTblID snd_door_open       = 0;
+SoundSmplTblID snd_door_close      = 0;
+SoundSmplTblID snd_heart_engine    = 0;
 
-SoundSmplTblID snd_coin_drop       = 88;
-SoundSmplTblID snd_buzzer          = 89;
-SoundSmplTblID snd_alarm           = 90;
-SoundSmplTblID snd_door_open       = 91; 
-SoundSmplTblID snd_door_close      = 92;
-SoundSmplTblID snd_heart_engine    = 93;
+SoundSmplTblID snd_chicken_cluck   = 0;
+SoundSmplTblID snd_tile_sell       = 0;
+SoundSmplTblID snd_room_claim      = 0;
+SoundSmplTblID snd_trap_place      = 0;
+SoundSmplTblID snd_tile_dig        = 0;
+SoundSmplTblID snd_refusal         = 0;
+SoundSmplTblID snd_strike_wall     = 0;
 
-SoundSmplTblID snd_chicken_cluck   = 112;  // chick4a.wav
-SoundSmplTblID snd_tile_sell       = 115;  
-SoundSmplTblID snd_room_claim      = 116;
-SoundSmplTblID snd_trap_place      = 117;  // PlaceSound default for all traps and doors in trapdoor.cfg
-SoundSmplTblID snd_tile_dig        = 118;
-SoundSmplTblID snd_refusal         = 119;
-SoundSmplTblID snd_strike_wall     = 128;  // strikes/swonarm3.wav, swonarm4.wav, swonarm5.wav
+SoundSmplTblID snd_heart_beat_down = 0;
+SoundSmplTblID snd_heart_beat_up   = 0;
+SoundSmplTblID snd_scavenge        = 0;
+SoundSmplTblID snd_cheat_activated = 0;
+SoundSmplTblID snd_tab_hit         = 0;
+SoundSmplTblID snd_foot_snow       = 0;
 
-SoundSmplTblID snd_heart_beat_down = 150;
-SoundSmplTblID snd_heart_beat_up   = 151;
-SoundSmplTblID snd_scavenge        = 156;
-SoundSmplTblID snd_cheat_activated = 159;
-SoundSmplTblID snd_tab_hit         = 175;  // tabhit1.wav, tabhit2.wav, tabhit3.wav
-SoundSmplTblID snd_foot_snow       = 182;  // footsteps/snowft1.wav, snowft2.wav, snowft3.wav
+SoundSmplTblID snd_larg_tile_up    = 0;
+SoundSmplTblID snd_larg_tile_down  = 0;
 
-SoundSmplTblID snd_larg_tile_up = 856;
-SoundSmplTblID snd_larg_tile_down = 959;
-
-SoundSmplTblID snd_tab_fall        = 947;
-SoundSmplTblID snd_reinforce_hit   = 1005;
+SoundSmplTblID snd_tab_fall        = 0;
+SoundSmplTblID snd_reinforce_hit   = 0;
 
 // Trap trigger sounds
-SoundSmplTblID snd_trap_trigger    = 176;  // TriggerSound for BOULDER, ALARM, POISON_GAS, LIGHTNING, WORD_OF_POWER, LAVA
-SoundSmplTblID snd_trap_trigger_tnt = 141; // TriggerSound for TNT trap
+SoundSmplTblID snd_trap_trigger     = 0;
+SoundSmplTblID snd_trap_trigger_tnt = 0;
 
 // Object ambient / effect sounds
-SoundSmplTblID snd_torch_ambience       = 78;   // AmbienceSound for TORCH, TEMPLE_STATUE, TORCHUN, CANDLESTCK
-SoundSmplTblID snd_dungeon_heart_beam   = 157;  // EffectSound for SOUL_CONTAINER destruction beam
-SoundSmplTblID snd_hero_gate_ambience   = 973;  // AmbienceSound for HERO_GATE
+SoundSmplTblID snd_torch_ambience       = 0;
+SoundSmplTblID snd_dungeon_heart_beam   = 0;
+SoundSmplTblID snd_hero_gate_ambience   = 0;
 
 // Keeper power sounds — voice (SoundSamples) paired with cast effect (SoundPlayed)
-SoundSmplTblID snd_power_imp           = 831;  // voice; POWER_IMP (no cast sound — just spawns an imp)
+SoundSmplTblID snd_power_imp           = 0;
 
-SoundSmplTblID snd_power_possess       = 836;  // voice; POWER_POSSESS
-SoundSmplTblID snd_cast_possess        = 39;   // cast;  POWER_POSSESS
+SoundSmplTblID snd_power_possess       = 0;
+SoundSmplTblID snd_cast_possess        = 0;
 
-SoundSmplTblID snd_power_sight         = 828;  // voice; POWER_SIGHT
-SoundSmplTblID snd_cast_sight          = 51;   // cast;  POWER_SIGHT
+SoundSmplTblID snd_power_sight         = 0;
+SoundSmplTblID snd_cast_sight          = 0;
 
-SoundSmplTblID snd_power_obey          = 834;  // voice; POWER_OBEY
-SoundSmplTblID snd_power_hold_audience = 830;  // voice; POWER_HOLD_AUDIENCE
-SoundSmplTblID snd_cast_obey           = 58;   // cast;  POWER_OBEY and POWER_HOLD_AUDIENCE (shared)
+SoundSmplTblID snd_power_obey          = 0;
+SoundSmplTblID snd_power_hold_audience = 0;
+SoundSmplTblID snd_cast_obey           = 0;
 
-SoundSmplTblID snd_power_call_to_arms  = 826;  // voice; POWER_CALL_TO_ARMS
-SoundSmplTblID snd_cast_call_to_arms   = 83;   // cast;  POWER_CALL_TO_ARMS (battle fanfare)
+SoundSmplTblID snd_power_call_to_arms  = 0;
+SoundSmplTblID snd_cast_call_to_arms   = 0;
 
-SoundSmplTblID snd_power_cave_in       = 837;  // voice; POWER_CAVE_IN
-SoundSmplTblID snd_cast_cave_in        = 927;  // cast;  POWER_CAVE_IN
+SoundSmplTblID snd_power_cave_in       = 0;
+SoundSmplTblID snd_cast_cave_in        = 0;
 
-SoundSmplTblID snd_power_heal          = 829;  // voice; POWER_HEAL_CREATURE
-SoundSmplTblID snd_cast_heal           = 37;   // cast;  POWER_HEAL_CREATURE; also FiringSound for SHOT_RANGED_HEAL
+SoundSmplTblID snd_power_heal          = 0;
+SoundSmplTblID snd_cast_heal           = 0;
 
-SoundSmplTblID snd_power_lightning     = 833;  // voice; POWER_LIGHTNING
-SoundSmplTblID snd_cast_lightning      = 55;   // cast;  POWER_LIGHTNING; also FiringSound for SHOT_LIGHTNING family
+SoundSmplTblID snd_power_lightning     = 0;
+SoundSmplTblID snd_cast_lightning      = 0;
 
-SoundSmplTblID snd_power_speed         = 838;  // voice; POWER_SPEED
-SoundSmplTblID snd_cast_speed          = 38;   // cast;  POWER_SPEED; also FiringSound for SHOT_RANGED_SPEED
+SoundSmplTblID snd_power_speed         = 0;
+SoundSmplTblID snd_cast_speed          = 0;
 
-SoundSmplTblID snd_power_protect       = 825;  // voice; POWER_PROTECT
-SoundSmplTblID snd_cast_armour         = 153;  // cast;  POWER_PROTECT; also FiringSound for SHOT_RANGED_ARMOUR
+SoundSmplTblID snd_power_protect       = 0;
+SoundSmplTblID snd_cast_armour         = 0;
 
-SoundSmplTblID snd_power_conceal       = 832;  // voice; POWER_CONCEAL
-SoundSmplTblID snd_cast_conceal        = 154;  // cast;  POWER_CONCEAL
+SoundSmplTblID snd_power_conceal       = 0;
+SoundSmplTblID snd_cast_conceal        = 0;
 
-SoundSmplTblID snd_power_disease       = 835;  // voice; POWER_DISEASE
-SoundSmplTblID snd_cast_disease        = 59;   // cast;  POWER_DISEASE (disease spit on target)
+SoundSmplTblID snd_power_disease       = 0;
+SoundSmplTblID snd_cast_disease        = 0;
 
-SoundSmplTblID snd_power_chicken       = 827;  // voice; POWER_CHICKEN
-SoundSmplTblID snd_cast_pickup         = 109;  // cast;  POWER_CHICKEN, POWER_PICKUP_FOOD, POWER_PICKUP_OBJECT (shared)
+SoundSmplTblID snd_power_chicken       = 0;
+SoundSmplTblID snd_cast_pickup         = 0;
 
-SoundSmplTblID snd_power_destroy_walls = 839;  // voice; POWER_DESTROY_WALLS (cast = snd_dig_dirt)
-SoundSmplTblID snd_power_armageddon    = 824;  // voice; POWER_ARMAGEDDON    (cast = snd_spell_armageddon)
+SoundSmplTblID snd_power_destroy_walls = 0;
+SoundSmplTblID snd_power_armageddon    = 0;
 
 // Powers with no voice — cast effect only
-SoundSmplTblID snd_cast_slap           = 75;   // cast;  POWER_SLAP
-SoundSmplTblID snd_cast_rebound        = 926;  // cast;  POWER_REBOUND; also FiringSound for SHOT_RANGED_REBOUND
-SoundSmplTblID snd_cast_flight         = 953;  // cast;  POWER_FLIGHT
-SoundSmplTblID snd_cast_vision         = 923;  // cast;  POWER_VISION
+SoundSmplTblID snd_cast_slap           = 0;
+SoundSmplTblID snd_cast_rebound        = 0;
+SoundSmplTblID snd_cast_flight         = 0;
+SoundSmplTblID snd_cast_vision         = 0;
 
 // Shot projectile travel sounds (ShotSound field in magic.cfg)
-SoundSmplTblID snd_shot_freeze            = 49;  // travel; ShotSound for SHOT_FREEZE and SHOT_SLOW
-SoundSmplTblID snd_shot_homing_missile    = 53;  // travel; ShotSound for SHOT_NAVI_MISSILE and SHOT_MISSILE
-SoundSmplTblID snd_shot_bouncing_grenade  = 54;  // travel; ShotSound for SHOT_GRENADE and SHOT_LIZARD
+SoundSmplTblID snd_shot_freeze            = 0;
+SoundSmplTblID snd_shot_homing_missile    = 0;
+SoundSmplTblID snd_shot_bouncing_grenade  = 0;
 
 // Shot impact sounds
-SoundSmplTblID snd_shot_freeze_impact     = 50;  // impact; creature frozen effect (same ID as snd_spell_frozen)
-SoundSmplTblID snd_shot_splat             = 57;  // impact; generic splat on hit
+SoundSmplTblID snd_shot_freeze_impact     = 0;
+SoundSmplTblID snd_shot_splat             = 0;
 
 // Shot firing sounds (FiringSound field in magic.cfg — played on the creature at the moment of release)
-SoundSmplTblID snd_shot_fire              = 46;  // firing; FiringSound for SHOT_FIREBALL, SHOT_FIREBOMB, SHOT_POISON_CLOUD, SHOT_DRAIN, SHOT_GROUP, SHOT_CHICKEN, SHOT_TIME_BOMB, SHOT_HAILSTORM
-SoundSmplTblID snd_shot_bow               = 44;  // firing; FiringSound for SHOT_ARROW and SHOT_BALLISTA
-SoundSmplTblID snd_shot_wind              = 40;  // firing; FiringSound for SHOT_WIND
-SoundSmplTblID snd_shot_breath            = 56;  // firing; FiringSound for SHOT_FLAME_BREATH
-SoundSmplTblID snd_shot_freeze_fire       = 48;  // firing; FiringSound for SHOT_FREEZE and SHOT_SLOW
+SoundSmplTblID snd_shot_fire              = 0;
+SoundSmplTblID snd_shot_bow               = 0;
+SoundSmplTblID snd_shot_wind              = 0;
+SoundSmplTblID snd_shot_breath            = 0;
+SoundSmplTblID snd_shot_freeze_fire       = 0;
 
 // Melee swing / misc shot sounds
-int            snd_melee_swing_count      = 6;   // variants; IDs 26–31 (matches FiringSoundVariants = 6 in magic.cfg)
-SoundSmplTblID snd_melee_swing            = 26;  // firing; FiringSound for SHOT_SWING_CLAW, SHOT_SWING_FIST, SHOT_DIG, SHOT_CRIPPLE
-SoundSmplTblID snd_boulder_roll           = 35;  // travel; ShotSound for SHOT_BOULDER
-SoundSmplTblID snd_shot_magic_travel      = 43;  // travel; ShotSound for many generic magic projectiles
-SoundSmplTblID snd_trap_tnt_fire          = 149; // firing; FiringSound for SHOT_TRAP_TNT
-SoundSmplTblID snd_fear_shriek            = 570; // firing; FiringSound for SHOT_FEAR
-SoundSmplTblID snd_cast_cleanse           = 161; // firing; FiringSound for SHOT_RANGED_CLEANSE
+int            snd_melee_swing_count      = 0;
+SoundSmplTblID snd_melee_swing            = 0;
+SoundSmplTblID snd_boulder_roll           = 0;
+SoundSmplTblID snd_shot_magic_travel      = 0;
+SoundSmplTblID snd_trap_tnt_fire          = 0;
+SoundSmplTblID snd_fear_shriek            = 0;
+SoundSmplTblID snd_cast_cleanse           = 0;
 
 // Hit impact sounds (HitXxxSound fields in magic.cfg)
-// Note: HitWallSound = 128 3 reuses STRIKE_WALL (already registered)
-// Note: HitWaterSound = 36 reuses SPLASH, HitWaterSound = 21 reuses FOOT_WET, DigHitSound = 63 reuses DIG_SPELL
-SoundSmplTblID snd_hit_creature_sword    = 120;  // HitCreatureSound for SHOT_SWING_SWORD (light slice)
-SoundSmplTblID snd_hit_creature          = 137;  // HitCreatureSound for fist/ranged shots (heavy hit)
-int            snd_hit_wall_count        = 3;    // variants; IDs 138–140
-SoundSmplTblID snd_hit_wall              = 138;  // HitWallSound for fist/ballista/sentry
-int            snd_hit_door_sword_count  = 3;    // variants; IDs 131–133
-SoundSmplTblID snd_hit_door_sword        = 131;  // HitDoorSound for sword/claw shots
-int            snd_hit_door_count        = 3;    // variants; IDs 141–143
-SoundSmplTblID snd_hit_door              = 141;  // HitDoorSound for fist/heavy shots
-SoundSmplTblID snd_hit_heart             = 136;  // HitHeartSound for sword/ballista/ranged shots
-int            snd_hit_heart_fist_count  = 3;    // variants; IDs 144–146
-SoundSmplTblID snd_hit_heart_fist        = 144;  // HitHeartSound for fist/heavy shots
-SoundSmplTblID snd_hit_wall_boulder      = 1000; // HitWallSound for SHOT_BOULDER crushing into wall
+SoundSmplTblID snd_hit_creature_sword    = 0;
+SoundSmplTblID snd_hit_creature          = 0;
+int            snd_hit_wall_count        = 0;
+SoundSmplTblID snd_hit_wall              = 0;
+int            snd_hit_door_sword_count  = 0;
+SoundSmplTblID snd_hit_door_sword        = 0;
+int            snd_hit_door_count        = 0;
+SoundSmplTblID snd_hit_door              = 0;
+SoundSmplTblID snd_hit_heart             = 0;
+int            snd_hit_heart_fist_count  = 0;
+SoundSmplTblID snd_hit_heart_fist        = 0;
+SoundSmplTblID snd_hit_wall_boulder      = 0;
 
 
 /******************************************************************************/
