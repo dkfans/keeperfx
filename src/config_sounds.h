@@ -68,13 +68,15 @@ TbBool load_mod_sounds_config(const char* mod_name);
 
 /**
  * @brief Load level-specific sounds configuration
- * 
- * Loads sounds.cfg from a level folder for level-specific audio.
- * 
- * @param level_name Level folder name (e.g., "map00001")
- * @return true if loaded successfully
+ *
+ * Loads map<NNNNN>.sounds.cfg from the level's file group (respects
+ * LEVELS_LOCATION and campaign subdirectories).
+ *
+ * @param fgroup  File group for this level (from get_level_fgroup())
+ * @param lvnum   Level number
+ * @return true if the file was found and loaded
  */
-TbBool load_level_sounds_config(const char* level_name);
+TbBool load_level_sounds_config(short fgroup, LevelNumber lvnum);
 
 /**
  * @brief Reset the entire sound system back to the fxdata baseline.

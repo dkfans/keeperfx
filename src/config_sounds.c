@@ -765,22 +765,14 @@ TbBool load_mod_sounds_config(const char* mod_name)
     return result;
 }
 
-TbBool load_level_sounds_config(const char* level_name)
+TbBool load_level_sounds_config(short fgroup, LevelNumber lvnum)
 {
-    if (level_name == NULL || level_name[0] == '\0')
+    char* fullpath = prepare_file_fmtpath(fgroup, "map%05lu.sounds.cfg", (unsigned long)lvnum);
+    if (fullpath == NULL || !LbFileExists(fullpath))
     {
         return false;
     }
-    
-    char filepath[512];
-    snprintf(filepath, sizeof(filepath), "levels/%s.sounds.cfg", level_name);
-    
-    const char* fullpath = prepare_file_path(FGrp_Main, filepath);
-    if (fullpath == NULL)
-    {
-        return false;
-    }
-    
+
     TbBool result = load_sounds_config_file(fullpath, CnfLd_Standard | CnfLd_IgnoreErrors);
     cache_common_sound_ids();
     return result;

@@ -1441,11 +1441,9 @@ static TbBool load_level_file(LevelNumber lvnum)
         result = false;
     }
     // Restore campaign-layer sounds (undo any previous level overrides), then
-    // apply per-level sounds if levels/mapNNNNN/sounds.cfg exists.
+    // apply per-level sounds if levels/mapNNNNN.sounds.cfg exists.
     sound_restore_to_campaign_snapshot();
-    char lvl_snd_name[32];
-    snprintf(lvl_snd_name, sizeof(lvl_snd_name), "map%05lu", (unsigned long)lvnum);
-    load_level_sounds_config(lvl_snd_name);
+    load_level_sounds_config(fgroup, lvnum);
     return result;
 }
 
