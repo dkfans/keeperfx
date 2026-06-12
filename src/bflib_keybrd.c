@@ -79,7 +79,6 @@ char lbInkeyToAsciiShift[] = {
 static unsigned char lbInkeyFlags;
 static unsigned char lbIInkeyFlags;
 static unsigned char lbIInkey;
-static int lbKeyboardLang;
 static unsigned char lbExtendedKeyPress;
 unsigned char lbKeyOn[KC_LIST_END];
 TbKeyCode lbInkey;
@@ -97,11 +96,6 @@ short LbIKeyboardOpen(void)
 {
   init_inputcontrol();
     return 1;
-}
-
-void LbKeyboardSetLanguage(int lngnum)
-{
-  lbKeyboardLang = lngnum;
 }
 
 void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, int ScanCode)

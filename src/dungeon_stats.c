@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include "config_creature.h"
+#include "config_keeperfx.h"
 #include "config_crtrstates.h"
 #include "config_objects.h"
 #include "config_mods.h"
@@ -30,6 +31,7 @@
 #include "config_trapdoor.h"
 #include "config_effects.h"
 #include "config_terrain.h"
+#include "config_translation.h"
 #include "config_slabsets.h"
 #include "config_textures.h"
 #include "config_powerhands.h"
@@ -48,6 +50,8 @@ TbBool load_stats_files(void)
     clear_research_for_all_players();
     init_all_creature_model_stats();
     init_creature_model_graphics();
+
+    load_config(&keeper_translation_file_data, CnfLd_Standard);
 
     //first preload some configs which contain names that are used in other cfgs in ListOnly mode
     load_config(&keeper_creaturetp_file_data,   CnfLd_ListOnly);
