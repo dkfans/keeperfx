@@ -502,19 +502,23 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
             break;
         }
     }
-    unsigned long zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
-    unsigned long zoom_max = CAMERA_ZOOM_MAX;
+    const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
+    const int32_t zoom_max = CAMERA_ZOOM_MAX;
+    const TbBool with_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
+                         && (pckt->control_flags & PCtr_ViewZoomPos) != 0;
+    const MapCoord zoom_x = with_pos ? pckt->pos_x : -1;
+    const MapCoord zoom_y = with_pos ? pckt->pos_y : -1;
     if (pckt->control_flags & PCtr_ViewZoomIn)
     {
         switch (cam->view_mode)
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            view_zoom_camera_in(cam, zoom_max, zoom_min);
+            view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             break;
         default:
-            view_zoom_camera_in(cam, zoom_max, zoom_min);
+            view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             break;
         }
     }
@@ -524,11 +528,11 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            view_zoom_camera_out(cam, zoom_max, zoom_min);
+            view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             break;
         default:
-            view_zoom_camera_out(cam, zoom_max, zoom_min);
+            view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             break;
         }
     }
@@ -725,7 +729,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_BookmarkLoad:
-      set_player_cameras_position(player, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
+      set_player_cameras_position(player, pckt->actn_par1, pckt->actn_par2);
       return 0;
   case PckA_SetGammaLevel:
       if (is_my_player(player))

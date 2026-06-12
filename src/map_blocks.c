@@ -972,6 +972,15 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                         {
                             dungeon->backup_heart_idx = objtng->index;
                         }
+                        else
+                        {
+                            struct Thing* backup = thing_get(dungeon->backup_heart_idx);
+                            if (!thing_is_dungeon_heart(backup))
+                            {
+                                ERRORLOG("%s had invalid backup heart %s", player_code_name(plyr_idx), thing_model_name(backup));
+                                dungeon->backup_heart_idx = objtng->index;
+                            }
+                        }
                     }
                 } else
                 if (sobj->class_id == TCls_EffectGen)

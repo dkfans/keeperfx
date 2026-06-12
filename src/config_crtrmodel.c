@@ -129,6 +129,8 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"PREFER_STEAL",      33},
   {"EVENTFUL_DEATH",    34},
   {"DIGGING_CREATURE",  35},
+  {"NO_HEALTH_FLOWER",  36},
+  {"CANNOT_PICK_UP",    37},
   {NULL,                 0},
   };
 
@@ -750,6 +752,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 35: // DIGGING_CREATURE
                 crconf->model_flags |= CMF_IsDiggingCreature;
+                n++;
+                break;
+            case 36: // NO_HEALTH_FLOWER
+                crconf->model_flags |= CMF_NoHealthFlower;
+                n++;
+                break;
+            case 37: // CANNOT_PICK_UP
+                crconf->model_flags |= CMF_CannotPickUp;
                 n++;
                 break;
             default:

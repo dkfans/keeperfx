@@ -26,6 +26,8 @@
 #include "magic_powers.h"
 #include "config_crtrstates.h"
 #include "creature_states_mood.h"
+#include "thing_stats.h"
+#include "local_camera.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -39,8 +41,6 @@ static int thing_set_field(lua_State *L);
 static int thing_get_field(lua_State *L);
 
 static const struct luaL_Reg thing_methods[];
-
-
 
 
 /**********************************************/
@@ -260,6 +260,14 @@ static int thing_set_field(lua_State *L) {
     if (strcmp(key, "orientation") == 0)
     {
         thing->move_angle_xy = luaL_checkinteger(L, 3);
+        // Re-sync first-person camera with creature orientation
+        struct PlayerInfo* player = get_my_player();
+        if (!player_invalid(player)
+            && player->controlled_thing_idx == thing->index
+            && player->view_mode == PVM_CreatureView)
+        {
+            set_local_camera_destination(player);
+        }        
     } else if (strcmp(key, "pitch") == 0) 
     {
         thing->move_angle_z = luaL_checkinteger(L, 3);
@@ -271,7 +279,22 @@ static int thing_set_field(lua_State *L) {
         change_creature_owner(thing, new_owner);
     } else if (strcmp(key, "health") == 0)
     {
-        thing->health = luaL_checkinteger(L, 3);
+        HitPoints new_health = luaL_checkinteger(L, 3);
+        if (thing_is_creature(thing))
+        {
+            HitPoints old_health = thing->health;
+            if (new_health > old_health)
+            {
+                apply_health_to_thing_and_display_health(thing, new_health - old_health);
+            } else if (new_health < old_health) 
+            {
+                apply_damage_to_thing(thing, old_health - new_health, -1);
+            }
+        }
+        else
+        {
+            thing->health = new_health;    // Doors, Hearts, Traps, ...
+        }
     } else if (strcmp(key, "pos") == 0) 
     {
         struct Coord3d pos;

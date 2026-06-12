@@ -617,6 +617,17 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     {
       return 0;
     }
+
+    struct GameKey *kbk = &settings.kbkeys[key_id];
+    if ((kbk->code == key && kbk->mods == mods)
+        || (mods != KC_UNASSIGNED && kbk->code == mod_key_to_normal_key(mods)))
+    {
+        kbk->code = KC_UNASSIGNED;
+        kbk->mods = KC_UNASSIGNED;
+        defined_keys_that_have_been_swapped[key_id] = false;
+        return 1;
+    }
+
     // One-Click Build & Sell Trap on Subtile - allow lone modifiers and normal keys
     if (key_id == Gkey_SellTrapOnSubtile || key_id == Gkey_SquareRoomSpace || key_id == Gkey_BestRoomSpace)
     {
