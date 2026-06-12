@@ -756,6 +756,7 @@ TbBool add_input_text_to_message(char *message, int max_message_length, struct T
 {
     LbTextSetFont(font);
 
+    clear_key_pressed(lbInkey);
     if (pixel_size * LbTextStringWidth(message) < max_width) {
         char text_input[64];
         int text_len = LbGetTextInput(text_input, sizeof(text_input));
