@@ -289,6 +289,14 @@ static const char *get_language_value(VALUE *section, uint8_t lang_id)
     VALUE *lang_val = value_dict_get(section, language_code);
     if (lang_val && value_type(lang_val) == VALUE_STRING)
         return value_string(lang_val);
+
+    char fuzzy_language_code[64];
+    fuzzy_language_code[0] = '_';
+    strcpy(fuzzy_language_code + 1, language_code);
+    lang_val = value_dict_get(section, fuzzy_language_code);
+    if (lang_val && value_type(lang_val) == VALUE_STRING)
+        return value_string(lang_val);
+
     return NULL;
 }
 
