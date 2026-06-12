@@ -29,6 +29,7 @@
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_slabsets.h"
+#include "config_sounds.h"
 #include "config_strings.h"
 #include "config_terrain.h"
 #include "config_keeperfx.h"
@@ -1439,6 +1440,12 @@ static TbBool load_level_file(LevelNumber lvnum)
         init_top_texture_to_cube_table();
         result = false;
     }
+    // Restore campaign-layer sounds (undo any previous level overrides), then
+    // apply per-level sounds if levels/mapNNNNN/sounds.cfg exists.
+    sound_restore_to_campaign_snapshot();
+    char lvl_snd_name[32];
+    snprintf(lvl_snd_name, sizeof(lvl_snd_name), "map%05lu", (unsigned long)lvnum);
+    load_level_sounds_config(lvl_snd_name);
     return result;
 }
 
