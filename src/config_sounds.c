@@ -773,7 +773,7 @@ TbBool load_level_sounds_config(const char* level_name)
     }
     
     char filepath[512];
-    snprintf(filepath, sizeof(filepath), "levels/%s/sounds.cfg", level_name);
+    snprintf(filepath, sizeof(filepath), "levels/%s.sounds.cfg", level_name);
     
     const char* fullpath = prepare_file_path(FGrp_Main, filepath);
     if (fullpath == NULL)
