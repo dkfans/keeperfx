@@ -558,6 +558,26 @@ extern "C" void sound_clear_id_redirects(void) {
 	g_id_redirects.clear();
 }
 
+static std::unordered_map<SoundSmplTblID, SoundSmplTblID> g_id_redirects_snapshot;
+static size_t g_custom_bank_watermark = 0;
+
+extern "C" void sound_save_id_redirect_snapshot(void) {
+	g_id_redirects_snapshot = g_id_redirects;
+	g_custom_bank_watermark = g_custom_bank.size();
+	SYNCDBG(7, "Saved sound snapshot: %zu redirects, %zu custom bank entries",
+		g_id_redirects_snapshot.size(), g_custom_bank_watermark);
+}
+
+extern "C" void sound_restore_id_redirect_snapshot(void) {
+	g_id_redirects = g_id_redirects_snapshot;
+	if (g_custom_bank.size() > g_custom_bank_watermark) {
+		SYNCDBG(7, "Trimming custom bank from %zu to %zu entries",
+			g_custom_bank.size(), g_custom_bank_watermark);
+		g_custom_bank.erase(g_custom_bank.begin() + (ptrdiff_t)g_custom_bank_watermark, g_custom_bank.end());
+	}
+	SYNCDBG(7, "Restored sound snapshot: %zu redirects", g_id_redirects.size());
+}
+
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 	try {
 		// Set OpenAL listener gain to maximum so we can split up the mentor speech volume slider from the sound effects volume slider

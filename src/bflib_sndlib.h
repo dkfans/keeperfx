@@ -65,6 +65,20 @@ void sound_register_id_redirect(SoundSmplTblID from_id, SoundSmplTblID to_id);
  */
 void sound_clear_id_redirects(void);
 
+/**
+ * @brief Save a snapshot of the ID-redirect table and custom-bank watermark.
+ *
+ * Call after campaign + mod sounds finish loading. Pair with
+ * sound_restore_id_redirect_snapshot() at the start of each level load.
+ */
+void sound_save_id_redirect_snapshot(void);
+
+/**
+ * @brief Restore the ID-redirect table and truncate the custom bank to the
+ * saved watermark, freeing any sounds added at level scope.
+ */
+void sound_restore_id_redirect_snapshot(void);
+
 void set_music_volume(SoundVolume);
 TbBool play_music(const char * fname);
 TbBool play_music_track(int);
