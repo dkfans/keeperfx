@@ -37,6 +37,7 @@
 #include "map_ceiling.h"
 #include "map_utils.h"
 #include "sounds.h"
+#include "config_sounds.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
@@ -268,7 +269,7 @@ long destroy_door(struct Thing *doortng)
     }
     struct Thing* efftng = create_effect(&pos, TngEff_Dummy, plyr_idx);
     if (!thing_is_invalid(efftng)) {
-        thing_play_sample(efftng, 72 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+        thing_play_sample(efftng, snd_door_place + SOUND_RANDOM(snd_door_place_count), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
     if (plyr_idx != game.neutral_player_num)
     {
@@ -501,7 +502,7 @@ long process_door_open(struct Thing *thing)
         return 0;
     }
     thing->active_state = DorSt_Closing;
-    thing_play_sample(thing, 92, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(thing, snd_door_open, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
@@ -510,7 +511,7 @@ long process_door_closed(struct Thing *thing)
     if ( !check_door_should_open(thing) )
       return 0;
     thing->active_state = DorSt_Opening;
-    thing_play_sample(thing, 91, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(thing, snd_door_close, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
@@ -544,7 +545,7 @@ long process_door_closing(struct Thing *thing)
     if ( check_door_should_open(thing) )
     {
         thing->active_state = DorSt_Opening;
-        thing_play_sample(thing, 91, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(thing, snd_door_close, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     if (thing->door.closing_counter > delta_h)
     {

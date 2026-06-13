@@ -55,6 +55,7 @@ else
 
 $debugFlag      = 'DEBUG=0';
 $debugFlagFTest = 'FTEST_DEBUG=0';
+$heavyLog       = $false;
 $jobsArg = '`nproc`';
 
 $compileSetting = (Get-Content "$compileSettingsFile" -Raw).Trim();
@@ -65,6 +66,10 @@ if ($compileSetting -match '\bDEBUG=1\b')
 if ($compileSetting -match '\bFTEST_DEBUG=1\b')
 {
     $debugFlagFTest = 'FTEST_DEBUG=1';
+}
+if ($compileSetting -match '\bHEAVYLOG=1\b')
+{
+    $heavyLog = $true;
 }
 if ($compileSetting -match '\bMAKE_JOBS=(\d+)\b')
 {
@@ -89,10 +94,16 @@ if ($debugFlagFTest -eq 'FTEST_DEBUG=1')
     Write-Host 'Compiling with FTEST_DEBUG=1' -ForegroundColor Magenta;
 }
 
+if ($heavyLog)
+{
+    Write-Host 'Compiling with HEAVYLOG=1 (BFDEBUG_LEVEL=10)' -ForegroundColor Cyan;
+}
+
 Write-Host "Compiling with jobs: $jobsArg" -ForegroundColor Cyan;
 
 
-wsl bash -c "make all -j $jobsArg $debugFlag $debugFlagFTest";
+$makeTarget = if ($heavyLog) { 'heavylog' } else { 'all' };
+wsl bash -c "make $makeTarget -j $jobsArg $debugFlag $debugFlagFTest";
 if ($?) {
     Write-Host 'Compilation successful!' -ForegroundColor Green;
 }

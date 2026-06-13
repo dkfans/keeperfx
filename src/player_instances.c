@@ -24,6 +24,7 @@
 #include "bflib_datetm.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_planar.h"
 
 #include "creature_control.h"
@@ -507,7 +508,6 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
   light_turn_light_on(player->cursor_light_idx);
-  play_non_3d_sample(177);
   return 0;
 }
 
@@ -549,7 +549,6 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
   light_turn_light_on(player->cursor_light_idx);
-  play_non_3d_sample(177);
   return 0;
 }
 
@@ -1169,7 +1168,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         // It shouldn't be possible to select unavailable room
         WARNLOG("Player %d tried to build %s which is unavailable at (%d,%d)",(int)plyr_idx,room_code_name(rkind),(int)stl_x,(int)stl_y);
         if (is_my_player(player))
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         return INVALID_ROOM;
     }
     if (!can_build_room_at_slab(plyr_idx, rkind, subtile_slab(stl_x), subtile_slab(stl_y))) {
@@ -1180,7 +1179,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         {
             if (!player->roomspace.is_active)
             {
-                play_non_3d_sample(119);
+                play_non_3d_sample(snd_refusal);
             }
         }
         return INVALID_ROOM;
@@ -1189,7 +1188,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     if (!i_can_allocate_free_room_structure())
     {
       if (is_my_player(player))
-        play_non_3d_sample(119);
+        play_non_3d_sample(snd_refusal);
       return INVALID_ROOM;
     }
     if (player->boxsize == 0)
@@ -1229,11 +1228,11 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         }
       if (is_my_player(player))
       {
-          play_non_3d_sample(77);
+          play_non_3d_sample(snd_tile_place);
           if (player->boxsize > 1)
           {
-              play_non_3d_sample(959);
-              play_non_3d_sample(856);
+              play_non_3d_sample(snd_larg_tile_down);
+              play_non_3d_sample(snd_larg_tile_up);
           }
       }
     }

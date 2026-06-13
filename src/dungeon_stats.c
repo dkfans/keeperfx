@@ -37,6 +37,7 @@
 #include "config_powerhands.h"
 #include "config_spritecolors.h"
 #include "config_players.h"
+#include "config_sounds.h"
 #include "room_library.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -63,6 +64,10 @@ TbBool load_stats_files(void)
     load_config(&keeper_magic_file_data,        CnfLd_ListOnly);
     load_config(&creature_states_file_data,     CnfLd_ListOnly);
     load_config(&keeper_playerstates_file_data, CnfLd_ListOnly);
+
+    // Load sounds before full config passes so that named sounds are available
+    // when fields like AmbienceSound, PlaceSound, TriggerSound are parsed.
+    load_sounds_config();
 
     //then load everything for real
     load_config(&keeper_terrain_file_data,      CnfLd_Standard|CnfLd_PreListed);
