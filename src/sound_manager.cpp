@@ -477,6 +477,30 @@ void SoundManager::restoreSnapshot() {
             SZCAST(sound_registry_.size()), SZCAST(custom_sounds_.size()));
 }
 
+// Re-apply all creature sound overrides to game.conf with current bank indices.
+// Called after save-game load overwrites game struct with stale negative indices.
+void SoundManager::reapplyCreatureSounds() {
+    if (creature_sound_overrides_.empty()) {
+        return;
+    }
+    SYNCDBG(5, "Re-applying %" PRIuSIZE " creature sound override(s) after save load",
+            SZCAST(creature_sound_overrides_.size()));
+    // Work on a copy — setCreatureSound() appends to creature_sound_overrides_.
+    auto overrides_copy = creature_sound_overrides_;
+    creature_sound_overrides_.clear();
+    for (const auto& ov : overrides_copy) {
+        auto it = custom_sounds_.find(ov.custom_sound_name);
+        if (it == custom_sounds_.end() || !it->second.loaded) {
+            WARNLOG("reapplyCreatureSounds: custom sound '%s' not found",
+                    ov.custom_sound_name.c_str());
+            continue;
+        }
+        int count = getSoundCount(ov.custom_sound_name.c_str());
+        if (count <= 0) count = 1;
+        setCreatureSound(ov.creature_model, ov.sound_type, ov.custom_sound_name, count);
+    }
+}
+
 } // namespace KeeperFX
 
 // C API wrappers

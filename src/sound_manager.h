@@ -204,6 +204,13 @@ public:
      */
     void restoreSnapshot();
 
+    /**
+     * @brief Re-apply all creature sound overrides to game.conf using the
+     * current custom bank indices. Call after a save-game load has overwritten
+     * game.conf with stale (session-specific) negative indices.
+     */
+    void reapplyCreatureSounds();
+
 private:
     SoundManager();
     ~SoundManager();
