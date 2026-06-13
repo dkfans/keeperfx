@@ -615,7 +615,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     if (LbLocTextStringSize(str) < abs(gbtn->maxval))
     {
         char insert_text[64] = "";
-        if (add_input_text_to_message(insert_text, sizeof(insert_text), frontend_font[1], gbtn->width * pixel_size))
+        if (add_input_text_to_message(insert_text, sizeof(insert_text), winfont, gbtn->width * pixel_size))
         {
             if (insert_text[0] != '\0')
             {

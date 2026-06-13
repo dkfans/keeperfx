@@ -741,24 +741,35 @@ TbBool add_input_text_to_message(char *message, int max_message_length, struct T
 {
     LbTextSetFont(font);
 
+    if (!LbIsTextInputActive())
+        LbStartTextInput();
+
     clear_key_pressed(lbInkey);
-    if (pixel_size * LbTextStringWidth(message) < max_width) {
-        char text_input[64];
-        int text_len = LbGetTextInput(text_input, sizeof(text_input));
-        if (text_len > 0) {
-            int chpos = strlen(message);
-            for (int ti = 0; ti < text_len && chpos < max_message_length - 1; ++ti) {
-                unsigned char c = text_input[ti];
-                //limit it to ascii characters, to ignore codepage differences and multibyte stuff
-                if (c >= 0x20 && c < 0x7f) {
-                    message[chpos++] = c;
-                    message[chpos] = '\0';
-                }
+
+    if (pixel_size * LbTextStringWidth(message) >= max_width)
+        return false;
+
+    char text_input[64];
+    int text_len = LbGetTextInput(text_input, sizeof(text_input));
+    if (text_len <= 0)
+        return false;
+
+    int chpos = strlen(message);
+    for (int ti = 0; ti < text_len && chpos < max_message_length - 1; ++ti) {
+        unsigned char c = (unsigned char)text_input[ti];
+        // Limit it to ASCII characters, to ignore codepage differences and multibyte stuff.
+        if (c >= 0x20 && c < 0x7f) {
+            message[chpos++] = (char)c;
+            message[chpos] = '\0';
+
+            // Enforce max_width even when multiple characters arrive in one frame.
+            if (pixel_size * LbTextStringWidth(message) >= max_width) {
+                message[--chpos] = '\0';
+                break;
             }
-            return true;
         }
     }
-    return false;
+    return true;
 }
 
 /******************************************************************************/
