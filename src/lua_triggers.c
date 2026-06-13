@@ -23,6 +23,40 @@
 
 #include "post_inc.h"
 
+static void delete_thing_lua_data(lua_State *L, struct Thing* thing) {
+
+    // Get Game.LuaData.Thing table
+    lua_getglobal(L, "Game");
+    if (!lua_istable(L, -1)) { lua_pop(L, 1); return; }
+    lua_getfield(L, -1, "LuaData");
+    if (!lua_istable(L, -1)) { lua_pop(L, 2); return; }
+    lua_getfield(L, -1, "Thing");
+    if (!lua_istable(L, -1)) { lua_pop(L, 3); return; }
+
+    char key[40];
+    snprintf(key, sizeof(key), "thing_%d_%d", thing->index, thing->creation_turn);
+    lua_pushnil(L);
+    lua_setfield(L, -2, key);
+
+    lua_pop(L, 3);
+}
+
+void lua_on_thing_deleted(struct Thing *thing)
+{
+	SYNCDBG(6, "Starting");
+	delete_thing_lua_data(Lvl_script, thing);
+	lua_getglobal(Lvl_script, "OnThingDeleted");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushThing(Lvl_script, thing);
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnThingDeleted");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+}
+
 void lua_on_dungeon_destroyed(PlayerNumber plyr_idx)
 {
 	SYNCDBG(6,"Starting");

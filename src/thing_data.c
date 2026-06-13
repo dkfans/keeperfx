@@ -36,6 +36,7 @@
 #include "engine_arrays.h"
 #include "kjm_input.h"
 #include "gui_topmsg.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -175,6 +176,7 @@ void delete_thing_structure_f(struct Thing *thing, TbBool deleting_everything, c
         remove_first_creature(thing);
     }
     if (!deleting_everything) {
+        lua_on_thing_deleted(thing);
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_invalid(cctrl)) {
             if (creature_under_spell_effect(thing, CSAfF_Armour)) {

@@ -34,11 +34,62 @@
 #include "lua_utils.h"
 
 
+#include "lua_api.h"
+
 #include "post_inc.h"
 
 /**********************************************/
 static int thing_set_field(lua_State *L);
 static int thing_get_field(lua_State *L);
+
+static void get_or_create_lua_data_table(lua_State *L, struct Thing* thing) {
+    // Get the global Game table
+    lua_getglobal(L, "Game");
+    if (!lua_istable(L, -1)) {
+        lua_pop(L, 1); // Pop whatever is on top
+        lua_newtable(L);
+        lua_setglobal(L, "Game");
+        lua_getglobal(L, "Game");
+    }
+
+    // Get or create Game.LuaData
+    lua_getfield(L, -1, "LuaData");
+    if (!lua_istable(L, -1)) {
+        lua_pop(L, 1); // Pop nil
+        lua_newtable(L);
+        lua_setfield(L, -2, "LuaData"); // Set Game.LuaData
+        lua_getfield(L, -1, "LuaData");
+    }
+
+    // Get or create Game.LuaData.Thing
+    lua_getfield(L, -1, "Thing");
+    if (!lua_istable(L, -1)) {
+        lua_pop(L, 1); // Pop nil
+        lua_newtable(L);
+        lua_setfield(L, -2, "Thing"); // Set Game.LuaData.Thing
+        lua_getfield(L, -1, "Thing");
+    }
+
+    // Now Game.LuaData.Thing is at the top of the stack.
+    // Create a unique key for the thing's data table
+    char key[40];
+    snprintf(key, sizeof(key), "thing_%d_%d", thing->index, thing->creation_turn);
+
+    // Get or create the specific table for this thing
+    lua_getfield(L, -1, key);
+    if (lua_isnil(L, -1)) {
+        lua_pop(L, 1); // Pop nil
+        lua_newtable(L);
+        lua_setfield(L, -2, key); // Set Game.LuaData.Thing[key]
+        lua_getfield(L, -1, key);
+    }
+
+    // The desired table is now at the top of the stack.
+    // We need to clean up the stack, leaving only the thing's data table.
+    lua_remove(L, -2); // Remove Game.LuaData.Thing
+    lua_remove(L, -2); // Remove Game.LuaData
+    lua_remove(L, -2); // Remove Game
+}
 
 static const struct luaL_Reg thing_methods[];
 
@@ -504,6 +555,8 @@ static int thing_get_field(lua_State *L) {
         lua_pushboolean(L, thing_is_picked_up(thing));
     } else if (strcmp(key, "thing_class") == 0) {
         lua_pushstring(L, thing_class_code_name(thing->class_id));
+    } else if (strcmp(key, "lua_data") == 0) {
+        get_or_create_lua_data_table(L, thing);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }

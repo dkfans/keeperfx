@@ -266,3 +266,17 @@ function RegisterOnShotHitEvent(action, shooter_type, target_type, shot_type)
     end
     return trigger
 end
+
+---Triggers when a shot hits something
+---eventData.thing contains the deleted thing
+---@param action function|string the function to call when the event happens
+---@param thing? Thing the thing that was deleted (nil for any)
+---@return table
+function RegisterThingDeletedEvent(action, thing)
+    local trigData = {thing = thing}
+    local trigger = CreateTrigger("ThingDeleted", action, trigData)
+    if thing then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.thing == triggerData.thing end)
+    end
+    return trigger
+end
