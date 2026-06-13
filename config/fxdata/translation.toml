@@ -25,7 +25,7 @@ _KOR = "비홀더"
 _LAT = "Oculus Malignus"
 _POL = "Obserwator"
 _POR = "Observador"
-_RUS = "Созерцатель"
+_RUS = "Злобоглаз"
 _SPA = "Vigilante"
 _SWE = "Beholder"
 _UKR = "Спостерігач"
@@ -78,7 +78,7 @@ _UKR = "Кат"
 ENG = "A Torturer has escaped a torture room and joined your dungeon. Let's see what else he can do."
 _GER = "Ein Folterknecht ist aus einem Folterraum entkommen und hat sich deinem Verlies angeschlossen. Mal sehen, was er sonst noch kann."
 DUT = "Een folteraar is uit een folterkamer ontsnapt en heeft zich bij je kerker aangesloten. Laten we eens kijken wat hij nog meer kan."
-_CHI = "一个拷问者从拷问室逃了出来，加入了你的地下城。让我们看看他还能做些什么。"
+RUS = "Палач сбежал из пыточной и пришел в Ваше подземелье. Посмотрим, на что еще он способен."
 
 [BEHOLDER_JOIN]
 # this one is just an example for maps where multiline messages are needed
@@ -107,8 +107,8 @@ _POL = """Obserwator dołączył do ciebie. Te duże, kuliste istoty mają liczn
 Czują intensywną nienawiść do wszystkiego, co mogą zobaczyć, zwłaszcza do tych, którzy wyśmiewają się z ich braku uszu."""
 _POR = """Um Observador juntou-se a ti. Estas grandes criaturas esféricas possuem vários pedúnculos oculares e um olho central, cada um contendo magia poderosa.  
 Sentem um ódio intenso por tudo o que conseguem ver, especialmente por aqueles que zombam da sua falta de orelhas."""
-_RUS = """Созерцатель присоединился к вам. Эти большие шарообразные существа имеют несколько глазных отростков и один центральный глаз, каждый из которых содержит мощную магию.  
-Они испытывают сильную ненависть ко всему, что могут видеть, особенно к тем, кто насмехается над отсутствием у них ушей."""
+RUS = """Злобоглаз присоединился к Вам. Эти огромные шарообразные создания представляют собой гигантский глаз, от которого отходит несколько отростков, на которых расположены глаза поменьше. Каждый из этих глаз способен применять мощные заклинания.  
+Они страшно ненавидят все, что видят, особенно тех, кто смеется над тем, что у них нет ушей."""
 _SPA = """Un Vigilante se ha unido a ti. Estas grandes criaturas esféricas tienen varios pedúnculos oculares y un ojo central, cada uno con poderosa magia.  
 Sienten un intenso odio hacia todo lo que pueden ver, especialmente hacia quienes se burlan de su falta de orejas."""
 _SWE = """En Beholder har anslutit sig till dig. Dessa stora, klotformade varelser har flera ögonstjälkar och ett centralt öga, var och en med kraftfull magi.  
