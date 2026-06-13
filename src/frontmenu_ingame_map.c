@@ -245,8 +245,8 @@ void interpolate_minimap_thing(struct Thing *thing, struct Camera *cam)
         thing->previous_minimap_pos_x = current_minimap_x;
         thing->previous_minimap_pos_y = current_minimap_y;
     } else {
-        thing->interp_minimap_pos_x = interpolate(thing->interp_minimap_pos_x, thing->previous_minimap_pos_x, current_minimap_x);
-        thing->interp_minimap_pos_y = interpolate(thing->interp_minimap_pos_y, thing->previous_minimap_pos_y, current_minimap_y);
+        thing->interp_minimap_pos_x = interpolate(thing->previous_minimap_pos_x, current_minimap_x);
+        thing->interp_minimap_pos_y = interpolate(thing->previous_minimap_pos_y, current_minimap_y);
     }
     if ((thing->interp_minimap_update_turn != get_gameturn()) || (game.operation_flags & GOF_Paused) != 0) {
         thing->interp_minimap_update_turn = get_gameturn();
@@ -1318,8 +1318,8 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
             interp_minimap.previous_x = current_minimap_x;
             interp_minimap.previous_y = current_minimap_y;
         } else {
-            interp_minimap.x = interpolate(interp_minimap.x, interp_minimap.previous_x, current_minimap_x);
-            interp_minimap.y = interpolate(interp_minimap.y, interp_minimap.previous_y, current_minimap_y);
+            interp_minimap.x = interpolate(interp_minimap.previous_x, current_minimap_x);
+            interp_minimap.y = interpolate(interp_minimap.previous_y, current_minimap_y);
         }
         if ((interp_minimap.get_previous != get_gameturn()) || (game.operation_flags & GOF_Paused) != 0) {
             interp_minimap.get_previous = get_gameturn();

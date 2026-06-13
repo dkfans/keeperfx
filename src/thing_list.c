@@ -993,6 +993,7 @@ void update_things_in_list(struct StructureList *list)
       }
       i = thing->next_of_class;
       // Per-thing code
+      set_previous_thing_position(thing);
       if ((thing->alloc_flags & TAlF_IsFollowingLeader) == 0)
       {
           if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
@@ -1001,7 +1002,6 @@ void update_things_in_list(struct StructureList *list)
               update_thing(thing);
           }
       }
-      set_previous_thing_position(thing);
       // Per-thing code ends
       k++;
       if (k > THINGS_COUNT)
@@ -1103,7 +1103,6 @@ unsigned long update_creatures_not_in_list(void)
         update_thing(thing);
       }
     }
-    set_previous_thing_position(thing);
     // Per-thing code ends
     k++;
     if (k > THINGS_COUNT)

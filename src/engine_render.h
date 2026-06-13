@@ -136,8 +136,8 @@ extern unsigned char temp_cluedo_mode;
 
 extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 /*****************************************************************************/
-float interpolate(float variable_to_interpolate, long previous, long current);
-float interpolate_angle(float variable_to_interpolate, float previous, float current);
+float interpolate(float previous, float current);
+float interpolate_angle(float previous, float current);
 
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void frame_wibble_generate(void);
