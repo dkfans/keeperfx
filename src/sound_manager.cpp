@@ -567,6 +567,10 @@ void sound_manager_restore_snapshot(void) {
     KeeperFX::SoundManager::getInstance().restoreSnapshot();
 }
 
+void sound_manager_reapply_creature_sounds(void) {
+    KeeperFX::SoundManager::getInstance().reapplyCreatureSounds();
+}
+
 // Named sound registry C API wrappers
 SoundSmplTblID sound_manager_get_id(const char* name) {
     return KeeperFX::SoundManager::getInstance().getSoundId(name);

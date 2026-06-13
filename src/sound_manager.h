@@ -278,6 +278,7 @@ void sound_manager_clear_custom_sounds(void);
 void sound_manager_clear_registry(void);
 void sound_manager_save_snapshot(void);
 void sound_manager_restore_snapshot(void);
+void sound_manager_reapply_creature_sounds(void);
 
 // Named sound registry C API
 SoundSmplTblID sound_manager_get_id(const char* name);
