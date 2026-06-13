@@ -50,7 +50,6 @@ volatile int lbUserQuit = 0;
 
 unsigned char last_used_input_device = 0;
 
-static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
 static TbBool firstTimeMouseInit = true;
@@ -89,8 +88,6 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
 
 void init_inputcontrol(void)
 {
-    SDL_GetMouseState(&prevMouseX, &prevMouseY);
-
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_a, KC_A));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_b, KC_B));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_c, KC_C));
@@ -316,7 +313,6 @@ static void process_event(const SDL_Event *ev)
     case SDL_MOUSEMOTION:
         if (!isMouseActive)
         {
-          SDL_GetMouseState(&prevMouseX, &prevMouseY);
           return;
         }
         static int frac_x = 0, frac_y = 0;
