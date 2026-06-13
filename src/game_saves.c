@@ -408,6 +408,10 @@ TbBool load_game(long slot_num)
     }
     my_player_number = game.local_plyr_idx;
     LbFileClose(fh);
+    // Re-apply creature sound overrides: SGC_GameOrig restored game.conf with
+    // session-specific negative bank indices from the save; fix them to match
+    // the current session's custom bank layout.
+    sound_manager_reapply_creature_sounds();
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
     initialize_packet_history();
