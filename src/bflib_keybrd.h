@@ -206,8 +206,6 @@ typedef short TbKeyMods;
 #pragma pack()
 /******************************************************************************/
 
-extern char lbInkeyToAscii[];
-extern char lbInkeyToAsciiShift[];
 extern unsigned char lbKeyOn[KC_LIST_END];
 extern TbKeyCode lbInkey;
 

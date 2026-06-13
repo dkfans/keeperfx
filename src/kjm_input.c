@@ -462,21 +462,6 @@ short is_key_pressed(TbKeyCode key, TbKeyMods kmodif)
 }
 
 /**
- * Converts keyboard key code into ASCII character.
- * @param key Code of the key being pressed.
- * @param kmodif Key modifier flags.
- * @note Key modifier can't be KMod_DONTCARE in this function.
- */
-unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
-{
-  if (key >= 128)
-    return 0;
-  if (kmodif & KMod_SHIFT)
-    return lbInkeyToAsciiShift[key];
-  return lbInkeyToAscii[key];
-}
-
-/**
  * Clears the marking that a specific key is pressed.
  */
 void clear_key_pressed(long key)
