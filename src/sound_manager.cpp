@@ -236,7 +236,6 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     else if (sound_type == "Hit") target_sound = &sounds->hit;
     else if (sound_type == "Happy") target_sound = &sounds->happy;
     else if (sound_type == "Sad") target_sound = &sounds->sad;
-    else if (sound_type == "Hurt") target_sound = &sounds->hurt;
     else if (sound_type == "Die") target_sound = &sounds->die;
     else if (sound_type == "Hang") target_sound = &sounds->hang;
     else if (sound_type == "Drop") target_sound = &sounds->drop;
