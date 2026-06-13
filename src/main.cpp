@@ -3493,9 +3493,11 @@ extern "C" void network_yield_waiting_gameplay_packets()
     poll_inputs();
     gameplay_loop_draw();
     gameplay_loop_timestep();
+    game.process_turn_time = min(game.process_turn_time, (long double)1.0);
     frametime_start_measurement(Frametime_Logic);
-    if (frametime_enabled())
+    if (frametime_enabled()) {
         framerate_measurement_capture(Framerate_Logic);
+    }
 }
 
 extern "C" void update_velocity(void);
