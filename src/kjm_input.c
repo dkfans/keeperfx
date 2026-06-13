@@ -462,21 +462,6 @@ short is_key_pressed(TbKeyCode key, TbKeyMods kmodif)
 }
 
 /**
- * Converts keyboard key code into ASCII character.
- * @param key Code of the key being pressed.
- * @param kmodif Key modifier flags.
- * @note Key modifier can't be KMod_DONTCARE in this function.
- */
-unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
-{
-  if (key >= 128)
-    return 0;
-  if (kmodif & KMod_SHIFT)
-    return lbInkeyToAsciiShift[key];
-  return lbInkeyToAscii[key];
-}
-
-/**
  * Clears the marking that a specific key is pressed.
  */
 void clear_key_pressed(long key)
@@ -751,6 +736,42 @@ TbBool mouse_is_over_side_panel_bottom()
     struct GuiMenu* gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     return ((GetMouseX() < status_panel_width) && (GetMouseY() > scale_ui_value(185)) && (GetMouseY() < gmnu->height));
 }
+
+TbBool add_input_text_to_message(char *message, int max_message_length, struct TbSpriteSheet *font, int max_width)
+{
+    LbTextSetFont(font);
+
+    if (!LbIsTextInputActive())
+        LbStartTextInput();
+
+    clear_key_pressed(lbInkey);
+
+    if (pixel_size * LbTextStringWidth(message) >= max_width)
+        return false;
+
+    char text_input[64];
+    int text_len = LbGetTextInput(text_input, sizeof(text_input));
+    if (text_len <= 0)
+        return false;
+
+    int chpos = strlen(message);
+    for (int ti = 0; ti < text_len && chpos < max_message_length - 1; ++ti) {
+        unsigned char c = (unsigned char)text_input[ti];
+        // Limit it to ASCII characters, to ignore codepage differences and multibyte stuff.
+        if (c >= 0x20 && c < 0x7f) {
+            message[chpos++] = (char)c;
+            message[chpos] = '\0';
+
+            // Enforce max_width even when multiple characters arrive in one frame.
+            if (pixel_size * LbTextStringWidth(message) >= max_width) {
+                message[--chpos] = '\0';
+                break;
+            }
+        }
+    }
+    return true;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

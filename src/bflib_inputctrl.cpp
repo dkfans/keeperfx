@@ -54,6 +54,9 @@ static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
 static TbBool firstTimeMouseInit = true;
 
+static char lbTextInputBuffer[256];
+static int lbTextInputLength = 0;
+
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
 //defined here instead of bflib_joyst.h to avoid making header depend on SDL
@@ -381,6 +384,22 @@ static void process_event(const SDL_Event *ev)
         mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mouseDelta);
         break;
 
+    case SDL_TEXTINPUT:
+        if (SDL_IsTextInputActive())
+        {
+            int len = strlen(ev->text.text);
+            int freeSpace = sizeof(lbTextInputBuffer) - lbTextInputLength - 1;
+            if (freeSpace > 0)
+            {
+                if (len > freeSpace)
+                    len = freeSpace;
+                memcpy(lbTextInputBuffer + lbTextInputLength, ev->text.text, len);
+                lbTextInputLength += len;
+                lbTextInputBuffer[lbTextInputLength] = '\0';
+            }
+        }
+        break;
+
     case SDL_WINDOWEVENT:
         switch (ev->window.event)
         {
@@ -568,6 +587,44 @@ void LbSetMouseGrab(TbBool grab_mouse)
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
     SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
+}
+
+static void LbClearTextInput(void)
+{
+    lbTextInputLength = 0;
+    lbTextInputBuffer[0] = '\0';
+}
+
+int LbGetTextInput(char *dst, int maxChars)
+{
+    if ((dst == NULL) || (maxChars <= 0) || (lbTextInputLength <= 0))
+        return 0;
+    int count = lbTextInputLength;
+    if (count >= maxChars)
+        count = maxChars - 1;
+    memcpy(dst, lbTextInputBuffer, count);
+    dst[count] = '\0';
+    LbClearTextInput();
+    return count;
+}
+
+TbBool LbIsTextInputActive(void)
+{
+    return SDL_IsTextInputActive() != SDL_FALSE;
+}
+
+void LbStartTextInput(void)
+{
+    LbClearTextInput();
+    if (!SDL_IsTextInputActive())
+        SDL_StartTextInput();
+}
+
+void LbStopTextInput(void)
+{
+    if (SDL_IsTextInputActive())
+        SDL_StopTextInput();
+    LbClearTextInput();
 }
 
 void LbGrabMouseInit(void)

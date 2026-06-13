@@ -588,20 +588,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     set_mouse_light(player);
 }
 
-void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif)
-{
-    int chpos = strlen(message);
-    if (key == KC_BACK && chpos > 0) {
-        message[chpos-1] = '\0';
-    } else if (chpos < PLAYER_MP_MESSAGE_LEN - 1) {
-        char chr = key_to_ascii(key, kmodif);
-        if (isalnum(chr) || strchr(" !:;()._'+=\\\"?/#<>^,-", chr)) {
-            message[chpos] = chr;
-            message[chpos+1] = '\0';
-        }
-    }
-}
-
 TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
 {
   //TODO PACKET add commands from beta
@@ -1084,10 +1070,7 @@ void process_players_packet(long plyr_idx)
     SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
-    if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar) && (pckt->actn_par1 > 0))
-    {
-        message_text_key_add(player->mp_message_text, pckt->actn_par1, pckt->actn_par2);
-  } else
+
   if (!process_players_global_packet_action(plyr_idx))
   {
       // Different changes to the game are possible for different views.

@@ -419,6 +419,11 @@ float get_game_key_axis_value(long key_id, TbBool ignore_mods)
 static short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
+    if (!LbIsTextInputActive())
+    {
+        LbStartTextInput();
+    }
+
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
@@ -428,23 +433,26 @@ static short get_players_message_inputs(void)
         player->allocflags &= ~PlaF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_RETURN);
+        LbStopTextInput();
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
+        player->allocflags &= ~PlaF_NewMPMessage;
+        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_ESCAPE);
+        LbStopTextInput();
     } else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char) {
         cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         clear_key_pressed(KC_TAB);
     } else if (is_key_pressed(KC_UP, KMod_NONE)) {
         memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_UP);
+    } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
+        int chpos = strlen(player->mp_message_text);
+        if (chpos > 0)
+            player->mp_message_text[chpos-1] = '\0';
+        clear_key_pressed(KC_BACK);
     } else {
-        LbTextSetFont(winfont);
-        if (is_key_pressed(KC_BACK,KMod_DONTCARE) || pixel_size * LbTextStringWidth(player->mp_message_text) < 450) {
-            message_text_key_add(player->mp_message_text, lbInkey, key_modifiers);
-            clear_key_pressed(lbInkey);
-            return true;
-        }
-        return false;
+        return add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
     }
     return true;
 }
