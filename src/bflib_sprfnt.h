@@ -42,6 +42,13 @@ enum TbFontDrawFlags {
 struct TbSprite;
 struct TbSetupSprite;
 
+enum dbc_id {
+    DbcId_Japanese = 1,
+    DbcId_ChineseInt = 2,
+    DbcId_ChineseTra = 3,
+    DbcId_Korean = 4,
+};
+
 enum DkcodepageLetter {
    DKChr_Null,
    DKChr_Modifier_Transparent4,
@@ -392,6 +399,8 @@ void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(int units_per_px, const char *text);
 void dbc_set_language(short ilng);
 short dbc_initialize(const char *fpath);
+TbBool is_dbc_language(short language);
+uint8_t get_dbc_id(short language);
 
 /******************************************************************************/
 #ifdef __cplusplus

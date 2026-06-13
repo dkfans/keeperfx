@@ -4440,31 +4440,13 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
     if (retval == 1)
     {
-      if ((install_info.lang_id == Lang_Japanese) ||
-          (install_info.lang_id == Lang_ChineseInt) ||
-          (install_info.lang_id == Lang_ChineseTra) ||
-          (install_info.lang_id == Lang_Korean))
-      {
-        switch (install_info.lang_id)
-        {
-        case Lang_Japanese:
-            dbc_set_language(1);
-            break;
-        case Lang_ChineseInt:
-            dbc_set_language(2);
-            break;
-        case Lang_ChineseTra:
-            dbc_set_language(3);
-            break;
-        case Lang_Korean:
-            dbc_set_language(4);
-            break;
+        if (is_dbc_language(install_info.lang_id))
+        {            
+            if (dbc_initialize("fxdata"))
+            {
+                ERRORLOG("DBC fonts Initialization failed.");
+            }
         }
-        if (dbc_initialize("fxdata"))
-        {
-          ERRORLOG("DBC fonts Initialization failed.");
-        }
-      }
     }
     if ( retval == 1 )
     {
