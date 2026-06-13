@@ -458,8 +458,8 @@ void SoundManager::saveSnapshot() {
     snapshot_creature_overrides_= creature_sound_overrides_;
     snapshot_total_custom_sounds_ = total_custom_sounds_;
     snapshot_valid_ = true;
-    SYNCDBG(5, "Saved sound manager snapshot: %zu registry, %zu custom sounds",
-            snapshot_registry_.size(), snapshot_custom_sounds_.size());
+    SYNCDBG(5, "Saved sound manager snapshot: %" PRIuSIZE " registry, %" PRIuSIZE " custom sounds",
+            SZCAST(snapshot_registry_.size()), SZCAST(snapshot_custom_sounds_.size()));
 }
 
 // Restore sound state to the campaign snapshot (called at the start of each level load)
@@ -473,8 +473,8 @@ void SoundManager::restoreSnapshot() {
     creature_sound_overrides_ = snapshot_creature_overrides_;
     total_custom_sounds_      = snapshot_total_custom_sounds_;
     // next_custom_sample_id_ is not used for lookup; leave as-is
-    SYNCDBG(5, "Restored sound manager snapshot: %zu registry, %zu custom sounds",
-            sound_registry_.size(), custom_sounds_.size());
+    SYNCDBG(5, "Restored sound manager snapshot: %" PRIuSIZE " registry, %" PRIuSIZE " custom sounds",
+            SZCAST(sound_registry_.size()), SZCAST(custom_sounds_.size()));
 }
 
 } // namespace KeeperFX
