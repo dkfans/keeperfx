@@ -3700,6 +3700,9 @@ static TbBool wait_at_frontend(void)
     {
       WARNMSG("No valid mappack files found");
     }
+    // Migrate old flat saves to per-campaign directories (one-time)
+    migrate_saves_to_campaign_dirs();
+    migrate_freeplay_saves();
     if (!load_campaigns_list(&mp_mappacks_list,FGrp_MpLevels,"multiplayer mappacks","mp_mappck_order.txt"))
     {
       WARNMSG("No valid multiplayer mappack files found");

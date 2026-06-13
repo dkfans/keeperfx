@@ -44,3 +44,7 @@ res/keeperfx_icon.ico
 keeperfx.log
 crash_log.txt
 .local/
+
+# Submodule dirs (initialized on feature branches only)
+/custom/
+/deps/kfx/

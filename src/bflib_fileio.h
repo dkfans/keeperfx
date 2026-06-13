@@ -63,6 +63,8 @@ int LbFileDelete(const char *filename);
 short LbFileFlush(TbFileHandle handle);
 int LbFileMakeFullPath(const short append_cur_dir,
   const char *directory, const char *filename, char *buf, const unsigned long len);
+int create_directory_for_file(const char *fname);
+void path_join(char *out, size_t out_size, const char *dir, const char *fname);
 
 /******************************************************************************/
 #ifdef __cplusplus
