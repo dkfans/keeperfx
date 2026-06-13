@@ -600,11 +600,22 @@ SoundEmitterID sound_manager_play_effect_named(const char* name, long priority, 
 // Returns true and fills out_path (size 2048) on success.
 static bool resolve_creature_sound_path(const char* path_in, char* out_path, size_t out_size)
 {
-    static const TbFileGroups groups[] = { FGrp_CmpgCrtrs, FGrp_CmpgMedia };
+    // Search order: most specific location first, base (FxData) last.
+    // Mirrors the sprite loading convention: FxData is the base loaded first and
+    // overridden by campaign/level. Here the most specific location wins on duplicates,
+    // and a config at any level can reference a file that only exists at a more specific location.
+    static const TbFileGroups groups[] = {
+        FGrp_CmpgLvls, FGrp_CmpgCrtrs, FGrp_CmpgConfig,
+        FGrp_CrtrData, FGrp_FxData, FGrp_CmpgMedia, FGrp_Main
+    };
+    [[maybe_unused]]
+    static const char* group_names[] = {
+        "FGrp_CmpgLvls", "FGrp_CmpgCrtrs", "FGrp_CmpgConfig",
+        "FGrp_CrtrData", "FGrp_FxData", "FGrp_CmpgMedia", "FGrp_Main"
+    };
     static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
 
-    // Determine whether the caller already supplied an extension.
-    const char* dot = strrchr(path_in, '.');
+    const char* dot   = strrchr(path_in, '.');
     const char* slash = strrchr(path_in, '/');
     bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
 
@@ -616,14 +627,18 @@ static bool resolve_creature_sound_path(const char* path_in, char* out_path, siz
             char candidate[2048];
             snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
             const char* resolved = prepare_file_path((TbFileGroups)groups[gi], candidate);
-            if (resolved != NULL && LbFileExists(resolved)) {
-                SYNCDBG(7, "Custom sound path resolved: '%s' -> '%s'", path_in, resolved);
+            bool exists = (resolved != NULL) && LbFileExists(resolved);
+            SYNCDBG(8, "[%s] '%s' -> '%s' (%s)",
+                group_names[gi], candidate,
+                resolved ? resolved : "(null)",
+                exists ? "FOUND" : "not found");
+            if (exists) {
                 snprintf(out_path, out_size, "%s", resolved);
                 return true;
             }
         }
     }
-    SYNCDBG(5, "Custom sound path not found: '%s' (tried %d groups x extensions)", path_in, (int)(sizeof(groups)/sizeof(groups[0])));
+    SYNCDBG(5, "Custom sound path not found: '%s'", path_in);
     return false;
 }
 
