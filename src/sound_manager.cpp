@@ -844,7 +844,7 @@ int load_creature_custom_sounds(long crtr_model, const char* sound_type, const c
         // Resolve full path - search FGrp_CmpgCrtrs then FGrp_CmpgMedia; probe extensions if none given
         char full_wav_path[2048];
         if (!resolve_creature_sound_path(wav_paths[i], full_wav_path, sizeof(full_wav_path))) {
-            WARNLOG("Custom sound %d not found: %s (for %s.%s)", i, wav_paths[i], creature_name, sound_type);
+            SYNCDBG(5, "Custom sound %d not found: %s (for %s.%s)", i, wav_paths[i], creature_name, sound_type);
             continue;
         }
 
