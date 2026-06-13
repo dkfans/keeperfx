@@ -24,10 +24,9 @@ function IsCustomSoundLoaded(name) end
 
 ---@alias creature_sound_type
 ---| "Foot"    # Footstep
----| "Hit"     # Striking an enemy
+---| "Hit"     # Getting struck by an enemy
 ---| "Happy"   # Creature is content
 ---| "Sad"     # Creature is unhappy
----| "Hurt"    # Taking damage
 ---| "Die"     # Death
 ---| "Hang"    # Suspended / held in hand
 ---| "Drop"    # Dropped by hand
