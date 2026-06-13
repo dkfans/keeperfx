@@ -155,7 +155,7 @@ SoundSmplTblID SoundManager::loadCustomSound(const std::string& name, const std:
     // Check if already loaded
     auto it = custom_sounds_.find(name);
     if (it != custom_sounds_.end() && it->second.loaded) {
-        SYNCLOG("Custom sound '%s' already loaded as bank index %d",
+        SYNCDBG(7,"Custom sound '%s' already loaded as bank index % d",
                name.c_str(), it->second.sample_id);
         return it->second.sample_id;
     }
@@ -165,7 +165,7 @@ SoundSmplTblID SoundManager::loadCustomSound(const std::string& name, const std:
     
     // Try to load the WAV file (this adds it to g_custom_bank)
     if (!loadWavFile(filepath, bank_index)) {
-        SYNCLOG("Failed to load custom sound '%s' from %s",
+        WARNLOG("Failed to load custom sound '%s' from %s",
                name.c_str(), filepath.c_str());
         return -1;  // Return -1 on error (0 is a valid bank index)
     }
@@ -215,7 +215,7 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     // Check if custom sound exists
     auto it = custom_sounds_.find(custom_sound_name);
     if (it == custom_sounds_.end() || !it->second.loaded) {
-        SYNCLOG("Cannot set creature sound: custom sound '%s' not found or not loaded",
+        WARNLOG("Cannot set creature sound: custom sound '%s' not found or not loaded",
                custom_sound_name.c_str());
         return false;
     }
@@ -223,7 +223,7 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     // Get creature model ID
     long crmodel = get_rid(creature_desc, creature_model.c_str());
     if (crmodel < 0 || crmodel >= game.conf.crtr_conf.model_count) {
-        SYNCLOG("Invalid creature model: %s", creature_model.c_str());
+        WARNLOG("Invalid creature model: %s", creature_model.c_str());
         return false;
     }
     
@@ -236,7 +236,6 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     else if (sound_type == "Hit") target_sound = &sounds->hit;
     else if (sound_type == "Happy") target_sound = &sounds->happy;
     else if (sound_type == "Sad") target_sound = &sounds->sad;
-    else if (sound_type == "Hurt") target_sound = &sounds->hurt;
     else if (sound_type == "Die") target_sound = &sounds->die;
     else if (sound_type == "Hang") target_sound = &sounds->hang;
     else if (sound_type == "Drop") target_sound = &sounds->drop;
@@ -245,7 +244,7 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     else if (sound_type == "Fight") target_sound = &sounds->fight;
     else if (sound_type == "Piss") target_sound = &sounds->piss;
     else {
-        SYNCLOG("Invalid sound type: %s", sound_type.c_str());
+        WARNLOG("Invalid sound type: %s", sound_type.c_str());
         return false;
     }
     
@@ -263,7 +262,7 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     target_sound->index = -(bank_index + 1);
     target_sound->count = count;  // Set count for multiple sounds
     
-    SYNCLOG("Set creature sound: %s.%s -> '%s' (unified id %d, bank index %d, stored index %d, count %d)",
+    SYNCDBG(7,"Set creature sound: %s.%s -> '%s' (unified id %d, bank index %d, stored index %d, count %d)",
            creature_model.c_str(), sound_type.c_str(), custom_sound_name.c_str(),
            (int)it->second.sample_id, (int)bank_index, (int)target_sound->index, count);
     
@@ -284,11 +283,11 @@ size_t SoundManager::getTotalCustomSounds() const {
 SoundSmplTblID SoundManager::getCustomSoundId(const std::string& name) const {
     auto it = custom_sounds_.find(name);
     if (it == custom_sounds_.end()) {
-        SYNCLOG("Custom sound '%s' not found", name.c_str());
+        WARNLOG("Custom sound '%s' not found", name.c_str());
         return 0;
     }
     
-    SYNCLOG("Found custom sound '%s' as sample %d",
+    SYNCDBG(7,"Found custom sound '%s' as sample %d",
            name.c_str(), it->second.sample_id);
     return it->second.sample_id;
 }
@@ -385,7 +384,7 @@ int SoundManager::getSoundCount(const char* name) const {
 SoundEmitterID SoundManager::playEffectNamed(const char* name, long priority, SoundVolume volume) {
     SoundSmplTblID id = getSoundId(name);
     if (id == 0) {
-        SYNCLOG("Cannot play unknown sound '%s'", name);
+        WARNLOG("Cannot play unknown sound '%s'", name);
         return 0;
     }
     

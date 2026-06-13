@@ -30,6 +30,7 @@
 #include "config_keeperfx.h"
 #include "config_sounds.h"
 #include "sound_manager.h"
+#include "config_translation.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
@@ -649,7 +650,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           else {
               k = atoi(word_buf);
                 if (k > 0) {
-                    const char* newname = get_string(STRINGS_MAX+k);
+                    const char* newname = get_string(GUI_STRINGS_START+k);
                     if (strcasecmp(newname,"") != 0) {
                         snprintf(campgn->display_name, LINEMSG_SIZE, "%s", newname); // use the index provided in the config file to get a specific UI string
                     }
@@ -855,7 +856,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
         case 2: // NAME_ID
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
+              k = get_string_id_by_alias(word_buf);
               if (k > 0)
               {
                 lvinfo->name_stridx = k;

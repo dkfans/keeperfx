@@ -888,7 +888,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 0;
     }
     // Respect the idle time - just wander around some time
-    long nturns = get_gameturn() - cctrl->idle.start_gameturn;
+    int32_t nturns = get_gameturn() - cctrl->idle.start_gameturn;
     if (nturns <= 1) {
         return 1;
     }

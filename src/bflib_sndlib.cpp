@@ -1030,7 +1030,6 @@ static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
 			al_fmt, (int)cfg.sampleRate);
 	} catch (...) {
 		drmp3_free(mp3_pcm, nullptr);
-		ERRORLOG("Out of memory buffering MP3 %s", filepath);
 		return false;
 	}
 	drmp3_free(mp3_pcm, nullptr);

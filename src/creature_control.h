@@ -437,7 +437,6 @@ struct CreatureSounds {
     struct CreatureSound hit;
     struct CreatureSound happy;
     struct CreatureSound sad;
-    struct CreatureSound hurt;
     struct CreatureSound die;
     struct CreatureSound hang;
     struct CreatureSound drop;
