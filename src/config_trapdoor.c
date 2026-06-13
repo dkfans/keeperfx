@@ -255,8 +255,8 @@ static void assign_refresh_trap_anim_anim_id(const struct NamedField* named_fiel
 const struct NamedField trapdoor_door_named_fields[] = {
     //name           //pos    //field                                                                //default //min     //max    //NamedCommand
     {"NAME",                 0, field(game.conf.trapdoor_conf.door_cfgstats[0].code_name),                0,   INT32_MIN,         UINT32_MAX, door_desc,                value_name,       assign_null},
-    {"NAMETEXTID",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].name_stridx),   GUIStr_Empty,   INT32_MIN,         UINT32_MAX, NULL,                     value_default,    assign_default},
-    {"TOOLTIPTEXTID",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].tooltip_stridx),GUIStr_Empty,   INT32_MIN,         UINT32_MAX, NULL,                     value_default,    assign_tooltip_idx_door},
+    {"NAMETEXTID",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].name_stridx),   GUIStr_Empty,   INT32_MIN,         UINT32_MAX, NULL,                     value_stringId,    assign_default},
+    {"TOOLTIPTEXTID",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].tooltip_stridx),GUIStr_Empty,   INT32_MIN,         UINT32_MAX, NULL,                     value_stringId,    assign_tooltip_idx_door},
     {"SYMBOLSPRITES",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].bigsym_sprite_idx),        0,   INT32_MIN,         UINT32_MAX, NULL,                     value_icon,       assign_icon},
     {"SYMBOLSPRITES",        1, field(game.conf.trapdoor_conf.door_cfgstats[0].medsym_sprite_idx),        0,   INT32_MIN,         UINT32_MAX, NULL,                     value_icon,       assign_icon_update_trap_tab},
     {"POINTERSPRITES",       0, field(game.conf.trapdoor_conf.door_cfgstats[0].pointer_sprite_idx),       0,   INT32_MIN,         UINT32_MAX, NULL,                     value_icon,       assign_icon_update_trap_tab},
@@ -294,8 +294,8 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"SHOTS",                  0, field(game.conf.trapdoor_conf.trap_cfgstats[0].shots),                            0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"TIMEBETWEENSHOTS",       0, field(game.conf.trapdoor_conf.trap_cfgstats[0].shots_delay),                      0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"SELLINGVALUE",           0, field(game.conf.trapdoor_conf.trap_cfgstats[0].selling_value),                    0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
-    {"NAMETEXTID",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].name_stridx),                      0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
-    {"TOOLTIPTEXTID",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].tooltip_stridx),                   0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_tooltip_idx_trap},
+    {"NAMETEXTID",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].name_stridx),                      0,   INT32_MIN,         UINT32_MAX, NULL,                     value_stringId, assign_default},
+    {"TOOLTIPTEXTID",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].tooltip_stridx),                   0,   INT32_MIN,         UINT32_MAX, NULL,                     value_stringId, assign_tooltip_idx_trap},
     {"CRATE",                  0, NULL,0,                                                                           0,   INT32_MIN,         UINT32_MAX, object_desc,              value_default, assign_crate_trap},
     {"SYMBOLSPRITES",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].bigsym_sprite_idx),                0,   INT32_MIN,         UINT32_MAX, NULL,                        value_icon, assign_icon},
     {"SYMBOLSPRITES",          1, field(game.conf.trapdoor_conf.trap_cfgstats[0].medsym_sprite_idx),                0,   INT32_MIN,         UINT32_MAX, NULL,                        value_icon, assign_icon_update_trap_tab},

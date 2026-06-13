@@ -28,6 +28,7 @@
 #include "config_mods.h"
 #include "config_keeperfx.h"
 #include "config_campaigns.h"
+#include "config_translation.h"
 #include "game_merge.h"
 #include "lvl_filesdk1.h"
 #include "post_inc.h"
@@ -355,7 +356,11 @@ const char * cmpgn_string(unsigned int index)
 
 const char * get_string(TextStringId stridx)
 {
-    if (stridx <= STRINGS_MAX)
+    if (stridx < 0)
+    {
+      return "invalid string id";
+    }
+    if (stridx < TRANSLATION_STRINGS_START)
     {
         if (level_strings[stridx] != NULL)
         {
@@ -366,8 +371,10 @@ const char * get_string(TextStringId stridx)
         }
         return cmpgn_string(stridx);
     }
+    else if (stridx < GUI_STRINGS_START )
+        return get_translation_file_string(stridx);
     else
-        return gui_string(stridx-STRINGS_MAX);
+        return gui_string(stridx - GUI_STRINGS_START);
 }
 
 unsigned long count_strings(char *strings, int size)
