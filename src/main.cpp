@@ -3982,7 +3982,7 @@ void game_loop(void)
       // The main considerations are:
       // 1. SKIP_HEART_ZOOM: the mouse icon position will be reset to the top-left corner (0, 0), but the actual mouse position remains unchanged.
       // 2. PI_HeartZoom: the mouse will be moved to the center of the screen.
-      LbMouseSetPositionInitial(mspos_x_bak, mspos_y_bak);
+      LbMouseSetPosition(mspos_x_bak, mspos_y_bak);
 
       unsigned long starttime;
       unsigned long endtime;
