@@ -9,7 +9,7 @@
 # floating monster with a large central eye and many eyestalks, each with a smaller eye
 ENG = "Beholder"
 # when a string has been machine translated, we mark it with an underscore so we can easily find them and improve them later
-# a translator who speaks then language can remove the underscore when he validates or corrects the translation
+# a translator who speaks the language can remove the underscore when he validates or corrects the translation
 _CHI = "眼魔"
 # if traditional chinese hasn't been translated it'll fallback on CHI
 #CHT = 
@@ -52,7 +52,7 @@ _UKR = "Падший янгол"
 [TORTURER_NAME]
 # name of a creature
 # the dude who normally stands in the torture chamber next to the tables,
-# but now just wander around as it's own unit
+# but now just wander around as its own unit
 ENG = "Torturer"
 _CHI = "拷问者"
 _CZE = "Mučitel"
