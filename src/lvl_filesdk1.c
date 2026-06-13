@@ -1440,9 +1440,8 @@ static TbBool load_level_file(LevelNumber lvnum)
         init_top_texture_to_cube_table();
         result = false;
     }
-    // Restore campaign-layer sounds (undo any previous level overrides), then
-    // apply per-level sounds if levels/mapNNNNN.sounds.cfg exists.
-    sound_restore_to_campaign_snapshot();
+    // Apply per-level sound overrides if levels/mapNNNNN.sounds.cfg exists.
+    // (Snapshot was already restored before load_stats_files in main_game.c.)
     load_level_sounds_config(fgroup, lvnum);
     return result;
 }
