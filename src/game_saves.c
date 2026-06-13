@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "config_campaigns.h"
+#include "dungeon_stats.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_compp.h"
@@ -201,6 +202,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 // Load configs which may have per-campaign part, and even be modified within a level
                 recheck_all_mod_exist();
                 init_custom_sprites(centry->level_num);
+                load_stats_files();
                 snprintf(high_score_entry, PLAYER_NAME_LENGTH, "%s", centry->player_name);
             }
             break;
