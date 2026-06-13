@@ -160,6 +160,15 @@ enum ZoomToMouseOptions
 };
 extern enum ZoomToMouseOptions zoom_to_mouse_option;
 
+enum RotateAroundMouseOptions
+{
+    RotateAroundMouse_Never = 1,
+    RotateAroundMouse_NotCtrl = 2,
+    RotateAroundMouse_OnlyCtrl = 3,
+    RotateAroundMouse_Always = 4
+};
+extern enum RotateAroundMouseOptions rotate_around_mouse_option;
+
 #pragma pack()
 /******************************************************************************/
 extern long old_mx;

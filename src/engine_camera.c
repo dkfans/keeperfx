@@ -128,6 +128,12 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
     pos2->z.val = pos.z.val;
 }
 
+static void view_set_camera_position(struct Camera *cam, MapCoord x, MapCoord y)
+{
+    cam->mappos.x.val = clamp(x, 0, game.map_subtiles_x * COORD_PER_STL - 1);
+    cam->mappos.y.val = clamp(y, 0, game.map_subtiles_y * COORD_PER_STL - 1);
+}
+
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom;
@@ -244,10 +250,9 @@ static void view_move_camera_on_zoom(struct Camera *cam, int32_t a, int32_t b, M
 
     const int64_t dx = x - cam->mappos.x.val;
     const int64_t dy = y - cam->mappos.y.val;
-    cam->mappos.x.val += dx * (b - a) / b;
-    cam->mappos.y.val += dy * (b - a) / b;
-    cam->mappos.x.val = clamp(cam->mappos.x.val, 0, game.map_subtiles_x * COORD_PER_STL - 1);
-    cam->mappos.y.val = clamp(cam->mappos.y.val, 0, game.map_subtiles_y * COORD_PER_STL - 1);
+    const MapCoord new_x = cam->mappos.x.val + dx * (b - a) / b;
+    const MapCoord new_y = cam->mappos.y.val + dy * (b - a) / b;
+    view_set_camera_position(cam, new_x, new_y);
 }
 
 void view_zoom_camera_in_to(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y)
@@ -338,24 +343,23 @@ void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
     cam->in_active_movement_x = true;
 }
 
-void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit)
+void view_set_camera_rotation_inertia(struct Camera *cam, int32_t delta, int32_t ilimit)
 {
-    int limit_val = abs(ilimit);
-    int new_val = delta + cam->inertia_rotation;
-    cam->inertia_rotation = new_val;
-    if (new_val < -limit_val)
-    {
-        cam->inertia_rotation = -limit_val;
-        cam->in_active_movement_rotation = true;
-    } else
-    if (new_val > limit_val)
-    {
-        cam->inertia_rotation = limit_val;
-        cam->in_active_movement_rotation = true;
-    } else
-    {
-        cam->in_active_movement_rotation = true;
-    }
+    const int32_t limit_val = abs(ilimit);
+    const int32_t new_val = delta + cam->inertia_rotation;
+    cam->inertia_rotation = clamp(new_val, -limit_val, +limit_val);
+    cam->in_active_movement_rotation = true;
+}
+
+void view_set_camera_rotation_inertia_around(struct Camera *cam, int32_t delta, int32_t ilimit, MapCoord x, MapCoord y)
+{
+    view_set_camera_rotation_inertia(cam, delta, ilimit);
+    if ((x | y) < 0)
+        return;
+
+    cam->rotation_pivot.x.val = x;
+    cam->rotation_pivot.y.val = y;
+    cam->use_rotation_pivot = true;
 }
 
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode)
@@ -406,6 +410,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = first_person_horizontal_fov;
     cam->rotation_angle_x = ANGLE_EAST;
     cam->view_mode = PVM_CreatureView;
+    cam->use_rotation_pivot = false;
 
     cam = &player->cameras[CamIV_Isometric];
     cam->mappos.x.val = heartng->mappos.x.val;
@@ -421,6 +426,7 @@ void init_player_cameras(struct PlayerInfo *player)
         cam->view_mode = PVM_IsoWibbleView;
     }
     cam->zoom = player->isometric_view_zoom_level;
+    cam->use_rotation_pivot = false;
 
     cam = &player->cameras[CamIV_Parchment];
     cam->mappos.x.val = 0;
@@ -428,6 +434,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 32;
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_ParchmentView;
+    cam->use_rotation_pivot = false;
 
     cam = &player->cameras[CamIV_FrontView];
     cam->mappos.x.val = heartng->mappos.x.val;
@@ -436,6 +443,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
     cam->zoom = player->frontview_zoom_level;
+    cam->use_rotation_pivot = false;
 
     init_local_cameras(player);
 }
@@ -470,28 +478,7 @@ void update_first_person_position(struct Camera *cam, struct Thing *thing, int e
         int pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,thing->move_angle_xy);
         int pos_y = move_coord_with_angle_y(thing->mappos.y.val,-90,thing->move_angle_xy);
 
-        if ( pos_x >= 0 )
-        {
-            if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
-                pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
-        }
-        else
-        {
-            pos_x = 0;
-        }
-        if ( pos_y >= 0 )
-        {
-            if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
-                pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
-        }
-        else
-        {
-            pos_y = 0;
-        }
-
-        cam->mappos.x.val = pos_x;
-        cam->mappos.y.val = pos_y;
-
+        view_set_camera_position(cam, pos_x, pos_y);
 
         if ( (thing->movement_flags & TMvF_Flying) != 0 )
         {
@@ -573,220 +560,140 @@ void update_first_person_camera(struct Camera *cam, struct Thing *thing)
     cam->rotation_angle_y = thing->move_angle_z;
 }
 
-void view_move_camera_left(struct Camera *cam, long distance)
+static void view_move_camera_left(struct Camera *cam, int32_t distance)
 {
+    MapCoord pos_x;
+    MapCoord pos_y;
+    MapCoord parchment_pos_x;
 
-    int pos_x;
-    int pos_y;
-    int parchment_pos_x;
-
-    if (
-        cam->view_mode == PVM_IsoWibbleView ||
-        cam->view_mode == PVM_FrontView ||
-        cam->view_mode == PVM_IsoStraightView
-    ) {
-
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x - DEGREES_90);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x - DEGREES_90);
-
-        if ( pos_x < 0 )
-            pos_x = 0;
-        if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
-            pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
-
-        if ( pos_y < 0 )
-            pos_y = 0;
-        if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
-            pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
-
-        cam->mappos.x.val = pos_x;
-        cam->mappos.y.val = pos_y;
-        return;
-    }
-
-    else if ( cam->view_mode == PVM_ParchmentView )
+    switch (cam->view_mode)
     {
+    case PVM_IsoWibbleView:
+    case PVM_FrontView:
+    case PVM_IsoStraightView:
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance,cam->rotation_angle_x - DEGREES_90);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance,cam->rotation_angle_x - DEGREES_90);
+        view_set_camera_position(cam, pos_x, pos_y);
+        break;
+
+    case PVM_ParchmentView:
         parchment_pos_x = cam->mappos.x.val - distance;
-
-        if ( parchment_pos_x < 0 )
-            parchment_pos_x = 0;
-        if ( parchment_pos_x > game.map_subtiles_x * COORD_PER_STL )
-            parchment_pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
-
-        cam->mappos.x.val = parchment_pos_x;
-
+        view_set_camera_position(cam, parchment_pos_x, cam->mappos.y.val);
     }
-
 }
 
-void view_move_camera_right(struct Camera *cam, long distance)
+static void view_move_camera_right(struct Camera *cam, int32_t distance)
 {
-    int pos_x;
-    int pos_y;
-    int parchment_pos_x;
+    MapCoord pos_x;
+    MapCoord pos_y;
+    MapCoord parchment_pos_x;
 
-    if (
-        cam->view_mode == PVM_IsoWibbleView ||
-        cam->view_mode == PVM_FrontView ||
-        cam->view_mode == PVM_IsoStraightView
-    ) {
-
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x + DEGREES_90);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x + DEGREES_90);
-
-        if ( pos_x < 0 )
-            pos_x = 0;
-        if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
-            pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
-
-        if ( pos_y < 0 )
-            pos_y = 0;
-        if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
-            pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
-
-        cam->mappos.x.val = pos_x;
-        cam->mappos.y.val = pos_y;
-        return;
-    }
-
-    else if ( cam->view_mode == PVM_ParchmentView )
+    switch (cam->view_mode)
     {
+    case PVM_IsoWibbleView:
+    case PVM_FrontView:
+    case PVM_IsoStraightView:
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance, cam->rotation_angle_x + DEGREES_90);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance, cam->rotation_angle_x + DEGREES_90);
+        view_set_camera_position(cam, pos_x, pos_y);
+        break;
+
+    case PVM_ParchmentView:
         parchment_pos_x = cam->mappos.x.val + distance;
-
-        if ( parchment_pos_x < 0 )
-            parchment_pos_x = 0;
-        if ( parchment_pos_x > game.map_subtiles_x * COORD_PER_STL )
-            parchment_pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
-
-        cam->mappos.x.val = parchment_pos_x;
-
-    }
-
-}
-
-void view_move_camera_up(struct Camera *cam, long distance)
-{
-    int pos_x;
-    int pos_y;
-    int parchment_pos_y;
-
-    if (
-        cam->view_mode == PVM_IsoWibbleView ||
-        cam->view_mode == PVM_FrontView ||
-        cam->view_mode == PVM_IsoStraightView
-    ) {
-
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x);
-
-        if ( pos_x < 0 )
-            pos_x = 0;
-        if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
-            pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
-
-        if ( pos_y < 0 )
-            pos_y = 0;
-        if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
-            pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
-
-        cam->mappos.x.val = pos_x;
-        cam->mappos.y.val = pos_y;
-        return;
-    }
-    else if ( cam->view_mode == PVM_ParchmentView )
-    {
-        parchment_pos_y = cam->mappos.y.val - distance;
-
-        if ( parchment_pos_y < 0 )
-            parchment_pos_y = 0;
-        if ( parchment_pos_y > game.map_subtiles_y * COORD_PER_STL )
-            parchment_pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
-
-        cam->mappos.y.val = parchment_pos_y;
-
+        view_set_camera_position(cam, parchment_pos_x, cam->mappos.y.val);
     }
 }
 
-void view_move_camera_down(struct Camera *cam, long distance)
+static void view_move_camera_up(struct Camera *cam, int32_t distance)
 {
-    int pos_x;
-    int pos_y;
-    int parchment_pos_y;
+    MapCoord pos_x;
+    MapCoord pos_y;
+    MapCoord parchment_pos_y;
 
-    if (
-        cam->view_mode == PVM_IsoWibbleView ||
-        cam->view_mode == PVM_FrontView ||
-        cam->view_mode == PVM_IsoStraightView
-    ) {
-
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x + DEGREES_180);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x + DEGREES_180);
-
-        if ( pos_x < 0 )
-            pos_x = 0;
-        if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
-            pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
-
-        if ( pos_y < 0 )
-            pos_y = 0;
-        if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
-            pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
-
-        cam->mappos.x.val = pos_x;
-        cam->mappos.y.val = pos_y;
-        return;
-    }
-
-    else if ( cam->view_mode == PVM_ParchmentView )
+    switch (cam->view_mode)
     {
+    case PVM_IsoWibbleView:
+    case PVM_FrontView:
+    case PVM_IsoStraightView:
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance, cam->rotation_angle_x);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance, cam->rotation_angle_x);
+        view_set_camera_position(cam, pos_x, pos_y);
+        break;
+
+    case PVM_ParchmentView:
         parchment_pos_y = cam->mappos.y.val - distance;
-
-        if ( parchment_pos_y < 0 )
-            parchment_pos_y = 0;
-        if ( parchment_pos_y > game.map_subtiles_y * COORD_PER_STL )
-            parchment_pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
-
-        cam->mappos.y.val = parchment_pos_y;
-
+        view_set_camera_position(cam, cam->mappos.x.val, parchment_pos_y);
     }
+}
 
+static void view_move_camera_down(struct Camera *cam, int32_t distance)
+{
+    MapCoord pos_x;
+    MapCoord pos_y;
+    MapCoord parchment_pos_y;
+
+    switch (cam->view_mode)
+    {
+    case PVM_IsoWibbleView:
+    case PVM_FrontView:
+    case PVM_IsoStraightView:
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance, cam->rotation_angle_x + DEGREES_180);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance, cam->rotation_angle_x + DEGREES_180);
+        view_set_camera_position(cam, pos_x, pos_y);
+        break;
+
+    case PVM_ParchmentView:
+        parchment_pos_y = cam->mappos.y.val + distance;
+        view_set_camera_position(cam, cam->mappos.x.val, parchment_pos_y);
+    }
 }
 
 void view_process_camera_inertia(struct Camera *cam)
 {
-    int i;
-    i = cam->inertia_x;
-    if (i > 0) {
-        view_move_camera_right(cam, abs(i));
-    } else
-    if (i < 0) {
-        view_move_camera_left(cam, abs(i));
-    }
-    if ( cam->in_active_movement_x ) {
-        cam->in_active_movement_x = false;
-    } else {
-        cam->inertia_x /= 2;
-    }
-    i = cam->inertia_y;
-    if (i > 0) {
-        view_move_camera_down(cam, abs(i));
-    } else
-    if (i < 0) {
-        view_move_camera_up(cam, abs(i));
-    }
-    if (cam->in_active_movement_y) {
-        cam->in_active_movement_y = false;
-    } else {
-        cam->inertia_y /= 2;
-    }
-    if (cam->inertia_rotation) {
+    const int32_t dx = cam->inertia_x;
+    if (dx > 0)
+        view_move_camera_right(cam, abs(dx));
+    else if (dx < 0)
+        view_move_camera_left(cam, abs(dx));
+
+    const int32_t dy = cam->inertia_y;
+    if (dy > 0)
+        view_move_camera_down(cam, abs(dy));
+    else if (dy < 0)
+        view_move_camera_up(cam, abs(dy));
+
+    if (cam->inertia_rotation)
+    {
         cam->rotation_angle_x = (cam->inertia_rotation + cam->rotation_angle_x) & ANGLE_MASK;
+        if (cam->use_rotation_pivot)
+        {
+            const MapCoordDelta x0 = cam->mappos.x.val - cam->rotation_pivot.x.val;
+            const MapCoordDelta y0 = cam->mappos.y.val - cam->rotation_pivot.y.val;
+            const int64_t sin = LbSinL(cam->inertia_rotation);
+            const int64_t cos = LbCosL(cam->inertia_rotation);
+            const MapCoordDelta x1 = (x0 * cos - y0 * sin) >> 16;
+            const MapCoordDelta y1 = (x0 * sin + y0 * cos) >> 16;
+            const MapCoord new_x = (MapCoord)cam->rotation_pivot.x.val + x1;
+            const MapCoord new_y = (MapCoord)cam->rotation_pivot.y.val + y1;
+            view_set_camera_position(cam, new_x, new_y);
+        }
     }
-    if (cam->in_active_movement_rotation) {
-        cam->in_active_movement_rotation = false;
-    } else {
+
+    if (! cam->in_active_movement_x)
+        cam->inertia_x /= 2;
+
+    if (! cam->in_active_movement_y)
+        cam->inertia_y /= 2;
+
+    if (! cam->in_active_movement_rotation)
         cam->inertia_rotation /= 2;
-    }
+
+    if (cam->inertia_rotation == 0)
+        cam->use_rotation_pivot = false;
+
+    cam->in_active_movement_x = false;
+    cam->in_active_movement_y = false;
+    cam->in_active_movement_rotation = false;
 }
 
 void update_player_camera(struct PlayerInfo *player)
