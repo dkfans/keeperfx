@@ -714,7 +714,6 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             // Align when ansi and unicode are mixed on one screen
             w = LbTextCharWidthM(chr, units_per_px);
 
-
             if ((posx+w-justifyx <= lbTextJustifyWindow.width) || (count > 0) || !LbAlignMethodSet(lbDisplay.DrawFlags))
             {
                 posx += w;
@@ -1617,6 +1616,7 @@ short dbc_initialize(const char *fpath)
   if (load_unifont_file(fpath) == 0)
   {
     dbc_initialized = 1;
+    dbc_language = 1;
     return 0;
   }
 

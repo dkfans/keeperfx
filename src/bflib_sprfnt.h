@@ -42,13 +42,6 @@ enum TbFontDrawFlags {
 struct TbSprite;
 struct TbSetupSprite;
 
-enum dbc_id {
-    DbcId_Japanese = 1,
-    DbcId_ChineseInt = 2,
-    DbcId_ChineseTra = 3,
-    DbcId_Korean = 4,
-};
-
 enum DkcodepageLetter {
    DKChr_Null,
    DKChr_Modifier_Transparent4,

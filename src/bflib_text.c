@@ -28,6 +28,7 @@
 #include <string.h>
 #include "bflib_basics.h"
 #include "bflib_sprfnt.h"
+#include "config_keeperfx.h"
 #include "post_inc.h"
 
 typedef struct DbcMapEntry
@@ -38,16 +39,16 @@ typedef struct DbcMapEntry
 
 /******************************************************************************/
 
-static const char *get_dbc_encoding(void)
+const char *get_dbc_encoding(char ilng)
 {
-    switch (dbc_language)
+    switch (ilng)
     {
-    case DbcId_Japanese:
+    case Lang_Japanese:
         return "SHIFT_JIS";
-    case DbcId_ChineseInt:
-    case DbcId_ChineseTra:
+    case Lang_ChineseInt:
+    case Lang_ChineseTra:
         return "GBK";
-    case DbcId_Korean:
+    case Lang_Korean:
         return "EUC-KR";
     default:
         return NULL;
@@ -136,44 +137,8 @@ size_t convert_utf8_to_codepage_string(const char *src, char *dst, size_t dst_si
 #endif
 }
 
-// TODO: remove legacy internal codepage support once all text is UTF-8.
 
-void codepoint_to_utf8(unsigned long codepoint, char out[5])
-{
-    if (codepoint <= 0x7F)
-    {
-        out[0] = (char)codepoint;
-        out[1] = '\0';
-    }
-    else if (codepoint <= 0x7FF)
-    {
-        out[0] = (char)(0xC0 | ((codepoint >> 6) & 0x1F));
-        out[1] = (char)(0x80 | (codepoint & 0x3F));
-        out[2] = '\0';
-    }
-    else if (codepoint <= 0xFFFF)
-    {
-        out[0] = (char)(0xE0 | ((codepoint >> 12) & 0x0F));
-        out[1] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
-        out[2] = (char)(0x80 | (codepoint & 0x3F));
-        out[3] = '\0';
-    }
-    else if (codepoint <= 0x10FFFF)
-    {
-        out[0] = (char)(0xF0 | ((codepoint >> 18) & 0x07));
-        out[1] = (char)(0x80 | ((codepoint >> 12) & 0x3F));
-        out[2] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
-        out[3] = (char)(0x80 | (codepoint & 0x3F));
-        out[4] = '\0';
-    }
-    else
-    {
-        out[0] = '?';
-        out[1] = '\0';
-    }
-}
-
-static unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
+unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
 {
     if (codepoint < 0x80)
         return (unsigned char)codepoint;
@@ -357,8 +322,6 @@ static unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
             return codepage_map[i].byte;
     }
 
-    char utf8_char[5];
-    codepoint_to_utf8(codepoint, utf8_char);
     return '?';
 }
 
@@ -392,27 +355,3 @@ uint32_t read_utf_8_codepoint(const char *text, size_t *out_seq_len)
     }
 }
 
-void LbTextConvertUtf8ToInternalCodepage(const char *src, char *dst, size_t dst_size)
-{
-    size_t out_len = 0;
-    const unsigned char *text = (const unsigned char *)src;
-
-    if (dbc_language == 0)
-    {
-        convert_utf8_to_codepage_string(src, dst, dst_size, get_dbc_encoding());
-        return;
-    }
-
-    while (*text != '\0' && out_len + 1 < dst_size)
-    {
-        uint32_t codepoint;
-        size_t seq_len;
-        codepoint = read_utf_8_codepoint((const char *)text, &seq_len);
-
-
-        dst[out_len++] = (char)convert_codepoint_to_internal_byte(codepoint);
-        text += seq_len;
-        
-    }
-    dst[out_len] = '\0';
-}
