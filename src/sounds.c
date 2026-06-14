@@ -169,7 +169,7 @@ void play_thing_walking(struct Thing *thing)
                 smpl_idx = snd_foot_snow + smpl_variant;
             } else {
                 struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
-                smpl_idx = crsound->index + smpl_variant;
+                smpl_idx = (long)creature_sound_unified_id(crsound, smpl_variant);
             }
             cctrl->footstep_counter++;
             if (cctrl->footstep_counter >= 4)

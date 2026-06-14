@@ -261,19 +261,6 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
     }
 }
 
-// Convert a CreatureSound slot + variant index to the unified sample ID used by the sound emitter.
-// Standard sounds: index is a positive raw effect-bank ID; return index+i.
-// Custom sounds:   index is negative (-(bank+1)); thing_play_sample converts these to
-//                  get_custom_offset() + (-index-1) + i.  We must produce the same unified ID
-//                  so that S3DEmitterIsPlayingSample / S3DDeleteSampleFromEmitter can match.
-static inline SoundSmplTblID creature_sound_unified_id(const struct CreatureSound* crsound, long i)
-{
-    if (crsound->index < 0) {
-        return (SoundSmplTblID)(get_custom_offset() + (-crsound->index - 1) + i);
-    }
-    return (SoundSmplTblID)(crsound->index + i);
-}
-
 TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
 {
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
