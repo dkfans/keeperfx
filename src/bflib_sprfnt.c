@@ -343,142 +343,105 @@ static void set_bit_to_array(unsigned char* arrD, int iX, int iY, int iMax, int 
         *(arrD + iBytePos) &= ~(0x80 >> iModBitPos);
 }
 
-static void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x, long y, long space_len, int units_per_px)
+static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *pos_x, long pos_y, long  int units_per_px)
 {
-    const char *c;
-    long w;
-    long h;
-    struct AsianFontWindow awind;
-    TbBool needs_draw = false;
-    awind.buf_ptr = lbDisplay.GraphicsWindowPtr;
-    awind.width = lbDisplay.GraphicsWindowWidth;
-    awind.height = lbDisplay.GraphicsWindowHeight;
-    awind.scanline = lbDisplay.GraphicsScreenWidth;
-    for (c=sbuf; c < ebuf; )
+    SYNCDBG(19,"Got needs_draw");
+    struct AsianDraw adraw;
+    unsigned long colour;
+    if (dbc_get_sprite_for_char(&adraw, chr) == 0)
     {
-        size_t seq_len;
-        uint32_t chr = read_utf_8_codepoint((const char *)c, &seq_len);
-        c += seq_len;
-        
-        if (chr > 32)
-        {
-          needs_draw = true;
-        } else
-        if (chr == ' ')
-        {
-          w = space_len;
-          if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-          {
-              h = dbc_char_height(' ') * units_per_px / 16;
-              LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
-          }
-          x += w;
-        } else
-        if (chr == '\t')
-        {
-          w = space_len*(long)lbSpacesPerTab;
-          if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-          {
-              h = dbc_char_height(' ') * units_per_px / 16;
-              LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
-          }
-          x += w;
-        } else
-        {
-          switch (chr)
-          {
-          case 1:
-            lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
-            break;
-          case 2:
-            lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
-            break;
-          case 3:
-            lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
-            break;
-          case 4:
-            lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_HORIZ;
-            break;
-          case 5:
-            lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_VERTIC;
-            break;
-          case 11:
-            lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
-            break;
-          case 12:
-            lbDisplay.DrawFlags ^= Lb_TEXT_ONE_COLOR;
-            break;
-          case 14:
-            c++;
-            lbDisplay.DrawColour = (unsigned char)(*c);
-            break;
-          default:
-            break;
-          }
-        }
-        if (needs_draw)
-        {
-            SYNCDBG(19,"Got needs_draw");
-            struct AsianDraw adraw;
-            unsigned long colour;
-            if (dbc_get_sprite_for_char(&adraw, chr) == 0)
+        if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) == 0)
+          colour = dbc_colour0;
+        else
+          colour = lbDisplay.DrawColour;
+
+        unsigned char dest_pixel[1024] = { 0 };
+        if (units_per_px != 16)
+        {            
+            int iDstSizeH;
+            // Needs to be a multiple of 8
+            iDstSizeH = (units_per_px / 8) * 8;
+            int iDstSizeW = (units_per_px * adraw.bits_width / 16 / 8) * 8;
+            
+
+
+            float scale_factorX = (float)adraw.bits_width / (float)iDstSizeW;
+            float scale_factorY = (float)adraw.bits_height / (float)iDstSizeH;
+            for (int sY = 0; sY < iDstSizeH; sY++)
             {
-                if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) == 0)
-                  colour = dbc_colour0;
-                else
-                  colour = lbDisplay.DrawColour;
-
-                unsigned char dest_pixel[1024] = { 0 };
-                if (units_per_px != 16)
+                for (int sX = 0; sX < iDstSizeW; sX++)
                 {
-                    //adraw.bits_width 
-                    //adraw.bits_height
-                    
-                    int iDstSizeH;
-                    // Needs to be a multiple of 8
-                    iDstSizeH = (units_per_px / 8) * 8;
-                    int iDstSizeW = (units_per_px * adraw.bits_width / 16 / 8) * 8;
-                    
-
-
-                    float scale_factorX = (float)adraw.bits_width / (float)iDstSizeW;
-                    float scale_factorY = (float)adraw.bits_height / (float)iDstSizeH;
-                    for (int sY = 0; sY < iDstSizeH; sY++)
-                    {
-                        for (int sX = 0; sX < iDstSizeW; sX++)
-                        {
-                            set_bit_to_array(dest_pixel, sX, sY, iDstSizeW, get_bit_to_array(adraw.sprite_data, (int)(sX * scale_factorX), (int)(sY * scale_factorY), adraw.bits_width));
-                        }
-                    }
-
-                    adraw.bits_width = iDstSizeW;
-                    adraw.bits_height = iDstSizeH;
-                    adraw.sprite_data = dest_pixel;
-                }
-
-                dbc_draw_font_sprite_text(&awind, &adraw, x, y, colour, -1, dbc_colour1);
-
-                if (adraw.bits_height == 16)
-                {
-                   w = (adraw.character_spacing + adraw.bits_width) * units_per_px / 16;
-                }
-                else
-                {
-                    w = (adraw.character_spacing + adraw.bits_width);
-                }
-                if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-                {
-                    h = adraw.bits_height * units_per_px / 16;
-                    LbDrawCharUnderline(x,y,w,h,colour,lbDisplayEx.ShadowColour);
-                }
-                x += w;
-                if (x >= awind.width)
-                {
-                  return;
+                    set_bit_to_array(dest_pixel, sX, sY, iDstSizeW, get_bit_to_array(adraw.sprite_data, (int)(sX * scale_factorX), (int)(sY * scale_factorY), adraw.bits_width));
                 }
             }
-            needs_draw = 0;
+
+            adraw.bits_width = iDstSizeW;
+            adraw.bits_height = iDstSizeH;
+            adraw.sprite_data = dest_pixel;
         }
+
+        dbc_draw_font_sprite_text(awind, &adraw, *pos_x, pos_y, colour, -1, dbc_colour1);
+
+        int w;
+        if (adraw.bits_height == 16)
+        {
+           w = (adraw.character_spacing + adraw.bits_width) * units_per_px / 16;
+        }
+        else
+        {
+            w = (adraw.character_spacing + adraw.bits_width);
+        }
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            int h = adraw.bits_height * units_per_px / 16;
+            LbDrawCharUnderline(*pos_x,pos_y,w,h,colour,lbDisplayEx.ShadowColour);
+        }
+        *pos_x += w;
+        if (*pos_x >= awind->width)
+        {
+          return -1;
+        }
+    }
+    return 0;
+}
+
+static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int units_per_px)
+{
+    const struct TbSprite *spr = LbFontCharSprite(lbFontPtr, chr);
+    if (spr != NULL)
+    {
+        if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0) {
+            LbSpriteDrawResizedOneColour(*pos_x, pos_y, units_per_px, spr, lbDisplay.DrawColour);
+        }
+        else {
+            LbSpriteDrawResized(*pos_x, pos_y, units_per_px, spr);
+        }
+        int w = spr->SWidth * units_per_px / 16;
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            int h = LbTextLineHeight() * units_per_px / 16;
+            LbDrawCharUnderline(*pos_x, pos_y, w, h, lbDisplay.DrawColour, lbDisplayEx.ShadowColour);
+        }
+        *pos_x += w;
+        return 1;
+    }
+    return 0;
+}
+
+static int8_t draw_char(uint32_t chr, struct AsianFontWindow *awind, long *pos_x, long pos_y, int units_per_px)
+{
+  
+    //if (draw_simpletext_char(chr, pos_x, pos_y, units_per_px) == 0)
+    //    return draw_dbc_char(chr, awind, pos_x, pos_y, units_per_px);
+    //return 0;
+    
+
+    if ((dbc_initialized) && (dbc_enabled))
+    {
+        return draw_dbc_char(chr, awind, pos_x, pos_y, units_per_px);
+    } else
+    {
+        return draw_simpletext_char(chr, pos_x, pos_y, units_per_px);
     }
 }
 
@@ -491,12 +454,16 @@ static void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf,
  * @param y
  * @param len
  */
-static void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, long x, long y, long space_len, int units_per_px)
+static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y, long space_len, int units_per_px)
 {
   const char *c;
-  const struct TbSprite *spr;
   long w;
   long h;
+    struct AsianFontWindow awind;
+    awind.buf_ptr = lbDisplay.GraphicsWindowPtr;
+    awind.width = lbDisplay.GraphicsWindowWidth;
+    awind.height = lbDisplay.GraphicsWindowHeight;
+    awind.scanline = lbDisplay.GraphicsScreenWidth;
   for (c=sbuf; c < ebuf; )
   {
     size_t seq_len;
@@ -513,24 +480,11 @@ static void put_down_simpletext_sprites_resized(const char *sbuf, const char *eb
         }
         x += w;
     } else
-    if (chr >= 15)
+    if (chr > 32)
     {
-        spr = LbFontCharSprite(lbFontPtr, chr);
-        if (spr != NULL)
+        if (draw_char(chr, &awind, &x, y, units_per_px) < 0)
         {
-            if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0) {
-                LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, lbDisplay.DrawColour);
-            }
-            else {
-                LbSpriteDrawResized(x, y, units_per_px, spr);
-            }
-            w = spr->SWidth * units_per_px / 16;
-            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-            {
-                h = LbTextLineHeight() * units_per_px / 16;
-                LbDrawCharUnderline(x, y, w, h, lbDisplay.DrawColour, lbDisplayEx.ShadowColour);
-            }
-            x += w;
+            return;
         }
     } else
     if (chr == '\t')
@@ -576,17 +530,6 @@ static void put_down_simpletext_sprites_resized(const char *sbuf, const char *eb
       }
     }
   }
-}
-
-static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y, long len, int units_per_px)
-{
-    if ((dbc_initialized) && (dbc_enabled))
-    {
-        put_down_dbctext_sprites_resized(sbuf, ebuf, x, y, len, units_per_px);
-    } else
-    {
-        put_down_simpletext_sprites_resized(sbuf, ebuf, x, y, len, units_per_px);
-    }
 }
 
 /**
@@ -960,11 +903,9 @@ int LbTextSetWindow(int posx, int posy, int width, int height)
 TbBool LbTextSetFont(const struct TbSpriteSheet *font)
 {
     lbFontPtr = font;
-    if (dbc_initialized)
-    {
-        dbc_colour0 = LbTextGetFontFaceColor();
-        dbc_colour1 = LbTextGetFontBackColor();
-    }
+    dbc_colour0 = LbTextGetFontFaceColor();
+    dbc_colour1 = LbTextGetFontBackColor();
+    
     return true;
 }
 
@@ -1435,7 +1376,10 @@ const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, cons
           }
       }
     }
-    
+    if (sprite_index == 0)
+    {
+        return NULL;
+    }
     return get_sprite(font, sprite_index);
 }
 
