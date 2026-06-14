@@ -253,6 +253,7 @@ bool SoundManager::setCreatureSound(const std::string& creature_model, const std
     override.creature_model = creature_model;
     override.sound_type = sound_type;
     override.custom_sound_name = custom_sound_name;
+    override.count = count;
     creature_sound_overrides_.push_back(override);
     
     // Modify the creature configuration to use custom sound(s)
@@ -311,11 +312,7 @@ SoundSmplTblID SoundManager::getSoundId(const char* name) const {
     // Fall back to built-in sound registry (numeric IDs from fxdata/sounds.cfg etc.)
     auto it = sound_registry_.find(name_str);
     if (it != sound_registry_.end()) {
-        SoundSmplTblID id = it->second.sample_id;
-        if (it->second.count > 1) {
-            id = it->second.sample_id + (UNSYNC_RANDOM(it->second.count));
-        }
-        return id;
+        return it->second.sample_id;
     }
     
     return 0;
@@ -380,57 +377,16 @@ int SoundManager::getSoundCount(const char* name) const {
     return 0;
 }
 
-// Play a named sound effect
+// Play a named sound effect (picks a random variant when count > 1)
 SoundEmitterID SoundManager::playEffectNamed(const char* name, long priority, SoundVolume volume) {
-    SoundSmplTblID id = getSoundId(name);
-    if (id == 0) {
+    SoundSmplTblID base_id = getSoundId(name);
+    if (base_id == 0) {
         WARNLOG("Cannot play unknown sound '%s'", name);
         return 0;
     }
-    
+    int count = getSoundCount(name);
+    SoundSmplTblID id = (count > 1) ? base_id + UNSYNC_RANDOM(count) : base_id;
     return playEffect(id, priority, volume);
-}
-
-// Print statistics
-void SoundManager::printStats() const {
-    SYNCLOG("=== SoundManager Statistics ===");
-    SYNCLOG("Initialized: %s", initialized_ ? "YES" : "NO");
-    SYNCLOG("Total sounds played: %d", total_plays_);
-    SYNCLOG("Named sounds registered: %u", (unsigned)sound_registry_.size());
-    SYNCLOG("Custom sounds loaded: %u", (unsigned)total_custom_sounds_);
-    SYNCLOG("Next custom sample ID: %d", next_custom_sample_id_);
-    
-    if (!sound_registry_.empty()) {
-        SYNCLOG("Named sound registry:");
-        for (const auto& pair : sound_registry_) {
-            SYNCLOG("  - '%s' -> ID %d (count %d)",
-                   pair.first.c_str(),
-                   pair.second.sample_id,
-                   pair.second.count);
-        }
-    }
-    
-    if (!custom_sounds_.empty()) {
-        SYNCLOG("Custom sounds:");
-        for (const auto& pair : custom_sounds_) {
-            SYNCLOG("  - '%s' -> sample %d (path: %s) [%s]",
-                   pair.first.c_str(),
-                   pair.second.sample_id,
-                   pair.second.filepath.c_str(),
-                   pair.second.loaded ? "LOADED" : "NOT LOADED");
-        }
-    }
-    
-    if (!creature_sound_overrides_.empty()) {
-        SYNCLOG("Creature sound overrides:");
-        for (const auto& override : creature_sound_overrides_) {
-            SYNCLOG("  - %s.%s -> '%s'",
-                   override.creature_model.c_str(),
-                   override.sound_type.c_str(),
-                   override.custom_sound_name.c_str());
-        }
-    }
-    SYNCLOG("=====================================");
 }
 
 // Forward declaration for C function in bflib_sndlib.cpp
@@ -495,8 +451,7 @@ void SoundManager::reapplyCreatureSounds() {
                     ov.custom_sound_name.c_str());
             continue;
         }
-        int count = getSoundCount(ov.custom_sound_name.c_str());
-        if (count <= 0) count = 1;
+        int count = ov.count > 0 ? ov.count : 1;
         setCreatureSound(ov.creature_model, ov.sound_type, ov.custom_sound_name, count);
     }
 }
@@ -545,10 +500,6 @@ TbBool sound_manager_set_creature_sound(const char* creature_model, const char* 
 
 TbBool sound_manager_is_custom_sound_loaded(const char* name) {
     return KeeperFX::SoundManager::getInstance().isCustomSoundLoaded(name);
-}
-
-void sound_manager_print_stats(void) {
-    KeeperFX::SoundManager::getInstance().printStats();
 }
 
 void sound_manager_clear_custom_sounds(void) {
