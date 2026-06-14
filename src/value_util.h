@@ -38,6 +38,9 @@ int value_parse_model(int oclass, VALUE *value);
 int value_parse_anim(VALUE *value);
 TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags);
 
+// Forward declaration — implemented in config_sounds.c
+int sound_id_from_text(const char* text);
+
 #define KEY_SIZE 64
 
 #define CONDITIONAL_ASSIGN_INT(section,name,field) \
@@ -141,6 +144,40 @@ TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags);
     if (value_type(val) == VALUE_STRING)\
     {\
         field = get_id(spell_desc,value_string(val));\
+    }\
+}
+
+#define CONDITIONAL_ASSIGN_SOUND(section,name,field) \
+{\
+    VALUE *val = value_dict_get(section,name);\
+    if (value_type(val) == VALUE_INT32)\
+    {\
+        field = value_int32(val);\
+    }\
+    else\
+    if (value_type(val) == VALUE_STRING)\
+    {\
+        field = sound_id_from_text(value_string(val));\
+    }\
+}
+
+/* Sound array: [<name_or_id>, range]. First element may be int or string. */
+#define CONDITIONAL_ASSIGN_ARR2_SOUND(section,name,field1,field2) \
+{\
+    VALUE *val_arr = value_dict_get(section,name);\
+    if (value_type(val_arr) == VALUE_ARRAY)\
+    {\
+        VALUE *v0 = value_array_get(val_arr, 0);\
+        if (value_type(v0) == VALUE_STRING)\
+            field1 = sound_id_from_text(value_string(v0));\
+        else\
+            field1 = value_int32(v0);\
+        field2 = value_int32(value_array_get(val_arr, 1));\
+    }\
+    else if (value_type(val_arr) == VALUE_STRING)\
+    {\
+        field1 = sound_id_from_text(value_string(val_arr));\
+        field2 = 0;\
     }\
 }
 

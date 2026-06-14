@@ -7,6 +7,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "game_legacy.h"
+#include "config_sounds.h"
 #include "map_data.h"
 #include "cursor_tag.h"
 #include "engine_render.h"
@@ -193,7 +194,7 @@ void update_local_dig_tag_prediction(void)
     local_dig_tag_prediction.previous_slb_y = slb_y;
     if (changed_slab_count > 0) {
         local_dig_tag_prediction.last_packet_turn = pckt->turn;
-        play_non_3d_sample(118);
+        play_non_3d_sample(snd_tile_dig);
     }
 }
 

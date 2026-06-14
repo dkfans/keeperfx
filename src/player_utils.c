@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sndlib.h"
 #include "api.h"
 #include "player_data.h"
@@ -1202,7 +1203,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
     if (is_my_player_number(plyr_idx))
     {
-        play_non_3d_sample(115);
+        play_non_3d_sample(snd_tile_sell);
     }
     dungeon->camera_deviate_jump = 192;
     if (sell_value != 0)
@@ -1240,7 +1241,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     destroy_door(thing);
     if (is_my_player_number(plyr_idx))
     {
-        play_non_3d_sample(115); // TODO config make this sound configurable?
+        play_non_3d_sample(snd_tile_sell);
     }
     struct Coord3d pos;
     set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
