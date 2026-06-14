@@ -78,6 +78,7 @@ _UKR = "Кат"
 ENG = "A Torturer has escaped a torture room and joined your dungeon. Let's see what else he can do."
 _GER = "Ein Folterknecht ist aus einem Folterraum entkommen und hat sich deinem Verlies angeschlossen. Mal sehen, was er sonst noch kann."
 DUT = "Een folteraar is uit een folterkamer ontsnapt en heeft zich bij je kerker aangesloten. Laten we eens kijken wat hij nog meer kan."
+_CHI = "一个拷问者从拷问室逃了出来，加入了你的地下城。让我们看看他还能做些什么。"
 RUS = "Палач сбежал из пыточной и пришел в Ваше подземелье. Посмотрим, на что еще он способен."
 
 [BEHOLDER_JOIN]
