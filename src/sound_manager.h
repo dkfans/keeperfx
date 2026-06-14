@@ -176,11 +176,6 @@ public:
     bool isInitialized() const { return initialized_; }
     
     /**
-     * @brief Get statistics (for testing)
-     */
-    void printStats() const;
-    
-    /**
      * @brief Clear all custom sounds - used during save/load to rebuild fresh bank
      */
     void clearCustomSounds();
@@ -230,6 +225,7 @@ private:
         std::string creature_model;
         std::string sound_type;
         std::string custom_sound_name;
+        int count = 1;
     };
     
     // Named sound registry entry (for built-in sounds)
@@ -273,7 +269,6 @@ SoundSmplTblID sound_manager_load_custom_sound(const char* name, const char* fil
 SoundSmplTblID sound_manager_get_custom_sound_id(const char* name);
 TbBool sound_manager_set_creature_sound(const char* creature_model, const char* sound_type, const char* custom_sound_name);
 TbBool sound_manager_is_custom_sound_loaded(const char* name);
-void sound_manager_print_stats(void);
 void sound_manager_clear_custom_sounds(void);
 void sound_manager_clear_registry(void);
 void sound_manager_save_snapshot(void);

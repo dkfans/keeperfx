@@ -28,7 +28,6 @@
 #include <deque>
 #include <mutex>
 #include <atomic>
-#include <set>
 
 #include "post_inc.h"
 
@@ -55,7 +54,7 @@ SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
 std::atomic<Mix_Music *> g_mix_music;
-std::set<uint32_t> g_tick_samples;
+
 bool g_bb_king_mode = false;
 
 enum source_flags {
@@ -683,7 +682,6 @@ extern "C" void MonitorStreamedSoundTrack() {
 			ERRORLOG("%s", e.what());
 		}
 	}
-	g_tick_samples.clear();
 }
 
 extern "C" void * GetSoundDriver() {
@@ -845,13 +843,7 @@ extern "C" SoundMilesID play_sample(
 		}
 		buf = &g_banks[0][smptbl_id].buffer;
 	}
-	// Don't play the same unified sample twice on the same tick
-	const uint32_t tick_sample_key = (uint32_t)(uint16_t)smptbl_id;
-	if (g_tick_samples.count(tick_sample_key) > 0) {
-		return 0;
-	}
 	try {
-		g_tick_samples.emplace(tick_sample_key);
 		for (auto & source : g_sources) {
 			if (source.emit_id == 0) {
 				source.gain(volume);
