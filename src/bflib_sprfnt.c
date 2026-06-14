@@ -90,26 +90,34 @@ static TbGraphicsWindow lbTextClipWindow;
 static unsigned char lbSpacesPerTab;
 /******************************************************************************/
 
+static long dbc_char_height(unsigned long chr)
+{
+  if (unifont_loaded)
+  {
+    return UNIFONT_HEIGHT + 1;
+  }
+  return 0;
+}
+
+static long dbc_char_width(unsigned long chr)
+{
+    if (chr > 0xFFFF)
+      return 0;
+    return unifont_widths[(unsigned int)chr];
+}
+
 /** Returns if the given char starts a wide charcode.
  * @param chr
  */
-TbBool is_wide_charcode(unsigned long chr)
+static TbBool is_single_char_word(unsigned long chr)
 {
-  if (chr > 0xFF)
-    return true;
-  if ((dbc_initialized) && (dbc_enabled))
-  {
-    switch (dbc_language)
+    if (chr < 0xFF)
+        return false;
+    if ((dbc_initialized) && (dbc_enabled))
     {
-    case DbcId_Japanese:
-        return ((chr >= 0x81) && (chr <= 0x9F)) || ((chr >= 0xE0) && (chr <= 0xFC));
-    case DbcId_ChineseInt:
-    case DbcId_ChineseTra:
-    case DbcId_Korean:
-        return ((chr > 0x80) && (chr <= 0xFF));
+        return dbc_char_width(chr) >= 16;
     }
-  }
-  return false;
+    return false;
 }
 
 /**
@@ -211,22 +219,6 @@ int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
     }
     return 1;
 
-}
-
-long dbc_char_height(unsigned long chr)
-{
-  if (unifont_loaded)
-  {
-    return UNIFONT_HEIGHT + 1;
-  }
-  return 0;
-}
-
-long dbc_char_width(unsigned long chr)
-{
-    if (chr > 0xFFFF)
-      return 0;
-    return unifont_widths[(unsigned int)chr];
 }
 
 int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsigned char *src_buf,
@@ -1012,16 +1004,8 @@ int LbTextCharWidth(const uint32_t chr)
 
 int LbTextWordWidth(const char *str)
 {
-    if ((dbc_initialized) && (dbc_enabled))
-    {
-        //TODO SPRITES make proper function
-        return LbSprFontWordWidth(lbFontPtr,str);
-    } else
-    {
-        return LbSprFontWordWidth(lbFontPtr,str);
-    }
+    return LbTextWordWidthM(str,16);
 }
-
 
 void LbTextUseByteCoding(TbBool is_enabled)
 {
@@ -1176,36 +1160,25 @@ int LbTextWordWidthM(const char *str, long units_per_px)
   if ((dbc_initialized) && (dbc_enabled))
   {
     int len = 0;
-    for (int i=0; str[i] != 0 ; i++)
+    const char *sbuf = str;
+    while (true)
     {
-      unsigned char c = str[i];
+        size_t seq_len;
+        uint32_t chr = read_utf_8_codepoint((const char *)sbuf, &seq_len);
+        sbuf += seq_len;
 
-      if ((c == ' ') || (c == '\t') || (c == '\0') || (c == '\r') || (c == '\n'))
-        break;
+        if ((chr == ' ') || (chr == '\t') || (chr == '\0') || (chr == '\r') || (chr == '\n'))
+            break;
 
-      long chr = (unsigned char)c;
-      TbBool WideChar = (is_wide_charcode(chr));
-      if (WideChar)
-      {
-        if (str[i+1] == '\0')
-          break;
+        if (is_single_char_word(chr))
+        {
+            if (len != 0)
+                break; // letters before, need to stop.
+            return dbc_char_widthM(chr, units_per_px);
+        }
 
-        chr = (chr<<8) + (unsigned char)str[i+1];
-      } else if (str[i+0] == '\xc2' && str[i+1] == '\xa0') {
-        chr = (chr<<8) + (unsigned char)str[i+1];
-        WideChar = true;
-      }
-
-      if (WideChar)
-      {
-        // one dbc-char/WideChar is considered as one word.
-        if (len != 0)
-          break; // letters before, need to stop.
-        return dbc_char_widthM(chr, units_per_px);
-      }
-
-      // Continuous letters
-      len += dbc_char_widthM(chr, units_per_px);
+        // Continuous letters
+        len += dbc_char_widthM(chr, units_per_px);
     }
 
     return len;
