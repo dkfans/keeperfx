@@ -311,9 +311,6 @@ void sync_local_camera(struct PlayerInfo *player)
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
         sync_camera_state(cam_idx, &player->cameras[cam_idx]);
     }
-    if (player->view_mode == PVM_ParchmentView) {
-        reset_all_minimap_interpolation = true;
-    }
 }
 
 void set_local_camera_destination(struct PlayerInfo *player)

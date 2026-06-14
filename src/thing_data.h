@@ -306,12 +306,7 @@ struct Thing {
     unsigned short interp_floor_height;
     struct Coord3d previous_mappos;
     struct Coord3d interp_mappos;
-    int32_t interp_minimap_pos_x;
-    int32_t interp_minimap_pos_y;
-    int32_t previous_minimap_pos_x;
-    int32_t previous_minimap_pos_y;
     uint32_t random_seed;
-    int32_t interp_minimap_update_turn;
     PlayerNumber holding_player;
 };
 

@@ -30,7 +30,6 @@ extern "C" {
 #define PANEL_MAP_RADIUS       58
 /******************************************************************************/
 extern long MapDiagonalLength;
-extern TbBool reset_all_minimap_interpolation;
 extern unsigned char grabbed_small_map;
 extern long clicked_on_small_map;
 /******************************************************************************/
