@@ -27,6 +27,8 @@
 #include "bflib_sprite.h"
 #include "bflib_fileio.h"
 #include "bflib_vidraw.h"
+#include "bflib_text.h"
+#include "bflib_string.h"
 
 //TODO: this breaks my convention - non-bflib call from bflib (used for asian fonts)
 #include "frontend.h"
@@ -710,107 +712,6 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
     }
 }
 
-/**
- * Puts simple text sprites on screen.
- * @param sbuf
- * @param ebuf
- * @param x
- * @param y
- * @param len
- */
-void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, long y, long len)
-{
-  const char *c;
-  const struct TbSprite *spr;
-  unsigned char chr;
-  long w;
-  long h;
-  for (c=sbuf; c < ebuf; c++)
-  {
-    chr = (unsigned char)(*c);
-    if (c[0] == '\xc2' && c + 1 < ebuf && c[1] == '\xa0')
-    {
-        w = len;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-        {
-            h = LbTextLineHeight();
-            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
-        }
-        x += w;
-        c++;
-    } else
-    if (chr == ' ')
-    {
-        w = len;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-        {
-            h = LbTextLineHeight();
-            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
-        }
-        x += w;
-    } else
-    if (chr >= 15)
-    {
-        spr = LbFontCharSprite(lbFontPtr, chr);
-        if (spr != NULL)
-        {
-            if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0)
-                LbSpriteDrawOneColour(x, y, spr, lbDisplay.DrawColour);
-            else
-                LbSpriteDraw(x, y, spr);
-            w = spr->SWidth;
-            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-            {
-                h = LbTextLineHeight();
-                LbDrawCharUnderline(x, y, w, h, lbDisplay.DrawColour, lbDisplayEx.ShadowColour);
-            }
-            x += w;
-        }
-    } else
-    if (chr == '\t')
-    {
-        w = len*(long)lbSpacesPerTab;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-        {
-            h = LbTextLineHeight();
-            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
-        }
-        x += w;
-    } else
-    {
-      switch (chr)
-      {
-        case 1:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
-          break;
-        case 2:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
-          break;
-        case 3:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
-          break;
-        case 4:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_HORIZ;
-          break;
-        case 5:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_VERTIC;
-          break;
-        case 11:
-          lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
-          break;
-        case 12:
-          lbDisplay.DrawFlags ^= Lb_TEXT_ONE_COLOR;
-          break;
-        case 14:
-          c++;
-          lbDisplay.DrawColour = (unsigned char)(*c);
-          break;
-        default:
-          break;
-      }
-    }
-  }
-}
 
 /**
  * Puts scaled simple text sprites on screen.
@@ -824,24 +725,15 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
 {
   const char *c;
   const struct TbSprite *spr;
-  unsigned char chr;
   long w;
   long h;
-  for (c=sbuf; c < ebuf; c++)
+  for (c=sbuf; c < ebuf; )
   {
-    chr = (unsigned char)(*c);
-    if (c[0] == '\xc2' && c + 1 < ebuf && c[1] == '\xa0')
-    {
-        w = space_len;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-        {
-            h = LbTextLineHeight() * units_per_px / 16;
-            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
-        }
-        x += w;
-        c++;
-    } else
-    if (chr == ' ')
+    size_t seq_len;
+    uint32_t chr = read_utf_8_codepoint((const char *)c, &seq_len);
+    c += seq_len;
+
+    if (chr == 0xA0 || chr == ' ') //NO-BREAK SPACE or SPACE
     {
         w = space_len;
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
@@ -916,7 +808,7 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
   }
 }
 
-void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y, long len, int units_per_px)
+static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y, long len, int units_per_px)
 {
     if (units_per_px == 16)
     {
@@ -925,7 +817,7 @@ void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y, long l
             put_down_dbctext_sprites(sbuf, ebuf, x, y, len);
         } else
         {
-            put_down_simpletext_sprites(sbuf, ebuf, x, y, len);
+            put_down_simpletext_sprites_resized(sbuf, ebuf, x, y, len, units_per_px);
         }
     } else
     {
@@ -1050,34 +942,24 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
     long starty = posy + justifyy;
 
     long h = LbTextLineHeight() * units_per_px / 16;
-    const char* sbuf = text;
-    for (ebuf=text; *ebuf != '\0'; ebuf++)
+    const char *draw_buffer = text;
+
+    const char* sbuf = draw_buffer;
+    
+    for (ebuf=draw_buffer; *ebuf != '\0'; )
     {
         const char* text_backup_pointer = ebuf;
-        long chr = (unsigned char)*ebuf;
-        TbBool WideChar = (is_wide_charcode(chr));
-        if (WideChar)
-        {
-            ebuf++;
-            if (*ebuf == '\0') break;
-            chr = (chr<<8) + (unsigned char)*ebuf;
-        } else if (ebuf[0] == '\xc2' && ebuf[1] == '\xa0') {
-            ebuf++;
-            chr = (chr<<8) + (unsigned char)*ebuf;
-            WideChar = true;
-        }
+
+        size_t seq_len;
+        uint32_t chr = read_utf_8_codepoint((const char *)ebuf, &seq_len);
+        ebuf += seq_len;
 
         long w;
-        if ((chr >= 15) && (chr != 32))
+        if ((chr > 33))
         {
             // Align when ansi and unicode are mixed on one screen
             w = LbTextCharWidthM(chr, units_per_px);
 
-            // if count>0, means that the current word has already been calculated.
-            // for letters, there must be a delimiter after the word.
-            // but not applicable to wide characters, one dbc-char/WideChar is considered as one word, can be no delimiter, so count cannot be used.
-            if (WideChar)
-                count = 0;
 
             if ((posx+w-justifyx <= lbTextJustifyWindow.width) || (count > 0) || !LbAlignMethodSet(lbDisplay.DrawFlags))
             {
@@ -1190,7 +1072,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
               break;
             }
         } else
-        if (chr == 14)
+        if (chr == DKChr_Modifier_Colour)
         {
             ebuf++;
             if (*ebuf == '\0')
@@ -1293,7 +1175,7 @@ long dbc_char_widthM(unsigned long chr, long units_per_px)
     return w;
 }
 
-int LbTextCharWidthM(const long chr, long units_per_px)
+int LbTextCharWidthM(const uint32_t chr, long units_per_px)
 {
     if ((dbc_initialized) && (dbc_enabled))
     {
@@ -1305,7 +1187,7 @@ int LbTextCharWidthM(const long chr, long units_per_px)
     }
 }
 
-int LbTextCharWidth(const long chr)
+int LbTextCharWidth(const uint32_t chr)
 {
     if ((dbc_initialized) && (dbc_enabled))
     {
@@ -1830,7 +1712,7 @@ int LbSprFontWordWidth(const struct TbSpriteSheet * font, const char * text)
  * @note Works only for characters stored in the sprite list.
  *       Multibyte characters are usually stored somewhere else.
  */
-int LbSprFontCharWidth(const struct TbSpriteSheet * font, const unsigned long chr)
+int LbSprFontCharWidth(const struct TbSpriteSheet * font, const uint32_t chr)
 {
     const struct TbSprite* spr = LbFontCharSprite(font, chr);
     if (spr == NULL)
@@ -1844,7 +1726,7 @@ int LbSprFontCharWidth(const struct TbSpriteSheet * font, const unsigned long ch
  * @note Works only for characters stored in the sprite list.
  *       Multibyte characters are usually stored somewhere else.
  */
-int LbSprFontCharHeight(const struct TbSpriteSheet * font, const unsigned long chr)
+int LbSprFontCharHeight(const struct TbSpriteSheet * font, const uint32_t chr)
 {
     const struct TbSprite* spr = LbFontCharSprite(font, chr);
     if (spr == NULL)
@@ -1852,20 +1734,92 @@ int LbSprFontCharHeight(const struct TbSpriteSheet * font, const unsigned long c
     return spr->SHeight;
 }
 
+void codepoint_to_utf8(unsigned long codepoint, char out[5]);
+
 /**
  * Returns sprite of a single character in given font.
  * For characters that don't have a sprite, returns NULL.
  */
-const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const unsigned long chr)
+const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const uint32_t codepoint)
 {
-    if (font == NULL) {
+    if (font == NULL)
         return NULL;
-    } else if ((chr >= 31) && (chr < 256)) {
-        return get_sprite(font, chr - 31);
-    } else if ((chr > 14) && (chr < 31)) {
-        return get_sprite(font,chr + 208); //223 was the biggest value that fits in the regular 255 slots, but since 15~30 was free still, we add those to the end.
+
+    uint32_t sprite_index = 0;
+  JUSTLOG("codepoint: %u", codepoint);
+
+    static TbBool logged = false;
+    if (codepoint < 0x80){
+        sprite_index = codepoint - 31;
+    } else {
+      static const struct
+      {
+          uint32_t unicode;
+          uint16_t sprite_idx;
+      } codepage_map[] = {
+        {0x0410, 0x41}, {0x0411, 0xB1}, {0x0412, 0x42}, {0x0413, 0xB2},
+        {0x0414, 0xB3}, {0x0415, 0x45}, {0x0416, 0xB4}, {0x0417, 0xC2},
+        {0x0418, 0xC3}, {0x0419, 0xC4}, {0x041A, 0x4B}, {0x041B, 0x7F},
+        {0x041C, 0x4D}, {0x041D, 0x48}, {0x041E, 0x4F}, {0x041F, 0x92},
+        {0x0420, 0x50}, {0x0421, 0x43}, {0x0422, 0x54}, {0x0423, 0xC5},
+        {0x0424, 0xC8}, {0x0425, 0x58}, {0x0426, 0xC9}, {0x0427, 0xCA},
+        {0x0428, 0xCB}, {0x0429, 0xCC}, {0x042A, 0x62}, {0x042B, 0xE8},
+        {0x042C, 0x62}, {0x042D, 0x9B}, {0x042E, 0x9C}, {0x042F, 0x9D},
+        {0x0430, 0x61}, {0x0431, 0xCD}, {0x0432, 0xCE}, {0x0433, 0xCF},
+        {0x0434, 0xD0}, {0x0435, 0x65}, {0x0436, 0xD1}, {0x0437, 0xD5},
+        {0x0438, 0xD9}, {0x0439, 0xDA}, {0x043A, 0x9E}, {0x043B, 0x9F},
+        {0x043C, 0xA6}, {0x043D, 0xA7}, {0x043E, 0x6F}, {0x043F, 0xA9},
+        {0x0440, 0x70}, {0x0441, 0x63}, {0x0442, 0xDB}, {0x0443, 0x79},
+        {0x0444, 0xDC}, {0x0445, 0x78}, {0x0446, 0xDD}, {0x0447, 0xDF},
+        {0x0448, 0xE6}, {0x0449, 0xE7}, {0x044A, 0xAA}, {0x044B, 0xAB},
+        {0x044C, 0xAC}, {0x044D, 0xAE}, {0x044E, 0xAF}, {0x044F, 0xB0},
+        {0x0407, 0xD8}, {0x0457, 0x8B}, {0x0456, 0x69}, {0x0406, 0x49},
+        {0x0404, 0x0F}, {0x0454, 0x10}, {0x0490, 0x11}, {0x0491, 0x12},
+        {0x2019, 0x27}, {0x2014, 0x2D}, {0x0451, 0x89}, {0x0401, 0xD3},
+        {0x00C7, 0x80}, {0x00FC, 0x81}, {0x00E9, 0x82}, {0x00E2, 0x83},
+        {0x00E4, 0x84}, {0x00E0, 0x85}, {0x00E5, 0x86}, {0x00E7, 0x87},
+        {0x00EA, 0x88}, {0x00EB, 0x89}, {0x00E8, 0x8A}, {0x00EF, 0x8B},
+        {0x00EE, 0x8C}, {0x00EC, 0x8D}, {0x00C4, 0x8E}, {0x00C5, 0x8F},
+        {0x00C9, 0x90}, {0x00E6, 0x91}, {0x00F4, 0x93}, {0x00F6, 0x94},
+        {0x00F2, 0x95}, {0x00FB, 0x96}, {0x00F9, 0x97}, {0x00FF, 0x98},
+        {0x00D6, 0x99}, {0x00DC, 0x9A}, {0x00E1, 0xA0}, {0x00ED, 0xA1},
+        {0x00F3, 0xA2}, {0x00FA, 0xA3}, {0x00F1, 0xA4}, {0x00D1, 0xA5},
+        {0x00BF, 0xA8}, {0x00A1, 0xAD}, {0x00C1, 0xB5}, {0x00C2, 0xB6},
+        {0x00C0, 0xB7}, {0x00E3, 0xC6}, {0x00C3, 0xC7}, {0x00CA, 0xD2},
+        {0x00CB, 0xD3}, {0x00C8, 0xD4}, {0x00CD, 0xD6}, {0x00CE, 0xD7},
+        {0x00CF, 0xD8}, {0x00CC, 0xDE}, {0x00D3, 0xE0}, {0x00DF, 0xE1},
+        {0x00D4, 0xE2}, {0x00D2, 0xE3}, {0x00F5, 0xE4}, {0x00D5, 0xE5},
+        {0x00DA, 0xE9}, {0x00DB, 0xEA}, {0x00D9, 0xEB}, {0x00FD, 0xEC},
+        {0x00DD, 0xED}, {0x0105, 0xEE}, {0x0104, 0xEF}, {0x0107, 0xF0},
+        {0x0106, 0xF1}, {0x0119, 0xF2}, {0x0118, 0xF3}, {0x0142, 0xF4},
+        {0x0141, 0xF5}, {0x0144, 0xF6}, {0x0143, 0xF7}, {0x015B, 0xF8},
+        {0x015A, 0xF9}, {0x017A, 0xFA}, {0x0179, 0xFB}, {0x017C, 0xFC},
+        {0x017B, 0xFD},
+        {0x011B, 0x65}, {0x010D, 0x63}, {0x010F, 0x64}, {0x0159, 0x72},
+        {0x0161, 0x73}, {0x017E, 0x7A}, {0x0165, 0x74}, {0x0148, 0x6E},
+        {0x016F, 0x75}, {0x010C, 0x43}, {0x010E, 0x44}, {0x0158, 0x52},
+        {0x0160, 0x53}, {0x017D, 0x5A}, {0x0164, 0x54}, {0x0147, 0x4E},
+        {0x016E, 0x55}, {0x011A, 0x45},
+      };
+      for (size_t i = 0; i < sizeof(codepage_map) / sizeof(codepage_map[0]); ++i)
+      {
+          if (codepage_map[i].unicode == codepoint)
+          {
+              sprite_index = codepage_map[i].sprite_idx - 31;
+              //break;
+          }
+
+          if (logged) continue; // only log the first few missing codepoints to avoid spamming the log
+          char utf8_char[5];
+          codepoint_to_utf8(codepage_map[i].unicode, utf8_char);
+          ERRORLOG("codepoint U+%04X ('%s') sprite index %d", codepage_map[i].unicode, utf8_char, codepage_map[i].sprite_idx);
+
+          
+      }
+      logged = true;
     }
-    return NULL;
+    
+    return get_sprite(font, sprite_index);
 }
 
 void dbc_shutdown(void)

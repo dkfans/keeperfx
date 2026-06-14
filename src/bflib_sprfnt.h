@@ -375,8 +375,8 @@ int LbTextStringWidth(const char *str);
 int LbTextStringPartWidth(const char *text, int part);
 int LbTextStringHeight(const char *str);
 int LbTextWordWidth(const char *str);
-int LbTextCharWidth(const long chr);
-int LbTextCharWidthM(const long chr, long units_per_px);
+int LbTextCharWidth(const uint32_t chr);
+int LbTextCharWidthM(const uint32_t chr, long units_per_px);
 int LbTextStringWidthM(const char *str, long units_per_px);
 int LbTextWordWidthM(const char *str, long units_per_px);
 
@@ -391,9 +391,9 @@ long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_co
 
 // Function which require font sprites as parameter
 int LbSprFontWordWidth(const struct TbSpriteSheet * font, const char * text);
-int LbSprFontCharWidth(const struct TbSpriteSheet * font, const unsigned long chr);
-int LbSprFontCharHeight(const struct TbSpriteSheet * font,const unsigned long chr);
-const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const unsigned long chr);
+int LbSprFontCharWidth(const struct TbSpriteSheet * font, const uint32_t chr);
+int LbSprFontCharHeight(const struct TbSpriteSheet * font,const uint32_t chr);
+const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const uint32_t chr);
 
 void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(int units_per_px, const char *text);
