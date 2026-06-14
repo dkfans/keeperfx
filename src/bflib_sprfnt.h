@@ -42,13 +42,6 @@ enum TbFontDrawFlags {
 struct TbSprite;
 struct TbSetupSprite;
 
-enum dbc_id {
-    DbcId_Japanese = 1,
-    DbcId_ChineseInt = 2,
-    DbcId_ChineseTra = 3,
-    DbcId_Korean = 4,
-};
-
 enum DkcodepageLetter {
    DKChr_Null,
    DKChr_Modifier_Transparent4,
@@ -308,26 +301,6 @@ enum DkcodepageLetter {
    DKChr_unused40,
 };
 
-struct AsianFont {
-  const char *fname;
-  unsigned char *data;
-  unsigned long data_length;
-  unsigned long chars_count;
-  unsigned long ndata_shift;
-  unsigned long ndata_scanline;
-  unsigned long sdata_shift;
-  unsigned long sdata_scanline;
-  unsigned long narrow_width;
-  unsigned long narrow_height;
-  unsigned long bits_width;
-  unsigned long bits_height;
-  unsigned long narrow_spacing;
-  unsigned long kana_spacing;
-  unsigned long wide_spacing;
-  unsigned long baseline_offset;
-  unsigned long line_spacing;
-};
-
 struct AsianDraw {
   unsigned long draw_char;
   unsigned long bits_width;
@@ -375,8 +348,8 @@ int LbTextStringWidth(const char *str);
 int LbTextStringPartWidth(const char *text, int part);
 int LbTextStringHeight(const char *str);
 int LbTextWordWidth(const char *str);
-int LbTextCharWidth(const long chr);
-int LbTextCharWidthM(const long chr, long units_per_px);
+int LbTextCharWidth(const uint32_t chr);
+int LbTextCharWidthM(const uint32_t chr, long units_per_px);
 int LbTextStringWidthM(const char *str, long units_per_px);
 int LbTextWordWidthM(const char *str, long units_per_px);
 
@@ -391,16 +364,14 @@ long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_co
 
 // Function which require font sprites as parameter
 int LbSprFontWordWidth(const struct TbSpriteSheet * font, const char * text);
-int LbSprFontCharWidth(const struct TbSpriteSheet * font, const unsigned long chr);
-int LbSprFontCharHeight(const struct TbSpriteSheet * font,const unsigned long chr);
-const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const unsigned long chr);
+int LbSprFontCharWidth(const struct TbSpriteSheet * font, const uint32_t chr);
+int LbSprFontCharHeight(const struct TbSpriteSheet * font,const uint32_t chr);
+const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const uint32_t chr);
 
 void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(int units_per_px, const char *text);
-void dbc_set_language(short ilng);
 short dbc_initialize(const char *fpath);
 TbBool is_dbc_language(short language);
-uint8_t get_dbc_id(short language);
 
 /******************************************************************************/
 #ifdef __cplusplus
