@@ -381,7 +381,10 @@ static void process_event(const SDL_Event *ev)
         last_used_input_device = ID_Keyboard_Mouse;
         mouseDelta.x = 0;
         mouseDelta.y = 0;
-        mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mouseDelta);
+        if (ev->wheel.y != 0)
+            mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mouseDelta);
+        if (ev->wheel.x != 0)
+            mouseControl(ev->wheel.x > 0 ? MActn_WHEELMOVERIGHT : MActn_WHEELMOVELEFT, &mouseDelta);
         break;
 
     case SDL_TEXTINPUT:

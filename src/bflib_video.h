@@ -226,9 +226,12 @@ typedef struct DisplayStruct TbDisplayStruct;
 
 /** Extensions to DisplayStruct - will be later integrated into it. */
 struct DisplayStructEx {
-    short WhellPosition;
-    ushort WhellMoveUp;
-    ushort WhellMoveDown;
+    int16_t WheelPositionY;
+    uint16_t WheelMoveUp;
+    uint16_t WheelMoveDown;
+    int16_t WheelPositionX;
+    uint16_t WheelMoveLeft;
+    uint16_t WheelMoveRight;
     /** Colour index used for drawing shadow. */
     uchar ShadowColour;
 };

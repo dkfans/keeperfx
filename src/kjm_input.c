@@ -48,6 +48,8 @@ extern "C" {
 /******************************************************************************/
 TbBool wheel_scrolled_up;
 TbBool wheel_scrolled_down;
+TbBool wheel_scrolled_left;
+TbBool wheel_scrolled_right;
 
 unsigned long key_modifiers;
 int defining_a_key;
@@ -157,9 +159,11 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_RIGHT,  GUIStr_KeyRight},
   {KC_LALT,   GUIStr_KeyLeftAlt},
   {KC_RALT,   GUIStr_KeyRightAlt},
-  {KC_MOUSE3,          GUIStr_MouseButton},
   {KC_MOUSEWHEEL_UP,   GUIStr_MouseScrollWheelUp},
   {KC_MOUSEWHEEL_DOWN, GUIStr_MouseScrollWheelDown},
+  {KC_MOUSEWHEEL_LEFT, GUIStr_MouseScrollWheelLeft},
+  {KC_MOUSEWHEEL_RIGHT,GUIStr_MouseScrollWheelRight},
+  {KC_MOUSE3,          GUIStr_MouseButton},
   {KC_MOUSE4,          GUIStr_MouseButton},
   {KC_MOUSE5,          GUIStr_MouseButton},
   {KC_MOUSE6,          GUIStr_MouseButton},
@@ -423,8 +427,17 @@ void update_right_button_clicked(void)
 
 void update_wheel_scrolled(void)
 {
-    wheel_scrolled_up = (lbDisplayEx.WhellMoveUp > 0);
-    wheel_scrolled_down = (lbDisplayEx.WhellMoveDown > 0);
+    wheel_scrolled_up = (lbDisplayEx.WheelMoveUp > 0);
+    wheel_scrolled_down = (lbDisplayEx.WheelMoveDown > 0);
+    wheel_scrolled_left = (lbDisplayEx.WheelMoveLeft > 0);
+    wheel_scrolled_right = (lbDisplayEx.WheelMoveRight > 0);
+}
+
+static void mouse_keybind(enum KeyCodes key, TbBool button_clicked)
+{
+    lbKeyOn[key] = button_clicked;
+    if (button_clicked)
+        lbInkey = key;
 }
 
 /**
@@ -439,14 +452,16 @@ void update_mouse(void)
   update_wheel_scrolled();
   lbDisplay.LeftButton = 0;
   lbDisplay.RightButton = 0;
-  lbDisplayEx.WhellMoveUp = 0;
-  lbDisplayEx.WhellMoveDown = 0;
+  lbDisplayEx.WheelMoveUp = 0;
+  lbDisplayEx.WheelMoveDown = 0;
+  lbDisplayEx.WheelMoveLeft = 0;
+  lbDisplayEx.WheelMoveRight = 0;
   // [mouse buttons as keybinds - quick fix]
-  lbKeyOn[KC_MOUSE3] = lbDisplay.MiddleButton;
-  lbKeyOn[KC_MOUSEWHEEL_UP] = wheel_scrolled_up;
-  lbKeyOn[KC_MOUSEWHEEL_DOWN] = wheel_scrolled_down;
-  lbInkey = lbDisplay.MiddleButton ? KC_MOUSE3 : wheel_scrolled_down ? KC_MOUSEWHEEL_DOWN : wheel_scrolled_up ? KC_MOUSEWHEEL_UP : lbInkey;
-
+  mouse_keybind(KC_MOUSE3, lbDisplay.MiddleButton);
+  mouse_keybind(KC_MOUSEWHEEL_UP, wheel_scrolled_up);
+  mouse_keybind(KC_MOUSEWHEEL_DOWN, wheel_scrolled_down);
+  mouse_keybind(KC_MOUSEWHEEL_LEFT, wheel_scrolled_left);
+  mouse_keybind(KC_MOUSEWHEEL_RIGHT, wheel_scrolled_right);
 }
 
 /**
