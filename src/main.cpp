@@ -2624,6 +2624,39 @@ long update_cave_in(struct Thing *thing)
     return 1;
 }
 
+/**
+ * rules can change by dkscript/lua.
+ * Checks if a gamerule for lighting has changed and updates the lights if they are.
+ * This function also refreshes the light status of the map.
+*/
+void update_global_lighting()
+{
+    if (!game.lish.light_auto_sync)
+        return;
+
+    // Check if any values have changed
+    if (
+        game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules[0].game.light_enabled != game.lish.light_enabled
+    ){
+
+        // GlobalAmbientLight
+        if (game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light)
+        {
+            game.lish.global_ambient_light = game.conf.rules[0].game.global_ambient_light;
+        }
+
+        // LightEnabled
+        if (game.conf.rules[0].game.light_enabled != game.lish.light_enabled)
+        {
+            game.lish.light_enabled = game.conf.rules[0].game.light_enabled;
+        }
+
+        // Refresh the lights
+        light_stat_refresh();
+    }
+}
+
 void update(void)
 {
     struct PlayerInfo *player;
@@ -2676,6 +2709,7 @@ void update(void)
         update_footsteps_nearest_camera(get_player_active_camera(player));
         PaletteFadePlayer(player);
         process_armageddon();
+        update_global_lighting();
 #if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
