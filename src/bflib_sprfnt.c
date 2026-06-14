@@ -730,7 +730,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             {
                 posx = startx;
                 sbuf = text_backup_pointer; // sbuf points at start of char for next loop. text_backup_pointer points at unprocessed char.
-                ebuf = sbuf - 1; // The updateStatement of for loop will auto increment 1.
+                ebuf = text_backup_pointer;
                 starty += h;
             }
             count = 0;
