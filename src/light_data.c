@@ -1967,18 +1967,14 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
 
 static char light_render_light(struct Light* lgt)
 {
-  int remember_original_lgt_mappos_x = lgt->mappos.x.val;
-  int remember_original_lgt_mappos_y = lgt->mappos.y.val;
-  if ((lgt->interp_has_been_initialized == false) || (get_gameturn() - lgt->last_turn_drawn > 1)) {
-    lgt->interp_has_been_initialized = true;
-    lgt->interp_mappos.x.val = lgt->mappos.x.val;
-    lgt->interp_mappos.y.val = lgt->mappos.y.val;
-    lgt->previous_mappos.x.val = lgt->mappos.x.val;
-    lgt->previous_mappos.y.val = lgt->mappos.y.val;
-  } else {
-    lgt->interp_mappos.x.val = interpolate(lgt->interp_mappos.x.val, lgt->previous_mappos.x.val, lgt->mappos.x.val);
-    lgt->interp_mappos.y.val = interpolate(lgt->interp_mappos.y.val, lgt->previous_mappos.y.val, lgt->mappos.y.val);
+  const struct Coord3d original_mappos = lgt->mappos;
+  if (! lgt->interp_has_been_initialized)
+  {
+      lgt->interp_has_been_initialized = true;
+      lgt->previous_mappos = lgt->mappos;
   }
+  lgt->interp_mappos.x.val = interpolate(lgt->previous_mappos.x.val, lgt->mappos.x.val);
+  lgt->interp_mappos.y.val = interpolate(lgt->previous_mappos.y.val, lgt->mappos.y.val);
   lgt->last_turn_drawn = get_gameturn();
   lgt->mappos.x.val = lgt->interp_mappos.x.val;
   lgt->mappos.y.val = lgt->interp_mappos.y.val;
@@ -2117,8 +2113,7 @@ static char light_render_light(struct Light* lgt)
       lighting_tables_idx = light_render_light_static(lgt, radius, render_intensity, lighting_tables_idx);
     }
   }
-  lgt->mappos.x.val = remember_original_lgt_mappos_x;
-  lgt->mappos.y.val = remember_original_lgt_mappos_y;
+  lgt->mappos = original_mappos;
   return lighting_tables_idx;
 }
 

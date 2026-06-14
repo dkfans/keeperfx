@@ -289,6 +289,7 @@ struct Game {
     ThingIndex unsynced_free_things_count;
     GameTurn play_gameturn;
     GameTurn pckt_gameturn;
+    GameTurn missed_gameturns;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
     uint32_t action_random_seed;
     uint32_t ai_random_seed;

@@ -2659,6 +2659,7 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
 
+    update_local_cameras_pre();
     process_packets();
     api_update_server();
 
@@ -2713,10 +2714,12 @@ void update(void)
         creature_stats_debug_dump();
 #endif
         game.play_gameturn++;
+        game.missed_gameturns = 0;
     }
 
     message_update();
     update_all_players_cameras();
+    update_local_cameras_post();
     update_player_sounds();
     SYNCDBG(6,"Finished");
 }
@@ -3494,7 +3497,11 @@ extern "C" void network_yield_waiting_gameplay_packets()
     poll_inputs();
     gameplay_loop_draw();
     gameplay_loop_timestep();
-    game.process_turn_time = min(game.process_turn_time, (long double)1.0);
+    if (game.process_turn_time >= 1)
+    {
+        game.process_turn_time -= 1;
+        game.missed_gameturns += 1;
+    }
     frametime_start_measurement(Frametime_Logic);
     if (frametime_enabled()) {
         framerate_measurement_capture(Framerate_Logic);

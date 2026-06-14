@@ -530,62 +530,67 @@ static void calculate_hud_scale(struct Camera *cam) {
     hud_scale = ((range_input - range_min)) / (range_max - range_min);
 }
 
-float interpolate(float variable_to_interpolate, long previous, long current)
+float interpolate(float previous, float current)
 {
     if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
-    // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
-    long future = current + (current - previous);
-    // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
-    float desired_value = LbLerp(current, future, 0.5);
-    return LbLerp(variable_to_interpolate, desired_value, game.delta_time);
+    return LbLerp(previous, current, game.process_turn_time);
 }
 
-float interpolate_angle(float variable_to_interpolate, float previous, float current)
+float interpolate_angle(float previous, float current)
 {
     if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
-    float future = current + (current - previous);
-    float desired_value = lerp_angle(current, future, 0.5);
-    float result = lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
-    float result_change = LbFmodf((result - current) + DEGREES_180, DEGREES_360) - DEGREES_180;
-    if (result_change > -0.5f && result_change < 0.5f) {
+    return lerp_angle(previous, current, game.process_turn_time);
+}
+
+float interpolate_synced(float previous, float current)
+{
+    if (! is_feature_on(Ft_DeltaTime)
+        || game.frame_skip > 0
+        || flag_is_set(game.operation_flags, GOF_Paused))
+    {
         return current;
     }
-    return result;
+    const float t = min(20, game.missed_gameturns + game.process_turn_time);
+    return LbLerp(previous, current, t);
 }
 
 void interpolate_thing(struct Thing *thing)
 {
     // Note: if delta_time is off the interpolated position will also reflect that
+    if (thing->creation_turn == get_gameturn() - 1)
+    {
+        // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1
+        // turn) in certain situations, which can mess up the interpolation and
+        // cause things to fall from the sky.
+        if (thing->mappos.z.val == 65534)
+            thing->mappos.z.val = thing->floor_height;
 
-    if (thing->creation_turn == get_gameturn()-1 || get_gameturn() - thing->last_turn_drawn > 1 ) {
-        // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
+        // Set initial interp position when Thing has just been created
+        thing->previous_mappos = thing->mappos;
+        thing->previous_floor_height = thing->floor_height;
+    }
+    // Interpolate position every frame
+    thing->interp_mappos.x.val = interpolate_synced(thing->previous_mappos.x.val, thing->mappos.x.val);
+    thing->interp_mappos.y.val = interpolate_synced(thing->previous_mappos.y.val, thing->mappos.y.val);
+    thing->interp_mappos.z.val = interpolate_synced(thing->previous_mappos.z.val, thing->mappos.z.val);
+    thing->interp_floor_height = interpolate_synced(thing->previous_floor_height, thing->floor_height);
+
+    // Cancel interpolation if distance to interpolate is too far. This is a
+    // catch-all to solve any remaining interpolation bugs.
+    if ((abs(thing->interp_mappos.x.val - thing->mappos.x.val) >= 10000) ||
+        (abs(thing->interp_mappos.y.val - thing->mappos.y.val) >= 10000) ||
+        (abs(thing->interp_mappos.z.val - thing->mappos.z.val) >= 10000))
+    {
+        ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation.",
+                 thing_model_name(thing), (int)thing->index, (int)thing->owner,
+                 thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num,
+                 thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
         thing->interp_mappos = thing->mappos;
         thing->interp_floor_height = thing->floor_height;
-
-        if (thing->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
-            thing->interp_mappos.z.val = thing->interp_floor_height;
-        }
-    } else {
-        // Interpolate position every frame
-        thing->interp_mappos.x.val = interpolate(thing->interp_mappos.x.val, thing->previous_mappos.x.val, thing->mappos.x.val);
-        thing->interp_mappos.z.val = interpolate(thing->interp_mappos.z.val, thing->previous_mappos.z.val, thing->mappos.z.val);
-        thing->interp_mappos.y.val = interpolate(thing->interp_mappos.y.val, thing->previous_mappos.y.val, thing->mappos.y.val);
-        thing->interp_floor_height = interpolate(thing->interp_floor_height, thing->previous_floor_height, thing->floor_height);
-
-        // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
-        if ((abs(thing->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
-            (abs(thing->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
-            (abs(thing->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
-        {
-            ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation."
-                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
-            thing->interp_mappos = thing->mappos;
-            thing->interp_floor_height = thing->floor_height;
-        }
     }
 }
 
