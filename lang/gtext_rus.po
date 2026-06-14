@@ -540,8 +540,8 @@ msgid ""
 "A Troll has joined you. Skilled in the craft of manufacturing, Trolls are best employed doing dark deeds in your "
 "Workshop. They don't complain about the hours, because their labours keep them away from combat."
 msgstr ""
-"Тролли присоединились к Вам. Они искусные работники и творят самые темные делишки в мастерской. Они не "
-"жалуются на рабочий график, поскольку работа позволяет им держаться подальше от сражений."
+"Тролль присоединился к Вам. Эти создания - искусные работники, которые творят самые темные делишки в мастерской. "
+"Они не жалуются на рабочий график, поскольку работа позволяет им держаться подальше от сражений."
 
 #. Level Flowerhat objective
 #: guitext:53
