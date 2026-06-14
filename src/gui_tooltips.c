@@ -63,6 +63,9 @@ float render_tooltip_scroll_offset; // Rendering float
 float render_tooltip_scroll_timer; // Rendering float
 struct ToolTipBox tool_tip_box;
 
+
+struct TooltipDebugInfo tool_tip_dbg = {0};
+
 /******************************************************************************/
 static inline void reset_scrolling_tooltip(void)
 {
@@ -283,7 +286,12 @@ short setup_land_tooltips(struct Coord3d *pos)
           return true;
       }
   }
-  set_gui_tooltip_box_fmt(2, "%s", get_string(slabst->tooltip_stridx));
+
+  char str_pos[256] = {0};
+  if (tool_tip_dbg.land_coord)
+      sprintf(str_pos, "[ debug - slab:%d,%d / subtile:%d,%d / coord:%d,%d ]  ", (int)subtile_slab(pos->x.stl.num), (int)subtile_slab(pos->y.stl.num), (int)pos->x.stl.num, (int)pos->y.stl.num, (int)pos->x.val, (int)pos->y.val);
+
+  set_gui_tooltip_box_fmt(2, "%s%s", str_pos, get_string(slabst->tooltip_stridx));
   return true;
 }
 
