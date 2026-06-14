@@ -46,6 +46,7 @@
 #include "gui_boxmenu.h"
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
+#include "gui_tooltips.h"
 #include "keeperfx.hpp"
 #include "lvl_script_lib.h"
 #include "map_blocks.h"
@@ -2594,6 +2595,23 @@ TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_show_tooltip_land_coord(PlayerNumber plyr_idx, char * args)
+{
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "tooltip_land_coord status: %d", tool_tip_dbg.land_coord ? 1 : 0);
+    } else {
+        tool_tip_dbg.land_coord = atoi(pr1str) != 0;
+    }
+    return true;
+}
+
+TbBool cmd_toggle_lights(PlayerNumber plyr_idx, char * args)
+{
+    light_set_lights_on(game.lish.light_enabled == 0);
+    return true;
+}
+
 TbBool cmd_lua(PlayerNumber plyr_idx, char * args)
 {
     if (game.easter_eggs_enabled == false) {
@@ -2644,38 +2662,38 @@ TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
     }
 
     if (menu_type != 1)
-	{
+    {
         close_main_cheat_menu();
-	}
+    }
     if (menu_type != 2)
-	{
+    {
         close_creature_cheat_menu();
-	}
+    }
     if (menu_type != 3)
-	{
+    {
         close_instance_cheat_menu();
-	}
-	if (menu_type != 4)
-	{
+    }
+    if (menu_type != 4)
+    {
         close_secondary_cheat_menu();
-	}
+    }
 
     if (menu_type == 1)
-	{
+    {
         toggle_main_cheat_menu();
-	}
+    }
     else if (menu_type == 2)
-	{
+    {
         toggle_creature_cheat_menu();
-	}
+    }
     else if (menu_type == 3)
-	{
+    {
         toggle_instance_cheat_menu();
-	}
-	else if (menu_type == 4)
-	{
+    }
+    else if (menu_type == 4)
+    {
         toggle_secondary_cheat_menu();
-	}
+    }
 
     return true;
 }
@@ -2811,6 +2829,8 @@ static const struct ConsoleCommand console_commands[] = {
     { "possession.unlock", cmd_possession_unlock, NULL },
     { "string.show", cmd_string_show, NULL },
     { "quick.show", cmd_quick_show, NULL },
+    { "show.tooltip.land.coord", cmd_show_tooltip_land_coord, NULL },
+    { "toggle.lights", cmd_toggle_lights, NULL },
     { "lua", cmd_lua, NULL },
     { "luatypedump", cmd_luatypedump, NULL },
     { "cheat.menu", cmd_cheat_menu, NULL },
