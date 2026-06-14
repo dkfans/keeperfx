@@ -308,26 +308,6 @@ enum DkcodepageLetter {
    DKChr_unused40,
 };
 
-struct AsianFont {
-  const char *fname;
-  unsigned char *data;
-  unsigned long data_length;
-  unsigned long chars_count;
-  unsigned long ndata_shift;
-  unsigned long ndata_scanline;
-  unsigned long sdata_shift;
-  unsigned long sdata_scanline;
-  unsigned long narrow_width;
-  unsigned long narrow_height;
-  unsigned long bits_width;
-  unsigned long bits_height;
-  unsigned long narrow_spacing;
-  unsigned long kana_spacing;
-  unsigned long wide_spacing;
-  unsigned long baseline_offset;
-  unsigned long line_spacing;
-};
-
 struct AsianDraw {
   unsigned long draw_char;
   unsigned long bits_width;
@@ -397,10 +377,8 @@ const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, cons
 
 void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(int units_per_px, const char *text);
-void dbc_set_language(short ilng);
 short dbc_initialize(const char *fpath);
 TbBool is_dbc_language(short language);
-uint8_t get_dbc_id(short language);
 
 /******************************************************************************/
 #ifdef __cplusplus

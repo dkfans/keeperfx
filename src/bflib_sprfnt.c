@@ -42,30 +42,6 @@ extern "C" {
 /******************************************************************************/
 #define DOUBLE_UNDERLINE_BOUND 16
 
-struct AsianFont dbcJapFonts[] = {
-  {"font12j.fon", 0, 215136, 0x2284, 0, 12, 0x0C00, 24, 6, 12, 12, 12, 0, 1, 1, 1, 1},
-  {"font16j.fon", 0, 286848, 0x2284, 0, 16, 0x1000, 32, 8, 16, 16, 16, 0, 1, 1, 4, 2},
-  {"font24j.fon", 0, 561744, 0x2284, 0, 24,      0, 72, 8, 24, 24, 24, 0, 1, 1, 4, 2},
-};
-
-struct AsianFont dbcChiFonts[] = {
-  {"font12c.fon", 0, 199344, 0x1FF2, 0, 12, 0x0C00, 24, 6, 12, 12, 12, 0, 1, 1, 1, 1},
-  {"font16c.fon", 0, 271712, 0x20AB, 0, 16, 0x1000, 32, 8, 16, 16, 16, 0, 1, 1, 4, 2},
-  {"font16c.fon", 0, 271712, 0x20AB, 0, 16, 0x1000, 32, 8, 16, 16, 16, 0, 1, 1, 4, 2},
-};
-
-struct AsianFont dbcChtFonts[] = {
-  {"font12f.fon", 0, 215700, 0x1FF2, 0, 12, 0x0C00, 26, 6, 12, 15, 13, 0, 1, 1, 1, 1},
-  {"font16f.fon", 0, 265792, 0x1FF2, 0, 16, 0x1000, 32, 8, 16, 16, 16, 0, 1, 1, 4, 2},
-  {"font16f.fon", 0, 265792, 0x1FF2, 0, 16, 0x1000, 32, 8, 16, 16, 16, 0, 1, 1, 4, 2},
-};
-
-struct AsianFont dbcKorFonts[] = {
-  {"font16k.fon", 0, 271712, 0x20AB, 0, 16, 0x1000, 32, 8, 16, 16, 16, 0, 1, 1, 4, 2},
-  {"font16k.fon", 0, 271712, 0x20AB, 0, 16, 0x1000, 32, 8, 16, 16, 16, 0, 1, 1, 4, 2},
-  {"font16k.fon", 0, 271712, 0x20AB, 0, 16, 0x1000, 32, 8, 16, 16, 16, 0, 1, 1, 4, 2},
-};
-
 long dbc_colour0 = 0;
 long dbc_colour1 = 0;
 short dbc_language = 0;
@@ -1490,16 +1466,6 @@ void dbc_shutdown(void)
   dbc_initialized = 0;
 }
 
-/**
- * Sets a DBC Language for font initialization.
- */
-void dbc_set_language(short ilng)
-{
-  uint8_t dbc_id = get_dbc_id(ilng);
-  if (!dbc_initialized)
-    dbc_language = dbc_id;
-}
-
 char * prepare_font_filename(const char * fpath, const char * fname) {
   if (fpath == NULL || fpath[0] == 0)
   {
@@ -1533,41 +1499,6 @@ char * prepare_font_filename(const char * fpath, const char * fname) {
     snprintf(buffer, buffer_size, "%s%s", fpath, fname);
   }
   return buffer;
-}
-
-short load_font_file(struct AsianFont * dbcfont, const char * fpath) {
-  char * fname = prepare_font_filename(fpath, dbcfont->fname);
-  if (fname == NULL)
-  {
-    ERRORLOG("Can't allocate memory for font filename %s", dbcfont->fname);
-    return 2;
-  }
-  // Allocate memory for the font, dbc_shutdown will free this memory later
-  dbcfont->data = calloc(dbcfont->data_length, 1);
-  if (dbcfont->data == NULL)
-  {
-    ERRORLOG("Can't allocate memory for font %s", dbcfont->fname);
-    free(fname);
-    return 2;
-  }
-  // Load font file
-  SYNCDBG(9, "Loading font \"%s\"", fname);
-  TbFileHandle fhandle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-  if (!fhandle)
-  {
-    ERRORLOG("Cannot open \"%s\"", fname);
-    free(fname);
-    return 1;
-  }
-  if (LbFileRead(fhandle, dbcfont->data, dbcfont->data_length) != (long) dbcfont->data_length)
-  {
-      ERRORLOG("Error reading %ld bytes from \"%s\"", dbcfont->data_length, fname);
-      free(fname);
-      return 3;
-  }
-  LbFileClose(fhandle);
-  free(fname);
-  return 0;
 }
 
 static short load_unifont_file(const char *fpath)
@@ -1694,24 +1625,10 @@ short dbc_initialize(const char *fpath)
 
 TbBool is_dbc_language(short language)
 {
-    return (language == Lang_Japanese) || (language == Lang_ChineseInt) || (language == Lang_ChineseTra) || (language == Lang_Korean);
+    return (language == Lang_Japanese) || (language == Lang_ChineseInt) || 
+           (language == Lang_ChineseTra) || (language == Lang_Korean);
 }
 
-uint8_t get_dbc_id(short language)
-{
-    switch (language)
-    {
-    case Lang_Japanese:
-        return DbcId_Japanese;
-    case Lang_ChineseInt:
-        return DbcId_ChineseInt;
-    case Lang_ChineseTra:
-        return DbcId_ChineseTra;
-    case Lang_Korean:
-        return DbcId_Korean;
-    }
-    return 0;
-}
 
 /******************************************************************************/
 #ifdef __cplusplus
