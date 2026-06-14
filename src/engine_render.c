@@ -558,7 +558,7 @@ float interpolate_synced(float previous, float current)
     return LbLerp(previous, current, t);
 }
 
-static void interpolate_thing(struct Thing *thing)
+void interpolate_thing(struct Thing *thing)
 {
     // Note: if delta_time is off the interpolated position will also reflect that
     if (thing->creation_turn == get_gameturn() - 1)

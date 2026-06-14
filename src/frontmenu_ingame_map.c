@@ -233,9 +233,10 @@ static void map_to_minimap(MapCoord* x, MapCoord* y, const struct Camera *cam, i
     *y = (tmp_y * cos - tmp_x * sin) >> 16;
 }
 
-static struct Coord2d thing_minimap_position(const struct Thing* thing, const struct Camera *cam, int32_t zoom)
+static struct Coord2d thing_minimap_position(struct Thing* thing, const struct Camera *cam, int32_t zoom)
 {
     struct Coord2d result;
+    interpolate_thing(thing);
     MapCoord x = thing->interp_mappos.x.val;
     MapCoord y = thing->interp_mappos.y.val;
     map_to_minimap(&x, &y, cam, zoom);
