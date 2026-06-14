@@ -34,12 +34,12 @@ SoundManager::SoundManager()
     , snapshot_total_custom_sounds_(0)
     , snapshot_valid_(false)
 {
-    SYNCLOG("Constructor called");
+    SYNCDBG(7,"Constructor called");
 }
 
 // Destructor
 SoundManager::~SoundManager() {
-    SYNCLOG("Destructor called - played %d sounds total", total_plays_);
+    SYNCDBG(7,"Destructor called - played %d sounds total", total_plays_);
 }
 
 // Initialize
@@ -68,16 +68,16 @@ bool SoundManager::initialize() {
 // Play sound effect
 SoundEmitterID SoundManager::playEffect(SoundSmplTblID sample_id, long priority, SoundVolume volume) {
     if (!initialized_) {
-        SYNCLOG("Not initialized, cannot play sound %d", sample_id);
+        SYNCDBG(8,"Not initialized, cannot play sound %d", sample_id);
         return 0;
     }
     
     if (SoundDisabled) {
-        SYNCLOG("Sound disabled, skipping sample %d", sample_id);
+        SYNCDBG(18,"Sound disabled, skipping sample %d", sample_id);
         return 0;
     }
     
-    SYNCLOG("Playing effect: sample=%d, priority=%ld, volume=%ld",
+    SYNCDBG(18,"Playing effect: sample=%d, priority=%ld, volume=%ld",
            sample_id, priority, volume);
     
     total_plays_++;
@@ -90,12 +90,12 @@ SoundEmitterID SoundManager::playEffect(SoundSmplTblID sample_id, long priority,
 // Play creature sound
 void SoundManager::playCreatureSound(struct Thing* thing, long sound_type, long priority) {
     if (!initialized_ || thing_is_invalid(thing)) {
-        SYNCLOG("Cannot play creature sound (initialized=%d, thing_valid=%d)",
+        SYNCDBG(8,"Cannot play creature sound (initialized=%d, thing_valid=%d)",
                initialized_, !thing_is_invalid(thing));
         return;
     }
     
-    SYNCLOG("Playing creature sound: thing_idx=%d, type=%ld, priority=%ld",
+    SYNCDBG(18,"Playing creature sound: thing_idx=%d, type=%ld, priority=%ld",
            thing->index, sound_type, priority);
     
     total_plays_++;
@@ -110,7 +110,7 @@ void SoundManager::stopEffect(SoundEmitterID emitter_id) {
         return;
     }
     
-    SYNCLOG("Stopping sound: emitter_id=%ld", emitter_id);
+    SYNCDBG(18,"Stopping sound: emitter_id=%ld", emitter_id);
     
     S3DDestroySoundEmitterAndSamples(emitter_id);
 }
@@ -122,7 +122,7 @@ bool SoundManager::isEffectPlaying(SoundEmitterID emitter_id) const {
     }
     
     bool playing = S3DEmitterIsPlayingAnySample(emitter_id);
-    SYNCLOG("Checking if playing: emitter_id=%ld, playing=%d",
+    SYNCDBG(18,"Checking if playing: emitter_id=%ld, playing=%d",
            emitter_id, playing);
     return playing;
 }
@@ -130,11 +130,11 @@ bool SoundManager::isEffectPlaying(SoundEmitterID emitter_id) const {
 // Play music
 bool SoundManager::playMusic(int track_number) {
     if (!initialized_) {
-        SYNCLOG("Not initialized, cannot play music");
+        SYNCDBG(8,"Not initialized, cannot play music");
         return false;
     }
     
-    SYNCLOG("Playing music track %d", track_number);
+    SYNCDBG(18,"Playing music track %d", track_number);
     
     if (track_number == 0) {
         stopMusic();
@@ -146,7 +146,7 @@ bool SoundManager::playMusic(int track_number) {
 
 // Stop music
 void SoundManager::stopMusic() {
-    SYNCLOG("Stopping music");
+    SYNCDBG(18,"Stopping music");
     stop_music();
 }
 
