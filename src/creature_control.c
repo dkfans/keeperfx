@@ -288,16 +288,17 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
 void stop_creature_sound(struct Thing *thing, long snd_idx)
 {
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
-    if (crsound->index <= 0) {
+    if (crsound->index == 0) {
         SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
 
     for (int i = 0; i < crsound->count; i++)
     {
-        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i))
+        SoundSmplTblID uid = creature_sound_unified_id(crsound, i);
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, uid))
         {
-            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, crsound->index+i);
+            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, uid);
         }
     }
 }
@@ -341,14 +342,15 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
         return;
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
-    if (crsound->index <= 0) {
+    if (crsound->index == 0) {
         SYNCDBG(14,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
     long i = SOUND_RANDOM(crsound->count);
     struct Thing* efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
     if (!thing_is_invalid(efftng)) {
-        thing_play_sample(efftng, crsound->index+i, NORMAL_PITCH, 0, 3, 0, sound_priority, FULL_LOUDNESS);
+        thing_play_sample(efftng, (SoundSmplTblID)(crsound->index < 0 ? crsound->index - i : crsound->index + i),
+            NORMAL_PITCH, 0, 3, 0, sound_priority, FULL_LOUDNESS);
     }
 }
 
