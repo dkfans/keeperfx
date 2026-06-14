@@ -129,7 +129,7 @@ static TbBool is_single_char_word(unsigned long chr)
  * @param draw_colr
  * @param shadow_colr
  */
-void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height, uchar draw_colr, uchar shadow_colr)
+static void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height, uchar draw_colr, uchar shadow_colr)
 {
     long h = height;
     long w = width;
@@ -154,47 +154,7 @@ void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height, uchar 
     }
 }
 
-unsigned short dbc_char_to_font_char(unsigned long chr)
-{
-    unsigned char i;
-    unsigned char k;
-    unsigned short font_char;
-    switch (dbc_language)
-    {
-    default:
-    case DbcId_Japanese:
-    {
-        i = ((chr)&0xFF);
-        if (i >= 128)
-          i-=32;
-        else
-          i-=31;
-        k = ((chr>>8)&0xFF) - 129;
-        if (k >= 31)
-          k -= 64;
-        k *= 2;
-        if (i >= 127)
-        {
-          k++;
-          i -= 94;
-        }
-        unsigned short n = ((k + 33) << 8) + i - (33 << 8) - 33;
-        font_char = 94 * ((n >> 8)&0xFF) + ((n)&0xFF);
-        break;
-    }
-    case DbcId_ChineseInt:
-    case DbcId_ChineseTra:
-    case DbcId_Korean:
-        i = ((chr)&0xFF);
-        k = ((chr>>8)&0xFF);
-        font_char = 94 * (short)k + i - 15295;
-        break;
-    }
-    SYNCDBG(19,"Char %04X converted to %d",(int)chr,(int)font_char);
-    return font_char;
-}
-
-int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
+static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
 {
     SYNCDBG(19,"Starting");
     if (adraw == NULL)
@@ -221,7 +181,7 @@ int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
 
 }
 
-int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsigned char *src_buf,
+static int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsigned char *src_buf,
       unsigned short src_bitwidth, short start_x, short start_y, short width, short height,
       short colr1, short colr2)
 {
@@ -263,7 +223,7 @@ int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsigned cha
     return 0;
 }
 
-int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct AsianDraw *adraw,
+static int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct AsianDraw *adraw,
       long pos_x, long pos_y, short colr1, short colr2, short colr3)
 {
     long scr_x;
@@ -377,7 +337,7 @@ skip_sprite_draw:
     return 0;
 }
 
-int get_bit_to_array(unsigned char* arrD, int iX, int iY, int iMax)
+static int get_bit_to_array(unsigned char* arrD, int iX, int iY, int iMax)
 {
     int iRet = 0;
     int iBytePos = 0;
@@ -392,7 +352,7 @@ int get_bit_to_array(unsigned char* arrD, int iX, int iY, int iMax)
     return iRet;
 }
 
-void set_bit_to_array(unsigned char* arrD, int iX, int iY, int iMax, int iValue)
+static void set_bit_to_array(unsigned char* arrD, int iX, int iY, int iMax, int iValue)
 {
     int iBytePos = 0;
     int iModBitPos = 0;
@@ -407,7 +367,7 @@ void set_bit_to_array(unsigned char* arrD, int iX, int iY, int iMax, int iValue)
         *(arrD + iBytePos) &= ~(0x80 >> iModBitPos);
 }
 
-void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x, long y, long space_len, int units_per_px)
+static void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x, long y, long space_len, int units_per_px)
 {
     const char *c;
     long w;
@@ -555,7 +515,7 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
  * @param y
  * @param len
  */
-void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, long x, long y, long space_len, int units_per_px)
+static void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, long x, long y, long space_len, int units_per_px)
 {
   const char *c;
   const struct TbSprite *spr;
@@ -963,7 +923,7 @@ int LbTextHeight(const char *text)
     }
 }
 
-long dbc_char_widthM(unsigned long chr, long units_per_px)
+static long dbc_char_widthM(unsigned long chr, long units_per_px)
 {
     if (chr == 0)
     {
