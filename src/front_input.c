@@ -35,6 +35,7 @@
 #include "net_lobby.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sndlib.h"
 #include "bflib_joyst.h"
 #include "kjm_input.h"
@@ -98,6 +99,8 @@ TbBool first_person_see_item_desc = false;
 
 long old_mx;
 long old_my;
+
+enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
@@ -417,6 +420,11 @@ float get_game_key_axis_value(long key_id, TbBool ignore_mods)
 static short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
+    if (!LbIsTextInputActive())
+    {
+        LbStartTextInput();
+    }
+
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
@@ -426,23 +434,26 @@ static short get_players_message_inputs(void)
         player->allocflags &= ~PlaF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_RETURN);
+        LbStopTextInput();
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
+        player->allocflags &= ~PlaF_NewMPMessage;
+        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_ESCAPE);
+        LbStopTextInput();
     } else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char) {
         cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         clear_key_pressed(KC_TAB);
     } else if (is_key_pressed(KC_UP, KMod_NONE)) {
         memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_UP);
+    } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
+        int chpos = strlen(player->mp_message_text);
+        if (chpos > 0)
+            player->mp_message_text[chpos-1] = '\0';
+        clear_key_pressed(KC_BACK);
     } else {
-        LbTextSetFont(winfont);
-        if (is_key_pressed(KC_BACK,KMod_DONTCARE) || pixel_size * LbTextStringWidth(player->mp_message_text) < 450) {
-            message_text_key_add(player->mp_message_text, lbInkey, key_modifiers);
-            clear_key_pressed(lbInkey);
-            return true;
-        }
-        return false;
+        return add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
     }
     return true;
 }
@@ -643,7 +654,9 @@ static short get_bookmark_inputs(void)
             clear_key_pressed(kcode);
             if ((bmark->flags & 0x01) != 0)
             {
-                set_players_packet_action(player, PckA_BookmarkLoad, bmark->x, bmark->y, 0, 0);
+                const MapCoord x = subtile_coord_center(bmark->x);
+                const MapCoord y = subtile_coord_center(bmark->y);
+                set_players_packet_action(player, PckA_BookmarkLoad, x, y, 0, 0);
                 return true;
             }
         }
@@ -1661,7 +1674,7 @@ static short get_creature_control_action_inputs(void)
             if ((player->possession_lock == true) && thing_is_creature(thing))
             {
                 if (is_my_player(player))
-                    play_non_3d_sample(119); //refusal
+                    play_non_3d_sample(snd_refusal); //refusal
             }
             else
             {
@@ -2142,10 +2155,14 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         {
             if (wheel_scrolled_up)
             {
+                if (zoom_to_mouse_option == ZoomToMouse_Wheel)
+                    set_packet_control(pckt, PCtr_ViewZoomPos);
                 set_packet_control(pckt, PCtr_ViewZoomIn);
             }
             if (wheel_scrolled_down)
             {
+                if (zoom_to_mouse_option == ZoomToMouse_Wheel)
+                    set_packet_control(pckt, PCtr_ViewZoomPos);
                 set_packet_control(pckt, PCtr_ViewZoomOut);
             }
         }
@@ -2504,6 +2521,8 @@ static void get_dungeon_control_nonaction_inputs(void)
     turn_on_menu(GMnu_QUIT);
   }
   get_options_menu_inputs();
+  if (zoom_to_mouse_option == ZoomToMouse_Always)
+      set_packet_control(pckt, PCtr_ViewZoomPos);
   if ((player->allocflags & PlaF_NewMPMessage) == 0)
   {
       switch (player->view_mode)

@@ -27,6 +27,7 @@
 #include "front_input.h"
 #include "game_loop.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "gui_soundmsgs.h"
 #include "player_instances.h"
 #include "power_hand.h"
@@ -173,7 +174,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
         {
             if (is_my_player(player))
             {
-                play_non_3d_sample(119);
+                play_non_3d_sample(snd_refusal);
             }
         }
         unset_packet_control(pckt, PCtr_LBtnClick);
@@ -187,7 +188,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
         if (is_my_player(player))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         }
     }
     unset_packet_control(pckt, PCtr_LBtnClick);
@@ -310,7 +311,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         {
                             if (is_my_player(player))
                             {
-                                play_non_3d_sample(119);
+                                play_non_3d_sample(snd_refusal);
                                 output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                             }
                         }
@@ -337,7 +338,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                             {
                                 if (is_my_player(player))
                                 {
-                                    play_non_3d_sample(119);
+                                    play_non_3d_sample(snd_refusal);
                                     output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                                 }
                             }
@@ -459,7 +460,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         {
                             if (is_my_player(player))
                             {
-                                play_non_3d_sample(119);
+                                play_non_3d_sample(snd_refusal);
                                 output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                             }
                         }
@@ -678,7 +679,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
     if (i == 0)
     {
         if (is_my_player(player))
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         unset_packet_control(pckt, PCtr_LBtnClick);
         return false;
     }

@@ -153,8 +153,8 @@ void init_local_cameras(struct PlayerInfo *player)
 
 void process_local_minimap_click(struct Packet* packet) {
     if (packet != NULL && packet->action == PckA_BookmarkLoad) {
-        long pos_x = subtile_coord_center(packet->actn_par1);
-        long pos_y = subtile_coord_center(packet->actn_par2);
+        const MapCoord pos_x = packet->actn_par1;
+        const MapCoord pos_y = packet->actn_par2;
         for (int i = CamIV_Isometric; i <= CamIV_FrontView; i++) {
             if (i != CamIV_FirstPerson) {
                 destination_local_cameras[i].mappos.x.val = pos_x;
@@ -290,13 +290,17 @@ void interpolate_local_cameras(void)
         struct Camera* prev = &previous_local_cameras[i];
         struct Camera* desired = &destination_local_cameras[i];
         struct Camera* out = &local_cameras[i];
-        interpolated_cam_mappos_x[i] = interpolate(interpolated_cam_mappos_x[i], prev->mappos.x.val, desired->mappos.x.val);
-        interpolated_cam_mappos_y[i] = interpolate(interpolated_cam_mappos_y[i], prev->mappos.y.val, desired->mappos.y.val);
-        interpolated_cam_mappos_z[i] = interpolate(interpolated_cam_mappos_z[i], prev->mappos.z.val, desired->mappos.z.val);
+        struct Camera* prediction_base = prev;
+        if (prev->zoom != desired->zoom) {
+            prediction_base = desired;
+        }
+        interpolated_cam_mappos_x[i] = interpolate(interpolated_cam_mappos_x[i], prediction_base->mappos.x.val, desired->mappos.x.val);
+        interpolated_cam_mappos_y[i] = interpolate(interpolated_cam_mappos_y[i], prediction_base->mappos.y.val, desired->mappos.y.val);
+        interpolated_cam_mappos_z[i] = interpolate(interpolated_cam_mappos_z[i], prediction_base->mappos.z.val, desired->mappos.z.val);
         interpolated_cam_rotation_angle_x[i] = interpolate_angle(interpolated_cam_rotation_angle_x[i], prev->rotation_angle_x, desired->rotation_angle_x);
         interpolated_cam_rotation_angle_y[i] = interpolate_angle(interpolated_cam_rotation_angle_y[i], prev->rotation_angle_y, desired->rotation_angle_y);
         interpolated_cam_rotation_angle_z[i] = interpolate_angle(interpolated_cam_rotation_angle_z[i], prev->rotation_angle_z, desired->rotation_angle_z);
-        interpolated_camera_zoom[i] = interpolate(interpolated_camera_zoom[i], prev->zoom, desired->zoom);
+        interpolated_camera_zoom[i] = interpolate(interpolated_camera_zoom[i], desired->zoom, desired->zoom);
         out->mappos.x.val = (long)interpolated_cam_mappos_x[i];
         out->mappos.y.val = (long)interpolated_cam_mappos_y[i];
         out->mappos.z.val = (long)interpolated_cam_mappos_z[i];

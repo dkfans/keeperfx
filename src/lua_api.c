@@ -30,6 +30,7 @@
 #include "lua_base.h"
 #include "lua_params.h"
 #include "lua_api_lens.h"
+#include "lua_api_sound.h"
 
 
 #include "post_inc.h"
@@ -2584,4 +2585,5 @@ void reg_host_functions(lua_State *L)
     Camera_register(L);
     Lens_register(L);
     Map_register(L);
+    register_lua_sound_api(L);
 }

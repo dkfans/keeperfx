@@ -31,6 +31,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_guibtns.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_mouse.h"
 #include "bflib_mshandler.hpp"
 #include "bflib_filelst.h"
@@ -2414,8 +2415,8 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
         // Per-thing code
         if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->state_flags & TF1_DoFootsteps) == 0))
         {
-            if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
-                S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
+            if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25) ) {
+                S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25);
             }
         }
         // Per-thing code ends
@@ -3493,9 +3494,11 @@ extern "C" void network_yield_waiting_gameplay_packets()
     poll_inputs();
     gameplay_loop_draw();
     gameplay_loop_timestep();
+    game.process_turn_time = min(game.process_turn_time, (long double)1.0);
     frametime_start_measurement(Frametime_Logic);
-    if (frametime_enabled())
+    if (frametime_enabled()) {
         framerate_measurement_capture(Framerate_Logic);
+    }
 }
 
 extern "C" void update_velocity(void);
@@ -3606,7 +3609,7 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
 {
     if (!allowed) {
         if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         return 0;
     }
     if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
@@ -3980,7 +3983,7 @@ void game_loop(void)
       // The main considerations are:
       // 1. SKIP_HEART_ZOOM: the mouse icon position will be reset to the top-left corner (0, 0), but the actual mouse position remains unchanged.
       // 2. PI_HeartZoom: the mouse will be moved to the center of the screen.
-      LbMouseSetPositionInitial(mspos_x_bak, mspos_y_bak);
+      LbMouseSetPosition(mspos_x_bak, mspos_y_bak);
 
       unsigned long starttime;
       unsigned long endtime;
@@ -4015,6 +4018,9 @@ void game_loop(void)
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
+      // Reset sounds back to the fxdata baseline so the main menu (and any
+      // subsequent campaign/freeplay selection) hears unmodified defaults.
+      sound_reset_to_fxdata_baseline();
       endtime = LbTimerClock();
       quit_game = 0;
       if ((game.operation_flags & GOF_SingleLevel) != 0)

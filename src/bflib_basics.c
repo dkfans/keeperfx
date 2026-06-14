@@ -500,7 +500,7 @@ int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
   log->Initialised=false;
   log->Created=false;
   log->Suspended=false;
-  if (strlen(filename) > DISKPATH_SIZE || strlen(filename) == 0) {
+  if (strlen(filename) >= DISKPATH_SIZE || strlen(filename) == 0) {
     return -1;
   }
   snprintf(log->filename, DISKPATH_SIZE, "%s", filename);

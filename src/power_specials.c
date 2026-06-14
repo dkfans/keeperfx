@@ -631,7 +631,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
         {
             if (is_my_player(player) && !no_speech)
             {
-                output_message(specst->speech, 0);
+                play_speech_ref(&specst->speech, 0);
             }
             create_used_effect_or_element(&pos, specst->effect_id, player->id_number, cratetng->index);
         }

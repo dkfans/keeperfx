@@ -1,3 +1,4 @@
+/.local
 /bin
 /obj
 /sdl
@@ -44,3 +45,4 @@ res/keeperfx_icon.ico
 keeperfx.log
 crash_log.txt
 .local/
+.vscode/compile_and_copy_files.ps1

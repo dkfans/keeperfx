@@ -94,7 +94,7 @@ static void update_turn_speed_adjustment(void)
 {
     TbClockMSec sync_age_ms = LbTimerClock() - server_turn_received_at;
     multiplayer_speed_adjustment_ns = 0;
-    if (netstate.my_id == SERVER_ID || server_turn_received_at == 0 || turns_per_second <= 0
+    if (game.frame_skip > 0 || netstate.my_id == SERVER_ID || server_turn_received_at == 0 || turns_per_second <= 0
         || sync_age_ms > TURN_SYNC_INTERVAL_MS * 3) {
         return;
     }

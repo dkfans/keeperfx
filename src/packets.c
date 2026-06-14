@@ -33,12 +33,13 @@
 #include "bflib_keybrd.h"
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
+#include "bflib_planar.h"
 #include "bflib_dernc.h"
 #include "net_exchange_gameplay.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
-#include "bflib_planar.h"
 #include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
@@ -302,7 +303,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     }
     delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
     if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(115);
+        play_non_3d_sample(snd_tile_sell);
     if (revenue != 0)
     {
         struct Coord3d pos;
@@ -501,19 +502,23 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
             break;
         }
     }
-    unsigned long zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
-    unsigned long zoom_max = CAMERA_ZOOM_MAX;
+    const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
+    const int32_t zoom_max = CAMERA_ZOOM_MAX;
+    const TbBool with_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
+                         && (pckt->control_flags & PCtr_ViewZoomPos) != 0;
+    const MapCoord zoom_x = with_pos ? pckt->pos_x : -1;
+    const MapCoord zoom_y = with_pos ? pckt->pos_y : -1;
     if (pckt->control_flags & PCtr_ViewZoomIn)
     {
         switch (cam->view_mode)
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            view_zoom_camera_in(cam, zoom_max, zoom_min);
+            view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             break;
         default:
-            view_zoom_camera_in(cam, zoom_max, zoom_min);
+            view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             break;
         }
     }
@@ -523,11 +528,11 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            view_zoom_camera_out(cam, zoom_max, zoom_min);
+            view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             break;
         default:
-            view_zoom_camera_out(cam, zoom_max, zoom_min);
+            view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             break;
         }
     }
@@ -582,20 +587,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     }
     process_dungeon_control_packet_clicks(plyr_idx);
     set_mouse_light(player);
-}
-
-void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif)
-{
-    int chpos = strlen(message);
-    if (key == KC_BACK && chpos > 0) {
-        message[chpos-1] = '\0';
-    } else if (chpos < PLAYER_MP_MESSAGE_LEN - 1) {
-        char chr = key_to_ascii(key, kmodif);
-        if (isalnum(chr) || strchr(" !:;()._'+=\\\"?/#<>^,-", chr)) {
-            message[chpos] = chr;
-            message[chpos+1] = '\0';
-        }
-    }
 }
 
 TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
@@ -724,7 +715,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_BookmarkLoad:
-      set_player_cameras_position(player, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
+      set_player_cameras_position(player, pckt->actn_par1, pckt->actn_par2);
       return 0;
   case PckA_SetGammaLevel:
       if (is_my_player(player))
@@ -1080,10 +1071,7 @@ void process_players_packet(long plyr_idx)
     SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
-    if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar) && (pckt->actn_par1 > 0))
-    {
-        message_text_key_add(player->mp_message_text, pckt->actn_par1, pckt->actn_par2);
-  } else
+
   if (!process_players_global_packet_action(plyr_idx))
   {
       // Different changes to the game are possible for different views.

@@ -33,6 +33,7 @@
 #include "engine_render.h"
 #include "frontend.h"
 #include "front_simple.h"
+#include "front_input.h"
 #include "gui_draw.h"
 #include "scrcapt.h"
 #include "sounds.h"
@@ -156,6 +157,7 @@ const struct NamedCommand conf_commands[] = {
   {"FRAMES_PER_SECOND"             , 39},
   {"TAG_MODE_TOGGLING"             , 40},
   {"DEFAULT_TAG_MODE"              , 41},
+  {"ZOOM_TO_MOUSE"                 , 42},
   {NULL,                   0},
   };
 
@@ -193,6 +195,13 @@ const struct NamedCommand conf_commands[] = {
   {"DRAG",     2},
   {"PRESET",   3}, //legacy
   {"REMEMBER", 3},
+  {NULL,       0},
+  };
+
+  const struct NamedCommand zoom_to_mouse_options[] = {
+  {"NEVER",    ZoomToMouse_Never},
+  {"WHEEL",    ZoomToMouse_Wheel},
+  {"ALWAYS",   ZoomToMouse_Always},
   {NULL,       0},
   };
 
@@ -905,6 +914,17 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
           {
             default_tag_mode = i;
+          }
+          break;
+      case 42: // ZOOM_TO_MOUSE
+          i = recognize_conf_parameter(buf,&pos,len,zoom_to_mouse_options);
+          if (i <= 0)
+          {
+            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          else
+          {
+            zoom_to_mouse_option = i;
           }
           break;
       case ccr_comment:

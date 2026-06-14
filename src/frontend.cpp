@@ -546,15 +546,19 @@ short game_is_busy_doing_gui(void)
 
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 {
+    if (input_button == NULL)
+    {
+        if (LbIsTextInputActive())
+            LbStopTextInput();
+        return false;
+    }
+    if (!LbIsTextInputActive())
+        LbStartTextInput();
+
     char *str;
     TbKeyCode key;
-    unsigned short outchar;
-    TbLocChar vischar[4];
-    strcpy(vischar," ");
     str = gbtn->content.str;
     key = lbInkey;
-    outchar = key_to_ascii(key, key_modifiers);
-    vischar[0] = outchar;
     if (key == KC_RETURN)
     {
         if ((str[0] != '\0') || (modifiers == -3))
@@ -604,28 +608,21 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             input_field_pos--;
     } else
     if (key == KC_RIGHT)
-    { // move one char left
+    { // move one char right
         if (input_field_pos < LbLocTextStringLength(str))
             input_field_pos++;
     } else
     if (LbLocTextStringSize(str) < abs(gbtn->maxval))
     {
-        // Check if we have printable character
-        if (modifiers == -1)
+        char insert_text[64] = "";
+        if (add_input_text_to_message(insert_text, sizeof(insert_text), winfont, gbtn->width * pixel_size))
         {
-            if (!isprint(vischar[0])) {
-                clear_key_pressed(key);
-                return false;
+            if (insert_text[0] != '\0')
+            {
+                if (LbLocTextStringInsert(str, insert_text, input_field_pos, gbtn->maxval) != NULL) {
+                    input_field_pos += strlen(insert_text);
+                }
             }
-        } else
-        {
-            if (!isgraph(vischar[0]) && (vischar[0] != ' ')) {
-                clear_key_pressed(key);
-                return false;
-            }
-        }
-        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->maxval) != NULL) {
-            input_field_pos++;
         }
     }
     clear_key_pressed(key);

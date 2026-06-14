@@ -18,16 +18,21 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "gui_soundmsgs.h"
+#include "config_sounds.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "bflib_sndlib.h"
+#include "bflib_fileio.h"
 #include "bflib_planar.h"
 #include <deque>
 #include <algorithm>
 #include <string>
 #include <utility>
 #include <memory>
+#include <filesystem>
 #include <map>
+#include "config.h"
 #include "post_inc.h"
 
 namespace {
@@ -96,8 +101,9 @@ struct CustomMessage : Message {
 
 	void play() const noexcept override
 	{
-		play_streamed_sample(fname.c_str(), settings.mentor_volume);
-		g_recent_filenames[fname] = get_gameturn() + duration;
+		if (play_streamed_sample(fname.c_str(), settings.mentor_volume)) {
+			g_recent_filenames[fname] = get_gameturn() + duration;
+		}
 	}
 };
 
@@ -152,6 +158,99 @@ bool played_recently(const char * fname)
 
 } // local
 
+// Helper: resolve a speech file path using a 5-step fallback strategy:
+//   1. Language-specific variant (e.g. speech/dut/file.ogg)
+//   2. Base fallback path        (e.g. speech/file.ogg)
+//   3. English variant           (e.g. speech/eng/file.ogg)
+//   4. First available language subdirectory
+//   5. Empty string (not found)
+enum class SpeechResolveResult { LanguageMatch, FallbackBase, FallbackEng, FallbackAnyLang, NotFound };
+
+static std::string resolve_speech_path(const char* path, const char* lang,
+                                       SpeechResolveResult& result,
+                                       std::string& found_lang)
+{
+	static const TbFileGroups search_groups[] = {
+		FGrp_CmpgConfig, FGrp_CmpgLvls, FGrp_CmpgMedia, FGrp_Main
+	};
+	const unsigned int num_groups = sizeof(search_groups) / sizeof(search_groups[0]);
+	const char* slash = strrchr(path, '/');
+	result = SpeechResolveResult::NotFound;
+
+	// Step 1: language-specific variant
+	if (lang != nullptr && lang[0] != '\0') {
+		char lang_path[512];
+		if (slash != nullptr) {
+			snprintf(lang_path, sizeof(lang_path), "%.*s/%s/%s",
+				(int)(slash - path), path, lang, slash + 1);
+		} else {
+			snprintf(lang_path, sizeof(lang_path), "%s/%s", lang, path);
+		}
+		for (unsigned int g = 0; g < num_groups; g++) {
+			const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", lang_path);
+			if (candidate != nullptr && LbFileExists(candidate)) {
+				result = SpeechResolveResult::LanguageMatch;
+				return std::string(candidate);
+			}
+		}
+	}
+
+	// Step 2: English variant (if not already English)
+	if (lang == nullptr || strcmp(lang, "eng") != 0) {
+		char eng_path[512];
+		if (slash != nullptr) {
+			snprintf(eng_path, sizeof(eng_path), "%.*s/eng/%s",
+				(int)(slash - path), path, slash + 1);
+		} else {
+			snprintf(eng_path, sizeof(eng_path), "eng/%s", path);
+		}
+		for (unsigned int g = 0; g < num_groups; g++) {
+			const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", eng_path);
+			if (candidate != nullptr && LbFileExists(candidate)) {
+				result = SpeechResolveResult::FallbackEng;
+				return std::string(candidate);
+			}
+		}
+	}
+
+	// Step 3: base fallback path
+	for (unsigned int g = 0; g < num_groups; g++) {
+		const char* candidate = prepare_file_fmtpath(search_groups[g], "%s", path);
+		if (candidate != nullptr && LbFileExists(candidate)) {
+			result = SpeechResolveResult::FallbackBase;
+			return std::string(candidate);
+		}
+	}
+
+	// Step 4: first available language subdirectory
+	const char* filename = (slash != nullptr) ? (slash + 1) : path;
+	for (unsigned int g = 0; g < num_groups; g++) {
+		char base_dir[2048];
+		if (slash != nullptr) {
+			char dir_portion[512];
+			snprintf(dir_portion, sizeof(dir_portion), "%.*s", (int)(slash - path), path);
+			prepare_file_path_buf(base_dir, sizeof(base_dir), search_groups[g], dir_portion);
+		} else {
+			prepare_file_path_buf(base_dir, sizeof(base_dir), search_groups[g], "");
+		}
+		if (base_dir[0] == '\0') continue;
+		try {
+			for (auto& entry : std::filesystem::directory_iterator(base_dir)) {
+				if (!entry.is_directory()) continue;
+				const std::string lang_name = entry.path().filename().string();
+				const std::string candidate = entry.path().string() + "/" + filename;
+				if (LbFileExists(candidate.c_str())) {
+					result = SpeechResolveResult::FallbackAnyLang;
+					found_lang = lang_name;
+					return candidate;
+				}
+			}
+		} catch (...) {}
+	}
+
+	return "";
+}
+
 /**
  * Plays an in-game voice message.
  *
@@ -170,6 +269,30 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 			SYNCDBG(8, "Sample ID (%d) played recently, skipping", sample_id);
 			return false;
 		}
+		if (g_speech_overrides[sample_id][0] != '\0') {
+			const char* spath = g_speech_overrides[sample_id];
+			if (strcasecmp(spath, "none") == 0 || strcasecmp(spath, "null") == 0 || strcmp(spath, "0") == 0) {
+				SYNCDBG(8, "Sample ID (%d) silenced by override '%s', skipping", sample_id, spath);
+				return false;
+			}
+			const char* lang = get_language_lwrstr(install_info.lang_id);
+			SpeechResolveResult resolve_result;
+			std::string found_lang;
+			std::string resolved = resolve_speech_path(spath, lang, resolve_result, found_lang);
+			if (resolve_result == SpeechResolveResult::FallbackEng) {
+                SYNCDBG(8, "No speech for language '%s', using English fallback: %s", lang, spath);
+			} else if (resolve_result == SpeechResolveResult::FallbackBase) {
+                SYNCDBG(8, "No speech for language '%s' or English, using base fallback: %s", lang, spath);
+			} else if (resolve_result == SpeechResolveResult::FallbackAnyLang) {
+                SYNCDBG(8, "No speech for language '%s', English, or base fallback, using first available language '%s': %s",
+					lang, found_lang.c_str(), spath);
+			} else if (resolve_result == SpeechResolveResult::NotFound) {
+				WARNLOG("Speech '%s' not found for language '%s' and no fallback or alternative language exists",
+					spath, lang);
+				return false;
+			}
+			return output_custom_message(resolved.c_str(), duration);
+		}
 		auto msg = std::make_unique<DefaultMessage>(sample_id, duration);
 		if (speech_sample_playing()) {
 			return push_queue(std::move(msg));
@@ -180,6 +303,43 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 	} catch (const std::exception & e) {
 		ERRORLOG("%s", e.what());
 	}
+	return false;
+}
+
+/**
+ * Plays a speech file by searching campaign/level/media/root directories.
+ * Applies 5-step fallback: language variant -> eng -> base path -> any language -> nothing.
+ */
+extern "C" TbBool output_message_from_path(const char* path, long duration)
+{
+	const char* lang = get_language_lwrstr(install_info.lang_id);
+	SpeechResolveResult resolve_result;
+	std::string found_lang;
+	std::string resolved = resolve_speech_path(path, lang, resolve_result, found_lang);
+	if (resolve_result == SpeechResolveResult::FallbackEng) {
+        SYNCDBG(8, "No speech for language '%s', using English fallback: %s", lang, path);
+	} else if (resolve_result == SpeechResolveResult::FallbackBase) {
+        SYNCDBG(8, "No speech for language '%s' or English, using base fallback: %s", lang, path);
+	} else if (resolve_result == SpeechResolveResult::FallbackAnyLang) {
+        SYNCDBG(8, "No speech for language '%s', English, or base fallback, using first available language '%s': %s",
+			lang, found_lang.c_str(), path);
+	} else if (resolve_result == SpeechResolveResult::NotFound) {
+		WARNLOG("Speech '%s' not found for language '%s' and no fallback or alternative language exists",
+			path, lang);
+		return false;
+	}
+	return output_custom_message(resolved.c_str(), duration);
+}
+
+/**
+ * Plays a speech message from a SpeechRef, using path-based playback if a path is set.
+ */
+extern "C" TbBool play_speech_ref(const SpeechRef* ref, long duration)
+{
+	if (ref->path[0] != '\0')
+		return output_message_from_path(ref->path, duration);
+	if (ref->id > 0)
+		return output_message(ref->id, duration);
 	return false;
 }
 
@@ -299,10 +459,10 @@ extern "C" TbBool output_room_message(
 	const auto roomst = get_room_kind_stats(rkind);
 	switch (msg_kind)
 	{
-		case OMsg_RoomNeeded: return output_message(roomst->msg_needed, MESSAGE_DURATION_ROOM_NEED);
-		case OMsg_RoomTooSmall: return output_message(roomst->msg_too_small, MESSAGE_DURATION_ROOM_SMALL);
-		case OMsg_RoomFull: return output_message(roomst->msg_too_small, MESSAGE_DURATION_WORSHOP_FULL);
-		case OMsg_RoomNoRoute: return output_message(roomst->msg_no_route, MESSAGE_DURATION_ROOM_NEED);
+		case OMsg_RoomNeeded: return play_speech_ref(&roomst->msg_needed, MESSAGE_DURATION_ROOM_NEED);
+		case OMsg_RoomTooSmall: return play_speech_ref(&roomst->msg_too_small, MESSAGE_DURATION_ROOM_SMALL);
+		case OMsg_RoomFull: return play_speech_ref(&roomst->msg_too_small, MESSAGE_DURATION_WORSHOP_FULL);
+		case OMsg_RoomNoRoute: return play_speech_ref(&roomst->msg_no_route, MESSAGE_DURATION_ROOM_NEED);
 	}
 	return false;
 }

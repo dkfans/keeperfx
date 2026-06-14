@@ -13,6 +13,7 @@
             ],
             "windows": {
                 "miDebuggerPath": "${workspaceFolder}/.vscode/gdb.exe"
+                // "miDebuggerPath": "C:/msys64/mingw64/bin/gdb.exe"
             },
             "linux": {
                 "miDebuggerPath": "winegdb"

@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "room_data.h"
+#include "gui_soundmsgs.h"
 
 #include "config.h"
 
@@ -150,9 +151,9 @@ struct RoomConfigStats {
     int32_t medsym_sprite_idx;
     int32_t pointer_sprite_idx;
     uint32_t ambient_snd_smp_id;
-    int32_t msg_needed;
-    int32_t msg_too_small;
-    int32_t msg_no_route;
+    SpeechRef msg_needed;
+    SpeechRef msg_too_small;
+    SpeechRef msg_no_route;
     short cost;
     HitPoints health;
     FuncIdx update_total_capacity_idx;

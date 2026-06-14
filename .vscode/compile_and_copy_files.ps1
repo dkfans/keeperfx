@@ -52,17 +52,32 @@ else
     Write-Host "Directory '$gameDir' valid, exists on-disk" -ForegroundColor DarkGray;
 }
 
+
 $debugFlag      = 'DEBUG=0';
 $debugFlagFTest = 'FTEST_DEBUG=0';
+$heavyLog       = $false;
+$jobsArg = '`nproc`';
 
 $compileSetting = (Get-Content "$compileSettingsFile" -Raw).Trim();
-if ($compileSetting -like '*DEBUG=1*')
+if ($compileSetting -match '\bDEBUG=1\b')
 {
     $debugFlag = 'DEBUG=1';
 }
-if ($compileSetting -like 'FTEST_DEBUG=*')
+if ($compileSetting -match '\bFTEST_DEBUG=1\b')
 {
     $debugFlagFTest = 'FTEST_DEBUG=1';
+}
+if ($compileSetting -match '\bHEAVYLOG=1\b')
+{
+    $heavyLog = $true;
+}
+if ($compileSetting -match '\bMAKE_JOBS=(\d+)\b')
+{
+    $jobsValue = [int]$Matches[1];
+    if ($jobsValue -gt 0)
+    {
+        $jobsArg = $jobsValue;
+    }
 }
 
 if ($debugFlag -eq 'DEBUG=1')
@@ -78,7 +93,17 @@ if ($debugFlagFTest -eq 'FTEST_DEBUG=1')
 {
     Write-Host 'Compiling with FTEST_DEBUG=1' -ForegroundColor Magenta;
 }
-wsl make all -j`nproc` $debugFlag $debugFlagFTest;
+
+if ($heavyLog)
+{
+    Write-Host 'Compiling with HEAVYLOG=1 (BFDEBUG_LEVEL=10)' -ForegroundColor Cyan;
+}
+
+Write-Host "Compiling with jobs: $jobsArg" -ForegroundColor Cyan;
+
+
+$makeTarget = if ($heavyLog) { 'heavylog' } else { 'all' };
+wsl bash -c "make $makeTarget -j $jobsArg $debugFlag $debugFlagFTest";
 if ($?) {
     Write-Host 'Compilation successful!' -ForegroundColor Green;
 }
@@ -87,4 +112,7 @@ else
     Write-Host 'Compilation failed!' -ForegroundColor Red;
     exit 1;
 }
+
+
 Copy-Item -Path "${workspaceFolder}\\bin\\*" -Destination $gameDir -Force;
+

@@ -1706,9 +1706,9 @@ static void new_room_type_check(const struct ScriptLine* scline)
     roomst->pointer_sprite_idx = 0;
     roomst->panel_tab_idx = 0;
     roomst->ambient_snd_smp_id = 0;
-    roomst->msg_needed = 0;
-    roomst->msg_too_small = 0;
-    roomst->msg_no_route = 0;
+    memset(&roomst->msg_needed, 0, sizeof(SpeechRef));
+    memset(&roomst->msg_too_small, 0, sizeof(SpeechRef));
+    memset(&roomst->msg_no_route, 0, sizeof(SpeechRef));
     roomst->roles = RoRoF_None;
     roomst->cost = 0;
     roomst->health = 0;

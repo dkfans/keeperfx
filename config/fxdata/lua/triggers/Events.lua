@@ -266,3 +266,23 @@ function RegisterOnShotHitEvent(action, shooter_type, target_type, shot_type)
     end
     return trigger
 end
+
+
+---Triggers when a chat message is received
+---eventData.Player contains the player who sent the message
+---eventData.Message contains the message text
+---@param action function|string the function to call when the event happens
+---@param player? Player filter on the player who sent the message (nil for any)
+---@param message? string filter on the message text (nil for any)
+---@return table
+function RegisterOnChatMsgEvent(action, player, message)
+    local trigData = {player = player, message = message}
+    local trigger = CreateTrigger("ChatMsg", action, trigData)
+    if player then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Player == triggerData.player end)
+    end
+    if message then
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Message == triggerData.message end)
+    end
+    return trigger
+end

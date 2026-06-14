@@ -22,6 +22,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "game_legacy.h"
+#include "config_sounds.h"
 #include "kjm_input.h"
 #include "front_input.h"
 #include "player_utils.h"
@@ -1139,7 +1140,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
     if (is_my_player(player))
     {
         if ((dig_change_count > 0) && !local_dig_prediction_is_enabled()) {
-            play_non_3d_sample(118);
+                play_non_3d_sample(snd_tile_dig);
         }
     }
 }

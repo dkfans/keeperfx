@@ -874,7 +874,7 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
               cctrl->party.objective = member->objectv;
               cctrl->party.target_plyr_idx = member->target;
               cctrl->party.original_objective = cctrl->party.objective;
-              cctrl->wait_to_turn = get_gameturn() + member->countdown;
+              cctrl->wait_to_turn = max(0,(member->countdown + (int32_t)get_gameturn()));
               cctrl->hero.wait_time = get_gameturn() + member->countdown;
               if (thing_is_invalid(grptng))
               {
