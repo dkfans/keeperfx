@@ -22,6 +22,7 @@
 #include "config_settings.h"
 #include "config_keeperfx.h"
 #include "game_legacy.h"
+#include "sound_manager.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
 #include "bflib_planar.h"
@@ -489,17 +490,21 @@ void script_play_message(TbBool param_is_string, const char msgtype_id, const sh
     }
     else
     {
-        const char * filepath = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", filename);
         switch (msgtype_id)
         {
             case 1: // speech message
             {
-                output_custom_message(filepath, settings.mentor_volume);
+                output_message_from_path(filename, settings.mentor_volume);
                 break;
             }
             case 2: // sound effect
             {
-                play_streamed_sample(filepath, settings.sound_volume);
+                const SoundSmplTblID sound_id = sound_manager_load_named_sound(filename, filename, 1);
+                if (sound_id > 0) {
+                    play_non_3d_sample(sound_id);
+                } else {
+                    WARNLOG("Unable to resolve sound effect '%s' for PLAY_MESSAGE", filename);
+                }
                 break;
             }
         }
