@@ -35,6 +35,9 @@
 #include "config.h"
 #include "post_inc.h"
 
+// Maximum number of messages that can be queued at once.
+int g_speech_queue_limit = 4;
+
 namespace {
 
 struct Message;
@@ -43,8 +46,6 @@ std::deque<std::unique_ptr<Message>> g_message_queue;
 std::map<SoundSmplTblID, long> g_recent_samples;
 std::map<std::string, long> g_recent_filenames;
 std::unique_ptr<Message> g_current_message;
-
-#define MAX_QUEUED_MESSAGES 4
 
 enum MessageType {
 	MT_Default = 1,
