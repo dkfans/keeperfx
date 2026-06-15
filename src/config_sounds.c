@@ -662,6 +662,101 @@ static TbBool parse_sounds_section(char* buf, long len, const char* config_textn
     return true;
 }
 
+
+/**
+ * @brief Parse a [system] block with engine-level audio settings.
+ *
+* Supported keys:
+*   speech_queue_limit = <positive integer>
+*/
+static TbBool parse_system_section(char* buf, long len, const char* config_textname,
+                                       unsigned short flags)
+{
+    (void)flags;
+    int32_t pos = 0;
+    const char* blockname = NULL;
+    int blocknamelen = 0;
+    TbBool found_section = false;
+
+    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+    {
+        if (blocknamelen > 0 && strncasecmp(blockname, "system", blocknamelen) == 0)
+        {
+            found_section = true;
+            break;
+        }
+    }
+
+    if (!found_section)
+        return true;
+
+    while (pos < len)
+    {
+        if (buf[pos] == '[') break;
+
+        if (buf[pos] == '\n' || buf[pos] == '\r') { pos++; continue; }
+
+        if (buf[pos] == ';' || buf[pos] == '#')
+        {
+            while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+            continue;
+        }
+
+        char name_buf[COMMAND_WORD_LEN];
+        char value_buf[COMMAND_WORD_LEN];
+
+        if (get_conf_parameter_single(buf, &pos, len, name_buf, sizeof(name_buf)) <= 0)
+        {
+            while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+            while (pos < len && (buf[pos] == '\n' || buf[pos] == '\r')) pos++;
+            continue;
+        }
+
+        if (get_conf_parameter_single(buf, &pos, len, value_buf, sizeof(value_buf)) <= 0)
+        {
+            while (pos < len && (buf[pos] == '=' || buf[pos] == ' ' || buf[pos] == '\t')) pos++;
+            if (get_conf_parameter_single(buf, &pos, len, value_buf, sizeof(value_buf)) <= 0)
+            {
+                WARNLOG("Missing value for system setting '%s' in %s", name_buf, config_textname);
+                while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+                while (pos < len && (buf[pos] == '\n' || buf[pos] == '\r')) pos++;
+                continue;
+            }
+        }
+        if (value_buf[0] == '=')
+        {
+            if (get_conf_parameter_single(buf, &pos, len, value_buf, sizeof(value_buf)) <= 0)
+            {
+                WARNLOG("Missing value after '=' for system setting '%s' in %s", name_buf, config_textname);
+                while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+                while (pos < len && (buf[pos] == '\n' || buf[pos] == '\r')) pos++;
+                continue;
+            }
+        }
+
+        if (strcasecmp(name_buf, "speech_queue_limit") == 0)
+        {
+            long limit = strtol(value_buf, NULL, 10);
+            if (limit <= 0)
+            {
+                WARNLOG("Invalid speech queue limit '%s' in %s; expected a positive integer", value_buf, config_textname);
+            }
+            else
+            {
+                g_speech_queue_limit = (int)limit;
+                SYNCDBG(8, "Speech queue limit set to %d", g_speech_queue_limit);
+            }
+        } else {
+            WARNLOG("Unknown system setting '%s' in %s", name_buf, config_textname);
+        }
+
+        while (pos < len && buf[pos] != '\n' && buf[pos] != '\r') pos++;
+        while (pos < len && (buf[pos] == '\n' || buf[pos] == '\r')) pos++;
+    }
+
+    return true;
+}
+
 /**
  * @brief Main loader for sounds.cfg
  */
@@ -706,6 +801,7 @@ static TbBool load_sounds_config_file(const char *fname, unsigned short flags)
         }
     }
 
+    parse_system_section(buf, len, fname, flags);
     parse_speech_section(buf, len, fname, flags);
     
     free(buf);
@@ -797,6 +893,7 @@ void sound_reset_to_fxdata_baseline(void)
 {
     sound_manager_clear_custom_sounds();
     sound_manager_clear_registry();
+    g_speech_queue_limit = 4;
     load_sounds_config();
     SYNCDBG(7, "sound_reset_to_fxdata_baseline: reset to fxdata defaults");
 }
