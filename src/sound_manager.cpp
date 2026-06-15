@@ -4,6 +4,7 @@
 #include "bflib_fileio.h"
 #include "creature_control.h"
 #include "config_creature.h"
+#include "config_mods.h"
 #include "game_legacy.h"
 #include <cstdio>
 #include <fstream>
