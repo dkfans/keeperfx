@@ -789,19 +789,12 @@ static TbBool load_sounds_config_file(const char *fname, unsigned short flags)
     }
     
     TbBool result = true;
-    
-    // Parse known sections
-    const char* sections[] = {"common", "ui", "traps", "creatures", "powers", "effects", "doors", "objects", NULL};
-    
-    for (int i = 0; sections[i] != NULL; i++)
-    {
-        if (!parse_sounds_section(buf, len, fname, flags, sections[i]))
-        {
-            result = false;
-        }
-    }
 
-    parse_system_section(buf, len, fname, flags);
+    parse_system_section(buf, len, fname, flags);  
+    if (!parse_sounds_section(buf, len, fname, flags, "sounds"))
+    {
+        result = false;
+    }
     parse_speech_section(buf, len, fname, flags);
     
     free(buf);
