@@ -666,8 +666,6 @@ static TbBool parse_sounds_section(char* buf, long len, const char* config_textn
 /**
  * @brief Parse a [system] block with engine-level audio settings.
  *
-* Supported keys:
-*   speech_queue_limit = <positive integer>
 */
 static TbBool parse_system_section(char* buf, long len, const char* config_textname,
                                        unsigned short flags)
@@ -734,7 +732,7 @@ static TbBool parse_system_section(char* buf, long len, const char* config_textn
             }
         }
 
-        if (strcasecmp(name_buf, "speech_queue_limit") == 0)
+        if (strcasecmp(name_buf, "SpeechQueueLimit") == 0)
         {
             long limit = strtol(value_buf, NULL, 10);
             if (limit <= 0)
