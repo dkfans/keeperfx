@@ -4,6 +4,7 @@
 #include "bflib_fileio.h"
 #include "creature_control.h"
 #include "config_creature.h"
+#include "config_mods.h"
 #include "game_legacy.h"
 #include <cstdio>
 #include <fstream>
@@ -543,70 +544,92 @@ SoundEmitterID sound_manager_play_effect_named(const char* name, long priority, 
     return KeeperFX::SoundManager::getInstance().playEffectNamed(name, priority, volume);
 }
 
+// Attempt to find a sound file candidate in the sound/ subdir of every mod in a list.
+// Returns true and fills out_path on first match (list iterated in reverse so higher-priority
+// mods — those loaded later — win).
+static bool find_in_mod_sound_dirs(const char* candidate, char* out_path, size_t out_size,
+                                   const struct ModConfigItem* mod_items, long mod_cnt)
+{
+    for (long i = mod_cnt - 1; i >= 0; i--) {
+        const struct ModConfigItem* mod_item = mod_items + i;
+        if (!mod_item->state.sound) continue;
+        char mod_dir[256];
+        snprintf(mod_dir, sizeof(mod_dir), "%s/%s", MODS_DIR_NAME, mod_item->name);
+        const char* resolved = prepare_file_path_mod(mod_dir, FGrp_LrgSound, candidate);
+        if (resolved != NULL && LbFileExists(resolved)) {
+            SYNCDBG(8, "[mod %s/sound] '%s' -> '%s' (FOUND)", mod_item->name, candidate, resolved);
+            snprintf(out_path, out_size, "%s", resolved);
+            return true;
+        }
+        SYNCDBG(8, "[mod %s/sound] '%s' -> '%s' (not found)",
+            mod_item->name, candidate, resolved ? resolved : "(null)");
+    }
+    return false;
+}
+
 // Resolve a sound file path specified in a creature cfg.
-// Search order:
-//   1. FGrp_CmpgCrtrs/<path>   (alongside the .cfg files)
-//   2. FGrp_CmpgMedia/<path>   (campaign MEDIA_LOCATION)
+// Search order mirrors the config load order, interleaving mod tiers with game dirs:
+//   after_map mods/sound/  >  FGrp_CmpgLvls  >  FGrp_CmpgCrtrs
+//   > after_campaign mods/sound/  >  FGrp_CmpgConfig  >  FGrp_CrtrData
+//   > after_base mods/sound/  >  FGrp_FxData  >  FGrp_CmpgMedia  >  FGrp_Main
 // If the path has no extension, each location is tried with .wav, .mp3, .ogg, .flac.
 // Returns true and fills out_path (size 2048) on success.
 static bool resolve_creature_sound_path(const char* path_in, char* out_path, size_t out_size)
 {
-    // Search order: most specific location first, base (FxData) last.
-    // Mirrors the sprite loading convention: FxData is the base loaded first and
-    // overridden by campaign/level. Here the most specific location wins on duplicates,
-    // and a config at any level can reference a file that only exists at a more specific location.
-    static const TbFileGroups groups[] = {
-        FGrp_CmpgLvls, FGrp_CmpgCrtrs, FGrp_CmpgConfig,
-        FGrp_CrtrData, FGrp_FxData, FGrp_CmpgMedia, FGrp_Main
-    };
-    [[maybe_unused]]
-    static const char* group_names[] = {
-        "FGrp_CmpgLvls", "FGrp_CmpgCrtrs", "FGrp_CmpgConfig",
-        "FGrp_CrtrData", "FGrp_FxData", "FGrp_CmpgMedia", "FGrp_Main"
-    };
     static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
 
     const char* dot   = strrchr(path_in, '.');
     const char* slash = strrchr(path_in, '/');
     bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
 
-    for (int gi = 0; gi < (int)(sizeof(groups)/sizeof(groups[0])); gi++) {
-        for (int ei = 0; exts[ei] != NULL; ei++) {
-            if (has_ext && ei > 0) break;
-            if (!has_ext && ei == 0) continue;
+    for (int ei = 0; exts[ei] != NULL; ei++) {
+        if (has_ext && ei > 0) break;
+        if (!has_ext && ei == 0) continue;
 
-            char candidate[2048];
-            snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
-            const char* resolved = prepare_file_path((TbFileGroups)groups[gi], candidate);
-            bool exists = (resolved != NULL) && LbFileExists(resolved);
-            SYNCDBG(8, "[%s] '%s' -> '%s' (%s)",
-                group_names[gi], candidate,
-                resolved ? resolved : "(null)",
-                exists ? "FOUND" : "not found");
-            if (exists) {
-                snprintf(out_path, out_size, "%s", resolved);
-                return true;
-            }
-        }
+        char candidate[2048];
+        snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
+
+        // after_map mods override everything, then map-level game dirs
+        if (find_in_mod_sound_dirs(candidate, out_path, out_size,
+                mods_conf.after_map_item, mods_conf.after_map_cnt)) return true;
+        const char* r;
+        r = prepare_file_path(FGrp_CmpgLvls, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+        r = prepare_file_path(FGrp_CmpgCrtrs, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+
+        // after_campaign mods override campaign dirs, then campaign-level game dirs
+        if (find_in_mod_sound_dirs(candidate, out_path, out_size,
+                mods_conf.after_campaign_item, mods_conf.after_campaign_cnt)) return true;
+        r = prepare_file_path(FGrp_CmpgConfig, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+        r = prepare_file_path(FGrp_CrtrData, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+
+        // after_base mods override fxdata, then base game dirs
+        if (find_in_mod_sound_dirs(candidate, out_path, out_size,
+                mods_conf.after_base_item, mods_conf.after_base_cnt)) return true;
+        r = prepare_file_path(FGrp_FxData, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+        r = prepare_file_path(FGrp_CmpgMedia, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+        r = prepare_file_path(FGrp_Main, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
     }
     SYNCDBG(5, "Custom sound path not found: '%s'", path_in);
     return false;
 }
 
 // Resolve a sound file path specified in sounds.cfg (or any other non-creature cfg).
-// Search order:
-//   1. FGrp_CmpgLvls/<path>    (map-level config folder)
-//   2. FGrp_CmpgConfig/<path>  (campaign config folder)
-//   3. FGrp_FxData/<path>      (base game fxdata/)
-//   4. FGrp_CmpgMedia/<path>   (campaign MEDIA_LOCATION)
-//   5. FGrp_Main/<path>        (game root directory)
+// Search order mirrors the config load order, interleaving mod tiers with game dirs:
+//   after_map mods/sound/  >  FGrp_CmpgLvls
+//   > after_campaign mods/sound/  >  FGrp_CmpgConfig
+//   > after_base mods/sound/  >  FGrp_FxData  >  FGrp_CmpgMedia  >  FGrp_Main
+// Sound files in mods MUST live in mods/<name>/sound/ — no other mod subdirectory is searched.
 // If the path has no extension, each location is tried with .wav, .mp3, .ogg, .flac.
 // Returns true and fills out_path (size 2048) on success.
 static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, size_t out_size)
 {
-    static const TbFileGroups groups[] = { FGrp_CmpgLvls, FGrp_CmpgConfig, FGrp_FxData, FGrp_CmpgMedia, FGrp_Main };
-    [[maybe_unused]]
-    static const char* group_names[]   = { "FGrp_CmpgLvls", "FGrp_CmpgConfig", "FGrp_FxData", "FGrp_CmpgMedia", "FGrp_Main" };
     static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
 
     const char* dot   = strrchr(path_in, '.');
@@ -615,24 +638,35 @@ static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, s
 
     SYNCDBG(7,"Sound path search for '%s' (has_ext=%d)", path_in, (int)has_ext);
 
-    for (int gi = 0; gi < (int)(sizeof(groups)/sizeof(groups[0])); gi++) {
-        for (int ei = 0; exts[ei] != NULL; ei++) {
-            if (has_ext && ei > 0) break;
-            if (!has_ext && ei == 0) continue;
+    for (int ei = 0; exts[ei] != NULL; ei++) {
+        if (has_ext && ei > 0) break;
+        if (!has_ext && ei == 0) continue;
 
-            char candidate[2048];
-            snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
-            const char* resolved = prepare_file_path((TbFileGroups)groups[gi], candidate);
-            bool exists = (resolved != NULL) && LbFileExists(resolved);
-            SYNCDBG(7,"[%s] '%s' -> '%s' (%s)",
-                group_names[gi], candidate,
-                resolved ? resolved : "(null)",
-                exists ? "FOUND" : "not found");
-            if (exists) {
-                snprintf(out_path, out_size, "%s", resolved);
-                return true;
-            }
-        }
+        char candidate[2048];
+        snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
+
+        // after_map mods override everything, then the map-level game dir
+        if (find_in_mod_sound_dirs(candidate, out_path, out_size,
+                mods_conf.after_map_item, mods_conf.after_map_cnt)) return true;
+        const char* r;
+        r = prepare_file_path(FGrp_CmpgLvls, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+
+        // after_campaign mods override campaign dirs, then the campaign game dir
+        if (find_in_mod_sound_dirs(candidate, out_path, out_size,
+                mods_conf.after_campaign_item, mods_conf.after_campaign_cnt)) return true;
+        r = prepare_file_path(FGrp_CmpgConfig, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+
+        // after_base mods override fxdata, then base game dirs
+        if (find_in_mod_sound_dirs(candidate, out_path, out_size,
+                mods_conf.after_base_item, mods_conf.after_base_cnt)) return true;
+        r = prepare_file_path(FGrp_FxData, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+        r = prepare_file_path(FGrp_CmpgMedia, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
+        r = prepare_file_path(FGrp_Main, candidate);
+        if (r && LbFileExists(r)) { snprintf(out_path, out_size, "%s", r); return true; }
     }
     SYNCDBG(7,"Sound path NOT resolved : '%s'", path_in);
     return false;
