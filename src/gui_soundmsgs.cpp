@@ -117,7 +117,7 @@ bool already_in_queue(const Message & msg)
 
 bool push_queue(std::unique_ptr<Message> msg)
 {
-	if (g_message_queue.size() >= MAX_QUEUED_MESSAGES) {
+	if (g_message_queue.size() >= (size_t)g_speech_queue_limit) {
 		SYNCDBG(8, "message queue full");
 		return false;
 	} else if (g_current_message && g_current_message->is(*msg)) {
