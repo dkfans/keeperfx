@@ -1302,8 +1302,6 @@ int LbSprFontCharHeight(const struct TbSpriteSheet * font, const uint32_t chr)
     return spr->SHeight;
 }
 
-void codepoint_to_utf8(unsigned long codepoint, char out[5]);
-
 /**
  * Returns sprite of a single character in given font.
  * For characters that don't have a sprite, returns NULL.
