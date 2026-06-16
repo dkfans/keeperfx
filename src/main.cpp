@@ -3477,15 +3477,15 @@ void gameplay_loop_draw()
 
 static void update_gameplay_delta_time()
 {
-    game.delta_time = get_delta_time();
-    float process_delta_time = game.delta_time;
+    long double process_delta_time = get_delta_time();
     if (multiplayer_speed_adjustment_ns != 0 && turns_per_second > 0) {
-        double tick_ns_one_turn = 1000000000.0 / turns_per_second;
-        double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
+        long double tick_ns_one_turn = 1e9L / turns_per_second;
+        long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
         if (tick_ns_adjusted_turn > 0) {
-            process_delta_time = (float)(process_delta_time * tick_ns_one_turn / tick_ns_adjusted_turn);
+            process_delta_time = process_delta_time * tick_ns_one_turn / tick_ns_adjusted_turn;
         }
     }
+    game.delta_time = process_delta_time;
     game.process_turn_time += process_delta_time;
 }
 
