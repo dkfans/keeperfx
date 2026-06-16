@@ -5,8 +5,6 @@
 #include "creature_control.h"
 #include "config_creature.h"
 #include "config_mods.h"
-#include "config_sounds.h"
-#include "config_campaigns.h"
 #include "game_legacy.h"
 #include <cstdio>
 #include <fstream>

@@ -666,8 +666,6 @@ static TbBool parse_sounds_section(char* buf, long len, const char* config_textn
 /**
  * @brief Parse a [system] block with engine-level audio settings.
  *
-* Supported keys:
-*   speech_queue_limit = <positive integer>
 */
 static TbBool parse_system_section(char* buf, long len, const char* config_textname,
                                        unsigned short flags)
@@ -734,7 +732,7 @@ static TbBool parse_system_section(char* buf, long len, const char* config_textn
             }
         }
 
-        if (strcasecmp(name_buf, "speech_queue_limit") == 0)
+        if (strcasecmp(name_buf, "SpeechQueueLimit") == 0)
         {
             long limit = strtol(value_buf, NULL, 10);
             if (limit <= 0)
@@ -789,19 +787,12 @@ static TbBool load_sounds_config_file(const char *fname, unsigned short flags)
     }
     
     TbBool result = true;
-    
-    // Parse known sections
-    const char* sections[] = {"common", "ui", "traps", "creatures", "powers", "effects", "doors", "objects", NULL};
-    
-    for (int i = 0; sections[i] != NULL; i++)
-    {
-        if (!parse_sounds_section(buf, len, fname, flags, sections[i]))
-        {
-            result = false;
-        }
-    }
 
-    parse_system_section(buf, len, fname, flags);
+    parse_system_section(buf, len, fname, flags);  
+    if (!parse_sounds_section(buf, len, fname, flags, "sounds"))
+    {
+        result = false;
+    }
     parse_speech_section(buf, len, fname, flags);
     
     free(buf);
