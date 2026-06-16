@@ -30,6 +30,7 @@
 #include "bflib_fmvids.h"
 #include "bflib_sprfnt.h"
 #include "config_campaigns.h"
+#include "config_mods.h"
 #include "engine_render.h"
 #include "frontend.h"
 #include "front_simple.h"
@@ -39,6 +40,7 @@
 #include "sounds.h"
 #include "vidmode.h"
 #include "moonphase.h"
+#include "kfx/modding/mod_api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1000,7 +1002,7 @@ short load_configuration(void)
   if (start_params.ignore_mods == false)
   {
       load_mods_order_config_file();
-      recheck_all_mod_exist();
+      /* Existence probing deferred to kfx_trigger_load_event(Startup) in main.cpp */
   }
   else
   {

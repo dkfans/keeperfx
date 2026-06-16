@@ -53,6 +53,7 @@
 #include "lua_base.h"
 #include "lua_triggers.h"
 #include "moonphase.h"
+#include "kfx/modding/tier_stack.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -200,10 +201,11 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 struct GameCampaign *campgn = &campaign;
                 load_map_string_data(campgn, centry->level_num, get_level_fgroup(centry->level_num));
                 // Load configs which may have per-campaign part, and even be modified within a level
-                recheck_all_mod_exist();
                 init_custom_sprites(centry->level_num);
                 load_stats_files();
                 snprintf(high_score_entry, PLAYER_NAME_LENGTH, "%s", centry->player_name);
+                // Notify registered subsystems to reapply session-ephemeral state.
+                kfx_trigger_load_event(KfxLoadEvent_SaveLoad);
             }
             break;
         case SGC_GameOrig:

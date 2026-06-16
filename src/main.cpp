@@ -132,6 +132,7 @@
 #include "net_input_lag.h"
 #include "moonphase.h"
 #include "frontmenu_ingame_map.h"
+#include "kfx/modding/tier_stack.h"
 #include <stdint.h>
 
 #ifdef FUNCTESTING
@@ -918,10 +919,11 @@ void init_keeper(void)
     init_spiral_steps();
     init_key_to_strings();
     // Load configs which may have per-campaign part, and even be modified within a level
-    recheck_all_mod_exist();
     init_custom_sprites(SPRITE_LAST_LEVEL);
     load_stats_files();
     check_and_auto_fix_stats();
+    // Notify all registered subsystems that the game has started.
+    kfx_trigger_load_event(KfxLoadEvent_Startup);
     init_creature_scores();
     init_top_texture_to_cube_table();
     game.neutral_player_num = PLAYER_NEUTRAL;
