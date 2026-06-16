@@ -161,6 +161,7 @@ obj/config_textures.o \
 obj/config_translation.o \
 obj/config_trapdoor.o \
 obj/config_spritecolors.o \
+obj/config_sounds.o \
 obj/console_cmd.o \
 obj/custom_sprites.o \
 obj/creature_battle.o \
@@ -262,6 +263,7 @@ obj/lua_api_lens.o \
 obj/lua_api_map.o \
 obj/lua_api_player.o \
 obj/lua_api_room.o \
+obj/lua_api_sound.o \
 obj/lua_api_things.o \
 obj/lua_api_slabs.o \
 obj/lua_base.o \
@@ -327,6 +329,7 @@ obj/roomspace_prediction.o \
 obj/scrcapt.o \
 obj/slab_data.o \
 obj/sounds.o \
+obj/sound_manager.o \
 obj/spdigger_stack.o \
 obj/steam_api.o \
 obj/tasks_list.o \
@@ -440,7 +443,7 @@ HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-sign-compare -Wno-strict-aliasing -Wno-unknown-pragmas -Werror -Wno-format-truncation
 # disabled warnings: -Wextra -Wtype-limits
-CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
+CXXFLAGS = $(CXXINCS) -c -std=gnu++20 -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS) -DCURL_STATICLIB
 LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
@@ -762,7 +765,7 @@ cppcheck:
 		--check-level=exhaustive \
 		--enable=all \
 		--platform=win32A \
-		--std=c++14 \
+		--std=c++20 \
 		--inconclusive \
 		-j $(shell nproc) \
 		-q \

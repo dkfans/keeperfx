@@ -61,6 +61,7 @@
 #include "thing_traps.h"
 #include "magic_powers.h"
 #include "sounds.h"
+#include "config_sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
 #include "lua_cfg_funcs.h"
@@ -2811,7 +2812,7 @@ short creature_present_to_dungeon_heart(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
-    thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, snd_spell_stars, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( !external_set_thing_state(creatng, CrSt_CreatureDoingNothing) )
       set_start_state(creatng);
     return 1;
@@ -3163,7 +3164,7 @@ short creature_take_salary(struct Thing *creatng)
     {
         anger_apply_anger_to_creature_all_types(creatng, crconf->annoy_got_wage);
     }
-    thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(efftng, snd_gold_pickup, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     dungeon->lvstats.salary_cost += salary;
     return 1;
 }
@@ -4680,7 +4681,8 @@ short seek_the_enemy(struct Thing *creatng)
                 if ((dist < 2304) && (get_gameturn()-cctrl->countdown < 20))
                 {
                     crsound = get_creature_sound(creatng, CrSnd_Fight);
-                    thing_play_sample(creatng, crsound->index + SOUND_RANDOM(crsound->count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    long fight_i = SOUND_RANDOM(crsound->count);
+                    thing_play_sample(creatng, creature_sound_unified_id(crsound, fight_i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                     set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
                     return 1;
                 }

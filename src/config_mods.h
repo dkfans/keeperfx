@@ -62,6 +62,8 @@ struct ModExistState{
 
     int crtr_data;	// FGrp_CrtrData: creaturemodel
     int cmpg_crtrs;	// FGrp_CmpgCrtrs: creaturemodel
+
+    int sound;		// FGrp_LrgSound: custom sound files (mods/<name>/sound/)
 };
 
 struct ModConfigItem {

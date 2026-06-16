@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "config_creature.h"
+#include "config_sounds.h"
 #include "custom_sprites.h"
 #include "config_strings.h"
 #include "frontmenu_ingame_tabs.h"
@@ -144,9 +145,9 @@ static const struct NamedField terrain_room_named_fields[] = {
     {"PROPERTIES",       -1, field(game.conf.slab_conf.room_cfgstats[0].flags),                         0, INT32_MIN,RoCFlg_ListEnd, terrain_room_properties_commands,     value_flagsfield,assign_default},
     {"SLABASSIGN",        0, field(game.conf.slab_conf.room_cfgstats[0].assigned_slab),                 0, INT32_MIN,UINT32_MAX,      slab_desc,                            value_default,   assign_default},
     {"CREATURECREATION",  0, field(game.conf.slab_conf.room_cfgstats[0].creature_creation_model),       0, INT32_MIN,UINT32_MAX,      creature_desc,                        value_default,   assign_default},
-    {"MESSAGES",          0, field(game.conf.slab_conf.room_cfgstats[0].msg_needed),                    0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
-    {"MESSAGES",          1, field(game.conf.slab_conf.room_cfgstats[0].msg_too_small),                 0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
-    {"MESSAGES",          2, field(game.conf.slab_conf.room_cfgstats[0].msg_no_route),                  0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"MESSAGES",          0, field(game.conf.slab_conf.room_cfgstats[0].msg_needed),                    0, INT32_MIN,UINT32_MAX,      NULL,                                 value_speech_ref,assign_speech_ref},
+    {"MESSAGES",          1, field(game.conf.slab_conf.room_cfgstats[0].msg_too_small),                 0, INT32_MIN,UINT32_MAX,      NULL,                                 value_speech_ref,assign_speech_ref},
+    {"MESSAGES",          2, field(game.conf.slab_conf.room_cfgstats[0].msg_no_route),                  0, INT32_MIN,UINT32_MAX,      NULL,                                 value_speech_ref,assign_speech_ref},
     {"NAMETEXTID",        0, field(game.conf.slab_conf.room_cfgstats[0].name_stridx),        GUIStr_Empty, INT32_MIN,UINT32_MAX,      NULL,                                 value_stringId,   assign_default},
     {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.room_cfgstats[0].tooltip_stridx),     GUIStr_Empty, INT32_MIN,UINT32_MAX,      NULL,                                 value_stringId,   assign_update_room_tab},
     {"SYMBOLSPRITES",     0, field(game.conf.slab_conf.room_cfgstats[0].bigsym_sprite_idx),             0, INT32_MIN,UINT32_MAX,      NULL,                                 value_icon,      assign_icon},
@@ -157,7 +158,7 @@ static const struct NamedField terrain_room_named_fields[] = {
     {"USEDCAPACITY",      0, field(game.conf.slab_conf.room_cfgstats[0].update_storage_in_room_idx),    0, INT32_MIN,UINT32_MAX,      terrain_room_used_capacity_func_type, value_default,   assign_default},
     {"USEDCAPACITY",      1, field(game.conf.slab_conf.room_cfgstats[0].update_workers_in_room_idx),    0, INT32_MIN,UINT32_MAX,      terrain_room_used_capacity_func_type, value_default,   assign_reinitialise_rooms},
     {"SLABSYNERGY",       0, field(game.conf.slab_conf.room_cfgstats[0].synergy_slab),                  0, INT32_MIN,UINT32_MAX,      slab_desc,                            value_synergy,   assign_recalculate_effeciency},
-    {"AMBIENTSNDSAMPLE",  0, field(game.conf.slab_conf.room_cfgstats[0].ambient_snd_smp_id),            0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
+    {"AMBIENTSNDSAMPLE",  0, field(game.conf.slab_conf.room_cfgstats[0].ambient_snd_smp_id),            0, INT32_MIN,UINT32_MAX,      NULL,                                 value_sound_id,  assign_default},
     {"ROLES",            -1, field(game.conf.slab_conf.room_cfgstats[0].roles),                         0, INT32_MIN,UINT32_MAX,      room_roles_desc,                      value_flagsfield,assign_default},
     {"STORAGEHEIGHT",     0, field(game.conf.slab_conf.room_cfgstats[0].storage_height),                0, INT32_MIN,UINT32_MAX,      NULL,                                 value_default,   assign_default},
     {NULL},

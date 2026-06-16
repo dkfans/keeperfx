@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 
 #include "player_data.h"
 #include "player_instances.h"
@@ -70,15 +71,15 @@ extern "C" {
 const long power_sight_close_instance_time[] = {4, 4, 5, 5, 6, 6, 7, 7, 8};
 
 unsigned char destroy_effect[][9] = {
-    {88, 88, 88, 88, 79, 88, 88, 88, 88,},//power_level=0
-    {88, 88, 88, 88, 32, 88, 88, 88, 88,},
-    {88, 88, 88, 79, 32, 79, 88, 88, 88,},
-    {88, 79, 88, 79, 32, 79, 88, 79, 88,},
-    {88, 79, 88, 79, 32, 79, 88, 79, 88,},
-    {88, 88, 88, 32, 32, 32, 88, 88, 88,},
-    {88, 32, 88, 32, 32, 32, 88, 32, 88,},
-    {79, 32, 79, 32, 32, 32, 79, 32, 79,},
-    {32, 32, 32, 32, 32, 32, 32, 32, 32,},//power_level=8
+    {'X','X','X','X','O','X','X','X','X',},//power_level=0
+    {'X','X','X','X',' ','X','X','X','X',},
+    {'X','X','X','O',' ','O','X','X','X',},
+    {'X','O','X','O',' ','O','X','O','X',},
+    {'X','O','X','O',' ','O','X','O','X',},
+    {'X','X','X',' ',' ',' ','X','X','X',},
+    {'X',' ','X',' ',' ',' ','X',' ','X',},
+    {'O',' ','O',' ',' ',' ','O',' ','O',},
+    {' ',' ',' ',' ',' ',' ',' ',' ',' ',},//power_level=8
 };
 
 /******************************************************************************/
@@ -2003,7 +2004,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         }
     }
     return ret;
@@ -2111,7 +2112,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
     if (ret == Lb_FAIL) {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
     }
     return ret;
 }

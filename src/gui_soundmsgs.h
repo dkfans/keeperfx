@@ -40,6 +40,9 @@ extern "C" {
 #define MESSAGE_DURATION_CRTR_JOINED   500
 #define MESSAGE_DURATION_STARVING      500
 
+/** Maximum number of queued speeches before new ones are skipped. */
+extern int g_speech_queue_limit;
+
 enum TbSpeechMessages {
         SMsg_None = 0,
         SMsg_CreatrAngryAnyReason,
@@ -184,7 +187,23 @@ typedef unsigned int OutputMessageKind;
 
 struct Thing;
 
+/**
+ * Holds a speech message reference: either a numeric SMsg_* ID or a custom file path.
+ * Exactly one of the two is active: if path[0] != '\0', the path is used; otherwise id is used.
+ */
+typedef struct SpeechRef {
+    int32_t id;
+    char path[512];
+} SpeechRef;
+
 TbBool output_message(SoundSmplTblID, long duration);
+TbBool output_message_from_path(const char* path, long duration);
+
+/**
+ * Plays a speech message from a SpeechRef.
+ * Uses path-based playback if the ref contains a file path, otherwise plays by numeric ID.
+ */
+TbBool play_speech_ref(const SpeechRef* ref, long duration);
 TbBool output_custom_message(const char * fname, long duration);
 TbBool output_message_far_from_thing(const struct Thing*, SoundSmplTblID, long duration);
 void clear_messages(void);

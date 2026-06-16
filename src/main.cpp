@@ -31,6 +31,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_guibtns.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_mouse.h"
 #include "bflib_mshandler.hpp"
 #include "bflib_filelst.h"
@@ -2357,7 +2358,7 @@ void update_near_creatures_for_footsteps(int32_t *near_creatures, const struct C
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Foot);
-            if (crsound->index > 0)
+            if (crsound->index != 0)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
@@ -2414,8 +2415,8 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
         // Per-thing code
         if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->state_flags & TF1_DoFootsteps) == 0))
         {
-            if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
-                S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
+            if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25) ) {
+                S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25);
             }
         }
         // Per-thing code ends
@@ -3612,7 +3613,7 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
 {
     if (!allowed) {
         if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         return 0;
     }
     if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
@@ -4021,6 +4022,9 @@ void game_loop(void)
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
+      // Reset sounds back to the fxdata baseline so the main menu (and any
+      // subsequent campaign/freeplay selection) hears unmodified defaults.
+      sound_reset_to_fxdata_baseline();
       endtime = LbTimerClock();
       quit_game = 0;
       if ((game.operation_flags & GOF_SingleLevel) != 0)
