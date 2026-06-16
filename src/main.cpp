@@ -2052,8 +2052,9 @@ void update_local_mouse_light(void)
     SYNCDBG(6,"Starting");
     struct PlayerInfo *player = get_my_player();
 
-    // Avoid glitching during level intro or possess animation.
-    if (player->instance_num != PI_Unset)
+    // Avoid glitching during level intro or possess animation, or when
+    // watching a replay.
+    if (player->instance_num != PI_Unset || game.packet_load_enable)
         return;
 
     struct Camera *cam = get_local_camera(get_player_active_camera(player));
