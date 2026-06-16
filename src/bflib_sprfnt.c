@@ -724,7 +724,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         {
             w = LbTextCharWidthM(' ', units_per_px);
             posx += lbSpacesPerTab*w;
-            len = LbTextWordWidth(lbFontPtr,ebuf+1) * units_per_px / 16;
+            len = LbTextWordWidth(ebuf+1) * units_per_px / 16;
             if (posx+len-justifyx <= lbTextJustifyWindow.width)
             {
               count += lbSpacesPerTab;
@@ -1062,11 +1062,10 @@ int LbTextWordWidthM(const char *str, long units_per_px)
         }
         else
         {
-           len += LbSprFontCharWidthM(lbFontPtr, chr, units_per_px); 
+           len += LbSprFontCharWidth(lbFontPtr, chr) * units_per_px / 16; 
         }
-
-        return len;
     }
+    return len;
 }
 
 int LbTextStringHeight(const char *str)
