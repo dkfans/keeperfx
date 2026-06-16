@@ -1982,8 +1982,8 @@ static char light_render_light(struct Light* lgt)
       lgt->reset_interpolation = false;
       lgt->previous_mappos = lgt->mappos;
   }
-  lgt->mappos.x.val = interpolate(lgt->previous_mappos.x.val, lgt->mappos.x.val);
-  lgt->mappos.y.val = interpolate(lgt->previous_mappos.y.val, lgt->mappos.y.val);
+  lgt->mappos.x.val = interpolate_synced(lgt->previous_mappos.x.val, lgt->mappos.x.val);
+  lgt->mappos.y.val = interpolate_synced(lgt->previous_mappos.y.val, lgt->mappos.y.val);
 
   TbBool is_dynamic = (lgt->flags & LgtF_Dynamic) != 0;
   int intensity;
