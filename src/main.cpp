@@ -2039,10 +2039,7 @@ static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coor
         light_set_light_position(idx, &pos);
 
         if (is_my_player(player))
-        {
             game.mouse_light_pos = pos;
-            light_reset_interpolation(idx);
-        }
     }
     else
     {
@@ -2064,6 +2061,9 @@ void update_local_mouse_light(void)
     const TbBool valid = screen_to_map(cam, GetMouseX(), GetMouseY(), &pos);
 
     set_mouse_light(player, valid, pos);
+
+    if (player->cursor_light_idx != 0)
+        light_reset_interpolation(player->cursor_light_idx);
 }
 
 void update_mouse_light(struct PlayerInfo *player)
