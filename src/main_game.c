@@ -36,7 +36,6 @@
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
-#include "config_sounds.h"
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
