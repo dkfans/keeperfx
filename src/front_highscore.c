@@ -260,6 +260,7 @@ TbBool frontend_high_score_table_input(void)
     {
         finalize_high_score_entry(lbInkey == KC_ESCAPE);
         clear_key_pressed(lbInkey);
+        LbStopTextInput();
         return true;
     }
 
