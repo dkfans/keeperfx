@@ -844,6 +844,22 @@ extern "C" SoundMilesID play_sample(
 		buf = &g_banks[0][smptbl_id].buffer;
 	}
 	try {
+		// ctype 2/3: if this emitter is already playing the same sample, restart it in-place
+		// rather than allocating a new source (mirrors MSS single-voice-per-slot behaviour and
+		// prevents sounds from stacking — e.g. hailstorm projectiles all hitting the same target).
+		if (ctype == 2 || ctype == 3) {
+			for (auto & source : g_sources) {
+				if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
+					source.stop();
+					source.gain(volume);
+					source.pan(pan);
+					source.repeat(repeats == -1);
+					source.pitch(pitch);
+					source.play(*buf);
+					return source.mss_id;
+				}
+			}
+		}
 		for (auto & source : g_sources) {
 			if (source.emit_id == 0) {
 				source.gain(volume);
