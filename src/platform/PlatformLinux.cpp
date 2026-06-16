@@ -325,6 +325,16 @@ void   PlatformLinux::PauseRedbookTrack()            {}
 void   PlatformLinux::ResumeRedbookTrack()           {}
 void   PlatformLinux::StopRedbookTrack()             {}
 
+// Free C functions called directly by bflib_sndlib.cpp (cdrom.cpp provides
+// these on Windows; we supply no-op stubs for Linux).
+extern "C" {
+    void   SetRedbookVolume(SoundVolume)  {}
+    TbBool PlayRedbookTrack(int)          { return 0; }
+    void   PauseRedbookTrack()            {}
+    void   ResumeRedbookTrack()           {}
+    void   StopRedbookTrack()             {}
+}
+
 // ============================================================
 // Steam API stubs (Steam not supported on Linux)
 // ============================================================
