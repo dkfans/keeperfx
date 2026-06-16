@@ -355,18 +355,22 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
         else
           colour = lbDisplay.DrawColour;
 
-        unsigned char dest_pixel[1024] = { 0 };
+        #define MAX_DBC_SPRITE_SIZE 1024
+        unsigned char dest_pixel[MAX_DBC_SPRITE_SIZE] = { 0 };
         if (units_per_px != 16)
         {            
-            int iDstSizeH;
             // Needs to be a multiple of 8
-            iDstSizeH = (units_per_px / 8) * 8;
+            int iDstSizeH = (units_per_px / 8) * 8;
             int iDstSizeW = (units_per_px * adraw.bits_width / 16 / 8) * 8;
             
-
-
             float scale_factorX = (float)adraw.bits_width / (float)iDstSizeW;
             float scale_factorY = (float)adraw.bits_height / (float)iDstSizeH;
+
+            if ((iDstSizeW * iDstSizeH) > MAX_DBC_SPRITE_SIZE)
+            {
+                ERRORLOG("DBC sprite size %d,%d exceeds max %d",iDstSizeW,iDstSizeH,MAX_DBC_SPRITE_SIZE);
+                return -1;
+            }
             for (int sY = 0; sY < iDstSizeH; sY++)
             {
                 for (int sX = 0; sX < iDstSizeW; sX++)
