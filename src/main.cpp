@@ -3405,12 +3405,8 @@ void gameplay_loop_logic()
         previous_gameturn = get_gameturn();
     }
 
-    if (is_feature_on(Ft_DeltaTime) == true) {
-        if (game.process_turn_time < 1.0) {
-            return;
-        }
-        game.process_turn_time -= 1.0;
-    }
+    if (is_feature_on(Ft_DeltaTime) && game.process_turn_time < 1.0)
+        return;
 
     frametime_start_measurement(Frametime_Logic);
     if (frametime_enabled())
@@ -3434,6 +3430,8 @@ void gameplay_loop_logic()
     input();
     update();
     frametime_end_measurement(Frametime_Logic);
+
+    game.process_turn_time -= 1;
 
     if(game.frame_step)
     {
