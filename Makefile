@@ -355,7 +355,8 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/spritesheet.o \
-obj/windows.o \
+obj/PlatformManager.o \
+obj/PlatformWindows.o \
 $(FTEST_OBJS) \
 $(RES)
 
@@ -597,6 +598,20 @@ define BUILD_CPP_FILES_CMD
 	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 endef
+
+define BUILD_CPP_PLATFORM_FILES_CMD
+	-$(ECHO) 'Building cpp file: $<'
+	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
+	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
+	$(CPP) $(CXXFLAGS) -I"src/" -o"$@" "$<"
+endef
+
+# Pattern rules for src/platform (must come before general src/%.cpp rule)
+obj/std/%.o: src/platform/%.cpp libexterns $(GENSRC)
+	$(BUILD_CPP_PLATFORM_FILES_CMD)
+
+obj/hvlog/%.o: src/platform/%.cpp libexterns $(GENSRC)
+	$(BUILD_CPP_PLATFORM_FILES_CMD)
 
 # Pattern rules for src/kfx/lense (must come before general src/%.cpp rule)
 obj/std/%.o: src/kfx/lense/%.cpp libexterns $(GENSRC)
