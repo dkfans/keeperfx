@@ -555,8 +555,10 @@ float interpolate_synced(float previous, float current)
     return interpolate(previous, current);
 }
 
-void interpolate_thing(struct Thing *thing)
+struct ThingInterpolateResult interpolate_thing(struct Thing *thing)
 {
+    struct ThingInterpolateResult result;
+
     if (get_gameturn() - thing->creation_turn <= 1)
     {
         // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1
@@ -571,10 +573,10 @@ void interpolate_thing(struct Thing *thing)
     }
 
     // Interpolate position every frame
-    thing->interp_mappos.x.val = interpolate_synced(thing->previous_mappos.x.val, thing->mappos.x.val);
-    thing->interp_mappos.y.val = interpolate_synced(thing->previous_mappos.y.val, thing->mappos.y.val);
-    thing->interp_mappos.z.val = interpolate_synced(thing->previous_mappos.z.val, thing->mappos.z.val);
-    thing->interp_floor_height = interpolate_synced(thing->previous_floor_height, thing->floor_height);
+    result.mappos.x.val = interpolate_synced(thing->previous_mappos.x.val, thing->mappos.x.val);
+    result.mappos.y.val = interpolate_synced(thing->previous_mappos.y.val, thing->mappos.y.val);
+    result.mappos.z.val = interpolate_synced(thing->previous_mappos.z.val, thing->mappos.z.val);
+    result.floor_height = interpolate_synced(thing->previous_floor_height, thing->floor_height);
 
     // Cancel interpolation if distance to interpolate is too far. This is a
     // catch-all to solve any remaining interpolation bugs.
@@ -586,9 +588,11 @@ void interpolate_thing(struct Thing *thing)
                  thing_model_name(thing), (int)thing->index, (int)thing->owner,
                  thing->previous_mappos.x.stl.num, thing->previous_mappos.y.stl.num, thing->previous_mappos.z.stl.num,
                  thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
-        thing->interp_mappos = thing->mappos;
-        thing->interp_floor_height = thing->floor_height;
+        result.mappos = thing->mappos;
+        result.floor_height = thing->floor_height;
     }
+
+    return result;
 }
 
 static void get_floor_pointed_at(long x, long y, int32_t *floor_x, int32_t *floor_y)
@@ -4996,12 +5000,6 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thing->time_spent_displaying_hurt_colour += game.delta_time;
-                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
-                {
-                    thing->time_spent_displaying_hurt_colour = 0;
-                    thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
-                }
             }
         }
         thing_being_displayed_is_creature = 1;
@@ -8038,12 +8036,6 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thing->time_spent_displaying_hurt_colour += game.delta_time;
-                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
-                {
-                    thing->time_spent_displaying_hurt_colour = 0;
-                    thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
-                }
             }
         }
         thing_being_displayed_is_creature = 1;
@@ -8733,12 +8725,11 @@ static void do_map_who_for_thing(struct Thing *thing)
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
 
-    interpolate_thing(thing);
-    int render_pos_x, render_floorpos, render_pos_y, render_pos_z;
-    render_pos_x = thing->interp_mappos.x.val;
-    render_pos_y = thing->interp_mappos.z.val;
-    render_pos_z = thing->interp_mappos.y.val;
-    render_floorpos = thing->interp_floor_height;
+    const struct ThingInterpolateResult interp = interpolate_thing(thing);
+    const int render_pos_x = interp.mappos.x.val;
+    const int render_pos_y = interp.mappos.z.val;
+    const int render_pos_z = interp.mappos.y.val;
+    const int render_floorpos = interp.floor_height;
 
     switch (thing->draw_class)
     {
@@ -8897,7 +8888,7 @@ static void do_map_who(short tnglist_idx)
 static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struct Camera *cam)
 {
     // The draw_frontview_thing_on_element() function is the FrontView equivalent of do_map_who_for_thing()
-    interpolate_thing(thing);
+    struct ThingInterpolateResult interp = interpolate_thing(thing);
 
     int32_t cx;
     int32_t cy;
@@ -8907,7 +8898,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     switch (thing->draw_class)
     {
     case ODC_Default: // Things
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
@@ -8918,7 +8909,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case ODC_RoomPrice: // Floating gold text when buying and selling
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_number_to_polypool(cx, cy, thing->creature.gold_carried, 1);
@@ -8935,7 +8926,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             break;
         }
 
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             if (get_gameturn() - thing->roomflag.last_turn_drawn == 1)
@@ -8960,7 +8951,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case ODC_SpinningKey:
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_spinning_key_to_polypool(thing, cx, cy, cy, cz-3);

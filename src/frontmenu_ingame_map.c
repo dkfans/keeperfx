@@ -236,9 +236,9 @@ static void map_to_minimap(MapCoord* x, MapCoord* y, const struct Camera *cam, i
 static struct Coord2d thing_minimap_position(struct Thing* thing, const struct Camera *cam, int32_t zoom)
 {
     struct Coord2d result;
-    interpolate_thing(thing);
-    MapCoord x = thing->interp_mappos.x.val;
-    MapCoord y = thing->interp_mappos.y.val;
+    const struct ThingInterpolateResult interp = interpolate_thing(thing);
+    MapCoord x = interp.mappos.x.val;
+    MapCoord y = interp.mappos.y.val;
     map_to_minimap(&x, &y, cam, zoom);
     result.x.val = x;
     result.y.val = y;

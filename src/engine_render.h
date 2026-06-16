@@ -68,6 +68,12 @@ struct MapVolumeBox { // sizeof = 24
   long floor_height_z;
 };
 
+struct ThingInterpolateResult
+{
+    struct Coord3d mappos;
+    int32_t floor_height;
+};
+
 /******************************************************************************/
 // Stripey Line Color Arrays
 
@@ -139,7 +145,7 @@ extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 float interpolate(float previous, float current);
 float interpolate_angle(float previous, float current);
 float interpolate_synced(float previous, float current);
-void interpolate_thing(struct Thing *thing);
+struct ThingInterpolateResult interpolate_thing(struct Thing *thing);
 
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void frame_wibble_generate(void);
