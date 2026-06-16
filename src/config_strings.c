@@ -31,6 +31,7 @@
 #include "config_translation.h"
 #include "game_merge.h"
 #include "lvl_filesdk1.h"
+#include "kfx/modding/mod_api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -128,36 +129,20 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
   return true;
 }
 
-static void load_gui_strings_data_for_mod(const struct ModConfigItem *mod_item)
+static const ModLocation s_gui_str_locs[] = {
+  { ModTier_AfterBase, (short)FGrp_FxData, ModLifetime_Startup,
+    offsetof(struct ModExistState, fx_data), ModRes_Directory, NULL },
+};
+static KfxModHandle s_gui_str_walker = NULL;
+
+static void on_gui_str_fxdata_dir(const char *fxdata_dir, void *userdata)
 {
-  char mod_dir[256] = {0};
-  sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
-
-  const struct ModExistState *mod_state = &mod_item->state;
-  if (mod_state->fx_data)
+  char fname[512];
+  snprintf(fname, sizeof(fname), "%s/gtext_%s.dat", fxdata_dir, get_language_lwrstr(install_info.lang_id));
+  if (!load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors) && install_info.lang_id != Lang_English)
   {
-    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
-    if (!load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors))
-    {
-      // if the current language of mod is not translated, then try eng for mod.
-      if (install_info.lang_id != Lang_English)
-      {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(Lang_English));
-        load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors);
-      }
-    }
-  }
-}
-
-static void load_gui_strings_data_for_mod_list(const struct ModConfigItem *mod_items, long mod_cnt)
-{
-  for (long i=0; i<mod_cnt; i++)
-  {
-    const struct ModConfigItem *mod_item = mod_items + i;
-    if (mod_item->state.mod_dir == 0)
-      continue;
-
-    load_gui_strings_data_for_mod(mod_item);
+    snprintf(fname, sizeof(fname), "%s/gtext_%s.dat", fxdata_dir, get_language_lwrstr(Lang_English));
+    load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors);
   }
 }
 
@@ -178,20 +163,9 @@ TbBool setup_gui_strings_data(void)
   // Default only one dat file as base and must exist.
   // So for mods, ignore mod section stage, keep only the mod order.
 
-  if (mods_conf.after_base_cnt > 0)
-  {
-    load_gui_strings_data_for_mod_list(mods_conf.after_base_item, mods_conf.after_base_cnt);
-  }
-
-  if (mods_conf.after_campaign_cnt > 0)
-  {
-    load_gui_strings_data_for_mod_list(mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
-  }
-
-  if (mods_conf.after_map_cnt > 0)
-  {
-    load_gui_strings_data_for_mod_list(mods_conf.after_map_item, mods_conf.after_map_cnt);
-  }
+  if (s_gui_str_walker == NULL)
+    s_gui_str_walker = kfx_mod_create_walker(s_gui_str_locs, sizeof(s_gui_str_locs) / sizeof(s_gui_str_locs[0]));
+  kfx_mod_visit(s_gui_str_walker, NULL, on_gui_str_fxdata_dir, NULL);
 
   SYNCDBG(19,"Finished");
   return true;
@@ -256,32 +230,28 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
   return true;
 }
 
-static void load_campaign_strings_data_for_mod(struct GameCampaign *campgn, const struct ModConfigItem *mod_item)
-{
-  char mod_dir[256] = {0};
-  sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
+static const ModLocation s_camp_str_locs[] = {
+  { ModTier_AfterBase,     (short)FGrp_Main, ModLifetime_Startup,
+    offsetof(struct ModExistState, mod_dir), ModRes_Directory, NULL },
+  { ModTier_AfterCampaign, (short)FGrp_Main, ModLifetime_Campaign,
+    offsetof(struct ModExistState, mod_dir), ModRes_Directory, NULL },
+  { ModTier_AfterMap,      (short)FGrp_Main, ModLifetime_Level,
+    offsetof(struct ModExistState, mod_dir), ModRes_Directory, NULL },
+};
+static KfxModHandle s_camp_str_walker = NULL;
 
-  char *fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname);
+static void on_camp_str_mod_dir(const char *mod_dir_path, void *userdata)
+{
+  struct GameCampaign *campgn = (struct GameCampaign *)userdata;
+  char fname[512];
+  snprintf(fname, sizeof(fname), "%s/%s", mod_dir_path, campgn->strings_fname);
   if (!load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn))
   {
-    // if the current language of mod is not translated, then try eng.
     if (campgn->strings_fname_eng[0] != 0 && strcmp(campgn->strings_fname_eng, campgn->strings_fname) != 0)
     {
-      fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname_eng);
+      snprintf(fname, sizeof(fname), "%s/%s", mod_dir_path, campgn->strings_fname_eng);
       load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn);
     }
-  }
-}
-
-static void load_campaign_strings_data_for_mod_list(struct GameCampaign *campgn, const struct ModConfigItem *mod_items, long mod_cnt)
-{
-  for (long i=0; i<mod_cnt; i++)
-  {
-    const struct ModConfigItem *mod_item = mod_items + i;
-    if (mod_item->state.mod_dir == 0)
-      continue;
-
-    load_campaign_strings_data_for_mod(campgn, mod_item);
   }
 }
 
@@ -310,20 +280,9 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   // Default only one dat file as base and must exist.
   // So for mods, ignore mod section stage, keep only the mod order.
 
-  if (mods_conf.after_base_cnt > 0)
-  {
-    load_campaign_strings_data_for_mod_list(campgn, mods_conf.after_base_item, mods_conf.after_base_cnt);
-  }
-
-  if (mods_conf.after_campaign_cnt > 0)
-  {
-    load_campaign_strings_data_for_mod_list(campgn, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
-  }
-
-  if (mods_conf.after_map_cnt > 0)
-  {
-    load_campaign_strings_data_for_mod_list(campgn, mods_conf.after_map_item, mods_conf.after_map_cnt);
-  }
+  if (s_camp_str_walker == NULL)
+    s_camp_str_walker = kfx_mod_create_walker(s_camp_str_locs, sizeof(s_camp_str_locs) / sizeof(s_camp_str_locs[0]));
+  kfx_mod_visit(s_camp_str_walker, NULL, on_camp_str_mod_dir, campgn);
 
   SYNCDBG(19,"Finished");
   return true;
