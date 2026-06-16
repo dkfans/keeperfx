@@ -46,6 +46,7 @@
 #include "custom_sprites.h"
 #include "lvl_script_lib.h"
 #include "keeperfx.hpp"
+#include "kfx/modding/mod_api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -2779,70 +2780,49 @@ static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname,
     return result;
 }
 
-/* @comment
- *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod need to be consistent.
- */
-static TbBool load_creaturemodel_config_for_mod(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_item)
+/* -----------------------------------------------------------------------
+ * Walker-based 6-tier creature config loading
+ * --------------------------------------------------------------------- */
+
+static void crtr_map_builder(char *out, size_t out_size, const ModBuildContext *ctx)
 {
-    set_flag(flags, CnfLd_IgnoreErrors);
-
-    TbBool result = false;
-    const struct ModExistState *mod_state = &mod_item->state;
-    char* fname = NULL;
-    char mod_dir[256] = {0};
-    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
-
-    if (mod_state->crtr_data)
-    {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CrtrData, "%s.cfg", conf_fnstr);
-        if (strlen(fname) > 0)
-        {
-            result |= load_creaturemodel_config_file(crmodel, fname, flags);
-        }
-    }
-
-    if (mod_state->cmpg_crtrs)
-    {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgCrtrs, "%s.cfg", conf_fnstr);
-        if (strlen(fname) > 0)
-        {
-            result |= load_creaturemodel_config_file(crmodel, fname, flags);
-        }
-    }
-
-    if (mod_state->cmpg_lvls)
-    {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_level_number(), conf_fnstr);
-        if (strlen(fname) > 0)
-        {
-            result |= load_creaturemodel_config_file(crmodel, fname, flags);
-        }
-    }
-
-    return result;
+    /* ctx->base_fname is e.g. "imp.cfg"; produce "map00001.imp.cfg" */
+    char creature_name[COMMAND_WORD_LEN];
+    snprintf(creature_name, sizeof(creature_name), "%s", ctx->base_fname);
+    char *dot = strrchr(creature_name, '.');
+    if (dot) *dot = '\0';
+    snprintf(out, out_size, "map%05lu.%s.cfg", (unsigned long)ctx->level_num, creature_name);
 }
 
-static TbBool load_creaturemodel_config_for_mod_list(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_items, long mod_cnt)
+static const ModLocation s_crtr_locs[] = {
+    { ModTier_Base,          (short)FGrp_CrtrData,  ModLifetime_Startup,  SIZE_MAX,                                          ModRes_File, NULL             },
+    { ModTier_AfterBase,     (short)FGrp_CrtrData,  ModLifetime_Startup,  offsetof(struct ModExistState, crtr_data),         ModRes_File, NULL             },
+    { ModTier_Campaign,      (short)FGrp_CmpgCrtrs, ModLifetime_Campaign, SIZE_MAX,                                          ModRes_File, NULL             },
+    { ModTier_AfterCampaign, (short)FGrp_CmpgCrtrs, ModLifetime_Campaign, offsetof(struct ModExistState, cmpg_crtrs),        ModRes_File, NULL             },
+    { ModTier_PerMap,        (short)FGrp_CmpgLvls,  ModLifetime_Level,    SIZE_MAX,                                          ModRes_File, crtr_map_builder },
+    { ModTier_AfterMap,      (short)FGrp_CmpgLvls,  ModLifetime_Level,    offsetof(struct ModExistState, cmpg_lvls),         ModRes_File, crtr_map_builder },
+};
+static KfxModHandle s_crtr_walker = NULL;
+
+typedef struct {
+    ThingModel      crmodel;
+    unsigned short  flags;
+    TbBool          result;
+} CrtrLoadCtx;
+
+static void on_crtr_cfg_found(const char *path, void *userdata)
 {
-    TbBool result = false;
-
-    for (long i=0; i<mod_cnt; i++)
+    CrtrLoadCtx *ctx = (CrtrLoadCtx *)userdata;
+    if (load_creaturemodel_config_file(ctx->crmodel, path, ctx->flags))
     {
-        const struct ModConfigItem *mod_item = mod_items + i;
-        if (mod_item->state.mod_dir == 0)
-            continue;
-
-        result |= load_creaturemodel_config_for_mod(crmodel, flags, conf_fnstr, mod_item);
+        ctx->result = true;
+        set_flag(ctx->flags, CnfLd_IgnoreErrors);
     }
-
-    return result;
 }
 
 /* @function description
  *     Load model configuration for a creature.
  *     Splitting ThingModel into conf_crmodel and crmodel, So specific/different configuration can be loaded for crmodel.
- * @comment
- *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod need to be consistent.
  */
 TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, unsigned short flags)
 {
@@ -2861,61 +2841,22 @@ TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, un
         return false;
     }
 
-    char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
-    TbBool result = load_creaturemodel_config_file(crmodel, fname, flags);
-    if (result)
-    {
-        set_flag(flags, CnfLd_IgnoreErrors);
-    }
+    if (s_crtr_walker == NULL)
+        s_crtr_walker = kfx_mod_create_walker(s_crtr_locs,
+            sizeof(s_crtr_locs) / sizeof(s_crtr_locs[0]));
 
-    if (mods_conf.after_base_cnt > 0)
-    {
-        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_base_item, mods_conf.after_base_cnt);
-        if (result)
-        {
-            set_flag(flags, CnfLd_IgnoreErrors);
-        }
-    }
+    char base_fname[COMMAND_WORD_LEN + 4];
+    snprintf(base_fname, sizeof(base_fname), "%s.cfg", conf_fnstr);
 
-    fname = prepare_file_fmtpath(FGrp_CmpgCrtrs, "%s.cfg", conf_fnstr);
-    if (strlen(fname) > 0)
-    {
-        result |= load_creaturemodel_config_file(crmodel, fname, flags);
-        if (result)
-        {
-            set_flag(flags, CnfLd_IgnoreErrors);
-        }
-    }
+    CrtrLoadCtx ctx = { crmodel, flags, false };
+    kfx_mod_visit(s_crtr_walker, base_fname, on_crtr_cfg_found, &ctx);
 
-    if (mods_conf.after_campaign_cnt > 0)
+    if (!ctx.result)
     {
-        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
-        if (result)
-        {
-            set_flag(flags, CnfLd_IgnoreErrors);
-        }
+        ERRORLOG("Unable to load a complete model config file[%s] for creature[%s].",
+                 creature_code_name(conf_crmodel), creature_code_name(crmodel));
     }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_level_number(), conf_fnstr);
-    if (strlen(fname) > 0)
-    {
-        result |= load_creaturemodel_config_file(crmodel, fname, flags);
-        if (result)
-        {
-            set_flag(flags, CnfLd_IgnoreErrors);
-        }
-    }
-
-    if (mods_conf.after_map_cnt > 0)
-    {
-        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_map_item, mods_conf.after_map_cnt);
-        // last one does not need to set CnfLd_IgnoreErrors
-    }
-
-    if (!result)
-    {
-        ERRORLOG("Unable to load a complete model config file[%s] for creature[%s].", creature_code_name(conf_crmodel), creature_code_name(crmodel));
-    }
-    return result;
+    return ctx.result;
 }
 
 TbBool load_default_creaturemodel_config(ThingModel crmodel, unsigned short flags)
