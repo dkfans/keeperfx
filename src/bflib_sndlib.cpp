@@ -913,7 +913,7 @@ extern "C" int InitialiseSDLAudio()
 		ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
 		return 0;
 	}
-	int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
+	int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3|MIX_INIT_FLAC);
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
 	{
 		ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
@@ -1028,12 +1028,12 @@ static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
 	return true;
 }
 
-// Load a WAV or MP3 file and append it to g_custom_bank as a signed-16-bit
+// Load a WAV, OGG, FLAC, or MP3 file and append it to g_custom_bank as a signed-16-bit
 // OpenAL buffer.
-//   - Plain WAV  : SDL_LoadWAV_RW (SDL2.dll only, no libxmp dependency)
-//   - Plain MP3  : dr_mp3 single-header decoder (compiled in, no external DLLs)
-//   - BMU V1.0   : 8-byte wrapper used by some campaigns; contains a plain MP3
-//                  stream after the header — stripped and decoded via dr_mp3.
+//   - WAV / OGG / FLAC : Mix_LoadWAV_RW (SDL_mixer; OGG and FLAC require MIX_INIT_OGG/MIX_INIT_FLAC)
+//   - Plain MP3        : dr_mp3 single-header decoder (compiled in, no external DLLs)
+//   - BMU V1.0         : 8-byte wrapper used by some campaigns; contains a plain MP3
+//                        stream after the header — stripped and decoded via dr_mp3.
 extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id)
 {
 	// Resolve to absolute path so the decoders can find the file regardless of
@@ -1088,44 +1088,35 @@ extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id)
 		return decode_mp3_and_store(filepath, sample_id, data, size);
 	}
 
-	// --- WAV path: SDL_LoadWAV_RW (SDL2.dll, no libxmp dependency) ---
+	// --- WAV / OGG / FLAC path: Mix_LoadWAV_RW (SDL_mixer decodes all three) ---
 	SDL_RWops* rw = SDL_RWFromConstMem(data, (int)size);
 	if (!rw) {
 		ERRORLOG("Cannot create RWops for %s: %s", filepath, SDL_GetError());
 		return false;
 	}
 
-	SDL_AudioSpec spec = {};
-	Uint8* wav_buf = nullptr;
-	Uint32 wav_len = 0;
-	// freesrc=1 closes rw whether or not decoding succeeds.
-	if (SDL_LoadWAV_RW(rw, 1, &spec, &wav_buf, &wav_len) == nullptr) {
-		ERRORLOG("Cannot decode audio file %s: %s", filepath, SDL_GetError());
+	// freesrc=1: Mix_LoadWAV_RW closes rw regardless of success/failure.
+	Mix_Chunk* chunk = Mix_LoadWAV_RW(rw, 1);
+	if (chunk == nullptr) {
+		ERRORLOG("Cannot decode audio file %s: %s", filepath, Mix_GetError());
 		return false;
 	}
 
-	// Map SDL format to OpenAL.
-	ALenum al_fmt;
-	switch (spec.format) {
-	case AUDIO_U8:
-	case AUDIO_S8:
-		al_fmt = (spec.channels == 1) ? AL_FORMAT_MONO8 : AL_FORMAT_STEREO8;
-		break;
-	case AUDIO_S16LSB:
-	case AUDIO_S16MSB:
-	default:
-		al_fmt = (spec.channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-		break;
-	}
+	// Mix_LoadWAV_RW converts decoded PCM to the mixer's output format
+	// (44100 Hz / Sint16 / stereo, as set in Mix_OpenAudio).
+	int mix_freq = 0, mix_channels = 0;
+	Uint16 mix_fmt = 0;
+	Mix_QuerySpec(&mix_freq, &mix_fmt, &mix_channels);
+	const ALenum al_fmt = (mix_channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
 
 	try {
-		const std::vector<uint8_t> pcm(wav_buf, wav_buf + wav_len);
-		g_custom_bank.emplace_back(filepath, sample_id, pcm, al_fmt, spec.freq);
+		const std::vector<uint8_t> pcm(chunk->abuf, chunk->abuf + chunk->alen);
+		g_custom_bank.emplace_back(filepath, sample_id, pcm, al_fmt, mix_freq);
 	} catch (...) {
-		SDL_FreeWAV(wav_buf);
-		ERRORLOG("Out of memory buffering WAV %s", filepath);
+		Mix_FreeChunk(chunk);
+		ERRORLOG("Out of memory buffering audio %s", filepath);
 		return false;
 	}
-	SDL_FreeWAV(wav_buf);
+	Mix_FreeChunk(chunk);
 	return true;
 }
