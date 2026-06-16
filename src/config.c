@@ -43,6 +43,7 @@
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
+#include "kfx/modding/mod_api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -2093,56 +2094,77 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
 }
 
 
-/* @comment
- *     The loading items of load_config and load_config_for_mod need to be consistent.
- */
-static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
+/* -----------------------------------------------------------------------
+ * Walker-based 6-tier generic config loading
+ * --------------------------------------------------------------------- */
+
+static void config_map_builder(char *out, size_t out_size, const ModBuildContext *ctx)
 {
-    set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
-
-    const char* conf_fname = file_data->filename;
-    const struct ModExistState *mod_state = &mod_item->state;
-    char* fname = NULL;
-    char mod_dir[256] = {0};
-    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
-
-    if (mod_state->fx_data)
-    {
-        fname = prepare_file_path_mod(mod_dir, FGrp_FxData, conf_fname);
-        if (strlen(fname) > 0)
-        {
-            file_data->load_func(fname, flags);
-        }
-    }
-
-    if (mod_state->cmpg_config)
-    {
-        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig, conf_fname);
-        if (strlen(fname) > 0)
-        {
-            file_data->load_func(fname,flags);
-        }
-    }
-
-    if (mod_state->cmpg_lvls)
-    {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-        if (strlen(fname) > 0)
-        {
-            file_data->load_func(fname,flags);
-        }
-    }
+    snprintf(out, out_size, "map%05lu.%s", (unsigned long)ctx->level_num, ctx->base_fname);
 }
 
-static void load_config_for_mod_list(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_items, long mod_cnt)
-{
-    for (long i=0; i<mod_cnt; i++)
-    {
-        const struct ModConfigItem *mod_item = mod_items + i;
-        if (mod_item->state.mod_dir == 0)
-            continue;
+static const ModLocation s_config_locs[] = {
+    { ModTier_AfterBase,     (short)FGrp_FxData,     ModLifetime_Startup,  offsetof(struct ModExistState, fx_data),     ModRes_File, NULL               },
+    { ModTier_Campaign,      (short)FGrp_CmpgConfig, ModLifetime_Campaign, SIZE_MAX,                                    ModRes_File, NULL               },
+    { ModTier_AfterCampaign, (short)FGrp_CmpgConfig, ModLifetime_Campaign, offsetof(struct ModExistState, cmpg_config), ModRes_File, NULL               },
+    { ModTier_PerMap,        (short)FGrp_CmpgLvls,   ModLifetime_Level,    SIZE_MAX,                                    ModRes_File, config_map_builder },
+    { ModTier_AfterMap,      (short)FGrp_CmpgLvls,   ModLifetime_Level,    offsetof(struct ModExistState, cmpg_lvls),   ModRes_File, config_map_builder },
+};
+static KfxModHandle s_config_walker = NULL;
 
-        load_config_for_mod(file_data, flags, mod_item);
+typedef struct {
+    const struct ConfigFileData *file_data;
+    unsigned short flags;
+} ConfigLoadCtx;
+
+static void on_config_batch_found(const char *path, void *userdata)
+{
+    const ConfigBatchItem *item = (const ConfigBatchItem *)userdata;
+    item->file_data->load_func(path, item->flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
+}
+
+void load_config_batch(const struct ConfigBatchItem *items, size_t count)
+{
+    if (!items || count == 0) return;
+
+    /* Step 1: pre-load hooks + base tier for all items (in order) */
+    for (size_t i = 0; i < count; i++) {
+        const struct ConfigFileData *fd = items[i].file_data;
+        KfxLoadNotification notif;
+        notif.step    = KfxLoadStep_Begin;
+        notif.label   = fd->filename;
+        notif.current = (int)(i + 1);
+        notif.total   = (int)count;
+        kfx_load_notify(&notif);
+        if (fd->pre_load_func != NULL)
+            fd->pre_load_func();
+        char *fname = prepare_file_path(FGrp_FxData, fd->filename);
+        fd->load_func(fname, items[i].flags);
+    }
+
+    /* Step 2: single walker traversal for all mod-tier overrides */
+    if (s_config_walker == NULL)
+        s_config_walker = kfx_mod_create_walker(s_config_locs,
+            sizeof(s_config_locs) / sizeof(s_config_locs[0]));
+
+    KfxModBatchEntry entries[count];
+    for (size_t i = 0; i < count; i++) {
+        entries[i].base_fname = items[i].file_data->filename;
+        entries[i].cb         = on_config_batch_found;
+        entries[i].userdata   = (void *)&items[i];
+    }
+    kfx_mod_visit_batch(s_config_walker, entries, count);
+
+    /* Step 3: post-load hooks (in order) + notify Done */
+    for (size_t i = 0; i < count; i++) {
+        if (items[i].file_data->post_load_func != NULL)
+            items[i].file_data->post_load_func();
+        KfxLoadNotification notif;
+        notif.step    = KfxLoadStep_Done;
+        notif.label   = items[i].file_data->filename;
+        notif.current = (int)(i + 1);
+        notif.total   = (int)count;
+        kfx_load_notify(&notif);
     }
 }
 
@@ -2151,49 +2173,10 @@ static void load_config_for_mod_list(const struct ConfigFileData* file_data, uns
  */
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
-    if (file_data->pre_load_func != NULL)
-    {
-        file_data->pre_load_func();
-    }
-
-    const char* conf_fname = file_data->filename;
-
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = file_data->load_func(fname, flags);
-
-    if (mods_conf.after_base_cnt > 0)
-    {
-        load_config_for_mod_list(file_data, flags, mods_conf.after_base_item, mods_conf.after_base_cnt);
-    }
-
-    fname = prepare_file_path(FGrp_CmpgConfig, conf_fname);
-    if (strlen(fname) > 0)
-    {
-        file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-
-    if (mods_conf.after_campaign_cnt > 0)
-    {
-        load_config_for_mod_list(file_data, flags, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
-    }
-
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-
-    if (mods_conf.after_map_cnt > 0)
-    {
-        load_config_for_mod_list(file_data, flags, mods_conf.after_map_item, mods_conf.after_map_cnt);
-    }
-
-    if (file_data->post_load_func != NULL)
-    {
-        file_data->post_load_func();
-    }
-
-    return result;
+    const ConfigBatchItem item = { file_data, flags };
+    load_config_batch(&item, 1);
+    /* Probe base file to determine success — same semantics as before. */
+    return LbFileLengthRnc(prepare_file_path(FGrp_FxData, file_data->filename)) > 0;
 }
 
 /******************************************************************************/

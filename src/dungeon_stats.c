@@ -40,6 +40,7 @@
 #include "config_sounds.h"
 #include "room_library.h"
 #include "game_legacy.h"
+#include "kfx/modding/mod_api.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -52,46 +53,65 @@ TbBool load_stats_files(void)
     init_all_creature_model_stats();
     init_creature_model_graphics();
 
+    /* Translation stands alone: it must be ready before any other config
+     * references text strings. */
     load_config(&keeper_translation_file_data, CnfLd_Standard);
 
-    //first preload some configs which contain names that are used in other cfgs in ListOnly mode
-    load_config(&keeper_creaturetp_file_data,   CnfLd_ListOnly);
-    load_config(&keeper_terrain_file_data,      CnfLd_ListOnly);
-    load_config(&keeper_objects_file_data,      CnfLd_ListOnly);
-    load_config(&keeper_trapdoor_file_data,     CnfLd_ListOnly);
-    load_config(&keeper_effects_file_data,      CnfLd_ListOnly);
-    load_config(&keeper_lenses_file_data,       CnfLd_ListOnly);
-    load_config(&keeper_magic_file_data,        CnfLd_ListOnly);
-    load_config(&creature_states_file_data,     CnfLd_ListOnly);
-    load_config(&keeper_playerstates_file_data, CnfLd_ListOnly);
+    /* Pass 1 — ListOnly: populate name tables used by later configs.
+     * Single walker traversal for all nine files via load_config_batch(). */
+    static const ConfigBatchItem listonly_pass[] = {
+        { &keeper_creaturetp_file_data,   CnfLd_ListOnly },
+        { &keeper_terrain_file_data,      CnfLd_ListOnly },
+        { &keeper_objects_file_data,      CnfLd_ListOnly },
+        { &keeper_trapdoor_file_data,     CnfLd_ListOnly },
+        { &keeper_effects_file_data,      CnfLd_ListOnly },
+        { &keeper_lenses_file_data,       CnfLd_ListOnly },
+        { &keeper_magic_file_data,        CnfLd_ListOnly },
+        { &creature_states_file_data,     CnfLd_ListOnly },
+        { &keeper_playerstates_file_data, CnfLd_ListOnly },
+    };
+    load_config_batch(listonly_pass, sizeof(listonly_pass) / sizeof(listonly_pass[0]));
 
     // Load sounds before full config passes so that named sounds are available
     // when fields like AmbienceSound, PlaceSound, TriggerSound are parsed.
     load_sounds_config();
 
-    //then load everything for real
-    load_config(&keeper_terrain_file_data,      CnfLd_Standard|CnfLd_PreListed);
-    load_config(&keeper_objects_file_data,      CnfLd_Standard|CnfLd_PreListed);
-    load_config(&keeper_trapdoor_file_data,     CnfLd_Standard|CnfLd_PreListed);
-    load_config(&keeper_effects_file_data,      CnfLd_Standard|CnfLd_PreListed);
-    load_config(&keeper_lenses_file_data,       CnfLd_Standard|CnfLd_PreListed);
-    load_config(&keeper_magic_file_data,        CnfLd_Standard|CnfLd_PreListed);
-    load_config(&keeper_creaturetp_file_data,   CnfLd_Standard|CnfLd_PreListed);
-    load_config(&creature_states_file_data,     CnfLd_Standard|CnfLd_PreListed);
-    load_config(&keeper_rules_file_data,        CnfLd_Standard);
-    load_config(&keeper_textureanim_file_data,  CnfLd_Standard);
-    load_config(&keeper_powerhands_file_data,   CnfLd_Standard);
-    load_config(&keeper_spritecolors_file_data, CnfLd_Standard);
-    load_config(&keeper_cubes_file_data,        CnfLd_Standard);
-    load_config(&keeper_playerstates_file_data, CnfLd_Standard|CnfLd_PreListed);
-    load_config(&keeper_keepcomp_file_data,     CnfLd_Standard);
-    load_config(&keeper_slabset_file_data,      CnfLd_Standard);
-    load_config(&keeper_columns_file_data,      CnfLd_Standard);
+    /* Pass 2 — Standard: full data load.
+     * Single walker traversal for all seventeen files via load_config_batch(). */
+    static const ConfigBatchItem standard_pass[] = {
+        { &keeper_terrain_file_data,      CnfLd_Standard|CnfLd_PreListed },
+        { &keeper_objects_file_data,      CnfLd_Standard|CnfLd_PreListed },
+        { &keeper_trapdoor_file_data,     CnfLd_Standard|CnfLd_PreListed },
+        { &keeper_effects_file_data,      CnfLd_Standard|CnfLd_PreListed },
+        { &keeper_lenses_file_data,       CnfLd_Standard|CnfLd_PreListed },
+        { &keeper_magic_file_data,        CnfLd_Standard|CnfLd_PreListed },
+        { &keeper_creaturetp_file_data,   CnfLd_Standard|CnfLd_PreListed },
+        { &creature_states_file_data,     CnfLd_Standard|CnfLd_PreListed },
+        { &keeper_rules_file_data,        CnfLd_Standard               },
+        { &keeper_textureanim_file_data,  CnfLd_Standard               },
+        { &keeper_powerhands_file_data,   CnfLd_Standard               },
+        { &keeper_spritecolors_file_data, CnfLd_Standard               },
+        { &keeper_cubes_file_data,        CnfLd_Standard               },
+        { &keeper_playerstates_file_data, CnfLd_Standard|CnfLd_PreListed },
+        { &keeper_keepcomp_file_data,     CnfLd_Standard               },
+        { &keeper_slabset_file_data,      CnfLd_Standard               },
+        { &keeper_columns_file_data,      CnfLd_Standard               },
+    };
+    load_config_batch(standard_pass, sizeof(standard_pass) / sizeof(standard_pass[0]));
 
+    int total_creatures = game.conf.crtr_conf.model_count - 1;
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {
+        KfxLoadNotification notif;
+        notif.step    = KfxLoadStep_Begin;
+        notif.label   = creature_code_name(i);
+        notif.current = i;
+        notif.total   = total_creatures;
+        kfx_load_notify(&notif);
         if (!load_default_creaturemodel_config(i,0))
             result = false;
+        notif.step = KfxLoadStep_Done;
+        kfx_load_notify(&notif);
     }
     SYNCDBG(3,"Finished");
     return result;

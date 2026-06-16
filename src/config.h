@@ -253,6 +253,22 @@ char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(int32_t *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags);
+
+/**
+ * Batch variant of load_config(): loads base tier for each item in order,
+ * then performs a SINGLE walker traversal for all mod-tier overrides.
+ * Use this instead of repeated load_config() calls when loading multiple
+ * config files that share the same tier-stack context.
+ *
+ * @param items   Array of (ConfigFileData*, flags) pairs.
+ * @param count   Number of items.
+ */
+typedef struct ConfigBatchItem {
+    const struct ConfigFileData *file_data;
+    unsigned short               flags;
+} ConfigBatchItem;
+
+void load_config_batch(const struct ConfigBatchItem *items, size_t count);
 /******************************************************************************/
 short is_bonus_level(LevelNumber lvnum);
 short is_extra_level(LevelNumber lvnum);
