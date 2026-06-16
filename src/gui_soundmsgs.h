@@ -40,6 +40,9 @@ extern "C" {
 #define MESSAGE_DURATION_CRTR_JOINED   500
 #define MESSAGE_DURATION_STARVING      500
 
+/** Maximum number of queued speeches before new ones are skipped. */
+extern int g_speech_queue_limit;
+
 enum TbSpeechMessages {
         SMsg_None = 0,
         SMsg_CreatrAngryAnyReason,

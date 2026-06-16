@@ -306,6 +306,13 @@ extern SoundSmplTblID snd_hit_wall_boulder;       /* HitWallSound for SHOT_BOULD
 extern char g_speech_overrides[SMsg_MAX][512];
 
 /**
+ * @brief Maximum number of queued speeches before new ones are dropped.
+ * Populated by the [system] section of sounds.cfg via speech_queue_limit setting.
+ * Defaults to 4. Can be overridden per campaign.
+ */
+extern int g_speech_queue_limit;
+
+/**
  * @brief Resolve a sound name or file path to a sample ID.
  *
  * Used by toml-based config parsers (e.g. effects.toml) via CONDITIONAL_ASSIGN_SOUND.

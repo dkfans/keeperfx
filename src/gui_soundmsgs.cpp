@@ -22,6 +22,7 @@
 #include "config_settings.h"
 #include "config_keeperfx.h"
 #include "game_legacy.h"
+#include "sound_manager.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
 #include "bflib_planar.h"
@@ -35,6 +36,9 @@
 #include "config.h"
 #include "post_inc.h"
 
+// Maximum number of messages that can be queued at once.
+int g_speech_queue_limit = 4;
+
 namespace {
 
 struct Message;
@@ -43,8 +47,6 @@ std::deque<std::unique_ptr<Message>> g_message_queue;
 std::map<SoundSmplTblID, long> g_recent_samples;
 std::map<std::string, long> g_recent_filenames;
 std::unique_ptr<Message> g_current_message;
-
-#define MAX_QUEUED_MESSAGES 4
 
 enum MessageType {
 	MT_Default = 1,
@@ -116,7 +118,7 @@ bool already_in_queue(const Message & msg)
 
 bool push_queue(std::unique_ptr<Message> msg)
 {
-	if (g_message_queue.size() >= MAX_QUEUED_MESSAGES) {
+	if (g_message_queue.size() >= (size_t)g_speech_queue_limit) {
 		SYNCDBG(8, "message queue full");
 		return false;
 	} else if (g_current_message && g_current_message->is(*msg)) {
@@ -488,17 +490,21 @@ void script_play_message(TbBool param_is_string, const char msgtype_id, const sh
     }
     else
     {
-        const char * filepath = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", filename);
         switch (msgtype_id)
         {
             case 1: // speech message
             {
-                output_custom_message(filepath, settings.mentor_volume);
+                output_message_from_path(filename, settings.mentor_volume);
                 break;
             }
             case 2: // sound effect
             {
-                play_streamed_sample(filepath, settings.sound_volume);
+                const SoundSmplTblID sound_id = sound_manager_load_named_sound(filename, filename, 1);
+                if (sound_id > 0) {
+                    play_non_3d_sample(sound_id);
+                } else {
+                    WARNLOG("Unable to resolve sound effect '%s' for PLAY_MESSAGE", filename);
+                }
                 break;
             }
         }

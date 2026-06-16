@@ -2358,7 +2358,7 @@ void update_near_creatures_for_footsteps(int32_t *near_creatures, const struct C
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Foot);
-            if (crsound->index > 0)
+            if (crsound->index != 0)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
