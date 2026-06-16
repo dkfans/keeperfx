@@ -179,6 +179,11 @@ src/kfx/lense/LuaLensEffect.cpp \
 src/kfx/lense/MistEffect.cpp \
 src/kfx/lense/OverlayEffect.cpp \
 src/kfx/lense/PaletteEffect.cpp \
+src/kfx/modding/IModSubsystem.cpp \
+src/kfx/modding/mod_api.cpp \
+src/kfx/modding/ModWalker.cpp \
+src/kfx/modding/tier_stack.cpp \
+src/cdrom.cpp \
 src/light_data.c \
 src/platform/PlatformLinux.cpp \
 src/platform/PlatformManager.cpp \
