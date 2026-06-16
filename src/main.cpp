@@ -2050,7 +2050,7 @@ static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coor
     }
 }
 
-static void update_local_mouse_light(void)
+void update_local_mouse_light(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo *player = get_my_player();

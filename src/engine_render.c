@@ -9083,6 +9083,7 @@ void draw_frontview_engine(struct Camera *cam)
     }
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
+    update_local_mouse_light();
     if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
     {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
