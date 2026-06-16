@@ -1016,7 +1016,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         {
             drop_gold_coins(&pos, droptng->valuable.gold_stored, plyr_idx);
             if (is_my_player_number(plyr_idx)) {
-                play_non_3d_sample(snd_gold_pickup + SOUND_RANDOM(snd_gold_pickup_count));
+                play_non_3d_sample(snd_coin_drop);
             }
         }
         destroy_object(droptng);
