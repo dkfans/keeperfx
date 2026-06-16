@@ -38,6 +38,7 @@
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_keeperfx.h"
+#include "kfx/modding/mod_api.h"
 #include "config_settings.h"
 #include "game_lghtshdw.h"
 #include "light_data.h"
@@ -902,8 +903,23 @@ TbBool load_map_and_window(LevelNumber lvnum)
         ERRORLOG("No Land View file names for level %d",lvnum);
         return false;
     }
+    /* Locate land-view files via the tier-stack walker (campaign tier supports
+     * mod overrides via FGrp_LandView slots added by add_campaign_slots). */
+    static const ModLocation s_landview_locs[] = {
+        { ModTier_Campaign, (short)FGrp_LandView, ModLifetime_Campaign, SIZE_MAX, ModRes_File, NULL },
+    };
+    static KfxModHandle s_landview_walker = NULL;
+    if (s_landview_walker == NULL)
+        s_landview_walker = kfx_mod_create_walker(s_landview_locs,
+            sizeof(s_landview_locs) / sizeof(s_landview_locs[0]));
+
     // Prepare full file name and load the image
-    char* fname = prepare_file_fmtpath(FGrp_LandView, "%s.raw", land_view);
+    static char lv_path[512];
+    char lv_fname[256];
+    snprintf(lv_fname, sizeof(lv_fname), "%s.raw", land_view);
+    if (!kfx_mod_find(s_landview_walker, lv_fname, lv_path, sizeof(lv_path)))
+        snprintf(lv_path, sizeof(lv_path), "%s", prepare_file_fmtpath(FGrp_LandView, "%s.raw", land_view));
+    char* fname = lv_path;
     long flen = LbFileLengthRnc(fname);
     if (flen < 1024)
     {
@@ -925,7 +941,10 @@ TbBool load_map_and_window(LevelNumber lvnum)
     unsigned char* ptr = block_mem;
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Now prepare window sprite file name and load the file
-    fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
+    snprintf(lv_fname, sizeof(lv_fname), "%s.dat", land_window);
+    if (!kfx_mod_find(s_landview_walker, lv_fname, lv_path, sizeof(lv_path)))
+        snprintf(lv_path, sizeof(lv_path), "%s", prepare_file_fmtpath(FGrp_LandView, "%s.dat", land_window));
+    fname = lv_path;
     map_window_len = LbFileLoadAt(fname, ptr);
     if (map_window_len < (int32_t)(WINDOW_Y_SIZE*sizeof(int32_t)))
     {
@@ -943,7 +962,10 @@ TbBool load_map_and_window(LevelNumber lvnum)
     // Update length, so that it corresponds to map_window pointer
     map_window_len -= WINDOW_Y_SIZE*sizeof(int32_t);
     // Load palette
-    fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
+    snprintf(lv_fname, sizeof(lv_fname), "%s.pal", land_view);
+    if (!kfx_mod_find(s_landview_walker, lv_fname, lv_path, sizeof(lv_path)))
+        snprintf(lv_path, sizeof(lv_path), "%s", prepare_file_fmtpath(FGrp_LandView, "%s.pal", land_view));
+    fname = lv_path;
     if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
     {
         ERRORLOG("Unable to load Land Map palette \"%s.pal\"",land_view);
