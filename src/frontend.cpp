@@ -566,6 +566,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             gbtn->button_state_left_pressed = 0;
             (gbtn->click_event)(gbtn);
             input_button = 0;
+            LbStopTextInput();
             if ((gbtn->flags & LbBtnF_Clickable) != 0)
             {
                 struct GuiMenu *gmnu;
@@ -580,6 +581,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
         snprintf(str, gbtn->maxval, "%s", backup_input_field);
         input_button = 0;
         input_field_pos = 0;
+        LbStopTextInput();
     } else
     if (key == KC_BACK)
     { // Delete the last char
