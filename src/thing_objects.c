@@ -465,7 +465,7 @@ TbBool object_is_gold_pile(const struct Thing *thing)
     if (thing->class_id != TCls_Object)
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return ((objst->genre == OCtg_Valuable) || (thing->model == ObjMdl_SpinningCoin));
+	return (objst->genre == OCtg_Valuable);
 }
 
 TbBool object_is_gold_laying_on_ground(const struct Thing *thing)
@@ -1082,7 +1082,7 @@ static long object_being_dropped(struct Thing *thing)
         destroy_thing(thing);
         return TUFRet_Deleted;
     }
-    if (object_is_gold_pile(thing))
+    if ( (object_is_gold_pile(thing)) || (thing->model == ObjMdl_SpinningCoin) )
     {
         if (thing->valuable.gold_stored <= 0)
         {
