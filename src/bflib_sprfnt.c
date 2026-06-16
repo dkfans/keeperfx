@@ -656,7 +656,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         ebuf += seq_len;
 
         long w;
-        if ((chr > 33))
+        if ((chr > 32))
         {
             // Align when ansi and unicode are mixed on one screen
             w = LbTextCharWidthM(chr, units_per_px);
@@ -724,7 +724,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         {
             w = LbTextCharWidthM(' ', units_per_px);
             posx += lbSpacesPerTab*w;
-            len = LbSprFontWordWidth(lbFontPtr,ebuf+1) * units_per_px / 16;
+            len = LbTextWordWidth(lbFontPtr,ebuf+1) * units_per_px / 16;
             if (posx+len-justifyx <= lbTextJustifyWindow.width)
             {
               count += lbSpacesPerTab;
@@ -869,7 +869,7 @@ int LbTextCharWidthM(const uint32_t chr, long units_per_px)
     }
     else
     {
-        return LbSprFontCharWidth(lbFontPtr, (unsigned char)chr) * units_per_px / 16;
+        return LbSprFontCharWidth(lbFontPtr, chr) * units_per_px / 16;
     }
 }
 
@@ -1034,11 +1034,10 @@ int LbTextStringWidthM(const char *text, long units_per_px)
  */
 int LbTextWordWidthM(const char *str, long units_per_px)
 {
-  if (str == NULL || str[0] == 0)
-    return 0;
+    if (str == NULL || str[0] == 0)
+        return 0;
 
-  if ((dbc_initialized) && (dbc_enabled))
-  {
+
     int len = 0;
     const char *sbuf = str;
     while (true)
@@ -1050,23 +1049,24 @@ int LbTextWordWidthM(const char *str, long units_per_px)
         if ((chr == ' ') || (chr == '\t') || (chr == '\0') || (chr == '\r') || (chr == '\n'))
             break;
 
-        if (is_single_char_word(chr))
+        if ((dbc_initialized) && (dbc_enabled))
         {
-            if (len != 0)
-                break; // letters before, need to stop.
-            return dbc_char_widthM(chr, units_per_px);
+            if (is_single_char_word(chr))
+            {
+                if (len != 0)
+                    break; // letters before, need to stop.
+                return dbc_char_widthM(chr, units_per_px);
+            }
+
+            len += dbc_char_widthM(chr, units_per_px);
+        }
+        else
+        {
+           len += LbSprFontCharWidthM(lbFontPtr, chr, units_per_px); 
         }
 
-        // Continuous letters
-        len += dbc_char_widthM(chr, units_per_px);
+        return len;
     }
-
-    return len;
-  }
-  else
-  {
-    return LbSprFontWordWidth(lbFontPtr, str) * units_per_px / 16;
-  }
 }
 
 int LbTextStringHeight(const char *str)
@@ -1257,26 +1257,6 @@ long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_co
     return spr_width;
 }
 
-/**
- * Computes width of one word in given string, starting at given pointer.
- * The word may end with NULL character, space, tab or line end / return carret.
- * @note Works only for characters stored in the sprite list.
- *       Multibyte characters are usually stored somewhere else.
- */
-int LbSprFontWordWidth(const struct TbSpriteSheet * font, const char * text)
-{
-  if ((font == NULL) || (text == NULL))
-    return 0;
-  const char* c = text;
-  int len = 0;
-  while ((*c != ' ') && (*c != '\t') && (*c != '\0') && (*c != '\r') && (*c != '\n'))
-  {
-    if ((unsigned char)(*c) > 32)
-      len += LbSprFontCharWidth(font,(unsigned char)*c);
-    c++;
-  }
-  return len;
-}
 
 /**
  * Computes width of a single character in given font.

@@ -363,7 +363,6 @@ long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height,
 long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_count, int units_per_px, unsigned short fdflags);
 
 // Function which require font sprites as parameter
-int LbSprFontWordWidth(const struct TbSpriteSheet * font, const char * text);
 int LbSprFontCharWidth(const struct TbSpriteSheet * font, const uint32_t chr);
 int LbSprFontCharHeight(const struct TbSpriteSheet * font,const uint32_t chr);
 const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const uint32_t chr);
