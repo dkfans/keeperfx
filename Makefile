@@ -256,6 +256,10 @@ obj/DisplacementEffect.o \
 obj/OverlayEffect.o \
 obj/PaletteEffect.o \
 obj/LuaLensEffect.o \
+obj/tier_stack.o \
+obj/mod_api.o \
+obj/ModWalker.o \
+obj/IModSubsystem.o \
 obj/light_data.o \
 obj/lua_api.o \
 obj/lua_api_camera.o \
@@ -599,6 +603,13 @@ obj/std/%.o: src/kfx/lense/%.cpp libexterns $(GENSRC)
 	$(BUILD_CPP_FILES_CMD)
 
 obj/hvlog/%.o: src/kfx/lense/%.cpp libexterns $(GENSRC)
+	$(BUILD_CPP_FILES_CMD)
+
+# Pattern rules for src/kfx/modding (must come before general src/%.cpp rule)
+obj/std/%.o: src/kfx/modding/%.cpp libexterns $(GENSRC)
+	$(BUILD_CPP_FILES_CMD)
+
+obj/hvlog/%.o: src/kfx/modding/%.cpp libexterns $(GENSRC)
 	$(BUILD_CPP_FILES_CMD)
 
 obj/std/%.o: src/%.cpp libexterns $(GENSRC)
