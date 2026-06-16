@@ -27,6 +27,7 @@
 #include "bflib_dernc.h"
 #include "sprites.h"
 #include "config_spritecolors.h"
+#include "kfx/modding/mod_api.h"
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
@@ -381,58 +382,47 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
     }
 }
 
-/* @comment
- *     The loading items of init_custom_sprites and load_sprites_for_mod need to be consistent.
- */
-static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *mod_item)
+/* -----------------------------------------------------------------------
+ * Unified mod-tier sprite loading via kfx/modding walker
+ * --------------------------------------------------------------------- */
+
+/** Builds the per-map zip filename from the current level number. */
+static void map_zip_builder(char *out, size_t out_size, const ModBuildContext *ctx)
 {
-
-    const struct ModExistState *mod_state = &mod_item->state;
-    char* fname = NULL, *dname = NULL;
-    char mod_dir[256] = {0}, desc[256] = {0};;
-    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
-
-    if (mod_state->fx_data)
-    {
-        dname = prepare_file_path_mod(mod_dir, FGrp_FxData, NULL);
-        if (strlen(dname) > 0)
-        {
-            sprintf(desc, "Mod[%s] FxData dir", mod_item->name);
-            load_dir_sprites(dname, desc);
-        }
-    }
-
-    if (mod_state->cmpg_config)
-    {
-        dname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig, NULL);
-        if (strlen(dname) > 0)
-        {
-            sprintf(desc, "Mod[%s] CmpgConfig dir", mod_item->name);
-            load_dir_sprites(dname, desc);
-        }
-    }
-
-    if (mod_state->cmpg_lvls)
-    {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.zip", lvnum);
-        if (strlen(fname) > 0 && LbFileExists(fname))
-        {
-            sprintf(desc, "Mod[%s] CmpgLvls file", mod_item->name);
-            load_file_sprites(fname, desc);
-        }
-    }
+    snprintf(out, out_size, "map%05lu.zip", (unsigned long)ctx->level_num);
 }
 
-static void load_sprites_for_mod_list(LevelNumber lvnum, const struct ModConfigItem *mod_items, long mod_cnt)
-{
-    for (long i=0; i<mod_cnt; i++)
-    {
-        const struct ModConfigItem *mod_item = mod_items + i;
-        if (mod_item->state.mod_dir == 0)
-            continue;
+/**
+ * Locations for directory-based sprite tiers:
+ * FxData (base + after_base mods) and CmpgConfig (campaign + after_campaign mods).
+ */
+static const ModLocation s_sprite_dir_locs[] = {
+    { ModTier_Base,          (short)FGrp_FxData,     ModLifetime_Startup,  SIZE_MAX,                                    ModRes_Directory, NULL },
+    { ModTier_AfterBase,     (short)FGrp_FxData,     ModLifetime_Startup,  offsetof(struct ModExistState, fx_data),     ModRes_Directory, NULL },
+    { ModTier_Campaign,      (short)FGrp_CmpgConfig, ModLifetime_Campaign, SIZE_MAX,                                    ModRes_Directory, NULL },
+    { ModTier_AfterCampaign, (short)FGrp_CmpgConfig, ModLifetime_Campaign, offsetof(struct ModExistState, cmpg_config), ModRes_Directory, NULL },
+};
 
-        load_sprites_for_mod(lvnum, mod_item);
-    }
+/**
+ * Locations for per-map zip sprite tiers:
+ * map%05lu.zip files (per-map base + after_map mods).
+ */
+static const ModLocation s_sprite_zip_locs[] = {
+    { ModTier_PerMap,  (short)FGrp_CmpgLvls, ModLifetime_Level, SIZE_MAX,                                  ModRes_File, map_zip_builder },
+    { ModTier_AfterMap,(short)FGrp_CmpgLvls, ModLifetime_Level, offsetof(struct ModExistState, cmpg_lvls), ModRes_File, map_zip_builder },
+};
+
+static KfxModHandle s_sprite_dir_walker = NULL;
+static KfxModHandle s_sprite_zip_walker = NULL;
+
+static void on_sprite_dir_found(const char *path, void *userdata)
+{
+    load_dir_sprites(path, path);
+}
+
+static void on_sprite_zip_found(const char *path, void *userdata)
+{
+    load_file_sprites(path, path);
 }
 
 /* @comment
@@ -501,30 +491,19 @@ void init_custom_sprites(LevelNumber lvnum)
     next_free_sprite = 0;
 
 
-    char *dname = prepare_file_path(FGrp_FxData, NULL);
-    load_dir_sprites(dname, "Main FxData dir");
+    /* Lazy-initialise the sprite walkers (created once; reused each level). */
+    if (s_sprite_dir_walker == NULL)
+        s_sprite_dir_walker = kfx_mod_create_walker(s_sprite_dir_locs,
+            sizeof(s_sprite_dir_locs) / sizeof(s_sprite_dir_locs[0]));
+    if (s_sprite_zip_walker == NULL)
+        s_sprite_zip_walker = kfx_mod_create_walker(s_sprite_zip_locs,
+            sizeof(s_sprite_zip_locs) / sizeof(s_sprite_zip_locs[0]));
 
-    if (mods_conf.after_base_cnt > 0)
-    {
-        load_sprites_for_mod_list(lvnum, mods_conf.after_base_item, mods_conf.after_base_cnt);
-    }
-
-    dname = prepare_file_path(FGrp_CmpgConfig, NULL);
-    load_dir_sprites(dname, "Main CmpgConfig dir");
-
-    if (mods_conf.after_campaign_cnt > 0)
-    {
-        load_sprites_for_mod_list(lvnum, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
-    }
-
-    char *fname = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
-    if (LbFileExists(fname))
-        load_file_sprites(fname, "Main CmpgLvls file");
-
-    if (mods_conf.after_map_cnt > 0)
-    {
-        load_sprites_for_mod_list(lvnum, mods_conf.after_map_item, mods_conf.after_map_cnt);
-    }
+    /* Walk all active tier slots and accumulate sprites.
+     * Directory tiers (fxdata, campaign config, mods) are visited first,
+     * then per-map zips on top. */
+    kfx_mod_visit(s_sprite_dir_walker, NULL, on_sprite_dir_found, NULL);
+    kfx_mod_visit(s_sprite_zip_walker, NULL, on_sprite_zip_found, NULL);
 
 }
 
