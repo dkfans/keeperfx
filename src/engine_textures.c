@@ -27,6 +27,7 @@
 #include "front_simple.h"
 #include "config.h"
 #include "game_legacy.h"
+#include "kfx/modding/mod_api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -115,90 +116,60 @@ short update_animating_texture_maps(void)
   return result;
 }
 
-static char *prepare_letter_one_file_path_for_mod(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup, const struct ModConfigItem *mod_item)
-{
-    // Note that this is the reverse direction
+/* -----------------------------------------------------------------------
+ * Unified texture find-first via kfx/modding walker
+ * --------------------------------------------------------------------- */
 
-    const struct ModExistState *mod_state = &mod_item->state;
-    char* fname = NULL;
-    char mod_dir[256] = {0};
-    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
+/**
+ * Per-map tier locations (CmpgLvls): map%05lu.tmap<letter><idx>.dat
+ * Both the PerMap base and AfterMap mods are in this walker.
+ */
+static const ModLocation s_texture_permap_locs[] = {
+    { ModTier_PerMap,   (short)FGrp_CmpgLvls, ModLifetime_Level, SIZE_MAX,                                  ModRes_File, NULL },
+    { ModTier_AfterMap, (short)FGrp_CmpgLvls, ModLifetime_Level, offsetof(struct ModExistState, cmpg_lvls), ModRes_File, NULL },
+};
 
-    if (mod_state->cmpg_lvls)
-    {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.tmap%c%03d.dat", (unsigned long)lvnum, letter, tmapidx);
-        if (fname[0] != 0 && LbFileExists(fname))
-            return fname;
-    }
+/**
+ * Campaign / base tier locations: tmap<letter><idx>.dat
+ * Check after_campaign mods and campaign first, then after_base mods and base StdData.
+ */
+static const ModLocation s_texture_base_locs[] = {
+    { ModTier_Base,          (short)FGrp_StdData,    ModLifetime_Startup,  SIZE_MAX,                                       ModRes_File, NULL },
+    { ModTier_AfterBase,     (short)FGrp_StdData,    ModLifetime_Startup,  offsetof(struct ModExistState, std_data),        ModRes_File, NULL },
+    { ModTier_Campaign,      (short)FGrp_CmpgConfig, ModLifetime_Campaign, SIZE_MAX,                                       ModRes_File, NULL },
+    { ModTier_AfterCampaign, (short)FGrp_CmpgConfig, ModLifetime_Campaign, offsetof(struct ModExistState, cmpg_config),     ModRes_File, NULL },
+};
 
-    if (mod_state->cmpg_config)
-    {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgConfig, "tmap%c%03d.dat", letter, tmapidx);
-        if (fname[0] != 0 && LbFileExists(fname))
-            return fname;
-    }
-
-    if (mod_state->std_data)
-    {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_StdData, "tmap%c%03d.dat", letter, tmapidx);
-        if (fname[0] != 0 && LbFileExists(fname))
-            return fname;
-    }
-
-    return NULL;
-}
-
-static char *prepare_letter_one_file_path_for_mod_list(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup, const struct ModConfigItem *mod_items, long mod_cnt)
-{
-    // Note that this is the reverse direction
-    for (long i=mod_cnt-1; i>=0; i--)
-    {
-        const struct ModConfigItem *mod_item = mod_items + i;
-        if (mod_item->state.mod_dir == 0)
-            continue;
-
-        char *fname = prepare_letter_one_file_path_for_mod(tmapidx, letter, fgroup, lvnum, mod_item);
-        if (fname != NULL)
-            return fname;
-    }
-
-    return NULL;
-}
+static KfxModHandle s_texture_permap_walker = NULL;
+static KfxModHandle s_texture_base_walker   = NULL;
 
 static char *prepare_letter_one_file_path(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup)
 {
-    char* fname = NULL;
-    if (mods_conf.after_map_cnt > 0)
-    {
-        fname = prepare_letter_one_file_path_for_mod_list(tmapidx, letter, lvnum, fgroup, mods_conf.after_map_item, mods_conf.after_map_cnt);
-        if (fname != NULL)
-            return fname;
-    }
+    static char out_path[512];
 
-    fname = prepare_file_fmtpath(fgroup, "map%05lu.tmap%c%03d.dat",(unsigned long)lvnum, letter, tmapidx);
-    if (LbFileExists(fname))
-        return fname;
+    /* Lazy init */
+    if (s_texture_permap_walker == NULL)
+        s_texture_permap_walker = kfx_mod_create_walker(s_texture_permap_locs,
+            sizeof(s_texture_permap_locs) / sizeof(s_texture_permap_locs[0]));
+    if (s_texture_base_walker == NULL)
+        s_texture_base_walker = kfx_mod_create_walker(s_texture_base_locs,
+            sizeof(s_texture_base_locs) / sizeof(s_texture_base_locs[0]));
 
-    if (mods_conf.after_campaign_cnt > 0)
-    {
-        fname = prepare_letter_one_file_path_for_mod_list(tmapidx, letter, lvnum, fgroup, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
-        if (fname != NULL)
-            return fname;
-    }
+    /* Per-map name: highest priority (after_map mods > per-map base) */
+    char map_fname[80];
+    snprintf(map_fname, sizeof(map_fname), "map%05lu.tmap%c%03d.dat", (unsigned long)lvnum, letter, (int)tmapidx);
+    if (kfx_mod_find(s_texture_permap_walker, map_fname, out_path, sizeof(out_path)))
+        return out_path;
 
-    fname = prepare_file_fmtpath(FGrp_CmpgConfig, "tmap%c%03d.dat", letter, tmapidx);
-    if (LbFileExists(fname))
-        return fname;
+    /* Campaign/base name: (after_campaign mods > campaign > after_base mods > base) */
+    char base_fname[40];
+    snprintf(base_fname, sizeof(base_fname), "tmap%c%03d.dat", letter, (int)tmapidx);
+    if (kfx_mod_find(s_texture_base_walker, base_fname, out_path, sizeof(out_path)))
+        return out_path;
 
-    if (mods_conf.after_base_cnt > 0)
-    {
-        fname = prepare_letter_one_file_path_for_mod_list(tmapidx, letter, lvnum, fgroup, mods_conf.after_base_item, mods_conf.after_base_cnt);
-        if (fname != NULL)
-            return fname;
-    }
-
-    fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat", letter, tmapidx);
-    return fname;
+    /* Nothing found — return empty path so caller can detect failure */
+    out_path[0] = '\0';
+    return out_path;
 }
 
 static TbBool load_letter_one_file(unsigned long tmapidx, char letter, void *dst, LevelNumber lvnum, short fgroup)
