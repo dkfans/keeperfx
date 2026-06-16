@@ -179,7 +179,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     if (thing_is_beating_dungeon_heart(thing))
     {
         thing->heart.beat_direction = 1;
-        light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
+        light_init_dungeon_heart(thing->light_id, 0, 56);
     }
     switch (thing->model)
     {

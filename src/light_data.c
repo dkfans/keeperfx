@@ -169,7 +169,7 @@ long light_create_light(struct InitLight *ilght)
         light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
         stat_light_needs_updating = 1;
     }
-    lgt->flags |= LgtF_NeedRemoval;
+    lgt->flags |= LgtF_CanTurnOff;
     lgt->flags |= LgtF_NeedUpdate;
     lgt->mappos.x.val = ilght->mappos.x.val;
     lgt->mappos.y.val = ilght->mappos.y.val;
@@ -212,7 +212,7 @@ TbBool light_create_light_adv(VALUE *init_data)
         stat_light_needs_updating = 1;
         clear_flag(lgt->flags, LgtF_Dynamic);
     }
-    lgt->flags |= LgtF_NeedRemoval;
+    lgt->flags |= LgtF_CanTurnOff;
     lgt->flags |= LgtF_NeedUpdate;
     lgt->mappos.x.val = value_read_stl_coord(value_dict_get(init_data, "SubtileX"));
     lgt->mappos.y.val = value_read_stl_coord(value_dict_get(init_data, "SubtileY"));
@@ -579,10 +579,10 @@ void light_turn_light_off(long idx)
         ERRORLOG("Attempt to turn off unallocated light structure");
         return;
     }
-    if ((lgt->flags & LgtF_NeedRemoval) == 0) {
+    if ((lgt->flags & LgtF_CanTurnOff) == 0) {
         return;
     }
-    lgt->flags &= ~LgtF_NeedRemoval;
+    lgt->flags &= ~LgtF_CanTurnOff;
     if ((lgt->flags & LgtF_Dynamic) != 0) {
         light_remove_light_from_list(lgt, &game.thing_lists[TngList_DynamLights]);
     } else {
@@ -603,10 +603,10 @@ void light_turn_light_on(long idx)
         ERRORLOG("Attempt to turn on unallocated light structure %d",(int)idx);
         return;
     }
-    if ((lgt->flags & LgtF_NeedRemoval) != 0) {
+    if ((lgt->flags & LgtF_CanTurnOff) != 0) {
         return;
     }
-    lgt->flags |= LgtF_NeedRemoval;
+    lgt->flags |= LgtF_CanTurnOff;
     lgt->reset_interpolation = true;
     if ((lgt->flags & LgtF_Dynamic) != 0)
     {
@@ -2310,7 +2310,7 @@ void update_light_render_area(void)
     light_render_area(startx, starty, endx, endy);
 }
 
-void light_set_light_minimum_size_to_cache(long lgt_id, long min_radius, long min_intensity)
+void light_init_dungeon_heart(long lgt_id, long min_radius, long min_intensity)
 {
   struct Light *lgt;
   if ( lgt_id )
@@ -2318,9 +2318,9 @@ void light_set_light_minimum_size_to_cache(long lgt_id, long min_radius, long mi
     lgt = &game.lish.lights[lgt_id];
     if ( lgt->flags & LgtF_Allocated )
     {
-      if ( lgt->flags & LgtF_NeedRemoval )
+      if ( lgt->flags & LgtF_CanTurnOff )
       {
-        lgt->flags &= ~LgtF_NeedRemoval;
+        lgt->flags &= ~LgtF_CanTurnOff;
         if ( lgt->flags & LgtF_Dynamic )
         {
           lgt->min_radius = min_radius;
