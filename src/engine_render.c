@@ -546,22 +546,18 @@ float interpolate_angle(float previous, float current)
     return lerp_angle(previous, current, game.process_turn_time);
 }
 
+// For things that stop moving when the game is paused.
 float interpolate_synced(float previous, float current)
 {
-    if (! is_feature_on(Ft_DeltaTime)
-        || game.frame_skip > 0
-        || flag_is_set(game.operation_flags, GOF_Paused))
-    {
+    if (flag_is_set(game.operation_flags, GOF_Paused))
         return current;
-    }
-    const float t = min(20, game.missed_gameturns + game.process_turn_time);
-    return LbLerp(previous, current, t);
+
+    return interpolate(previous, current);
 }
 
 void interpolate_thing(struct Thing *thing)
 {
-    // Note: if delta_time is off the interpolated position will also reflect that
-    if (thing->creation_turn == get_gameturn() - 1)
+    if (get_gameturn() - thing->creation_turn <= 1)
     {
         // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1
         // turn) in certain situations, which can mess up the interpolation and
@@ -573,6 +569,7 @@ void interpolate_thing(struct Thing *thing)
         thing->previous_mappos = thing->mappos;
         thing->previous_floor_height = thing->floor_height;
     }
+
     // Interpolate position every frame
     thing->interp_mappos.x.val = interpolate_synced(thing->previous_mappos.x.val, thing->mappos.x.val);
     thing->interp_mappos.y.val = interpolate_synced(thing->previous_mappos.y.val, thing->mappos.y.val);
@@ -581,13 +578,13 @@ void interpolate_thing(struct Thing *thing)
 
     // Cancel interpolation if distance to interpolate is too far. This is a
     // catch-all to solve any remaining interpolation bugs.
-    if ((abs(thing->interp_mappos.x.val - thing->mappos.x.val) >= 10000) ||
-        (abs(thing->interp_mappos.y.val - thing->mappos.y.val) >= 10000) ||
-        (abs(thing->interp_mappos.z.val - thing->mappos.z.val) >= 10000))
+    if ((abs(thing->previous_mappos.x.val - thing->mappos.x.val) >= 10000) ||
+        (abs(thing->previous_mappos.y.val - thing->mappos.y.val) >= 10000) ||
+        (abs(thing->previous_mappos.z.val - thing->mappos.z.val) >= 10000))
     {
         ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation.",
                  thing_model_name(thing), (int)thing->index, (int)thing->owner,
-                 thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num,
+                 thing->previous_mappos.x.stl.num, thing->previous_mappos.y.stl.num, thing->previous_mappos.z.stl.num,
                  thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
         thing->interp_mappos = thing->mappos;
         thing->interp_floor_height = thing->floor_height;

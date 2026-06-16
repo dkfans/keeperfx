@@ -2713,7 +2713,6 @@ void update(void)
         creature_stats_debug_dump();
 #endif
         game.play_gameturn++;
-        game.missed_gameturns = 0;
     }
 
     message_update();
@@ -3496,11 +3495,7 @@ extern "C" void network_yield_waiting_gameplay_packets()
     poll_inputs();
     gameplay_loop_draw();
     gameplay_loop_timestep();
-    if (game.process_turn_time >= 1)
-    {
-        game.process_turn_time -= 1;
-        game.missed_gameturns += 1;
-    }
+    game.process_turn_time = min(game.process_turn_time, (long double)1.0);
     frametime_start_measurement(Frametime_Logic);
     if (frametime_enabled()) {
         framerate_measurement_capture(Framerate_Logic);
