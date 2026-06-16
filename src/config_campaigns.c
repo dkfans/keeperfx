@@ -28,9 +28,8 @@
 #include "config.h"
 #include "config_strings.h"
 #include "config_keeperfx.h"
-#include "config_sounds.h"
-#include "sound_manager.h"
 #include "config_translation.h"
+#include "kfx/modding/tier_stack.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
@@ -1190,24 +1189,15 @@ TbBool change_campaign(uint8_t pack, const char *cmpgn_fname)
     update_room_tab_to_config();
     update_trap_tab_to_config();
     update_powers_tab_to_config();
-    // Load campaign-specific and mod sound overrides (optional; errors are ignored)
-    // Prefer CONFIGS_LOCATION for sounds.cfg (it's a config), fall back to LEVELS_LOCATION.
-    if (result)
-    {
-        const char* sounds_dir = campaign.configs_location;
-        // Reset to fxdata baseline so sounds from a previous campaign don't bleed through.
-        sound_manager_clear_custom_sounds();
-        sound_manager_clear_registry();
-        load_sounds_config();
-        for (int i = 0; i < mods_conf.after_base_cnt; i++)
-            load_mod_sounds_config(mods_conf.after_base_item[i].name);
-        load_campaign_sounds_config(sounds_dir);
-        for (int i = 0; i < mods_conf.after_campaign_cnt; i++)
-            load_mod_sounds_config(mods_conf.after_campaign_item[i].name);
-        // Save the campaign snapshot so per-level sounds can be cleanly undone.
-        sound_save_campaign_snapshot();
-    }
+    // Notify all registered subsystems that the campaign has changed.
+    // SoundManager handles the full sound reload sequence via IModSubsystem.
+    kfx_trigger_load_event(KfxLoadEvent_Campaign);
     return result;
+}
+
+TbBool game_request_campaign_change(uint8_t pack, const char *cmpgn_fname)
+{
+    return change_campaign(pack, cmpgn_fname);
 }
 
 TbBool is_campaign_loaded(void)
