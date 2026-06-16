@@ -2026,38 +2026,61 @@ short complete_level(struct PlayerInfo *player)
     return true;
 }
 
-void set_mouse_light(struct PlayerInfo *player)
+static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coord3d pos)
+{
+    const int idx = player->cursor_light_idx;
+    if (idx == 0)
+        return;
+
+    if (valid)
+    {
+        pos.z.val = get_floor_height_at(&pos);
+        light_turn_light_on(idx);
+        light_set_light_position(idx, &pos);
+
+        if (is_my_player(player))
+        {
+            game.mouse_light_pos = pos;
+            light_reset_interpolation(idx);
+        }
+    }
+    else
+    {
+        light_turn_light_off(idx);
+    }
+}
+
+static void update_local_mouse_light(void)
 {
     SYNCDBG(6,"Starting");
-    struct Packet *pckt;
-    if (is_my_player(player)) {
-        pckt = (struct Packet *)get_history_packet(player->packet_num, get_gameturn());
-        if (pckt == NULL) {
-            pckt = get_packet_direct(player->packet_num);
-        }
-    } else {
+    struct PlayerInfo *player = get_my_player();
+
+    // Avoid glitching during level intro or possess animation.
+    if (player->instance_num != PI_Unset)
+        return;
+
+    struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    struct Coord3d pos;
+    const TbBool valid = screen_to_map(cam, GetMouseX(), GetMouseY(), &pos);
+
+    set_mouse_light(player, valid, pos);
+}
+
+void update_mouse_light(struct PlayerInfo *player)
+{
+    SYNCDBG(6,"Starting");
+    const struct Packet *pckt = nullptr;
+
+    if (is_my_player(player))
+        pckt = get_history_packet(player->packet_num, get_gameturn());
+    if (pckt == nullptr)
         pckt = get_packet_direct(player->packet_num);
-    }
-    if (player->cursor_light_idx != 0)
-    {
-        if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
-        {
-            struct Coord3d pos;
-            pos.x.val = pckt->pos_x;
-            pos.y.val = pckt->pos_y;
-            pos.z.val = get_floor_height_at(&pos);
-            if (is_my_player(player)) {
-                game.mouse_light_pos = pos;
-                light_reset_interpolation(player->cursor_light_idx);
-            }
-            light_turn_light_on(player->cursor_light_idx);
-            light_set_light_position(player->cursor_light_idx, &pos);
-        }
-        else
-        {
-            light_turn_light_off(player->cursor_light_idx);
-        }
-    }
+
+    const TbBool valid = (pckt->control_flags & PCtr_MapCoordsValid) != 0;
+    struct Coord3d pos;
+    pos.x.val = pckt->pos_x;
+    pos.y.val = pckt->pos_y;
+    set_mouse_light(player, valid, pos);
 }
 
 void check_players_won(void)
@@ -3146,6 +3169,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     lens = cam->horizontal_fov * scale_value_by_horizontal_resolution(4) / pixel_size;
     if (lens_mode == 0)
         update_blocks_pointed();
+    update_local_mouse_light();
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     view_height_over_2 = ewnd.height/2;

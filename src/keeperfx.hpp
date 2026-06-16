@@ -244,7 +244,7 @@ short zoom_to_next_annoyed_creature(void);
 
 TbBool LbIsFrozenOrPaused(void); // from bflib_inputctrl.cpp
 
-void set_mouse_light(struct PlayerInfo *player);
+void update_mouse_light(struct PlayerInfo *player);
 void delete_all_structures(void);
 void clear_map(void);
 void clear_game(void);

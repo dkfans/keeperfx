@@ -585,7 +585,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         update_box_lag_compensation(player);
     }
     process_dungeon_control_packet_clicks(plyr_idx);
-    set_mouse_light(player);
+    update_mouse_light(player);
 }
 
 TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
@@ -1038,7 +1038,7 @@ void process_players_map_packet_control(long plyr_idx)
     process_map_packet_clicks(plyr_idx);
     player->cameras[CamIV_Parchment].mappos.x.val = pckt->pos_x;
     player->cameras[CamIV_Parchment].mappos.y.val = pckt->pos_y;
-    set_mouse_light(player);
+    update_mouse_light(player);
     SYNCDBG(8,"Finished");
 }
 
