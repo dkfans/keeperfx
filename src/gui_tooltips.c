@@ -281,7 +281,8 @@ short setup_land_tooltips(struct Coord3d *pos)
       if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
           return false;
       }
-      if (help_tip_time <= 50) {
+      unsigned short delay_time = tool_tip_dbg.land_coord ? 10 : 50;
+      if (help_tip_time <= delay_time) {
           help_tip_time++;
           return true;
       }

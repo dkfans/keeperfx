@@ -2595,14 +2595,10 @@ TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
-TbBool cmd_show_tooltip_land_coord(PlayerNumber plyr_idx, char * args)
+TbBool cmd_toggle_tooltip_land_coord(PlayerNumber plyr_idx, char * args)
 {
-    char * pr1str = strsep_param_with_space(&args);
-    if (pr1str == NULL) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "tooltip_land_coord status: %d", tool_tip_dbg.land_coord ? 1 : 0);
-    } else {
-        tool_tip_dbg.land_coord = atoi(pr1str) != 0;
-    }
+    tool_tip_dbg.land_coord = !tool_tip_dbg.land_coord;
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "tooltip_land_coord is turned %s", tool_tip_dbg.land_coord ? "on" : "off");
     return true;
 }
 
@@ -2829,7 +2825,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "possession.unlock", cmd_possession_unlock, NULL },
     { "string.show", cmd_string_show, NULL },
     { "quick.show", cmd_quick_show, NULL },
-    { "show.tooltip.land.coord", cmd_show_tooltip_land_coord, NULL },
+    { "toggle.tooltip.land.coord", cmd_toggle_tooltip_land_coord, NULL },
     { "toggle.lights", cmd_toggle_lights, NULL },
     { "lua", cmd_lua, NULL },
     { "luatypedump", cmd_luatypedump, NULL },
