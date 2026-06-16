@@ -2026,20 +2026,6 @@ short complete_level(struct PlayerInfo *player)
     return true;
 }
 
-void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
-{
-    // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
-    struct Light* light = &game.lish.lights[player->cursor_light_idx];
-
-    if (player->mouse_on_map == false) {
-        light->disable_interp_for_turns = 2;
-    }
-    if (light->disable_interp_for_turns > 0) {
-        light->disable_interp_for_turns -= 1;
-        light->last_turn_drawn = 0;
-    }
-}
-
 void set_mouse_light(struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
@@ -2062,6 +2048,7 @@ void set_mouse_light(struct PlayerInfo *player)
             pos.z.val = get_floor_height_at(&pos);
             if (is_my_player(player)) {
                 game.mouse_light_pos = pos;
+                light_reset_interpolation(player->cursor_light_idx);
             }
             light_turn_light_on(player->cursor_light_idx);
             light_set_light_position(player->cursor_light_idx, &pos);
@@ -2070,7 +2057,6 @@ void set_mouse_light(struct PlayerInfo *player)
         {
             light_turn_light_off(player->cursor_light_idx);
         }
-        interp_fix_mouse_light_off_map(player);
     }
 }
 

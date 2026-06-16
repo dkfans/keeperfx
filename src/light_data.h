@@ -74,11 +74,9 @@ struct Light {
   unsigned short min_intensity;
   unsigned short next_in_list;
   struct Coord3d mappos;
-  TbBool interp_has_been_initialized;
   struct Coord3d previous_mappos;
-  struct Coord3d interp_mappos;
-  GameTurn last_turn_drawn;
-  GameTurnDelta disable_interp_for_turns;
+  GameTurn last_turn_moved;
+  TbBool reset_interpolation;
 };
 
 struct InitLight { // sizeof=0x14
@@ -122,6 +120,7 @@ void light_set_light_never_cache(long lgt_id);
 TbBool light_is_invalid(const struct Light *lgt);
 long light_is_light_allocated(long lgt_id);
 void light_set_light_position(long lgt_id, struct Coord3d *pos);
+void light_reset_interpolation(long lgt_id);
 void light_stat_refresh();
 void light_set_lights_on(char state);
 void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3);

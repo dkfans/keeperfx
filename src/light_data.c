@@ -177,6 +177,8 @@ long light_create_light(struct InitLight *ilght)
     lgt->radius = ilght->radius;
     lgt->intensity = ilght->intensity;
     lgt->flags2 |= ilght->flags << 1;
+    lgt->reset_interpolation = true;
+    lgt->last_turn_moved = 0;
 
     set_flag_value(lgt->flags, LgtF_Dynamic, ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
@@ -218,6 +220,8 @@ TbBool light_create_light_adv(VALUE *init_data)
     lgt->radius = value_read_stl_coord(value_dict_get(init_data, "LightRange"));;
     lgt->intensity = value_uint32(value_dict_get(init_data, "LightIntensity"));
     lgt->attached_slb = value_uint32(value_dict_get(init_data, "ParentTile"));
+    lgt->reset_interpolation = true;
+    lgt->last_turn_moved = 0;
 
     /*
      * TODO: not implemented yet
@@ -392,17 +396,21 @@ long light_is_light_allocated(long lgt_id)
     return true;
 }
 
-void set_previous_light_position(struct Light *light) {
-    light->previous_mappos = light->mappos;
+void light_reset_interpolation(long lgt_id)
+{
+    struct Light *lgt = &game.lish.lights[lgt_id];
+    lgt->reset_interpolation = true;
 }
 
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
 {
   struct Light *lgt = &game.lish.lights[lgt_id];
 
-  set_previous_light_position(lgt);
+  if (get_gameturn() > lgt->last_turn_moved)
+      lgt->previous_mappos = lgt->mappos;
+  lgt->last_turn_moved = get_gameturn();
 
-  if ( lgt->mappos.x.val != pos->x.val
+  if ( pos->x.val != lgt->mappos.x.val
     || pos->y.val != lgt->mappos.y.val
     || pos->z.val != lgt->mappos.z.val )
   {
@@ -599,6 +607,7 @@ void light_turn_light_on(long idx)
         return;
     }
     lgt->flags |= LgtF_NeedRemoval;
+    lgt->reset_interpolation = true;
     if ((lgt->flags & LgtF_Dynamic) != 0)
     {
         light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
@@ -1968,18 +1977,15 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
 static char light_render_light(struct Light* lgt)
 {
   const struct Coord3d original_mappos = lgt->mappos;
-  if (! lgt->interp_has_been_initialized)
+  if (lgt->reset_interpolation)
   {
-      lgt->interp_has_been_initialized = true;
+      lgt->reset_interpolation = false;
       lgt->previous_mappos = lgt->mappos;
   }
-  lgt->interp_mappos.x.val = interpolate(lgt->previous_mappos.x.val, lgt->mappos.x.val);
-  lgt->interp_mappos.y.val = interpolate(lgt->previous_mappos.y.val, lgt->mappos.y.val);
-  lgt->last_turn_drawn = get_gameturn();
-  lgt->mappos.x.val = lgt->interp_mappos.x.val;
-  lgt->mappos.y.val = lgt->interp_mappos.y.val;
-  TbBool is_dynamic = lgt->flags & LgtF_Dynamic;
+  lgt->mappos.x.val = interpolate(lgt->previous_mappos.x.val, lgt->mappos.x.val);
+  lgt->mappos.y.val = interpolate(lgt->previous_mappos.y.val, lgt->mappos.y.val);
 
+  TbBool is_dynamic = (lgt->flags & LgtF_Dynamic) != 0;
   int intensity;
   int radius = lgt->radius;
   int render_radius = radius;
