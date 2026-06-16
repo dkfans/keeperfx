@@ -3447,9 +3447,7 @@ void gameplay_loop_draw()
     frametime_start_measurement(Frametime_Draw);
 
     // Update lights
-    if ((game.operation_flags & GOF_Paused) == 0) {
-        update_light_render_area();
-    }
+    update_light_render_area();
 
     if (quit_game || exit_keeper) {
         do_draw = false;
