@@ -1031,7 +1031,7 @@ static TbBool value_is_sound_filepath(const char* text)
     for (i = 0; i < 7 && dot[i]; i++)
         ext[i] = (char)tolower((unsigned char)dot[i]);
     ext[i] = '\0';
-    return strcmp(ext, ".wav") == 0 || strcmp(ext, ".mp3") == 0;
+    return strcmp(ext, ".wav") == 0 || strcmp(ext, ".mp3") == 0 || strcmp(ext, ".flac") == 0 || strcmp(ext, ".ogg") == 0;
 }
 
 int sound_id_from_text(const char* text)
