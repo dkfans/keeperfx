@@ -2701,6 +2701,9 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
 
 // TODO this is just a temp function while testing the sprite stuff
 // eventually I want to get rid of dbc entirely but this makes difference easier to spot
+extern short dbc_language;
+extern TbBool dbc_enabled;
+extern TbBool dbc_initialized;
 TbBool cmd_dbc(PlayerNumber plyr_idx, char * args)
 {
    if (dbc_initialized)
@@ -2713,6 +2716,7 @@ TbBool cmd_dbc(PlayerNumber plyr_idx, char * args)
         dbc_initialized = true;
         dbc_language = 1;
     }
+    return true;
 }
 
 
