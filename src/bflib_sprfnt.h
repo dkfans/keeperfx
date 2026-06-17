@@ -301,26 +301,6 @@ enum DkcodepageLetter {
    DKChr_unused40,
 };
 
-struct AsianDraw {
-  unsigned long draw_char;
-  unsigned long bits_width;
-  unsigned long bits_height;
-  unsigned long character_spacing;
-  unsigned long vertical_offset;
-  unsigned long y_spacing;
-  unsigned char *sprite_data;
-};
-
-/**
- * Defines a font drawing window.
- * Values are signed to ease comparison with negative values.
- */
-struct AsianFontWindow {
-  long width;
-  long height;
-  long scanline;
-  unsigned char *buf_ptr;
-};
 
 extern short dbc_language;
 extern TbBool dbc_enabled;
