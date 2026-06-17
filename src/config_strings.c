@@ -24,6 +24,7 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_guibtns.h"
+#include "bflib_text.h"
 
 #include "config_mods.h"
 #include "config_keeperfx.h"
@@ -97,8 +98,8 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
     }
     return false;
   }
-  char *gui_strings_data = (char *)calloc(filelen + 256, 1);
-  if (gui_strings_data == NULL)
+  char *raw_data = (char *)calloc(filelen + 1, 1);
+  if (raw_data == NULL)
   {
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
@@ -107,17 +108,45 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
     }
     return false;
   }
-  char* strings_data_end = gui_strings_data + filelen + 255;
-  long loaded_size = LbFileLoadAt(fname, gui_strings_data);
+  long loaded_size = LbFileLoadAt(fname, raw_data);
   if (loaded_size < 16)
   {
-    free(gui_strings_data);
+    free(raw_data);
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
       ERRORLOG("GUI Strings file couldn't be loaded or is too small");
     }
     return false;
   }
+
+  size_t out_buf_size = (size_t)loaded_size * 4 + 1;
+  char *gui_strings_data = (char *)calloc(out_buf_size, 1);
+  if (gui_strings_data == NULL)
+  {
+    free(raw_data);
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+    {
+      ERRORLOG("Can't allocate memory for UTF-8 GUI Strings data");
+      SYNCLOG("Strings file name is \"%s\"",fname);
+    }
+    return false;
+  }
+
+  const char *encoding = get_codepage_encoding(install_info.lang_id);
+  size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, gui_strings_data, out_buf_size, encoding);
+  free(raw_data);
+  if (utf8_size == 0)
+  {
+    free(gui_strings_data);
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+    {
+      ERRORLOG("GUI Strings file couldn't be converted to UTF-8");
+      SYNCLOG("Strings file name is \"%s\"",fname);
+    }
+    return false;
+  }
+
+  char* strings_data_end = gui_strings_data + utf8_size;
 
   gui_strings_data_list[gui_strings_data_count] = gui_strings_data;
   gui_strings_data_count++;
@@ -226,8 +255,8 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
     }
     return false;
   }
-  char *strings_data = (char *)calloc(filelen + 256, 1);
-  if (strings_data == NULL)
+  char *raw_data = (char *)calloc(filelen + 1, 1);
+  if (raw_data == NULL)
   {
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
@@ -235,17 +264,43 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
     }
     return false;
   }
-  char* strings_data_end = strings_data + filelen + 255;
-  long loaded_size = LbFileLoadAt(fname, strings_data);
+  long loaded_size = LbFileLoadAt(fname, raw_data);
   if (loaded_size < 16)
   {
-    free(strings_data);
+    free(raw_data);
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
       ERRORLOG("Campaign Strings file couldn't be loaded or is too small");
     }
     return false;
   }
+
+  size_t out_buf_size = (size_t)loaded_size * 4 + 1;
+  char *strings_data = (char *)calloc(out_buf_size, 1);
+  if (strings_data == NULL)
+  {
+    free(raw_data);
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+    {
+      ERRORLOG("Can't allocate memory for UTF-8 Campaign Strings data");
+    }
+    return false;
+  }
+
+  const char *encoding = get_codepage_encoding(install_info.lang_id);
+  size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, strings_data, out_buf_size, encoding);
+  free(raw_data);
+  if (utf8_size == 0)
+  {
+    free(strings_data);
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+    {
+      ERRORLOG("Campaign Strings file couldn't be converted to UTF-8");
+    }
+    return false;
+  }
+
+  char* strings_data_end = strings_data + utf8_size;
 
   campgn->strings_data_list[campgn->strings_data_count] = strings_data;
   campgn->strings_data_count++;

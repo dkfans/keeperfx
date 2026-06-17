@@ -28,7 +28,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-uint32_t read_utf_8_codepoint(const char *text, size_t *out_seq_len);
+size_t convert_codepage_to_utf8_string(const char *src, char *dst, size_t dst_size, const char *encoding);
+size_t convert_codepage_to_utf8_buffer(const char *src, size_t src_size, char *dst, size_t dst_size, const char *encoding);
+const char *get_codepage_encoding(int lang_id);
+#define read_utf_8_codepoint(text, out_seq_len) read_utf_8_codepoint_f(text, out_seq_len,__func__)
+uint32_t read_utf_8_codepoint_f(const char *text, size_t *out_seq_len, const char *func_name);
 
 /******************************************************************************/
 #ifdef __cplusplus

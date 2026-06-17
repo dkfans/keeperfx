@@ -37,117 +37,11 @@ typedef struct DbcMapEntry
     unsigned short code;
 } DbcMapEntry;
 
-/******************************************************************************/
-
-const char *get_dbc_encoding(char ilng)
+static const struct
 {
-    switch (ilng)
-    {
-    case Lang_Japanese:
-        return "SHIFT_JIS";
-    case Lang_ChineseInt:
-    case Lang_ChineseTra:
-        return "GBK";
-    case Lang_Korean:
-        return "EUC-KR";
-    default:
-        return NULL;
-    }
-}
-
-size_t convert_utf8_to_codepage_string(const char *src, char *dst, size_t dst_size, const char *encoding)
-{
-    if ((src == NULL) || (dst == NULL) || (dst_size == 0) || (encoding == NULL))
-        return 0;
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-    UINT codepage = 0;
-    if (strcmp(encoding, "SHIFT_JIS") == 0 || strcmp(encoding, "CP932") == 0)
-        codepage = 932;
-    else if (strcmp(encoding, "GBK") == 0 || strcmp(encoding, "CP936") == 0)
-        codepage = 936;
-    else if (strcmp(encoding, "EUC-KR") == 0)
-        codepage = 949;
-    else
-        return 0;
-
-    int wlen = MultiByteToWideChar(CP_UTF8, 0, src, -1, NULL, 0);
-    if (wlen <= 0)
-        return 0;
-
-    WCHAR *wbuf = (WCHAR *)malloc((size_t)wlen * sizeof(WCHAR));
-    if (wbuf == NULL)
-        return 0;
-
-    if (MultiByteToWideChar(CP_UTF8, 0, src, -1, wbuf, wlen) == 0)
-    {
-        free(wbuf);
-        return 0;
-    }
-
-    int mb_len = WideCharToMultiByte(codepage, 0, wbuf, wlen, dst, (int)dst_size, NULL, NULL);
-    free(wbuf);
-    if (mb_len <= 0)
-        return 0;
-
-    if ((size_t)mb_len >= dst_size)
-    {
-        dst[dst_size - 1] = '\0';
-        return dst_size - 1;
-    }
-    dst[mb_len] = '\0';
-    return (size_t)mb_len;
-#else
-    iconv_t cd = iconv_open(encoding, "UTF-8");
-    if (cd == (iconv_t)(-1))
-    {
-        if (strcmp(encoding, "SHIFT_JIS") == 0)
-            cd = iconv_open("CP932", "UTF-8");
-        else if (strcmp(encoding, "GBK") == 0)
-            cd = iconv_open("CP936", "UTF-8");
-        if (cd == (iconv_t)(-1))
-            return 0;
-    }
-
-    char *inbuf = (char *)src;
-    size_t inbytes = strlen(src);
-    char *outbuf = dst;
-    size_t outbytes = dst_size;
-
-    size_t res = iconv(cd, &inbuf, &inbytes, &outbuf, &outbytes);
-    iconv_close(cd);
-    if (res == (size_t)(-1))
-    {
-        if (dst_size > 0)
-            dst[0] = '\0';
-        return 0;
-    }
-
-    size_t written = dst_size - outbytes;
-    if (written == 0)
-    {
-        if (dst_size > 0)
-            dst[0] = '\0';
-        return 0;
-    }
-    if (written >= dst_size)
-        written = dst_size - 1;
-    dst[written] = '\0';
-    return written;
-#endif
-}
-
-
-unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
-{
-    if (codepoint < 0x80)
-        return (unsigned char)codepoint;
-
-    static const struct
-    {
-        unsigned long unicode;
-        unsigned char byte;
-    } codepage_map[] = {
+    unsigned long unicode;
+    unsigned char byte;
+} internal_codepage_map[] = {
         {0x0410, 0x41},
         {0x0411, 0xB1},
         {0x0412, 0x42},
@@ -315,18 +209,430 @@ unsigned char convert_codepoint_to_internal_byte(unsigned long codepoint)
         {0x0147, 0x4E},
         {0x016E, 0x55},
         {0x011A, 0x45},
-    };
-    for (size_t i = 0; i < sizeof(codepage_map) / sizeof(codepage_map[0]); ++i)
-    {
-        if (codepage_map[i].unicode == codepoint)
-            return codepage_map[i].byte;
-    }
+};
 
-    return '?';
+
+/******************************************************************************/
+
+const char *get_codepage_encoding(int lang_id)
+{
+    switch (lang_id)
+    {
+    case Lang_Japanese:
+        return "SHIFT_JIS";
+    case Lang_ChineseInt:
+    case Lang_ChineseTra:
+        return "GBK";
+    case Lang_Korean:
+        return "EUC-KR";
+    case Lang_Arabic:
+        return "CP1256";
+    default:
+        return "INTERNAL";
+    }
 }
 
-uint32_t read_utf_8_codepoint(const char *text, size_t *out_seq_len)
+static uint32_t internal_byte_to_unicode(unsigned char byte)
 {
+    if (byte < 0x80)
+        return byte;
+
+    static uint32_t reverse_map[256];
+    static TbBool reverse_map_initialized = false;
+    if (!reverse_map_initialized)
+    {
+        for (size_t i = 0; i < sizeof(internal_codepage_map) / sizeof(internal_codepage_map[0]); ++i)
+        {
+            unsigned char b = internal_codepage_map[i].byte;
+            if (reverse_map[b] == 0)
+                reverse_map[b] = internal_codepage_map[i].unicode;
+        }
+        reverse_map_initialized = true;
+    }
+
+    uint32_t unicode = reverse_map[byte];
+    return (unicode != 0) ? unicode : (uint32_t)'?';
+}
+
+static size_t encode_utf8_codepoint(uint32_t codepoint, char *dst, size_t dst_size)
+{
+    if (dst_size == 0)
+        return 0;
+    if (codepoint < 0x80)
+    {
+        dst[0] = (char)codepoint;
+        return 1;
+    }
+    else if (codepoint < 0x800)
+    {
+        if (dst_size < 2) return 0;
+        dst[0] = (char)(0xC0 | (codepoint >> 6));
+        dst[1] = (char)(0x80 | (codepoint & 0x3F));
+        return 2;
+    }
+    else if (codepoint < 0x10000)
+    {
+        if (dst_size < 3) return 0;
+        dst[0] = (char)(0xE0 | (codepoint >> 12));
+        dst[1] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+        dst[2] = (char)(0x80 | (codepoint & 0x3F));
+        return 3;
+    }
+    else if (codepoint <= 0x10FFFF)
+    {
+        if (dst_size < 4) return 0;
+        dst[0] = (char)(0xF0 | (codepoint >> 18));
+        dst[1] = (char)(0x80 | ((codepoint >> 12) & 0x3F));
+        dst[2] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+        dst[3] = (char)(0x80 | (codepoint & 0x3F));
+        return 4;
+    }
+    return 0;
+}
+
+size_t convert_utf8_to_codepage_string(const char *src, char *dst, size_t dst_size, const char *encoding)
+{
+    if ((src == NULL) || (dst == NULL) || (dst_size == 0) || (encoding == NULL))
+        return 0;
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+    UINT codepage = 0;
+    if (strcmp(encoding, "SHIFT_JIS") == 0 || strcmp(encoding, "CP932") == 0)
+        codepage = 932;
+    else if (strcmp(encoding, "GBK") == 0 || strcmp(encoding, "CP936") == 0)
+        codepage = 936;
+    else if (strcmp(encoding, "EUC-KR") == 0)
+        codepage = 949;
+    else
+        return 0;
+
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, src, -1, NULL, 0);
+    if (wlen <= 0)
+        return 0;
+
+    WCHAR *wbuf = (WCHAR *)malloc((size_t)wlen * sizeof(WCHAR));
+    if (wbuf == NULL)
+        return 0;
+
+    if (MultiByteToWideChar(CP_UTF8, 0, src, -1, wbuf, wlen) == 0)
+    {
+        free(wbuf);
+        return 0;
+    }
+
+    int mb_len = WideCharToMultiByte(codepage, 0, wbuf, wlen, dst, (int)dst_size, NULL, NULL);
+    free(wbuf);
+    if (mb_len <= 0)
+        return 0;
+
+    if ((size_t)mb_len >= dst_size)
+    {
+        dst[dst_size - 1] = '\0';
+        return dst_size - 1;
+    }
+    dst[mb_len] = '\0';
+    return (size_t)mb_len;
+#else
+    iconv_t cd = iconv_open(encoding, "UTF-8");
+    if (cd == (iconv_t)(-1))
+    {
+        if (strcmp(encoding, "SHIFT_JIS") == 0)
+            cd = iconv_open("CP932", "UTF-8");
+        else if (strcmp(encoding, "GBK") == 0)
+            cd = iconv_open("CP936", "UTF-8");
+        if (cd == (iconv_t)(-1))
+            return 0;
+    }
+
+    char *inbuf = (char *)src;
+    size_t inbytes = strlen(src);
+    char *outbuf = dst;
+    size_t outbytes = dst_size;
+
+    size_t res = iconv(cd, &inbuf, &inbytes, &outbuf, &outbytes);
+    iconv_close(cd);
+    if (res == (size_t)(-1))
+    {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        return 0;
+    }
+
+    size_t written = dst_size - outbytes;
+    if (written == 0)
+    {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        return 0;
+    }
+    if (written >= dst_size)
+        written = dst_size - 1;
+    dst[written] = '\0';
+    return written;
+#endif
+}
+
+size_t convert_codepage_to_utf8_buffer(const char *src, size_t src_size, char *dst, size_t dst_size, const char *encoding)
+{
+    if ((src == NULL) || (dst == NULL) || (src_size == 0) || (dst_size == 0) || (encoding == NULL))
+        return 0;
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+    if (strcmp(encoding, "INTERNAL") == 0)
+    {
+        size_t out_pos = 0;
+        for (size_t i = 0; i < src_size; ++i)
+        {
+            uint32_t codepoint = internal_byte_to_unicode((unsigned char)src[i]);
+            size_t written = encode_utf8_codepoint(codepoint, dst + out_pos, dst_size - out_pos);
+            if (written == 0)
+            {
+                if (out_pos < dst_size)
+                    dst[out_pos] = '\0';
+                return out_pos;
+            }
+            out_pos += written;
+        }
+        if (out_pos < dst_size)
+            dst[out_pos] = '\0';
+        else if (dst_size > 0)
+            dst[dst_size - 1] = '\0';
+        return out_pos;
+    }
+
+    UINT codepage = 0;
+    if (strcmp(encoding, "SHIFT_JIS") == 0 || strcmp(encoding, "CP932") == 0)
+        codepage = 932;
+    else if (strcmp(encoding, "GBK") == 0 || strcmp(encoding, "CP936") == 0)
+        codepage = 936;
+    else if (strcmp(encoding, "EUC-KR") == 0)
+        codepage = 949;
+    else if (strcmp(encoding, "CP1250") == 0)
+        codepage = 1250;
+    else if (strcmp(encoding, "CP1251") == 0)
+        codepage = 1251;
+    else if (strcmp(encoding, "CP1252") == 0)
+        codepage = 1252;
+    else if (strcmp(encoding, "CP1256") == 0)
+        codepage = 1256;
+    else
+        return 0;
+
+    int wlen = MultiByteToWideChar(codepage, 0, src, (int)src_size, NULL, 0);
+    if (wlen <= 0)
+        return 0;
+
+    WCHAR *wbuf = (WCHAR *)malloc((size_t)wlen * sizeof(WCHAR));
+    if (wbuf == NULL)
+        return 0;
+
+    if (MultiByteToWideChar(codepage, 0, src, (int)src_size, wbuf, wlen) == 0)
+    {
+        free(wbuf);
+        return 0;
+    }
+
+    int utf8_len = WideCharToMultiByte(CP_UTF8, 0, wbuf, wlen, dst, (int)dst_size, NULL, NULL);
+    free(wbuf);
+    if (utf8_len <= 0)
+    {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        return 0;
+    }
+
+    if ((size_t)utf8_len >= dst_size)
+    {
+        dst[dst_size - 1] = '\0';
+        return dst_size - 1;
+    }
+    dst[utf8_len] = '\0';
+    return (size_t)utf8_len;
+#else
+    if (strcmp(encoding, "INTERNAL") == 0)
+    {
+        size_t out_pos = 0;
+        for (size_t i = 0; i < src_size; ++i)
+        {
+            uint32_t codepoint = internal_byte_to_unicode((unsigned char)src[i]);
+            size_t written = encode_utf8_codepoint(codepoint, dst + out_pos, dst_size - out_pos);
+            if (written == 0)
+            {
+                if (out_pos < dst_size)
+                    dst[out_pos] = '\0';
+                return out_pos;
+            }
+            out_pos += written;
+        }
+        if (out_pos < dst_size)
+            dst[out_pos] = '\0';
+        else if (dst_size > 0)
+            dst[dst_size - 1] = '\0';
+        return out_pos;
+    }
+
+    iconv_t cd = iconv_open("UTF-8", encoding);
+    if (cd == (iconv_t)(-1))
+    {
+        if (strcmp(encoding, "SHIFT_JIS") == 0)
+            cd = iconv_open("UTF-8", "CP932");
+        else if (strcmp(encoding, "GBK") == 0)
+            cd = iconv_open("UTF-8", "CP936");
+        else if (strcmp(encoding, "CP1252") == 0)
+            cd = iconv_open("UTF-8", "ISO-8859-1");
+        else if (strcmp(encoding, "CP1250") == 0)
+            cd = iconv_open("UTF-8", "WINDOWS-1250");
+        else if (strcmp(encoding, "CP1251") == 0)
+            cd = iconv_open("UTF-8", "WINDOWS-1251");
+        else if (strcmp(encoding, "CP1256") == 0)
+            cd = iconv_open("UTF-8", "WINDOWS-1256");
+        if (cd == (iconv_t)(-1))
+            return 0;
+    }
+
+    char *inbuf = (char *)src;
+    size_t inbytes = src_size;
+    char *outbuf = dst;
+    size_t outbytes = dst_size;
+
+    size_t res = iconv(cd, &inbuf, &inbytes, &outbuf, &outbytes);
+    iconv_close(cd);
+    if (res == (size_t)(-1))
+    {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        return 0;
+    }
+
+    size_t written = dst_size - outbytes;
+    if (written == 0)
+    {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        return 0;
+    }
+    if (written >= dst_size)
+        written = dst_size - 1;
+    dst[written] = '\0';
+    return written;
+#endif
+}
+
+size_t convert_codepage_to_utf8_string(const char *src, char *dst, size_t dst_size, const char *encoding)
+{
+    if ((src == NULL) || (dst == NULL) || (dst_size == 0) || (encoding == NULL))
+        return 0;
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+    UINT codepage = 0;
+    if (strcmp(encoding, "SHIFT_JIS") == 0 || strcmp(encoding, "CP932") == 0)
+        codepage = 932;
+    else if (strcmp(encoding, "GBK") == 0 || strcmp(encoding, "CP936") == 0)
+        codepage = 936;
+    else if (strcmp(encoding, "EUC-KR") == 0)
+        codepage = 949;
+    else if (strcmp(encoding, "CP1250") == 0)
+        codepage = 1250;
+    else if (strcmp(encoding, "CP1251") == 0)
+        codepage = 1251;
+    else if (strcmp(encoding, "CP1252") == 0)
+        codepage = 1252;
+    else if (strcmp(encoding, "CP1256") == 0)
+        codepage = 1256;
+    else
+        return 0;
+
+    int wlen = MultiByteToWideChar(codepage, 0, src, -1, NULL, 0);
+    if (wlen <= 0)
+        return 0;
+
+    WCHAR *wbuf = (WCHAR *)malloc((size_t)wlen * sizeof(WCHAR));
+    if (wbuf == NULL)
+        return 0;
+
+    if (MultiByteToWideChar(codepage, 0, src, -1, wbuf, wlen) == 0)
+    {
+        free(wbuf);
+        return 0;
+    }
+
+    int utf8_len = WideCharToMultiByte(CP_UTF8, 0, wbuf, wlen, dst, (int)dst_size, NULL, NULL);
+    free(wbuf);
+    if (utf8_len <= 0)
+    {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        return 0;
+    }
+
+    if ((size_t)utf8_len >= dst_size)
+    {
+        dst[dst_size - 1] = '\0';
+        return dst_size - 1;
+    }
+    dst[utf8_len] = '\0';
+    return (size_t)utf8_len;
+#else
+    iconv_t cd = iconv_open("UTF-8", encoding);
+    if (cd == (iconv_t)(-1))
+    {
+        if (strcmp(encoding, "SHIFT_JIS") == 0)
+            cd = iconv_open("UTF-8", "CP932");
+        else if (strcmp(encoding, "GBK") == 0)
+            cd = iconv_open("UTF-8", "CP936");
+        else if (strcmp(encoding, "CP1252") == 0)
+            cd = iconv_open("UTF-8", "ISO-8859-1");
+        else if (strcmp(encoding, "CP1250") == 0)
+            cd = iconv_open("UTF-8", "WINDOWS-1250");
+        else if (strcmp(encoding, "CP1251") == 0)
+            cd = iconv_open("UTF-8", "WINDOWS-1251");
+        else if (strcmp(encoding, "CP1256") == 0)
+            cd = iconv_open("UTF-8", "WINDOWS-1256");
+        if (cd == (iconv_t)(-1))
+            return 0;
+    }
+
+    char *inbuf = (char *)src;
+    size_t inbytes = strlen(src);
+    char *outbuf = dst;
+    size_t outbytes = dst_size;
+
+    size_t res = iconv(cd, &inbuf, &inbytes, &outbuf, &outbytes);
+    iconv_close(cd);
+    if (res == (size_t)(-1))
+    {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        return 0;
+    }
+
+    size_t written = dst_size - outbytes;
+    if (written == 0)
+    {
+        if (dst_size > 0)
+            dst[0] = '\0';
+        return 0;
+    }
+    if (written >= dst_size)
+        written = dst_size - 1;
+    dst[written] = '\0';
+    return written;
+#endif
+}
+
+#define read_utf_8_codepoint(text, out_seq_len) read_utf_8_codepoint_f(text, out_seq_len,__func__)
+uint32_t read_utf_8_codepoint_f(const char *text, size_t *out_seq_len, const char *func_name)
+{
+
+    if ((text[0]) == DKChr_Modifier_Colour)
+    {
+        JUSTLOG("%s: Detected color code 0x%02X", func_name, (unsigned char)text[1]);
+        *out_seq_len = 2;
+        return 0xE000 + (unsigned char)text[1];
+    }
+
+
+
     if ((text[0] & 0x80) == 0)
     {
         *out_seq_len = 1;
@@ -350,7 +656,7 @@ uint32_t read_utf_8_codepoint(const char *text, size_t *out_seq_len)
     else
     {
         *out_seq_len = 1;
-        ERRORLOG("Invalid UTF-8 sequence starting with byte 0x%02X; using '?'", (unsigned char)text[0]);
+        ERRORLOG("%s: Invalid UTF-8 sequence starting with byte 0x%02X; using '?'", func_name, (unsigned char)text[0]);
         return '?';
     }
 }
