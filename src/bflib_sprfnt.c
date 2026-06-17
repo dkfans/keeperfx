@@ -253,6 +253,8 @@ static int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const 
           goto skip_sprite_draw;
         x = -scr_x;
         scr_x = 0;
+        if (width > awind->width)
+          width = awind->width;
       } else
       if ((long) (scr_x + adraw->bits_width) > awind->width)
       {
@@ -267,6 +269,8 @@ static int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const 
         {
           y = -scr_y;
           scr_y = 0;
+          if (height > awind->height)
+            height = awind->height;
           if ((width != 0) && (height != 0))
           {
             if ((scr_x < 0) || (scr_x >= awind->width) || (scr_y < 0) || (scr_y >= awind->height))
