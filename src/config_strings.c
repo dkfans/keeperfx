@@ -132,8 +132,7 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
     return false;
   }
 
-  const char *encoding = get_codepage_encoding(install_info.lang_id);
-  size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, gui_strings_data, out_buf_size, encoding);
+  size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, gui_strings_data, out_buf_size, install_info.lang_id);
   free(raw_data);
   if (utf8_size == 0)
   {
@@ -241,7 +240,7 @@ TbBool free_gui_strings_data(void)
 }
 
 
-TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short flags, struct GameCampaign *campgn)
+TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short flags, struct GameCampaign *campgn, uint8_t lang_id)
 {
   if (campgn->strings_data_count >= sizeof(campgn->strings_data_list)/sizeof(campgn->strings_data_list[0]))
     return false;
@@ -287,8 +286,7 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
     return false;
   }
 
-  const char *encoding = get_codepage_encoding(install_info.lang_id);
-  size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, strings_data, out_buf_size, encoding);
+  size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, strings_data, out_buf_size, lang_id);
   free(raw_data);
   if (utf8_size == 0)
   {
@@ -317,13 +315,13 @@ static void load_campaign_strings_data_for_mod(struct GameCampaign *campgn, cons
   sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
 
   char *fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname);
-  if (!load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn))
+  if (!load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn, install_info.lang_id))
   {
     // if the current language of mod is not translated, then try eng.
     if (campgn->strings_fname_eng[0] != 0 && strcmp(campgn->strings_fname_eng, campgn->strings_fname) != 0)
     {
       fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname_eng);
-      load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn);
+      load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn, Lang_English);
     }
   }
 }
@@ -351,14 +349,14 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   reset_strings(campgn->strings, STRINGS_MAX);
 
   char* fname = prepare_file_path(FGrp_Main, campgn->strings_fname);
-  if (!load_campaign_strings_data_from_file(fname, 0, campgn))
+  if (!load_campaign_strings_data_from_file(fname, 0, campgn, campgn->strings_lang))
   {
     // if the current language of campaign is not translated, then try eng.
     if (campgn->strings_fname_eng[0] == 0 || strcmp(campgn->strings_fname_eng, campgn->strings_fname) == 0)
       return false;
 
     fname = prepare_file_path(FGrp_Main, campgn->strings_fname_eng);
-    if (!load_campaign_strings_data_from_file(fname, 0, campgn))
+    if (!load_campaign_strings_data_from_file(fname, 0, campgn, Lang_English))
       return false;
   }
 

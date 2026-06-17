@@ -214,23 +214,6 @@ static const struct
 
 /******************************************************************************/
 
-const char *get_codepage_encoding(int lang_id)
-{
-    switch (lang_id)
-    {
-    case Lang_Japanese:
-        return "SHIFT_JIS";
-    case Lang_ChineseInt:
-    case Lang_ChineseTra:
-        return "GBK";
-    case Lang_Korean:
-        return "EUC-KR";
-    case Lang_Arabic:
-        return "CP1256";
-    default:
-        return "INTERNAL";
-    }
-}
 
 static uint32_t internal_byte_to_unicode(unsigned char byte)
 {
@@ -290,95 +273,12 @@ static size_t encode_utf8_codepoint(uint32_t codepoint, char *dst, size_t dst_si
     return 0;
 }
 
-size_t convert_utf8_to_codepage_string(const char *src, char *dst, size_t dst_size, const char *encoding)
+size_t convert_codepage_to_utf8_buffer(const char *src, size_t src_size, char *dst, size_t dst_size, uint8_t lang_id)
 {
-    if ((src == NULL) || (dst == NULL) || (dst_size == 0) || (encoding == NULL))
+    if ((src == NULL) || (dst == NULL) || (src_size == 0) || (dst_size == 0))
         return 0;
 
-#if defined(_WIN32) || defined(__CYGWIN__)
-    UINT codepage = 0;
-    if (strcmp(encoding, "SHIFT_JIS") == 0 || strcmp(encoding, "CP932") == 0)
-        codepage = 932;
-    else if (strcmp(encoding, "GBK") == 0 || strcmp(encoding, "CP936") == 0)
-        codepage = 936;
-    else if (strcmp(encoding, "EUC-KR") == 0)
-        codepage = 949;
-    else
-        return 0;
-
-    int wlen = MultiByteToWideChar(CP_UTF8, 0, src, -1, NULL, 0);
-    if (wlen <= 0)
-        return 0;
-
-    WCHAR *wbuf = (WCHAR *)malloc((size_t)wlen * sizeof(WCHAR));
-    if (wbuf == NULL)
-        return 0;
-
-    if (MultiByteToWideChar(CP_UTF8, 0, src, -1, wbuf, wlen) == 0)
-    {
-        free(wbuf);
-        return 0;
-    }
-
-    int mb_len = WideCharToMultiByte(codepage, 0, wbuf, wlen, dst, (int)dst_size, NULL, NULL);
-    free(wbuf);
-    if (mb_len <= 0)
-        return 0;
-
-    if ((size_t)mb_len >= dst_size)
-    {
-        dst[dst_size - 1] = '\0';
-        return dst_size - 1;
-    }
-    dst[mb_len] = '\0';
-    return (size_t)mb_len;
-#else
-    iconv_t cd = iconv_open(encoding, "UTF-8");
-    if (cd == (iconv_t)(-1))
-    {
-        if (strcmp(encoding, "SHIFT_JIS") == 0)
-            cd = iconv_open("CP932", "UTF-8");
-        else if (strcmp(encoding, "GBK") == 0)
-            cd = iconv_open("CP936", "UTF-8");
-        if (cd == (iconv_t)(-1))
-            return 0;
-    }
-
-    char *inbuf = (char *)src;
-    size_t inbytes = strlen(src);
-    char *outbuf = dst;
-    size_t outbytes = dst_size;
-
-    size_t res = iconv(cd, &inbuf, &inbytes, &outbuf, &outbytes);
-    iconv_close(cd);
-    if (res == (size_t)(-1))
-    {
-        if (dst_size > 0)
-            dst[0] = '\0';
-        return 0;
-    }
-
-    size_t written = dst_size - outbytes;
-    if (written == 0)
-    {
-        if (dst_size > 0)
-            dst[0] = '\0';
-        return 0;
-    }
-    if (written >= dst_size)
-        written = dst_size - 1;
-    dst[written] = '\0';
-    return written;
-#endif
-}
-
-size_t convert_codepage_to_utf8_buffer(const char *src, size_t src_size, char *dst, size_t dst_size, const char *encoding)
-{
-    if ((src == NULL) || (dst == NULL) || (src_size == 0) || (dst_size == 0) || (encoding == NULL))
-        return 0;
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-    if (strcmp(encoding, "INTERNAL") == 0)
+    if (lang_id != Lang_Japanese && lang_id != Lang_ChineseInt && lang_id != Lang_ChineseTra && lang_id != Lang_Korean)
     {
         size_t out_pos = 0;
         for (size_t i = 0; i < src_size; ++i)
@@ -400,21 +300,14 @@ size_t convert_codepage_to_utf8_buffer(const char *src, size_t src_size, char *d
         return out_pos;
     }
 
+#if defined(_WIN32) || defined(__CYGWIN__)
     UINT codepage = 0;
-    if (strcmp(encoding, "SHIFT_JIS") == 0 || strcmp(encoding, "CP932") == 0)
-        codepage = 932;
-    else if (strcmp(encoding, "GBK") == 0 || strcmp(encoding, "CP936") == 0)
-        codepage = 936;
-    else if (strcmp(encoding, "EUC-KR") == 0)
-        codepage = 949;
-    else if (strcmp(encoding, "CP1250") == 0)
-        codepage = 1250;
-    else if (strcmp(encoding, "CP1251") == 0)
-        codepage = 1251;
-    else if (strcmp(encoding, "CP1252") == 0)
-        codepage = 1252;
-    else if (strcmp(encoding, "CP1256") == 0)
-        codepage = 1256;
+    if (lang_id == Lang_Japanese)
+        codepage = 932; // SHIFT_JIS
+    else if (lang_id == Lang_ChineseInt || lang_id == Lang_ChineseTra)
+        codepage = 936; // GBK
+    else if (lang_id == Lang_Korean)
+        codepage = 949; // EUC-KR
     else
         return 0;
 
@@ -449,151 +342,18 @@ size_t convert_codepage_to_utf8_buffer(const char *src, size_t src_size, char *d
     dst[utf8_len] = '\0';
     return (size_t)utf8_len;
 #else
-    if (strcmp(encoding, "INTERNAL") == 0)
-    {
-        size_t out_pos = 0;
-        for (size_t i = 0; i < src_size; ++i)
-        {
-            uint32_t codepoint = internal_byte_to_unicode((unsigned char)src[i]);
-            size_t written = encode_utf8_codepoint(codepoint, dst + out_pos, dst_size - out_pos);
-            if (written == 0)
-            {
-                if (out_pos < dst_size)
-                    dst[out_pos] = '\0';
-                return out_pos;
-            }
-            out_pos += written;
-        }
-        if (out_pos < dst_size)
-            dst[out_pos] = '\0';
-        else if (dst_size > 0)
-            dst[dst_size - 1] = '\0';
-        return out_pos;
-    }
 
-    iconv_t cd = iconv_open("UTF-8", encoding);
-    if (cd == (iconv_t)(-1))
-    {
-        if (strcmp(encoding, "SHIFT_JIS") == 0)
-            cd = iconv_open("UTF-8", "CP932");
-        else if (strcmp(encoding, "GBK") == 0)
-            cd = iconv_open("UTF-8", "CP936");
-        else if (strcmp(encoding, "CP1252") == 0)
-            cd = iconv_open("UTF-8", "ISO-8859-1");
-        else if (strcmp(encoding, "CP1250") == 0)
-            cd = iconv_open("UTF-8", "WINDOWS-1250");
-        else if (strcmp(encoding, "CP1251") == 0)
-            cd = iconv_open("UTF-8", "WINDOWS-1251");
-        else if (strcmp(encoding, "CP1256") == 0)
-            cd = iconv_open("UTF-8", "WINDOWS-1256");
-        if (cd == (iconv_t)(-1))
-            return 0;
-    }
+
+    if (lang_id == Lang_Japanese)
+        cd = iconv_open("UTF-8", "CP932");
+    else if (lang_id == Lang_ChineseInt || lang_id == Lang_ChineseTra)
+        cd = iconv_open("UTF-8", "CP936");
+    else if (lang_id == Lang_Korean)
+        cd = iconv_open("UTF-8", "EUC-KR");
+    
 
     char *inbuf = (char *)src;
     size_t inbytes = src_size;
-    char *outbuf = dst;
-    size_t outbytes = dst_size;
-
-    size_t res = iconv(cd, &inbuf, &inbytes, &outbuf, &outbytes);
-    iconv_close(cd);
-    if (res == (size_t)(-1))
-    {
-        if (dst_size > 0)
-            dst[0] = '\0';
-        return 0;
-    }
-
-    size_t written = dst_size - outbytes;
-    if (written == 0)
-    {
-        if (dst_size > 0)
-            dst[0] = '\0';
-        return 0;
-    }
-    if (written >= dst_size)
-        written = dst_size - 1;
-    dst[written] = '\0';
-    return written;
-#endif
-}
-
-size_t convert_codepage_to_utf8_string(const char *src, char *dst, size_t dst_size, const char *encoding)
-{
-    if ((src == NULL) || (dst == NULL) || (dst_size == 0) || (encoding == NULL))
-        return 0;
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-    UINT codepage = 0;
-    if (strcmp(encoding, "SHIFT_JIS") == 0 || strcmp(encoding, "CP932") == 0)
-        codepage = 932;
-    else if (strcmp(encoding, "GBK") == 0 || strcmp(encoding, "CP936") == 0)
-        codepage = 936;
-    else if (strcmp(encoding, "EUC-KR") == 0)
-        codepage = 949;
-    else if (strcmp(encoding, "CP1250") == 0)
-        codepage = 1250;
-    else if (strcmp(encoding, "CP1251") == 0)
-        codepage = 1251;
-    else if (strcmp(encoding, "CP1252") == 0)
-        codepage = 1252;
-    else if (strcmp(encoding, "CP1256") == 0)
-        codepage = 1256;
-    else
-        return 0;
-
-    int wlen = MultiByteToWideChar(codepage, 0, src, -1, NULL, 0);
-    if (wlen <= 0)
-        return 0;
-
-    WCHAR *wbuf = (WCHAR *)malloc((size_t)wlen * sizeof(WCHAR));
-    if (wbuf == NULL)
-        return 0;
-
-    if (MultiByteToWideChar(codepage, 0, src, -1, wbuf, wlen) == 0)
-    {
-        free(wbuf);
-        return 0;
-    }
-
-    int utf8_len = WideCharToMultiByte(CP_UTF8, 0, wbuf, wlen, dst, (int)dst_size, NULL, NULL);
-    free(wbuf);
-    if (utf8_len <= 0)
-    {
-        if (dst_size > 0)
-            dst[0] = '\0';
-        return 0;
-    }
-
-    if ((size_t)utf8_len >= dst_size)
-    {
-        dst[dst_size - 1] = '\0';
-        return dst_size - 1;
-    }
-    dst[utf8_len] = '\0';
-    return (size_t)utf8_len;
-#else
-    iconv_t cd = iconv_open("UTF-8", encoding);
-    if (cd == (iconv_t)(-1))
-    {
-        if (strcmp(encoding, "SHIFT_JIS") == 0)
-            cd = iconv_open("UTF-8", "CP932");
-        else if (strcmp(encoding, "GBK") == 0)
-            cd = iconv_open("UTF-8", "CP936");
-        else if (strcmp(encoding, "CP1252") == 0)
-            cd = iconv_open("UTF-8", "ISO-8859-1");
-        else if (strcmp(encoding, "CP1250") == 0)
-            cd = iconv_open("UTF-8", "WINDOWS-1250");
-        else if (strcmp(encoding, "CP1251") == 0)
-            cd = iconv_open("UTF-8", "WINDOWS-1251");
-        else if (strcmp(encoding, "CP1256") == 0)
-            cd = iconv_open("UTF-8", "WINDOWS-1256");
-        if (cd == (iconv_t)(-1))
-            return 0;
-    }
-
-    char *inbuf = (char *)src;
-    size_t inbytes = strlen(src);
     char *outbuf = dst;
     size_t outbytes = dst_size;
 
