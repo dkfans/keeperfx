@@ -355,7 +355,7 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
         else
           colour = lbDisplay.DrawColour;
 
-        #define MAX_DBC_SPRITE_SIZE 1024
+        #define MAX_DBC_SPRITE_SIZE 8192
         unsigned char dest_pixel[MAX_DBC_SPRITE_SIZE] = { 0 };
         if (units_per_px != 16)
         {            
