@@ -410,7 +410,6 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = first_person_horizontal_fov;
     cam->rotation_angle_x = ANGLE_EAST;
     cam->view_mode = PVM_CreatureView;
-    cam->use_rotation_pivot = false;
 
     cam = &player->cameras[CamIV_Isometric];
     cam->mappos.x.val = heartng->mappos.x.val;
@@ -426,7 +425,6 @@ void init_player_cameras(struct PlayerInfo *player)
         cam->view_mode = PVM_IsoWibbleView;
     }
     cam->zoom = player->isometric_view_zoom_level;
-    cam->use_rotation_pivot = false;
 
     cam = &player->cameras[CamIV_Parchment];
     cam->mappos.x.val = 0;
@@ -434,7 +432,6 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 32;
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_ParchmentView;
-    cam->use_rotation_pivot = false;
 
     cam = &player->cameras[CamIV_FrontView];
     cam->mappos.x.val = heartng->mappos.x.val;
@@ -443,7 +440,6 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
     cam->zoom = player->frontview_zoom_level;
-    cam->use_rotation_pivot = false;
 
     init_local_cameras(player);
 }
