@@ -587,6 +587,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               clear_flag(crconf->model_flags, CMF_CannotPickUp);
           }
           break;
+      case 38: // DROP_ON_PATH
+          if (param3 >= 1) {
+              set_flag(crconf->model_flags, CMF_DropOnPath);
+          } else {
+              clear_flag(crconf->model_flags, CMF_DropOnPath);
+          }
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%ld'", param2);
           break;
