@@ -605,10 +605,10 @@ static void view_move_camera_y(struct Camera *cam, int32_t distance)
 void view_process_camera_inertia(struct Camera *cam)
 {
     if (cam->inertia_x)
-        view_move_camera_right(cam, cam->inertia_x);
+        view_move_camera_x(cam, cam->inertia_x);
 
     if (cam->inertia_y)
-        view_move_camera_down(cam, cam->inertia_y);
+        view_move_camera_y(cam, cam->inertia_y);
 
     if (cam->inertia_rotation)
     {
