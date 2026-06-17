@@ -560,29 +560,8 @@ void update_first_person_camera(struct Camera *cam, struct Thing *thing)
     cam->rotation_angle_y = thing->move_angle_z;
 }
 
-static void view_move_camera_left(struct Camera *cam, int32_t distance)
-{
-    MapCoord pos_x;
-    MapCoord pos_y;
-    MapCoord parchment_pos_x;
-
-    switch (cam->view_mode)
-    {
-    case PVM_IsoWibbleView:
-    case PVM_FrontView:
-    case PVM_IsoStraightView:
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance,cam->rotation_angle_x - DEGREES_90);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance,cam->rotation_angle_x - DEGREES_90);
-        view_set_camera_position(cam, pos_x, pos_y);
-        break;
-
-    case PVM_ParchmentView:
-        parchment_pos_x = cam->mappos.x.val - distance;
-        view_set_camera_position(cam, parchment_pos_x, cam->mappos.y.val);
-    }
-}
-
-static void view_move_camera_right(struct Camera *cam, int32_t distance)
+// Positive distance moves rightwards
+static void view_move_camera_x(struct Camera *cam, int32_t distance)
 {
     MapCoord pos_x;
     MapCoord pos_y;
@@ -604,29 +583,8 @@ static void view_move_camera_right(struct Camera *cam, int32_t distance)
     }
 }
 
-static void view_move_camera_up(struct Camera *cam, int32_t distance)
-{
-    MapCoord pos_x;
-    MapCoord pos_y;
-    MapCoord parchment_pos_y;
-
-    switch (cam->view_mode)
-    {
-    case PVM_IsoWibbleView:
-    case PVM_FrontView:
-    case PVM_IsoStraightView:
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance, cam->rotation_angle_x);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance, cam->rotation_angle_x);
-        view_set_camera_position(cam, pos_x, pos_y);
-        break;
-
-    case PVM_ParchmentView:
-        parchment_pos_y = cam->mappos.y.val - distance;
-        view_set_camera_position(cam, cam->mappos.x.val, parchment_pos_y);
-    }
-}
-
-static void view_move_camera_down(struct Camera *cam, int32_t distance)
+// Positive distance moves downwards
+static void view_move_camera_y(struct Camera *cam, int32_t distance)
 {
     MapCoord pos_x;
     MapCoord pos_y;
@@ -650,17 +608,11 @@ static void view_move_camera_down(struct Camera *cam, int32_t distance)
 
 void view_process_camera_inertia(struct Camera *cam)
 {
-    const int32_t dx = cam->inertia_x;
-    if (dx > 0)
-        view_move_camera_right(cam, abs(dx));
-    else if (dx < 0)
-        view_move_camera_left(cam, abs(dx));
+    if (cam->inertia_x)
+        view_move_camera_right(cam, cam->inertia_x);
 
-    const int32_t dy = cam->inertia_y;
-    if (dy > 0)
-        view_move_camera_down(cam, abs(dy));
-    else if (dy < 0)
-        view_move_camera_up(cam, abs(dy));
+    if (cam->inertia_y)
+        view_move_camera_down(cam, cam->inertia_y);
 
     if (cam->inertia_rotation)
     {
