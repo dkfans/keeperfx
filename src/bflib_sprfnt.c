@@ -269,6 +269,8 @@ static int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const 
           scr_y = 0;
           if ((width != 0) && (height != 0))
           {
+            if ((scr_x < 0) || (scr_x >= awind->width) || (scr_y < 0) || (scr_y >= awind->height))
+              goto skip_sprite_draw;
             dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
             dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr3, -1);
           }
@@ -281,6 +283,8 @@ static int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const 
           height = awind->height - scr_y;
           if ((width != 0) && (height != 0))
           {
+            if ((scr_x < 0) || (scr_x >= awind->width) || (scr_y < 0) || (scr_y >= awind->height))
+              goto skip_sprite_draw;
             dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
             dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr3, -1);
           }
@@ -311,6 +315,8 @@ skip_sprite_draw:
           return 0;
         scr_x = 0;
         x = -pos_x;
+        if (width > awind->width)
+          width = awind->width;
       }
       if (scr_y >= 0)
       {
@@ -327,9 +333,13 @@ skip_sprite_draw:
           return 0;
         y = -scr_y;
         scr_y = 0;
+        if (height > awind->height)
+          height = awind->height;
       }
       if ((width != 0) && (height != 0))
       {
+        if ((scr_x < 0) || (scr_x >= awind->width) || (scr_y < 0) || (scr_y >= awind->height))
+          return 4;
         dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
         dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr1, colr2);
       }
