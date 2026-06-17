@@ -2699,6 +2699,21 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+// TODO this is just a temp function while testing the sprite stuff
+// eventually I want to get rid of dbc entirely but this makes difference easier to spot
+TbBool cmd_dbc(PlayerNumber plyr_idx, char * args)
+{
+   if (dbc_initialized)
+   {
+        dbc_initialized = false;
+        dbc_language = 0;
+   }
+   else
+    {
+        dbc_initialized = true;
+        dbc_language = 1;
+    }
+}
 
 
 struct ConsoleCommand {
@@ -2815,6 +2830,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "luatypedump", cmd_luatypedump, NULL },
     { "cheat.menu", cmd_cheat_menu, NULL },
     { "creature.chicken", cmd_chicken_creature, NULL },
+    { "dbc", cmd_dbc, NULL }
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 
