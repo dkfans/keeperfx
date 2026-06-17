@@ -226,7 +226,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         if (player->hand_thing_idx == 0) {
             create_power_hand(player->id_number);
         }
-        long allow_unclaimed_path = thing_is_creature_droppable_on_path(thing);
+        long allow_unclaimed_path = is_creature_droppable_on_path(thing);
         if ((can_drop_thing_here(stl_x, stl_y, player->id_number, allow_unclaimed_path)
              || !can_dig_here(stl_x, stl_y, player->id_number, true))
             && (!player->one_click_lock_cursor))

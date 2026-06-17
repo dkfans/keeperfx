@@ -4692,12 +4692,12 @@ TbBool thing_is_creature_digger(const struct Thing *thing)
   return any_flag_is_set(get_creature_model_flags(thing),(CMF_IsSpecDigger|CMF_IsDiggingCreature));
 }
 
-TbBool thing_is_creature_droppable_on_path(const struct Thing *thing)
+TbBool is_creature_droppable_on_path(const struct Thing *thing)
 {
     if (!thing_is_creature(thing)) {
         return false;
     }
-    return flag_is_set(get_creature_model_flags(thing), CMF_DropOnPath);
+    return any_flag_is_set(get_creature_model_flags(thing), (CMF_IsSpecDigger|CMF_DropOnPath));
 }
 
 /** Returns if a thing is special digger creature.

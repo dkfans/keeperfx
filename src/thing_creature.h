@@ -134,7 +134,7 @@ void draw_creature_view(struct Thing *thing);
 
 TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng);
 TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel);
-TbBool thing_is_creature_droppable_on_path(const struct Thing *thing);
+TbBool is_creature_droppable_on_path(const struct Thing *thing);
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
