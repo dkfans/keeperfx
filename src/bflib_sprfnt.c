@@ -120,10 +120,8 @@ static TbBool is_duospace_char(unsigned long chr)
 {
     if (chr < 0xFF)
         return false;
-    if ((dbc_initialized) && (dbc_enabled))
-    {
-        return dbc_char_width(chr) >= 16;
-    }
+    return dbc_char_width(chr) >= 16;
+    
     return false;
 }
 
@@ -186,7 +184,7 @@ static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
 
         if (is_kana_char(chr))
           adraw->character_spacing = kana_spacing;
-        else if (width >= 16)
+        else if (is_duospace_char(chr))
           adraw->character_spacing = wide_spacing;
         else
           adraw->character_spacing = narrow_spacing;
@@ -491,19 +489,15 @@ static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int un
 
 static int8_t draw_char(uint32_t chr, struct AsianFontWindow *awind, long *pos_x, long pos_y, int units_per_px)
 {
-  
-    //if (draw_simpletext_char(chr, pos_x, pos_y, units_per_px) == 0)
-    //    return draw_dbc_char(chr, awind, pos_x, pos_y, units_per_px);
-    //return 0;
-    
-
     if ((dbc_initialized) && (dbc_enabled))
     {
         return draw_dbc_char(chr, awind, pos_x, pos_y, units_per_px);
     } else
     {
-        return draw_simpletext_char(chr, pos_x, pos_y, units_per_px);
+        if (draw_simpletext_char(chr, pos_x, pos_y, units_per_px) == 0)
+            return draw_dbc_char(chr, awind, pos_x, pos_y, units_per_px);
     }
+    return 0;
 }
 
 
@@ -1324,7 +1318,7 @@ int LbSprFontCharWidth(const struct TbSpriteSheet * font, const uint32_t chr)
 {
     const struct TbSprite* spr = LbFontCharSprite(font, chr);
     if (spr == NULL)
-        return 0;
+        return dbc_char_width(chr);
     return spr->SWidth;
 }
 
@@ -1338,7 +1332,7 @@ int LbSprFontCharHeight(const struct TbSpriteSheet * font, const uint32_t chr)
 {
     const struct TbSprite* spr = LbFontCharSprite(font, chr);
     if (spr == NULL)
-        return 0;
+        return dbc_char_height(chr);
     return spr->SHeight;
 }
 
