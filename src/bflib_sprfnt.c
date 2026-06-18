@@ -90,11 +90,18 @@ static TbGraphicsWindow lbTextClipWindow;
 static unsigned char lbSpacesPerTab;
 /******************************************************************************/
 
+  static const uint16_t narrow_spacing = 0;
+  static const uint16_t kana_spacing = 1;
+  static const uint16_t wide_spacing = 1;
+  static const uint16_t baseline_offset = 4;
+  static const uint16_t line_spacing = 2;
+
+
 static long dbc_char_height(unsigned long chr)
 {
   if (unifont_loaded)
   {
-    return UNIFONT_HEIGHT + 1;
+    return UNIFONT_HEIGHT + line_spacing + baseline_offset;
   }
   return 0;
 }
@@ -103,13 +110,13 @@ static long dbc_char_width(unsigned long chr)
 {
     if (chr > 0xFFFF)
       return 0;
-    return unifont_widths[(unsigned int)chr];
+    return unifont_widths[(unsigned int)chr] + wide_spacing;
 }
 
 /** Returns if the given char starts a wide charcode.
  * @param chr
  */
-static TbBool is_single_char_word(unsigned long chr)
+static TbBool is_duospace_char(unsigned long chr)
 {
     if (chr < 0xFF)
         return false;
@@ -154,6 +161,11 @@ static void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height,
     }
 }
 
+static TbBool is_kana_char(unsigned long chr)
+{
+    return (chr >= 0xFF61) && (chr <= 0xFF9F);
+}
+
 static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
 {
     SYNCDBG(19,"Starting");
@@ -171,9 +183,16 @@ static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
         adraw->draw_char = chr;
         adraw->bits_width = width;
         adraw->bits_height = UNIFONT_HEIGHT;
-        adraw->character_spacing = 0;
-        adraw->vertical_offset = 0;
-        adraw->y_spacing = 1;
+
+        if (is_kana_char(chr))
+          adraw->character_spacing = kana_spacing;
+        else if (width >= 16)
+          adraw->character_spacing = wide_spacing;
+        else
+          adraw->character_spacing = narrow_spacing;
+
+        adraw->vertical_offset = baseline_offset;
+        adraw->y_spacing = line_spacing;
         adraw->sprite_data = unifont_data + offset;
         return 0;
     }
@@ -1089,7 +1108,7 @@ int LbTextWordWidthM(const char *str, long units_per_px)
 
         if ((dbc_initialized) && (dbc_enabled))
         {
-            if (is_single_char_word(chr))
+            if (is_duospace_char(chr))
             {
                 if (len != 0)
                     break; // letters before, need to stop.
