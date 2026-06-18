@@ -132,6 +132,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"DIGGING_CREATURE",  35},
   {"NO_HEALTH_FLOWER",  36},
   {"CANNOT_PICK_UP",    37},
+  {"DROP_ON_PATH",      38},
   {NULL,                 0},
   };
 
@@ -761,6 +762,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 37: // CANNOT_PICK_UP
                 crconf->model_flags |= CMF_CannotPickUp;
+                n++;
+                break;
+            case 38: // DROP_ON_PATH
+                crconf->model_flags |= CMF_DropOnPath;
                 n++;
                 break;
             default:
