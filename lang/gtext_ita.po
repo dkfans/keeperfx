@@ -6710,7 +6710,17 @@ msgctxt "Menu interface item"
 msgid "Lost Levels"
 msgstr ""
 
-#: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
+#: guitext:976
+msgctxt "Menu interface item"
+msgid "Modern Levels"
+msgstr ""
+
+#: guitext:977
+msgctxt "Menu interface item"
+msgid "Bullfrog Levels"
+msgstr ""
+
+#: guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
 msgstr ""
