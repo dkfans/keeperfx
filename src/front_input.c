@@ -75,6 +75,7 @@
 #include "local_camera.h"
 #include "packets.h"
 #include "console_cmd.h"
+#include "engine_redraw.h"
 
 #include "keeperfx.hpp"
 
@@ -617,7 +618,10 @@ static long get_small_map_inputs(long x, long y, long zoom)
   }
   if (grabbed_small_map)
   {
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
+    TbGraphicsWindow ewnd;
+    store_engine_window(&ewnd, 1);
+    LbMouseSetPosition(ewnd.x + (ewnd.width  >> 1),
+                       ewnd.y + (ewnd.height >> 1));
   }
   old_mx = curr_mx;
   old_my = curr_my;
