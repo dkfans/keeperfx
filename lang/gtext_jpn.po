@@ -6566,14 +6566,16 @@ msgid "Lost Levels"
 msgstr "失われたレベル"
 
 #: guitext:976
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Modern Levels"
-msgstr ""
+msgstr "現代レベル"
 
 #: guitext:977
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Bullfrog Levels"
-msgstr ""
+msgstr "Bullfrogレベル"
 
 #: guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
