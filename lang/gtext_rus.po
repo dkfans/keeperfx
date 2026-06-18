@@ -6030,12 +6030,12 @@ msgstr "Вырезанные карты"
 #: guitext:976
 msgctxt "Menu interface item"
 msgid "Modern Levels"
-msgstr ""
+msgstr "Современные карты"
 
 #: guitext:977
 msgctxt "Menu interface item"
 msgid "Bullfrog Levels"
-msgstr ""
+msgstr "Карты Bullfrog"
 
 #: guitext:978 guitext:979 guitext:980
 msgctxt "Unused"

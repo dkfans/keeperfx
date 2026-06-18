@@ -6236,14 +6236,16 @@ msgid "Lost Levels"
 msgstr "失落关卡"
 
 #: guitext:976
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Modern Levels"
-msgstr ""
+msgstr "现代关卡"
 
 #: guitext:977
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Bullfrog Levels"
-msgstr ""
+msgstr "牛蛙关卡"
 
 #: guitext:978 guitext:979 guitext:980
 msgctxt "Unused"

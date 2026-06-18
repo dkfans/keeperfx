@@ -6865,14 +6865,16 @@ msgid "Lost Levels"
 msgstr "Niveles Perdidos"
 
 #: guitext:976
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Modern Levels"
-msgstr ""
+msgstr "Niveles modernos"
 
 #: guitext:977
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Bullfrog Levels"
-msgstr ""
+msgstr "Niveles Bullfrog"
 
 #: guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
