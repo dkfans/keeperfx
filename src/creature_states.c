@@ -754,6 +754,14 @@ TbBool creature_is_being_tortured(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_being_tortured_including_kinky(const struct Thing* thing)
+{
+    CrtrStateId i = get_creature_state_besides_interruptions(thing);
+    if ((i == CrSt_Torturing) || (i == CrSt_AtTortureRoom) || (i == CrSt_AtKinkyTortureRoom) || (i == CrSt_KinkyTorturing))
+        return true;
+    return false;
+}
+
 TbBool creature_is_leaving_and_cannot_be_stopped(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
