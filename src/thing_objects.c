@@ -1478,6 +1478,8 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
+    if (objtng->rendering_flags & TRF_Invisible)
+        reset_interpolation_of_thing(objtng);
     objtng->rendering_flags &= ~TRF_Invisible;
     return TUFRet_Modified;
 }
