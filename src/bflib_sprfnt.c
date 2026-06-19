@@ -437,6 +437,9 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
             adraw.bits_width = iDstSizeW;
             adraw.bits_height = iDstSizeH;
             adraw.sprite_data = dest_pixel;
+            adraw.character_spacing = adraw.character_spacing * units_per_px / 16;
+            adraw.vertical_offset = adraw.vertical_offset * units_per_px / 16;
+            adraw.y_spacing = adraw.y_spacing * units_per_px / 16;
         }
 
         dbc_draw_font_sprite_text(awind, &adraw, *pos_x, pos_y, colour, -1, dbc_colour1);
