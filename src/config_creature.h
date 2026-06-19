@@ -66,6 +66,7 @@ enum CreatureModelFlags {
     CMF_IsDiggingCreature = 0x100000, // unit still counts as a regular creature but can also do digger tasks (like tunneler)
     CMF_NoHealthFlower    = 0x200000, // Do not draw the health/status flower above the creature.
     CMF_CannotPickUp      = 0x400000, // Creature cannot be picked up by the hand.
+    CMF_DropOnPath        = 0x800000, // Creature can be dropped on unclaimed path
 };
 
 // Before C23 standard, we cannot specify the underlaying type (in this case we want 64bit int) of enum.

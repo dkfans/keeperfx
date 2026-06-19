@@ -990,7 +990,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     // Check if drop position is allowed
     struct Thing *droptng = thing_get(dungeon->things_in_hand[0]);
-    if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_digger(droptng))) {
+    if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, is_creature_droppable_on_path(droptng))) {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
         {
@@ -1016,7 +1016,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         {
             drop_gold_coins(&pos, droptng->valuable.gold_stored, plyr_idx);
             if (is_my_player_number(plyr_idx)) {
-                play_non_3d_sample(snd_gold_pickup + SOUND_RANDOM(snd_gold_pickup_count));
+                play_non_3d_sample(snd_coin_drop);
             }
         }
         destroy_object(droptng);
@@ -1583,10 +1583,11 @@ TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumbe
 short can_place_thing_here(struct Thing *thing, long stl_x, long stl_y, long dngn_idx)
 {
     struct Coord3d pos;
-    TbBool is_digger;
-    is_digger = thing_is_creature_digger(thing);
-    if (!can_drop_thing_here(stl_x, stl_y, dngn_idx, is_digger))
+    TbBool allow_unclaimed_path;
+    allow_unclaimed_path = is_creature_droppable_on_path(thing);
+    if (!can_drop_thing_here(stl_x, stl_y, dngn_idx, allow_unclaimed_path)) {
       return false;
+    }
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_thing_height_at(thing, &pos);
