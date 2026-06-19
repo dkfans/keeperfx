@@ -2576,6 +2576,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         turn_off_menu(GMnu_FENET_SESSION);
         break;
     case FeSt_NET_START:
+        LbStopTextInput();
         turn_off_menu(GMnu_FENET_START);
         break;
     case FeSt_STORY_POEM:
