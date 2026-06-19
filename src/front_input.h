@@ -170,12 +170,18 @@ enum RotateAroundMouseOptions
 extern enum RotateAroundMouseOptions rotate_around_mouse_option;
 extern TbBool rotate_follow_mouse_option;
 
+struct MousePosition
+{
+    // Screen position at the beginning of this turn.
+    int32_t x, y;
+    // Delta from last turn, unaffected by programmed position changes.
+    int32_t dx, dy;
+};
+
 #pragma pack()
 /******************************************************************************/
-extern long old_mx;
-extern long old_my;
-/******************************************************************************/
 void input(void);
+struct MousePosition get_mouse_position();
 short get_screen_capture_inputs(void);
 int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);
