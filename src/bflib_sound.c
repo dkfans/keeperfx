@@ -29,6 +29,7 @@
 #include "bflib_fileio.h"
 #include "bflib_planar.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "globals.h"
 #include "gui_soundmsgs.h"
@@ -889,6 +890,29 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->base_volume = loudness;
     emit->flags |= Emi_IsPlaying;
     return 1;
+}
+
+void stop_atmos_sounds(void)
+{
+    if (atmos_sounds_enabled())
+    {
+        struct SoundEmitter* emit = S3DGetSoundEmitter(Non3DEmitter);
+        if (!S3DSoundEmitterInvalid(emit)) 
+        {
+            for (long i = 0; i < MaxNoSounds; i++)
+            {
+                struct S3DSample* sample = &SampleList[i];
+                if ( ( (sample->smptbl_id >= AtmosStart) && (sample->smptbl_id <= AtmosEnd) ) || (sample->smptbl_id == AtmosRepeat) )
+                {
+                    if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
+                    {
+                        stop_sample(get_emitter_id(emit), sample->smptbl_id);
+                        sample->is_playing = 0;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /******************************************************************************/
