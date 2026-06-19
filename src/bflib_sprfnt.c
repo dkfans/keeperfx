@@ -630,7 +630,7 @@ long text_string_height(int units_per_px, const char *text)
         if (lnwidth > 0)
         {
           w = LbTextCharWidth(' ') * units_per_px / 16;
-          if (lnwidth + w + LbTextWordWidth(pchr+1)*units_per_px/16 - lnwidth_clip > lbTextJustifyWindow.width)
+          if (lnwidth + w + LbTextWordWidthM(pchr, units_per_px) - lnwidth_clip > lbTextJustifyWindow.width)
           {
             lnwidth = lnwidth_clip;
             nlines++;
@@ -645,7 +645,7 @@ long text_string_height(int units_per_px, const char *text)
       case DKChr_Return:
           lnwidth = lnwidth_clip;
           nlines++;
-          if (pchr[1] == DKChr_NewLine) pchr++;
+          if (pchr[0] == DKChr_NewLine) pchr++;
           break;
       case DKChr_NewLine:
           lnwidth = lnwidth_clip;
@@ -654,7 +654,7 @@ long text_string_height(int units_per_px, const char *text)
       case DKChr_Tab:
           w = LbTextCharWidth(' ') * units_per_px / 16;
           lnwidth += lbSpacesPerTab * w;
-          if (lnwidth + LbTextWordWidth(pchr+1)*units_per_px/16 - lnwidth_clip > lbTextJustifyWindow.width)
+          if (lnwidth + LbTextWordWidthM(pchr, units_per_px) - lnwidth_clip > lbTextJustifyWindow.width)
           {
             lnwidth = lnwidth_clip;
             nlines++;
@@ -739,7 +739,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         if (chr == ' ')
         {
             w = LbTextCharWidthM(' ', units_per_px);
-            len = LbTextWordWidthM(ebuf+1, units_per_px);
+            len = LbTextWordWidthM(ebuf, units_per_px);
             if (posx+w+len-justifyx <= lbTextJustifyWindow.width)
             {
                 count++;
@@ -778,7 +778,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         {
             w = LbTextCharWidthM(' ', units_per_px);
             posx += lbSpacesPerTab*w;
-            len = LbTextWordWidth(ebuf+1) * units_per_px / 16;
+            len = LbTextWordWidthM(ebuf, units_per_px);
             if (posx+len-justifyx <= lbTextJustifyWindow.width)
             {
               count += lbSpacesPerTab;
