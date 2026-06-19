@@ -106,6 +106,7 @@ static struct MousePosition mouse;
 enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
 enum RotateAroundMouseOptions rotate_around_mouse_option = RotateAroundMouse_Always;
 TbBool rotate_follow_mouse_option = false;
+TbBool viewport_grab_active = false;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
@@ -1258,7 +1259,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
           toggle_gui();
       }
       // Middle mouse camera actions for IsometricView
-      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
+      if (0)//is_game_key_pressed(Gkey_SnapCamera, true, true)) //HACK
       {
           struct Camera* cam = &player->cameras[CamIV_Isometric];
           struct Packet* pckt = get_packet(my_player_number);
@@ -1344,7 +1345,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
           toggle_gui();
       }
       // Middle mouse camera actions for FrontView
-      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
+      if (0) //is_game_key_pressed(Gkey_SnapCamera, true, true)) // HACK
       {
           struct Camera* cam = &player->cameras[CamIV_FrontView];
           struct Packet* pckt = get_packet(my_player_number);
@@ -1371,6 +1372,44 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
         }
         return true;
       }
+    }
+
+    static int32_t viewport_grab_x = 0;
+    static int32_t viewport_grab_y = 0;
+    struct Packet* pckt = get_packet(my_player_number);
+    int32_t dx = mouse.dx;
+    int32_t dy = mouse.dy;
+    const TbBool grab_key_pressed = is_key_pressed(KC_MOUSE3, KMod_DONTCARE); // HACK
+    const TbBool rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
+    static TbBool rotate_pressed_prev = false;
+
+    if (grab_key_pressed)
+    {
+        TbBool use_rotate_pos = false;
+        if (! viewport_grab_active)
+        {
+            dx = dy = 0;
+            viewport_grab_x = mouse.x;
+            viewport_grab_y = mouse.y;
+        }
+        if (rotate_pressed)
+        {
+            if (!rotate_pressed_prev)
+                use_rotate_pos = true;
+            LbMouseSetPosition(viewport_grab_x, viewport_grab_y);
+            game.small_map_state = 2;
+        }
+        rotate_pressed_prev = rotate_pressed;
+        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel, use_rotate_pos);
+        viewport_grab_active = true;
+        return true;
+    }
+    else if (viewport_grab_active)
+    {
+        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel, false);
+        viewport_grab_active = false;
+        game.small_map_state = 0;
+        return true;
     }
 
     switch (player->work_state)

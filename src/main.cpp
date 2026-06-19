@@ -2054,12 +2054,16 @@ static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coor
 
     if (valid)
     {
-        pos.z.val = get_floor_height_at(&pos);
         light_turn_light_on(idx);
-        light_set_light_position(idx, &pos);
-
+        pos.z.val = get_floor_height_at(&pos);
         if (is_my_player(player))
+        {
+            if (viewport_grab_active)
+                return;
             game.mouse_light_pos = pos;
+        }
+
+        light_set_light_position(idx, &pos);
     }
     else
     {

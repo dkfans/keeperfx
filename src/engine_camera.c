@@ -602,29 +602,96 @@ static void view_move_camera_y(struct Camera *cam, int32_t distance)
     }
 }
 
+void view_grab_move_camera(struct Camera *cam, int32_t dx, int32_t dy, int32_t scale)
+{
+    int32_t zoom_unit = 0;
+    switch (cam->view_mode)
+    {
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
+        zoom_unit = 1L << 16;
+        break;
+
+    case PVM_FrontView:
+        zoom_unit = 1L << 19;
+        break;
+
+    case PVM_ParchmentView:
+        return;
+    }
+
+    const int32_t zoom = cam->zoom * scale / 16;
+    if (zoom == 0)
+        return;
+    const int32_t scaled_dx = -dx * zoom_unit / zoom;
+    const int32_t scaled_dy = -dy * zoom_unit / zoom;
+    const int32_t x = scaled_dx;
+    const int32_t sin_y = LbSinL(cam->rotation_angle_y);
+    const int32_t y = sin_y == 0 ? scaled_dy : (scaled_dy << 16) / -sin_y;
+
+    cam->grab_inertia_x = ((x * +LbSinL(cam->rotation_angle_x + DEGREES_90 )) >> 16)
+                        + ((y * +LbSinL(cam->rotation_angle_x + DEGREES_180)) >> 16);
+    cam->grab_inertia_y = ((x * -LbCosL(cam->rotation_angle_x + DEGREES_90 )) >> 16)
+                        + ((y * -LbCosL(cam->rotation_angle_x + DEGREES_180)) >> 16);
+    cam->grab_inertia_rx = 0;
+    cam->grab_inertia_ry = 0;
+}
+
+void view_grab_rotate_camera(struct Camera *cam, int32_t dx, int32_t dy, int32_t x, int32_t y, int32_t scale)
+{
+    switch (cam->view_mode)
+    {
+    case PVM_FrontView:
+    case PVM_ParchmentView:
+        return;
+    }
+
+    cam->grab_inertia_rx = +dx * scale / 16;
+    cam->grab_inertia_ry = -dy * scale / 16;
+    cam->grab_inertia_x = 0;
+    cam->grab_inertia_y = 0;
+
+    if ((x | y) < 0)
+        return;
+    cam->rotation_pivot.x.val = x;
+    cam->rotation_pivot.y.val = y;
+}
+
 void view_process_camera_inertia(struct Camera *cam)
 {
+    if (cam->grab_inertia_x | cam->grab_inertia_y)
+        view_set_camera_position(cam,
+                                 cam->mappos.x.val + cam->grab_inertia_x,
+                                 cam->mappos.y.val + cam->grab_inertia_y);
+
     if (cam->inertia_x)
         view_move_camera_x(cam, cam->inertia_x);
 
     if (cam->inertia_y)
         view_move_camera_y(cam, cam->inertia_y);
 
-    if (cam->inertia_rotation)
+    const int32_t rotate = cam->inertia_rotation + cam->grab_inertia_rx;
+    if (rotate)
     {
-        cam->rotation_angle_x = (cam->inertia_rotation + cam->rotation_angle_x) & ANGLE_MASK;
-        if (cam->use_rotation_pivot)
+        cam->rotation_angle_x = (rotate + cam->rotation_angle_x) & ANGLE_MASK;
+        if (cam->use_rotation_pivot | cam->grab_inertia_rx)
         {
             const MapCoordDelta x0 = cam->mappos.x.val - cam->rotation_pivot.x.val;
             const MapCoordDelta y0 = cam->mappos.y.val - cam->rotation_pivot.y.val;
-            const int64_t sin = LbSinL(cam->inertia_rotation);
-            const int64_t cos = LbCosL(cam->inertia_rotation);
+            const int64_t sin = LbSinL(rotate);
+            const int64_t cos = LbCosL(rotate);
             const MapCoordDelta x1 = (x0 * cos - y0 * sin) >> 16;
             const MapCoordDelta y1 = (x0 * sin + y0 * cos) >> 16;
             const MapCoord new_x = (MapCoord)cam->rotation_pivot.x.val + x1;
             const MapCoord new_y = (MapCoord)cam->rotation_pivot.y.val + y1;
             view_set_camera_position(cam, new_x, new_y);
         }
+    }
+
+    if (cam->grab_inertia_ry)
+    {
+        const int new_angle = cam->rotation_angle_y + cam->grab_inertia_ry;
+        cam->rotation_angle_y = clamp(new_angle, CAMERA_TILT_MIN, CAMERA_TILT_MAX);
     }
 
     if (! cam->in_active_movement_x)
@@ -635,6 +702,12 @@ void view_process_camera_inertia(struct Camera *cam)
 
     if (! cam->in_active_movement_rotation)
         cam->inertia_rotation /= 2;
+
+    const int grab_friction = 24;
+    cam->grab_inertia_x  = cam->grab_inertia_x  * (256 - grab_friction) / 256;
+    cam->grab_inertia_y  = cam->grab_inertia_y  * (256 - grab_friction) / 256;
+    cam->grab_inertia_rx = cam->grab_inertia_rx * (256 - grab_friction) / 256;
+    cam->grab_inertia_ry = cam->grab_inertia_ry * (256 - grab_friction) / 256;
 
     if (cam->inertia_rotation == 0)
         cam->use_rotation_pivot = false;

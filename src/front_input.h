@@ -170,6 +170,8 @@ enum RotateAroundMouseOptions
 extern enum RotateAroundMouseOptions rotate_around_mouse_option;
 extern TbBool rotate_follow_mouse_option;
 
+extern TbBool viewport_grab_active;
+
 struct MousePosition
 {
     // Screen position at the beginning of this turn.
