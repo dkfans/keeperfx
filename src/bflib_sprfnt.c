@@ -1352,6 +1352,9 @@ const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, cons
 
     if (codepoint < 0x80){
         sprite_index = codepoint - 31;
+    } else if (codepoint >= white_numbers_start && codepoint <= white_numbers_end){
+        // white numbers mapped to private use area in unicode
+        sprite_index = codepoint - white_numbers_start + 153;
     } else {
       static const struct
       {

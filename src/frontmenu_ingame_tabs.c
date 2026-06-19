@@ -28,6 +28,7 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
+#include "bflib_text.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
@@ -98,6 +99,34 @@ char gui_creature_type_highlighted;
 unsigned long first_person_instance_top_half_selected;
 
 static unsigned char info_page;
+
+static void remap_digits_to_white_numbers(char *text)
+{
+    char tmp[TEXT_BUFFER_LENGTH];
+    size_t dst = 0;
+    for (const char *src = text; *src != '\0'; ++src)
+    {
+        if ((*src >= '0') && (*src <= '9'))
+        {
+            uint32_t codepoint = white_numbers_start + (uint32_t)(*src - '0');
+            JUSTLOG("Remapping '%c' to white number codepoint U+%04X", *src, codepoint);
+            size_t len = encode_utf8_codepoint(codepoint, &tmp[dst], sizeof(tmp) - dst);
+            if (len == 0) {
+                break;
+            }
+            dst += len;
+        }
+        else
+        {
+            if (dst + 1 >= sizeof(tmp)) {
+                break;
+            }
+            tmp[dst++] = *src;
+        }
+    }
+    tmp[dst] = '\0';
+    memcpy(text, tmp, dst + 1);
+}
 /******************************************************************************/
 /******************************************************************************/
 static PlayerNumber info_panel_pos_to_player_number(int idx)
@@ -586,10 +615,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
         } else {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
         }
-        // We will use a special coding for our "string" - we want chars to represent
-        // sprite index directly, without code pages and multibyte chars interpretation
-        for (i=0; gui_textbuf[i] != '\0'; i++)
-            gui_textbuf[i] -= 120;
+        remap_digits_to_white_numbers(gui_textbuf);
     } else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
@@ -774,7 +800,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
     GoldAmount price = compute_power_price(dungeon->owner, pwkind, 0);
-    char text[16];
+    char text[32];
     snprintf(text, sizeof(text), "%ld", (long)price);
     if (dungeon->total_money_owned >= price)
     {
@@ -1757,12 +1783,10 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         if (gbtn->content.lptr != NULL)
         {
           snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", cr_total);
-          // We will use a special coding for our "string" - we want chars to represent
-          // sprite index directly, without code pages and multibyte chars interpretation
+          // Convert digits to private-use white-number codepoints for rendering.
           if ((cr_total > 0) && (dungeon->guijob_all_creatrs_count[crmodel][(job_idx & 0x03)] ))
           {
-              for (i=0; gui_textbuf[i] != '\0'; i++)
-                  gui_textbuf[i] -= 120;
+              remap_digits_to_white_numbers(gui_textbuf);
           }
           LbTextUseByteCoding(false);
           draw_button_string(gbtn, 32, gui_textbuf);

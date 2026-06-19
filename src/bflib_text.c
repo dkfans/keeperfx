@@ -237,7 +237,7 @@ static uint32_t internal_byte_to_unicode(unsigned char byte)
     return (unicode != 0) ? unicode : (uint32_t)'?';
 }
 
-static size_t encode_utf8_codepoint(uint32_t codepoint, char *dst, size_t dst_size)
+size_t encode_utf8_codepoint(uint32_t codepoint, char *dst, size_t dst_size)
 {
     if (dst_size == 0)
         return 0;
