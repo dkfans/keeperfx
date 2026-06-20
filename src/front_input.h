@@ -168,6 +168,7 @@ enum RotateAroundMouseOptions
     RotateAroundMouse_Always = 4
 };
 extern enum RotateAroundMouseOptions rotate_around_mouse_option;
+extern TbBool rotate_follow_mouse_option;
 
 #pragma pack()
 /******************************************************************************/

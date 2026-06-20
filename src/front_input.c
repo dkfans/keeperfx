@@ -101,6 +101,7 @@ long old_my;
 
 enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
 enum RotateAroundMouseOptions rotate_around_mouse_option = RotateAroundMouse_Always;
+TbBool rotate_follow_mouse_option = false;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
@@ -2231,6 +2232,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
 
 static void get_isometric_view_nonaction_inputs(void)
 {
+    static TbBool rotating = false;
     struct PlayerInfo* player = get_my_player();
     struct Packet* packet = get_packet(my_player_number);
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
@@ -2240,6 +2242,8 @@ static void get_isometric_view_nonaction_inputs(void)
     if (speed_pressed != 0)
         packet->additional_packet_values |= PCAdV_SpeedupPressed;
     TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
+    TbBool set_rotate_pos = rotate_follow_mouse_option | ! rotating;
+    rotating = false;
 
     get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, no_mods);
     // Only update the camera as often as normal despite frameskip
@@ -2260,12 +2264,14 @@ static void get_isometric_view_nonaction_inputs(void)
                 if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
+                rotating = true;
             }
             if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
                 if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
+                rotating = true;
             }
             if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomIn);
@@ -2278,12 +2284,14 @@ static void get_isometric_view_nonaction_inputs(void)
                 if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
+                rotating = true;
             }
             if (is_game_key_pressed(Gkey_RotateCCW, false, false))
             {
                 if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
+                rotating = true;
             }
             if (is_game_key_pressed(Gkey_ZoomIn, false, false))
                 set_packet_control(packet, PCtr_ViewZoomIn);
@@ -2298,6 +2306,8 @@ static void get_isometric_view_nonaction_inputs(void)
 
             get_movement_inputs(&camera_movement_x, &camera_movement_y, no_mods);
         }
+        if (! set_rotate_pos)
+            unset_packet_control(packet, PCtr_ViewRotatePos);
     }
 }
 
