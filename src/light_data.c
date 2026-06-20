@@ -1993,9 +1993,16 @@ static char light_render_light(struct Light* lgt)
 
   if ( (lgt->flags2 & 0xFE) != 0 )
   {
+    if (get_gameturn() != lgt->last_turn_randomized)
+    {
+      lgt->previous_intensity_random = lgt->intensity_random;
+      lgt->intensity_random = UNSYNC_RANDOM(513);
+    }
+    lgt->last_turn_randomized = get_gameturn();
+
     int rand_minimum = (lgt->intensity - 1) << 8;
     intensity = (lgt->intensity << 8) + 257;
-    render_intensity = rand_minimum + UNSYNC_RANDOM(513);
+    render_intensity = rand_minimum + interpolate_synced(lgt->previous_intensity_random, lgt->intensity_random);
   }
   else
   {

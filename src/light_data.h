@@ -75,7 +75,10 @@ struct Light {
   unsigned short next_in_list;
   struct Coord3d mappos;
   struct Coord3d previous_mappos;
+  uint16_t intensity_random;
+  uint16_t previous_intensity_random;
   GameTurn last_turn_moved;
+  GameTurn last_turn_randomized;
   TbBool reset_interpolation;
 };
 
