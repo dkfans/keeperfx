@@ -68,7 +68,6 @@ struct AsianFontWindow {
 
 long dbc_colour0 = 0;
 long dbc_colour1 = 0;
-short dbc_language = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
 const struct TbSpriteSheet *lbFontPtr;
@@ -1584,27 +1583,6 @@ short load_unifont_file()
     unifont_offsets = offsets;
     unifont_loaded = true;
     return 0;
-}
-
-/**
- * Loads Double Byte Coding fonts from disk.
- */
-short dbc_initialize(const char *fpath)
-{
-
-  if (dbc_initialized)
-  {
-    dbc_shutdown();
-  }
-
-  if (load_unifont_file(fpath) == 0)
-  {
-    dbc_initialized = 1;
-    dbc_language = 1;
-    return 0;
-  }
-
-  return 0;
 }
 
 TbBool is_dbc_language(short language)

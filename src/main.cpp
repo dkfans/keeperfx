@@ -4443,7 +4443,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         if (is_dbc_language(install_info.lang_id))
         {            
             dbc_initialized = 1;
-            dbc_language = 1;
         }
         load_unifont_file();
     }

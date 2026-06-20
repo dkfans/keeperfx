@@ -64,10 +64,6 @@ enum DkcodepageLetter {
 static const uint32_t white_numbers_start = 0xFF00;
 static const uint32_t white_numbers_end   = 0xFF09;
 
-
-
-
-extern short dbc_language;
 extern TbBool dbc_enabled;
 extern TbBool dbc_initialized;
 extern const struct TbSpriteSheet *lbFontPtr;

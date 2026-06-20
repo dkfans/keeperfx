@@ -1391,7 +1391,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   scrollwnd->window_height = area_height;
   text_height = scrollwnd->text_height;
   int tx_units_per_px;
-  if (dbc_language > 0)
+  if (dbc_initialized && dbc_enabled)
   {
       tx_units_per_px = scale_value_by_horizontal_resolution((MyScreenWidth >= 640) ? 16 : 32);
   }
