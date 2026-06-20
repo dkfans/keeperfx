@@ -54,7 +54,14 @@ static TbBool prevent_local_dig_prediction(const struct Packet *pckt)
     if ((pckt->control_flags & (PCtr_Gui | PCtr_MapCoordsValid)) != PCtr_MapCoordsValid) {
         return true;
     }
-    if ((pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing) || (battle_creature_over > 0)) {
+    switch (pckt->action)
+    {
+    case PckA_UsePwrHandPick:
+    case PckA_UsePwrOnThing:
+    case PckA_BookmarkLoad: // Dragging minimap
+        return true;
+    }
+    if (battle_creature_over > 0) {
         return true;
     }
     return false;
