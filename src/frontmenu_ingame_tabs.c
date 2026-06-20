@@ -1448,28 +1448,10 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     LbTextSetJustifyWindow((x - (dst_w / 2)), y, dst_w);
     LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, 16*dst_w/base_w);
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
-    int tx_units_per_px;
-    int text_x;
+    int tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
+    int text_x = 0;
     int text_y = -6*dst_w/base_w;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
-    {
-        tx_units_per_px = scale_ui_value(32);
-        text_x = 12;
-    }
-    else
-    {
-        tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
-        if ( (dbc_language > 0) && (MyScreenWidth > 640) )
-        {
-            tx_units_per_px = scale_value_by_horizontal_resolution(12 + (MyScreenWidth / 640));
-            text_y += 12;
-        }
-        else
-        {
-            tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
-        }
-        text_x = 0;
-    }
+    
     LbTextDrawResized(text_x, text_y, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
@@ -2477,7 +2459,9 @@ void gui_area_payday_button(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     char text[16];
     snprintf(text, sizeof(text), "%d", (int)dungeon->creatures_total_pay);
+    LbTextUseByteCoding(false);
     draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + scale_value_by_vertical_resolution(8), 130, gbtn->width);
+    LbTextUseByteCoding(true);
 }
 
 void gui_area_research_bar(struct GuiButton *gbtn)
