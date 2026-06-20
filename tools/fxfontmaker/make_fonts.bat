@@ -10,4 +10,9 @@ python unifont_hex_to_binary.py unifont-17.0.04.hex    font16.fxfont     16
 python unifont_hex_to_binary.py unifont_jp-17.0.04.hex font16_JPN.fxfont 16
 python unifont_hex_to_binary.py unifont_t-17.0.04.hex  font16_CHT.fxfont 16
 python unifont_hex_to_binary.py merged12.hex           font12.fxfont     12
+
+rem remove intermidiate files
+del merged12.hex
+del wenquanyi.hex
+del unifont12.hex
 pause
