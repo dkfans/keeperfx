@@ -103,9 +103,12 @@ static void add_entry_to_translation_table(const char *alias, const char *text)
 
 
     entry->text = (char *)calloc(len + 1, 1);
-
+    if (!entry->text)
+    {
+        ERRORLOG("Out of memory allocating translation text for alias \"%s\".", alias);
+        return;
+    }
     strncpy(entry->text, text, len + 1);
-    entry->text[len] = '\0';
 }
 
 static int translation_section_visitor(const VALUE *key, VALUE *section, void *ctx)
