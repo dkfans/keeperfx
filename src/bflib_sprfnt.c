@@ -62,6 +62,19 @@ struct AsianFontWindow {
   unsigned char *buf_ptr;
 };
 
+struct AsianFont {
+  const char *fname;
+  unsigned char *data;
+  unsigned short *widths;
+  unsigned int *offsets;
+  unsigned long height;
+  unsigned long narrow_spacing;
+  unsigned long kana_spacing;
+  unsigned long wide_spacing;
+  unsigned long baseline_offset;
+  unsigned long line_spacing;
+};
+
 /******************************************************************************/
 
 #define DOUBLE_UNDERLINE_BOUND 16
@@ -74,41 +87,35 @@ const struct TbSpriteSheet *lbFontPtr;
 
 #define UNIFONT_INDEX_COUNT 65536
 #define UNIFONT_INDEX_SIZE 6
-#define UNIFONT_HEIGHT 16
-
-static unsigned char *unifont_data = NULL;
-static unsigned short *unifont_widths = NULL;
-static unsigned int *unifont_offsets = NULL;
-static TbBool unifont_loaded = false;
-
-static void free_unifont_file(void);
 
 static TbGraphicsWindow lbTextJustifyWindow;
 static TbGraphicsWindow lbTextClipWindow;
 static unsigned char lbSpacesPerTab;
-/******************************************************************************/
+struct AsianFont *active_dbcfont = NULL;
 
-  static const uint16_t narrow_spacing = 0;
-  static const uint16_t kana_spacing = 1;
-  static const uint16_t wide_spacing = 1;
-  static const uint16_t baseline_offset = 4;
-  static const uint16_t line_spacing = 2;
+
+
+struct AsianFont dbcfonts[] = {
+  {"font12", NULL,NULL,NULL , 12, 0, 1, 1, 1, 1},
+  {"font16", NULL,NULL,NULL , 16, 0, 1, 1, 4, 2},
+  //{"font24", NULL,NULL,NULL , 24, 0, 1, 1, 4, 2},
+};
+
+/******************************************************************************/
 
 
 static long dbc_char_height(unsigned long chr)
 {
-  if (unifont_loaded)
-  {
-    return UNIFONT_HEIGHT + line_spacing + baseline_offset;
-  }
-  return 0;
+    if (active_dbcfont == NULL)
+        return 0;
+    return active_dbcfont->height + active_dbcfont->line_spacing + active_dbcfont->baseline_offset;
 }
 
 static long dbc_char_width(unsigned long chr)
 {
     if (chr > 0xFFFF)
       return 0;
-    return unifont_widths[(unsigned int)chr] + wide_spacing;
+    return active_dbcfont->widths[(unsigned int)chr] + active_dbcfont->wide_spacing;
 }
 
 /** Returns if the given char starts a wide charcode.
@@ -167,33 +174,33 @@ static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
     SYNCDBG(19,"Starting");
     if (adraw == NULL)
         return 4;
-    if (unifont_loaded)
-    {
-        if (chr > 0xFFFF)
-            return 6;
-        const unsigned int codepoint = (unsigned int)chr;
-        unsigned short width = unifont_widths[codepoint];
-        if (width == 0)
-            return 6;
-        unsigned int offset = unifont_offsets[codepoint];
-        adraw->draw_char = chr;
-        adraw->bits_width = width;
-        adraw->bits_height = UNIFONT_HEIGHT;
+    if (active_dbcfont == NULL)
+        return 4;
+    if (active_dbcfont->widths == NULL)
+        return 4;
+    JUSTLOG("Getting sprite for char %lu, dbc_initialized=%d", chr, dbc_initialized);
+    if (chr > 0xFFFF)
+        return 6;
+    const unsigned int codepoint = (unsigned int)chr;
+    unsigned short width = active_dbcfont->widths[codepoint];
+    if (width == 0)
+        return 6;
+    unsigned int offset = active_dbcfont->offsets[codepoint];
+    adraw->draw_char = chr;
+    adraw->bits_width = width;
+    adraw->bits_height = active_dbcfont->height;
 
-        if (is_kana_char(chr))
-          adraw->character_spacing = kana_spacing;
-        else if (is_duospace_char(chr))
-          adraw->character_spacing = wide_spacing;
-        else
-          adraw->character_spacing = narrow_spacing;
+    if (is_kana_char(chr))
+        adraw->character_spacing = active_dbcfont->kana_spacing;
+    else if (is_duospace_char(chr))
+        adraw->character_spacing = active_dbcfont->wide_spacing;
+    else
+        adraw->character_spacing = active_dbcfont->narrow_spacing;
 
-        adraw->vertical_offset = baseline_offset;
-        adraw->y_spacing = line_spacing;
-        adraw->sprite_data = unifont_data + offset;
-        return 0;
-    }
-    return 1;
-
+    adraw->vertical_offset = active_dbcfont->baseline_offset;
+    adraw->y_spacing = active_dbcfont->line_spacing;
+    adraw->sprite_data = active_dbcfont->data + offset;
+    return 0;
 }
 
 static int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsigned char *src_buf,
@@ -961,7 +968,19 @@ TbBool LbTextSetFont(const struct TbSpriteSheet *font)
     lbFontPtr = font;
     dbc_colour0 = LbTextGetFontFaceColor();
     dbc_colour1 = LbTextGetFontBackColor();
-    
+
+
+    if (lbFontPtr == frontend_font[0])
+    {
+        active_dbcfont = &dbcfonts[1];
+        // set to 2 when I added a 24 pixel font
+        //active_dbcfont = &dbcfonts[2];
+    }
+    else if (lbDisplay.PhysicalScreenWidth < 512)
+        active_dbcfont = &dbcfonts[0];
+    else
+        active_dbcfont = &dbcfonts[1];
+
     return true;
 }
 
@@ -1422,86 +1441,28 @@ const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, cons
     return get_sprite(font, sprite_index);
 }
 
-static void free_unifont_file(void)
+static short load_unifont_file(struct AsianFont * dbcfont)
 {
-    if (unifont_data != NULL)
-    {
-        free(unifont_data);
-        unifont_data = NULL;
-    }
-    if (unifont_widths != NULL)
-    {
-        free(unifont_widths);
-        unifont_widths = NULL;
-    }
-    if (unifont_offsets != NULL)
-    {
-        free(unifont_offsets);
-        unifont_offsets = NULL;
-    }
-    unifont_loaded = false;
-}
 
-void dbc_shutdown(void)
-{
-  free_unifont_file();
-  dbc_initialized = 0;
-}
+    JUSTLOG("Loading unifont file for %s", dbcfont->fname);
+    char* fpath = prepare_file_fmtpath(FGrp_FxData, "%s_%s.fxfont", dbcfont->fname, get_language_lwrstr(install_info.lang_id));
 
-char * prepare_font_filename(const char * fpath, const char * fname) {
-  if (fpath == NULL || fpath[0] == 0)
-  {
-    // current folder, copy font filename as-is
-    const int fname_len = strlen(fname);
-    const int buffer_size = fname_len + 1;
-    char * buffer = malloc(buffer_size);
-    if (buffer == NULL)
+    if ( !LbFileExists(fpath) )
     {
-      return NULL;
-    }
-    memcpy(buffer, fname, buffer_size);
-    return buffer;
-  }
-  const int fpath_len = strlen(fpath);
-  const int fname_len = strlen(fname);
-  const int buffer_size = fpath_len + fname_len + 2;
-  char * buffer = malloc(buffer_size);
-  if (buffer == NULL)
-  {
-    return NULL;
-  }
-  if (fpath[fpath_len - 1] != '/')
-  {
-    // path does not end with /
-    snprintf(buffer, buffer_size, "%s/%s", fpath, fname);
-  }
-  else
-  {
-    // path ends with /
-    snprintf(buffer, buffer_size, "%s%s", fpath, fname);
-  }
-  return buffer;
-}
+        fpath = prepare_file_fmtpath(FGrp_FxData, "%s.fxfont", dbcfont->fname);
 
-short load_unifont_file()
-{
-    char* fname = prepare_file_fmtpath(FGrp_FxData, "unifont_%s.fxfont", get_language_lwrstr(install_info.lang_id));
-
-    if ( !LbFileExists(fname) )
-    {
-        fname = prepare_file_path(FGrp_FxData, "unifont.fxfont");
     }
 
-    long filelen = LbFileLength(fname);
+    long filelen = LbFileLength(fpath);
     if (filelen < UNIFONT_INDEX_COUNT * UNIFONT_INDEX_SIZE)
     {
-        free(fname);
+        ERRORLOG("Unifont file \"%s\" is too small", fpath);
         return 1;
     }
-    TbFileHandle fhandle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    TbFileHandle fhandle = LbFileOpen(fpath, Lb_FILE_MODE_READ_ONLY);
     if (!fhandle)
     {
-        free(fname);
+        ERRORLOG("Can't open unifont file \"%s\"", fpath);
         return 1;
     }
     long index_bytes = UNIFONT_INDEX_COUNT * UNIFONT_INDEX_SIZE;
@@ -1510,15 +1471,13 @@ short load_unifont_file()
     {
         ERRORLOG("Can't allocate memory for unifont index");
         LbFileClose(fhandle);
-        free(fname);
         return 2;
     }
     if (LbFileRead(fhandle, index_buf, index_bytes) != index_bytes)
     {
-        ERRORLOG("Error reading unifont index from \"%s\"", fname);
+        ERRORLOG("Error reading unifont index from \"%s\"", fpath);
         free(index_buf);
         LbFileClose(fhandle);
-        free(fname);
         return 3;
     }
     long data_len = filelen - index_bytes;
@@ -1528,20 +1487,18 @@ short load_unifont_file()
         ERRORLOG("Can't allocate memory for unifont data");
         free(index_buf);
         LbFileClose(fhandle);
-        free(fname);
         return 2;
     }
     if (data_len > 0 && LbFileRead(fhandle, data_buf, data_len) != data_len)
     {
-        ERRORLOG("Error reading unifont data from \"%s\"", fname);
+        ERRORLOG("Error reading unifont data from \"%s\"", fpath);
         free(index_buf);
         free(data_buf);
         LbFileClose(fhandle);
-        free(fname);
         return 3;
     }
     LbFileClose(fhandle);
-    free(fname);
+    free(fpath);
 
     unsigned short *widths = (unsigned short *)malloc(UNIFONT_INDEX_COUNT * sizeof(*widths));
     unsigned int *offsets = (unsigned int *)malloc(UNIFONT_INDEX_COUNT * sizeof(*offsets));
@@ -1563,7 +1520,7 @@ short load_unifont_file()
         if (widths[i] != 0)
         {
             unsigned int row_bytes = (widths[i] + 7) >> 3;
-            unsigned long max_offset = offsets[i] + row_bytes * UNIFONT_HEIGHT;
+            unsigned long max_offset = offsets[i] + row_bytes * dbcfont->height;
             if ((long)max_offset > data_len)
             {
                 ERRORLOG("Invalid unifont offset for codepoint %u", i);
@@ -1575,13 +1532,18 @@ short load_unifont_file()
             }
         }
     }
-    free(index_buf);
+    dbcfont->data = data_buf;
+    dbcfont->widths = widths;
+    dbcfont->offsets = offsets;
+    return 0;
+}
 
-    free_unifont_file();
-    unifont_data = data_buf;
-    unifont_widths = widths;
-    unifont_offsets = offsets;
-    unifont_loaded = true;
+short load_unifont_files()
+{
+    for (int i = 0; i < sizeof(dbcfonts) / sizeof(dbcfonts[0]); ++i)
+    {
+        load_unifont_file(&dbcfonts[i]);
+    }
     return 0;
 }
 

@@ -4444,7 +4444,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         {            
             dbc_initialized = 1;
         }
-        load_unifont_file();
+        load_unifont_files();
     }
     if ( retval == 1 )
     {

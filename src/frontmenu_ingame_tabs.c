@@ -109,7 +109,6 @@ static void remap_digits_to_white_numbers(char *text)
         if ((*src >= '0') && (*src <= '9'))
         {
             uint32_t codepoint = white_numbers_start + (uint32_t)(*src - '0');
-            JUSTLOG("Remapping '%c' to white number codepoint U+%04X", *src, codepoint);
             size_t len = encode_utf8_codepoint(codepoint, &tmp[dst], sizeof(tmp) - dst);
             if (len == 0) {
                 break;
