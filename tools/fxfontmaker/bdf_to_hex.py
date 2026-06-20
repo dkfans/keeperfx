@@ -1,3 +1,7 @@
+import argparse
+import os
+import sys
+
 def bdf_to_hex(bdf_path, out_path):
     with open(bdf_path, "r", encoding="ascii", errors="ignore") as f:
         lines = [l.strip() for l in f]
