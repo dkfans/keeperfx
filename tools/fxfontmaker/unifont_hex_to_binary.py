@@ -24,7 +24,7 @@ INDEX_ENTRY_SIZE = struct.calcsize(INDEX_FORMAT)
 HEIGHT = 16
 
 
-def parse_unifont_hex_line(line, line_no):
+def parse_unifont_hex_line(line, line_no, height):
     line = line.strip()
     if not line or line.startswith("#"):
         return None
@@ -55,12 +55,12 @@ def parse_unifont_hex_line(line, line_no):
 
     data_bytes = bytes.fromhex(data_hex)
 
-    if len(data_bytes) % HEIGHT != 0:
+    if len(data_bytes) % height != 0:
         raise ValueError(
-            f"Glyph data length must be a multiple of {HEIGHT} on line {line_no}: got {len(data_bytes)} bytes"
+            f"Glyph data length must be a multiple of {height} on line {line_no}: got {len(data_bytes)} bytes"
         )
 
-    row_size = len(data_bytes) // HEIGHT
+    row_size = len(data_bytes) // height
     width = row_size * 8
     return codepoint, width, data_bytes
 
@@ -92,11 +92,11 @@ def write_output(path, index_entries, data_block):
         out_file.write(data_block)
 
 
-def read_unifont_hex(path):
+def read_unifont_hex(path, height):
     glyphs = {}
     with open(path, "r", encoding="utf-8") as f:
         for line_no, line in enumerate(f, start=1):
-            parsed = parse_unifont_hex_line(line, line_no)
+            parsed = parse_unifont_hex_line(line, line_no, height)
             if parsed is None:
                 continue
             codepoint, width, data_bytes = parsed
@@ -114,13 +114,14 @@ def main():
     )
     parser.add_argument("input", help="Input UniFont .hex file")
     parser.add_argument("output", help="Output binary file")
+    parser.add_argument("height", type=int, help="Glyph height in pixels")
     args = parser.parse_args()
 
     if not os.path.isfile(args.input):
         print(f"Input file not found: {args.input}", file=sys.stderr)
         return 1
 
-    glyphs = read_unifont_hex(args.input)
+    glyphs = read_unifont_hex(args.input, args.height)
     index_entries, data_block = build_index_and_data(glyphs)
     write_output(args.output, index_entries, data_block)
 
