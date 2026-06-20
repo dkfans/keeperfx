@@ -114,7 +114,7 @@ const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, cons
 
 void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(int units_per_px, const char *text);
-short dbc_initialize(const char *fpath);
+short load_unifont_file();
 TbBool is_dbc_language(short language);
 
 /******************************************************************************/
