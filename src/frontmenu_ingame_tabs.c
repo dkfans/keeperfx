@@ -1861,7 +1861,9 @@ void gui_area_experience_button(struct GuiButton *gbtn)
         gui_area_progress_bar_med2(gbtn, units_per_px, points_progress, points_required);
         char text[16];
         snprintf(text, sizeof(text), "%d", (int)(cctrl->exp_level + 1));
+        LbTextUseByteCoding(false);
         draw_button_string(gbtn, 56, text);
+        LbTextUseByteCoding(true);
     } else
     if (thing_is_dead_creature(ctrltng))
     {
