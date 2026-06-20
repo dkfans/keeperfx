@@ -55,6 +55,7 @@ src/bflib_sndlib.cpp \
 src/bflib_sound.c \
 src/bflib_sprfnt.c \
 src/bflib_string.c \
+src/bflib_text.c \
 src/bflib_video.c \
 src/bflib_vidraw.c \
 src/bflib_vidraw_spr_norm.c \
