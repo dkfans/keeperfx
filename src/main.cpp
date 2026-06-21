@@ -224,6 +224,9 @@ TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
 /******************************************************************************/
 
+long double time_since_last_draw = 0;
+float interpolate_time = 0;
+/******************************************************************************/
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -3403,6 +3406,32 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
+static long double adjust_time_for_multiplayer_speed(long double t)
+{
+    if (multiplayer_speed_adjustment_ns != 0 && turns_per_second > 0) {
+        long double tick_ns_one_turn = 1e9L / turns_per_second;
+        long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
+        if (tick_ns_adjusted_turn > 0) {
+            t = t * tick_ns_one_turn / tick_ns_adjusted_turn;
+        }
+    }
+    return t;
+}
+
+static void update_gameplay_delta_time(void)
+{
+    if (is_feature_on(Ft_DeltaTime) == true) {
+        long double process_delta_time = adjust_time_for_multiplayer_speed(get_delta_time());
+        time_since_last_draw += process_delta_time;
+        game.process_turn_time += process_delta_time;
+    } else {
+        // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
+        time_since_last_draw = 1;
+        game.delta_time = 1;
+        game.process_turn_time = 1;
+    }
+}
+
 void gameplay_loop_logic()
 {
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
@@ -3425,8 +3454,12 @@ void gameplay_loop_logic()
         previous_gameturn = get_gameturn();
     }
 
-    if (is_feature_on(Ft_DeltaTime) && game.process_turn_time < 1.0)
-        return;
+    if (is_feature_on(Ft_DeltaTime))
+    {
+        update_gameplay_delta_time();
+        if (game.process_turn_time < 1.0)
+            return;
+    }
 
     frametime_start_measurement(Frametime_Logic);
     if (frametime_enabled())
@@ -3462,6 +3495,8 @@ void gameplay_loop_logic()
 
 void gameplay_loop_draw()
 {
+    update_gameplay_delta_time();
+
     // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
     frametime_start_measurement(Frametime_Draw);
 
@@ -3474,6 +3509,9 @@ void gameplay_loop_draw()
     if ( do_draw ) {
         if (frametime_enabled())
             framerate_measurement_capture(Framerate_Draw);
+        game.delta_time = time_since_last_draw;
+        time_since_last_draw = 0;
+        interpolate_time = min(max(game.process_turn_time, 0.L), 1.L);
         keeper_screen_redraw();
     }
     keeper_wait_for_screen_focus();
@@ -3493,27 +3531,10 @@ void gameplay_loop_draw()
     last_draw_completed_time = get_time_tick_ns();
 }
 
-static void update_gameplay_delta_time()
-{
-    long double process_delta_time = get_delta_time();
-    if (multiplayer_speed_adjustment_ns != 0 && turns_per_second > 0) {
-        long double tick_ns_one_turn = 1e9L / turns_per_second;
-        long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
-        if (tick_ns_adjusted_turn > 0) {
-            process_delta_time = process_delta_time * tick_ns_one_turn / tick_ns_adjusted_turn;
-        }
-    }
-    game.delta_time = process_delta_time;
-    game.process_turn_time += process_delta_time;
-}
-
 extern "C" void network_yield_draw_gameplay()
 {
-    update_gameplay_delta_time();
     gameplay_loop_draw();
 }
-
-void gameplay_loop_timestep();
 
 extern "C" void network_yield_waiting_gameplay_packets()
 {
@@ -3521,7 +3542,6 @@ extern "C" void network_yield_waiting_gameplay_packets()
     do_draw = true;
     poll_inputs();
     gameplay_loop_draw();
-    gameplay_loop_timestep();
     game.process_turn_time = min(game.process_turn_time, 2.L);
     frametime_start_measurement(Frametime_Logic);
     if (frametime_enabled()) {
@@ -3554,12 +3574,8 @@ extern "C" void network_yield_draw_frontend()
 void gameplay_loop_timestep()
 {
     frametime_start_measurement(Frametime_Sleep);
-    if (is_feature_on(Ft_DeltaTime) == true) {
-        update_gameplay_delta_time();
-    } else {
-        // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
-        game.delta_time = 1;
-        game.process_turn_time = 1;
+    update_gameplay_delta_time();
+    if (! is_feature_on(Ft_DeltaTime)) {
         // Make delay if the machine is too fast
         if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
             keeper_wait_for_next_turn();

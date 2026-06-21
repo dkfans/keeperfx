@@ -530,12 +530,14 @@ static void calculate_hud_scale(struct Camera *cam) {
     hud_scale = ((range_input - range_min)) / (range_max - range_min);
 }
 
+extern float interpolate_time;  // main.cpp
+
 float interpolate(float previous, float current)
 {
     if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
-    return LbLerp(previous, current, game.process_turn_time);
+    return LbLerp(previous, current, interpolate_time);
 }
 
 float interpolate_angle(float previous, float current)
@@ -543,7 +545,7 @@ float interpolate_angle(float previous, float current)
     if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
-    return lerp_angle(previous, current, game.process_turn_time);
+    return lerp_angle(previous, current, interpolate_time);
 }
 
 // For things that stop moving when the game is paused.
