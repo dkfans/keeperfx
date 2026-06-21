@@ -126,8 +126,6 @@ static TbBool is_duospace_char(unsigned long chr)
     if (chr < 0xFF)
         return false;
     return dbc_char_width(chr) >= 16;
-    
-    return false;
 }
 
 /**
