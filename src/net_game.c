@@ -61,7 +61,7 @@ struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
     int32_t video_rotate_mode;
     int32_t input_lag_turns;
-    TbBigChecksum map_checksum;
+    TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
     uint32_t sprite_zip_checksum;
     uint8_t sprite_zip_entry_count;
     struct SpriteZipEntry sprite_zip_entries[SPRITE_ZIP_ENTRY_COUNT];
@@ -146,10 +146,24 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
 
 static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
-    const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].map_checksum;
+    const TbBigChecksum *host = startup_sync_packets[get_host_player_id()].map_checksums;
     for (int i = 0; i < MAX_NET_USERS; i++) {
-        if (net_player_info[i].network_user_active && startup_sync_packets[i].map_checksum != host_checksum) {
-            ERRORLOG("Level checksums %08x(Host) != %08x(Client) for player %d", host_checksum, startup_sync_packets[i].map_checksum, i);
+        const TbBigChecksum *client = startup_sync_packets[i].map_checksums;
+        if (!net_player_info[i].network_user_active) {
+            continue;
+        }
+        int diff_count = 0;
+        for (int j = 0; j < NETWORK_STARTUP_MAP_FILE_COUNT; j++) {
+            if (client[j] == host[j]) {
+                continue;
+            }
+            if (diff_count == 0) {
+                ERRORLOG("Level checksums differ for player %d", i);
+            }
+            ERRORLOG("Level file map%05u.%s differs for player %d", get_loaded_level_number(), network_startup_compare_files[j], i);
+            diff_count++;
+        }
+        if (diff_count != 0) {
             return false;
         }
     }
@@ -221,7 +235,7 @@ static void build_local_startup_sync(void)
     s_local_startup_sync.startup_sync_packet_valid = 1;
     s_local_startup_sync.video_rotate_mode = settings.video_rotate_mode;
     s_local_startup_sync.input_lag_turns = game.input_lag_turns;
-    s_local_startup_sync.map_checksum = calculate_network_startup_map_checksum();
+    calculate_network_startup_map_checksums(s_local_startup_sync.map_checksums);
     s_local_startup_sync.sprite_zip_checksum = sprite_zip_combined_checksum;
     s_local_startup_sync.sprite_zip_entry_count = sprite_zip_entry_count;
     memcpy(s_local_startup_sync.sprite_zip_entries, sprite_zip_entries, sizeof(s_local_startup_sync.sprite_zip_entries));
