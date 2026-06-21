@@ -176,7 +176,6 @@ static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
         return 4;
     if (active_dbcfont->widths == NULL)
         return 4;
-    JUSTLOG("Getting sprite for char %lu, dbc_initialized=%d", chr, dbc_initialized);
     if (chr > 0xFFFF)
         return 6;
     const unsigned int codepoint = (unsigned int)chr;
@@ -531,6 +530,10 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
     uint32_t chr = read_utf_8_codepoint((const char *)c, &seq_len);
     c += seq_len;
 
+    if (chr > colour_modifiers_begin && chr < colour_modifiers_end)
+    {
+        lbDisplay.DrawColour = (unsigned char)(chr - colour_modifiers_begin);
+    } else
     if (chr == 0xA0 || chr == ' ') //NO-BREAK SPACE or SPACE
     {
         w = space_len;
@@ -582,11 +585,10 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
         case DKChr_Modifier_OneColor:
           lbDisplay.DrawFlags ^= Lb_TEXT_ONE_COLOR;
           break;
-        case DKChr_Modifier_Colour:
-          c++;
-          lbDisplay.DrawColour = (unsigned char)(*c);
-          break;
+        case DKChr_NewLine:
+            break;
         default:
+          WARNLOG("Unknown modifier code 0x%02X", (unsigned char)chr);
           break;
       }
     }
@@ -662,9 +664,6 @@ long text_string_height(int units_per_px, const char *text)
             lnwidth = lnwidth_clip;
             nlines++;
           }
-          break;
-      case DKChr_Modifier_Colour:
-          pchr++;
           break;
       }
     }
@@ -800,7 +799,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             count = 0;
             continue;
         } else
-        if ((chr == 6) || (chr == 7) || (chr == 8) || (chr == 9))
+        if ((chr == DKChr_AlignLeft) || (chr == DKChr_AlignRight) || (chr == DKChr_AlignCenter) || (chr == DKChr_AlignJustify))
         {
             if (posx-justifyx > lbTextJustifyWindow.width)
             {
@@ -815,25 +814,20 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             }
             switch (*ebuf)
             {
-            case 6:
+            case DKChr_AlignLeft:
               lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_LEFT;
               break;
-            case 7:
+            case DKChr_AlignRight:
+                JUSTLOG("Right align");
               lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_RIGHT;
               break;
-            case 8:
+            case DKChr_AlignCenter:
               lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_CENTER;
               break;
-            case 9:
+            case DKChr_AlignJustify:
               lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_JUSTIFY;
               break;
             }
-        } else
-        if (chr == DKChr_Modifier_Colour)
-        {
-            ebuf++;
-            if (*ebuf == '\0')
-              break;
         }
     }
     x = LbGetJustifiedCharPosX(startx, posx, 0, 1, lbDisplay.DrawFlags);
@@ -1441,8 +1435,6 @@ const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, cons
 
 static short load_unifont_file(struct AsianFont * dbcfont)
 {
-
-    JUSTLOG("Loading unifont file for %s", dbcfont->fname);
     char* fpath = prepare_file_fmtpath(FGrp_FxData, "%s_%s.fxfont", dbcfont->fname, get_language_lwrstr(install_info.lang_id));
 
     if ( !LbFileExists(fpath) )

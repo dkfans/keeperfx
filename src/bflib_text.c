@@ -383,16 +383,6 @@ size_t convert_codepage_to_utf8_buffer(const char *src, size_t src_size, char *d
 #define read_utf_8_codepoint(text, out_seq_len) read_utf_8_codepoint_f(text, out_seq_len,__func__)
 uint32_t read_utf_8_codepoint_f(const char *text, size_t *out_seq_len, const char *func_name)
 {
-
-    if ((text[0]) == DKChr_Modifier_Colour)
-    {
-        JUSTLOG("%s: Detected color code 0x%02X", func_name, (unsigned char)text[1]);
-        *out_seq_len = 2;
-        return 0xE000 + (unsigned char)text[1];
-    }
-
-
-
     if ((text[0] & 0x80) == 0)
     {
         *out_seq_len = 1;

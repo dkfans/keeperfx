@@ -49,10 +49,11 @@ enum DkcodepageLetter {
    DKChr_Modifier_Outline,
    DKChr_Modifier_FlipHoriz,
    DKChr_Modifier_FlipVertic,
-   DKChr_unused6,
-   DKChr_unused7,
-   DKChr_unused8,
-   DKChr_Tab,
+   DKChr_AlignLeft,
+   DKChr_AlignRight,
+   DKChr_AlignCenter,
+   DKChr_AlignJustify = 9, //tab and AlignJustify overlap so Justify can't be reached
+   DKChr_Tab = 9,
    DKChr_NewLine,
    DKChr_Modifier_Underline,
    DKChr_Modifier_OneColor,
@@ -61,8 +62,11 @@ enum DkcodepageLetter {
 };
 
 // unicode private use area mappings
-static const uint32_t white_numbers_start = 0xFF00;
-static const uint32_t white_numbers_end   = 0xFF09;
+static const uint32_t white_numbers_start = 0xF000;
+static const uint32_t white_numbers_end   = 0xF009;
+static const uint32_t colour_modifiers_begin = 0xF100;
+static const uint32_t colour_modifiers_end   = 0xF1FF;
+
 
 extern TbBool dbc_enabled;
 extern TbBool dbc_initialized;
