@@ -552,8 +552,6 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             LbStopTextInput();
         return false;
     }
-    if (!LbIsTextInputActive())
-        LbStartTextInput();
 
     char *str;
     TbKeyCode key;

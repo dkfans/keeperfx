@@ -421,10 +421,6 @@ float get_game_key_axis_value(long key_id, TbBool ignore_mods)
 static short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if (!LbIsTextInputActive())
-    {
-        LbStartTextInput();
-    }
 
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
@@ -760,6 +756,7 @@ static short get_global_inputs(void)
               return true;
           }
         player->allocflags |= PlaF_NewMPMessage;
+        LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -887,6 +884,7 @@ static TbBool get_level_lost_inputs(void)
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
         player->allocflags |= PlaF_NewMPMessage;
+        LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
       }

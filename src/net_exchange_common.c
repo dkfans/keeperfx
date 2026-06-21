@@ -19,6 +19,7 @@
 
 #include "bflib_datetm.h"
 #include "bflib_video.h"
+#include "bflib_inputctrl.h"
 #include "front_landview.h"
 #include "frontend.h"
 #include "game_legacy.h"
@@ -187,6 +188,7 @@ struct PlayerInfo *prepare_network_chat_message(int player_id, const char *messa
 {
     struct PlayerInfo *player = get_player(player_id);
     player->allocflags &= ~PlaF_NewMPMessage;
+    LbStopTextInput();
     if (message[0] != '\0') {
         memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
         memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
