@@ -36,7 +36,6 @@
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
-#include "config_sounds.h"
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
@@ -57,6 +56,7 @@
 #include "sounds.h"
 #include "api.h"
 #include "net_resync.h"
+#include "kfx/modding/tier_stack.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -154,12 +154,11 @@ static void init_level(void)
     init_seeds();
     sync_initial_network_seed();
 
-    recheck_all_mod_exist();
-
     luascript_loaded = open_lua_script(get_selected_level_number());
-    // Restore campaign-layer sounds before creature configs load, so creature cfg custom
-    // sounds are added to the already-restored bank (not wiped afterwards).
-    sound_restore_to_campaign_snapshot();
+    // Notify registered subsystems (including SoundManager) that the level is starting.
+    // SoundManager::onLoadEvent(Level) restores the campaign snapshot so that creature
+    // configs loaded by load_stats_files() below add their sounds to the correct base.
+    kfx_trigger_load_event(KfxLoadEvent_Level);
     // Load configs which may have per-campaign part, and can even be modified within a level
     init_custom_sprites(get_selected_level_number());
     load_stats_files();

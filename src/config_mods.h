@@ -85,7 +85,6 @@ struct ModsConfig {
 
 const struct ModsConfig *get_loaded_mods_conf(void);
 #define mods_conf (*get_loaded_mods_conf())
-void recheck_all_mod_exist();
 TbBool load_mods_order_config_file();
 
 

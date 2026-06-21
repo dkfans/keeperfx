@@ -126,7 +126,7 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
     if ((pack == CampgnT_Default) && ((lvnum <= 0) || is_campaign_in_list(campaign_file, &mp_mappacks_list))) {
         pack = CampgnT_MultiplayerMappack;
     }
-    if (!change_campaign(pack, campaign_file)
+    if (!game_request_campaign_change(pack, campaign_file)
      || (strcasecmp(campaign.fname, campaign_file) != 0)) {
         ERRORLOG("Unable to load campaign '%s' for level %d", campaign_fname, (int)lvnum);
         return false;

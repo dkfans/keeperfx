@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "kfx/modding/IModSubsystem.hpp"
+
 namespace KeeperFX {
 
 /**
@@ -24,7 +26,7 @@ namespace KeeperFX {
  * - Named sound registry (name → ID mapping)
  * - C wrapper functions
  */
-class SoundManager {
+class SoundManager : public IModSubsystem {
 public:
     // Singleton access
     static SoundManager& getInstance();
@@ -205,6 +207,9 @@ public:
      * game.conf with stale (session-specific) negative indices.
      */
     void reapplyCreatureSounds();
+
+    // IModSubsystem interface
+    void onLoadEvent(KfxLoadEvent event, const KfxTierStack *stack) override;
 
 private:
     SoundManager();

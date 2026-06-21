@@ -194,6 +194,10 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
 uint8_t prepare_campaign_file_name(const char *cmpgn_fname, char *cmpgn_file, int cmpgn_file_len);
 TbBool is_map_pack(void);
 void set_default_mp_mappack(void);
+/** Thin wrapper for frontend code: loads the campaign then fires the Campaign
+ *  load event so all subsystems are updated. Frontend code must call this
+ *  instead of calling change_campaign() directly. */
+TbBool game_request_campaign_change(uint8_t pack, const char *cmpgn_fname);
 /******************************************************************************/
 #ifdef __cplusplus
 }

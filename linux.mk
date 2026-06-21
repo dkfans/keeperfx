@@ -179,8 +179,13 @@ src/kfx/lense/LuaLensEffect.cpp \
 src/kfx/lense/MistEffect.cpp \
 src/kfx/lense/OverlayEffect.cpp \
 src/kfx/lense/PaletteEffect.cpp \
+src/kfx/modding/IModSubsystem.cpp \
+src/kfx/modding/mod_api.cpp \
+src/kfx/modding/ModWalker.cpp \
+src/kfx/modding/tier_stack.cpp \
 src/light_data.c \
-src/linux.cpp \
+src/platform/PlatformLinux.cpp \
+src/platform/PlatformManager.cpp \
 src/lua_api.c \
 src/lua_api_lens.c \
 src/lua_api_map.c \
@@ -285,6 +290,7 @@ KFX_CXX_OBJECTS = $(patsubst src/%.cpp,obj/%.o,$(KFX_CXX_SOURCES))
 KFX_OBJECTS = $(KFX_C_OBJECTS) $(KFX_CXX_OBJECTS)
 
 KFX_INCLUDES = \
+	-Isrc \
 	-Ideps/centijson/include \
 	-Ideps/centitoml \
 	-Ideps/astronomy/include \

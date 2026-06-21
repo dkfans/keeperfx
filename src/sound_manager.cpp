@@ -5,6 +5,7 @@
 #include "creature_control.h"
 #include "config_creature.h"
 #include "config_mods.h"
+#include "config_sounds.h"
 #include "game_legacy.h"
 #include <cstdio>
 #include <fstream>
@@ -54,6 +55,7 @@ bool SoundManager::initialize() {
     // audio device and corrupt the SDL_mixer / OpenAL state.
     if (GetSoundInstalled()) {
         initialized_ = true;
+        registerWithSystem();
         return true;
     }
 
@@ -63,6 +65,7 @@ bool SoundManager::initialize() {
     }
 
     initialized_ = true;
+    registerWithSystem();
     return true;
 }
 
@@ -454,6 +457,66 @@ void SoundManager::reapplyCreatureSounds() {
         }
         int count = ov.count > 0 ? ov.count : 1;
         setCreatureSound(ov.creature_model, ov.sound_type, ov.custom_sound_name, count);
+    }
+}
+
+void SoundManager::onLoadEvent(KfxLoadEvent event, const KfxTierStack *stack)
+{
+    switch (event)
+    {
+    case KfxLoadEvent_Campaign:
+        /* Reload the full campaign-tier sound stack:
+         *   fxdata baseline → after_base mods → campaign → after_campaign mods
+         * Mirrors the sequence previously in change_campaign(). */
+        SYNCDBG(5, "SoundManager: handling Campaign load event");
+        clearCustomSounds();
+        clearRegistry();
+        load_sounds_config();
+        for (int i = 0; i < mods_conf.after_base_cnt; i++)
+            load_mod_sounds_config(mods_conf.after_base_item[i].name);
+        if (campaign.configs_location[0] != '\0')
+            load_campaign_sounds_config(campaign.configs_location);
+        for (int i = 0; i < mods_conf.after_campaign_cnt; i++)
+            load_mod_sounds_config(mods_conf.after_campaign_item[i].name);
+        /* Snapshot the campaign state so per-level sounds can be cleanly undone. */
+        saveSnapshot();
+        sound_save_id_redirect_snapshot();
+        SYNCDBG(5, "SoundManager: Campaign snapshot saved");
+        break;
+
+    case KfxLoadEvent_Level:
+        /* Restore the campaign snapshot, then load per-map overrides on top.
+         * This replaces sound_restore_to_campaign_snapshot() in init_level(). */
+        SYNCDBG(5, "SoundManager: handling Level load event");
+        restoreSnapshot();
+        sound_restore_id_redirect_snapshot();
+        cache_common_sound_ids();
+        /* Level-specific sounds (from map scripts / creature configs) are added
+         * on top by load_stats_files() which runs after this event. */
+        break;
+
+    case KfxLoadEvent_LevelEnd:
+        /* Explicit Level-lifetime cleanup. No-op for now: restoring to campaign
+         * snapshot is handled at the next KfxLoadEvent_Level. */
+        break;
+
+    case KfxLoadEvent_SaveLoad:
+        /* After a save-game load, restore snapshot then reapply creature indices
+         * (baked bank indices in the save file are session-ephemeral). */
+        SYNCDBG(5, "SoundManager: handling SaveLoad event");
+        restoreSnapshot();
+        sound_restore_id_redirect_snapshot();
+        cache_common_sound_ids();
+        reapplyCreatureSounds();
+        break;
+
+    case KfxLoadEvent_Startup:
+        /* Nothing special for sound at startup — baseline is loaded as part of
+         * the existing init path before registerWithSystem() fires. */
+        break;
+
+    default:
+        break;
     }
 }
 

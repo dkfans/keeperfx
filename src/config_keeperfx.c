@@ -30,6 +30,7 @@
 #include "bflib_fmvids.h"
 #include "bflib_sprfnt.h"
 #include "config_campaigns.h"
+#include "config_mods.h"
 #include "engine_render.h"
 #include "frontend.h"
 #include "front_simple.h"
@@ -39,6 +40,7 @@
 #include "sounds.h"
 #include "vidmode.h"
 #include "moonphase.h"
+#include "kfx/modding/mod_api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -945,44 +947,29 @@ static void load_file_configuration(const char *fname, const char *sname, const 
 
 }
 
-static void load_configuration_for_mod(const struct ModConfigItem *mod_item)
+static const ModLocation s_keeperfx_locs[] = {
+    { ModTier_AfterBase,     (short)FGrp_Main, ModLifetime_Startup,
+      offsetof(struct ModExistState, mod_dir), ModRes_Directory, NULL },
+    { ModTier_AfterCampaign, (short)FGrp_Main, ModLifetime_Campaign,
+      offsetof(struct ModExistState, mod_dir), ModRes_Directory, NULL },
+    { ModTier_AfterMap,      (short)FGrp_Main, ModLifetime_Level,
+      offsetof(struct ModExistState, mod_dir), ModRes_Directory, NULL },
+};
+static KfxModHandle s_keeperfx_walker = NULL;
+
+static void on_keeperfx_config_dir(const char *mod_dir_path, void *userdata)
 {
-    char mod_dir[256] = {0}, config_textname[256] = {0};
-    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
-    sprintf(config_textname, "Mod config '%s'", mod_item->name);
-
-    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_Main, "%s", keeper_config_file);
-    load_file_configuration(fname, keeper_config_file, config_textname, CnfLd_IgnoreErrors);
-}
-
-static void load_configuration_for_mod_list(const struct ModConfigItem *mod_items, long mod_cnt)
-{
-    for (long i=0; i<mod_cnt; i++)
-    {
-        const struct ModConfigItem *mod_item = mod_items + i;
-        if (mod_item->state.mod_dir == 0)
-            continue;
-
-        load_configuration_for_mod(mod_item);
-    }
+    char fname[512];
+    snprintf(fname, sizeof(fname), "%s/%s", mod_dir_path, keeper_config_file);
+    load_file_configuration(fname, keeper_config_file, "Mod config", CnfLd_IgnoreErrors);
 }
 
 void load_configuration_for_mod_all(void)
 {
-    if (mods_conf.after_base_cnt > 0)
-    {
-        load_configuration_for_mod_list(mods_conf.after_base_item, mods_conf.after_base_cnt);
-    }
-
-    if (mods_conf.after_campaign_cnt > 0)
-    {
-        load_configuration_for_mod_list(mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
-    }
-
-    if (mods_conf.after_map_cnt > 0)
-    {
-        load_configuration_for_mod_list(mods_conf.after_map_item, mods_conf.after_map_cnt);
-    }
+    if (s_keeperfx_walker == NULL)
+        s_keeperfx_walker = kfx_mod_create_walker(s_keeperfx_locs,
+            sizeof(s_keeperfx_locs) / sizeof(s_keeperfx_locs[0]));
+    kfx_mod_visit(s_keeperfx_walker, NULL, on_keeperfx_config_dir, NULL);
 }
 
 short load_configuration(void)
@@ -1000,7 +987,7 @@ short load_configuration(void)
   if (start_params.ignore_mods == false)
   {
       load_mods_order_config_file();
-      recheck_all_mod_exist();
+      /* Existence probing deferred to kfx_trigger_load_event(Startup) in main.cpp */
   }
   else
   {
