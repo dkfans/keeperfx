@@ -7,7 +7,7 @@
  * @par Purpose:
  *     Text conversion helper declarations.
  * @par Comment:
- *     Provides UTF-8 to internal codepage conversion for text rendering.
+ *     Provides internal codepage to UTF-8 conversion helpers for text rendering.
  * @author   Tomasz Lis
  * @date     2026-06-13
  * @par  Copying and copyrights:

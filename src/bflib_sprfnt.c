@@ -1522,6 +1522,7 @@ static short load_unifont_file(struct AsianFont * dbcfont)
             }
         }
     }
+    free(index_buf);
     dbcfont->data = data_buf;
     dbcfont->widths = widths;
     dbcfont->offsets = offsets;

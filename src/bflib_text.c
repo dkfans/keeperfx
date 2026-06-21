@@ -380,7 +380,6 @@ size_t convert_codepage_to_utf8_buffer(const char *src, size_t src_size, char *d
 #endif
 }
 
-#define read_utf_8_codepoint(text, out_seq_len) read_utf_8_codepoint_f(text, out_seq_len,__func__)
 uint32_t read_utf_8_codepoint_f(const char *text, size_t *out_seq_len, const char *func_name)
 {
     if ((text[0] & 0x80) == 0)
