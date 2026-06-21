@@ -30,12 +30,19 @@ extern "C" {
 struct PlayerInfo;
 struct Thing;
 
+static const char * const network_startup_compare_files[] = {
+    "slb", "dat", "clm", "own", "wib", "inf", "flg", "wlb", "slx",
+    "lgtfx", "lgt", "aptfx", "apt", "tngfx", "tng", "txt", "lua"
+};
+
+#define NETWORK_STARTUP_MAP_FILE_COUNT (sizeof(network_startup_compare_files) / sizeof(network_startup_compare_files[0]))
+
 void update_turn_checksums(void);
 void pack_desync_history_for_resync(void);
 void compare_desync_history_from_host(void);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short checksums_different(void);
-TbBigChecksum calculate_network_startup_map_checksum(void);
+void calculate_network_startup_map_checksums(TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT]);
 
 /******************************************************************************/
 #ifdef __cplusplus
