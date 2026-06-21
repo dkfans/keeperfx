@@ -81,7 +81,7 @@ static int64_t get_current_turn_position_ns(void)
     uint64_t nanoseconds_per_turn = (1000000000ULL + turns_per_second_u / 2) / turns_per_second_u;
     int64_t position_ns = (int64_t)get_gameturn() * (int64_t)nanoseconds_per_turn;
     if (is_feature_on(Ft_DeltaTime) == true && game.process_turn_time > 0) {
-        uint64_t turn_phase_ns = (uint64_t)(game.process_turn_time * nanoseconds_per_turn + 0.5);
+        uint64_t turn_phase_ns = (uint64_t)((game.process_turn_time - 1) * nanoseconds_per_turn + 0.5);
         if (turn_phase_ns >= nanoseconds_per_turn) {
             turn_phase_ns = nanoseconds_per_turn - 1;
         }
