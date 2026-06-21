@@ -2701,18 +2701,14 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
 
 // TODO this is just a temp function while testing the sprite stuff
 // eventually I want to get rid of dbc entirely but this makes difference easier to spot
-extern TbBool dbc_enabled;
 extern TbBool dbc_initialized;
 TbBool cmd_dbc(PlayerNumber plyr_idx, char * args)
 {
-   if (dbc_initialized)
-   {
-        dbc_initialized = false;
-   }
-   else
-    {
-        dbc_initialized = true;
+    if (game.easter_eggs_enabled == false) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
     }
+    dbc_initialized = !dbc_initialized;
     return true;
 }
 
