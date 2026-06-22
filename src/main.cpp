@@ -2746,6 +2746,8 @@ void update(void)
         creature_stats_debug_dump();
 #endif
         game.play_gameturn++;
+        if (game.turns_packetoff == game.play_gameturn)
+            exit_keeper = 1;
     }
 
     message_update();
@@ -3481,6 +3483,7 @@ void gameplay_loop_logic()
     poll_inputs();
     input_eastegg();
     input();
+    exchange_packets();
     update();
     frametime_end_measurement(Frametime_Logic);
 
@@ -3495,6 +3498,14 @@ void gameplay_loop_logic()
 
 void gameplay_loop_draw()
 {
+    if (is_feature_on(Ft_DeltaTime))
+    {
+        frametime_start_measurement(Frametime_Sleep);
+        if (turns_per_second_draw_current > 0)
+            keeper_wait_for_next_draw();
+        frametime_end_measurement(Frametime_Sleep);
+    }
+
     update_gameplay_delta_time();
 
     // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
@@ -3538,15 +3549,10 @@ extern "C" void network_yield_draw_gameplay()
 
 extern "C" void network_yield_waiting_gameplay_packets()
 {
-    frametime_end_measurement(Frametime_Logic);
     do_draw = true;
     poll_inputs();
     gameplay_loop_draw();
     game.process_turn_time = min(game.process_turn_time, 2.L);
-    frametime_start_measurement(Frametime_Logic);
-    if (frametime_enabled()) {
-        framerate_measurement_capture(Framerate_Logic);
-    }
 }
 
 extern "C" void update_velocity(void);
@@ -3573,28 +3579,14 @@ extern "C" void network_yield_draw_frontend()
 
 void gameplay_loop_timestep()
 {
-    frametime_start_measurement(Frametime_Sleep);
-    update_gameplay_delta_time();
     if (! is_feature_on(Ft_DeltaTime)) {
+        frametime_start_measurement(Frametime_Sleep);
         // Make delay if the machine is too fast
         if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
             keeper_wait_for_next_turn();
         }
+        frametime_end_measurement(Frametime_Sleep);
     }
-
-    if (game.turns_packetoff == get_gameturn()) {
-        exit_keeper = 1;
-    }
-
-    if (turns_per_second_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true) {
-        keeper_wait_for_next_draw();
-
-        if (game.turns_packetoff == get_gameturn()) {
-            exit_keeper = 1;
-        }
-    }
-    
-    frametime_end_measurement(Frametime_Sleep);
 }
 
 void keeper_gameplay_loop(void)

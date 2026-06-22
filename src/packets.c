@@ -1538,11 +1538,10 @@ void set_local_packet_turn(void) {
 
 
 /**
- * Exchange packets if MP game, then process all packets influencing local game state.
+ * Exchange packets if MP game
  */
-void process_packets(void)
+void exchange_packets(void)
 {
-    int i;
     struct PlayerInfo* player = get_my_player();
     SYNCDBG(5, "Starting");
 
@@ -1586,7 +1585,13 @@ void process_packets(void)
         clear_flag(game.system_flags, GSF_NetGameNoSync);
         clear_flag(game.system_flags, GSF_NetSeedNoSync);
     }
+}
 
+/**
+ * Process all packets influencing local game state.
+ */
+void process_packets(void)
+{
     // Write packets into file, if requested
     if ((game.packet_save_enable) && (game.packet_fopened)) {
         save_packets();
@@ -1596,7 +1601,7 @@ void process_packets(void)
     write_debug_packets();
     #endif
     // Process the packets
-    for (i=0; i<PACKETS_COUNT; i++)
+    for (int i=0; i<PACKETS_COUNT; i++)
     {
         struct PlayerInfo* packet_player = get_player(i);
         if (player_exists(packet_player) && ((packet_player->allocflags & PlaF_CompCtrl) == 0)) {
