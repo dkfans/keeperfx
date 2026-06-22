@@ -186,14 +186,15 @@ size_t convert_codepage_to_utf8_buffer(const char *src, size_t src_size, char *d
     return (size_t)utf8_len;
 #else
 
-
+    iconv_t cd;
     if (lang_id == Lang_Japanese)
         cd = iconv_open("UTF-8", "CP932");
     else if (lang_id == Lang_ChineseInt || lang_id == Lang_ChineseTra)
         cd = iconv_open("UTF-8", "CP936");
     else if (lang_id == Lang_Korean)
         cd = iconv_open("UTF-8", "EUC-KR");
-    
+    else
+        return 0;
 
     char *inbuf = (char *)src;
     size_t inbytes = src_size;
