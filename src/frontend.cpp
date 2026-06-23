@@ -1861,6 +1861,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
             break;
       }
       input_button = gbtn;
+      LbStartTextInput();
       setup_input_field(input_button, get_string(GUIStr_MnuUnused));
       break;
   default:
