@@ -808,10 +808,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
         } else {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
         }
-        for (char* c = text; *c != 0; c++)
-        {
-            *c -= 120;
-        }
+        remap_digits_to_white_numbers(text);
     } else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
