@@ -224,7 +224,8 @@ TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
 /******************************************************************************/
 
-long double time_since_last_draw = 0;
+static long double time_since_last_draw = 0;
+static long double average_delta_time = 1;
 float interpolate_time = 0;
 /******************************************************************************/
 
@@ -3434,6 +3435,8 @@ static void update_gameplay_delta_time(void)
     }
 }
 
+void gameplay_loop_draw();
+
 void gameplay_loop_logic()
 {
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
@@ -3459,8 +3462,20 @@ void gameplay_loop_logic()
     if (is_feature_on(Ft_DeltaTime))
     {
         update_gameplay_delta_time();
-        if (game.process_turn_time < 1.0)
-            return;
+        if (game.input_lag_turns == 0 && network_is_active())
+        {
+            // Aim to exchange network packets before the turn ends.  If drawing
+            // another frame could miss this deadline, skip it.
+            // In a 3-4 player game, clients must be 2 frames early.
+            const int frames = 1 + (netstate.my_id != SERVER_ID && game.active_players_count > 2);
+            if (game.process_turn_time + frames * average_delta_time < 1.0)
+                return;
+        }
+        else
+        {
+            if (game.process_turn_time < 1.0)
+                return;
+        }
     }
 
     frametime_start_measurement(Frametime_Logic);
@@ -3484,10 +3499,21 @@ void gameplay_loop_logic()
     input_eastegg();
     input();
     exchange_packets();
-    update();
-    frametime_end_measurement(Frametime_Logic);
 
-    game.process_turn_time -= 1;
+    update_gameplay_delta_time();
+    if (game.process_turn_time > 2.0)
+        game.process_turn_time = 2.0;
+
+    while (game.process_turn_time < 1.0)
+    {
+        gameplay_loop_draw();
+        update_gameplay_delta_time();
+    }
+    game.process_turn_time -= 1.0;
+
+    update();
+
+    frametime_end_measurement(Frametime_Logic);
 
     if(game.frame_step)
     {
@@ -3522,6 +3548,7 @@ void gameplay_loop_draw()
             framerate_measurement_capture(Framerate_Draw);
         game.delta_time = time_since_last_draw;
         time_since_last_draw = 0;
+        average_delta_time += (game.delta_time - average_delta_time) * max(average_delta_time, .05L) / 20;
         interpolate_time = min(max(game.process_turn_time, 0.L), 1.L);
         keeper_screen_redraw();
     }
@@ -3551,8 +3578,9 @@ extern "C" void network_yield_waiting_gameplay_packets()
 {
     do_draw = true;
     poll_inputs();
-    gameplay_loop_draw();
-    game.process_turn_time = min(game.process_turn_time, 2.L);
+    update_gameplay_delta_time();
+    if (game.process_turn_time <= 1.0 || time_since_last_draw > 1.0)
+        gameplay_loop_draw();
 }
 
 extern "C" void update_velocity(void);
