@@ -133,6 +133,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_HEALTH_FLOWER",  36},
   {"CANNOT_PICK_UP",    37},
   {"DROP_ON_PATH",      38},
+  {"CANNOT_POSSESS",    39},
   {NULL,                 0},
   };
 
@@ -766,6 +767,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 38: // DROP_ON_PATH
                 crconf->model_flags |= CMF_DropOnPath;
+                n++;
+                break;
+            case 39: // CANNOT_POSSESS
+                crconf->model_flags |= CMF_CannotPossess;
                 n++;
                 break;
             default:
