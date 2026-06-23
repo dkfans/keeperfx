@@ -4016,6 +4016,7 @@ void game_loop(void)
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();
+      stop_atmos_sounds();
       stop_music();
       stop_streamed_samples();
       free_level_strings_data();

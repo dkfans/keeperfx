@@ -2,6 +2,9 @@
 # The launcher will ask if the user wants to remove these files.
 # These files should not be present anymore starting from a specific version.
 
+[1.3.2.5161]
+/multiplayer/standard.cfg
+
 [1.3.2.5014]
 /campgns/keeporig/map00050.apt
 /campgns/keeporig/map00050.clm

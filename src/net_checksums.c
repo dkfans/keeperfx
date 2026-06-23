@@ -231,37 +231,24 @@ short checksums_different(void)
     return mismatch;
 }
 
-TbBigChecksum calculate_network_startup_map_checksum(void)
+void calculate_network_startup_map_checksums(TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT])
 {
-    TbBigChecksum checksum_mem = 0;
-    for (int i = 1; i < THINGS_COUNT; i++) {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing) && !is_non_synchronized_thing_class(thing->class_id)) {
-            CHECKSUM_ADD(checksum_mem, get_thing_checksum(thing));
-        }
-    }
-    for (int32_t y = 0; y < game.map_tiles_y; y++) {
-        for (int32_t x = 0; x < game.map_tiles_x; x++) {
-            struct SlabMap* slb = get_slabmap_block(x, y);
-            CHECKSUM_ADD(checksum_mem, slb->kind);
-            CHECKSUM_ADD(checksum_mem, slb->owner);
-        }
-    }
     LevelNumber lvnum = get_loaded_level_number();
     short fgroup = get_level_fgroup(lvnum);
-    const char* script_exts[] = {"txt", "lua"};
-    for (int i = 0; i < sizeof(script_exts) / sizeof(script_exts[0]); i++) {
-        char* fname = prepare_file_fmtpath(fgroup, "map%05u.%s", lvnum, script_exts[i]);
+    for (int i = 0; i < NETWORK_STARTUP_MAP_FILE_COUNT; i++) {
+        char* fname = prepare_file_fmtpath(fgroup, "map%05u.%s", lvnum, network_startup_compare_files[i]);
         int32_t file_size = (int32_t)LbFileLengthRnc(fname);
-        if (file_size > 0) {
-            unsigned char *file_buf = malloc(file_size);
-            if (file_buf != NULL && LbFileLoadAt(fname, file_buf) == file_size) {
-                CHECKSUM_ADD(checksum_mem, rnc_crc(file_buf, file_size));
-            }
-            free(file_buf);
+        checksums[i] = 0;
+        CHECKSUM_ADD(checksums[i], file_size);
+        if (file_size <= 0) {
+            continue;
         }
+        unsigned char *file_buf = malloc(file_size);
+        if (file_buf != NULL && LbFileLoadAt(fname, file_buf) == file_size) {
+            CHECKSUM_ADD(checksums[i], rnc_crc(file_buf, file_size));
+        }
+        free(file_buf);
     }
-    return checksum_mem;
 }
 
 void update_turn_checksums(void) {
