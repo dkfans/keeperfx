@@ -24,6 +24,7 @@
 
 #include "bflib_dernc.h"
 #include "bflib_fileio.h"
+#include "bflib_text.h"
 
 #include "front_simple.h"
 #include "config.h"
@@ -1330,7 +1331,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(lang_id));
     if (!LbFileExists(fname))
     {
-        SYNCMSG("Map string file %s doesn't exist.", fname);
+        SYNCDBG(9, "Map string file %s doesn't exist.", fname);
         char buf[2048];
         buf[0] = 0;
         memcpy(&buf, fname, 2048);
@@ -1342,7 +1343,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         }
         if (!LbFileExists(fname))
         {
-            SYNCMSG("Map string file %s doesn't exist.", fname);
+            SYNCDBG(9, "Map string file %s doesn't exist.", fname);
             return;
         }
     }
@@ -1353,7 +1354,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         return;
     }
     size_t size = filelen + 256;
-    raw_data = calloc(size, sizeof(char)); // we're allocating extra memory, which we can't just assume is already clear; this could cause weird issues
+    char* raw_data = calloc(size, sizeof(char));
     if (raw_data == NULL)
     {
         ERRORLOG("Can't allocate memory for Map Strings data");
@@ -1372,12 +1373,9 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
     if (level_strings_data == NULL)
     {
         free(raw_data);
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-        {
-        ERRORLOG("Can't allocate memory for UTF-8 GUI Strings data");
-        SYNCLOG("Strings file name is \"%s\"",fname);
-        }
-        return false;
+        ERRORLOG("Can't allocate memory for UTF-8 GUI Strings data \"%s\"",fname);
+        return;
+
     }
 
     size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, level_strings_data, out_buf_size, lang_id);
@@ -1385,12 +1383,8 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
     if (utf8_size == 0)
     {
         free(level_strings_data);
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-        {
-        ERRORLOG("GUI Strings file couldn't be converted to UTF-8");
-        SYNCLOG("Strings file name is \"%s\"",fname);
-        }
-        return false;
+        ERRORLOG("GUI Strings file couldn't be converted to UTF-8 \"%s\"",fname);
+        return;
     }
 
     level_strings_data = realloc(level_strings_data, utf8_size + 1);
