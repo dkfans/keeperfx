@@ -588,7 +588,6 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
         case DKChr_NewLine:
             break;
         default:
-          WARNLOG("Unknown modifier code 0x%02X", (unsigned char)chr);
           break;
       }
     }
