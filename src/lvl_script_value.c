@@ -594,7 +594,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               clear_flag(crconf->model_flags, CMF_DropOnPath);
           }
           break;
-      case 39:
+      case 39: // CANNOT_POSSESS
           if (param3 >= 1) {
               set_flag(crconf->model_flags, CMF_CannotPossess);
           } else {

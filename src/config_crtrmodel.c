@@ -769,7 +769,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_DropOnPath;
                 n++;
                 break;
-            case 39:
+            case 39: // CANNOT_POSSESS
                 crconf->model_flags |= CMF_CannotPossess;
                 n++;
                 break;
