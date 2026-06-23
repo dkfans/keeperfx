@@ -2626,11 +2626,15 @@ long update_cave_in(struct Thing *thing)
 }
 
 /**
+ * rules can change by dkscript/lua.
  * Checks if a gamerule for lighting has changed and updates the lights if they are.
  * This function also refreshes the light status of the map.
 */
 void update_global_lighting()
 {
+    if (!game.lish.light_auto_sync)
+        return;
+
     // Check if any values have changed
     if (
         game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light ||
@@ -4012,6 +4016,7 @@ void game_loop(void)
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();
+      stop_atmos_sounds();
       stop_music();
       stop_streamed_samples();
       free_level_strings_data();
