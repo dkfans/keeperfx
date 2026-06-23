@@ -594,6 +594,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               clear_flag(crconf->model_flags, CMF_DropOnPath);
           }
           break;
+      case 39:
+          if (param3 >= 1) {
+              set_flag(crconf->model_flags, CMF_CannotPossess);
+          } else {
+              clear_flag(crconf->model_flags, CMF_CannotPossess);
+          }
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%ld'", param2);
           break;
