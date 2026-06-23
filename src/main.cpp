@@ -1186,15 +1186,35 @@ short setup_game(void)
  */
 TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
 {
-    int i;
-    i = player->work_state;
-    if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) || (i == PSt_PlaceTerrain) || (i == PSt_MkDigger)
-        || (i == PSt_MkGoodCreatr) || (i == PSt_MkBadCreatr) )
+    switch (player->work_state)
+    {
+    case PSt_BuildRoom:
+    case PSt_PlaceDoor:
+    case PSt_PlaceTrap:
+    case PSt_SightOfEvil:
+    case PSt_Sell:
+    case PSt_PlaceTerrain:
+    case PSt_MkDigger:
         return true;
-    if ( (i == PSt_OrderCreatr) && (player->controlled_thing_idx > 0) )
-        return true;
-    if ( (i == PSt_CtrlDungeon) && (player->primary_cursor_state != CSt_DefaultArrow) && (player->thing_under_hand == 0) )
-        return true;
+
+    case PSt_OrderCreatr:
+        return (player->controlled_thing_idx > 0);
+
+    case PSt_CtrlDungeon:
+        switch(player->primary_cursor_state)
+        {
+            case CSt_DefaultArrow:
+                return false;
+
+            case CSt_PickAxe:
+            case CSt_DoorKey:
+                return true;
+
+            case CSt_PowerHand:
+                return (player->thing_under_hand == 0)
+                    || (! power_hand_is_empty(player));
+        }
+    }
     return false;
 }
 
