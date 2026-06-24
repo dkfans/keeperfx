@@ -462,7 +462,10 @@ void init_custom_sprites(LevelNumber lvnum)
         ERRORLOG("Required Main FxData dir is missing");
     } else {
         char full_path[1024] = {0};
-        int cnt_zip = 0, cnt_sprite = 0, cnt_icon = 0;
+        char loaded_zip_names[1024] = {0};
+        int loaded_zip_names_len = 0;
+        const char *loaded_zip_name_sep = "";
+        int cnt_sprite = 0, cnt_icon = 0;
         for (int i = 0; i < REQUIRED_SPRITE_ZIP_COUNT; i++) {
             sprintf(full_path, "%s/%s", dname, required_sprite_zips[i]);
             if (!LbFileExists(full_path)) {
@@ -477,9 +480,12 @@ void init_custom_sprites(LevelNumber lvnum)
             if (add_flag & CLF_Icons) {
                 cnt_icon++;
             }
-            cnt_zip++;
+            if (loaded_zip_names_len < (int)sizeof(loaded_zip_names)) {
+                loaded_zip_names_len += snprintf(&loaded_zip_names[loaded_zip_names_len], sizeof(loaded_zip_names) - loaded_zip_names_len, "%s%s", loaded_zip_name_sep, required_sprite_zips[i]);
+            }
+            loaded_zip_name_sep = ", ";
         }
-        LbJustLog("Loaded %d listed sprite zip file(s) from Main FxData dir, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
+        LbJustLog("Loaded /fxdata/ sprite zips: %s, sprite slots: %d/%d, animations: %d, icons: %d.\n", loaded_zip_names, next_free_sprite, KEEPERSPRITE_ADD_NUM, cnt_sprite, cnt_icon);
     }
 
     if (mods_conf.after_base_cnt > 0)
