@@ -25,6 +25,7 @@
 #include "gui_draw.h"
 #include "frontend.h"
 #include "bflib_dernc.h"
+#include "net_checksums.h"
 #include "sprites.h"
 #include "config_spritecolors.h"
 #include <spng.h>
@@ -95,13 +96,7 @@ static int num_added_lens_mists = 0;
 
 unsigned char base_pal[PALETTE_SIZE];
 
-int total_sprite_zip_count = 0;
-uint32_t sprite_zip_combined_checksum = 0;
-struct SpriteZipEntry sprite_zip_entries[SPRITE_ZIP_ENTRY_COUNT];
-uint8_t sprite_zip_entry_count = 0;
-
-// Used to cheaply detect mismatched custom sprites between players; makes file order matter when combining checksums, without this XOR alone gives the same result regardless of order.
-#define ROL32_5(x) (((uint32_t)(x) << 5) | ((uint32_t)(x) >> 27))
+TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
 
 // Indicates what custom assets to load
 enum CustomLoadFlags {
@@ -248,31 +243,6 @@ static int cmp_named_command(const void *a, const void *b)
 }
 
 
-static uint32_t compute_zip_checksum(const char *path)
-{
-    long file_length = LbFileLength(path);
-    if (file_length <= 0) {
-        return 0;
-    }
-    TbFileHandle handle = LbFileOpen(path, Lb_FILE_MODE_READ_ONLY);
-    if (handle == NULL) {
-        return 0;
-    }
-    unsigned char *buffer = malloc(file_length);
-    if (buffer == NULL) {
-        LbFileClose(handle);
-        return 0;
-    }
-    LbFileRead(handle, buffer, file_length);
-    LbFileClose(handle);
-    uint32_t checksum = 0;
-    for (long i = 0; i < file_length; i++) {
-        checksum = ROL32_5(checksum) ^ buffer[i];
-    }
-    free(buffer);
-    return checksum;
-}
-
 static int load_file_sprites(const char *path, const char *file_desc)
 {
     SYNCDBG(8, "Starting");
@@ -335,49 +305,37 @@ static int load_file_sprites(const char *path, const char *file_desc)
         }
     }
 
-    uint32_t zip_checksum = compute_zip_checksum(path);
-    sprite_zip_combined_checksum = ROL32_5(sprite_zip_combined_checksum) ^ zip_checksum;
-    if (sprite_zip_entry_count < SPRITE_ZIP_ENTRY_COUNT) {
-        const char *filename = strrchr(path, '/');
-        if (filename == NULL) {
-            filename = path;
-        } else {
-            filename++;
-        }
-        struct SpriteZipEntry *entry = &sprite_zip_entries[sprite_zip_entry_count];
-        snprintf(entry->filename, sizeof(entry->filename), "%s", filename);
-        entry->checksum = zip_checksum;
-        sprite_zip_entry_count++;
-    }
-    total_sprite_zip_count++;
-
     return add_flag;
 }
 
 static void load_dir_sprites(const char *dir_path, const char *dir_desc)
 {
     SYNCDBG(8, "Starting");
-    if (dir_path == NULL || dir_path[0] == 0)
+    if (dir_path == NULL || dir_path[0] == 0) {
         return;
+    }
     char full_path[1024] = {0};
     sprintf(full_path, "%s/%s", dir_path, "*.zip");
     struct TbFileEntry fe;
-    struct TbFileFind * ff = LbFileFindFirst(full_path, &fe);
+    struct TbFileFind *ff = LbFileFindFirst(full_path, &fe);
     int cnt_zip = 0, cnt_sprite = 0, cnt_icon = 0;
     if (ff) {
         do {
             sprintf(full_path, "%s/%s", dir_path, fe.Filename);
             int add_flag = load_file_sprites(full_path, NULL);
-            if (add_flag & CLF_Sprites)
+            if (add_flag & CLF_Sprites) {
                 cnt_sprite++;
-            if (add_flag & CLF_Icons)
+            }
+            if (add_flag & CLF_Icons) {
                 cnt_icon++;
+            }
             cnt_zip++;
         } while (LbFileFindNext(ff, &fe) >= 0);
         LbFileFindEnd(ff);
 
-        if (dir_desc != NULL)
+        if (dir_desc != NULL) {
             LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
+        }
     }
 }
 
@@ -443,9 +401,7 @@ void init_custom_sprites(LevelNumber lvnum)
     SYNCDBG(8, "Starting");
     free_spritesheet(&custom_sprites);
     custom_sprites = create_spritesheet();
-    total_sprite_zip_count = 0;
-    sprite_zip_combined_checksum = 0;
-    sprite_zip_entry_count = 0;
+    memset(required_sprite_zip_checksums, 0, sizeof(required_sprite_zip_checksums));
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
@@ -502,7 +458,29 @@ void init_custom_sprites(LevelNumber lvnum)
 
 
     char *dname = prepare_file_path(FGrp_FxData, NULL);
-    load_dir_sprites(dname, "Main FxData dir");
+    if (dname == NULL || dname[0] == 0) {
+        ERRORLOG("Required Main FxData dir is missing");
+    } else {
+        char full_path[1024] = {0};
+        int cnt_zip = 0, cnt_sprite = 0, cnt_icon = 0;
+        for (int i = 0; i < REQUIRED_SPRITE_ZIP_COUNT; i++) {
+            sprintf(full_path, "%s/%s", dname, required_sprite_zips[i]);
+            if (!LbFileExists(full_path)) {
+                ERRORLOG("Required /fxdata/%s is missing", required_sprite_zips[i]);
+                continue;
+            }
+            required_sprite_zip_checksums[i] = calculate_file_checksum(full_path);
+            int add_flag = load_file_sprites(full_path, NULL);
+            if (add_flag & CLF_Sprites) {
+                cnt_sprite++;
+            }
+            if (add_flag & CLF_Icons) {
+                cnt_icon++;
+            }
+            cnt_zip++;
+        }
+        LbJustLog("Loaded %d listed sprite zip file(s) from Main FxData dir, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
+    }
 
     if (mods_conf.after_base_cnt > 0)
     {
