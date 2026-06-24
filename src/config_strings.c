@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_strings.h"
 #include "globals.h"
@@ -97,7 +98,7 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
     }
     return false;
   }
-  char *gui_strings_data = (char *)calloc(filelen + 256, 1);
+  char *gui_strings_data = (char *)KfxCalloc(filelen + 256, 1);
   if (gui_strings_data == NULL)
   {
     if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -111,7 +112,7 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
   long loaded_size = LbFileLoadAt(fname, gui_strings_data);
   if (loaded_size < 16)
   {
-    free(gui_strings_data);
+    KfxFree(gui_strings_data);
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
       ERRORLOG("GUI Strings file couldn't be loaded or is too small");
@@ -136,14 +137,14 @@ static void load_gui_strings_data_for_mod(const struct ModConfigItem *mod_item)
   const struct ModExistState *mod_state = &mod_item->state;
   if (mod_state->fx_data)
   {
-    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
-    if (!load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors))
+    char *fname = get_mod_file_path_fmt(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
+    if (!fname || !load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors))
     {
       // if the current language of mod is not translated, then try eng for mod.
       if (install_info.lang_id != Lang_English)
       {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(Lang_English));
-        load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors);
+        fname = get_mod_file_path_fmt(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(Lang_English));
+        if (fname) load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors);
       }
     }
   }
@@ -171,8 +172,8 @@ TbBool setup_gui_strings_data(void)
   // Resetting all values to empty strings
   reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
 
-  char* fname = prepare_file_fmtpath(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
-  if (!load_gui_strings_data_from_file(fname, 0))
+  char* fname = get_game_file_path_fmt(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
+  if (!fname || !load_gui_strings_data_from_file(fname, 0))
     return false;
 
   // Default only one dat file as base and must exist.
@@ -204,7 +205,7 @@ TbBool free_gui_strings_data(void)
   // Freeing memory
   for (int i=0; i<gui_strings_data_count; i++)
   {
-    free(gui_strings_data_list[i]);
+    KfxFree(gui_strings_data_list[i]);
     gui_strings_data_list[i] = NULL;
   }
   gui_strings_data_count = 0;
@@ -226,7 +227,7 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
     }
     return false;
   }
-  char *strings_data = (char *)calloc(filelen + 256, 1);
+  char *strings_data = (char *)KfxCalloc(filelen + 256, 1);
   if (strings_data == NULL)
   {
     if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -239,7 +240,7 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
   long loaded_size = LbFileLoadAt(fname, strings_data);
   if (loaded_size < 16)
   {
-    free(strings_data);
+    KfxFree(strings_data);
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
       ERRORLOG("Campaign Strings file couldn't be loaded or is too small");

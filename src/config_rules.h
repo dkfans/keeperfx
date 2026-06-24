@@ -189,7 +189,7 @@ struct SacrificesRulesConfig {
     ThingModel cheaper_diggers_sacrifice_model;
 };
 struct RulesConfig {
-    struct GameRulesConfig game;
+    struct GameRulesConfig gameplay;
     struct ComputerRulesConfig computer;
     struct CreatureRulesConfig creature;
     struct MagicRulesConfig magic;

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_creature.h"
 #include "globals.h"
@@ -1905,7 +1906,7 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
             WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
-    char* buf = (char*)calloc(len + 256, 1);
+    char* buf = (char*)KfxCalloc(len + 256, 1);
     if (buf == NULL)
         return false;
 
@@ -1990,7 +1991,7 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
           WARNMSG("Parsing file \"%s\" attackpref blocks failed.",fname);
     }
     //Freeing and exiting
-    free(buf);
+    KfxFree(buf);
     return result;
 }
 

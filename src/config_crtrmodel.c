@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_crtrmodel.h"
 #include "globals.h"
@@ -133,6 +134,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_HEALTH_FLOWER",  36},
   {"CANNOT_PICK_UP",    37},
   {"DROP_ON_PATH",      38},
+  {"CANNOT_POSSESS",    39},
   {NULL,                 0},
   };
 
@@ -766,6 +768,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 38: // DROP_ON_PATH
                 crconf->model_flags |= CMF_DropOnPath;
+                n++;
+                break;
+            case 39: // CANNOT_POSSESS
+                crconf->model_flags |= CMF_CannotPossess;
                 n++;
                 break;
             default:
@@ -2760,7 +2766,7 @@ static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname,
     {
         return false;
     }
-    char* buf = (char*)calloc(len + 256, 1);
+    char* buf = (char*)KfxCalloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
@@ -2780,7 +2786,7 @@ static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname,
         parse_creaturemodel_sounds_blocks(crtr_model, buf, len, fname, flags);
     }
     // Freeing and exiting
-    free(buf);
+    KfxFree(buf);
     return result;
 }
 
@@ -2799,8 +2805,8 @@ static TbBool load_creaturemodel_config_for_mod(ThingModel crmodel, unsigned sho
 
     if (mod_state->crtr_data)
     {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CrtrData, "%s.cfg", conf_fnstr);
-        if (strlen(fname) > 0)
+        fname = get_mod_file_path_fmt(mod_dir, FGrp_CrtrData, "%s.cfg", conf_fnstr);
+        if (fname && strlen(fname) > 0)
         {
             result |= load_creaturemodel_config_file(crmodel, fname, flags);
         }
@@ -2808,8 +2814,8 @@ static TbBool load_creaturemodel_config_for_mod(ThingModel crmodel, unsigned sho
 
     if (mod_state->cmpg_crtrs)
     {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgCrtrs, "%s.cfg", conf_fnstr);
-        if (strlen(fname) > 0)
+        fname = get_mod_file_path_fmt(mod_dir, FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
+        if (fname && strlen(fname) > 0)
         {
             result |= load_creaturemodel_config_file(crmodel, fname, flags);
         }
@@ -2817,8 +2823,8 @@ static TbBool load_creaturemodel_config_for_mod(ThingModel crmodel, unsigned sho
 
     if (mod_state->cmpg_lvls)
     {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_level_number(), conf_fnstr);
-        if (strlen(fname) > 0)
+        fname = get_mod_file_path_fmt(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+        if (fname && strlen(fname) > 0)
         {
             result |= load_creaturemodel_config_file(crmodel, fname, flags);
         }
@@ -2866,8 +2872,8 @@ TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, un
         return false;
     }
 
-    char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
-    TbBool result = load_creaturemodel_config_file(crmodel, fname, flags);
+    char* fname = get_game_file_path_fmt(FGrp_CrtrData, "%s.cfg", conf_fnstr);
+    TbBool result = (fname != NULL && load_creaturemodel_config_file(crmodel, fname, flags));
     if (result)
     {
         set_flag(flags, CnfLd_IgnoreErrors);
@@ -2882,8 +2888,8 @@ TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, un
         }
     }
 
-    fname = prepare_file_fmtpath(FGrp_CmpgCrtrs, "%s.cfg", conf_fnstr);
-    if (strlen(fname) > 0)
+    fname = get_game_file_path_fmt(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
+    if (fname && strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel, fname, flags);
         if (result)
@@ -2900,8 +2906,9 @@ TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, un
             set_flag(flags, CnfLd_IgnoreErrors);
         }
     }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_level_number(), conf_fnstr);
-    if (strlen(fname) > 0)
+
+    fname = get_game_file_path_fmt(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+    if (fname && strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel, fname, flags);
         if (result)
