@@ -83,6 +83,8 @@ struct Camera {
     TbBool in_active_movement_x;
     long inertia_y;
     TbBool in_active_movement_y;
+    TbBool use_rotation_pivot;
+    struct Coord2d rotation_pivot;
 };
 
 
@@ -114,7 +116,8 @@ void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigne
 
 void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit);
 void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit);
-void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit);
+void view_set_camera_rotation_inertia(struct Camera *cam, int32_t delta, int32_t ilimit);
+void view_set_camera_rotation_inertia_around(struct Camera *cam, int32_t delta, int32_t ilimit, MapCoord x, MapCoord y);
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
 void view_process_camera_inertia(struct Camera *cam);
 

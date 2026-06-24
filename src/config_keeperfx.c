@@ -158,6 +158,7 @@ const struct NamedCommand conf_commands[] = {
   {"TAG_MODE_TOGGLING"             , 40},
   {"DEFAULT_TAG_MODE"              , 41},
   {"ZOOM_TO_MOUSE"                 , 42},
+  {"ROTATE_AROUND_MOUSE"           , 43},
   {NULL,                   0},
   };
 
@@ -203,6 +204,14 @@ const struct NamedCommand conf_commands[] = {
   {"WHEEL",    ZoomToMouse_Wheel},
   {"ALWAYS",   ZoomToMouse_Always},
   {NULL,       0},
+  };
+
+  const struct NamedCommand rotate_around_mouse_options[] = {
+  {"NEVER",         RotateAroundMouse_Never},
+  {"NOT_CTRL",      RotateAroundMouse_NotCtrl},
+  {"ONLY_CTRL",     RotateAroundMouse_OnlyCtrl},
+  {"ALWAYS",        RotateAroundMouse_Always},
+  {NULL,            0},
   };
 
 unsigned int vid_scale_flags = SMK_FullscreenFit;
@@ -925,6 +934,32 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
           {
             zoom_to_mouse_option = i;
+          }
+          break;
+      case 43: // ROTATE_AROUND_MOUSE
+          i = recognize_conf_parameter(buf,&pos,len,rotate_around_mouse_options);
+          if (i <= 0)
+          {
+            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          else
+          {
+            rotate_around_mouse_option = i;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              if (strcasecmp(word_buf, "FOLLOW") == 0)
+              {
+                  rotate_follow_mouse_option = true;
+              }
+              if (strcasecmp(word_buf, "NO_FOLLOW") == 0)
+              {
+                  rotate_follow_mouse_option = false;
+              }
+              else
+              {
+                  CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              }
           }
           break;
       case ccr_comment:
