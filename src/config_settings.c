@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_settings.h"
 #include "globals.h"
@@ -42,6 +43,7 @@ extern "C" {
 /******************************************************************************/
 unsigned char i_can_see_levels[] = {30, 45, 60, 254,};
 struct GameSettings settings;
+static struct GameSettings settings_saved;
 /******************************************************************************/
 
 static const struct { unsigned char code; const char *name; } keycode_table[] = {
@@ -401,6 +403,7 @@ TbBool load_settings(void)
     if (!load_toml_file(fname, &root, CnfLd_IgnoreErrors))
     {
         save_settings();
+        settings_saved = settings;
         return false;
     }
 
@@ -517,11 +520,15 @@ TbBool load_settings(void)
     settings.frontview_zoom_level = clamp(settings.frontview_zoom_level, FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX);
     settings.isometric_tilt = clamp(settings.isometric_tilt, CAMERA_TILT_MIN, CAMERA_TILT_MAX);
     settings.highlight_mode = clamp(settings.highlight_mode, false, true);
+    settings_saved = settings;
     return true;
 }
 
 short save_settings(void)
 {
+    if (memcmp(&settings, &settings_saved, sizeof(settings)) == 0)
+        return true;
+
     char *fname = prepare_file_path(FGrp_Save, "settings.toml");
 
     char *buf = (char *)malloc(16384);
@@ -573,6 +580,7 @@ short save_settings(void)
 
     LbFileSaveAt(fname, buf, len);
     free(buf);
+    settings_saved = settings;
     return true;
 }
 

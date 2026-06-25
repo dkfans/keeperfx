@@ -1149,8 +1149,8 @@ void assign_speech_ref(const struct NamedField* named_field, int64_t value,
                        const char* src_str, unsigned char flags)
 {
     char* field_ptr = (char*)named_field->field + named_fields_set->struct_size * idx;
-    char* base = (char*)named_fields_set->struct_base;
-    if (named_fields_set->struct_base == NULL || idx < 0 || idx >= named_fields_set->max_count ||
+    char* base = (char*)named_fields_set->get_struct_base;
+    if (named_fields_set->get_struct_base == NULL || idx < 0 || idx >= named_fields_set->max_count ||
         field_ptr < base || field_ptr >= base + named_fields_set->struct_size * named_fields_set->max_count)
     {
         NAMFIELDERRLOG("Field '%s' index %d out of bounds", named_field->name, idx);

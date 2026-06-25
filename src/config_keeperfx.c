@@ -13,6 +13,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_keeperfx.h"
 
@@ -325,15 +326,26 @@ TbBool prepare_diskpath(char *buf,long buflen)
         i = buflen - 1;
     if (i < 0)
         return false;
+    // Strip trailing path separators and whitespace.
     while (i > 0)
     {
         if ((buf[i] != '\\') && (buf[i] != '/') &&
             ((unsigned char)(buf[i]) > 32))
             break;
         i--;
-  }
-  buf[i+1]='\0';
-  return true;
+    }
+    // Also strip trailing "/." and "\." (current-directory components).
+    // This normalises paths like "ux0:data/keeperfx/./" -> "ux0:data/keeperfx"
+    // which result from resolving a relative INSTALL_PATH such as "./".
+    while (i >= 1 && buf[i] == '.' && (buf[i-1] == '/' || buf[i-1] == '\\'))
+    {
+        i -= 2; // drop the "/."
+        // strip any additional trailing separators left behind
+        while (i > 0 && (buf[i] == '/' || buf[i] == '\\'))
+            i--;
+    }
+    buf[i+1]='\0';
+    return true;
 }
 
 static void load_file_configuration(const char *fname, const char *sname, const char *config_textname, unsigned short flags)
@@ -350,7 +362,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
     WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
     return;
   }
-  char* buf = (char*)calloc(len + 256, 1);
+  char* buf = (char*)KfxCalloc(len + 256, 1);
   if (buf == NULL)
     return;
   // Loading file data
@@ -382,6 +394,15 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             break;
           }
           prepare_diskpath(install_info.inst_path,sizeof(install_info.inst_path));
+          // If the path is relative, resolve it against keeper_runtime_directory.
+          // This makes INSTALL_PATH=./ work on platforms where CWD != data dir.
+          if (install_info.inst_path[0] != '/' && strchr(install_info.inst_path, ':') == NULL) {
+              char resolved[304];
+              snprintf(resolved, sizeof(resolved), "%s/%s", keeper_runtime_directory, install_info.inst_path);
+              prepare_diskpath(resolved, sizeof(resolved));
+              strncpy(install_info.inst_path, resolved, sizeof(install_info.inst_path)-1);
+              install_info.inst_path[sizeof(install_info.inst_path)-1] = '\0';
+          }
           break;
       case 2: // INSTALL_TYPE
           // This command is just skipped...
@@ -941,7 +962,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
   }
   SYNCDBG(7,"%s loaded", config_textname);
   // Freeing
-  free(buf);
+  KfxFree(buf);
 
 }
 
@@ -951,7 +972,7 @@ static void load_configuration_for_mod(const struct ModConfigItem *mod_item)
     sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
     sprintf(config_textname, "Mod config '%s'", mod_item->name);
 
-    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_Main, "%s", keeper_config_file);
+    char *fname = get_mod_file_path_fmt(mod_dir, FGrp_Main, "%s", keeper_config_file);
     load_file_configuration(fname, keeper_config_file, config_textname, CnfLd_IgnoreErrors);
 }
 

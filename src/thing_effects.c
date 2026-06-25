@@ -1049,7 +1049,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) && !flag_is_set(game.conf.rules[owner].game.classic_bugs_flags,ClscBug_FriendlyFaint)) || (flag_is_set(shot_model_flags,ShMF_NoStun)) )
+                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) && !flag_is_set(game.conf.rules[owner].gameplay.classic_bugs_flags,ClscBug_FriendlyFaint)) || (flag_is_set(shot_model_flags,ShMF_NoStun)) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
