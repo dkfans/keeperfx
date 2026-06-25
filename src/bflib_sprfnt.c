@@ -69,7 +69,6 @@ struct AsianFont {
   unsigned int *offsets;
   unsigned long height;
   unsigned long narrow_spacing;
-  unsigned long kana_spacing;
   unsigned long wide_spacing;
   unsigned long baseline_offset;
   unsigned long line_spacing;
@@ -96,9 +95,9 @@ struct AsianFont *active_dbcfont = NULL;
 
 
 struct AsianFont dbcfonts[] = {
-  {"font12", NULL,NULL,NULL , 12, 0, 1, 1, 1, 1},
-  {"font16", NULL,NULL,NULL , 16, 0, 1, 1, 4, 2},
-  //{"font24", NULL,NULL,NULL , 24, 0, 1, 1, 4, 2},
+  {"font12", NULL,NULL,NULL , 12, 0, 1, 1, 1},
+  {"font16", NULL,NULL,NULL , 16, 0, 1, 4, 2},
+  //{"font24", NULL,NULL,NULL , 24, 0, 1, 4, 2},
 };
 
 /******************************************************************************/
@@ -162,11 +161,6 @@ static void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height,
     }
 }
 
-static TbBool is_kana_char(unsigned long chr)
-{
-    return (chr >= 0xFF61) && (chr <= 0xFF9F);
-}
-
 static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
 {
     SYNCDBG(19,"Starting");
@@ -187,9 +181,7 @@ static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
     adraw->bits_width = width;
     adraw->bits_height = active_dbcfont->height;
 
-    if (is_kana_char(chr))
-        adraw->character_spacing = active_dbcfont->kana_spacing;
-    else if (is_duospace_char(chr))
+    if (is_duospace_char(chr))
         adraw->character_spacing = active_dbcfont->wide_spacing;
     else
         adraw->character_spacing = active_dbcfont->narrow_spacing;
@@ -716,6 +708,10 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             // Align when ansi and unicode are mixed on one screen
             w = LbTextCharWidthM(chr, units_per_px);
 
+            if (is_duospace_char(chr))
+            {
+                count = 0;
+            }
             if ((posx+w-justifyx <= lbTextJustifyWindow.width) || (count > 0) || !LbAlignMethodSet(lbDisplay.DrawFlags))
             {
                 posx += w;
