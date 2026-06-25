@@ -142,7 +142,7 @@ const struct NamedFieldSet objects_named_fields_set = {
     objects_named_fields,
     object_desc,
     OBJECT_TYPES_MAX,
-    sizeof(gpGame->conf.object_conf.object_cfgstats[0]),
+    sizeof(game.conf.object_conf.object_cfgstats[0]),
     get_objects_base,
 };
 

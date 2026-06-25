@@ -2942,7 +2942,7 @@ void throw_out_gold(struct Thing* thing, long amount)
     int num_pots_to_drop;
     // Compute if we want bags or pots
     int dropject = 6; //GOLD object
-    if ((game.conf.rules[thing->owner].game.pot_of_gold_holds > game.conf.rules[thing->owner].game.bag_gold_hold) && (amount <= game.conf.rules[thing->owner].game.bag_gold_hold))
+    if ((game.conf.rules[thing->owner].gameplay.pot_of_gold_holds > game.conf.rules[thing->owner].gameplay.bag_gold_hold) && (amount <= game.conf.rules[thing->owner].gameplay.bag_gold_hold))
     {
             dropject = 136; //Drop GOLD_BAG object when we're dealing with small amounts
             num_pots_to_drop = 1;
@@ -2950,7 +2950,7 @@ void throw_out_gold(struct Thing* thing, long amount)
     else //drop pots
     {
         // Compute how many pots we want to drop
-        num_pots_to_drop = ((amount + game.conf.rules[thing->owner].game.pot_of_gold_holds - 1) / game.conf.rules[thing->owner].game.pot_of_gold_holds);
+        num_pots_to_drop = ((amount + game.conf.rules[thing->owner].gameplay.pot_of_gold_holds - 1) / game.conf.rules[thing->owner].gameplay.pot_of_gold_holds);
         if (num_pots_to_drop > 8)
         {
             num_pots_to_drop = 8;
@@ -3233,7 +3233,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 
     creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
-    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules[thing->owner].game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
+    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules[thing->owner].gameplay.classic_bugs_flags,ClscBug_ResurrectRemoved)))
     {
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
@@ -6359,7 +6359,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules[thing->owner].game.creatures_count);
+        WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules[thing->owner].gameplay.creatures_count);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
@@ -6596,7 +6596,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, int can_see_slabs)
                 // Unless the relevant classic bug is enabled,
                 // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
                 // and neutral creatures can not be claimed by creatures in custody.
-                if ((game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_PassiveNeutrals)
+                if ((game.conf.rules[creatng->owner].gameplay.classic_bugs_flags & ClscBug_PassiveNeutrals)
                     || (get_room_creature_works_in(thing)->owner == creatng->owner && !creature_is_kept_in_custody(creatng))
                     || !(creature_is_kept_in_custody(thing) || creature_is_kept_in_custody(creatng)))
                 {

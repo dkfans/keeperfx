@@ -232,7 +232,7 @@ TbBool creature_increase_available_instances(struct Thing *thing)
             if (crconf->learned_instance_level[i] <= cctrl->exp_level+1) {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crconf->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules[thing->owner].game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ( (crconf->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules[thing->owner].gameplay.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
             {
                 cctrl->instance_available[k] = false;
             }

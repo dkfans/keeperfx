@@ -148,7 +148,7 @@ const struct NamedFieldSet crstates_states_named_fields_set = {
     crstates_states_named_fields,
     creatrstate_desc,
     CREATURE_STATES_MAX,
-    sizeof(gpGame->conf.crtr_conf.states[0]),
+    sizeof(game.conf.crtr_conf.states[0]),
     get_crstates_base,
 };
 

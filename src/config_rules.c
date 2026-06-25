@@ -212,11 +212,6 @@ static const struct NamedField rules_script_only_named_fields[] = {
    var_type(((struct Game*)0)->pay_day_progress[0]),0,0,INT32_MAX,NULL,value_default,assign_PayDayProgress_script},
 {NULL},
 };
-#pragma pop_macro("game")
-// IntelliSense does not reliably restore object-like macros via pop_macro; suppress the false E0020.
-#ifdef __INTELLISENSE__
-#define game (*gpGame)
-#endif
 
 static void* get_rules_base(void) { return game.conf.rules; }
 
@@ -231,7 +226,7 @@ const struct NamedFieldSet rules_named_fields_set = {
   NULL,
   NULL,
   PLAYERS_COUNT,
-  sizeof(gpGame->conf.rules[0]),
+  sizeof(game.conf.rules[0]),
   get_rules_base,
 };
 
@@ -279,10 +274,8 @@ static void assign_MapCreatureLimit_script(const struct NamedField* named_field,
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
     {
-#pragma push_macro("game")
-#undef game
-        short count = setup_excess_creatures_to_leave_or_die(gpGame->conf.rules[idx].gameplay.creatures_count);
-#pragma pop_macro("game")
+
+        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules[idx].gameplay.creatures_count);
         if (count > 0)
         {
             SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);

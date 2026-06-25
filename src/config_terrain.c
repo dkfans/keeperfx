@@ -138,7 +138,7 @@ const struct NamedFieldSet terrain_slab_named_fields_set = {
     terrain_slab_named_fields,
     slab_desc,
     TERRAIN_ITEMS_MAX,
-    sizeof(gpGame->conf.slab_conf.slab_cfgstats[0]),
+    sizeof(game.conf.slab_conf.slab_cfgstats[0]),
     get_slab_base,
 };
 

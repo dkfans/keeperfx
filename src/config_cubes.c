@@ -77,7 +77,7 @@ const struct NamedFieldSet cubes_named_fields_set = {
     cubes_named_fields,
     cube_desc,
     CUBE_ITEMS_MAX,
-    sizeof(gpGame->conf.cube_conf.cube_cfgstats[0]),
+    sizeof(game.conf.cube_conf.cube_cfgstats[0]),
     get_cubes_base,
 };
 

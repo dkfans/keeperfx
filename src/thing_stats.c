@@ -796,7 +796,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
         pay = (pay * modifier) / 100;
         // If torturing creature of that model, change the salary with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            pay = (pay * game.conf.rules[dungeon->owner].game.torture_payday) / 100;
+            pay = (pay * game.conf.rules[dungeon->owner].gameplay.torture_payday) / 100;
     }
     return pay;
 }
@@ -815,7 +815,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
         training_cost = (training_cost * modifier) / 100;
         // If torturing creature of that model, change the training cost with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            training_cost = (training_cost * game.conf.rules[dungeon->owner].game.torture_training_cost) / 100;
+            training_cost = (training_cost * game.conf.rules[dungeon->owner].gameplay.torture_training_cost) / 100;
     }
     return training_cost;
 }
@@ -834,7 +834,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
         scavenger_cost = (scavenger_cost * modifier) / 100;
         // If torturing creature of that model, change the scavenging cost with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            scavenger_cost = (scavenger_cost * game.conf.rules[dungeon->owner].game.torture_scavenging_cost) / 100;
+            scavenger_cost = (scavenger_cost * game.conf.rules[dungeon->owner].gameplay.torture_scavenging_cost) / 100;
     }
     return scavenger_cost;
 }

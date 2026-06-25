@@ -526,7 +526,7 @@ const struct NamedFieldSet magic_powers_named_fields_set = {
     magic_powers_named_fields,
     power_desc,
     MAGIC_ITEMS_MAX,
-    sizeof(gpGame->conf.magic_conf.power_cfgstats[0]),
+    sizeof(game.conf.magic_conf.power_cfgstats[0]),
     get_powers_base,
 };
 

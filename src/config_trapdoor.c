@@ -287,7 +287,7 @@ const struct NamedFieldSet trapdoor_door_named_fields_set = {
     trapdoor_door_named_fields,
     door_desc,
     TRAPDOOR_TYPES_MAX,
-    sizeof(gpGame->conf.trapdoor_conf.door_cfgstats[0]),
+    sizeof(game.conf.trapdoor_conf.door_cfgstats[0]),
     get_door_base,
 };
 
