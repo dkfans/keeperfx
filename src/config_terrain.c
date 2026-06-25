@@ -180,7 +180,7 @@ const struct NamedFieldSet terrain_room_named_fields_set = {
     terrain_room_named_fields,
     room_desc,
     TERRAIN_ITEMS_MAX,
-    sizeof(gpGame->conf.slab_conf.room_cfgstats[0]),
+    sizeof(game.conf.slab_conf.room_cfgstats[0]),
     get_room_base,
 };
 

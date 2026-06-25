@@ -76,7 +76,7 @@ const struct NamedFieldSet effects_effectgenerator_named_fields_set = {
     effects_effectgenerator_named_fields,
     effectgen_desc,
     EFFECTSGEN_TYPES_MAX,
-    sizeof(gpGame->conf.effects_conf.effectgen_cfgstats[0]),
+    sizeof(game.conf.effects_conf.effectgen_cfgstats[0]),
     get_effectgen_base,
 };
 

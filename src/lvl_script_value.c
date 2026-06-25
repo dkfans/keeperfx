@@ -606,7 +606,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           set_ally_with_player(param1, i, (param2 & 1) ? true : false);
           set_player_ally_locked(i, param1, (param2 & 2) ? true : false);
           set_player_ally_locked(param1, i, (param2 & 2) ? true : false);
-          if (game.conf.rules[i].game.allies_share_vision)
+          if (game.conf.rules[i].gameplay.allies_share_vision)
           {
               panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
           }
