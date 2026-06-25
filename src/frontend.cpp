@@ -552,8 +552,6 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             LbStopTextInput();
         return false;
     }
-    if (!LbIsTextInputActive())
-        LbStartTextInput();
 
     char *str;
     TbKeyCode key;
@@ -566,6 +564,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             gbtn->button_state_left_pressed = 0;
             (gbtn->click_event)(gbtn);
             input_button = 0;
+            LbStopTextInput();
             if ((gbtn->flags & LbBtnF_Clickable) != 0)
             {
                 struct GuiMenu *gmnu;
@@ -580,6 +579,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
         snprintf(str, gbtn->maxval, "%s", backup_input_field);
         input_button = 0;
         input_field_pos = 0;
+        LbStopTextInput();
     } else
     if (key == KC_BACK)
     { // Delete the last char
@@ -1861,6 +1861,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
             break;
       }
       input_button = gbtn;
+      LbStartTextInput();
       setup_input_field(input_button, get_string(GUIStr_MnuUnused));
       break;
   default:
@@ -2574,6 +2575,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         turn_off_menu(GMnu_FENET_SESSION);
         break;
     case FeSt_NET_START:
+        LbStopTextInput();
         turn_off_menu(GMnu_FENET_START);
         break;
     case FeSt_STORY_POEM:

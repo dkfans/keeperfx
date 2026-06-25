@@ -67,6 +67,7 @@ enum CreatureModelFlags {
     CMF_NoHealthFlower    = 0x200000, // Do not draw the health/status flower above the creature.
     CMF_CannotPickUp      = 0x400000, // Creature cannot be picked up by the hand.
     CMF_DropOnPath        = 0x800000, // Creature can be dropped on unclaimed path
+    CMF_CannotPossess     = 0x1000000, // Creature cannot be possessed.
 };
 
 // Before C23 standard, we cannot specify the underlaying type (in this case we want 64bit int) of enum.

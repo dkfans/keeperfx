@@ -99,7 +99,7 @@ function SetCreatureMaxLevel(player,creature_type,max_level) end
 
 ---sets properties of a creature.
 ---@param creature_type creature_type The creature name, e.g. BILE_DEMON.
----@param property creature_propery The name of the creature property you want to set, e.g. NEVER_CHICKENS. See imp.cfg for options.
+---@param property creature_property The name of the creature property you want to set, e.g. NEVER_CHICKENS. See imp.cfg for options.
 ---@param enable boolean Set this to true to enable the property, or false to disable to property.
 function SetCreatureProperty(creature_type,property,enable) end
 

@@ -740,10 +740,6 @@ TbBool mouse_is_over_side_panel_bottom()
 TbBool add_input_text_to_message(char *message, int max_message_length, struct TbSpriteSheet *font, int max_width)
 {
     LbTextSetFont(font);
-
-    if (!LbIsTextInputActive())
-        LbStartTextInput();
-
     clear_key_pressed(lbInkey);
 
     if (pixel_size * LbTextStringWidth(message) >= max_width)
