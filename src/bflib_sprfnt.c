@@ -112,8 +112,8 @@ static long dbc_char_height(unsigned long chr)
 
 static long dbc_char_width(unsigned long chr)
 {
-    if (chr > 0xFFFF)
-      return 0;
+    if (chr > 0xFFFF || active_dbcfont == NULL || active_dbcfont->widths == NULL)
+        return 0;
     return active_dbcfont->widths[(unsigned int)chr] + active_dbcfont->wide_spacing;
 }
 
@@ -893,7 +893,7 @@ int LbTextHeight(const char *text)
 
 static long dbc_char_widthM(unsigned long chr, long units_per_px)
 {
-    if (chr == 0)
+    if (chr == 0 || active_dbcfont == NULL || active_dbcfont->widths == NULL)
     {
         return 0;
     }
@@ -1441,7 +1441,7 @@ static short load_unifont_file(struct AsianFont * dbcfont)
     long filelen = LbFileLength(fpath);
     if (filelen < UNIFONT_INDEX_COUNT * UNIFONT_INDEX_SIZE)
     {
-        ERRORLOG("Unifont file \"%s\" is too small", fpath);
+        ERRORLOG("Unifont file \"%s\" is too small or doesn't exist", fpath);
         return 1;
     }
     TbFileHandle fhandle = LbFileOpen(fpath, Lb_FILE_MODE_READ_ONLY);
