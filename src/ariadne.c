@@ -494,7 +494,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
           wayPoints.edge1_current_index = wayPoints.edge1_start_index;
           waypoint_edge1_index = wpi;
       }
-      if (edge2_region == 0)
+      if (edge2_region == FieldOfViewRegion_WithinBounds)
       {
           fov_AC.tipC.x = edge2_x;
           fov_AC.tipC.y = edge2_y;
@@ -1637,7 +1637,7 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
                 if (navrule)
                 {
                     mvcost = cost_to_start(k);
-                    if (navrule == 2)
+                    if (navrule == NavigationRule_Special)
                         mvcost *= 16;
                     if (!navitree_add(k,ttri,mvcost))
                         nskipped++;
@@ -3968,10 +3968,6 @@ static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
         pt = get_triangle_point(tri_id1, pt_cor);
         if ((pt->x == sx) && (pt->y == sy))
             break;
-        tri = get_triangle(tri_id1);
-        tri_id3 = tri->tags[cor_id1];
-        cor_id3 = link_find(tri_id3,tri_id1);
-        pt = get_triangle_point(tri_id3, cor_id3);
         tri = get_triangle(tri_id1);
         tri_id3 = tri->tags[cor_id1];
         cor_id3 = link_find(tri_id3,tri_id1);
