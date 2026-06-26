@@ -6669,51 +6669,72 @@ msgid "Health: The maximum number of health points for this creature."
 msgstr "Zdrowie: Maksymalna ilość punktów zdrowia stwora."
 
 #: guitext:967
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr ""
+msgstr "Przełącz komunikat"
 
 #: guitext:968
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Return to Free Play levels"
-msgstr ""
+msgstr "Powrót do poziomów swobodnej gry"
 
 #: guitext:969
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Map Packs"
-msgstr ""
+msgstr "Paczki map"
 
 #: guitext:970
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "The Deeper Dungeons"
-msgstr ""
+msgstr "Głębsze Lochy"
 
 #: guitext:971
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Standard Levels"
-msgstr ""
+msgstr "Standardowe poziomy"
 
 #: guitext:972
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Classic Levels"
-msgstr ""
+msgstr "Klasyczne poziomy"
 
 #: guitext:973
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Legacy Levels"
-msgstr ""
+msgstr "Poziomy legacy"
 
 #: guitext:974
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Personal Levels"
-msgstr ""
+msgstr "Poziomy osobiste"
 
 #: guitext:975
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Lost Levels"
-msgstr ""
+msgstr "Zaginione poziomy"
 
-#: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
+#: guitext:976
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Modern Levels"
+msgstr "Nowoczesne poziomy"
+
+#: guitext:977
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Bullfrog Levels"
+msgstr "Poziomy Bullfrog"
+
+#: guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
 msgstr "Muuu3"

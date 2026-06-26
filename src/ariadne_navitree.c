@@ -259,7 +259,7 @@ long optimise_heuristic(long tri_id1, long cor_id1)
            ((Dy-Cy) * (Dy-Cy)) + ((Dx-Cx) * (Dx-Cx));
 }
 
-long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
+long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool keep_edge)
 {
     NAVIDBG(19,"Starting");
     tags_init();
@@ -278,7 +278,26 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
             if (!optimise_heuristic(tri_idx, cor_idx))
                 continue;
             count++;
-            edge_rotateAC(tri_idx, cor_idx);
+
+            TbBool need_rotate = true;
+            if (keep_edge) {
+                struct Point* pt1 = get_triangle_point(tri_idx, cor_idx);
+                struct Point* pt2 = get_triangle_point(tri_idx, MOD3[cor_idx+1]);
+                if (pt1->y == pt2->y && (pt1->y == start_y || pt1->y == end_y)) {
+                    if ((pt1->x >= start_x && pt1->x <= end_x) && (pt2->x >= start_x && pt2->x <= end_x)) {
+                        need_rotate = false; // On the horizontal edge
+                    }
+                }
+                else if (pt1->x == pt2->x && (pt1->x == start_x || pt1->x == end_x)) {
+                    if ((pt1->y >= start_y && pt1->y <= end_y) && (pt2->y >= start_y && pt2->y <= end_y)) {
+                        need_rotate = false; // On the vertical edge
+                    }
+                }
+            }
+            if (need_rotate) {
+                edge_rotateAC(tri_idx, cor_idx);
+            }
+
             if (ix_delaunay+4 >= DELAUNAY_COUNT)
             {
               ERRORLOG("stack full");

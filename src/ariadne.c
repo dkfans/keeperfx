@@ -4924,14 +4924,14 @@ TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x,
             {
                 if (!tri_set_rectangle(rect_sx, rect_sy, rect_ex, rect_ey, ccolour))
                     break; // Run out of triangle space
-                delaunay_seeded(rect_sx, rect_sy, rect_ex, rect_ey);
+                delaunay_seeded(rect_sx, rect_sy, rect_ex, rect_ey, true);
             }
         }
     } else
     {
         tri_set_rectangle(start_x, start_y, end_x, end_y, colour);
     }
-    delaunay_seeded(start_x, start_y, end_x, end_y);
+    delaunay_seeded(start_x, start_y, end_x, end_y, false);
     if ( not_whole_map )
         border_unlock(start_x, start_y, end_x, end_y);
     triangulation_border_init();

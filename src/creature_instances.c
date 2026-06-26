@@ -232,7 +232,7 @@ TbBool creature_increase_available_instances(struct Thing *thing)
             if (crconf->learned_instance_level[i] <= cctrl->exp_level+1) {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crconf->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules[thing->owner].game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ( (crconf->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules[thing->owner].gameplay.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
             {
                 cctrl->instance_available[k] = false;
             }
@@ -1283,7 +1283,7 @@ TbBool validate_target_generic
     )
 {
     if (!validate_target_even_in_prison(source, target, inst_idx, param1, param2) ||
-        creature_is_being_tortured(target) || creature_is_kept_in_prison(target))
+        creature_is_being_tortured_including_kinky(target) || creature_is_kept_in_prison(target))
     {
         return false;
     }
@@ -1634,8 +1634,8 @@ TbBool validate_target_benefits_from_healing
     }
     else
     {
-        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
-            creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+        if (creature_is_being_tortured_including_kinky(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured_including_kinky(source) || creature_is_kept_in_prison(source))
         {
             return false;
         }
@@ -1873,8 +1873,8 @@ TbBool validate_target_requires_cleansing
     }
     else
     {
-        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
-            creature_is_being_tortured(source) || creature_is_kept_in_prison(source) ||
+        if (creature_is_being_tortured_including_kinky(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured_including_kinky(source) || creature_is_kept_in_prison(source) ||
             creature_under_spell_effect(source, CSAfF_Freeze) || creature_under_spell_effect(source, CSAfF_Chicken)) // not allowed to cleanse others (only itself) even if source param1 is set
         {
             return false;

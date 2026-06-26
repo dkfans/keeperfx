@@ -171,6 +171,7 @@ src/highscores.c \
 src/kjm_input.c \
 src/lens_api.c \
 src/config_effects.c \
+src/kfx_memory.c \
 src/kfx/lense/DisplacementEffect.cpp \
 src/kfx/lense/FlyeyeEffect.cpp \
 src/kfx/lense/LensEffect.cpp \

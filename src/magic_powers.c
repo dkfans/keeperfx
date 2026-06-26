@@ -361,6 +361,11 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (pwkind == PwrK_POSSESS) {
+            if (flag_is_set(get_creature_model_flags(thing), CMF_CannotPossess)) {
+                return false;
+            }
+        }
         if (creature_is_leaving_and_cannot_be_stopped(thing))
         {
             return false;
@@ -1773,6 +1778,11 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
     if (!thing_exists(thing)) {
         return Lb_FAIL;
     }
+    if (thing_is_creature(thing)) {
+        if (flag_is_set(get_creature_model_flags(thing), CMF_CannotPossess)) {
+            return Lb_FAIL;
+        }
+    }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
@@ -1903,7 +1913,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     TbBool free = ((slabmap_owner(slb) == plyr_idx) || dungeon->cta_free);
     if (!free)
     {
-        if ((game.conf.rules[plyr_idx].game.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
+        if ((game.conf.rules[plyr_idx].gameplay.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
         {
             free = true;
         }

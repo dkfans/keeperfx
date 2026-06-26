@@ -149,6 +149,7 @@ long stop_emitter_samples(struct SoundEmitter *emit);
 TbBool process_sound_emitters(void);
 void increment_sample_times(void);
 TbBool process_sound_samples(void);
+void stop_atmos_sounds(void);
 
 struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID);
 SoundEmitterID get_emitter_id(struct SoundEmitter *);

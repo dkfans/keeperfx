@@ -75,6 +75,7 @@
 #include "local_camera.h"
 #include "packets.h"
 #include "console_cmd.h"
+#include "engine_redraw.h"
 
 #include "keeperfx.hpp"
 
@@ -420,10 +421,6 @@ float get_game_key_axis_value(long key_id, TbBool ignore_mods)
 static short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if (!LbIsTextInputActive())
-    {
-        LbStartTextInput();
-    }
 
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
@@ -617,7 +614,10 @@ static long get_small_map_inputs(long x, long y, long zoom)
   }
   if (grabbed_small_map)
   {
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
+    TbGraphicsWindow ewnd;
+    store_engine_window(&ewnd, 1);
+    LbMouseSetPosition(ewnd.x + (ewnd.width  >> 1),
+                       ewnd.y + (ewnd.height >> 1));
   }
   old_mx = curr_mx;
   old_my = curr_my;
@@ -756,6 +756,7 @@ static short get_global_inputs(void)
               return true;
           }
         player->allocflags |= PlaF_NewMPMessage;
+        LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -883,6 +884,7 @@ static TbBool get_level_lost_inputs(void)
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
         player->allocflags |= PlaF_NewMPMessage;
+        LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
       }

@@ -46,6 +46,7 @@
 #include "vidmode.h"
 #include "vidfade.h"
 #include "player_instances.h"
+#include "engine_redraw.h"
 #include "engine_render.h"
 #include "gui_draw.h"
 #include "local_camera.h"
@@ -883,8 +884,10 @@ short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_
     grabbed_small_map = 0;
     return 0;
   }
-  float x = (curr_x - (MyScreenWidth >> 1)) / 2.f;
-  float y = (curr_y - (MyScreenHeight >> 1)) / 2.f;
+  TbGraphicsWindow ewnd;
+  store_engine_window(&ewnd, 1);
+  float x = (curr_x - (ewnd.x + (ewnd.width  >> 1))) / 2.f;
+  float y = (curr_y - (ewnd.y + (ewnd.height >> 1))) / 2.f;
   if (!grabbed_small_map)
   {
     if ((abs(curr_x - old_mx) < 2) && (abs(curr_y - old_my) < 2))

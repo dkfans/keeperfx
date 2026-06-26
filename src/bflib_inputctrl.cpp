@@ -224,6 +224,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
 
     init_controller_input();
+    LbStopTextInput();
 }
 
 static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
