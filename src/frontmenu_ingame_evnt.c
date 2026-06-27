@@ -397,7 +397,7 @@ void draw_bonus_timer(void)
     {
         height *= 2;
         width *= 2;
-        if ((dbc_language) > 0 && (game.timer_real))
+        if ((dbc_initialized && dbc_enabled) && (game.timer_real))
         {
             width += (width / 8);
         }
@@ -414,12 +414,12 @@ void draw_bonus_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
     {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    else if ( (MyScreenWidth > 1280) && (dbc_initialized && dbc_enabled) )
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
@@ -467,7 +467,7 @@ void draw_timer(void)
     {
         height *= 2;
         width *= 2;
-        if (dbc_language > 0)
+        if (dbc_initialized && dbc_enabled)
         {
             if (TimerGame)
             {
@@ -490,12 +490,12 @@ void draw_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
     {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    else if ( (MyScreenWidth > 1280) && (dbc_initialized && dbc_enabled) )
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
@@ -534,7 +534,7 @@ void draw_gameturn_timer(void)
     {
         height *= 2;
         width *= 2;
-        if ((dbc_language) > 0 && (game.timer_real))
+        if ((dbc_initialized && dbc_enabled) && (game.timer_real))
         {
             width += (width / 8);
         }
@@ -547,12 +547,12 @@ void draw_gameturn_timer(void)
     //draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
     {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    else if ( (MyScreenWidth > 1280) && (dbc_initialized && dbc_enabled) )
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
@@ -618,6 +618,8 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     {
         snprintf(text, sizeof(text), "%08d", nturns);
     }
+
+    LbTextUseByteCoding(false);
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
@@ -625,10 +627,6 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     {
         height *= 2;
         width *= 2;
-        if ((dbc_language > 0) && (real))
-        {
-            width += (width / 8);
-        }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
@@ -640,24 +638,12 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px;
-    int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
-    {
-        tx_units_per_px = scale_ui_value(32);
-        y = 0;
-    }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
-    {
-        tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
-        y = height / 4;
-    }
-    else
-    {
-        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
-        y = 0;
-    }
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int y = 0;
+
+
     LbTextDrawResized(0, y, tx_units_per_px, text);
+    LbTextUseByteCoding(true);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
@@ -696,7 +682,7 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     {
         height *= 2;
         width *= 2;
-        if (dbc_language > 0)
+        if (dbc_initialized && dbc_enabled)
         {
             width += (width / 3);
         }
@@ -721,14 +707,14 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (dbc_language > 0) && (MyScreenWidth > 1280) )
+    if ( (dbc_initialized && dbc_enabled) && (MyScreenWidth > 1280) )
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
     }
     else
     {
-        tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
+        tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
     }
     LbTextDrawResized(0, y, tx_units_per_px, text);

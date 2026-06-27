@@ -122,7 +122,7 @@ TbBool draw_onscreen_direct_messages(void)
 {
     SYNCDBG(5,"Starting");
     int tx_units_per_px;
-    if (dbc_language > 0)
+    if (dbc_initialized && dbc_enabled)
     {
         tx_units_per_px = scale_value_by_horizontal_resolution((MyScreenWidth >= 640) ? 16 : 32);
     }

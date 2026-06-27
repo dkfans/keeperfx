@@ -154,7 +154,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     {
         draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
         pos_y += LbTextLineHeight() * tx_units_per_px / 16;
-        if (dbc_language > 0)
+        if (dbc_initialized && dbc_enabled)
         {
             pos_y += scale_value_menu(4);
         }
@@ -461,7 +461,7 @@ void frontend_draw_high_scores_mappack(struct GuiButton *gbtn)
     LbTextSetFont(frontend_font[2]);
     int tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    LbTextDrawResized((dbc_language > 0) ? -30 : 0, 0, tx_units_per_px, text);
+    LbTextDrawResized((dbc_initialized && dbc_enabled) ? -30 : 0, 0, tx_units_per_px, text);
 }
 
 unsigned long count_high_scores()

@@ -2713,6 +2713,18 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+// TODO this is just a temp function while testing the sprite stuff
+// eventually I want to get rid of dbc entirely but this makes difference easier to spot
+extern TbBool dbc_initialized;
+TbBool cmd_dbc(PlayerNumber plyr_idx, char * args)
+{
+    if (game.easter_eggs_enabled == false) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
+    }
+    dbc_initialized = !dbc_initialized;
+    return true;
+}
 
 
 struct ConsoleCommand {
@@ -2831,6 +2843,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "luatypedump", cmd_luatypedump, NULL },
     { "cheat.menu", cmd_cheat_menu, NULL },
     { "creature.chicken", cmd_chicken_creature, NULL },
+    { "dbc", cmd_dbc, NULL }
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 

@@ -416,8 +416,6 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             break;
           }
           install_info.lang_id = i;
-          if (is_dbc_language(i))
-              dbc_set_language(i);
           break;
       case 4: // KEYBOARD
           // Works only in DK Premium
