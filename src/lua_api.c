@@ -9,6 +9,7 @@
 #include "bflib_sndlib.h"
 #include "globals.h"
 #include "thing_data.h"
+#include "config_translation.h"
 #include "creature_states.h"
 #include "creature_states_pray.h"
 #include "gui_msgs.h"
@@ -2339,7 +2340,17 @@ static int lua_run_dkscript_command(lua_State *L)
 
 static int lua_get_string(lua_State *L)
 {
-    long msg_id    = luaL_checkinteger(L, 1);
+    long msg_id;
+    if (lua_isstring(L, 1))
+    {
+        const char* alias = lua_tostring(L, 1);
+        msg_id = get_string_id_by_alias(alias);
+    }
+    else
+    {
+        msg_id = luaL_checkinteger(L, 1);
+    }
+
     const char* msg = get_string(msg_id);
     if (msg == NULL)
     {
