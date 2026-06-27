@@ -626,7 +626,7 @@ int api_subscribe_event(const char *event_name)
         if (api_subscriptions[i].type == API_SUBSCRIBE_INACTIVE)
         {
             api_subscriptions[i].type = API_SUBSCRIBE_EVENT;
-            strncpy(api_subscriptions[i].event, event_name, sizeof(api_subscriptions[i].event) - 1);
+            snprintf(api_subscriptions[i].event, sizeof(api_subscriptions[i].event), "%s", event_name);
             api_sub_count++;
             return true;
         }
@@ -735,7 +735,7 @@ int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char
             sub_var.type = valtype;
             sub_var.id = validx;
             sub_var.val = get_condition_value(plyr_idx, valtype, validx);
-            strncpy(sub_var.name, var_name, sizeof(sub_var.name) - 1);
+            snprintf(sub_var.name, sizeof(sub_var.name), "%s", var_name);
 
             api_subscriptions[i].type = API_SUBSCRIBE_VAR;
             api_subscriptions[i].var = sub_var;
@@ -1427,9 +1427,9 @@ void api_process_multipart_json(const char *buffer, int buf_size)
                 // Extract the JSON object from buffer[start] to buffer[i+1]
                 int json_length = i - start + 1;
                 //char json_string[json_length + 1]; // +1 for null terminator
-                char* json_string = (char*)malloc((json_length + 1) * sizeof(char));
+                char* json_string = (char*)malloc(json_length + 1);
                 if (!json_string) return;
-                strncpy(json_string, buffer + start, json_length);
+                memcpy(json_string, buffer + start, json_length);
                 json_string[json_length] = '\0';
 
                 // Process the extracted JSON object
