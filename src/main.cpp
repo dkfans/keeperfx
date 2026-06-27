@@ -4447,11 +4447,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         if (is_dbc_language(install_info.lang_id))
         {            
-            if (dbc_initialize("fxdata"))
-            {
-                ERRORLOG("DBC fonts Initialization failed.");
-            }
+            dbc_initialized = 1;
         }
+        load_unifont_files();
     }
     if ( retval == 1 )
     {

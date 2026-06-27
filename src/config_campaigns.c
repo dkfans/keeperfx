@@ -752,6 +752,7 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
             else
             {
               strcpy(campgn->strings_fname, strings_fname);
+              campgn->strings_lang = cmd_num;
               n++;
             }
           }
