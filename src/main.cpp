@@ -473,7 +473,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     {
       if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
       {
-        thing->health -= game.conf.rules[thing->owner].game.boulder_reduce_health_wall;
+        thing->health -= game.conf.rules[thing->owner].gameplay.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
       if ( blocked_flags & SlbBloF_WalledX )
@@ -560,7 +560,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
             }
             if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
             {
-                boulder->health -= game.conf.rules[boulder->owner].game.boulder_reduce_health_room; // decrease boulder health
+                boulder->health -= game.conf.rules[boulder->owner].gameplay.boulder_reduce_health_room; // decrease boulder health
             }
             return 1; // guardpost destroyed
         }
@@ -2282,7 +2282,7 @@ void process_payday(void)
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        game.pay_day_progress[plyr_idx] = game.pay_day_progress[plyr_idx] + (game.conf.rules[plyr_idx].game.pay_day_speed / 100);
+        game.pay_day_progress[plyr_idx] = game.pay_day_progress[plyr_idx] + (game.conf.rules[plyr_idx].gameplay.pay_day_speed / 100);
         if (player_is_roaming(plyr_idx) || (plyr_idx == game.neutral_player_num)) {
             continue;
         }
@@ -2297,7 +2297,7 @@ void process_payday(void)
     int player_paid_creatures_count;
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        if (game.conf.rules[plyr_idx].game.pay_day_gap <= game.pay_day_progress[plyr_idx])
+        if (game.conf.rules[plyr_idx].gameplay.pay_day_gap <= game.pay_day_progress[plyr_idx])
         {
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_Payday, 0);
@@ -2637,20 +2637,20 @@ void update_global_lighting()
 
     // Check if any values have changed
     if (
-        game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light ||
-        game.conf.rules[0].game.light_enabled != game.lish.light_enabled
+        game.conf.rules[0].gameplay.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules[0].gameplay.light_enabled != game.lish.light_enabled
     ){
 
         // GlobalAmbientLight
-        if (game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light)
+        if (game.conf.rules[0].gameplay.global_ambient_light != game.lish.global_ambient_light)
         {
-            game.lish.global_ambient_light = game.conf.rules[0].game.global_ambient_light;
+            game.lish.global_ambient_light = game.conf.rules[0].gameplay.global_ambient_light;
         }
 
         // LightEnabled
-        if (game.conf.rules[0].game.light_enabled != game.lish.light_enabled)
+        if (game.conf.rules[0].gameplay.light_enabled != game.lish.light_enabled)
         {
-            game.lish.light_enabled = game.conf.rules[0].game.light_enabled;
+            game.lish.light_enabled = game.conf.rules[0].gameplay.light_enabled;
         }
 
         // Refresh the lights

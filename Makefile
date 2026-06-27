@@ -246,6 +246,7 @@ obj/gui_soundmsgs.o \
 obj/gui_tooltips.o \
 obj/gui_topmsg.o \
 obj/highscores.o \
+obj/kfx_memory.o \
 obj/kjm_input.o \
 obj/lens_api.o \
 obj/config_effects.o \

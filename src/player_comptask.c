@@ -3319,7 +3319,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
                         dungeon->doors_sold++;
-                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[dungeon->owner].game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[dungeon->owner].gameplay.door_sale_percent);
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
@@ -3327,7 +3327,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[dungeon->owner].game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[dungeon->owner].gameplay.door_sale_percent);
                         dungeon->doors_sold++;
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
@@ -3355,7 +3355,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
-                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].gameplay.trap_sale_percent);
                         dungeon->traps_sold++;
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Offmap trap %s crate sold for %d gold",trap_code_name(model),value);
@@ -3364,7 +3364,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].gameplay.trap_sale_percent);
                         dungeon->traps_sold++;
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
@@ -3394,7 +3394,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
-                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[doortng->owner].game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[doortng->owner].gameplay.door_sale_percent);
                         dungeon->doors_sold++;
                         dungeon->manufacture_gold += value;
                         destroy_door(doortng);

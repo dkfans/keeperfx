@@ -1148,14 +1148,26 @@ void assign_speech_ref(const struct NamedField* named_field, int64_t value,
                        const struct NamedFieldSet* named_fields_set, int idx,
                        const char* src_str, unsigned char flags)
 {
-    char* field_ptr = (char*)named_field->field + named_fields_set->struct_size * idx;
-    char* base = (char*)named_fields_set->struct_base;
-    if (named_fields_set->struct_base == NULL || idx < 0 || idx >= named_fields_set->max_count ||
-        field_ptr < base || field_ptr >= base + named_fields_set->struct_size * named_fields_set->max_count)
-    {
-        NAMFIELDERRLOG("Field '%s' index %d out of bounds", named_field->name, idx);
+    char* base = (char*)named_fields_set->get_struct_base();
+
+    // Check limits before pointer arithmetic to avoid undefined behavior
+    if (base == NULL || idx < 0 || idx >= named_fields_set->max_count) {
+        NAMFIELDERRLOG("Field '%s' index %d out of bounds (structural)", named_field->name, idx);
         return;
     }
+
+    // Calculate the specific pointer and memory limits
+    size_t field_offset = (size_t)named_field->field; 
+    char* field_ptr = base + (named_fields_set->struct_size * idx) + field_offset;
+    char* max_allowed_bound = base + (named_fields_set->struct_size * named_fields_set->max_count);
+
+    if (field_ptr < base || field_ptr >= max_allowed_bound) {
+        NAMFIELDERRLOG("Field '%s' index %d out of bounds (memory range)", named_field->name, idx);
+        return;
+    }
+
+    // Proceed to the actual assignment, memory is valid.
+
     SpeechRef* ref = (SpeechRef*)field_ptr;
     if (value == SPEECH_REF_PATH_SENTINEL && s_speech_ref_pending_path[0] != '\0') {
         ref->id = 0;

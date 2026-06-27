@@ -231,23 +231,29 @@ short checksums_different(void)
     return mismatch;
 }
 
+TbBigChecksum calculate_file_checksum(const char *fname)
+{
+    int32_t file_size = (int32_t)LbFileLengthRnc(fname);
+    TbBigChecksum checksum = 0;
+    CHECKSUM_ADD(checksum, file_size);
+    if (file_size <= 0) {
+        return checksum;
+    }
+    unsigned char *file_buf = malloc(file_size);
+    if (file_buf != NULL && LbFileLoadAt(fname, file_buf) == file_size) {
+        CHECKSUM_ADD(checksum, rnc_crc(file_buf, file_size));
+    }
+    free(file_buf);
+    return checksum;
+}
+
 void calculate_network_startup_map_checksums(TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT])
 {
     LevelNumber lvnum = get_loaded_level_number();
     short fgroup = get_level_fgroup(lvnum);
     for (int i = 0; i < NETWORK_STARTUP_MAP_FILE_COUNT; i++) {
         char* fname = prepare_file_fmtpath(fgroup, "map%05u.%s", lvnum, network_startup_compare_files[i]);
-        int32_t file_size = (int32_t)LbFileLengthRnc(fname);
-        checksums[i] = 0;
-        CHECKSUM_ADD(checksums[i], file_size);
-        if (file_size <= 0) {
-            continue;
-        }
-        unsigned char *file_buf = malloc(file_size);
-        if (file_buf != NULL && LbFileLoadAt(fname, file_buf) == file_size) {
-            CHECKSUM_ADD(checksums[i], rnc_crc(file_buf, file_size));
-        }
-        free(file_buf);
+        checksums[i] = calculate_file_checksum(fname);
     }
 }
 
