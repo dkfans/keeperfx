@@ -552,7 +552,7 @@ static bool find_in_mod_sound_dirs(const char* candidate, char* out_path, size_t
 {
     for (long i = mod_cnt - 1; i >= 0; i--) {
         const struct ModConfigItem* mod_item = mod_items + i;
-        if (!mod_item->state.sound) continue;
+        if (!mod_item->state.lrg_sound) continue;
         char mod_dir[256];
         snprintf(mod_dir, sizeof(mod_dir), "%s/%s", MODS_DIR_NAME, mod_item->name);
         const char* resolved = prepare_file_path_mod(mod_dir, FGrp_LrgSound, candidate);
