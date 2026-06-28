@@ -32,6 +32,7 @@
 #include "lens_api.h"
 #include "light_data.h"
 #include "sounds.h"
+#include "bflib_sound.h"
 #include "game_legacy.h"
 #include "post_inc.h"
 
@@ -265,7 +266,7 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     for (long i = 0; i < crsound->count; i++)
     {
-        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, creature_sound_unified_id(crsound, i)))
           return true;
     }
     return false;
@@ -274,16 +275,17 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
 void stop_creature_sound(struct Thing *thing, long snd_idx)
 {
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
-    if (crsound->index <= 0) {
+    if (crsound->index == 0) {
         SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
 
     for (int i = 0; i < crsound->count; i++)
     {
-        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
+        SoundSmplTblID uid = creature_sound_unified_id(crsound, i);
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, uid))
         {
-            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, crsound->index+i, 0);
+            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, uid);
         }
     }
 }
@@ -295,16 +297,29 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
       return;
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
-    if (crsound->index <= 0) {
+    if (crsound->index == 0) {
         SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
     long i = SOUND_RANDOM(crsound->count);
-    SYNCDBG(18,"Playing sample %ld (index %ld) for creature %d",snd_idx,crsound->index+i,thing->model);
-    if ( use_flags ) {
-        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 8, priority, FULL_LOUDNESS);
+    
+    // Handle negative indices (custom sounds) differently
+    // For custom sounds: -1, -2, -3, etc. represent sequential custom bank samples
+    // We subtract the offset to keep them negative
+    SoundSmplTblID sample_idx;
+    if (crsound->index < 0) {
+        sample_idx = crsound->index - i;  // -1, -2, -3, etc.
     } else {
-        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 0, priority, FULL_LOUDNESS);
+        sample_idx = crsound->index + i;  // Regular positive indices
+    }
+    
+    SYNCDBG(18,"Playing sample %d (sound type %ld, index %d) for creature %d",
+            sample_idx, snd_idx, crsound->index, thing->model);
+    
+    if ( use_flags ) {
+        thing_play_sample(thing, sample_idx, NORMAL_PITCH, 0, 3, 8, priority, FULL_LOUDNESS);
+    } else {
+        thing_play_sample(thing, sample_idx, NORMAL_PITCH, 0, 3, 0, priority, FULL_LOUDNESS);
     }
 }
 
@@ -314,14 +329,15 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
         return;
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
-    if (crsound->index <= 0) {
+    if (crsound->index == 0) {
         SYNCDBG(14,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
     long i = SOUND_RANDOM(crsound->count);
     struct Thing* efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
     if (!thing_is_invalid(efftng)) {
-        thing_play_sample(efftng, crsound->index+i, NORMAL_PITCH, 0, 3, 0, sound_priority, FULL_LOUDNESS);
+        thing_play_sample(efftng, (SoundSmplTblID)(crsound->index < 0 ? crsound->index - i : crsound->index + i),
+            NORMAL_PITCH, 0, 3, 0, sound_priority, FULL_LOUDNESS);
     }
 }
 

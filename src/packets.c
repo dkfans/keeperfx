@@ -33,12 +33,13 @@
 #include "bflib_keybrd.h"
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
+#include "bflib_planar.h"
 #include "bflib_dernc.h"
 #include "net_exchange_gameplay.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
-#include "bflib_planar.h"
 #include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
@@ -293,7 +294,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         return false;
     }
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long revenue = compute_value_percentage(roomst->cost, game.conf.rules[plyr_idx].game.room_sale_percent);
+    long revenue = compute_value_percentage(roomst->cost, game.conf.rules[plyr_idx].gameplay.room_sale_percent);
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
@@ -302,7 +303,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     }
     delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
     if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(115);
+        play_non_3d_sample(snd_tile_sell);
     if (revenue != 0)
     {
         struct Coord3d pos;
@@ -588,20 +589,6 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     set_mouse_light(player);
 }
 
-void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif)
-{
-    int chpos = strlen(message);
-    if (key == KC_BACK && chpos > 0) {
-        message[chpos-1] = '\0';
-    } else if (chpos < PLAYER_MP_MESSAGE_LEN - 1) {
-        char chr = key_to_ascii(key, kmodif);
-        if (isalnum(chr) || strchr(" !:;()._'+=\\\"?/#<>^,-", chr)) {
-            message[chpos] = chr;
-            message[chpos+1] = '\0';
-        }
-    }
-}
-
 TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
 {
   //TODO PACKET add commands from beta
@@ -652,7 +639,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (network_is_active()) {
         if (victory_state == VicS_WonLevel) {
           player->victory_state = VicS_WonLevel;
-          if (game.conf.rules[player->id_number].game.winner_tortures_loser) {
+          if (game.conf.rules[player->id_number].gameplay.winner_tortures_loser) {
               get_my_player()->additional_flags |= PlaAF_UnlockedLordTorture;
           } else {
               get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
@@ -695,6 +682,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_PlyrMsgClear:
       player->allocflags &= ~PlaF_NewMPMessage;
+      LbStopTextInput();
       memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_ToggleLights:
@@ -728,7 +716,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_BookmarkLoad:
-      set_player_cameras_position(player, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
+      set_player_cameras_position(player, pckt->actn_par1, pckt->actn_par2);
       return 0;
   case PckA_SetGammaLevel:
       if (is_my_player(player))
@@ -952,7 +940,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (!is_player_ally_locked(plyr_idx, pckt->actn_par1))
       {
          toggle_ally_with_player(plyr_idx, pckt->actn_par1);
-         if (game.conf.rules[plyr_idx].game.allies_share_vision)
+         if (game.conf.rules[plyr_idx].gameplay.allies_share_vision)
          {
             panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
          }
@@ -1084,10 +1072,7 @@ void process_players_packet(long plyr_idx)
     SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
-    if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar) && (pckt->actn_par1 > 0))
-    {
-        message_text_key_add(player->mp_message_text, pckt->actn_par1, pckt->actn_par2);
-  } else
+
   if (!process_players_global_packet_action(plyr_idx))
   {
       // Different changes to the game are possible for different views.

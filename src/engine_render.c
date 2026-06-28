@@ -7516,7 +7516,7 @@ static unsigned short get_thing_shade(struct Thing* thing)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    long minimum_lightness = game.conf.rules[thing->owner].game.thing_minimum_illumination << 8;
+    long minimum_lightness = game.conf.rules[thing->owner].gameplay.thing_minimum_illumination << 8;
     long lgh[2][2]; // the dimensions are lgh[y][x]
     long shval;
     long fract_x;
@@ -7872,7 +7872,7 @@ static void prepare_jonty_remap_and_scale(int32_t *scale, const struct BucketKin
     long shade_factor;
     long fade;
     thing = jspr->thing;
-    long minimum_lightness = game.conf.rules[thing->owner].game.thing_minimum_illumination << 8;
+    long minimum_lightness = game.conf.rules[thing->owner].gameplay.thing_minimum_illumination << 8;
     if (lens_mode == 0)
     {
         fade = 65536;

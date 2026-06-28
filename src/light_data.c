@@ -1506,13 +1506,15 @@ void light_set_lights_on(char state)
     if (state)
     {
         // Game rule
-        game.lish.global_ambient_light = game.conf.rules[0].game.global_ambient_light;
-        game.lish.light_enabled = game.conf.rules[0].game.light_enabled;
+        game.lish.global_ambient_light = game.conf.rules[0].gameplay.global_ambient_light;
+        game.lish.light_enabled = game.conf.rules[0].gameplay.light_enabled;
+        game.lish.light_auto_sync = true;
     } else
     {
         // Fullbright
         game.lish.global_ambient_light = 32;
         game.lish.light_enabled = 0;
+        game.lish.light_auto_sync = false;
     }
 
     light_stat_refresh();

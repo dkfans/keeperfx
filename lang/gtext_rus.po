@@ -540,8 +540,8 @@ msgid ""
 "A Troll has joined you. Skilled in the craft of manufacturing, Trolls are best employed doing dark deeds in your "
 "Workshop. They don't complain about the hours, because their labours keep them away from combat."
 msgstr ""
-"Тролли присоединились к Вам. Они искусные работники и творят самые темные делишки в мастерской. Они не "
-"жалуются на рабочий график, поскольку работа позволяет им держаться подальше от сражений."
+"Тролль присоединился к Вам. Эти создания - искусные работники, которые творят самые темные делишки в мастерской. "
+"Они не жалуются на рабочий график, поскольку работа позволяет им держаться подальше от сражений."
 
 #. Level Flowerhat objective
 #: guitext:53
@@ -6027,7 +6027,17 @@ msgctxt "Menu interface item"
 msgid "Lost Levels"
 msgstr "Вырезанные карты"
 
-#: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
+#: guitext:976
+msgctxt "Menu interface item"
+msgid "Modern Levels"
+msgstr "Современные карты"
+
+#: guitext:977
+msgctxt "Menu interface item"
+msgid "Bullfrog Levels"
+msgstr "Карты Bullfrog"
+
+#: guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
 msgstr "Му3"

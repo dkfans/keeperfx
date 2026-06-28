@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_sound.h"
 
 #include "ariadne.h"
 #include "creature_graphics.h"
@@ -56,18 +57,17 @@ struct Thing;
 struct PlayerInfo;
 
 enum CreatureSoundTypes {
-    CrSnd_None      = 0,
-    CrSnd_Hit       = 1,
-    CrSnd_Happy     = 2,
-    CrSnd_Sad       = 3,
-    CrSnd_Hang      = 4,
-    CrSnd_Drop      = 5,
-    CrSnd_Torture   = 6,
-    CrSnd_Slap      = 7,
-    CrSnd_Die       = 8,
-    CrSnd_Foot      = 9,
-    CrSnd_Fight     = 10,
-    CrSnd_Piss      = 11,
+    CrSnd_Hit = 1,
+    CrSnd_Happy = 2,
+    CrSnd_Sad = 3,
+    CrSnd_Hang = 4,
+    CrSnd_Drop = 5,
+    CrSnd_Torture = 6,
+    CrSnd_Slap = 7,
+    CrSnd_Die = 8,
+    CrSnd_Foot = 9,
+    CrSnd_Fight = 10,
+    CrSnd_Piss = 11,
 };
 
 enum CreatureControlFlags {
@@ -471,6 +471,18 @@ void stop_creature_sound(struct Thing *thing, long snd_idx);
 void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2);
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
 TbBool creature_can_gain_experience(const struct Thing *thing);
+
+/** Convert a CreatureSound slot + variant index to the unified sample ID.
+ *  Standard sounds: index is a positive raw effect-bank ID; returns index+i.
+ *  Custom sounds:   index is negative -(bank+1); thing_play_sample converts
+ *                   these to get_custom_offset()+(-index-1)+i. We produce
+ *                   the same unified ID so S3DEmitterIsPlayingSample can match. */
+static inline SoundSmplTblID creature_sound_unified_id(const struct CreatureSound *crsound, long i)
+{
+    if (crsound->index < 0)
+        return (SoundSmplTblID)(get_custom_offset() + (-crsound->index - 1) + i);
+    return (SoundSmplTblID)(crsound->index + i);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

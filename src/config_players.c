@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_players.h"
 #include "globals.h"
@@ -26,7 +27,6 @@
 #include <toml.h>
 #include "value_util.h"
 #include "config.h"
-#include "config_players.h"
 #include "game_legacy.h"
 #include "post_inc.h"
 

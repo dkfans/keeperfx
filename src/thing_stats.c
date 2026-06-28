@@ -379,7 +379,7 @@ long compute_creature_max_strength(long base_param, CrtrExpLevel exp_level)
         exp_level = CREATURE_MAX_LEVEL-1;
     }
     long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)exp_level) / 100;
-    if (flag_is_set(game.conf.rules[0].game.classic_bugs_flags, ClscBug_Overflow8bitVal))
+    if (flag_is_set(game.conf.rules[0].gameplay.classic_bugs_flags, ClscBug_Overflow8bitVal))
     {
         return min(max_param, UCHAR_MAX+1); // DK1 limited shot damage to 256, not 255.
     }
@@ -796,7 +796,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
         pay = (pay * modifier) / 100;
         // If torturing creature of that model, change the salary with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            pay = (pay * game.conf.rules[dungeon->owner].game.torture_payday) / 100;
+            pay = (pay * game.conf.rules[dungeon->owner].gameplay.torture_payday) / 100;
     }
     return pay;
 }
@@ -815,7 +815,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
         training_cost = (training_cost * modifier) / 100;
         // If torturing creature of that model, change the training cost with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            training_cost = (training_cost * game.conf.rules[dungeon->owner].game.torture_training_cost) / 100;
+            training_cost = (training_cost * game.conf.rules[dungeon->owner].gameplay.torture_training_cost) / 100;
     }
     return training_cost;
 }
@@ -834,7 +834,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
         scavenger_cost = (scavenger_cost * modifier) / 100;
         // If torturing creature of that model, change the scavenging cost with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            scavenger_cost = (scavenger_cost * game.conf.rules[dungeon->owner].game.torture_scavenging_cost) / 100;
+            scavenger_cost = (scavenger_cost * game.conf.rules[dungeon->owner].gameplay.torture_scavenging_cost) / 100;
     }
     return scavenger_cost;
 }

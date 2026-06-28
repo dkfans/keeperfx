@@ -25,6 +25,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "custom_sprites.h"
 #include "magic_powers.h"
 #include "power_specials.h"
@@ -362,7 +363,7 @@ TbBool power_hand_is_full(const struct PlayerInfo *player)
 {
     const struct Dungeon *dungeon;
   dungeon = get_dungeon(player->id_number);
-  return (dungeon->num_things_in_hand >= game.conf.rules[player->id_number].game.max_things_in_hand);
+  return (dungeon->num_things_in_hand >= game.conf.rules[player->id_number].gameplay.max_things_in_hand);
 }
 
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
@@ -385,8 +386,8 @@ TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx)
   long num_in_hand;
   dungeon = get_dungeon(plyr_idx);
   num_in_hand = dungeon->num_things_in_hand;
-  if (num_in_hand > game.conf.rules[plyr_idx].game.max_things_in_hand)
-      num_in_hand = game.conf.rules[plyr_idx].game.max_things_in_hand;
+  if (num_in_hand > game.conf.rules[plyr_idx].gameplay.max_things_in_hand)
+      num_in_hand = game.conf.rules[plyr_idx].gameplay.max_things_in_hand;
   if (num_in_hand > 0)
   {
       for (i = 0; i < num_in_hand-1; i++)
@@ -414,8 +415,8 @@ TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     long num_in_hand;
     dungeon = get_dungeon(plyr_idx);
     num_in_hand = dungeon->num_things_in_hand;
-    if (num_in_hand > game.conf.rules[plyr_idx].game.max_things_in_hand)
-        num_in_hand = game.conf.rules[plyr_idx].game.max_things_in_hand;
+    if (num_in_hand > game.conf.rules[plyr_idx].gameplay.max_things_in_hand)
+        num_in_hand = game.conf.rules[plyr_idx].gameplay.max_things_in_hand;
     for (i = 0; i < num_in_hand; i++)
     {
         if (dungeon->things_in_hand[i] == thing->index)
@@ -445,10 +446,10 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     long i;
     struct PowerConfigStats *powerst;
     dungeon = get_dungeon(plyr_idx);
-    if (dungeon->num_things_in_hand >= game.conf.rules[plyr_idx].game.max_things_in_hand)
+    if (dungeon->num_things_in_hand >= game.conf.rules[plyr_idx].gameplay.max_things_in_hand)
       return false;
     // Move all things in list up, to free position 0
-    for (i = game.conf.rules[plyr_idx].game.max_things_in_hand-1; i > 0; i--)
+    for (i = game.conf.rules[plyr_idx].gameplay.max_things_in_hand-1; i > 0; i--)
     {
       dungeon->things_in_hand[i] = dungeon->things_in_hand[i-1];
     }
@@ -884,15 +885,15 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     drop_gold_coins(&pos, 0, plyr_idx);
     if (tribute >= salary)
     {
-        thing_play_sample(creatng, 34, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, snd_salary_full, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     else if ((tribute * 2) >= salary)
     {
-        thing_play_sample(creatng, 33, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, snd_salary_partial, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     else
     {
-        thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
+        thing_play_sample(creatng, snd_salary_tiny, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
     }
     if ( !taking_salary )
     {
@@ -904,7 +905,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     struct CreatureModelConfig *crconf;
     crconf = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature_all_types(creatng, (crconf->annoy_got_wage * tribute / salary * 2));
-    if (game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
+    if (game.conf.rules[plyr_idx].gameplay.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {
         anger_set_creature_anger_all_types(creatng, 0);
     }
@@ -989,11 +990,11 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     // Check if drop position is allowed
     struct Thing *droptng = thing_get(dungeon->things_in_hand[0]);
-    if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_digger(droptng))) {
+    if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, is_creature_droppable_on_path(droptng))) {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         }
         return 0;
     }
@@ -1015,7 +1016,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         {
             drop_gold_coins(&pos, droptng->valuable.gold_stored, plyr_idx);
             if (is_my_player_number(plyr_idx)) {
-                play_non_3d_sample(88);
+                play_non_3d_sample(snd_coin_drop);
             }
         }
         destroy_object(droptng);
@@ -1083,7 +1084,7 @@ void clear_things_in_hand(struct PlayerInfo *player)
   struct Dungeon *dungeon;
   long i;
   dungeon = get_dungeon(player->id_number);
-  for (i=0; i < game.conf.rules[player->id_number].game.max_things_in_hand; i++)
+  for (i=0; i < game.conf.rules[player->id_number].gameplay.max_things_in_hand; i++)
     dungeon->things_in_hand[i] = 0;
 }
 
@@ -1171,8 +1172,8 @@ void draw_mini_things_in_hand(long x, long y)
     expshift_x = scale_ui_value(abs(i)) / 2;
     for (i = dungeon->num_things_in_hand-1; i >= 0; i--)
     {
-        unsigned char ratio = (game.conf.rules[my_player_number].game.max_things_in_hand / 2);
-        if (game.conf.rules[my_player_number].game.max_things_in_hand % 2)
+        unsigned char ratio = (game.conf.rules[my_player_number].gameplay.max_things_in_hand / 2);
+        if (game.conf.rules[my_player_number].gameplay.max_things_in_hand % 2)
         {
             ratio ++;
         }
@@ -1346,7 +1347,7 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     if (player->hand_thing_idx == 0) {
         create_power_hand(plyr_idx);
     }
-    if (dungeon->num_things_in_hand >= game.conf.rules[plyr_idx].game.max_things_in_hand) {
+    if (dungeon->num_things_in_hand >= game.conf.rules[plyr_idx].gameplay.max_things_in_hand) {
       return 0;
     }
     struct Thing *thing;
@@ -1556,7 +1557,7 @@ TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumbe
         return false;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (game.conf.rules[plyr_idx].game.allies_share_drop)
+    if (game.conf.rules[plyr_idx].gameplay.allies_share_drop)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
@@ -1582,10 +1583,11 @@ TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumbe
 short can_place_thing_here(struct Thing *thing, long stl_x, long stl_y, long dngn_idx)
 {
     struct Coord3d pos;
-    TbBool is_digger;
-    is_digger = thing_is_creature_digger(thing);
-    if (!can_drop_thing_here(stl_x, stl_y, dngn_idx, is_digger))
+    TbBool allow_unclaimed_path;
+    allow_unclaimed_path = is_creature_droppable_on_path(thing);
+    if (!can_drop_thing_here(stl_x, stl_y, dngn_idx, allow_unclaimed_path)) {
       return false;
+    }
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_thing_height_at(thing, &pos);

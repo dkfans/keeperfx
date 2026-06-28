@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_creature.h"
 #include "globals.h"
@@ -31,6 +32,7 @@
 #include "config_terrain.h"
 #include "config_strings.h"
 #include "config_crtrstates.h"
+#include "config_translation.h"
 #include "thing_doors.h"
 #include "thing_creature.h"
 #include "creature_instances.h"
@@ -1160,7 +1162,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         case 9: // TOOLTIPTEXTID
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
+              k = get_string_id_by_alias(word_buf);
               if (k > 0)
               {
                   inst_inf->tooltip_stridx = k;
@@ -1904,7 +1906,7 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
             WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
-    char* buf = (char*)calloc(len + 256, 1);
+    char* buf = (char*)KfxCalloc(len + 256, 1);
     if (buf == NULL)
         return false;
 
@@ -1989,7 +1991,7 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
           WARNMSG("Parsing file \"%s\" attackpref blocks failed.",fname);
     }
     //Freeing and exiting
-    free(buf);
+    KfxFree(buf);
     return result;
 }
 

@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include "config_creature.h"
+#include "config_keeperfx.h"
 #include "config_crtrstates.h"
 #include "config_objects.h"
 #include "config_mods.h"
@@ -30,11 +31,13 @@
 #include "config_trapdoor.h"
 #include "config_effects.h"
 #include "config_terrain.h"
+#include "config_translation.h"
 #include "config_slabsets.h"
 #include "config_textures.h"
 #include "config_powerhands.h"
 #include "config_spritecolors.h"
 #include "config_players.h"
+#include "config_sounds.h"
 #include "room_library.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -49,6 +52,8 @@ TbBool load_stats_files(void)
     init_all_creature_model_stats();
     init_creature_model_graphics();
 
+    load_config(&keeper_translation_file_data, CnfLd_Standard);
+
     //first preload some configs which contain names that are used in other cfgs in ListOnly mode
     load_config(&keeper_creaturetp_file_data,   CnfLd_ListOnly);
     load_config(&keeper_terrain_file_data,      CnfLd_ListOnly);
@@ -59,6 +64,10 @@ TbBool load_stats_files(void)
     load_config(&keeper_magic_file_data,        CnfLd_ListOnly);
     load_config(&creature_states_file_data,     CnfLd_ListOnly);
     load_config(&keeper_playerstates_file_data, CnfLd_ListOnly);
+
+    // Load sounds before full config passes so that named sounds are available
+    // when fields like AmbienceSound, PlaceSound, TriggerSound are parsed.
+    load_sounds_config();
 
     //then load everything for real
     load_config(&keeper_terrain_file_data,      CnfLd_Standard|CnfLd_PreListed);

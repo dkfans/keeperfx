@@ -87,32 +87,32 @@ long key_to_string[256];
 /** Initialization array, used to create array which stores index of text name of keyboard keys. */
 struct KeyToStringInit key_to_string_init[] = {
 
-  {KC_A,  -DKChr_Upper_A},
-  {KC_B,  -DKChr_Upper_B},
-  {KC_C,  -DKChr_Upper_C},
-  {KC_D,  -DKChr_Upper_D},
-  {KC_E,  -DKChr_Upper_E},
-  {KC_F,  -DKChr_Upper_F},
-  {KC_G,  -DKChr_Upper_G},
-  {KC_H,  -DKChr_Upper_H},
-  {KC_I,  -DKChr_Upper_I},
-  {KC_J,  -DKChr_Upper_J},
-  {KC_K,  -DKChr_Upper_K},
-  {KC_L,  -DKChr_Upper_L},
-  {KC_M,  -DKChr_Upper_M},
-  {KC_N,  -DKChr_Upper_N},
-  {KC_O,  -DKChr_Upper_O},
-  {KC_P,  -DKChr_Upper_P},
-  {KC_Q,  -DKChr_Upper_Q},
-  {KC_R,  -DKChr_Upper_R},
-  {KC_S,  -DKChr_Upper_S},
-  {KC_T,  -DKChr_Upper_T},
-  {KC_U,  -DKChr_Upper_U},
-  {KC_V,  -DKChr_Upper_V},
-  {KC_W,  -DKChr_Upper_W},
-  {KC_X,  -DKChr_Upper_X},
-  {KC_Y,  -DKChr_Upper_Y},
-  {KC_Z,  -DKChr_Upper_Z},
+  {KC_A,  -'A'},
+  {KC_B,  -'B'},
+  {KC_C,  -'C'},
+  {KC_D,  -'D'},
+  {KC_E,  -'E'},
+  {KC_F,  -'F'},
+  {KC_G,  -'G'},
+  {KC_H,  -'H'},
+  {KC_I,  -'I'},
+  {KC_J,  -'J'},
+  {KC_K,  -'K'},
+  {KC_L,  -'L'},
+  {KC_M,  -'M'},
+  {KC_N,  -'N'},
+  {KC_O,  -'O'},
+  {KC_P,  -'P'},
+  {KC_Q,  -'Q'},
+  {KC_R,  -'R'},
+  {KC_S,  -'S'},
+  {KC_T,  -'T'},
+  {KC_U,  -'U'},
+  {KC_V,  -'V'},
+  {KC_W,  -'W'},
+  {KC_X,  -'X'},
+  {KC_Y,  -'Y'},
+  {KC_Z,  -'Z'},
   {KC_F1,  GUIStr_KeyF1},
   {KC_F2,  GUIStr_KeyF2},
   {KC_F3,  GUIStr_KeyF3},
@@ -170,17 +170,17 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_MOUSE7,          GUIStr_MouseButton},
   {KC_MOUSE8,          GUIStr_MouseButton},
   {KC_MOUSE9,          GUIStr_MouseButton},
-  {KC_ADD,             -DKChr_Plus},
-  {KC_SUBTRACT,        -DKChr_Hyphen},
+  {KC_ADD,             -'+'},
+  {KC_SUBTRACT,        -'-'},
   {KC_GRAVE,           GUIStr_KeyGrave},
-  {KC_SEMICOLON,       -DKChr_Semicolon},
-  {KC_SLASH,           -DKChr_Slash},
-  {KC_COMMA,           -DKChr_Comma},
+  {KC_SEMICOLON,       -';'},
+  {KC_SLASH,           -'/'},
+  {KC_COMMA,           -','},
   {KC_TAB,             GUIStr_KeyTab},
   {KC_SPACE,           GUIStr_KeySpace},
-  {KC_COLON,           -DKChr_Colon},
-  {KC_EQUALS,          -DKChr_Equals},
-  {KC_MINUS,           -DKChr_Hyphen},
+  {KC_COLON,           -':'},
+  {KC_EQUALS,          -'='},
+  {KC_MINUS,           -'-'},
   {  0,     0},
 };
 
@@ -477,21 +477,6 @@ short is_key_pressed(TbKeyCode key, TbKeyMods kmodif)
 }
 
 /**
- * Converts keyboard key code into ASCII character.
- * @param key Code of the key being pressed.
- * @param kmodif Key modifier flags.
- * @note Key modifier can't be KMod_DONTCARE in this function.
- */
-unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
-{
-  if (key >= 128)
-    return 0;
-  if (kmodif & KMod_SHIFT)
-    return lbInkeyToAsciiShift[key];
-  return lbInkeyToAscii[key];
-}
-
-/**
  * Clears the marking that a specific key is pressed.
  */
 void clear_key_pressed(long key)
@@ -632,6 +617,17 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     {
       return 0;
     }
+
+    struct GameKey *kbk = &settings.kbkeys[key_id];
+    if ((kbk->code == key && kbk->mods == mods)
+        || (mods != KC_UNASSIGNED && kbk->code == mod_key_to_normal_key(mods)))
+    {
+        kbk->code = KC_UNASSIGNED;
+        kbk->mods = KC_UNASSIGNED;
+        defined_keys_that_have_been_swapped[key_id] = false;
+        return 1;
+    }
+
     // One-Click Build & Sell Trap on Subtile - allow lone modifiers and normal keys
     if (key_id == Gkey_SellTrapOnSubtile || key_id == Gkey_SquareRoomSpace || key_id == Gkey_BestRoomSpace)
     {
@@ -755,6 +751,38 @@ TbBool mouse_is_over_side_panel_bottom()
     struct GuiMenu* gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     return ((GetMouseX() < status_panel_width) && (GetMouseY() > scale_ui_value(185)) && (GetMouseY() < gmnu->height));
 }
+
+TbBool add_input_text_to_message(char *message, int max_message_length, struct TbSpriteSheet *font, int max_width)
+{
+    LbTextSetFont(font);
+    clear_key_pressed(lbInkey);
+
+    if (pixel_size * LbTextStringWidth(message) >= max_width)
+        return false;
+
+    char text_input[64];
+    int text_len = LbGetTextInput(text_input, sizeof(text_input));
+    if (text_len <= 0)
+        return false;
+
+    int chpos = strlen(message);
+    for (int ti = 0; ti < text_len && chpos < max_message_length - 1; ++ti) {
+        unsigned char c = (unsigned char)text_input[ti];
+        // Limit it to ASCII characters, to ignore codepage differences and multibyte stuff.
+        if (c >= 0x20 && c < 0x7f) {
+            message[chpos++] = (char)c;
+            message[chpos] = '\0';
+
+            // Enforce max_width even when multiple characters arrive in one frame.
+            if (pixel_size * LbTextStringWidth(message) >= max_width) {
+                message[--chpos] = '\0';
+                break;
+            }
+        }
+    }
+    return true;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

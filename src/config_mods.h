@@ -19,25 +19,17 @@
  */
 /******************************************************************************/
 
-
-
 #ifndef DK_CFG_MODS_H
 #define DK_CFG_MODS_H
-
-
 
 #include "globals.h"
 #include "bflib_basics.h"
 
 #include "config.h"
 
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 
 #define MODS_DIR_NAME "mods"
 #define MODS_LOAD_ORDER_FILE_NAME "load_order.cfg"
@@ -49,9 +41,6 @@ extern "C" {
 // base, campaign, map
 #define MOD_ITEM_TYPE_CNT  3
 #define MOD_ITEM_MAX  50
-
-
-
 struct ModExistState{
     int mod_dir;
 
@@ -62,6 +51,8 @@ struct ModExistState{
 
     int crtr_data;	// FGrp_CrtrData: creaturemodel
     int cmpg_crtrs;	// FGrp_CmpgCrtrs: creaturemodel
+
+    int sound;		// FGrp_LrgSound: custom sound files (mods/<name>/sound/)
 };
 
 struct ModConfigItem {
@@ -86,11 +77,8 @@ const struct ModsConfig *get_loaded_mods_conf(void);
 void recheck_all_mod_exist();
 TbBool load_mods_order_config_file();
 
-
 #ifdef __cplusplus
 }
 #endif
-
-
 
 #endif // DK_CFG_MODS_H

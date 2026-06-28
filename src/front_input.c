@@ -35,6 +35,7 @@
 #include "net_lobby.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sndlib.h"
 #include "bflib_joyst.h"
 #include "kjm_input.h"
@@ -74,6 +75,7 @@
 #include "local_camera.h"
 #include "packets.h"
 #include "console_cmd.h"
+#include "engine_redraw.h"
 
 #include "keeperfx.hpp"
 
@@ -419,6 +421,7 @@ float get_game_key_axis_value(long key_id, TbBool ignore_mods)
 static short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
+
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
@@ -428,23 +431,26 @@ static short get_players_message_inputs(void)
         player->allocflags &= ~PlaF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_RETURN);
+        LbStopTextInput();
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
+        player->allocflags &= ~PlaF_NewMPMessage;
+        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_ESCAPE);
+        LbStopTextInput();
     } else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char) {
         cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         clear_key_pressed(KC_TAB);
     } else if (is_key_pressed(KC_UP, KMod_NONE)) {
         memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_UP);
+    } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
+        int chpos = strlen(player->mp_message_text);
+        if (chpos > 0)
+            player->mp_message_text[chpos-1] = '\0';
+        clear_key_pressed(KC_BACK);
     } else {
-        LbTextSetFont(winfont);
-        if (is_key_pressed(KC_BACK,KMod_DONTCARE) || pixel_size * LbTextStringWidth(player->mp_message_text) < 450) {
-            message_text_key_add(player->mp_message_text, lbInkey, key_modifiers);
-            clear_key_pressed(lbInkey);
-            return true;
-        }
-        return false;
+        return add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
     }
     return true;
 }
@@ -608,7 +614,10 @@ static long get_small_map_inputs(long x, long y, long zoom)
   }
   if (grabbed_small_map)
   {
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
+    TbGraphicsWindow ewnd;
+    store_engine_window(&ewnd, 1);
+    LbMouseSetPosition(ewnd.x + (ewnd.width  >> 1),
+                       ewnd.y + (ewnd.height >> 1));
   }
   old_mx = curr_mx;
   old_my = curr_my;
@@ -645,7 +654,9 @@ static short get_bookmark_inputs(void)
             clear_key_pressed(kcode);
             if ((bmark->flags & 0x01) != 0)
             {
-                set_players_packet_action(player, PckA_BookmarkLoad, bmark->x, bmark->y, 0, 0);
+                const MapCoord x = subtile_coord_center(bmark->x);
+                const MapCoord y = subtile_coord_center(bmark->y);
+                set_players_packet_action(player, PckA_BookmarkLoad, x, y, 0, 0);
                 return true;
             }
         }
@@ -745,6 +756,7 @@ static short get_global_inputs(void)
               return true;
           }
         player->allocflags |= PlaF_NewMPMessage;
+        LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -872,6 +884,7 @@ static TbBool get_level_lost_inputs(void)
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
         player->allocflags |= PlaF_NewMPMessage;
+        LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -1663,7 +1676,7 @@ static short get_creature_control_action_inputs(void)
             if ((player->possession_lock == true) && thing_is_creature(thing))
             {
                 if (is_my_player(player))
-                    play_non_3d_sample(119); //refusal
+                    play_non_3d_sample(snd_refusal); //refusal
             }
             else
             {

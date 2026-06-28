@@ -24,6 +24,7 @@
 #include "config_settings.h"
 #include "config_spritecolors.h"
 #include "config_trapdoor.h"
+#include "config_translation.h"
 #include "console_cmd.h"
 #include "config_rules.h"
 #include "creature_instances.h"
@@ -794,10 +795,19 @@ static void delete_from_party_check(const struct ScriptLine *scline)
 static void display_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
-    int16_t  msg_num = scline->np[0];
+
+    TextStringId  msg_num = get_string_id_by_alias(scline->tp[0]);
+
+    if ((msg_num < 0))
+    {
+        SCRPTERRLOG("Invalid TEXT number");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
     MapSubtlCoord x = 0, y = 0;
     TbMapLocation location = 0;
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    if ((msg_num < 0))
     {
         SCRPTERRLOG("Invalid TEXT number");
         return;
@@ -807,6 +817,7 @@ static void display_objective_check(const struct ScriptLine *scline)
         const char *where = scline->tp[1];
         if (!get_map_location_id(where, &location))
         {
+            DEALLOCATE_SCRIPT_VALUE
             return;
         }
     }
@@ -834,11 +845,12 @@ static void display_objective_process(struct ScriptContext *context)
 static void display_player_objective_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
-    int16_t  msg_num = scline->np[0];
+    TextStringId  msg_num = get_string_id_by_alias(scline->tp[0]);
     MapSubtlCoord x = 0, y = 0;
     TbMapLocation location = 0;
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    if ((msg_num < 0))
     {
+        DEALLOCATE_SCRIPT_VALUE
         SCRPTERRLOG("Invalid TEXT number");
         return;
     }
@@ -847,6 +859,7 @@ static void display_player_objective_check(const struct ScriptLine* scline)
         const char* where = scline->tp[2];
         if (!get_map_location_id(where, &location))
         {
+            DEALLOCATE_SCRIPT_VALUE
             return;
         }
     }
@@ -1080,9 +1093,10 @@ static void display_information_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
 
-    long msg_num = scline->np[0];
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    TextStringId  msg_num = get_string_id_by_alias(scline->tp[0]);
+    if ((msg_num < 0))
     {
+        DEALLOCATE_SCRIPT_VALUE
         SCRPTERRLOG("Invalid TEXT number");
         return;
     }
@@ -1106,7 +1120,7 @@ static void display_information_check(const struct ScriptLine* scline)
     }
     if (!get_map_location_id(where, &location))
     {
-        SCRPTERRLOG("Invalid location (%s)", scline->tp[2]);
+        SCRPTERRLOG("Invalid location (%s)", scline->tp[1]);
         return;
     }
 
@@ -1127,9 +1141,10 @@ static void display_player_information_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
 
-    long msg_num = scline->np[0];
-    if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
+    TextStringId msg_num = get_string_id_by_alias(scline->tp[0]);
+    if ((msg_num < 0))
     {
+        DEALLOCATE_SCRIPT_VALUE
         SCRPTERRLOG("Invalid TEXT number");
         return;
     }
@@ -1691,9 +1706,9 @@ static void new_room_type_check(const struct ScriptLine* scline)
     roomst->pointer_sprite_idx = 0;
     roomst->panel_tab_idx = 0;
     roomst->ambient_snd_smp_id = 0;
-    roomst->msg_needed = 0;
-    roomst->msg_too_small = 0;
-    roomst->msg_no_route = 0;
+    memset(&roomst->msg_needed, 0, sizeof(SpeechRef));
+    memset(&roomst->msg_too_small, 0, sizeof(SpeechRef));
+    memset(&roomst->msg_no_route, 0, sizeof(SpeechRef));
     roomst->roles = RoRoF_None;
     roomst->cost = 0;
     roomst->health = 0;
@@ -3758,8 +3773,15 @@ static void set_box_tooltip_id_check(const struct ScriptLine *scline)
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
+    TextStringId str_id = get_string_id_by_alias(scline->tp[1]);
+    if (str_id < 0)
+    {
+        SCRPTERRLOG("Unknown string '%s'", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
     value->shorts[0] = scline->np[0];
-    value->shorts[1] = scline->np[1];
+    value->shorts[1] = str_id;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5769,7 +5791,15 @@ static void quick_message_process(struct ScriptContext* context)
 static void display_message_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->ulongs[0] = scline->np[0];
+
+    TextStringId msg_num = get_string_id_by_alias(scline->tp[0]);
+    if (msg_num < 0)
+    {
+        SCRPTERRLOG("Unknown string '%s'", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    value->ulongs[0] = msg_num;
     get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -6675,14 +6705,14 @@ const struct CommandDesc command_desc[] = {
   {"MAX_CREATURES",                     "PN      ", Cmd_MAX_CREATURES, NULL, NULL},
   {"NEXT_COMMAND_REUSABLE",             "        ", Cmd_NEXT_COMMAND_REUSABLE, NULL, NULL},
   {"DOOR_AVAILABLE",                    "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
-  {"DISPLAY_OBJECTIVE",                 "Nl      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
-  {"DISPLAY_OBJECTIVE_WITH_POS",        "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
-  {"DISPLAY_INFORMATION",               "Nl      ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
-  {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
-  {"DISPLAY_PLAYER_OBJECTIVE",          "NPl     ", Cmd_DISPLAY_PLAYER_OBJECTIVE, &display_player_objective_check, &display_objective_process},
-  {"DISPLAY_PLAYER_OBJECTIVE_WITH_POS", "NPNN    ", Cmd_DISPLAY_PLAYER_OBJECTIVE_WITH_POS, &display_player_objective_check, &display_objective_process},
-  {"DISPLAY_PLAYER_INFORMATION",        "NPl     ", Cmd_DISPLAY_PLAYER_INFORMATION, &display_player_information_check, &display_information_process},
-  {"DISPLAY_PLAYER_INFORMATION_WITH_POS", "NPNN    ", Cmd_DISPLAY_PLAYER_INFORMATION_WITH_POS, &display_player_information_check, &display_information_process},
+  {"DISPLAY_OBJECTIVE",                 "Al      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
+  {"DISPLAY_OBJECTIVE_WITH_POS",        "ANN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
+  {"DISPLAY_INFORMATION",               "Al      ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
+  {"DISPLAY_INFORMATION_WITH_POS",      "ANN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
+  {"DISPLAY_PLAYER_OBJECTIVE",          "APl     ", Cmd_DISPLAY_PLAYER_OBJECTIVE, &display_player_objective_check, &display_objective_process},
+  {"DISPLAY_PLAYER_OBJECTIVE_WITH_POS", "APNN    ", Cmd_DISPLAY_PLAYER_OBJECTIVE_WITH_POS, &display_player_objective_check, &display_objective_process},
+  {"DISPLAY_PLAYER_INFORMATION",        "APl     ", Cmd_DISPLAY_PLAYER_INFORMATION, &display_player_information_check, &display_information_process},
+  {"DISPLAY_PLAYER_INFORMATION_WITH_POS", "APNN    ", Cmd_DISPLAY_PLAYER_INFORMATION_WITH_POS, &display_player_information_check, &display_information_process},
   {"QUICK_OBJECTIVE",                   "NAl     ", Cmd_QUICK_OBJECTIVE, &quick_objective_check, &quick_objective_process},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, &quick_objective_check, &quick_objective_process},
   {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, &quick_information_check, &quick_information_process},
@@ -6691,7 +6721,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_PLAYER_OBJECTIVE_WITH_POS",   "NPANN   ", Cmd_QUICK_PLAYER_OBJECTIVE_WITH_POS, &quick_player_objective_check, &quick_objective_process},
   {"QUICK_PLAYER_INFORMATION",          "NPAl    ", Cmd_QUICK_PLAYER_INFORMATION, &quick_player_information_check, &quick_information_process},
   {"QUICK_PLAYER_INFORMATION_WITH_POS", "NPANN   ", Cmd_QUICK_PLAYER_INFORMATION_WITH_POS, &quick_player_information_check, &quick_information_process},
-  {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
+  {"DISPLAY_MESSAGE",                   "AA      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, &quick_message_check, &quick_message_process},
   {"CLEAR_MESSAGE",                     "n       ", Cmd_CLEAR_MESSAGE, &clear_message_check, &clear_message_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
@@ -6766,7 +6796,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip_check, &set_box_tooltip_process},
-  {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id_check, &set_box_tooltip_id_process},
+  {"SET_BOX_TOOLTIP_ID",                "NA      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id_check, &set_box_tooltip_id_process},
   {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, &change_slab_owner_check, &change_slab_owner_process},
   {"CHANGE_SLAB_TYPE",                  "NNSa    ", Cmd_CHANGE_SLAB_TYPE, &change_slab_type_check, &change_slab_type_process},
   {"CREATE_EFFECTS_LINE",               "LLNNNA  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
@@ -6847,10 +6877,10 @@ const struct CommandDesc dk1_command_desc[] = {
   {"MAX_CREATURES",                "PN      ", Cmd_MAX_CREATURES, NULL, NULL},
   {"NEXT_COMMAND_REUSABLE",        "        ", Cmd_NEXT_COMMAND_REUSABLE, NULL, NULL},
   {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
-  {"DISPLAY_OBJECTIVE",            "NA      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
-  {"DISPLAY_OBJECTIVE_WITH_POS",   "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
-  {"DISPLAY_INFORMATION",          "N       ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
-  {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
+  {"DISPLAY_OBJECTIVE",            "AA      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
+  {"DISPLAY_OBJECTIVE_WITH_POS",   "ANN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
+  {"DISPLAY_INFORMATION",          "A       ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
+  {"DISPLAY_INFORMATION_WITH_POS", "ANN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},

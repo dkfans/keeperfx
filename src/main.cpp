@@ -31,6 +31,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_guibtns.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_mouse.h"
 #include "bflib_mshandler.hpp"
 #include "bflib_filelst.h"
@@ -472,7 +473,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     {
       if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
       {
-        thing->health -= game.conf.rules[thing->owner].game.boulder_reduce_health_wall;
+        thing->health -= game.conf.rules[thing->owner].gameplay.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
       if ( blocked_flags & SlbBloF_WalledX )
@@ -559,7 +560,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
             }
             if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
             {
-                boulder->health -= game.conf.rules[boulder->owner].game.boulder_reduce_health_room; // decrease boulder health
+                boulder->health -= game.conf.rules[boulder->owner].gameplay.boulder_reduce_health_room; // decrease boulder health
             }
             return 1; // guardpost destroyed
         }
@@ -2281,7 +2282,7 @@ void process_payday(void)
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        game.pay_day_progress[plyr_idx] = game.pay_day_progress[plyr_idx] + (game.conf.rules[plyr_idx].game.pay_day_speed / 100);
+        game.pay_day_progress[plyr_idx] = game.pay_day_progress[plyr_idx] + (game.conf.rules[plyr_idx].gameplay.pay_day_speed / 100);
         if (player_is_roaming(plyr_idx) || (plyr_idx == game.neutral_player_num)) {
             continue;
         }
@@ -2296,7 +2297,7 @@ void process_payday(void)
     int player_paid_creatures_count;
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        if (game.conf.rules[plyr_idx].game.pay_day_gap <= game.pay_day_progress[plyr_idx])
+        if (game.conf.rules[plyr_idx].gameplay.pay_day_gap <= game.pay_day_progress[plyr_idx])
         {
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_Payday, 0);
@@ -2357,7 +2358,7 @@ void update_near_creatures_for_footsteps(int32_t *near_creatures, const struct C
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Foot);
-            if (crsound->index > 0)
+            if (crsound->index != 0)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
@@ -2414,8 +2415,8 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
         // Per-thing code
         if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->state_flags & TF1_DoFootsteps) == 0))
         {
-            if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
-                S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
+            if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25) ) {
+                S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25);
             }
         }
         // Per-thing code ends
@@ -2625,27 +2626,31 @@ long update_cave_in(struct Thing *thing)
 }
 
 /**
+ * rules can change by dkscript/lua.
  * Checks if a gamerule for lighting has changed and updates the lights if they are.
  * This function also refreshes the light status of the map.
 */
 void update_global_lighting()
 {
+    if (!game.lish.light_auto_sync)
+        return;
+
     // Check if any values have changed
     if (
-        game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light ||
-        game.conf.rules[0].game.light_enabled != game.lish.light_enabled
+        game.conf.rules[0].gameplay.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules[0].gameplay.light_enabled != game.lish.light_enabled
     ){
 
         // GlobalAmbientLight
-        if (game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light)
+        if (game.conf.rules[0].gameplay.global_ambient_light != game.lish.global_ambient_light)
         {
-            game.lish.global_ambient_light = game.conf.rules[0].game.global_ambient_light;
+            game.lish.global_ambient_light = game.conf.rules[0].gameplay.global_ambient_light;
         }
 
         // LightEnabled
-        if (game.conf.rules[0].game.light_enabled != game.lish.light_enabled)
+        if (game.conf.rules[0].gameplay.light_enabled != game.lish.light_enabled)
         {
-            game.lish.light_enabled = game.conf.rules[0].game.light_enabled;
+            game.lish.light_enabled = game.conf.rules[0].gameplay.light_enabled;
         }
 
         // Refresh the lights
@@ -3493,9 +3498,11 @@ extern "C" void network_yield_waiting_gameplay_packets()
     poll_inputs();
     gameplay_loop_draw();
     gameplay_loop_timestep();
+    game.process_turn_time = min(game.process_turn_time, (long double)1.0);
     frametime_start_measurement(Frametime_Logic);
-    if (frametime_enabled())
+    if (frametime_enabled()) {
         framerate_measurement_capture(Framerate_Logic);
+    }
 }
 
 extern "C" void update_velocity(void);
@@ -3606,7 +3613,7 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
 {
     if (!allowed) {
         if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         return 0;
     }
     if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
@@ -3980,7 +3987,7 @@ void game_loop(void)
       // The main considerations are:
       // 1. SKIP_HEART_ZOOM: the mouse icon position will be reset to the top-left corner (0, 0), but the actual mouse position remains unchanged.
       // 2. PI_HeartZoom: the mouse will be moved to the center of the screen.
-      LbMouseSetPositionInitial(mspos_x_bak, mspos_y_bak);
+      LbMouseSetPosition(mspos_x_bak, mspos_y_bak);
 
       unsigned long starttime;
       unsigned long endtime;
@@ -4009,12 +4016,16 @@ void game_loop(void)
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();
+      stop_atmos_sounds();
       stop_music();
       stop_streamed_samples();
       free_level_strings_data();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
+      // Reset sounds back to the fxdata baseline so the main menu (and any
+      // subsequent campaign/freeplay selection) hears unmodified defaults.
+      sound_reset_to_fxdata_baseline();
       endtime = LbTimerClock();
       quit_game = 0;
       if ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -4434,31 +4445,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
     if (retval == 1)
     {
-      if ((install_info.lang_id == Lang_Japanese) ||
-          (install_info.lang_id == Lang_ChineseInt) ||
-          (install_info.lang_id == Lang_ChineseTra) ||
-          (install_info.lang_id == Lang_Korean))
-      {
-        switch (install_info.lang_id)
-        {
-        case Lang_Japanese:
-            dbc_set_language(1);
-            break;
-        case Lang_ChineseInt:
-            dbc_set_language(2);
-            break;
-        case Lang_ChineseTra:
-            dbc_set_language(3);
-            break;
-        case Lang_Korean:
-            dbc_set_language(4);
-            break;
+        if (is_dbc_language(install_info.lang_id))
+        {            
+            dbc_initialized = 1;
         }
-        if (dbc_initialize("fxdata"))
-        {
-          ERRORLOG("DBC fonts Initialization failed.");
-        }
-      }
+        load_unifont_files();
     }
     if ( retval == 1 )
     {

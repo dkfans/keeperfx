@@ -1,3 +1,4 @@
+#include "kfx_memory.h"
 #include "pre_inc.h"
 
 #include "config_mods.h"
@@ -163,6 +164,19 @@ static void recheck_block_mod_list_exist(struct ModConfigItem *mod_items, long m
                 strcat(config_dirs, "FGrp_CmpgCrtrs");
         }
 
+        fname = prepare_file_path_mod(mod_dir, FGrp_LrgSound, NULL);
+        if (fname[0] != 0 && LbFileExists(fname))
+        {
+            mod_state->sound = 1;
+
+            strcat(config_dirs, str_sep);
+            str_sep = ", ";
+            if (memcmp(main_dir, fname, main_len) == 0)
+                strcat(config_dirs, fname+main_len+1);
+            else
+                strcat(config_dirs, "FGrp_LrgSound");
+        }
+
         if (config_dirs[0] == 0)
             WARNMSG("The '%s' mod configured in '%s' section exists but has no valid configuration.", mod_item->name, block_name);
         else
@@ -199,7 +213,7 @@ TbBool load_mods_order_config_file()
         ERRORLOG("Mods order file \"%s\" is too large.", sname);
         return false;
     }
-    char* buf = (char*)calloc(len + 256, 1);
+    char* buf = (char*)KfxCalloc(len + 256, 1);
     if (buf == NULL)
       return false;
     // Loading file data
@@ -210,7 +224,7 @@ TbBool load_mods_order_config_file()
         parse_block_mods(buf, len, MODS_AFTER_CAMPAIGN_BLOCK_NAME, stored_mods_conf.after_campaign_item, &stored_mods_conf.after_campaign_cnt, MOD_ITEM_MAX);
         parse_block_mods(buf, len, MODS_AFTER_MAP_BLOCK_NAME, stored_mods_conf.after_map_item, &stored_mods_conf.after_map_cnt, MOD_ITEM_MAX);
     }
-    free(buf);
+    KfxFree(buf);
 
     return true;
 }

@@ -24,9 +24,11 @@
 #include "bflib_keybrd.h"
 #include "bflib_guibtns.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
+#include "bflib_text.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
@@ -97,6 +99,33 @@ char gui_creature_type_highlighted;
 unsigned long first_person_instance_top_half_selected;
 
 static unsigned char info_page;
+
+static void remap_digits_to_white_numbers(char *text)
+{
+    char tmp[TEXT_BUFFER_LENGTH];
+    size_t dst = 0;
+    for (const char *src = text; *src != '\0'; ++src)
+    {
+        if ((*src >= '0') && (*src <= '9'))
+        {
+            uint32_t codepoint = white_numbers_start + (uint32_t)(*src - '0');
+            size_t len = encode_utf8_codepoint(codepoint, &tmp[dst], sizeof(tmp) - dst);
+            if (len == 0) {
+                break;
+            }
+            dst += len;
+        }
+        else
+        {
+            if (dst + 1 >= sizeof(tmp)) {
+                break;
+            }
+            tmp[dst++] = *src;
+        }
+    }
+    tmp[dst] = '\0';
+    memcpy(text, tmp, dst + 1);
+}
 /******************************************************************************/
 /******************************************************************************/
 static PlayerNumber info_panel_pos_to_player_number(int idx)
@@ -585,10 +614,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
         } else {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
         }
-        // We will use a special coding for our "string" - we want chars to represent
-        // sprite index directly, without code pages and multibyte chars interpretation
-        for (i=0; gui_textbuf[i] != '\0'; i++)
-            gui_textbuf[i] -= 120;
+        remap_digits_to_white_numbers(gui_textbuf);
     } else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
@@ -773,7 +799,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
     GoldAmount price = compute_power_price(dungeon->owner, pwkind, 0);
-    char text[16];
+    char text[32];
     snprintf(text, sizeof(text), "%ld", (long)price);
     if (dungeon->total_money_owned >= price)
     {
@@ -782,10 +808,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
         } else {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
         }
-        for (char* c = text; *c != 0; c++)
-        {
-            *c -= 120;
-        }
+        remap_digits_to_white_numbers(text);
     } else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
@@ -1421,28 +1444,10 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     LbTextSetJustifyWindow((x - (dst_w / 2)), y, dst_w);
     LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, 16*dst_w/base_w);
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
-    int tx_units_per_px;
-    int text_x;
+    int tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
+    int text_x = 0;
     int text_y = -6*dst_w/base_w;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
-    {
-        tx_units_per_px = scale_ui_value(32);
-        text_x = 12;
-    }
-    else
-    {
-        tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
-        if ( (dbc_language > 0) && (MyScreenWidth > 640) )
-        {
-            tx_units_per_px = scale_value_by_horizontal_resolution(12 + (MyScreenWidth / 640));
-            text_y += 12;
-        }
-        else
-        {
-            tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
-        }
-        text_x = 0;
-    }
+    
     LbTextDrawResized(text_x, text_y, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
@@ -1756,12 +1761,10 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         if (gbtn->content.lptr != NULL)
         {
           snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", cr_total);
-          // We will use a special coding for our "string" - we want chars to represent
-          // sprite index directly, without code pages and multibyte chars interpretation
+          // Convert digits to private-use white-number codepoints for rendering.
           if ((cr_total > 0) && (dungeon->guijob_all_creatrs_count[crmodel][(job_idx & 0x03)] ))
           {
-              for (i=0; gui_textbuf[i] != '\0'; i++)
-                  gui_textbuf[i] -= 120;
+              remap_digits_to_white_numbers(gui_textbuf);
           }
           LbTextUseByteCoding(false);
           draw_button_string(gbtn, 32, gui_textbuf);
@@ -1854,7 +1857,9 @@ void gui_area_experience_button(struct GuiButton *gbtn)
         gui_area_progress_bar_med2(gbtn, units_per_px, points_progress, points_required);
         char text[16];
         snprintf(text, sizeof(text), "%d", (int)(cctrl->exp_level + 1));
+        LbTextUseByteCoding(false);
         draw_button_string(gbtn, 56, text);
+        LbTextUseByteCoding(true);
     } else
     if (thing_is_dead_creature(ctrltng))
     {
@@ -1914,7 +1919,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     }
 
     // Calculating text size.
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (gbtn->height * 11 / 12) * 16 / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (gbtn->height * 11 / 12) * 16 / LbTextLineHeight();
     char text[16];
     snprintf(text, sizeof(text), "%d", (curbtn_avail_pos + 1) % 10);
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
@@ -2448,11 +2453,13 @@ void gui_area_payday_button(struct GuiButton *gbtn)
     int units_per_px = (gbtn->width * 16 + 132 / 2) / 132;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
-    gui_area_progress_bar_wide(gbtn, units_per_px, game.pay_day_progress[my_player_number], game.conf.rules[my_player_number].game.pay_day_gap);
+    gui_area_progress_bar_wide(gbtn, units_per_px, game.pay_day_progress[my_player_number], game.conf.rules[my_player_number].gameplay.pay_day_gap);
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     char text[16];
     snprintf(text, sizeof(text), "%d", (int)dungeon->creatures_total_pay);
+    LbTextUseByteCoding(false);
     draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + scale_value_by_vertical_resolution(8), 130, gbtn->width);
+    LbTextUseByteCoding(true);
 }
 
 void gui_area_research_bar(struct GuiButton *gbtn)
@@ -2520,7 +2527,7 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
             draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44, plyr_idx);
         }
         char text[32];
-        if (game.conf.rules[plyr_idx].game.display_portal_limit == true)
+        if (game.conf.rules[plyr_idx].gameplay.display_portal_limit == true)
         {
             snprintf(text, sizeof(text), " %u/%d", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
         } else {
@@ -2891,7 +2898,7 @@ void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
     {
         struct Packet* pckt = get_packet(player->id_number);
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
-        play_non_3d_sample(62);
+        play_non_3d_sample(snd_tab_click);
     }
 }
 
@@ -2904,7 +2911,7 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
     {
         struct Packet* pckt = get_packet(player->id_number);
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
-        play_non_3d_sample(62);
+        play_non_3d_sample(snd_tab_click);
     }
 }
 

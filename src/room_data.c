@@ -51,6 +51,7 @@
 #include "magic_powers.h"
 #include "room_util.h"
 #include "game_legacy.h"
+#include "config_sounds.h"
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "config_spritecolors.h"
@@ -3550,7 +3551,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         destroy_object(thing);
         return;
     }
-    if ((game.conf.rules[room->owner].game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
+    if ((game.conf.rules[room->owner].gameplay.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
         // Preserve classic bug - object is claimed with the room
         thing->owner = newowner;
         return;
@@ -3840,7 +3841,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
         EvKind_RoomTakenOver, claimtng->owner, room->kind);
     do_room_integration(room);
-    thing_play_sample(claimtng, 116, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(claimtng, snd_room_claim, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     output_room_takeover_message(room, oldowner, claimtng->owner);
     return 1;
 }

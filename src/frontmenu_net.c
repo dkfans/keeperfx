@@ -117,9 +117,6 @@ void frontnet_start_game_maintain(struct GuiButton *gbtn)
 TbBool frontnet_start_input(void)
 {
     struct PlayerInfo *player = get_my_player();
-    if (lbInkey == KC_UNASSIGNED) {
-        return false;
-    }
     if (lbInkey == KC_RETURN) {
         if (player->mp_message_text[0] != '\0') {
             send_network_chat_message(my_player_number, player->mp_message_text);
@@ -127,8 +124,13 @@ TbBool frontnet_start_input(void)
         process_frontend_chat_message(my_player_number, player->mp_message_text);
     } else if (lbInkey == KC_ESCAPE) {
         player->mp_message_text[0] = '\0';
-    } else if (lbInkey == KC_BACK || frontend_font_string_width(1, player->mp_message_text) < 420) {
-        message_text_key_add(player->mp_message_text, lbInkey, key_modifiers);
+    } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
+        int chpos = strlen(player->mp_message_text);
+        if (chpos > 0)
+            player->mp_message_text[chpos-1] = '\0';
+        clear_key_pressed(KC_BACK);
+    } else {
+        add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, frontend_font[1] , 420);
     }
     lbInkey = KC_UNASSIGNED;
     return true;
