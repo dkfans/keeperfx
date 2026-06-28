@@ -339,6 +339,16 @@ KFX_LDFLAGS += -flto=auto
 TOML_CFLAGS += -flto
 endif
 
+# All downloaded dependencies must be unpacked before any object is compiled.
+# Otherwise a parallel build (make -jN) can start compiling a source that
+# includes a not-yet-extracted dependency header (e.g. <enet6/enet.h>) and fail
+# on the first run. Used as an order-only prerequisite of every object below.
+DEPS_EXTRACTED = \
+	deps/centijson/include/json.h \
+	deps/astronomy/include/astronomy.h \
+	deps/enet6/include/enet6/enet.h \
+	deps/libcurl/lib/libcurl.a
+
 all: bin/keeperfx
 
 clean:
@@ -350,15 +360,15 @@ clean:
 bin/keeperfx: $(KFX_OBJECTS) $(TOML_OBJECTS) deps/libcurl/lib/libcurl.a | bin
 	$(CXX) -o $@ $(KFX_OBJECTS) $(TOML_OBJECTS) $(KFX_LDFLAGS)
 
-$(KFX_C_OBJECTS): obj/%.o: src/%.c src/ver_defs.h | obj
+$(KFX_C_OBJECTS): obj/%.o: src/%.c src/ver_defs.h | obj $(DEPS_EXTRACTED)
 	$(MKDIR) $(dir $@)
 	$(CC) $(KFX_CFLAGS) -c $< -o $@
 
-$(KFX_CXX_OBJECTS): obj/%.o: src/%.cpp src/ver_defs.h | obj
+$(KFX_CXX_OBJECTS): obj/%.o: src/%.cpp src/ver_defs.h | obj $(DEPS_EXTRACTED)
 	$(MKDIR) $(dir $@)
 	$(CXX) $(KFX_CXXFLAGS) -c $< -o $@
 
-$(TOML_OBJECTS): obj/centitoml/%.o: deps/centitoml/%.c | obj/centitoml
+$(TOML_OBJECTS): obj/centitoml/%.o: deps/centitoml/%.c | obj/centitoml $(DEPS_EXTRACTED)
 	$(CC) $(TOML_CFLAGS) -c $< -o $@
 
 bin obj deps/astronomy deps/centijson deps/enet6 deps/libcurl obj/centitoml:
