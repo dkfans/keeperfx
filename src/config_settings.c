@@ -158,6 +158,8 @@ static const struct { unsigned char code; const char *name; } keycode_table[] = 
     { KC_MOUSE1,           "MOUSE1" },
     { KC_MOUSEWHEEL_DOWN,  "MOUSEWHEEL_DOWN" },
     { KC_MOUSEWHEEL_UP,    "MOUSEWHEEL_UP" },
+    { KC_MOUSEWHEEL_LEFT,  "MOUSEWHEEL_LEFT" },
+    { KC_MOUSEWHEEL_RIGHT, "MOUSEWHEEL_RIGHT" },
 };
 #define KEYCODE_TABLE_SIZE ((int)(sizeof(keycode_table)/sizeof(keycode_table[0])))
 
