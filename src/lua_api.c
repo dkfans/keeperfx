@@ -1481,7 +1481,6 @@ static int lua_Set_computer_process(lua_State *L)
     long config_value_3 = luaL_checkinteger(L,5);
     long config_value_4 = luaL_checkinteger(L,6);
     long config_value_5 = luaL_checkinteger(L,7);
-    long n = 0;
     for (long i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Computer2* comp = get_computer_player(i);
@@ -1500,7 +1499,6 @@ static int lua_Set_computer_process(lua_State *L)
                 cproc->process_configuration_value_3 = config_value_3;
                 cproc->process_configuration_value_4 = config_value_4;
                 cproc->process_configuration_value_5 = config_value_5;
-                n++;
             }
         }
     }
@@ -1517,7 +1515,6 @@ static int lua_Set_computer_checks(lua_State *L)
     long tertiary_parameter = luaL_checkinteger(L,6);
     long last_run_turn = luaL_checkinteger(L,7);
 
-    long n = 0;
     for (long i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Computer2* comp = get_computer_player(i);
@@ -1536,7 +1533,6 @@ static int lua_Set_computer_checks(lua_State *L)
                 ccheck->secondary_parameter = secondary_parameter;
                 ccheck->tertiary_parameter = tertiary_parameter;
                 ccheck->last_run_turn = last_run_turn;
-                n++;
             }
         }
     }
@@ -1585,7 +1581,6 @@ static int lua_Set_computer_event(lua_State *L)
     long tertiary_parameter = luaL_checkinteger(L,6);
     long last_test_gameturn = luaL_checkinteger(L,7);
 
-    long n = 0;
     for (long i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Computer2* comp = get_computer_player(i);
@@ -1602,7 +1597,6 @@ static int lua_Set_computer_event(lua_State *L)
                 event->secondary_parameter = secondary_parameter;
                 event->tertiary_parameter = tertiary_parameter;
                 event->last_test_gameturn = last_test_gameturn;
-                n++;
             }
         }
     }

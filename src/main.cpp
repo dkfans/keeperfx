@@ -3934,10 +3934,9 @@ static TbBool wait_at_frontend(void)
 
 void game_loop(void)
 {
-    unsigned long total_play_turns;
-    unsigned long playtime;
-    playtime = 0;
-    total_play_turns = 0;
+#if (BFDEBUG_LEVEL > 0)
+    unsigned long playtime = 0;
+#endif
     SYNCDBG(0,"Entering gameplay loop.");
 
     while ( !exit_keeper )
@@ -3990,7 +3989,9 @@ void game_loop(void)
       LbMouseSetPosition(mspos_x_bak, mspos_y_bak);
 
       unsigned long starttime;
+#if (BFDEBUG_LEVEL > 0)
       unsigned long endtime;
+#endif
       struct Dungeon *dungeon;
       // get_my_dungeon() can't be used here because players are not initialized yet
       dungeon = get_dungeon(my_player_number);
@@ -4026,13 +4027,16 @@ void game_loop(void)
       // Reset sounds back to the fxdata baseline so the main menu (and any
       // subsequent campaign/freeplay selection) hears unmodified defaults.
       sound_reset_to_fxdata_baseline();
+#if (BFDEBUG_LEVEL > 0)
       endtime = LbTimerClock();
+#endif
       quit_game = 0;
       if ((game.operation_flags & GOF_SingleLevel) != 0)
           exit_keeper=true;
+#if (BFDEBUG_LEVEL > 0)
       playtime += endtime-starttime;
+#endif
       SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
-      total_play_turns += get_gameturn();
       reset_eye_lenses();
       close_packet_file();
       game.packet_load_enable = false;

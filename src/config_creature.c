@@ -1768,7 +1768,6 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
                     cmd_num = 0;
                 }
             }
-            int n = 0;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -1778,7 +1777,6 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
-                n++;
                 break;
             case ccr_comment:
                 break;
@@ -1856,7 +1854,6 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
                     cmd_num = 0;
                 }
             }
-            int n = 0;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -1866,7 +1863,6 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
-                n++;
                 break;
             case ccr_comment:
                 break;
