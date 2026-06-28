@@ -40,6 +40,9 @@ static int lua_disabled_os_function(lua_State *L)
 
 static void disable_lua_functions(lua_State *L)
 {
+    if (!network_is_active()) {
+        return;
+    }
     const char *disabled_os_functions[] = {"time", "date", "clock"};
 
     lua_getglobal(L, "os");
