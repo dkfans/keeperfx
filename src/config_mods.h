@@ -56,7 +56,6 @@ struct ModExistState{
 
     int lrg_sound;		// FGrp_LrgSound: custom sound files (mods/<name>/sound/)
 
-    int cmpg_media;	// FGrp_CmpgMedia: play_music
     int music;	// FGrp_Music: play_music
 };
 

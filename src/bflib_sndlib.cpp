@@ -625,6 +625,10 @@ static const char * find_music_file_for_mod_list(short fgroup, const char * fnam
     if (fgroup != FGrp_CmpgMedia && fgroup != FGrp_Music)
         return NULL;
 
+    // Since the path for FGrp_CmpgMedia is configurable/dynamic, the mod's designer cannot obtain it in advance.
+    // it would make more sense to force-unify FGrp_CmpgMedia and FGrp_Music into FGrp_Music.
+    fgroup = FGrp_Music;
+
     // Note that this is the reverse mods direction
     for (long i=mod_cnt-1; i>=0; i--)
     {
@@ -632,8 +636,7 @@ static const char * find_music_file_for_mod_list(short fgroup, const char * fnam
         if (mod_item->state.mod_dir == 0)
             continue;
 
-        int music_dir = fgroup == FGrp_CmpgMedia ? mod_item->state.cmpg_media : mod_item->state.music;
-        if (music_dir == 0)
+        if (mod_item->state.music == 0)
             continue;
 
         char mod_dir[256] = {0};

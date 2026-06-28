@@ -99,7 +99,6 @@ static void recheck_block_mod_list_exist(struct ModConfigItem *mod_items, long m
             { &mod_state->crtr_data, FGrp_CrtrData, "FGrp_CrtrData" },
             { &mod_state->cmpg_crtrs, FGrp_CmpgCrtrs, "FGrp_CmpgCrtrs" },
             { &mod_state->lrg_sound, FGrp_LrgSound, "FGrp_LrgSound" },
-            { &mod_state->cmpg_media, FGrp_CmpgMedia, "FGrp_CmpgMedia" },
             { &mod_state->music, FGrp_Music, "FGrp_Music" },
         };
         const int grp_check_cnt = (int)(sizeof(grp_check_list)/sizeof(grp_check_list[0]));
