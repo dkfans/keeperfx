@@ -292,7 +292,8 @@ KFX_INCLUDES = \
 	-Ideps/astronomy/include \
 	-Ideps/enet6/include \
 	-Ideps/libcurl/include \
-	$(shell pkg-config --cflags-only-I luajit)
+	$(shell pkg-config --cflags-only-I luajit) \
+	$(shell pkg-config --cflags-only-I libavformat)
 
 KFX_CFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-absolute-value -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
 KFX_CXXFLAGS += -g -DDEBUG -DBFDEBUG_LEVEL=0 -O3 -march=x86-64 $(KFX_INCLUDES) -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare
