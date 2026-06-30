@@ -188,7 +188,7 @@ struct PlayerInfo *prepare_network_chat_message(int player_id, const char *messa
 {
     struct PlayerInfo *player = get_player(player_id);
     player->allocflags &= ~PlaF_NewMPMessage;
-    LbStopTextInput();
+    //LbStopTextInput();
     if (message[0] != '\0') {
         memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
         memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
