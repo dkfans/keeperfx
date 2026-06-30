@@ -66,9 +66,9 @@ TbBool detailed_multiplayer_logging = false;
 
 struct ResyncHeader {
     unsigned char message_type;
-    unsigned int compressed_length;
-    unsigned int original_length;
-    unsigned int data_checksum;
+    uint32_t compressed_length;
+    uint32_t original_length;
+    uint32_t data_checksum;
 };
 
 void animate_resync_progress_bar(int current_phase, int total_phases) {
@@ -125,47 +125,46 @@ void recall_localised_game_structure(void) {
     game.manufactr_tooltip = boing.manufactr_tooltip;
 }
 
-static TbBool send_resync_data(const void * buffer, size_t total_length) {
-    MULTIPLAYER_LOG("Starting to send resync data: %lu bytes uncompressed", (unsigned long)total_length);
-    
-    uLong data_crc = crc32(0L, Z_NULL, 0);
-    data_crc = crc32(data_crc, (const Bytef*)buffer, total_length);
+static TbBool send_resync_data(const void * buffer, size_t total_length)
+{
+    if (total_length > UINT32_MAX) {
+        ERRORLOG("Resync data too large");
+        return false;
+    }
 
     uLongf compressed_size = compressBound(total_length);
-    char * compressed_buffer = (char *) malloc(compressed_size);
-    if (!compressed_buffer) {
-        ERRORLOG("Failed to allocate buffer for compression (bound: %lu bytes)", (unsigned long)compressed_size);
+    if (compressed_size > UINT32_MAX - sizeof(ResyncHeader)) {
+        ERRORLOG("Compressed resync data too large");
         return false;
     }
 
-    int compress_result = compress((Bytef*)compressed_buffer, &compressed_size, (const Bytef*)buffer, total_length);
+    size_t message_size = sizeof(ResyncHeader) + compressed_size;
+    char * message_buffer = (char *) malloc(message_size);
+    if (message_buffer == NULL) {
+        ERRORLOG("Failed to allocate message buffer");
+        return false;
+    }
+
+    int compress_result = compress((Bytef *)(message_buffer + sizeof(ResyncHeader)), &compressed_size, (const Bytef *)buffer, total_length);
     if (compress_result != Z_OK) {
         ERRORLOG("Compression failed: zlib error %d", compress_result);
-        free(compressed_buffer);
+        free(message_buffer);
         return false;
     }
 
-    NETLOG("Compression successful: %lu -> %lu bytes (ratio: %.2f%%)",
-           (unsigned long)total_length, (unsigned long)compressed_size,
-           ((double)compressed_size / total_length) * 100.0);
+    uLong data_crc = crc32(0L, Z_NULL, 0);
+    data_crc = crc32(data_crc, (const Bytef *)buffer, total_length);
+    NETLOG("Compression successful: %u -> %u bytes", (uint32_t)total_length, (uint32_t)compressed_size);
 
     ResyncHeader header;
     memset(&header, 0, sizeof(header));
     header.message_type = NETMSG_RESYNC_DATA;
-    header.compressed_length = compressed_size;
-    header.original_length = total_length;
-    header.data_checksum = (unsigned int)data_crc;
+    header.compressed_length = (uint32_t)compressed_size;
+    header.original_length = (uint32_t)total_length;
+    header.data_checksum = (uint32_t)data_crc;
 
-    size_t message_size = sizeof(ResyncHeader) + compressed_size;
-    char * message_buffer = (char *) malloc(message_size);
-    if (!message_buffer) {
-        ERRORLOG("Failed to allocate message buffer");
-        free(compressed_buffer);
-        return false;
-    }
-
+    message_size = sizeof(ResyncHeader) + compressed_size;
     memcpy(message_buffer, &header, sizeof(ResyncHeader));
-    memcpy(message_buffer + sizeof(ResyncHeader), compressed_buffer, compressed_size);
 
     NETLOG("Host: Sending resync data to all clients");
     for (NetUserId user_index = 0; user_index < MAX_NET_USERS; ++user_index) {
@@ -175,32 +174,31 @@ static TbBool send_resync_data(const void * buffer, size_t total_length) {
         netstate.sp->sendmsg_single(netstate.users[user_index].id, message_buffer, message_size);
     }
 
-    free(compressed_buffer);
     free(message_buffer);
     return true;
 }
 
-static TbBool receive_resync_data(void * destination_buffer, size_t expected_total_length) {
-    NETLOG("Starting to receive resync data, expecting %lu bytes", (unsigned long)expected_total_length);
+static TbBool receive_resync_data(char ** data_buffer, size_t * data_length)
+{
+    NETLOG("Starting to receive resync data");
 
     TbClockMSec start_time = LbTimerClock();
     while (LbTimerClock() - start_time < RESYNC_RECEIVE_TIMEOUT_MS) {
         netstate.sp->update(OnNewUser);
-        size_t ready = netstate.sp->msgready(SERVER_ID, 0);
-        if (ready == 0) {
+        size_t received_size = netstate.sp->msgready(SERVER_ID, 0);
+        if (received_size == 0) {
             continue;
         }
 
-        size_t max_message_size = sizeof(ResyncHeader) + compressBound(expected_total_length);
-        char * message_buffer = (char *) malloc(max_message_size);
-        if (!message_buffer) {
+        char * message_buffer = (char *) malloc(received_size);
+        if (message_buffer == NULL) {
             ERRORLOG("Failed to allocate message buffer");
             return false;
         }
 
-        size_t received_size = netstate.sp->readmsg(SERVER_ID, message_buffer, max_message_size);
+        received_size = netstate.sp->readmsg(SERVER_ID, message_buffer, received_size);
         if (received_size < sizeof(ResyncHeader)) {
-            ERRORLOG("Received message too small: %lu bytes", (unsigned long)received_size);
+            ERRORLOG("Received message too small: %u bytes", (uint32_t)received_size);
             free(message_buffer);
             continue;
         }
@@ -214,41 +212,54 @@ static TbBool receive_resync_data(void * destination_buffer, size_t expected_tot
             continue;
         }
 
-        if (header.original_length != expected_total_length) {
-            ERRORLOG("Received data with wrong size: %lu != %lu", (unsigned long)header.original_length, (unsigned long)expected_total_length);
+        if (header.compressed_length != received_size - sizeof(ResyncHeader)) {
+            ERRORLOG("Received message size mismatch: %u != %u",
+                (uint32_t)(received_size - sizeof(ResyncHeader)), header.compressed_length);
+            free(message_buffer);
+            continue;
+        }
+        if (*data_length != 0 && header.original_length != *data_length) {
+            ERRORLOG("Received data with wrong size: %u != %u", header.original_length, (uint32_t)*data_length);
             free(message_buffer);
             continue;
         }
 
-        if (received_size != sizeof(ResyncHeader) + header.compressed_length) {
-            ERRORLOG("Received message size mismatch: %lu != %lu + %lu",
-                   (unsigned long)received_size, (unsigned long)sizeof(ResyncHeader), (unsigned long)header.compressed_length);
+        size_t output_size = header.original_length;
+        if (output_size == 0) {
+            output_size = 1;
+        }
+        char * output_buffer = (char *) malloc(output_size);
+        if (output_buffer == NULL) {
+            ERRORLOG("Failed to allocate resync destination buffer");
             free(message_buffer);
-            continue;
+            return false;
         }
 
-        MULTIPLAYER_LOG("Client: Received resync message, decompressing %lu bytes", (unsigned long)header.compressed_length);
+        uLongf dest_len = output_size;
 
-        uLongf dest_len = expected_total_length;
-        int uncompress_result = uncompress((Bytef*)destination_buffer, &dest_len,
-                                           (const Bytef*)(message_buffer + sizeof(ResyncHeader)),
-                                           header.compressed_length);
+        MULTIPLAYER_LOG("Client: Received resync message, decompressing %u bytes", header.compressed_length);
 
-        if (uncompress_result != Z_OK || dest_len != expected_total_length) {
-            ERRORLOG("Decompression failed: zlib error %d, expected %lu bytes, got %lu bytes",
-                   uncompress_result, (unsigned long)expected_total_length, (unsigned long)dest_len);
+        int uncompress_result = uncompress((Bytef *)output_buffer, &dest_len,
+            (const Bytef *)(message_buffer + sizeof(ResyncHeader)), header.compressed_length);
+        if (uncompress_result != Z_OK || dest_len != header.original_length) {
+            ERRORLOG("Decompression failed: zlib error %d, expected %u bytes, got %u bytes",
+                uncompress_result, header.original_length, (uint32_t)dest_len);
+            free(output_buffer);
             free(message_buffer);
             return false;
         }
 
         uLong verify_crc = crc32(0L, Z_NULL, 0);
-        verify_crc = crc32(verify_crc, (const Bytef*)destination_buffer, expected_total_length);
-        if ((unsigned long)verify_crc != header.data_checksum) {
+        verify_crc = crc32(verify_crc, (const Bytef *)output_buffer, header.original_length);
+        if ((uint32_t)verify_crc != header.data_checksum) {
             ERRORLOG("Resync data checksum mismatch");
+            free(output_buffer);
             free(message_buffer);
             return false;
         }
 
+        *data_buffer = output_buffer;
+        *data_length = header.original_length;
         free(message_buffer);
         NETLOG("Client: Resync data received successfully");
         return true;
@@ -258,17 +269,23 @@ static TbBool receive_resync_data(void * destination_buffer, size_t expected_tot
     return false;
 }
 
-TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length) {
-    MULTIPLAYER_LOG("Starting resync, my_id=%d, buffer_length=%lu", netstate.my_id, (unsigned long)buffer_length);
-    const TbBool is_host = (my_player_number == get_host_player_id());
+TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
+{
+    MULTIPLAYER_LOG("Starting resync, my_id=%d, buffer_length=%u", netstate.my_id, (uint32_t)buffer_length);
 
     TbBool result;
-    if (is_host) {
+    if (my_player_number == get_host_player_id()) {
         MULTIPLAYER_LOG("Resync: I am the server");
         result = send_resync_data(data_buffer, buffer_length);
     } else {
         MULTIPLAYER_LOG("Resync: I am a client, receiving");
-        result = receive_resync_data(data_buffer, buffer_length);
+        char * received_data = NULL;
+        size_t received_length = buffer_length;
+        result = receive_resync_data(&received_data, &received_length);
+        if (result) {
+            memcpy(data_buffer, received_data, buffer_length);
+        }
+        free(received_data);
     }
 
     if (!result) {
@@ -280,25 +297,29 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length) {
     return true;
 }
 
-TbBool send_resync_game(void) {
-  pack_desync_history_for_resync();
-  clear_flag(game.operation_flags, GOF_Paused);
-  animate_resync_progress_bar(0, 6);
-  NETLOG("Initiating re-synchronization of network game");
-  TbBool result = LbNetwork_Resync(&game, sizeof(game));
-  if (!result) {
-    return false;
-  }
-  animate_resync_progress_bar(2, 6);
-  animate_resync_progress_bar(6, 6);
-  NETLOG("Host: Resync complete");
-  return true;
-}
-
-TbBool receive_resync_game(void) {
+TbBool send_resync_game(void)
+{
+    pack_desync_history_for_resync();
     clear_flag(game.operation_flags, GOF_Paused);
     animate_resync_progress_bar(0, 6);
     NETLOG("Initiating re-synchronization of network game");
+
+    TbBool result = LbNetwork_Resync(&game, sizeof(game));
+    if (!result) {
+        return false;
+    }
+    animate_resync_progress_bar(2, 6);
+    animate_resync_progress_bar(6, 6);
+    NETLOG("Host: Resync complete");
+    return true;
+}
+
+TbBool receive_resync_game(void)
+{
+    clear_flag(game.operation_flags, GOF_Paused);
+    animate_resync_progress_bar(0, 6);
+    NETLOG("Initiating re-synchronization of network game");
+
     TbBool result = LbNetwork_Resync(&game, sizeof(game));
     if (!result) {
         return false;
@@ -313,16 +334,22 @@ TbBool receive_resync_game(void) {
 }
 
 
-void resync_game(void) {
+void resync_game(void)
+{
     SYNCDBG(2,"Starting");
     struct PlayerInfo* player = get_my_player();
     draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
     reset_eye_lenses();
     store_localised_game_structure();
+    TbBool result;
     if (my_player_number == get_host_player_id()) {
-        send_resync_game();
+        result = send_resync_game();
     } else {
-        receive_resync_game();
+        result = receive_resync_game();
+    }
+    if (!result) {
+        recall_localised_game_structure();
+        return;
     }
     if (Lvl_script != NULL) {
         lua_set_random_seed(game.action_random_seed);
