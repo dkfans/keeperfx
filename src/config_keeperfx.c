@@ -378,7 +378,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
     while (pos<len)
     {
       // Finding command number in this line
-      int i = 0, n = 0;
+      int i = 0;
       int cmd_num = recognize_conf_command(buf, &pos, len, conf_commands);
       // Now store the config item in correct place
       int k;
@@ -691,23 +691,18 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             {
               case 1: // LEGAL
                 set_flag(start_params.startup_flags, SFlg_Legal);
-                n++;
                 break;
               case 2: // FX
                 set_flag(start_params.startup_flags, SFlg_FX);
-                n++;
                 break;
               case 3: // BULLFROG
                 set_flag(start_params.startup_flags, SFlg_Bullfrog);
-                n++;
                 break;
               case 4: // EA
                 set_flag(start_params.startup_flags, SFlg_EA);
-                n++;
                 break;
               case 5: // INTRO
                 set_flag(start_params.startup_flags, SFlg_Intro);
-                n++;
                 break;
               default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in %s file.",

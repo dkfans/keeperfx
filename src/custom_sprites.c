@@ -1562,7 +1562,6 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
 
 
     // Convert RGBA to palette indices using rgb_to_pal_table
-    int transparent_count = 0, opaque_count = 0;
     for (size_t i = 0; i < indexed_size; i++)
     {
         unsigned char red = rgba_buffer[i * 4 + 0];
@@ -1576,17 +1575,14 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
             if (alpha < 128) {
                 // Transparent pixel - use palette index 255 as transparency marker
                 indexed_data[i] = 255;
-                transparent_count++;
             } else if (rgb_to_pal_table != NULL) {
                 // Use lookup table for color conversion
                 indexed_data[i] = rgb_to_pal_table[
                     ((red >> 2) << 12) | ((green >> 2) << 6) | (blue >> 2)
                 ];
-                opaque_count++;
             } else {
                 // Fallback: simple grayscale conversion
                 indexed_data[i] = (red + green + blue) / 3;
-                opaque_count++;
             }
         }
         else
@@ -2116,11 +2112,10 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
     if (0 == strcmp(name, "0"))
         return 0;
 
-    char *P = strrchr(name, ':');
-    if (P != NULL)
+    if (strrchr(name, ':') != NULL)
     {
         char *name2 = strdup(name);
-        P = strchr(name2, ':');
+        char *P = strchr(name2, ':');
         *P = 0; // removing :
         P++;
         key.name = name2;
