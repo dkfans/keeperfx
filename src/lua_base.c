@@ -357,25 +357,22 @@ const char* lua_get_serialised_data(size_t *len)
 }
 
 
-void lua_set_serialised_data(const char *data, size_t len)
+TbBool lua_set_serialised_data(const char *data, size_t len)
 {
-	if(Lvl_script == NULL)
-	{
-		ERRORLOG("Lvl_script not initialised");
-		return;
-	}
+    if (Lvl_script == NULL) {
+        ERRORLOG("Lvl_script not initialised");
+        return false;
+    }
 
     lua_getglobal(Lvl_script, "SetSerializedData");
-	if (lua_isfunction(Lvl_script, -1))
-	{
-		lua_pushlstring(Lvl_script, data, len);
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"SetSerializedData");
-	}
-	else
-	{
-		ERRORLOG("failed to find SetSerializedData lua function");
-        lua_pop(Lvl_script, 1);  // Pop nil
-	}
+    if (!lua_isfunction(Lvl_script, -1)) {
+        ERRORLOG("failed to find SetSerializedData lua function");
+        lua_pop(Lvl_script, 1);
+        return false;
+    }
+
+    lua_pushlstring(Lvl_script, data, len);
+    return CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "SetSerializedData");
 }
 
 void cleanup_serialized_data() {
