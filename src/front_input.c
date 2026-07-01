@@ -2512,9 +2512,37 @@ static void get_dungeon_control_nonaction_inputs(void)
     {
         set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
         pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
-        struct Thing* thing = get_thing_under_hand(player, pos.x.val, pos.y.val);
-        if (!thing_is_invalid(thing)) {
-            local_thing_under_hand = thing->index;
+        switch (player->work_state)
+        {
+            case PSt_KillCreatr:
+            case PSt_ConvertCreatr:
+            case PSt_LevelCreatureUp:
+            case PSt_LevelCreatureDown:
+            case PSt_QueryAll:
+            case PSt_MkHappy:
+            case PSt_MkAngry:
+            case PSt_DestroyThing:
+            case PSt_CreatrInfoAll:
+            {
+                local_thing_under_hand = player->thing_under_hand;
+                break;
+            }
+            case PSt_OrderCreatr:
+            {
+                if ( (player->controlled_thing_idx == 0) || (player->thing_under_hand == player->controlled_thing_idx) )
+                {
+                    local_thing_under_hand = player->thing_under_hand;
+                }
+                break;
+            }
+            default:
+            {
+                struct Thing* thing = get_thing_under_hand(player, pos.x.val, pos.y.val);
+                if (!thing_is_invalid(thing)) {
+                    local_thing_under_hand = thing->index;
+                }
+                break;
+            }
         }
     }
   }
