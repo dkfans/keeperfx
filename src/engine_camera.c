@@ -840,6 +840,5 @@ void update_all_players_cameras(void)
           update_player_camera(player);
     }
   }
-  update_local_cameras();
 }
 /******************************************************************************/

@@ -1187,15 +1187,35 @@ short setup_game(void)
  */
 TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
 {
-    int i;
-    i = player->work_state;
-    if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) || (i == PSt_PlaceTerrain) || (i == PSt_MkDigger)
-        || (i == PSt_MkGoodCreatr) || (i == PSt_MkBadCreatr) )
+    switch (player->work_state)
+    {
+    case PSt_BuildRoom:
+    case PSt_PlaceDoor:
+    case PSt_PlaceTrap:
+    case PSt_SightOfEvil:
+    case PSt_Sell:
+    case PSt_PlaceTerrain:
+    case PSt_MkDigger:
         return true;
-    if ( (i == PSt_OrderCreatr) && (player->controlled_thing_idx > 0) )
-        return true;
-    if ( (i == PSt_CtrlDungeon) && (player->primary_cursor_state != CSt_DefaultArrow) && (player->thing_under_hand == 0) )
-        return true;
+
+    case PSt_OrderCreatr:
+        return (player->controlled_thing_idx > 0);
+
+    case PSt_CtrlDungeon:
+        switch(player->primary_cursor_state)
+        {
+            case CSt_DefaultArrow:
+                return false;
+
+            case CSt_PickAxe:
+            case CSt_DoorKey:
+                return true;
+
+            case CSt_PowerHand:
+                return (player->thing_under_hand == 0)
+                    || (! power_hand_is_empty(player));
+        }
+    }
     return false;
 }
 
@@ -2027,52 +2047,62 @@ short complete_level(struct PlayerInfo *player)
     return true;
 }
 
-void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
+static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coord3d pos)
 {
-    // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
-    struct Light* light = &game.lish.lights[player->cursor_light_idx];
+    const int idx = player->cursor_light_idx;
+    if (idx == 0)
+        return;
 
-    if (player->mouse_on_map == false) {
-        light->disable_interp_for_turns = 2;
+    if (valid)
+    {
+        pos.z.val = get_floor_height_at(&pos);
+        light_turn_light_on(idx);
+        light_set_light_position(idx, &pos);
+
+        if (is_my_player(player))
+            game.mouse_light_pos = pos;
     }
-    if (light->disable_interp_for_turns > 0) {
-        light->disable_interp_for_turns -= 1;
-        light->last_turn_drawn = 0;
+    else
+    {
+        light_turn_light_off(idx);
     }
 }
 
-void set_mouse_light(struct PlayerInfo *player)
+void update_local_mouse_light(void)
 {
     SYNCDBG(6,"Starting");
-    struct Packet *pckt;
-    if (is_my_player(player)) {
-        pckt = (struct Packet *)get_history_packet(player->packet_num, get_gameturn());
-        if (pckt == NULL) {
-            pckt = get_packet_direct(player->packet_num);
-        }
-    } else {
-        pckt = get_packet_direct(player->packet_num);
-    }
+    struct PlayerInfo *player = get_my_player();
+
+    // Avoid glitching during level intro or possess animation, or when
+    // watching a replay.
+    if (player->instance_num != PI_Unset || game.packet_load_enable)
+        return;
+
+    struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    struct Coord3d pos;
+    const TbBool valid = screen_to_map(cam, GetMouseX(), GetMouseY(), &pos);
+
+    set_mouse_light(player, valid, pos);
+
     if (player->cursor_light_idx != 0)
-    {
-        if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
-        {
-            struct Coord3d pos;
-            pos.x.val = pckt->pos_x;
-            pos.y.val = pckt->pos_y;
-            pos.z.val = get_floor_height_at(&pos);
-            if (is_my_player(player)) {
-                game.mouse_light_pos = pos;
-            }
-            light_turn_light_on(player->cursor_light_idx);
-            light_set_light_position(player->cursor_light_idx, &pos);
-        }
-        else
-        {
-            light_turn_light_off(player->cursor_light_idx);
-        }
-        interp_fix_mouse_light_off_map(player);
-    }
+        light_reset_interpolation(player->cursor_light_idx);
+}
+
+void update_mouse_light(struct PlayerInfo *player)
+{
+    SYNCDBG(6,"Starting");
+    const struct Packet *pckt = nullptr;
+
+    if (is_my_player(player))
+        pckt = get_history_packet(player->packet_num, get_gameturn());
+    if (pckt == nullptr)
+        pckt = get_packet_direct(player->packet_num);
+
+    const TbBool valid = (pckt->control_flags & PCtr_MapCoordsValid) != 0;
+    struct Coord3d pos;
+    pos.x.val = pckt->pos_x;
+    pos.y.val = pckt->pos_y;
+    set_mouse_light(player, valid, pos);
 }
 
 void check_players_won(void)
@@ -2663,6 +2693,7 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
 
+    update_local_cameras_pre();
     process_packets();
     api_update_server();
 
@@ -2721,6 +2752,7 @@ void update(void)
 
     message_update();
     update_all_players_cameras();
+    update_local_cameras_post();
     update_player_sounds();
     SYNCDBG(6,"Finished");
 }
@@ -3163,6 +3195,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     lens = cam->horizontal_fov * scale_value_by_horizontal_resolution(4) / pixel_size;
     if (lens_mode == 0)
         update_blocks_pointed();
+    update_local_mouse_light();
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     view_height_over_2 = ewnd.height/2;
@@ -3397,12 +3430,8 @@ void gameplay_loop_logic()
         previous_gameturn = get_gameturn();
     }
 
-    if (is_feature_on(Ft_DeltaTime) == true) {
-        if (game.process_turn_time < 1.0) {
-            return;
-        }
-        game.process_turn_time -= 1.0;
-    }
+    if (is_feature_on(Ft_DeltaTime) && game.process_turn_time < 1.0)
+        return;
 
     frametime_start_measurement(Frametime_Logic);
     if (frametime_enabled())
@@ -3427,6 +3456,8 @@ void gameplay_loop_logic()
     update();
     frametime_end_measurement(Frametime_Logic);
 
+    game.process_turn_time -= 1;
+
     if(game.frame_step)
     {
         game.frame_step = false;
@@ -3440,9 +3471,7 @@ void gameplay_loop_draw()
     frametime_start_measurement(Frametime_Draw);
 
     // Update lights
-    if ((game.operation_flags & GOF_Paused) == 0) {
-        update_light_render_area();
-    }
+    update_light_render_area();
 
     if (quit_game || exit_keeper) {
         do_draw = false;
@@ -3471,15 +3500,15 @@ void gameplay_loop_draw()
 
 static void update_gameplay_delta_time()
 {
-    game.delta_time = get_delta_time();
-    float process_delta_time = game.delta_time;
+    long double process_delta_time = get_delta_time();
     if (multiplayer_speed_adjustment_ns != 0 && turns_per_second > 0) {
-        double tick_ns_one_turn = 1000000000.0 / turns_per_second;
-        double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
+        long double tick_ns_one_turn = 1e9L / turns_per_second;
+        long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
         if (tick_ns_adjusted_turn > 0) {
-            process_delta_time = (float)(process_delta_time * tick_ns_one_turn / tick_ns_adjusted_turn);
+            process_delta_time = process_delta_time * tick_ns_one_turn / tick_ns_adjusted_turn;
         }
     }
+    game.delta_time = process_delta_time;
     game.process_turn_time += process_delta_time;
 }
 
@@ -3498,7 +3527,7 @@ extern "C" void network_yield_waiting_gameplay_packets()
     poll_inputs();
     gameplay_loop_draw();
     gameplay_loop_timestep();
-    game.process_turn_time = min(game.process_turn_time, (long double)1.0);
+    game.process_turn_time = min(game.process_turn_time, 2.L);
     frametime_start_measurement(Frametime_Logic);
     if (frametime_enabled()) {
         framerate_measurement_capture(Framerate_Logic);

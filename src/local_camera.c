@@ -31,6 +31,8 @@
 #include "map_data.h"
 #include "bflib_math.h"
 #include "frontmenu_ingame_map.h"
+
+#include <math.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -40,19 +42,10 @@ extern "C" {
 struct Camera local_cameras[4];
 struct Camera previous_local_cameras[4];
 struct Camera destination_local_cameras[4];
-float interpolated_cam_mappos_x[4];
-float interpolated_cam_mappos_y[4];
-float interpolated_cam_mappos_z[4];
-float interpolated_cam_rotation_angle_x[4];
-float interpolated_cam_rotation_angle_y[4];
-float interpolated_cam_rotation_angle_z[4];
-float interpolated_camera_zoom[4];
 float previous_deviation_x;
 float previous_deviation_y;
 float destination_deviation_x;
 float destination_deviation_y;
-float interpolated_deviation_x;
-float interpolated_deviation_y;
 TbBool local_camera_ready;
 /******************************************************************************/
 
@@ -114,13 +107,6 @@ void sync_camera_state(int cam_idx, struct Camera *cam)
     local_cameras[cam_idx] = *cam;
     destination_local_cameras[cam_idx] = *cam;
     previous_local_cameras[cam_idx] = *cam;
-    interpolated_cam_mappos_x[cam_idx] = cam->mappos.x.val;
-    interpolated_cam_mappos_y[cam_idx] = cam->mappos.y.val;
-    interpolated_cam_mappos_z[cam_idx] = cam->mappos.z.val;
-    interpolated_cam_rotation_angle_x[cam_idx] = cam->rotation_angle_x;
-    interpolated_cam_rotation_angle_y[cam_idx] = cam->rotation_angle_y;
-    interpolated_cam_rotation_angle_z[cam_idx] = cam->rotation_angle_z;
-    interpolated_camera_zoom[cam_idx] = cam->zoom;
 }
 
 void sync_first_person_camera(struct Camera *cam, struct PlayerInfo *player)
@@ -212,16 +198,20 @@ void update_camera_deviations(int active_cam_idx)
     }
 }
 
-void update_local_cameras(void)
+void update_local_cameras_pre(void)
 {
-    if (!local_camera_ready) {
-        return;
-    }
     for (int i = 0; i < 4; i++) {
         previous_local_cameras[i] = destination_local_cameras[i];
     }
     previous_deviation_x = destination_deviation_x;
     previous_deviation_y = destination_deviation_y;
+}
+
+void update_local_cameras_post(void)
+{
+    if (!local_camera_ready) {
+        return;
+    }
     struct PlayerInfo* my_player = get_my_player();
     struct Thing *ctrltng = thing_get(my_player->controlled_thing_idx);
     destination_deviation_x = 0;
@@ -252,8 +242,8 @@ void interpolate_camera_deviations(void)
     if (my_player->view_mode == PVM_CreatureView || my_player->view_mode == PVM_FrontView) {
         return;
     }
-    interpolated_deviation_x = interpolate(interpolated_deviation_x, previous_deviation_x, destination_deviation_x);
-    interpolated_deviation_y = interpolate(interpolated_deviation_y, previous_deviation_y, destination_deviation_y);
+    const float interpolated_deviation_x = interpolate(previous_deviation_x, destination_deviation_x);
+    const float interpolated_deviation_y = interpolate(previous_deviation_y, destination_deviation_y);
     long total_deviation_x = (long)interpolated_deviation_x;
     long total_deviation_y = (long)interpolated_deviation_y;
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
@@ -290,24 +280,20 @@ void interpolate_local_cameras(void)
         struct Camera* prev = &previous_local_cameras[i];
         struct Camera* desired = &destination_local_cameras[i];
         struct Camera* out = &local_cameras[i];
-        struct Camera* prediction_base = prev;
-        if (prev->zoom != desired->zoom) {
-            prediction_base = desired;
-        }
-        interpolated_cam_mappos_x[i] = interpolate(interpolated_cam_mappos_x[i], prediction_base->mappos.x.val, desired->mappos.x.val);
-        interpolated_cam_mappos_y[i] = interpolate(interpolated_cam_mappos_y[i], prediction_base->mappos.y.val, desired->mappos.y.val);
-        interpolated_cam_mappos_z[i] = interpolate(interpolated_cam_mappos_z[i], prediction_base->mappos.z.val, desired->mappos.z.val);
-        interpolated_cam_rotation_angle_x[i] = interpolate_angle(interpolated_cam_rotation_angle_x[i], prev->rotation_angle_x, desired->rotation_angle_x);
-        interpolated_cam_rotation_angle_y[i] = interpolate_angle(interpolated_cam_rotation_angle_y[i], prev->rotation_angle_y, desired->rotation_angle_y);
-        interpolated_cam_rotation_angle_z[i] = interpolate_angle(interpolated_cam_rotation_angle_z[i], prev->rotation_angle_z, desired->rotation_angle_z);
-        interpolated_camera_zoom[i] = interpolate(interpolated_camera_zoom[i], desired->zoom, desired->zoom);
-        out->mappos.x.val = (long)interpolated_cam_mappos_x[i];
-        out->mappos.y.val = (long)interpolated_cam_mappos_y[i];
-        out->mappos.z.val = (long)interpolated_cam_mappos_z[i];
-        out->rotation_angle_x = (int)interpolated_cam_rotation_angle_x[i] & ANGLE_MASK;
-        out->rotation_angle_y = (int)interpolated_cam_rotation_angle_y[i] & ANGLE_MASK;
-        out->rotation_angle_z = (int)interpolated_cam_rotation_angle_z[i] & ANGLE_MASK;
-        out->zoom = (int)interpolated_camera_zoom[i];
+        const float mappos_x = interpolate(prev->mappos.x.val, desired->mappos.x.val);
+        const float mappos_y = interpolate(prev->mappos.y.val, desired->mappos.y.val);
+        const float mappos_z = interpolate(prev->mappos.z.val, desired->mappos.z.val);
+        const float angle_x = interpolate_angle(prev->rotation_angle_x, desired->rotation_angle_x);
+        const float angle_y = interpolate_angle(prev->rotation_angle_y, desired->rotation_angle_y);
+        const float angle_z = interpolate_angle(prev->rotation_angle_z, desired->rotation_angle_z);
+        const float zoom = interpolate(prev->zoom, desired->zoom);
+        out->mappos.x.val = lroundf(mappos_x);
+        out->mappos.y.val = lroundf(mappos_y);
+        out->mappos.z.val = lroundf(mappos_z);
+        out->rotation_angle_x = lroundf(angle_x) & ANGLE_MASK;
+        out->rotation_angle_y = lroundf(angle_y) & ANGLE_MASK;
+        out->rotation_angle_z = lroundf(angle_z) & ANGLE_MASK;
+        out->zoom = lroundf(zoom);
     }
     interpolate_camera_deviations();
 }
@@ -324,9 +310,6 @@ void sync_local_camera(struct PlayerInfo *player)
     }
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
         sync_camera_state(cam_idx, &player->cameras[cam_idx]);
-    }
-    if (player->view_mode == PVM_ParchmentView) {
-        reset_all_minimap_interpolation = true;
     }
 }
 

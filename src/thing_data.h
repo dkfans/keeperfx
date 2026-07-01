@@ -301,17 +301,9 @@ struct Thing {
     short prev_of_class;
     uint32_t flags; //ThingAddFlags
     int32_t last_turn_drawn;
-    float time_spent_displaying_hurt_colour; // Used for delta time interpolated render position
     unsigned short previous_floor_height;
-    unsigned short interp_floor_height;
     struct Coord3d previous_mappos;
-    struct Coord3d interp_mappos;
-    int32_t interp_minimap_pos_x;
-    int32_t interp_minimap_pos_y;
-    int32_t previous_minimap_pos_x;
-    int32_t previous_minimap_pos_y;
     uint32_t random_seed;
-    int32_t interp_minimap_update_turn;
     PlayerNumber holding_player;
 };
 

@@ -180,7 +180,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     if (thing_is_beating_dungeon_heart(thing))
     {
         thing->heart.beat_direction = 1;
-        light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
+        light_init_dungeon_heart(thing->light_id, 0, 56);
     }
     switch (thing->model)
     {
@@ -1479,6 +1479,8 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
+    if (objtng->rendering_flags & TRF_Invisible)
+        reset_interpolation_of_thing(objtng);
     objtng->rendering_flags &= ~TRF_Invisible;
     return TUFRet_Modified;
 }
