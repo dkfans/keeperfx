@@ -226,6 +226,7 @@ TbBool TimerFreeze = false;
 
 static long double time_since_last_draw = 0;
 static long double average_delta_time = 1;
+static long double multiplayer_clock_adjust = 1;
 float interpolate_time = 0;
 /******************************************************************************/
 
@@ -3409,22 +3410,10 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
-static long double adjust_time_for_multiplayer_speed(long double t)
-{
-    if (multiplayer_speed_adjustment_ns != 0 && turns_per_second > 0) {
-        long double tick_ns_one_turn = 1e9L / turns_per_second;
-        long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
-        if (tick_ns_adjusted_turn > 0) {
-            t = t * tick_ns_one_turn / tick_ns_adjusted_turn;
-        }
-    }
-    return t;
-}
-
 static void update_gameplay_delta_time(void)
 {
     if (is_feature_on(Ft_DeltaTime) == true) {
-        long double process_delta_time = adjust_time_for_multiplayer_speed(get_delta_time());
+        long double process_delta_time = get_delta_time() * multiplayer_clock_adjust;
         time_since_last_draw += process_delta_time;
         game.process_turn_time += process_delta_time;
     } else {
@@ -3503,6 +3492,29 @@ void gameplay_loop_logic()
     update_gameplay_delta_time();
     if (game.process_turn_time > 2.0)
         game.process_turn_time = 2.0;
+
+    // Adjust client time scaling
+    if (netstate.my_id != SERVER_ID && network_is_active())
+    {
+        if (game.input_lag_turns == 0)
+        {
+            // The logic here is: if we are late (process_turn_time > 1.0), we
+            // spent too long waiting for a packet from the host.  Assuming
+            // network lag remains constant, this means we entered
+            // exchange_packet() too early.  So, the scaling factor must reduce
+            // (< 1.0) so that the next turn takes a little longer in real time.
+            // Vice-versa if we are early.
+            multiplayer_clock_adjust = 1 + (1 - game.process_turn_time) / 20;
+        }
+        else
+        {
+            const long double tick_ns_one_turn = 1e9L / turns_per_second;
+            const long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
+            assert (tick_ns_adjusted_turn > 0);
+            multiplayer_clock_adjust = tick_ns_one_turn / tick_ns_adjusted_turn;
+        }
+    }
+    else multiplayer_clock_adjust = 1;
 
     while (game.process_turn_time < 1.0)
     {
