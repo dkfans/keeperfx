@@ -280,7 +280,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     {
         unsigned long gameplay_score = dungeon->total_score;
         if (gameplay_score <= 1) {
-            WARNLOG("Player %d total score for turn is too low.", (int)player->id_number);
+            SYNCDBG(3,"%s total score for turn is too low.", player_code_name(player->id_number));
             gameplay_score = 1;
         }
         dungeon->total_score = gameplay_score;
@@ -288,7 +288,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     {
         unsigned long gameplay_score = dungeon->manage_score;
         if (gameplay_score <= 1) {
-            WARNLOG("Player %d managing score for turn is too low.", (int)player->id_number);
+            SYNCDBG(3,"%s managing score for turn is too low.", player_code_name(player->id_number));
             gameplay_score = 1;
         }
         dungeon->manage_score = gameplay_score;
