@@ -230,6 +230,13 @@ TbBool script_new_creature_type(const char *name)
     if (load_default_creaturemodel_config(i, 0))
     {
         SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        {
+            struct Dungeon* dungeon = get_dungeon(plyr_idx);
+            if (dungeon_invalid(dungeon))
+                continue;
+            dungeon->creature_max_level[i] = CREATURE_MAX_LEVEL+1;
+        }
         return true;
     }
     else
