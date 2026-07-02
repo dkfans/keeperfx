@@ -90,13 +90,28 @@ function OnApplyDamage(thing, damage, dealing_player)
     ProcessEvent("ApplyDamage",eventData)
 end
 
-
 --- Called when a creature levels up
 ---@param creature Creature
 function OnLevelUp(creature)
     local eventData = {}
     eventData.creature = creature
     ProcessEvent("LevelUp",eventData)
+end
+
+--- Called when a thing is picked up. Can be Creatures, Chickens, Specials, Gold, etc.
+---@param thing Thing
+function OnPickUp(thing)
+    local eventData = {}
+    eventData.thing = thing
+    ProcessEvent("PickUp",eventData)
+end
+
+--- Called when a thing is slapped. Can be Creatures, Traps, Shots, Objects, etc.
+---@param thing Thing
+function OnSlap(thing)
+    local eventData = {}
+    eventData.thing = thing
+    ProcessEvent("Slap",eventData)
 end
 
 --- Called when a unit resurrects from his rebirth ability (like a vampire)
