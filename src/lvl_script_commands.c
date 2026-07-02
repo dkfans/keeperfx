@@ -3740,6 +3740,7 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
     {
         SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE;
+        return;
     }
     value->shorts[0] = scline->np[0];
 
