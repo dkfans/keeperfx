@@ -10,6 +10,7 @@
 #include "thing_data.h"
 #include "creature_states.h"
 #include "creature_states_pray.h"
+#include "config_crtrstates.h"
 #include "gui_msgs.h"
 #include "thing_navigate.h"
 #include "map_data.h"
@@ -24,6 +25,7 @@
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "magic_powers.h"
+#include "creature_states_combt.h"
 #include "config_crtrstates.h"
 #include "creature_states_mood.h"
 #include "thing_stats.h"
@@ -47,19 +49,6 @@ static const struct luaL_Reg thing_methods[];
 // things
 /**********************************************/
 
-static int make_thing_zombie (lua_State *L)
-{
-    struct Thing *thing = luaL_checkThing(L, 1);
-
-    //internal_set_thing_state(thing, CrSt_Disabled);
-    //thing->active_state = CrSt_Disabled;
-    //thing->continue_state = CrSt_Disabled;
-
-    thing->alloc_flags |= TAlF_IsControlled;
-
-
-    return 0;
-}
 
 static int lua_set_velocity (lua_State *L)
 {
@@ -240,6 +229,42 @@ static int lua_set_creature_annoyance(lua_State *L)
     return 0;
 }
 
+static int lua_start_fighting(lua_State *L)
+{
+    struct Thing* creatng = luaL_checkThing(L, 1);
+    struct Thing* enemytng = luaL_checkThing(L, 2);
+    CrAttackType attack_type = 0;
+    
+    long distance = get_combat_distance(creatng, enemytng);
+
+    if (enemytng->class_id == TCls_Creature)
+    {
+        attack_type = creature_can_have_combat_with_creature(creatng, enemytng, distance, 1, 0);
+    }
+    else if (enemytng->class_id == TCls_Object)
+    {
+        attack_type = creature_can_have_combat_with_object(creatng, enemytng, distance, 1, 0);
+    }
+    
+
+    if (!set_creature_combat_state(creatng, enemytng, attack_type))
+    {
+        set_start_state(creatng);
+        lua_pushboolean(L, 0);
+    }
+    else
+    {
+        lua_pushboolean(L, 1);
+    }
+    return 1;
+}
+
+static int lua_set_start_state(lua_State *L)
+{
+    struct Thing* thing = luaL_checkThing(L, 1);
+    set_start_state(thing);
+    return 0;
+}
 
 static int thing_tostring(lua_State *L)
 {
@@ -667,7 +692,6 @@ static int thing_eq(lua_State *L) {
 
 
 static const struct luaL_Reg thing_methods[] = {
-    {"make_thing_zombie"            ,make_thing_zombie                  },
     {"walk_to"                      ,lua_creature_walk_to               },
     {"kill"                         ,lua_kill_creature                  },
     {"stun"                         ,lua_stun_creature                  },
@@ -682,6 +706,8 @@ static const struct luaL_Reg thing_methods[] = {
     {"get_annoyance"                ,lua_get_creature_annoyance         },
     {"set_annoyance"                ,lua_set_creature_annoyance         },
     {"in_enemy_custody"             ,lua_is_in_enemy_custody            }, 
+    {"start_fighting"               ,lua_start_fighting                 },
+    {"set_start_state"              ,lua_set_start_state                },
     {NULL, NULL}
 };
 
