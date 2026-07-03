@@ -168,17 +168,19 @@ enum KeyCodes {
         KC_WAKE        = 0xE3,    // System Wake
     // Add mouse buttons counting backwards from 0xFE
     // This allows them to be used as a bindable "key" by adding them to key_to_string_init[] [mouse buttons as keybinds - quick fix]
-        KC_MOUSE9          = 0xF4,    // Mouse button #9 (not yet supported by KFX)
-        KC_MOUSE8          = 0xF5,    // Mouse button #8 (not yet supported by KFX)
-        KC_MOUSE7          = 0xF6,    // Mouse button #7 (not yet supported by KFX)
-        KC_MOUSE6          = 0xF7,    // Mouse button #6 (not yet supported by KFX)
-        KC_MOUSE5          = 0xF8,    // Mouse button #5 (not yet supported by KFX)
-        KC_MOUSE4          = 0xF9,    // Mouse button #4 (not yet supported by KFX)
+        KC_MOUSE9          = 0xF4,    // Mouse button #9
+        KC_MOUSE8          = 0xF5,    // Mouse button #8
+        KC_MOUSE7          = 0xF6,    // Mouse button #7
+        KC_MOUSE6          = 0xF7,    // Mouse button #6
+        KC_MOUSE5          = 0xF8,    // Mouse button #5
+        KC_MOUSE4          = 0xF9,    // Mouse button #4
         KC_MOUSE3          = 0xFA,    // Middle Mouse button
         KC_MOUSE2          = 0xFB,    // Right Mouse button (don't use for binding, there will likely be conflicts)
         KC_MOUSE1          = 0xFC,    // Left Mouse button (don't use for binding, there will likely be conflicts)
         KC_MOUSEWHEEL_DOWN = 0xFD,    // Mouse Wheel Scroll down
         KC_MOUSEWHEEL_UP   = 0xFE,    // Mouse Wheel Scroll up
+        KC_LIST_END,
+
 };
 
 enum KeyAction {
@@ -198,25 +200,19 @@ enum KeyModifiers {
 /******************************************************************************/
 #pragma pack(1)
 
-typedef unsigned char TbKeyCode;
+typedef uint16_t TbKeyCode;
 typedef short TbKeyMods;
 
 #pragma pack()
 /******************************************************************************/
 
-extern const char AsciiToInkey[];
-extern char lbInkeyToAscii[];
-extern char lbInkeyToAsciiShift[];
-extern unsigned char lbKeyOn[256];
-extern unsigned char lbInkey;
+extern unsigned char lbKeyOn[KC_LIST_END];
+extern TbKeyCode lbInkey;
 
 /******************************************************************************/
 short LbIKeyboardOpen(void);
 short LbIKeyboardClose(void);
-void LbKeyboardSetLanguage(int lngnum);
-short LbKeyCodeValid(TbKeyCode key);
 void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, int ScanCode);
-long KeyboardProc(int, unsigned int, long);
 /******************************************************************************/
 #ifdef __cplusplus
 }

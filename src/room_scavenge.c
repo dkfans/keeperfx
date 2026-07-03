@@ -32,11 +32,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-long const scavenge_effect[] = {TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, TngEff_BallPuffWhite,};
+long const scavenge_effect[] = {TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, TngEff_BallPuffWhite,
+                                TngEff_BallPuffPurple, TngEff_BallPuffBlack, TngEff_BallPuffOrange};
 /******************************************************************************/
 long get_scavenge_effect(PlayerNumber owner)
 {
-  return scavenge_effect[player_colors_map[owner % PLAYERS_EXT_COUNT]];
+  return scavenge_effect[get_player_color_idx(owner % PLAYERS_COUNT)];
 }
 /******************************************************************************/
 #ifdef __cplusplus

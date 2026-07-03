@@ -19,17 +19,23 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include <math.h>
 #include <map>
 #include "bflib_inputctrl.h"
 #include "bflib_basics.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
+#include "bflib_joyst.h"
 #include "bflib_video.h"
 #include "bflib_planar.h"
+#include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
-#include "config.h"
-#include "sounds.h"
-#include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
+#include "frontmenu_ingame_tabs.h"
+#include "config_keeperfx.h"
+#include "config_settings.h"
+#include "front_input.h"
+#include "game_legacy.h"
+#include "keeperfx.hpp"
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
@@ -39,29 +45,30 @@ using namespace std;
 extern "C" {
 #endif
 /******************************************************************************/
-extern volatile TbBool lbScreenInitialised;
-extern volatile TbBool lbHasSecondSurface;
-extern SDL_Color lbPaletteColors[PALETTE_COLORS];
-
 volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
 
-static int prevMouseX = 0, prevMouseY = 0;
+unsigned char last_used_input_device = 0;
+
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
 static TbBool firstTimeMouseInit = true;
 
+static char lbTextInputBuffer[256];
+static int lbTextInputLength = 0;
+
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
+//defined here instead of bflib_joyst.h to avoid making header depend on SDL
+void JEvent(const SDL_Event *ev);
 /******************************************************************************/
+
 /**
  * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
  * @param eventType SDL event type.
  * @param button SDL button definition.
  * @return
  */
- 
-
 static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
 {
     if (eventType == SDL_MOUSEBUTTONDOWN) {
@@ -84,8 +91,6 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
 
 void init_inputcontrol(void)
 {
-    SDL_GetMouseState(&prevMouseX, &prevMouseY);
-
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_a, KC_A));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_b, KC_B));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_c, KC_C));
@@ -143,7 +148,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LEFTPAREN, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RIGHTPAREN, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_ASTERISK, KC_UNASSIGNED));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PLUS, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PLUS, KC_ADD));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_COMMA, KC_COMMA));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MINUS, KC_MINUS));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PERIOD, KC_PERIOD));
@@ -171,6 +176,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_CARET, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDERSCORE, KC_UNDERLINE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_BACKQUOTE, KC_GRAVE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(178, KC_GRAVE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_DELETE, KC_DELETE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_0, KC_NUMPAD0));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_1, KC_NUMPAD1));
@@ -216,6 +222,9 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MENU, KC_APPS));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_POWER, KC_POWER));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
+
+    init_controller_input();
+    LbStopTextInput();
 }
 
 static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
@@ -272,6 +281,13 @@ TbBool LbIsFrozenOrPaused(void)
     return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
 }
 
+static TbKeyCode mousebutton_to_keycode(const Uint8 *button)
+{
+    if (button == NULL || *button < 1 || *button > 9)
+        return KC_UNASSIGNED;
+    return (KC_MOUSE1 + 1 - *button);
+}
+
 static void process_event(const SDL_Event *ev)
 {
     struct TbPoint mouseDelta;
@@ -283,25 +299,37 @@ static void process_event(const SDL_Event *ev)
     case SDL_KEYDOWN:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
+        {
             keyboardControl(KActn_KEYDOWN,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        }
+        last_used_input_device = ID_Keyboard_Mouse;
         break;
 
     case SDL_KEYUP:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
+        {
             keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        }
+        last_used_input_device = ID_Keyboard_Mouse;
         break;
 
     case SDL_MOUSEMOTION:
         if (!isMouseActive)
         {
-          SDL_GetMouseState(&prevMouseX, &prevMouseY);
           return;
         }
+        static int frac_x = 0, frac_y = 0;
         if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
         {
-            mouseDelta.x = ev->motion.xrel * lbDisplay.MouseMoveRatio / 256;
-            mouseDelta.y = ev->motion.yrel * lbDisplay.MouseMoveRatio / 256;
+            int dx = ev->motion.xrel * lbDisplay.MouseMoveRatio + frac_x;
+            int dy = ev->motion.yrel * lbDisplay.MouseMoveRatio + frac_y;
+
+            mouseDelta.x = (dx + 128) >> 8;
+            mouseDelta.y = (dy + 128) >> 8;
+
+            frac_x = dx - (mouseDelta.x * 256);
+            frac_y = dy - (mouseDelta.y * 256);
         }
         else
         {
@@ -310,9 +338,11 @@ static void process_event(const SDL_Event *ev)
             if (isMouseActivated)
             {
                 isMouseActivated = 0;
-                pointerHandler.SetPosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
+                pointerHandler.SetMousePosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
                 mouseDelta.x = 0;
                 mouseDelta.y = 0;
+                frac_x = 0;
+                frac_y = 0;
             }
         }
         mouseControl(MActn_MOUSEMOVE, &mouseDelta);
@@ -320,75 +350,134 @@ static void process_event(const SDL_Event *ev)
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
-        if (!isMouseActive)
+        last_used_input_device = ID_Keyboard_Mouse;
+
+        if(ev->button.button == SDL_BUTTON_LEFT || ev->button.button == SDL_BUTTON_RIGHT || ev->button.button == SDL_BUTTON_MIDDLE)
         {
-          return;
+            if (!isMouseActive)
+            {
+            return;
+            }
+            mouseDelta.x = 0;
+            mouseDelta.y = 0;
+            mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
         }
-        mouseDelta.x = 0;
-        mouseDelta.y = 0;
-        mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
+        else
+        {
+            x = mousebutton_to_keycode(&ev->button.button);
+            if (x != KC_UNASSIGNED)
+            {
+                if (ev->type == SDL_MOUSEBUTTONDOWN)
+                {
+                    lbKeyOn[x] = 1;
+                    lbInkey = x;
+                }
+                else
+                    lbKeyOn[x] = 0;
+            }
+        }
         break;
 
     case SDL_MOUSEWHEEL:
+        last_used_input_device = ID_Keyboard_Mouse;
         mouseDelta.x = 0;
         mouseDelta.y = 0;
         mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mouseDelta);
         break;
 
-    case SDL_WINDOWEVENT:
-        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+    case SDL_TEXTINPUT:
+        if (SDL_IsTextInputActive())
         {
-            lbAppActive = true;
-            isMouseActive = true;
-            isMouseActivated = true;
-            LbGrabMouseCheck(MG_OnFocusGained);
-            if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+            int len = strlen(ev->text.text);
+            int freeSpace = sizeof(lbTextInputBuffer) - lbTextInputLength - 1;
+            if (freeSpace > 0)
             {
-                pause_music(false);
+                if (len > freeSpace)
+                    len = freeSpace;
+                memcpy(lbTextInputBuffer + lbTextInputLength, ev->text.text, len);
+                lbTextInputLength += len;
+                lbTextInputBuffer[lbTextInputLength] = '\0';
             }
-            if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
-            {
-                mute_audio(false);
-            }
-        }
-        else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
-        {
-            lbAppActive = false;
-            isMouseActive = false;
-            isMouseActivated = false;
-            LbGrabMouseCheck(MG_OnFocusLost);
-            if (freeze_game_on_focus_lost())
-            {
-                pause_music(true);
-            }
-            if (mute_audio_on_focus_lost())
-            {
-                mute_audio(true);
-            }
-        }
-        else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
-        {
-            if (lbAppActive)
-            {
-                isMouseActive = true;
-                isMouseActivated = true;
-            }
-        }
-        else if (ev->window.event == SDL_WINDOWEVENT_LEAVE)
-        {
-            isMouseActive = false;
         }
         break;
+
+    case SDL_WINDOWEVENT:
+        switch (ev->window.event)
+        {
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
+            {
+                lbAppActive = true;
+                isMouseActive = true;
+                isMouseActivated = true;
+                LbGrabMouseCheck(MG_OnFocusGained);
+                if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+                {
+                    resume_music();
+                }
+                if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
+                {
+                    mute_audio(false);
+                }
+                redetect_screen_refresh_rate_for_draw();
+                break;
+            }
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+            {
+                lbAppActive = false;
+                isMouseActive = false;
+                isMouseActivated = false;
+                LbGrabMouseCheck(MG_OnFocusLost);
+                if (freeze_game_on_focus_lost())
+                {
+                    pause_music();
+                }
+                if (mute_audio_on_focus_lost())
+                {
+                    mute_audio(true);
+                }
+                break;
+            }
+            case SDL_WINDOWEVENT_ENTER:
+            {
+                if (lbAppActive)
+                {
+                    isMouseActive = true;
+                    isMouseActivated = true;
+                }
+                break;
+            }
+            case SDL_WINDOWEVENT_LEAVE:
+            {
+                isMouseActive = false;
+                break;
+            }
+            case SDL_WINDOWEVENT_MOVED:
+            {
+                redetect_screen_refresh_rate_for_draw();
+                break;
+            }
+            default: break;
+        }
+        /* else if (ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+             // todo (allow window to be freely scaled): add window resize function that does what is needed, and call this new function from window init function too
+        } */
+        break;
+    case SDL_SYSWMEVENT:
+    case SDL_WINDOWEVENT_RESIZED:
+        break;
+
+    case SDL_CONTROLLERAXISMOTION:
+    case SDL_CONTROLLERBUTTONDOWN:
+    case SDL_CONTROLLERBUTTONUP:
+    case SDL_JOYDEVICEADDED:
+    case SDL_JOYDEVICEREMOVED:    
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:
     case SDL_JOYHATMOTION:
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
-        //TODO INPUT make joypad support
-        break;
-
-    case SDL_SYSWMEVENT:
-    case SDL_WINDOWEVENT_RESIZED:
+        last_used_input_device = ID_Controller;
+        JEvent(ev);
         break;
 
     case SDL_QUIT:
@@ -396,14 +485,16 @@ static void process_event(const SDL_Event *ev)
         break;
     }
 }
+
 /******************************************************************************/
-TbBool LbWindowsControl(void)
+TbBool LbPollInputs(void)
 {
     SDL_Event ev;
     //process events until event queue is empty
     while (SDL_PollEvent(&ev)) {
         process_event(&ev);
     }
+
     return (lbUserQuit < 1);
 }
 
@@ -475,14 +566,66 @@ void LbSetMouseGrab(TbBool grab_mouse)
     if (lbMouseGrabbed)
     {
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
-        SDL_SetRelativeMouseMode(SDL_TRUE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+        }
     }
     else
     {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+        }
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
     SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
+}
+
+static void LbClearTextInput(void)
+{
+    lbTextInputLength = 0;
+    lbTextInputBuffer[0] = '\0';
+}
+
+int LbGetTextInput(char *dst, int maxChars)
+{
+    if ((dst == NULL) || (maxChars <= 0) || (lbTextInputLength <= 0))
+        return 0;
+    int count = lbTextInputLength;
+    if (count >= maxChars)
+        count = maxChars - 1;
+    memcpy(dst, lbTextInputBuffer, count);
+    dst[count] = '\0';
+    LbClearTextInput();
+    return count;
+}
+
+TbBool LbIsTextInputActive(void)
+{
+    return SDL_IsTextInputActive() != SDL_FALSE;
+}
+
+void LbStartTextInput(void)
+{
+    LbClearTextInput();
+    if (!SDL_IsTextInputActive())
+        SDL_StartTextInput();
+}
+
+void LbStopTextInput(void)
+{
+    if (SDL_IsTextInputActive())
+        SDL_StopTextInput();
+    LbClearTextInput();
 }
 
 void LbGrabMouseInit(void)
@@ -494,7 +637,7 @@ void LbGrabMouseCheck(long grab_event)
 {
     TbBool window_has_focus = lbAppActive;
     TbBool paused = ((game.operation_flags & GOF_Paused) != 0);
-    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.numfield_D & GNFldD_CreaturePasngr) == 0);
+    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.view_mode_flags & GNFldD_CreaturePasngr) == 0);
     TbBool grab_cursor = lbMouseGrabbed;
     if (!window_has_focus)
     {
@@ -531,7 +674,7 @@ void LbGrabMouseCheck(long grab_event)
                 }
                 break;
             case MG_InitMouse:
-                grab_cursor = true;
+                    grab_cursor = true;
                 break;
             case MG_OnFocusGained:
                 grab_cursor = lbMouseGrab;

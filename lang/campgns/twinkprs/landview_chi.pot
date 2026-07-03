@@ -1,0 +1,96 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file twinkprs/landview_chi.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 30 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: Twin Keepers campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Wyrmcast\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Twin Keepers campaign"
+msgstr "双子守护者战役"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Softhome. The people here in this quaint little town are free of gastrointestinal pains by blessing of a local group of philanthropic wizards. Despicable; I expect you to use only the most painful tortures in your dealings with these rats."
+msgstr "舒适之家。这个古雅小镇的居民受到当地一群善良巫师的祝福，而从来不会肚子疼。这实在是卑鄙无耻；我希望你在对付这些老鼠时让他们感受最痛苦的拷打。"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Hellmark. You will be overjoyed to hear that all the town's inhabitants have been butchered. Now their corpses are being burnt over the ruins of their hovels - savor the smell!"
+msgstr "地狱印记。听到镇上所有居民都被屠杀的消息，你会欣喜若狂的。现在他们的尸体在茅屋的废墟上被焚烧 - 品尝这股气味吧！"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Bloom. This enchanted forest is filled with huge trees and strange, stinking flowers; we must develop this blight for the sake of our creatures' noses."
+msgstr "绽放。这片被诅咒的森林里长满了参天大树，它们开出奇异而恶臭的花朵；为了让我们的怪物享受这种气味，我们必须让这种疾病蔓延。"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Doom. Your minions have chopped down all the trees and turned them into pleasing wooden demonic baubles, to be sold on the black market for exorbitant prices."
+msgstr "末日。你的怪物们砍倒了所有的树木，把它们做成了赏心悦目的木质恶魔装饰，并在黑市上以高昂的价格售卖。"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Joybelly. Food is consumed and stomachs are fattened here as hands reach for pastries. These 'heroes' eat enough to cause bile demons constipation. But let us get to the slaughter; obesity is not as quick a killer as the scythe."
+msgstr "大胃王。这里的人们疯狂地吃东西，他们的肚子越来越大，但手仍然伸向糕点。这些“英雄”的饭量足以让巨魔便秘。让我们开始杀戮吧；因为肥胖并不能像镰刀那样快速夺人性命。"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Fat's Bane. The few in this realm who somehow avoided being immediately carved up by our demons have been put on a strict diet of cockroaches and plague infected rats. A delicious victory, wouldn't you say?"
+msgstr "减肥计划。这个王国中有几个人类不知为什么没有被我们的恶魔立即分尸，而是被严格控制饮食，只能吃蟑螂和感染瘟疫的老鼠。你不觉得这是一场美味的胜利吗？"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Featherburg. People here frolic in fields alongside giant poultry known as 'bird-friends'. It is a noxious, disgusting place; could use a heavy dose of bubonic plague."
+msgstr "费瑟堡。这里的人们在田野里嬉戏，旁边还有被称为“朋友”的大鸟为伴。这真是一个令人窒息和厌恶的地方；我们希望这里爆发大量鼠疫。"
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Grimm. It would be a gross understatement to say that you devastated this place; in fact, you totally sterilized it with brilliant hellfire. Only a Keeper of your stature could turn a ruin into such a warm, wonderful place to live."
+msgstr "残酷。如果说你摧毁了这个王国，有点过于轻描淡写了；事实上，你用耀眼的地狱之火彻底烧尽了这里。只有像你这样的守护者才能把一片废墟变成如此温暖、美好的居住之地。"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Hopeville. Optimism is the word here. Families love each other; nothing could ever go wrong; the world looks bright. Indeed it will be when this land is covered in molten lava and all of these creeps are dead."
+msgstr "希望小镇。这里的人们充满了快乐。他们与家人相亲相爱；这里的一切都很好，这里的世界一片光明。然而，只有当这片土地被岩浆覆盖，让这些恶心的人类都死掉时，世界才会是真正的一片光明。"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Death's Edge. Volcanic eruptions, anthrax, and heavy taxes now hold this land in a death grip. The world looks bright!"
+msgstr "死亡之崖。火山爆发、炭疽病和沉重的赋税现在使这片土地陷入了死亡的魔爪。这里的世界看起来一片光明！"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Lovesmile. Absolute joy. Eternal love and happiness. Long lives and proper care for the elderly. This place is just terrible. It needs to be crushed into the ground."
+msgstr "爱之微笑。这里充满绝对的欢乐。永恒的爱与幸福。老人长寿，子女们孝顺。这个地方糟糕透了。它应该被彻底夷为平地。"
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Reap. You, great destroyer, have crushed the good Kingdom of Love and destroyed your rivals, the Twin Keepers. Your charming efforts have left such deep, festering marks that great Demons have given you a seat in Hades itself. Now take a vacation."
+msgstr "收割。你，伟大的毁灭者，摧毁了善良的爱之国，也消灭了你的对手，双子守护者。你迷人的功绩留下了如此深刻而恶毒的痕迹，以至于伟大的恶魔在冥界给了你一席之地。现在，你可以去度假了。"

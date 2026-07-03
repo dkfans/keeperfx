@@ -39,6 +39,12 @@ enum TooltipFlags {
 /******************************************************************************/
 extern struct ToolTipBox tool_tip_box;
 
+struct TooltipDebugInfo{
+  TbBool land_coord;
+};
+extern struct TooltipDebugInfo tool_tip_dbg;
+
+
 #pragma pack()
 /******************************************************************************/
 void toggle_tooltips(void);

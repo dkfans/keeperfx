@@ -44,11 +44,11 @@ extern struct GuiMenu sound_menu;
 
 struct MsgBoxInfo {
     char title[24];
-    char line1[24];
-    char line2[24];
-    char line3[24];
-    char line4[24];
-    char line5[24];
+    char line1[40];
+    char line2[40];
+    char line3[40];
+    char line4[40];
+    char line5[40];
 };
 extern struct MsgBoxInfo MsgBox;
 /******************************************************************************/

@@ -153,6 +153,8 @@ IF(PLAYER0,TOTAL_CREATURES >= DRAWFROM(18~20))
 	PLAY_MESSAGE(PLAYER0,SOUND,927)
 	REVEAL_MAP_RECT(PLAYER0,120,54,1,1)
 	CHANGE_SLAB_TYPE(40,18,HARD)
+	REM "Transferring creatures to a new realm has been made very difficult. But surely an experienced Keeper as yourself can conquer realms without help."
+	DISPLAY_OBJECTIVE(2,9)
 ENDIF
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)

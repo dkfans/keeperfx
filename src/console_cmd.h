@@ -26,12 +26,8 @@
 extern "C" {
 #endif
 
+void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size);
 TbBool cmd_exec(PlayerNumber plyr_idx, char *msg);
-long get_creature_model_for_command(char *msg);
-PlayerNumber get_player_number_for_command(char *msg);
-TbBool parameter_is_number(const char* parstr);
-char get_trap_number_for_command(char* msg);
-char get_door_number_for_command(char* msg);
 
 #ifdef __cplusplus
 }

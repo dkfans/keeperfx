@@ -31,7 +31,6 @@
 #include "gui_draw.h"
 #include "config_strings.h"
 #include "gui_frontbtns.h"
-#include "music_player.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "kjm_input.h"
@@ -39,61 +38,19 @@
 #include "config_settings.h"
 #include "keeperfx.hpp"
 #include "gui_topmsg.h"
+#include "lvl_script_commands.h"
+#include "lvl_script.h"
+#include "sounds.h"
 #include "post_inc.h"
+
+#include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 
-long mentor_level_slider;
 
-const long definable_key_string[] = {
-    GUIStr_CtrlUp,
-    GUIStr_CtrlDown,
-    GUIStr_CtrlLeft,
-    GUIStr_CtrlRight,
-    GUIStr_CtrlRotate,
-    GUIStr_CtrlSpeed,
-    GUIStr_CtrlRotateLeft,
-    GUIStr_CtrlRotateRight,
-    GUIStr_CtrlZoomIn,
-    GUIStr_CtrlZoomOut,
-    CpgStr_RoomKind1+0,//TODO not GUI strings
-    CpgStr_RoomKind1+1,
-    CpgStr_RoomKind1+2,
-    CpgStr_RoomKind1+3,
-    CpgStr_RoomKind1+4,
-    CpgStr_RoomKind1+5,
-    CpgStr_RoomKind1+6,
-    CpgStr_RoomKind1+7,
-    CpgStr_RoomKind1+8,
-    CpgStr_RoomKind1+9,
-    CpgStr_RoomKind1+10,
-    CpgStr_RoomKind1+11,
-    CpgStr_RoomKind1+12,
-    CpgStr_RoomKind1+13,
-    CpgStr_RoomKind1+14,
-    CpgStr_RoomKind2,
-    GUIStr_StateFight,
-    GUIStr_StateAnnoyed,
-    CpgStr_PowerKind1,//TODO not GUI string
-    GUIStr_Query,
-    GUIStr_UndoPickup,
-    GUIStr_Pause,
-    GUIStr_Map,
-    GUIStr_ToggleMessage,
-    GUIStr_SnapCamera,
-    GUIStr_BestRoomSpace,
-    GUIStr_SquareRoomSpace,
-    GUIStr_RoomSpaceIncrease,
-    GUIStr_RoomSpaceDecrease,
-    GUIStr_SellTrapOnSubtile,
-};
-
-long fe_mouse_sensitivity;
-long sound_level_slider;
-long music_level_slider;
 char video_cluedo_mode;
 char video_shadows;
 char video_textures;
@@ -103,28 +60,42 @@ char video_view_distance_level;
 }
 #endif
 /******************************************************************************/
+
+static uint8_t num_definable_keys()
+{
+    uint8_t num = 0;
+
+    for (int i = 0; i < GAME_KEYS_COUNT; i++)
+    {
+        if (game_key_settings[i].binding_menu_visibility == BMV_Visible) {
+            num++;
+        }
+    }
+    return num;
+}
+
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset != 0)) & LbBtnF_Enabled;
-		if ((wheel_scrolled_up || is_key_pressed(KC_UP,KMod_NONE)) & (define_key_scroll_offset != 0))
-	{
-		define_key_scroll_offset--;
-	}
+        if ((wheel_scrolled_up || is_key_pressed(KC_UP,KMod_NONE)) & (define_key_scroll_offset != 0))
+    {
+        define_key_scroll_offset--;
+    }
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Enabled;
-	if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)))
-	{
-		define_key_scroll_offset++;
-	}
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < num_definable_keys()-1)) & LbBtnF_Enabled;
+    if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < num_definable_keys()-(frontend_define_keys_menu_items_visible-1)))
+    {
+        define_key_scroll_offset++;
+    }
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
-    long key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Enabled;
+    long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < num_definable_keys())) & LbBtnF_Enabled;
 }
 
 void frontend_define_key_up(struct GuiButton *gbtn)
@@ -136,19 +107,19 @@ void frontend_define_key_up(struct GuiButton *gbtn)
 
 void frontend_define_key_down(struct GuiButton *gbtn)
 {
-    if (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)) {
+    if (define_key_scroll_offset < num_definable_keys()-(frontend_define_keys_menu_items_visible-1)) {
         define_key_scroll_offset++;
     }
 }
 
 void frontend_define_key_scroll(struct GuiButton *gbtn)
 {
-    define_key_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_define_keys_menu_items_visible-2, GAME_KEYS_COUNT);
+    define_key_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_define_keys_menu_items_visible-2, num_definable_keys());
 }
 
 void frontend_define_key(struct GuiButton *gbtn)
 {
-    long key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
+    long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
     defining_a_key = 1;
     defining_a_key_id = key_id;
     lbInkey = 0;
@@ -156,14 +127,14 @@ void frontend_define_key(struct GuiButton *gbtn)
 
 void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 {
-    frontend_draw_scroll_tab(gbtn, define_key_scroll_offset, frontend_define_keys_menu_items_visible-2, GAME_KEYS_COUNT);
+    frontend_draw_scroll_tab(gbtn, define_key_scroll_offset, frontend_define_keys_menu_items_visible-2, num_definable_keys());
 }
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
 {
-    long content = (long)gbtn->content;
+    long content = gbtn->content.lval;
     long key_id = define_key_scroll_offset - content - 1;
-    if (key_id >= GAME_KEYS_COUNT) {
+    if (key_id >= num_definable_keys()) {
         return;
     }
     if (frontend_mouse_over_button == content) {
@@ -175,10 +146,10 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     // This text is a bit condensed - button size is smaller than text height
-    int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
+    int tx_units_per_px = ((MyScreenHeight < 400) && (dbc_initialized && dbc_enabled)) ? scale_value_menu(32) : scale_value_menu(16);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    int height = LbTextLineHeight() * tx_units_per_px / 16;
-    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(definable_key_string[key_id]));
+    int height = LbTextLineHeight() * tx_units_per_px / 14;
+    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(game_key_settings[key_id].string_id));
     unsigned char mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
 
@@ -186,25 +157,26 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     text[0] = '\0';
     if (mods & KMod_CONTROL)
     {
-        strcat(text, get_string(GUIStr_KeyControl));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyControl));
     }
     if (mods & KMod_ALT)
     {
-        strcat(text, get_string(GUIStr_KeyAlt));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyAlt));
     }
     if (mods & KMod_SHIFT)
     {
-        strcat(text, get_string(GUIStr_KeyShift));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyShift));
     }
 
     unsigned char code = settings.kbkeys[key_id].code;
     const char* keytext;
     char chbuf[2];
+    char mouse_button_label[255] = "";
     switch (code)
     {
+      case KC_UNASSIGNED:
+        keytext = get_string(GUIStr_Empty);
+        break;
       case KC_LSHIFT:
       case KC_RSHIFT:
         keytext = get_string(GUIStr_KeyShift);
@@ -227,14 +199,11 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_MOUSE2:
       case KC_MOUSE1:
       {
-        char mouse_button_label[255] = "";
         const char* mouse_gui_string = get_string(key_to_string[(long)code]);
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
         snprintf(mouse_button_number_string, sizeof(mouse_button_number_string), "%d", mouse_button_number);
-        strcat(mouse_button_label, mouse_gui_string);
-        strcat(mouse_button_label, " ");
-        strcat(mouse_button_label, mouse_button_number_string);
+        str_appendf(mouse_button_label, sizeof(mouse_button_label), "%s %s", mouse_gui_string, mouse_button_number_string);
         keytext = mouse_button_label;
         break;
       }
@@ -252,8 +221,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         break;
       }
     }
-    strcat(text, keytext);
-    height = LbTextLineHeight() * tx_units_per_px / 16;
+    str_append(text, sizeof(text), keytext);
+    height = LbTextLineHeight() * tx_units_per_px / 14;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, text);
 }
 
@@ -289,40 +258,43 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 int make_audio_slider_linear(int a)
 {
-    float scaled = fastPow(a / 127.0, 0.5);
+    // slider has a range of 0..255
+    float scaled = fastPow(a / 255.0, 0.5);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return CEILING(lerp(0, 127, clamped));
+    return CEILING(LbLerp(0, 255, clamped));
 }
 int make_audio_slider_nonlinear(int a)
 {
-    float scaled = fastPow(a / 127.0, 2.00);
+    // slider has a range of 0..255
+    float scaled = fastPow(a / 255.0, 2.00);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return CEILING(lerp(0, 127, clamped));
+    return CEILING(LbLerp(0, 255, clamped));
 }
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
+    const int new_val = make_audio_slider_nonlinear(gbtn->slide_val);
     if (gbtn->id_num == BID_SOUND_VOL)
     {
-      if (settings.sound_volume != sound_level_slider)
-          do_sound_menu_click();
+        if (new_val != settings.sound_volume) {
+            do_sound_menu_click();
+        }
     }
-    settings.sound_volume = make_audio_slider_nonlinear(sound_level_slider);
+    settings.sound_volume = new_val;
     save_settings();
-    SetSoundMasterVolume(settings.sound_volume);
-    SetMusicMasterVolume(settings.sound_volume);
+    SetSoundMasterVolume(new_val);
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)
 {
-    settings.redbook_volume = make_audio_slider_nonlinear(music_level_slider);
+    settings.music_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
-    SetMusicPlayerVolume(settings.redbook_volume);
+    set_music_volume(settings.music_volume);
 }
 
 void gui_set_mentor_volume(struct GuiButton *gbtn)
 {
-    settings.mentor_volume = make_audio_slider_nonlinear(mentor_level_slider);
+    settings.mentor_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
 }
 
@@ -348,13 +320,13 @@ void gui_switch_video_mode(struct GuiButton *gbtn)
 
 void gui_display_current_resolution(struct GuiButton *gbtn)
 {
-    char* mode = get_vidmode_name(lbDisplay.ScreenMode);
+    char* mode = get_vidmode_name(LbScreenActiveMode());
     show_onscreen_msg(40, "%s", mode);
 }
 
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
 {
-    settings.first_person_move_sensitivity = fe_mouse_sensitivity;
+    settings.first_person_move_sensitivity = gbtn->content.lval;
     save_settings();
 }
 
@@ -398,8 +370,8 @@ void init_video_menu(struct GuiMenu *gmnu)
  */
 void init_audio_menu(struct GuiMenu *gmnu)
 {
-    music_level_slider = make_audio_slider_linear(settings.redbook_volume);
-    sound_level_slider = make_audio_slider_linear(settings.sound_volume);
-    mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.music_volume);
+    get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
+    get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
 }
 /******************************************************************************/

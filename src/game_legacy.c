@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -29,6 +28,16 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct Game game;
+
+GameTurn get_gameturn()
+{
+    return game.play_gameturn;
+}
+
+TbBool network_is_active(void)
+{
+    return flag_is_set(game.system_flags, GSF_NetworkActive);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

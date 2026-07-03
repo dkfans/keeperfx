@@ -21,49 +21,40 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_coroutine.h"
-#include "bflib_network.h"
+#include "front_network.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define NET_PLAYERS_COUNT       4
-#define NET_SERVICES_COUNT     16
-#define NET_SERVICE_LEN        64
-#define PACKETS_COUNT           5
+#define PACKETS_COUNT           9
 
 /******************************************************************************/
 #pragma pack(1)
 
 struct TbNetworkSessionNameEntry;
+struct PlayerInfo;
 
 /******************************************************************************/
-extern struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
-extern struct TbNetworkSessionNameEntry *net_session[32];
-extern long net_number_of_sessions;
-extern long net_session_index_active;
-extern struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
-extern struct ConfigInfo net_config_info;
-extern char net_service[16][NET_SERVICE_LEN];
-extern char net_player_name[20];
+extern struct TbNetworkPlayerInfo net_player_info[MAX_NET_USERS];
 
 #pragma pack()
 /******************************************************************************/
-extern char net_current_message[64];
-extern long net_current_message_index;
-/******************************************************************************/
-short setup_network_service(int srvidx);
+short setup_network_service(enum FrontendNetService service);
 int setup_old_network_service(void);
-void init_players_network_game(CoroutineLoop *context);
+TbBool init_players_network_game(void);
 void setup_count_players(void);
+void are_disconnect_victories_allowed(void);
 
 long network_session_join(void);
 
 TbBool network_player_active(int plyr_idx);
 const char *network_player_name(int plyr_idx);
-void set_network_player_name(int plyr_idx, const char *name);
-void init_network_seed();
+TbBool network_human_contenders_remain(void);
+void process_player_leave_game_packet(struct PlayerInfo *player);
+void process_disconnected_network_players(void);
+void sync_initial_network_seed(void);
+unsigned long get_host_player_id(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

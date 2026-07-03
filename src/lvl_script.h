@@ -36,7 +36,7 @@ extern "C" {
 #define CONDITIONS_COUNT         512
 #define TUNNELLER_TRIGGERS_COUNT 256
 #define SCRIPT_VALUES_COUNT      2048
-#define WIN_CONDITIONS_COUNT      4
+#define WIN_CONDITIONS_COUNT      12
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
@@ -63,8 +63,6 @@ struct PartyTrigger;
 
 struct ScriptContext
 {
-    int plr_start;
-    int plr_end;
     int player_idx;
 
     union {
@@ -73,21 +71,20 @@ struct ScriptContext
     };
 };
 
-struct TunnellerTrigger { // sizeof = 18
+struct TunnellerTrigger {
   unsigned char flags;
-  unsigned char condit_idx;
+  unsigned short condit_idx;
   unsigned char plyr_idx;
   unsigned long location;
-  unsigned char heading_OLD;//no longer used
   unsigned long heading; // originally was 'target'
   long carried_gold;
-  unsigned char crtr_level;
+  CrtrExpLevel exp_level;
   char party_id;
 };
 
-struct PartyTrigger { // sizeof = 13
+struct PartyTrigger {
   unsigned char flags;
-  unsigned char condit_idx;
+  unsigned short condit_idx;
   char creatr_id;
   union
   {
@@ -96,54 +93,41 @@ struct PartyTrigger { // sizeof = 13
   };
   union
   {
-      unsigned long location;
+      TbMapLocation location;
       unsigned long countdown;
   };
-  unsigned char crtr_level;
+  char spawn_type;
+  CrtrExpLevel exp_level;
   unsigned short carried_gold;
   union
   {
       unsigned short ncopies;
       unsigned char objectv;
+      PlayerNumber target;
   };
 };
 
-struct ScriptValue { // sizeof = 16
+struct ScriptValue {
   unsigned char flags;
-  unsigned char condit_idx;
+  unsigned short condit_idx;
   unsigned char valtype;
   unsigned char plyr_range;
   union
   {
     struct
     {
-      long arg0;
-      long arg1;
-      union
-      {
-          long arg2;
-          char* str2;
-      };
-    };
-    struct
-    {
-      unsigned long uarg0;
-      unsigned long uarg1;
-      union
-      {
-          unsigned long uarg2;
-          unsigned char* ustr2;
-      };
-    };
-    struct
-    {
         char action;
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];
     } sac;
-    unsigned char bytes[12];
-    char chars[12];
-    short shorts[6];
+    unsigned char bytes[32];
+    char chars[32];
+    short shorts[16];
+    unsigned short ushorts[16];
+    long longs[8];
+    long long longlongs[4];
+    unsigned long ulongs[8];
+    unsigned long long ulonglongs[4];
   };
 };
 
@@ -198,8 +182,8 @@ struct LevelScript {
     unsigned long lose_conditions_num;
 
     // Store strings used at level here
-    char strings[2048];
-    char *next_string;
+    char strings[8192];
+    long next_string_offset;
 };
 
 /******************************************************************************/
@@ -213,10 +197,11 @@ extern const struct NamedCommand player_desc[];
 /******************************************************************************/
 short clear_script(void);
 short load_script(long lvl_num);
+TbBool script_scan_line(char *line,TbBool preloaded, long file_version);
 TbBool preload_script(long lvnum);
 /******************************************************************************/
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
+long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 void process_level_script(void);
 /******************************************************************************/
 #ifdef __cplusplus

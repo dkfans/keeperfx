@@ -949,7 +949,7 @@ msgstr ""
 #: guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168
 #: guitext:169 guitext:170 guitext:171 guitext:172
 msgctxt "In-game message"
-msgid "Moo"
+msgid ""
 msgstr ""
 
 #: guitext:173
@@ -1037,7 +1037,7 @@ msgstr ""
 #: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
 #: guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
-msgid "Moo2"
+msgid ""
 msgstr ""
 
 #: guitext:202
@@ -1140,8 +1140,42 @@ msgctxt "Level name"
 msgid "L'Cyfre's Challenge"
 msgstr ""
 
-#: guitext:222 guitext:223 guitext:224
-#: guitext:225 guitext:226 guitext:227 guitext:228 guitext:229
+#: guitext:222 
+msgctxt "Level name"
+msgid "Armageddon"
+msgstr ""
+
+#: guitext:223 
+msgctxt "Level name"
+msgid "Collect"
+msgstr ""
+
+#: guitext:224
+msgctxt "Level name"
+msgid "Sacrifice"
+msgstr ""
+
+#: guitext:225
+msgctxt "Level name"
+msgid "Defection"
+msgstr ""
+
+#: guitext:226 
+msgctxt "Level name"
+msgid "Imps"
+msgstr ""
+
+#: guitext:227 
+msgctxt "Level name"
+msgid "Clone"
+msgstr ""
+
+#: guitext:228
+msgctxt "Level name"
+msgid "Dig"
+msgstr ""
+
+#: guitext:229
 #: guitext:230 guitext:231 guitext:232 guitext:233 guitext:234
 #: guitext:235 guitext:236 guitext:237 guitext:238 guitext:239
 #: guitext:240 guitext:241 guitext:242 guitext:243 guitext:244
@@ -1183,7 +1217,7 @@ msgstr ""
 #: guitext:420 guitext:421 guitext:422 guitext:423 guitext:424
 #: guitext:425 guitext:426
 msgctxt "Unused"
-msgid "Moo3"
+msgid ""
 msgstr ""
 
 #: guitext:427
@@ -1195,7 +1229,7 @@ msgstr ""
 
 #: guitext:428 guitext:429
 msgctxt "Unused"
-msgid "Moo4"
+msgid ""
 msgstr ""
 
 #: guitext:430

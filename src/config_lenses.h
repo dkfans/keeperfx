@@ -29,12 +29,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define LENS_ITEMS_MAX 32
+#define LENS_ITEMS_MAX 256
 
 enum LensConfigFlags {
     LCF_HasMist     = 0x01,
     LCF_HasDisplace = 0x02,
     LCF_HasPalette  = 0x04,
+    LCF_HasOverlay  = 0x08,
 };
 
 struct LensConfig {
@@ -44,21 +45,26 @@ struct LensConfig {
     short mist_lightness;
     short mist_ghost;
     char mist_file[DISKPATH_SIZE];
+    short mist_pos_x_step;
+    short mist_pos_y_step;
+    short mist_sec_x_step;
+    short mist_sec_y_step;
     short displace_kind;
     short displace_magnitude;
     short displace_period;
+    char overlay_file[DISKPATH_SIZE];
+    short overlay_alpha;
 };
 
 struct LensesConfig {
-    long lenses_count;
+    int32_t lenses_count;
     struct LensConfig lenses[LENS_ITEMS_MAX];
 };
 /******************************************************************************/
-extern const char keeper_lenses_file[];
+extern const struct ConfigFileData keeper_lenses_file_data;
 extern struct LensesConfig lenses_conf;
 extern struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
-TbBool load_lenses_config(const char *conf_fname,unsigned short flags);
 struct LensConfig *get_lens_config(long lens_idx);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -1,0 +1,33 @@
+#!/bin/bash
+game_directory="/home/bot/.wine/drive_c/dk/"
+game_arguments="-level 00001 -campaign keeporig -nointro -alex -altinput"
+workspaceFolder="$1"
+
+echo "Source Code directory: $workspaceFolder"
+
+if [ ! -d "$game_directory" ]; then
+    echo 'The game_directory is incorrect, please edit it to match your game installation.'
+    exit 1
+fi
+
+echo "Game directory: $game_directory"
+
+#make all -j$(nproc) DEBUG=1
+make all -j$(nproc)
+
+if [ $? -eq 0 ]; then
+    echo 'Compilation successful!'
+else
+    echo 'Compilation failed!'
+    exit 1
+fi
+
+cp $workspaceFolder/bin/* "$game_directory"
+
+cd $game_directory
+
+# Use winedbg instead of wine if you want to see the line number that causes the crash (be sure to use DEBUG=1 too).  However, normal wine will launch the game faster.
+# When launching with winedbg, press 'C' then 'Enter' when prompted.
+
+wine keeperfx.exe $game_arguments
+#winedbg --gdb keeperfx.exe $game_arguments

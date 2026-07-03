@@ -30,10 +30,13 @@ extern "C" {
 
 struct TbLoadFiles;
 
-typedef char *ModifyDataLoadFnameFunc(struct TbLoadFiles *);
+typedef const char * ModifyDataLoadFnameFunc(const char *);
+
+typedef size_t (*LoadFilesGetSizeFunc)(size_t data);
+typedef void (*LoadFilesUnpackFunc)(unsigned char *data, size_t size);
 
 struct TbLoadFiles {
-        char FName[28];
+        char FName[DISKPATH_SIZE];
         unsigned char **Start;
         unsigned char **SEnd;
         unsigned long SLength;
@@ -41,21 +44,30 @@ struct TbLoadFiles {
         unsigned short Spare;
 };
 
+struct TbLoadFilesV2 {
+    char FName[DISKPATH_SIZE];
+    unsigned char **Start;
+    unsigned long SLength; // Actual size of data in memory
+    LoadFilesGetSizeFunc GetSizeFunc;
+    LoadFilesUnpackFunc UnpackFunc;
+};
+
 #pragma pack()
 /******************************************************************************/
-char *defaultModifyDataLoadFilename(struct TbLoadFiles *ldfiles);
+const char * defaultModifyDataLoadFilename(const char *);
 ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc);
+extern ModifyDataLoadFnameFunc *modify_data_load_filename_function;
 
 /******************************************************************************/
 
 short LbDataFree(struct TbLoadFiles *load_file);
-short LbDataFreeAll(struct TbLoadFiles load_files[]);
+int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, LoadFilesUnpackFunc unpack_fn);
+void LbDataFreeAll(struct TbLoadFiles load_files[]);
+void LbDataFreeAllV2(struct TbLoadFilesV2 load_files[]);
 
-short LbDataLoad(struct TbLoadFiles *load_file);
-short LbDataLoadAll(struct TbLoadFiles load_files[]);
+int LbDataLoadAll(struct TbLoadFiles load_files[]);
+int LbDataLoadAllV2(struct TbLoadFilesV2 load_files[]);
 
-int LbDataFindNameIndex(struct TbLoadFiles load_files[],char *fname);
-int LbDataFindStartIndex(struct TbLoadFiles load_files[],unsigned char **start);
 /******************************************************************************/
 #ifdef __cplusplus
 }

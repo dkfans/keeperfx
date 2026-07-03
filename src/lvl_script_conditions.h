@@ -31,9 +31,11 @@ extern "C" {
 
 extern const struct NamedCommand variable_desc[];
 extern const struct NamedCommand dk1_variable_desc[];
+extern const struct NamedCommand is_free_desc[];
+extern const struct NamedCommand orientation_desc[];
 
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
+long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 void process_conditions(void);
 long pop_condition(void);
 

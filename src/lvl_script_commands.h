@@ -22,6 +22,7 @@ extern "C" {
 
 
 #include "lvl_script_lib.h"
+#include <SDL2/SDL_mixer.h>
 
 extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
@@ -36,13 +37,10 @@ extern const struct NamedCommand hero_objective_desc[];
 extern const struct NamedCommand msgtype_desc[];
 extern const struct NamedCommand tendency_desc[];
 extern const struct NamedCommand creature_select_criteria_desc[];
-extern const struct NamedCommand trap_config_desc[];
-extern const struct NamedCommand room_config_desc[];
-extern const struct NamedCommand terrain_room_total_capacity_func_type[];
-extern const struct NamedCommand terrain_room_used_capacity_func_type[];
 extern const struct NamedCommand gui_button_group_desc[];
 extern const struct NamedCommand campaign_flag_desc[];
 extern const struct NamedCommand script_operator_desc[];
+extern const struct NamedCommand script_boolean_desc[];
 
 #ifdef __cplusplus
 }

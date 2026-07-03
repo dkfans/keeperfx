@@ -33,6 +33,8 @@ struct EngineCoord;
 struct M33;
 struct EngineCol;
 struct PlayerInfo;
+struct Packet;
+struct Thing;
 
 // Camera constants; zoom max is zoomed in (everything large), zoom min is zoomed out (everything small)
 #define CAMERA_ZOOM_MAX 12000
@@ -41,6 +43,9 @@ struct PlayerInfo;
 #define FRONTVIEW_CAMERA_ZOOM_MIN 3000 // Originally 16384, adjusted for view distance
 #define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
+#define CAMERA_TILT_DEFAULT -266
+#define CAMERA_TILT_MIN -350
+#define CAMERA_TILT_MAX -200
 
 extern long zoom_distance_setting; // CFG setting
 extern long frontview_zoom_distance_setting; // CFG setting
@@ -67,9 +72,9 @@ struct ComponentVector {
 struct Camera {
     struct Coord3d mappos;
     unsigned char view_mode;
-    int orient_a;
-    int orient_b;
-    int orient_c;
+    int rotation_angle_x;
+    int rotation_angle_y;
+    int rotation_angle_z;
     int horizontal_fov; // Horizontal Field of View in degrees
     int zoom;
     int inertia_rotation;
@@ -80,20 +85,6 @@ struct Camera {
     TbBool in_active_movement_y;
 };
 
-extern long previous_cam_mappos_x;
-extern long previous_cam_mappos_y;
-extern long previous_cam_mappos_z;
-extern long interpolated_cam_mappos_x;
-extern long interpolated_cam_mappos_y;
-extern long interpolated_cam_mappos_z;
-extern long previous_cam_orient_a;
-extern long previous_cam_orient_b;
-extern long previous_cam_orient_c;
-extern long interpolated_cam_orient_a;
-extern long interpolated_cam_orient_b;
-extern long interpolated_cam_orient_c;
-extern long previous_camera_zoom;
-extern long interpolated_camera_zoom;
 
 /******************************************************************************/
 
@@ -103,9 +94,6 @@ extern struct EngineCoord object_origin;
 /******************************************************************************/
 extern long camera_zoom;
 /******************************************************************************/
-MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
-MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
-MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y);
 void angles_to_vector(short theta, short phi, long dist, struct ComponentVector *cvect);
 long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
@@ -113,24 +101,26 @@ MapCoordDelta get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *
 MapCoordDelta get_2d_distance_squared(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_angle_xy_to_vec(const struct CoordDelta3d *vec);
 long get_angle_yz_to_vec(const struct CoordDelta3d *vec);
-void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6);
+void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps);
 
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
+void view_zoom_camera_in_to(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y);
 void set_camera_zoom(struct Camera *cam, long val);
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min);
+void view_zoom_camera_out_from(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y);
 long get_camera_zoom(struct Camera *cam);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 
-void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
-void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
-void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit);
+void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit);
+void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit);
+void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
+void view_process_camera_inertia(struct Camera *cam);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
-void set_previous_camera_values(struct PlayerInfo* player);
-void reset_interpolation_of_camera(struct PlayerInfo* player);
-void reset_interpolation_for_parchment_view(struct PlayerInfo* player);
+void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height);
 
 /******************************************************************************/
 #ifdef __cplusplus
