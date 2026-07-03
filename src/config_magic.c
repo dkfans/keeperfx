@@ -276,7 +276,7 @@ const struct NamedField magic_shot_named_fields[] = {
   {"EFFECTSPACING",         0, field_t(struct ShotConfigStats, effect_spacing),              0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"EFFECTAMOUNT",          0, field_t(struct ShotConfigStats, effect_amount),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"HITHEARTEFFECT",        0, field_t(struct ShotConfigStats, hit_heart.effect_model),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
-  {"HITHEARTSOUND",         0, field_t(struct ShotConfigStats, hit_heart.sndsample_idx),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITHEARTSOUND",         0, field_t(struct ShotConfigStats, hit_heart.sndsample_idx),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_sound_id,   assign_default},
   {"HITHEARTSOUND",         1, field_t(struct ShotConfigStats, hit_heart.sndsample_range),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"BLEEDINGEFFECT",        0, field_t(struct ShotConfigStats, effect_bleeding),             0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"FROZENEFFECT",          0, field_t(struct ShotConfigStats, effect_frozen),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},

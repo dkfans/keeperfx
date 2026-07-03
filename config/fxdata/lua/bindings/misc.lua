@@ -35,7 +35,7 @@ function RunDKScriptCommand(command) end
 function IsActionpointActivatedByPlayer(player,action_point) return true end
 
 ---returns a translated string stored in gtext_***.dat in the current game language.
----@param msg_id integer
+---@param msg_id integer|string The message ID to retrieve. Can be an integer for ID, or a string for alias from the translation toml.
 ---@return string translated string.
 ---@nodiscard
 function GetString(msg_id) end

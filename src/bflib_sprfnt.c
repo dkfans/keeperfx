@@ -1029,8 +1029,8 @@ int LbTextStringPartWidthM(const char *text, int part, long units_per_px)
                 if (len > max_len)
                 {
                     max_len = len;
-                    len = 0;
                 }
+                len = 0;
             }
             else
                 if (chr == '\t')
