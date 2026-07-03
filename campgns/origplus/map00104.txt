@@ -15,6 +15,7 @@ REM ****************************************************************************
 
 START_MONEY(PLAYER0,0)
 LEVEL_VERSION(1)
+RUN_AFTER_VICTORY(1)
 
 CREATE_PARTY(ONE)
 	ADD_TO_PARTY(ONE,DWARFA,3,300,ATTACK_ENEMIES,0)

@@ -1,21 +1,21 @@
 REM ********************************************
 REM
-REM 	Script for Level Syndika
-REM	v1.2.0 created by Stanza on 21 Jan 2008
-REM	updated by Mefistotelis
-REM	updated for pot file by dayokay (Dec2020) for inclusion in 'classic' KeeperFX map-pack
+REM  Script for Level Syndika
+REM    v1.2.0 created by Stanza on 21 Jan 2008
+REM    updated by Mefistotelis
+REM    updated for pot file by dayokay (Dec2020) for inclusion in 'classic' KeeperFX map-pack
+REM    converted to keeperfx format sep 2024
 REM
-REM	Author Description: The kind of map where heroes come knocking at your door. Although there's no
-REM	background nor campaign, heroes are now smugglers in the 'history' of the map, eager of gold and
-REM	lands, a bit like Keepers in fact. Anyway the map is rather difficult. It was made easier from
-REM	original version, but still it's hard.
+REM  Author Description: The kind of map where heroes come knocking at your door. Although there's no
+REM    background nor campaign, heroes are now smugglers in the 'history' of the map, eager of gold and
+REM    lands, a bit like Keepers in fact. Anyway the map is rather difficult. It was made easier from
+REM    original version, but still it's hard.
 REM
 REM ********************************************
+LEVEL_VERSION(1)
 
 SET_GENERATE_SPEED(400)
-
 MAX_CREATURES(PLAYER0,15)
-
 START_MONEY(PLAYER0,2500)
 
 ADD_CREATURE_TO_POOL(TROLL,10)
@@ -27,25 +27,26 @@ ADD_CREATURE_TO_POOL(ORC,10)
 ADD_CREATURE_TO_POOL(SPIDER,7)
 ADD_CREATURE_TO_POOL(BUG,6)
 
-CREATURE_AVAILABLE(PLAYER0,FLY,1,1)
-CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,1)
-CREATURE_AVAILABLE(PLAYER0,TROLL,1,1)
-CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,1)
-CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,1)
-CREATURE_AVAILABLE(PLAYER0,SPIDER,1,1)
-CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,1)
-CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
-CREATURE_AVAILABLE(PLAYER0,ORC,1,1)
+CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,0)
+CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+CREATURE_AVAILABLE(PLAYER0,SPIDER,1,0)
+CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,0)
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+CREATURE_AVAILABLE(PLAYER0,ORC,1,0)
 
 ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
 ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
 ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
 ROOM_AVAILABLE(PLAYER0,TRAINING,1,1)
-ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+ROOM_AVAILABLE(PLAYER0,WORKSHOP,2,0)
 ROOM_AVAILABLE(PLAYER0,GUARD_POST,1,0)
 ROOM_AVAILABLE(PLAYER0,BARRACKS,1,0)
 ROOM_AVAILABLE(PLAYER0,TEMPLE,1,0)
 ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+ROOM_AVAILABLE(PLAYER0,RESEARCH,3,0)
 
 DOOR_AVAILABLE(PLAYER0,WOOD,1,0)
 DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
@@ -62,16 +63,6 @@ MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,1,1)
 MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
 MAGIC_AVAILABLE(PLAYER0,POWER_HOLD_AUDIENCE,1,0)
 MAGIC_AVAILABLE(PLAYER0,POWER_CHICKEN,1,0)
-
-REM	QUICK_OBJECTIVE(1,"Here you are into enemy territory, Keeper. The smugglers are organised and have numerous defense posts at their disposal. Be quick and tactical to insure your victory.",PLAYER0)
-DISPLAY_OBJECTIVE(1,PLAYER0)
-
-IF(PLAYER0,KNIGHT == 1)
-REM	QUICK_OBJECTIVE(2,"A baron whose lands have been pillaged has joined your lines. Maybe is it here your chance to defeat the syndicate's agents.",PLAYER0)
-	DISPLAY_OBJECTIVE(2,PLAYER0)
-    MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,1,0)
-ENDIF
-
 
 CREATE_PARTY(SYNDIK1)
     ADD_TO_PARTY(SYNDIK1,THIEF,3,300,ATTACK_DUNGEON_HEART,0)
@@ -100,7 +91,6 @@ CREATE_PARTY(SYNDIK4)
     ADD_TO_PARTY(SYNDIK4,BARBARIAN,4,700,ATTACK_DUNGEON_HEART,0)
     ADD_TO_PARTY(SYNDIK4,BARBARIAN,4,700,ATTACK_DUNGEON_HEART,0)
     ADD_TO_PARTY(SYNDIK4,SAMURAI,5,700,ATTACK_DUNGEON_HEART,0)
-
 
 CREATE_PARTY(SYNDIK5)
     ADD_TO_PARTY(SYNDIK5,BARBARIAN,6,300,ATTACK_DUNGEON_HEART,0)
@@ -182,7 +172,6 @@ CREATE_PARTY(SYNDIK14)
     ADD_TO_PARTY(SYNDIK14,WIZARD,6,700,ATTACK_DUNGEON_HEART,0)
     ADD_TO_PARTY(SYNDIK14,BARBARIAN,9,700,ATTACK_DUNGEON_HEART,0)
 
-
 CREATE_PARTY(SYNDIK15)
     ADD_TO_PARTY(SYNDIK15,BARBARIAN,8,800,ATTACK_DUNGEON_HEART,0)
     ADD_TO_PARTY(SYNDIK15,BARBARIAN,8,800,ATTACK_DUNGEON_HEART,0)
@@ -191,6 +180,14 @@ CREATE_PARTY(SYNDIK15)
     ADD_TO_PARTY(SYNDIK15,WIZARD,7,700,ATTACK_DUNGEON_HEART,0)
     ADD_TO_PARTY(SYNDIK15,SAMURAI,7,700,ATTACK_DUNGEON_HEART,0)
 
+REM "Here you are into enemy territory, Keeper. The smugglers are organised and have numerous defense posts at their disposal. Be quick and tactical to insure your victory."
+DISPLAY_OBJECTIVE(1)
+
+IF(PLAYER0,KNIGHT == 1)
+    REM "A baron whose lands have been pillaged has joined your lines. Maybe is it here your chance to defeat the syndicate's agents."
+    DISPLAY_OBJECTIVE(2)
+    MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,1,0)
+ENDIF
 
 IF_ACTION_POINT(7,PLAYER0)
     ADD_TUNNELLER_TO_LEVEL(PLAYER_GOOD,7,ACTION_POINT,6,1,250)
@@ -264,7 +261,6 @@ IF(PLAYER_GOOD,TIMER0 >= 48000)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SYNDIK15,-4,1)
 ENDIF
 
-
 REM Timer 1 triggers
 
 IF_ACTION_POINT(5,PLAYER0)
@@ -289,7 +285,6 @@ IF(PLAYER_GOOD,TIMER1 >= 31000)
     SET_TIMER(PLAYER_GOOD,TIMER2)
 ENDIF
 
-
 REM Now timer 2 triggers - this one is continous
 
 IF(PLAYER_GOOD,TIMER2 >= 4500)
@@ -302,7 +297,6 @@ IF(PLAYER_GOOD,TIMER2 >= 4500)
     NEXT_COMMAND_REUSABLE
     SET_TIMER(PLAYER_GOOD,TIMER2)
 ENDIF
-
 
 REM Action points code
 
@@ -367,9 +361,9 @@ REM FLAG1=1 means final party defeated
 REM FLAG2=1 means final party can arrive, as all standard partys have ended
 
 IF(PLAYER_GOOD,FLAG2 == 1)
-    IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-REM	QUICK_OBJECTIVE(3,"Now that you have slaughtered the syndicate's troops, his director seems pretty angry, atrociously played, Keeper.One thing left to do though, decimate his army, an easy condition to fill in order to take control over the lands.",PLAYER0)
-	DISPLAY_OBJECTIVE(3,PLAYER0)
+    IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES == 0)
+    REM "Now that you have slaughtered the syndicate's troops, his director seems pretty angry. Atrociously played Keeper! Now you must decimate his army, a necessary task in order to take control over these lands."
+    DISPLAY_OBJECTIVE(3,PLAYER0)
         SET_FLAG(PLAYER_GOOD,FLAG1,1)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SYNDIK8,-7,2)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SYNDIK10,-7,2)
@@ -384,22 +378,13 @@ REM	QUICK_OBJECTIVE(3,"Now that you have slaughtered the syndicate's troops, his
     ENDIF
 ENDIF
 
-REM Room takeover triggers
-
-IF(PLAYER0,WORKSHOP >= 1)
-    ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,1)
-ENDIF
-
-IF(PLAYER0,RESEARCH >= 1)
-    ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
-ENDIF
-
 REM Win and lose conditions
 
 IF(PLAYER_GOOD,FLAG1 == 1)
-    IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+    IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES == 0)
         IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
-			DISPLAY_OBJECTIVE(4,PLAYER0)
+            REM "The syndicate has been eradicated! Congratulations Keeper on your victory against the Director. "
+            DISPLAY_OBJECTIVE(4)
             WIN_GAME
         ENDIF
     ENDIF

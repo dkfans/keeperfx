@@ -43,6 +43,7 @@
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "custom_sprites.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -70,9 +71,9 @@ long calculate_efficiency(PlayerNumber plyr_idx)
     long count = 0;
     long efficiency = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        long i = dungeon->room_kind[rkind];
+        long i = dungeon->room_list_start[rkind];
         unsigned long k = 0;
         while (i != 0)
         {
@@ -104,9 +105,9 @@ long calculate_style(long plyr_idx)
 {
     long area = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        long i = dungeon->room_kind[rkind];
+        long i = dungeon->room_list_start[rkind];
         unsigned long k = 0;
         while (i != 0)
         {
@@ -167,7 +168,7 @@ long calculate_doors_unused(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long count = 0;
-    for (long i = 1; i < gameadd.trapdoor_conf.door_types_count; i++)
+    for (long i = 1; i < game.conf.trapdoor_conf.door_types_count; i++)
     {
       count += dungeon->mnfct_info.door_amount_stored[i];
     }
@@ -178,7 +179,7 @@ long calculate_traps_unused(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long count = 0;
-    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
+    for (long i = 1; i < game.conf.trapdoor_conf.trap_types_count; i++)
     {
       count += dungeon->mnfct_info.trap_amount_stored[i];
     }
@@ -189,6 +190,10 @@ void frontstats_initialise(void)
 {
     // Initialize stats in dungeon
     struct Dungeon* dungeon = get_my_dungeon();
+    if (!dungeon) {
+        ERRORLOG("Tried to generate stats for invalid dungeon");
+        return;
+    }
     dungeon->lvstats.end_time = LbTimerClock();
     dungeon->lvstats.num_creatures = dungeon->num_active_creatrs;
     dungeon->lvstats.imps_deployed = dungeon->num_active_diggers;
@@ -212,7 +217,7 @@ void frontstats_initialise(void)
     dungeon->lvstats.num_rooms = calculate_player_num_rooms_built(my_player_number);
     dungeon->lvstats.gameplay_time = (dungeon->lvstats.end_time - dungeon->lvstats.start_time) / 1000;
     dungeon->lvstats.num_entrances = count_player_rooms_entrances(my_player_number);
-    dungeon->lvstats.hopes_dashed = game.play_gameturn;
+    dungeon->lvstats.hopes_dashed = get_gameturn();
     memcpy(&frontstats_data, &dungeon->lvstats, sizeof(struct LevelStats));
 }
 
@@ -230,7 +235,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
     {
         int border;
         {
-            struct TbSprite* spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+            const struct TbSprite* spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
             border = spr->SWidth * fs_units_per_px / 16;
         }
         LbTextSetWindow(pos_x + border, pos_y, gbtn->width - 2 * border, ln_height);
@@ -246,7 +251,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         {
             stat_val = -1;
         }
-        if ( (timer_enabled()) && (stat->name_stridx == 1746) && (!TimerGame) )
+        if ( (timer_enabled()) && (stat->name_stridx == GUIStr_Time) && (!TimerGame) )
         {
             LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
@@ -264,7 +269,7 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     draw_scroll_box(gbtn, fs_units_per_px, 5);
     LbTextSetFont(frontend_font[1]);
     {
-        struct TbSprite* spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+        const struct TbSprite* spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
         LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + (spr->SHeight-7) * fs_units_per_px / 16,
           gbtn->width - 2 * (spr->SWidth * fs_units_per_px / 16), gbtn->height + 2 * (8 - spr->SHeight) * fs_units_per_px / 16);
     }
@@ -324,7 +329,7 @@ void frontstats_set_timer(void)
 
 void frontstats_update(void)
 {
-    scrolling_offset++;
+    scrolling_offset += game.delta_time;
     LbTextSetFont(frontend_font[1]);
     int h = LbTextLineHeight();
     if (h+4 < scrolling_offset)

@@ -1,0 +1,397 @@
+# ******************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# ******************************************************************************
+#   @file levels/lostlvls/text_chi.po
+#      KeeperFX Campaign Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @date     Nov 2020 - Jun 2024
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# ******************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Lost levels for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: KeeperFX Team"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext: 1
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext:2 guitext:3 guitext:4 guitext:5 guitext:6 guitext:7
+#: guitext:8 guitext:9 guitext:10 guitext:11 guitext:12 guitext:13
+#: guitext:14 guitext:15 guitext:16 guitext:17 guitext:18 guitext:19
+#: guitext:20 guitext:21 guitext:22 guitext:23 guitext:24 guitext:25
+#: guitext:26 guitext:27 guitext:28 guitext:29 guitext:30 guitext:31
+#: guitext:32 guitext:33 guitext:34 guitext:35 guitext:36 guitext:37
+#: guitext:38 guitext:39 guitext:40 guitext:41 guitext:42 guitext:43
+#: guitext:44 guitext:45 guitext:46 guitext:47 guitext:48 guitext:49
+#: guitext:50 guitext:51 guitext:52 guitext:53 guitext:54 guitext:55
+#: guitext:56 guitext:57 guitext:58 guitext:59 guitext:60 guitext:61
+#: guitext:62
+msgctxt "In-game message"
+msgid "Moo"
+msgstr ""
+
+#: guitext:63
+msgctxt "In-game message"
+msgid "Money sits at the root of all Evil, and so it is appropriate that you start your Empire by building a Treasure Room. Select the Treasure Room Icon with the Left Mouse Button (LMB) and build a 3X3 Treasure Room in an empty space in your Dungeon."
+msgstr "金钱是邪恶力量的源泉，所以你的地下帝国的建设要从修一个储金室开始。用鼠标左键选择储金室图标，然后在你地下城的空地上建造一个3x3的储金室。"
+
+#: guitext:64
+msgctxt "In-game message"
+msgid "You may see a map of the entire realm by pressing 'M' or clicking on the scroll at the top-left of your panel."
+msgstr "你可以通过按M键或者点击左上角的卷轴图标来查看整个王国的地图。"
+
+#: guitext:65
+msgctxt "In-game message"
+msgid "A Treasure Room is used to store any gold mined by your imps."
+msgstr "储金室可以储存小鬼挖出来的金子。"
+
+#: guitext:66
+msgctxt "In-game message"
+msgid "Your gold reserves are running low. Tag the gold seam to the South. Your imps will mine it out and replenish your coffers."
+msgstr "你的金子不足了。标记南方的金矿。你的小鬼会前往挖掘并将金子存放进你的储金室。"
+
+#: guitext:67
+msgctxt "In-game message"
+msgid "Click with the right mouse button to stop building rooms. Now tunnel to the Portal in the East by tagging the rock with your left mouse button. Your Imps will then claim it for you."
+msgstr "点击鼠标右键可以取消建造房间。现在用鼠标左键标记泥土，挖一条隧道通向东边的入口。你的小鬼会帮你占领它。"
+
+#: guitext:68
+msgctxt "In-game message"
+msgid "Using the right mouse button (RMB), you may slap your creatures, thus making them work more quickly. Be careful not to beat them too frequently! This will make them angry, or at worst you will beat them to death!"
+msgstr "点击鼠标右键，你可以打你的怪物一耳光，这可以让他们更努力的工作。但要注意不要打得太频繁！这会使他们生气的，或者更糟糕的是他们会被活活打死！"
+
+#: guitext:69
+msgctxt "In-game message"
+msgid "Clicking with the LMB whilst over a minion will pick that creature up. Any eight of the creatures you own can be carried in your hand like this. Use this method to place Imps next to the tasks that you wish them to carry out. Drop them on your own, or Neutral territory with the RMB."
+msgstr "在怪物路过的时候点击鼠标左键可以将其拿起。你一次可以像这样拿起最多八只怪物。用这种方法把你的小鬼直接放在你希望他们工作的地方。在自己的领地或者中立的小径上点击鼠标右键可以把拿起的怪物放下。"
+
+#: guitext:70
+msgctxt "In-game message"
+msgid "Now you have claimed a portal creatures will enter your dungeon seeking employment. You must build a 3X3 Lair to house your creatures. Larger Lairs hold more creatures."
+msgstr "现在你占领了一个入口，怪物们会前往你的地下城来工作。你必须建造一个3x3的巢穴来给怪物居住。越大的巢穴能容纳越多的怪物。"
+
+#: guitext:71
+msgctxt "In-game message"
+msgid "Now you have built a small lair, await the arrival of your first minion."
+msgstr "现在你建好了一个小巢穴，等待着你的第一只怪物到来。"
+
+#: guitext:72
+msgctxt "In-game message"
+msgid "Rooms become more efficient as they increase in size. Build neat, rectangular rooms to ensure maximum efficiency."
+msgstr "房间的面积越大，则房间的效率越高。建造规矩的方形房间来确保最大效率。"
+
+#: guitext:73
+msgctxt "In-game message"
+msgid "A humble Fly has become the first of your troops. More powerful creatures require a source of sustenance. Build a 3X3 Hatchery to feed your creatures."
+msgstr "你的第一只怪物是一只弱小的苍蝇。吸引更强力的怪物需要满足更多的要求。建造一个3x3的孵化室来给你的怪物提供食物。"
+
+#: guitext:74
+msgctxt "In-game message"
+msgid "A Beetle has settled in your Lair. To make your dungeon more appealing to the creatures of this world you can build bigger rooms."
+msgstr "一只甲虫在你的巢穴安家了。你可以建造更大的房间来让你的地下城对怪物们更具吸引力。"
+
+#: guitext:75
+msgctxt "In-game message"
+msgid "While you are waiting for your ranks to grow, try possessing a creature. Select the icon from the spell menu and choose your creature, right clicking to release it from its bond."
+msgstr "在你等待着地下城建设的时候，试着控制一只怪物。选择魔法面板的控制怪物图标并左键选择一只怪物并控制它，然后点击右键来解除控制。"
+
+#: guitext:76
+msgctxt "In-game message"
+msgid "Left Click on a creature in the creature panel to place it in your Hand of Evil. Clicking on the creature icon itself will select the most experienced specimen of the breed."
+msgstr "在怪物面板点击左键可以用邪恶之手把它拿起。点击怪物的头像还可以拿起一只最高等级的该种类的怪物。"
+
+#: guitext:77
+msgctxt "In-game message"
+msgid "Now dig out a 3X3 area and, once your imps have claimed the floor, build a Training Room in the space you have excavated."
+msgstr "现在挖出一个3x3的区域，然后在你的小鬼占领地面后，在这里建造一个训练室。"
+
+#: guitext:78
+msgctxt "In-game message"
+msgid "Creatures in the training room will improve their fighting prowess."
+msgstr "怪物在训练室中可以提高他们的战斗力。"
+
+#: guitext:79
+msgctxt "In-game message"
+msgid "Now that you have built the training room, you can tell your creatures to train by picking them up with the LMB and dropping them in it."
+msgstr "现在你建好了训练室，可以用鼠标左键把怪物拿起来并把他们放到训练室里来让他们训练。"
+
+#: guitext:80 guitext:91
+msgctxt "In-game message"
+msgid "You may create more imps by choosing the Create Imp spell in the spell panel and then clicking with the left mouse button on a section of your dungeon floor."
+msgstr "你可以从魔法面板中左键选择制造小鬼魔法，然后在你的地下城中的一块领地上点击鼠标左键来制造更多的小鬼。"
+
+#: guitext:81
+msgctxt "In-game message"
+msgid "Your mission here is to use your power to rid this land of all good. Forge a path North!"
+msgstr "你的任务是消灭这片土地的善良人类。向北方挖开一条路！"
+
+#: guitext:82
+msgctxt "In-game message"
+msgid "You have found a spell of acceleration. When cast on your creatures this will allow them to move at a greatly increased rate for a time. Holding down the LMB will increase the power and cost of the spell."
+msgstr "你找到了一个加速魔法。向你的怪物施放可以使他们短时间内行动速度大幅提高。长按鼠标左键可以提高魔法的强度，同时也会提高耗费的金子。"
+
+#: guitext:83
+msgctxt "In-game message"
+msgid "The Heroes' castle lies out of reach on the far bank of the lava flow. Use bridges to connect your land to the north bank and seek out this nest of virtue."
+msgstr "英雄的城堡坐落在岩浆河的对岸。建造一座桥来连接你的领地和北方的河岸，并探索这个善良人类的家园。"
+
+#: guitext:84
+msgctxt "In-game message"
+msgid "You now have the ability to cast Heal on your creatures. Hold down the LMB for more power. The hero forces are sure to retaliate."
+msgstr "你获得了治疗你的怪物的魔法。长按鼠标左键以蓄力。英雄们很快就要前来报仇了。"
+
+#: guitext:85
+msgctxt "In-game message"
+msgid "A goblin has entered your dungeon. While not as intelligent as the average human, goblins make excellent soldiers."
+msgstr "一只哥布林进入了你的地下城。他们虽然没有人类的智慧，却是优秀的战士。"
+#: guitext:86
+msgctxt "In-game message"
+msgid "You have found a new Bile Demon ally. The aggression and tenacity of these beasts is matched only by their appetites."
+msgstr "你找到了一只巨魔。这种怪兽的攻击和防御能力就像它的饭量一样夸张。"
+
+#: guitext:87
+msgctxt "In-game message"
+msgid "From the markings, you have broken into an old dungeon. Claim any assets remaining, but be on your guard!"
+msgstr "顺着标记，你进入了一座古老的地下城。占领这块区域，但也要保持警惕！"
+
+#: guitext:88
+msgctxt "In-game message"
+msgid "Danger! Your untidy exploration of this realm has left you exposed to the Lord's troops."
+msgstr "危险！你贸然地发起了进攻，导致国王的军队发现了你的存在。"
+
+#: guitext:89
+msgctxt "In-game message"
+msgid "You've discovered the Heroes' castle. Break down the doors and wreak havoc upon the enemy!"
+msgstr "你发现了英雄城堡。打破城门并为敌人带来恐惧吧！"
+
+#: guitext:90
+msgctxt "In-game message"
+msgid "Congratulations. You have defeated the Lord of the Land and completed the Dungeon Keeper demo."
+msgstr "恭喜你。你已经击败了国王，并完成了地下城守护者的教学关卡。"
+
+#: guitext:92
+msgctxt "In-game message"
+msgid "This will be your most difficult battle to date; you must use all of your skills to defeat your distant enemy."
+msgstr "这将是你目前为止遭遇的最艰难的一场战斗，你必须使出浑身解数才能击败你远处的敌人。"
+
+#: guitext:93
+msgctxt "In-game message"
+msgid "You are but one of four Dungeon Keepers in the land and all are as evil as yourself. Can you defeat them all?"
+msgstr "你只是这个王国的四个守护者中的其中一员，而其他三人也都和你一样邪恶。你能把他们都打败吗？"
+
+#: guitext:94
+msgctxt "In-game message"
+msgid "This realm is ruled by a noble Knight, whom another Keeper also seeks to destroy. His land has already been besieged, so make haste."
+msgstr "这个王国由一位高贵的骑士统治，另一个守护者也打算与你竞争将他杀死。他的土地已经被围攻了，所以尽快行动吧。"
+
+#: guitext:95
+msgctxt "In-game message"
+msgid "Your rival has already prevailed over the heroes of this realm. There is room for only one ultimate evil here though, so find out which one of you is worthy."
+msgstr "你的对手已经压制住了这里的英雄。而这片土地只能容纳一个最邪恶的守护者，所以证明你自己的价值吧。"
+
+#: guitext:96
+msgctxt "In-game message"
+msgid "This level will test your ability to travel through these underground caverns at great speed. Indeed, speed is your only ally here. Make it to the end of the course in the time allowed to win."
+msgstr "这个区域将考验你横穿洞穴网的能力。时间是你真正的敌人。在时间耗尽前飞到这个区域的尽头来获得胜利。"
+
+#: guitext:97
+msgctxt "In-game message"
+msgid "Make haste to subjugate your adversaries here, the Dungeon Keeper cake-boys."
+msgstr "赶快解决掉这里的敌人，享受一场饕餮盛宴吧，守护者。"
+
+#: guitext:98
+msgctxt "In-game message"
+msgid "Build a Treasure Room and fill it with 2000 gold."
+msgstr "建造一个储金室，并储存2000单位黄金。"
+
+#: guitext:99
+msgctxt "In-game message"
+msgid "Well done. Now build a Lair and Hatchery and attract five creatures into your dungeon."
+msgstr "很好。现在建造巢穴和孵化室，并吸引五只怪物进入你的地下城。"
+
+#: guitext:100
+msgctxt "In-game message"
+msgid "Excellent. Now continue to mine the area for gold, but beware, your success will have attracted the unwanted attentions of local heroes. Defend your dungeon from these do-gooders."
+msgstr "棒极了。继续挖掘这片区域的金子，但要小心，你的成功已经不经意间引起了当地英雄的注意。防止这些好人进攻你的地下城。"
+
+#: guitext:101
+msgctxt "In-game message"
+msgid "Your continued success has attracted the attentions of the local lord. He must be defeated so you can claim this realm as your own."
+msgstr "你接连的成功已经吸引了这片土地的国王的注意。你必须击败他才能占据这个王国。"
+
+#: guitext:102
+msgctxt "In-game message"
+msgid "Great work. By defeating the lord, you have claimed this realm as your own."
+msgstr "干得很好。随着国王被击败，你已经将这片土地据为己有了。"
+
+#: guitext:103
+msgctxt "In-game message"
+msgid "You have been defeated. Better luck next time."
+msgstr "你被打败了。祝你下次好运。"
+
+#: guitext:104
+msgctxt "In-game message"
+msgid "This is a holy place, and the most powerful magic will become available to you here from research. Subordinate your competition and then raise the electric church to reveal its powers."
+msgstr "这是一块圣地，你可以研究出最强力的魔法。先干掉你的竞争对手，然后来到电子教堂并探索它的真正力量。"
+
+#: guitext:105
+msgctxt "In-game message"
+msgid "You have researched the evil audience; if you are powerful enough, victory is now yours for the taking."
+msgstr "你已经研究出了邪恶的召唤术；如果你足够强大，胜利便唾手可得。"
+
+#: guitext:106
+msgctxt "In-game message"
+msgid "You have discovered an evil Temple, a source of great power, the uses of which will only be revealed to you in the worlds to come."
+msgstr "你发现了一座拥有强大力量的邪恶寺庙， 它的作用只有在未来的世界中才会向你展示。"
+
+#: guitext:107
+msgctxt "In-game message"
+msgid "Your competition has been put in its rightful place; take what is now yours. You will find the electric church to the south. You will require the ultimate weapon."
+msgstr "你的竞争对手占据了最好的一块地盘；你需要拿走属于你的东西。你可以在南方找到电子教堂。你需要一个终极武器。"
+
+#: guitext:108
+msgctxt "In-game message"
+msgid "Build up your dungeon, build a research room, and see what it has to offer you."
+msgstr "建设你的地下城，建造一个图书馆，看看能研究出什么。"
+
+#: guitext:109
+msgctxt "In-game message"
+msgid "You have discovered a lost cave, home of the Tentacles. Take them into your dungeon; others are sure to follow them to you."
+msgstr "你发现了一座失落的山洞，它是水怪的家园。把它带进你的地下城，它的同伴也会跟着来的。"
+
+#: guitext:110
+msgctxt "In-game message"
+msgid "You have researched a Workshop; with it, doors and traps will become available to you."
+msgstr "你研究出了工厂，现在可以生产门和陷阱了。"
+
+#: guitext:111
+msgctxt "In-game message"
+msgid "Dispense with the particularly obnoxious Dwarves which wander this region while you build a well defended Dungeon."
+msgstr "在你建设一个防御严密的地下城的同时，还要干掉那些在这个地区游荡的令人讨厌的矮人。"
+
+#: guitext:112
+msgctxt "In-game message"
+msgid "The final battle is at hand. Find and destroy the heroic stronghold."
+msgstr "决战即将打响。找到并摧毁英雄的基地。"
+
+#: guitext:113
+msgctxt "In-game message"
+msgid "In the caves of Savactor, a rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and then proceed to conquer the rival Keeper to gain dominance over this land."
+msgstr "在萨瓦特的山洞里，一个敌对的守护者正与不知疲倦的正义力量进行着斗争。打败那些可怜的英雄，然后继续打败敌对的守护者，以获得对这片土地的统治权。"
+
+#: guitext:114
+msgctxt "In-game message"
+msgid "The corpses of the good lie strewn around you. Now go, and conquer your rival on this land. Dominion awaits ..."
+msgstr "英雄的尸体倒在了你的脚下。是时候了，征服你的对手。这片土地的统治权在等着你......"
+
+#: guitext:122 guitext:123 guitext:124 guitext:149 guitext:150 guitext:151 guitext:152 guitext:170
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext:115 guitext:116 guitext:117 guitext:118 guitext:119 guitext:120
+#: guitext:121 guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 
+#: guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140
+#: guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 
+#: guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160
+#: guitext:161 guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168 guitext:169
+#: guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179 guitext:180
+#: guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
+#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr ""
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Dungeon Keeper Demo"
+msgstr "地下城守护者教学关卡"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Skybird Trill 30"
+msgstr "太阳鸟鸣30版"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Skybird Trill 32"
+msgstr "太阳鸟鸣32版"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Watercreek Drip"
+msgstr "水滴之镇"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Bonus Level - Crush the Imp"
+msgstr "隐藏关废案—碾成肉酱"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Bonus Level - Time flies"
+msgstr "隐藏关废案—时光飞逝"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Bonus Level - Cake Boy"
+msgstr "隐藏关废案—饕餮盛宴"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Othersmile"
+msgstr "欢笑之地beta版"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Krowalocar"
+msgstr "克罗瓦洛卡"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Electric Church"
+msgstr "电子教堂"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Staging Point"
+msgstr "占山为王"
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Quick Death in Chaos"
+msgstr "死亡混战"
+
+#: guitext:214
+msgctxt "Level name"
+msgid "Single Example"
+msgstr "简单示例关卡"
+
+#: guitext:215
+msgctxt "Level name"
+msgid "Mirthhold"
+msgstr "快乐之堡"

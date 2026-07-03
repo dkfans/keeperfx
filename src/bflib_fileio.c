@@ -26,67 +26,112 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <limits.h>
 #include <time.h>
-#include <share.h>
+#if !defined(_WIN32)
+#include <dirent.h>
+#include <strings.h>
+#include <unistd.h>
+#endif
 
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
 
-#if defined(_WIN32)||defined(DOS)||defined(GO32)
-#include <dos.h>
-#include <direct.h>
-#endif
 #include "post_inc.h"
 
-#if defined(_WIN32)
-#ifdef __cplusplus
-extern "C" {
-#endif
-//Selected declarations frow Win32 API - I don't want to use whole API
-// since it influences everything
-#ifndef WINBASEAPI
-#ifdef __W32API_USE_DLLIMPORT__
-#define WINBASEAPI DECLSPEC_IMPORT
-#else
-#define WINBASEAPI
-#endif
-#endif
-#define F_OK 0
-#define WINAPI __stdcall
-typedef char *PCHAR,*LPCH,*PCH,*NPSTR,*LPSTR,*PSTR;
-typedef const char *LPCCH,*PCSTR,*LPCSTR;
-typedef unsigned long DWORD;
-typedef int WINBOOL,*PWINBOOL,*LPWINBOOL;
-#define BOOL WINBOOL
-typedef void *PVOID,*LPVOID;
-typedef PVOID HANDLE;
-#define DECLARE_HANDLE(n) typedef HANDLE n
-typedef HANDLE *PHANDLE,*LPHANDLE;
-WINBASEAPI DWORD WINAPI GetShortPathNameA(LPCSTR,LPSTR,DWORD);
-#define GetShortPathName GetShortPathNameA
-WINBASEAPI BOOL WINAPI FlushFileBuffers(HANDLE);
-WINBASEAPI DWORD WINAPI GetLastError(void);
-#ifdef __cplusplus
+/******************************************************************************/
+
+#if !defined(_WIN32)
+/** @internal
+ *  Finds a file with case-insensitive matching on Unix-like systems.
+ *  Searches the directory for a file matching the given name case-insensitively.
+ *  @param fname The filename to search for.
+ *  @param actual_fname Buffer to store the actual filename found.
+ *  @param buflen Size of the actual_fname buffer.
+ *  @return Returns 1 if found, 0 otherwise.
+ */
+static int find_case_insensitive_file(const char *fname, char *actual_fname, size_t buflen)
+{
+    // Split fname into directory and filename
+    const char *last_slash = strrchr(fname, '/');
+    const char *filename;
+    char dir_path[PATH_MAX];
+    size_t dir_len = 0;
+    
+    if (last_slash != NULL) {
+        dir_len = last_slash - fname;
+        if (dir_len >= sizeof(dir_path)) {
+            return 0;
+        }
+        if (dir_len > 0) {
+            memcpy(dir_path, fname, dir_len);
+            dir_path[dir_len] = '\0';
+        } else {
+            strcpy(dir_path, "/");
+        }
+        filename = last_slash + 1;
+    } else {
+        strcpy(dir_path, ".");
+        filename = fname;
+    }
+    
+    DIR *dir = opendir(dir_path);
+    if (dir == NULL) {
+        return 0;
+    }
+    
+    struct dirent *entry;
+    int found = 0;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcasecmp(entry->d_name, filename) == 0) {
+            // Found a case-insensitive match
+            if (last_slash != NULL) {
+                size_t needed = dir_len + 1 + strlen(entry->d_name) + 1;
+                if (needed > buflen) {
+                    closedir(dir);
+                    return 0;
+                }
+                if (dir_len > 0) {
+                    snprintf(actual_fname, buflen, "%s/%s", dir_path, entry->d_name);
+                } else {
+                    snprintf(actual_fname, buflen, "/%s", entry->d_name);
+                }
+            } else {
+                if (strlen(entry->d_name) + 1 > buflen) {
+                    closedir(dir);
+                    return 0;
+                }
+                strcpy(actual_fname, entry->d_name);
+            }
+            found = 1;
+            break;
+        }
+    }
+    
+    closedir(dir);
+    return found;
 }
 #endif
-#endif
-/******************************************************************************/
-//Internal declarations
-void convert_find_info(struct TbFileFind *ffind);
-/******************************************************************************/
 
 short LbFileExists(const char *fname)
 {
-  return access(fname,F_OK) == 0;
+  if (access(fname, F_OK) == 0) {
+    return 1;
+  }
+#if !defined(_WIN32)
+  char actual_fname[PATH_MAX];
+  if (find_case_insensitive_file(fname, actual_fname, sizeof(actual_fname))) {
+    return 1;
+  }
+#endif
+  return 0;
 }
 
 int LbFilePosition(TbFileHandle handle)
 {
-  int result = tell(handle);
+  int result = ftell(handle);
   return result;
 }
 
@@ -94,12 +139,16 @@ int create_directory_for_file(const char * fname)
 {
   const int size = strlen(fname) + 1;
   char * tmp = (char *) malloc(size);
-  char * separator = strchr(fname, '/');
+  const char * separator = strchr(fname, '/');
 
   while (separator != NULL) {
     memcpy(tmp, fname, separator - fname);
     tmp[separator - fname] = 0;
-    if (_mkdir(tmp) != 0) {
+#if defined(_WIN32)
+    if (mkdir(tmp) != 0) {
+#else
+    if (mkdir(tmp, 0755) != 0) {
+#endif
       if (errno != EEXIST) {
         free(tmp);
         return 0;
@@ -114,14 +163,29 @@ int create_directory_for_file(const char * fname)
 TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 {
   unsigned char mode = accmode;
+  const char *open_fname = fname;
+#if !defined(_WIN32)
+  char actual_fname[PATH_MAX];
+  int access_rc = access(fname, F_OK);
+  // Try to find the file case-insensitively on Unix-like systems
+  if (access_rc != 0 && find_case_insensitive_file(fname, actual_fname, sizeof(actual_fname))) {
+    open_fname = actual_fname;
+  }
+#endif
 
-  if ( !LbFileExists(fname) )
+#if !defined(_WIN32)
+  int file_exists = (access_rc == 0) || (open_fname != fname);
+#else
+  int file_exists = LbFileExists(fname);
+#endif
+
+  if ( !file_exists )
   {
 #ifdef __DEBUG
     LbSyncLog("LbFileOpen: file doesn't exist\n");
 #endif
     if ( mode == Lb_FILE_MODE_READ_ONLY )
-      return -1;
+      return NULL;
     if ( mode == Lb_FILE_MODE_OLD )
       mode = Lb_FILE_MODE_NEW;
   }
@@ -136,7 +200,7 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
     close(rc);
   }
 */
-  TbFileHandle rc = -1;
+  TbFileHandle rc = NULL;
   switch (mode)
   {
   case Lb_FILE_MODE_NEW:
@@ -145,7 +209,7 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
       LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
 #endif
         if (create_directory_for_file(fname)) {
-          rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
+          rc = fopen(fname, "wb");
         }
     };break;
   case Lb_FILE_MODE_OLD:
@@ -153,18 +217,18 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDWR mode\n");
 #endif
-        rc = _sopen(fname, O_RDWR|O_BINARY, SH_DENYNO);
+        rc = fopen(open_fname, "r+b");
     };break;
   case Lb_FILE_MODE_READ_ONLY:
     {
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDONLY mode\n");
 #endif
-        rc = _sopen(fname, O_RDONLY|O_BINARY, SH_DENYNO);
+        rc = fopen(open_fname, "rb");
     };break;
   }
 #ifdef __DEBUG
-  LbSyncLog("LbFileOpen: out handle = %ld, errno = %d\n",rc,errno);
+  LbSyncLog("LbFileOpen: errno = %d\n", rc, errno);
 #endif
   return rc;
 }
@@ -172,7 +236,7 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 //Closes a file
 int LbFileClose(TbFileHandle handle)
 {
-  if ( close(handle) )
+  if ( fclose(handle) )
     return -1;
   else
     return 1;
@@ -201,13 +265,13 @@ int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
   switch (origin)
   {
   case Lb_FILE_SEEK_BEGINNING:
-      rc = lseek(handle, offset, SEEK_SET);
+      rc = fseek(handle, offset, SEEK_SET);
       break;
   case Lb_FILE_SEEK_CURRENT:
-      rc = lseek(handle, offset, SEEK_CUR);
+      rc = fseek(handle, offset, SEEK_CUR);
       break;
   case Lb_FILE_SEEK_END:
-      rc = lseek(handle, offset, SEEK_END);
+      rc = fseek(handle, offset, SEEK_END);
       break;
   default:
       rc = -1;
@@ -226,9 +290,7 @@ int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
  */
 int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 {
-  //'read' returns (-1) on error
-  int result = read(handle, buffer, len);
-  return result;
+    return fread(buffer, 1, len, handle);
 }
 
 /**
@@ -240,8 +302,7 @@ int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 */
 long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len)
 {
-    long result = write(handle, buffer, len);
-    return result;
+    return fwrite(buffer, 1, len, handle);
 }
 
 /**
@@ -250,119 +311,53 @@ long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long le
 */
 short LbFileFlush(TbFileHandle handle)
 {
-#if defined(_WIN32)
-  // Crappy Windows has its own
-  int result = FlushFileBuffers((HANDLE)handle);
-  // It returns 'invalid handle' error sometimes for no reason.. so disabling this error
-  if (result != 0)
-      return 1;
-  result = GetLastError();
-  return ((result == 0) || (result == 6));
-#else
-#if defined(DOS)||defined(GO32)
-  // No idea how to do this on old systems
-  return 1;
-#else
-  // For normal POSIX systems
-  // (should also work on Win, as its IEEE standard... but it currently isn't)
-  return (ioctl(handle,I_FLUSH,FLUSHRW) != -1);
-#endif
-#endif
-
+  return fflush(handle) == 0;
 }
 
 long LbFileLengthHandle(TbFileHandle handle)
 {
-    long result = filelength(handle);
-    return result;
+  long pos = ftell(handle);
+  fseek(handle, 0, SEEK_END);
+  long result = ftell(handle);
+  fseek(handle, pos, SEEK_SET);
+  return result;
 }
 
 //Returns disk size of file
 long LbFileLength(const char *fname)
 {
-    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    long result = handle;
-    if (handle != -1)
-    {
-        result = filelength(handle);
-        LbFileClose(handle);
+  const char *open_fname = fname;
+#if !defined(_WIN32)
+  char actual_fname[PATH_MAX];
+  // Try to find the file case-insensitively on Unix-like systems
+  if (access(fname, F_OK) != 0 && find_case_insensitive_file(fname, actual_fname, sizeof(actual_fname))) {
+    open_fname = actual_fname;
+  }
+#endif
+  TbFileHandle handle = fopen(open_fname, "rb");
+  long result = -1;
+  if (handle)
+  {
+    fseek(handle, 0, SEEK_END);
+    result = ftell(handle);
+    fclose(handle);
   }
   return result;
-}
-
-//Converts file search information from platform-specific into independent form
-//Yeah, right...
-void convert_find_info(struct TbFileFind *ffind)
-{
-  struct _finddata_t *fdata=&(ffind->Reserved);
-  snprintf(ffind->Filename,144, "%s", fdata->name);
-#if defined(_WIN32)
-  GetShortPathName(fdata->name,ffind->AlternateFilename,14);
-#else
-  strncpy(ffind->AlternateFilename,fdata->name,14);
-#endif
-  ffind->AlternateFilename[13]='\0';
-  if (fdata->size>ULONG_MAX)
-    ffind->Length=ULONG_MAX;
-  else
-    ffind->Length = fdata->size;
-  ffind->Attributes = fdata->attrib;
-  LbDateTimeDecode(&fdata->time_create,&ffind->CreationDate,&ffind->CreationTime);
-  LbDateTimeDecode(&fdata->time_write,&ffind->LastWriteDate,&ffind->LastWriteTime);
-}
-
-// returns -1 if no match is found. Otherwise returns 1 and stores a handle
-// to be used in _findnext and _findclose calls inside TbFileFind struct.
-int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes)
-{
-    // original Watcom code was
-    //dos_findfirst_(path, attributes,&(ffind->Reserved))
-    //The new code skips 'attributes' as Win32 prototypes seem not to use them
-    ffind->ReservedHandle = _findfirst(filespec,&(ffind->Reserved));
-    int result;
-    if (ffind->ReservedHandle == -1)
-    {
-      result = -1;
-    } else
-    {
-      convert_find_info(ffind);
-      result = 1;
-    }
-    return result;
-}
-
-// returns -1 if no match is found, otherwise returns 1
-int LbFileFindNext(struct TbFileFind *ffind)
-{
-    int result;
-    if ( _findnext(ffind->ReservedHandle,&(ffind->Reserved)) < 0 )
-    {
-        _findclose(ffind->ReservedHandle);
-        ffind->ReservedHandle = -1;
-        result = -1;
-    } else
-    {
-        convert_find_info(ffind);
-        result = 1;
-    }
-    return result;
-}
-
-//Ends file searching sequence
-int LbFileFindEnd(struct TbFileFind *ffind)
-{
-    if (ffind->ReservedHandle != -1)
-    {
-        _findclose(ffind->ReservedHandle);
-    }
-    return 1;
 }
 
 //Removes a disk file
 int LbFileDelete(const char *filename)
 {
+  const char *del_fname = filename;
+#if !defined(_WIN32)
+  char actual_fname[PATH_MAX];
+  // Try to find the file case-insensitively on Unix-like systems
+  if (access(filename, F_OK) != 0 && find_case_insensitive_file(filename, actual_fname, sizeof(actual_fname))) {
+    del_fname = actual_fname;
+  }
+#endif
   int result;
-  if ( remove(filename) )
+  if ( remove(del_fname) )
     result = -1;
   else
     result = 1;

@@ -5,12 +5,12 @@
 #include "../pre_inc.h"
 
 #include "../game_legacy.h"
-#include "../bflib_memory.h"
 #include "../keeperfx.hpp"
 #include "../lvl_filesdk1.h"
 #include "../slab_data.h"
 #include "../room_util.h"
 #include "../player_instances.h"
+#includw "../gui_msgs.h"
 
 #include "../post_inc.h"
 
@@ -30,7 +30,7 @@ struct ftest_donottouch__variables ftest_donottouch__vars = {
     .pending_init = NULL,
     .total_actions = 0,
     .current_action = 0,
-    .previous_action = ULONG_MAX,
+    .previous_action = UINT32_MAX,
     .is_restarting_actions_queue = false,
     .current_turn_counter = 0
 };
@@ -97,7 +97,7 @@ void ftest_reset_action_args(struct FTestActionArgs* const args)
     }
 
     args->intended_start_at_game_turn = 0;
-    args->actual_started_at_game_turn = ULONG_MAX;
+    args->actual_started_at_game_turn = UINT32_MAX;
     args->action_index = 0;
     args->times_executed = 0;
     args->data = NULL;
@@ -109,7 +109,7 @@ void ftest_clear_actions()
 
     vars->total_actions = 0;
     vars->current_action = 0;
-    vars->previous_action = ULONG_MAX;
+    vars->previous_action = UINT32_MAX;
     vars->is_restarting_actions_queue = false;
     vars->current_turn_counter = 0;
 
@@ -167,7 +167,7 @@ TbBool ftest_parse_arg(char * const arg)
     if(strlen(arg) > 0 && arg[0] != '-')
     {
         FTESTLOG("Argument '%s' provided by user", arg);
-        snprintf(start_params.functest_name, sizeof(start_params.functest_name), "%s", arg);        
+        snprintf(start_params.functest_name, sizeof(start_params.functest_name), "%s", arg);
         return true;
     }
 
@@ -182,24 +182,71 @@ TbBool ftest_fill_teststorun_by_name(char* const name)
     struct FTestConfig* test_config = NULL;
     vars->total_tests = 0;
     for(unsigned long i = 0; i < FTEST_MAX_TESTS; ++i) { vars->tests_to_run[i] = NULL; }
-    for(unsigned long i = 0; i < FTEST_MAX_TESTS; ++i)
+
+    TbBool too_many_tests = false;
+    for(unsigned short test_list_id = 0; test_list_id < 2; ++test_list_id)
     {
-        test_config = &conf->tests_list[i];
-        if(test_config == NULL || strnlen(test_config->test_name, FTEST_MAX_NAME_LENGTH) <= 0)
+        struct FTestConfig* current_test_list = NULL;
+
+        switch(test_list_id)
+        {
+            case 0:
+            {
+                current_test_list = conf->tests_list;
+                break;
+            }
+
+            case 1:
+            {
+                if(flag_is_set(start_params.functest_flags, FTF_IncludeLongTests))
+                {
+                    current_test_list = conf->long_running_tests_list;
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+
+        if(current_test_list == NULL)
         {
             continue;
         }
 
-        if(name[0] == '*' || strnlen(name, FTEST_MAX_NAME_LENGTH) <= 0)
+        for(unsigned long i = 0; i < FTEST_MAX_TESTS; ++i)
         {
-            FTESTLOG("Added test '%s' via wildcard match", test_config->test_name);
-            vars->tests_to_run[vars->total_tests++] = test_config;
+            test_config = &current_test_list[i];
+            if(test_config == NULL || strnlen(test_config->test_name, FTEST_MAX_NAME_LENGTH) <= 0)
+            {
+                continue;
+            }
+
+            if(vars->total_tests >= FTEST_MAX_TESTS)
+            {
+                vars->total_tests++;
+                too_many_tests = true;
+                FTESTLOG("Skipped adding test '%s', too many tests!", test_config->test_name);
+                continue;
+            }
+
+            if(name[0] == '*' || strnlen(name, FTEST_MAX_NAME_LENGTH) <= 0)
+            {
+                FTESTLOG("Added test '%s' via wildcard match", test_config->test_name);
+                vars->tests_to_run[vars->total_tests++] = test_config;
+            }
+            else if(strcmp(name, test_config->test_name) == 0)
+            {
+                FTESTLOG("Added test '%s' via exact match", test_config->test_name);
+                vars->tests_to_run[vars->total_tests++] = test_config;
+            }
         }
-        else if(strcmp(name, test_config->test_name) == 0)
-        {
-            FTESTLOG("Added test '%s' via exact match", test_config->test_name);
-            vars->tests_to_run[vars->total_tests++] = test_config;
-        }
+    }
+
+    if(too_many_tests)
+    {
+        FTEST_FRAMEWORK_ABORT("Too many tests %lu, increase the value of FTEST_MAX_TESTS(%d)", vars->total_tests, FTEST_MAX_TESTS);
+        return false;
     }
 
     return vars->total_tests > 0;
@@ -249,7 +296,7 @@ TbBool ftest_setup_test(struct FTestConfig* const test_config)
     strcpy(start_params.selected_campaign, test_config->level_file);
     LevelNumber selected_level = test_config->level;
 
-    TbBool result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
+    TbBool result = change_campaign(CampgnT_Default, start_params.selected_campaign);
     if(!result)
     {
         FTEST_FAIL_TEST("Failed to load campaign '%d'", start_params.selected_campaign)
@@ -259,7 +306,7 @@ TbBool ftest_setup_test(struct FTestConfig* const test_config)
     {
         set_selected_level_number(selected_level);
     }
-    
+
     ftest_clear_actions();
 
     //queue init for corresponding test level
@@ -271,9 +318,8 @@ TbBool ftest_setup_test(struct FTestConfig* const test_config)
 void ftest_quit_game()
 {
     FTESTLOG("Quitting/exiting map");
-    struct PlayerInfo *player;
-    player = get_my_player();
-    set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);           
+    struct PlayerInfo *player = get_my_player();
+    set_players_packet_action(player, PckA_QuitToMainMenu, 0, 0, 0, 0);
 }
 
 void ftest_srand()
@@ -282,14 +328,20 @@ void ftest_srand()
     {
         if(start_params.functest_seed == 0)
         {
-            game.action_rand_seed = game.play_gameturn;
-            game.unsync_rand_seed = game.play_gameturn;
-            srand(game.play_gameturn);
+            game.action_random_seed = get_gameturn();
+            game.ai_random_seed = get_gameturn() * 9377 + 9439 + get_gameturn();
+            game.player_random_seed = get_gameturn() * 9439 + 9377 + get_gameturn();
+            game.unsync_random_seed = get_gameturn();
+            game.sound_random_seed = get_gameturn() * 7919 + 7927;
+            srand(get_gameturn());
         }
         else
         {
-            game.action_rand_seed = start_params.functest_seed;
-            game.unsync_rand_seed = start_params.functest_seed;
+            game.action_random_seed = start_params.functest_seed;
+            game.ai_random_seed = start_params.functest_seed * 9377 + 9439 + get_gameturn();
+            game.player_random_seed = start_params.functest_seed * 9439 + 9377 + get_gameturn();
+            game.unsync_random_seed = start_params.functest_seed;
+            game.sound_random_seed = start_params.functest_seed * 7919 + 7927;
             srand(start_params.functest_seed);
         }
     }
@@ -299,6 +351,12 @@ TbBool ftest_init()
 {
     struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
 
+    if(!flag_is_set(start_params.functest_flags, FTF_Enabled))
+    {
+        FTESTLOG("Functional Tests are not enabled, skipping Init.");
+        return false;
+    }
+
     if(vars->current_state != FTSt_PendingInitialSetup)
     {
         FTEST_FRAMEWORK_ABORT("Init should only be called once at startup!")
@@ -307,7 +365,6 @@ TbBool ftest_init()
 
     start_params.no_intro = 1;
 
-    set_flag(start_params.functest_flags, FTF_Enabled);
     clear_flag(start_params.functest_flags, FTF_TestFailed);
     clear_flag(start_params.functest_flags, FTF_LevelLoaded);
 
@@ -319,7 +376,7 @@ TbBool ftest_init()
 
     if(!ftest_fill_teststorun_by_name(start_params.functest_name))
     {
-        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%d') make sure init name/function are added to tests_list (see ftest_list.c)", start_params.functest_name)
+        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%s') make sure init name/function are added to tests_list or long_running_tests_list (see ftest_list.c)", start_params.functest_name)
         return false;
     }
 
@@ -331,7 +388,7 @@ TbBool ftest_init()
 FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
 {
     struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
-    
+
     // enforce init call first
     if(!flag_is_set(start_params.functest_flags, FTF_Enabled) || vars->current_state == FTSt_PendingInitialSetup)
     {
@@ -357,7 +414,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
     // tests already completed!
     if(vars->current_state == FTSt_TestsCompletedSuccessfully)
     {
-        return FTSt_TestsCompletedSuccessfully; 
+        return FTSt_TestsCompletedSuccessfully;
     }
 
     // setup tests (change to campaign/level)
@@ -394,7 +451,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
 
         if(vars->pending_init != NULL)
         {
-            message_add_fmt(PLAYER0, "Initializing Functional Test %s", vars->pending_init->test_name);
+            message_add_fmt(MsgType_Player, PLAYER0, "Initializing Functional Test %s", vars->pending_init->test_name);
             FTESTLOG("Initializing Functional Test %s", vars->pending_init->test_name);
             if(vars->pending_init->init_func)
             {
@@ -424,7 +481,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
             {
                 test_action = vars->actions_func_list[vars->current_action];
                 current_test_action_args = &vars->actions_func_arguments[vars->current_action];
-                
+
                 if(test_action == NULL)
                 {
                     //empty, skip to next
@@ -436,16 +493,16 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
                     return FTSt_InvalidState;
                 }
             } while (test_action == NULL && vars->current_action < ftest_actions_length);
-            
+
             if(test_action)
             {
-                if(game.play_gameturn >= current_test_action_args->intended_start_at_game_turn)
+                if(get_gameturn() >= current_test_action_args->intended_start_at_game_turn)
                 {
                     if(vars->current_action != vars->previous_action)
                     {
                         FTESTLOG("executing action %d", vars->current_action);
                         vars->previous_action = vars->current_action;
-                        current_test_action_args->actual_started_at_game_turn = game.play_gameturn;
+                        current_test_action_args->actual_started_at_game_turn = get_gameturn();
                     }
 
                     if(test_action(current_test_action_args))
@@ -510,7 +567,7 @@ void ftest_restart_actions()
     const unsigned long ftest_actions_length = sizeof(ftest_donottouch__vars.actions_func_list) / sizeof(ftest_donottouch__vars.actions_func_list[0]);
 
     ftest_donottouch__vars.is_restarting_actions_queue = true;
-    
+
     for(unsigned long i = 0; i < ftest_actions_length; ++i)
     {
         if(ftest_donottouch__vars.actions_func_list[i] == NULL)
@@ -521,14 +578,22 @@ void ftest_restart_actions()
         struct FTestActionArgs* current_action_args = &ftest_donottouch__vars.actions_func_arguments[i];
         if(current_action_args != NULL)
         {
-            current_action_args->intended_start_at_game_turn = game.play_gameturn + ftest_donottouch__vars.actions_func_turn_list[i];
-            current_action_args->actual_started_at_game_turn = ULONG_MAX;
+            current_action_args->intended_start_at_game_turn = get_gameturn() + ftest_donottouch__vars.actions_func_turn_list[i];
+            current_action_args->actual_started_at_game_turn = UINT32_MAX;
         }
     }
 
     ftest_donottouch__vars.current_action = 0;
 }
 
+/**
+ * @brief Returns the current test config (some tests may want to modify it... meta!)
+ *
+ */
+struct FTestConfig* ftest_get_current_test_config()
+{
+    return ftest_donottouch__vars.tests_to_run[ftest_donottouch__vars.current_test];
+}
 
 #ifdef __cplusplus
 }

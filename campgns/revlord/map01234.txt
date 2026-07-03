@@ -17,6 +17,9 @@ REM Playthrough exhibited no bugs, and it's possible to win without cleaning up 
 REM ********************************************
 LEVEL_VERSION(1)
 
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
+
 SET_GENERATE_SPEED(400)
 
 START_MONEY(PLAYER0,10000)

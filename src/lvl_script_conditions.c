@@ -39,21 +39,19 @@ static unsigned short condition_stack_pos;
 static unsigned short condition_stack[CONDITIONS_COUNT];
 
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
     struct Dungeon* dungeon;
     struct Thing* thing;
+    struct PlayerInfo* player;
     switch (valtype)
     {
     case SVar_MONEY:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_money_owned;
     case SVar_GAME_TURN:
-        return game.play_gameturn;
-    case SVar_BREAK_IN:
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->times_breached_dungeon;
+        return get_gameturn();
     case SVar_CREATURE_NUM:
         return count_player_creatures_of_model(plyr_idx, validx);
     case SVar_TOTAL_DIGGERS:
@@ -68,6 +66,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_TOTAL_DOORS:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_doors;
+    case SVar_TOTAL_TRAPS:
+        return count_player_deployed_traps_of_model(plyr_idx, -1);
     case SVar_TOTAL_AREA:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_area;
@@ -125,6 +125,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_KEEPERS_DESTROYED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.keepers_destroyed;
+    case SVar_DESTROYED_KEEPER:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.keeper_destroyed[validx];
     case SVar_TIMES_LEVELUP_CREATURE:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.creatures_trained;
@@ -156,7 +159,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_TIMER:
         dungeon = get_dungeon(plyr_idx);
         if (dungeon->turn_timers[validx].state)
-          return game.play_gameturn - dungeon->turn_timers[validx].count;
+          return get_gameturn() - dungeon->turn_timers[validx].count;
         else
           return 0;
     case SVar_DUNGEON_DESTROYED:
@@ -185,22 +188,20 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         }
         return 0;
     case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->mnfct_info.trap_amount_stored[validx%gameadd.trapdoor_conf.trap_types_count]
-              + dungeon->mnfct_info.trap_amount_offmap[validx%gameadd.trapdoor_conf.trap_types_count];
+        return count_player_available_traps_of_model(plyr_idx, (validx % game.conf.trapdoor_conf.trap_types_count));
     case SVar_AVAILABLE_DOOR: // IF_AVAILABLE(DOOR)
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->mnfct_info.door_amount_stored[validx%gameadd.trapdoor_conf.door_types_count]
-              + dungeon->mnfct_info.door_amount_offmap[validx%gameadd.trapdoor_conf.door_types_count];
+        return count_player_available_doors_of_model(plyr_idx, (validx % game.conf.trapdoor_conf.door_types_count));
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
         dungeon = get_dungeon(plyr_idx);
-        return (dungeon->room_buildable[validx%game.slab_conf.room_types_count] & 1);
+        return (dungeon->room_buildable[validx%game.conf.slab_conf.room_types_count] & 1);
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
-        dungeon = get_dungeon(plyr_idx);
-        if (creature_will_generate_for_dungeon(dungeon, validx)) {
-            return min(game.pool.crtr_kind[validx%gameadd.crtr_conf.model_count],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
-        }
-        return 0;
+        return count_player_available_creatures_of_model(plyr_idx, (validx % game.conf.crtr_conf.model_count));
+    case SVar_AVAILABLE_TOTAL_TRAPS:
+        return count_player_available_traps_of_model(plyr_idx, -1);
+    case SVar_AVAILABLE_TOTAL_DOORS:
+        return count_player_available_doors_of_model(plyr_idx, -1);
+    case SVar_AVAILABLE_TOTAL_CREATURES:
+        return count_player_available_creatures_of_model(plyr_idx, CREATURE_ANY);
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
     {
         long varib_id = get_slab_number((unsigned char)plyr_idx, validx);
@@ -215,7 +216,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     }
     case SVar_CONTROLS_CREATURE: // IF_CONTROLS(CREATURE)
         dungeon = get_dungeon(plyr_idx);
-        return dungeon->owned_creatures_of_model[validx%gameadd.crtr_conf.model_count]
+        return dungeon->owned_creatures_of_model[validx%game.conf.crtr_conf.model_count]
           - count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, validx, creature_is_kept_in_custody_by_enemy_or_dying);
     case SVar_CONTROLS_TOTAL_CREATURES:// IF_CONTROLS(TOTAL_CREATURES)
         dungeon = get_dungeon(plyr_idx);
@@ -225,7 +226,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(plyr_idx);
     case SVar_ALL_DUNGEONS_DESTROYED:
     {
-        struct PlayerInfo* player = get_player(plyr_idx);
+        player = get_player(plyr_idx);
         return all_dungeons_destroyed(player);
     }
     case SVar_DOOR_NUM:
@@ -249,6 +250,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_BOX_ACTIVATED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->box_info.activated[validx];
+    case SVar_TRAP_ACTIVATED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->trap_info.activated[validx];
     case SVar_SACRIFICED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->creature_sacrifice[validx];
@@ -277,17 +281,35 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_score;
     case SVar_BONUS_TIME:
-        return (game.bonus_time - game.play_gameturn);
+        return (game.bonus_time - get_gameturn());
     case SVar_CREATURES_TRANSFERRED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->creatures_transferred;
     case SVar_ALLIED_PLAYER:
     {
-        struct PlayerInfo* player = get_player(plyr_idx);
+        player = get_player(plyr_idx);
         return player_allied_with(player, validx);
     }
     case SVar_ACTIVE_BATTLES:
         return count_active_battles(plyr_idx);
+    case SVar_VIEW_TYPE:
+        player = get_player(plyr_idx);
+        return player->view_type;
+    case SVar_CONTROLLED_THING:
+        player = get_player(plyr_idx);
+        return player->controlled_thing_idx;
+    case SVar_TOTAL_SLAPS:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.num_slaps;
+    case SVar_SCORE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->score;
+    case SVar_PLAYER_SCORE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.player_score;
+    case SVar_MANAGE_SCORE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->manage_score;
     default:
         break;
     };
@@ -300,15 +322,15 @@ TbBool condition_inactive(long cond_idx)
   {
       return false;
   }
-  unsigned long i = gameadd.script.conditions[cond_idx].status;
+  unsigned long i = game.script.conditions[cond_idx].status;
   if (((i & 0x01) == 0) || ((i & 0x04) != 0))
     return true;
   return false;
 }
 
-TbBool get_condition_status(unsigned char opkind, long val1, long val2)
+TbBool get_condition_status(unsigned char opkind, long left_value, long right_value)
 {
-  return LbMathOperation(opkind, val1, val2) != 0;
+  return LbMathOperation(opkind, left_value, right_value) != 0;
 }
 
 static void process_condition(struct Condition *condt, int idx)
@@ -385,7 +407,7 @@ static void process_condition(struct Condition *condt, int idx)
             }
         }
     }
-    
+
     SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
     set_flag_value(condt->status, 0x01, new_status);
     if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
@@ -401,11 +423,11 @@ static void process_condition(struct Condition *condt, int idx)
 
 void process_conditions(void)
 {
-    if (gameadd.script.conditions_num > CONDITIONS_COUNT)
-      gameadd.script.conditions_num = CONDITIONS_COUNT;
-    for (long i = 0; i < gameadd.script.conditions_num; i++)
+    if (game.script.conditions_num > CONDITIONS_COUNT)
+      game.script.conditions_num = CONDITIONS_COUNT;
+    for (long i = 0; i < game.script.conditions_num; i++)
     {
-      process_condition(&gameadd.script.conditions[i], i);
+      process_condition(&game.script.conditions[i], i);
     }
 }
 
@@ -440,7 +462,7 @@ void set_script_current_condition(int current_condition)
 void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
 {
     // TODO: replace with pointer to functions
-    struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
+    struct Condition* condt = &game.script.conditions[game.script.conditions_num];
     condt->condit_idx = script_current_condition;
     condt->plyr_range = plr_range_id;
     condt->variabl_type = varib_type;
@@ -451,7 +473,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
 
     if (condition_stack_pos >= CONDITIONS_COUNT)
     {
-        gameadd.script.conditions_num++;
+        game.script.conditions_num++;
         SCRPTWRNLOG("Conditions too deep in script");
         return;
     }
@@ -460,14 +482,14 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
         condition_stack[condition_stack_pos] = script_current_condition;
         condition_stack_pos++;
     }
-    script_current_condition = gameadd.script.conditions_num;
-    gameadd.script.conditions_num++;
+    script_current_condition = game.script.conditions_num;
+    game.script.conditions_num++;
 }
 
 void command_add_condition_2variables(long plr_range_id, long opertr_id, long varib_type, long varib_id,long plr_range_id_right, long varib_type_right, long varib_id_right)
 {
     // TODO: replace with pointer to functions
-    struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
+    struct Condition* condt = &game.script.conditions[game.script.conditions_num];
     condt->condit_idx = script_current_condition;
     condt->plyr_range = plr_range_id;
     condt->variabl_type = varib_type;
@@ -480,7 +502,7 @@ void command_add_condition_2variables(long plr_range_id, long opertr_id, long va
 
     if (condition_stack_pos >= CONDITIONS_COUNT)
     {
-        gameadd.script.conditions_num++;
+        game.script.conditions_num++;
         SCRPTWRNLOG("Conditions too deep in script");
         return;
     }
@@ -489,8 +511,8 @@ void command_add_condition_2variables(long plr_range_id, long opertr_id, long va
         condition_stack[condition_stack_pos] = script_current_condition;
         condition_stack_pos++;
     }
-    script_current_condition = gameadd.script.conditions_num;
-    gameadd.script.conditions_num++;
+    script_current_condition = game.script.conditions_num;
+    game.script.conditions_num++;
 }
 
 /******************************************************************************/

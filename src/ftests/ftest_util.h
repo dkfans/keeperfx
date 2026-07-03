@@ -114,10 +114,10 @@ TbBool ftest_util_move_camera_to_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, Pl
  * @param x
  * @param y
  * @param owner
- * @param max_lv
+ * @param max_level
  * @return
  */
-struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv);
+struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_level);
 
 /**
  * @brief Creates creature of kind creature_model with random experience level
@@ -125,11 +125,11 @@ struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNu
  * @param x 
  * @param y 
  * @param owner 
- * @param max_lv 
+ * @param max_level 
  * @param creature_model 
  * @return
  */
-struct Thing* ftest_util_create_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv, ThingModel creature_model);
+struct Thing* ftest_util_create_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_level, ThingModel creature_model);
 
 /**
  * @brief Centers the players cursor over the dungeon view (useful for picking up creatures by moving camera to/near unit pos)
@@ -150,6 +150,16 @@ void ftest_util_center_cursor_over_dungeon_view();
 TbBool ftest_util_replace_slabs_with_dungeon_hearts(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, PlayerNumber owner);
 
 /**
+ * @brief Marks the slab with an X pattern that is only used visually (for testing purposes, eg: to visualize areas on the map)
+ * 
+ * @param slb_x 
+ * @param slb_y 
+ * @param plyr_idx 
+ * @return TbBool 
+ */
+TbBool ftest_util_mark_slab_for_highlight(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
+
+/**
  * @brief test action to create a torture room for player and fill it with assigned torture creatures
  * 
  * @param args 
@@ -168,7 +178,7 @@ struct ftest_util_action__create_and_fill_torture_room__variables
 
     ThingModel victim_creature_model;
     PlayerNumber victim_player_owner;
-    CrtrExpLevel victim_max_lv;
+    CrtrExpLevel victim_max_level;
 
     TbBool only_run_once;
 };

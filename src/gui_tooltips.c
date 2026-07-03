@@ -20,7 +20,6 @@
 #include "gui_tooltips.h"
 #include "globals.h"
 #include <stdarg.h>
-#include "bflib_memory.h"
 #include "bflib_guibtns.h"
 #include "bflib_sprfnt.h"
 
@@ -39,9 +38,10 @@
 #include "config_trapdoor.h"
 #include "room_workshop.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "config_settings.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 #include <math.h>
@@ -62,6 +62,9 @@ const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers la
 float render_tooltip_scroll_offset; // Rendering float
 float render_tooltip_scroll_timer; // Rendering float
 struct ToolTipBox tool_tip_box;
+
+
+struct TooltipDebugInfo tool_tip_dbg = {0};
 
 /******************************************************************************/
 static inline void reset_scrolling_tooltip(void)
@@ -125,10 +128,9 @@ static inline void clear_gui_tooltip_button(void)
     tool_tip_box.gbutton = NULL;
 }
 
-TbBool cursor_moved_to_new_slab(struct PlayerInfo *player)
+TbBool cursor_moved_to_new_subtile(struct PlayerInfo *player)
 {
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    return (floor(playeradd->cursor_subtile_x/3) != floor(playeradd->previous_cursor_subtile_x/3) || floor(playeradd->cursor_subtile_y/3) != floor(playeradd->previous_cursor_subtile_y/3));
+    return ((player->cursor_subtile_x != player->previous_cursor_subtile_x) || (player->cursor_subtile_y != player->previous_cursor_subtile_y));
 }
 
 TbBool setup_trap_tooltips(struct Coord3d *pos)
@@ -155,98 +157,110 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
 
 TbBool setup_object_tooltips(struct Coord3d *pos)
 {
-  long i;
-  SYNCDBG(18,"Starting");
-  struct PlayerInfo* player = get_my_player();
-  // Find a special to show tooltip for
-  struct Thing* thing = thing_get(player->thing_under_hand);
-  if (thing_is_invalid(thing) || !thing_is_special_box(thing)) {
-      thing = get_special_at_position(pos->x.stl.num, pos->y.stl.num);
-  }
-  if (!thing_is_invalid(thing))
-  {
-      update_gui_tooltip_target(thing);
-      if (thing_is_custom_special_box(thing))
-      {
-          // TODO: get it from Map script
-          if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
-          {
-              i = box_thing_to_special(thing);
-              set_gui_tooltip_box_fmt(5, "%s", get_string(get_special_description_strindex(i)));
-          }
-          else
-          {
-              set_gui_tooltip_box_fmt(5, "%s", gameadd.box_tooltip[thing->custom_box.box_kind]);
-          }
-      }
-      else
-      {
-          i = box_thing_to_special(thing);
-          set_gui_tooltip_box_fmt(5, "%s", get_string(get_special_description_strindex(i)));
-      }
-      return true;
-  }
-  // Find a spellbook to show tooltip for
-  thing = get_spellbook_at_position(pos->x.stl.num, pos->y.stl.num);
-  if (!thing_is_invalid(thing))
-  {
-      update_gui_tooltip_target(thing);
-      i = book_thing_to_power_kind(thing);
-      set_gui_tooltip_box_fmt(5,"%s",get_string(get_power_name_strindex(i)));
-      return true;
-  }
-  // Find a workshop crate to show tooltip for
-  thing = get_crate_at_position(pos->x.stl.num, pos->y.stl.num);
-  if (!thing_is_invalid(thing))
-  {
-    update_gui_tooltip_target(thing);
-    if (crate_thing_to_workshop_item_class(thing) == TCls_Trap)
+    long i;
+    SYNCDBG(18,"Starting");
+    struct PlayerInfo* player = get_my_player();
+    struct Thing* thing = thing_get(player->thing_under_hand);
+    if (!thing_is_object(thing))
     {
-        struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(thing));
-        i = trapst->name_stridx;
-    } else
-    {
-        struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
-        i = doorst->name_stridx;
+        thing = get_nearest_object_with_tooltip_at_position(pos->x.stl.num, pos->y.stl.num,0);
     }
-    set_gui_tooltip_box_fmt(5,"%s",get_string(i));
-    return true;
-  }
-  if (!settings.tooltips_on)
+    struct ObjectConfigStats* objst;
+    if (thing_is_invalid(thing))
+    {
+        if (!settings.tooltips_on)
+        {
+            return false;
+        }
+        thing = get_nearest_object_with_tooltip_at_position(pos->x.stl.num, pos->y.stl.num, 1);
+    }
+    if (!thing_is_invalid(thing))
+    {
+        update_gui_tooltip_target(thing);
+        objst = get_object_model_stats(thing->model);
+        if ((objst->tooltip_stridx >= 0) && (objst->tooltip_stridx != GUIStr_Empty))
+        {
+            if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
+            {
+                set_gui_tooltip_box_fmt(5, "%s", get_string(objst->tooltip_stridx));
+            }
+            else
+            {
+                help_tip_time++;
+            }
+            return true;
+        }
+        if (objst->tooltip_stridx == -1)
+        {
+            if (thing_is_spellbook(thing))
+            {
+                i = book_thing_to_power_kind(thing);
+                set_gui_tooltip_box_fmt(5, "%s", get_string(get_power_name_strindex(i)));
+                return true;
+            }
+            else
+            if (thing_is_special_box(thing))
+            {
+                if (thing_is_custom_special_box(thing))
+                {
+                    // TODO: get it from Map script
+                    if (game.box_tooltip[thing->custom_box.box_kind][0] == 0)
+                    {
+                        i = box_thing_to_special(thing);
+                        int32_t strngindex = get_special_description_strindex(i);
+                        if (strngindex != GUIStr_Empty)
+                        {
+                            set_gui_tooltip_box_fmt(5, "%s", get_string(strngindex));
+                        }
+                    }
+                    else
+                    {
+                        set_gui_tooltip_box_fmt(5, "%s", game.box_tooltip[thing->custom_box.box_kind]);
+                    }
+                }
+                else
+                {
+                    i = box_thing_to_special(thing);
+                    set_gui_tooltip_box_fmt(5, "%s", get_string(get_special_description_strindex(i)));
+                }
+                return true;
+            }
+            else
+            if (thing_is_workshop_crate(thing))
+            {
+                update_gui_tooltip_target(thing);
+                if (crate_thing_to_workshop_item_class(thing) == TCls_Trap)
+                {
+                    struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(thing));
+                    i = trapst->name_stridx;
+                }
+                else
+                {
+                    struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
+                    i = doorst->name_stridx;
+                }
+                set_gui_tooltip_box_fmt(5, "%s", get_string(i));
+                return true;
+            }
+            else
+            if (objst->related_creatr_model)
+            {
+                update_gui_tooltip_target(thing);
+                if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
+                {
+                    struct CreatureModelConfig* crconf = creature_stats_get(objst->related_creatr_model);
+                    const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);     //TODO use a separate string for creature lair object than for lair room
+                    set_gui_tooltip_box_fmt(5, "%s %s", get_string(crconf->namestr_idx), get_string(roomst->name_stridx)); // (creature) Lair
+                }
+                else
+                {
+                    help_tip_time++;
+                }
+                return true;
+            }
+        }
+    }
     return false;
-  // Find a hero gate/creature lair to show tooltip for
-  thing = get_nearest_object_at_position(pos->x.stl.num, pos->y.stl.num);
-  if (!thing_is_invalid(thing))
-  {
-    if (object_is_hero_gate(thing))
-    {
-      update_gui_tooltip_target(thing);
-      if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
-      {
-          set_gui_tooltip_box_fmt(5,"%s",get_string(CpgStr_TerrainHeroEntranceDesc)); // Hero Gate tooltip
-      } else
-      {
-        help_tip_time++;
-      }
-      return true;
-    }
-    struct Objects* objdat = get_objects_data_for_thing(thing);
-    if (objdat->related_creatr_model)
-    {
-      update_gui_tooltip_target(thing);
-      if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
-      {
-          struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[objdat->related_creatr_model];
-          const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);     //TODO use a separate string for creature lair object than for lair room
-          set_gui_tooltip_box_fmt(5, "%s %s", get_string(crconf->namestr_idx), get_string(roomst->name_stridx)); // (creature) Lair
-      } else
-      {
-        help_tip_time++;
-      }
-      return true;
-    }
-  }
-  return false;
 }
 
 short setup_land_tooltips(struct Coord3d *pos)
@@ -256,21 +270,29 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   struct SlabMap* slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
   long skind = slb->kind;
-  struct SlabAttr* slbattr = get_slab_kind_attrs(skind);
-  if (slbattr->tooltip_stridx == GUIStr_Empty)
+  struct SlabConfigStats* slabst = get_slab_kind_stats(skind);
+  if (slabst->tooltip_stridx == GUIStr_Empty)
     return false;
-  update_gui_tooltip_target((void *)skind);
+  update_gui_tooltip_target((void *)(uintptr_t)skind);
   struct PlayerInfo* player = get_my_player();
-  if (cursor_moved_to_new_slab(player)) {
-      return false;
+  struct Thing *handthing = thing_get(player->thing_under_hand);
+  TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
+  if (in_query_mode == false) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
+          return false;
+      }
+      unsigned short delay_time = tool_tip_dbg.land_coord ? 10 : 50;
+      if (help_tip_time <= delay_time) {
+          help_tip_time++;
+          return true;
+      }
   }
-  if ( (help_tip_time > 30) || (player->work_state == PSt_CreatrQuery) )
-  {
-      set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
-  } else
-  {
-    help_tip_time++;
-  }
+
+  char str_pos[256] = {0};
+  if (tool_tip_dbg.land_coord)
+      sprintf(str_pos, "[debug - slab=%d,%d / subtile=%d,%d / coord=%d,%d]: ", (int)subtile_slab(pos->x.stl.num), (int)subtile_slab(pos->y.stl.num), (int)pos->x.stl.num, (int)pos->y.stl.num, (int)pos->x.val, (int)pos->y.val);
+
+  set_gui_tooltip_box_fmt(2, "%s%s", str_pos, get_string(slabst->tooltip_stridx));
   return true;
 }
 
@@ -288,16 +310,19 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target(room);
   struct PlayerInfo* player = get_my_player();
-  if (cursor_moved_to_new_slab(player)) {
-      return false;
+  struct Thing *handthing = thing_get(player->thing_under_hand);
+
+  TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
+  if (in_query_mode == false) {
+      if (cursor_moved_to_new_subtile(player) || thing_exists(handthing)) {
+          return false;
+      }
+      if (help_tip_time <= 50) {
+          help_tip_time++;
+          return true;
+      }
   }
-  if ( (help_tip_time > 30) || (player->work_state == PSt_CreatrQuery) )
-  {
-    set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
-  } else
-  {
-    help_tip_time++;
-  }
+  set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   return true;
 }
 
@@ -333,7 +358,7 @@ void setup_gui_tooltip(struct GuiButton* gbtn)
     if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
     {
         if (tool_tip_box.gbutton != NULL)
-            k = (long)tool_tip_box.gbutton->content;
+            k = tool_tip_box.gbutton->content.lval;
         else
             k = -1;
         struct PlayerInfo* player = get_player(k);
@@ -351,13 +376,13 @@ void setup_gui_tooltip(struct GuiButton* gbtn)
     if (i == GUIStr_PickCreatrMostExpDesc)
     {
         k = gbtn->btype_value & LbBFeF_IntValueMask;
-        if ((k > 0) && (top_of_breed_list + k < gameadd.crtr_conf.model_count))
+        if ((k > 0) && (top_of_breed_list + k < game.conf.crtr_conf.model_count))
             k = breed_activities[top_of_breed_list + k];
         else
             k = get_players_special_digger_model(my_player_number);
         if (k > 0)
         {
-            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[k];
+            struct CreatureModelConfig* crconf = creature_stats_get(k);
             set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crconf->namestr_idx), text);
         }
     }
@@ -375,14 +400,34 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
     clear_gui_tooltip_button();
     return false;
   }
+  int tooltip_delay;
   struct PlayerInfo* player = get_my_player();
   struct GuiButton* gbtn = &active_buttons[gbtn_idx];
   if ((get_active_menu(gbtn->gmenu_idx)->visual_state == 2) && ((gbtn->btype_value & LbBFeF_NoTooltip) == 0))
   {
     if (tool_tip_box.gbutton == gbtn)
     {
-        if ( (tool_tip_time > 10) || (player->work_state == PSt_CreatrQuery) )
+        // Increase tooltip time if the tooltip has been shown before
+        if (gbtn->has_shown_before == 2) {
+            tooltip_delay = 40;
+        } else {
+            tooltip_delay = 10;
+        }
+
+        struct GuiMenu* gmnu = get_active_menu(gbtn->gmenu_idx);
+        if (gmnu) {
+            long menu_id = gmnu->ident;
+            if (menu_id == GMnu_OPTIONS || menu_id == GMnu_VIDEO || menu_id == GMnu_SOUND ||
+                menu_id == GMnu_AUTOPILOT) {
+                tooltip_delay = 0;
+            }
+        }
+
+        if ( (tool_tip_time > tooltip_delay) || (player->work_state == PSt_CreatrQuery) )
         {
+          if (gbtn->has_shown_before == 0) {
+            gbtn->has_shown_before = 1;
+          }
           busy_doing_gui = 1;
           if (gbtn->draw_call != gui_area_text)
             setup_gui_tooltip(gbtn);
@@ -395,6 +440,9 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
     {
         clear_gui_tooltip_button();
         update_gui_tooltip_button(gbtn);
+        if (gbtn->has_shown_before == 1) {
+          gbtn->has_shown_before = 2;
+        }
     }
     return true;
   }
@@ -409,13 +457,14 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
     struct PlayerInfo* player = get_my_player();
     if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
     {
-        if (player->acamera == NULL)
+      struct Camera *camera = get_player_active_camera(player);
+      if (camera == NULL)
         {
             ERRORLOG("No active camera");
             return false;
         }
         struct Coord3d mappos;
-        if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &mappos))
+      if (screen_to_map(get_local_camera(camera), GetMouseX(), GetMouseY(), &mappos))
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {
@@ -442,7 +491,7 @@ void toggle_tooltips(void)
   {
     statstr = "off";
   }
-  show_onscreen_msg(2*game_num_fps, "Tooltips %s", statstr);
+  show_onscreen_msg(2*turns_per_second, "Tooltips %s", statstr);
   save_settings();
 }
 
@@ -456,10 +505,10 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             if (-ttwidth >= render_tooltip_scroll_offset)
               render_tooltip_scroll_offset = viswidth;
             else
-              render_tooltip_scroll_offset -= ((MyScreenHeight >= 400) ? 4.0 : 2.0) * gameadd.delta_time;
+              render_tooltip_scroll_offset -= ((MyScreenHeight >= 400) ? 4.0 : 2.0) * game.delta_time;
         } else
         {
-            render_tooltip_scroll_timer -= 1.0 * gameadd.delta_time;
+            render_tooltip_scroll_timer -= 1.0 * game.delta_time;
             if (render_tooltip_scroll_timer < 0)
               render_tooltip_scroll_offset = 0;
         }
@@ -486,7 +535,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             draw_slab64k(x, y, units_per_pixel_ui, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
             lbDisplay.DrawFlags = 0;
             int tx_units_per_px, tx, ty;
-            if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+            if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
             {
                 LbTextSetWindow(x, y, scale_ui_value(viswidth * 2), scale_ui_value(ttheight * 2));
                 tx_units_per_px = scale_value_by_horizontal_resolution(32);

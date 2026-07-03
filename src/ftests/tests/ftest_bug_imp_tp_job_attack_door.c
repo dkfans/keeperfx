@@ -85,9 +85,9 @@ struct ftest_bug_imp_tp_job_attack_door__variables ftest_bug_imp_tp_job_attack_d
 };
 
 // forward declarations - tests
-TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionArgs* const args);
-TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FTestActionArgs* const args);
-TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_imp_tp_job_attack_door_action003__end_test(struct FTestActionArgs* const args);
 
 TbBool ftest_tmp_delete_me(struct FTestActionArgs* const args);
 
@@ -122,7 +122,7 @@ TbBool ftest_bug_imp_tp_attack_door__deadbody_init()
     return true;
 }
 
-TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     struct ftest_bug_imp_tp_job_attack_door__variables* const vars = &ftest_bug_imp_tp_job_attack_door__vars;
@@ -131,21 +131,21 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionA
     if (!thing_exists(heartng))
     {
         FTEST_FAIL_TEST("No dungeon heart found for player %d", vars->HUMAN_PLAYER);
-        return false;
+        return FTRs_Go_To_Next_Action;
     }
 
     struct Dungeon* dungeon = get_dungeon(vars->HUMAN_PLAYER);
     if(dungeon_invalid(dungeon))
     {
         FTEST_FAIL_TEST("Dungeon for player %d not valid", vars->HUMAN_PLAYER);
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     struct PlayerInfo* player = get_player(dungeon->owner);
     if(player_invalid(player))
     {
         FTEST_FAIL_TEST("Player %d not found", vars->HUMAN_PLAYER);
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     ftest_util_reveal_map(vars->HUMAN_PLAYER); // we might want to see the entire map for testing purposes
@@ -180,7 +180,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionA
         if(thing_is_invalid(vars->new_imp))
         {
             FTEST_FAIL_TEST("Failed to create imp");
-            return true;
+            return FTRs_Go_To_Next_Action;
         }
         // // example code for leveling creatures manually (not using dungeon special)
         // dungeon = get_dungeon(vars->new_imp->owner);
@@ -213,7 +213,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionA
     if (thing_is_invalid(vars->door))
     {
         FTEST_FAIL_TEST("Failed to find door at (%d,%d), this should never happen! Was the map changed!?", vars->slb_x_door, vars->slb_y_door);
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
     
     // lower door health to speed up test
@@ -226,13 +226,13 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionA
     if (!set_creature_tendencies(player, CrTend_Imprison, true))
     {
         FTEST_FAIL_TEST("Failed to set imprison true for player %d", vars->HUMAN_PLAYER);
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     struct ftest_bug_imp_tp_job_attack_door__variables* const vars = &ftest_bug_imp_tp_job_attack_door__vars;
@@ -247,7 +247,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FT
     if(thing_is_invalid(new_hero))
     {
         FTEST_FAIL_TEST("Failed to create hero");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     // move camera to hero
@@ -261,14 +261,14 @@ TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FT
         if(new_hero->health != 1)
         {
             FTEST_FAIL_TEST("Failed to cripple hero");
-            return true;
+            return FTRs_Go_To_Next_Action;
         }
     }
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_imp_tp_job_attack_door_action003__end_test(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     struct ftest_bug_imp_tp_job_attack_door__variables* const vars = &ftest_bug_imp_tp_job_attack_door__vars;
@@ -280,16 +280,16 @@ TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(struct FTestActionAr
     if (thing_is_invalid(door))
     {
         FTEST_FAIL_TEST("Failed to find door at (%d,%d), imps destroyed door!", vars->slb_x_door, vars->slb_y_door);
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     if(door != vars->door)
     {
         FTEST_FAIL_TEST("Found different door... what?!");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
 #endif

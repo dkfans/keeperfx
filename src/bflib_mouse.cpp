@@ -23,12 +23,10 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <SDL2/SDL.h>
 
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_video.h"
-#include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_mshandler.hpp"
@@ -87,6 +85,7 @@ TbResult LbMouseSetup(struct TbSprite *pointerSprite)
     ret = Lb_FAIL;
   lbMouseInstalled = (ret == Lb_SUCCESS);
   lbMouseOffline = false;
+  LbGrabMouseCheck(MG_OnFocusGained);
   return ret;
 }
 
@@ -112,29 +111,11 @@ TbResult LbMouseSetPosition(long x, long y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  SDL_Window *window;
-  if (!lbMouseGrabbed)
+  if (!pointerHandler.SetMousePosition(x, y))
   {
-    window = SDL_GetKeyboardFocus();
-    if (IsMouseInsideWindow())
-    {
-      // in altinput mode
-      // first move the game cursor to the position of the HostOS cursor, and then move the HostOS cursor to the given x and y location.
-      // this keeps Host OS cursor and game cursor in sync (same position)
-      if (!LbMoveGameCursorToHostCursor())
-      {
-        return Lb_FAIL;
-      }
-    }
+    return Lb_FAIL;
   }
-  else
-  {
-      if (!pointerHandler.SetMousePosition(x, y))
-      {
-        return Lb_FAIL;
-      }
-      window = lbWindow;
-  }
+  SDL_Window *window = lbWindow;
   SDL_WarpMouseInWindow(window, x, y);
   return Lb_SUCCESS;
 }
@@ -178,7 +159,7 @@ TbBool IsMouseInsideWindow(void)
     return isMouseInsideWindow;
 }
 
-TbResult LbMouseChangeSprite(struct TbSprite *pointerSprite)
+TbResult LbMouseChangeSprite(const struct TbSprite *pointerSprite)
 {
 #if (BFDEBUG_LEVEL > 18)
   if (pointerSprite == NULL)
@@ -193,7 +174,7 @@ TbResult LbMouseChangeSprite(struct TbSprite *pointerSprite)
   return Lb_SUCCESS;
 }
 
-void GetPointerHotspot(long *hot_x, long *hot_y)
+void GetPointerHotspot(int32_t *hot_x, int32_t *hot_y)
 {
   struct TbPoint *hotspot;
   hotspot = pointerHandler.GetPointerOffset();
@@ -328,14 +309,14 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         }
         break;
     case MActn_WHEELMOVEUP:
-        lbDisplayEx.WhellPosition--;
-        lbDisplayEx.WhellMoveUp++;
+        lbDisplayEx.WhellPosition = lbDisplayEx.WhellPosition - 1;
+        lbDisplayEx.WhellMoveUp = lbDisplayEx.WhellMoveUp + 1;
         lbDisplayEx.WhellMoveDown = 0;
         break;
     case MActn_WHEELMOVEDOWN:
-        lbDisplayEx.WhellPosition++;
+        lbDisplayEx.WhellPosition = lbDisplayEx.WhellPosition + 1;
         lbDisplayEx.WhellMoveUp = 0;
-        lbDisplayEx.WhellMoveDown++;
+        lbDisplayEx.WhellMoveDown = lbDisplayEx.WhellMoveDown + 1;
         break;
     default:
         break;

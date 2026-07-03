@@ -1,0 +1,75 @@
+---@meta
+-- things.lua
+
+-- functions for fetching things and creatures, the functions to do with those individual things can be found in classes/Thing.lua and classes/Creature.lua
+
+---returns a list containing all things of a certain class
+---@param class thing_class
+---@return Thing[] | Creature[]
+---@nodiscard
+function GetThingsOfClass(class) end
+
+---returns a list containing all things on the given subtile
+---@param stl_x integer
+---@param stl_y integer
+---@param class? thing_class if not given, will return all things on the subtile
+---@return Thing[]
+---@nodiscard
+function GetThingsOnSubtile(stl_x, stl_y, class) end
+
+---returns a list containing all things on the given slab
+---@param slb_x integer
+---@param slb_y integer
+---@param class? thing_class if not given, will return all things on the slab
+---@return Thing[]
+---@nodiscard
+function GetThingsOnSlab(slb_x, slb_y, class) end
+
+---gets a single creature based on the given criteria
+---@param player playerrange
+---@param creature_type creature_type
+---@param criterion creature_select_criteria
+---@return Creature
+---@nodiscard
+function GetCreatureByCriterion(player,creature_type,criterion) end
+
+---returns a creature close to the given coordinates
+---@param stl_x integer
+---@param stl_y integer
+---@return Creature
+---@nodiscard
+function GetCreatureNear(stl_x,stl_y) end
+
+---returns the thing with the given index
+---@param index integer
+---@return Thing
+---@nodiscard
+function GetThingByIdx(index) end
+
+function ChangeCreatureOwner(creature,new_owner) end
+
+---Can set, increase or decrease the happiness level of all your units.
+---@param player playerrange
+---@param creature creature_type
+---@param operation any
+---@param annoyance integer
+function ChangeCreaturesAnnoyance(player,creature,operation,annoyance) end
+
+---Place any shot at a specific place on the map
+---@param shot_type shot_type The shot name from fxdata\magic.cfg
+---@param location location Where the shot is spawned.
+---@param player playersingle The owner of the shot.
+---@param hit_type hit_type What the shot can hit.
+---@param target? Thing When used the shot will target the thing. If not, use Thing:set_velocity to move the shot.
+---@param speed? integer speed / the distance it moves to the target every tick
+---@return Thing shot
+function AddShotToLevel(shot_type,location,player, hit_type,target,speed) local shot return shot end
+
+---Place any corpse at a specific place on the map
+---@param creature creature_type
+---@param location location
+---@param experience integer The experience level of the corpse. Determines the size.
+---@param dying? boolean If the corpse is still falling down when spawned.
+---@param owner? playersingle The owner of the corpse.
+---@return Thing object
+function AddCorpseToLevel(creature,location,experience,dying,owner) local ob return ob end

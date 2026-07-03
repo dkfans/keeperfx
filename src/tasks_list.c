@@ -136,7 +136,7 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
     for (long i = 0; i < imax; i++)
     {
         struct MapTask* mtask = &dungeon->task_list[i];
-        if ((mtask->coords == srch_tsk))
+        if (mtask->coords == srch_tsk)
             return i;
     }
     return -1;
@@ -154,13 +154,6 @@ long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig)
             return i;
     }
     return -1;
-}
-
-TbBool task_list_entry_invalid(struct MapTask *task)
-{
-    if ((task == INVALID_MAP_TASK) || (task == NULL))
-        return true;
-    return false;
 }
 
 long remove_from_task_list(long plyr_idx, long stack_pos)

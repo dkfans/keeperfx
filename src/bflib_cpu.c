@@ -34,17 +34,19 @@ extern "C" {
  *  so we need to tell the compiler about it.
  */
 static inline void cpuid(int code, uint32_t *a, uint32_t *d) {
-  // This wouldn't work on Windows because...?
-  asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
+  #if defined(__i386__) || defined(__x86_64__)
+    asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
+  #endif
 }
 
 /** Issue a complete request, storing general registers output in an array.
  */
 static inline void cpuid_string(int code, void * destination) {
+  #if defined(__i386__) || defined(__x86_64__)
   uint32_t * where = (uint32_t *) destination;
-  // This wouldn't work on Windows because...?
   asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
       "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
+  #endif
 }
 /******************************************************************************/
 
@@ -56,6 +58,7 @@ void cpu_detect(struct CPU_INFO *cpu)
   cpu->timeStampCounter = 0;
   cpu->feature_intl = 0;
   cpu->feature_edx = 0;
+  #if defined(__i386__) || defined(__x86_64__)
   {
     uint32_t where[4];
     cpuid_string(CPUID_GETVENDORSTRING, where);
@@ -80,6 +83,7 @@ void cpu_detect(struct CPU_INFO *cpu)
         cpuid_string(CPUID_INTELBRANDSTRINGEND, &cpu->brand[32]);
     }
   }
+  #endif
 }
 
 unsigned char cpu_get_type(struct CPU_INFO *cpu)

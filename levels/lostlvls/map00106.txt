@@ -66,7 +66,7 @@ rem			trap_available(player0,boulder,1,1)
 rem			trap_available(player0,poison_gas,1,1)
 
 
-****************************************************************
+REM ****************************************************************
 
 
 
@@ -86,22 +86,22 @@ add_to_party(group3,knight,1,500,attack_dungeon_heart,0)
 
 
 
-***************************************************************
+REM ***************************************************************
 
 
 rem level specific gameplay stuff
 
 rem create_text(1,"build a treasure room and fill it with 2000 gold.")
 rem display_objective(1)
-quick_objective(1, "Build a Treasure Room and fill it with 2000 gold.", all_players)
+display_objective(98, all_players)
 
 
 if(player0,money>=2000)
 rem create_text(2,"well done. now build a lair and hatchery and attract 5 creatures into your dungeon.")
 rem display_objective(2)
-quick_objective(2, "Well done. Now build a Lair and Hatchery and attract five creatures into your dungeon.", all_players)
+display_objective(99, all_players)
 rem max_creatures(player0,6)
-change_slab_type(42,25,​dirt)
+change_slab_type(42,25,dirt)
 endif
 
 
@@ -111,7 +111,7 @@ rem set_timer(player0,timer6)
 rem if(player0,timer6>=200)
 rem create_text(3,"excellent.  now continue to mine the area for gold, but beware, your success will have attracted the unwanted attentions of local heros. defend youre dungeon from these do-gooders."
 rem display_objective(3)
-quick_objective(3, "Excellent. Now continue to mine the area for gold, but beware, your success will have attracted the unwanted attentions of local heroes. Defend your dungeon from these do-gooders.", all_players)
+display_objective(100, all_players)
 add_tunneller_to_level(player_good,1,dungeon_heart,0,1,250)
 rem set_timer(player0,timer1)
 set_flag(player_good,flag0,1)
@@ -147,7 +147,7 @@ rem set_timer(player0,timer0)
 rem if(player0,timer0>=200)
 rem create_text(4,"your continued success has attracted the attentions of the local lord. he must be defeated so you can claim this realm as your own."
 rem display_objective(4)
-quick_objective(4, "Your continued success has attracted the attentions of the local lord. He must be defeated so you can claim this realm as your own.", all_players)
+display_objective(101, all_players)
 set_flag(player_good,flag0,3)
 endif
 endif
@@ -162,7 +162,7 @@ rem set_timer(player0,timer7)
 rem if(player0,timer7>=100)
 rem create_text(5,"great work. by defeating the lord you have claimed this realm as your own.")
 rem display_objective(5)
-quick_objective(5, "Great work. By defeating the lord, you have claimed this realm as your own.", all_players)
+display_objective(102, all_players)
 rem set_timer(player0,timer2)
 
 rem if(player0,timer2>=50)
@@ -185,7 +185,7 @@ rem if(player0,dungeon_heart==0)
 if(player0,heart_health==0)
 rem create_text(6,"you have been defeated.better luck next time")
 rem display_objective(6)
-quick_objective(6, "You have been defeated. Better luck next time.", player0)
+display_objective(103, player0)
 rem lose_game
 
 endif

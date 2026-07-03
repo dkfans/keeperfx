@@ -42,54 +42,35 @@ enum TbFontDrawFlags {
 struct TbSprite;
 struct TbSetupSprite;
 
-struct AsianFont {
-  const char *fname;
-  unsigned char *data;
-  unsigned long data_length;
-  unsigned long chars_count;
-  unsigned long ndata_shift;
-  unsigned long ndata_scanline;
-  unsigned long sdata_shift;
-  unsigned long sdata_scanline;
-  unsigned long field_20;
-  unsigned long field_24;
-  unsigned long field_28;
-  unsigned long bits_width;
-  unsigned long bits_height;
-  unsigned long field_34;
-  unsigned long field_38;
-  unsigned long field_3C;
-  unsigned long field_40;
-  unsigned long field_44;
+enum DkcodepageLetter {
+   DKChr_Null,
+   DKChr_Modifier_Transparent4,
+   DKChr_Modifier_Transparent8,
+   DKChr_Modifier_Outline,
+   DKChr_Modifier_FlipHoriz,
+   DKChr_Modifier_FlipVertic,
+   DKChr_AlignLeft,
+   DKChr_AlignRight,
+   DKChr_AlignCenter,
+   DKChr_AlignJustify = 9, //tab and AlignJustify overlap so Justify can't be reached
+   DKChr_Tab = 9,
+   DKChr_NewLine,
+   DKChr_Modifier_Underline,
+   DKChr_Modifier_OneColor,
+   DKChr_Return,
+   DKChr_Modifier_Colour,
 };
 
-struct AsianDraw {
-  unsigned long draw_char;
-  unsigned long bits_width;
-  unsigned long bits_height;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
-  unsigned char *sprite_data;
-  unsigned long field_1C;
-  unsigned long field_20;
-};
+// unicode private use area mappings
+static const uint32_t white_numbers_start = 0xF000;
+static const uint32_t white_numbers_end   = 0xF009;
+static const uint32_t colour_modifiers_begin = 0xF100;
+static const uint32_t colour_modifiers_end   = 0xF1FF;
 
-/**
- * Defines a font drawing window.
- * Values are signed to ease comparison with negative values.
- */
-struct AsianFontWindow {
-  long width;
-  long height;
-  long scanline;
-  unsigned char *buf_ptr;
-};
 
-extern short dbc_language;
 extern TbBool dbc_enabled;
 extern TbBool dbc_initialized;
-extern const struct TbSprite *lbFontPtr;
+extern const struct TbSpriteSheet *lbFontPtr;
 
 /******************************************************************************/
 
@@ -97,7 +78,7 @@ extern const struct TbSprite *lbFontPtr;
 #pragma pack()
 /******************************************************************************/
 TbBool LbTextDraw(int posx, int posy, const char *text);
-TbBool LbTextDrawFmt(int posx, int posy, const char *fmt, ...);
+#define LbTextDrawFmt(posx, posy, fmt, ...) LbTextDrawResizedFmt(posx, posy, 16, fmt, ##__VA_ARGS__)
 TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text);
 TbBool LbTextDrawResizedFmt(int posx, int posy, int units_per_px, const char *fmt, ...);
 int LbTextHeight(const char *text);
@@ -105,17 +86,17 @@ int LbTextLineHeight(void);
 int LbTextSetWindow(int posx, int posy, int width, int height);
 TbResult LbTextSetJustifyWindow(int pos_x, int pos_y, int width);
 TbResult LbTextSetClipWindow(int x1, int y1, int x2, int y2);
-TbBool LbTextSetFont(const struct TbSprite *font);
+TbBool LbTextSetFont(const struct TbSpriteSheet *font);
 unsigned char LbTextGetFontFaceColor(void);
 unsigned char LbTextGetFontBackColor(void);
 int LbTextStringWidth(const char *str);
 int LbTextStringPartWidth(const char *text, int part);
 int LbTextStringHeight(const char *str);
 int LbTextWordWidth(const char *str);
-int LbTextCharWidth(const long chr);
-int LbTextCharHeight(const long chr);
-int LbTextCharWidthM(const long chr, long units_per_px);
+int LbTextCharWidth(const uint32_t chr);
+int LbTextCharWidthM(const uint32_t chr, long units_per_px);
 int LbTextStringWidthM(const char *str, long units_per_px);
+int LbTextWordWidthM(const char *str, long units_per_px);
 
 int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, long number, unsigned short fdflags);
 int LbTextStringDraw(int pos_x, int pos_y, int units_per_px, const char *text, unsigned short fdflags);
@@ -125,18 +106,16 @@ TbBool LbAlignMethodSet(unsigned short fdflags);
 long LbGetJustifiedCharPosX(long startx, long all_chars_width, long spr_width, long mul_width, unsigned short fdflags);
 long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height, unsigned short fdflags);
 long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_count, int units_per_px, unsigned short fdflags);
-long LbGetJustifiedCharHeight(long all_lines_height, long spr_height, long lines_count, unsigned short fdflags);
 
 // Function which require font sprites as parameter
-int LbSprFontWordWidth(const struct TbSprite *font,const char *text);
-int LbSprFontCharWidth(const struct TbSprite *font,const unsigned long chr);
-int LbSprFontCharHeight(const struct TbSprite *font,const unsigned long chr);
-const struct TbSprite *LbFontCharSprite(const struct TbSprite *font,const unsigned long chr);
+int LbSprFontCharWidth(const struct TbSpriteSheet * font, const uint32_t chr);
+int LbSprFontCharHeight(const struct TbSpriteSheet * font,const uint32_t chr);
+const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const uint32_t chr);
 
 void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(int units_per_px, const char *text);
-void dbc_set_language(short ilng);
-short dbc_initialize(const char *fpath);
+short load_unifont_files();
+TbBool is_dbc_language(short language);
 
 /******************************************************************************/
 #ifdef __cplusplus
