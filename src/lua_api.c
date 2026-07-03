@@ -1199,6 +1199,13 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
 static int lua_New_creature_type(lua_State* L)
 {
     script_new_creature_type(luaL_checkstring(L, 1));
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct Dungeon* dungeon = get_dungeon(plyr_idx);
+        if (dungeon_invalid(dungeon))
+            continue;
+        dungeon->creature_max_level[game.conf.crtr_conf.model_count-1] = CREATURE_MAX_LEVEL + 1;
+    }
     return 0;
 }
 
