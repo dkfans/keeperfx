@@ -4708,7 +4708,7 @@ static void set_music_process(struct ScriptContext *context)
         stop_music();
     } else if (track < 0) {
         const char * fname = script_strval(context->value->longs[1]);
-        play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", fname));
+        play_music_fgroup(FGrp_CmpgMedia, fname);
     } else {
         play_music_track(track);
     }

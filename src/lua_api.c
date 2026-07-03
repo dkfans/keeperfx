@@ -1751,7 +1751,7 @@ static int lua_Set_music(lua_State *L)
         }
     } else {
         const char *track_name = luaL_checkstring(L, 1);
-        play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", track_name));
+        play_music_fgroup(FGrp_CmpgMedia, track_name);
     }
     return 0;
 }

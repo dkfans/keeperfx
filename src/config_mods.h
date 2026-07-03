@@ -15,6 +15,8 @@
  *     hzzdev - 30 Oct 2025, Add multi-lang string loading for mods.
  *     hzzdev - 23 Feb 2026, Add texture loading for mods.
  *     hzzdev - 20 Apr 2026, Add lua loading for mods.
+ *     cerwym - 15 Jun 2026, Add sound loading for mods.
+ *     hzzdev - 27 Jun 2026, Add music loading for mods.
  *
  */
 /******************************************************************************/
@@ -52,7 +54,9 @@ struct ModExistState{
     int crtr_data;	// FGrp_CrtrData: creaturemodel
     int cmpg_crtrs;	// FGrp_CmpgCrtrs: creaturemodel
 
-    int sound;		// FGrp_LrgSound: custom sound files (mods/<name>/sound/)
+    int lrg_sound;		// FGrp_LrgSound: custom sound files (mods/<name>/sound/)
+
+    int music;	// FGrp_Music: play_music
 };
 
 struct ModConfigItem {
