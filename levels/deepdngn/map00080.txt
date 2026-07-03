@@ -96,6 +96,8 @@ CREATE_PARTY(ONE)
 
 REM ****************************************************************************
 
+SET_COMPUTER_EVENT(PLAYER1,"EVENT ENEMY DOOR",144000,36,2500,2,0)
+
 REM "Your opponent for this realm has foolishly challenged your superior skill. Such disrespect should be punished..."
 DISPLAY_OBJECTIVE(900,PLAYER0)
 

@@ -128,12 +128,9 @@ IF(PLAYER0,RESEARCH >= 1)
 	DISPLAY_OBJECTIVE(23,ALL_PLAYERS)
 ENDIF
 
-
-
 IF_ACTION_POINT(3,PLAYER0)
 	CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,2)
 ENDIF
-
 
 REM ****************************************************************************
 REM Hero Parties
@@ -163,14 +160,13 @@ CREATE_PARTY(giants)
 	ADD_TO_PARTY(giants,ARCHER,5,500,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(giants,DWARFA,5,500,ATTACK_ENEMIES,0)
 
-	
 CREATE_PARTY(holy)
 	ADD_TO_PARTY(holy,MONK,8,500,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(holy,WITCH,8,500,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(holy,DWARFA,6,1000,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(holy,DWARFA,6,1000,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(holy,DWARFA,6,1000,ATTACK_ENEMIES,0)
-	
+
 CREATE_PARTY(fierce)
 	ADD_TO_PARTY(fierce,SAMURAI,10,2000,ATTACK_DUNGEON_HEART,0)
 	ADD_TO_PARTY(fierce,GIANT,10,2000,ATTACK_DUNGEON_HEART,0)
@@ -192,7 +188,7 @@ CREATE_PARTY(burn)
 	ADD_TO_PARTY(burn,WITCH,7,500,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(burn,FAIRY,8,1000,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(burn,FAIRY,8,1000,ATTACK_ENEMIES,0)
-	
+
 REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
@@ -407,7 +403,6 @@ IF_ACTION_POINT(13,PLAYER0)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,giants,-12,2)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,melee,-12,1)
 ENDIF
-
 
 REM ****************************************************************************
 REM Win game

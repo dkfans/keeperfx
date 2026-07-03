@@ -76,6 +76,7 @@ enum GUI_Menus {
   GMnu_SPELL2             = 46,
   GMnu_ROOM2              = 47,
   GMnu_TRAP2              = 48,
+  GMnu_MP_MAPPACK_SELECT  = 49,
 };
 
 #define MENU_INVALID_ID -1
@@ -110,6 +111,7 @@ void update_busy_doing_gui_on_menu(void);
 
 void turn_on_menu(MenuID idx);
 void turn_off_menu(MenuID mnu_idx);
+void update_query_menu();
 void turn_off_query_menus(void);
 void turn_off_all_menus(void);
 short turn_off_all_window_menus(void);

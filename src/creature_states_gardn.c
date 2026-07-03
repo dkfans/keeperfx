@@ -22,26 +22,30 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "creature_states.h"
-#include "creature_instances.h"
-#include "thing_list.h"
-#include "creature_control.h"
+#include "config_sounds.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
-#include "thing_stats.h"
-#include "thing_objects.h"
-#include "thing_effects.h"
-#include "thing_navigate.h"
-#include "thing_creature.h"
+#include "creature_control.h"
+#include "creature_instances.h"
+#include "creature_states.h"
+#include "creature_states_prisn.h"
+#include "creature_states_mood.h"
+#include "game_legacy.h"
+#include "gui_soundmsgs.h"
+#include "lua_triggers.h"
 #include "player_instances.h"
 #include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_list.h"
-#include "gui_soundmsgs.h"
-#include "creature_states_prisn.h"
-#include "game_legacy.h"
+#include "thing_creature.h"
+#include "thing_effects.h"
+#include "thing_list.h"
+#include "thing_navigate.h"
+#include "thing_objects.h"
+#include "thing_stats.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -58,34 +62,39 @@ extern "C" {
  */
 TbBool creature_able_to_eat(const struct Thing *creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if (creature_stats_invalid(crstat))
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if (creature_stats_invalid(crconf))
         return false;
-    return (crstat->hunger_rate != 0);
+    return ((crconf->hunger_rate > 0) || (crconf->hunger_fill > 0));
 }
 
 TbBool hunger_is_creature_hungry(const struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if (creature_control_invalid(cctrl) || creature_stats_invalid(crstat))
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if (creature_control_invalid(cctrl) || creature_stats_invalid(crconf))
         return false;
-    return ((crstat->hunger_rate != 0) && (cctrl->hunger_level > crstat->hunger_rate));
+    return ((crconf->hunger_rate != 0) && (cctrl->hunger_level > crconf->hunger_rate));
 }
 
+/*
+ * Creatures actively feeding in the Hatchery
+ */
 void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room)
 {
-    thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    long old_hunger_level = cctrl->hunger_level;
+    thing_play_sample(creatng, snd_chicken_cluck + SOUND_RANDOM(snd_chicken_cluck_count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
     creatng->continue_state = CrSt_CreatureToGarden;
     {
-        // TODO ANGER Maybe better either zero the hunger anger or apply annoy_eat_food points, based on the annoy_eat_food value?
-        /*struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(creatng);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_eat_food, AngR_Other, 1);*/
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        anger_apply_anger_to_creature(creatng, -cctrl->annoyance_level[AngR_Hungry], AngR_Hungry, 1);
+        anger_set_creature_anger(creatng, 0, AngR_Hungry);
+        struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
+        if (crconf->annoy_eat_food > 0 || old_hunger_level > (long)crconf->hunger_rate) {
+            // As food(It means <0), happiness can only be obtained when a creature is hungry. But for those who dislike it(It means >0), every time is torture.
+            anger_apply_anger_to_creature(creatng, crconf->annoy_eat_food, AngR_Other, 1);
+        }
     }
     if (thing_is_creature(foodtng))
     {
@@ -93,13 +102,17 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
     } else
     {
         int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
-        if (room->used_capacity >= required_cap) {
+        lua_on_object_destroyed(foodtng);
+        if (room->used_capacity >= required_cap)
+        {
             room->used_capacity -= required_cap;
-        } else {
+            delete_thing_structure(foodtng, 0);
+        } else
+        {
             ERRORLOG("Trying to remove some food not in room");
-            room->used_capacity = 0;
+            delete_thing_structure(foodtng, 0);
+            update_room_contents(room);
         }
-        delete_thing_structure(foodtng, 0);
     }
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     dungeon->lvstats.chickens_eaten++;
@@ -107,7 +120,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
 
 void person_search_for_food_again(struct Thing *creatng, struct Room *room)
 {
-    long near_food_dist = LONG_MAX;
+    long near_food_dist = INT32_MAX;
     struct Thing* near_food_tng = INVALID_THING;
     unsigned long k = 0;
     unsigned long i = room->slabs_list;
@@ -140,16 +153,16 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
             break;
         }
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     if (thing_is_invalid(near_food_tng) || is_thing_directly_controlled(near_food_tng) || is_thing_passenger_controlled(near_food_tng))
     {
         RoomRole job_rrole = get_room_role_for_job(Job_TAKE_FEED);
         // Warn about no food in this room
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-        output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomTooSmall);
+        output_room_message(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomTooSmall);
         // Check whether there's a room which does have food
         // Try to find one which has plenty of food
-        struct Room* nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, crstat->hunger_fill + 1);
+        struct Room* nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, crconf->hunger_fill + 1);
         if (room_is_invalid(nroom)) {
             // If not found, maybe at least one chicken?
             nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, 1);
@@ -165,7 +178,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         }
         else
         {
-            anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
+            anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
             // Try to find food in the original room
             if (creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_TAKE_FEED)) {
                 creatng->continue_state = CrSt_CreatureArrivedAtGarden;
@@ -186,11 +199,11 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
     if (near_food_tng->class_id == TCls_Creature)
     {
         cctrl = creature_control_get_from_thing(near_food_tng);
-        cctrl->stateblock_flags |= CCSpl_ChickenRel;
+        set_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
     } else
     {
-        near_food_tng->food.byte_15 = 255;
-        near_food_tng->food.byte_16 = 127;
+        near_food_tng->food.freshness_state = 255;
+        near_food_tng->food.possession_startup_timer = 127;
     }
     creatng->continue_state = CrSt_CreatureEatingAtGarden;
     cctrl = creature_control_get_from_thing(creatng);
@@ -206,6 +219,10 @@ short creature_arrived_at_garden(struct Thing *thing)
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",
             room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
+        set_start_state(thing);
+        return 0;
+    }
+    if (!creature_able_to_eat(thing)){
         set_start_state(thing);
         return 0;
     }
@@ -256,17 +273,17 @@ short creature_to_garden(struct Thing *creatng)
         return 0;
     }
     RoomRole job_rrole = get_room_role_for_job(Job_TAKE_FEED);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     if (!player_has_room_of_role(creatng->owner, job_rrole))
     {
         // No room for feeding creatures
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-        output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNeeded);
+        output_room_message(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNeeded);
         nroom = INVALID_ROOM;
     } else
     {
         // Try to find one which has plenty of food
-        nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, crstat->hunger_fill+1);
+        nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, crconf->hunger_fill+1);
         if (room_is_invalid(nroom)) {
             // If not found, maybe at least one chicken?
             nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, 1);
@@ -276,19 +293,19 @@ short creature_to_garden(struct Thing *creatng)
             nroom = find_nearest_room_of_role_for_thing(creatng, creatng->owner, job_rrole, NavRtF_Default);
             if (room_is_invalid(nroom)) {
                 // There seem to be a correct room, but we can't reach it
-                output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNoRoute);
+                output_room_message(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNoRoute);
             } else
             {
                 // The room is reachable, so it probably has just no food
                 event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-                output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomTooSmall);
+                output_room_message(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomTooSmall);
             }
         }
     }
     // Apply anger if there's no room (note that anger isn't applied if room is just empty)
     if (room_is_invalid(nroom))
     {
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
+        anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
         set_start_state(creatng);
         return 0;
     }

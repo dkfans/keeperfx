@@ -185,7 +185,7 @@ IF(PLAYER0,TIMER0 >= 40000)
 	DISPLAY_INFORMATION (34, PLAYER0)
 ENDIF
 
-REM Final increase of attack strength, and lots of Vampires. Also, lots of imps start digging around; if you haven't reinforced your walls, or have white walls, you'll get a breach.
+REM Final increase of attack strength, and lots of Vampires. Also, lots of imps start digging around; if you haven't reinforced your walls, or have Hero/Good walls, you'll get a breach.
 IF(PLAYER0,TIMER0 >= 50700)
     REM	QUICK_INFORMATION(8,"It is time! The monks of Abbeystone sound the alarms, the forces of evil battering at their walls. It is likely the last pitched attempt to bring them down.", PLAYER0)
 	DISPLAY_INFORMATION (35, PLAYER0)
@@ -357,7 +357,7 @@ IF(PLAYER1,DUNGEON_DESTROYED >= 1)
 	LOSE_GAME
 ENDIF
 
-REM If the white Dungeon heart is destroyed, win, regardless of everything.
+REM If the Hero/Good Dungeon heart is destroyed, win, regardless of everything.
 REM Hint: if you go the long route killing cavern guardposts via CTA, you can sneak the fairies and such to evade the final mega-big party of Reapers with 14 supporting creatures.
 IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
 	REM	QUICK_OBJECTIVE(17,"We are victorious, my liege - the siege upon Abbeystone is broken. While the undead of Misty Bog is still a threat, you first head towards the Widerwilds, where the barbarians resist the demonic incursions from underground realm.", PLAYER0)

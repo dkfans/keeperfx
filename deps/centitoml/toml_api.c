@@ -62,6 +62,8 @@ static void toml_free(VALUE *val)
 static char *STRNDUP(const char *s, size_t n)
 {
     size_t len = strnlen(s, n);
+    if (len == (size_t)-1)
+        return NULL;
     char *p = MALLOC(len + 1);
     if (p)
     {
@@ -885,9 +887,48 @@ static int parse_simple_token(context_t *ctx, table_t dst, token_t token)
     switch (valtype)
     {
         case 's':
-            if (value_init_string_(dst.tab, token.ptr + 1, token.len - 2))
+        {
+            char *start = token.ptr;
+            int len = token.len;
+            int multiline = 0;
+            char quote;
+            if (len >= 6 && start[0] == start[1] && start[1] == start[2] &&
+                (start[0] == '"' || start[0] == '\'') &&
+                start[len - 1] == start[0] && start[len - 2] == start[0] &&
+                start[len - 3] == start[0])
+            {
+                quote = start[0];
+                start += 3;
+                len -= 6;
+                multiline = 1;
+            }
+            else
+            {
+                quote = start[0];
+                start += 1;
+                len -= 2;
+            }
+
+            if (quote == '"')
+            {
+                char ebuf[80];
+                char *norm = norm_basic_str(start, len, multiline, ebuf, sizeof(ebuf));
+                if (!norm)
+                    return e_syntax(ctx, token.lineno, ebuf);
+
+                if (value_init_string(dst.tab, norm))
+                {
+                    xfree(norm);
+                    return e_outofmemory(ctx, FLINE);
+                }
+                xfree(norm);
+                return valtype;
+            }
+
+            if (value_init_string_(dst.tab, start, len))
                 return e_outofmemory(ctx, FLINE);
             return valtype;
+        }
         case 'b':
             return valtype;
         case 'i':

@@ -21,13 +21,13 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_guibtns.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_video.h"
 #include "bflib_vidraw.h"
 #include "frontend.h"
+#include "front_input.h"
 #include "creature_instances.h"
 #include "player_data.h"
 #include "player_instances.h"
@@ -53,21 +53,25 @@ extern struct GuiBoxOption gui_creature_cheat_option_list[];
 extern struct GuiBoxOption gui_instance_option_list[];
 */
 
-long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_change_creature_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
-long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
-long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag);
-long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_change_creature_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, int32_t * tag);
+long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_give_door_trap(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gfa_can_level_up(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag);
+long gf_level_up(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gfa_can_level_down(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag);
+long gf_level_down(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_apply_spell(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gf_kill_creature(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
+long gfa_is_creature(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag);
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Null mode",                1,           NULL,              gf_change_player_state, 0, 0, 0,               PSt_None, 0, 0, 0, true},
@@ -101,18 +105,25 @@ struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
 };
 
 struct GuiBoxOption gui_creature_cheat_option_list[] = {
- {"Everything is free",        1,           NULL,     gf_make_everything_free, 0, 0, 0,               0, 0, 0, 0, 0},
- {"Give controlled creature spells",1,gfa_can_give_controlled_creature_spells,gf_give_controlled_creature_spells, 0, 0, 0, 0, 0, 0, 0, 0},
- {"Give all creatures spells", 1,           NULL,gf_give_all_creatures_spells, 0, 0, 0,               0, 0, 0, 0, 0},
- {"Explore everywhere",        1,           NULL,       gf_explore_everywhere, 0, 0, 0,               0, 0, 0, 0, 0},
- {"All rooms and magic researchable",1,     NULL,         gf_all_researchable, 0, 0, 0,               0, 0, 0, 0, 0},
- {"Research all magic",        1,           NULL,           gf_research_magic, 0, 0, 0,               0, 0, 0, 0, 0},
- {"Research all rooms",        1,           NULL,           gf_research_rooms, 0, 0, 0,               0, 0, 0, 0, 0},
- {"All doors manufacturable",  1,           NULL,           gf_all_doors,      0, 0, 0,               0, 0, 0, 0, 0},
- {"All traps manufacturable",  1,           NULL,           gf_all_traps,      0, 0, 0,               0, 0, 0, 0, 0},
- {"Win the level instantly",   1,           NULL,           gf_decide_victory, 0, 0, 0,               1, 0, 0, 0, 0},
- {"Lose the level instantly",  1,           NULL,           gf_decide_victory, 0, 0, 0,               0, 0, 0, 0, 0},
- {"!",                         0,           NULL,                        NULL, 0, 0, 0,               0, 0, 0, 0, 0},
+ {"Level up",   					 1,           gfa_can_level_up,           			   			  gf_level_up,   0, 0, 0,                1, 0, 0, 0, 0},
+ {"Level down",   					 1,           gfa_can_level_down,           		   			  gf_level_down, 0, 0, 0,                1, 0, 0, 0, 0},
+ {"",                         		 2,           NULL,                                    			  NULL, 0, 0, 0,                         0, 0, 0, 0, false},
+ {"Speed",         				     1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               11, 0, 0, 0, true},
+ {"Armour",         				 1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               4, 0, 0, 0, true},
+ {"Rebound",         				 1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               6, 0, 0, 0, true},
+ {"Invisibility",         			 1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               9, 0, 0, 0, true},
+ {"Flight",         			     1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               20, 0, 0, 0, true},
+ {"Sight",         			         1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               21, 0, 0, 0, true},
+ {"Heal",         			         1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               7, 0, 0, 0, true},
+ {"Cleanse",         			     1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               32, 0, 0, 0, true},
+ {"Illumination",         			 1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               19, 0, 0, 0, true},
+ {"",                         		 2,           NULL,                                    			  NULL, 0, 0, 0,                         0, 0, 0, 0, false},
+ {"Slow",         				     1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               12, 0, 0, 0, true},
+ {"Freeze",         				 1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               3, 0, 0, 0, true},
+ {"Chicken",         				 1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               27, 0, 0, 0, true},
+ {"Disease",         				 1,           gfa_is_creature,                                    gf_apply_spell, 0, 0, 0,               26, 0, 0, 0, true},
+ {"Kill",         				 	 1,           gfa_is_creature,                                    gf_kill_creature, 0, 0, 0,             0, 0, 0, 0, true},
+ {"!",                         		 0,           NULL,                        			   			  NULL, 0, 0, 0,               		  0, 0, 0, 0, 0},
 };
 
 struct GuiBoxOption gui_instance_option_list[] = {
@@ -147,24 +158,39 @@ struct GuiBoxOption gui_instance_option_list[] = {
  {"Disease",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_DISEASE, 0, 0, CrInst_CAST_SPELL_DISEASE, 0, 0, 0, true},
  {"Chicken",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_CHICKEN, 0, 0, CrInst_CAST_SPELL_CHICKEN, 0, 0, 0, true},
  {"Time Bomb",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_TIME_BOMB, 0, 0, CrInst_CAST_SPELL_TIME_BOMB, 0, 0, 0, true},
+ {"Cleanse", 1, NULL, gf_change_creature_instance, CrInst_CLEANSE, 0, 0, CrInst_CLEANSE, 0, 0, 0, true},
+ {"Ranged Cleanse", 1, NULL, gf_change_creature_instance, CrInst_RANGED_CLEANSE, 0, 0, CrInst_RANGED_CLEANSE, 0, 0, 0, true},
+ {"Ranged Heal",1,   NULL, gf_change_creature_instance,CrInst_RANGED_HEAL, 0, 0, CrInst_RANGED_HEAL, 0, 0, 0, true},
  {"!",     0,                          NULL,                             NULL, 0, 0, 0,  0, 0, 0, 0, false},
+};
+
+struct GuiBoxOption gui_secondary_cheat_option_list[] = {
+	{"Everything is free",        		1,           NULL,     gf_make_everything_free, 0, 0, 0,               0, 0, 0, 0, 0},
+	{"Explore everywhere",        		1,           NULL,       gf_explore_everywhere, 0, 0, 0,               0, 0, 0, 0, 0},
+	{"All rooms and magic researchable",1,     		 NULL,         gf_all_researchable, 0, 0, 0,               0, 0, 0, 0, 0},
+	{"Research all magic",        		1,           NULL,           gf_research_magic, 0, 0, 0,               0, 0, 0, 0, 0},
+	{"Research all rooms",        		1,           NULL,           gf_research_rooms, 0, 0, 0,               0, 0, 0, 0, 0},
+	{"All doors manufacturable",  		1,           NULL,           gf_all_doors,      0, 0, 0,               0, 0, 0, 0, 0},
+	{"All traps manufacturable",  		1,           NULL,           gf_all_traps,      0, 0, 0,               0, 0, 0, 0, 0},
+	{"Increment doors and traps count", 1,    		 NULL,           gf_give_door_trap, 0, 0, 0,               0, 0, 0, 0, 0},
+	{"Win level",   					1,           NULL,           gf_decide_victory, 0, 0, 0,               1, 0, 0, 0, 0},
+	{"Lose level",  					1,           NULL,           gf_decide_victory, 0, 0, 0,               0, 0, 0, 0, 0},
+	{"!",                         		0,           NULL,                        NULL, 0, 0, 0,               0, 0, 0, 0, 0},
 };
 
 // Boxes used for service/cheat menu
 struct GuiBox *gui_cheat_box_1=NULL;
 struct GuiBox *gui_cheat_box_2=NULL;
 struct GuiBox *gui_cheat_box_3=NULL;
+struct GuiBox *gui_cheat_box_4=NULL;
 
 struct GuiBox *first_box=NULL;
 struct GuiBox *last_box=NULL;
-struct GuiBox gui_boxes[3];
-//struct TbSprite *font_sprites=NULL;
-//struct TbSprite *end_font_sprites=NULL;
-//unsigned char *font_data=NULL;
+struct GuiBox gui_boxes[4];
 struct DraggingBox dragging_box;
 
 /******************************************************************************/
-long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
   // Note: reworked from beta and unchecked
   struct PlayerInfo *player = get_my_player();
@@ -179,35 +205,22 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, uns
   return 1;
 }
 
-long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
-  //TODO PACKET we should use packets! This way is unacceptable!
   struct PlayerInfo* player = get_my_player();
-  if (tag[0])
-    set_player_as_won_level(player);
-  else
-    set_player_as_lost_level(player);
+  unsigned char pcktype = (tag[0]) ? PckA_CheatWinLevel : PckA_CheatLoseLevel;
+  set_players_packet_action(player, pcktype, 0, 0, 0, 0);
   return 1;
 }
 
-long gf_change_creature_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_change_creature_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
     struct PlayerInfo* player = get_my_player();
     set_players_packet_action(player, PckA_CheatCtrlCrtrSetInstnc, *tag, 0, 0, 0);
     return 1;
 }
 
-long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
-{
-    struct PlayerInfo* player = get_my_player();
-    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-    if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
-        return 0;
-    set_players_packet_action(player, PckA_CheatCrtSpells, 0, 0, 0, 0);
-    return 1;
-}
-
-long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
@@ -215,7 +228,7 @@ long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
     return 1;
 }
 
-long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
@@ -223,7 +236,7 @@ long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsign
     return 1;
 }
 
-long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
@@ -231,15 +244,7 @@ long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, un
     return 1;
 }
 
-long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
-{
-    struct PlayerInfo* player = get_my_player();
-    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-    set_players_packet_action(player, PckA_CheatCrAllSpls, 0, 0, 0, 0);
-    return 1;
-}
-
-long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
@@ -247,7 +252,7 @@ long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsi
     return 1;
 }
 
-long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
@@ -255,25 +260,7 @@ long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
     return 1;
 }
 
-long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
-{
-    struct PlayerInfo* player = get_my_player();
-    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-    if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
-        return false;
-    return true;
-}
-
-long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
-{
-    struct PlayerInfo* player = get_my_player();
-    if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
-        return false;
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
-    return creature_instance_is_available(thing, *tag);
-}
-
-long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
@@ -281,12 +268,100 @@ long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char
     return 1;
 }
 
-long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
     set_players_packet_action(player, PckA_CheatAllTraps, 0, 0, 0, 0);
     return 1;
+}
+
+long gf_give_door_trap(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatGiveDoorTrap, 0, 0, 0, 0);
+    return 1;
+}
+
+long gfa_can_level_up(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+	struct Thing* thing = thing_get(player->controlled_thing_idx);
+	if (thing_is_creature(thing))
+	{
+		struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+		if (cctrl->exp_level >= CREATURE_MAX_LEVEL - 1)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+    return true;
+}
+
+long gf_level_up(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatLevelUp, 0, 0, 0, 0);
+    return 1;
+}
+
+long gfa_can_level_down(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+	struct Thing* thing = thing_get(player->controlled_thing_idx);
+	if (thing_is_creature(thing))
+	{
+		struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+		if (cctrl->exp_level <= 0)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+    return true;
+}
+
+long gf_level_down(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatLevelDown, 0, 0, 0, 0);
+    return 1;
+}
+
+long gf_apply_spell(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatApplySpell, *tag, 0, 0, 0);
+    return 1;
+}
+
+long gf_kill_creature(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatKillCreature, 0, 0, 0, 0);
+    return 1;
+}
+
+long gfa_is_creature(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+	struct Thing* thing = thing_get(player->controlled_thing_idx);
+	return (thing_is_creature(thing));
 }
 
 void gui_draw_all_boxes(void)
@@ -331,7 +406,7 @@ struct GuiBox *gui_allocate_box_structure(void)
         struct GuiBox* gbox = &gui_boxes[i];
         if (gui_box_is_not_valid(gbox))
         {
-            gbox->field_1 = i;
+            gbox->box_index = i;
             gbox->flags |= GBoxF_Allocated;
             gui_insert_box_at_list_top(gbox);
             return gbox;
@@ -389,7 +464,7 @@ void gui_remove_box_from_list(struct GuiBox *gbox)
 void gui_delete_box(struct GuiBox *gbox)
 {
     gui_remove_box_from_list(gbox);
-    LbMemorySet(gbox, 0, sizeof(struct GuiBox));
+    memset(gbox, 0, sizeof(struct GuiBox));
 }
 
 struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)
@@ -475,7 +550,7 @@ short toggle_main_cheat_menu(void)
   long mouse_y = GetMouseY();
   if ((gui_cheat_box_1==NULL) || (gui_box_is_not_valid(gui_cheat_box_1)))
   {
-    if ((game.flags_font & FFlg_AlexCheat) == 0)
+    if (game.easter_eggs_enabled == false)
       return false;
     gui_cheat_box_1 = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
     gui_move_box(gui_cheat_box_1, mouse_x, mouse_y, Fnt_CenterLeftPos);
@@ -510,7 +585,7 @@ short toggle_instance_cheat_menu(void)
     long mouse_y = GetMouseY();
     if (gui_box_is_not_valid(gui_cheat_box_3))
     {
-        if ((game.flags_font & FFlg_AlexCheat) == 0)
+        if (game.easter_eggs_enabled == false)
             return false;
        gui_cheat_box_3 = gui_create_box(200,20,gui_instance_option_list);
        if (gui_cheat_box_3 == NULL)
@@ -543,12 +618,12 @@ short toggle_instance_cheat_menu(void)
  */
 TbBool open_creature_cheat_menu(void)
 {
-  long mouse_x = GetMouseX();
-  long mouse_y = GetMouseY();
-  if ((game.flags_font & FFlg_AlexCheat) == 0)
+  if (game.easter_eggs_enabled == false)
     return false;
   if (!gui_box_is_not_valid(gui_cheat_box_2))
     return false;
+  long mouse_x = GetMouseX();
+  long mouse_y = GetMouseY();
   gui_cheat_box_2 = gui_create_box(150,20,gui_creature_cheat_option_list);
   gui_move_box(gui_cheat_box_2, mouse_x, mouse_y, Fnt_CenterLeftPos);
   return (!gui_box_is_not_valid(gui_cheat_box_2));
@@ -583,6 +658,51 @@ TbBool toggle_creature_cheat_menu(void)
   }
 }
 
+/**
+ * Opens cheat menu. It should not allow cheats in Network mode.
+ * Returns true if the menu was toggled, false if cheat is not allowed.
+ */
+TbBool open_secondary_cheat_menu(void)
+{
+  if (game.easter_eggs_enabled == false)
+    return false;
+  if (!gui_box_is_not_valid(gui_cheat_box_2))
+    return false;
+  long mouse_x = GetMouseX();
+  long mouse_y = GetMouseY();
+  gui_cheat_box_4 = gui_create_box(150,20,gui_secondary_cheat_option_list);
+  gui_move_box(gui_cheat_box_4, mouse_x, mouse_y, Fnt_CenterLeftPos);
+  return (!gui_box_is_not_valid(gui_cheat_box_4));
+}
+
+/**
+ * Closes cheat menu.
+ * Returns true if the menu was closed.
+ */
+TbBool close_secondary_cheat_menu(void)
+{
+  if (gui_box_is_not_valid(gui_cheat_box_4))
+    return false;
+  gui_delete_box(gui_cheat_box_4);
+  gui_cheat_box_4 = NULL;
+  return true;
+}
+
+/**
+ * Toggles cheat menu. It should not allow cheats in Network mode.
+ * Returns true if the menu was toggled, false if cheat is not allowed.
+ */
+TbBool toggle_secondary_cheat_menu(void)
+{
+  // Cheat sub-menus
+  if (gui_box_is_not_valid(gui_cheat_box_4))
+  {
+    return open_secondary_cheat_menu();
+  } else
+  {
+    return close_secondary_cheat_menu();
+  }
+}
 
 struct GuiBox *gui_get_highest_priority_box(void)
 {
@@ -635,43 +755,13 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
             long width = LbTextStringWidth(gboptn->label) * ((long)pixel_size);
             if ((x >= sx) && (x < sx + width))
             {
-                if ((gboptn->numfield_4 == 2) || (gboptn->enabled == 0))
+                if ((gboptn->is_enabled == 2) || (gboptn->enabled == 0))
                     return NULL;
                 return gboptn;
             }
         }
         gboptn++;
         sy += lnheight;
-  }
-  return NULL;
-}
-
-struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
-{
-  if (gbox == NULL)
-    return NULL;
-  int opt_num = -1;
-  int opt_total = 0;
-  struct GuiBoxOption* goptn = gbox->optn_list;
-  while (goptn->label[0] != '!')
-  {
-    if (goptn->active)
-    {
-      opt_num = opt_total;
-//      goptn->active = 0;
-//TODO GUI: deactivate option
-    }
-    goptn++;
-    opt_total++;
-  }
-  opt_num += val;
-  if ((opt_num >= 0) && (opt_num < opt_total))
-  {
-    goptn = &gbox->optn_list[opt_num];
-    if (goptn->callback != NULL)
-      goptn->callback(gbox, goptn, 1, &goptn->cb_param1);
-//TODO GUI: activate option
-    return goptn;
   }
   return NULL;
 }
@@ -770,17 +860,17 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
 {
   if (left_button_released || right_button_released)
   {
-      short button_num;
-      if (left_button_released)
-      {
-          left_button_released = 0;
-          button_num = 1;
+    short button_num;
+    if (left_button_released)
+    {
+      left_button_released = 0;
+      button_num = 1;
     } else
     {
       right_button_released = 0;
       button_num = 2;
     }
-    if (goptn->numfield_4 == 1)
+    if (goptn->is_enabled == 1)
     {
       if (goptn->callback != NULL)
         goptn->callback(gbox, goptn, button_num, &goptn->cb_param1);
@@ -872,35 +962,6 @@ short gui_process_inputs(void)
         result = true;
       }
     }
-/* These are making incorrect mouse function in possesion - thus disabled
-    if (hpbox != NULL)
-    {
-      if (is_key_pressed(KC_UP,KM_NONE))
-      {
-        goptn = gui_move_active_box_option(hpbox,-1);
-        clear_key_pressed(KC_UP);
-        result = true;
-      } else
-      if (is_key_pressed(KC_DOWN,KM_NONE))
-      {
-        goptn = gui_move_active_box_option(hpbox,1);
-        clear_key_pressed(KC_DOWN);
-        result = true;
-      }
-      if (is_key_pressed(KC_PGUP,KM_NONE))
-      {
-        goptn = gui_move_active_box_option(hpbox,-2);
-        clear_key_pressed(KC_PGUP);
-        result = true;
-      }
-      if (is_key_pressed(KC_PGDOWN,KM_NONE))
-      {
-        goptn = gui_move_active_box_option(hpbox,2);
-        clear_key_pressed(KC_PGDOWN);
-        result = true;
-      }
-    }
-*/
     SYNCDBG(9,"Returning %s",result?"true":"false");
     return result;
 }
@@ -911,9 +972,9 @@ TbBool point_is_over_gui_box(ScreenCoord x, ScreenCoord y)
     return (gbox != NULL);
 }
 
-long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag)
+long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, int32_t * tag)
 {
-    return ((game.system_flags & GSF_NetworkActive) == 0);
+    return !network_is_active();
 }
 
 TbBool cheat_menu_is_active()
@@ -935,6 +996,13 @@ TbBool cheat_menu_is_active()
     if (!gui_box_is_not_valid(gui_cheat_box_3))
     {
         if ((gui_cheat_box_3->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+	if (!gui_box_is_not_valid(gui_cheat_box_4))
+    {
+        if ((gui_cheat_box_4->flags & GBoxF_InList) != 0)
         {
             return true;
         }

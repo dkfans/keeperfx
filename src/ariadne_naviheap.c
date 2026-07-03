@@ -80,7 +80,7 @@ void heap_down(long heapid)
 {
     // Insert dummy value (there is no associated triangle for it)
     Heap[heap_end+1] = TREEVALS_COUNT-1;
-    tree_val[TREEVALS_COUNT-1] = LONG_MAX;
+    tree_val[TREEVALS_COUNT-1] = INT32_MAX;
     unsigned long hend = (heap_end >> 1);
     long tree_idb = Heap[heapid];
     long tval_idb = tree_val[tree_idb];

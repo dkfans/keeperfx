@@ -132,7 +132,7 @@ msgstr "这里附近好像没有发现图书馆，不过可以去另一个守护
 #: guitext:30
 msgctxt "In-game message"
 msgid "This hallway reeks of death and decay. While the smell is very soothing, it does not belong here. These so-called heroes might have had outside help to overthrow their enemies. Proceed with caution, Keeper."
-msgstr ""
+msgstr "走廊里充斥着死尸和腐败的气味。尽管这气味令人舒畅，但并不应该属于这里。这些所谓的英雄似乎已经请了援兵来打倒你。小心谨慎地行动，守护者。"
 
 #: guitext:31
 msgctxt "In-game message"
@@ -281,8 +281,8 @@ msgstr "注意，一群英雄正在前来探查你地下城心脏的位置。"
 
 #: guitext:65
 msgctxt "In-game message"
-msgid ""
-msgstr "又一波英雄正被派来入侵和摧毁你的地下城。只是和你打声招呼。Another try has been initiated to invade and destroy your dungeon. So you know."
+msgid "Another try has been initiated to invade and destroy your dungeon. So you know."
+msgstr "又一波英雄正被派来入侵和摧毁你的地下城。只是和你打声招呼。"
 
 #: guitext:66
 msgctxt "In-game message"
@@ -301,18 +301,18 @@ msgstr ""
 
 #: guitext:70
 msgctxt "In-game message"
-msgid "Well done, Keeper. All knights have been dealt with. The river seems to have "
-msgstr "干得漂亮，守护者。所有的骑士都被解决掉了。这条河流也变得清静一点了。你现在可以造桥通向对面了。但是要保持警惕，我有不好的预感。calmed down a bit too. You can now build a bridge to the other side, but beware; I sense something is coming for you."
+msgid "Well done, Keeper. All knights have been dealt with. The river seems to have calmed down a bit too. You can now build a bridge to the other side, but beware; I sense something is coming for you."
+msgstr "干得漂亮，守护者。所有的骑士都被解决掉了。这条河流也变得清静一点了。你现在可以造桥通向对面了。但是要保持警惕，我有不好的预感。"
 
 #: guitext:71
 msgctxt "In-game message"
-msgid "Well done. Let's hope the Avatar will not be resurrected this time, although "
-msgstr "干得漂亮。希望这一次圣者再也不会被复活了，虽然我感觉不一定。但至少你今天的任务已经完成了。I fear that it will be the case. For today you are done here."
+msgid "Well done. Let's hope the Avatar will not be resurrected this time, although I fear that it will be the case. For today you are done here."
+msgstr "干得漂亮。希望这一次圣者再也不会被复活了，虽然我感觉不一定。但至少你今天的任务已经完成了。"
 
 #: guitext:72
 msgctxt "In-game message"
-msgid "Well done. Let's hope the Avatar will not escape from your grasp this time, "
-msgstr "干得漂亮。希望这一次圣者不会从你的地下城中逃走了，虽然我感觉不一定。但至少你今天的任务已经完成了。although I fear that it will be the case. For today you are done here."
+msgid "Well done. Let's hope the Avatar will not escape from your grasp this time, although I fear that it will be the case. For today you are done here."
+msgstr "干得漂亮。希望这一次圣者不会从你的地下城中逃走了，虽然我感觉不一定。但至少你今天的任务已经完成了。"
 
 #: guitext:73
 msgctxt "In-game message"

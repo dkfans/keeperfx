@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,11 +94,13 @@ struct LevelStats {
   unsigned long hopes_dashed;
   unsigned long allow_save_score;
   unsigned long player_score;
+  unsigned long keeper_destroyed[PLAYERS_COUNT];
 };
 
 #pragma pack()
 /******************************************************************************/
 long update_dungeons_scores(void);
+TbBool update_dungeon_scores_for_player(struct PlayerInfo *player);
 TbBool load_stats_files(void);
 
 /******************************************************************************/

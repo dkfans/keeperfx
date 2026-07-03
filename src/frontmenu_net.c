@@ -40,22 +40,14 @@
 #include "game_legacy.h"
 #include "sprites.h"
 #include "keeperfx.hpp"
+#include "custom_sprites.h"
+#include "bflib_enet.h"
+#include "net_exchange_common.h"
+#include "net_lobby.h"
+#include "packets.h"
 #include "post_inc.h"
 
 /******************************************************************************/
-long frontnet_number_of_players_in_session(void)
-{
-    long i;
-    long nplyr;
-    nplyr = 0;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      if (network_player_active(i))
-        nplyr++;
-    }
-    return nplyr;
-}
-
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_scroll_offset != 0)) & LbBtnF_Enabled;
@@ -68,7 +60,7 @@ void frontnet_session_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_session_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_scroll_offset + (long)gbtn->content - 45 < net_number_of_sessions)) & LbBtnF_Enabled;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_scroll_offset + gbtn->content.lval - 45 < net_number_of_sessions)) & LbBtnF_Enabled;
 }
 
 void frontnet_players_up_maintain(struct GuiButton *gbtn)
@@ -81,9 +73,16 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players - 1 > net_player_scroll_offset)) & LbBtnF_Enabled;
 }
 
+static TbBool frontnet_can_join_session(void)
+{
+    return (net_session_index_active >= 0)
+        && (net_session_index_active < net_number_of_sessions)
+        && (net_session[net_session_index_active] != NULL);
+}
+
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled) & LbBtnF_Enabled;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * frontnet_can_join_session()) & LbBtnF_Enabled;
 }
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
@@ -91,7 +90,7 @@ void frontnet_maintain_alliance(struct GuiButton *gbtn)
     long plyr_idx1;
     long plyr_idx2;
     plyr_idx1 = gbtn->btype_value & LbBFeF_IntValueMask;
-    plyr_idx2 = (long)gbtn->content - 74;
+    plyr_idx2 = gbtn->content.lval - 74;
     if ( plyr_idx2 >= net_number_of_enum_players || net_number_of_enum_players <= plyr_idx1 || plyr_idx2 == plyr_idx1 )
       gbtn->flags &= ~LbBtnF_Enabled;
     else
@@ -110,34 +109,31 @@ void frontnet_messages_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_start_game_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players > 1)) & LbBtnF_Enabled;
+    TbBool enabled;
+    enabled = (net_number_of_enum_players > 1) && !frontnet_is_waiting_for_ping_stabilization();
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * enabled) & LbBtnF_Enabled;
 }
 
 TbBool frontnet_start_input(void)
 {
-    if (lbInkey != KC_UNASSIGNED)
-    {
-        unsigned short asckey;
-        asckey = key_to_ascii(lbInkey, KMod_NONE);
-        if ((lbInkey == KC_BACK) || (lbInkey == KC_RETURN) || (frontend_font_char_width(1,asckey) > 0))
-        {
-            struct ScreenPacket *nspck;
-            nspck = &net_screen_packet[my_player_number];
-            if ((nspck->field_4 & 0xF8) == 0)
-            {
-                nspck->field_4 = (nspck->field_4 & 7) | 0x40;
-                nspck->param1 = lbInkey;
-                nspck->param2 = key_modifiers;
-                if (key_modifiers)
-                {
-                    lbInkey = KC_UNASSIGNED;
-                    return true;
-                }
-            }
+    struct PlayerInfo *player = get_my_player();
+    if (lbInkey == KC_RETURN) {
+        if (player->mp_message_text[0] != '\0') {
+            send_network_chat_message(my_player_number, player->mp_message_text);
         }
-        lbInkey = KC_UNASSIGNED;
+        process_frontend_chat_message(my_player_number, player->mp_message_text);
+    } else if (lbInkey == KC_ESCAPE) {
+        player->mp_message_text[0] = '\0';
+    } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
+        int chpos = strlen(player->mp_message_text);
+        if (chpos > 0)
+            player->mp_message_text[chpos-1] = '\0';
+        clear_key_pressed(KC_BACK);
+    } else {
+        add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, frontend_font[1] , 420);
     }
-    return false;
+    lbInkey = KC_UNASSIGNED;
+    return true;
 }
 
 void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn)
@@ -154,7 +150,7 @@ void frontnet_session_set_player_name(struct GuiButton *gbtn)
 
 void frontnet_draw_text_bar(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     int i;
     long pos_x;
     long pos_y;
@@ -162,16 +158,16 @@ void frontnet_draw_text_bar(struct GuiButton *gbtn)
     pos_y = gbtn->scr_pos_y;
     int fs_units_per_px;
     fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largearea_nx1_tx5_c, 100);
-    spr = &frontend_sprite[GFS_largearea_nx1_cor_l];
+    spr = get_frontend_sprite(GFS_largearea_nx1_cor_l);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_largearea_nx1_tx5_c];
+    spr = get_frontend_sprite(GFS_largearea_nx1_tx5_c);
     for (i=0; i < 4; i++)
     {
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth * fs_units_per_px / 16;
     }
-    spr = &frontend_sprite[GFS_largearea_nx1_cor_r];
+    spr = get_frontend_sprite(GFS_largearea_nx1_cor_r);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
@@ -218,7 +214,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (2*LbTextLineHeight());
     const struct TbSprite *spr;
-    spr = &frontend_sprite[GFS_bullfrog_red_med];
+    spr = get_frontend_sprite(GFS_bullfrog_red_med);
     int fs_units_per_px;
     fs_units_per_px = gbtn->height * 16 / (2*(spr->SHeight*13/8));
     int height;
@@ -232,7 +228,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
         text = net_player[netplyr_idx].name;
         if (netplyr_idx >= net_number_of_enum_players)
             break;
-        spr = &frontend_sprite[GFS_bullfrog_red_med+netplyr_idx];
+        spr = get_frontend_sprite(GFS_bullfrog_red_med+netplyr_idx);
         i = height - spr->SHeight * fs_units_per_px / 16;
         LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i)/2, fs_units_per_px, spr);
         LbTextSetWindow(gbtn->scr_pos_x, shift_y + gbtn->scr_pos_y, gbtn->width - spr->SWidth * fs_units_per_px / 16, height);
@@ -250,7 +246,7 @@ void frontnet_session_add(struct GuiButton *gbtn)
 void frontnet_session_join(struct GuiButton *gbtn)
 {
     long plyr_num;
-    if (net_session[net_session_index_active] == NULL)
+    if (!frontnet_can_join_session())
         return;
     plyr_num = network_session_join();
     if (plyr_num < 0)
@@ -292,42 +288,45 @@ void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
 
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
     int fs_units_per_px;
     fs_units_per_px = spr->SHeight * units_per_px / 26;
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth*fs_units_per_px/16;
-    spr = &frontend_sprite[GFS_hugearea_thc_tx2_tc];
+    spr = get_frontend_sprite(GFS_hugearea_thc_tx2_tc);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth*fs_units_per_px/16;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tr];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 
     pos_y += 5;
     pos_x = gbtn->scr_pos_x;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
     pos_x += spr->SWidth*fs_units_per_px/16 - 1;
     if (net_number_of_enum_players > 0)
     {
-        spr = &frontend_sprite[GFS_bullfrog_red_med];
+        spr = get_frontend_sprite(GFS_bullfrog_red_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth*fs_units_per_px/16;
+        pos_x += (4 * fs_units_per_px + 8) / 16;
     }
     if (net_number_of_enum_players > 1)
     {
-        spr = &frontend_sprite[GFS_bullfrog_blue_med];
+        spr = get_frontend_sprite(GFS_bullfrog_blue_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth*fs_units_per_px/16;
+        pos_x += (4 * fs_units_per_px + 8) / 16;
     }
     if (net_number_of_enum_players > 2)
     {
-        spr = &frontend_sprite[GFS_bullfrog_green_med];
+        spr = get_frontend_sprite(GFS_bullfrog_green_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth*fs_units_per_px/16;
+        pos_x += (4 * fs_units_per_px + 8) / 16;
     }
     if (net_number_of_enum_players > 3)
     {
-        spr = &frontend_sprite[GFS_bullfrog_yellow_med];
+        spr = get_frontend_sprite(GFS_bullfrog_yellow_med);
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     }
 }
@@ -346,7 +345,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (4*LbTextLineHeight());
     const struct TbSprite *spr;
-    spr = &frontend_sprite[GFS_bullfrog_red_med];
+    spr = get_frontend_sprite(GFS_bullfrog_red_med);
     int fs_units_per_px;
     fs_units_per_px = gbtn->height * 16 / (4*(spr->SHeight*13/8));
     height = LbTextLineHeight() * tx_units_per_px / 16;
@@ -360,19 +359,31 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         long subplyr_idx;
         for (subplyr_idx = 0; subplyr_idx < net_number_of_enum_players; subplyr_idx++)
         {
-            if (subplyr_idx >= NET_PLAYERS_COUNT)
+            if (subplyr_idx >= MAX_NET_USERS)
                 break;
-            if (net_player_info[subplyr_idx].active)
+            if (net_player_info[subplyr_idx].network_user_active)
             {
                 if (subplyr_idx == netplyr_idx)
                     break;
             }
         }
-        spr = &frontend_sprite[GFS_bullfrog_red_med+netplyr_idx];
+        spr = get_frontend_sprite(GFS_bullfrog_red_med+netplyr_idx);
         i = height - spr->SHeight * fs_units_per_px / 16;
         LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i)/2, fs_units_per_px, spr);
+
+        char player_text[128];
+        unsigned long ping = 0;
+        if (netplyr_idx != my_player_number) {
+            ping = GetPing(netplyr_idx);
+        }
+        if (ping > 0) {
+            snprintf(player_text, sizeof(player_text), "%s - %lums", text, ping);
+        } else {
+            snprintf(player_text, sizeof(player_text), "%s", text);
+        }
+
         LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + shift_y, gbtn->width - spr->SWidth * fs_units_per_px / 16, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, text);
+        LbTextDrawResized(0, 0, tx_units_per_px, player_text);
     }
 }
 
@@ -382,17 +393,17 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     myplyr = get_my_player();
     int plyr1_idx;
     int plyr2_idx;
-    plyr1_idx = (long)gbtn->content - 74;
+    plyr1_idx = gbtn->content.lval - 74;
     plyr2_idx = gbtn->btype_value & LbBFeF_IntValueMask;
     if ( plyr1_idx == myplyr->id_number || plyr2_idx == myplyr->id_number )
     {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet[my_player_number];
-        if ((nspck->field_4 & 0xF8) == 0)
+        if (screen_packet_action(nspck) == NetAct_None)
         {
-            nspck->field_4 = (nspck->field_4 & 7) | 0x20;
-            nspck->param1 = plyr1_idx;
-            nspck->param2 = plyr2_idx;
+            screen_packet_set_action(nspck, NetAct_SetAlliance);
+            nspck->action_par1 = plyr1_idx;
+            nspck->action_par2 = plyr2_idx;
         }
     }
 }
@@ -402,14 +413,14 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
     int pos_x;
     int pos_y;
     pos_y = gbtn->scr_pos_y;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     int netplyr_idx;
     int units_per_px;
     units_per_px = gbtn->height * 16 / (22*4);
 
     pos_x = gbtn->scr_pos_x;
-    spr = &frontend_sprite[GFS_slidrect_indicator_std0];
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    spr = get_frontend_sprite(GFS_slidrect_indicator_std0);
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -417,8 +428,8 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
     pos_y += spr->SHeight * units_per_px / 16;
 
     pos_x = gbtn->scr_pos_x;
-    spr = &frontend_sprite[GFS_slidrect_indicator_std1];
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    spr = get_frontend_sprite(GFS_slidrect_indicator_std1);
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -426,8 +437,8 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
     pos_y += spr->SHeight * units_per_px / 16;
 
     pos_x = gbtn->scr_pos_x;
-    spr = &frontend_sprite[GFS_slidrect_indicator_std2];
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    spr = get_frontend_sprite(GFS_slidrect_indicator_std2);
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -435,8 +446,8 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
     pos_y += spr->SHeight * units_per_px / 16;
 
     pos_x = gbtn->scr_pos_x;
-    spr = &frontend_sprite[GFS_slidrect_indicator_std2];
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
+    spr = get_frontend_sprite(GFS_slidrect_indicator_std2);
+    for (netplyr_idx=0; netplyr_idx < MAX_NET_USERS; netplyr_idx++)
     {
         LbSpriteDrawResized(pos_x / pixel_size, pos_y / pixel_size, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
@@ -448,13 +459,13 @@ void frontnet_draw_alliance_button(struct GuiButton *gbtn)
 {
     int plyr1_idx;
     int plyr2_idx;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     plyr2_idx = gbtn->btype_value & LbBFeF_IntValueMask;
-    plyr1_idx = (long)gbtn->content - 74;
+    plyr1_idx = gbtn->content.lval - 74;
     if ((plyr1_idx == plyr2_idx) || (frontend_alliances & alliance_grid[plyr1_idx][plyr2_idx]))
-      spr = &frontend_sprite[GFS_scrollbar_indicator_std];
+      spr = get_frontend_sprite(GFS_scrollbar_indicator_std);
     else
-      spr = &frontend_sprite[GFS_slidrect_indicator_std1];
+      spr = get_frontend_sprite(GFS_slidrect_indicator_std1);
     int units_per_px;
     units_per_px = gbtn->height * 16 / spr->SHeight;
     LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr);
@@ -479,21 +490,21 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
 
     long pos_x;
     long pos_y;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
     lbDisplay.DrawFlags = Lb_SPRITE_FLIP_VERTIC;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
     int fs_units_per_px;
     fs_units_per_px = spr->SHeight * units_per_px / 26;
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth*fs_units_per_px/16;
-    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
+    spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth*fs_units_per_px/16;
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth*fs_units_per_px/16;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tr];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     lbDisplay.DrawFlags = 0;
 }
@@ -505,11 +516,11 @@ void frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn)
 
 void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, const char *text)
 {
-    struct TbSprite * spr;
+    const struct TbSprite * spr;
     int pos_x;
     int i;
     unsigned char height;
-    spr = &frontend_sprite[GFS_largearea_xts_cor_l];
+    spr = get_frontend_sprite(GFS_largearea_xts_cor_l);
     int fs_units_per_px;
     fs_units_per_px = gbtn->height * 16 / spr->SHeight;
     pos_x = gbtn->scr_pos_x;
@@ -569,8 +580,8 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
     // While setting scale, aim for 4 lines of text
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (4*LbTextLineHeight());
-    struct TbSprite *spr;
-    spr = &frontend_sprite[GFS_bullfrog_red_med];
+    const struct TbSprite *spr;
+    spr = get_frontend_sprite(GFS_bullfrog_red_med);
     int fs_units_per_px;
     fs_units_per_px = gbtn->height * 16 / (4*(spr->SHeight*13/8));
     int font_height;
@@ -589,11 +600,11 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
         int i;
         for (i = nmsg->plyr_idx; i > 0; i--)
         {
-          if ( net_player_info[i].active)
+          if ( net_player_info[i].network_user_active)
             num_active++;
         }
 
-        spr = &frontend_sprite[GFS_bullfrog_red_med+num_active];
+        spr = get_frontend_sprite(GFS_bullfrog_red_med+num_active);
 
         i = font_height - spr->SHeight * fs_units_per_px / 16;
         LbSpriteDrawResized(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (i >> 1), fs_units_per_px, spr);
@@ -620,201 +631,6 @@ void frontnet_return_to_session_menu(struct GuiButton *gbtn)
         }
     }
     frontend_set_state(nstate);
-}
-
-void frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn)
-{
-    long pos_x;
-    long pos_y;
-    struct TbSprite *spr;
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
-    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
-    int fs_units_per_px;
-    fs_units_per_px = gbtn->height * 16 / spr->SHeight;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_tx2_tc];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tr];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-}
-
-void frontnet_draw_small_scroll_selection_box(struct GuiButton *gbtn, long font_idx, const char *text)
-{
-    struct TbSprite *spr;
-    int pos_x;
-    int pos_y;
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
-    spr = &frontend_sprite[GFS_largearea_xts_cor_l];
-    int fs_units_per_px;
-    fs_units_per_px = gbtn->height * 16 / spr->SHeight;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_largearea_xts_tx1_c];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_largearea_xts_cor_r];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    if (text != NULL)
-    {
-        LbTextSetFont(frontend_font[font_idx]);
-        lbDisplay.DrawFlags = 0;
-        int tx_units_per_px;
-        tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
-        int height;
-        height = LbTextLineHeight() * tx_units_per_px / 16;
-        LbTextSetWindow(gbtn->scr_pos_x + 13*fs_units_per_px/16, gbtn->scr_pos_y, gbtn->width - 26*fs_units_per_px/16, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, text);
-    }
-}
-
-int small_scroll_box_get_units_per_px(struct GuiButton *gbtn)
-{
-    struct TbSprite *spr;
-    int width;
-    width = 0;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_ml];
-    width += spr->SWidth;
-    spr++;
-    width += spr->SWidth;
-    spr++;
-    width += spr->SWidth;
-    spr+=3;
-    width += spr->SWidth;
-    spr++;
-    width += spr->SWidth;
-    return (gbtn->width * 16 + 8) / width;
-}
-
-void frontnet_draw_small_scroll_box(struct GuiButton *gbtn)
-{
-    long pos_x;
-    long pos_y;
-    struct TbSprite *spr;
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
-    int fs_units_per_px;
-    fs_units_per_px = small_scroll_box_get_units_per_px(gbtn);
-    int btn_type;
-    int len;
-    btn_type = (long)gbtn->content;
-    if (btn_type == 24) {
-        len = 2;
-    } else
-    if (btn_type == 25) {
-        len = 3;
-    } else
-    if (btn_type == 26) {
-        len = 7;
-    } else {
-        ERRORLOG("Unknown button type %d",(int)btn_type);
-        return;
-    }
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr += 3;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-
-    int dlen;
-    dlen = 3;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
-    pos_y += spr->SHeight * fs_units_per_px / 16;
-    for ( ; len > 0; len -= dlen)
-    {
-      pos_x = gbtn->scr_pos_x;
-      int spr_idx;
-      if (len < 3)
-          spr_idx = GFS_hugearea_thn_cor_ml;
-      else
-          spr_idx = GFS_hugearea_thc_cor_ml;
-      spr = &frontend_sprite[spr_idx];
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_x += spr->SWidth * fs_units_per_px / 16;
-      spr++;
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_x += spr->SWidth * fs_units_per_px / 16;
-      spr++;
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_x += spr->SWidth * fs_units_per_px / 16;
-      spr += 3;
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_x += spr->SWidth * fs_units_per_px / 16;
-      if (len < 3)
-          spr_idx = GFS_scrollbar_vert_ct_short;
-      else
-          spr_idx = GFS_scrollbar_vert_ct_long;
-      spr = &frontend_sprite[spr_idx];
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_y += spr->SHeight * fs_units_per_px / 16;
-      if (len < 3)
-          dlen = 1;
-      else
-          dlen = 3;
-    }
-
-    pos_x = gbtn->scr_pos_x;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr += 3;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-}
-
-void frontnet_draw_text_cont_bar(struct GuiButton *gbtn)
-{
-    int units_per_px;
-    units_per_px = (gbtn->width * 16 + 165/2) / 165;
-
-    int pos_x;
-    int pos_y;
-    pos_y = gbtn->scr_pos_y;
-    struct TbSprite *spr;
-    int netplyr_idx;
-    pos_x = gbtn->scr_pos_x;
-
-    spr = &frontend_sprite[GFS_largearea_nx2_cor_l];
-    int fs_units_per_px;
-    fs_units_per_px = spr->SHeight * units_per_px / 28;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth*fs_units_per_px/16;
-
-    spr = &frontend_sprite[GFS_largearea_nx2_tx5_c];
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
-    {
-        LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-        pos_x += spr->SWidth*fs_units_per_px/16;
-    }
-
-    spr = &frontend_sprite[GFS_largearea_nx2_cor_r];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
 void frontnet_service_up_maintain(struct GuiButton *gbtn)
@@ -848,7 +664,7 @@ void frontnet_service_down(struct GuiButton *gbtn)
 void frontnet_service_maintain(struct GuiButton *gbtn)
 {
     int srvidx;
-    srvidx = (long)gbtn->content + net_service_scroll_offset - 45;
+    srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
     if (srvidx < net_number_of_services)
         gbtn->flags |= LbBtnF_Enabled;
     else
@@ -859,7 +675,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
 {
   int srvidx;
   // Find and verify selected network service
-  srvidx = (long)gbtn->content + net_service_scroll_offset - 45;
+  srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
   if (srvidx >= net_number_of_services)
     return;
   // Select font to draw
@@ -879,12 +695,14 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
 void frontnet_service_select(struct GuiButton *gbtn)
 {
   int srvidx;
-  srvidx = (long)(gbtn->content) + net_service_scroll_offset - 45;
+  srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
   if ( ((game.system_flags & GSF_AllowOnePlayer) != 0)
      && (srvidx+1 >= net_number_of_services) )
   {
+      frontend_set_player_number(default_loc_player);
       fe_network_active = 0;
-      frontend_set_state(FeSt_NETLAND_VIEW);
+      net_service_index_selected = FrontendNetSvc_Skirmish;
+      frontend_set_state(FeSt_MP_MAPPACK_SELECT);
   } else
   if (srvidx < 0)
   {
@@ -893,6 +711,26 @@ void frontnet_service_select(struct GuiButton *gbtn)
   {
       setup_network_service(srvidx);
   }
+}
+
+void frontnet_draw_start_game_button(struct GuiButton *gbtn)
+{
+    static TbClockMSec last_anim_time = 0;
+    static int anim_frame = 0;
+    static const char *dot_frames[] = {"...", "..", ".", "..", "..."};
+    const char *text;
+
+    if (net_number_of_enum_players >= 2 && frontnet_is_waiting_for_ping_stabilization()) {
+        if (LbTimerClock() >= last_anim_time + 125) {
+            anim_frame = (anim_frame + 1) % 5;
+            last_anim_time = LbTimerClock();
+        }
+        text = dot_frames[anim_frame];
+    } else {
+        text = frontend_button_caption_text(gbtn);
+    }
+
+    frontend_draw_button(gbtn, 0, text, Lb_TEXT_HALIGN_CENTER);
 }
 
 /******************************************************************************/

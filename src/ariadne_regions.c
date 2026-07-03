@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "ariadne_regions.h"
+#include "ariadne.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -61,7 +62,7 @@ static unsigned long region_alloc(void)
             if (rgn->num_triangles == 0) {
                 return i;
             }
-            if (rgn->field_2 == 0) {
+            if (rgn->is_connected == 0) {
                 reg_id = i;
                 min_f0 = rgn->num_triangles;
             }
@@ -86,12 +87,12 @@ static unsigned long region_alloc(void)
             {
                 Regions[sreg_id].num_triangles--;
                 set_triangle_region_id(i, 0);
-                Regions[sreg_id].field_2 = 0;
+                Regions[sreg_id].is_connected = 0;
                 Regions[0].num_triangles++;
             }
             if (Regions[reg_id].num_triangles == 0)
                 break;
-        }      
+        }
     }
     return reg_id;
 }
@@ -106,7 +107,7 @@ void region_lnk(int nreg)
         TbBool notfound;
         while (1)
         {
-            if ((Triangles[ctri_id].tree_alt & 0xF) == 15)
+            if ((Triangles[ctri_id].tree_alt & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MAX)
             {
                 notfound = 1;
                 break;
@@ -161,7 +162,7 @@ void region_lnk(int nreg)
 static void region_connect(unsigned long tree_reg)
 {
     long nreg_id = region_alloc();
-    Regions[nreg_id].field_2 = 1;
+    Regions[nreg_id].is_connected = 1;
     region_store_init();
     region_set(tree_reg, nreg_id);
     region_put(tree_reg);
@@ -176,7 +177,7 @@ static void region_connect(unsigned long tree_reg)
             int ntri_id = Triangles[creg_id].tags[ncor1];
             if (ntri_id != -1)
             {
-              if ((Triangles[ntri_id].tree_alt & 0xF) != 15)
+              if ((Triangles[ntri_id].tree_alt & NAVMAP_FLOORHEIGHT_MASK) != NAVMAP_FLOORHEIGHT_MAX)
               {
                   long preg_id = get_triangle_region_id(ntri_id);
                   if (preg_id != nreg_id)
@@ -196,37 +197,30 @@ void triangulation_init_regions(void)
     memset(Regions, 0, REGIONS_COUNT*sizeof(struct RegionT));
 }
 
-struct RegionT *get_region(long reg_id)
-{
-    if ((reg_id < 0) || (reg_id >= REGIONS_COUNT))
-        return INVALID_REGION;
-    return &Regions[reg_id];
-}
-
 /**
  * Returns whether two regions represented by tree triangles are connected.
- * @param tree_reg1
- * @param tree_reg2
+ * @param first_tree_region
+ * @param second_tree_region
  * @return
  */
-TbBool regions_connected(long tree_reg1, long tree_reg2)
+TbBool regions_connected(long first_tree_region, long second_tree_region)
 {
-    if ((tree_reg1 < 0) || (tree_reg1 >= TRIANLGLES_COUNT))
+    if ((first_tree_region < 0) || (first_tree_region >= TRIANLGLES_COUNT))
         return false;
-    if ((tree_reg2 < 0) || (tree_reg2 >= TRIANLGLES_COUNT))
+    if ((second_tree_region < 0) || (second_tree_region >= TRIANLGLES_COUNT))
         return false;
-    if (((get_triangle_tree_alt(tree_reg1) & 0x0F) == 0x0F)
-    ||  ((get_triangle_tree_alt(tree_reg2) & 0x0F) == 0x0F))
+    if (((get_triangle_tree_alt(first_tree_region) & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MAX)
+    ||  ((get_triangle_tree_alt(second_tree_region) & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MAX))
         return false;
-    long reg_id1 = get_triangle_region_id(tree_reg1);
-    long reg_id2 = get_triangle_region_id(tree_reg2);
-    if (Regions[reg_id1].field_2 == 1)
+    long reg_id1 = get_triangle_region_id(first_tree_region);
+    long reg_id2 = get_triangle_region_id(second_tree_region);
+    if (Regions[reg_id1].is_connected == 1)
         return (reg_id2 == reg_id1);
-    if (Regions[reg_id2].field_2 == 1)
+    if (Regions[reg_id2].is_connected == 1)
         return (reg_id2 == reg_id1);
-    region_connect(tree_reg1);
+    region_connect(first_tree_region);
     // Fast version of comparing region id values
-    unsigned long intersect = (Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E);
+    unsigned long intersect = (Triangles[second_tree_region].region_and_edgelen ^ Triangles[first_tree_region].region_and_edgelen);
     return ((intersect & 0xFFC0) == 0);
 }
 
@@ -289,7 +283,7 @@ void region_set_f(long ntri, unsigned long nreg, const char *func_name)
         if (oreg < REGIONS_COUNT)
         {
             Regions[oreg].num_triangles--;
-            Regions[oreg].field_2 = 0;
+            Regions[oreg].is_connected = 0;
         }
         // And add to new one
         set_triangle_region_id(ntri, nreg);
@@ -300,7 +294,7 @@ void region_set_f(long ntri, unsigned long nreg, const char *func_name)
 void region_unset_f(long ntri, unsigned long nreg, const char *func_name)
 {
     Regions[nreg].num_triangles--;
-    Regions[nreg].field_2 = 0;
+    Regions[nreg].is_connected = 0;
     set_triangle_region_id(ntri, 0);
     Regions[0].num_triangles++;
 }
@@ -310,7 +304,7 @@ void region_unlock(long ntri)
     unsigned long oreg = get_triangle_region_id(ntri);
     if (oreg < REGIONS_COUNT)
     {
-        Regions[oreg].field_2 = 0;
+        Regions[oreg].is_connected = 0;
     }
 }
 

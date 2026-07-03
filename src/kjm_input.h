@@ -35,6 +35,8 @@ struct KeyToStringInit { // sizeof = 5
   long str_idx;
 };
 
+struct TbSpriteSheet;
+
 /******************************************************************************/
 extern unsigned long key_modifiers;
 extern int defining_a_key;
@@ -75,24 +77,25 @@ extern TbBool defined_keys_that_have_been_swapped[];
 extern TbBool wheel_scrolled_up;
 extern TbBool wheel_scrolled_down;
 
+TbBool poll_inputs(void);
 
 long GetMouseX(void);
 long GetMouseY(void);
-short is_mouse_pressed_leftbutton(void);
-short is_mouse_pressed_rightbutton(void);
 short is_mouse_pressed_lrbutton(void);
 void clear_mouse_pressed_lrbutton(void);
 void update_mouse(void);
 void update_wheel_scrolled(void);
 
 short is_key_pressed(TbKeyCode key, TbKeyMods kmodif);
-unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif);
 void clear_key_pressed(long key);
 void update_key_modifiers(void);
 void define_key_input(void);
 void init_key_to_strings(void);
+TbBool add_input_text_to_message(char *message, int max_message_length, struct TbSpriteSheet *font, int max_width);
 
 TbBool mouse_is_over_panel_map(ScreenCoord x, ScreenCoord y);
+TbBool mouse_is_over_side_panel_bottom();
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

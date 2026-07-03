@@ -41,16 +41,6 @@ enum NaviRouteFlagValues {
     NavRtF_NoOwner   = 0x01,
 };
 
-enum ThingAngles {
-    ANGLE_NORTH = 0,
-    ANGLE_NORTHEAST = 256,
-    ANGLE_EAST = 512,
-    ANGLE_SOUTHEAST = 768,
-    ANGLE_SOUTH = 1024,
-    ANGLE_SOUTHWEST = 1280,
-    ANGLE_WEST = 1536,
-    ANGLE_NORTHWEST = 1792,
-};
 
 /******************************************************************************/
 #pragma pack(1)
@@ -85,7 +75,7 @@ TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, const 
 #define creature_can_navigate_to_with_storage(crtng,pos,flags) creature_can_navigate_to_with_storage_f(crtng,pos,flags,__func__)
 TbBool creature_can_get_to_dungeon_heart(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int flags);
-struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
+struct Thing *find_best_hero_gate_to_navigate_to(struct Thing *herotng);
 TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos);
 
 long creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed speed, NaviRouteFlags flags, TbBool backward);
@@ -97,7 +87,6 @@ long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_angle(struct Thing *thing, long angle);
 TbBool move_creature_to_nearest_valid_position(struct Thing *thing);
 long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos);
-TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2);
 long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
 TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
