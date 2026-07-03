@@ -433,6 +433,16 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
     return Lb_OK;
 }
 
+void network_update(void *server_buf, size_t frame_size)
+{
+    netstate.sp->update(OnNewUser);
+    for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
+        if (can_send_to_peer(peer_id)) {
+            process_peer_msgs(peer_id, server_buf, frame_size);
+        }
+    }
+}
+
 TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t frame_size)
 {
     if (exchange_frame_message(send_buf, server_buf, frame_size, NETMSG_GAMEPLAY_UNSEQUENCED) != Lb_OK) {
@@ -440,11 +450,7 @@ TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t fram
     }
     send_turn_sync_if_due();
     send_repair_history_if_due();
-    for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
-        if (can_send_to_peer(peer_id)) {
-            process_peer_msgs(peer_id, server_buf, frame_size);
-        }
-    }
+    network_update(server_buf, frame_size);
     update_turn_speed_adjustment();
     if (game.skip_initial_input_turns <= 0) {
         struct PlayerInfo *my_player = get_my_player();

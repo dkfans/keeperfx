@@ -3581,6 +3581,14 @@ void gameplay_loop_draw()
     last_draw_completed_time = get_time_tick_ns();
 }
 
+void gameplay_loop_network()
+{
+    if (! network_is_active())
+        return;
+
+    network_update(game.packets, sizeof(struct Packet));
+}
+
 extern "C" void network_yield_draw_gameplay()
 {
     gameplay_loop_draw();
@@ -3652,6 +3660,7 @@ void keeper_gameplay_loop(void)
             framerate_measurement_capture(Framerate_FullFrame);
         gameplay_loop_logic();
         gameplay_loop_draw();
+        gameplay_loop_network();
         gameplay_loop_timestep();
 
         frametime_end_measurement(Frametime_FullFrame);
