@@ -16,12 +16,12 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_slabsets.h"
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "value_util.h"
@@ -35,8 +35,23 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_slabset_file[]="slabset.toml";
-const char keeper_columns_file[]="columnset.toml";
+static TbBool load_slabset_config_file(const char *fname, unsigned short flags);
+static TbBool load_columns_config_file(const char *fname, unsigned short flags);
+
+const struct ConfigFileData keeper_slabset_file_data = {
+    .filename = "slabset.toml",
+    .load_func = load_slabset_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
+
+const struct ConfigFileData keeper_columns_file_data = {
+    .filename = "columnset.toml",
+    .load_func = load_columns_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
+
 /******************************************************************************/
 typedef struct VALUE VALUE;
 const struct NamedCommand slab_styles_commands[] = {
@@ -70,7 +85,7 @@ const struct NamedCommand slab_styles_commands[] = {
     {"CENTER",   27}
 };
 
-TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_slabset_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
 
@@ -79,27 +94,17 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
         clear_slabsets();
     }
     
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
-    
-    char key[64];
+
+    char key[64] = "";
     VALUE *slb_section;
     // Create sections
     for (int slab_kind = 0; slab_kind < game.conf.slab_conf.slab_types_count; slab_kind++)
     {
-       
-        {
-            sprintf(key, "slab%d", slab_kind);
-            slb_section = value_dict_get(&file_root, key);
-        }
-        if (value_type(slb_section) != VALUE_DICT)
-        {
-            if ((flags & CnfLd_IgnoreErrors) == 0)
-            {
-                WARNMSG("Invalid section %d", slab_kind);
-            }
-        }
-        else
+        snprintf(key, sizeof(key), "slab%d", slab_kind);
+        slb_section = value_dict_get(&file_root, key);
+        if (value_type(slb_section) == VALUE_DICT)
         {
             for (int slabstyle_no = 0; slabstyle_no < SLABSETS_PER_SLAB; slabstyle_no++)
             {
@@ -117,44 +122,50 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                     }
                 }
 
-                sprintf(key, "%s_objects", slab_styles_commands[slabstyle_no].name);
+                snprintf(key, sizeof(key), "%s_objects", slab_styles_commands[slabstyle_no].name);
                 VALUE * objects_arr = value_dict_get(slb_section, key);
-                for (size_t i = 0; i < value_array_size(objects_arr); i++)
+                if(value_type(section) == VALUE_DICT && value_array_size(objects_arr) == 0)
                 {
-                    if (game.slabobjs_num >= SLABOBJS_COUNT)
+                    game.slabobjs_idx[slabset_no] = -1;
+                }
+                else
+                {
+                    for (size_t i = 0; i < value_array_size(objects_arr); i++)
                     {
-                        ERRORLOG("Exceeding max of %d slabobjects",SLABOBJS_COUNT);
-                        break;
-                    }
-                    struct SlabObj* slabobj = &game.slabobjs[game.slabobjs_num];
-                    VALUE * object = value_array_get(objects_arr, i);
-                    CONDITIONAL_ASSIGN_CLASS(object,"ThingType",slabobj->class_id);
-                    CONDITIONAL_ASSIGN_BOOL(object, "IsLight", slabobj->isLight);
-                    CONDITIONAL_ASSIGN_MODEL(object,"Subtype",slabobj->model,slabobj->class_id);
-                    CONDITIONAL_ASSIGN_ARR3_INT(object,"RelativePosition",slabobj->offset_x,slabobj->offset_y,slabobj->offset_z)
-                    CONDITIONAL_ASSIGN_INT(object, "EffectRange", slabobj->range);
-                    CONDITIONAL_ASSIGN_INT(object, "Subtile",     slabobj->stl_id);
+                        if (game.slabobjs_num >= SLABOBJS_COUNT)
+                        {
+                            ERRORLOG("Exceeding max of %d slabobjects",SLABOBJS_COUNT);
+                            break;
+                        }
+                        struct SlabObj* slabobj = &game.slabobjs[game.slabobjs_num];
+                        VALUE * object = value_array_get(objects_arr, i);
+                        CONDITIONAL_ASSIGN_CLASS(object,"ThingType",slabobj->class_id);
+                        CONDITIONAL_ASSIGN_BOOL(object, "IsLight", slabobj->isLight);
+                        CONDITIONAL_ASSIGN_MODEL(object,"Subtype",slabobj->model,slabobj->class_id);
+                        CONDITIONAL_ASSIGN_ARR3_INT(object,"RelativePosition",slabobj->offset_x,slabobj->offset_y,slabobj->offset_z)
+                        CONDITIONAL_ASSIGN_INT(object, "EffectRange", slabobj->range);
+                        CONDITIONAL_ASSIGN_INT(object, "Subtile",     slabobj->stl_id);
 
-                    slabobj->slabset_id = slabset_no;
-                    if (i == 0)
-                    {
-                        game.slabobjs_idx[slabset_no] = game.slabobjs_num;
+                        slabobj->slabset_id = slabset_no;
+                        if (i == 0)
+                        {
+                            game.slabobjs_idx[slabset_no] = game.slabobjs_num;
+                        }
+                        game.slabobjs_num++;
                     }
-                    game.slabobjs_num++;
                 }
             }
         }
     }
     value_fini(&file_root);
-    
     return true;
 }
 
-TbBool load_columns_config_file(const char *textname, const char *fname, unsigned short flags,struct Column *cols,long *ccount)
+static TbBool load_columns_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
     
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
 
     char key[64];
@@ -163,7 +174,7 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
     for (int col_no = 0; col_no < COLUMNS_COUNT; col_no++)
     {
         {
-            sprintf(key, "column%d", col_no);
+            snprintf(key, sizeof(key), "column%d", col_no);
             section = value_dict_get(&file_root, key);
         }
         if (value_type(section) == VALUE_DICT)
@@ -172,8 +183,8 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
             TbBool permanent = true;
             bitfields |= permanent;
 
-            if (col_no + 1 > *ccount)
-                *ccount = col_no + 1;
+            if (col_no + 1 > game.conf.column_conf.columns_count)
+                game.conf.column_conf.columns_count = col_no + 1;
             
             VALUE *lintel_val = value_dict_get(section, "Lintel");
             if (value_type(lintel_val) == VALUE_INT32)
@@ -201,67 +212,23 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
                 bitfields |= floorHeight;
             }
 
-            cols[col_no].bitfields = bitfields;
-            CONDITIONAL_ASSIGN_INT(section, "SolidMask",    cols[col_no].solidmask    );
-            CONDITIONAL_ASSIGN_INT(section, "FloorTexture", cols[col_no].floor_texture);
-            CONDITIONAL_ASSIGN_INT(section, "Orientation",  cols[col_no].orient       );
+            game.conf.column_conf.cols[col_no].bitfields = bitfields;
+            CONDITIONAL_ASSIGN_INT(section, "SolidMask",    game.conf.column_conf.cols[col_no].solidmask    );
+            CONDITIONAL_ASSIGN_INT(section, "FloorTexture", game.conf.column_conf.cols[col_no].floor_texture);
+            CONDITIONAL_ASSIGN_INT(section, "Orientation",  game.conf.column_conf.cols[col_no].orient       );
 
             VALUE *Cubes_arr = value_dict_get(section, "Cubes");
             if(value_type(Cubes_arr) == VALUE_ARRAY)
             {
                 for (size_t cube_no = 0; cube_no < COLUMN_STACK_HEIGHT; cube_no++)
                 {
-                    cols[col_no].cubes[cube_no] = value_int32(value_array_get(Cubes_arr, cube_no));
+                    game.conf.column_conf.cols[col_no].cubes[cube_no] = value_int32(value_array_get(Cubes_arr, cube_no));
                 }
             }
         }
     }
     value_fini(&file_root);    
     return true;
-}
-
-
-TbBool load_slabset_config(const char *conf_fname,unsigned short flags)
-{
-    static const char config_global_textname[] = "global slabset config";
-    static const char config_campgn_textname[] = "campaign slabset config";
-    static const char config_level_textname[] = "level slabset config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_slabset_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_slabset_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_slabset_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
-    return result;
-}
-
-TbBool load_columns_config(const char *conf_fname,unsigned short flags,struct Column *cols,long *ccount)
-{
-    static const char config_global_textname[] = "global columns config";
-    static const char config_campgn_textname[] = "campaign columns config";
-    static const char config_level_textname[] = "level columns config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_columns_config_file(config_global_textname, fname, flags,cols,ccount);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_columns_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors,cols,ccount);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_columns_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors,cols,ccount);
-    }
-    //Freeing and exiting
-
-    return result;
 }
 
 void clear_slabsets(void)

@@ -46,26 +46,17 @@ extern "C" {
 
 struct GuiButton;
 /******************************************************************************/
-extern struct TbSprite gui_panel_sprites[];
-extern int num_icons_total;
-
-extern unsigned char * gui_panel_sprite_data;
-extern unsigned char * end_gui_panel_sprite_data;
-
+extern struct TbSpriteSheet * gui_panel_sprites;
 extern unsigned char *gui_slab;
-
 extern unsigned char *frontend_background;
-
-extern struct TbSprite *frontend_sprite;
-extern struct TbSprite *frontend_end_sprite;
-extern unsigned char * frontend_sprite_data;
-extern unsigned char * frontend_end_sprite_data;
+extern struct TbSpriteSheet * frontend_sprite;
+extern int gui_blink_rate;
+extern int neutral_flash_rate;
 
 #pragma pack()
 /******************************************************************************/
 extern char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
-int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
 int simple_button_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
 int simple_button_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
 int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
@@ -83,14 +74,14 @@ void draw_string64k(long x, long y, int units_per_px, const char * text);
 
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text);
 TbBool draw_text_box(const char *text);
+TbBool draw_text_box_top(const char* text, ushort drawflags);
 void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows);
 int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 
-#define draw_gui_panel_sprite_left(x, y, units_per_px, spridx) draw_gui_panel_sprite_left_player(x, y, units_per_px, spridx, my_player_number) 
+#define draw_gui_panel_sprite_left(x, y, units_per_px, spridx) draw_gui_panel_sprite_left_player(x, y, units_per_px, spridx, my_player_number)
 void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx);
 #define draw_gui_panel_sprite_rmleft(x, y, units_per_px, spridx, remap) draw_gui_panel_sprite_rmleft_player(x, y, units_per_px, spridx, remap, my_player_number)
 void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long spridx, unsigned long remap, PlayerNumber plyr_idx);
-void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color);
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx);
 void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color);
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx);

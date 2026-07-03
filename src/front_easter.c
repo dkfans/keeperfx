@@ -20,7 +20,7 @@
 #include "front_easter.h"
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "bflib_sndlib.h"
 #include "bflib_keybrd.h"
 #include "bflib_math.h"
 #include "bflib_sprfnt.h"
@@ -28,6 +28,7 @@
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
 #include "kjm_input.h"
+#include "config_sounds.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
 #include "config_strings.h"
@@ -55,7 +56,6 @@ const struct TbBirthday team_birthdays[] = {
     {13,11,"Alex Peters"},
     { 1,12,"Dene Carter"},
     {25, 5,"Tomasz Lis"},
-    {29,11,"Michael Chateauneuf"},
     {0,0,NULL},
     };
 
@@ -67,6 +67,9 @@ struct KeycodeString eastegg_jlw_codes = {
 };
 struct KeycodeString eastegg_skeksis_codes = {
     {KC_S,KC_K,KC_E,KC_K,KC_S,KC_I,KC_S,KC_UNASSIGNED}, 7,
+};
+struct KeycodeString eastegg_bbking_codes = {
+    {KC_B,KC_B,KC_K,KC_I,KC_N,KC_G,KC_UNASSIGNED}, 6,
 };
 /******************************************************************************/
 static unsigned char eastegg_skeksis_cntr;
@@ -145,21 +148,36 @@ void input_eastegg(void)
     // Maintain the FECKOFF cheat
     short allow = (lbKeyOn[KC_LSHIFT] != 0);
     unsigned short state = input_eastegg_keycodes(&game.eastegg01_cntr, allow, &eastegg_feckoff_codes);
-    if ((state == 2) || (state == 3))
-      play_non_3d_sample(60);
+    if ((state == 2) || (state == 3)) {
+      play_non_3d_sample(snd_tab_click);
+    }
     // Maintain the JLW cheat
-    if ((game.flags_font & FFlg_AlexCheat) != 0)
+    if (game.easter_eggs_enabled == true)
     {
       allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
       state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
-      if ((state == 1) || (state == 2)  || (state == 3))
-        play_non_3d_sample(159);
+      if ((state == 1) || (state == 2) || (state == 3)) {
+        play_non_3d_sample(snd_cheat_activated);
+      }
+    }
+    // Maintain the BBKING cheat
+    if (game.easter_eggs_enabled == true)
+    {
+      allow = lbKeyOn[KC_RSHIFT];
+      static unsigned char length = 0;
+      state = input_eastegg_keycodes(&length, allow, &eastegg_bbking_codes);
+      if (length == eastegg_bbking_codes.length) {
+        play_non_3d_sample(snd_cheat_activated);
+        toggle_bbking_mode();
+        length = 0; // prevent re-trigger
+      }
     }
     // Maintain the SKEKSIS cheat
     allow = (lbKeyOn[KC_LSHIFT] != 0);
     state = input_eastegg_keycodes(&eastegg_skeksis_cntr,allow,&eastegg_skeksis_codes);
-    if (state == 3)
-      output_message(SMsg_PantsTooTight, 0, true);
+    if (state == 3) {
+      output_message(SMsg_PantsTooTight, 0);
+    }
 }
 
 /**
@@ -167,7 +185,6 @@ void input_eastegg(void)
  */
 void draw_eastegg(void)
 {
-  char *text;
   static long px[2] = {0, 0};
   static long py[2] = {0, 0};
   static long vx[2] = {4, 4};
@@ -193,18 +210,18 @@ void draw_eastegg(void)
   {
       eastegg_skeksis_cntr++;
       LbTextSetFont(winfont);
-      text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
+      const char * text = "Dene says a big 'Hello' to Goth Buns, Tarts and Barbies";
       lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
       unsigned char pos;
       for (i = 0; i < 30; i += 2)
       {
-        pos = game.play_gameturn - i;
+        pos = get_gameturn() - i;
         lbDisplay.DrawColour = pos;
         LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
           scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       }
       clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
-      pos=game.play_gameturn;
+      pos=get_gameturn();
       LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
           scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       if (eastegg_skeksis_cntr >= 255)
@@ -217,7 +234,7 @@ void draw_eastegg(void)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetFont(winfont);
     i = 0;
-    text = buf_sprintf("Simon says Hi to everyone he knows...");
+    const char * text = "Simon says Hi to everyone he knows...";
     px[i] += vx[i];
     if (px[i] < 0)
     {
@@ -246,9 +263,9 @@ void draw_eastegg(void)
     {
       LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
     }
-    play_non_3d_sample_no_overlap(90);
+    play_non_3d_sample_no_overlap(snd_alarm);
   }
-  if ((game.flags_font & FFlg_AlexCheat) == 0)
+  if (game.easter_eggs_enabled == false)
     return;
 
   if (game.eastegg02_cntr >= eastegg_jlw_codes.length)
@@ -257,7 +274,7 @@ void draw_eastegg(void)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetFont(winfont);
     i = 1;
-    text = buf_sprintf("Alex, hopefully lying on a beach with Jo, says Hi");
+    const char * text = "Alex, hopefully lying on a beach with Jo, says Hi";
     px[i] += vx[i];
     if (px[i] < 0)
     {
@@ -286,7 +303,7 @@ void draw_eastegg(void)
     {
         LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
     }
-    play_non_3d_sample_no_overlap(90);
+    play_non_3d_sample_no_overlap(snd_alarm);
   }
 }
 

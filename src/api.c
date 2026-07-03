@@ -4,7 +4,7 @@
 #include "api.h"
 #include <json.h>
 #include <json-dom.h>
-#include "config.h"
+#include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "lvl_script.h"
 #include "lvl_script_commands.h"
@@ -19,7 +19,7 @@
 #include "value_util.h"
 #include "keeperfx.hpp"
 
-#define API_SERVER_BUFFER 1024
+#define API_SERVER_BUFFER 4096
 
 #define API_SUBSCRIBE_LIST_SIZE 256
 
@@ -35,10 +35,10 @@
  */
 struct ApiGlobals
 {
-    TCPsocket serverSocket;     /**< Server socket for API communication. */
-    TCPsocket activeSocket;     /**< Active client socket (only one client at a time). */
-    SDLNet_SocketSet socketSet; /**< Socket set for managing sockets. */
-} api = {0};                    /**< Global instance of the API global variables initialized with zeros. */
+    TCPsocket serverSocket;     // Server socket for API communication
+    TCPsocket activeSocket;     // Active client socket (only one client at a time)
+    SDLNet_SocketSet socketSet; // Socket set for managing sockets
+} api = {0};                    // Global instance of the API global variables initialized with zeros
 
 /**
  * Structure representing a subscribed variable.
@@ -99,30 +99,35 @@ struct dump_buf_state
  *
  * @param str Pointer to the buffer containing the JSON data.
  * @param size Size of the JSON data in bytes.
- * @param dbs Pointer to the dump buffer state structure.
+ * @param dump_buffer_state Pointer to the dump buffer state structure.
  *            It holds information about the output buffer and available space.
  *
  * @return 0 on success, JSON_ERR_OUTOFMEMORY (-2) if the buffer is too small.
  */
-static int json_value_dump_writer(const char *str, size_t size, void *dbs)
+static int json_value_dump_writer(const char *str, size_t size, void *dump_buffer_state)
 {
     // @author: https://github.com/wolfSSL/wolfsentry/blob/857c85d1b3a6c7b297efa2bbb6ea89817aea7b4b/src/kv.c#L395
 
     // Check if buffer is too small
-    if (size > (size_t)((struct dump_buf_state *)dbs)->out_space)
+    if (size > (size_t)((struct dump_buf_state *)dump_buffer_state)->out_space)
     {
         JUSTLOG("buffer too small");
         return JSON_ERR_OUTOFMEMORY;
     }
 
     // Copy data into current part of buffer
-    memcpy(((struct dump_buf_state *)dbs)->out, str, size);
-    ((struct dump_buf_state *)dbs)->out += size;
-    ((struct dump_buf_state *)dbs)->out_space -= (int)size;
+    memcpy(((struct dump_buf_state *)dump_buffer_state)->out, str, size);
+    ((struct dump_buf_state *)dump_buffer_state)->out += size;
+    ((struct dump_buf_state *)dump_buffer_state)->out_space -= (int)size;
 
     return 0;
 }
 
+/**
+ * Function to get the number of max available KeeperFX flags with a name
+ *
+ * @return size_t Amount of flags
+ */
 size_t get_max_flags()
 {
     size_t num = 0;
@@ -157,7 +162,7 @@ int api_init_server()
     }
     else
     {
-        JUSTLOG("API server starting on port: %ld", api_port);
+        JUSTLOG("API server starting on port: %u", api_port);
     }
 
     if (SDLNet_Init() < 0)
@@ -220,7 +225,7 @@ int api_init_server()
  *
  * @param err A null-terminated string representing the error message to be sent.
  */
-static void api_err(const char *err)
+static void api_err(const char *err, VALUE *ack_id)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -232,6 +237,13 @@ static void api_err(const char *err)
     VALUE json_root_real;
     VALUE *json_root = &json_root_real;
     value_init_dict(json_root);
+
+    // Add ack ID
+    if (ack_id != NULL)
+    {
+        VALUE *val_ack = value_dict_add(json_root, "ack");
+        *val_ack = *ack_id;
+    }
 
     // Create success key
     VALUE *val_success = value_dict_add(json_root, "success");
@@ -249,7 +261,6 @@ static void api_err(const char *err)
     *dump_state.out = 0;
     if (json_dump_return_value != 0)
     {
-        api_err("FAILED_TO_CREATE_JSON");
         value_fini(json_root);
         return;
     }
@@ -269,7 +280,7 @@ static void api_err(const char *err)
  * This function sends a success message to the API client over the active socket.
  * If the API server is not active, this function does nothing.
  */
-static void api_ok()
+static void api_ok(VALUE *ack_id)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -277,9 +288,47 @@ static void api_ok()
         return;
     }
 
-    // We can simply send back this data as a string without using JSON functions.
-    const char msg[] = "{\"success\":true}\n";
-    SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
+    // Check if we can send a success message without an ack
+    if (ack_id == NULL)
+    {
+        // We can send it directly without using JSON functions here
+        const char msg[] = "{\"success\":true}\n";
+        SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
+        return;
+    }
+
+    // Create JSON response object
+    VALUE json_root_real;
+    VALUE *json_root = &json_root_real;
+    value_init_dict(json_root);
+
+    // Add ack
+    VALUE *val_ack = value_dict_add(json_root, "ack");
+    *val_ack = *ack_id;
+
+    // Create success key
+    VALUE *val_success = value_dict_add(json_root, "success");
+    value_init_bool(val_success, true);
+
+    // Create JSON response
+    char json_string[1024];
+    struct dump_buf_state dump_state = {json_string, sizeof(json_string) - 1};
+    int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
+
+    *dump_state.out = 0;
+    if (json_dump_return_value != 0)
+    {
+        value_fini(json_root);
+        return;
+    }
+
+    // Add newline to end of data
+    dump_state.out[0] = '\n';
+    dump_state.out++;
+
+    // Send data to client
+    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    value_fini(json_root);
 }
 
 /**
@@ -292,7 +341,7 @@ static void api_ok()
  * @param value The value to be returned to the API client.
  *              Ownership is transferred to this function.
  */
-static void api_return_data(TbBool success, VALUE value)
+static void api_return_data(TbBool success, VALUE value, VALUE *ack_id)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -304,6 +353,13 @@ static void api_return_data(TbBool success, VALUE value)
     VALUE json_root_real;
     VALUE *json_root = &json_root_real;
     value_init_dict(json_root);
+
+    // Add ack ID
+    if (ack_id != NULL)
+    {
+        VALUE *val_ack = value_dict_add(json_root, "ack");
+        *val_ack = *ack_id;
+    }
 
     // Create success key
     VALUE *val_success = value_dict_add(json_root, "success");
@@ -321,7 +377,7 @@ static void api_return_data(TbBool success, VALUE value)
     *dump_state.out = 0;
     if (json_dump_return_value != 0)
     {
-        api_err("FAILED_TO_CREATE_JSON");
+        api_err("FAILED_TO_CREATE_JSON", ack_id);
         value_fini(json_root);
         return;
     }
@@ -352,7 +408,7 @@ static void api_return_data(TbBool success, VALUE value)
 //     }
 
 //     // Create value to send back
-//     VALUE dataValue, *value = &dataValue;
+//     VALUE dataValue, *value = &json_dataValue;
 //     value_init_string(value, data);
 
 //     // Send the data
@@ -400,7 +456,6 @@ void api_return_var_update(PlayerNumber plyr_idx, const char *var_name, long val
     *dump_state.out = 0;
     if (json_dump_return_value != 0)
     {
-        api_err("FAILED_TO_CREATE_JSON");
         value_fini(json_root);
         return;
     }
@@ -424,7 +479,7 @@ void api_return_var_update(PlayerNumber plyr_idx, const char *var_name, long val
  *
  * @param data The long integer data to be sent to the API client.
  */
-static void api_return_data_number(long data)
+static void api_return_data_number(long data, VALUE *ack_id)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -432,10 +487,79 @@ static void api_return_data_number(long data)
         return;
     }
 
-    // Send back the JSON as a string. A number should never be able to break the syntax.
-    char buf[256];
-    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":%ld}\n", data);
-    SDLNet_TCP_Send(api.activeSocket, buf, len);
+    // Check if we can send a success message without an ack
+    if (ack_id == NULL)
+    {
+        // Send back the JSON as a string. A number should never be able to break the syntax.
+        char buf[256];
+        int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":%ld}\n", data);
+        SDLNet_TCP_Send(api.activeSocket, buf, len);
+        return;
+    }
+
+    // Create JSON response object
+    VALUE json_root_real;
+    VALUE *json_root = &json_root_real;
+    value_init_dict(json_root);
+
+    // Add ack
+    VALUE *val_ack = value_dict_add(json_root, "ack");
+    *val_ack = *ack_id;
+
+    // Create success key
+    VALUE *val_success = value_dict_add(json_root, "success");
+    value_init_bool(val_success, true);
+
+    // Create success key
+    VALUE *val_data = value_dict_add(json_root, "data");
+    value_init_int32(val_data, data);
+
+    // Create JSON response
+    char json_string[1024];
+    struct dump_buf_state dump_state = {json_string, sizeof(json_string) - 1};
+    int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
+
+    *dump_state.out = 0;
+    if (json_dump_return_value != 0)
+    {
+        value_fini(json_root);
+        return;
+    }
+
+    // Add newline to end of data
+    dump_state.out[0] = '\n';
+    dump_state.out++;
+
+    // Send data to client
+    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    value_fini(json_root);
+}
+
+void api_clear_all_subscriptions()
+{
+    if (api_sub_count == 0)
+    {
+        return;
+    }
+
+    // Loop trough all subscriptions
+    // We don't exit the loop earlier just incase
+    // This way this function also works as a full subscription list refresh
+    for (int i = 0; i < API_SUBSCRIBE_LIST_SIZE; i++)
+    {
+        // If this subscription slot is inactive we can skip it
+        if (api_subscriptions[i].type == API_SUBSCRIBE_INACTIVE)
+        {
+            continue;
+        }
+
+        // Set type as inactive and clear all data
+        api_subscriptions[i].type = API_SUBSCRIBE_INACTIVE;
+        memset(api_subscriptions[i].event, 0, sizeof(api_subscriptions[i].event));
+        memset(&api_subscriptions[i].var, 0, sizeof(struct SubscribedVariable));
+    }
+
+    api_sub_count = 0;
 }
 
 int api_is_subscribed_to_event(const char *event_name)
@@ -542,7 +666,7 @@ int api_unsubscribe_event(const char *event_name)
     return false;
 }
 
-int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     // Look up if we are subscribed to updates of this variable
     int api_sub_found_count = 0;
@@ -581,7 +705,7 @@ int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, unsig
     return false;
 }
 
-int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char valtype, unsigned char validx)
+int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char valtype, short validx)
 {
     JUSTLOG("Sub: %d, %d, %d", plyr_idx, valtype, validx);
 
@@ -624,7 +748,7 @@ int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char
     return false;
 }
 
-int api_unsubscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+int api_unsubscribe_var(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     // First make sure we are actually subscribed to this var
     if (api_is_subscribed_to_var(plyr_idx, valtype, validx) == false)
@@ -753,7 +877,14 @@ void api_event(const char *event_name)
  */
 static void api_process_buffer(const char *buffer, size_t buf_size)
 {
-    VALUE data, *value = &data;
+    // Acknowledgement ID
+    // This is used to link a response to a request.
+    // The Ack ID should be sent back exactly like the client sent it.
+    // It is useful because some clients handle our packets out of order or in very different scopes.
+    VALUE *ack_id;
+
+    // Values for the data of the buffer
+    VALUE json_data, *value = &json_data;
 
     // Handle closing null byte
     if (buffer[buf_size - 1] == 0)
@@ -764,7 +895,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     // Check if something is actually sent
     if (strlen(buffer) < 1)
     {
-        api_err("NO_JSON");
+        api_err("NO_JSON", NULL);
         return;
     }
 
@@ -772,24 +903,27 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     int ret = json_dom_parse(buffer, buf_size, NULL, 0, value, NULL);
     if (ret != 0)
     {
-        api_err("INVALID_JSON");
+        api_err("INVALID_JSON", NULL);
         return;
     }
 
     // Make sure we have a json object
     if (value_type(value) != VALUE_DICT)
     {
-        api_err("INVALID_JSON_OBJECT");
-        value_fini(&data);
+        api_err("INVALID_JSON_OBJECT", NULL);
+        value_fini(&json_data);
         return;
     }
+
+    // Get ack ID of the packet
+    ack_id = value_dict_get(value, "ack");
 
     // Get the action the user wants to do
     const char *action = value_string(value_dict_get(value, "action"));
     if (action == NULL)
     {
-        api_err("MISSING_ACTION");
-        value_fini(&data);
+        api_err("MISSING_ACTION", ack_id);
+        value_fini(&json_data);
         return;
     }
 
@@ -822,10 +956,10 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         value_init_string(value_dict_add(data_kfx_info, "kfx_version"), VER_STRING);
 
         // Return data to client
-        api_return_data(true, data_kfx_info_real);
+        api_return_data(true, data_kfx_info_real, ack_id);
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -836,32 +970,32 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         const char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
-            api_err("MISSING_VAR");
-            value_fini(&data);
+            api_err("MISSING_VAR", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Recognize variable
-        long variable_id, variable_type;
-        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        int32_t variable_id, variable_type;
+        if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
-            api_err("UNKNOWN_VAR");
-            value_fini(&data);
+            api_err("UNKNOWN_VAR", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Try to subscribe to the variable
         if (api_subscribe_var(player_id, variable_name, variable_type, variable_id))
         {
-            api_ok();
+            api_ok(ack_id);
         }
         else
         {
-            api_err("SUB_FAILED");
+            api_err("SUB_FAILED", ack_id);
         }
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -872,32 +1006,32 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
-            api_err("MISSING_VAR");
-            value_fini(&data);
+            api_err("MISSING_VAR", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Recognize variable
-        long variable_id, variable_type;
-        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        int32_t variable_id, variable_type;
+        if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
-            api_err("UNKNOWN_VAR");
-            value_fini(&data);
+            api_err("UNKNOWN_VAR", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Try to subscribe to the variable
         if (api_unsubscribe_var(player_id, variable_type, variable_id))
         {
-            api_ok();
+            api_ok(ack_id);
         }
         else
         {
-            api_err("SUB_FAILED");
+            api_err("SUB_FAILED", ack_id);
         }
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -908,31 +1042,31 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *event_name = (char *)value_string(value_dict_get(value, "event"));
         if (event_name == NULL || strlen(event_name) < 1)
         {
-            api_err("MISSING_EVENT");
-            value_fini(&data);
+            api_err("MISSING_EVENT", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Make sure event name is not too long
         if (strlen(event_name) > COMMAND_WORD_LEN)
         {
-            api_err("STRING_TOO_LONG");
-            value_fini(&data);
+            api_err("STRING_TOO_LONG", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Try to subscribe to the variable
         if (api_subscribe_event(event_name))
         {
-            api_ok();
+            api_ok(ack_id);
         }
         else
         {
-            api_err("SUB_FAILED");
+            api_err("SUB_FAILED", ack_id);
         }
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -943,23 +1077,35 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *event_name = (char *)value_string(value_dict_get(value, "event"));
         if (event_name == NULL || strlen(event_name) < 1)
         {
-            api_err("MISSING_EVENT");
-            value_fini(&data);
+            api_err("MISSING_EVENT", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Try to subscribe to the variable
         if (api_unsubscribe_event(event_name))
         {
-            api_ok();
+            api_ok(ack_id);
         }
         else
         {
-            api_err("SUB_FAILED");
+            api_err("SUB_FAILED", ack_id);
         }
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
+        return;
+    }
+
+    // Handle unsubscribe all
+    if (strcasecmp("unsubscribe_all", action) == 0)
+    {
+        // Unsubscribe from every subscriptions
+        api_clear_all_subscriptions();
+        api_ok(ack_id);
+
+        // End
+        value_fini(&json_data);
         return;
     }
 
@@ -970,8 +1116,8 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     // At this point our game needs to be a LOCAL game before we do anything
     if (game.game_kind != GKind_LocalGame)
     {
-        api_err("NOT_IN_LOCAL_GAME");
-        value_fini(&data);
+        api_err("NOT_IN_LOCAL_GAME", ack_id);
+        value_fini(&json_data);
         return;
     }
 
@@ -981,8 +1127,8 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         // Do not allow this command when the game is paused
         if ((game.operation_flags & GOF_Paused) != 0)
         {
-            api_err("GAME_IS_PAUSED");
-            value_fini(&data);
+            api_err("GAME_IS_PAUSED", ack_id);
+            value_fini(&json_data);
             return;
         }
 
@@ -990,23 +1136,23 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *map_command = (char *)value_string(value_dict_get(value, "command"));
         if (map_command == NULL)
         {
-            api_err("MISSING_COMMAND");
-            value_fini(&data);
+            api_err("MISSING_COMMAND", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Execute map command
         if (script_scan_line(map_command, false, 99)) // Maximum level of a command support
         {
-            api_ok();
+            api_ok(ack_id);
         }
         else
         {
-            api_err("FAILED_TO_EXECUTE_MAP_COMMAND");
+            api_err("FAILED_TO_EXECUTE_MAP_COMMAND", ack_id);
         }
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -1016,8 +1162,8 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         // Do not allow this command when the game is paused
         if ((game.operation_flags & GOF_Paused) != 0)
         {
-            api_err("GAME_IS_PAUSED");
-            value_fini(&data);
+            api_err("GAME_IS_PAUSED", ack_id);
+            value_fini(&json_data);
             return;
         }
 
@@ -1025,8 +1171,8 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *console_command = (char *)value_string(value_dict_get(value, "command"));
         if (console_command == NULL || strlen(console_command) < 1)
         {
-            api_err("MISSING_COMMAND");
-            value_fini(&data);
+            api_err("MISSING_COMMAND", ack_id);
+            value_fini(&json_data);
             return;
         }
 
@@ -1039,15 +1185,15 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         // Execute console command
         if (cmd_exec(player_id, console_command))
         {
-            api_ok();
+            api_ok(ack_id);
         }
         else
         {
-            api_err("FAILED_TO_EXECUTE_CONSOLE_COMMAND");
+            api_err("FAILED_TO_EXECUTE_CONSOLE_COMMAND", ack_id);
         }
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -1066,7 +1212,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
             VALUE *player_info = value_dict_add(flag_data, player_code_name(player_index));
             value_init_dict(player_info);
 
-            for (int flag_index = 0; flag_index < get_max_flags(); flag_index++)
+            for (size_t flag_index = 0; flag_index < get_max_flags(); flag_index++)
             {
                 // Get flag value
                 long flag_value = get_condition_value(player_id, SVar_FLAG, flag_index);
@@ -1078,10 +1224,10 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
 
         // Return data to client
-        api_return_data(true, flag_data_real);
+        api_return_data(true, flag_data_real, ack_id);
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -1092,17 +1238,17 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
-            api_err("MISSING_VAR");
-            value_fini(&data);
+            api_err("MISSING_VAR", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Recognize variable
-        long variable_id, variable_type;
-        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        int32_t variable_id, variable_type;
+        if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
-            api_err("UNKNOWN_VAR");
-            value_fini(&data);
+            api_err("UNKNOWN_VAR", ack_id);
+            value_fini(&json_data);
             return;
         }
 
@@ -1110,10 +1256,10 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         long variable_value = get_condition_value(player_id, variable_type, variable_id);
 
         // Return the variable to the user
-        api_return_data_number(variable_value);
+        api_return_data_number(variable_value, ack_id);
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -1124,17 +1270,17 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
-            api_err("MISSING_VAR");
-            value_fini(&data);
+            api_err("MISSING_VAR", ack_id);
+            value_fini(&json_data);
             return;
         }
 
         // Recognize variable
-        long variable_id, variable_type;
-        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        int32_t variable_id, variable_type;
+        if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
-            api_err("UNKNOWN_VAR");
-            value_fini(&data);
+            api_err("UNKNOWN_VAR", ack_id);
+            value_fini(&json_data);
             return;
         }
 
@@ -1143,11 +1289,12 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
             variable_type != SVar_FLAG &&
             variable_type != SVar_CAMPAIGN_FLAG &&
             variable_type != SVar_BOX_ACTIVATED &&
+            variable_type != SVar_TRAP_ACTIVATED &&
             variable_type != SVar_SACRIFICED &&
             variable_type != SVar_REWARDED)
         {
-            api_err("UNABLE_TO_SET_VAR");
-            value_fini(&data);
+            api_err("UNABLE_TO_SET_VAR", ack_id);
+            value_fini(&json_data);
             return;
         }
 
@@ -1155,8 +1302,8 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         VALUE *new_value = value_dict_get(value, "value");
         if (new_value == NULL || value_type(new_value) != VALUE_INT32)
         {
-            api_err("VALUE_MUST_BE_INT");
-            value_fini(&data);
+            api_err("VALUE_MUST_BE_INT", ack_id);
+            value_fini(&json_data);
             return;
         }
 
@@ -1164,10 +1311,10 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         set_variable(player_id, variable_type, variable_id, value_int32(new_value));
 
         // Return success
-        api_ok();
+        api_ok(ack_id);
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -1218,10 +1365,10 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         value_init_bool(value_dict_add(data_campaign_info, "is_map_pack"), is_map_pack());
 
         // Return data to client
-        api_return_data(true, data_level_info_real);
+        api_return_data(true, data_level_info_real, ack_id);
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
@@ -1237,17 +1384,68 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         value_init_int32(value_dict_add(data_current_game_info, "game_turn"), get_gameturn());
 
         // Return data to client
-        api_return_data(true, data_current_game_info_real);
+        api_return_data(true, data_current_game_info_real, ack_id);
 
         // End
-        value_fini(&data);
+        value_fini(&json_data);
         return;
     }
 
     // Return unknown action
     // TODO: we should do this check before...
-    api_err("UNKNOWN_ACTION");
-    value_fini(&data);
+    api_err("UNKNOWN_ACTION", ack_id);
+    value_fini(&json_data);
+}
+
+/**
+ * Processes a buffer containing concatenated JSON objects, extracting and
+ * processing each valid JSON object individually.
+ *
+ * @param buffer Pointer to the buffer containing concatenated JSON data.
+ * @param buf_size Size of the buffer in bytes.
+ */
+void api_process_multipart_json(const char *buffer, int buf_size)
+{
+    int start = -1;
+    int depth = 0;
+
+    for (int i = 0; i < buf_size; ++i)
+    {
+        if (buffer[i] == '{')
+        {
+            if (depth == 0)
+            {
+                start = i; // Start of a new JSON object
+            }
+            depth++;
+        }
+        else if (buffer[i] == '}')
+        {
+            depth--;
+            if (depth == 0 && start != -1)
+            {
+                // Extract the JSON object from buffer[start] to buffer[i+1]
+                int json_length = i - start + 1;
+                //char json_string[json_length + 1]; // +1 for null terminator
+                char* json_string = (char*)malloc((json_length + 1) * sizeof(char));
+                if (!json_string) return;
+                strncpy(json_string, buffer + start, json_length);
+                json_string[json_length] = '\0';
+
+                // Process the extracted JSON object
+                JUSTLOG("Received message from client: %s", json_string);
+                api_process_buffer(json_string, json_length);
+                free(json_string);
+                // Reset start to look for the next JSON object
+                start = -1;
+            }
+        }
+    }
+
+    if (depth > 0)
+    {
+        api_err("INVALID_JSON_IN_PACKET", NULL);
+    }
 }
 
 /**
@@ -1321,15 +1519,16 @@ void api_update_server()
                         buffer[strlen(buffer) - 1] = '\0';
                     }
 
-                    JUSTLOG("Received message from client: %s", buffer);
-                    api_process_buffer(buffer, received);
+                    // Process all JSON objects in the buffer
+                    api_process_multipart_json(buffer, strlen(buffer));
                 }
                 else
                 {
-                    WARNLOG("API connection closed");
+                    api_clear_all_subscriptions();
                     SDLNet_TCP_DelSocket(api.socketSet, api.activeSocket);
                     SDLNet_TCP_Close(api.activeSocket);
                     api.activeSocket = 0;
+                    JUSTLOG("API connection closed");
                 }
 
                 // Clear buffer
@@ -1351,7 +1550,10 @@ void api_update_server()
  */
 void api_close_server()
 {
-    JUSTLOG("API server stopped listening to messages");
+    api_clear_all_subscriptions();
+
+    JUSTLOG("API server closing");
+
     if (api.socketSet)
     {
         SDLNet_FreeSocketSet(api.socketSet);

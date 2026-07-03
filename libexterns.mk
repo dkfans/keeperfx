@@ -43,7 +43,7 @@ sdl/lib/libSDL2main.a: sdl/$(SDL_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	# Grep is used to remove bogus error messages, return state of tar is also ignored
 	-cd "$(<D)"; \
-	tar --strip-components=2 -zxmUf "$(<F)" SDL2-2.28.5/i686-w64-mingw32/bin SDL2-2.28.5/i686-w64-mingw32/include SDL2-2.28.5/i686-w64-mingw32/lib SDL2-2.28.5/i686-w64-mingw32/share 2>&1 | \
+	tar --strip-components=2 -zxmUf "$(<F)" SDL2-2.30.7/i686-w64-mingw32/bin SDL2-2.30.7/i686-w64-mingw32/include SDL2-2.30.7/i686-w64-mingw32/lib SDL2-2.30.7/i686-w64-mingw32/share 2>&1 | \
 	grep -v '^.*: Archive value .* is out of .* range.*$$'
 	$(CP) sdl/bin/SDL2.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
@@ -68,14 +68,14 @@ endif
 
 ifneq (,$(findstring .tar.gz,$(SDL_NET_PACKAGE)))
 
-libsdlnet: sdl/lib/libSDL2_net.lib
+libsdlnet: sdl/lib/libSDL2_net.dll.a
 
-sdl/lib/libSDL2_net.lib: sdl/$(SDL_NET_PACKAGE)
+sdl/lib/libSDL2_net.dll.a: sdl/$(SDL_NET_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) sdl/lib sdl/include/SDL2
 	cd "$(<D)"; \
 	tar -xzf "$(<F)"
-	$(MV) sdl/SDL2_net-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
+	$(CP) sdl/SDL2_net-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
 	$(CP) -r sdl/SDL2_net-*/$(ARCH)/lib/* sdl/lib/
 	$(CP) sdl/SDL2_net-*/$(ARCH)/bin/SDL2_net.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
@@ -119,14 +119,14 @@ endif
 
 ifneq (,$(findstring .tar.gz,$(SDL_MIXER_PACKAGE)))
 
-libsdlmixer: sdl/lib/libSDL2_mixer.lib
+libsdlmixer: sdl/lib/libSDL2_mixer.dll.a
 
-sdl/lib/libSDL2_mixer.lib: sdl/$(SDL_MIXER_PACKAGE)
+sdl/lib/libSDL2_mixer.dll.a: sdl/$(SDL_MIXER_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) sdl/lib sdl/include/SDL2
 	cd "$(<D)"; \
 	tar -xzf "$(<F)"
-	$(MV) sdl/SDL2_mixer-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
+	$(CP) sdl/SDL2_mixer-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
 	$(CP) -r sdl/SDL2_mixer-*/$(ARCH)/lib/* sdl/lib/
 	$(CP) sdl/SDL2_mixer-*/$(ARCH)/bin/SDL2_mixer.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
@@ -170,14 +170,14 @@ endif
 
 ifneq (,$(findstring .tar.gz,$(SDL_IMAGE_PACKAGE)))
 
-libsdlimage: sdl/lib/libSDL2_image.lib
+libsdlimage: sdl/lib/libSDL2_image.dll.a
 
-sdl/lib/libSDL2_image.lib: sdl/$(SDL_IMAGE_PACKAGE)
+sdl/lib/libSDL2_image.dll.a: sdl/$(SDL_IMAGE_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) sdl/lib sdl/include/SDL2
 	cd "$(<D)"; \
 	tar -xzf "$(<F)"
-	$(MV) sdl/SDL2_image-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
+	$(CP) sdl/SDL2_image-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
 	$(CP) -r sdl/SDL2_image-*/$(ARCH)/lib/* sdl/lib/
 	$(CP) sdl/SDL2_image-*/$(ARCH)/bin/SDL2_image.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'

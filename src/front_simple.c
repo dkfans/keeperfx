@@ -23,7 +23,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
@@ -148,14 +147,14 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
     for (sh = 0; sh < sph; sh++)
     {
         dst = dst_buf + (sh)*scanline;
-        LbMemorySet(dst, 0, scanline);
+        memset(dst, 0, scanline);
   }
   // Clearing bottom of the canvas
   // (Note: it must be done before drawing, to make sure we won't overwrite last line)
   for (sh=sph+dst_height; sh<nlines; sh++)
   {
       dst = dst_buf + (sh)*scanline;
-      LbMemorySet(dst, 0, scanline);
+      memset(dst, 0, scanline);
   }
   // Now drawing
   int dhstart = sph;
@@ -171,7 +170,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
           dst = dst_buf + (dhstart+k)*scanline;
           int dwstart = spw;
           if (dwstart > 0) {
-              LbMemorySet(dst, 0, dwstart);
+              memset(dst, 0, dwstart);
           }
           for (sw=0; sw<src_width; sw++)
           {
@@ -186,7 +185,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
               dwstart = dwend;
           }
           if (dwstart < scanline) {
-              LbMemorySet(dst+dwstart, 0, scanline-dwstart);
+              memset(dst+dwstart, 0, scanline-dwstart);
           }
       }
       dhstart = dhend;
@@ -197,13 +196,13 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
 /**
  * Copies the given RAW image to the center of the screen buffer and swaps video
  * buffers to make the image visible.
- * 
+ *
  * This function will also scale the image while maintaing its aspect ratio.
- * 
+ *
  * @param buf Pointer to the RAW image data.
  * @param img_width Width of the RAW image.
  * @param img_height Height of the RAW image.
- * 
+ *
  * @return Returns true if the operation succeeds.
  */
 TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_width, const int img_height)
@@ -268,7 +267,7 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
         tmdelta = 10;
     while (LbTimerClock() < end_time)
     {
-        LbWindowsControl();
+        poll_inputs();
         copy_raw8_image_to_screen_center(raw, width, height);
         if (is_key_pressed(KC_SPACE, KMod_DONTCARE)
          || is_key_pressed(KC_ESCAPE, KMod_DONTCARE)
@@ -292,7 +291,7 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
  */
 short clear_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
-  LbMemorySet(actv_bmp, 0, sizeof(struct ActiveBitmap));
+  memset(actv_bmp, 0, sizeof(struct ActiveBitmap));
   return true;
 }
 
@@ -302,8 +301,8 @@ short clear_bitmap_screen(struct ActiveBitmap *actv_bmp)
  */
 short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
-  LbMemoryFree(actv_bmp->raw_data);
-  LbMemoryFree(actv_bmp->pal_data);
+  free(actv_bmp->raw_data);
+  free(actv_bmp->pal_data);
   return clear_bitmap_screen(actv_bmp);
 }
 
@@ -331,7 +330,7 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   actv_bmp->start_tm = LbTimerClock();
   SYNCDBG(18,"Starting; src %d,%d bpp %d",(int)actv_bmp->width,(int)actv_bmp->height,(int)actv_bmp->bpp);
   // Load PAL
-  long ldsize = PALETTE_SIZE;
+  int32_t ldsize = PALETTE_SIZE;
   unsigned char* buf = load_data_file_to_buffer(&ldsize, rbmp->fgroup, rbmp->pal_fname);
   if (buf == NULL)
   {
@@ -346,7 +345,7 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   if (buf == NULL)
   {
     ERRORLOG("Couldn't load raw bitmap file for %s screen",rbmp->name);
-    LbMemoryFree(actv_bmp->pal_data);
+    free(actv_bmp->pal_data);
     clear_bitmap_screen(actv_bmp);
     return false;
   }
@@ -430,15 +429,6 @@ TbBool free_actv_bitmap_screen(void)
 }
 
 /**
- * Draws active bitmap on screen using static struct.
- * @return Returns true on success.
- */
-TbBool draw_actv_bitmap_screen(void)
-{
-  return draw_bitmap_screen(&astd_bmp);
-}
-
-/**
  * Shows active bitmap screen from static struct for specific time.
  * @return Returns true on success.
  */
@@ -455,8 +445,6 @@ TbBool show_actv_bitmap_screen(TbClockMSec tmdelay)
 TbBool display_loading_screen(void)
 {
     draw_clear_screen();
-    if (!wait_for_cd_to_be_available())
-      return false;
     TbBool done = init_bitmap_screen(&astd_bmp, RBmp_WaitLoading);
     if (done)
     {
@@ -469,19 +457,19 @@ TbBool display_loading_screen(void)
     return done;
 }
 
-TbBool wait_for_cd_to_be_available(void)
+TbBool wait_for_installation_files(void)
 {
   char ffullpath[2048];
   short was_locked = LbScreenIsLocked();
-  prepare_file_path_buf(ffullpath,FGrp_LoData,"lndflag_ens.dat");
+  prepare_file_path_buf(ffullpath, sizeof(ffullpath), FGrp_StdData, "bluepal.dat");
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )
     LbScreenUnlock();
-  SYNCMSG("CD not found in drive, waiting");
+  SYNCMSG("Installation file not found, waiting");
   if (!init_bitmap_screen(&nocd_bmp,RBmp_WaitNoCD))
   {
-      ERRORLOG("Unable to display CD wait monit");
+      ERRORLOG("Unable to display CD wait splash");
       return false;
   }
   draw_bitmap_screen(&nocd_bmp);
@@ -495,16 +483,17 @@ TbBool wait_for_cd_to_be_available(void)
         redraw_bitmap_screen(&nocd_bmp);
         do
         {
-            if (!LbWindowsControl())
+            if (!poll_inputs())
                 exit_keeper = 1;
             if ((exit_keeper) || (quit_game))
               break;
         } while (!LbIsActive());
-        if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE))
+        if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE) || is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
         {
           ERRORLOG("User requested quit, giving up");
           clear_key_pressed(KC_Q);
           clear_key_pressed(KC_X);
+          clear_key_pressed(KC_ESCAPE);
           exit_keeper = 1;
           break;
         }
@@ -512,95 +501,17 @@ TbBool wait_for_cd_to_be_available(void)
       }
       // One 'counter' cycle lasts approx. 1 second.
       counter++;
-      if (counter>300)
+      if (counter > 5)
       {
           ERRORLOG("Wait time too long, giving up");
           exit_keeper = 1;
       }
   }
-  SYNCMSG("Finished waiting for CD after %lu seconds",counter);
+  SYNCMSG("Finished waiting for installation after %lu seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
     LbScreenLock();
   return (!exit_keeper);
-}
-
-/** Displays centered message; for logging errors.
- *  Deprecated - will be removed sooner or later; there are now menus for displaying such messages, both in menu and in game.
- *
- * @param showTime
- * @param text
- * @return
- */
-TbBool display_centered_message(long showTime, char *text)
-{
-    TbClockMSec tmEnd = LbTimerClock() + showTime;
-    long tmDelta = showTime / 10;
-    if (tmDelta < 10)
-        tmDelta = 10;
-    if (tmDelta > 250)
-        tmDelta = 100;
-    TbBool was_locked = LbScreenIsLocked();
-    if (was_locked)
-        LbScreenUnlock();
-    TbBool finish = false;
-    while (!finish)
-    {
-        // Redraw screen
-        if (LbScreenLock() == Lb_SUCCESS)
-        {
-            draw_text_box(text);
-            LbScreenUnlock();
-        }
-        LbScreenSwap();
-        // Check if the window is active
-        do
-        {
-            if (!LbWindowsControl())
-                exit_keeper = 1;
-            if ((exit_keeper) || (quit_game))
-            {
-                finish = true;
-                break;
-            }
-        } while (!LbIsActive());
-        // Process inputs
-        update_mouse();
-        update_key_modifiers();
-        if (is_key_pressed(KC_Q, KMod_DONTCARE) || is_key_pressed(KC_X, KMod_DONTCARE))
-        {
-            ERRORLOG("User requested quit, giving up");
-            clear_key_pressed(KC_Q);
-            clear_key_pressed(KC_X);
-            exit_keeper = 1;
-            finish = true;
-            break;
-        }
-        if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE) || is_key_pressed(KC_RETURN, KMod_DONTCARE) || is_key_pressed(KC_SPACE, KMod_DONTCARE))
-        {
-            clear_key_pressed(KC_ESCAPE);
-            clear_key_pressed(KC_RETURN);
-            clear_key_pressed(KC_SPACE);
-            finish = true;
-            break;
-        }
-        if (left_button_clicked || right_button_clicked)
-        {
-            left_button_clicked = 0;
-            right_button_clicked = 0;
-            finish = true;
-            break;
-        }
-        // Make delay and check if we should end
-        LbSleepFor(tmDelta);
-        if (LbTimerClock() > tmEnd)
-        {
-            finish = true;
-        }
-  }
-  if ( was_locked )
-    LbScreenLock();
-  return true;
 }
 
 /******************************************************************************/

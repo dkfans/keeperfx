@@ -84,7 +84,7 @@ REM AI has extra Lightning, but no Call to Arms.
     MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HOLD_AUDIENCE,1,0)
     MAGIC_AVAILABLE(PLAYER1,POWER_DESTROY_WALLS,1,0)
     MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CHICKEN,1,0)
-    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,0)
+    MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
     MAGIC_AVAILABLE(PLAYER0,POWER_SIGHT,1,0)
     MAGIC_AVAILABLE(PLAYER1,POWER_LIGHTNING,1,0)
     MAGIC_AVAILABLE(PLAYER1,POWER_DISEASE,1,0)
@@ -159,7 +159,7 @@ REM I removed the graveyard from the map. Keeper's vampires are way too strong f
 	ENDIF
 ENDIF
 
-REM White flies will keep harrassing you, like, forever. Build a lair on the way?
+REM Hero/Good flies will keep harrassing you, like, forever. Build a lair on the way?
 REM ACtually, it's probably the only way to manage the attacks without training room.
 REM And building guardpost at river separating you from AI won't quite work because secret passes.
 IF(PLAYER_GOOD,TIMER5 >= 500)

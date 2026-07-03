@@ -61,6 +61,11 @@ enum roomspace_directions {
     bottom_left_to_top_right = 3,
 };
 
+enum DigTagMode {
+    DigTagMode_Tag = 1,
+    DigTagMode_Untag = 2,
+};
+
 // RoomSpace describes a space or "roomspace" - i.e. a collection of slabs that are a valid
 // location from the currently selected room type (when placing rooms).
 // The 2D array of booleans, slab_grid[][] describes each of the slabs within
@@ -83,10 +88,9 @@ struct RoomSpace {
     int invalid_slabs_count;
     PlayerNumber plyr_idx;
     RoomKind rkind;
-	  TbBool is_roomspace_a_single_subtile;
-
-	  MapSlabCoord buildx, buildy;
-	  TbBool is_active;
+    TbBool is_roomspace_a_single_subtile;
+    MapSlabCoord buildx, buildy;
+    TbBool is_active;
     TbBool render_roomspace_as_box;
     TbBool tag_for_dig;
     TbBool highlight_mode;
@@ -99,12 +103,15 @@ struct RoomSpace {
     TbBool drag_mode;
     unsigned char drag_direction;
 };
+struct PlayerInfo;
+struct Packet;
 /******************************************************************************/
 /******************************************************************************/
 int calc_distance_from_roomspace_centre(int total_distance, TbBool offset);
 
 struct RoomSpace create_box_roomspace(struct RoomSpace roomspace, int width,
 int height, int centre_x, int centre_y);
+struct RoomSpace check_roomspace_for_diggable_slabs(struct RoomSpace roomspace, PlayerNumber plyr_idx, const unsigned char *predicted_slab_tag_modes);
 
 int can_build_roomspace_of_dimensions(PlayerNumber plyr_idx, RoomKind rkind,
     MapSlabCoord slb_x, MapSlabCoord slb_y, int width, int height,
@@ -126,13 +133,17 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx,
                                                MapSlabCoord cursor_x, 
                                                MapSlabCoord cursor_y);
 
-void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const unsigned char *predicted_slab_tag_modes);
 
 void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode);
+TbBool update_dungeon_build_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool update_dungeon_sell_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packet *pckt);
 
-void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction);
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
+int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, int *predicted_task_count);
 void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 

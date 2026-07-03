@@ -50,6 +50,7 @@ TbBool creature_free_for_anger_job(struct Thing *thing);
 TbBool creature_find_and_perform_anger_job(struct Thing *thing);
 TbBool attempt_job_preference(struct Thing *creatng, long jobpref);
 TbBool creature_try_doing_secondary_job(struct Thing *creatng);
+TbBool creature_will_reject_job(const struct Thing* creatng, CreatureJob jobpref);
 
 // Assigning jobs by making creature go to the workplace, or dropping the creature at it
 TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job, unsigned long flags);

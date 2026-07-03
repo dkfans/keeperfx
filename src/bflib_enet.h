@@ -15,7 +15,34 @@
 #ifndef GIT_BFLIB_ENET_H
 #define GIT_BFLIB_ENET_H
 
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define ENET_DEFAULT_PORT 5556
+
+enum {
+    ENET_CHANNEL_RELIABLE = 0,
+    ENET_CHANNEL_UNSEQUENCED = 1
+};
+
 struct NetSP;
 struct NetSP* InitEnetSP();
+unsigned long GetPing(int id);
+unsigned int GetPacketLoss(int id);
+unsigned int GetClientDataInTransit();
+unsigned int GetClientPacketsLost();
+unsigned int GetUploadRateBytesPerSecond();
+unsigned int GetDownloadRateBytesPerSecond();
+void enet_matchmaking_host_update(void);
+extern uint16_t external_ipv4_port;
+extern int skip_holepunch;
+uint16_t enet_get_bound_ipv6_port(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //GIT_BFLIB_ENET_H

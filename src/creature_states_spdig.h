@@ -33,7 +33,6 @@ struct Thing;
 struct Room;
 #pragma pack()
 /******************************************************************************/
-TbBool creature_is_doing_digger_activity(const struct Thing* thing);
 short imp_arrives_at_convert_dungeon(struct Thing *thing);
 short imp_arrives_at_dig_or_mine(struct Thing *thing);
 short imp_arrives_at_improve_dungeon(struct Thing *thing);
@@ -63,6 +62,8 @@ TbBool creature_is_dragging_or_being_dragged(const struct Thing *thing);
 TbBool creature_drop_thing_to_another_room(struct Thing* thing, struct Room* skiproom, RoomRole rrole);
 TbBool set_creature_being_dragged_by(struct Thing *dragtng, struct Thing *thing);
 short creature_arms_trap_first_person(struct Thing *creatng);
+short creature_save_unconscious_creature(struct Thing *thing);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

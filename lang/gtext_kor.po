@@ -22,14 +22,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2020-11-19 16:22+0900\n"
+"PO-Revision-Date: 2025-10-15 18:43+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ko_KR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.8\n"
 
 #. Generic victory message
 #: guitext:0
@@ -50,7 +50,7 @@ msgstr "이건 메시지입니다. 마우스 오른쪽 단추 클릭으로 삭�
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-"mined out of the rock by his imps. To create a Treasure Room, select the "
+"mined out of the rock by his Imps. To create a Treasure Room, select the "
 "Treasure Room icon from the Rooms Panel and fill the empty area to the west "
 "with Treasure Room tiles."
 msgstr ""
@@ -109,7 +109,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"Lair. Lairs are where creatures rest and recover. The area your Imps just "
 "mined out would be an ideal spot for some creatures to lurk. Select the Lair "
 "icon from the Rooms Panel."
 msgstr ""
@@ -124,7 +124,7 @@ msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
 "map as flashing squares, until they are claimed. Creatures only use Portals "
-"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"claimed by a Keeper. Your Imps claim a Portal as soon as it connects to your "
 "dungeon."
 msgstr ""
 "포털과 북쪽을 연결하는 터널을 파세요. 포털은 점령될 때까지 지도에 깜박이는 사"
@@ -169,7 +169,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
 "other creatures will serve you unpaid."
 msgstr ""
 "아직 보물 창고를 짓지 않았습니다. 이 방을 짓기 전에는 어떤 피조물에게도 봉급"
@@ -206,8 +206,8 @@ msgstr ""
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
-"Imps fortify your walls to prevent intruders tunneling in. If you want to "
-"create more imps, go to the Research Panel, select the Imp icon and left "
+"Imps fortify your walls to prevent intruders tunnelling in. If you want to "
+"create more Imps, go to the Research Panel, select the Imp icon and left "
 "click anywhere in your dungeon. Each Imp you create costs more than the "
 "previous one."
 msgstr ""
@@ -253,7 +253,7 @@ msgstr ""
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
-"The Lord of the Land has arrived. I can smell his fear. Defeat him and the "
+"The Lord of the Land has arrived. I can smell his fear. Defeat him, and the "
 "realm is yours."
 msgstr ""
 "이 땅의 영주가 도착했습니다. 그의 공포심을 느낄 수 있어요. 그를 물리치면 왕국"
@@ -330,7 +330,7 @@ msgstr ""
 #: guitext:26
 msgctxt "In-game message"
 msgid ""
-"Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the "
+"Your plan proceeds smoothly, Keeper. Allow your Imps time to fortify the "
 "walls of your dungeon. This increases the efficiency of rooms and repels "
 "would-be invaders."
 msgstr ""
@@ -342,7 +342,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The Training Room attracts ever more ferocious creatures, such as Demon "
-"Spawn. Build it and they will come."
+"Spawn. Build it, and they will come."
 msgstr ""
 "훈련실은 데몬 스폰과 같은 더 사나운 생물들을 유혹합니다. 훈련소를 지으면 그들"
 "이 올 것입니다."
@@ -384,7 +384,7 @@ msgstr ""
 #: guitext:31
 msgctxt "In-game message"
 msgid ""
-"Harder the heroes may have been but they were obviously no match for your "
+"Harder the heroes may have been, but they were obviously no match for your "
 "forces."
 msgstr ""
 "영웅들이 전보다 더 강했을지 모르지만 분명히 당신네 부대에 상대가 되지 않았습"
@@ -447,7 +447,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "That's a fine collection of parchments and tomes you've assembled. Most "
-"creatures can engage in research but Warlocks make the best and keenest "
+"creatures can engage in research, but Warlocks make the best and keenest "
 "researchers. Stupid Trolls have trouble holding books the right way up and "
 "sometimes even chew the pages."
 msgstr ""
@@ -473,7 +473,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The first wave of attackers lie hacked to pieces on the floor and give your "
-"domain that lived in feeling but it surely won't be long before their kin "
+"domain that lived in feeling, but it surely won't be long before their kin "
 "launch another assault."
 msgstr ""
 "첫 번째 공격자들은 바닥에 산산조각 나뒹굴고 당신의 영역을 안정되었지만 그들"
@@ -530,7 +530,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Build up your dungeon with the rooms available to you and claim the Portal "
-"nearby but do not yet venture north. Powerful adversaries lurk there. It "
+"nearby, but do not yet venture north. Powerful adversaries lurk there. It "
 "would be wiser not to disturb them until you are prepared."
 msgstr ""
 "이용 가능한 방으로 던전을 구축하고 가까운 포탈을 점령했지만 아직 북쪽으로는 "
@@ -594,7 +594,7 @@ msgstr "길을 막는 용암의 강을 건너는 방법을 찾아야 합니다."
 msgctxt "In-game message"
 msgid ""
 "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
-"and administer the coup de grace."
+"and administer the coup de grâce."
 msgstr ""
 "적의 던전 하트가 당신 앞에 고동치고 있습니다. 근처의 수하인들을 모아 우아하"
 "게 처리하도록 하죠."
@@ -603,7 +603,7 @@ msgstr ""
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
-"A Troll has joined you. Skilled in the craft of manufacturing, trolls are "
+"A Troll has joined you. Skilled in the craft of manufacturing, Trolls are "
 "best employed doing dark deeds in your Workshop. They don't complain about "
 "the hours, because their labours keep them away from combat."
 msgstr ""
@@ -695,7 +695,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
-"unexplored area and it will be revealed to you for a moment."
+"unexplored area, and it will be revealed to you for a moment."
 msgstr ""
 "충실한 연구원들이 악마의 시야 주문을 완성했습니다. 미개척 지역에 캐스팅하면 "
 "잠시 동안 공개됩니다."
@@ -705,7 +705,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
-"your creatures subdue their foe, at which point your imps drag the bodies "
+"your creatures subdue their foe, at which point your Imps drag the bodies "
 "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
 "warriors for you to command."
 msgstr ""
@@ -740,7 +740,7 @@ msgstr ""
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
-"It's time to mete out the ultimate punishment to a keeper who dares to "
+"It's time to mete out the ultimate punishment to a Keeper who dares to "
 "challenge you for this corner of your subterranean empire. The price of "
 "failure shall be oblivion."
 msgstr ""
@@ -832,7 +832,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "An Orc warlord joins you and brings with him the plans for building a "
-"Barracks. In this room you can form creatures into teams."
+"Barracks. In this room, you can form creatures into teams."
 msgstr ""
 "오크 워로드가 병영 건설 계획을 가지고 당신에게 가세하였습니다. 병영에서는 피"
 "조물을 팀으로 구성할 수 있습니다."
@@ -952,7 +952,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll "
-"fail, because everything makes a Horned Reaper angry but at least try to "
+"fail, because everything makes a Horned Reaper angry, but at least try to "
 "make sure that everything near it is an enemy creature when it finally goes "
 "ballistic."
 msgstr ""
@@ -989,7 +989,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have researched the Graveyard. Your Imps will drag corpses here to "
-"rot... And possibly to rise again as Vampires, ready to do your bidding. "
+"rot... and possibly to rise again as Vampires, ready to do your bidding. "
 "That's style."
 msgstr ""
 "당신은 묘지에 대해 조사했습니다. 임프가 시체를 여기로 끌고와서 썩게 할 거예"
@@ -1007,8 +1007,8 @@ msgstr "철문을 제조했습니다. 가공할만한 성능의 장벽입니다.
 msgctxt "In-game message"
 msgid ""
 "Powerful creatures inhabit a cave south of here. There's a party of heroes "
-"between you and them but, if you reach them and convert them to your side "
-"before they join the other keepers, you will be unstoppable, unless you do "
+"between you and them, but, if you reach them and convert them to your side "
+"before they join the other Keepers, you will be unstoppable, unless you do "
 "something stupid."
 msgstr ""
 "남쪽 동굴에는 강력한 피조물이 살고 있습니다. 당신과 남쪽 피조물 사이에는 영웅"
@@ -1180,7 +1180,7 @@ msgstr ""
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
-"If lands had legs this one would be on its knees. Its desperate inhabitants "
+"If lands had legs, this one would be on its knees. Its desperate inhabitants "
 "are preparing a full scale attack on your dungeon. It will be an ideal "
 "opportunity to practise unspeakable evil on a massive scale. Go for it, "
 "master."
@@ -1283,7 +1283,7 @@ msgstr "적 중 하나가 얼마나 취약해졌는지 보이나요? 그럼 죽�
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
-"I spy a keeper with hardly any creatures left under his control. I spy a "
+"I spy a Keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
 msgstr ""
 "저는 제어하는 피조물이 거의 없는 키퍼를 감시하고 있습니다. 전 곧 죽을 키퍼를 "
@@ -1400,7 +1400,7 @@ msgstr ""
 #. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
-msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
+msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr "이 고대 왕국에는 마법의 유물이 풍부합니다. 어서 가서 약탈하세요."
 
 #. Level Blaise End objective
@@ -1420,7 +1420,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "If you should encounter hero patrols, ensure that none of their number "
-"escape. Otherwise your presence will be revealed and then you will be in "
+"escape. Otherwise, your presence will be revealed, and then you will be in "
 "trouble."
 msgstr ""
 "영웅의 순찰과 조우 한 경우, 잔당이 도망가지 않도록 해야 합니다. 그렇지 않으"
@@ -1492,7 +1492,7 @@ msgstr ""
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
-"You have destroyed the Avatar's castle but your rival has already taken the "
+"You have destroyed the Avatar's castle, but your rival has already taken the "
 "Avatar prisoner. Be that as it may, only the Keeper with the blackest heart "
 "can destroy this legendary hero, so ransack your rival's dungeon and take "
 "the prize."
@@ -1530,7 +1530,7 @@ msgstr ""
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
-"Possess this Dragon to help you negotiate the fiery pits but be prepared to "
+"Possess this Dragon to help you negotiate the fiery pits, but be prepared to "
 "transfer your soul to a more appropriate creature when the situation demands "
 "it."
 msgstr ""
@@ -1659,7 +1659,7 @@ msgstr ""
 #: guitext:152
 msgctxt "In-game message"
 msgid ""
-"Well done. You have excelled in your use of large balls of stone for which "
+"Well done. You have excelled in your use of large balls of stone, for which "
 "the dark gods will repay you, by allowing you to use the warrior you found "
 "when you reach the next realm."
 msgstr ""
@@ -1672,7 +1672,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "This region of the underworld will test your ability to traverse the network "
-"of caverns. Indeed, time is your enemy here. Defeat it and you will find "
+"of caverns. Indeed, time is your enemy here. Defeat it, and you will find "
 "where a legendary warrior is imprisoned. That warrior will serve you well in "
 "the future."
 msgstr ""
@@ -1707,8 +1707,8 @@ msgstr ""
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
-"Your evil has corrupted a Samurai Warrior, he has forsaken honour to join "
-"your cause. Should your minions suffer heavy casualties, this Warrior will "
+"Your evil has corrupted a Samurai warrior; he has forsaken honour to join "
+"your cause. Should your minions suffer heavy casualties, this warrior will "
 "even call upon his brothers in arms to offer assistance. How kind. How "
 "stupid!"
 msgstr ""
@@ -1792,7 +1792,7 @@ msgstr ""
 #: guitext:165
 msgctxt "In-game message"
 msgid ""
-"Take more care of your Bile Demons or you will never make it beyond this "
+"Take more care of your Bile Demons, or you will never make it beyond this "
 "realm."
 msgstr ""
 "당신의 바일 데몬을 더 많이 신경쓰세세요. 그렇지 않으면 결코 이 영역을 넘어서"
@@ -1871,7 +1871,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
-"to reduces your enemies into ashes!"
+"to reduce your enemies into ashes!"
 msgstr ""
 "봤어요? 당신의 데몬 스폰이 당신의 적을 잿더미로 만들 준비가 된 강력한 드래곤"
 "으로 진화했습니다!"
@@ -1880,7 +1880,7 @@ msgstr ""
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
-"Well done! Your immense wealth has drew the attention of a Thief. He will "
+"Well done! Your immense wealth has drawn the attention of a Thief. He will "
 "serve you well in the next realm!"
 msgstr ""
 "잘했어요! 당신의 막대한 재산이 도둑의 관심을 끌었습니다. 그는 다음 지역에서 "
@@ -1890,9 +1890,9 @@ msgstr ""
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
-"Your researchers have discovered the Heal Creature spell that allows to "
-"replenish the health of your creatures and keep them from dying for a while "
-"longer."
+"Your researchers have discovered the Heal Creature spell, which allows you "
+"to replenish the health of your creatures and keep them from dying for a "
+"while longer."
 msgstr ""
 "여러분의 연구원들이 여러분의 피조물들의 건강을 보충하고 그들이 잠시 동안 죽"
 "는 것을 막을 수 있는 피조물 회복 주문을 발견했습니다."
@@ -1915,8 +1915,8 @@ msgstr ""
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
-"A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
-"in water and their spine can even pierce the most solid armors and paralyze "
+"A Tentacle has joined your dungeon. These rare little creatures enjoy being "
+"in water and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
 msgstr ""
 "촉수생물이 당신의 던전에 합류했습니다. 이 희귀한 작은 피조물들은 물 속에 있"
@@ -1941,7 +1941,7 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "음메"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -2175,10 +2175,11 @@ msgid "Group: Not used"
 msgstr "그룹 : 사용 안함"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+"Invisibility: Makes the creature invisible to all enemies. Unless they "
+"possess a subnatural sight."
 msgstr ""
 "투명화: 여러분의 하수인들 중 하나에 던져지면, 모든 적에게 해당 피조물이 보이"
 "지 않게 됩니다. 특이 시야가 없는 한 말이죠."
@@ -2187,7 +2188,7 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
-"you are Possessing a creature, then it teleports to its Lair or to the "
+"you are possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
 msgstr ""
 "순간이동 : 이 주문으로, 피조물은 지도상의 어느 곳이나 순간이동할 수 있습니"
@@ -2202,8 +2203,8 @@ msgstr "화염의 호흡 : 끊임없이 뿜어져 나오는 파괴적인 불길�
 #: guitext:242
 msgctxt "Creature spell"
 msgid ""
-"Illumination: Brings light onto darkness, allowing the creature to see but "
-"also be seen by others."
+"Illumination: Brings light onto darkness, allowing the creature to see, but "
+"also to be seen by others."
 msgstr ""
 "조명: 빛을 어둠에 가져와서, 그 피조물이 볼 수 있게 하지만 다른 피조물들도 볼 "
 "수 있게 합니다."
@@ -2217,14 +2218,18 @@ msgstr ""
 "비행: 피조물이 땅에서 날아올라 공중에 있거나 용암을 건너는 생물을 공격합니다."
 
 #: guitext:244
+#, fuzzy
+#| msgctxt "Creature spell"
+#| msgid "Hail Storm: Creates a fury of hailstones."
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "우박 폭풍: 우박이 맹위를 떨칩니다."
 
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement "
+"delayed."
 msgstr "느려림: 대상 피조물의 속도가 느려져 공격 및 이동이 지연됩니다."
 
 #: guitext:246
@@ -2239,7 +2244,7 @@ msgctxt "Creature spell"
 msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's "
 "body and inflicts massive damage on the vicinity. Very effective against "
-"crowded hordes of enemies, also pushes them back."
+"crowded hordes of enemies. Also pushes them back."
 msgstr ""
 "언령: 대상 피조물의 몸에서 악마적인 에너지의 고리가 뿜어져 나오고, 그 근처에 "
 "엄청난 피해를 입힙니다. 붐비는 적군에 매우 효과적이기도 하고, 그들을 뒤로 밀"
@@ -2253,7 +2258,7 @@ msgstr "치유: 마법이 시전되면, 대상 피조물물은 대량으로 치�
 #: guitext:249
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
 "away from you. And nasty smells of course."
 msgstr ""
 "바람: 던전에 12등급의 강풍을 일으켜 모든 피조물을 멀리 날려버립니다. 그리고 "
@@ -2272,7 +2277,7 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
-"inflicts minor damage to a Dungeon's walls and doors."
+"inflicts minor damage to a dungeon's walls and doors."
 msgstr ""
 "불덩이 : 가장 가까운 적에게 하나의 불덩이를 발사합니다. 또한 던전의 벽과 문"
 "에 가벼운 손상을 입힙니다."
@@ -2280,16 +2285,15 @@ msgstr ""
 #: guitext:252
 msgctxt "Creature spell"
 msgid ""
-"Hand to Hand: The basic battle ability that allows to attack the enemy with "
-"either bare hands or a sword."
+"Hand to Hand: The basic battle ability that allows the creature to attack "
+"the enemy with either bare hands or a sword."
 msgstr ""
 "육탄공격 : 맨손이나 검으로 적을 공격할 수 있는 기본적인 전투 능력입니다."
 
 #: guitext:253
 #, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Fart: A close range gas attack that only damages enemy creatures."
+msgid "Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
 "독 구름: 적과 여러분의 생명체 모두를 해칠 수 있는 유해한 가스의 구름을 형성합"
 "니다. 가스는 숨쉬는 모든 것에게 영향을 미칩니다."
@@ -2297,14 +2301,14 @@ msgstr ""
 #: guitext:254
 msgctxt "Creature spell"
 msgid ""
-"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"Dig: This is the basic ability of the Imp, and allows it to tunnel through "
 "earth."
 msgstr "구멍파기: 임프의 기본 능력이고 그것이 지구를 관통할 수 있게 해줍니다."
 
 #: guitext:255
 msgctxt "Creature spell"
 msgid ""
-"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"Disease: Fired at a foe, gives them a disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
 msgstr ""
@@ -2315,7 +2319,7 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
-"attack but has the same strength and thus won't be as easy to kill as a "
+"attack, but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
 msgstr ""
 "닭 : 한동안 적을 닭으로 바꿉니다. 적은 공격을 할 수 없지만 동일한 강함을 가지"
@@ -2523,7 +2527,7 @@ msgstr "힘 : 이 피조물이 매 번 공격할 때마다 적에게 가해지�
 
 #: guitext:294
 msgctxt "In-game interface description"
-msgid "Wage: The creature's salary in gold which it takes on each payday."
+msgid "Wage: The creature's salary in gold, which it takes on each payday."
 msgstr "임금: 각 급여일에 받는 금괴의 급여 액수입니다."
 
 #: guitext:295
@@ -2543,7 +2547,7 @@ msgstr ""
 #: guitext:297
 msgctxt "In-game interface description"
 msgid ""
-"Skill: The creature's ability to perform tasks. The higher the Skill level, "
+"Skill: The creature's ability to perform tasks. The higher the skill level, "
 "the better the creature's performance."
 msgstr ""
 "스킬: 피조물물의 작업 수행 능력입니다. 스킬 수준이 높을수록 생물의 성능이 향"
@@ -2606,7 +2610,8 @@ msgstr ""
 #: guitext:305
 msgctxt "In-game interface description"
 msgid ""
-"Fight: Your creatures always attack and not avoid any combat. LMB select."
+"Fight: Your creatures always attack and will not avoid any combat. LMB "
+"select."
 msgstr ""
 "공격 : 여러분의 피조물은 항상 공격을 하며 어떠한 전투도 피하지 않습니다. 왼"
 "쪽 마우스 단추로 대상을 선택합니다."
@@ -2666,8 +2671,8 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between perspective views. Default view has warped walls "
-"and can be rotated. Disable the warp effect for clean lines. Forced perspective "
+"View Type: Swap between perspective views. Default view has warped walls and "
+"can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
 "보기 유형: 기본 원근법과 강제 원근법 보기 간을 바꿉니다. 기본 보기는 벽이 휘"
@@ -2704,7 +2709,7 @@ msgstr "Of"
 
 #: guitext:319
 msgctxt "Slab description"
-msgid "Empty Lair: Would suit itinerant creature."
+msgid "Empty Lair: Would suit itinerant creatures."
 msgstr "빈 보금자리 : 순회하는 피조물에 적합합니다."
 
 #: guitext:320
@@ -2733,8 +2738,8 @@ msgstr ""
 #: guitext:323
 msgctxt "In-game interface description"
 msgid ""
-"Full Screen Map: Takes you to the Map Screen which displays your entire "
-"Dungeon and the surrounding area. LMB select."
+"Full Screen Map: Takes you to the Map Screen, which displays your entire "
+"dungeon and the surrounding area. LMB select."
 msgstr ""
 "전체 화면 지도: 던전 전체와 주변 지역을 표시하는 지도 화면으로 이동합니다. 왼"
 "쪽 마우스 단추로 선택합니다."
@@ -2742,7 +2747,7 @@ msgstr ""
 #: guitext:324
 msgctxt "Slab description"
 msgid ""
-"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"Impenetrable Rock: Your Imps cannot dig through this; the only solution is "
 "to go round. It is visible even if far from your territory."
 msgstr ""
 "뚫을 수 없는 바위: 당신의 임프는 이것을 파헤칠 수 없습니다. 유일한 해결책은 "
@@ -2768,10 +2773,14 @@ msgstr ""
 "땅 위에 남아 있는 보물 덩어리도 주울 수 있습니다."
 
 #: guitext:327
+#, fuzzy
+#| msgctxt "Slab description"
+#| msgid ""
+#| "Lava: Burns any creature that step on it. Get over lava by casting Cave-"
+#| "In or building a Bridge."
 msgctxt "Slab description"
 msgid ""
-"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
-"or building a Bridge."
+"Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr ""
 "용암: 밟는 생명체를 태웁니다. 낙반 마법을 걸거나 다리를 건설하여 용암을 넘어"
 "갑니다."
@@ -2899,8 +2908,8 @@ msgstr "오프닝 보기"
 
 #: guitext:350
 msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr "서비스 매뉴"
+msgid "Multiplayer Menu"
+msgstr "멀티플레이어 메뉴"
 
 #: guitext:351
 msgctxt "Menu interface item"
@@ -3124,8 +3133,8 @@ msgstr "Testers"
 
 #: guitext:395
 msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr "세션들"
+msgid "Game Lobbies"
+msgstr "게임 로비"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -3134,8 +3143,8 @@ msgstr "이름"
 
 #: guitext:397
 msgctxt "Menu interface item"
-msgid "Services"
-msgstr "서비스"
+msgid "Game Modes"
+msgstr "게임 모드"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3144,13 +3153,13 @@ msgstr "메시지"
 
 #: guitext:399
 msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr "게임 만들기"
+msgid "Create Lobby"
+msgstr "로비 만들기"
 
 #: guitext:400
 msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr "게임에 참여"
+msgid "Join Lobby"
+msgstr "로비 참가"
 
 #: guitext:401
 msgctxt "Menu interface item"
@@ -3159,8 +3168,8 @@ msgstr "게임 시작"
 
 #: guitext:402
 msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr "게임 매뉴"
+msgid "Online Lobbies"
+msgstr "온라인 로비"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3249,45 +3258,45 @@ msgid "Ok"
 msgstr "확인"
 
 #: guitext:420
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "지도 공개: 지하의 전체 영역을 표시합니다."
 
 #: guitext:421
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "피조물 부활 : 죽음에 떨어진 하수인 하나를 소생 시킬수 있습니다."
 
 #: guitext:422
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
 msgstr "피조물 전송 : 다음 영역으로 동행할 피조물 중 하나를 선택하세요."
 
 #: guitext:423
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "영웅 훔치기: 영웅을 당신의 대의를 위해 타락시키세요."
 
 #: guitext:424
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "피조물 불리기 : 각 피조물을 두 배로 만듭니다."
 
 #: guitext:425
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "레벨 향상: 모든 피조물에게 더 큰 기술을 부여합니다."
 
 #: guitext:426
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "안전하게 만들기: 던전 전체를 강화합니다."
 
 #: guitext:427
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you have "
 "conquered this one."
@@ -3402,8 +3411,8 @@ msgstr ""
 #: guitext:448
 msgctxt "In-game interface description"
 msgid ""
-"Room Panel: The rooms available for you to build. Here you can center map on "
-"rooms or build new ones."
+"Room Panel: The rooms available for you to build. Here you can centre the "
+"map on rooms or build new ones."
 msgstr ""
 "방 패널 : 사용자가 만들 수 있는 방입니다. 여기서 방을 지도를 중앙에 보이게 하"
 "거나 새로운 방을 작성할 수 있습니다."
@@ -3420,8 +3429,8 @@ msgstr ""
 #: guitext:450
 msgctxt "In-game interface description"
 msgid ""
-"Workshop Panel: The traps and doors available to you. You can center the map "
-"on them, place new ones or sell existing."
+"Workshop Panel: The traps and doors available to you. You can centre the map "
+"on them, place new ones, or sell existing ones."
 msgstr ""
 "공방 패널 : 사용가능한 함정과 문이 있습니다. 해당 아이템을 지도를 중앙에 보이"
 "게하거나 새 아이템을 배치하거나 기존 아이템을 판매할 수 있습니다."
@@ -3558,223 +3567,223 @@ msgstr "아무키나 누르라구"
 
 #: guitext:471
 msgctxt "Game controls"
-msgid "UP"
+msgid "Up"
 msgstr "위"
 
 #: guitext:472
 msgctxt "Game controls"
-msgid "DOWN"
+msgid "Down"
 msgstr "아래"
 
 #: guitext:473
 msgctxt "Game controls"
-msgid "LEFT"
+msgid "Left"
 msgstr "왼쪽"
 
 #: guitext:474
 msgctxt "Game controls"
-msgid "RIGHT"
+msgid "Right"
 msgstr "오른쪽"
 
 #: guitext:475
 msgctxt "Game controls"
-msgid "ROTATE"
+msgid "Rotate"
 msgstr "회전"
 
 #: guitext:476
 msgctxt "Game controls"
-msgid "SPEED"
+msgid "Speed"
 msgstr "속도"
 
 #: guitext:477
 msgctxt "Game controls"
-msgid "ROTATE LEFT"
+msgid "Rotate Left"
 msgstr "왼쪽으로 회전"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
+msgid "Rotate Right"
 msgstr "오른쪽으로 회전"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
+msgid "Zoom In"
 msgstr "확대"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
+msgid "Zoom Out"
 msgstr "축소"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
-msgstr "LEFT CONTROL"
+msgid "Left Control"
+msgstr "Left Control"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
-msgstr "RIGHT CONTROL"
+msgid "Right Control"
+msgstr "Right Control"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
-msgstr "LEFT SHIFT"
+msgid "Left Shift"
+msgstr "Left Shift"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
-msgstr "RIGHT SHIFT"
+msgid "Right Shift"
+msgstr "Right Shift"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
-msgstr "LEFT ALT"
+msgid "Left Alt"
+msgstr "Left Alt"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
-msgstr "RIGHT ALT"
+msgid "Right Alt"
+msgstr "Right Alt"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
-msgstr "SPACE"
+msgid "Space"
+msgstr "Space"
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
-msgstr "RETURN"
+msgid "Return"
+msgstr "Return"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
-msgstr "TAB"
+msgid "Tab"
+msgstr "Tab"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
-msgstr "CAPS LOCK"
+msgid "Caps Lock"
+msgstr "Caps Lock"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
-msgstr "BACKSPACE"
+msgid "Backspace"
+msgstr "Backspace"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
-msgstr "INSERT"
+msgid "Insert"
+msgstr "Insert"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
-msgstr "DELETE"
+msgid "Delete"
+msgstr "Delete"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
-msgstr "HOME"
+msgid "Home"
+msgstr "Home"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
-msgstr "END"
+msgid "End"
+msgstr "End"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
-msgstr "PAGE UP"
+msgid "Page Up"
+msgstr "Page Up"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
-msgstr "PAGE DOWN"
+msgid "Page Down"
+msgstr "Page Down"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
-msgstr "NUM LOCK"
+msgid "Num Lock"
+msgstr "Num Lock"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
-msgstr "NUM /"
+msgid "Num /"
+msgstr "Num /"
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
-msgstr "NUM *"
+msgid "Num *"
+msgstr "Num *"
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
-msgstr "NUM -"
+msgid "Num -"
+msgstr "Num -"
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
-msgstr "NUM +"
+msgid "Num +"
+msgstr "Num +"
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
-msgstr "NUM ENTER"
+msgid "Num Enter"
+msgstr "Num Enter"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
-msgstr "NUM DELETE"
+msgid "Num Delete"
+msgstr "Num Delete"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
-msgstr "NUM 1"
+msgid "Num 1"
+msgstr "Num 1"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
-msgstr "NUM 2"
+msgid "Num 2"
+msgstr "Num 2"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
-msgstr "NUM 3"
+msgid "Num 3"
+msgstr "Num 3"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
-msgstr "NUM 4"
+msgid "Num 4"
+msgstr "Num 4"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
-msgstr "NUM 5"
+msgid "Num 5"
+msgstr "Num 5"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
-msgstr "NUM 6"
+msgid "Num 6"
+msgstr "Num 6"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
-msgstr "NUM 7"
+msgid "Num 7"
+msgstr "Num 7"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
-msgstr "NUM 8"
+msgid "Num 8"
+msgstr "Num 8"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
-msgstr "NUM 9"
+msgid "Num 9"
+msgstr "Num 9"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
-msgstr "NUM 0"
+msgid "Num 0"
+msgstr "Num 0"
 
 #: guitext:515
 msgctxt "Keyboard"
@@ -3838,28 +3847,28 @@ msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
+msgid "Up"
 msgstr "위"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
+msgid "Down"
 msgstr "아래"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
+msgid "Left"
 msgstr "왼쪽"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
+msgid "Right"
 msgstr "오른쪽"
 
 #: guitext:531
 msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr "Initialising Modem"
+msgid "Game version mismatch"
+msgstr "게임 버전 불일치"
 
 #: guitext:532
 msgctxt "Network game message"
@@ -3925,7 +3934,7 @@ msgstr "Unable to join game"
 msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
-"takes longer to mine than Gold."
+"takes longer to mine than gold."
 msgstr ""
 "보석 : 임프가 추출할 수 있는 무한한 재산입니다. 파괴할 수는 없지만, 골드보다 "
 "채굴하는 데 시간이 더 오래 걸립니다."
@@ -4135,8 +4144,8 @@ msgstr "용암 함정"
 msgctxt "Trap description"
 msgid ""
 "Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
-"when enemy creature is close and within line of sight, or when slapped by a "
-"Keeper. LMB select. RMB zoom."
+"when an enemy creature is close and within line of sight, or when slapped by "
+"a Keeper. LMB select. RMB zoom."
 msgstr ""
 "바위 함정: 지나가는 모든 것을 찌그러뜨리는 구르는 바위입니다. 적 피조물이 근"
 "접하여 시야에 들어오거나 키퍼에 의해 찰싹 맞았을 때 굴러갑니다. 왼쪽 마우스 "
@@ -4156,7 +4165,7 @@ msgstr ""
 msgctxt "Trap description"
 msgid ""
 "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
-"hurt owner creatures if they inhale it. LMB select. RMB zoom."
+"hurt the owner's creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
 "독가스 함정: 적들에 의해 촉발되는 유해한 증기의 구름입니다. 당신의 피조물들"
 "이 들이마시면 다칠 수 있습니다. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 "
@@ -4166,7 +4175,7 @@ msgstr ""
 msgctxt "Trap description"
 msgid ""
 "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
-"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
+"tripped. Does no harm to the owner's creatures. LMB select. RMB zoom."
 msgstr ""
 "번개 함정: 지나갈때 번개 볼트로 근처의 적 생물을 타격합니다. 당신의 피조물에"
 "게 해를 끼치지 않습니다. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 단추로 "
@@ -4186,8 +4195,8 @@ msgstr ""
 msgctxt "Trap description"
 msgid ""
 "Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
-"are irreversible, so Bridge is needed to be able to step on affected area "
-"again. LMB select. RMB zoom."
+"are irreversible, so a Bridge is needed to be able to step on the affected "
+"area again. LMB select. RMB zoom."
 msgstr ""
 "용암 함정 : 타일은 녹은 용암덩어리를 드러내며 분해됩니다. 효과는 되돌릴 수 없"
 "으므로 영향을 받는 부위를 다시 밟으려면 다리가 필요합니다. 왼쪽 마우스 단추"
@@ -4445,13 +4454,14 @@ msgstr ""
 "로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.7]"
 
 #: guitext:628
+#, fuzzy
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "사원: 어두운 신들을 숭배하는 것은 피조물들을 더 행복하게 만듭니다. 피조물을 "
-"분수대에 떨어뜨려 희생시키세요. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 "
+"세례대에 떨어뜨려 희생시키세요. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 "
 "단추로 대상을 주목합니다. [17.12]"
 
 #: guitext:629
@@ -4557,12 +4567,10 @@ msgstr ""
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "임프 생성 : 던전 어디에든 새로운 임프를 만듭니다. 왼쪽 마우스 단추로 선택합니"
-"다. [18.2]"
+"다."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -4610,27 +4618,18 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr ""
-"몬스터 가속 : 몬스터의 속도가 빨라집니다. 왼쪽 마우스 단추로 선택합니다. "
-"[18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
+msgstr "몬스터 가속 : 몬스터의 속도가 빨라집니다."
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr ""
-"몬스터 보호 : 여러분의 피조물을 공격으로부터 보호합니다. 왼쪽 마우스 단추로 "
-"선택합니다. [18.11]"
+msgid "Protect Monster: Shields your creatures from attack. LMB select."
+msgstr "몬스터 보호 : 여러분의 피조물을 공격으로부터 보호합니다."
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
-msgstr ""
-"몬스터 은닉: 적에게 당신의 생명체를 보이지 않게 만듭니다. 왼쪽 마우스 단추로 "
-"선택합니다. [18.7]"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
+msgstr "몬스터 은닉: 적에게 당신의 생명체를 보이지 않게 만듭니다."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -4949,7 +4948,7 @@ msgstr "문 상자 발견 : 왼쪽 마우스 단추로 전환. 오른쪽 마우�
 
 #: guitext:715
 msgctxt "Game event description"
-msgid "Dungeon special found: LMB toggle. RMB delete."
+msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "던전 스페셜 발견 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:716
@@ -5020,7 +5019,7 @@ msgstr "컴퓨터 보조 메뉴 : 컴퓨터 보조를 조정. [3.2.4]"
 #: guitext:729
 msgctxt "In-game interface description"
 msgid ""
-"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"Aggressive Computer Assistant: Constructs your dungeon and always tries to "
 "attack the enemy. LMB select. [3.2.4]"
 msgstr ""
 "공격적인 컴퓨터 보조: 던전을 구성하고 항상 적을 공격는걸 시도합니다. 왼쪽 마"
@@ -5087,7 +5086,7 @@ msgstr ""
 #: guitext:737
 msgctxt "In-game interface description"
 msgid ""
-"Invert Mouse: Inverts the vertical mouse movements while Possessing a "
+"Invert Mouse: Inverts the vertical mouse movements while possessing a "
 "creature. LMB toggle."
 msgstr ""
 "마우스 반전 : 피조물 지배시 마우스 상하 이동을 반전합니다. 왼쪽 마우스 단추"
@@ -5426,7 +5425,7 @@ msgstr "생성된 뱀파이어"
 msgctxt "Easter egg"
 msgid ""
 "When night does not give way to day, And children are too scared to play, "
-"Abandon hope, embrace despair, You're destined for my Dragon's lair"
+"Abandon hope, embrace despair, You're destined for my Dragon's lair."
 msgstr ""
 "밤이 낮의 길을 양보하지 않고 아이들이 놀기엔 너무 무서울 때, 희망을 버리고 절"
 "망을 품을 때, 당신은 나의 드래곤의 은신처로 오게 운명지어진 것입니다"
@@ -5838,18 +5837,18 @@ msgstr "4 플레이어"
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
-msgstr "시리얼"
+msgid "Online"
+msgstr "온라인"
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
-msgstr "모뎀"
+msgid "LAN"
+msgstr "LAN"
 
 #: guitext:876
 msgctxt "Menu interface, Network service item"
-msgid "IPX"
-msgstr "IPX"
+msgid "Skirmish"
+msgstr "교전"
 
 #: guitext:877
 msgctxt "World direction"
@@ -5913,18 +5912,18 @@ msgstr "신규 레벨"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "데이터 디스크 CD좀 넣어줘"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "제조 가능: 피조물이 이 아이템을 공방에서 제조할 수 있습니다."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "던전 키퍼 CD좀 넣어주라"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "공방이 너무 작음: 이 아이템을 제조하려면 공방을 확장해야 합니다."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "던전 키퍼 CD좀 넣어 달라구"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "제조 불가: 이 아이템은 제조할 수 없습니다."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -5942,7 +5941,7 @@ msgstr ""
 #: guitext:893
 msgctxt "In-game message"
 msgid ""
-"Another Keeper has already claimed this realm. He is unfit to rule so "
+"Another Keeper has already claimed this realm. He is unfit to rule, so "
 "destroy him and take what is rightfully yours. Great riches lie in the "
 "caverns around the land; explore to gain more power."
 msgstr ""
@@ -5954,7 +5953,7 @@ msgstr ""
 #: guitext:894
 msgctxt "In-game message"
 msgid ""
-"This land is highly coveted amongst the evil and there are three enemy "
+"This land is highly coveted amongst the evil, and there are three enemy "
 "Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for "
 "any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr ""
@@ -5978,7 +5977,7 @@ msgstr ""
 #: guitext:896
 msgctxt "In-game message"
 msgid ""
-"You and a rival Dungeon Keeper are vying for control of this realm but the "
+"You and a rival Dungeon Keeper are vying for control of this realm, but the "
 "Lord of the Land has constructed his own dungeon between you to halt your "
 "conquest. Destroy him and the enemy Keeper to reign supreme."
 msgstr ""
@@ -5990,8 +5989,8 @@ msgstr ""
 #: guitext:897
 msgctxt "In-game message"
 msgid ""
-"You have done well to come this far but further hardships await. Search the "
-"map carefully and you may find many secrets to aid your conquest."
+"You have done well to come this far, but further hardships await. Search the "
+"map carefully, and you may find many secrets to aid your conquest."
 msgstr ""
 "여기까지 오셔서 잘 오셨지만 앞으로 더 많은 고난이 기다리고 있습니다. 지도를 "
 "주의 깊게 확인하면 정복에 도움이 되는 많은 비밀을 발견할 수 있습니다."
@@ -6000,8 +5999,8 @@ msgstr ""
 #: guitext:898
 msgctxt "In-game message"
 msgid ""
-"You have come to this realm with little to assist you so you must explore to "
-"gain more power. Keep an eye out for any loathsome heroes who may try to "
+"You have come to this realm with little to assist you, so you must explore "
+"to gain more power. Keep an eye out for any loathsome heroes who may try to "
 "thwart your progress."
 msgstr ""
 "약간의 도움으로 이 지역에 올 수 있었 지만 더 많은 힘을 얻기 위해 탐험해야 합"
@@ -6022,7 +6021,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your opponent for this realm has foolishly challenged your superior skill. "
-"Such disrespect should be punished so make an example of his insolence."
+"Such disrespect should be punished, so make an example of his insolence."
 msgstr ""
 "이 영역에 적은 어리석게도 당신의 우월한 기술에 도전했습니다. 그런 무례한 행동"
 "은 처벌받아야 하니 그를 본보기로 보여주세요."
@@ -6063,7 +6062,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
-"down it's walls and let your creatures feast on the heroes within."
+"down its walls and let your creatures feast on the heroes within."
 msgstr ""
 "한때 이 왕국의 강력한 영웅 요새는 썩고 약해졌습니다. 성벽을 허물고 안에 있는 "
 "영웅으로 당신의 피조물들에게 잔치를 베풀도록 하세요."
@@ -6083,7 +6082,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Congratulations Keeper. This vial has given your researchers a much needed "
-"boost. You can now construct Bridges that enable you to traverse water and "
+"boost. You can now construct Bridges, which enable you to traverse water and "
 "fire."
 msgstr ""
 "축하해요 키퍼. 이 물약병은 연구자들에게 많은 도움을 주었습니다. 이제 물과 불"
@@ -6165,7 +6164,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Congratulations Keeper, you have a powerful army indeed. Do not grow "
-"complacent though, you still have another challenger to the north ..."
+"complacent, though; you still have another challenger to the north ..."
 msgstr ""
 "축하해요 키퍼, 당신은 정말 강력한 군대를 가지고 있어요. 그러나 현실에 안주하"
 "지 마십시오. 북쪽에 도전자가 또 있습니다."
@@ -6175,7 +6174,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Congratulations Keeper, you have a powerful army indeed. Do not grow "
-"complacent though, you still have another challenger to the south ..."
+"complacent, though; you still have another challenger to the south ..."
 msgstr ""
 "축하해요 키퍼, 당신은 정말 강력한 군대를 가지고 있어요. 그러나 현실에 안주하"
 "지 마십시오. 남쪽에 도전자가 또 있습니다."
@@ -6196,7 +6195,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Make haste Keeper. The heroes of this realm are many and strong. Prepare "
-"your forces well or face a humiliating defeat ..."
+"your forces well, or face a humiliating defeat ..."
 msgstr ""
 "서두르세요. 키퍼. 이 지역의 영웅들은 많고 강합니다. 병력을 잘 준비하세요 그러"
 "치 않으면 굴욕적인 패배를 당합니다."
@@ -6325,7 +6324,7 @@ msgstr ""
 #: guitext:931
 msgctxt "In-game message"
 msgid ""
-"Before you lies the Wizard's domain. Defeat him and you will regain your "
+"Before you lies the Wizard's domain. Defeat him, and you will regain your "
 "powers."
 msgstr ""
 "마법사의 영역에서 죽어 눕기전에 그를 물리치세요. 그럼 당신은 힘을 되찾을 것입"
@@ -6357,13 +6356,13 @@ msgstr ""
 #: guitext:934
 msgctxt "In-game message"
 msgid ""
-"Your achievements are legendary Keeper. Tales of your evil and cunning will "
+"Your achievements are legendary, Keeper. Tales of your evil and cunning will "
 "become the horror stories of generations."
 msgstr ""
 "당신은 전설적인 키퍼입니다. 당신의 사악하고 교활한 이야기는 세대에 걸쳐 공포"
 "의 이야기가 될 것입니다."
 
-#: guitext:935 
+#: guitext:935
 msgctxt "Door name"
 msgid "Secret Door"
 msgstr "비밀의 문"
@@ -6371,10 +6370,11 @@ msgstr "비밀의 문"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
-"opening. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it "
+"closely or see it opening. RMB zoom."
 msgstr ""
-"비밀의 문: 이 문은 적들이 자세히 관찰하거나 열리는 것을 보지 않는 한 숨겨져 있습니다."
+"비밀의 문: 이 문은 적들이 자세히 관찰하거나 열리는 것을 보지 않는 한 숨겨져 "
+"있습니다."
 
 #: guitext:937
 msgctxt "Game event description"
@@ -6462,7 +6462,7 @@ msgstr "충성도 : 피조물이 얼마나 적의 수색에 저항하는 정도 
 #: guitext:952
 msgctxt "In-game interface description"
 msgid ""
-"Research Skill: How fast the creature works in Library. The higher the Skill "
+"Research Skill: How fast the creature works in Library. The higher the skill "
 "level, the better the creature's performance."
 msgstr ""
 "연구 기술: 피조물이 도서관에서 얼마나 빨리 일하는 정도입니다. 스킬 수준이 높"
@@ -6472,7 +6472,7 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
-"Skill level, the better the creature's performance."
+"skill level, the better the creature's performance."
 msgstr ""
 "제조 기술: 피조물이 공방에서 얼마나 빨리 일하는지 알 수 있습니다. 스킬 수준"
 "이 높을수록 성능이 향상됩니다."
@@ -6481,7 +6481,7 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
-"Skill level, the better the creature's performance."
+"skill level, the better the creature's performance."
 msgstr ""
 "훈련 기술: 이 피조물이 얼마나 빨리 훈련을 받는지 알 수 있습니다. 스킬 수준이 "
 "높을수록 성능이 향상됩니다."
@@ -6490,7 +6490,7 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
-"Skill level, the better the creature's performance."
+"skill level, the better the creature's performance."
 msgstr ""
 "수색 스킬: 그 생물이 얼마나 빨리 수색하는지 알 수 있습니다. 스킬 수준이 높을"
 "수록 성능이 향상됩니다."
@@ -6517,8 +6517,8 @@ msgstr ""
 #: guitext:959
 msgctxt "In-game interface description"
 msgid ""
-"Weight: Mass of the creature. Some people say overweight can lead to heart "
-"attack."
+"Weight: Mass of the creature. Some people say that being overweight can lead "
+"to heart attacks."
 msgstr ""
 "무게: 피조물의 질량입니다. 어떤 사람들은 과체중이 심장마비로 이어질 수 있다"
 "고 말합니다."
@@ -6546,7 +6546,7 @@ msgstr "싸다구"
 msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
-"Just don't hold them forever or they may get irritated."
+"Just don't hold them forever, or they may get irritated."
 msgstr ""
 "악마의 손: 여러분의 피조물을 집어서 손에 쥐는 능력입니다. 그냥 그들을 영원히 "
 "붙잡고 있지 마세요. 그들이 짜증을 낼지도 몰라요."
@@ -6562,12 +6562,12 @@ msgstr ""
 
 #: guitext:965
 msgctxt "In-game interface description"
-msgid "Health: How much health points the creature has left to lose."
+msgid "Health: How many health points the creature has left to lose."
 msgstr "생명력: 이 피조물이 잃을 건강 포인트가 얼마나 남은 정도 입니다."
 
 #: guitext:966
 msgctxt "In-game interface description"
-msgid "Health: The maximum amount of health points for this creature."
+msgid "Health: The maximum number of health points for this creature."
 msgstr "생명력: 이 피조물의 최대 생명력입니다."
 
 #: guitext:967
@@ -6581,41 +6581,60 @@ msgid "Return to Free Play levels"
 msgstr "레벨 자유 탐험으로 돌아가기"
 
 #: guitext:969
+#, fuzzy
 msgctxt "Menu interface item"
-msgid "Map packs"
-msgstr "Map packs"
+msgid "Map Packs"
+msgstr "맵 팩"
 
 #: guitext:970
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "The Deeper Dungeons"
-msgstr "The Deeper Dungeons"
+msgstr "더 깊은 던전"
 
 #: guitext:971
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Standard Levels"
-msgstr "Standard Levels"
+msgstr "표준 레벨"
 
 #: guitext:972
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Classic Levels"
-msgstr "Classic Levels"
+msgstr "클래식 레벨"
 
 #: guitext:973
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Legacy Levels"
-msgstr "Legacy Levels"
+msgstr "레거시 레벨"
 
 #: guitext:974
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Personal Levels"
-msgstr "Personal Levels"
+msgstr "개인 레벨"
 
 #: guitext:975
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Lost Levels"
-msgstr "Lost Levels"
+msgstr "잃어버린 레벨"
 
-#: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
+#: guitext:976
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Modern Levels"
+msgstr "현대 맵"
+
+#: guitext:977
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Bullfrog Levels"
+msgstr "불프로그 맵"
+
+#: guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
 msgstr "Moo3"
@@ -6741,7 +6760,7 @@ msgid "Snap Camera"
 msgstr "스넵 카메라"
 
 #: guitext:1005
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "신비한 상자: 이게 뭘 할지 알 수 없어요."
 
@@ -6752,8 +6771,12 @@ msgstr "게임에 참가한 플레이이어가 가진 맵 버전이 호스트와
 
 #: guitext:1007
 msgctxt "In-game interface description"
-msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr "디스플레이 해상도: 설정된 다음 디스플레이 해상도로 전환합니다. 왼쪽마우스 버튼으로 전환하세요. 오른쪽 마우스 버튼으로 현재 해상도를 표시합니다."
+msgid ""
+"Display Resolution: Switch to the next configured display resolution. LMB "
+"toggle. RMB display current resolution."
+msgstr ""
+"디스플레이 해상도: 설정된 다음 디스플레이 해상도로 전환합니다. 왼쪽마우스 버"
+"튼으로 전환하세요. 오른쪽 마우스 버튼으로 현재 해상도를 표시합니다."
 
 #: guitext:1008
 msgctxt "In-game interface item"
@@ -6782,12 +6805,12 @@ msgstr "애스미스트 섬"
 
 #: guitext:1013
 msgctxt "Menu interface item"
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr "고대 키퍼 캠패인"
 
 #: guitext:1014
 msgctxt "Menu interface item"
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr "피해욧 임프의 레벨 팩"
 
 #: guitext:1015
@@ -6817,7 +6840,7 @@ msgstr "DzjeeAr의 25레벨 캠패인"
 
 #: guitext:1020
 msgctxt "Menu interface item"
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr "사악한 키퍼 캠패인"
 
 #: guitext:1021
@@ -6842,12 +6865,12 @@ msgstr "선한 캠패인"
 
 #: guitext:1025
 msgctxt "Menu interface item"
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr "백서경 캠패인"
 
 #: guitext:1026
 msgctxt "Menu interface item"
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr "니콜라이의 성 캠패인"
 
 #: guitext:1027
@@ -6857,17 +6880,17 @@ msgstr "던전 키퍼 - 새 게임+"
 
 #: guitext:1028
 msgctxt "Menu interface item"
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr "고대 키퍼 공표 캠패인"
 
 #: guitext:1029
 msgctxt "Menu interface item"
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr "언데드 키퍼 공표 캠패인"
 
 #: guitext:1030
 msgctxt "Menu interface item"
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr "영웅 퀘스트 캠패인"
 
 #: guitext:1031
@@ -6877,12 +6900,12 @@ msgstr "군주의 복수"
 
 #: guitext:1032
 msgctxt "Menu interface item"
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr "쌍둥이 키퍼 캠패인"
 
 #: guitext:1033
 msgctxt "Menu interface item"
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr "언데드 키퍼 캠패인"
 
 #: guitext:1034 guitext:1035
@@ -6897,7 +6920,7 @@ msgstr "폭파 함정"
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid "Demolition Trap: An explosive with unrivaled destructive power."
+msgid "Demolition Trap: An explosive with unrivalled destructive power."
 msgstr "폭파 함정: 타의 추종을 불허하는 파괴력을 지니는 폭팔물이에요."
 
 #: guitext:1038
@@ -6905,10 +6928,15 @@ msgctxt "Trap description"
 msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "감시 함정: 경비병을 세워 눈에 보이는 적을 쏘세요."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr "Moo6"
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "발리스타 함정"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "발리스타 함정: 경비병을 세워 눈에 보이는 적을 쏘세요."
 
 #: guitext:1041
 msgctxt "Creature name"
@@ -6925,10 +6953,36 @@ msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "시간 마법사"
 
-#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+#: guitext:1044
+msgctxt "Creature name"
+msgid "Bird"
+msgstr ""
+
+#: guitext:1045
+msgctxt "Creature name"
+msgid "Maiden"
+msgstr ""
+
+#: guitext:1046
+msgctxt "Creature name"
+msgid "Spiderling"
+msgstr ""
+
+#: guitext:1047
+msgctxt "Creature name"
+msgid "Goblin"
+msgstr ""
+
+#: guitext:1048
+msgctxt "Creature name"
+msgid "Fallen Angel"
+msgstr ""
+
+#: guitext:1049
 msgctxt "Unused"
 msgid "Moo7"
 msgstr ""
+
 #: guitext:1050
 msgctxt "Slab description"
 msgid "Rock Formation."
@@ -6937,16 +6991,18 @@ msgstr "암석 형성."
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr "기반암: 청구되지 않은 암반 바닥. 이를 청구하거나 위에 건물을 지을 수 없습니다."
+msgstr ""
+"기반암: 청구되지 않은 암반 바닥. 이를 청구하거나 위에 건물을 지을 수 없습니"
+"다."
 
 #: guitext:1052
 msgctxt "Slab description"
-msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
 msgstr "높은 금맥: 당신의 임프가 추출할 수 있는 많은 부를 보유하고 있습니다."
 
 #: guitext:1053
 msgctxt "Keeper spell name"
-msgid "Rebound"
+msgid "Magic Shield"
 msgstr "반사"
 
 #: guitext:1054
@@ -6961,7 +7017,7 @@ msgstr "느려림"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Flight"
+msgid "Levitate"
 msgstr "비행"
 
 #: guitext:1057
@@ -6993,3 +7049,282 @@ msgstr "불행하게 만들기: 적의 모든 생물이 화가 납니다."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "벽 약화: 적의 벽 방어를 파괴합니다."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr ""
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr ""
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr ""
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr ""
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "정화: 생물에게 가해진 모든 부정적인 효과를 치료합니다."
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid ""
+"Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr ""
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid ""
+"Magic Shield: Causes spells fired at the target to bounce back at the "
+"attacker."
+msgstr ""
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid ""
+"Levitate: Causes the target creature to take off from the ground and attack "
+"creatures from the air or cross lava unharmed."
+msgstr ""
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid ""
+"Sight: Allows the target creature to temporarily increase its awareness and "
+"notice the invisible."
+msgstr ""
+
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr ""
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+
+#: guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr ""
+
+#: guitext:1077
+msgctxt "Door description"
+msgid ""
+"Midas Door: This door consumes gold from the owner to stay completely "
+"indestructible. RMB zoom."
+msgstr ""
+
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr ""
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr ""
+
+#: guitext:1082
+msgctxt "Highscore Default Name"
+msgid "Keeper"
+msgstr "키퍼"
+
+#: guitext:1083
+msgctxt "Game controls"
+msgid "Screen Capture"
+msgstr "화면 녹화"
+
+#: guitext:1084
+msgctxt "Game controls"
+msgid "Screenshot"
+msgstr "스크린샷"
+
+#: guitext:1085
+msgctxt "Game controls"
+msgid "Frame Skip Increase"
+msgstr "프레임 건너뛰기 증가"
+
+#: guitext:1086
+msgctxt "Game controls"
+msgid "Frame Skip Decrease"
+msgstr "프레임 건너뛰기 감소"
+
+#: guitext:1087
+msgctxt "Game controls"
+msgid "Zoom Minimap In"
+msgstr "미니맵 확대"
+
+#: guitext:1088
+msgctxt "Game controls"
+msgid "Zoom Minimap Out"
+msgstr "미니맵 축소"
+
+#: guitext:1089
+msgctxt "Game controls"
+msgid "Next Ability"
+msgstr "다음 인스턴스"
+
+#: guitext:1090
+msgctxt "Game controls"
+msgid "Previous Ability"
+msgstr "이전 인스턴스"
+
+#: guitext:1091
+msgctxt "Menu interface item"
+msgid "Online Lobby"
+msgstr "온라인 로비"
+
+#: guitext:1092
+msgctxt "Menu interface item"
+msgid "LAN Lobby"
+msgstr "LAN 로비"
+
+#: guitext:1093
+msgctxt "Menu interface item"
+msgid "LAN Lobbies"
+msgstr "LAN 로비"
+
+#: guitext:1094
+msgctxt "Game controls"
+msgid "Toggle Gui"
+msgstr "GUI 전환"
+
+#: guitext:1095
+msgctxt "Game controls"
+msgid "Toggle Tooltips"
+msgstr "툴팁 전환"
+
+#: guitext:1096 guitext:1097 guitext:1098
+msgctxt "Unused string"
+msgid "Moo"
+msgstr ""
+
+#: guitext:1099
+msgctxt "Game controls"
+msgid "Exit Game"
+msgstr "게임 종료"
+
+#: guitext:1100
+msgctxt "Game controls"
+msgid "Disable Packet Mode"
+msgstr "패킷 모드 비활성화"
+
+#: guitext:1101
+msgctxt "Game controls"
+msgid "Switch Screen Res"
+msgstr "화면 해상도 변경"
+
+#: guitext:1102
+msgctxt "Game controls"
+msgid "Toggle Console"
+msgstr "콘솔 전환"
+
+#: guitext:1103
+msgctxt "Game controls"
+msgid "Finish Level"
+msgstr "레벨 완료"
+
+#: guitext:1104
+msgctxt "Game controls"
+msgid "Options Menu"
+msgstr "옵션 메뉴"
+
+#: guitext:1105
+msgctxt "Game controls"
+msgid "Toggle Hero Health Flowers"
+msgstr "영웅 체력 꽃 전환"
+
+#: guitext:1106
+msgctxt "Keyboard"
+msgid "Grave"
+msgstr "억음 부호"
+
+#: guitext:1107
+msgctxt "Game controls"
+msgid "Teleport Last Workroom"
+msgstr "순간이동 마지막 작업실"
+
+#: guitext:1108
+msgctxt "Game controls"
+msgid "Teleport Call To Arms"
+msgstr "순간이동 소집"
+
+#: guitext:1109
+msgctxt "Game controls"
+msgid "Teleport Default"
+msgstr "순간이동 기본"
+
+#: guitext:1110
+msgctxt "Menu interface item"
+msgid "Multiplayer Map Packs"
+msgstr ""
+
+#: guitext:1111
+msgctxt "Menu interface item"
+msgid "Return to Lobby"
+msgstr ""
+
+#: guitext:1112
+msgctxt "In-game message"
+msgid "You have been defeated. As host, keep the game running until the match concludes."
+msgstr "패배했습니다. 호스트는 경기가 끝날 때까지 게임을 계속 실행해 주세요."
+
+#: guitext:1113
+msgctxt "Network game message"
+msgid "Verify /fxdata/ is the same across all PCs."
+msgstr "모든 PC의 /fxdata/가 동일한지 확인하십시오."
+
+#: guitext:1114
+msgctxt "Network game message"
+msgid "WARNING: Custom sprite mismatch with %s!"
+msgstr "경고: %s와 사용자 지정 스프라이트가 일치하지 않습니다!"
+
+#: guitext:1115
+msgctxt "Network game message"
+msgid "I am the computer now!"
+msgstr "이제 컴퓨터가 조종합니다!"
+
+#: guitext:1116
+msgctxt "Network game message"
+msgid "%s has left the game."
+msgstr "%s 님이 게임을 떠났습니다."
+
+#: guitext:1117
+msgctxt "Network game message"
+msgid "%s has disconnected."
+msgstr "%s 님의 연결이 끊겼습니다."
+
+#: guitext:1118
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
+
+#: guitext:1119
+msgctxt "Network game message"
+msgid "Network connection to host lost"
+msgstr "호스트와의 네트워크 연결이 끊겼습니다"

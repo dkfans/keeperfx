@@ -1,0 +1,119 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file speech_por.po
+#      KeeperFX Speeches translation file
+#  @par Purpose:
+#      Contains translation of the national speeches in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Ancient Keeper campaign for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: "Dwarfton"
+msgctxt "Level introduction"
+msgid "You are the last prince of Dominus, trapped at Dwarfton. The city of hard-working folk is under siege, and it seems all but impossible to repel the invaders. In desperation, you perform a mystical ritual, found in the moldy tome spirited from your ancestors' library during your flight from evil. At the price of your humanity, it bestows great powers of omniscience upon you, and allows you to direct your subjects with superb ease."
+msgstr "Você é o último príncipe de Dominus, encurralado em Dwarfton. A cidade de gente trabalhadora está sitiada, e parece quase impossível repelir os invasores. Em desespero, você realiza um ritual místico, encontrado no tomo mofado retirado da biblioteca de seus ancestrais durante sua fuga do mal. Ao preço de sua humanidade, ele lhe concede grandes poderes de onisciência e permite que você dirija seus súditos com suprema facilidade."
+
+#: "Dwarfton"
+msgctxt "Level summary"
+msgid "First victory in the long while, exhilarating. Empowered by an ancient ritual, you managed to turn the tide against the forces of evil. Yet soon comes the despair, for what are you now if not a monster yourself? There and now, you make a vow, to never let go of your origin as the human prince of Dominus."
+msgstr "Primeira vitória em muito tempo, emocionante. Fortalecido por um ritual antigo, você conseguiu virar o jogo contra as forças do mal. No entanto, logo vem o desespero, pois o que você é agora senão um monstro? Ali e agora, você faz um voto: nunca abandonar sua origem como o príncipe humano de Dominus."
+
+#: "Sparkleforest"
+msgctxt "Level introduction"
+msgid "For aoens, it was home to fairies and elves, mystical beings of goodness and ethereal beauty. Now the filthy orcs trudge the clearings, littered with hacked logs, and hunt the few survivors to roast them for fun. The kings Dominus has vowed to protect the Sparkleforest, and you now return to fulfill the obligation."
+msgstr "Por éons, foi o lar de fadas e elfos, seres místicos de bondade e beleza etérea. Agora, os orcs imundos percorrem as clareiras, repletas de troncos cortados, e caçam os poucos sobreviventes para assá-los por diversão. Os reis de Dominus juraram proteger a Floresta Cintilante, e você agora retorna para cumprir essa obrigação."
+
+#: "Sparkleforest"
+msgctxt "Level summary"
+msgid "Magic is a fickle thing. Just yesterday all the meadows of Sparkleforest were dead and stank of rotting caracasses, but since its protectors are now safe, the enchanted forest is reborn anew. Will similiar salvation await you in the end, you wonder?.."
+msgstr "A magia é uma coisa inconstante. Ainda ontem, todos os prados da Floresta Cintilante estavam mortos e fediam a carcaças em decomposição, mas como seus protetores estão agora seguros, a floresta encantada renasce. Uma salvação semelhante o aguardará no final, você se pergunta?.."
+
+#: "Abbeystone"
+msgctxt "Level introduction"
+msgid "Unsightly banners and filthy markings desecrate the battlements of Abbeystone. The mighty monastery has fallen, and the survivors have fled underground, to the reinforced cellars. Your arrival post-haste left most of your forces behind, the time is still of the essence... but can you save the living if you are dead yourself?"
+msgstr "Estandartes feios e marcações imundas profanam as ameias de Abbeystone. O poderoso mosteiro caiu, e os sobreviventes fugiram para o subsolo, para as adegas reforçadas. Sua chegada apressada deixou a maior parte de suas forças para trás, o tempo ainda é essencial... mas você pode salvar os vivos se você mesmo está morto?"
+
+#: "Abbeystone"
+msgctxt "Level summary"
+msgid "Halls of Abbeystone, are now a sight to behold. Peaceful gardens and shrines of the Pantokrator, restored by the hard-working fairies and dwarves, are marvelous. Hope spreads among the men, for what was nearly lost is regained once again. If only you were to rejoice alongside your subjects, it would be perfect."
+msgstr "Os salões de Abbeystone são agora um espetáculo a ser contemplado. Jardins pacíficos e santuários do Pantokrator, restaurados pelas fadas e anões trabalhadores, são maravilhosos. A esperança se espalha entre os homens, pois o que estava quase perdido foi recuperado. Se ao menos você pudesse se alegrar ao lado de seus súditos, seria perfeito."
+
+#: "Widerwilds"
+msgctxt "Level introduction"
+msgid "Once loosely attached to the kingdom of Dominus, with its fall the barbarian clans went completely independent. Horrible monsters roam the wilderness, and by this day only a single clan still endures, united under single chieftain. He does not recognize your authority, and challenges you for daring to trespass through his lands."
+msgstr "Antes vagamente ligados ao reino de Dominus, com sua queda os clãs bárbaros se tornaram completamente independentes. Monstros horríveis vagueiam pela selva, e até hoje apenas um único clã ainda resiste, unido sob um único chefe. Ele não reconhece sua autoridade e o desafia por ousar invadir suas terras."
+
+#: "Widerwilds"
+msgctxt "Level summary"
+msgid "After the treacherous devil hiding under the guise of a barbarian chieftain is put down, your righteous anger simmers down. You shudder at the sick irony of brave warriors serving the whims of the vile monster, all unaware of its true nature. Now the wilderness is safe to travel at night."
+msgstr "Depois que o demônio traiçoeiro escondido sob o disfarce de um chefe bárbaro é derrotado, sua justa ira se acalma. Você estremece com a ironia doentia de bravos guerreiros servindo aos caprichos do monstro vil, todos inconscientes de sua verdadeira natureza. Agora, a selva é segura para viajar à noite."
+
+#: "Misty Bog"
+msgctxt "Level introduction"
+msgid "Filthy streams, bloody fog, sinister darkness and putrid mist - even weather died in presence of the worst necromancer in Dominus. His vampires were the instrument of destruction which brought down the Knightly Order of Dominus, and he went on to reanimate their bones and bind their spirits for his own sick amusement. The dead should rest, and you'll grant them their peace."
+msgstr "Riachos imundos, névoa sangrenta, escuridão sinistra e névoa pútrida - até o clima morreu na presença do pior necromante de Dominus. Seus vampiros foram o instrumento de destruição que derrubou a Ordem dos Cavaleiros de Dominus, e ele passou a reanimar seus ossos e prender seus espíritos para sua própria diversão doentia. Os mortos devem descansar, e você lhes concederá a paz."
+
+#: "Misty Bog"
+msgctxt "Level summary"
+msgid "Murky waters, milky fog, blurry shadows and humid air. While still unpleasant, the weather is no longer tainted with unholy presence, and the wind is blowing eastwards. As the last vampire is staked in the bog, you wish you could've smiled grimly."
+msgstr "Águas turvas, névoa leitosa, sombras embaçadas e ar úmido. Embora ainda desagradável, o clima não está mais contaminado com a presença profana, e o vento sopra para o leste. Enquanto o último vampiro é cravado no pântano, você deseja poder ter sorrido sombriamente."
+
+#: "Knights' Castle"
+msgctxt "Level introduction"
+msgid "Ruins of your ancestral castle, abandoned by men and haunted by the ghosts. No monsters roam the land, as there are no villages to plunder anymore. As your subjects rebuild the worn battlements, you turn your attention to the dungeons where your sworn enemies made their foothold."
+msgstr "Ruínas de seu castelo ancestral, abandonado pelos homens e assombrado por fantasmas. Nenhum monstro vagueia pela terra, pois não há mais aldeias para saquear. Enquanto seus súditos reconstroem as ameias desgastadas, você volta sua atenção para as masmorras onde seus inimigos jurados se estabeleceram."
+
+#: "Knights' Castle"
+msgctxt "Level summary"
+msgid "Its white walls once again stand proud in the dawn, the defenders standing tall on the battlements. The people rejoice, for their kingdom is back. All the same, you aren't satisfied by enacting your vengeance. In short order, you march out against Wickedridge."
+msgstr "Seus muros brancos mais uma vez se erguem orgulhosos ao amanhecer, os defensores postados nas ameias. O povo se alegra, pois seu reino está de volta. Mesmo assim, você não está satisfeito em executar sua vingança. Em pouco tempo, você marcha contra a Cordilheira Perversa."
+
+#: "Hellspring"
+msgctxt "Level introduction"
+msgid "Fiery smoke and magmatic demons, wild and chaotic flow of molten sulfur - such are the lower levels of the Wickedridge. Across the lava, you can see the den of evil brimming with activity, and their sight drives you into frenzy."
+msgstr "Fumaça de fogo e demônios magmáticos, fluxo selvagem e caótico de enxofre derretido - tais são os níveis inferiores da Cordilheira Perversa. Através da lava, você pode ver o covil do mal fervilhando de atividade, e a visão deles o leva ao frenesi."
+
+#: "Hellspring"
+msgctxt "Level summary"
+msgid "Exorcised of its inhabitants, the lava river is now serene and calm. You can't help but feel restless at the sight, for it means the evil is still lurking upwards the stream. There's no time to waste as you move onwards to Wickedridge."
+msgstr "Exorcizado de seus habitantes, o rio de lava está agora sereno e calmo. Você não pode deixar de se sentir inquieto com a visão, pois isso significa que o mal ainda está à espreita rio acima. Não há tempo a perder enquanto você avança para a Cordilheira Perversa."
+
+#: "Verminfeast"
+msgctxt "Level introduction"
+msgid "Haunted vale. Nothing grows here, and only monstrous vermin lurk in this land, littered with bones and shrouded with sickly smog blowing from the Wickedridge. Running out of supplies, half your forces turn back, yet you still press onward without care."
+msgstr "Vale assombrado. Nada cresce aqui, e apenas vermes monstruosos espreitam nesta terra, cheia de ossos e envolta em uma névoa doentia vinda da Cordilheira Perversa. Ficando sem suprimentos, metade de suas forças recua, mas você ainda avança sem se importar."
+
+#: "Verminfeast"
+msgctxt "Level summary"
+msgid "All is silent. With the vermin-master slain, the vale is frighteningly dull and monotone. One could say the living do not belong here."
+msgstr "Tudo está em silêncio. Com o mestre dos vermes morto, o vale é assustadoramente monótono e sem graça. Poder-se-ia dizer que os vivos não pertencem a este lugar."
+
+#: "Wickedridge"
+msgctxt "Level introduction"
+msgid "The hall of darkness, the stronghold of sin, the fortress of evil. You have gone far in your quest for revenge, and there is no turning back. Doubts aside, you cast your will outwards, the long-pursued goal finally within reach."
+msgstr "O salão da escuridão, a fortaleza do pecado, a fortaleza do mal. Você foi longe em sua busca por vingança, e não há como voltar atrás. Deixando as dúvidas de lado, você lança sua vontade para fora, o objetivo há muito perseguido finalmente ao seu alcance."
+
+#: "Wickedridge"
+msgctxt "Level summary"
+msgid "The light illuminates the light, as paragons of virtue and goodness celebrate their victory. But for you? It is hollow. No release from your torment forthcoming, you can only suffer from impotent rage, watching the world from your diamond prison, and wishing for death."
+msgstr "A luz ilumina a luz, enquanto modelos de virtude e bondade celebram sua vitória. Mas para você? É oco. Nenhuma libertação de seu tormento se aproxima, você só pode sofrer

@@ -1,0 +1,485 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file twinkprs/text_eng.pot
+#      KeeperFX Campaign Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 03 Nov 2013
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Twin Keepers campaign for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.4\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#. Level Swedish Spirit Opening Message
+#: guitext:1
+msgctxt "In-game message"
+msgid ""
+"Circle circle of the dead, tell me who I'm gonna get. Having troll is making "
+"traps, as the workshop knack he has. Warlock brings a bunch of spells, "
+"that's what bookworms always have. Orc attracts a better army, which could "
+"do some serious harming."
+msgstr ""
+"Circule, circule mortis, quem ad me trahere debebo dic mihi. Trollum trappas "
+"facit, quia sollertiam officinae habet. Veneficus multas incantationes "
+"afferit, quod semper habent libris dediti. Orcus attrahit melior exercitum, "
+"qui facere potest damnum serium."
+
+#. Level Swedish Spirit guard post message
+#: guitext:2
+msgctxt "In-game message"
+msgid ""
+"Your conquest of the guard post has caused the heroes to retreat. However, "
+"they are regrouping and reinforcing their numbers. You should use this lull "
+"to prepare your forces, Master, as they will surely return!"
+msgstr ""
+"Custodia quam vicisti fecit heroes recipere se. Attamen se circulantur et "
+"novis copiis se firmant. Hac quiete utaris ad vires tuas parandas, Domine, "
+"quoniam certe revenient!"
+
+#. Level Swedish Spirit 2nd portal claim
+#: guitext:3
+msgctxt "In-game message"
+msgid ""
+"Your capture of the second portal has forced the heroes to act, and an "
+"attack is on the way. Your spies report, however, that the main hero army is "
+"being held in reserve. Your preparations will be thoroughly tested, Master!"
+msgstr ""
+"Captura tua portalis alterius heroes agere coegit, et impetus in itinere "
+"est. Exploratores tui tamen referunt exercitum praecipum heroum in subsidio "
+"tentum esse. Comparationes tuae omnino tentabuntur, Domine!"
+
+#. Level Swedish spirit outside hero heart
+#: guitext:4
+msgctxt "In-game message"
+msgid ""
+"Beware, the main hero army approaches! I hope you're prepared for this, "
+"otherwise it may be a very short fight. Destroy the heart tainted by their "
+"nauseating righteousness!"
+msgstr ""
+"Cave, exercitus praecipus heroum accedit! Te ad hoc apparavisse spero, "
+"alioqui pugna sane quam brevis esse potest. Perde cor a sua moralitate "
+"imbutum!"
+
+#. Level Swedish Spirit. Orc from steal hero message
+#: guitext:5
+msgctxt "In-game message"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is brute force. You'll "
+"also be able to imprison enemies, and use the unholy temple... if you know "
+"how. Use your creatures well, as you cannot help them with traps or spells. "
+"Also, watch your gold reserves. The heroes have already noticed you and are "
+"preparing for a crusade."
+msgstr ""
+"Fatum locutum est, domine male. Telum tuum praecipum vis bruta est. Poteris "
+"quoque inimicos includere, et templo impio uti... si scis quomodo eo utaris. "
+"Bene utere creaturis tuis, quoniam eas adiuvare trappis aut incantationibus "
+"non potes. Etiam custodia retentionem auri tuam. Heroes iam te "
+"animadverterunt et se parant ad expeditionem sacram."
+
+#. Level Swedish Spirit. Warlock from steal hero message
+#: guitext:6
+msgctxt "In-game message"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is magic. You'll be able "
+"to use lots of powerful spells. Use them well, as you cannot make traps or "
+"build a large army. The heroes have already noticed you and are preparing "
+"for a crusade."
+msgstr ""
+"Fatum locutum est, domine male. Telum tuum praecipum magica ars est. Poteris "
+"multis incantationibus potentibus uti. Bene eis utere, quoniam trappas "
+"facere aut exercitum magnum creare non potes. Heroes iam te animadverterunt "
+"et se parant ad expeditionem sacram."
+
+#. Level Swedish Spirit. Troll from steal hero message
+#: guitext:7
+msgctxt "In-game message"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is manufacture. You'll be "
+"able to build devastating traps. Use these devices well, as you cannot use "
+"magic or build a large army. The heroes have already noticed you and are "
+"preparing for a crusade."
+msgstr ""
+"Fatum locutum est, domine male. Telum tuum praecipum ars fabrica est. "
+"Poteris trappas potentes construere. Bene his artificiis utere, quoniam "
+"magica arte utere aut exercitum magnum creare non potes. Heroes iam te "
+"animadverterunt et se parant ad expeditionem sacram."
+
+#: guitext:8
+msgctxt "In-game message"
+msgid ""
+"The abomination of a heart has been destroyed. You must show no mercy. Be "
+"certain that no living heroes remain, Keeper."
+msgstr ""
+"Hoc cor detestabile perimitur. Te nullam veniam monstrare oportet. Certus es "
+"nullos heroes vivos manere, Custos."
+
+#. Level Nameless hero (2nd level) imminent victory
+#: guitext:9
+msgctxt "In-game message"
+msgid ""
+"Almost there! Be sure to slaughter every last hero. Let no-one suggest that "
+"you were ever merciful. Such slander would ruin your reputation!"
+msgstr ""
+"Paene! Certus es omnino omnem heroem interficere. Ne facias te misericordem "
+"fuisse insusurretur. Talis criminatio famam tuam perdit!"
+
+#: guitext:10
+msgctxt "In-game message"
+msgid ""
+"While traveling to this land, we lost our Treasure Room plans. Fortunately, "
+"there is an ancient treasury nearby, left behind by a powerful long-dead "
+"Keeper. Use it well!"
+msgstr ""
+"Dum in hanc terram iterum facemus, descriptiones nostras Camerae Thesauri "
+"amisimus. Feliciter, bibliotheca vetus in hac terra est, a custode potente "
+"mortuo dudum relicta. Ea bene utere!"
+
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"The hero forces will continue to attack, but they're getting weaker. When "
+"you're ready, focus on the corridor near your entrance and commence an "
+"attack on their main force!"
+msgstr ""
+"Vires heroum impetum manebunt, sed infirmiores fiunt. Quum praesto es, "
+"animadverte andronem prope introitum tuum et incipe impetum in vi praecipua "
+"eius!"
+
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"You've chosen to attack the main enemy force a little early. I just hope it "
+"won't be your undoing, Keeper."
+msgstr ""
+"Elegisti vim praecipuam inimicam praemature aggredi. Quin spero se non "
+"dissolutionem tuam esse, custos."
+
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"The good are beginning to understand their inevitable fate. But stay alert, "
+"there's still a bunch left to slay, and they're definitely not too weak to "
+"resist!"
+msgstr ""
+"Boni incipiunt fatum suum inevitabile intellegere. Sed vigila, multi adhuc "
+"sunt ad interficiendum, et infirmiores certe non sunt!"
+
+#: guitext:14
+msgctxt "In-game message"
+msgid ""
+"If I were in your skin... I mean, in your flask - I would avoid attacking "
+"the door near the Entrance. The heroes who live there might prove to be a "
+"problem if your army isn't comprised of hardened veterans."
+msgstr ""
+"Ego si istic sim... mihi volo, in ampulla tua, aggredi ostium prope "
+"introitum fugiam. Heroes qui istic vivunt impedimentum esse poterant, si "
+"exercitus tuus ex veteratoribus duris non constat."
+
+#: guitext:15
+msgctxt "In-game message"
+msgid ""
+"The Lord of this land is known for his greed and is sure to know where to "
+"find the old Treasury. Expect visits from his lackeys looking to score some "
+"easy gold."
+msgstr ""
+"Homines huius terrae bene sciunt ubi Cameram Thesauri veterem reperire. "
+"Exspecta salutationes heroum variorum, qui quaerunt aut famam et gloriam aut "
+"tantum aliquid auri facile."
+
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"Do not allow your creatures to attack the door to the North! Instead, turn "
+"your attention to the caverns to the South. The heroes there are somewhat "
+"weaker, and I smell a seductive wealth within."
+msgstr ""
+"Creaturas tuas ostium prope introitum aggredi ne sine! Pro hoc, oculos tuos "
+"ad ostium in imo converte. Heroes istic aliquid infirmiores sunt, et opes "
+"intrinsecus quo aliquis facile corrumpitur olfacio."
+
+#: guitext:17
+msgctxt "In-game message"
+msgid ""
+"These Samurai should make quick work of those pilfering brigands and the "
+"gems should make your money woes history. That's progress!"
+msgstr ""
+"Habere gemmas Samuraeum tuum sinet recte exercere se, et Fures non iam "
+"te animadvertant tali vi. Istud progressus est!"
+
+#: guitext:18
+msgctxt "In-game message"
+msgid ""
+"Congratulations, Evil One. Victory is within your grasp! A few more corpses "
+"and we'll be done here. Hurry along!"
+msgstr ""
+"Gratulationes, Male. Victoria in manibus tuis est! Pauca plura corpora et "
+"hic perfecerimus. Age te!"
+
+#. Level Nameless hero opening message
+#: guitext:19
+msgctxt "In-game message"
+msgid ""
+"The hero who commands this realm can't be of much renown, as he doesn't even "
+"have a name! You can worry about this once he's in need of a tombstone, "
+"Keeper. To work!"
+msgstr ""
+"Heros qui huic regno imperat non potest amplus esse, quoniam nomen vel non "
+"habet! De hoc cruciare potes quum necesse ei est lapide, Custos. Operatum i!"
+
+#. Level Nameless hero action point 22
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"Have you found the man with no name yet, Keeper? He must be here somewhere?!"
+msgstr "Nanctus esne hominem sine nomine, Custos? Hic alicubi esse opus est?!"
+
+#. Level Nameless hero opening message
+#: guitext:21
+msgctxt "In-game message"
+msgid ""
+"The nameless one commands many heroes, Master, and he will not hesitate to "
+"rally them against you."
+msgstr ""
+"Nominis expers multis heroibus imperat, Custos, et non dubitabit quin eos "
+"ducat in te."
+
+#. Level Twin Keepers opening message
+#: guitext:22
+#, fuzzy
+msgctxt "In-game message"
+msgid ""
+"You've arrived, at last, to the doorstep of the Twin Keepers. They wield "
+"ancient magic to split their most powerful minion into two. No matter how "
+"many times you kill one half, it will revive as long as its twin is alive. "
+"They've now set their sights on a powerful hero to replace their prized pet, "
+"and then they will become truly unstoppable! Get to him before they can no "
+"matter what!"
+msgstr ""
+
+#. Level Twin Keepers hero heart destroyed
+#: guitext:23
+msgctxt "In-game message"
+msgid ""
+"The hero dungeon has fallen, Master! You have little time before the Twin "
+"Keepers make their move against you. Make your final preparations now!"
+msgstr ""
+"Robur herois cecedit, Domine! Paulum temporis habes antequam Custodes Gemini "
+"in te movent. Comparationes ultimas tuas nunc effice!"
+
+#. Level Twin Keepers hero loss message
+#: guitext:24
+msgctxt "In-game message"
+msgid ""
+"Significant hero reinforcements have arrived, but will it be enough to hold "
+"off the combined strength of the Twin Keepers? Only time will tell."
+msgstr ""
+"Supplementa heroum ampla pervenierunt, sed eritne istud satis vires "
+"coniunctas Custodum Geminorum arcere? Tantum tempus narrabit."
+
+#. Level Twin Keepers victory message
+#: guitext:25
+#, fuzzy
+msgctxt "In-game message"
+msgid ""
+"Excellent work, Master! Both the Twins' ambitions and Hearts have been "
+"squished under your mighty boot. You are now the rightful ruler of this "
+"realm!"
+msgstr ""
+
+#. Level Twin Keepers defeat message
+#: guitext:26
+msgctxt "In-game message"
+msgid ""
+"You've been a great disappointment! However, the twins appear to have turned "
+"on each other, so you can watch the show while you contemplate the "
+"implications of your incompetence."
+msgstr ""
+"Me tu frustratus es! Hi Custodes antehac comes tamen societatem suam "
+"diremerunt, sic spectaculum observare potes dum consequentia inscitiae tuae "
+"contemplaris."
+
+#. Level Okehazama opening message
+#: guitext:27
+#, fuzzy
+msgctxt "In-game message"
+msgid ""
+"The Lord of this land is rallying a powerful army against you and you stand "
+"no chance of winning in a fair fight. If you can find a way to ambush him "
+"and cut off the serpent's head, his lackeys will flee like the insects they "
+"are."
+msgstr ""
+"Hoc est terra ultima quam vincere tibi necesse est, si obviam fieri Custodibus "
+"Geminis optas. Tres alii custodes hic sunt, et divina quid? Nullis eorum placent tu!"
+
+#. Level Okehazama victory message
+#: guitext:28
+msgctxt "In-game message"
+msgid ""
+"A majestic victory, Master! You have earned the right to challenge the "
+"infamous Twin Keepers. Savour this moment awhile, then prepare yourself for "
+"the final battle!"
+msgstr ""
+"Victoria augusta, Domine! Et jus obviam fieri Custodibus Geminis infamibus "
+"in pugna consecutus es. Sapie hoc momentum paulisper, deinde para te ad "
+"ultimam probationem!"
+
+#. Level Okehazama Hero Knight death message
+#: guitext:29
+msgctxt "In-game message"
+msgid ""
+"With the Lord defeated, his army is now in a state of panic and will try to "
+"flee at every opportunity. Best to reward their newfound hopelessness with a "
+"swift death!"
+msgstr ""
+"Cum equite suo victo, hi heroes iam sciunt hoc esse pugnam mortiferam, et "
+"omni occasione aggredientur, Domine. Optimum est fortitudinem suam "
+"remunerari unico modo quem scis!"
+
+#. Level Okehazama hero onslaught message
+#: guitext:30
+#, fuzzy
+msgctxt "In-game message"
+msgid ""
+"The Lord has arrived and his army is out for blood. I trust you've prepared "
+"a way to deal with him? Or were you having a little lie down?"
+msgstr ""
+"Undas partium heroum resolvisti, Domine, quoniam hi heroes extremum restant "
+"in hoc regno. Opus est defensionibus tuis latae et bene positae esse, si "
+"triumphare hic vis."
+
+#. Level Embattled Formation opening message
+#: guitext:31
+#, fuzzy
+msgctxt "In-game message"
+msgid ""
+"You are under siege, Master, with enemies on all sides in a land with no "
+"place to hide. These three sickening cowards have made their peace with each "
+"other and sworn to eliminate you. You need a plan of your own and you need "
+"it fast!"
+msgstr ""
+"Sub oppugnatione in hac terra es, Domine, cum inimicis undique, et terra ubi "
+"in nullo loco te abdere potes. Foede, inter se pacificati sunt et juraverunt "
+"te removere ex hac terra. Necesse tibi est consilio proprio, et necesse tibi "
+"est eo celeriter!"
+
+#. Level Embattled Formation one opponent remaining message
+#: guitext:32
+msgctxt "In-game message"
+msgid ""
+"Impressive work, Master. It's been a privilege to watch you wreak havoc on "
+"your enemies. Only one remains, but beware, he has seen his allies' fate and "
+"will throw everything into the battle to save his skin!"
+msgstr ""
+"Gravis labor, Domine. Beneficium est te inimicos tuos occidere observare. "
+"Solum unus inimicus manet, sed cave, fatum sociorum suorum vidit, et omnia "
+"in pugnam iaciet ad cutem suam tuendam!"
+
+#. Level Embattled Formation victory message
+#: guitext:33
+msgctxt "In-game message"
+msgid ""
+"An excellent victory once again. All three enemies lie in the ashes of this "
+"once green and vibrant land. I sense you're ready to seek out the next land, "
+"Master?"
+msgstr ""
+"Denuo victoria excellens. Tres inimici inter pulvem huius terrae olim "
+"viridis et iucundae iacent. Percipione te terram proximam invenire volere, "
+"Domine?"
+
+#. Level Embattled formation death of a keeper message
+#: guitext:34
+msgctxt "In-game message"
+msgid ""
+"A good start, Keeper, but beware. The remaining keepers have pilfered the "
+"remains of this dead kingdom, and have grown stronger by attracting more "
+"creatures, anxious to share in the spoils!"
+msgstr ""
+"Initium bonum, custos, sed cave. Custodes reliqui fortiores fiunt reliquiis "
+"huius regni mortui surripiendis, ergo et plures creaturas attrahunt, quae "
+"gestiunt partire spolia!"
+
+#: guitext:35 guitext:36 guitext:37 guitext:38 guitext:39 guitext:40 guitext:41
+#: guitext:42 guitext:43 guitext:44 guitext:45 guitext:46 guitext:47 guitext:48
+#: guitext:49 guitext:50 guitext:51 guitext:52 guitext:53 guitext:54 guitext:55
+#: guitext:56 guitext:57 guitext:58 guitext:59 guitext:60 guitext:61 guitext:62
+#: guitext:63 guitext:64 guitext:65 guitext:66 guitext:67 guitext:68 guitext:69
+#: guitext:70 guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76
+#: guitext:77 guitext:78 guitext:79 guitext:80 guitext:81 guitext:82 guitext:83
+#: guitext:84 guitext:85 guitext:86 guitext:87 guitext:88 guitext:89 guitext:90
+#: guitext:91 guitext:92 guitext:93 guitext:94 guitext:95 guitext:96 guitext:97
+#: guitext:98 guitext:99 guitext:100 guitext:101 guitext:102 guitext:103
+#: guitext:104 guitext:105 guitext:106 guitext:107 guitext:108 guitext:109
+#: guitext:110 guitext:111 guitext:112 guitext:113 guitext:114 guitext:115
+#: guitext:116 guitext:117 guitext:118 guitext:119 guitext:120 guitext:121
+#: guitext:122 guitext:123 guitext:124 guitext:125 guitext:126 guitext:127
+#: guitext:128 guitext:129 guitext:130 guitext:131 guitext:132 guitext:133
+#: guitext:134 guitext:135 guitext:136 guitext:137 guitext:138 guitext:139
+#: guitext:140 guitext:141 guitext:142 guitext:143 guitext:144 guitext:145
+#: guitext:146 guitext:147 guitext:148 guitext:149 guitext:150 guitext:151
+#: guitext:152 guitext:153 guitext:154 guitext:155 guitext:156 guitext:157
+#: guitext:158 guitext:159 guitext:160 guitext:161 guitext:162 guitext:163
+#: guitext:164 guitext:165 guitext:166 guitext:167 guitext:168 guitext:169
+#: guitext:170 guitext:171 guitext:172 guitext:173 guitext:174 guitext:175
+#: guitext:176 guitext:177 guitext:178 guitext:179 guitext:180 guitext:181
+#: guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187
+#: guitext:188 guitext:189 guitext:190 guitext:191 guitext:192 guitext:193
+#: guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199
+#: guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr "Mu"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Swedish spirit"
+msgstr "Spiritus suecus"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "The Nameless Hero"
+msgstr "Heros insignitus"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Invisible"
+msgstr "Invisibilis"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Embattled formation"
+msgstr "Conformatio instructa"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Okehazama"
+msgstr ""
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Twin Keepers"
+msgstr "Custodes gemini"

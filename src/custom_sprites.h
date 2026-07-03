@@ -28,16 +28,54 @@ extern "C" {
 struct ObjectConfigStats;
 
 #define SPRITE_LAST_LEVEL -1
-#define get_button_sprite(sprite_idx) get_button_sprite_for_player(sprite_idx, my_player_number) 
+
+static const char * const required_sprite_zips[] = {
+    "colored_sprites.zip",
+    "creatures.zip",
+    "decorative_objects.zip",
+    "druid.zip",
+    "effects.zip",
+    "maiden.zip",
+    "natural_features.zip",
+    "time_mage.zip",
+    "trapsdoors.zip",
+};
+
+#define REQUIRED_SPRITE_ZIP_COUNT (sizeof(required_sprite_zips) / sizeof(required_sprite_zips[0]))
+
 void init_custom_sprites(LevelNumber level_no);
 
+extern TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
+
 short get_anim_id(const char *name, struct ObjectConfigStats* objst);
+short get_anim_id_(const char* name);
 short get_icon_id(const char *name);
 const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx);
-const struct TbSprite *get_button_sprite_direct(short sprite_idx);
+const struct TbSprite *get_button_sprite(short sprite_idx);
 const struct TbSprite *get_frontend_sprite(short sprite_idx);
 const struct TbSprite *get_new_icon_sprite(short sprite_idx);
+const struct TbSprite *get_panel_sprite(short sprite_idx);
 int is_custom_icon(short icon_idx);
+
+// Lens overlay data structure
+struct LensOverlayData {
+    char *name;
+    unsigned char *data;
+    int width;
+    int height;
+};
+
+// Lens mist data structure
+struct LensMistData {
+    char *name;
+    unsigned char *data;  // 256x256 mist texture
+};
+
+// Get lens overlay data by name (returns NULL if not found)
+const struct LensOverlayData* get_lens_overlay_data(const char *name);
+
+// Get lens mist data by name (returns NULL if not found)
+const struct LensMistData* get_lens_mist_data(const char *name);
 
 extern short bad_icon_id;
 #ifdef __cplusplus

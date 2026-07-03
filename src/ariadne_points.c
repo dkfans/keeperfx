@@ -35,28 +35,6 @@ static long free_Points;
 
 struct Point ari_Points[POINTS_COUNT];
 /******************************************************************************/
-/**
- * Checks if there's space for given amount of points.
- * Quite useless, as we never know if a new point will be inserted or existing will be reused.
- * @param n Amount of point required.
- * @return Returns whether there is space for given amount of points or not.
- */
-TbBool has_free_points(long n)
-{
-    if (count_Points + n >= POINTS_COUNT)
-        return false;
-    return true;
-}
-
-long get_ix_points()
-{
-    return ix_Points;
-}
-
-long get_free_points()
-{
-    return free_Points;
-}
 
 AridPointId point_new(void)
 {

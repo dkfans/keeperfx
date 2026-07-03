@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "room_data.h"
+#include "gui_soundmsgs.h"
 
 #include "config.h"
 
@@ -65,12 +66,15 @@ enum SlabFillStyle {
 };
 
 enum RoomCfgFlags {
-    RoCFlg_None           = 0x00,
-    RoCFlg_NoEnsign       = 0x01,
-    RoCFlg_CantVandalize  = 0x02,
-    RoCFlg_BuildTillBroke = 0x04,
-    RoCFlg_CannotBeSold   = 0x08,
-    RoCFlg_ListEnd        = 0x10,
+    RoCFlg_None            = 0x00,
+    RoCFlg_NoEnsign        = 0x01,
+    RoCFlg_CantVandalize   = 0x02,
+    RoCFlg_BuildTillBroke  = 0x04,
+    RoCFlg_CannotBeSold    = 0x08,
+    RoCFlg_CannotBeClaimed = 0x10,
+    RoCFlg_NotCounted      = 0x20,
+    RoCFlg_NoFlames        = 0x40,
+    RoCFlg_ListEnd         = 0x80,
 };
 
 /**
@@ -107,12 +111,16 @@ enum RoomRoleFlags {
 
 struct SlabMap;
 
-struct SlabAttr {
-    unsigned short tooltip_stridx;
+#pragma pack()
+/******************************************************************************/
+struct SlabConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    TextStringId tooltip_stridx;
+    RoomKind assigned_room;
     short block_flags_height;
     short block_health_index;
-    unsigned long block_flags;
-    unsigned long noblck_flags;
+    uint32_t block_flags;
+    uint32_t noblck_flags;
     unsigned char fill_style;
     unsigned char category;
     unsigned char slb_id;
@@ -123,69 +131,54 @@ struct SlabAttr {
     unsigned char wlb_type;
     unsigned char is_ownable;
     unsigned char indestructible;
-};
-
-#pragma pack()
-/******************************************************************************/
-struct SlabConfigStats {
-    char code_name[COMMAND_WORD_LEN];
-    TextStringId tooltip_stridx;
-    RoomKind assigned_room;
+    GoldAmount gold_held;
 };
 
 struct RoomConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
     TextStringId tooltip_stridx;
-    long creature_creation_model;
+    int32_t creature_creation_model;
     SlabKind assigned_slab;
+    short synergy_slab;
     char storage_height;
-    unsigned long flags;
+    uint32_t flags;
     RoomRole roles;
-    long panel_tab_idx;
+    int32_t panel_tab_idx;
     /** Sprite index of big symbol icon representing the room. */
-    long bigsym_sprite_idx;
+    int32_t bigsym_sprite_idx;
     /** Sprite index of medium symbol icon representing the room. */
-    long medsym_sprite_idx;
-    long pointer_sprite_idx;
-    unsigned int ambient_snd_smp_id;
-    long msg_needed;
-    long msg_too_small;
-    long msg_no_route;
+    int32_t medsym_sprite_idx;
+    int32_t pointer_sprite_idx;
+    uint32_t ambient_snd_smp_id;
+    SpeechRef msg_needed;
+    SpeechRef msg_too_small;
+    SpeechRef msg_no_route;
     short cost;
     HitPoints health;
-    int update_total_capacity_idx;
-    int update_storage_in_room_idx;
-    int update_workers_in_room_idx;
-    Room_Update_Func update_total_capacity;
-    Room_Update_Func update_storage_in_room;
-    Room_Update_Func update_workers_in_room;
+    FuncIdx update_total_capacity_idx;
+    FuncIdx update_storage_in_room_idx;
+    FuncIdx update_workers_in_room_idx;
 };
 
 struct SlabsConfig {
-    long slab_types_count;
+    int32_t slab_types_count;
     struct SlabConfigStats slab_cfgstats[TERRAIN_ITEMS_MAX];
-    long room_types_count;
+    int32_t room_types_count;
     struct RoomConfigStats room_cfgstats[TERRAIN_ITEMS_MAX];
 };
 /******************************************************************************/
-extern const char keeper_terrain_file[];
+extern const struct ConfigFileData keeper_terrain_file_data;
 extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
-extern const struct NamedCommand terrain_room_properties_commands[];
 extern const struct NamedCommand room_roles_desc[];
-extern const struct NamedCommand terrain_room_total_capacity_func_type[];
-extern const struct NamedCommand terrain_room_used_capacity_func_type[];
-extern Room_Update_Func terrain_room_total_capacity_func_list[8];
+extern Room_Update_Func terrain_room_total_capacity_func_list[13];
 extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 
+extern const struct NamedFieldSet terrain_room_named_fields_set;
 /******************************************************************************/
-TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
-/******************************************************************************/
-struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind);
-struct SlabAttr *get_slab_attrs(const struct SlabMap *slb);
 struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind);
-struct SlabConfigStats *get_slab_stats(struct SlabMap *slb);
+struct SlabConfigStats *get_slab_stats(const struct SlabMap *slb);
 const char *room_role_code_name(RoomRole rrole);
 const char *room_code_name(RoomKind rkind);
 const char *slab_code_name(SlabKind slbkind);
@@ -201,10 +194,10 @@ TbBool slab_kind_has_torches(SlabKind slbkind);
 /******************************************************************************/
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind);
 TbBool make_all_rooms_free(void);
-TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch, long avail);
+TbBool set_room_available(PlayerNumber plyr_idx, RoomKind roomkind, long resrch, long avail);
 TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx);
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
-TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx);
+TbBool is_room_available(PlayerNumber plyr_idx, RoomKind roomkind);
 TbBool is_room_obtainable(PlayerNumber plyr_idx, RoomKind rkind);
 TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole);
 RoomKind find_first_available_roomkind_with_role(PlayerNumber plyr_idx, RoomRole rrole);
@@ -214,12 +207,11 @@ RoomRole get_room_roles(RoomKind rkind);
 TbBool room_role_matches(RoomKind rkind, RoomRole rrole);
 TbBool room_has_surrounding_flames(RoomKind rkind);
 TbBool room_cannot_vandalise(RoomKind rkind);
-TbBool room_never_buildable(RoomKind rkind);
+TbBool room_is_counted(RoomKind rkind);
 TbBool room_can_have_ensign(RoomKind rkind);
 SlabKind room_corresponding_slab(RoomKind rkind);
 RoomKind slab_corresponding_room(SlabKind slbkind);
 RoomKind find_first_roomkind_with_role(RoomRole rrole);
-void restore_room_update_functions_after_load();
 /******************************************************************************/
 #ifdef __cplusplus
 }

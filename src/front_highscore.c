@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_keybrd.h"
+#include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
 #include "bflib_sprite.h"
 #include "bflib_guibtns.h"
@@ -37,6 +38,8 @@
 #include "game_merge.h"
 #include "sprites.h"
 #include "gui_frontbtns.h"
+#include "custom_sprites.h"
+#include "highscores.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -48,6 +51,27 @@ long high_score_entry_input_active = -1;
 int highscore_scroll_offset = 0;
 unsigned long scores_count;
 /******************************************************************************/
+
+static void finalize_high_score_entry(TbBool restore_default_name)
+{
+    if ((high_score_entry_input_active < 0) || (high_score_entry_input_active >= campaign.hiscore_count))
+    {
+        return;
+    }
+    struct HighScore* hscore = &campaign.hiscore_table[high_score_entry_input_active];
+    if (restore_default_name)
+    {
+        snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", get_string(GUIStr_Keeper));
+    }
+    else
+    {
+        snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", high_score_entry);
+    }
+    highscore_scroll_offset = high_score_entry_input_active - (VISIBLE_HIGH_SCORES_COUNT-1);
+    high_score_entry_input_active = -1;
+    LbStopTextInput();
+    save_high_score_table();
+}
 
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
 {
@@ -68,7 +92,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     if (idx == high_score_entry_input_active)
     {
         char str[HISCORE_NAME_LENGTH];
-        sprintf(str, "%s", high_score_entry);
+        snprintf(str, sizeof(str), "%s", high_score_entry);
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {
@@ -91,10 +115,10 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     scores_count = count_high_scores();
     gui_draw_scroll_box(gbtn, 12, true);
     int fs_units_per_px;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     {
         int orig_size = 0;
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
+        spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
         for (int i=0; i < 6; i++)
         {
             orig_size += spr->SWidth;
@@ -104,9 +128,9 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     }
     LbTextSetFont(frontend_font[1]);
     lbDisplay.DrawFlags = 0;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
+    spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
     int pos_x = gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
     int pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
     int tx_units_per_px = scale_value_menu(16);
     // The GUI item height should be 11 lines of text
@@ -130,7 +154,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     {
         draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
         pos_y += LbTextLineHeight() * tx_units_per_px / 16;
-        if (dbc_language > 0)
+        if (dbc_initialized && dbc_enabled)
         {
             pos_y += scale_value_menu(4);
         }
@@ -150,6 +174,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
 
 void frontend_quit_high_score_table(struct GuiButton *gbtn)
 {
+    finalize_high_score_entry(false);
     FrontendMenuState nstate = get_menu_state_when_back_from_substate(FeSt_HIGH_SCORES);
     frontend_set_state(nstate);
 }
@@ -164,7 +189,13 @@ TbBool frontend_high_score_table_input(void)
     if (high_score_entry_input_active >= campaign.hiscore_count)
         high_score_entry_input_active = -1;
     if (high_score_entry_input_active < 0)
+    {
+        if (LbIsTextInputActive())
+            LbStopTextInput();
         return false;
+    }
+    if (!LbIsTextInputActive())
+        LbStartTextInput();
     if (lbInkey == KC_BACK)
     {
         // Delete previous character
@@ -227,47 +258,36 @@ TbBool frontend_high_score_table_input(void)
     }
     if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
     {
-        struct HighScore* hscore = &campaign.hiscore_table[high_score_entry_input_active];
-        if (lbInkey == KC_ESCAPE) {
-            snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", get_string(GUIStr_TeamLeader));
-        } else {
-            snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", high_score_entry);
-        }
-        highscore_scroll_offset = high_score_entry_input_active - (VISIBLE_HIGH_SCORES_COUNT-1);
-        high_score_entry_input_active = -1;
-        save_high_score_table();
+        finalize_high_score_entry(lbInkey == KC_ESCAPE);
         clear_key_pressed(lbInkey);
+        LbStopTextInput();
         return true;
     }
-    char chr = key_to_ascii(lbInkey, key_modifiers);
-    if (chr != 0)
+
+    char insert_text[HISCORE_NAME_LENGTH] = "";
+    if (add_input_text_to_message(insert_text, sizeof(insert_text), frontend_font[1], 260))
     {
-        LbTextSetFont(frontend_font[1]);
-        int tx_units_per_px;
-        if (dbc_language > 0)
+        if (insert_text[0] != '\0')
         {
-            tx_units_per_px = scale_value_menu(24);
-        }
-        else
-        {
-            tx_units_per_px = scale_value_menu(16);
-        }
-        i = LbTextCharWidthM(chr, tx_units_per_px);
-        size_t entry_len = strlen(high_score_entry);
-        if ((entry_len < (HISCORE_NAME_LENGTH - 1)) &&
-            ((i > 0) && (i + LbTextStringWidth(high_score_entry) < 260)))
-        {
-            i = entry_len;
-            high_score_entry[i+1] = '\0';
-            while (i > high_score_entry_index) {
-                high_score_entry[i] = high_score_entry[i-1];
-                i--;
+            size_t insert_len = strlen(insert_text);
+            size_t entry_len = strlen(high_score_entry);
+            if (entry_len + insert_len < (HISCORE_NAME_LENGTH - 1))
+            {
+                char candidate[HISCORE_NAME_LENGTH];
+                size_t prefix_len = high_score_entry_index;
+                memcpy(candidate, high_score_entry, prefix_len);
+                memcpy(candidate + prefix_len, insert_text, insert_len);
+                memcpy(candidate + prefix_len + insert_len,
+                       high_score_entry + prefix_len,
+                       entry_len - prefix_len + 1);
+                if (LbTextStringWidth(candidate) < 260)
+                {
+                    memcpy(high_score_entry, candidate, entry_len + insert_len + 1);
+                    high_score_entry_index += insert_len;
+                }
             }
-            high_score_entry[i] = chr;
-            high_score_entry_index = i + 1;
-            clear_key_pressed(lbInkey);
-            return true;
         }
+        return true;
     }
     // No input, but return true to make sure other input functions are skipped
     return true;
@@ -275,7 +295,7 @@ TbBool frontend_high_score_table_input(void)
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 {
-    if (high_score_entry_input_active == -1)
+    if ((high_score_entry_input_active == -1) || (last_used_input_device == ID_Controller))
         gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &= ~LbBtnF_Enabled;
@@ -288,6 +308,10 @@ void add_score_to_high_score_table(void)
     int idx = add_high_score_entry(dungeon->lvstats.player_score, get_loaded_level_number(), "");
     if (idx >= 0)
     {
+        if (last_used_input_device == ID_Controller)
+        {
+            snprintf(high_score_entry, HISCORE_NAME_LENGTH, "%s", get_string(GUIStr_Keeper));
+        }
         // Preparing input in the new entry
         // Note that we're not clearing previous name - this way it may be easily kept unchanged
         high_score_entry_input_active = idx;
@@ -409,27 +433,27 @@ void frontend_high_scores_update()
 void frontend_draw_highscores_scroll_box_tab(struct GuiButton *gbtn)
 {
     int fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugearea_thc_tx1_tc, 100);
-    struct TbSprite *spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
+    const struct TbSprite *spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
     int pos_x = gbtn->scr_pos_x;
     // Since this tab is attachable from top, it is important to keep bottom position without variation
     int pos_y = gbtn->scr_pos_y + gbtn->height - spr->SHeight * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
+    spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
     for (int i = 3; i > 0; i--)
     {
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth * fs_units_per_px / 16;
     }
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tr];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
 void frontend_draw_high_scores_mappack(struct GuiButton *gbtn)
 {
     const char *text;
-    if (campaign.display_name != NULL)
+    if (campaign.display_name[0] != '\0')
         text = campaign.display_name;
     else
         text = frontend_button_caption_text(gbtn);
@@ -437,7 +461,7 @@ void frontend_draw_high_scores_mappack(struct GuiButton *gbtn)
     LbTextSetFont(frontend_font[2]);
     int tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    LbTextDrawResized((dbc_language > 0) ? -30 : 0, 0, tx_units_per_px, text);
+    LbTextDrawResized((dbc_initialized && dbc_enabled) ? -30 : 0, 0, tx_units_per_px, text);
 }
 
 unsigned long count_high_scores()

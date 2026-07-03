@@ -24,7 +24,8 @@
 #include "bflib_guibtns.h"
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
-
+#include "bflib_enet.h"
+#include "custom_sprites.h"
 #include "player_data.h"
 #include "config_players.h"
 #include "player_utils.h"
@@ -32,7 +33,7 @@
 #include "creature_battle.h"
 #include "creature_graphics.h"
 #include "config_creature.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "gui_draw.h"
 #include "gui_frontbtns.h"
 #include "gui_frontmenu.h"
@@ -46,8 +47,11 @@
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
+extern int32_t multiplayer_speed_adjustment_ns;
+
 unsigned long TimerTurns = 0;
 unsigned short battle_creature_over;
+int debug_display_network_stats = 0;
 
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
@@ -55,7 +59,7 @@ void gui_open_event(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_my_dungeon();
     EventIndex evidx;
     SYNCDBG(5,"Starting");
-    unsigned int evbtn_idx = (unsigned long)gbtn->content;
+    unsigned int evbtn_idx = gbtn->content.lval;
     if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
         evidx = dungeon->event_button_index[evbtn_idx];
     } else {
@@ -75,8 +79,8 @@ void gui_kill_event(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     struct Dungeon* dungeon = get_players_dungeon(player);
-    unsigned long i = (unsigned long)gbtn->content;
-    set_players_packet_action(player, PckA_Unknown092, dungeon->event_button_index[i], 0, 0, 0);
+    unsigned long i = gbtn->content.lval;
+    set_players_packet_action(player, PckA_EventBoxTurnOff, dungeon->event_button_index[i], 0, 0, 0);
 }
 
 void turn_on_event_info_panel_if_necessary(EventIndex evidx)
@@ -141,12 +145,7 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     if (battle_creature_over <= 0) {
         return;
     }
-    PowerKind pwkind = 0;
-    if (myplyr->work_state < PLAYER_STATES_COUNT_MAX)
-    {
-        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(myplyr->work_state);
-        pwkind = plrst_cfg_stat->power_kind;
-    }
+    PowerKind pwkind = myplyr->chosen_power_kind;
     struct Thing* thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
         WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
@@ -195,7 +194,7 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
                 thing = thing_get(friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        if (!thing_is_invalid(thing) && thing_revealed(thing, dungeon->owner))
+        if (thing_exists(thing) && thing_revealed(thing, dungeon->owner))
         {
             battle_creature_over = thing->index;
         }
@@ -208,7 +207,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         return;
     }
     short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-    struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+    const struct TbSprite* spr = get_panel_sprite(spr_idx);
     if (spr->SHeight == 0)
     {
         ERRORLOG("Trying to draw non existing icon in battle menu for %s", thing_model_name(thing));
@@ -217,7 +216,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
     int curscr_y = scr_y - (spr->SHeight * ps_units_per_px / 16) / 2;
-    if ((thing->creature.health_bar_turns) && ((game.play_gameturn & 1) != 0)) {
+    if ((thing->creature.health_bar_turns) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
         LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[get_player_color_idx(thing->owner)]);
     } else {
         LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
@@ -235,12 +234,12 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         max_health = 1;
     LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[get_player_color_idx(thing->owner)]);
     // Draw experience level
-    spr = &button_sprite[GBS_creature_flower_level_01];
+    spr = get_button_sprite(GBS_creature_flower_level_01);
     int bs_units_per_px = (17 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     TbBool high_res = (MyScreenHeight >= 400);
     curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> (unsigned char)high_res));
     curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> (unsigned char)high_res));
-    spr = &button_sprite[GBS_creature_flower_level_01 + cctrl->explevel];
+    spr = get_button_sprite(GBS_creature_flower_level_01 + cctrl->exp_level);
     LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
 }
 
@@ -272,9 +271,9 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
             draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
-              if (game.play_gameturn & 2)
+              if ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
               {
-                  TbPixel col = player_flash_colours[game.play_gameturn & 3];
+                  TbPixel col = player_flash_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);
@@ -300,7 +299,7 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
                 thing = thing_get(enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
-        if (!thing_is_invalid(thing) && thing_revealed(thing, dungeon->owner))
+        if (thing_exists(thing) && thing_revealed(thing, dungeon->owner))
         {
             battle_creature_over = thing->index;
         }
@@ -335,9 +334,9 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
             draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
-              if (game.play_gameturn & 2)
+              if ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
               {
-                  TbPixel col = player_flash_colours[game.play_gameturn & 3];
+                  TbPixel col = player_flash_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);
@@ -355,7 +354,7 @@ short zoom_to_fight(PlayerNumber plyr_idx)
     if (active_battle_exists(plyr_idx))
     {
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0, 0, 0);
+        set_players_packet_action(player, PckA_ZoomToBattle, dungeon->visible_battles[0], 0, 0, 0);
         step_battles_forward(plyr_idx);
         return true;
     }
@@ -364,16 +363,20 @@ short zoom_to_fight(PlayerNumber plyr_idx)
 
 void draw_bonus_timer(void)
 {
-    int nturns = game.bonus_time - game.play_gameturn;
-    char* text;
-    if (gameadd.timer_real)
+    int nturns = game.bonus_time - get_gameturn();
+    char text[32];
+    if (game.timer_real)
     {
-        unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
+        unsigned long total_seconds = ((nturns) / turns_per_second) + 1;
         unsigned char seconds = total_seconds % 60;
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
         unsigned char hours = total_minutes / 60;
-        text = (nturns >= 0) ? buf_sprintf("%02d:%02d:%02d", hours, minutes, seconds) : buf_sprintf("00:00:00");
+        if (nturns >= 0) {
+            snprintf(text, sizeof(text), "%02d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            snprintf(text, sizeof(text), "%s", "00:00:00");
+        }
     }
     else
     {
@@ -385,7 +388,7 @@ void draw_bonus_timer(void)
         {
             nturns = 99999;
         }
-        text = buf_sprintf("%05d", nturns / 2);
+        snprintf(text, sizeof(text), "%05d", nturns / 2);
     }
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
@@ -394,7 +397,7 @@ void draw_bonus_timer(void)
     {
         height *= 2;
         width *= 2;
-        if ((dbc_language) > 0 && (gameadd.timer_real))
+        if ((dbc_initialized && dbc_enabled) && (game.timer_real))
         {
             width += (width / 8);
         }
@@ -411,12 +414,12 @@ void draw_bonus_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    else if ( (MyScreenWidth > 1280) && (dbc_initialized && dbc_enabled) )
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
@@ -425,7 +428,7 @@ void draw_bonus_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -440,14 +443,14 @@ TbBool bonus_timer_enabled(void)
 
 void draw_timer(void)
 {
-    char* text;
+    char text[32];
     if (TimerGame)
     {
         if (get_my_player()->victory_state != VicS_WonLevel)
         {
-            TimerTurns = game.play_gameturn;
+            TimerTurns = get_gameturn();
         }
-        text = buf_sprintf("%08ld", TimerTurns);
+        snprintf(text, sizeof(text), "%08ld", TimerTurns);
     }
     else
     {
@@ -455,7 +458,7 @@ void draw_timer(void)
         {
             update_time();
         }
-        text = buf_sprintf("%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
+        snprintf(text, sizeof(text), "%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);
@@ -464,7 +467,7 @@ void draw_timer(void)
     {
         height *= 2;
         width *= 2;
-        if (dbc_language > 0)
+        if (dbc_initialized && dbc_enabled)
         {
             if (TimerGame)
             {
@@ -487,12 +490,12 @@ void draw_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    else if ( (MyScreenWidth > 1280) && (dbc_initialized && dbc_enabled) )
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
@@ -501,21 +504,21 @@ void draw_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
 void draw_gameturn_timer(void)
 {
-    int nturns = game.play_gameturn;
-    char* text;
+    int nturns = get_gameturn();
+    char text[32];
     {
         if (nturns < 0)
         {
             nturns = 0;
         }
-        text = buf_sprintf("GameTurn %lu", game.play_gameturn);
+        snprintf(text, sizeof(text), "GameTurn %u", get_gameturn());
     }
     LbTextSetFont(winfont);
     int textLength = strlen(text);
@@ -524,14 +527,14 @@ void draw_gameturn_timer(void)
     {
         textCharWidth += LbTextCharWidth(text[i]);
     };
-    
+
     long width = textCharWidth * units_per_pixel / 16;
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
     {
         height *= 2;
         width *= 2;
-        if ((dbc_language) > 0 && (gameadd.timer_real))
+        if ((dbc_initialized && dbc_enabled) && (game.timer_real))
         {
             width += (width / 8);
         }
@@ -539,17 +542,17 @@ void draw_gameturn_timer(void)
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = MyScreenHeight - height - 16 * units_per_pixel / 16;
-    
+
     LbTextSetWindow(scr_x, scr_y, width, height);
     //draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    else if ( (MyScreenWidth > 1280) && (dbc_initialized && dbc_enabled) )
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
@@ -558,7 +561,7 @@ void draw_gameturn_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -591,26 +594,32 @@ TbBool gameturn_timer_enabled(void)
 void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    int nturns = (limit > 0) ? limit - (game.play_gameturn - dungeon->turn_timers[timer_id].count) : game.play_gameturn - dungeon->turn_timers[timer_id].count;
+    int nturns = (limit > 0) ? limit - (get_gameturn() - dungeon->turn_timers[timer_id].count) : get_gameturn() - dungeon->turn_timers[timer_id].count;
     if (nturns < 0)
     {
         game.flags_gui &= ~GGUI_ScriptTimer;
         return;
     }
-    char* text;
+    char text[32];
     if (real)
     {
-        unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
+        unsigned long total_seconds = ((nturns) / turns_per_second) + 1;
         unsigned char seconds = total_seconds % 60;
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
         unsigned char hours = total_minutes / 60;
-        text = (nturns >= 0) ? buf_sprintf("%02d:%02d:%02d", hours, minutes, seconds) : buf_sprintf("00:00:00");
+        if (nturns >= 0) {
+            snprintf(text, sizeof(text), "%02d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            snprintf(text, sizeof(text), "%s", "00:00:00");
+        }
     }
     else
     {
-        text = buf_sprintf("%08d", nturns);
+        snprintf(text, sizeof(text), "%08d", nturns);
     }
+
+    LbTextUseByteCoding(false);
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
@@ -618,10 +627,6 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     {
         height *= 2;
         width *= 2;
-        if ((dbc_language > 0) && (real))
-        {
-            width += (width / 8);
-        }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
@@ -633,24 +638,12 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px;
-    int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
-        tx_units_per_px = scale_ui_value(32);
-        y = 0;
-    }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
-    {
-        tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
-        y = height / 4;
-    }
-    else
-    {
-        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
-        y = 0;
-    } 
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int y = 0;
+
+
     LbTextDrawResized(0, y, tx_units_per_px, text);
+    LbTextUseByteCoding(true);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
@@ -680,7 +673,8 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
             value = 0;
         }
     }
-    char* text = buf_sprintf("%ld", value);
+    char text[16];
+    snprintf(text, sizeof(text), "%ld", value);
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
@@ -688,7 +682,7 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     {
         height *= 2;
         width *= 2;
-        if (dbc_language > 0)
+        if (dbc_initialized && dbc_enabled)
         {
             width += (width / 3);
         }
@@ -713,14 +707,14 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (dbc_language > 0) && (MyScreenWidth > 1280) )
+    if ( (dbc_initialized && dbc_enabled) && (MyScreenWidth > 1280) )
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
     }
     else
     {
-        tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
+        tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
     }
     LbTextDrawResized(0, y, tx_units_per_px, text);
@@ -738,7 +732,7 @@ void draw_consolelog()
 
     int text_height = (consolelog_font_size * units_per_pixel) / LbTextLineHeight();
     int draw_ypos = text_height / 2; // Starting ypos
-    
+
     int totalLinesDrawn = 0;
 
     size_t startIdx = 0;
@@ -752,23 +746,26 @@ void draw_consolelog()
         while (text[offset] != '\0' && totalLinesDrawn < consolelog_simultaneous_message_count) {
             int currentLineWidth = 0; // Reset line width for each new line
             int sub_len = 1;
-            
+
             // Iterate over the characters in the string to find the substring length
             while (text[offset + sub_len] != '\0') {
                 int charWidth = LbTextCharWidth(text[offset + sub_len - 1]);
                 if (currentLineWidth + charWidth > consolelog_max_line_width) {
                     break; // Exit the loop if adding the next character would exceed the line width
                 }
-                
+
                 currentLineWidth += charWidth; // Add the width of the current character
                 sub_len++; // Move to the next character
             }
 
-            char line_buffer[sub_len + 1];
+            //char line_buffer[sub_len + 1];
+            char *line_buffer = (char*)malloc((sub_len + 1) * sizeof(char));
+            if (!line_buffer) continue;
             strncpy(line_buffer, text + offset, sub_len);
             line_buffer[sub_len] = '\0';
 
             LbTextDrawResized(text_height, draw_ypos, text_height, line_buffer);
+            free(line_buffer);
             draw_ypos += text_height; // Move to the next line position
             offset += sub_len;
             totalLinesDrawn++;
@@ -779,37 +776,134 @@ void draw_consolelog()
 
 void draw_frametime()
 {
-    float display_value;
-    char *text;
+    char text[64];
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
+    if (tx_units_per_px < 16)
+        tx_units_per_px = 16;
 
-    // FPS
-    display_value = 1000 / frametime_measurements.frametime_display[Frametime_FullFrame];
+    int iStartLine = (MyScreenHeight / tx_units_per_px) / 2 + 1;
+    memset(text, 0, sizeof(text));
+    if(debug_display_frametime == 1) {
+        snprintf(text, sizeof(text), "%-13s", "Current");
+    } else if(debug_display_frametime == 2) {
+        snprintf(text, sizeof(text), "%-7s | %-7s | %-10s", "Current", "Min", "Max");
+    }
+    if (text[0] != 0)
+        LbTextDrawResized(0, (iStartLine)*tx_units_per_px, tx_units_per_px, text);
 
-    text = buf_sprintf("FPS: %f", display_value);
-    LbTextDrawResized(0, 27*tx_units_per_px, tx_units_per_px, text);
-
+    iStartLine += 1;
     // Frametimes
     for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
-        display_value = frametime_measurements.frametime_display[i];
+        memset(text, 0, sizeof(text));
+        const char *frame_type = NULL;
         switch (i) {
             case Frametime_FullFrame:
-                text = buf_sprintf("Frametime: %f ms", display_value);
+                frame_type = "Frame";
                 break;
             case Frametime_Logic:
-                text = buf_sprintf("Logic: %f ms", display_value);
+                frame_type = "Logic";
                 break;
             case Frametime_Draw:
-                text = buf_sprintf("Draw: %f ms", display_value);
+                frame_type = "Draw";
                 break;
             case Frametime_Sleep:
-                text = buf_sprintf("Sleep: %f ms", display_value);
+                frame_type = "Sleep";
                 break;
         }
-        LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);
+        if (frame_type != NULL) {
+            if (debug_display_frametime == 1) {
+                snprintf(text, sizeof(text), "%s: %010.6f ms", frame_type, frametime_measurements.frametime_display[i]);
+            } else if (debug_display_frametime == 2) {
+                snprintf(text, sizeof(text), "%s: %07.3f | %07.3f | %07.3f ms", frame_type, frametime_measurements.frametime_display[i], frametime_measurements.frametime_get_min[i], frametime_measurements.frametime_get_max[i]);
+            }
+        }
+        if (text[0] != 0)
+            LbTextDrawResized(0, (iStartLine+i)*tx_units_per_px, tx_units_per_px, text);
     }
+
+    // Framerates
+    iStartLine += TOTAL_FRAMETIME_KINDS;
+    for (int i = 0; i < TOTAL_FRAMERATE_KINDS; i++) {
+        memset(text, 0, sizeof(text));
+        const char *frame_type = NULL;
+        switch (i) {
+            case Framerate_FullFrame:
+                frame_type = "Frame FPS";
+                break;
+            case Framerate_Logic:
+                frame_type = "Logic FPS";
+                break;
+            case Framerate_Draw:
+                frame_type = "Draw FPS";
+                break;
+        }
+        if (frame_type != NULL) {
+            if (debug_display_frametime == 1) {
+                snprintf(text, sizeof(text), "%s: %03d", frame_type, frametime_measurements.framerate_display[i]);
+            } else if (debug_display_frametime == 2) {
+                snprintf(text, sizeof(text), "%s: %03d | %03d | %03d", frame_type, frametime_measurements.framerate_display[i], frametime_measurements.framerate_min[i], frametime_measurements.framerate_max[i]);
+            }
+        }
+        if (text[0] > 0)
+            LbTextDrawResized(0, (iStartLine+i)*tx_units_per_px, tx_units_per_px, text);
+    }
+
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+}
+
+void draw_network_stats()
+{
+    char text[128];
+    LbTextSetFont(winfont);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
+    if (tx_units_per_px < 16)
+        tx_units_per_px = 16;
+
+    unsigned long ping = GetPing(my_player_number);
+    unsigned long half_ping = ping / 2;
+    unsigned int packet_loss_percent = GetPacketLoss(my_player_number);
+    unsigned int transit = GetClientDataInTransit();
+    unsigned int lost_packet_count = GetClientPacketsLost();
+    unsigned int outgoing_rate_kb10 = (GetUploadRateBytesPerSecond() * 10) / 1024;
+    unsigned int incoming_rate_kb10 = (GetDownloadRateBytesPerSecond() * 10) / 1024;
+    int input_lag = game.input_lag_turns;
+    int input_lag_ms = input_lag * 50;
+    int64_t turn_length_ns = 0;
+    if (turns_per_second > 0) {
+        turn_length_ns = 1000000000 / turns_per_second;
+        turn_length_ns += multiplayer_speed_adjustment_ns;
+        if (turn_length_ns < 0) {
+            turn_length_ns = 0;
+        }
+    }
+
+    snprintf(text, sizeof(text), "Full ping: %lums", ping);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Half ping: %lums", half_ping);
+    LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Input lag: %d turns (%dms)",
+        input_lag, input_lag_ms);
+    LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Download: %u.%u KB/s",
+        incoming_rate_kb10 / 10, incoming_rate_kb10 % 10);
+    LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Upload: %u.%u KB/s",
+        outgoing_rate_kb10 / 10, outgoing_rate_kb10 % 10);
+    LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Congestion: %u bytes", transit);
+    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Loss rate: %u%%", packet_loss_percent);
+    LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Lost packets: %u", lost_packet_count);
+    LbTextDrawResized(0, tx_units_per_px * 7, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Micro stutters: %d%%", stutter_detection_average);
+    LbTextDrawResized(0, tx_units_per_px * 8, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
+    LbTextDrawResized(0, tx_units_per_px * 9, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    LbTextDrawResized(0, tx_units_per_px * 10, tx_units_per_px, text);
 }
 /******************************************************************************/

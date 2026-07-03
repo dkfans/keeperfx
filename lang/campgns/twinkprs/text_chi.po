@@ -38,196 +38,362 @@ msgstr ""
 #. Level Swedish Spirit Opening Message
 #: guitext:1
 msgctxt "In-game message"
-msgid "Circle circle of the dead, tell me who I'm gonna get. Having troll is making traps, as the workshop knack he has. Warlock brings a bunch of spells, that's what bookworms always have. Orc attracts a better army, which could do some serious harming."
-msgstr "伟大的死亡之神啊，赐予我一只怪物吧。获得精灵可以制造陷阱，因为他精通工厂制造的技巧。魔术师可以为你带来各种魔法，这是这些书呆子们常备的东西。兽人可以吸引更强大的怪物加入，并可以对敌人造成更严重的打击。"
+msgid ""
+"Circle circle of the dead, tell me who I'm gonna get. Having troll is making "
+"traps, as the workshop knack he has. Warlock brings a bunch of spells, "
+"that's what bookworms always have. Orc attracts a better army, which could "
+"do some serious harming."
+msgstr ""
+"伟大的死亡之神啊，赐予我一只怪物吧。获得精灵可以制造陷阱，因为他精通工厂制造"
+"的技巧。魔术师可以为你带来各种魔法，这是这些书呆子们常备的东西。兽人可以吸引"
+"更强大的怪物加入，并可以对敌人造成更严重的打击。"
 
 #. Level Swedish Spirit guard post message
 #: guitext:2
 msgctxt "In-game message"
-msgid "Your conquest of the guard post has caused the heroes to retreat. However, they are regrouping and reinforcing. You should use this lull to prepare your forces Master, as they will surely return!"
-msgstr "你占领了英雄的警戒哨所，使得他们不得不暂时撤退。不过，他们正在重整旗鼓，增援兵力。利用这段平静的时间好好准备一下，主人。因为他们必定会回来的！"
+msgid ""
+"Your conquest of the guard post has caused the heroes to retreat. However, "
+"they are regrouping and reinforcing their numbers. You should use this lull "
+"to prepare your forces, Master, as they will surely return!"
+msgstr ""
+"你占领了英雄的警戒哨所，使得他们不得不暂时撤退。不过，他们正在重整旗鼓，增援"
+"兵力。利用这段平静的时间好好准备一下，主人。因为他们必定会回来的！"
 
 #. Level Swedish Spirit 2nd portal claim
 #: guitext:3
 msgctxt "In-game message"
-msgid "Your capture of the second portal has forced the heroes to act, and an attack is on the way. Your spies report however, that the main hero army is being held in reserve. Your preparations will be thoroughly tested Master!"
-msgstr "你占领了第二个入口，使得英雄们不得不采取行动了，他们很快就会发起进攻。但是，你的探子报告，英雄的主力军还没有出动。你的准备工作将面临全方位的考验，主人！"
+msgid ""
+"Your capture of the second portal has forced the heroes to act, and an "
+"attack is on the way. Your spies report, however, that the main hero army is "
+"being held in reserve. Your preparations will be thoroughly tested, Master!"
+msgstr ""
+"你占领了第二个入口，使得英雄们不得不采取行动了，他们很快就会发起进攻。但是，"
+"你的探子报告，英雄的主力军还没有出动。你的准备工作将面临全方位的考验，主人！"
 
 #. Level Swedish spirit outside hero heart
 #: guitext:4
 msgctxt "In-game message"
-msgid "Beware, the main hero army approaches! I hope you're prepared for this, otherwise it may be a very short fight. Destroy the heart tainted by their rightfulness!"
-msgstr "注意，英雄的主力军进入了你的地下城！我希望你已经做好了万全的准备，不然他们很快就会将你解决掉。摧毁这被正义所污染的心脏吧！"
+msgid ""
+"Beware, the main hero army approaches! I hope you're prepared for this, "
+"otherwise it may be a very short fight. Destroy the heart tainted by their "
+"nauseating righteousness!"
+msgstr ""
+"注意，英雄的主力军进入了你的地下城！我希望你已经做好了万全的准备，不然他们很"
+"快就会将你解决掉。摧毁这被正义所污染的心脏吧！"
 
 #. Level Swedish Spirit. Orc from steal hero message
 #: guitext:5
 msgctxt "In-game message"
-msgid "Fate has spoken, evil master. Your primary weapon is brute force. You'll also be able to imprison enemies, and use the unholy temple.. if you know how. Use your creatures well, as you cannot help them with traps or spells. Also, watch your gold reserve. The heroes have already noticed you and are preparing for a crusade."
-msgstr "你的命运已经决定了，邪恶的主人。你将以暴力作为最主要的武器。另外，你还可以囚禁敌人，以及使用这邪恶的寺庙……只要你知道如何使用它。好好运用你的怪物，因为你将无法使用魔法和陷阱帮忙。另外，注意你的黄金储备。英雄们已经注意到了你，并且正在准备出征。"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is brute force. You'll "
+"also be able to imprison enemies, and use the unholy temple... if you know "
+"how. Use your creatures well, as you cannot help them with traps or spells. "
+"Also, watch your gold reserves. The heroes have already noticed you and are "
+"preparing for a crusade."
+msgstr ""
+"你的命运已经决定了，邪恶的主人。你将以暴力作为最主要的武器。另外，你还可以囚"
+"禁敌人，以及使用这邪恶的寺庙……只要你知道如何使用它。好好运用你的怪物，因为你"
+"将无法使用魔法和陷阱帮忙。另外，注意你的黄金储备。英雄们已经注意到了你，并且"
+"正在准备出征。"
 
 #. Level Swedish Spirit. Warlock from steal hero message
 #: guitext:6
 msgctxt "In-game message"
-msgid "Fate has spoken, evil master. Your primary weapon is magic. You'll be able to use lots of powerful spells. Use them well, as you cannot make traps or build a large army. The heroes have already noticed you and are preparing for a crusade."
-msgstr "你的命运已经决定了，邪恶的主人。你将以魔法作为最主要的武器。你可以使用很多种强力的魔法。好好运用它们，因为你将无法使用陷阱或拥有大量的怪物。英雄们已经注意到了你，并且正在准备出征。"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is magic. You'll be able "
+"to use lots of powerful spells. Use them well, as you cannot make traps or "
+"build a large army. The heroes have already noticed you and are preparing "
+"for a crusade."
+msgstr ""
+"你的命运已经决定了，邪恶的主人。你将以魔法作为最主要的武器。你可以使用很多种"
+"强力的魔法。好好运用它们，因为你将无法使用陷阱或拥有大量的怪物。英雄们已经注"
+"意到了你，并且正在准备出征。"
 
 #. Level Swedish Spirit. Troll from steal hero message
 #: guitext:7
 msgctxt "In-game message"
-msgid "Fate has spoken, evil master. Your primary weapon is manufacture. You'll be able to build devastating traps. Use these devices well, as you cannot use magic or build a large army. The heroes have already noticed you and are preparing for a crusade."
-msgstr "你的命运已经决定了，邪恶的主人。你将以工厂生产的陷阱作为你最主要的武器。你可以生产各种破坏性的陷阱。好好运用它们，因为你将无法使用魔法或拥有大量的怪物。英雄们已经注意到了你，并且正在准备出征。"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is manufacture. You'll be "
+"able to build devastating traps. Use these devices well, as you cannot use "
+"magic or build a large army. The heroes have already noticed you and are "
+"preparing for a crusade."
+msgstr ""
+"你的命运已经决定了，邪恶的主人。你将以工厂生产的陷阱作为你最主要的武器。你可"
+"以生产各种破坏性的陷阱。好好运用它们，因为你将无法使用魔法或拥有大量的怪物。"
+"英雄们已经注意到了你，并且正在准备出征。"
 
 #: guitext:8
 msgctxt "In-game message"
-msgid "The abomination of a heart is destroyed. You must show no mercy. Be certain that no living heroes remain Keeper. "
-msgstr "这令人厌恶的心脏终于被摧毁了。不要手下留情，确保这片土地上没有一个英雄活下来，守护者。"
+msgid ""
+"The abomination of a heart has been destroyed. You must show no mercy. Be "
+"certain that no living heroes remain, Keeper."
+msgstr ""
+"这令人厌恶的心脏终于被摧毁了。不要手下留情，确保这片土地上没有一个英雄活下"
+"来，守护者。"
 
 #. Level Nameless hero (2nd level) imminent victory
 #: guitext:9
 msgctxt "In-game message"
-msgid "Almost there! Be sure to slaughter every last hero. Let no-one suggest that you were merciful. Such a slander would ruin your reputation!"
-msgstr "快要成功了！一定不要放过任何一个英雄。不要让人觉得你是个手下留情的人。这种诽谤会毁掉你的名声！"
+msgid ""
+"Almost there! Be sure to slaughter every last hero. Let no-one suggest that "
+"you were ever merciful. Such slander would ruin your reputation!"
+msgstr ""
+"快要成功了！一定不要放过任何一个英雄。不要让人觉得你是个手下留情的人。这种诽"
+"谤会毁掉你的名声！"
 
 #: guitext:10
 msgctxt "In-game message"
-msgid "While traveling to this land, we lost our Treasure Room plans. Fortunately there is an ancient library in this land, left by a powerful long dead keeper. Use it well!"
-msgstr "在来到这个王国的路上，我们不慎丢失了储金室的设计图。庆幸的是，一位很久以前灭亡的强大守护者为我们留下了一座金库。好好利用它！"
+msgid ""
+"While traveling to this land, we lost our Treasure Room plans. Fortunately, "
+"there is an ancient treasury nearby, left behind by a powerful long-dead "
+"Keeper. Use it well!"
+msgstr ""
+"在来到这个王国的路上，我们不慎丢失了储金室的设计图。庆幸的是，一位很久以前灭"
+"亡的强大守护者为我们留下了一座金库。好好利用它！"
 
 #: guitext:11
 msgctxt "In-game message"
-msgid "The hero forces will continue to attack, but they're getting weaker. When you're ready, focus on corridor near your entrance and commence an attack on their main force!"
-msgstr "英雄势力还会继续进攻，但是力量逐渐衰弱了。当你准备好了，就向着入口边上的通道进发，开始进攻英雄的主力军吧！"
+msgid ""
+"The hero forces will continue to attack, but they're getting weaker. When "
+"you're ready, focus on the corridor near your entrance and commence an "
+"attack on their main force!"
+msgstr ""
+"英雄势力还会继续进攻，但是力量逐渐衰弱了。当你准备好了，就向着入口边上的通道"
+"进发，开始进攻英雄的主力军吧！"
 
 #: guitext:12
 msgctxt "In-game message"
-msgid "You've chosen to attack the main enemy force quite soon. I just hope it won't be your undoing, keeper."
+msgid ""
+"You've chosen to attack the main enemy force a little early. I just hope it "
+"won't be your undoing, Keeper."
 msgstr "你过早地选择进攻英雄的主力军了。我只希望你不要因此而灭亡，守护者。"
 
 #: guitext:13
 msgctxt "In-game message"
-msgid "The good are beginning to understand their unavoidable fate. But stay alert, there's still a bunch to slay, and they're definitely not the weaker ones!"
-msgstr "英雄们终于认识到他们无法逃避的命运了。但是保持警惕，还有很多敌人要杀，并且他们可不是吃素的！"
+msgid ""
+"The good are beginning to understand their inevitable fate. But stay alert, "
+"there's still a bunch left to slay, and they're definitely not too weak to "
+"resist!"
+msgstr ""
+"英雄们终于认识到他们无法逃避的命运了。但是保持警惕，还有很多敌人要杀，并且他"
+"们可不是吃素的！"
 
 #: guitext:14
 msgctxt "In-game message"
-msgid "If I were in your skin.. I mean, in your flask - I would avoid attacking the door near the Entrance. Heroes who live there might prove to be a problem if your army does not consists of hardened veterans."
-msgstr "如果我是你的话……我是说，在你的处境下——我一定不会轻易进攻入口上方的门。如果你还没有一支强力军队的话，里面的英雄将会带来很大的麻烦。"
+msgid ""
+"If I were in your skin... I mean, in your flask - I would avoid attacking "
+"the door near the Entrance. The heroes who live there might prove to be a "
+"problem if your army isn't comprised of hardened veterans."
+msgstr ""
+"如果我是你的话……我是说，在你的处境下——我一定不会轻易进攻入口上方的门。如果你"
+"还没有一支强力军队的话，里面的英雄将会带来很大的麻烦。"
 
 #: guitext:15
 msgctxt "In-game message"
-msgid "The people of this land know well where to find the old Treasure Room. Expect visits of various heroes, looking either for fame and glory, or just for some easy gold."
-msgstr "这个王国的人们对这个古老储金室的位置了如指掌。我猜会有很多英雄前来，为了个人名誉或荣耀，或者只为了顺走一点钱财。"
+msgid ""
+"The Lord of this land is known for his greed and is sure to know where to "
+"find the old Treasury. Expect visits from his lackeys looking to score some "
+"easy gold."
+msgstr ""
+"这个王国的人们对这个古老储金室的位置了如指掌。我猜会有很多英雄前来，为了个人"
+"名誉或荣耀，或者只为了顺走一点钱财。"
 
 #: guitext:16
 msgctxt "In-game message"
-msgid "Do not allow your creatures to attack the door near Entrance! Instead, turn your eyes towards the door at bottom. Heroes there are somewhat weaker, and I smell a seductive wealth inside."
-msgstr "不要让你的怪物攻击入口上方的门！相对地，应该把你的目光放在右下方的门处。那里的英雄要弱一些，并且我闻到了里面有财宝的诱人气息。"
+msgid ""
+"Do not allow your creatures to attack the door to the North! Instead, turn "
+"your attention to the caverns to the South. The heroes there are somewhat "
+"weaker, and I smell a seductive wealth within."
+msgstr ""
+"不要让你的怪物攻击入口上方的门！相对地，应该把你的目光放在右下方的门处。那里"
+"的英雄要弱一些，并且我闻到了里面有财宝的诱人气息。"
 
 #: guitext:17
 msgctxt "In-game message"
-msgid "Having gems will allow your Samurai to do proper training, and Thieves should no longer target you with such strength. That's a progress!"
-msgstr "获得宝石矿可以使你的忍者做适当的训练，让小偷们不敢再那样虎视眈眈地盯着你了。离胜利又进了一步！"
+msgid ""
+"These Samurai should make quick work of those pilfering brigands and the "
+"gems should make your money woes history. That's progress!"
+msgstr ""
 
 #: guitext:18
 msgctxt "In-game message"
-msgid "Congratulations Evil One. Victory is within your grasp! A few more corpses and we'll be done here. Hurry along!"
-msgstr "恭喜你，邪恶的主人。胜利已经唾手可得！杀死最后几个敌人，我们的任务就完成了。快点解决他们吧！"
+msgid ""
+"Congratulations, Evil One. Victory is within your grasp! A few more corpses "
+"and we'll be done here. Hurry along!"
+msgstr ""
+"恭喜你，邪恶的主人。胜利已经唾手可得！杀死最后几个敌人，我们的任务就完成了。"
+"快点解决他们吧！"
 
 #. Level Nameless hero opening message
 #: guitext:19
 msgctxt "In-game message"
-msgid "The hero who commands this realm cannot be of any significance, as he doesn't even have a name! You can worry about this when he has need of a tombstone Keeper. To work!"
-msgstr "这个王国的统治者毫无存在的意义，因为他甚至连姓名都没有！当你为他立下墓碑的时候这会是个令人发愁的问题，守护者。开始行动吧！"
+msgid ""
+"The hero who commands this realm can't be of much renown, as he doesn't even "
+"have a name! You can worry about this once he's in need of a tombstone, "
+"Keeper. To work!"
+msgstr ""
+"这个王国的统治者毫无存在的意义，因为他甚至连姓名都没有！当你为他立下墓碑的时"
+"候这会是个令人发愁的问题，守护者。开始行动吧！"
 
 #. Level Nameless hero action point 22
 #: guitext:20
 msgctxt "In-game message"
-msgid "Have you found the man with no name yet Keeper? He must be here somewhere?!"
+msgid ""
+"Have you found the man with no name yet, Keeper? He must be here somewhere?!"
 msgstr "你找到那个无名氏的家伙了吗，守护者？他一定就藏在这里！"
 
 #. Level Nameless hero opening message
 #: guitext:21
 msgctxt "In-game message"
-msgid "The nameless one commands many heroes Master, and he will not hesitate to march them against you."
-msgstr "这个无名氏的家伙手下有很多英雄，主人，并且他会毫不犹豫地集结他们来对付你。"
+msgid ""
+"The nameless one commands many heroes, Master, and he will not hesitate to "
+"rally them against you."
+msgstr ""
+"这个无名氏的家伙手下有很多英雄，主人，并且他会毫不犹豫地集结他们来对付你。"
 
 #. Level Twin Keepers opening message
 #: guitext:22
+#, fuzzy
 msgctxt "In-game message"
-msgid "This land was kept in balance by the 4 keepers who dwell here. However, two have formed an alliance and will jointly attack the hero fortress. This will keep them occupied for a time Master, but rest assured they will be coming to claim your land when the hero fortress falls."
-msgstr "这个王国由四股居住在这里的势力制衡。但是，其中两名守护者已经结盟，并且会共同进攻英雄要塞。这会使他们费一番功夫，但是当英雄要塞被攻破后，他们就要来打你的主意了，主人。"
+msgid ""
+"You've arrived, at last, to the doorstep of the Twin Keepers. They wield "
+"ancient magic to split their most powerful minion into two. No matter how "
+"many times you kill one half, it will revive as long as its twin is alive. "
+"They've now set their sights on a powerful hero to replace their prized pet, "
+"and then they will become truly unstoppable! Get to him before they can no "
+"matter what!"
+msgstr ""
 
 #. Level Twin Keepers hero heart destroyed
 #: guitext:23
 msgctxt "In-game message"
-msgid "The hero dungeon has fallen Master! You have little time before the Twin Keepers make their move against you. Make your final preparations now! "
-msgstr "英雄的地下城已经被攻破了，主人！双子守护者用不了多久就会来对付你了。现在做好最后的准备吧！"
+msgid ""
+"The hero dungeon has fallen, Master! You have little time before the Twin "
+"Keepers make their move against you. Make your final preparations now!"
+msgstr ""
+"英雄的地下城已经被攻破了，主人！双子守护者用不了多久就会来对付你了。现在做好"
+"最后的准备吧！"
 
 #. Level Twin Keepers hero loss message
 #: guitext:24
 msgctxt "In-game message"
-msgid "Significant hero reinforcements have arrived, but will it be enough to hold off the combined forces of the Twin Keepers? Only time will tell."
-msgstr "大量的英雄援军到达了，但是他们足以抵抗双子守护者的联军吗？只有时间会证明一切。"
+msgid ""
+"Significant hero reinforcements have arrived, but will it be enough to hold "
+"off the combined strength of the Twin Keepers? Only time will tell."
+msgstr ""
+"大量的英雄援军到达了，但是他们足以抵抗双子守护者的联军吗？只有时间会证明一"
+"切。"
 
 #. Level Twin Keepers victory message
 #: guitext:25
+#, fuzzy
 msgctxt "In-game message"
-msgid "Excellent work Master! The final land of the Twin Keepers is yours!"
-msgstr "干的漂亮，主人！双子守护者的最后一个王国也属于你了！"
+msgid ""
+"Excellent work, Master! Both the Twins' ambitions and Hearts have been "
+"squished under your mighty boot. You are now the rightful ruler of this "
+"realm!"
+msgstr ""
 
 #. Level Twin Keepers defeat message
 #: guitext:26
 msgctxt "In-game message"
-msgid "You are a great disappointment! However, these previously friendly Keepers have broken their alliance, so you can watch the show while you contemplate the implications of your incompetence."
-msgstr "你实在是令人失望！不过，之前互为盟友的双子守护者现在已经反目成仇，你现在可以一边反思着自己被打败的教训，一边观赏他们之间的战斗了。"
+msgid ""
+"You've been a great disappointment! However, the twins appear to have turned "
+"on each other, so you can watch the show while you contemplate the "
+"implications of your incompetence."
+msgstr ""
+"你实在是令人失望！不过，之前互为盟友的双子守护者现在已经反目成仇，你现在可以"
+"一边反思着自己被打败的教训，一边观赏他们之间的战斗了。"
 
 #. Level Okehazama opening message
 #: guitext:27
+#, fuzzy
 msgctxt "In-game message"
-msgid "This is the last land you must conquer if you wish to meet the Twin Keepers. Here there are three other keepers, and guess what? None of them like you!"
-msgstr "这是你要见到双子守护者之前所必须征服的最后一个王国。这里已经有了另外三个守护者，你猜怎么着？他们都不喜欢你！"
+msgid ""
+"The Lord of this land is rallying a powerful army against you and you stand "
+"no chance of winning in a fair fight. If you can find a way to ambush him "
+"and cut off the serpent's head, his lackeys will flee like the insects they "
+"are."
+msgstr ""
 
 #. Level Okehazama victory message
 #: guitext:28
 msgctxt "In-game message"
-msgid "A majestic victory Master! And you have earned the right to meet the infamous Twin Keepers in battle. Savour this moment awhile, then prepare yourself for the final trial!"
-msgstr "一次伟大的胜利，守护者！你赢得了与臭名昭著的双子守护者交手的机会。细细品味这一刻，然后准备迎接最终的挑战吧！"
+msgid ""
+"A majestic victory, Master! You have earned the right to challenge the "
+"infamous Twin Keepers. Savour this moment awhile, then prepare yourself for "
+"the final battle!"
+msgstr ""
+"一次伟大的胜利，守护者！你赢得了与臭名昭著的双子守护者交手的机会。细细品味这"
+"一刻，然后准备迎接最终的挑战吧！"
 
 #. Level Okehazama Hero Knight death message
 #: guitext:29
 msgctxt "In-game message"
-msgid "With their Knight defeated, these heroes now know this is a fight to the death, and they will attack at every opportunity Master. Best to reward their bravery the only way you know how!"
-msgstr "看到他们的骑士阵亡后，英雄们意识到这将是一场殊死之战，他们开始不顾一切地发起进攻，主人。你一定知道怎么做才能最好地嘉奖他们的勇气！"
+msgid ""
+"With the Lord defeated, his army is now in a state of panic and will try to "
+"flee at every opportunity. Best to reward their newfound hopelessness with a "
+"swift death!"
+msgstr ""
+"看到他们的骑士阵亡后，英雄们意识到这将是一场殊死之战，他们开始不顾一切地发起"
+"进攻，主人。你一定知道怎么做才能最好地嘉奖他们的勇气！"
 
 #. Level Okehazama hero onslaught message
 #: guitext:30
+#, fuzzy
 msgctxt "In-game message"
-msgid "You have unleashed waves of hero raiding parties Master, as these heroes make their last stand in this realm. Your defenses need to be extensive and well-placed if you are to triumph here."
-msgstr "你惊动了一群英雄突击部队，主人。这些英雄为了保卫王国而背水一战。要想获得胜利，你必须部署全方位的防御措施。"
+msgid ""
+"The Lord has arrived and his army is out for blood. I trust you've prepared "
+"a way to deal with him? Or were you having a little lie down?"
+msgstr ""
 
 #. Level Embattled Formation opening message
 #: guitext:31
+#, fuzzy
 msgctxt "In-game message"
-msgid "You are under siege in this land Master, with enemies to each of, three sides, and a land where there is nowhere to hide. Sickeningly they have made peace with each other and sworn to eliminate you from this land. You need a plan of your own and you need it fast!"
-msgstr "在这个王国中你被另外三个守护者所包围，主人。并且这片区域没有地方可以躲藏。更令人厌恶的是，这些守护者已经彼此结盟，并发誓要把你从这个王国除掉。你需要制定一份作战方案，并且赶快行动起来！"
+msgid ""
+"You are under siege, Master, with enemies on all sides in a land with no "
+"place to hide. These three sickening cowards have made their peace with each "
+"other and sworn to eliminate you. You need a plan of your own and you need "
+"it fast!"
+msgstr ""
+"在这个王国中你被另外三个守护者所包围，主人。并且这片区域没有地方可以躲藏。更"
+"令人厌恶的是，这些守护者已经彼此结盟，并发誓要把你从这个王国除掉。你需要制定"
+"一份作战方案，并且赶快行动起来！"
 
 #. Level Embattled Formation one opponent remaining message
 #: guitext:32
 msgctxt "In-game message"
-msgid "Impressive work master. It is a privilege to watch you wreak destruction on your enemies. Only one enemy remains, but beware, he has seen his allies' fate and will throw everything into the battle to save his skin!"
-msgstr "令人印象深刻，主人。能观赏你尽情地对敌人造成的破坏真是一种荣幸。只剩一名敌对守护者了，但要注意，看着盟友们一个个被消灭，他将会把全部力量都投入战斗来保全他的小命！"
+msgid ""
+"Impressive work, Master. It's been a privilege to watch you wreak havoc on "
+"your enemies. Only one remains, but beware, he has seen his allies' fate and "
+"will throw everything into the battle to save his skin!"
+msgstr ""
+"令人印象深刻，主人。能观赏你尽情地对敌人造成的破坏真是一种荣幸。只剩一名敌对"
+"守护者了，但要注意，看着盟友们一个个被消灭，他将会把全部力量都投入战斗来保全"
+"他的小命！"
 
 #. Level Embattled Formation victory message
 #: guitext:33
 msgctxt "In-game message"
-msgid "An excellent victory once again. All three enemies lie amongst the dust of this once green and pleasant land. I sense you want to find the next land Master?"
-msgstr "又一次出色的胜利。在这个曾经绿草如茵，令人愉悦的王国，三位敌人被永远埋在了尘土中。我猜你已经想要前往下一个王国了，主人？"
+msgid ""
+"An excellent victory once again. All three enemies lie in the ashes of this "
+"once green and vibrant land. I sense you're ready to seek out the next land, "
+"Master?"
+msgstr ""
+"又一次出色的胜利。在这个曾经绿草如茵，令人愉悦的王国，三位敌人被永远埋在了尘"
+"土中。我猜你已经想要前往下一个王国了，主人？"
 
 #. Level Embattled formation death of a keeper message
 #: guitext:34
 msgctxt "In-game message"
-msgid "A good start keeper, but beware. The remaining keepers grow stronger by pilfering the remnants of this dead kingdom, and therefore attract more creatures anxious to share the spoils!"
-msgstr "不错的开端，守护者。但要注意，其他守护者会掠夺灭亡守护者的遗产而变得更加强大，同时会吸引很多迫不及待前来分赃的怪物加入！"
+msgid ""
+"A good start, Keeper, but beware. The remaining keepers have pilfered the "
+"remains of this dead kingdom, and have grown stronger by attracting more "
+"creatures, anxious to share in the spoils!"
+msgstr ""
+"不错的开端，守护者。但要注意，其他守护者会掠夺灭亡守护者的遗产而变得更加强"
+"大，同时会吸引很多迫不及待前来分赃的怪物加入！"
 
 #: guitext:35 guitext:36 guitext:37 guitext:38 guitext:39 guitext:40 guitext:41
 #: guitext:42 guitext:43 guitext:44 guitext:45 guitext:46 guitext:47 guitext:48

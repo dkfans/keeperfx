@@ -38,6 +38,7 @@ enum SpecialDiggerTask {
     DigTsk_PicksUpCrateForWorkshop,
     DigTsk_DigOrMine,
     DigTsk_PicksUpGoldPile, // 10
+    DigTsk_SaveUnconscious
 };
 
 enum SpecialLastJobKinds {
@@ -87,11 +88,9 @@ struct ExtraSquares {
 TbBool creature_task_needs_check_out_after_digger_stack_change(const struct Thing *creatng);
 void remove_task_from_all_other_players_digger_stacks(PlayerNumber skip_plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-long find_in_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, const struct Dungeon *dungeon);
-long find_in_imp_stack_starting_at(SpDiggerTaskType task_type, long start_pos, const struct Dungeon *dungeon);
-long find_in_imp_stack_task_other_than_starting_at(SpDiggerTaskType excl_task_type, long start_pos, const struct Dungeon *dungeon);
+long find_in_dungeon_imp_stack_starting_at(SpDiggerTaskType task_type, long start_pos, const struct Dungeon *dungeon);
 
-TbBool add_to_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon);
+TbBool add_to_dungeon_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon);
 TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
 void setup_imp_stack(struct Dungeon *dungeon);
 int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
@@ -104,6 +103,7 @@ int add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 int add_empty_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 int add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 int add_reinforce_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
+int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 
 TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
 TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
@@ -126,7 +126,7 @@ long check_out_imp_tokes(struct Thing *thing);
 long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
 long check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
 long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y);
-long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retslb_x, long *retslb_y);
+long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
 long check_out_unconverted_spiral(struct Thing *thing, long nslabs);
 void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng);
 void force_any_creature_dragging_thing_to_drop_it(struct Thing *dragtng);

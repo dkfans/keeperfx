@@ -54,16 +54,16 @@ struct CompoundCoordFilterParam {
      long plyr_idx;
      long slab_kind;
      union {
-     long num1;
-     void *ptr1;
+     long primary_number;
+     void *primary_pointer;
      };
      union {
-     long num2;
-     void *ptr2;
+     long secondary_number;
+     void *secondary_pointer;
      };
      union {
-     long num3;
-     void *ptr3;
+     long tertiary_number;
+     void *tertiary_pointer;
      };
 };
 

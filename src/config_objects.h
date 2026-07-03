@@ -30,10 +30,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define OBJECT_TYPES_MAX  256
+#define OBJECT_TYPES_MAX  2000
 
 enum ObjectCategoryIndex {
-    OCtg_Unknown = 0,
+    OCtg_None = 0,
     OCtg_Decoration, //< Object has no strong function
     OCtg_Furniture,  //< Object is crucial part of a room
     OCtg_Valuable,   //< Object is gold in some form
@@ -45,6 +45,7 @@ enum ObjectCategoryIndex {
     OCtg_Power,      //< Object is a keeper power effect, ie. hand of evil or keeper spell
     OCtg_LairTotem,  //< Object is a creature lair
     OCtg_Effect,     //< Object is some kind of effect which has influence on things or on terrain
+    OCtg_HeroGate,   //< Object functions as a hero gate
 };
 
 enum ObjectModelFlags {
@@ -55,6 +56,8 @@ enum ObjectModelFlags {
     OMF_Buoyant              = 0x0010, // Some objects do not get their sprite cut off when on water/lava
     OMF_Beating              = 0x0020, // If the object is a heart, do the flashing, beating, back and forth animation that imitates a heartbeat
     OMF_Heart                = 0x0040, // Functions as the heart of the dungeon
+    OMF_HoldInHand           = 0x0080, // Object can be picked up to hold
+    OMF_IgnoredByImps        = 0x0100, // Specialdiggers don't dragging this object
 };
 
 
@@ -69,39 +72,57 @@ struct Effects {
     unsigned char sound_range;
 };
 
+struct FlameProperties {
+    unsigned short animation_id;
+    short anim_speed;
+    int sprite_size;
+    int td_add_x;
+    int td_add_y;
+    int fp_add_x;
+    int fp_add_y;
+    unsigned char transparency_flags;
+};
+
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    unsigned long model_flags;
-    long genre;
-    long name_stridx;
-    long map_icon;
+    uint32_t model_flags;
+    int32_t genre;
+    int32_t map_icon;
+    int32_t hand_icon;
+    struct PickedUpOffset object_picked_up_offset;
+    short tooltip_stridx;
+    TbBool tooltip_optional;
     HitPoints health;
     char fall_acceleration;
     char light_unaffected;
     char immobile;
     struct InitLight ilght;
     short sprite_anim_idx;
+    short sprite_anim_idx_in_hand;
     short anim_speed;
     short size_xy;
     short size_z;
-    short sprite_size_max;    
+    short sprite_size_max;
     unsigned short fp_smpl_idx;
     unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     ThingModel related_creatr_model;
     unsigned char persistence;
-    unsigned char destroy_on_liquid;
+    TbBool destroy_on_liquid;
     unsigned char rotation_flag;
-    unsigned char updatefn_idx;
+    FuncIdx updatefn_idx;
     unsigned char initial_state;
     unsigned char random_start_frame;
-    unsigned char transparancy_flags;  // Lower 2 bits are transparency flags.
+    unsigned char transparency_flags;  // Lower 2 bits are transparency flags.
     struct Effects effect;
+    EffectOrEffElModel lava_burn_effect;
+    EffectOrEffElModel water_splash_effect;
+    struct FlameProperties flame;
 };
 
 struct ObjectsConfig {
-    long object_types_count;
+    int32_t object_types_count;
     struct ObjectConfigStats object_cfgstats[OBJECT_TYPES_MAX];
     ThingModel object_to_door_or_trap[OBJECT_TYPES_MAX];
     ThingModel object_to_power_artifact[OBJECT_TYPES_MAX];
@@ -109,12 +130,12 @@ struct ObjectsConfig {
     ThingClass workshop_object_class[OBJECT_TYPES_MAX];
 };
 /******************************************************************************/
-extern const char keeper_objects_file[];
+extern const struct ConfigFileData keeper_objects_file_data;
 extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 extern const struct NamedCommand objects_genres_desc[];
-extern const struct NamedCommand objects_object_commands[];
+
+extern const struct NamedFieldSet objects_named_fields_set;
 /******************************************************************************/
-TbBool load_objects_config(const char *conf_fname,unsigned short flags);
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);
 const char *object_code_name(ThingModel tngmodel);
 ThingModel object_model_id(const char * code_name);
@@ -122,9 +143,8 @@ ThingClass crate_to_workshop_item_class(ThingModel tngmodel);
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel);
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing);
 ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing);
-void init_objects(void);
 int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmodel, ThingModel relmodel);
-void update_all_object_stats();
+void update_all_objects_of_model(ThingModel model);
 /******************************************************************************/
 #ifdef __cplusplus
 }
