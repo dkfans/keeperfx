@@ -3424,9 +3424,54 @@ static void update_gameplay_delta_time(void)
     }
 }
 
-void gameplay_loop_draw();
+static void gameplay_loop_draw()
+{
+    if (is_feature_on(Ft_DeltaTime))
+    {
+        frametime_start_measurement(Frametime_Sleep);
+        if (turns_per_second_draw_current > 0)
+            keeper_wait_for_next_draw();
+        frametime_end_measurement(Frametime_Sleep);
+    }
 
-void gameplay_loop_logic()
+    update_gameplay_delta_time();
+
+    // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
+    frametime_start_measurement(Frametime_Draw);
+
+    // Update lights
+    update_light_render_area();
+
+    if (quit_game || exit_keeper) {
+        do_draw = false;
+    }
+    if ( do_draw ) {
+        if (frametime_enabled())
+            framerate_measurement_capture(Framerate_Draw);
+        game.delta_time = time_since_last_draw;
+        time_since_last_draw = 0;
+        average_delta_time += (game.delta_time - average_delta_time) * max(average_delta_time, .05L) / 20;
+        interpolate_time = min(max(game.process_turn_time, 0.L), 1.L);
+        keeper_screen_redraw();
+    }
+    keeper_wait_for_screen_focus();
+    // Direct information/error messages
+    if (LbScreenLock() == Lb_SUCCESS) {
+        if ( do_draw ) {
+            perform_any_screen_capturing();
+        }
+        draw_onscreen_direct_messages();
+        LbScreenUnlock();
+    }
+    // Move the graphics window to center of screen buffer and swap screen
+    if ( do_draw ) {
+        keeper_screen_swap();
+    }
+    frametime_end_measurement(Frametime_Draw);
+    last_draw_completed_time = get_time_tick_ns();
+}
+
+static void gameplay_loop_logic()
 {
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
     {
@@ -3534,59 +3579,24 @@ void gameplay_loop_logic()
     }
 }
 
-void gameplay_loop_draw()
-{
-    if (is_feature_on(Ft_DeltaTime))
-    {
-        frametime_start_measurement(Frametime_Sleep);
-        if (turns_per_second_draw_current > 0)
-            keeper_wait_for_next_draw();
-        frametime_end_measurement(Frametime_Sleep);
-    }
-
-    update_gameplay_delta_time();
-
-    // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
-    frametime_start_measurement(Frametime_Draw);
-
-    // Update lights
-    update_light_render_area();
-
-    if (quit_game || exit_keeper) {
-        do_draw = false;
-    }
-    if ( do_draw ) {
-        if (frametime_enabled())
-            framerate_measurement_capture(Framerate_Draw);
-        game.delta_time = time_since_last_draw;
-        time_since_last_draw = 0;
-        average_delta_time += (game.delta_time - average_delta_time) * max(average_delta_time, .05L) / 20;
-        interpolate_time = min(max(game.process_turn_time, 0.L), 1.L);
-        keeper_screen_redraw();
-    }
-    keeper_wait_for_screen_focus();
-    // Direct information/error messages
-    if (LbScreenLock() == Lb_SUCCESS) {
-        if ( do_draw ) {
-            perform_any_screen_capturing();
-        }
-        draw_onscreen_direct_messages();
-        LbScreenUnlock();
-    }
-    // Move the graphics window to center of screen buffer and swap screen
-    if ( do_draw ) {
-        keeper_screen_swap();
-    }
-    frametime_end_measurement(Frametime_Draw);
-    last_draw_completed_time = get_time_tick_ns();
-}
-
-void gameplay_loop_network()
+static void gameplay_loop_network()
 {
     if (! network_is_active())
         return;
 
     network_update(game.packets, sizeof(struct Packet));
+}
+
+static void gameplay_loop_timestep()
+{
+    if (! is_feature_on(Ft_DeltaTime)) {
+        frametime_start_measurement(Frametime_Sleep);
+        // Make delay if the machine is too fast
+        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
+            keeper_wait_for_next_turn();
+        }
+        frametime_end_measurement(Frametime_Sleep);
+    }
 }
 
 extern "C" void network_yield_draw_gameplay()
@@ -3623,18 +3633,6 @@ extern "C" void network_yield_draw_frontend()
     }
     frontend_draw();
     LbScreenSwap();
-}
-
-void gameplay_loop_timestep()
-{
-    if (! is_feature_on(Ft_DeltaTime)) {
-        frametime_start_measurement(Frametime_Sleep);
-        // Make delay if the machine is too fast
-        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
-            keeper_wait_for_next_turn();
-        }
-        frametime_end_measurement(Frametime_Sleep);
-    }
 }
 
 void keeper_gameplay_loop(void)
