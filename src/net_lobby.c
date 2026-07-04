@@ -219,6 +219,9 @@ TbError LbNetwork_ExchangeLogin(char *player_name)
 
 TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t frame_size)
 {
+    if ((my_player_number == get_host_player_id()) && frontnet_service_selected(FrontendNetSvc_Online)) {
+        enet_matchmaking_host_update();
+    }
     return exchange_frame_block(NETMSG_FRONTEND, send_buf, server_buf, frame_size);
 }
 
