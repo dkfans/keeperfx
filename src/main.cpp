@@ -151,9 +151,9 @@ char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
 int32_t turns_per_second;
 
-int32_t turns_per_second_draw_current = 0;
-int32_t turns_per_second_draw_main = 0; // -1 if auto
-int32_t turns_per_second_draw_secondary = 0;
+int32_t fps_limit_current = 0;
+int32_t fps_limit_main = 0; // -1 if auto
+int32_t fps_limit_secondary = 0;
 
 
 unsigned char *blue_palette;
@@ -3349,10 +3349,10 @@ TbBool keeper_wait_for_next_turn(void)
 TbBool keeper_wait_for_next_draw(void)
 {
     // fps.draw is currently unable to work properly with frame_skip
-    if (turns_per_second_draw_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
+    if (fps_limit_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
-        const long double tick_ns_one_frame = tick_ns_one_sec/turns_per_second_draw_current;
+        const long double tick_ns_one_frame = tick_ns_one_sec/fps_limit_current;
 
         static long double tick_ns_last_draw = 0;
         long double tick_ns_cur = get_time_tick_ns();
@@ -3374,24 +3374,24 @@ TbBool keeper_wait_for_next_draw(void)
 
 void redetect_screen_refresh_rate_for_draw()
 {
-    turns_per_second_draw_current = 0;
+    fps_limit_current = 0;
 
-    if (turns_per_second_draw_main == -1) {
-        if (turns_per_second_draw_secondary > 0)
-            turns_per_second_draw_current = turns_per_second_draw_secondary;
+    if (fps_limit_main == -1) {
+        if (fps_limit_secondary > 0)
+            fps_limit_current = fps_limit_secondary;
 
         if (lbWindow != NULL) {
             int display_index = SDL_GetWindowDisplayIndex(lbWindow);
             if (display_index >= 0) {
                 SDL_DisplayMode mode;
                 if (SDL_GetCurrentDisplayMode(display_index, &mode) == 0 && mode.refresh_rate > 0) {
-                    turns_per_second_draw_current = mode.refresh_rate;
+                    fps_limit_current = mode.refresh_rate;
                 }
             }
         }
 
-    } else if (turns_per_second_draw_main > 0) {
-        turns_per_second_draw_current = turns_per_second_draw_main;
+    } else if (fps_limit_main > 0) {
+        fps_limit_current = fps_limit_main;
     }
 }
 
@@ -3464,7 +3464,7 @@ static void gameplay_loop_draw()
     if (is_feature_on(Ft_DeltaTime) && ! network_is_active())
     {
         frametime_start_measurement(Frametime_Sleep);
-        if (turns_per_second_draw_current > 0)
+        if (fps_limit_current > 0)
             keeper_wait_for_next_draw();
         frametime_end_measurement(Frametime_Sleep);
     }
