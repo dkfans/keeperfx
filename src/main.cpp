@@ -3426,7 +3426,7 @@ static void update_gameplay_delta_time(void)
 
 static void gameplay_loop_draw()
 {
-    if (is_feature_on(Ft_DeltaTime))
+    if (is_feature_on(Ft_DeltaTime) && ! network_is_active())
     {
         frametime_start_measurement(Frametime_Sleep);
         if (turns_per_second_draw_current > 0)
