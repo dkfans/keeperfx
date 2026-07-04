@@ -563,12 +563,6 @@ struct ThingInterpolateResult interpolate_thing(struct Thing *thing)
 
     if (get_gameturn() - thing->creation_turn <= 1)
     {
-        // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1
-        // turn) in certain situations, which can mess up the interpolation and
-        // cause things to fall from the sky.
-        if (thing->mappos.z.val == 65534)
-            thing->mappos.z.val = thing->floor_height;
-
         // Set initial interp position when Thing has just been created
         thing->previous_mappos = thing->mappos;
         thing->previous_floor_height = thing->floor_height;
