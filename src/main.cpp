@@ -3410,9 +3410,15 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
-static void update_gameplay_delta_time(void)
+static bool use_delta_time()
 {
-    if (is_feature_on(Ft_DeltaTime) == true) {
+    // Always enable interpolation in multiplayer games.
+    return is_feature_on(Ft_DeltaTime) || network_is_active();
+}
+
+static void update_gameplay_delta_time()
+{
+    if (use_delta_time()) {
         long double process_delta_time = get_delta_time() * multiplayer_clock_adjust;
         time_since_last_draw += process_delta_time;
         game.process_turn_time += process_delta_time;
@@ -3493,7 +3499,7 @@ static void gameplay_loop_logic()
         previous_gameturn = get_gameturn();
     }
 
-    if (is_feature_on(Ft_DeltaTime))
+    if (use_delta_time())
     {
         update_gameplay_delta_time();
         if (game.input_lag_turns == 0 && network_is_active())
@@ -3589,7 +3595,7 @@ static void gameplay_loop_network()
 
 static void gameplay_loop_timestep()
 {
-    if (! is_feature_on(Ft_DeltaTime)) {
+    if (! use_delta_time()) {
         frametime_start_measurement(Frametime_Sleep);
         // Make delay if the machine is too fast
         if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
