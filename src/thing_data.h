@@ -60,6 +60,7 @@ enum ThingFlags1 {
     TF1_PushAdd        = 0x04,
     TF1_PushOnce       = 0x08,
     TF1_DoFootsteps    = 0x10,
+    TF1_Teleported     = 0x20,
 };
 
 enum ThingFlags2 {

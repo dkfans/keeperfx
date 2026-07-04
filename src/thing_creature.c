@@ -1847,6 +1847,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             thing->veloc_push_add.z.val += THING_RANDOM(thing, 96) + 40;
             set_flag(thing->state_flags, TF1_PushAdd);
         }
+        set_flag(thing->state_flags, TF1_Teleported);
         player->teleport_destination = 19;
     }
 }

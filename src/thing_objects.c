@@ -1431,12 +1431,13 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     return TUFRet_Modified;
 }
 
+// Both armour sparkles and disease flies use this function.
 static TngUpdateRet object_update_armour(struct Thing *objtng)
 {
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
-        objtng->rendering_flags |= TRF_Invisible;
+        set_flag(objtng->rendering_flags, TRF_Invisible);
         return TUFRet_Modified;
     }
     struct Coord3d pos;
@@ -1474,13 +1475,13 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
           cvect.z = pos.z.val;
         }
     }
-    objtng->state_flags |= TF1_PushAdd;
+    set_flag(objtng->state_flags, TF1_PushAdd);
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    if (objtng->rendering_flags & TRF_Invisible)
+    if (flag_is_set(objtng->rendering_flags, TRF_Invisible) || flag_is_set(thing->state_flags, TF1_Teleported))
         reset_interpolation_of_thing(objtng);
-    objtng->rendering_flags &= ~TRF_Invisible;
+    clear_flag(objtng->rendering_flags, TRF_Invisible);
     return TUFRet_Modified;
 }
 
