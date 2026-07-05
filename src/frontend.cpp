@@ -97,7 +97,6 @@ extern "C" {
 #endif
 
 extern long double last_draw_completed_time;
-long double get_time_tick_ns();
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];

@@ -95,11 +95,10 @@ struct FrametimeMeasurements {
 
 extern int debug_display_frametime;
 extern void initial_time_point();
-extern long double get_time_tick_ns();
+extern int64_t get_time_tick_ns();
 extern void frametime_start_measurement(int frametime_kind);
 extern void frametime_end_measurement(int frametime_kind);
 extern void framerate_measurement_capture(int framerate_kind);
-extern float get_delta_time();
 
 extern struct FrametimeMeasurements frametime_measurements;
 
