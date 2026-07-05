@@ -218,7 +218,6 @@ extern void startup_network_game(CoroutineLoop *context, TbBool local);
 /******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
-long double last_draw_completed_time = 0;
 struct TimerTime Timer;
 TbBool TimerGame = false;
 TbBool TimerNoReset = false;
@@ -3503,7 +3502,6 @@ static void gameplay_loop_draw()
         keeper_screen_swap();
     }
     frametime_end_measurement(Frametime_Draw);
-    last_draw_completed_time = get_time_tick_ns();
 
     if ( do_draw ) {
         update_gameplay_delta_time();
