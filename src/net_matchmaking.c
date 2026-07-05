@@ -323,9 +323,12 @@ static int matchmaking_connect_thread(void *)
 
 void matchmaking_connect_async(void)
 {
+    matchmaking_init();
     if (SDL_AtomicCAS(&connect_thread_active, 0, 1) == SDL_FALSE)
         return;
-    matchmaking_init();
+    SDL_LockMutex(mutex);
+    connect_gave_up = 0;
+    SDL_UnlockMutex(mutex);
     resolve_public_ips_async();
     SDL_Thread *thread = SDL_CreateThread(matchmaking_connect_thread, "matchmaking", NULL);
     if (thread) {
@@ -368,23 +371,44 @@ int matchmaking_connect(void)
 
 void matchmaking_disconnect(void)
 {
+    if (mutex == NULL) {
+        return;
+    }
     Uint32 wait_deadline = SDL_GetTicks() + CONNECT_TIMEOUT_MS * 3;
     while (SDL_AtomicGet(&connect_thread_active) && SDL_GetTicks() < wait_deadline) {
         SDL_Delay(10);
     }
     wait_for_public_ip_resolution();
+    matchmaking_close_lobby();
     SDL_LockMutex(mutex);
     connect_gave_up = 0;
     SDL_AtomicSet(&ips_resolved, 0);
+    if (curl_handle) {
+        websocket_cleanup();
+        LbNetLog("Matchmaking: disconnected\n");
+    }
+    SDL_UnlockMutex(mutex);
+}
+
+void matchmaking_close_lobby(void)
+{
+    if (mutex == NULL) {
+        return;
+    }
+    SDL_LockMutex(mutex);
+    connect_gave_up = 1;
     if (curl_handle) {
         if (hosted_lobby_id[0] != '\0') {
             char delete_message[SEND_BUFFER_SIZE];
             snprintf(delete_message, sizeof(delete_message), "{\"action\":\"delete\",\"id\":\"%s\"}", hosted_lobby_id);
             websocket_send(delete_message);
         }
-        websocket_cleanup();
-        LbNetLog("Matchmaking: disconnected\n");
+        if (curl_handle) {
+            websocket_cleanup();
+        }
     }
+    hosted_lobby_id[0] = '\0';
+    lan_set_lobby_id("");
     SDL_UnlockMutex(mutex);
 }
 
@@ -433,6 +457,10 @@ int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
     SDL_LockMutex(mutex);
     if (!curl_handle) {
         LbNetLog("Matchmaking: not connected to server, lobby won't be listed online\n");
+        SDL_UnlockMutex(mutex);
+        return -1;
+    }
+    if (connect_gave_up) {
         SDL_UnlockMutex(mutex);
         return -1;
     }
