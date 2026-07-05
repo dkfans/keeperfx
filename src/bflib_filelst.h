@@ -26,8 +26,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#pragma pack(1)
-
+// TbLoadFiles/V2 are in-memory static loader lists (pointers + function pointers),
+// never serialized; keep them naturally aligned so arm64 can link without -ld_classic.
 struct TbLoadFiles;
 
 typedef const char * ModifyDataLoadFnameFunc(const char *);
@@ -51,9 +51,7 @@ struct TbLoadFilesV2 {
     LoadFilesGetSizeFunc GetSizeFunc;
     LoadFilesUnpackFunc UnpackFunc;
 };
-
-#pragma pack()
-/******************************************************************************/
+/*****************************************************************************/
 const char * defaultModifyDataLoadFilename(const char *);
 ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc);
 extern ModifyDataLoadFnameFunc *modify_data_load_filename_function;

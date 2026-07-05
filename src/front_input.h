@@ -140,6 +140,9 @@ struct GuiLayer {
     long current_gui_layer;
 };
 
+// Static lookup table (never serialized) that embeds a pointer; keep it at
+// natural alignment so arm64 can link its statically-initialized array.
+#pragma pack()
 struct GamekeySettings {
     const char* toml_name;
     TextStringId string_id; // For display in the key binding menu
@@ -149,6 +152,7 @@ struct GamekeySettings {
     uint8_t binding_menu_visibility;
 
 };
+#pragma pack(1)
 
 extern const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT];
 

@@ -118,8 +118,11 @@ enum TbConfigLoadFlags {
     CnfLd_PreListed     =  0x08, /**< Already parsed the names. */
 };
 
-#pragma pack(1)
-
+// NOTE: The structs below (NamedCommand, NamedField, NamedFieldSet,
+// ConfigFileData, ...) are in-memory runtime helpers full of pointers and
+// function pointers; none are serialized to disk. They must NOT be byte-packed:
+// on arm64 (Apple Silicon) packed pointers are unaligned and the linker rejects
+// them. Left at natural alignment on purpose.
 
 /******************************************************************************/
 
@@ -259,7 +262,6 @@ struct ConfigFileData{
 /******************************************************************************/
 extern char keeper_runtime_directory[152];
 
-#pragma pack()
 /******************************************************************************/
 extern unsigned long text_line_number;
 /******************************************************************************/

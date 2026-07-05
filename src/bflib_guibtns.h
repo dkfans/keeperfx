@@ -29,7 +29,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#pragma pack(1)
+// These GUI structs are in-memory runtime definitions holding pointers and
+// callback function pointers; they are never serialized. They must stay at
+// natural alignment: on arm64 (Apple Silicon) statically-initialized packed
+// structs place pointers at unaligned offsets that the linker rejects.
 
 struct GuiButton;
 struct GuiMenu;
@@ -217,7 +220,6 @@ struct EventTypeInfo {
 // Exported variables
 extern char backup_input_field[INPUT_FIELD_LEN];
 extern struct GuiButton *input_button;
-#pragma pack()
 /******************************************************************************/
 extern TbCharCount input_field_pos;
 /******************************************************************************/

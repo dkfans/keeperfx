@@ -31,7 +31,7 @@
 #include <time.h>
 #include <assert.h>
 
-#if defined(unix) && !defined(GO32)
+#if (defined(unix) || defined(__unix__) || defined(__APPLE__)) && !defined(GO32)
 #include <unistd.h>
 #include <signal.h>
 #include <sys/ioctl.h>

@@ -234,13 +234,17 @@ struct GuiMenu;
 struct GuiButton;
 struct TbLoadFiles;
 
-struct DemoItem { //sizeof = 5
+// Static demo[] table embeds a pointer (fname); keep natural alignment so the
+// arm64 linker accepts its statically-initialized array.
+#pragma pack()
+struct DemoItem {
     uint8_t kind;
     union {
       FrontendMenuState state;
       const char *fname;
     };
 };
+#pragma pack(1)
 
 struct NetMessage { // sizeof = 0x41
   unsigned char plyr_idx;
