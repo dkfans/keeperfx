@@ -339,6 +339,30 @@ unsigned short LbGetCurrentDisplayIndex()
             ERRORLOG("SDL_GetWindowDisplayIndex failed: %s", SDL_GetError());
         }
     }
+    else
+    {
+        // No game window exists yet (e.g. the startup splash/legal screens). The window
+        // has not been placed on a monitor, so we can't ask SDL where it is. On Wayland the
+        // compositor decides the monitor - usually the one under the mouse cursor (where the
+        // user launched the game). Pick the display containing the cursor so the splash and
+        // frontend resolution match the monitor the window will actually open on, instead of
+        // defaulting to display 0 which may be a differently-sized monitor.
+        int mouse_x = 0, mouse_y = 0;
+        SDL_GetGlobalMouseState(&mouse_x, &mouse_y);
+        int num_displays = SDL_GetNumVideoDisplays();
+        for (int d = 0; d < num_displays; d++)
+        {
+            SDL_Rect bounds = {0, 0, 0, 0};
+            if (SDL_GetDisplayBounds(d, &bounds) != 0)
+                continue;
+            if ((mouse_x >= bounds.x) && (mouse_x < bounds.x + bounds.w) &&
+                (mouse_y >= bounds.y) && (mouse_y < bounds.y + bounds.h))
+            {
+                current_display_id = (unsigned short)d;
+                break;
+            }
+        }
+    }
     return current_display_id;
 }
 
