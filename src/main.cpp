@@ -226,7 +226,7 @@ TbBool TimerFreeze = false;
 /******************************************************************************/
 
 static long double time_since_last_draw = 0;
-static long double average_delta_time = 1;
+static long double average_frame_draw_time = 1;
 static long double multiplayer_clock_adjust = 1;
 float interpolate_time = 0;
 /******************************************************************************/
@@ -3486,7 +3486,6 @@ static void gameplay_loop_draw()
             framerate_measurement_capture(Framerate_Draw);
         game.delta_time = time_since_last_draw;
         time_since_last_draw = 0;
-        average_delta_time += (game.delta_time - average_delta_time) * max(average_delta_time, .05L) / 20;
         interpolate_time = min(max(game.process_turn_time, 0.L), 1.L);
         keeper_screen_redraw();
     }
@@ -3505,6 +3504,12 @@ static void gameplay_loop_draw()
     }
     frametime_end_measurement(Frametime_Draw);
     last_draw_completed_time = get_time_tick_ns();
+
+    if ( do_draw ) {
+        update_gameplay_delta_time();
+        const long double delta = time_since_last_draw - average_frame_draw_time;
+        average_frame_draw_time += delta * max(average_frame_draw_time, .05L) / 20;
+    }
 }
 
 static void gameplay_loop_logic()
@@ -3538,7 +3543,8 @@ static void gameplay_loop_logic()
             // another frame could miss this deadline, skip it.
             // In a 3-4 player game, clients must be 2 frames early.
             const int frames = 1 + (netstate.my_id != SERVER_ID && game.active_players_count > 2);
-            if (game.process_turn_time + frames * average_delta_time < 1.0)
+            const long double offset = frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.frame_skip, 1);
+            if (game.process_turn_time + offset < 1.0)
                 return;
         }
         else
