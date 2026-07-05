@@ -459,6 +459,9 @@ long LbFileLengthRnc(const char *fname)
 
 long UnpackM1(void * buffer, ulong bufsize)
 {
+    // Guard against reading past a buffer too small to even hold the header
+    if (bufsize < sizeof(rnc_header))
+        return 0;
     long retcode;
     rnc_header header;
     memcpy(&header, buffer, sizeof(header));
