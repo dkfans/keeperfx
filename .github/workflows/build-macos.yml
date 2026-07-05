@@ -1,0 +1,112 @@
+name: Build macOS arm64
+
+# Native Apple Silicon (arm64) build. Runs on the GitHub-hosted macOS runners,
+# which are arm64 from macos-14 onwards. Only fires when files that affect the
+# macOS build change, so doc-only pushes don't burn runner time.
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'src/**'
+      - 'res/**'
+      - 'macos.mk'
+      - 'version.mk'
+      - 'tools/build_macos_deps.sh'
+      - 'tools/make_macos_app.sh'
+      - '.github/workflows/build-macos.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'res/**'
+      - 'macos.mk'
+      - 'version.mk'
+      - 'tools/build_macos_deps.sh'
+      - 'tools/make_macos_app.sh'
+      - '.github/workflows/build-macos.yml'
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    name: "Build macOS arm64"
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Homebrew dependencies
+        run: |
+          set -eux
+          brew install \
+            pkg-config \
+            sdl2 sdl2_image sdl2_mixer sdl2_net \
+            ffmpeg \
+            luajit \
+            openal-soft \
+            libspng \
+            minizip \
+            miniupnpc \
+            libnatpmp \
+            zlib \
+            curl \
+            dylibbundler
+
+      # The source-only deps (astronomy/centijson/enet6) are cloned from pinned
+      # upstreams and compiled to static libs. Cache them keyed on the build
+      # script so they only rebuild when that script changes.
+      - name: Cache source-only dependencies
+        id: deps-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps/astronomy
+            deps/centijson
+            deps/enet6
+          key: macos-deps-${{ hashFiles('tools/build_macos_deps.sh') }}
+
+      - name: Build source-only dependencies (astronomy, centijson, enet6)
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: |
+          set -eux
+          ./tools/build_macos_deps.sh
+
+      - name: Build
+        run: |
+          set -eux
+          VER_MAJOR=$(grep -E '^VER_MAJOR=' version.mk | cut -d= -f2)
+          VER_MINOR=$(grep -E '^VER_MINOR=' version.mk | cut -d= -f2)
+          VER_RELEASE=$(grep -E '^VER_RELEASE=' version.mk | cut -d= -f2)
+          BUILD_NUMBER=$(git rev-list --count HEAD)
+          VER_SUFFIX=CI_$(git rev-parse --short=7 HEAD)
+          ARTIFACT_NAME=keeperfx-macos_arm64-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}_${VER_SUFFIX}
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> "$GITHUB_ENV"
+          make -f macos.mk BUILD_NUMBER="$BUILD_NUMBER" VER_SUFFIX="$VER_SUFFIX" -j"$(sysctl -n hw.ncpu)"
+
+      - name: Verify binary is a native arm64 Mach-O
+        run: |
+          set -eux
+          file bin/keeperfx
+          lipo -archs bin/keeperfx | grep -qw arm64
+
+      - name: Package self-contained KeeperFX.app
+        run: |
+          set -eux
+          ./tools/make_macos_app.sh
+          # Fail if any Homebrew path leaked into the bundle (i.e. it isn't
+          # actually self-contained).
+          ! grep -rl "/opt/homebrew" dist/KeeperFX.app/Contents/libs 2>/dev/null
+          otool -L dist/KeeperFX.app/Contents/MacOS/keeperfx | grep -q "@executable_path/../libs"
+          codesign --verify --verbose=2 dist/KeeperFX.app
+
+      - name: Upload engine binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: bin/keeperfx
+
+      - name: Upload KeeperFX.app
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}-app
+          path: dist/KeeperFX.app
