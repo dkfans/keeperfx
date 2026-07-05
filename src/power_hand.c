@@ -1701,8 +1701,21 @@ TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing
 
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx) {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Invalid dungeon for player %d, creature index %d model %d owner %d",
+            (int)plyr_idx, (int)thing_to_pick->index, (int)thing_to_pick->model, (int)thing_to_pick->owner);
+        return false;
+    }
     if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
     {
+        if (thing_to_pick->model < 0 || thing_to_pick->model >= CREATURE_TYPES_MAX)
+        {
+            ERRORLOG("Creature index %d has out-of-range model %d (max %d), class_id %d, owner %d, alloc_flags 0x%02x",
+                (int)thing_to_pick->index, (int)thing_to_pick->model, (int)CREATURE_TYPES_MAX,
+                (int)thing_to_pick->class_id, (int)thing_to_pick->owner, (unsigned)thing_to_pick->alloc_flags);
+            return false;
+        }
         struct HandRule hand_rule;
         TbBool overwrite_default_block = false;
         for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--)
