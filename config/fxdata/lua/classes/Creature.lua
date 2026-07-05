@@ -64,6 +64,11 @@ function Creature:level_up(levels) end
 ---sends the creature to the next level, similar to using the special box and selecting said unit
 function Creature:transfer() end
 
+---Transforms the creature into another model
+--- @param model The type of creature to transform into
+--- @param level The xp level the creature gets
+function Creature:transform(model,level) end
+
 ---Checks if the creature is under enemy custody (e.g. in prison or torture chamber)
 ---@return boolean in_enemy_custody If the creature is currently controlled by the enemy
 function Creature:in_enemy_custody() end
