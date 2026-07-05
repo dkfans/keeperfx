@@ -1,5 +1,6 @@
 /.local
 /bin
+/dist
 /game
 /obj
 /sdl

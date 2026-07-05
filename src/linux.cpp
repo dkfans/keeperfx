@@ -14,6 +14,11 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <fnmatch.h>
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#include <limits.h>
+#include <cstring>
+#endif
 
 extern "C" const char * get_os_version() {
     return "Linux";
@@ -167,6 +172,39 @@ extern "C" void LbFileFindEnd(TbFileFind * ff)
 	delete ff;
 }
 
+#ifdef __APPLE__
+// On macOS the engine is the .app's main executable. Finder launches apps with
+// the working directory set to "/", while the game data (data/, sound/, fxdata/,
+// campgns/, ...) lives in the folder the user dropped the .app into. Locate our
+// own executable and, when we are running from inside a <name>.app/Contents/
+// MacOS/ bundle, chdir to the folder that contains the .app so those files are
+// found. Run outside a bundle (e.g. a developer launching bin/keeperfx from the
+// game directory) and the working directory is left untouched.
+static void macos_chdir_to_bundle_parent(void)
+{
+	char exe[PATH_MAX];
+	uint32_t size = sizeof(exe);
+	if (_NSGetExecutablePath(exe, &size) != 0)
+		return;
+	char resolved[PATH_MAX];
+	if (realpath(exe, resolved) == nullptr)
+		return;
+	char *marker = strstr(resolved, "/Contents/MacOS/");
+	if (marker == nullptr)
+		return; // not inside an .app bundle; leave the working directory alone
+	*marker = '\0';                       // resolved -> ".../<name>.app"
+	char *slash = strrchr(resolved, '/');
+	if (slash == nullptr)
+		return;
+	*slash = '\0';                        // resolved -> folder containing the .app
+	if (chdir(resolved) != 0)
+		return;
+}
+#endif
+
 extern "C" int main(int argc, char *argv[]) {
+#ifdef __APPLE__
+	macos_chdir_to_bundle_parent();
+#endif
 	return kfxmain(argc, argv);
 }
