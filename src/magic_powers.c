@@ -168,7 +168,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                 cast_on_tng = false;
             }
         }
-        if ((powerst->can_cast_flags & PwCast_ThingOrMap) != 0)
+        if (flag_is_set(powerst->can_cast_flags,PwCast_ThingOrMap))
         {
             // Fail only if both functions have failed - one is enough
             if (!cast_at_xy && !cast_on_tng) {
