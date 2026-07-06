@@ -24,11 +24,13 @@
 
 #include "bflib_dernc.h"
 #include "bflib_fileio.h"
+#include "bflib_text.h"
 
 #include "front_simple.h"
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_slabsets.h"
+#include "config_sounds.h"
 #include "config_strings.h"
 #include "config_terrain.h"
 #include "config_keeperfx.h"
@@ -1325,21 +1327,23 @@ static void load_ext_slabs(LevelNumber lvnum)
 
 void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
 {
-    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
+    uint8_t lang_id = install_info.lang_id;
+    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(lang_id));
     if (!LbFileExists(fname))
     {
-        SYNCMSG("Map string file %s doesn't exist.", fname);
+        SYNCDBG(9, "Map string file %s doesn't exist.", fname);
         char buf[2048];
         buf[0] = 0;
         memcpy(&buf, fname, 2048);
         fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
+        lang_id = campgn->default_language;
         if (strcasecmp(fname, buf) == 0)
         {
             return;
         }
         if (!LbFileExists(fname))
         {
-            SYNCMSG("Map string file %s doesn't exist.", fname);
+            SYNCDBG(9, "Map string file %s doesn't exist.", fname);
             return;
         }
     }
@@ -1350,20 +1354,43 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         return;
     }
     size_t size = filelen + 256;
-    level_strings_data = calloc(size, sizeof(char)); // we're allocating extra memory, which we can't just assume is already clear; this could cause weird issues
-    if (level_strings_data == NULL)
+    char* raw_data = calloc(size, sizeof(char));
+    if (raw_data == NULL)
     {
         ERRORLOG("Can't allocate memory for Map Strings data");
         return;
     }
-    long loaded_size = LbFileLoadAt(fname, level_strings_data);
+    long loaded_size = LbFileLoadAt(fname, raw_data );
     if (loaded_size < 16)
     {
         ERRORLOG("Map Strings file couldn't be loaded or is too small");
+        free(raw_data);
         return;
     }
-    unsigned long loaded_strings_count = count_strings(level_strings_data, loaded_size);
-    char* strings_data_end = level_strings_data + size;
+
+    size_t out_buf_size = (size_t)loaded_size * 4 + 1;
+    level_strings_data = (char *)calloc(out_buf_size, 1);
+    if (level_strings_data == NULL)
+    {
+        free(raw_data);
+        ERRORLOG("Can't allocate memory for UTF-8 GUI Strings data \"%s\"",fname);
+        return;
+
+    }
+
+    size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, level_strings_data, out_buf_size, lang_id);
+    free(raw_data);
+    if (utf8_size == 0)
+    {
+        free(level_strings_data);
+        ERRORLOG("GUI Strings file couldn't be converted to UTF-8 \"%s\"",fname);
+        return;
+    }
+
+    level_strings_data = realloc(level_strings_data, utf8_size + 1);
+
+    unsigned long loaded_strings_count = count_strings(level_strings_data, utf8_size);
+    char* strings_data_end = level_strings_data + utf8_size;
     // Resetting all values to empty strings
     reset_strings(level_strings, STRINGS_MAX);
     // Analyzing strings data and filling correct values
@@ -1439,6 +1466,9 @@ static TbBool load_level_file(LevelNumber lvnum)
         init_top_texture_to_cube_table();
         result = false;
     }
+    // Apply per-level sound overrides if levels/mapNNNNN.sounds.cfg exists.
+    // (Snapshot was already restored before load_stats_files in main_game.c.)
+    load_level_sounds_config(fgroup, lvnum);
     return result;
 }
 

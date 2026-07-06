@@ -451,7 +451,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         lbDisplay.DrawColour = LbTextGetFontFaceColor();
         lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
     }
-    TbBool low_res = ( (MyScreenHeight < 400) && (dbc_language > 0) );
+    TbBool low_res = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) );
     int width = gbtn->width;
     int x = gbtn->scr_pos_x;
     if (low_res)
@@ -503,7 +503,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         }
     }
     unsigned long h = (gbtn->height - text_string_height(tx_units_per_px, dtext)) / 2 - 3 * units_per_px / 16;
-    if (dbc_language > 0)
+    if (dbc_initialized && dbc_enabled)
     {
         if (gbtn->id_num == BID_QUERY_INFO)
         {

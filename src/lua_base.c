@@ -30,6 +30,33 @@ extern "C" {
 struct lua_State *Lvl_script = NULL;
 
 
+static int lua_disabled_os_function(lua_State *L)
+{
+    const char *func_name = lua_tostring(L, lua_upvalueindex(1));
+    WARNLOG("os.%s is disabled because it is not synchronized in multiplayer", func_name);
+    return luaL_error(L, "os.%s is disabled because it is not synchronized in multiplayer", func_name);
+}
+
+
+static void disable_lua_functions(lua_State *L)
+{
+    if (!network_is_active()) {
+        return;
+    }
+    const char *disabled_os_functions[] = {"time", "date", "clock"};
+
+    lua_getglobal(L, "os");
+    if (lua_istable(L, -1)) {
+        for (int i = 0; i < sizeof(disabled_os_functions) / sizeof(disabled_os_functions[0]); i++) {
+            lua_pushstring(L, disabled_os_functions[i]);
+            lua_pushcclosure(L, lua_disabled_os_function, 1);
+            lua_setfield(L, -2, disabled_os_functions[i]);
+        }
+    }
+    lua_pop(L, 1);
+}
+
+
 TbBool CheckLua(lua_State *L, int result, const char* func)
 {
     if (result != LUA_OK) {
@@ -271,6 +298,8 @@ TbBool open_lua_script(LevelNumber lvnum)
     Lvl_script = luaL_newstate();
 
     luaL_openlibs(Lvl_script);
+    disable_lua_functions(Lvl_script);
+
     lua_set_random_seed(game.action_random_seed);
 
     reg_host_functions(Lvl_script);

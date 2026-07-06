@@ -28,6 +28,7 @@
 #include "bflib_string.h"
 #include "bflib_sound.h"
 #include "bflib_keybrd.h"
+#include "config_sounds.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -62,15 +63,15 @@ TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos
 
 void do_sound_menu_click(void)
 {
-    play_non_3d_sample_no_overlap(61);
+    play_non_3d_sample_no_overlap(snd_button_click);
 }
 
 void do_sound_button_click(struct GuiButton *gbtn)
 {
     if (gbtn->gbtype == LbBtnT_RadioBtn)
-        play_non_3d_sample(60);
+        play_non_3d_sample(snd_tab_click);
     else
-        play_non_3d_sample(61);
+        play_non_3d_sample(snd_button_click);
 }
 
 void setup_input_field(struct GuiButton *gbtn, const char * empty_text)

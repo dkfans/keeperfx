@@ -494,7 +494,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
           wayPoints.edge1_current_index = wayPoints.edge1_start_index;
           waypoint_edge1_index = wpi;
       }
-      if (edge2_region == 0)
+      if (edge2_region == FieldOfViewRegion_WithinBounds)
       {
           fov_AC.tipC.x = edge2_x;
           fov_AC.tipC.y = edge2_y;
@@ -1614,9 +1614,7 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
         ERRORLOG("invalid triangle received");
         return false;
     }
-    long n;
     long nskipped;
-    n = 0;
     nskipped = 0;
     long i;
     long k;
@@ -1637,14 +1635,13 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
                 if (navrule)
                 {
                     mvcost = cost_to_start(k);
-                    if (navrule == 2)
+                    if (navrule == NavigationRule_Special)
                         mvcost *= 16;
                     if (!navitree_add(k,ttri,mvcost))
                         nskipped++;
                 }
             }
         }
-        n++;
     }
     if (nskipped != 0) {
         NAVIDBG(6,"navigate heap full, %ld points ignored",nskipped);
@@ -3972,10 +3969,6 @@ static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
         tri_id3 = tri->tags[cor_id1];
         cor_id3 = link_find(tri_id3,tri_id1);
         pt = get_triangle_point(tri_id3, cor_id3);
-        tri = get_triangle(tri_id1);
-        tri_id3 = tri->tags[cor_id1];
-        cor_id3 = link_find(tri_id3,tri_id1);
-        pt = get_triangle_point(tri_id3, cor_id3);
         tmpX = pt->x;
         tmpY = pt->y;
         SYNCDBG(18,"Triangle %d point %d is (%d,%d)",(int)tri_id3,(int)tri_id1,(int)tmpX,(int)tmpY);
@@ -4928,14 +4921,14 @@ TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x,
             {
                 if (!tri_set_rectangle(rect_sx, rect_sy, rect_ex, rect_ey, ccolour))
                     break; // Run out of triangle space
-                delaunay_seeded(rect_sx, rect_sy, rect_ex, rect_ey);
+                delaunay_seeded(rect_sx, rect_sy, rect_ex, rect_ey, true);
             }
         }
     } else
     {
         tri_set_rectangle(start_x, start_y, end_x, end_y, colour);
     }
-    delaunay_seeded(start_x, start_y, end_x, end_y);
+    delaunay_seeded(start_x, start_y, end_x, end_y, false);
     if ( not_whole_map )
         border_unlock(start_x, start_y, end_x, end_y);
     triangulation_border_init();

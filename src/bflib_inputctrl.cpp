@@ -50,10 +50,12 @@ volatile int lbUserQuit = 0;
 
 unsigned char last_used_input_device = 0;
 
-static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
 static TbBool firstTimeMouseInit = true;
+
+static char lbTextInputBuffer[256];
+static int lbTextInputLength = 0;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
@@ -89,8 +91,6 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
 
 void init_inputcontrol(void)
 {
-    SDL_GetMouseState(&prevMouseX, &prevMouseY);
-
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_a, KC_A));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_b, KC_B));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_c, KC_C));
@@ -224,6 +224,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
 
     init_controller_input();
+    LbStopTextInput();
 }
 
 static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
@@ -316,7 +317,6 @@ static void process_event(const SDL_Event *ev)
     case SDL_MOUSEMOTION:
         if (!isMouseActive)
         {
-          SDL_GetMouseState(&prevMouseX, &prevMouseY);
           return;
         }
         static int frac_x = 0, frac_y = 0;
@@ -338,7 +338,7 @@ static void process_event(const SDL_Event *ev)
             if (isMouseActivated)
             {
                 isMouseActivated = 0;
-                pointerHandler.SetPosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
+                pointerHandler.SetMousePosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
                 mouseDelta.x = 0;
                 mouseDelta.y = 0;
                 frac_x = 0;
@@ -383,6 +383,22 @@ static void process_event(const SDL_Event *ev)
         mouseDelta.x = 0;
         mouseDelta.y = 0;
         mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mouseDelta);
+        break;
+
+    case SDL_TEXTINPUT:
+        if (SDL_IsTextInputActive())
+        {
+            int len = strlen(ev->text.text);
+            int freeSpace = sizeof(lbTextInputBuffer) - lbTextInputLength - 1;
+            if (freeSpace > 0)
+            {
+                if (len > freeSpace)
+                    len = freeSpace;
+                memcpy(lbTextInputBuffer + lbTextInputLength, ev->text.text, len);
+                lbTextInputLength += len;
+                lbTextInputBuffer[lbTextInputLength] = '\0';
+            }
+        }
         break;
 
     case SDL_WINDOWEVENT:
@@ -572,6 +588,44 @@ void LbSetMouseGrab(TbBool grab_mouse)
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
     SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
+}
+
+static void LbClearTextInput(void)
+{
+    lbTextInputLength = 0;
+    lbTextInputBuffer[0] = '\0';
+}
+
+int LbGetTextInput(char *dst, int maxChars)
+{
+    if ((dst == NULL) || (maxChars <= 0) || (lbTextInputLength <= 0))
+        return 0;
+    int count = lbTextInputLength;
+    if (count >= maxChars)
+        count = maxChars - 1;
+    memcpy(dst, lbTextInputBuffer, count);
+    dst[count] = '\0';
+    LbClearTextInput();
+    return count;
+}
+
+TbBool LbIsTextInputActive(void)
+{
+    return SDL_IsTextInputActive() != SDL_FALSE;
+}
+
+void LbStartTextInput(void)
+{
+    LbClearTextInput();
+    if (!SDL_IsTextInputActive())
+        SDL_StartTextInput();
+}
+
+void LbStopTextInput(void)
+{
+    if (SDL_IsTextInputActive())
+        SDL_StopTextInput();
+    LbClearTextInput();
 }
 
 void LbGrabMouseInit(void)

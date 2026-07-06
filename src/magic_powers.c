@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 
 #include "player_data.h"
 #include "player_instances.h"
@@ -70,15 +71,15 @@ extern "C" {
 const long power_sight_close_instance_time[] = {4, 4, 5, 5, 6, 6, 7, 7, 8};
 
 unsigned char destroy_effect[][9] = {
-    {88, 88, 88, 88, 79, 88, 88, 88, 88,},//power_level=0
-    {88, 88, 88, 88, 32, 88, 88, 88, 88,},
-    {88, 88, 88, 79, 32, 79, 88, 88, 88,},
-    {88, 79, 88, 79, 32, 79, 88, 79, 88,},
-    {88, 79, 88, 79, 32, 79, 88, 79, 88,},
-    {88, 88, 88, 32, 32, 32, 88, 88, 88,},
-    {88, 32, 88, 32, 32, 32, 88, 32, 88,},
-    {79, 32, 79, 32, 32, 32, 79, 32, 79,},
-    {32, 32, 32, 32, 32, 32, 32, 32, 32,},//power_level=8
+    {'X','X','X','X','O','X','X','X','X',},//power_level=0
+    {'X','X','X','X',' ','X','X','X','X',},
+    {'X','X','X','O',' ','O','X','X','X',},
+    {'X','O','X','O',' ','O','X','O','X',},
+    {'X','O','X','O',' ','O','X','O','X',},
+    {'X','X','X',' ',' ',' ','X','X','X',},
+    {'X',' ','X',' ',' ',' ','X',' ','X',},
+    {'O',' ','O',' ',' ',' ','O',' ','O',},
+    {' ',' ',' ',' ',' ',' ',' ',' ',' ',},//power_level=8
 };
 
 /******************************************************************************/
@@ -402,6 +403,11 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (pwkind == PwrK_POSSESS) {
+            if (flag_is_set(get_creature_model_flags(thing), CMF_CannotPossess)) {
+                return false;
+            }
+        }
         if (creature_is_leaving_and_cannot_be_stopped(thing))
         {
             return false;
@@ -1814,6 +1820,11 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
     if (!thing_exists(thing)) {
         return Lb_FAIL;
     }
+    if (thing_is_creature(thing)) {
+        if (flag_is_set(get_creature_model_flags(thing), CMF_CannotPossess)) {
+            return Lb_FAIL;
+        }
+    }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
@@ -1944,7 +1955,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     TbBool free = ((slabmap_owner(slb) == plyr_idx) || dungeon->cta_free);
     if (!free)
     {
-        if ((game.conf.rules[plyr_idx].game.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
+        if ((game.conf.rules[plyr_idx].gameplay.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
         {
             free = true;
         }
@@ -2045,7 +2056,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         }
     }
     return ret;
@@ -2153,7 +2164,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
     if (ret == Lb_FAIL) {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
     }
     return ret;
 }

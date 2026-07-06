@@ -27,6 +27,7 @@
 #include "config_crtrstates.h"
 #include "creature_states_mood.h"
 #include "thing_stats.h"
+#include "local_camera.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -152,6 +153,22 @@ static int lua_kill_creature(lua_State *L)
     return 0;
 }
 
+static int lua_transform_creature(lua_State* L)
+{
+    struct Thing* thing = luaL_checkCreature(L, 1);
+    ThingModel crtr_id = luaL_checkNamedCommand(L, 2, creature_desc);
+    int16_t crtr_level = luaL_checkinteger(L, 3);
+
+    if ((crtr_level < 0) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return 0;
+    }
+
+    grow_up_creature(thing, crtr_id, crtr_level);
+    return 0;
+}
+
 static int lua_stun_creature(lua_State* L)
 {
     struct Thing* thing = luaL_checkThing(L, 1);
@@ -259,6 +276,14 @@ static int thing_set_field(lua_State *L) {
     if (strcmp(key, "orientation") == 0)
     {
         thing->move_angle_xy = luaL_checkinteger(L, 3);
+        // Re-sync first-person camera with creature orientation
+        struct PlayerInfo* player = get_my_player();
+        if (!player_invalid(player)
+            && player->controlled_thing_idx == thing->index
+            && player->view_mode == PVM_CreatureView)
+        {
+            set_local_camera_destination(player);
+        }        
     } else if (strcmp(key, "pitch") == 0) 
     {
         thing->move_angle_z = luaL_checkinteger(L, 3);
@@ -664,6 +689,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"stun"                         ,lua_stun_creature                  },
     {"destroy"                      ,lua_destroy_object                 },
     {"delete"                       ,lua_delete_thing                   },
+    {"transform"                    ,lua_transform_creature             },
     {"isValid"                      ,lua_is_valid                       },
     {"transfer"                     ,lua_Transfer_creature              },
     {"level_up"                     ,lua_Level_up_creature              },

@@ -31,6 +31,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
+#include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
 #include "gui_draw.h"
@@ -46,7 +47,6 @@
 #include "net_matchmaking.h"
 #include "net_lan.h"
 #include "net_input_lag.h"
-#include "bflib_enet.h"
 #include "config_campaigns.h"
 #include "post_inc.h"
 
@@ -642,9 +642,6 @@ void frontnet_start_update(void)
     frontnet_rewite_net_messages();
 
     LbNetwork_UpdateInputLagIfHost();
-    if (frontnet_service_selected(FrontendNetSvc_Online)) {
-        enet_matchmaking_host_update();
-    }
     if (frontnet_service_selected(FrontendNetSvc_LAN)) {
         lan_host_update();
     }
@@ -757,6 +754,7 @@ void frontnet_start_setup(void)
         struct PlayerInfo* player = get_player(i);
         player->mp_message_text[0] = '\0';
     }
+    LbStartTextInput();
 }
 
 /******************************************************************************/

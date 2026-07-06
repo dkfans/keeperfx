@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "dungeon_data.h"
 
+#include <inttypes.h>
 #include "globals.h"
 #include "bflib_basics.h"
 #include "config_terrain.h"
@@ -214,10 +215,10 @@ void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on
     {
         struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
         long old_health = heartng->health;
-        long long new_health = heartng->health + healthdelta;
+        int64_t new_health = heartng->health + healthdelta;
         if (new_health > objst->health)
         {
-            SCRIPTDBG(7,"Player %u's calculated heart health (%I64d) is greater than maximum: %d", heartng->owner, new_health, objst->health);
+            SCRIPTDBG(7,"Player %u's calculated heart health (%" PRId64 ") is greater than maximum: %d", heartng->owner, new_health, objst->health);
             new_health = objst->health;
         }
         heartng->health = new_health;

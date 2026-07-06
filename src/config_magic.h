@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "creature_instances.h"
+#include "gui_soundmsgs.h"
 
 #include "config.h"
 
@@ -365,7 +366,7 @@ struct SpecialConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
     TextStringId tooltip_stridx;
-    short speech;
+    SpeechRef speech;
     short effect_id;
     short value;
 };

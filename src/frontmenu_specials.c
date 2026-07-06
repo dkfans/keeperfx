@@ -170,7 +170,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         int w = scale_ui_value_lofi(spr->SWidth + 2);
         LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crconf->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        if ( (MyScreenHeight < 400) && (dbc_language == 1) )
+        if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
         {
             LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cstore->exp_level+1));
         }
@@ -259,7 +259,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         int w = scale_ui_value_lofi(spr->SWidth + 2);
         LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crconf->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        if ( (MyScreenHeight < 400) && (dbc_language == 1) )
+        if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
         {
             LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cctrl->exp_level+1));
         }

@@ -22,8 +22,7 @@
 
 #include "bflib_math.h"
 #include "bflib_sound.h"
-
-#include "creature_states.h"
+#include "config_sounds.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_states_prisn.h"
@@ -162,8 +161,8 @@ short creature_being_scavenged(struct Thing *creatng)
         return 0;
     }
     creatng->continue_state = CrSt_CreatureBeingScavenged;
-    if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 156, 0))
-        thing_play_sample(creatng, 156, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
+    if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, snd_scavenge))
+        thing_play_sample(creatng, snd_scavenge, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
     SYNCDBG(19,"Finished");
     return 1;
 }

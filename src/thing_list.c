@@ -94,9 +94,16 @@ const struct NamedCommand class_commands[] = {
 
 /******************************************************************************/
 
-void set_previous_thing_position(struct Thing *thing) {
+static void update_thing_interpolation(struct Thing *thing)
+{
     thing->previous_mappos = thing->mappos;
     thing->previous_floor_height = thing->floor_height;
+
+    // Originally cleared by the renderer after drawing one frame.
+    clear_flag(thing->rendering_flags, TRF_BeingHit);
+
+    // Signal to reset interpolation on attached armour/disease particle effect.
+    clear_flag(thing->state_flags, TF1_Teleported);
 }
 
 /**
@@ -993,6 +1000,7 @@ void update_things_in_list(struct StructureList *list)
       }
       i = thing->next_of_class;
       // Per-thing code
+      update_thing_interpolation(thing);
       if ((thing->alloc_flags & TAlF_IsFollowingLeader) == 0)
       {
           if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
@@ -1001,7 +1009,6 @@ void update_things_in_list(struct StructureList *list)
               update_thing(thing);
           }
       }
-      set_previous_thing_position(thing);
       // Per-thing code ends
       k++;
       if (k > THINGS_COUNT)
@@ -1103,7 +1110,6 @@ unsigned long update_creatures_not_in_list(void)
         update_thing(thing);
       }
     }
-    set_previous_thing_position(thing);
     // Per-thing code ends
     k++;
     if (k > THINGS_COUNT)
@@ -3583,7 +3589,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         // Per thing processing block
         if ((thing->class_id == TCls_Object) && (object_is_gold_laying_on_ground(thing)))
         {
-            if (thing->valuable.gold_stored >= game.conf.rules[thing->owner].game.gold_pile_maximum)
+            if (thing->valuable.gold_stored >= game.conf.rules[thing->owner].gameplay.gold_pile_maximum)
             {
                 return true;
             }
@@ -4010,7 +4016,7 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
             force_any_creature_dragging_thing_to_drop_it(thing);
             // Drop creature if it's in hand
             if (thing_is_picked_up(thing)) {
-                if ((game.conf.rules[thing->owner].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+                if ((game.conf.rules[thing->owner].gameplay.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                     SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                     return false;
                 }
@@ -4034,7 +4040,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
         force_any_creature_dragging_thing_to_drop_it(thing);
         // Drop creature if it's in hand
         if (thing_is_picked_up(thing)) {
-            if ((game.conf.rules[thing->owner].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+            if ((game.conf.rules[thing->owner].gameplay.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                 SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                 return false;
             }

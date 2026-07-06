@@ -25,6 +25,8 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
+#include "bflib_inputctrl.h"
 #include "bflib_joyst.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
@@ -302,7 +304,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     *health = slb->health;
     // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
     // If you're not the tile owner, unless the classic bug mode is enabled.
-    if (!(game.conf.rules[diggertng->owner].game.classic_bugs_flags & ClscBug_BreakNeutralWalls))
+    if (!(game.conf.rules[diggertng->owner].gameplay.classic_bugs_flags & ClscBug_BreakNeutralWalls))
     {
         if (slabmap_owner(slb) != diggertng->owner)
         {
@@ -370,12 +372,12 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                 }
                 give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
                 mine_out_block(stl_x, stl_y, diggertng->owner);
-                thing_play_sample(diggertng, 72+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(diggertng, snd_dig_impact + SOUND_RANDOM(snd_dig_impact_count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             } else
             if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
             { // All non-gold and non-door slabs are just destroyed
                 dig_out_block(stl_x, stl_y, diggertng->owner);
-                thing_play_sample(diggertng, 72+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(diggertng, snd_dig_impact + SOUND_RANDOM(snd_dig_impact_count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
             check_map_explored(diggertng, stl_x, stl_y);
         } else
@@ -1035,7 +1037,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0) | ((shotst->model_flags & ShMF_BlocksRebirth)? CrDed_NoRebirth : 0);
     }
     // Friendly fire should kill the creature, not knock out
-    if (players_creatures_tolerate_each_other(shotng->owner,creatng->owner) &! (game.conf.rules[shotng->owner].game.classic_bugs_flags & ClscBug_FriendlyFaint))
+    if (players_creatures_tolerate_each_other(shotng->owner,creatng->owner) &! (game.conf.rules[shotng->owner].gameplay.classic_bugs_flags & ClscBug_FriendlyFaint))
     {
         dieflags |= CrDed_NoUnconscious;
     }
@@ -1345,7 +1347,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         if (push_strength == 0)
             push_strength++;
-        if (game.conf.rules[trgtng->owner].game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
+        if (game.conf.rules[trgtng->owner].gameplay.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
         push_strength *= 5;
         int move_x = push_strength * shotng->velocity.x.val / 16.0;
@@ -1403,7 +1405,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules[trgtng->owner].game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
+        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules[trgtng->owner].gameplay.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
         {
             return 0;
         }
@@ -1624,7 +1626,7 @@ TngUpdateRet update_shot(struct Thing *thing)
     struct PlayerInfo* myplyr = get_my_player();
     if (shotst->shot_sound != 0)
     {
-        if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->shot_sound, 0))
+        if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->shot_sound))
             thing_play_sample(thing, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     if (!(shotst->model_flags & ShMF_NoAirDamage))

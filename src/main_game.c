@@ -36,6 +36,7 @@
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
+#include "config_sounds.h"
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
@@ -156,6 +157,9 @@ static void init_level(void)
     recheck_all_mod_exist();
 
     luascript_loaded = open_lua_script(get_selected_level_number());
+    // Restore campaign-layer sounds before creature configs load, so creature cfg custom
+    // sounds are added to the already-restored bank (not wiped afterwards).
+    sound_restore_to_campaign_snapshot();
     // Load configs which may have per-campaign part, and can even be modified within a level
     init_custom_sprites(get_selected_level_number());
     load_stats_files();

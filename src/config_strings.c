@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_strings.h"
 #include "globals.h"
@@ -24,10 +25,12 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_guibtns.h"
+#include "bflib_text.h"
 
 #include "config_mods.h"
 #include "config_keeperfx.h"
 #include "config_campaigns.h"
+#include "config_translation.h"
 #include "game_merge.h"
 #include "lvl_filesdk1.h"
 #include "post_inc.h"
@@ -96,8 +99,8 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
     }
     return false;
   }
-  char *gui_strings_data = (char *)calloc(filelen + 256, 1);
-  if (gui_strings_data == NULL)
+  char *raw_data = (char *)KfxCalloc(filelen + 1, 1);
+  if (raw_data == NULL)
   {
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
@@ -106,17 +109,44 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
     }
     return false;
   }
-  char* strings_data_end = gui_strings_data + filelen + 255;
-  long loaded_size = LbFileLoadAt(fname, gui_strings_data);
+  long loaded_size = LbFileLoadAt(fname, raw_data);
   if (loaded_size < 16)
   {
-    free(gui_strings_data);
+    KfxFree(raw_data);
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
       ERRORLOG("GUI Strings file couldn't be loaded or is too small");
     }
     return false;
   }
+
+  size_t out_buf_size = (size_t)loaded_size * 4 + 1;
+  char *gui_strings_data = (char *)calloc(out_buf_size, 1);
+  if (gui_strings_data == NULL)
+  {
+    free(raw_data);
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+    {
+      ERRORLOG("Can't allocate memory for UTF-8 GUI Strings data");
+      SYNCLOG("Strings file name is \"%s\"",fname);
+    }
+    return false;
+  }
+
+  size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, gui_strings_data, out_buf_size, install_info.lang_id);
+  free(raw_data);
+  if (utf8_size == 0)
+  {
+    free(gui_strings_data);
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+    {
+      ERRORLOG("GUI Strings file couldn't be converted to UTF-8");
+      SYNCLOG("Strings file name is \"%s\"",fname);
+    }
+    return false;
+  }
+
+  char* strings_data_end = gui_strings_data + utf8_size;
 
   gui_strings_data_list[gui_strings_data_count] = gui_strings_data;
   gui_strings_data_count++;
@@ -135,14 +165,14 @@ static void load_gui_strings_data_for_mod(const struct ModConfigItem *mod_item)
   const struct ModExistState *mod_state = &mod_item->state;
   if (mod_state->fx_data)
   {
-    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
-    if (!load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors))
+    char *fname = get_mod_file_path_fmt(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
+    if (!fname || !load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors))
     {
       // if the current language of mod is not translated, then try eng for mod.
       if (install_info.lang_id != Lang_English)
       {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(Lang_English));
-        load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors);
+        fname = get_mod_file_path_fmt(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(Lang_English));
+        if (fname) load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors);
       }
     }
   }
@@ -170,8 +200,8 @@ TbBool setup_gui_strings_data(void)
   // Resetting all values to empty strings
   reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
 
-  char* fname = prepare_file_fmtpath(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
-  if (!load_gui_strings_data_from_file(fname, 0))
+  char* fname = get_game_file_path_fmt(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
+  if (!fname || !load_gui_strings_data_from_file(fname, 0))
     return false;
 
   // Default only one dat file as base and must exist.
@@ -203,7 +233,7 @@ TbBool free_gui_strings_data(void)
   // Freeing memory
   for (int i=0; i<gui_strings_data_count; i++)
   {
-    free(gui_strings_data_list[i]);
+    KfxFree(gui_strings_data_list[i]);
     gui_strings_data_list[i] = NULL;
   }
   gui_strings_data_count = 0;
@@ -211,7 +241,7 @@ TbBool free_gui_strings_data(void)
 }
 
 
-TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short flags, struct GameCampaign *campgn)
+TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short flags, struct GameCampaign *campgn, uint8_t lang_id)
 {
   if (campgn->strings_data_count >= sizeof(campgn->strings_data_list)/sizeof(campgn->strings_data_list[0]))
     return false;
@@ -225,8 +255,8 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
     }
     return false;
   }
-  char *strings_data = (char *)calloc(filelen + 256, 1);
-  if (strings_data == NULL)
+  char *raw_data = (char *)KfxCalloc(filelen + 256, 1);
+  if (raw_data == NULL)
   {
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
@@ -234,17 +264,42 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
     }
     return false;
   }
-  char* strings_data_end = strings_data + filelen + 255;
-  long loaded_size = LbFileLoadAt(fname, strings_data);
+  long loaded_size = LbFileLoadAt(fname, raw_data);
   if (loaded_size < 16)
   {
-    free(strings_data);
+    KfxFree(raw_data);
     if ((flags & CnfLd_IgnoreErrors) == 0)
     {
       ERRORLOG("Campaign Strings file couldn't be loaded or is too small");
     }
     return false;
   }
+
+  size_t out_buf_size = (size_t)loaded_size * 4 + 1;
+  char *strings_data = (char *)calloc(out_buf_size, 1);
+  if (strings_data == NULL)
+  {
+    free(raw_data);
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+    {
+      ERRORLOG("Can't allocate memory for UTF-8 Campaign Strings data");
+    }
+    return false;
+  }
+
+  size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, strings_data, out_buf_size, lang_id);
+  free(raw_data);
+  if (utf8_size == 0)
+  {
+    free(strings_data);
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+    {
+      ERRORLOG("Campaign Strings file couldn't be converted to UTF-8");
+    }
+    return false;
+  }
+
+  char* strings_data_end = strings_data + utf8_size;
 
   campgn->strings_data_list[campgn->strings_data_count] = strings_data;
   campgn->strings_data_count++;
@@ -261,13 +316,13 @@ static void load_campaign_strings_data_for_mod(struct GameCampaign *campgn, cons
   sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
 
   char *fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname);
-  if (!load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn))
+  if (!load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn, install_info.lang_id))
   {
     // if the current language of mod is not translated, then try eng.
     if (campgn->strings_fname_eng[0] != 0 && strcmp(campgn->strings_fname_eng, campgn->strings_fname) != 0)
     {
       fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname_eng);
-      load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn);
+      load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn, Lang_English);
     }
   }
 }
@@ -295,14 +350,14 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   reset_strings(campgn->strings, STRINGS_MAX);
 
   char* fname = prepare_file_path(FGrp_Main, campgn->strings_fname);
-  if (!load_campaign_strings_data_from_file(fname, 0, campgn))
+  if (!load_campaign_strings_data_from_file(fname, 0, campgn, campgn->strings_lang))
   {
     // if the current language of campaign is not translated, then try eng.
     if (campgn->strings_fname_eng[0] == 0 || strcmp(campgn->strings_fname_eng, campgn->strings_fname) == 0)
       return false;
 
     fname = prepare_file_path(FGrp_Main, campgn->strings_fname_eng);
-    if (!load_campaign_strings_data_from_file(fname, 0, campgn))
+    if (!load_campaign_strings_data_from_file(fname, 0, campgn, Lang_English))
       return false;
   }
 
@@ -355,7 +410,11 @@ const char * cmpgn_string(unsigned int index)
 
 const char * get_string(TextStringId stridx)
 {
-    if (stridx <= STRINGS_MAX)
+    if (stridx < 0)
+    {
+      return "invalid string id";
+    }
+    if (stridx < TRANSLATION_STRINGS_START)
     {
         if (level_strings[stridx] != NULL)
         {
@@ -366,8 +425,10 @@ const char * get_string(TextStringId stridx)
         }
         return cmpgn_string(stridx);
     }
+    else if (stridx < GUI_STRINGS_START )
+        return get_translation_file_string(stridx);
     else
-        return gui_string(stridx-STRINGS_MAX);
+        return gui_string(stridx - GUI_STRINGS_START);
 }
 
 unsigned long count_strings(char *strings, int size)

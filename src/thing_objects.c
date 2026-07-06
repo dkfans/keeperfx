@@ -23,6 +23,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "config_sounds.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
 #include "config_creature.h"
@@ -179,7 +180,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     if (thing_is_beating_dungeon_heart(thing))
     {
         thing->heart.beat_direction = 1;
-        light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
+        light_init_dungeon_heart(thing->light_id, 0, 56);
     }
     switch (thing->model)
     {
@@ -464,7 +465,7 @@ TbBool object_is_gold_pile(const struct Thing *thing)
     if (thing->class_id != TCls_Object)
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return ((objst->genre == OCtg_Valuable) || (thing->model == ObjMdl_SpinningCoin));
+    return (objst->genre == OCtg_Valuable);
 }
 
 TbBool object_is_gold_laying_on_ground(const struct Thing *thing)
@@ -679,7 +680,7 @@ static long food_moves(struct Thing *objtng)
       {
             if ( (room_is_invalid(room)) || (!room_role_matches(room->kind, RoRoF_FoodStorage)) || (room->owner != objtng->owner) || (room->used_capacity > room->total_capacity) )
             {
-                objtng->food.life_remaining = game.conf.rules[objtng->owner].game.food_life_out_of_hatchery;
+                objtng->food.life_remaining = game.conf.rules[objtng->owner].gameplay.food_life_out_of_hatchery;
                 struct Room* hatchroom = room_get(objtng->parent_idx);
                 if (!room_is_invalid(hatchroom))
                 {
@@ -1081,7 +1082,7 @@ static long object_being_dropped(struct Thing *thing)
         destroy_thing(thing);
         return TUFRet_Deleted;
     }
-    if (object_is_gold_pile(thing))
+    if ( (object_is_gold_pile(thing)) || (thing->model == ObjMdl_SpinningCoin) )
     {
         if (thing->valuable.gold_stored <= 0)
         {
@@ -1159,11 +1160,11 @@ void update_dungeon_heart_beat(struct Thing *heartng)
                 heartng->heart.beat_direction = (unsigned char)-1;
                 if (bounce)
                 {
-                    thing_play_sample(heartng, 151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                    thing_play_sample(heartng, snd_heart_beat_up, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
                 }
                 else
                 {
-                    thing_play_sample(heartng, 150, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                    thing_play_sample(heartng, snd_heart_beat_down, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
                 }
                 bounce = !bounce;
             }
@@ -1174,7 +1175,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         {
             stop_thing_playing_sample(heartng, 93);
         }
-        else if ( !S3DEmitterIsPlayingSample(heartng->snd_emitter_id, 93, 0) )
+        else if ( !S3DEmitterIsPlayingSample(heartng->snd_emitter_id, 93) )
         {
             thing_play_sample(heartng, 93, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
         }
@@ -1192,11 +1193,11 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         dungeon = get_players_num_dungeon(heartng->owner);
     }
 
-    if ((heartng->health > 0) && (game.conf.rules[heartng->owner].game.dungeon_heart_heal_time != 0))
+    if ((heartng->health > 0) && (game.conf.rules[heartng->owner].gameplay.dungeon_heart_heal_time != 0))
     {
-        if ((get_gameturn() % game.conf.rules[heartng->owner].game.dungeon_heart_heal_time) == 0)
+        if ((get_gameturn() % game.conf.rules[heartng->owner].gameplay.dungeon_heart_heal_time) == 0)
         {
-            heartng->health += game.conf.rules[heartng->owner].game.dungeon_heart_heal_health;
+            heartng->health += game.conf.rules[heartng->owner].gameplay.dungeon_heart_heal_health;
             if (heartng->health < 0)
             {
               heartng->health = 0;
@@ -1431,12 +1432,13 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     return TUFRet_Modified;
 }
 
+// Both armour sparkles and disease flies use this function.
 static TngUpdateRet object_update_armour(struct Thing *objtng)
 {
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
-        objtng->rendering_flags |= TRF_Invisible;
+        set_flag(objtng->rendering_flags, TRF_Invisible);
         return TUFRet_Modified;
     }
     struct Coord3d pos;
@@ -1474,11 +1476,13 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
           cvect.z = pos.z.val;
         }
     }
-    objtng->state_flags |= TF1_PushAdd;
+    set_flag(objtng->state_flags, TF1_PushAdd);
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    objtng->rendering_flags &= ~TRF_Invisible;
+    if (flag_is_set(objtng->rendering_flags, TRF_Invisible) || flag_is_set(thing->state_flags, TF1_Teleported))
+        reset_interpolation_of_thing(objtng);
+    clear_flag(objtng->rendering_flags, TRF_Invisible);
     return TUFRet_Modified;
 }
 
@@ -1524,7 +1528,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
 
-    if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, powerst->select_sound_idx, 0) ) {
+    if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, powerst->select_sound_idx) ) {
         thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 1, 3, FULL_LOUDNESS);
     }
 
@@ -1885,7 +1889,7 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long wealth_size_holds = game.conf.rules[0].game.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules[0].gameplay.gold_per_hoard / get_wealth_size_types_count();
     int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
@@ -1914,8 +1918,8 @@ int get_wealth_size_types_count(void)
  */
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value)
 {
-    if (value >= game.conf.rules[plyr_idx].game.gold_per_hoard)
-        value = game.conf.rules[plyr_idx].game.gold_per_hoard;
+    if (value >= game.conf.rules[plyr_idx].gameplay.gold_per_hoard)
+        value = game.conf.rules[plyr_idx].gameplay.gold_per_hoard;
     int wealth_size = get_wealth_size_of_gold_amount(value);
     struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size-1], plyr_idx, -1);
     if (thing_is_invalid(gldtng))
@@ -1927,7 +1931,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
     struct Thing* thing = INVALID_THING;
-    GoldAmount wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
         return thing;
@@ -1964,7 +1968,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
  */
 GoldAmount add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
-    GoldAmount wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
     if (gldtng->valuable.gold_stored + amount > max_hoard_size_in_room)
@@ -2095,15 +2099,15 @@ GoldAmount gold_object_typical_value(struct Thing *thing)
     switch (thing->model)
     {
       case ObjMdl_GoldChest:
-          return game.conf.rules[thing->owner].game.chest_gold_hold;
+          return game.conf.rules[thing->owner].gameplay.chest_gold_hold;
       case ObjMdl_GoldPot:
-          return game.conf.rules[thing->owner].game.pot_of_gold_holds;
+          return game.conf.rules[thing->owner].gameplay.pot_of_gold_holds;
       case ObjMdl_Goldl:
-          return game.conf.rules[thing->owner].game.gold_pile_value;
+          return game.conf.rules[thing->owner].gameplay.gold_pile_value;
       case ObjMdl_GoldBag:
-          return game.conf.rules[thing->owner].game.bag_gold_hold;
+          return game.conf.rules[thing->owner].gameplay.bag_gold_hold;
       case ObjMdl_SpinningCoin:
-          return game.conf.rules[thing->owner].game.gold_pile_maximum;
+          return game.conf.rules[thing->owner].gameplay.gold_pile_maximum;
       default:
         break;
     }

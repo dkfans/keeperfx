@@ -279,7 +279,7 @@ TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart
 void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y);
 TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour);
 long fringe_get_rectangle(int32_t *outfri_x1, int32_t *outfri_y1, int32_t *outfri_x2, int32_t *outfri_y2, NavColour *oval);
-long delaunay_seeded(long start_x, long start_y, long end_x, long end_y);
+long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool keep_edge);
 void border_unlock(long start_x, long start_y, long end_x, long end_y);
 TbBool triangulation_border_start(int32_t *border_a, int32_t *border_b);
 void triangulation_init(void);

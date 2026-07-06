@@ -61,10 +61,8 @@ struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
     int32_t video_rotate_mode;
     int32_t input_lag_turns;
-    TbBigChecksum map_checksum;
-    uint32_t sprite_zip_checksum;
-    uint8_t sprite_zip_entry_count;
-    struct SpriteZipEntry sprite_zip_entries[SPRITE_ZIP_ENTRY_COUNT];
+    TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
+    TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
     uint16_t initial_tendencies;
     uint32_t isometric_view_zoom_level;
     uint32_t frontview_zoom_level;
@@ -146,10 +144,24 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
 
 static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
-    const TbBigChecksum host_checksum = startup_sync_packets[get_host_player_id()].map_checksum;
+    const TbBigChecksum *host = startup_sync_packets[get_host_player_id()].map_checksums;
     for (int i = 0; i < MAX_NET_USERS; i++) {
-        if (net_player_info[i].network_user_active && startup_sync_packets[i].map_checksum != host_checksum) {
-            ERRORLOG("Level checksums %08x(Host) != %08x(Client) for player %d", host_checksum, startup_sync_packets[i].map_checksum, i);
+        const TbBigChecksum *client = startup_sync_packets[i].map_checksums;
+        if (!net_player_info[i].network_user_active) {
+            continue;
+        }
+        int diff_count = 0;
+        for (int j = 0; j < NETWORK_STARTUP_MAP_FILE_COUNT; j++) {
+            if (client[j] == host[j]) {
+                continue;
+            }
+            if (diff_count == 0) {
+                ERRORLOG("Level checksums differ for player %d", i);
+            }
+            ERRORLOG("Level file map%05u.%s differs for player %d", get_loaded_level_number(), network_startup_compare_files[j], i);
+            diff_count++;
+        }
+        if (diff_count != 0) {
             return false;
         }
     }
@@ -157,58 +169,26 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
     return true;
 }
 
-static void verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
+static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
     int host_player_id = get_host_player_id();
     const struct StartupSyncPacket *host_sync = &startup_sync_packets[host_player_id];
+    TbBool verified = true;
     for (int i = 0; i < MAX_NET_USERS; i++) {
         if (!net_player_info[i].network_user_active || i == host_player_id) {
             continue;
         }
         const struct StartupSyncPacket *client_sync = &startup_sync_packets[i];
-        if (client_sync->sprite_zip_checksum == host_sync->sprite_zip_checksum) {
-            continue;
-        }
-        TbBool reported = false;
-        for (int pass = 0; pass < 2; pass++) {
-            const struct StartupSyncPacket *source_sync = host_sync;
-            const struct StartupSyncPacket *target_sync = client_sync;
-            int target_player_id = i;
-            if (pass == 1) {
-                source_sync = client_sync;
-                target_sync = host_sync;
-                target_player_id = host_player_id;
+        for (int zip_idx = 0; zip_idx < REQUIRED_SPRITE_ZIP_COUNT; zip_idx++) {
+            if (client_sync->required_sprite_zip_checksums[zip_idx] == host_sync->required_sprite_zip_checksums[zip_idx]) {
+                continue;
             }
-            for (int source_idx = 0; source_idx < source_sync->sprite_zip_entry_count; source_idx++) {
-                const struct SpriteZipEntry *source_entry = &source_sync->sprite_zip_entries[source_idx];
-                TbBool found = false;
-                for (int target_idx = 0; target_idx < target_sync->sprite_zip_entry_count; target_idx++) {
-                    const struct SpriteZipEntry *target_entry = &target_sync->sprite_zip_entries[target_idx];
-                    if (strcasecmp(source_entry->filename, target_entry->filename) != 0) {
-                        continue;
-                    }
-                    found = true;
-                    if (pass == 0 && source_entry->checksum != target_entry->checksum) {
-                        WARNLOG("Custom sprite zip differs for %s: %s", network_player_name(host_player_id), source_entry->filename);
-                        message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s differs for %.12s", source_entry->filename, network_player_name(host_player_id));
-                        WARNLOG("Custom sprite zip differs for %s: %s", network_player_name(i), source_entry->filename);
-                        message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s differs for %.12s", source_entry->filename, network_player_name(i));
-                        reported = true;
-                    }
-                    break;
-                }
-                if (!found) {
-                    WARNLOG("Custom sprite zip missing for %s: %s", network_player_name(target_player_id), source_entry->filename);
-                    message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing for %.12s", source_entry->filename, network_player_name(target_player_id));
-                    reported = true;
-                }
-            }
-        }
-        if (!reported) {
-            WARNLOG("Custom sprite zip order or overflow mismatch for %s", network_player_name(i));
-            message_add_fmt(MsgType_Blank, 0, "/fxdata/ zip order error");
+            WARNLOG("Custom sprite zip differs between %s and %s: %s", network_player_name(host_player_id), network_player_name(i), required_sprite_zips[zip_idx]);
+            message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s differs for %.12s", required_sprite_zips[zip_idx], network_player_name(i));
+            verified = false;
         }
     }
+    return verified;
 }
 
 static struct StartupSyncPacket s_local_startup_sync;
@@ -221,10 +201,8 @@ static void build_local_startup_sync(void)
     s_local_startup_sync.startup_sync_packet_valid = 1;
     s_local_startup_sync.video_rotate_mode = settings.video_rotate_mode;
     s_local_startup_sync.input_lag_turns = game.input_lag_turns;
-    s_local_startup_sync.map_checksum = calculate_network_startup_map_checksum();
-    s_local_startup_sync.sprite_zip_checksum = sprite_zip_combined_checksum;
-    s_local_startup_sync.sprite_zip_entry_count = sprite_zip_entry_count;
-    memcpy(s_local_startup_sync.sprite_zip_entries, sprite_zip_entries, sizeof(s_local_startup_sync.sprite_zip_entries));
+    calculate_network_startup_map_checksums(s_local_startup_sync.map_checksums);
+    memcpy(s_local_startup_sync.required_sprite_zip_checksums, required_sprite_zip_checksums, sizeof(s_local_startup_sync.required_sprite_zip_checksums));
     uint16_t initial_tendencies = 0;
     if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
     if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
@@ -254,7 +232,10 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         return false;
     }
 
-    verify_startup_sprite_zip_checksums(s_startup_sync_packets);
+    if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
+        create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
+        return false;
+    }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[get_host_player_id()];
     game.input_lag_turns = host_sync->input_lag_turns;
     game.skip_initial_input_turns = calculate_skip_input();
@@ -308,9 +289,26 @@ void setup_count_players(void)
 TbBool init_players_network_game(void)
 {
     SYNCDBG(4,"Starting");
+    TbBool initialized = true;
     setup_network_player_numbers();
-    build_local_startup_sync();
-    return net_startup_sync_exchange_and_apply();
+    for (int zip_idx = 0; zip_idx < REQUIRED_SPRITE_ZIP_COUNT; zip_idx++) {
+        if (required_sprite_zip_checksums[zip_idx] != 0) {
+            continue;
+        }
+        WARNLOG("Required custom sprite zip missing: %s", required_sprite_zips[zip_idx]);
+        message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing", required_sprite_zips[zip_idx]);
+        create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
+        initialized = false;
+        break;
+    }
+    if (netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
+        matchmaking_close_lobby();
+    }
+    if (initialized) {
+        build_local_startup_sync();
+        initialized = net_startup_sync_exchange_and_apply();
+    }
+    return initialized;
 }
 
 void are_disconnect_victories_allowed(void)
@@ -526,7 +524,7 @@ void process_disconnected_network_players(void)
         resolve_network_quit_outcome(myplyr);
     }
     if (winning_quit && (plyr_count > 1)) {
-        if (game.conf.rules[myplyr->id_number].game.winner_tortures_loser) {
+        if (game.conf.rules[myplyr->id_number].gameplay.winner_tortures_loser) {
             myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
         } else {
             myplyr->additional_flags &= ~PlaAF_UnlockedLordTorture;

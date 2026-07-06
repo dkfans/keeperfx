@@ -22,6 +22,7 @@
 #include "net_exchange_common.h"
 #include "bflib_netsession.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "front_landview.h"
 #include "front_network.h"
 #include "frontend.h"
@@ -118,7 +119,7 @@ TbError process_login_message(NetUserId source, char *read_pos)
     user->version = *user_version;
     NETMSG("User %s successfully logged in", user->name);
     user->progress = USER_LOGGEDIN;
-    play_non_3d_sample(76);
+    play_non_3d_sample(snd_spell_stars);
     char *reply_pos = begin_net_message(NETMSG_LOGIN);
     *reply_pos = source;
     reply_pos += 1;
@@ -218,6 +219,9 @@ TbError LbNetwork_ExchangeLogin(char *player_name)
 
 TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t frame_size)
 {
+    if ((my_player_number == get_host_player_id()) && frontnet_service_selected(FrontendNetSvc_Online)) {
+        enet_matchmaking_host_update();
+    }
     return exchange_frame_block(NETMSG_FRONTEND, send_buf, server_buf, frame_size);
 }
 

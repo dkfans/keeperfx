@@ -3,8 +3,12 @@
 #include "bflib_crash.h"
 #include "bflib_fileio.h"
 #include "cdrom.h"
+#include <algorithm>
+#include <ctype.h>
 #include <string>
 #include <memory>
+#include <utility>
+#include <vector>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -73,11 +77,8 @@ extern "C" void StopRedbookTrack()
 }
 
 struct TbFileFind {
-	std::string filespec;
-	std::string path;
-	std::string namebuf;
-	DIR * handle = nullptr;
-	bool is_pattern = false;
+	std::vector<std::pair<std::string, std::string>> names;
+	size_t index = 0;
 };
 
 bool filespec_is_pattern(const char * filespec) {
@@ -93,52 +94,55 @@ std::string directory_from_filespec(const char * filespec) {
 	}
 }
 
-bool find_file(TbFileFind * ff, TbFileEntry * fe) {
-	while (true) {
-		auto de = readdir(ff->handle);
-		if (!de) {
-			return false;
-		} else if (strcmp(de->d_name, ".") == 0) {
-			continue;
-		} else if (strcmp(de->d_name, "..") == 0) {
-			continue;
-		}
-		const std::string path = ff->path + "/" + de->d_name;
-		ff->namebuf = de->d_name;
-		fe->Filename = ff->namebuf.c_str();
-		if (ff->is_pattern) {
-			if (fnmatch(ff->filespec.c_str(), path.c_str(), FNM_FILE_NAME | FNM_CASEFOLD) != 0) {
-				continue;
-			}
-		}
-		struct stat sb;
-		if (stat(path.c_str(), &sb) < 0) {
-			continue;
-		} else if (!S_ISREG(sb.st_mode)) {
-			continue;
-		}
-		return true;
-	}
-	return false;
-}
-
 extern "C" TbFileFind * LbFileFindFirst(const char * filespec, TbFileEntry * fe)
 {
 	try {
 		auto ff = std::make_unique<TbFileFind>();
-		ff->is_pattern = filespec_is_pattern(filespec);
-		ff->filespec = filespec;
-		if (ff->is_pattern) {
-			ff->path = directory_from_filespec(filespec);
-			ff->handle = opendir(ff->path.c_str());
+		bool is_pattern = filespec_is_pattern(filespec);
+		std::string path;
+		if (is_pattern) {
+			path = directory_from_filespec(filespec);
 		} else {
-			ff->path = filespec;
-			ff->handle = opendir(filespec);
+			path = filespec;
 		}
-		if (ff->handle) {
-			if (find_file(ff.get(), fe)) {
-				return ff.release();
+		DIR *handle = opendir(path.c_str());
+		if (handle) {
+			while (true) {
+				auto de = readdir(handle);
+				if (!de) {
+					break;
+				}
+				if (strcmp(de->d_name, ".") == 0) {
+					continue;
+				}
+				if (strcmp(de->d_name, "..") == 0) {
+					continue;
+				}
+				const std::string file_path = path + "/" + de->d_name;
+				if (is_pattern) {
+					if (fnmatch(filespec, file_path.c_str(), FNM_FILE_NAME | FNM_CASEFOLD) != 0) {
+						continue;
+					}
+				}
+				struct stat sb;
+				if (stat(file_path.c_str(), &sb) < 0) {
+					continue;
+				}
+				if (!S_ISREG(sb.st_mode)) {
+					continue;
+				}
+				std::string key = de->d_name;
+				for (size_t i = 0; i < key.size(); i++) {
+					key[i] = (char)tolower((unsigned char)key[i]);
+				}
+				ff->names.emplace_back(key, de->d_name);
 			}
+			closedir(handle);
+		}
+		if (!ff->names.empty()) {
+			std::sort(ff->names.begin(), ff->names.end());
+			fe->Filename = ff->names[0].second.c_str();
+			return ff.release();
 		}
 	} catch (...) {}
 	return nullptr;
@@ -147,8 +151,12 @@ extern "C" TbFileFind * LbFileFindFirst(const char * filespec, TbFileEntry * fe)
 extern "C" int32_t LbFileFindNext(TbFileFind * ff, TbFileEntry * fe)
 {
 	try {
-		if (find_file(ff, fe)) {
-			return 1;
+		if (ff) {
+			ff->index++;
+			if (ff->index < ff->names.size()) {
+				fe->Filename = ff->names[ff->index].second.c_str();
+				return 1;
+			}
 		}
 	} catch (...) {}
 	return -1;
@@ -156,9 +164,6 @@ extern "C" int32_t LbFileFindNext(TbFileFind * ff, TbFileEntry * fe)
 
 extern "C" void LbFileFindEnd(TbFileFind * ff)
 {
-	if (ff) {
-		closedir(ff->handle);
-	}
 	delete ff;
 }
 

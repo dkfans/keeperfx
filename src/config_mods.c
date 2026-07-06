@@ -1,3 +1,4 @@
+#include "kfx_memory.h"
 #include "pre_inc.h"
 
 #include "config_mods.h"
@@ -84,83 +85,38 @@ static void recheck_block_mod_list_exist(struct ModConfigItem *mod_items, long m
         prepare_file_path_buf_mod(main_dir, sizeof(main_dir), mod_dir, FGrp_Main, NULL);
         int main_len = strlen(main_dir);
 
-        fname = prepare_file_path_mod(mod_dir, FGrp_FxData, NULL);
-        if (fname[0] != 0 && LbFileExists(fname))
-        {
-            mod_state->fx_data = 1;
 
-            strcat(config_dirs, str_sep);
-            str_sep = ", ";
-            if (memcmp(main_dir, fname, main_len) == 0)
-                strcat(config_dirs, fname+main_len+1);
-            else
-                strcat(config_dirs, "FGrp_FxData");
-        }
+        struct GrpExistState {
+            int *fgrp_state;
+            short fgroup_val;
+            const char *fgrp_desc;
+        };
+        struct GrpExistState grp_check_list[] = {
+            { &mod_state->fx_data, FGrp_FxData, "FGrp_FxData" },
+            { &mod_state->std_data, FGrp_StdData, "FGrp_StdData" },
+            { &mod_state->cmpg_config, FGrp_CmpgConfig, "FGrp_CmpgConfig" },
+            { &mod_state->cmpg_lvls, FGrp_CmpgLvls, "FGrp_CmpgLvls" },
+            { &mod_state->crtr_data, FGrp_CrtrData, "FGrp_CrtrData" },
+            { &mod_state->cmpg_crtrs, FGrp_CmpgCrtrs, "FGrp_CmpgCrtrs" },
+            { &mod_state->lrg_sound, FGrp_LrgSound, "FGrp_LrgSound" },
+            { &mod_state->music, FGrp_Music, "FGrp_Music" },
+        };
+        const int grp_check_cnt = (int)(sizeof(grp_check_list)/sizeof(grp_check_list[0]));
 
-        fname = prepare_file_path_mod(mod_dir, FGrp_StdData, NULL);
-        if (fname[0] != 0 && LbFileExists(fname))
-        {
-            mod_state->std_data = 1;
+        for (int j=0; j<grp_check_cnt; j++) {
+            struct GrpExistState *grp_check_cur = grp_check_list + j;
+            fname = prepare_file_path_mod(mod_dir, grp_check_cur->fgroup_val, NULL);
+            if (fname[0] != 0 && LbFileExists(fname))
+            {
+                *(grp_check_cur->fgrp_state) = 1;
 
-            strcat(config_dirs, str_sep);
-            str_sep = ", ";
-            if (memcmp(main_dir, fname, main_len) == 0)
-                strcat(config_dirs, fname+main_len+1);
-            else
-                strcat(config_dirs, "FGrp_StdData");
-        }
-
-        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig, NULL);
-        if (fname[0] != 0 && LbFileExists(fname))
-        {
-            mod_state->cmpg_config = 1;
-
-            strcat(config_dirs, str_sep);
-            str_sep = ", ";
-            if (memcmp(main_dir, fname, main_len) == 0)
-                strcat(config_dirs, fname+main_len+1);
-            else
-                strcat(config_dirs, "FGrp_CmpgConfig");
-        }
-
-        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgLvls, NULL);
-        if (fname[0] != 0 && LbFileExists(fname))
-        {
-            mod_state->cmpg_lvls = 1;
-
-            strcat(config_dirs, str_sep);
-            str_sep = ", ";
-            if (memcmp(main_dir, fname, main_len) == 0)
-                strcat(config_dirs, fname+main_len+1);
-            else
-                strcat(config_dirs, "FGrp_CmpgLvls");
-        }
-
-
-        fname = prepare_file_path_mod(mod_dir, FGrp_CrtrData, NULL);
-        if (fname[0] != 0 && LbFileExists(fname))
-        {
-            mod_state->crtr_data = 1;
-
-            strcat(config_dirs, str_sep);
-            str_sep = ", ";
-            if (memcmp(main_dir, fname, main_len) == 0)
-                strcat(config_dirs, fname+main_len+1);
-            else
-                strcat(config_dirs, "FGrp_CrtrData");
-        }
-
-        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgCrtrs, NULL);
-        if (fname[0] != 0 && LbFileExists(fname))
-        {
-            mod_state->cmpg_crtrs = 1;
-
-            strcat(config_dirs, str_sep);
-            str_sep = ", ";
-            if (memcmp(main_dir, fname, main_len) == 0)
-                strcat(config_dirs, fname+main_len+1);
-            else
-                strcat(config_dirs, "FGrp_CmpgCrtrs");
+                strcat(config_dirs, str_sep);
+                str_sep = ", ";
+                if (memcmp(main_dir, fname, main_len) == 0)
+                    strcat(config_dirs, fname+main_len+1);
+                else
+                    strcat(config_dirs, grp_check_cur->fgrp_desc);
+            }
         }
 
         if (config_dirs[0] == 0)
@@ -199,7 +155,7 @@ TbBool load_mods_order_config_file()
         ERRORLOG("Mods order file \"%s\" is too large.", sname);
         return false;
     }
-    char* buf = (char*)calloc(len + 256, 1);
+    char* buf = (char*)KfxCalloc(len + 256, 1);
     if (buf == NULL)
       return false;
     // Loading file data
@@ -210,7 +166,7 @@ TbBool load_mods_order_config_file()
         parse_block_mods(buf, len, MODS_AFTER_CAMPAIGN_BLOCK_NAME, stored_mods_conf.after_campaign_item, &stored_mods_conf.after_campaign_cnt, MOD_ITEM_MAX);
         parse_block_mods(buf, len, MODS_AFTER_MAP_BLOCK_NAME, stored_mods_conf.after_map_item, &stored_mods_conf.after_map_cnt, MOD_ITEM_MAX);
     }
-    free(buf);
+    KfxFree(buf);
 
     return true;
 }

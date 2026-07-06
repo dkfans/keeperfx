@@ -54,7 +54,7 @@ function Creature:teleport(location,effect) end
 function Creature:kill(killer) end
 
 ---Stuns the creature
----@param turns ? Sets conscious_back_turns; the duration of the stun.
+---@param turns? integer Sets conscious_back_turns; the duration of the stun.
 function Creature:stun(turns) end
 
 ---increases creatures level by a given amount
@@ -63,6 +63,11 @@ function Creature:level_up(levels) end
 
 ---sends the creature to the next level, similar to using the special box and selecting said unit
 function Creature:transfer() end
+
+---Transforms the creature into another model
+---@param creaturemodel creature_type type of creature to transform into
+---@param level integer xp level the creature gets. Use 0 for random
+function Creature:transform(creaturemodel,level) end
 
 ---Checks if the creature is under enemy custody (e.g. in prison or torture chamber)
 ---@return boolean in_enemy_custody If the creature is currently controlled by the enemy

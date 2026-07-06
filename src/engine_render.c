@@ -530,63 +530,65 @@ static void calculate_hud_scale(struct Camera *cam) {
     hud_scale = ((range_input - range_min)) / (range_max - range_min);
 }
 
-float interpolate(float variable_to_interpolate, long previous, long current)
+extern float interpolate_time;  // main.cpp
+
+float interpolate(float previous, float current)
 {
     if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
-    // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
-    long future = current + (current - previous);
-    // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
-    float desired_value = LbLerp(current, future, 0.5);
-    return LbLerp(variable_to_interpolate, desired_value, game.delta_time);
+    return LbLerp(previous, current, interpolate_time);
 }
 
-float interpolate_angle(float variable_to_interpolate, float previous, float current)
+float interpolate_angle(float previous, float current)
 {
     if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
-    float future = current + (current - previous);
-    float desired_value = lerp_angle(current, future, 0.5);
-    float result = lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
-    float result_change = LbFmodf((result - current) + DEGREES_180, DEGREES_360) - DEGREES_180;
-    if (result_change > -0.5f && result_change < 0.5f) {
+    return lerp_angle(previous, current, interpolate_time);
+}
+
+// For things that stop moving when the game is paused.
+float interpolate_synced(float previous, float current)
+{
+    if (flag_is_set(game.operation_flags, GOF_Paused))
         return current;
+
+    return interpolate(previous, current);
+}
+
+struct ThingInterpolateResult interpolate_thing(struct Thing *thing)
+{
+    struct ThingInterpolateResult result;
+
+    if (get_gameturn() - thing->creation_turn <= 1)
+    {
+        // Set initial interp position when Thing has just been created
+        thing->previous_mappos = thing->mappos;
+        thing->previous_floor_height = thing->floor_height;
     }
+
+    // Interpolate position every frame
+    result.mappos.x.val = interpolate_synced(thing->previous_mappos.x.val, thing->mappos.x.val);
+    result.mappos.y.val = interpolate_synced(thing->previous_mappos.y.val, thing->mappos.y.val);
+    result.mappos.z.val = interpolate_synced(thing->previous_mappos.z.val, thing->mappos.z.val);
+    result.floor_height = interpolate_synced(thing->previous_floor_height, thing->floor_height);
+
+    // Cancel interpolation if distance to interpolate is too far. This is a
+    // catch-all to solve any remaining interpolation bugs.
+    if ((abs(thing->previous_mappos.x.val - thing->mappos.x.val) >= 10000) ||
+        (abs(thing->previous_mappos.y.val - thing->mappos.y.val) >= 10000) ||
+        (abs(thing->previous_mappos.z.val - thing->mappos.z.val) >= 10000))
+    {
+        ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation.",
+                 thing_model_name(thing), (int)thing->index, (int)thing->owner,
+                 thing->previous_mappos.x.stl.num, thing->previous_mappos.y.stl.num, thing->previous_mappos.z.stl.num,
+                 thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
+        result.mappos = thing->mappos;
+        result.floor_height = thing->floor_height;
+    }
+
     return result;
-}
-
-void interpolate_thing(struct Thing *thing)
-{
-    // Note: if delta_time is off the interpolated position will also reflect that
-
-    if (thing->creation_turn == get_gameturn()-1 || get_gameturn() - thing->last_turn_drawn > 1 ) {
-        // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
-        thing->interp_mappos = thing->mappos;
-        thing->interp_floor_height = thing->floor_height;
-
-        if (thing->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
-            thing->interp_mappos.z.val = thing->interp_floor_height;
-        }
-    } else {
-        // Interpolate position every frame
-        thing->interp_mappos.x.val = interpolate(thing->interp_mappos.x.val, thing->previous_mappos.x.val, thing->mappos.x.val);
-        thing->interp_mappos.z.val = interpolate(thing->interp_mappos.z.val, thing->previous_mappos.z.val, thing->mappos.z.val);
-        thing->interp_mappos.y.val = interpolate(thing->interp_mappos.y.val, thing->previous_mappos.y.val, thing->mappos.y.val);
-        thing->interp_floor_height = interpolate(thing->interp_floor_height, thing->previous_floor_height, thing->floor_height);
-
-        // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
-        if ((abs(thing->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
-            (abs(thing->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
-            (abs(thing->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
-        {
-            ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation."
-                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
-            thing->interp_mappos = thing->mappos;
-            thing->interp_floor_height = thing->floor_height;
-        }
-    }
 }
 
 static void get_floor_pointed_at(long x, long y, int32_t *floor_x, int32_t *floor_y)
@@ -4994,12 +4996,6 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thing->time_spent_displaying_hurt_colour += game.delta_time;
-                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
-                {
-                    thing->time_spent_displaying_hurt_colour = 0;
-                    thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
-                }
             }
         }
         thing_being_displayed_is_creature = 1;
@@ -7516,7 +7512,7 @@ static unsigned short get_thing_shade(struct Thing* thing)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    long minimum_lightness = game.conf.rules[thing->owner].game.thing_minimum_illumination << 8;
+    long minimum_lightness = game.conf.rules[thing->owner].gameplay.thing_minimum_illumination << 8;
     long lgh[2][2]; // the dimensions are lgh[y][x]
     long shval;
     long fract_x;
@@ -7872,7 +7868,7 @@ static void prepare_jonty_remap_and_scale(int32_t *scale, const struct BucketKin
     long shade_factor;
     long fade;
     thing = jspr->thing;
-    long minimum_lightness = game.conf.rules[thing->owner].game.thing_minimum_illumination << 8;
+    long minimum_lightness = game.conf.rules[thing->owner].gameplay.thing_minimum_illumination << 8;
     if (lens_mode == 0)
     {
         fade = 65536;
@@ -8036,12 +8032,6 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thing->time_spent_displaying_hurt_colour += game.delta_time;
-                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
-                {
-                    thing->time_spent_displaying_hurt_colour = 0;
-                    thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
-                }
             }
         }
         thing_being_displayed_is_creature = 1;
@@ -8731,12 +8721,11 @@ static void do_map_who_for_thing(struct Thing *thing)
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
 
-    interpolate_thing(thing);
-    int render_pos_x, render_floorpos, render_pos_y, render_pos_z;
-    render_pos_x = thing->interp_mappos.x.val;
-    render_pos_y = thing->interp_mappos.z.val;
-    render_pos_z = thing->interp_mappos.y.val;
-    render_floorpos = thing->interp_floor_height;
+    const struct ThingInterpolateResult interp = interpolate_thing(thing);
+    const int render_pos_x = interp.mappos.x.val;
+    const int render_pos_y = interp.mappos.z.val;
+    const int render_pos_z = interp.mappos.y.val;
+    const int render_floorpos = interp.floor_height;
 
     switch (thing->draw_class)
     {
@@ -8895,7 +8884,7 @@ static void do_map_who(short tnglist_idx)
 static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struct Camera *cam)
 {
     // The draw_frontview_thing_on_element() function is the FrontView equivalent of do_map_who_for_thing()
-    interpolate_thing(thing);
+    struct ThingInterpolateResult interp = interpolate_thing(thing);
 
     int32_t cx;
     int32_t cy;
@@ -8905,7 +8894,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     switch (thing->draw_class)
     {
     case ODC_Default: // Things
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
@@ -8916,7 +8905,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case ODC_RoomPrice: // Floating gold text when buying and selling
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_number_to_polypool(cx, cy, thing->creature.gold_carried, 1);
@@ -8933,7 +8922,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             break;
         }
 
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             if (get_gameturn() - thing->roomflag.last_turn_drawn == 1)
@@ -8958,7 +8947,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case ODC_SpinningKey:
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_spinning_key_to_polypool(thing, cx, cy, cy, cz-3);
@@ -9090,6 +9079,7 @@ void draw_frontview_engine(struct Camera *cam)
     }
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
+    update_local_mouse_light();
     if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
     {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);

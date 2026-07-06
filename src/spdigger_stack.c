@@ -124,29 +124,33 @@ long find_in_dungeon_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskT
     return find_in_imp_stack_using_pos(stl_num, task_type, dungeon->digger_stack, dungeon->digger_stack_length);
 }
 
-long find_reachable_imp_tasks_excluding_start(const struct Thing *creatng, SpDiggerTaskType excl_task_type, long start_pos)
+long find_reachable_imp_tasks_excluding_start(struct Thing *creatng, SpDiggerTaskType excl_task_type, long start_pos)
 {
     long i;
-    long n;
-    long stack_len;
     const struct Dungeon *dungeon = get_dungeon(creatng->owner);
-    stack_len = dungeon->digger_stack_length;
-    n = start_pos;
+    long stack_len = dungeon->digger_stack_length;
+    long n = start_pos;
     for (i=0; i < stack_len; i++)
     {
         const struct DiggerStack *dstack;
         dstack = &dungeon->digger_stack[n];
         if (dstack->task_type != excl_task_type) {
-            MapSubtlCoord stl_x = stl_num_decode_x(dstack->stl_num);
-            MapSubtlCoord stl_y = stl_num_decode_y(dstack->stl_num);
+            MapSubtlCoord stl_x = 0, stl_y = 0;
+            if (dstack->task_type == DigTsk_DigOrMine) {
+                 if (check_place_to_dig_and_get_position(creatng, dstack->stl_num, &stl_x, &stl_y)) {
+                    return n;
+                }
+            } else {
+                stl_x = stl_num_decode_x(dstack->stl_num);
+                stl_y = stl_num_decode_y(dstack->stl_num);
+                struct Coord3d pos;
+                pos.x.val = subtile_coord_center(stl_x);
+                pos.y.val = subtile_coord_center(stl_y);
+                pos.z.val = get_thing_height_at(creatng, &pos);
 
-            struct Coord3d pos;
-            pos.x.val = subtile_coord_center(stl_x);
-            pos.y.val = subtile_coord_center(stl_y);
-            pos.z.val = get_thing_height_at(creatng, &pos);
-
-            if (creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default)) {
-                return n;
+                if (creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default)) {
+                    return n;
+                }
             }
         }
         n = (n+1) % stack_len;

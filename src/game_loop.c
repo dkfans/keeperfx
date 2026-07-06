@@ -53,7 +53,7 @@ static void powerful_magic_breaking_sparks(struct Thing* breaktng)
     pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(11) - 5);
     pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, objst->effect.spacing, objst->effect.beam);
-    if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, objst->effect.sound_idx, 0)) {
+    if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, objst->effect.sound_idx)) {
         thing_play_sample(breaktng, objst->effect.sound_idx + SOUND_RANDOM(objst->effect.sound_range), NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
 }
@@ -207,7 +207,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         break;
     case 3:
         // Drop all held things, by keeper
-        if ((dungeon->num_things_in_hand > 0) && ((game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
+        if ((dungeon->num_things_in_hand > 0) && ((game.conf.rules[plyr_idx].gameplay.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
         {
             if (no_backup)
                 dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);

@@ -27,6 +27,7 @@
 #include "front_input.h"
 #include "game_loop.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "gui_soundmsgs.h"
 #include "player_instances.h"
 #include "power_hand.h"
@@ -173,7 +174,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
         {
             if (is_my_player(player))
             {
-                play_non_3d_sample(119);
+                play_non_3d_sample(snd_refusal);
             }
         }
         unset_packet_control(pckt, PCtr_LBtnClick);
@@ -187,7 +188,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
         if (is_my_player(player))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         }
     }
     unset_packet_control(pckt, PCtr_LBtnClick);
@@ -225,14 +226,14 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         if (player->hand_thing_idx == 0) {
             create_power_hand(player->id_number);
         }
-        long is_digger = thing_is_creature_digger(thing);
-        if ((can_drop_thing_here(stl_x, stl_y, player->id_number, is_digger)
+        long allow_unclaimed_path = is_creature_droppable_on_path(thing);
+        if ((can_drop_thing_here(stl_x, stl_y, player->id_number, allow_unclaimed_path)
              || !can_dig_here(stl_x, stl_y, player->id_number, true))
             && (!player->one_click_lock_cursor))
         {
             player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
             player->full_slab_cursor = (player->roomspace_mode != single_subtile_mode);
-            tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_digger, player->full_slab_cursor);
+            tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, allow_unclaimed_path, player->full_slab_cursor);
         } else
         {
             player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
@@ -310,7 +311,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         {
                             if (is_my_player(player))
                             {
-                                play_non_3d_sample(119);
+                                play_non_3d_sample(snd_refusal);
                                 output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                             }
                         }
@@ -337,7 +338,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                             {
                                 if (is_my_player(player))
                                 {
-                                    play_non_3d_sample(119);
+                                    play_non_3d_sample(snd_refusal);
                                     output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                                 }
                             }
@@ -459,7 +460,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         {
                             if (is_my_player(player))
                             {
-                                play_non_3d_sample(119);
+                                play_non_3d_sample(snd_refusal);
                                 output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                             }
                         }
@@ -679,7 +680,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
     if (i == 0)
     {
         if (is_my_player(player))
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         unset_packet_control(pckt, PCtr_LBtnClick);
         return false;
     }

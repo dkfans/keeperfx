@@ -60,10 +60,6 @@ void reset_interpolation_of_thing(struct Thing *thing)
 {
     thing->previous_mappos = thing->mappos;
     thing->previous_floor_height = thing->floor_height;
-    thing->interp_mappos = thing->mappos;
-    thing->interp_floor_height = thing->floor_height;
-    thing->previous_minimap_pos_x = 0;
-    thing->previous_minimap_pos_y = 0;
 }
 
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
