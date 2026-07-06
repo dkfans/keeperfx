@@ -3571,8 +3571,8 @@ static void gameplay_loop_logic()
     exchange_packets();
 
     update_gameplay_delta_time();
-    if (game.process_turn_time > 2.0)
-        game.process_turn_time = 2.0;
+    if (game.process_turn_time > turns_per_second + 1)
+        game.process_turn_time = turns_per_second + 1;
 
     // Adjust client time scaling
     if (netstate.my_id != SERVER_ID && network_is_active())
@@ -3644,8 +3644,11 @@ extern "C" void network_yield_waiting_gameplay_packets()
 {
     do_draw = true;
     poll_inputs();
-    update_gameplay_delta_time();
     gameplay_loop_draw();
+    update_gameplay_delta_time();
+    // Reduce game speed during lag spikes.
+    if (game.process_turn_time > 2.0)
+        game.process_turn_time = 2.0;
 }
 
 extern "C" void update_velocity(void);
