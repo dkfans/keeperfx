@@ -3441,7 +3441,7 @@ static void update_gameplay_delta_time()
 
         const long double dt = min(max(ns / 1e9L * turns_per_second, 0.L), 1.L);
 
-        game.process_turn_time += dt * multiplayer_clock_adjust;
+        game.process_turn_time += dt * multiplayer_clock_adjust * max(game.frame_skip, 1);
 
         // This sets game.delta_time, which is used to pace locally-displayed
         // things (eg. tooltip scroll speed).  It should not be affected by
@@ -3531,9 +3531,6 @@ static void gameplay_loop_logic()
 
     if (use_delta_time())
     {
-        if ((game.frame_skip != 0) && ((get_gameturn() % game.frame_skip) != 0))
-            game.process_turn_time += 1;
-
         update_gameplay_delta_time();
         if (game.input_lag_turns == 0 && network_is_active())
         {
