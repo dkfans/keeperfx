@@ -717,11 +717,6 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoo
             }
         }
     }
-    if ((can_cast & PwCast_Anywhere) != 0)
-    {
-        // If allowed casting anywhere, we're done
-        return true;
-    }
     if ((can_cast & PwCast_NeedsDelay) != 0)
     {
         struct PlayerInfo *player;
@@ -729,6 +724,11 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoo
         if (get_gameturn() <= player->power_of_cooldown_turn) {
             return false;
         }
+    }
+    if ((can_cast & PwCast_Anywhere) != 0)
+    {
+        // If allowed casting anywhere, we're done
+        return true;
     }
     PlayerNumber slb_owner;
     slb_owner = slabmap_owner(slb);
