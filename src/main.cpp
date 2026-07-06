@@ -132,7 +132,7 @@
 #include "net_input_lag.h"
 #include "moonphase.h"
 #include "frontmenu_ingame_map.h"
-#include <stdint.h>
+#include <cstdint>
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -150,12 +150,6 @@ struct StartupParameters start_params;
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
 int32_t turns_per_second;
-
-int32_t fps_limit_current = 0;
-int32_t fps_limit_main = 0; // -1 if auto
-int32_t fps_limit_secondary = 0;
-
-
 unsigned char *blue_palette;
 unsigned char *red_palette;
 unsigned char *dog_palette;
@@ -224,6 +218,11 @@ TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
 /******************************************************************************/
 
+int32_t fps_limit_current = 0;
+int32_t fps_limit_main = 0; // -1 if auto
+int32_t fps_limit_secondary = 0;
+static long double frame_time_target = 0;
+static long double process_frame_time = 0;
 static long double time_since_last_draw = 0;
 static long double average_frame_draw_time = 1;
 static long double multiplayer_clock_adjust = 1;
@@ -3260,7 +3259,7 @@ short display_should_be_updated_this_turn(void)
     if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) )
     {
       find_frame_rate();
-      if ( is_feature_on(Ft_DeltaTime) || (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0))
+      if ( (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0) )
         return true;
     } else
     if ( ((get_gameturn() & 0x3F)==0) ||
@@ -3345,33 +3344,6 @@ TbBool keeper_wait_for_next_turn(void)
     return false;
 }
 
-
-TbBool keeper_wait_for_next_draw(void)
-{
-    // fps.draw is currently unable to work properly with frame_skip
-    if (fps_limit_current > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
-    {
-        const long double tick_ns_one_sec = 1000000000.0;
-        const long double tick_ns_one_frame = tick_ns_one_sec/fps_limit_current;
-
-        static long double tick_ns_last_draw = 0;
-        long double tick_ns_cur = get_time_tick_ns();
-        long double tick_ns_used = tick_ns_cur - tick_ns_last_draw;
-        long double tick_ns_delay = tick_ns_one_frame - tick_ns_used;
-
-        long double tick_ns_end = tick_ns_cur;
-        // tick_ns_used: every level, initialized_time_point will be reset, so tick_ns_used may be less than 0 when enter level for the non-first time, Skip it directly to solve the problem.
-        if (tick_ns_delay > 0 && tick_ns_used >= 0) {
-            tick_ns_end = tick_ns_cur + tick_ns_delay;
-            LbSleepUntilExt(tick_ns_end);
-        }
-        tick_ns_last_draw = tick_ns_end;
-
-        return true;
-    }
-    return false;
-}
-
 void redetect_screen_refresh_rate_for_draw()
 {
     fps_limit_current = 0;
@@ -3393,6 +3365,11 @@ void redetect_screen_refresh_rate_for_draw()
     } else if (fps_limit_main > 0) {
         fps_limit_current = fps_limit_main;
     }
+
+    if (fps_limit_current > 0)
+        frame_time_target = 1.L / fps_limit_current * turns_per_second;
+    else
+        frame_time_target = 0;
 }
 
 TbBool keeper_wait_for_screen_focus(void)
@@ -3438,38 +3415,51 @@ static void update_gameplay_delta_time()
         const int64_t ns = now - prev;
         prev = now;
 
-        const long double dt = min(max(ns / 1e9L * turns_per_second, 0.L), 1.L);
+        const long double seconds = max(ns / 1e9L, 0.L);
+        const long double turns = min(seconds * turns_per_second, 1.L);
 
-        game.process_turn_time += dt * multiplayer_clock_adjust * max(game.frame_skip, 1);
+        game.process_turn_time += turns * multiplayer_clock_adjust * max(game.frame_skip, 1);
 
         // This sets game.delta_time, which is used to pace locally-displayed
         // things (eg. tooltip scroll speed).  It should not be affected by
         // multiplayer clock adjustment or frameskip.
-        time_since_last_draw += dt;
+        time_since_last_draw += turns;
+
+        // Like process_turn_time, but for the video frame rate.  This uses the
+        // same time unit (fractional turns) for convenience.
+        process_frame_time += turns;
     } else {
         // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
         time_since_last_draw = 1;
         game.delta_time = 1;
         game.process_turn_time = 1;
+        process_frame_time = 1;
     }
 }
 
 static void gameplay_loop_draw()
 {
+    if (use_delta_time())
+        do_draw = true;
+
     update_gameplay_delta_time();
 
     if (game.process_turn_time > 1.0 && time_since_last_draw < 1.0)
         do_draw = false;
 
-    if (is_feature_on(Ft_DeltaTime) && ! network_is_active())
+    // Frame rate limiter
+    frametime_start_measurement(Frametime_Sleep);
+    if (process_frame_time < frame_time_target)
     {
-        frametime_start_measurement(Frametime_Sleep);
-        if (fps_limit_current > 0)
-            keeper_wait_for_next_draw();
-        frametime_end_measurement(Frametime_Sleep);
+        SDL_Delay(1);
+        do_draw = false;
     }
-
-    update_gameplay_delta_time();
+    else
+    {
+        process_frame_time = min(process_frame_time - frame_time_target,
+                                 2 * frame_time_target);
+    }
+    frametime_end_measurement(Frametime_Sleep);
 
     // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
     frametime_start_measurement(Frametime_Draw);
@@ -3646,7 +3636,6 @@ extern "C" void network_yield_draw_gameplay()
 
 extern "C" void network_yield_waiting_gameplay_packets()
 {
-    do_draw = true;
     poll_inputs();
     gameplay_loop_draw();
     update_gameplay_delta_time();
