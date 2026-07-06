@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=KeeperFX
+Comment=Open source remake and fan expansion of Dungeon Keeper
+Exec=keeperfx
+Icon=keeperfx
+Categories=Game;StrategyGame;
+Terminal=false

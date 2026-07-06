@@ -1,0 +1,29 @@
+#!/bin/sh
+# KeeperFX AppImage launcher.
+#
+# KeeperFX needs a writable game folder containing both the free KeeperFX data
+# (bundled in this AppImage) and the original Dungeon Keeper files (which you must
+# own - GOG/Steam/CD - and which are NOT bundled for copyright reasons).
+HERE="$(dirname "$(readlink -f "$0")")"
+export LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"
+
+GAMEDIR="${KEEPERFX_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/keeperfx}"
+mkdir -p "$GAMEDIR"
+
+# Deploy the bundled free FX data. no-clobber keeps the user's original DK files,
+# their saves and their edited config untouched on subsequent runs / updates.
+cp -rn "$HERE/usr/share/keeperfx/." "$GAMEDIR/" 2>/dev/null || true
+
+cd "$GAMEDIR" || exit 1
+
+if [ ! -f "$GAMEDIR/sound/atlas/bullfrog.sbk" ] && [ ! -f "$GAMEDIR/data/cube.dat" ]; then
+  echo "============================================================"
+  echo " KeeperFX needs the original Dungeon Keeper files (you must"
+  echo " own the game - GOG/Steam/CD). Copy the contents of your DK"
+  echo " 'data', 'sound', 'ldata' and 'levels' folders into:"
+  echo "   $GAMEDIR"
+  echo " (GOG: use the installation folder; CD: the 'keeper' folder.)"
+  echo "============================================================"
+fi
+
+exec "$HERE/usr/bin/keeperfx" "$@"

@@ -1,0 +1,72 @@
+name: Build Linux AppImage
+
+# Builds a portable KeeperFX AppImage (bundles the engine, a modern SDL2, all
+# libraries and the free KeeperFX data) and - when triggered by an 'appimage-*'
+# tag - publishes it as a GitHub Release asset.
+#
+# The build runs inside a Debian 12 container (glibc 2.36 + ffmpeg 5.1) so the
+# AppImage runs on a wide range of distributions, while checkout / upload happen
+# on the host runner (which has git and Node for the JS actions).
+#
+# Maintainer notes (this workflow does nothing until you trigger it):
+#   * How to run it:
+#       - "Run workflow" on the Actions tab (workflow_dispatch) -> uploads the
+#         AppImage as a build artifact only, or
+#       - push a tag matching 'appimage-*' (e.g. appimage-v1.4.0) -> also
+#         publishes a GitHub Release with the AppImage attached.
+#   * The release step needs a GITHUB_TOKEN with write access. That is requested
+#     below via 'permissions: contents: write', but it only takes effect if the
+#     repo/org allows it: Settings -> Actions -> General -> Workflow permissions
+#     must be set to "Read and write permissions" (otherwise the release upload
+#     fails with 403). The artifact-only (workflow_dispatch) path needs no such
+#     permission.
+
+on:
+  workflow_dispatch:        # manual run from the Actions tab (uploads an artifact)
+  push:
+    tags:
+      - 'appimage-*'        # tag push also publishes a Release
+
+permissions:
+  contents: write           # allow the release step to create a release & upload assets
+
+jobs:
+  appimage:
+    name: Build portable AppImage (Debian 12)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build AppImage in a Debian 12 container
+        run: |
+          set -eux
+          mkdir -p dist/out
+          docker run --rm -v "$PWD":/src -w /src debian:12 \
+            bash dist/linux/build-appimage.sh /src/dist/out
+          sudo chown -R "$(id -u):$(id -g)" dist/out || true
+          ls -la dist/out
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: keeperfx-linux-appimage
+          path: dist/out/*.AppImage
+          if-no-files-found: error
+
+      - name: Publish Release (on appimage-* tag)
+        if: startsWith(github.ref, 'refs/tags/appimage-')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "KeeperFX Linux AppImage - ${{ github.ref_name }}"
+          files: dist/out/*.AppImage
+          generate_release_notes: true
+          body: |
+            Portable KeeperFX AppImage for **x86_64 Linux** (Ubuntu, Fedora, Linux Mint,
+            Debian, Arch, etc.). All libraries are bundled, so no dependencies need to be installed.
+
+            **You must own the original Dungeon Keeper** (GOG / Steam / CD); its files
+            are not bundled for copyright reasons. On first launch the AppImage creates a
+            game folder and prints which original files to copy into it.

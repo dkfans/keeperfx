@@ -46,3 +46,7 @@ keeperfx.log
 crash_log.txt
 .local/
 .vscode/compile_and_copy_files.ps1
+
+# Linux AppImage build output
+/AppDir/
+/dist/out/
