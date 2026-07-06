@@ -19,6 +19,14 @@
 #******************************************************************************
 
 ARCH = i686-w64-mingw32
+SDL_MAIN_LIBRARY = sdl/lib/libSDL2main.a
+SDL_EXTENSION_LIBRARIES = \
+	sdl/lib/libSDL2_net.dll.a \
+	sdl/lib/SDL2_net.lib \
+	sdl/lib/libSDL2_mixer.dll.a \
+	sdl/lib/SDL2_mixer.lib \
+	sdl/lib/libSDL2_image.dll.a \
+	sdl/lib/SDL2_image.lib
 
 include prebuilds.mk
 
@@ -36,10 +44,10 @@ deep-clean-libexterns: deep-clean-libsdl
 
 ifneq (,$(findstring .tar.gz,$(SDL_PACKAGE)))
 
-libsdl: sdl/lib/libSDL2main.a
+libsdl: $(SDL_MAIN_LIBRARY)
 
 # If we have tar gzip prebuild, download and extract it
-sdl/lib/libSDL2main.a: sdl/$(SDL_PACKAGE)
+$(SDL_MAIN_LIBRARY): sdl/$(SDL_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	# Grep is used to remove bogus error messages, return state of tar is also ignored
 	-cd "$(<D)"; \
@@ -65,6 +73,8 @@ $(error Cannot handle SDL library prebuild. You need to prepare the library manu
 endif
 
 ##################
+
+$(SDL_EXTENSION_LIBRARIES): | $(SDL_MAIN_LIBRARY)
 
 ifneq (,$(findstring .tar.gz,$(SDL_NET_PACKAGE)))
 
