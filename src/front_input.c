@@ -2232,7 +2232,6 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
 
 static void get_isometric_view_nonaction_inputs(void)
 {
-    static TbBool rotating = false;
     struct PlayerInfo* player = get_my_player();
     struct Packet* packet = get_packet(my_player_number);
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
@@ -2242,8 +2241,6 @@ static void get_isometric_view_nonaction_inputs(void)
     if (speed_pressed != 0)
         packet->additional_packet_values |= PCAdV_SpeedupPressed;
     TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
-    TbBool set_rotate_pos = rotate_follow_mouse_option | ! rotating;
-    rotating = false;
 
     get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, no_mods);
     // Only update the camera as often as normal despite frameskip
@@ -2257,6 +2254,10 @@ static void get_isometric_view_nonaction_inputs(void)
     }
     if (moveTheCamera)
     {
+        static TbBool rotating = false;
+        TbBool set_rotate_pos = rotate_follow_mouse_option | ! rotating;
+        rotating = false;
+
         if (rotate_pressed)
         {
             if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
