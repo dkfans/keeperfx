@@ -1358,7 +1358,6 @@ void process_players_creature_control_packet_control(long idx)
             // Button is held down - check whether the instance has auto-repeat
             i = ccctrl->active_instance_id;
             inst_inf = creature_instance_info_get(i);
-            target_idx = get_human_controlled_creature_target(cctng, i, pckt);
             if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
             {
                 if (ccctrl->instance_id == CrInst_NULL)
