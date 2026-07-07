@@ -98,6 +98,8 @@ struct GuiLayer gui_layer = {GuiLayer_Default};
 
 TbBool first_person_see_item_desc = false;
 
+static TbBool move_camera_this_turn;
+
 long old_mx;
 long old_my;
 
@@ -2143,10 +2145,6 @@ static short get_map_action_inputs(void)
     }
 }
 
-// TODO: Might want to initiate this in main() and pass a reference to it
-// rather than using this global variable. But this works.
-int global_frameskipTurn = 0;
-
 static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
@@ -2185,13 +2183,8 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         }
     }
     // Only pan the camera as often as normal despite frameskip
-    if (game.frame_skip > 0)
-    {
-        TbBool moveTheCamera = (global_frameskipTurn == 0);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > game.frame_skip) global_frameskipTurn = 0;
-        if (!moveTheCamera) return;
-    }
+    if (! move_camera_this_turn)
+        return;
     // Camera Panning : mouse at window edge scrolling feature
     if (!LbIsMouseActive())
     {
@@ -2255,15 +2248,7 @@ static void get_isometric_view_nonaction_inputs(void)
 
     get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, no_mods);
     // Only update the camera as often as normal despite frameskip
-    TbBool moveTheCamera = true;
-    if (game.frame_skip > 0)
-    {
-        moveTheCamera = (global_frameskipTurn == 0);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > game.frame_skip)
-            global_frameskipTurn = 0;
-    }
-    if (moveTheCamera)
+    if (move_camera_this_turn)
     {
         if (rotate_pressed)
         {
@@ -2346,15 +2331,7 @@ static void get_front_view_nonaction_inputs(void)
 
     get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,no_mods);
     // Only update the camera as often as normal despite frameskip
-    TbBool moveTheCamera = true;
-    if (game.frame_skip > 0)
-    {
-        moveTheCamera = (global_frameskipTurn == 0);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > game.frame_skip)
-            global_frameskipTurn = 0;
-    }
-    if (moveTheCamera)
+    if (move_camera_this_turn)
     {
         if (rotate_pressed)
         {
@@ -2870,6 +2847,8 @@ static TbBool active_menu_functions_while_paused(void)
  */
 static short get_inputs(void)
 {
+    move_camera_this_turn = game.frame_skip == 0 || game.play_gameturn % game.frame_skip == 0;
+
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {
         SYNCDBG(5,"Starting for demo mode");

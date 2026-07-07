@@ -534,17 +534,17 @@ extern float interpolate_time;  // main.cpp
 
 float interpolate(float previous, float current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
+    if (! is_feature_on(Ft_DeltaTime))
         return current;
-    }
+
     return LbLerp(previous, current, interpolate_time);
 }
 
 float interpolate_angle(float previous, float current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
+    if (! is_feature_on(Ft_DeltaTime))
         return current;
-    }
+
     return lerp_angle(previous, current, interpolate_time);
 }
 

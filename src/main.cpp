@@ -3261,7 +3261,7 @@ short display_should_be_updated_this_turn(void)
     if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) )
     {
       find_frame_rate();
-      if ( (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0))
+      if ( is_feature_on(Ft_DeltaTime) || (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0))
         return true;
     } else
     if ( ((get_gameturn() & 0x3F)==0) ||
@@ -3421,12 +3421,32 @@ static bool use_delta_time()
     return is_feature_on(Ft_DeltaTime) || network_is_active();
 }
 
+static void update_frontend_delta_time()
+{
+    static int64_t prev = 0;
+    const int64_t now = get_time_tick_ns();
+    const int64_t ns = now - prev;
+    prev = now;
+    const long double dt = ns / 1e9L * turns_per_second;
+    game.delta_time = min(max(dt, 0.L), 1.L);
+}
+
 static void update_gameplay_delta_time()
 {
     if (use_delta_time()) {
-        long double process_delta_time = get_delta_time() * multiplayer_clock_adjust;
-        time_since_last_draw += process_delta_time;
-        game.process_turn_time += process_delta_time;
+        static int64_t prev = 0;
+        const int64_t now = get_time_tick_ns();
+        const int64_t ns = now - prev;
+        prev = now;
+
+        const long double dt = min(max(ns / 1e9L * turns_per_second, 0.L), 1.L);
+
+        game.process_turn_time += dt * multiplayer_clock_adjust * max(game.frame_skip, 1);
+
+        // This sets game.delta_time, which is used to pace locally-displayed
+        // things (eg. tooltip scroll speed).  It should not be affected by
+        // multiplayer clock adjustment or frameskip.
+        time_since_last_draw += dt;
     } else {
         // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
         time_since_last_draw = 1;
@@ -3437,6 +3457,11 @@ static void update_gameplay_delta_time()
 
 static void gameplay_loop_draw()
 {
+    update_gameplay_delta_time();
+
+    if (game.process_turn_time > 1.0 && time_since_last_draw < 1.0)
+        do_draw = false;
+
     if (is_feature_on(Ft_DeltaTime) && ! network_is_active())
     {
         frametime_start_measurement(Frametime_Sleep);
@@ -3546,8 +3571,8 @@ static void gameplay_loop_logic()
     exchange_packets();
 
     update_gameplay_delta_time();
-    if (game.process_turn_time > 2.0)
-        game.process_turn_time = 2.0;
+    if (game.process_turn_time > turns_per_second + 1)
+        game.process_turn_time = turns_per_second + 1;
 
     // Adjust client time scaling
     if (netstate.my_id != SERVER_ID && network_is_active())
@@ -3619,9 +3644,11 @@ extern "C" void network_yield_waiting_gameplay_packets()
 {
     do_draw = true;
     poll_inputs();
+    gameplay_loop_draw();
     update_gameplay_delta_time();
-    if (game.process_turn_time <= 1.0 || time_since_last_draw > 1.0)
-        gameplay_loop_draw();
+    // Reduce game speed during lag spikes.
+    if (game.process_turn_time > 2.0)
+        game.process_turn_time = 2.0;
 }
 
 extern "C" void update_velocity(void);
@@ -3630,7 +3657,7 @@ extern "C" void fronttorture_update(void);
 
 extern "C" void network_yield_draw_frontend()
 {
-    game.delta_time = get_delta_time();
+    update_frontend_delta_time();
     if (frontend_menu_state == FeSt_NETLAND_VIEW) {
         check_mouse_scroll();
         update_velocity();
@@ -3943,7 +3970,7 @@ static TbBool wait_at_frontend(void)
         fade_palette_in = 0;
       } else {
         if (is_feature_on(Ft_DeltaTime) == true && should_use_delta_time_on_menu()) {
-          game.delta_time = get_delta_time();
+          update_frontend_delta_time();
         } else {
           int32_t frame_time;
           frame_time = max(1, 1000 / turns_per_second);

@@ -58,7 +58,7 @@ void initial_time_point()
   game.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
 }
 
-long double get_time_tick_ns()
+int64_t get_time_tick_ns()
 {
   return TimeTickNs;
 }
@@ -93,22 +93,6 @@ int get_trigger_time_measurement_fps(struct TriggerTimeMeasurement *trigger)
     }
   }
   return cnt;
-}
-
-
-float get_delta_time()
-{
-    // Allow frame skip to work correctly when delta time is enabled
-    if ( (game.frame_skip != 0) && ((get_gameturn() % game.frame_skip) != 0)) {
-        return 1.0;
-    }
-    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
-    delta_time_previous_timepoint = TimeNow;
-    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * turns_per_second;
-    if (calculated_delta_time > 1.0) { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
-        calculated_delta_time = 1.0;
-    }
-    return calculated_delta_time;
 }
 
 void frametime_set_all_measurements_to_be_displayed()
