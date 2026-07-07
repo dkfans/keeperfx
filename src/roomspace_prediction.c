@@ -239,17 +239,23 @@ void update_local_dig_prediction_cursor_preview(void)
     struct RoomSpace roomspace;
     struct PlayerInfo predicted_player;
     if (!get_local_dig_prediction_roomspace(pckt, &predicted_player, &roomspace)) {
-        if (local_dig_prediction_is_enabled() && update_predicted_build_or_sell_roomspace_preview(&local_dig_render_roomspace, player->id_number, pckt)) {
+        local_dig_render_roomspace_active = false;
+        if (!local_dig_prediction_is_enabled()) {
+            return;
+        }
+        if (update_predicted_build_or_sell_roomspace_preview(&local_dig_render_roomspace, player->id_number, pckt)) {
             local_dig_render_roomspace_active = true;
             box_lag_compensation_x = 0;
             box_lag_compensation_y = 0;
             return;
         }
-        local_dig_render_roomspace_active = false;
-        if (!local_dig_prediction_is_enabled()) {
-            return;
+        TbBool dig_cursor = false;
+        if (player->primary_cursor_state == CSt_PickAxe) {
+            dig_cursor = true;
+        } else if (player->primary_cursor_state == CSt_PowerHand) {
+            dig_cursor = (player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0;
         }
-        if ((pckt != NULL) && ((player->primary_cursor_state == CSt_PickAxe) || ((player->primary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0)))) {
+        if ((pckt != NULL) && (player->work_state == PSt_CtrlDungeon) && dig_cursor) {
             map_volume_box.visible = 0;
             box_lag_compensation_x = 0;
             box_lag_compensation_y = 0;

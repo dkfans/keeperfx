@@ -664,9 +664,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         }
         return false;
     }
-    struct TrapConfigStats *trapst = get_trap_model_stats(player->chosen_trap_kind);
-    player->full_slab_cursor = (trapst->place_on_subtile == false);
-    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor, player->chosen_trap_kind);
+    TbBool can_place = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->chosen_trap_kind);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
@@ -676,7 +674,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         }
         return false;
     }
-    if (i == 0)
+    if (can_place == 0)
     {
         if (is_my_player(player))
             play_non_3d_sample(snd_refusal);
