@@ -435,6 +435,9 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
 
 void network_update(void *server_buf, size_t frame_size)
 {
+    if (netstate.sp == NULL) {
+        return;
+    }
     netstate.sp->update(OnNewUser);
     for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
         if (can_send_to_peer(peer_id)) {
