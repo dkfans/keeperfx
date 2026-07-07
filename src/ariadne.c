@@ -2269,17 +2269,6 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     return AridRet_OK;
 }
 
-void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend)
-{
-    navi->navstate = NavS_WallhugInProgress;
-    navi->pos_final.x.val = mvend->x.val;
-    navi->pos_final.y.val = mvend->y.val;
-    navi->pos_final.z.val = mvend->z.val;
-    navi->wallhug_state = WallhugCurrentState_None;
-    navi->wallhug_retry_counter = 0;
-    navi->push_counter = 0;
-}
-
 long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
 {
     struct Coord3d lpos;

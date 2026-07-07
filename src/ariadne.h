@@ -213,22 +213,6 @@ struct WayPoints {
   int32_t waypoint_index_array[ARID_PATH_WAYPOINTS_COUNT];
 };
 
-struct Navigation {
-  unsigned char navstate;
-  unsigned char side;
-  unsigned char wallhug_retry_counter;
-  unsigned char wallhug_state;
-  unsigned char push_counter;
-  long dist_to_final_pos;
-  long distance_to_next_pos;
-  int32_t angle;
-  SubtlCodedCoords first_colliding_block;
-  SubtlCodedCoords second_colliding_block;
-  PlayerBitFlags owner_flags[2];
-  struct Coord3d pos_next;
-  struct Coord3d pos_final;
-};
-
 struct FOV { // sizeof=0x18
     struct PathWayPoint tipA;
     struct PathWayPoint tipB;
@@ -289,8 +273,6 @@ long angle_to_quadrant(long angle);
 
 long thing_nav_block_sizexy(const struct Thing *thing);
 long thing_nav_sizexy(const struct Thing *thing);
-
-void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend);
 
 /******************************************************************************/
 #ifdef __cplusplus

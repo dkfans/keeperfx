@@ -42,7 +42,6 @@
 #include "thing_effects.h"
 #include "map_blocks.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "config_terrain.h"
 #include "config_effects.h"
 #include "creature_states.h"

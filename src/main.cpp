@@ -120,7 +120,6 @@
 #include "gui_frontbtns.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_evnt.h"
-#include "ariadne.h"
 #include "sounds.h"
 #include "vidfade.h"
 #include "config_settings.h"

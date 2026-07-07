@@ -53,7 +53,6 @@
 #include "map_blocks.h"
 #include "map_data.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "slab_data.h"
 #include "power_hand.h"
 #include "power_process.h"
