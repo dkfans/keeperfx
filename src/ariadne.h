@@ -237,14 +237,12 @@ extern const struct HugStart blocked_xy_hug_start[][2][2];
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
-TbBool triangulate_area(NavColour *imap, long sx, long sy, long ex, long ey);
+
 
 AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, AriadneRouteFlags flags, const char *func_name);
 #define ariadne_initialise_creature_route(thing, pos, speed, flags) ariadne_initialise_creature_route_f(thing, pos, speed, flags, __func__)
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long speed, AriadneRouteFlags flags);
-#define ariadne_prepare_creature_route_to_target(thing, arid, srcpos, dstpos, speed, flags) ariadne_prepare_creature_route_to_target_f(thing, arid, srcpos, dstpos, speed, flags, __func__)
-AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
-    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, AriadneRouteFlags flags, const char *func_name);
+
 long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *thing,
     const struct Coord3d *srcpos, const struct Coord3d *dstpos, AriadneRouteFlags flags, const char *func_name);
 AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing);
@@ -253,21 +251,9 @@ TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long subroute, unsigned char nav_size, const char *func_name);
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, int32_t *px, int32_t *py, const char *func_name);
 #define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
-NavColour get_navigation_colour(long stl_x, long stl_y);
-TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, long start_y, long end_y);
-TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, long start_y, long end_y);
-#define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
-TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
-#define edge_unlock_record_and_regions(fin_x, fin_y, bgn_x, bgn_y) edge_unlock_record_and_regions_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
-TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
-void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y);
-TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour);
-long fringe_get_rectangle(int32_t *outfri_x1, int32_t *outfri_y1, int32_t *outfri_x2, int32_t *outfri_y2, NavColour *oval);
-long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool keep_edge);
-void border_unlock(long start_x, long start_y, long end_x, long end_y);
-TbBool triangulation_border_start(int32_t *border_a, int32_t *border_b);
+
+
 void triangulation_init(void);
-void triangulation_initxy(long sx, long sy, long ex, long ey);
 long pointed_at8(long pos_x, long pos_y, int32_t *ret_tri, int32_t *ret_pt);
 long angle_to_quadrant(long angle);
 
