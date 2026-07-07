@@ -4108,7 +4108,7 @@ void game_loop(void)
       LbScreenClear(0);
       LbScreenSwap();
       stop_atmos_sounds();
-      stop_music();
+      stop_music(true);
       stop_streamed_samples();
       free_level_strings_data();
       turn_off_all_menus();

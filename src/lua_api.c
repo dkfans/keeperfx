@@ -1751,7 +1751,7 @@ static int lua_Set_music(lua_State *L)
 
         long track_number = luaL_checkinteger(L, 1);
         if (track_number == 0) {
-            stop_music();
+            stop_music(true);
         }
         else {
             play_music_track(track_number);

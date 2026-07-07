@@ -148,7 +148,7 @@ bool SoundManager::playMusic(int track_number) {
 // Stop music
 void SoundManager::stopMusic() {
     SYNCDBG(18,"Stopping music");
-    stop_music();
+    stop_music(true);
 }
 
 // Load custom WAV file and assign sample ID

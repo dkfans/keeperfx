@@ -677,7 +677,7 @@ extern "C" TbBool play_music_track(int track) {
 	game.music_track = track;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
 	if (game.music_track == 0) {
-		stop_music();
+		stop_music(true);
 		return true;
 	} else if (features_enabled & Ft_NoCdMusic) {
 		char fname[256] = {0};
@@ -709,12 +709,16 @@ extern "C" void resume_music() {
 	}
 }
 
-extern "C" void stop_music() {
+extern "C" void stop_music(TbBool fade_out) {
 	game.music_track = 0;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
 	if (features_enabled & Ft_NoCdMusic) {
-		if (Mix_FadingMusic() != MIX_FADING_OUT) {
-			Mix_FadeOutMusic(1000);
+		if (fade_out) {
+			if (Mix_FadingMusic() != MIX_FADING_OUT) {
+				Mix_FadeOutMusic(1000);
+			}
+		} else {
+			Mix_HaltMusic();
 		}
 	} else {
 		StopRedbookTrack();
