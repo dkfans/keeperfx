@@ -287,7 +287,7 @@ void lua_on_pick_up(struct Thing* thing, PlayerNumber plyr_idx)
     {
         lua_pushThing(Lvl_script, thing);
         lua_pushPlayer(Lvl_script, plyr_idx);
-        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnPickUp");
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0), "OnPickUp");
     }
     else
     {
@@ -303,7 +303,7 @@ void lua_on_slap(struct Thing* thing,PlayerNumber plyr_idx)
     {
         lua_pushThing(Lvl_script, thing);
         lua_pushPlayer(Lvl_script, plyr_idx);
-        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnSlap");
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0), "OnSlap");
     }
     else
     {

@@ -100,17 +100,21 @@ end
 
 --- Called when a thing is picked up. Can be Creatures, Chickens, Specials, Gold, etc.
 ---@param thing Thing
+---@param player Player
 function OnPickUp(thing)
     local eventData = {}
     eventData.thing = thing
+    eventData.player = player
     ProcessEvent("PickUp",eventData)
 end
 
 --- Called when a thing is slapped. Can be Creatures, Traps, Shots, Objects, etc.
 ---@param thing Thing
+---@param player Player
 function OnSlap(thing)
     local eventData = {}
     eventData.thing = thing
+    eventData.player = player
     ProcessEvent("Slap",eventData)
 end
 
