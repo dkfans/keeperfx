@@ -109,11 +109,6 @@ void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navc
   game.navigation_map[navmap_tile_number(stl_x,stl_y)] = navcolour;
 }
 
-unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    return get_navigation_map(stl_x, stl_y) & NAVMAP_FLOORHEIGHT_MASK;
-}
-
 long get_ceiling_height(const struct Coord3d *pos)
 {
     long i = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
