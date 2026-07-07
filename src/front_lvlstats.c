@@ -251,7 +251,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         {
             stat_val = -1;
         }
-        if ( (timer_enabled()) && (stat->name_stridx == STRINGS_MAX+746) && (!TimerGame) )
+        if ( (timer_enabled()) && (stat->name_stridx == GUIStr_Time) && (!TimerGame) )
         {
             LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
@@ -329,7 +329,7 @@ void frontstats_set_timer(void)
 
 void frontstats_update(void)
 {
-    scrolling_offset++;
+    scrolling_offset += game.delta_time;
     LbTextSetFont(frontend_font[1]);
     int h = LbTextLineHeight();
     if (h+4 < scrolling_offset)

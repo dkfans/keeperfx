@@ -19,12 +19,12 @@
 #include "pre_inc.h"
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config_trapdoor.h"
 #include "map_data.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "game_legacy.h"
 #include "roomspace.h"
-#include "roomspace_prediction.h"
 #include "engine_render.h"
 #include "slab_data.h"
 #include "power_hand.h"
@@ -44,21 +44,18 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
+unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, const struct Packet *pckt, struct RoomSpace *render_roomspace, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
 {
-    SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&player->render_roomspace);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)player->id_number,(int)stl_x,(int)stl_y);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
+    int floor_height_z = floor_height_for_volume_box(player->id_number, slb_x, slb_y);
     TbBool allowed = false;
     if (render_roomspace->slab_count > 0 && full_slab) // if roomspace is not empty
     {
         allowed = true;
     }
-    else if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) // else if not using roomspace, is current slab diggable
+    else if (subtile_is_diggable_for_player(player->id_number, stl_x, stl_y, false)) // else if not using roomspace, is current slab diggable
     {
         allowed = true;
     }
@@ -75,18 +72,17 @@ unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         }
         else
         {
-            struct Dungeon* dungeon = get_players_dungeon(player);
-            if ( (render_roomspace->drag_mode) && (dungeon->task_count + render_roomspace->slab_count > MAPTASKS_COUNT) )
-            {
-                line_color = SLC_REDFLASH;
-            }
-            else if (dungeon->task_count >= MAPTASKS_COUNT)
-            {
-                line_color = SLC_REDYELLOW;
+            struct Dungeon* dungeon = get_dungeon(player->id_number);
+            if (!dungeon_invalid(dungeon)) {
+                if ((render_roomspace->drag_mode) && (dungeon->task_count + render_roomspace->slab_count > MAPTASKS_COUNT)) {
+                    line_color = SLC_REDFLASH;
+                } else if (dungeon->task_count >= MAPTASKS_COUNT) {
+                    line_color = SLC_REDYELLOW;
+                }
             }
         }
     }
-    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+    if (is_my_player_number(player->id_number) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
     {
         map_volume_box.visible = 1;
         map_volume_box.color = line_color;
@@ -100,7 +96,7 @@ unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     return line_color;
 }
 
-void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool is_special_digger, TbBool full_slab)
+void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool allow_unclaimed_path, TbBool full_slab)
 {
   SYNCDBG(7,"Starting");
   MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -108,7 +104,7 @@ void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
   if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) )
     {
         map_volume_box.visible = true;
-        map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, is_special_digger);
+        map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, allow_unclaimed_path);
         if (full_slab)
         {
             map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
@@ -274,7 +270,7 @@ TbBool tag_cursor_blocks_place_thing(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    long height = get_floor_height(stl_x, stl_y);
+    MapCoord height = get_floor_height(stl_x, stl_y);
     unsigned char colour;
     if (map_is_solid_at_height(stl_x, stl_y, height, height))
     {
@@ -371,35 +367,27 @@ TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     return (colour != SLC_RED);
 }
 
-TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab, ThingModel trpkind)
+TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
 {
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y, trpkind);
     int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    if (is_my_player_number(plyr_idx))
-    {
-        if (!game_is_busy_doing_gui() && (game.small_map_state != 2))
-        {
-            struct PlayerInfo* player = get_player(plyr_idx);
-            player->render_roomspace.is_roomspace_a_box = true;
-            player->render_roomspace.render_roomspace_as_box = true;
-            if (full_slab)
-            {
-                // Move to first subtile on a slab
-                stl_x = slab_subtile(slb_x,0);
-                stl_y = slab_subtile(slb_y,0);
-                player->render_roomspace.is_roomspace_a_single_subtile = false;
-                draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0),
-                subtile_coord(stl_x+STL_PER_SLB,0), subtile_coord(stl_y+STL_PER_SLB,0), floor_height, can_place);
-            }
-            else
-            {
-                player->render_roomspace.is_roomspace_a_single_subtile = true;
-                draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0), subtile_coord(stl_x+1,0), subtile_coord(stl_y+1,0), floor_height, can_place);
-            }
+    struct PlayerInfo* player = get_player(plyr_idx);
+    TbBool full_slab = !get_trap_model_stats(trpkind)->place_on_subtile;
+    player->full_slab_cursor = full_slab;
+    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2)) {
+        MapSubtlCoord box_size = 1;
+        if (full_slab) {
+            stl_x = slab_subtile(slb_x, 0);
+            stl_y = slab_subtile(slb_y, 0);
+            box_size = STL_PER_SLB;
         }
+        player->render_roomspace.is_roomspace_a_box = true;
+        player->render_roomspace.render_roomspace_as_box = true;
+        player->render_roomspace.is_roomspace_a_single_subtile = !full_slab;
+        draw_map_volume_box(subtile_coord(stl_x, 0), subtile_coord(stl_y, 0), subtile_coord(stl_x + box_size, 0), subtile_coord(stl_y + box_size, 0), floor_height, can_place);
     }
     return can_place;
 }

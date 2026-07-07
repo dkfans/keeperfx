@@ -169,7 +169,7 @@ long light_create_light(struct InitLight *ilght)
         light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
         stat_light_needs_updating = 1;
     }
-    lgt->flags |= LgtF_NeedRemoval;
+    lgt->flags |= LgtF_CanTurnOff;
     lgt->flags |= LgtF_NeedUpdate;
     lgt->mappos.x.val = ilght->mappos.x.val;
     lgt->mappos.y.val = ilght->mappos.y.val;
@@ -177,6 +177,8 @@ long light_create_light(struct InitLight *ilght)
     lgt->radius = ilght->radius;
     lgt->intensity = ilght->intensity;
     lgt->flags2 |= ilght->flags << 1;
+    lgt->reset_interpolation = true;
+    lgt->last_turn_moved = 0;
 
     set_flag_value(lgt->flags, LgtF_Dynamic, ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
@@ -210,7 +212,7 @@ TbBool light_create_light_adv(VALUE *init_data)
         stat_light_needs_updating = 1;
         clear_flag(lgt->flags, LgtF_Dynamic);
     }
-    lgt->flags |= LgtF_NeedRemoval;
+    lgt->flags |= LgtF_CanTurnOff;
     lgt->flags |= LgtF_NeedUpdate;
     lgt->mappos.x.val = value_read_stl_coord(value_dict_get(init_data, "SubtileX"));
     lgt->mappos.y.val = value_read_stl_coord(value_dict_get(init_data, "SubtileY"));
@@ -218,6 +220,8 @@ TbBool light_create_light_adv(VALUE *init_data)
     lgt->radius = value_read_stl_coord(value_dict_get(init_data, "LightRange"));;
     lgt->intensity = value_uint32(value_dict_get(init_data, "LightIntensity"));
     lgt->attached_slb = value_uint32(value_dict_get(init_data, "ParentTile"));
+    lgt->reset_interpolation = true;
+    lgt->last_turn_moved = 0;
 
     /*
      * TODO: not implemented yet
@@ -392,17 +396,21 @@ long light_is_light_allocated(long lgt_id)
     return true;
 }
 
-void set_previous_light_position(struct Light *light) {
-    light->previous_mappos = light->mappos;
+void light_reset_interpolation(long lgt_id)
+{
+    struct Light *lgt = &game.lish.lights[lgt_id];
+    lgt->reset_interpolation = true;
 }
 
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
 {
   struct Light *lgt = &game.lish.lights[lgt_id];
 
-  set_previous_light_position(lgt);
+  if (get_gameturn() > lgt->last_turn_moved)
+      lgt->previous_mappos = lgt->mappos;
+  lgt->last_turn_moved = get_gameturn();
 
-  if ( lgt->mappos.x.val != pos->x.val
+  if ( pos->x.val != lgt->mappos.x.val
     || pos->y.val != lgt->mappos.y.val
     || pos->z.val != lgt->mappos.z.val )
   {
@@ -571,10 +579,10 @@ void light_turn_light_off(long idx)
         ERRORLOG("Attempt to turn off unallocated light structure");
         return;
     }
-    if ((lgt->flags & LgtF_NeedRemoval) == 0) {
+    if ((lgt->flags & LgtF_CanTurnOff) == 0) {
         return;
     }
-    lgt->flags &= ~LgtF_NeedRemoval;
+    lgt->flags &= ~LgtF_CanTurnOff;
     if ((lgt->flags & LgtF_Dynamic) != 0) {
         light_remove_light_from_list(lgt, &game.thing_lists[TngList_DynamLights]);
     } else {
@@ -595,10 +603,11 @@ void light_turn_light_on(long idx)
         ERRORLOG("Attempt to turn on unallocated light structure %d",(int)idx);
         return;
     }
-    if ((lgt->flags & LgtF_NeedRemoval) != 0) {
+    if ((lgt->flags & LgtF_CanTurnOff) != 0) {
         return;
     }
-    lgt->flags |= LgtF_NeedRemoval;
+    lgt->flags |= LgtF_CanTurnOff;
+    lgt->reset_interpolation = true;
     if ((lgt->flags & LgtF_Dynamic) != 0)
     {
         light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
@@ -1506,13 +1515,15 @@ void light_set_lights_on(char state)
     if (state)
     {
         // Game rule
-        game.lish.global_ambient_light = game.conf.rules[0].game.global_ambient_light;
-        game.lish.light_enabled = game.conf.rules[0].game.light_enabled;
+        game.lish.global_ambient_light = game.conf.rules[0].gameplay.global_ambient_light;
+        game.lish.light_enabled = game.conf.rules[0].gameplay.light_enabled;
+        game.lish.light_auto_sync = true;
     } else
     {
         // Fullbright
         game.lish.global_ambient_light = 32;
         game.lish.light_enabled = 0;
+        game.lish.light_auto_sync = false;
     }
 
     light_stat_refresh();
@@ -1967,23 +1978,16 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
 
 static char light_render_light(struct Light* lgt)
 {
-  int remember_original_lgt_mappos_x = lgt->mappos.x.val;
-  int remember_original_lgt_mappos_y = lgt->mappos.y.val;
-  if ((lgt->interp_has_been_initialized == false) || (get_gameturn() - lgt->last_turn_drawn > 1)) {
-    lgt->interp_has_been_initialized = true;
-    lgt->interp_mappos.x.val = lgt->mappos.x.val;
-    lgt->interp_mappos.y.val = lgt->mappos.y.val;
-    lgt->previous_mappos.x.val = lgt->mappos.x.val;
-    lgt->previous_mappos.y.val = lgt->mappos.y.val;
-  } else {
-    lgt->interp_mappos.x.val = interpolate(lgt->interp_mappos.x.val, lgt->previous_mappos.x.val, lgt->mappos.x.val);
-    lgt->interp_mappos.y.val = interpolate(lgt->interp_mappos.y.val, lgt->previous_mappos.y.val, lgt->mappos.y.val);
+  const struct Coord3d original_mappos = lgt->mappos;
+  if (lgt->reset_interpolation)
+  {
+      lgt->reset_interpolation = false;
+      lgt->previous_mappos = lgt->mappos;
   }
-  lgt->last_turn_drawn = get_gameturn();
-  lgt->mappos.x.val = lgt->interp_mappos.x.val;
-  lgt->mappos.y.val = lgt->interp_mappos.y.val;
-  TbBool is_dynamic = lgt->flags & LgtF_Dynamic;
+  lgt->mappos.x.val = interpolate_synced(lgt->previous_mappos.x.val, lgt->mappos.x.val);
+  lgt->mappos.y.val = interpolate_synced(lgt->previous_mappos.y.val, lgt->mappos.y.val);
 
+  TbBool is_dynamic = (lgt->flags & LgtF_Dynamic) != 0;
   int intensity;
   int radius = lgt->radius;
   int render_radius = radius;
@@ -1991,9 +1995,16 @@ static char light_render_light(struct Light* lgt)
 
   if ( (lgt->flags2 & 0xFE) != 0 )
   {
+    if (get_gameturn() != lgt->last_turn_randomized)
+    {
+      lgt->previous_intensity_random = lgt->intensity_random;
+      lgt->intensity_random = UNSYNC_RANDOM(513);
+    }
+    lgt->last_turn_randomized = get_gameturn();
+
     int rand_minimum = (lgt->intensity - 1) << 8;
     intensity = (lgt->intensity << 8) + 257;
-    render_intensity = rand_minimum + UNSYNC_RANDOM(513);
+    render_intensity = rand_minimum + interpolate_synced(lgt->previous_intensity_random, lgt->intensity_random);
   }
   else
   {
@@ -2117,8 +2128,7 @@ static char light_render_light(struct Light* lgt)
       lighting_tables_idx = light_render_light_static(lgt, radius, render_intensity, lighting_tables_idx);
     }
   }
-  lgt->mappos.x.val = remember_original_lgt_mappos_x;
-  lgt->mappos.y.val = remember_original_lgt_mappos_y;
+  lgt->mappos = original_mappos;
   return lighting_tables_idx;
 }
 
@@ -2309,7 +2319,7 @@ void update_light_render_area(void)
     light_render_area(startx, starty, endx, endy);
 }
 
-void light_set_light_minimum_size_to_cache(long lgt_id, long min_radius, long min_intensity)
+void light_init_dungeon_heart(long lgt_id, long min_radius, long min_intensity)
 {
   struct Light *lgt;
   if ( lgt_id )
@@ -2317,9 +2327,9 @@ void light_set_light_minimum_size_to_cache(long lgt_id, long min_radius, long mi
     lgt = &game.lish.lights[lgt_id];
     if ( lgt->flags & LgtF_Allocated )
     {
-      if ( lgt->flags & LgtF_NeedRemoval )
+      if ( lgt->flags & LgtF_CanTurnOff )
       {
-        lgt->flags &= ~LgtF_NeedRemoval;
+        lgt->flags &= ~LgtF_CanTurnOff;
         if ( lgt->flags & LgtF_Dynamic )
         {
           lgt->min_radius = min_radius;

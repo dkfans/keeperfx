@@ -44,12 +44,14 @@ short setup_network_service(enum FrontendNetService service);
 int setup_old_network_service(void);
 TbBool init_players_network_game(void);
 void setup_count_players(void);
+void are_disconnect_victories_allowed(void);
 
 long network_session_join(void);
 
 TbBool network_player_active(int plyr_idx);
 const char *network_player_name(int plyr_idx);
-void process_quit_packet(struct PlayerInfo *player, short complete_quit);
+TbBool network_human_contenders_remain(void);
+void process_player_leave_game_packet(struct PlayerInfo *player);
 void process_disconnected_network_players(void);
 void sync_initial_network_seed(void);
 unsigned long get_host_player_id(void);

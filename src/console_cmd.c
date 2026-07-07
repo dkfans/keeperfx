@@ -24,7 +24,7 @@
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
-#include "config.h"
+#include "config_sounds.h"
 #include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "config_effects.h"
@@ -46,6 +46,7 @@
 #include "gui_boxmenu.h"
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
+#include "gui_tooltips.h"
 #include "keeperfx.hpp"
 #include "lvl_script_lib.h"
 #include "map_blocks.h"
@@ -84,7 +85,7 @@ char *strsep(char ** stringp, const char * delim) {
     if (rv) {
         *stringp += strcspn(*stringp, delim);
         if (**stringp) {
-            *(*stringp)++ = '\0';
+            *(*stringp)++ = '\0'; // Null-terminate at the next delimiter
         } else {
             *stringp = 0;
         }
@@ -93,6 +94,20 @@ char *strsep(char ** stringp, const char * delim) {
 }
 #endif
 
+char *strsep_param_with_space(char ** stringp) {
+    if (stringp == NULL || *stringp == NULL)
+        return NULL;
+
+    const char * delim = " ";
+    *stringp += strspn(*stringp, delim); // Skip leading delimiters
+
+    if (**stringp == 0) {
+        *stringp = NULL;
+        return NULL;
+    }
+
+    return strsep(stringp, delim);
+}
 
 
 enum AutoCompletionFlags {
@@ -299,17 +314,17 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * creature_str = strsep(&args, " ");
+    char * creature_str = strsep_param_with_space(&args);
     if (creature_str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as creature");
         return false;
     }
-    char * slot_str = strsep(&args, " ");
+    char * slot_str = strsep_param_with_space(&args);
     if (slot_str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as slot");
         return false;
     }
-    char * instance_str = strsep(&args, " ");
+    char * instance_str = strsep_param_with_space(&args);
     if (instance_str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 3 as instance");
         return false;
@@ -349,13 +364,24 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 
 void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, size_t args_size)
 {
-    char *pr2_str = NULL, *pr3_str = NULL, *pr4_str = NULL, *pr5_str = NULL;
-    size_t pr2_len = 0, pr3_len = 0, pr4_len = 0;
-    pr2_str = args_str + strspn(args_str, " ");
+    char *pr1_str = NULL, *pr2_str = NULL, *pr3_str = NULL, *pr4_str = NULL;
+    size_t pr1_len = 0, pr2_len = 0, pr3_len = 0;
+    pr1_str = args_str + strspn(args_str, " ");
 
-    pr3_str = strchr(pr2_str, ' ');
+    pr2_str = strchr(pr1_str, ' ');
+    if (pr2_str == NULL) {
+        pr1_len = strlen(pr1_str);
+    } else {
+        pr1_len = pr2_str - pr1_str;
+        pr2_str += strspn(pr2_str, " ");
+
+        pr3_str = strchr(pr2_str, ' ');
+    }
+
     if (pr3_str == NULL) {
-        pr2_len = strlen(pr2_str);
+        if (pr2_str != NULL) {
+            pr2_len = strlen(pr2_str);
+        }
     } else {
         pr2_len = pr3_str - pr2_str;
         pr3_str += strspn(pr3_str, " ");
@@ -370,17 +396,6 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
     } else {
         pr3_len = pr4_str - pr3_str;
         pr4_str += strspn(pr4_str, " ");
-
-        pr5_str = strchr(pr4_str, ' ');
-    }
-
-    if (pr5_str == NULL) {
-        if (pr4_str != NULL) {
-            pr4_len = strlen(pr4_str);
-        }
-    } else {
-        pr4_len = pr5_str - pr4_str;
-        pr5_str += strspn(pr5_str, " ");
     }
 
     const int suggested_key_max = 2048;
@@ -396,8 +411,8 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
 
     {
         char *poss_str = NULL;
-        enum AutoCompletionFlags check_flag = pr3_str != NULL ? ACF_ExactMatchIndex : ACF_DoDefaultCompletion ;
-        int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr2_str, pr2_len, args_size-(pr2_str-args_str), check_flag, &poss_str);
+        enum AutoCompletionFlags check_flag = pr2_str != NULL ? ACF_ExactMatchIndex : ACF_DoDefaultCompletion ;
+        int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr1_str, pr1_len, args_size-(pr1_str-args_str), check_flag, &poss_str);
         if (poss_str != NULL) {
             if (ret == AUTO_COMP_RET_AMBIGUOUS)
                 targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible creature model: %s", poss_str);
@@ -416,11 +431,11 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
     }
 
 
-    if (pr3_str == NULL)
+    if (pr2_str == NULL)
         return;
-    (void)pr3_len;
+    (void)pr2_len;
 
-    if (pr4_str == NULL) {
+    if (pr3_str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Auto completion for magic shot is not supported");
         return;
     }
@@ -436,8 +451,8 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
 
     {
         char *poss_str = NULL;
-        enum AutoCompletionFlags check_flag = pr5_str != NULL ? ACF_ExactMatchIndex : ACF_DoDefaultCompletion ;
-        int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr4_str, pr4_len, args_size-(pr4_str-args_str), check_flag, &poss_str);
+        enum AutoCompletionFlags check_flag = pr4_str != NULL ? ACF_ExactMatchIndex : ACF_DoDefaultCompletion ;
+        int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr3_str, pr3_len, args_size-(pr3_str-args_str), check_flag, &poss_str);
         if (poss_str != NULL) {
             if (ret == AUTO_COMP_RET_AMBIGUOUS)
                 targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 3: Possible magic instance: %s", poss_str);
@@ -456,7 +471,7 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
     }
 
 
-    if (pr5_str == NULL)
+    if (pr4_str == NULL)
         return;
 
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion is only supported for the first 3 parameters now");
@@ -471,12 +486,12 @@ TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         turns_per_second = start_params.num_fps;
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %d fps", turns_per_second);
     } else {
-        turns_per_second = atoi(pr2str);
+        turns_per_second = atoi(pr1str);
     }
     return true;
 }
@@ -527,10 +542,10 @@ TbBool cmd_quit(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_time(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    char * pr3str = strsep(&args, " ");
-    GameTurn turn = (pr2str != NULL) ? (GameTurn) atoi(pr2str) : get_gameturn();
-    long frames = (pr3str != NULL) ? (long) atoi(pr3str) : turns_per_second;
+    char * pr1str = strsep_param_with_space(&args);
+    char * pr2str = strsep_param_with_space(&args);
+    GameTurn turn = (pr1str != NULL) ? (GameTurn) atoi(pr1str) : get_gameturn();
+    long frames = (pr2str != NULL) ? (long) atoi(pr2str) : turns_per_second;
     show_game_time_taken(frames, turn);
     return true;
 }
@@ -578,16 +593,16 @@ TbBool cmd_step(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_game_save(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    long slot_num = pr2str != NULL ? atoi(pr2str) : 0;
+    char * pr1str = strsep_param_with_space(&args);
+    long slot_num = (pr1str != NULL) ? atoi(pr1str) : 0;
     if (slot_num < 0 || slot_num >= TOTAL_SAVE_SLOTS_COUNT)
     {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot_num [%d] exceeds [%d,%d)", slot_num, 0, TOTAL_SAVE_SLOTS_COUNT);
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    if (pr3str != NULL) {
-        fill_game_catalogue_slot(slot_num, pr3str);
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str != NULL) {
+        fill_game_catalogue_slot(slot_num, pr2str);
     }
     set_flag(game.operation_flags, GOF_Paused); // games are saved in a paused state
     TbBool result = save_game(slot_num);
@@ -603,15 +618,15 @@ TbBool cmd_game_save(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_game_load(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    long slot_num = pr2str != NULL ? atoi(pr2str) : 0;
+    char * pr1str = strsep_param_with_space(&args);
+    long slot_num = (pr1str != NULL) ? atoi(pr1str) : 0;
     if (slot_num < 0 || slot_num >= TOTAL_SAVE_SLOTS_COUNT)
     {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot_num [%d] exceeds [%d,%d)", slot_num, 0, TOTAL_SAVE_SLOTS_COUNT);
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    TbBool Pause = pr3str != NULL ? atoi(pr3str) : false;
+    char * pr2str = strsep_param_with_space(&args);
+    TbBool Pause = (pr2str != NULL) ? atoi(pr2str) : false;
     if (is_save_game_loadable(slot_num)) {
         if (load_game(slot_num)) {
             set_flag_value(game.operation_flags, GOF_Paused, Pause); // unpause, because games are saved whilst paused
@@ -645,15 +660,15 @@ TbBool cmd_volume(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_volume_sound(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL || !parameter_is_number(pr2str)) {
-        if (pr2str == NULL)
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL || !parameter_is_number(pr1str)) {
+        if (pr1str == NULL)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         else
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
         return false;
     }
-    settings.sound_volume = atoi(pr2str);
+    settings.sound_volume = atoi(pr1str);
     if (settings.sound_volume > 127) {
         settings.sound_volume = 127;
     }
@@ -664,15 +679,15 @@ TbBool cmd_volume_sound(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_volume_music(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL || !parameter_is_number(pr2str)) {
-        if (pr2str == NULL)
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL || !parameter_is_number(pr1str)) {
+        if (pr1str == NULL)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         else
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
         return false;
     }
-    settings.music_volume = atoi(pr2str);
+    settings.music_volume = atoi(pr1str);
     if (settings.music_volume > 127) {
         settings.music_volume = 127;
     }
@@ -687,11 +702,11 @@ TbBool cmd_compuchat(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         return false;
-    } else if ((strcasecmp(pr2str, "scarce") == 0) || (strcasecmp(pr2str, "1") == 0)) {
+    } else if ((strcasecmp(pr1str, "scarce") == 0) || (strcasecmp(pr1str, "1") == 0)) {
         for (int i = 0; i < PLAYERS_COUNT; i++) {
             if (!player_is_keeper(i)) {
                 continue;
@@ -702,8 +717,8 @@ TbBool cmd_compuchat(PlayerNumber plyr_idx, char * args)
             }
         }
         game.computer_chat_flags = CChat_TasksScarce;
-    } else if ((strcasecmp(pr2str, "frequent") == 0) || (strcasecmp(pr2str, "2") == 0)) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", pr2str);
+    } else if ((strcasecmp(pr1str, "frequent") == 0) || (strcasecmp(pr1str, "2") == 0)) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", pr1str);
         game.computer_chat_flags = CChat_TasksScarce | CChat_TasksFrequent;
     } else {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "none");
@@ -718,12 +733,12 @@ TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as player idx");
         return false;
     }
-    int id = atoi(pr2str);
+    int id = atoi(pr1str);
     if (id < 0 || id >= PLAYERS_COUNT) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT-1);
         return false;
@@ -751,12 +766,12 @@ TbBool cmd_comp_events(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as player idx");
         return false;
     }
-    int id = atoi(pr2str);
+    int id = atoi(pr1str);
     if (id < 0 || id >= PLAYERS_COUNT) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT-1);
         return false;
@@ -775,12 +790,12 @@ TbBool cmd_comp_checks(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as player idx");
         return false;
     }
-    int id = atoi(pr2str);
+    int id = atoi(pr1str);
     if (id < 0 || id >= PLAYERS_COUNT) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT-1);
         return false;
@@ -801,9 +816,9 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
     }
     struct PlayerInfo * player = get_player(plyr_idx);
     int r = 0;
-    char * pr2str = strsep(&args, " ");
-    if (pr2str != NULL) {
-        r = atol(pr2str);
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str != NULL) {
+        r = atol(pr1str);
     }
     if (r > 0) {
         int radius_offset = r / 2;
@@ -832,9 +847,9 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
     }
     struct PlayerInfo * player = get_player(plyr_idx);
     int r = 0;
-    char * pr2str = strsep(&args, " ");
-    if (pr2str != NULL) {
-        r = atol(pr2str);
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str != NULL) {
+        r = atol(pr1str);
     }
     if (r > 0) {
         int radius_offset = r / 2;
@@ -854,12 +869,12 @@ TbBool cmd_comp_kill(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as player idx");
         return false;
     }
-    int id = atoi(pr2str);
+    int id = atoi(pr1str);
     if (id < 0 || id > PLAYERS_COUNT) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player idx [%d] exceeds [%d,%d]", id, 0, PLAYERS_COUNT);
         return false;
@@ -875,8 +890,8 @@ TbBool cmd_player_score(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr2str);
+    char * pr1str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(pr1str);
     struct Dungeon * dungeon = get_dungeon(id);
     if (dungeon_invalid(dungeon)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "dungeon is invalid");
@@ -893,25 +908,25 @@ TbBool cmd_player_flag(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr2str);
+    char * pr1str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(pr1str);
     struct Dungeon * dungeon = get_dungeon(id);
     if (dungeon_invalid(dungeon)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "dungeon is invalid");
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    unsigned char flg_id = pr3str != NULL ? atoi(pr3str) : 0;
+    char * pr2str = strsep_param_with_space(&args);
+    unsigned char flg_id = (pr2str != NULL) ? atoi(pr2str) : 0;
     if (flg_id >= SCRIPT_FLAGS_COUNT) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "script flag [%d] exceeds");
         return false;
     }
-    char * pr4str = strsep(&args, " ");
-    if (pr4str == NULL) {
+    char * pr3str = strsep_param_with_space(&args);
+    if (pr3str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d flag %d value: %d", id,
                                 flg_id, dungeon->script_flags[flg_id]);
     } else {
-        dungeon->script_flags[flg_id] = atoi(pr4str);
+        dungeon->script_flags[flg_id] = atoi(pr3str);
     }
     return true;
 }
@@ -922,16 +937,16 @@ TbBool cmd_comp_me(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         return false;
     }
-    if (!setup_a_computer_player(plyr_idx, atoi(pr2str))) {
+    if (!setup_a_computer_player(plyr_idx, atoi(pr1str))) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unable to set assistant");
         return false;
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "computer assistant is %d", atoi(pr2str));
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "computer assistant is %d", atoi(pr1str));
     return true;
 }
 
@@ -942,14 +957,14 @@ TbBool cmd_give_trap(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    long id = get_trap_number_for_command(pr2str);
+    char * pr1str = strsep_param_with_space(&args);
+    long id = get_trap_number_for_command(pr1str);
     if (id <= 0 || id > game.conf.trapdoor_conf.trap_types_count) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "trap number [%d] exceeds (%d,%d]", id, 0, game.conf.trapdoor_conf.trap_types_count);
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
+    char * pr2str = strsep_param_with_space(&args);
+    unsigned char num = (pr2str != NULL) ? atoi(pr2str) : 1;
     set_trap_buildable_and_add_to_amount(plyr_idx, id, 1, num);
     update_trap_tab_to_config();
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "done!");
@@ -968,14 +983,14 @@ TbBool cmd_give_door(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    long id = get_door_number_for_command(pr2str);
+    char * pr1str = strsep_param_with_space(&args);
+    long id = get_door_number_for_command(pr1str);
     if (id <= 0 || id > game.conf.trapdoor_conf.door_types_count) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "door number [%d] exceeds (%d, %d])", id, 0, game.conf.trapdoor_conf.door_types_count);
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
+    char * pr2str = strsep_param_with_space(&args);
+    unsigned char num = (pr2str != NULL) ? atoi(pr2str) : 1;
     set_door_buildable_and_add_to_amount(plyr_idx, id, 1, num);
     update_trap_tab_to_config();
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "done!");
@@ -994,19 +1009,23 @@ TbBool cmd_map_pool(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    long kind = get_id(creature_desc, pr2str);
-    if (kind == -1) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Invalid creature: %s",pr2str);
-        return false;
-    }
-    char * pr3str = strsep(&args, " ");
-    if (pr3str == NULL) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Pool count %s: %d", pr2str,game.pool.crtr_kind[kind]);
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as creature model");
         return true;
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Set %s pool count: %d", pr2str, atoi(pr3str));
-    return script_set_pool(plyr_idx, pr2str, pr3str);
+    long kind = get_id(creature_desc, pr1str);
+    if (kind == -1) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Invalid creature: %s", pr1str);
+        return false;
+    }
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str == NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Pool count %s: %d", pr1str, game.pool.crtr_kind[kind]);
+        return true;
+    }
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Set %s pool count: %d", pr1str, atoi(pr2str));
+    return script_set_pool(plyr_idx, pr1str, pr2str);
 }
 
 TbBool cmd_create_gold(PlayerNumber plyr_idx, char * args)
@@ -1015,9 +1034,9 @@ TbBool cmd_create_gold(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL || !parameter_is_number(pr2str)) {
-        if (pr2str == NULL)
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL || !parameter_is_number(pr1str)) {
+        if (pr1str == NULL)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         else
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
@@ -1034,7 +1053,7 @@ TbBool cmd_create_gold(PlayerNumber plyr_idx, char * args)
     {
         move_creature_to_nearest_valid_position(thing);
     }
-    thing->valuable.gold_stored = atoi(pr2str);
+    thing->valuable.gold_stored = atoi(pr1str);
     add_gold_to_pile(thing, 0);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
@@ -1053,29 +1072,29 @@ TbBool cmd_look(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL || plyr_idx != my_player_number) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL || plyr_idx != my_player_number) {
         if (plyr_idx != my_player_number)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unknown error");
         else
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         return false;
     }
-    make_uppercase(pr2str);
-    long room_id = get_id(room_desc, pr2str);
+    make_uppercase(pr1str);
+    long room_id = get_id(room_desc, pr1str);
     if (room_id != -1) {
         go_to_my_next_room_of_type(room_id);
         process_players_global_packet_action(plyr_idx); // Dirty hack
         return true;
     }
-    long crmodel = get_id(creature_desc, pr2str);
+    long crmodel = get_id(creature_desc, pr1str);
     if(crmodel != -1) {
         go_to_next_creature_of_model_and_gui_job(crmodel, CrGUIJob_Any, TPF_OrderedPick);
         process_players_global_packet_action(plyr_idx); // Dirty hack
         return true;
     }
     TbMapLocation loc = {0};
-    if (!get_map_location_id(pr2str, &loc)) {
+    if (!get_map_location_id(pr1str, &loc)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "failed to get map location");
         return false;
     }
@@ -1097,8 +1116,8 @@ TbBool cmd_create_object(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as object model");
         return false;
     }
@@ -1111,18 +1130,18 @@ TbBool cmd_create_object(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "subtile coord is invalid");
         return false;
     }
-    long ObjModel = get_rid(object_desc, pr2str);
+    long ObjModel = get_rid(object_desc, pr1str);
     if (ObjModel == -1) {
-        if (parameter_is_number(pr2str)) {
-            ObjModel = atoi(pr2str);
+        if (parameter_is_number(pr1str)) {
+            ObjModel = atoi(pr1str);
         }
     }
     if (ObjModel < 0) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "object model is invalid");
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr3str);
+    char * pr2str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(pr2str);
     struct Thing * thing = create_object(&pos, ObjModel, id, -1);
     if (!thing_is_object(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "thing is not object");
@@ -1142,15 +1161,15 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as creature model");
         return false;
     }
-    long crmodel = get_creature_model_for_command(pr2str);
+    long crmodel = get_creature_model_for_command(pr1str);
     if (crmodel == -1) {
-        if (parameter_is_number(pr2str)) {
-            crmodel = atoi(pr2str);
+        if (parameter_is_number(pr1str)) {
+            crmodel = atoi(pr1str);
         }
     }
     if ((crmodel <= CREATURE_ANY) && (crmodel >= 249)) {
@@ -1193,12 +1212,12 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "subtile coord is invalid");
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    int level = (pr3str != NULL) ? (atoi(pr3str) - 1) : 0;
-    char * pr4str = strsep(&args, " ");
-    unsigned int count = (pr4str != NULL) ? atoi(pr4str) : 1;
-    char * pr5str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr5str);
+    char * pr2str = strsep_param_with_space(&args);
+    int level = (pr2str != NULL) ? (atoi(pr2str) - 1) : 0;
+    char * pr3str = strsep_param_with_space(&args);
+    unsigned int count = (pr3str != NULL) ? atoi(pr3str) : 1;
+    char * pr4str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(pr4str);
     struct Coord3d pos = {0};
     pos.x.stl.num = stl_x;
     pos.y.stl.num = stl_y;
@@ -1227,48 +1246,48 @@ TbBool cmd_create_thing(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as class");
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    if (pr3str == NULL) {
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as model");
         return false;
     }
     short tngclass = -1;
     short tngmodel = -1;
-    if (strcasecmp(pr2str, "object") == 0) {
+    if (strcasecmp(pr1str, "object") == 0) {
         tngclass = TCls_Object;
-        tngmodel = get_rid(object_desc, pr3str);
-    } else if (strcasecmp(pr2str, "corpse") == 0) {
+        tngmodel = get_rid(object_desc, pr2str);
+    } else if (strcasecmp(pr1str, "corpse") == 0) {
         tngclass = TCls_DeadCreature;
-        tngmodel = get_creature_model_for_command(pr3str);
-    } else if (strcasecmp(pr2str, "creature") == 0) {
+        tngmodel = get_creature_model_for_command(pr2str);
+    } else if (strcasecmp(pr1str, "creature") == 0) {
         tngclass = TCls_Creature;
-        tngmodel = get_creature_model_for_command(pr3str);
-    } else if (strcasecmp(pr2str, "trap") == 0) {
+        tngmodel = get_creature_model_for_command(pr2str);
+    } else if (strcasecmp(pr1str, "trap") == 0) {
         tngclass = TCls_Trap;
-        tngmodel = get_trap_number_for_command(pr3str);
-    } else if (strcasecmp(pr2str, "door") == 0) {
+        tngmodel = get_trap_number_for_command(pr2str);
+    } else if (strcasecmp(pr1str, "door") == 0) {
         tngclass = TCls_Door;
-        tngmodel = get_door_number_for_command(pr3str);
-    } else if (strcasecmp(pr2str, "effect") == 0) {
+        tngmodel = get_door_number_for_command(pr2str);
+    } else if (strcasecmp(pr1str, "effect") == 0) {
         tngclass = TCls_Effect;
-        tngmodel = get_rid(effect_desc, pr3str);
-    } else if (strcasecmp(pr2str, "shot") == 0) {
+        tngmodel = get_rid(effect_desc, pr2str);
+    } else if (strcasecmp(pr1str, "shot") == 0) {
         tngclass = TCls_Shot;
-        tngmodel = get_rid(shot_desc, pr3str);
+        tngmodel = get_rid(shot_desc, pr2str);
     }
     if (tngclass < 0) {
-        if (parameter_is_number(pr2str)) {
-            tngclass = atoi(pr2str);
+        if (parameter_is_number(pr1str)) {
+            tngclass = atoi(pr1str);
         }
     }
     if (tngmodel < 0) {
-        if (parameter_is_number(pr3str)) {
-            tngmodel = atoi(pr3str);
+        if (parameter_is_number(pr2str)) {
+            tngmodel = atoi(pr2str);
         }
     }
     if ((tngclass < 0) || (tngmodel < 0)) {
@@ -1288,8 +1307,8 @@ TbBool cmd_create_thing(PlayerNumber plyr_idx, char * args)
         return false;
     }
     pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    char * pr4str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr4str);
+    char * pr3str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(pr3str);
     struct Thing * thing = create_thing(&pos, tngclass, tngmodel, id, -1);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "thing is invalid");
@@ -1304,29 +1323,29 @@ TbBool cmd_create_thing(PlayerNumber plyr_idx, char * args)
 
 void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, size_t args_size)
 {
-    char *pr2_str = NULL, *pr3_str = NULL, *pr4_str = NULL;
-    size_t pr2_len = 0, pr3_len = 0;
-    pr2_str = args_str + strspn(args_str, " ");
+    char *pr1_str = NULL, *pr2_str = NULL, *pr3_str = NULL;
+    size_t pr1_len = 0, pr2_len = 0;
+    pr1_str = args_str + strspn(args_str, " ");
 
     char str_buf[256] = {0};
 
-    pr3_str = strchr(pr2_str, ' ');
+    pr2_str = strchr(pr1_str, ' ');
+    if (pr2_str == NULL) {
+        pr1_len = strlen(pr1_str);
+    } else {
+        pr1_len = pr2_str - pr1_str;
+        pr2_str += strspn(pr2_str, " ");
+
+        pr3_str = strchr(pr2_str, ' ');
+    }
+
     if (pr3_str == NULL) {
-        pr2_len = strlen(pr2_str);
+        if (pr2_str != NULL) {
+            pr2_len = strlen(pr2_str);
+        }
     } else {
         pr2_len = pr3_str - pr2_str;
         pr3_str += strspn(pr3_str, " ");
-
-        pr4_str = strchr(pr3_str, ' ');
-    }
-
-    if (pr4_str == NULL) {
-        if (pr3_str != NULL) {
-            pr3_len = strlen(pr3_str);
-        }
-    } else {
-        pr3_len = pr4_str - pr3_str;
-        pr4_str += strspn(pr4_str, " ");
     }
 
 
@@ -1355,23 +1374,23 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
     }
 
     memset(str_buf, 0, sizeof(str_buf));
-    int copy_len =  pr2_len < (sizeof(str_buf) - 1) ? pr2_len : (sizeof(str_buf) - 1);
-    memcpy(str_buf, pr2_str, copy_len);
-    TbBool is_pr2_num = parameter_is_number(str_buf);
-    if (pr3_str == NULL) {
-        if (is_pr2_num) {
+    int copy_len =  pr1_len < (sizeof(str_buf) - 1) ? pr1_len : (sizeof(str_buf) - 1);
+    memcpy(str_buf, pr1_str, copy_len);
+    TbBool is_pr1_num = parameter_is_number(str_buf);
+    if (pr2_str == NULL) {
+        if (is_pr1_num) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Auto completion for numeric thing class is not supported");
             return;
         }
     }
 
     int tngclass = -1;
-    if (is_pr2_num) {
+    if (is_pr1_num) {
         tngclass = atoi(str_buf);
     } else {
         char *poss_str = NULL;
-        enum AutoCompletionFlags check_flag = pr3_str != NULL ? ACF_ExactMatchIndex : ACF_DoDefaultCompletion ;
-        int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr2_str, pr2_len, args_size-(pr2_str-args_str), check_flag, &poss_str);
+        enum AutoCompletionFlags check_flag = pr2_str != NULL ? ACF_ExactMatchIndex : ACF_DoDefaultCompletion ;
+        int ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr1_str, pr1_len, args_size-(pr1_str-args_str), check_flag, &poss_str);
         if (poss_str != NULL) {
             if (ret == AUTO_COMP_RET_AMBIGUOUS)
                 targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Possible thing class: %s", poss_str);
@@ -1391,7 +1410,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         tngclass = thing_command_aliases[ret].num;
     }
 
-    if (pr3_str == NULL) {
+    if (pr2_str == NULL) {
         return;
     }
 
@@ -1426,7 +1445,6 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         prio_threshold_len = 4;
         break;
     case TCls_Trap:
-        // suggested_key_list[suggested_key_cnt++] = "RANDOM";
         for (i = 0; trap_desc[i].name != NULL && suggested_key_cnt < suggested_key_max; i++)
         {
             suggested_key_list[suggested_key_cnt++] = trap_desc[i].name;
@@ -1441,7 +1459,6 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         secondary_cnt = suggested_key_cnt - primary_cnt;
         break;
     case TCls_Door:
-        // suggested_key_list[suggested_key_cnt++] = "RANDOM";
         for (i = 0; door_desc[i].name != NULL && suggested_key_cnt < suggested_key_max; i++)
         {
             suggested_key_list[suggested_key_cnt++] = door_desc[i].name;
@@ -1475,23 +1492,23 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
     }
 
     memset(str_buf, 0, sizeof(str_buf));
-    copy_len =  pr3_len < (sizeof(str_buf) - 1) ? pr3_len : (sizeof(str_buf) - 1);
-    memcpy(str_buf, pr3_str, copy_len);
-    TbBool is_pr3_num = parameter_is_number(str_buf);
-    if (pr4_str == NULL) {
-        if (is_pr3_num) {
+    copy_len =  pr2_len < (sizeof(str_buf) - 1) ? pr2_len : (sizeof(str_buf) - 1);
+    memcpy(str_buf, pr2_str, copy_len);
+    TbBool is_pr2_num = parameter_is_number(str_buf);
+    if (pr3_str == NULL) {
+        if (is_pr2_num) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 2: Auto completion for numeric thing model is not supported");
             return;
         }
     }
 
-    if (!is_pr3_num) {
+    if (!is_pr2_num) {
         char *poss_str = NULL;
         int ret = 0;
-        if (pr4_str == NULL) {
-            ret = do_complete_from_prioritized_candidates(suggested_key_list, primary_cnt, secondary_cnt, prio_threshold_len, pr3_str, pr3_len, args_size-(pr3_str-args_str), &poss_str);
+        if (pr3_str == NULL) {
+            ret = do_complete_from_prioritized_candidates(suggested_key_list, primary_cnt, secondary_cnt, prio_threshold_len, pr2_str, pr2_len, args_size-(pr2_str-args_str), &poss_str);
         } else {
-            ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr3_str, pr3_len, args_size-(pr3_str-args_str), ACF_ExactMatchIndex, &poss_str);
+            ret = do_complete_from_candidates(suggested_key_list, suggested_key_cnt, pr2_str, pr2_len, args_size-(pr2_str-args_str), ACF_ExactMatchIndex, &poss_str);
         }
         if (poss_str != NULL) {
             if (ret == AUTO_COMP_RET_AMBIGUOUS)
@@ -1510,7 +1527,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
             return;
     }
 
-    if (pr4_str == NULL) {
+    if (pr3_str == NULL) {
         return;
     }
 
@@ -1524,8 +1541,8 @@ TbBool cmd_place_slab(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as slbkind");
         return false;
     }
@@ -1540,25 +1557,25 @@ TbBool cmd_place_slab(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "subtile coord is invalid");
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    PlayerNumber id = (pr3str == NULL) ? slabmap_owner(slb) : get_player_number_for_command(pr3str);
-    short slbkind = get_rid(slab_desc, pr2str);
+    char * pr2str = strsep_param_with_space(&args);
+    PlayerNumber id = (pr2str == NULL) ? slabmap_owner(slb) : get_player_number_for_command(pr2str);
+    short slbkind = get_rid(slab_desc, pr1str);
     if (slbkind < 0) {
-        long rid = get_rid(room_desc, pr2str);
+        long rid = get_rid(room_desc, pr1str);
         if (rid > 0) {
             struct RoomConfigStats *roomst = get_room_kind_stats(rid);
             slbkind = roomst->assigned_slab;
         } else {
-            if (strcasecmp(pr2str, "Earth") == 0) {
+            if (strcasecmp(pr1str, "Earth") == 0) {
                 slbkind = rand() % (4 - 2) + 2;
-            } else if ((strcasecmp(pr2str, "Reinforced") == 0) || (strcasecmp(pr2str, "Fortified") == 0)) {
+            } else if ((strcasecmp(pr1str, "Reinforced") == 0) || (strcasecmp(pr1str, "Fortified") == 0)) {
                 slbkind = rand() % (9 - 4) + 4;
-            } else if (strcasecmp(pr2str, "Claimed") == 0) {
+            } else if (strcasecmp(pr1str, "Claimed") == 0) {
                 slbkind = SlbT_CLAIMED;
-            } else if ((strcasecmp(pr2str, "Rock") == 0) || (strcasecmp(pr2str, "Impenetrable") == 0)) {
+            } else if ((strcasecmp(pr1str, "Rock") == 0) || (strcasecmp(pr1str, "Impenetrable") == 0)) {
                 slbkind = SlbT_ROCK;
-            } else if (parameter_is_number(pr2str)) {
-                slbkind = atoi(pr2str);
+            } else if (parameter_is_number(pr1str)) {
+                slbkind = atoi(pr1str);
             }
         }
     }
@@ -1584,31 +1601,31 @@ TbBool cmd_room_available(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    TbBool available = (pr3str == NULL) ? 1 : atoi(pr3str);
-    char * pr4str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr4str);
+    char * pr2str = strsep_param_with_space(&args);
+    TbBool available = (pr2str == NULL) ? 1 : atoi(pr2str);
+    char * pr3str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(pr3str);
     long roomid;
-    if (strcasecmp(pr2str, "all") == 0) {
+    if (strcasecmp(pr1str, "all") == 0) {
         for (roomid = RoK_TREASURE; roomid <= RoK_GUARDPOST; roomid++) {
             if (roomid != RoK_DUNGHEART) {
                 set_room_available(id, roomid, available, available);
             }
         }
     } else {
-        roomid = get_rid(room_desc, pr2str);
+        roomid = get_rid(room_desc, pr1str);
         if (roomid <= 0) {
-            if (strcasecmp(pr2str, "Hatchery") == 0) {
+            if (strcasecmp(pr1str, "Hatchery") == 0) {
                 roomid = RoK_GARDEN;
-            } else if ((strcasecmp(pr2str, "Guard") == 0) || (strcasecmp(pr2str, "GuardPost") == 0)) {
+            } else if ((strcasecmp(pr1str, "Guard") == 0) || (strcasecmp(pr1str, "GuardPost") == 0)) {
                 roomid = RoK_GUARDPOST;
             } else {
-                roomid = atoi(pr2str);
+                roomid = atoi(pr1str);
             }
         }
         set_room_available(id, roomid, available, available);
@@ -1624,12 +1641,12 @@ TbBool cmd_give_power(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         return false;
     }
-    if (strcasecmp(pr2str, "all") == 0) {
+    if (strcasecmp(pr1str, "all") == 0) {
         for (PowerKind pw = game.conf.magic_conf.power_types_count - 1; pw > PwrK_HAND; pw--) {
             if ( (pw == PwrK_PICKUPCRTR) || (pw == PwrK_PICKUPGOLD) || (pw == PwrK_PICKUPFOOD) ) {
                 continue;
@@ -1641,9 +1658,9 @@ TbBool cmd_give_power(PlayerNumber plyr_idx, char * args)
         update_powers_tab_to_config();
         return true;
     }
-    long power = get_rid(power_desc, pr2str);
+    long power = get_rid(power_desc, pr1str);
     if (power < 0) {
-        power = atoi(pr2str);
+        power = atoi(pr1str);
     }
     if (!set_power_available(plyr_idx, power, 1, 1)) {
         WARNLOG("Setting power %s availability for player %d failed.", power_code_name(power), plyr_idx);
@@ -1669,22 +1686,22 @@ TbBool cmd_player_heart_health(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr2str);
+    char * pr1str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(pr1str);
     struct Thing * thing = get_player_soul_container(id);
     if (!thing_is_dungeon_heart(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "thing is not dungeon heart");
         return false;
     }
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    char * pr3str = strsep(&args, " ");
-    if (pr3str == NULL) {
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str == NULL) {
         float percent = ((float) thing->health / (float)objst->health) * 100;
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
                                 "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
         return true;
     }
-    HitPoints Health = atoi(pr3str);
+    HitPoints Health = atoi(pr2str);
     thing->health = Health;
     if (thing->health <= 0) {
         struct Dungeon * dungeon = get_dungeon(plyr_idx);
@@ -1700,12 +1717,12 @@ TbBool cmd_creature_available(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    long crmodel = get_creature_model_for_command(pr2str);
-    char * pr3str = strsep(&args, " ");
-    TbBool available = (pr3str == NULL) ? 1 : atoi(pr3str);
-    char * pr4str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr4str);
+    char * pr1str = strsep_param_with_space(&args);
+    long crmodel = get_creature_model_for_command(pr1str);
+    char * pr2str = strsep_param_with_space(&args);
+    TbBool available = (pr2str == NULL) ? 1 : atoi(pr2str);
+    char * pr3str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(pr3str);
     if (!set_creature_available(id, crmodel, available, available)) {
         WARNLOG("Setting creature %s availability for player %d failed.", creature_code_name(crmodel),
                 (int) id);
@@ -1720,9 +1737,9 @@ TbBool cmd_creature_add_health(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL || !parameter_is_number(pr2str)) {
-        if (pr2str == NULL)
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL || !parameter_is_number(pr1str)) {
+        if (pr1str == NULL)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         else
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
@@ -1734,7 +1751,7 @@ TbBool cmd_creature_add_health(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    thing->health += atoi(pr2str);
+    thing->health += atoi(pr1str);
     return true;
 }
 
@@ -1744,9 +1761,9 @@ TbBool cmd_creature_sub_health(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL || !parameter_is_number(pr2str)) {
-        if (pr2str == NULL)
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL || !parameter_is_number(pr1str)) {
+        if (pr1str == NULL)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         else
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
@@ -1758,7 +1775,7 @@ TbBool cmd_creature_sub_health(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    thing->health -= atoi(pr2str);
+    thing->health -= atoi(pr1str);
     return true;
 }
 
@@ -1768,11 +1785,11 @@ TbBool cmd_send_digger_to(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
     struct PlayerInfo * player = get_player(plyr_idx); // requesting player
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     ThingModel model = get_players_special_digger_model(thing->owner);
-    PlayerNumber id = get_player_number_for_command(pr2str);
+    PlayerNumber id = get_player_number_for_command(pr1str);
     player = get_player(id); // target player
     if (!player_exists(player)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player no exist");
@@ -1805,8 +1822,8 @@ TbBool cmd_set_creature_instance(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as instance");
         return false;
     }
@@ -1816,7 +1833,7 @@ TbBool cmd_set_creature_instance(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    unsigned char inst = atoi(pr2str);
+    unsigned char inst = atoi(pr1str);
     set_creature_instance(thing, inst, 0, 0);
     return true;
 }
@@ -1827,8 +1844,8 @@ TbBool cmd_set_creature_state(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as state");
         return false;
     }
@@ -1838,7 +1855,7 @@ TbBool cmd_set_creature_state(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    unsigned char state = atoi(pr2str);
+    unsigned char state = atoi(pr1str);
     if (can_change_from_state_to(thing, thing->active_state, state))
     {
         return internal_set_thing_state(thing, state);
@@ -1853,8 +1870,8 @@ TbBool cmd_set_creature_job(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as job");
         return false;
     }
@@ -1864,7 +1881,7 @@ TbBool cmd_set_creature_job(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    unsigned char new_job = atoi(pr2str);
+    unsigned char new_job = atoi(pr1str);
     if (!creature_can_do_job_for_player(thing, thing->owner, 1LL << new_job, JobChk_None))
     {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cannot do job %d.", new_job);
@@ -1879,21 +1896,21 @@ TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
     struct Coord3d pos = {0};
-    if (pr2str == NULL) {
+    if (pr1str == NULL) {
         struct PlayerInfo * player = get_player(plyr_idx);
         struct Packet * pckt = get_packet_direct(player->packet_num);
         pos.x.val = pckt->pos_x;
         pos.y.val = pckt->pos_y;
     } else {
-        char * pr3str = strsep(&args, " ");
-        if (pr3str == NULL) {
+        char * pr2str = strsep_param_with_space(&args);
+        if (pr2str == NULL) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as stl_y");
             return false;
         }
-        pos.x.stl.num = atoi(pr2str);
-        pos.y.stl.num = atoi(pr3str);
+        pos.x.stl.num = atoi(pr1str);
+        pos.y.stl.num = atoi(pr2str);
     }
     if ((pos.x.stl.num >= game.map_subtiles_x) || (pos.y.stl.num >= game.map_subtiles_y)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
@@ -1941,8 +1958,8 @@ TbBool cmd_creature_attack_heart(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as player number");
         return false;
     }
@@ -1952,7 +1969,7 @@ TbBool cmd_creature_attack_heart(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    PlayerNumber id = get_player_number_for_command(pr2str);
+    PlayerNumber id = get_player_number_for_command(pr1str);
     struct Thing * heartng = get_player_soul_container(id);
     if (!thing_is_dungeon_heart(heartng)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "thing is not dungeon heart");
@@ -1969,19 +1986,19 @@ TbBool cmd_player_gold_add(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr2str);
+    char * pr1str = strsep_param_with_space(&args);
+    PlayerNumber id = get_player_number_for_command(pr1str);
     struct PlayerInfo * player = get_player(id);
     if (!player_exists(player)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "player no exist");
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    if (pr3str == NULL) {
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as gold amount");
         return false;
     }
-    player_add_offmap_gold(id, atoi(pr3str));
+    player_add_offmap_gold(id, atoi(pr2str));
     return true;
 }
 
@@ -2008,12 +2025,12 @@ TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
     struct PlayerInfo * player = get_player(plyr_idx);
     struct Packet * pckt = get_packet_direct(player->packet_num);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
-    struct Thing * thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_thing_at_position(stl_x, stl_y);
+    struct Thing * thing = (pr1str != NULL) ? thing_get(atoi(pr1str)) : get_nearest_thing_at_position(stl_x, stl_y);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "thing is invalid");
         return false;
@@ -2032,8 +2049,8 @@ TbBool cmd_thing_show_id(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    render_set_sprite_debug((pr2str != NULL)? atoi(pr2str): 1);
+    char * pr1str = strsep_param_with_space(&args);
+    render_set_sprite_debug((pr1str != NULL) ? atoi(pr1str) : 1);
     return true;
 }
 
@@ -2043,15 +2060,15 @@ TbBool cmd_thing_health(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
     struct PlayerInfo * player = get_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or thing is invalid");
         return false;
     }
-    if (pr2str != NULL) {
-        thing->health = atoi(pr2str);
+    if (pr1str != NULL) {
+        thing->health = atoi(pr1str);
     } else {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Thing ID: %d health: %d", thing->index, thing->health);
     }
@@ -2064,7 +2081,7 @@ TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
     struct PlayerInfo * player = get_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (thing_is_invalid(thing)) {
@@ -2072,17 +2089,17 @@ TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct Coord3d pos = {0};
-    char * pr3str = strsep(&args, " ");
-    if (pr3str != NULL) {
-        pos.x.stl.num = atoi(pr2str);
-        pos.y.stl.num = atoi(pr3str);
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str != NULL) {
+        pos.x.stl.num = atoi(pr1str);
+        pos.y.stl.num = atoi(pr2str);
         if ((pos.x.stl.num >= game.map_subtiles_x) || (pos.y.stl.num >= game.map_subtiles_y)) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
             return false;
         }
-        char * pr4str = strsep(&args, " ");
-        if (pr4str != NULL) {
-            pos.z.stl.num = atoi(pr4str);
+        char * pr3str = strsep_param_with_space(&args);
+        if (pr3str != NULL) {
+            pos.z.stl.num = atoi(pr3str);
         } else {
             pos.z.val = get_floor_height_at(&pos);
         }
@@ -2118,12 +2135,12 @@ TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
     struct PlayerInfo * player = get_player(plyr_idx);
     struct Packet * pckt = get_packet_direct(player->packet_num);
     MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
     MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
-    struct Room * room = (pr2str != NULL) ? room_get(atoi(pr2str)) : subtile_room_get(stl_x, stl_y);
+    struct Room * room = (pr1str != NULL) ? room_get(atoi(pr1str)) : subtile_room_get(stl_x, stl_y);
     if (!room_exists(room)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "room no exist");
         return false;
@@ -2140,17 +2157,17 @@ TbBool cmd_room_health(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
     struct PlayerInfo * player = get_player(plyr_idx);
     struct Room * room = room_get(player->influenced_thing_idx);
     if (room_is_invalid(room)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not room");
         return false;
-    } else if (pr2str == NULL) {
+    } else if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Room ID %d health: %d", room->index, room->health);
         return true;
     }
-    room-> health = atoi(pr2str);
+    room-> health = atoi(pr1str);
     return true;
 }
 
@@ -2160,7 +2177,7 @@ TbBool cmd_slab_health(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
     struct PlayerInfo * player = get_player(plyr_idx);
     struct Packet * pckt = get_packet_direct(player->packet_num);
     MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
@@ -2169,11 +2186,11 @@ TbBool cmd_slab_health(PlayerNumber plyr_idx, char * args)
     if (slabmap_block_invalid(slb)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slabmap block is invalid");
         return false;
-    } else if (pr2str == NULL) {
+    } else if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Slab health: %d", slb->health);
         return true;
     }
-    slb->health = atoi(pr2str);
+    slb->health = atoi(pr1str);
     return true;
 }
 
@@ -2183,21 +2200,21 @@ TbBool cmd_creature_pool_add(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    char * pr3str = strsep(&args, " ");
-    if (pr3str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as creature amount");
         return false;
     }
-    long crmodel = get_creature_model_for_command(pr2str);
+    long crmodel = get_creature_model_for_command(pr1str);
     if (crmodel == -1) {
-        crmodel = atoi(pr2str);
+        crmodel = atoi(pr1str);
     }
     if (crmodel == 0) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid creature model");
         return false;
     }
-    game.pool.crtr_kind[crmodel] += atoi(pr3str);
+    game.pool.crtr_kind[crmodel] += atoi(pr2str);
     return true;
 }
 
@@ -2207,21 +2224,21 @@ TbBool cmd_creature_pool_sub(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    char * pr3str = strsep(&args, " ");
-    if (pr3str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as creature amount");
         return false;
     }
-    long crmodel = get_creature_model_for_command(pr2str);
+    long crmodel = get_creature_model_for_command(pr1str);
     if (crmodel == -1) {
-        crmodel = atoi(pr2str);
+        crmodel = atoi(pr1str);
     }
     if (crmodel == 0) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid creature model");
         return false;
     }
-    game.pool.crtr_kind[crmodel] -= atoi(pr3str);
+    game.pool.crtr_kind[crmodel] -= atoi(pr2str);
     return true;
 }
 
@@ -2231,8 +2248,8 @@ TbBool cmd_creature_level(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as creature level");
         return false;
     }
@@ -2242,7 +2259,7 @@ TbBool cmd_creature_level(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    set_creature_level(thing, (atoi(pr2str)-1));
+    set_creature_level(thing, (atoi(pr1str)-1));
     return true;
 }
 
@@ -2258,7 +2275,7 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(thing, snd_spell_frozen, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
     apply_spell_effect_to_thing(thing, 3, 8, plyr_idx); // 3 was 'SplK_Freeze' in the enum.
     return true;
@@ -2276,7 +2293,7 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
     }
-    thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(thing, snd_spell_frozen, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
     apply_spell_effect_to_thing(thing, 12, 8, plyr_idx); // 12 was 'SplK_Slow' in the enum.
     return true;
@@ -2288,39 +2305,70 @@ TbBool cmd_set_music(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         return false;
     }
-    int track = atoi(pr2str);
+    int track = atoi(pr1str);
     if (track < 0) {
-        return play_music(pr2str);
+        return play_music(pr1str);
     } else {
         return play_music_track(track);
     }
 }
 
-TbBool cmd_zoom_to(PlayerNumber plyr_idx, char * args)
+TbBool cmd_zoom_to_slabcoord(PlayerNumber plyr_idx, char * args)
 {
     if (game.easter_eggs_enabled == false) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as slb_x");
+        return false;
+    }
+    char * pr2str = strsep_param_with_space(&args);
     if (pr2str == NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as slb_y");
+        return false;
+    }
+    MapSlabCoord slb_x = atoi(pr1str);
+    MapSlabCoord slb_y = atoi(pr2str);
+    MapSubtlCoord stl_x = slab_subtile(slb_x, 0);
+    MapSubtlCoord stl_y = slab_subtile(slb_y, 0);
+    if (subtile_coords_invalid(stl_x, stl_y)) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Slab coordinates specified are invalid");
+        return false;
+    }
+    struct PlayerInfo * player = get_player(plyr_idx);
+    player->zoom_to_pos_x = subtile_coord_center(stl_x);
+    player->zoom_to_pos_y = subtile_coord_center(stl_y);
+    set_player_instance(player, PI_ZoomToPos, 0);
+    return true;
+}
+
+TbBool cmd_zoom_to_subtilecoord(PlayerNumber plyr_idx, char * args)
+{
+    if (game.easter_eggs_enabled == false) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
+    }
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as stl_x");
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    if (pr3str == NULL) {
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as stl_y");
         return false;
     }
-    MapSubtlCoord stl_x = atoi(pr2str);
-    MapSubtlCoord stl_y = atoi(pr3str);
+    MapSubtlCoord stl_x = atoi(pr1str);
+    MapSubtlCoord stl_y = atoi(pr2str);
     if (subtile_coords_invalid(stl_x, stl_y)) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Co-ordinates specified are invalid");
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Subtile coordinates specified are invalid");
         return false;
     }
     struct PlayerInfo * player = get_player(plyr_idx);
@@ -2336,18 +2384,18 @@ TbBool cmd_toggle_classic_bug(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as bug name");
         return false;
     }
-    char bug = get_rid(rules_game_classicbugs_commands, pr2str);
+    char bug = get_rid(rules_game_classicbugs_commands, pr1str);
     if (bug == -1) {
-        bug = atoi(pr2str);
+        bug = atoi(pr1str);
     }
     unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
-    toggle_flag(game.conf.rules[plyr_idx].game.classic_bugs_flags, flg);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules[plyr_idx].game.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
+    toggle_flag(game.conf.rules[plyr_idx].gameplay.classic_bugs_flags, flg);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules[plyr_idx].gameplay.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
     return true;
 }
 
@@ -2357,12 +2405,12 @@ TbBool cmd_get_action_point_pos(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as actionpoint number");
         return false;
     }
-    long num = atoi(pr2str);
+    long num = atoi(pr1str);
     ActionPointId idx = action_point_number_to_index(num);
     if (!action_point_exists_idx(idx)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "actionpoint no exist");
@@ -2379,12 +2427,12 @@ TbBool cmd_zoom_to_action_point(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as actionpoint number");
         return false;
     }
-    long num = atoi(pr2str);
+    long num = atoi(pr1str);
     ActionPointId idx = action_point_number_to_index(num);
     if (!action_point_exists_idx(idx)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "actionpoint no exist");
@@ -2404,19 +2452,19 @@ TbBool cmd_reset_action_point(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as actionpoint number");
         return false;
     }
-    long num = atoi(pr2str);
+    long num = atoi(pr1str);
     ActionPointId idx = action_point_number_to_index(num);
     if (!action_point_exists_idx(idx)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "actionpoint no exist");
         return false;
     }
-    char * pr3str = strsep(&args, " ");
-    PlayerNumber player_idx = (pr3str == NULL) ? ALL_PLAYERS : atoi(pr3str);
+    char * pr2str = strsep_param_with_space(&args);
+    PlayerNumber player_idx = (pr2str == NULL) ? ALL_PLAYERS : atoi(pr2str);
     return action_point_reset_idx(idx, player_idx);
 }
 
@@ -2426,12 +2474,12 @@ TbBool cmd_zoom_to_hero_gate(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as hero gate number");
         return false;
     }
-    unsigned char hg = atoi(pr2str);
+    unsigned char hg = atoi(pr1str);
     struct Thing * thing = find_hero_gate_of_number(hg);
     if (!thing_is_object(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "thing is not object");
@@ -2453,12 +2501,12 @@ TbBool cmd_sound_test(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         return false;
     }
-    play_non_3d_sample(atoi(pr2str));
+    play_non_3d_sample(atoi(pr1str));
     return true;
 }
 
@@ -2468,25 +2516,33 @@ TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
         return false;
     }
-    play_speech_sample(atoi(pr2str));
+    play_speech_sample(atoi(pr1str));
     return true;
 }
 
 TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as player");
+        return false;
+    }
     int plr_start;
     int plr_end;
-    PlayerNumber plr_range_id = get_player_number_for_command(pr2str);
+    PlayerNumber plr_range_id = get_player_number_for_command(pr1str);
     get_players_range(plr_range_id, &plr_start, &plr_end);
 
-    char * pr3str = strsep(&args, " ");
-    char colour_idx = get_rid(cmpgn_human_player_options, pr3str);
+    char * pr2str = strsep_param_with_space(&args);
+    if (pr2str == NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as color");
+        return false;
+    }
+    char colour_idx = get_rid(cmpgn_human_player_options, pr2str);
     if (plr_start >= 0)
     {
             for (PlayerNumber plyr_id = plr_start; plyr_id < plr_end; plyr_id++)
@@ -2519,8 +2575,8 @@ TbBool cmd_possession_unlock(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_string_show(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    long msg_id = pr2str != NULL ? atoi(pr2str) : 0;
+    char * pr1str = strsep_param_with_space(&args);
+    long msg_id = (pr1str != NULL) ? atoi(pr1str) : 0;
     if (msg_id >= 0)
     {
         set_general_information(msg_id, plyr_idx, 0, 0, 0);
@@ -2530,12 +2586,25 @@ TbBool cmd_string_show(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
 {
-    char * pr2str = strsep(&args, " ");
-    long msg_id = pr2str != NULL ? atoi(pr2str) : 0;
+    char * pr1str = strsep_param_with_space(&args);
+    long msg_id = (pr1str != NULL) ? atoi(pr1str) : 0;
     if (msg_id >= 0)
     {
         set_quick_information(msg_id, plyr_idx, 0, 0, 0);
     }
+    return true;
+}
+
+TbBool cmd_toggle_tooltip_land_coord(PlayerNumber plyr_idx, char * args)
+{
+    tool_tip_dbg.land_coord = !tool_tip_dbg.land_coord;
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "tooltip_land_coord is turned %s", tool_tip_dbg.land_coord ? "on" : "off");
+    return true;
+}
+
+TbBool cmd_toggle_lights(PlayerNumber plyr_idx, char * args)
+{
+    light_set_lights_on(game.lish.light_enabled == 0);
     return true;
 }
 
@@ -2565,22 +2634,22 @@ TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str == NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as menu type");
         return false;
     }
 
     int menu_type = -1;
-    if (strcmp(pr2str, "0") == 0 || strcasecmp(pr2str, "none") == 0)
+    if (strcmp(pr1str, "0") == 0 || strcasecmp(pr1str, "none") == 0)
         menu_type = 0;
-    else if (strcmp(pr2str, "1") == 0 || strcasecmp(pr2str, "main") == 0)
+    else if (strcmp(pr1str, "1") == 0 || strcasecmp(pr1str, "main") == 0)
         menu_type = 1;
-    else if (strcmp(pr2str, "2") == 0 || strcasecmp(pr2str, "creature") == 0)
+    else if (strcmp(pr1str, "2") == 0 || strcasecmp(pr1str, "creature") == 0)
         menu_type = 2;
-    else if (strcmp(pr2str, "3") == 0 || strcasecmp(pr2str, "instance") == 0)
+    else if (strcmp(pr1str, "3") == 0 || strcasecmp(pr1str, "instance") == 0)
         menu_type = 3;
-	else if (strcmp(pr2str, "4") == 0 || strcasecmp(pr2str, "secondary") == 0)
+    else if (strcmp(pr1str, "4") == 0 || strcasecmp(pr1str, "secondary") == 0)
         menu_type = 4;
 
     if (menu_type < 0) {
@@ -2589,38 +2658,38 @@ TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
     }
 
     if (menu_type != 1)
-	{
+    {
         close_main_cheat_menu();
-	}
+    }
     if (menu_type != 2)
-	{
+    {
         close_creature_cheat_menu();
-	}
+    }
     if (menu_type != 3)
-	{
+    {
         close_instance_cheat_menu();
-	}
-	if (menu_type != 4)
-	{
+    }
+    if (menu_type != 4)
+    {
         close_secondary_cheat_menu();
-	}
+    }
 
     if (menu_type == 1)
-	{
+    {
         toggle_main_cheat_menu();
-	}
+    }
     else if (menu_type == 2)
-	{
+    {
         toggle_creature_cheat_menu();
-	}
+    }
     else if (menu_type == 3)
-	{
+    {
         toggle_instance_cheat_menu();
-	}
-	else if (menu_type == 4)
-	{
+    }
+    else if (menu_type == 4)
+    {
         toggle_secondary_cheat_menu();
-	}
+    }
 
     return true;
 }
@@ -2644,6 +2713,18 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+// TODO this is just a temp function while testing the sprite stuff
+// eventually I want to get rid of dbc entirely but this makes difference easier to spot
+extern TbBool dbc_initialized;
+TbBool cmd_dbc(PlayerNumber plyr_idx, char * args)
+{
+    if (game.easter_eggs_enabled == false) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
+    }
+    dbc_initialized = !dbc_initialized;
+    return true;
+}
 
 
 struct ConsoleCommand {
@@ -2739,12 +2820,15 @@ static const struct ConsoleCommand console_commands[] = {
     { "creature.freeze", cmd_freeze_creature, NULL },
     { "creature.slow", cmd_slow_creature, NULL },
     { "music.set", cmd_set_music, NULL },
-    { "zoomto", cmd_zoom_to, NULL },
+    { "zoomto.slabcoord", cmd_zoom_to_slabcoord, NULL },
+    { "zoomto.subtilecoord", cmd_zoom_to_subtilecoord, NULL },
     { "bug.toggle", cmd_toggle_classic_bug, NULL },
     { "actionpoint.pos", cmd_get_action_point_pos, NULL },
     { "actionpoint.zoomto", cmd_zoom_to_action_point, NULL },
+    { "zoomto.actionpoint", cmd_zoom_to_action_point, NULL },
     { "actionpoint.reset", cmd_reset_action_point, NULL },
     { "herogate.zoomto", cmd_zoom_to_hero_gate, NULL },
+    { "zoomto.herogate", cmd_zoom_to_hero_gate, NULL },
     { "sound.test", cmd_sound_test, NULL },
     { "speech.test", cmd_speech_test, NULL },
     { "player.color", cmd_player_colour, NULL },
@@ -2753,10 +2837,13 @@ static const struct ConsoleCommand console_commands[] = {
     { "possession.unlock", cmd_possession_unlock, NULL },
     { "string.show", cmd_string_show, NULL },
     { "quick.show", cmd_quick_show, NULL },
+    { "toggle.tooltip.land.coord", cmd_toggle_tooltip_land_coord, NULL },
+    { "toggle.lights", cmd_toggle_lights, NULL },
     { "lua", cmd_lua, NULL },
     { "luatypedump", cmd_luatypedump, NULL },
     { "cheat.menu", cmd_cheat_menu, NULL },
     { "creature.chicken", cmd_chicken_creature, NULL },
+    { "dbc", cmd_dbc, NULL }
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 
@@ -2940,15 +3027,15 @@ int do_complete_from_prioritized_candidates(const char *key_list[], int primary_
 
 void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str, size_t args_size, const char *desc_str, struct NamedCommand *primary_name_desc, struct NamedCommand *secondary_name_desc, int prio_threshold_len, TbBool add_random)
 {
-    char *pr2_str = args_str + strspn(args_str, " ");
-    char *pr3_str = strchr(pr2_str, ' ');
-    if (pr3_str != NULL) {
+    char *pr1_str = args_str + strspn(args_str, " ");
+    char *pr2_str = strchr(pr1_str, ' ');
+    if (pr2_str != NULL) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Auto completion is only supported for parameter 1 as %s", desc_str);
         return;
     }
 
-    size_t pr2_len = strlen(pr2_str);
-    if (parameter_is_number(pr2_str)) {
+    size_t pr1_len = strlen(pr1_str);
+    if (parameter_is_number(pr1_str)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameter 1: Auto completion for numeric %s is not supported", desc_str);
         return;
     }
@@ -2979,7 +3066,7 @@ void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str
     secondary_cnt = suggested_key_cnt - primary_cnt;
 
     char *poss_str = NULL;
-    int ret = do_complete_from_prioritized_candidates(suggested_key_list, primary_cnt, secondary_cnt, prio_threshold_len, pr2_str, pr2_len, args_size-(pr2_str-args_str), &poss_str);
+    int ret = do_complete_from_prioritized_candidates(suggested_key_list, primary_cnt, secondary_cnt, prio_threshold_len, pr1_str, pr1_len, args_size-(pr1_str-args_str), &poss_str);
 
     if (poss_str != NULL) {
         if (ret == AUTO_COMP_RET_AMBIGUOUS)
@@ -3046,11 +3133,11 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
-    const char * command = strsep(&args, " ");
+    const char * command = strsep_param_with_space(&args);
     if (command == NULL) {
         if (game.easter_eggs_enabled == true) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "command is empty");
-	    }
+        }
         return false;
     }
     // NOTE: execution can be optimized by pre-sorting commands by name and performing binary search
@@ -3112,7 +3199,7 @@ static long get_creature_model_for_command(char *msg)
 
 static PlayerNumber get_player_number_for_command(char *msg)
 {
-    PlayerNumber id = (msg == NULL) ? my_player_number : get_rid(cmpgn_human_player_options, msg);
+    PlayerNumber id = (msg == NULL || *msg == 0) ? my_player_number : get_rid(cmpgn_human_player_options, msg);
     if (id == -1)
     {
         id = get_rid(player_desc, msg);
@@ -3136,7 +3223,7 @@ static char get_trap_number_for_command(char* msg)
     if (msg == NULL || msg[0] == 0)
         return -1;
 
-    char id = get_rid(trap_desc, msg);
+    char id = get_id(trap_desc, msg);
     if (id < 0)
     {
         long i = 0;
@@ -3159,7 +3246,7 @@ static char get_door_number_for_command(char* msg)
     if (msg == NULL || msg[0] == 0)
         return -1;
 
-    long id = get_rid(door_desc, msg);
+    long id = get_id(door_desc, msg);
     if (id < 0)
     {
         long i = 0;
@@ -3180,3 +3267,4 @@ static char get_door_number_for_command(char* msg)
 #ifdef __cplusplus
 }
 #endif
+

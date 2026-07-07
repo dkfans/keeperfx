@@ -21,6 +21,7 @@
 #include "globals.h"
 
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "creature_states.h"
@@ -718,7 +719,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
         if ( check_place_to_reinforce(thing, slb_x, slb_y) > 0 )
         {
             stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
-            if ( check_out_uncrowded_reinforce_position(thing, stl_num, &dest_stl_x, &dest_stl_y) )
+            if ( check_out_uncrowded_reinforce_position(thing, stl_num, &dest_stl_x, &dest_stl_y) > 0)
             {
                 if ( setup_person_move_to_position(thing, dest_stl_x, dest_stl_y, NavRtF_Default) )
                 {
@@ -962,7 +963,7 @@ short imp_arrives_at_reinforce(struct Thing *spdigtng)
 
     if ( imp_already_reinforcing_at_excluding(spdigtng,spdigtng->mappos.x.stl.num,spdigtng->mappos.y.stl.num))
     {
-        if ( !check_out_uncrowded_reinforce_position(spdigtng, cctrl->digger.working_stl, &stl_x, &stl_y)
+        if ( check_out_uncrowded_reinforce_position(spdigtng, cctrl->digger.working_stl, &stl_x, &stl_y) <= 0
             || !setup_person_move_to_position(spdigtng, stl_x, stl_y, 0) )
         {
             internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
@@ -1254,7 +1255,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     if ( (gold_added > 0) || (gold_created) )
     {
-        thing_play_sample(spdigtng, SOUND_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(spdigtng, snd_gold_pickup + SOUND_RANDOM(snd_gold_pickup_count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
@@ -1266,7 +1267,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     {
         if (is_thing_directly_controlled_by_player(spdigtng, my_player_number))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
             internal_set_thing_state(spdigtng, state);
             return 1;
         }
@@ -1397,7 +1398,7 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
         spdigtng->creature.gold_carried += gold_taken;
         if (gold_taken > 0)
         {
-            thing_play_sample(spdigtng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(spdigtng, snd_gold_pickup, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     internal_set_thing_state(spdigtng, state);

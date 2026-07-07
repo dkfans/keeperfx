@@ -4,10 +4,15 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <algorithm>
+#include <ctype.h>
+#include <memory>
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
 #include <shellapi.h>
+#include <string>
+#include <utility>
 #include <vector>
 #include "post_inc.h"
 
@@ -124,34 +129,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 }
 
 struct TbFileFind {
-    HANDLE handle;
-    char * namebuf;
-    int namebuflen;
+    std::vector<std::pair<std::string, std::string>> names;
+    size_t index = 0;
 };
 
 extern "C" TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry)
 {
-    auto ffind = static_cast<TbFileFind *>(malloc(sizeof(struct TbFileFind)));
-    if (!ffind) {
-        return nullptr;
-    }
+    auto ffind = std::make_unique<TbFileFind>();
     WIN32_FIND_DATA fd;
-    ffind->handle = FindFirstFile(filespec, &fd);
-    if (ffind->handle == INVALID_HANDLE_VALUE) {
-        free(ffind);
+    HANDLE handle = FindFirstFile(filespec, &fd);
+    if (handle == INVALID_HANDLE_VALUE) {
         return nullptr;
     }
-    const auto namelen = strlen(fd.cFileName);
-    ffind->namebuf = static_cast<char *>(malloc(namelen + 1));
-    if (!ffind->namebuf) {
-        FindClose(ffind->handle);
-        free(ffind);
+    do {
+        std::string key = fd.cFileName;
+        for (size_t i = 0; i < key.size(); i++) {
+            key[i] = (char)tolower((unsigned char)key[i]);
+        }
+        ffind->names.emplace_back(key, fd.cFileName);
+    } while (FindNextFile(handle, &fd));
+    FindClose(handle);
+    if (ffind->names.empty()) {
         return nullptr;
     }
-    memcpy(ffind->namebuf, fd.cFileName, namelen + 1);
-    ffind->namebuflen = namelen;
-    fentry->Filename = ffind->namebuf;
-    return ffind;
+    std::sort(ffind->names.begin(), ffind->names.end());
+    fentry->Filename = ffind->names[0].second.c_str();
+    return ffind.release();
 }
 
 extern "C" int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry)
@@ -159,29 +162,15 @@ extern "C" int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fe
     if (!ffind) {
         return -1;
     }
-    WIN32_FIND_DATA fd;
-    if (!FindNextFile(ffind->handle, &fd)) {
+    ffind->index++;
+    if (ffind->index >= ffind->names.size()) {
         return -1;
     }
-    const int namelen = strlen(fd.cFileName);
-    if (namelen > ffind->namebuflen) {
-        auto buf = static_cast<char *>(realloc(ffind->namebuf, namelen + 1));
-        if (!buf) {
-            return -1;
-        }
-        ffind->namebuf = buf;
-        ffind->namebuflen = namelen;
-    }
-    memcpy(ffind->namebuf, fd.cFileName, namelen + 1);
-    fentry->Filename = ffind->namebuf;
+    fentry->Filename = ffind->names[ffind->index].second.c_str();
     return 1;
 }
 
 extern "C" void LbFileFindEnd(struct TbFileFind * ffind)
 {
-    if (ffind) {
-        FindClose(ffind->handle);
-        free(ffind->namebuf);
-        free(ffind);
-    }
+    delete ffind;
 }

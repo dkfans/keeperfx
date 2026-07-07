@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config.h"
 
@@ -39,6 +40,7 @@
 
 #include "config_campaigns.h"
 #include "config_keeperfx.h"
+#include "config_translation.h"
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
@@ -94,13 +96,13 @@ TbBool parameter_is_number(const char* parstr) {
     }
 
     // Check if the first character is a valid start for a number
-    if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
+    if (!(parstr[0] == '-' || isdigit((unsigned char)parstr[0]))) {
         return false;
     }
 
     // Check the remaining characters
     for (int i = 1; i < len; ++i) {
-        if (!isdigit(parstr[i])) {
+        if (!isdigit((unsigned char)parstr[i])) {
             return false;
         }
     }
@@ -232,10 +234,10 @@ TbBool conf_get_block_name(const char * buf, int32_t * pos, long buflen, const c
   while (true) {
     if (*pos >= buflen) {
       return false;
-    } else if (isalpha(buf[*pos])) {
+    } else if (isalpha((unsigned char)buf[*pos])) {
       (*pos)++;
       continue;
-    } else if (isdigit(buf[*pos])) {
+    } else if (isdigit((unsigned char)buf[*pos])) {
       (*pos)++;
       continue;
     } else {
@@ -468,9 +470,9 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
 
 int64_t value_name(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    size_t offset = named_fields_set->struct_size * idx;
-    strncpy((char*)named_field->field + offset, value_text, COMMAND_WORD_LEN - 1);
-    ((char*)named_field->field + offset)[COMMAND_WORD_LEN - 1] = '\0';
+    void* field_ptr = (char*)named_fields_set->get_struct_base() + named_fields_set->struct_size * idx + (ptrdiff_t)named_field->field;
+    strncpy(field_ptr, value_text, COMMAND_WORD_LEN - 1);
+    ((char*)field_ptr)[COMMAND_WORD_LEN - 1] = '\0';
     return 0;
 }
 
@@ -591,6 +593,11 @@ int64_t value_animid(const struct NamedField* named_field, const char* value_tex
   }
 }
 
+int64_t value_stringId(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    return get_string_id_by_alias(value_text);
+}
+
 int64_t value_effOrEffEl(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     return effect_or_effect_element_id(value_text);
@@ -666,7 +673,7 @@ int64_t parse_named_field_value(const struct NamedField* named_field, const char
 
 int64_t get_named_field_value(const struct NamedField* named_field, const struct NamedFieldSet* named_fields_set, int idx)
 {
-    void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
+    void* field = (char*)named_fields_set->get_struct_base() + named_fields_set->struct_size * idx + (ptrdiff_t)named_field->field;
     switch (named_field->type)
     {
     case dt_uchar:
@@ -687,16 +694,21 @@ int64_t get_named_field_value(const struct NamedField* named_field, const struct
         return *(int32_t *)field;
     case dt_ulong:
         return *(uint32_t *)field;
-    case dt_longlong:
-        return *(int64_t *)field;
-    case dt_ulonglong:
-        return *(uint64_t *)field;
+    case dt_longlong: {
+        /* Use memcpy to avoid ARM LDRD strict-alignment fault. */
+        int64_t v; memcpy(&v, field, sizeof(v)); return v;
+    }
+    case dt_ulonglong: {
+        uint64_t v; memcpy(&v, field, sizeof(v)); return (int64_t)v;
+    }
     case dt_float:
         return (int64_t)(*(float*)field);
-    case dt_double:
-        return (int64_t)(*(double*)field);
-    case dt_longdouble:
-        return (int64_t)(*(long double*)field);
+    case dt_double: {
+        double v; memcpy(&v, field, sizeof(v)); return (int64_t)v;
+    }
+    case dt_longdouble: {
+        long double v; memcpy(&v, field, sizeof(v)); return (int64_t)v;
+    }
     case dt_charptr:
     case dt_default:
     case dt_void:
@@ -713,7 +725,15 @@ void assign_null(const struct NamedField* named_field, int64_t value, const stru
 
 void assign_default(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
+    char* field = (char*)named_fields_set->get_struct_base() + named_fields_set->struct_size * idx + (ptrdiff_t)named_field->field;
+    char* base = (char*)named_fields_set->get_struct_base();
+
+    if (named_fields_set->get_struct_base() == NULL || idx < 0 || idx >= named_fields_set->max_count || field < base ||
+        field >= base + named_fields_set->struct_size * named_fields_set->max_count)
+    {
+        NAMFIELDERRLOG("Field '%s' index %d out of bounds", named_field->name, idx);
+        return;
+    }
     switch (named_field->type)
     {
     case dt_uchar:
@@ -770,24 +790,34 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
     case dt_longlong:
         if (value < INT64_MIN || value > INT64_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long long: %" PRId64, value);
-        else
-            *(signed long long *)field = (signed long long)value;
+        else {
+            /* Use memcpy to avoid ARM STRD strict-alignment fault (ARMv7 STRD requires
+             * 8-byte aligned address; struct base may only be 4-byte aligned). */
+            signed long long v = (signed long long)value;
+            memcpy(field, &v, sizeof(v));
+        }
         break;
     case dt_ulonglong:
         if (value < 0)
             NAMFIELDWRNLOG("Value out of range for unsigned long long: %" PRId64, value);
-        else
-            *(unsigned long long *)field = (unsigned long long)value;
+        else {
+            unsigned long long v = (unsigned long long)value;
+            memcpy(field, &v, sizeof(v));
+        }
         break;
     case dt_float:
         *(float*)field = (float)value;
         break;
-    case dt_double:
-        *(double*)field = (double)value;
+    case dt_double: {
+        double v = (double)value;
+        memcpy(field, &v, sizeof(v));
         break;
-    case dt_longdouble:
-        *(long double*)field = (long double)value;
+    }
+    case dt_longdouble: {
+        long double v = (long double)value;
+        memcpy(field, &v, sizeof(v));
         break;
+    }
     case dt_charptr:
     case dt_default:
     case dt_void:
@@ -980,7 +1010,7 @@ TbBool parse_named_field_block(const char *buf, long len, const char *config_tex
 
 void set_defaults(const struct NamedFieldSet* named_fields_set, const char *config_textname)
 {
-  memset((void *)named_fields_set->struct_base, 0, named_fields_set->struct_size * named_fields_set->max_count);
+  memset(named_fields_set->get_struct_base(), 0, named_fields_set->struct_size * named_fields_set->max_count);
 
   const struct NamedField* name_NamedField = NULL;
 
@@ -1005,7 +1035,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set, const char *conf
   {
       for (int i = 0; i < named_fields_set->max_count; i++)
       {
-          named_fields_set->names[i].name = (char*)name_NamedField->field + i * named_fields_set->struct_size;
+          named_fields_set->names[i].name = (char*)named_fields_set->get_struct_base() + i * named_fields_set->struct_size + (ptrdiff_t)name_NamedField->field;
           named_fields_set->names[i].num = i;
       }
       named_fields_set->names[named_fields_set->max_count - 1].name = NULL; // must be null for get_id
@@ -1037,8 +1067,8 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
         const int i = natoi(&blockname[basename_len], blocknamelen - basename_len);
         if (i < 0 || i >= named_fields_set->max_count) {
             continue;
-        } else if (i >= *named_fields_set->count_field) {
-            *named_fields_set->count_field = i + 1;
+        } else if (i >= *named_fields_set->get_count()) {
+            *named_fields_set->get_count() = i + 1;
         }
         char blockname_null[COMMAND_WORD_LEN];
         strncpy(blockname_null, blockname, blocknamelen);
@@ -1231,11 +1261,18 @@ char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *f
 {
     return prepare_file_path_buf_mod(dst, dst_size, NULL, fgroup, fname);
 }
+
 /*
  * @mod_dir insert before fgroup related sdir, set NULL if no mod.
  * @fname insert after fgroup related sdir.
  */
-char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname)
+/**
+ * Internal helper: Resolve a file path with bounds checking to prevent buffer overflow.
+ * Returns NULL if the constructed path would exceed dst_size.
+ */
+static char *_resolve_file_path_internal(char *dst, size_t dst_size, 
+                                          const char *mod_dir, short fgroup, 
+                                          const char *fname)
 {
   const char *mdir = NULL;
   const char *sdir = NULL;
@@ -1254,7 +1291,7 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
       sdir="fxdata";
       break;
   case FGrp_LoData:
-      mdir=install_info.inst_path;
+      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
       sdir="ldata";
       break;
   case FGrp_HiData:
@@ -1266,7 +1303,7 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
       sdir="music";
       break;
   case FGrp_VarLevels:
-      mdir=install_info.inst_path;
+      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
       sdir="levels";
       break;
   case FGrp_Save:
@@ -1306,7 +1343,7 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
           mdir=NULL; sdir=NULL;
           break;
       }
-      mdir=install_info.inst_path;
+      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
       sdir=campaign.levels_location;
       break;
   case FGrp_CmpgCrtrs:
@@ -1314,7 +1351,7 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
           mdir=NULL; sdir=NULL;
           break;
       }
-      mdir=install_info.inst_path;
+      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
       sdir=campaign.creatures_location;
       break;
   case FGrp_CmpgConfig:
@@ -1322,7 +1359,7 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
           mdir=NULL; sdir=NULL;
           break;
       }
-      mdir=install_info.inst_path;
+      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
       sdir=campaign.configs_location;
       break;
   case FGrp_CmpgMedia:
@@ -1330,7 +1367,7 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
           mdir=NULL; sdir=NULL;
           break;
       }
-      mdir=install_info.inst_path;
+      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
       sdir=campaign.media_location;
       break;
   case FGrp_LandView:
@@ -1338,7 +1375,7 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
           mdir=NULL; sdir=NULL;
           break;
       }
-      mdir=install_info.inst_path;
+      mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
       sdir=campaign.land_location;
       break;
   case FGrp_CrtrData:
@@ -1350,13 +1387,14 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
       sdir="multiplayer";
       break;
   default:
-      mdir="./";
+      mdir=keeper_runtime_directory;
       sdir=NULL;
       break;
   }
-  if (mdir == NULL)
+  
+  if (mdir == NULL) {
       dst[0] = '\0';
-  else {
+  } else {
       if (mod_dir == NULL)
           mod_dir = "";
       if (sdir == NULL)
@@ -1364,32 +1402,120 @@ char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, sh
       if (fname == NULL)
           fname = "";
 
-      const char *mod_sep = mod_dir[0] ==0 ? "" : "/";
+      int len_mdir = (int)strlen(mdir);
+      int len_mod_dir = (int)strlen(mod_dir);
+      int len_sdir = (int)strlen(sdir);
+      int len_fname = (int)strlen(fname);
+      
+      int total_len = len_mdir + len_mod_dir + len_sdir + len_fname + 3; /* +3 for separators */
+      
+      if (total_len >= (int)dst_size) {
+          ERRORMSG("Path construction would overflow: total_len=%d, buffer_size=%lu. Components: mdir=%d, mod_dir=%d, sdir=%d, fname=%d",
+                   total_len, (unsigned long)dst_size, 
+                   len_mdir, len_mod_dir, 
+                   len_sdir, len_fname);
+          dst[0] = '\0';
+          return dst;
+      }
+
+      const char *mod_sep = mod_dir[0] == 0 ? "" : "/";
       const char *dir_sep = sdir[0] == 0 ? "" : "/";
-      const char *file_sep = fname[0] ==0 ? "" : "/";
-      snprintf(dst, dst_size, "%s%s%s%s%s%s%s", mdir, mod_sep, mod_dir, dir_sep, sdir, file_sep, fname);
+      const char *file_sep = fname[0] == 0 ? "" : "/";
+      
+      /* OVERFLOW CHECK: snprintf returns number of chars that would have been written.
+         If >= dst_size, the buffer was overflowed. Return NULL to signal error. */
+      int written = snprintf(dst, dst_size, "%s%s%s%s%s%s%s", 
+                             mdir, mod_sep, mod_dir, dir_sep, sdir, file_sep, fname);
+      if (written < 0 || (size_t)written >= dst_size) {
+          ERRORMSG("Path construction overflow: len=%d, buffer_size=%lu. Components: mdir=%lu, mod_dir=%lu, sdir=%lu, fname=%lu",
+                   written, (unsigned long)dst_size, 
+                   (unsigned long)len_mdir, (unsigned long)len_mod_dir, 
+                   (unsigned long)len_sdir, (unsigned long)len_fname);
+          dst[0] = '\0';
+          return dst;
+      }
   }
   return dst;
 }
 
+/**
+ * Public API: Get path for a game file (no mod overlay).
+ * Returns pointer to internal static buffer, or NULL if path construction failed.
+ */
+char *get_game_file_path(short fgroup, const char *fname)
+{
+  static char ffullpath[4096];
+  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
+}
+
+/**
+ * Public API: Get path for a mod-overlaid file.
+ * Returns pointer to internal static buffer, or NULL if path construction failed.
+ * mod_dir: the mod subdirectory within keeper_runtime_directory, or NULL for no overlay.
+ */
+char *get_mod_file_path(const char *mod_dir, short fgroup, const char *fname)
+{
+  static char ffullpath[4096];
+  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+}
+
+/**
+ * Public API: Get path for a game file with formatted filename.
+ * Returns pointer to internal static buffer, or NULL if path/format construction failed.
+ */
+char *get_game_file_path_fmt(short fgroup, const char *fmt_str, ...)
+{
+  char fname[255] = "";
+  va_list val;
+  va_start(val, fmt_str);
+  vsnprintf(fname, sizeof(fname), fmt_str, val);
+  va_end(val);
+  
+  static char ffullpath[2048];
+  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
+}
+
+/**
+ * Public API: Get path for a mod-overlaid file with formatted filename.
+ * Returns pointer to internal static buffer, or NULL if path/format construction failed.
+ * mod_dir: the mod subdirectory within keeper_runtime_directory, or NULL for no overlay.
+ */
+char *get_mod_file_path_fmt(const char *mod_dir, short fgroup, const char *fmt_str, ...)
+{
+  char fname[255] = "";
+  va_list val;
+  va_start(val, fmt_str);
+  vsnprintf(fname, sizeof(fname), fmt_str, val);
+  va_end(val);
+  
+  static char ffullpath[4096];
+  return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   DEPRECATED: Old API kept for compatibility. Prefer get_*_file_path* instead.
+   ───────────────────────────────────────────────────────────────────────── */
+
+char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname)
+{
+  return _resolve_file_path_internal(dst, dst_size, mod_dir, fgroup, fname);
+}
+
 char *prepare_file_path_mod(const char *mod_dir, short fgroup, const char *fname)
 {
-  static char ffullpath[2048];
-  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+  return get_mod_file_path(mod_dir, fgroup, fname);
 }
 
 char *prepare_file_path(short fgroup, const char *fname)
 {
-  static char ffullpath[2048];
-  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
+  return get_game_file_path(fgroup, fname);
 }
 
 char *prepare_file_path_va_mod(const char *mod_dir, short fgroup, const char *fmt_str, va_list arg)
 {
   char fname[255] = "";
   vsnprintf(fname, sizeof(fname), fmt_str, arg);
-  static char ffullpath[2048];
-  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+  return get_mod_file_path(mod_dir, fgroup, fname);
 }
 
 char *prepare_file_fmtpath_mod(const char *mod_dir, short fgroup, const char *fmt_str, ...)
@@ -1441,7 +1567,7 @@ unsigned char *load_data_file_to_buffer(int32_t *ldsize, short fgroup, const cha
        WARNMSG("File \"%s\" doesn't exist or is too small.", fname);
        return NULL;
   }
-  unsigned char* buf = calloc(fsize + 16, 1);
+  unsigned char* buf = KfxCalloc(fsize + 16, 1);
   if (buf == NULL)
   {
     WARNMSG("Can't allocate %ld bytes to load \"%s\".",fsize,fname);
@@ -1451,7 +1577,7 @@ unsigned char *load_data_file_to_buffer(int32_t *ldsize, short fgroup, const cha
   if (fsize < *ldsize)
   {
     WARNMSG("Reading file \"%s\" failed.",fname);
-    free(buf);
+    KfxFree(buf);
     return NULL;
   }
   memset(buf+fsize, '\0', 15);
@@ -1689,7 +1815,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
     ERRORLOG("Campaign Credits file \"%s\" does not exist or can't be opened",campgn->credits_fname);
     return false;
   }
-  campgn->credits_data = (char *)calloc(filelen + 256, 1);
+  campgn->credits_data = (char *)KfxCalloc(filelen + 256, 1);
   if (campgn->credits_data == NULL)
   {
     ERRORLOG("Can't allocate memory for Campaign Credits file \"%s\"",campgn->credits_fname);
@@ -2111,8 +2237,8 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
 
     if (mod_state->cmpg_lvls)
     {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-        if (strlen(fname) > 0)
+        fname = get_mod_file_path_fmt(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+        if (fname && strlen(fname) > 0)
         {
             file_data->load_func(fname,flags);
         }
@@ -2162,8 +2288,8 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         load_config_for_mod_list(file_data, flags, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
     }
 
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
+    fname = get_game_file_path_fmt(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (fname && strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }

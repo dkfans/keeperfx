@@ -622,7 +622,12 @@ static void delete_attached_things_on_slab(long slb_x, long slb_y)
                     {
                         char class_id = thing->class_id;
                         if (class_id == TCls_Object || class_id == TCls_EffectGen)
-                            destroy_thing(thing);
+                        {
+                            if (thing_is_dungeon_heart(thing))
+                                thing->health = 0;
+                            else
+                                destroy_thing(thing);
+                        }
                     }
                     thing = next_thing;
                     k++;
@@ -966,6 +971,15 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                         if (dungeon->backup_heart_idx == 0)
                         {
                             dungeon->backup_heart_idx = objtng->index;
+                        }
+                        else
+                        {
+                            struct Thing* backup = thing_get(dungeon->backup_heart_idx);
+                            if (!thing_is_dungeon_heart(backup))
+                            {
+                                ERRORLOG("%s had invalid backup heart %s", player_code_name(plyr_idx), thing_model_name(backup));
+                                dungeon->backup_heart_idx = objtng->index;
+                            }
                         }
                     }
                 } else
@@ -1433,7 +1447,11 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                     }
                     if (delete_thing)
                     {
-                        destroy_thing(thing);
+                        // Hearts are normally attached, but you never know what a mapmaker does.
+                        if (thing_is_dungeon_heart(thing))
+                            thing->health = 0;
+                        else
+                            destroy_thing(thing);
                     }
                 }
                 thing = next_thing;
@@ -2419,10 +2437,6 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
 {
     if (is_neutral_thing(creatng) || thing_is_invalid(creatng)) //heroes do explore, so mapmakers can cast hero powers
         return;
-    struct Coord3d pos;
-    pos.x.val = subtile_coord_center(stl_x);
-    pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = get_floor_height_at(&pos);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     slb_x = subtile_slab(stl_x);
@@ -2448,7 +2462,7 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
         clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
         if (!player_cannot_win(creatng->owner) && (!flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator)) && (!player_is_roaming(creatng->owner)))
         {
-            claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
+            claim_neutral_creatures_in_sight(creatng, can_see_slabs);
         }
     }
     clear_slab_dig(slb_x, slb_y, creatng->owner);

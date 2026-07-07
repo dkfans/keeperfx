@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "kfx_memory.h"
 #include "pre_inc.h"
 #include "config_creature.h"
 #include "globals.h"
@@ -31,6 +32,7 @@
 #include "config_terrain.h"
 #include "config_strings.h"
 #include "config_crtrstates.h"
+#include "config_translation.h"
 #include "thing_doors.h"
 #include "thing_creature.h"
 #include "creature_instances.h"
@@ -636,20 +638,24 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         switch (cmd_num)
         {
         case 1: // CREATURES
-            while (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.model[n+1].name,COMMAND_WORD_LEN) > 0)
-            {
-              n++;
-              if (n+1 >= CREATURE_TYPES_MAX)
-              {
-                CONFWRNLOG("Too many species defined with \"%s\" in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_name, config_textname);
-                break;
+            if ((flags & CnfLd_AcceptPartial) == 0) {
+                game.conf.crtr_conf.model_count = 1;
+            }
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+              if (get_id(creature_desc, word_buf) > 0) {
+                  continue;
               }
-              // model 0 is reserved
+              n = game.conf.crtr_conf.model_count;
+              if (n >= CREATURE_TYPES_MAX) {
+                  CONFWRNLOG("Too many species defined with \"%s\" in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_name, config_textname);
+                  break;
+              }
+              snprintf(game.conf.crtr_conf.model[n].name, COMMAND_WORD_LEN, "%s", word_buf);
               creature_desc[n - 1].name = game.conf.crtr_conf.model[n].name;
               creature_desc[n - 1].num = n;
+              game.conf.crtr_conf.model_count++;
             }
-            game.conf.crtr_conf.model_count = n+1;
             break;
         case 2: // JOBSCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1160,7 +1166,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         case 9: // TOOLTIPTEXTID
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
+              k = get_string_id_by_alias(word_buf);
               if (k > 0)
               {
                   inst_inf->tooltip_stridx = k;
@@ -1766,7 +1772,6 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
                     cmd_num = 0;
                 }
             }
-            int n = 0;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -1776,7 +1781,6 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
-                n++;
                 break;
             case ccr_comment:
                 break;
@@ -1854,7 +1858,6 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
                     cmd_num = 0;
                 }
             }
-            int n = 0;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -1864,7 +1867,6 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
-                n++;
                 break;
             case ccr_comment:
                 break;
@@ -1904,7 +1906,7 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
             WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
-    char* buf = (char*)calloc(len + 256, 1);
+    char* buf = (char*)KfxCalloc(len + 256, 1);
     if (buf == NULL)
         return false;
 
@@ -1989,7 +1991,7 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
           WARNMSG("Parsing file \"%s\" attackpref blocks failed.",fname);
     }
     //Freeing and exiting
-    free(buf);
+    KfxFree(buf);
     return result;
 }
 

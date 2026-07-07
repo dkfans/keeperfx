@@ -134,6 +134,7 @@ void draw_creature_view(struct Thing *thing);
 
 TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng);
 TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel);
+TbBool is_creature_droppable_on_path(const struct Thing *thing);
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
@@ -185,7 +186,7 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long breed_idx, long job_idx
 void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx, unsigned char pick_flags);
 struct Thing *find_creature_dragging_thing(const struct Thing *dragtng);
 struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, SpellKind spell_kind);
-int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs);
+int claim_neutral_creatures_in_sight(struct Thing *creatng, int can_see_slabs);
 TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng);
 
 void init_creature_scores(void);

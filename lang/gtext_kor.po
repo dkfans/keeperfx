@@ -6581,41 +6581,60 @@ msgid "Return to Free Play levels"
 msgstr "레벨 자유 탐험으로 돌아가기"
 
 #: guitext:969
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Map Packs"
-msgstr "Map Packs"
+msgstr "맵 팩"
 
 #: guitext:970
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "The Deeper Dungeons"
-msgstr "The Deeper Dungeons"
+msgstr "더 깊은 던전"
 
 #: guitext:971
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Standard Levels"
-msgstr "Standard Levels"
+msgstr "표준 레벨"
 
 #: guitext:972
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Classic Levels"
-msgstr "Classic Levels"
+msgstr "클래식 레벨"
 
 #: guitext:973
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Legacy Levels"
-msgstr "Legacy Levels"
+msgstr "레거시 레벨"
 
 #: guitext:974
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Personal Levels"
-msgstr "Personal Levels"
+msgstr "개인 레벨"
 
 #: guitext:975
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Lost Levels"
-msgstr "Lost Levels"
+msgstr "잃어버린 레벨"
 
-#: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
+#: guitext:976
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Modern Levels"
+msgstr "현대 맵"
+
+#: guitext:977
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Bullfrog Levels"
+msgstr "불프로그 맵"
+
+#: guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
 msgstr "Moo3"

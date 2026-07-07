@@ -529,7 +529,7 @@ static LevelNumber frontnetmap_update_players(void)
             return SINGLEPLAYER_NOTSTARTED;
         }
         if (nspck->action_par1 == LEVELNUMBER_ERROR) {
-            if (fe_network_active) {
+            if (network_is_active()) {
                 if (LbNetwork_EnableNewPlayers(1)) {
                     ERRORLOG("Unable to enable new players joining exchange");
                 }

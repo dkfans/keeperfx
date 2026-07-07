@@ -39,7 +39,7 @@ enum TbPacketAction {
         PckA_None = 0,
         PckA_QuitToMainMenu, // Quit
         PckA_ForceApplicationClose,
-        PckA_SaveGameAndQuit,
+        PckA_UnusedSlot003,
         PckA_NoOperation,
         PckA_FinishGame, // 5
         PckA_Login,      // From `enum NetMessageType`
@@ -157,7 +157,7 @@ enum TbPacketAction {
         PckA_PlyrToggleAlly,
         PckA_SaveViewType,
         PckA_LoadViewType,//120
-        PckA_PlyrMsgChar    =  121,
+        PckA_UnusedSlot121    =  121,
         PckA_PlyrMsgClear,
         PckA_PlyrMsgLast,
         PckA_PlyrMsgCmdAutoCompletion,
@@ -226,6 +226,7 @@ enum TbPacketControl {
         PCtr_ViewTiltReset  = 0x40000,
         PCtr_Ascend         = 0x80000,
         PCtr_Descend        = 0x100000,
+        PCtr_ViewZoomPos    = 0x200000
 };
 
 /**
@@ -339,10 +340,10 @@ void process_players_creature_passenger_packet_action(long idx);
 void process_players_creature_control_packet_action(long idx);
 void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
-void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif);
 void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera);
 void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);
+void exchange_packets(void);
 void process_packets(void);
 void set_local_packet_turn(void);
 void clear_packets(void);
@@ -357,7 +358,6 @@ void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
 struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
-void set_tag_untag_mode(PlayerNumber plyr_idx);
 TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void disable_packet_mode(void);

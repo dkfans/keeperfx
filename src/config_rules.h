@@ -92,6 +92,7 @@ struct GameRulesConfig {
     TbBool allies_share_vision;
     TbBool allies_share_drop;
     TbBool allies_share_cta;
+    TbBool winner_tortures_loser;
     TbBool display_portal_limit;
     unsigned char max_things_in_hand;
     unsigned short torture_payday;
@@ -119,6 +120,7 @@ struct CreatureRulesConfig {
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
     unsigned char stun_without_prison_chance;
+    GameTurnDelta instance_delay_on_drop;
 };
 
 struct MagicRulesConfig {
@@ -187,7 +189,7 @@ struct SacrificesRulesConfig {
     ThingModel cheaper_diggers_sacrifice_model;
 };
 struct RulesConfig {
-    struct GameRulesConfig game;
+    struct GameRulesConfig gameplay;
     struct ComputerRulesConfig computer;
     struct CreatureRulesConfig creature;
     struct MagicRulesConfig magic;

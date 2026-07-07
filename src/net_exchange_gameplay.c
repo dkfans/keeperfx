@@ -77,11 +77,10 @@ static int64_t get_current_turn_position_ns(void)
     if (turns_per_second <= 0) {
         return 0;
     }
-    uint64_t turns_per_second_u = (uint64_t)turns_per_second;
-    uint64_t nanoseconds_per_turn = (1000000000ULL + turns_per_second_u / 2) / turns_per_second_u;
+    int64_t nanoseconds_per_turn = (1000000000ULL + turns_per_second / 2) / turns_per_second;
     int64_t position_ns = (int64_t)get_gameturn() * (int64_t)nanoseconds_per_turn;
     if (is_feature_on(Ft_DeltaTime) == true && game.process_turn_time > 0) {
-        uint64_t turn_phase_ns = (uint64_t)(game.process_turn_time * nanoseconds_per_turn + 0.5);
+        int64_t turn_phase_ns = (int64_t)((game.process_turn_time - 1) * nanoseconds_per_turn + 0.5);
         if (turn_phase_ns >= nanoseconds_per_turn) {
             turn_phase_ns = nanoseconds_per_turn - 1;
         }
@@ -94,7 +93,7 @@ static void update_turn_speed_adjustment(void)
 {
     TbClockMSec sync_age_ms = LbTimerClock() - server_turn_received_at;
     multiplayer_speed_adjustment_ns = 0;
-    if (netstate.my_id == SERVER_ID || server_turn_received_at == 0 || turns_per_second <= 0
+    if (game.frame_skip > 0 || netstate.my_id == SERVER_ID || server_turn_received_at == 0 || turns_per_second <= 0
         || sync_age_ms > TURN_SYNC_INTERVAL_MS * 3) {
         return;
     }
@@ -153,7 +152,7 @@ void process_gameplay_chat_message(int player_id, const char *message)
     struct PlayerInfo *player = prepare_network_chat_message(player_id, message);
     if (message[0] != '\0') {
         lua_on_chatmsg(player_id, player->mp_message_text);
-        if (player->mp_message_text[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || (game.system_flags & GSF_NetworkActive) != 0) {
+        if (player->mp_message_text[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || network_is_active()) {
             message_add(MsgType_Player, player_id, player->mp_message_text);
         }
     }
@@ -434,6 +433,19 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
     return Lb_OK;
 }
 
+void network_update(void *server_buf, size_t frame_size)
+{
+    if (netstate.sp == NULL) {
+        return;
+    }
+    netstate.sp->update(OnNewUser);
+    for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
+        if (can_send_to_peer(peer_id)) {
+            process_peer_msgs(peer_id, server_buf, frame_size);
+        }
+    }
+}
+
 TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t frame_size)
 {
     if (exchange_frame_message(send_buf, server_buf, frame_size, NETMSG_GAMEPLAY_UNSEQUENCED) != Lb_OK) {
@@ -441,11 +453,7 @@ TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t fram
     }
     send_turn_sync_if_due();
     send_repair_history_if_due();
-    for (NetUserId peer_id = 0; peer_id < netstate.max_players; peer_id += 1) {
-        if (can_send_to_peer(peer_id)) {
-            process_peer_msgs(peer_id, server_buf, frame_size);
-        }
-    }
+    network_update(server_buf, frame_size);
     update_turn_speed_adjustment();
     if (game.skip_initial_input_turns <= 0) {
         struct PlayerInfo *my_player = get_my_player();

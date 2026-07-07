@@ -27,6 +27,7 @@
 #include "front_input.h"
 #include "game_loop.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "gui_soundmsgs.h"
 #include "player_instances.h"
 #include "power_hand.h"
@@ -64,20 +65,24 @@ TbBool is_mouse_on_map(struct Packet* pckt)
     return true;
 }
 
-void remember_cursor_subtile(struct PlayerInfo *player) {
+void remember_cursor_subtile(struct PlayerInfo *player)
+{
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    if (player->interpolated_tagging == true) {
-        player->previous_cursor_subtile_x = player->cursor_subtile_x;
-        player->previous_cursor_subtile_y = player->cursor_subtile_y;
-        player->cursor_subtile_x = coord_subtile((pckt->pos_x));
-        player->cursor_subtile_y = coord_subtile((pckt->pos_y));
-    } else {
-        player->cursor_subtile_x = coord_subtile((pckt->pos_x));
-        player->cursor_subtile_y = coord_subtile((pckt->pos_y));
-        player->previous_cursor_subtile_x = player->cursor_subtile_x;
-        player->previous_cursor_subtile_y = player->cursor_subtile_y;
+    MapSubtlCoord cursor_subtile_x = coord_subtile(pckt->pos_x);
+    MapSubtlCoord cursor_subtile_y = coord_subtile(pckt->pos_y);
+    player->previous_cursor_subtile_x = player->cursor_subtile_x;
+    player->previous_cursor_subtile_y = player->cursor_subtile_y;
+    if (!player->interpolated_tagging && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0)) {
+        player->previous_cursor_subtile_x = cursor_subtile_x;
+        player->previous_cursor_subtile_y = cursor_subtile_y;
     }
-    player->interpolated_tagging = player->mouse_on_map;
+    player->cursor_subtile_x = cursor_subtile_x;
+    player->cursor_subtile_y = cursor_subtile_y;
+    if (player->mouse_on_map && ((pckt->control_flags & (PCtr_LBtnClick | PCtr_LBtnHeld)) != 0)) {
+        player->interpolated_tagging = true;
+    } else {
+        player->interpolated_tagging = false;
+    }
 }
 
 struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y)
@@ -108,24 +113,6 @@ struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoo
     return INVALID_THING;
 }
 
-void set_tag_untag_mode(PlayerNumber plyr_idx)
-{
-    struct PlayerInfo* player = get_player(plyr_idx);
-    // The commented out section is the old way, this check is now performed as part of keeper_highlight_roomspace() in roomspace.cabs
-    // which sets render_roomspace.untag_mode
-    /*long i;
-    i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
-    if (find_from_task_list(plyr_idx,i) != -1)
-        player->allocflags |= PlaF_ChosenSlabHasActiveTask;
-    else
-        player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;*/
-
-    if (player->render_roomspace.untag_mode)
-        player->allocflags |= PlaF_ChosenSlabHasActiveTask;
-    else
-        player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
-}
-
 TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -143,13 +130,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
         }
         return false;
     }
-    player->full_slab_cursor = 1; // always use full slabs, not single subtiles
-    if (is_my_player(player))
-    {
-        gui_room_type_highlighted = player->chosen_room_kind;
-    }
-    get_dungeon_build_user_roomspace(&player->render_roomspace, player->id_number, player->chosen_room_kind, stl_x, stl_y, player->roomspace_mode);
-    long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+    TbBool can_place_room = update_dungeon_build_roomspace_preview(plyr_idx, stl_x, stl_y);
     if ( (player->roomspace_mode == drag_placement_mode) && (player->roomspace_drag_paint_mode == false) )
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
@@ -176,7 +157,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
             return false; //stops attempts at invalid rooms, if left mouse button held (i.e. don't repeat failure sound repeatedly in paint mode)
         }
     }
-    if (i == 0)
+    if (!can_place_room)
     {
         if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab(stl_x), subtile_slab(stl_y)))
         {
@@ -193,7 +174,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
         {
             if (is_my_player(player))
             {
-                play_non_3d_sample(119);
+                play_non_3d_sample(snd_refusal);
             }
         }
         unset_packet_control(pckt, PCtr_LBtnClick);
@@ -207,7 +188,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
         if (is_my_player(player))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         }
     }
     unset_packet_control(pckt, PCtr_LBtnClick);
@@ -245,19 +226,19 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         if (player->hand_thing_idx == 0) {
             create_power_hand(player->id_number);
         }
-        long is_digger = thing_is_creature_digger(thing);
-        if ((can_drop_thing_here(stl_x, stl_y, player->id_number, is_digger)
+        long allow_unclaimed_path = is_creature_droppable_on_path(thing);
+        if ((can_drop_thing_here(stl_x, stl_y, player->id_number, allow_unclaimed_path)
              || !can_dig_here(stl_x, stl_y, player->id_number, true))
             && (!player->one_click_lock_cursor))
         {
             player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
             player->full_slab_cursor = (player->roomspace_mode != single_subtile_mode);
-            tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_digger, player->full_slab_cursor);
+            tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, allow_unclaimed_path, player->full_slab_cursor);
         } else
         {
             player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
-            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player->id_number, stl_x, stl_y);
-            tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
+            tag_cursor_blocks_dig(player, pckt, &player->render_roomspace, stl_x, stl_y, player->full_slab_cursor);
             player->thing_under_hand = 0;
         }
     }
@@ -311,8 +292,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         if ( (player->primary_cursor_state == CSt_PickAxe) || ( (player->primary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) ) )
         {
             player->thing_under_hand = 0;
-            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player->id_number, stl_x, stl_y);
-            box_colour = tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
+            box_colour = tag_cursor_blocks_dig(player, pckt, &player->render_roomspace, stl_x, stl_y, player->full_slab_cursor);
             at_limit = (box_colour == SLC_REDYELLOW) || (box_colour == SLC_REDFLASH);
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
@@ -324,14 +305,13 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             switch (player->primary_cursor_state)
             {
                 case CSt_PickAxe:
-                    set_tag_untag_mode(plyr_idx);
                     if (!player->render_roomspace.drag_mode)
                     {
                         if (at_limit)
                         {
                             if (is_my_player(player))
                             {
-                                play_non_3d_sample(119);
+                                play_non_3d_sample(snd_refusal);
                                 output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                             }
                         }
@@ -352,14 +332,13 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 case CSt_PowerHand:
                     if (player->thing_under_hand == 0)
                     {
-                        set_tag_untag_mode(plyr_idx);
                         if (!player->render_roomspace.drag_mode)
                         {
                             if (at_limit)
                             {
                                 if (is_my_player(player))
                                 {
-                                    play_non_3d_sample(119);
+                                    play_non_3d_sample(snd_refusal);
                                     output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                                 }
                             }
@@ -384,10 +363,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         if (player->secondary_cursor_state == CSt_DefaultArrow)
         {
             player->secondary_cursor_state = player->primary_cursor_state;
-            if (player->primary_cursor_state == CSt_PickAxe)
-            {
-                set_tag_untag_mode(plyr_idx);
-            }
         }
         if (player->cursor_button_down != 0)
         {
@@ -485,7 +460,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         {
                             if (is_my_player(player))
                             {
-                                play_non_3d_sample(119);
+                                play_non_3d_sample(snd_refusal);
                                 output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                             }
                         }
@@ -510,7 +485,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 else
                 {
                     player->render_roomspace.untag_mode = !player->render_roomspace.untag_mode;
-                    set_tag_untag_mode(plyr_idx);
                 }
             }
             player->secondary_cursor_state = CSt_DefaultArrow;
@@ -585,9 +559,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    player->full_slab_cursor = (player->roomspace_mode != single_subtile_mode);
-    get_dungeon_sell_user_roomspace(&player->render_roomspace, player->id_number, stl_x, stl_y);
-    tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, player->full_slab_cursor);
+    update_dungeon_sell_roomspace_preview(plyr_idx, stl_x, stl_y);
     if (player->roomspace_mode == drag_placement_mode)
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
@@ -692,9 +664,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         }
         return false;
     }
-    struct TrapConfigStats *trapst = get_trap_model_stats(player->chosen_trap_kind);
-    player->full_slab_cursor = (trapst->place_on_subtile == false);
-    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor, player->chosen_trap_kind);
+    TbBool can_place = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->chosen_trap_kind);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
@@ -704,10 +674,10 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         }
         return false;
     }
-    if (i == 0)
+    if (can_place == 0)
     {
         if (is_my_player(player))
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
         unset_packet_control(pckt, PCtr_LBtnClick);
         return false;
     }

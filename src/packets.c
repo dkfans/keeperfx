@@ -20,6 +20,7 @@
 #include "packets.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
+#include "net_lobby.h"
 
 #include <math.h>
 
@@ -32,12 +33,13 @@
 #include "bflib_keybrd.h"
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
+#include "bflib_planar.h"
 #include "bflib_dernc.h"
 #include "net_exchange_gameplay.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
-#include "bflib_planar.h"
 #include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
@@ -292,7 +294,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         return false;
     }
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long revenue = compute_value_percentage(roomst->cost, game.conf.rules[plyr_idx].game.room_sale_percent);
+    long revenue = compute_value_percentage(roomst->cost, game.conf.rules[plyr_idx].gameplay.room_sale_percent);
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
@@ -301,7 +303,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     }
     delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
     if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(115);
+        play_non_3d_sample(snd_tile_sell);
     if (revenue != 0)
     {
         struct Coord3d pos;
@@ -344,8 +346,7 @@ void process_pause_packet(long curr_pause, long new_pause)
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
-          game.skip_initial_input_turns = 0;
-          if ((game.system_flags & GSF_NetworkActive) != 0) {
+          if (network_is_active()) {
               game.skip_initial_input_turns = game.input_lag_turns + 1;
           }
       }
@@ -501,19 +502,23 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
             break;
         }
     }
-    unsigned long zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
-    unsigned long zoom_max = CAMERA_ZOOM_MAX;
+    const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
+    const int32_t zoom_max = CAMERA_ZOOM_MAX;
+    const TbBool with_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
+                         && (pckt->control_flags & PCtr_ViewZoomPos) != 0;
+    const MapCoord zoom_x = with_pos ? pckt->pos_x : -1;
+    const MapCoord zoom_y = with_pos ? pckt->pos_y : -1;
     if (pckt->control_flags & PCtr_ViewZoomIn)
     {
         switch (cam->view_mode)
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            view_zoom_camera_in(cam, zoom_max, zoom_min);
+            view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             break;
         default:
-            view_zoom_camera_in(cam, zoom_max, zoom_min);
+            view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             break;
         }
     }
@@ -523,11 +528,11 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            view_zoom_camera_out(cam, zoom_max, zoom_min);
+            view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             break;
         default:
-            view_zoom_camera_out(cam, zoom_max, zoom_min);
+            view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);
             break;
         }
     }
@@ -581,21 +586,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         update_box_lag_compensation(player);
     }
     process_dungeon_control_packet_clicks(plyr_idx);
-    set_mouse_light(player);
-}
-
-void message_text_key_add(char *message, TbKeyCode key, TbKeyMods kmodif)
-{
-    int chpos = strlen(message);
-    if (key == KC_BACK && chpos > 0) {
-        message[chpos-1] = '\0';
-    } else if (chpos < PLAYER_MP_MESSAGE_LEN - 1) {
-        char chr = key_to_ascii(key, kmodif);
-        if (isalnum(chr) || strchr(" !:;()._'+=\\\"?/#<>^,-", chr)) {
-            message[chpos] = chr;
-            message[chpos+1] = '\0';
-        }
-    }
+    update_mouse_light(player);
 }
 
 TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
@@ -617,36 +608,24 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         free_swipe_graphic();
       }
       player->display_flags |= PlaF6_PlyrHasQuit;
-      process_quit_packet(player, 0);
+      process_player_leave_game_packet(player);
       return 1;
   case PckA_ForceApplicationClose:
       {
-        extern unsigned char exit_keeper;
         if (is_my_player(player))
         {
           turn_off_all_menus();
           frontend_save_continue_game(true);
           free_swipe_graphic();
-          // For ALT+F4, just exit directly without network cleanup
           exit_keeper = 1;
         }
         else
         {
-          // Other player force-quit, just mark them as quit
           player->display_flags |= PlaF6_PlyrHasQuit;
-          process_quit_packet(player, 0);
+          process_player_leave_game_packet(player);
         }
         return 1;
       }
-  case PckA_SaveGameAndQuit:
-      if (is_my_player(player))
-      {
-        turn_off_all_menus();
-        frontend_save_continue_game(true);
-      }
-      player->display_flags |= PlaF6_PlyrHasQuit;
-      process_quit_packet(player, 1);
-      return 1;
   case PckA_NoOperation:
       return 1;
   case PckA_FinishGame:
@@ -657,18 +636,26 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         turn_off_all_menus();
         free_swipe_graphic();
       }
-      if ((game.system_flags & GSF_NetworkActive) != 0) {
+      if (network_is_active()) {
+        if (victory_state == VicS_WonLevel) {
+          player->victory_state = VicS_WonLevel;
+          if (game.conf.rules[player->id_number].gameplay.winner_tortures_loser) {
+              get_my_player()->additional_flags |= PlaAF_UnlockedLordTorture;
+          } else {
+              get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+          }
+          quit_game = 1;
+          return 0;
+        }
         TbBool host_packet = player->packet_num == get_host_player_id();
         if (!my_player) {
-          if ((victory_state == VicS_WonLevel) || (host_packet && (player->victory_state != VicS_LostLevel))) {
+          if (host_packet && (player->victory_state != VicS_LostLevel)) {
             get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
             quit_game = 1;
           }
           return 0;
-        } else if (host_packet && (victory_state == VicS_LostLevel)) {
+        } else if (host_packet && (victory_state == VicS_LostLevel) && network_human_contenders_remain()) {
           return 0;
-        } else if (host_packet && (victory_state == VicS_WonLevel)) {
-          player->additional_flags &= ~PlaAF_UnlockedLordTorture;
         }
       }
       switch (victory_state)
@@ -695,6 +682,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_PlyrMsgClear:
       player->allocflags &= ~PlaF_NewMPMessage;
+      LbStopTextInput();
       memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_ToggleLights:
@@ -728,7 +716,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_BookmarkLoad:
-      set_player_cameras_position(player, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
+      set_player_cameras_position(player, pckt->actn_par1, pckt->actn_par2);
       return 0;
   case PckA_SetGammaLevel:
       if (is_my_player(player))
@@ -782,7 +770,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].rotation_angle_x = 0;
       player->cameras[CamIV_FrontView].rotation_angle_x = 0;
       player->cameras[CamIV_Isometric].rotation_angle_x = 0;
-      if (((game.system_flags & GSF_NetworkActive) != 0)
+      if (network_is_active()
           || (lbDisplay.PhysicalScreenWidth > 320))
       {
         if (is_my_player_number(plyr_idx))
@@ -952,7 +940,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (!is_player_ally_locked(plyr_idx, pckt->actn_par1))
       {
          toggle_ally_with_player(plyr_idx, pckt->actn_par1);
-         if (game.conf.rules[plyr_idx].game.allies_share_vision)
+         if (game.conf.rules[plyr_idx].gameplay.allies_share_vision)
          {
             panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
          }
@@ -971,62 +959,15 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->view_mode_restore);
       return false;
-  case PckA_SetRoomspaceAuto:
-    {
-        player->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
-        player->roomspace_mode = roomspace_detection_mode;
-        player->one_click_mode_exclusive = false;
-        player->render_roomspace.highlight_mode = false;
-        return false;
-    }
-   case PckA_SetRoomspaceMan:
-    {
-        player->user_defined_roomspace_width = pckt->actn_par1;
-        player->roomspace_width = pckt->actn_par1;
-        player->roomspace_height = pckt->actn_par1;
-        player->roomspace_mode = box_placement_mode;
-        player->one_click_mode_exclusive = false;
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_no_default = true;
-        return false;
-    }
+    case PckA_SetRoomspaceAuto:
+    case PckA_SetRoomspaceMan:
     case PckA_SetRoomspaceDragPaint:
-    {
-        player->roomspace_height = 1;
-        player->roomspace_width = 1;
-    }
-    // fall through
     case PckA_SetRoomspaceDrag:
-    {
-        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        player->roomspace_mode = drag_placement_mode;
-        player->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_no_default = false;
-        player->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
-        return false;
-    }
     case PckA_SetRoomspaceDefault:
-    {
-        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        player->roomspace_width = player->roomspace_height = pckt->actn_par1;
-        player->roomspace_mode = box_placement_mode;
-        player->one_click_mode_exclusive = false;
-        player->roomspace_no_default = false;
-        return false;
-    }
     case PckA_SetRoomspaceWholeRoom:
-    {
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_mode = roomspace_detection_mode;
-        return false;
-    }
     case PckA_SetRoomspaceSubtile:
     {
-        player->render_roomspace.highlight_mode = false;
-        player->roomspace_mode = single_subtile_mode;
+        apply_roomspace_packet_action(player, pckt);
         return false;
     }
     case PckA_RoomspaceHighlightToggle:
@@ -1044,7 +985,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     case PckA_SetRoomspaceHighlight:
     {
         player->roomspace_mode = pckt->actn_par1;
-        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
+        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == roomspace_detection_mode) )
         {
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
@@ -1061,13 +1002,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         player->roomspace_highlight_mode = pckt->actn_par1;
         switch (pckt->actn_par1)
         {
-            case 0:
+            case box_placement_mode:
             {
                 reset_dungeon_build_room_ui_variables(plyr_idx);
                 player->roomspace_width = player->roomspace_height = pckt->actn_par2;
                 break;
             }
-            case 1: // drag
+            case drag_placement_mode: // drag
             {
                 if (pckt->actn_par2 == 1)
                 {
@@ -1099,7 +1040,7 @@ void process_players_map_packet_control(long plyr_idx)
     process_map_packet_clicks(plyr_idx);
     player->cameras[CamIV_Parchment].mappos.x.val = pckt->pos_x;
     player->cameras[CamIV_Parchment].mappos.y.val = pckt->pos_y;
-    set_mouse_light(player);
+    update_mouse_light(player);
     SYNCDBG(8,"Finished");
 }
 
@@ -1131,10 +1072,7 @@ void process_players_packet(long plyr_idx)
     SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
-    if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar) && (pckt->actn_par1 > 0))
-    {
-        message_text_key_add(player->mp_message_text, pckt->actn_par1, pckt->actn_par2);
-  } else
+
   if (!process_players_global_packet_action(plyr_idx))
   {
       // Different changes to the game are possible for different views.
@@ -1420,7 +1358,6 @@ void process_players_creature_control_packet_control(long idx)
             // Button is held down - check whether the instance has auto-repeat
             i = ccctrl->active_instance_id;
             inst_inf = creature_instance_info_get(i);
-            target_idx = get_human_controlled_creature_target(cctng, i, pckt);
             if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
             {
                 if (ccctrl->instance_id == CrInst_NULL)
@@ -1602,11 +1539,10 @@ void set_local_packet_turn(void) {
 
 
 /**
- * Exchange packets if MP game, then process all packets influencing local game state.
+ * Exchange packets if MP game
  */
-void process_packets(void)
+void exchange_packets(void)
 {
-    int i;
     struct PlayerInfo* player = get_my_player();
     SYNCDBG(5, "Starting");
 
@@ -1633,23 +1569,30 @@ void process_packets(void)
             return;
         }
     }
-    MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
-    load_old_packets();
-
-    if (input_lag_skips_initial_processing())
-    {
+    if (input_lag_skips_initial_processing()) {
         clear_packets();
         return;
     }
 
-    if ((game.system_flags & GSF_NetworkActive) != 0 && checksums_different()) {
+    if (network_is_active()) {
+        MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
+        load_old_packets();
+    }
+
+    if (network_is_active() && checksums_different()) {
         set_flag(game.system_flags, GSF_NetGameNoSync);
         clear_flag(game.system_flags, GSF_NetSeedNoSync);
     } else {
         clear_flag(game.system_flags, GSF_NetGameNoSync);
         clear_flag(game.system_flags, GSF_NetSeedNoSync);
     }
+}
 
+/**
+ * Process all packets influencing local game state.
+ */
+void process_packets(void)
+{
     // Write packets into file, if requested
     if ((game.packet_save_enable) && (game.packet_fopened)) {
         save_packets();
@@ -1659,7 +1602,7 @@ void process_packets(void)
     write_debug_packets();
     #endif
     // Process the packets
-    for (i=0; i<PACKETS_COUNT; i++)
+    for (int i=0; i<PACKETS_COUNT; i++)
     {
         struct PlayerInfo* packet_player = get_player(i);
         if (player_exists(packet_player) && ((packet_player->allocflags & PlaF_CompCtrl) == 0)) {
@@ -1672,7 +1615,7 @@ void process_packets(void)
     if (quit_game || exit_keeper) {
         return;
     }
-    if (((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active()
      && ((game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
     {
         if (resync_game_allowed()) {
@@ -1688,10 +1631,8 @@ void process_packets(void)
 // Using Alt-F4, or similar operating system close requests
 void force_application_close()
 {
-    extern unsigned char exit_keeper;
     extern int frontend_menu_state;
 
-    // Check if we're in gameplay vs frontend
     if (frontend_menu_state == 0)
     {
         struct PlayerInfo* player = get_my_player();
@@ -1706,7 +1647,6 @@ void force_application_close()
     }
     else
     {
-        // We're in the frontend, just exit directly
         exit_keeper = 1;
     }
 }

@@ -35,6 +35,7 @@
 #include "net_lobby.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_sndlib.h"
 #include "bflib_joyst.h"
 #include "kjm_input.h"
@@ -74,6 +75,7 @@
 #include "local_camera.h"
 #include "packets.h"
 #include "console_cmd.h"
+#include "engine_redraw.h"
 
 #include "keeperfx.hpp"
 
@@ -96,8 +98,12 @@ struct GuiLayer gui_layer = {GuiLayer_Default};
 
 TbBool first_person_see_item_desc = false;
 
+static TbBool move_camera_this_turn;
+
 long old_mx;
 long old_my;
+
+enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
@@ -264,7 +270,7 @@ static void update_gui_layer(void)
 {
     // Determine the current/correct GUI Layer to use at this moment
 
-    if ((game.system_flags & GSF_NetworkActive) == 1) // no one click on multiplayer.
+    if (network_is_active()) // no one click on multiplayer.
     {
         //todo Make multiplayer work with 1-click
         set_current_gui_layer(GuiLayer_Default);
@@ -417,32 +423,36 @@ float get_game_key_axis_value(long key_id, TbBool ignore_mods)
 static short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
+
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
-        if ((game.system_flags & GSF_NetworkActive) != 0) {
+        if (network_is_active()) {
             send_network_chat_message(player->id_number, player->mp_message_text);
         }
         player->allocflags &= ~PlaF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_RETURN);
+        LbStopTextInput();
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
+        player->allocflags &= ~PlaF_NewMPMessage;
+        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_ESCAPE);
+        LbStopTextInput();
     } else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char) {
         cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         clear_key_pressed(KC_TAB);
     } else if (is_key_pressed(KC_UP, KMod_NONE)) {
         memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_UP);
+    } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
+        int chpos = strlen(player->mp_message_text);
+        if (chpos > 0)
+            player->mp_message_text[chpos-1] = '\0';
+        clear_key_pressed(KC_BACK);
     } else {
-        LbTextSetFont(winfont);
-        if (is_key_pressed(KC_BACK,KMod_DONTCARE) || pixel_size * LbTextStringWidth(player->mp_message_text) < 450) {
-            message_text_key_add(player->mp_message_text, lbInkey, key_modifiers);
-            clear_key_pressed(lbInkey);
-            return true;
-        }
-        return false;
+        return add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
     }
     return true;
 }
@@ -567,7 +577,7 @@ static short get_packet_load_game_control_inputs(void)
 {
   if (is_game_key_pressed(Gkey_ExitGame, true, false))
   {
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
       LbNetwork_Stop();
     quit_game = 1;
     exit_keeper = 1;
@@ -606,7 +616,10 @@ static long get_small_map_inputs(long x, long y, long zoom)
   }
   if (grabbed_small_map)
   {
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
+    TbGraphicsWindow ewnd;
+    store_engine_window(&ewnd, 1);
+    LbMouseSetPosition(ewnd.x + (ewnd.width  >> 1),
+                       ewnd.y + (ewnd.height >> 1));
   }
   old_mx = curr_mx;
   old_my = curr_my;
@@ -643,7 +656,9 @@ static short get_bookmark_inputs(void)
             clear_key_pressed(kcode);
             if ((bmark->flags & 0x01) != 0)
             {
-                set_players_packet_action(player, PckA_BookmarkLoad, bmark->x, bmark->y, 0, 0);
+                const MapCoord x = subtile_coord_center(bmark->x);
+                const MapCoord y = subtile_coord_center(bmark->y);
+                set_players_packet_action(player, PckA_BookmarkLoad, x, y, 0, 0);
                 return true;
             }
         }
@@ -731,7 +746,7 @@ static short get_global_inputs(void)
     return true;
   }
   if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl))
-  && (((game.system_flags & GSF_NetworkActive) != 0) ||
+  && (network_is_active() ||
      ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
   {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
@@ -743,6 +758,7 @@ static short get_global_inputs(void)
               return true;
           }
         player->allocflags |= PlaF_NewMPMessage;
+        LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -832,7 +848,7 @@ static short get_global_inputs(void)
       return true;
   if (player->victory_state != VicS_Undecided && is_game_key_pressed(Gkey_FinishLevel, true, false))
       {
-        if ((player->victory_state == VicS_LostLevel) && ((game.system_flags & GSF_NetworkActive) != 0) && (player->id_number == get_host_player_id()))
+        if ((player->victory_state == VicS_LostLevel) && network_is_active() && (player->id_number == get_host_player_id()) && network_human_contenders_remain())
         {
             return true;
         }
@@ -865,11 +881,12 @@ static TbBool get_level_lost_inputs(void)
       get_players_message_inputs();
       return true;
     }
-    if ((game.system_flags & GSF_NetworkActive) != 0)
+    if (network_is_active())
     {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
         player->allocflags |= PlaF_NewMPMessage;
+        LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -933,7 +950,7 @@ static TbBool get_level_lost_inputs(void)
         {
           turn_off_all_window_menus();
           set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-          if (((game.system_flags & GSF_NetworkActive) != 0)
+          if (network_is_active()
             || (lbDisplay.PhysicalScreenWidth > 320))
           {
                 if (toggle_status_menu(0))
@@ -1661,7 +1678,7 @@ static short get_creature_control_action_inputs(void)
             if ((player->possession_lock == true) && thing_is_creature(thing))
             {
                 if (is_my_player(player))
-                    play_non_3d_sample(119); //refusal
+                    play_non_3d_sample(snd_refusal); //refusal
             }
             else
             {
@@ -2128,10 +2145,6 @@ static short get_map_action_inputs(void)
     }
 }
 
-// TODO: Might want to initiate this in main() and pass a reference to it
-// rather than using this global variable. But this works.
-int global_frameskipTurn = 0;
-
 static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
@@ -2142,10 +2155,14 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         {
             if (wheel_scrolled_up)
             {
+                if (zoom_to_mouse_option == ZoomToMouse_Wheel)
+                    set_packet_control(pckt, PCtr_ViewZoomPos);
                 set_packet_control(pckt, PCtr_ViewZoomIn);
             }
             if (wheel_scrolled_down)
             {
+                if (zoom_to_mouse_option == ZoomToMouse_Wheel)
+                    set_packet_control(pckt, PCtr_ViewZoomPos);
                 set_packet_control(pckt, PCtr_ViewZoomOut);
             }
         }
@@ -2166,13 +2183,8 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         }
     }
     // Only pan the camera as often as normal despite frameskip
-    if (game.frame_skip > 0)
-    {
-        TbBool moveTheCamera = (global_frameskipTurn == 0);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > game.frame_skip) global_frameskipTurn = 0;
-        if (!moveTheCamera) return;
-    }
+    if (! move_camera_this_turn)
+        return;
     // Camera Panning : mouse at window edge scrolling feature
     if (!LbIsMouseActive())
     {
@@ -2236,15 +2248,7 @@ static void get_isometric_view_nonaction_inputs(void)
 
     get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, no_mods);
     // Only update the camera as often as normal despite frameskip
-    TbBool moveTheCamera = true;
-    if (game.frame_skip > 0)
-    {
-        moveTheCamera = (global_frameskipTurn == 0);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > game.frame_skip)
-            global_frameskipTurn = 0;
-    }
-    if (moveTheCamera)
+    if (move_camera_this_turn)
     {
         if (rotate_pressed)
         {
@@ -2327,15 +2331,7 @@ static void get_front_view_nonaction_inputs(void)
 
     get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,no_mods);
     // Only update the camera as often as normal despite frameskip
-    TbBool moveTheCamera = true;
-    if (game.frame_skip > 0)
-    {
-        moveTheCamera = (global_frameskipTurn == 0);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > game.frame_skip)
-            global_frameskipTurn = 0;
-    }
-    if (moveTheCamera)
+    if (move_camera_this_turn)
     {
         if (rotate_pressed)
         {
@@ -2493,9 +2489,37 @@ static void get_dungeon_control_nonaction_inputs(void)
     {
         set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
         pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
-        struct Thing* thing = get_thing_under_hand(player, pos.x.val, pos.y.val);
-        if (!thing_is_invalid(thing)) {
-            local_thing_under_hand = thing->index;
+        switch (player->work_state)
+        {
+            case PSt_KillCreatr:
+            case PSt_ConvertCreatr:
+            case PSt_LevelCreatureUp:
+            case PSt_LevelCreatureDown:
+            case PSt_QueryAll:
+            case PSt_MkHappy:
+            case PSt_MkAngry:
+            case PSt_DestroyThing:
+            case PSt_CreatrInfoAll:
+            {
+                local_thing_under_hand = player->thing_under_hand;
+                break;
+            }
+            case PSt_OrderCreatr:
+            {
+                if ( (player->controlled_thing_idx == 0) || (player->thing_under_hand == player->controlled_thing_idx) )
+                {
+                    local_thing_under_hand = player->thing_under_hand;
+                }
+                break;
+            }
+            default:
+            {
+                struct Thing* thing = get_thing_under_hand(player, pos.x.val, pos.y.val);
+                if (!thing_is_invalid(thing)) {
+                    local_thing_under_hand = thing->index;
+                }
+                break;
+            }
         }
     }
   }
@@ -2504,6 +2528,8 @@ static void get_dungeon_control_nonaction_inputs(void)
     turn_on_menu(GMnu_QUIT);
   }
   get_options_menu_inputs();
+  if (zoom_to_mouse_option == ZoomToMouse_Always)
+      set_packet_control(pckt, PCtr_ViewZoomPos);
   if ((player->allocflags & PlaF_NewMPMessage) == 0)
   {
       switch (player->view_mode)
@@ -2821,6 +2847,8 @@ static TbBool active_menu_functions_while_paused(void)
  */
 static short get_inputs(void)
 {
+    move_camera_this_turn = game.frame_skip == 0 || game.play_gameturn % game.frame_skip == 0;
+
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {
         SYNCDBG(5,"Starting for demo mode");
@@ -2925,7 +2953,7 @@ static short get_inputs(void)
     case PVT_MapFadeIn:
         if (player->view_mode != PVM_ParchFadeIn)
         {
-          if ((game.system_flags & GSF_NetworkActive) == 0)
+          if (!network_is_active())
             game.operation_flags &= ~GOF_Paused;
           player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
           set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);

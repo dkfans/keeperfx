@@ -9,6 +9,7 @@
 #include "bflib_sndlib.h"
 #include "globals.h"
 #include "thing_data.h"
+#include "config_translation.h"
 #include "creature_states.h"
 #include "creature_states_pray.h"
 #include "gui_msgs.h"
@@ -30,6 +31,7 @@
 #include "lua_base.h"
 #include "lua_params.h"
 #include "lua_api_lens.h"
+#include "lua_api_sound.h"
 
 
 #include "post_inc.h"
@@ -179,7 +181,7 @@ static int lua_Creature_available(lua_State *L)
 
 static int lua_Dead_creatures_return_to_pool(lua_State *L)
 {
-    TbBool return_to_pool         = lua_toboolean(L, 3);
+    TbBool return_to_pool         = lua_toboolean(L, 1);
     set_flag_value(game.mode_flags, MFlg_DeadBackToPool, return_to_pool);
     return 0;
 }
@@ -393,7 +395,7 @@ static int lua_Set_next_level(lua_State *L)
 static int lua_Add_creature_to_level(lua_State *L)
 {
     PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 1);
-    long crtr_id           = luaL_checkNamedCommand(L,2,creature_desc);
+    ThingModel crtr_id     = luaL_checkNamedCommand(L,2,creature_desc);
     TbMapLocation location = luaL_checkLocation(L,  3);
     long crtr_level        = luaL_checkinteger(L, 4);
     long carried_gold      = luaL_checkinteger(L, 5);
@@ -1196,27 +1198,13 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
 
 static int lua_New_creature_type(lua_State* L)
 {
-    const char* creature_name = luaL_checkstring(L, 1);
-
-    if (game.conf.crtr_conf.model_count >= CREATURE_TYPES_MAX)
+    script_new_creature_type(luaL_checkstring(L, 1));
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", creature_name, CREATURE_TYPES_MAX);
-        return 0;
-    }
-
-    int i = game.conf.crtr_conf.model_count;
-    game.conf.crtr_conf.model_count++;
-    snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", creature_name);
-    creature_desc[i - 1].name = game.conf.crtr_conf.model[i].name;
-    creature_desc[i - 1].num = i;
-
-    if (load_default_creaturemodel_config(i, 0))
-    {
-        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
-    }
-    else
-    {
-        SCRPTERRLOG("Failed to load config for creature '%s'(%d).", game.conf.crtr_conf.model[i].name, i);
+        struct Dungeon* dungeon = get_dungeon(plyr_idx);
+        if (dungeon_invalid(dungeon))
+            continue;
+        dungeon->creature_max_level[game.conf.crtr_conf.model_count-1] = CREATURE_MAX_LEVEL + 1;
     }
     return 0;
 }
@@ -1500,7 +1488,6 @@ static int lua_Set_computer_process(lua_State *L)
     long config_value_3 = luaL_checkinteger(L,5);
     long config_value_4 = luaL_checkinteger(L,6);
     long config_value_5 = luaL_checkinteger(L,7);
-    long n = 0;
     for (long i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Computer2* comp = get_computer_player(i);
@@ -1519,7 +1506,6 @@ static int lua_Set_computer_process(lua_State *L)
                 cproc->process_configuration_value_3 = config_value_3;
                 cproc->process_configuration_value_4 = config_value_4;
                 cproc->process_configuration_value_5 = config_value_5;
-                n++;
             }
         }
     }
@@ -1536,7 +1522,6 @@ static int lua_Set_computer_checks(lua_State *L)
     long tertiary_parameter = luaL_checkinteger(L,6);
     long last_run_turn = luaL_checkinteger(L,7);
 
-    long n = 0;
     for (long i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Computer2* comp = get_computer_player(i);
@@ -1555,7 +1540,6 @@ static int lua_Set_computer_checks(lua_State *L)
                 ccheck->secondary_parameter = secondary_parameter;
                 ccheck->tertiary_parameter = tertiary_parameter;
                 ccheck->last_run_turn = last_run_turn;
-                n++;
             }
         }
     }
@@ -1604,7 +1588,6 @@ static int lua_Set_computer_event(lua_State *L)
     long tertiary_parameter = luaL_checkinteger(L,6);
     long last_test_gameturn = luaL_checkinteger(L,7);
 
-    long n = 0;
     for (long i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Computer2* comp = get_computer_player(i);
@@ -1621,7 +1604,6 @@ static int lua_Set_computer_event(lua_State *L)
                 event->secondary_parameter = secondary_parameter;
                 event->tertiary_parameter = tertiary_parameter;
                 event->last_test_gameturn = last_test_gameturn;
-                n++;
             }
         }
     }
@@ -1776,7 +1758,7 @@ static int lua_Set_music(lua_State *L)
         }
     } else {
         const char *track_name = luaL_checkstring(L, 1);
-        play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", track_name));
+        play_music_fgroup(FGrp_CmpgMedia, track_name);
     }
     return 0;
 }
@@ -1784,7 +1766,7 @@ static int lua_Set_music(lua_State *L)
 static int lua_Set_hand_graphic(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
-    long hand_idx = luaL_checkNamedCommand(L,1,powerhand_desc);
+    long hand_idx = luaL_checkNamedCommand(L,2,powerhand_desc);
 
     struct PlayerInfo * player = get_player(player_idx);
     player->hand_idx = hand_idx;
@@ -2359,7 +2341,17 @@ static int lua_run_dkscript_command(lua_State *L)
 
 static int lua_get_string(lua_State *L)
 {
-    long msg_id    = luaL_checkinteger(L, 1);
+    long msg_id;
+    if (lua_isstring(L, 1))
+    {
+        const char* alias = lua_tostring(L, 1);
+        msg_id = get_string_id_by_alias(alias);
+    }
+    else
+    {
+        msg_id = luaL_checkinteger(L, 1);
+    }
+
     const char* msg = get_string(msg_id);
     if (msg == NULL)
     {
@@ -2375,8 +2367,8 @@ static int lua_get_floor_height(lua_State* L)
 {
     MapSubtlCoord stl_x = luaL_checkstl_x(L, 1);
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 2);
-    MapSubtlCoord stl_z = get_floor_height(stl_x, stl_y);
-    lua_pushinteger(L, stl_z);
+    MapCoord z_val = get_floor_height(stl_x, stl_y);
+    lua_pushinteger(L, z_val);
     return 1;
 }
 
@@ -2605,4 +2597,5 @@ void reg_host_functions(lua_State *L)
     Camera_register(L);
     Lens_register(L);
     Map_register(L);
+    register_lua_sound_api(L);
 }

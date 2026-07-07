@@ -28,6 +28,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
+#include "config_sounds.h"
 #include "bflib_fileio.h"
 
 #include "config_creature.h"
@@ -1847,6 +1848,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             thing->veloc_push_add.z.val += THING_RANDOM(thing, 96) + 40;
             set_flag(thing->state_flags, TF1_PushAdd);
         }
+        set_flag(thing->state_flags, TF1_Teleported);
         player->teleport_destination = 19;
     }
 }
@@ -2451,7 +2453,7 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
                     creatng->creature.gold_carried += tgthing->valuable.gold_stored;
                     delete_thing_structure(tgthing, 0);
                 }
-                thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(creatng, snd_gold_pickup, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         } else
         {
@@ -2941,7 +2943,7 @@ void throw_out_gold(struct Thing* thing, long amount)
     int num_pots_to_drop;
     // Compute if we want bags or pots
     int dropject = 6; //GOLD object
-    if ((game.conf.rules[thing->owner].game.pot_of_gold_holds > game.conf.rules[thing->owner].game.bag_gold_hold) && (amount <= game.conf.rules[thing->owner].game.bag_gold_hold))
+    if ((game.conf.rules[thing->owner].gameplay.pot_of_gold_holds > game.conf.rules[thing->owner].gameplay.bag_gold_hold) && (amount <= game.conf.rules[thing->owner].gameplay.bag_gold_hold))
     {
             dropject = 136; //Drop GOLD_BAG object when we're dealing with small amounts
             num_pots_to_drop = 1;
@@ -2949,7 +2951,7 @@ void throw_out_gold(struct Thing* thing, long amount)
     else //drop pots
     {
         // Compute how many pots we want to drop
-        num_pots_to_drop = ((amount + game.conf.rules[thing->owner].game.pot_of_gold_holds - 1) / game.conf.rules[thing->owner].game.pot_of_gold_holds);
+        num_pots_to_drop = ((amount + game.conf.rules[thing->owner].gameplay.pot_of_gold_holds - 1) / game.conf.rules[thing->owner].gameplay.pot_of_gold_holds);
         if (num_pots_to_drop > 8)
         {
             num_pots_to_drop = 8;
@@ -3232,7 +3234,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 
     creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
-    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules[thing->owner].game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
+    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules[thing->owner].gameplay.classic_bugs_flags,ClscBug_ResurrectRemoved)))
     {
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
@@ -4082,7 +4084,7 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
             // If cannot find a valid target, do not use it and don't consider it used.
 
             // Make a rejection sound
-            play_non_3d_sample(119);
+            play_non_3d_sample(snd_refusal);
             return 0;
         }
     }
@@ -4691,6 +4693,14 @@ TbBool thing_is_creature_digger(const struct Thing *thing)
   return any_flag_is_set(get_creature_model_flags(thing),(CMF_IsSpecDigger|CMF_IsDiggingCreature));
 }
 
+TbBool is_creature_droppable_on_path(const struct Thing *thing)
+{
+    if (!thing_is_creature(thing)) {
+        return false;
+    }
+    return any_flag_is_set(get_creature_model_flags(thing), (CMF_IsSpecDigger|CMF_DropOnPath));
+}
+
 /** Returns if a thing is special digger creature.
  *
  * @param thing The thing to be checked.
@@ -4818,7 +4828,7 @@ TbBool creature_count_below_map_limit(TbBool temp_creature)
     if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT-1)
         return false;
 
-    return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules[0].game.creatures_count);
+    return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules[0].gameplay.creatures_count);
 }
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
@@ -6350,7 +6360,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules[thing->owner].game.creatures_count);
+        WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules[thing->owner].gameplay.creatures_count);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
@@ -6529,32 +6539,23 @@ TngUpdateRet update_creature(struct Thing *thing)
 
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    struct Room *room;
-    if (creature_is_being_unconscious(thing))
-    {
+    if (creature_is_being_unconscious(thing)) {
         return false;
     }
-    if (creature_is_leaving_and_cannot_be_stopped(thing))
-    {
+    if (creature_is_leaving_and_cannot_be_stopped(thing)) {
         return false;
     }
-    if (thing->owner != plyr_idx)
-    {
-        if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
-        {
-            room = get_room_creature_works_in(thing);
-            return (room->owner == plyr_idx);
+    if (thing->owner != plyr_idx) {
+        if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing)) {
+            return creature_is_kept_in_custody_by_player(thing, plyr_idx);
         }
         return false;
     }
-    if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
-    {
+    if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing)) {
         return false;
     }
-    if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
-    {
-        room = get_room_creature_works_in(thing);
-        return (room->owner == plyr_idx);
+    if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing)) {
+        return creature_is_kept_in_custody_by_player(thing, plyr_idx);
     }
     return true;
 }
@@ -6571,10 +6572,10 @@ TbBool creature_can_see_invisible(const struct Thing *thing)
     return (creature_under_spell_effect(thing, CSAfF_Sight) || (crconf->can_see_invisible));
 }
 
-int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)
+int claim_neutral_creatures_in_sight(struct Thing *creatng, int can_see_slabs)
 {
-    MapSlabCoord slb_x = subtile_slab(pos->x.stl.num);
-    MapSlabCoord slb_y = subtile_slab(pos->y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     long n = 0;
     long i = game.nodungeon_creatr_list_start;
     unsigned long k = 0;
@@ -6588,7 +6589,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         int dy = abs(slb_y - subtile_slab(thing->mappos.y.stl.num));
         if ((dx <= can_see_slabs) && (dy <= can_see_slabs))
         {
-            if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
+            if (is_neutral_thing(thing) && creature_can_see_thing(thing,creatng))
             {
                 if (creature_is_leaving_and_cannot_be_stopped(thing) || creature_is_leaving_and_cannot_be_stopped(creatng))
                     return false;
@@ -6596,7 +6597,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
                 // Unless the relevant classic bug is enabled,
                 // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
                 // and neutral creatures can not be claimed by creatures in custody.
-                if ((game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_PassiveNeutrals)
+                if ((game.conf.rules[creatng->owner].gameplay.classic_bugs_flags & ClscBug_PassiveNeutrals)
                     || (get_room_creature_works_in(thing)->owner == creatng->owner && !creature_is_kept_in_custody(creatng))
                     || !(creature_is_kept_in_custody(thing) || creature_is_kept_in_custody(creatng)))
                 {
@@ -6858,8 +6859,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->pickup_object_id = picktng->index;
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hit);
-    unsigned short smpl_idx = crsound->index + 1;
-    thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
+    thing_play_sample(creatng, creature_sound_unified_id(crsound, 1), 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
     display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4), plyr_idx);
 }
 /**
@@ -7116,7 +7116,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                     {
                         if (is_my_player_number(plyr_idx))
                         {
-                            play_non_3d_sample(119);
+                            play_non_3d_sample(snd_refusal);
                         }
                         return;
                     }
@@ -7147,7 +7147,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                         {
                             if (is_my_player_number(plyr_idx))
                             {
-                                play_non_3d_sample(119);
+                                play_non_3d_sample(snd_refusal);
                             }
                             return;
                         }

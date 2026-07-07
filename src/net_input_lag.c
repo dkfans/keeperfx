@@ -26,8 +26,7 @@ enum InputLagMode {
 
 TbBool input_lag_skips_initial_processing(void)
 {
-    if ((game.system_flags & GSF_NetworkActive) == 0) {
-        game.skip_initial_input_turns = 0;
+    if (!network_is_active()) {
         return false;
     }
     if ((game.operation_flags & GOF_Paused) != 0) {
@@ -56,7 +55,7 @@ void LbNetwork_UpdateInputLagIfHost(void) {
     static int total_ping = 0;
     static int sample_count = 0;
     static int previous_remote_player_count = -1;
-    if ((game.system_flags & GSF_NetworkActive) == 0) { return; }
+    if (!network_is_active()) { return; }
     if (frontend_menu_state == FeSt_START_MPLEVEL) { return; }
     if (my_player_number != get_host_player_id()) { return; }
     if (!netstate.sp) { return; }

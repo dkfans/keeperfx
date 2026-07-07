@@ -26,8 +26,11 @@
 
 #include "config.h"
 #include "config_campaigns.h"
+#include "dungeon_stats.h"
 #include "config_creature.h"
+#include "config_crtrmodel.h"
 #include "config_compp.h"
+#include "sound_manager.h"
 #include "custom_sprites.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -42,6 +45,7 @@
 #include "game_merge.h"
 #include "frontmenu_ingame_map.h"
 #include "gui_boxmenu.h"
+#include "net_exchange_gameplay.h"
 #include "packets.h"
 #include "keeperfx.hpp"
 #include "api.h"
@@ -199,8 +203,6 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 recheck_all_mod_exist();
                 init_custom_sprites(centry->level_num);
                 load_stats_files();
-                check_and_auto_fix_stats();
-                init_creature_scores();
                 snprintf(high_score_entry, PLAYER_NAME_LENGTH, "%s", centry->player_name);
             }
             break;
@@ -406,10 +408,14 @@ TbBool load_game(long slot_num)
     }
     my_player_number = game.local_plyr_idx;
     LbFileClose(fh);
+    // Re-apply creature sound overrides: SGC_GameOrig restored game.conf with
+    // session-specific negative bank indices from the save; fix them to match
+    // the current session's custom bank layout.
+    sound_manager_reapply_creature_sounds();
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
+    initialize_packet_history();
     clear_packets();
-    game.skip_initial_input_turns = 0;
     process_pause_packet(0, 0);
     clear_flag(game.operation_flags, GOF_Paused);
     clear_flag(game.operation_flags, GOF_WorldInfluence);

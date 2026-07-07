@@ -492,7 +492,7 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
  */
 TbBool creature_will_reject_job(const struct Thing *creatng, CreatureJob jobpref)
 {
-    if (player_uses_power_obey(creatng->owner) && ((game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_MustObeyKeepsNotDoJobs) == 0)) {
+    if (player_uses_power_obey(creatng->owner) && ((game.conf.rules[creatng->owner].gameplay.classic_bugs_flags & ClscBug_MustObeyKeepsNotDoJobs) == 0)) {
         return false;
     }
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
@@ -1100,7 +1100,7 @@ TbBool attempt_job_move_to_event_for_player(struct Thing *creatng, PlayerNumber 
         return false;
     }
     if (!setup_person_move_to_position(creatng, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y), NavRtF_Default)) {
-        WARNLOG("Could not reach event to perform job %s by %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(7,"Could not reach event to perform job %s by %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     creatng->continue_state = get_initial_state_for_job(new_job);

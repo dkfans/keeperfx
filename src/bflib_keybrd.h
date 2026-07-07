@@ -206,16 +206,12 @@ typedef short TbKeyMods;
 #pragma pack()
 /******************************************************************************/
 
-extern const char AsciiToInkey[];
-extern char lbInkeyToAscii[];
-extern char lbInkeyToAsciiShift[];
 extern unsigned char lbKeyOn[KC_LIST_END];
 extern TbKeyCode lbInkey;
 
 /******************************************************************************/
 short LbIKeyboardOpen(void);
 short LbIKeyboardClose(void);
-void LbKeyboardSetLanguage(int lngnum);
 void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, int ScanCode);
 /******************************************************************************/
 #ifdef __cplusplus
