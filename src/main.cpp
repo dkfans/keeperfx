@@ -3410,7 +3410,7 @@ static void update_gameplay_delta_time()
         prev = now;
 
         const long double seconds = max(ns / 1e9L, 0.L);
-        const long double turns = min(seconds * turns_per_second, 1.L);
+        const long double turns = seconds * turns_per_second;
         const long double frames = seconds * fps_limit_current;
 
         game.process_turn_time += turns * multiplayer_clock_adjust * max(game.frame_skip, 1);
@@ -3469,7 +3469,7 @@ static void gameplay_loop_draw()
     if ( do_draw ) {
         if (frametime_enabled())
             framerate_measurement_capture(Framerate_Draw);
-        game.delta_time = time_since_last_draw;
+        game.delta_time = min(time_since_last_draw, 1.L);
         time_since_last_draw = 0;
         interpolate_time = min(max(game.process_turn_time, 0.L), 1.L);
         keeper_screen_redraw();
