@@ -4816,7 +4816,7 @@ static void triangulation_initxy(long startx, long starty, long endx, long endy)
     triangulation_init_regions();
 }
 
-void triangulation_init(void)
+static void triangulation_init(void)
 {
     if (!tri_initialised)
     {

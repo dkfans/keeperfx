@@ -253,7 +253,6 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, i
 #define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
 
 
-void triangulation_init(void);
 long pointed_at8(long pos_x, long pos_y, int32_t *ret_tri, int32_t *ret_pt);
 long angle_to_quadrant(long angle);
 
